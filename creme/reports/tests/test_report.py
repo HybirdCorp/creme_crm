@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from decimal import Decimal
 from functools import partial
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -291,9 +292,9 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(5, len(columns))
 
         field = columns[0]
+        self.assertEqual(RFT_FIELD,      field.type)
         self.assertEqual(fname1,         field.name)
         self.assertEqual(_('Last name'), field.title)
-        self.assertEqual(RFT_FIELD,      field.type)
         self.assertFalse(field.selected)
         self.assertFalse(field.sub_report)
 
@@ -302,21 +303,22 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(_('Owner user'), field.title)
 
         field = columns[2]
+        self.assertEqual(RFT_RELATION,    field.type)
         self.assertEqual(rtype.id,        field.name)
         self.assertEqual(rtype.predicate, field.title)
-        self.assertEqual(RFT_RELATION,    field.type)
         self.assertFalse(field.selected)
         self.assertFalse(field.sub_report)
 
         field = columns[3]
+        self.assertEqual(RFT_FUNCTION,    field.type)
         self.assertEqual(funcfield_name,  field.name)
         self.assertEqual(_('Properties'), field.title)
-        self.assertEqual(RFT_FUNCTION,    field.type)
 
         field = columns[4]
-        self.assertEqual(str(cf.id), field.name)
-        self.assertEqual(cf.name,    field.title)
-        self.assertEqual(RFT_CUSTOM, field.type)
+        self.assertEqual(RFT_CUSTOM,   field.type)
+        # self.assertEqual(str(cf.id), field.name)
+        self.assertEqual(str(cf.uuid), field.name)
+        self.assertEqual(cf.name,      field.title)
 
     def test_createview02(self):
         "With EntityFilter & HeaderFilter; other ContentType."
@@ -451,7 +453,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             [field.type for field in columns],
         )
         self.assertListEqual(
-            [fname1, fname2, str(cf.id)],
+            # [fname1, fname2, str(cf.id)],
+            [fname1, fname2, str(cf.uuid)],
             [field.name for field in columns],
         )
 
@@ -1800,7 +1803,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         f_name = 'last_name'
         fk_name = 'image'
         cf_id = str(cf.id)
-        aggr_id = f'{cf_id}__max'
+        # aggr_id = f'{cf_id}__max'
+        aggr_id = f'{cf.uuid}__max'
         response = self.client.post(
             self._build_editfields_url(report),
             data={
@@ -1820,9 +1824,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(old_rfields[0].id, column1.id)
 
         column2 = columns[1]
-        self.assertEqual(cf_id,      column2.name)
-        self.assertEqual(cf.name,    column2.title)
-        self.assertEqual(RFT_CUSTOM, column2.type)
+        # self.assertEqual(cf_id,      column2.name)
+        self.assertEqual(str(cf.uuid), column2.name)
+        self.assertEqual(cf.name,      column2.title)
+        self.assertEqual(RFT_CUSTOM,   column2.type)
         self.assertFalse(column2.selected)
         self.assertIsNone(column2.sub_report)
         self.assertEqual(old_rfields[1].id, column2.id)
@@ -2889,10 +2894,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
         create_field = partial(Field.objects.create, report=report)
-        create_field(name='first_name',   type=RFT_FIELD,  order=1)
-        create_field(name=cf.id,          type=RFT_CUSTOM, order=2)
+        create_field(name='first_name', type=RFT_FIELD,  order=1)
+        # create_field(name=cf.id,          type=RFT_CUSTOM, order=2)
+        create_field(name=str(cf.uuid), type=RFT_CUSTOM, order=2)
         # Simulates deleted CustomField
-        create_field(name=self.UNUSED_PK, type=RFT_CUSTOM, order=3)
+        # create_field(name=self.UNUSED_PK, type=RFT_CUSTOM, order=3)
+        create_field(name=str(uuid4()), type=RFT_CUSTOM, order=3)
 
         report = self.refresh(report)
         self.assertEqual(2, len(report.columns))
@@ -2930,7 +2937,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD,
         )
         create_field(report=report_img, name='name', order=1)
-        create_field(report=report_img, name=cf.id,  order=2, type=RFT_CUSTOM)
+        # create_field(report=report_img, name=cf.id,  order=2, type=RFT_CUSTOM)
+        create_field(report=report_img, name=str(cf.uuid), order=2, type=RFT_CUSTOM)
 
         report_contact = create_report(
             name='Report on Contacts', ct=self.ct_contact, filter=self.efilter,
@@ -3609,11 +3617,13 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         fmt = '{}__max'.format
         create_field = partial(Field.objects.create, report=self.report_orga)
         create_field(name='capital__sum', order=2, type=RFT_AGG_FIELD)
-        create_field(name=fmt(cf.id),     order=3, type=RFT_AGG_CUSTOM)
+        # create_field(name=fmt(cf.id),     order=3, type=RFT_AGG_CUSTOM)
+        create_field(name=fmt(cf.uuid),   order=3, type=RFT_AGG_CUSTOM)
 
         if invalid_ones:
             # Invalid CustomField id
-            create_field(name=fmt(1000), order=4, type=RFT_AGG_CUSTOM)
+            # create_field(name=fmt(1000), order=4, type=RFT_AGG_CUSTOM)
+            create_field(name=fmt(uuid4()), order=4, type=RFT_AGG_CUSTOM)
             # Invalid aggregation
             create_field(name='capital__invalid', order=5, type=RFT_AGG_FIELD)
             # Invalid field (unknown)
@@ -3621,9 +3631,11 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             # Invalid field (bad type)
             create_field(name='name__sum', order=7, type=RFT_AGG_FIELD)
             # Invalid CustomField (bad type)
-            create_field(name=fmt(str_cf.id), order=8, type=RFT_AGG_CUSTOM)
+            # create_field(name=fmt(str_cf.id), order=8, type=RFT_AGG_CUSTOM)
+            create_field(name=fmt(str_cf.uuid), order=8, type=RFT_AGG_CUSTOM)
             # Invalid string
-            create_field(name=f'{cf.id}__additionalarg__max', order=9, type=RFT_AGG_CUSTOM)
+            # create_field(name=f'{cf.id}__additionalarg__max', order=9, type=RFT_AGG_CUSTOM)
+            create_field(name=f'{cf.uuid}__additionalarg__max', order=9, type=RFT_AGG_CUSTOM)
 
     def test_fetch_aggregate_01(self):
         "Regular field, Custom field (valid & invalid ones)."
@@ -3733,7 +3745,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         create_cfval(entity=lannisters, value=lannisters_gold)
 
         report = self.report_orga
-        Field.objects.create(report=report, name=f'{cfield.id}__sum', type=RFT_AGG_CUSTOM, order=2)
+        Field.objects.create(
+            # report=report, name=f'{cfield.id}__sum', type=RFT_AGG_CUSTOM, order=2,
+            report=report, name=f'{cfield.uuid}__sum', type=RFT_AGG_CUSTOM, order=2,
+        )
 
         agg_value = number_format(starks_gold + lannisters_gold, decimal_pos=2)
         self.assertListEqual(

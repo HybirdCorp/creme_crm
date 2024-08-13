@@ -256,7 +256,8 @@ class ReportEntityCellCustomAggregate(_ReportEntityCellAggregate):
     @classmethod
     def build(cls, model, aggregated_field_name):
         try:
-            cfield_id, aggregation_id = aggregated_field_name.split('__', 1)
+            # cfield_id, aggregation_id = aggregated_field_name.split('__', 1)
+            cfield_uuid, aggregation_id = aggregated_field_name.split('__', 1)
         except ValueError:
             logging.warning(
                 'ReportEntityCellCustomAggregate.build(): '
@@ -275,13 +276,39 @@ class ReportEntityCellCustomAggregate(_ReportEntityCellAggregate):
             )
             return None
 
+        # try:
+        #     cfield = CustomField.objects.get_for_model(model)[int(cfield_id)]
+        # except (KeyError, ValueError):
+        #     logger.warning(
+        #         'ReportEntityCellCustomAggregate: '
+        #         'custom field id="%s" (on model %s) does not exist',
+        #         cfield_id, model,
+        #     )
+        #     return None
+        # TODO: CustomField.objects.get_for_model => UUIDs key?
+
+        # for cf in CustomField.objects.get_for_model(model):
+        #     if str(cf.uuid) == cfield_uuid:
+        #         cfield = cf
+        #         break
+        # else:
+        #     logger.warning(
+        #         'ReportEntityCellCustomAggregate: '
+        #         'custom field uuid="%s" (on model %s) does not exist',
+        #         cfield_uuid, model,
+        #     )
+        #     return None
         try:
-            cfield = CustomField.objects.get_for_model(model)[int(cfield_id)]
-        except (KeyError, ValueError):
+            cfield = next(
+                cf
+                for cf in CustomField.objects.get_for_model(model).values()
+                if str(cf.uuid) == cfield_uuid
+            )
+        except StopIteration:
             logger.warning(
                 'ReportEntityCellCustomAggregate: '
-                'custom field id="%s" (on model %s) does not exist',
-                cfield_id, model,
+                'custom field uuid="%s" (on model %s) does not exist',
+                cfield_uuid, model,
             )
             return None
 
@@ -475,7 +502,8 @@ class ReportEntityCellCustomAggregatesField(hf_forms.UniformEntityCellsField):
             for cf in agg_custom_fields:
                 cell = cell_class(
                     model=model,
-                    agg_id=pattern_fmt(cf.id),
+                    # agg_id=pattern_fmt(cf.id),
+                    agg_id=pattern_fmt(cf.uuid),
                     custom_field=cf,
                     aggregation=aggregate,
                 )
@@ -549,7 +577,9 @@ class ReportFieldsForm(CremeForm):
         for i, cell in enumerate(self.cleaned_data['columns'], start=1):
             rfield = Field(
                 id=old_ids.pop(0) if old_ids else None,
-                report=report, name=cell.value,
+                report=report,
+                # name=cell.value,
+                name=cell.portable_value,
                 type=_CELL_2_HAND_MAP[cell.type_id],
                 order=i,
             )
@@ -603,7 +633,8 @@ class ReportFieldsStep(CremeForm):
         Field.objects.bulk_create([
             Field(
                 report=report,
-                name=cell.value,
+                # name=cell.value,
+                name=cell.portable_value,
                 type=_CELL_2_HAND_MAP[cell.type_id],
                 order=i,
             ) for i, cell in enumerate(self.cleaned_data['columns'], start=1)

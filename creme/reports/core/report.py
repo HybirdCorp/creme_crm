@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING, Iterable, Iterator
+from uuid import UUID
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -443,8 +444,10 @@ class RHCustomField(ReportHand):
 
     def __init__(self, report_field):
         try:
-            self._cfield = cf = CustomField.objects.get(id=report_field.name)
-        except CustomField.DoesNotExist as e:
+            # self._cfield = cf = CustomField.objects.get(id=report_field.name)
+            self._cfield = cf = CustomField.objects.get(uuid=UUID(report_field.name))
+        # except CustomField.DoesNotExist as e:
+        except (ValueError, CustomField.DoesNotExist) as e:
             raise ReportHand.ValueError(
                 f'Invalid custom field: "{report_field.name}"'
             ) from e
@@ -619,7 +622,8 @@ class RHAggregateCustomField(RHAggregate):
 
     def _build_query_n_vname(self, report_field, field_name, aggregation):
         try:
-            cfield = CustomField.objects.get(id=field_name)
+            # cfield = CustomField.objects.get(id=field_name)
+            cfield = CustomField.objects.get(uuid=UUID(field_name))
         except (ValueError, CustomField.DoesNotExist) as e:
             raise ReportHand.ValueError(
                 f'Invalid custom field aggregation: "{field_name}"'
@@ -627,7 +631,7 @@ class RHAggregateCustomField(RHAggregate):
 
         if not field_aggregation_registry.is_custom_field_allowed(cfield):
             raise ReportHand.ValueError(
-                f'This type of custom field can not be aggregated: "{field_name}"'
+                f'This type of custom field can not be aggregated: "{cfield.name}"'
             )
 
         value_class = cfield.value_class
