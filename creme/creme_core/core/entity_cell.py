@@ -231,8 +231,8 @@ class EntityCell:
     def title(self) -> str:
         raise NotImplementedError
 
-    # TODO: property?
-    def _portable_value(self) -> str:
+    @property
+    def portable_value(self) -> str:
         return self.value
 
     def to_dict(self, portable=False) -> dict:
@@ -250,7 +250,7 @@ class EntityCell:
         # return {'type': self.type_id, 'value': self.value}
         return {
             'type': self.type_id,
-            'value': self._portable_value() if portable else self.value,
+            'value': self.portable_value if portable else self.value,
         }
 
 
@@ -643,7 +643,8 @@ class EntityCellCustomField(EntityCell):
     def _get_field_class(self):
         return type(self._customfield.value_class._meta.get_field('value'))
 
-    def _portable_value(self):
+    @property
+    def portable_value(self):
         return str(self._customfield.uuid)
 
     def render(self, entity, user, tag):

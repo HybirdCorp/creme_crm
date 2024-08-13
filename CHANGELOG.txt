@@ -103,6 +103,8 @@
                 - The field 'Activity.floating_type' got some light changes.
                   It's now a 'PositiveSmallIntegerField', it ahs a 'choices' attribute & it's viewable.
                 - Some small changes have been made in the class 'views.buttons.UnsuccessfulPhoneCallCreation'.
+            * Reports :
+                - In the field 'report.Field.name', the CustomFields are referenced by their UUID now (see types 'RFT_CUSTOM' & 'RFT_AGG_CUSTOM').
             * Billing :
                 - The default statuses are now initialized at models level, not view level.
                 - In the model 'AbstractTemplateBase', the field "status_id" has been replaced by the field "status_uuid"
