@@ -968,12 +968,10 @@ class _BrickRegistry:
         @param entity: if the bricks are displayed of the detail-view of an
                entity, it should be given.
         """
-        relation_bricks_items = {
-            rbi.brick_id: rbi
-            for rbi in RelationBrickItem.objects
-                                        .for_brick_ids(brick_ids)
-                                        .prefetch_related('relation_type')
-        }
+        raw_relation_bricks_items = RelationBrickItem.objects.for_brick_ids(brick_ids)
+        RelationBrickItem.prefetch_rtypes(raw_relation_bricks_items)
+        relation_bricks_items = {rbi.brick_id: rbi for rbi in raw_relation_bricks_items}
+
         instance_bricks_items = {
             ibi.brick_id: ibi
             # TODO: CremeEntity.populate_real_entities

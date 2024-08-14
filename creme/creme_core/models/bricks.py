@@ -26,7 +26,7 @@ from uuid import UUID, uuid4
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, Q
 from django.db.models.signals import post_save
 from django.db.transaction import atomic
 from django.utils.translation import gettext
@@ -500,13 +500,37 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
 
         super().delete(*args, **kwargs)
 
-    # TODO: cache object_ctypes? store result in model to avoid a query each
-    #       time a SpecificRelationsBrick is displayed?
+    @staticmethod
+    def prefetch_rtypes(items: Iterable[RelationBrickItem]) -> None:
+        """Performs prefetching on the relation type (which is easy), but also
+        their symmetric relation types, and the ManyToMany field "subject_ctypes"
+        for all these relation types..
+        """
+        # TODO: check things already retrieved?
+        rtype_ids = [item.relation_type_id for item in items]
+        rtypes = {
+            rtype.id: rtype
+            for rtype in RelationType.objects.filter(
+                Q(id__in=rtype_ids) | Q(symmetric_type_id__in=rtype_ids)
+            ).prefetch_related('subject_ctypes')
+        }
+
+        for rtype in rtypes.values():
+            rtype.symmetric_type = rtypes[rtype.symmetric_type_id]
+
+        for item in items:
+            item.relation_type = rtypes[item.relation_type_id]
+
     @property
     def all_ctypes_configured(self) -> bool:
+        "Hint: use prefetch_rtypes() if your call this method on several instances."
+        # NB: we do not optimize with values_list() in order to use potential prefetched values.
+        # compat_ctype_ids = {
+        #     *self.relation_type.object_ctypes.values_list('id', flat=True),
+        # } or {ct.id for ct in entity_ctypes()}
         compat_ctype_ids = {
-            *self.relation_type.object_ctypes.values_list('id', flat=True),
-        } or {ct.id for ct in entity_ctypes()}
+            ct.id for ct in (self.relation_type.object_ctypes.all() or entity_ctypes())
+        }
 
         for ct_id in self._cells_by_ct():
             compat_ctype_ids.discard(ct_id)
