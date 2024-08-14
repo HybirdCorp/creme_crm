@@ -759,11 +759,13 @@ class RelationBricksConfigBrick(_ConfigAdminBrick):
     order_by = 'relation_type__predicate'
 
     def detailview_display(self, context):
-        # TODO: prefetch symmetric types
-        return self._render(self.get_template_context(
+        btc = self.get_template_context(
             context,
-            core_models.RelationBrickItem.objects.prefetch_related('relation_type'),
-        ))
+            core_models.RelationBrickItem.objects.all(),
+        )
+        core_models.RelationBrickItem.prefetch_rtypes(btc['page'].object_list)
+
+        return self._render(btc)
 
 
 class InstanceBricksConfigBrick(_ConfigAdminBrick):

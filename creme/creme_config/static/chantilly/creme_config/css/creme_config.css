@@ -801,7 +801,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     min-width: 160px;
     text-transform: uppercase;
     font-weight: 600;
-    flex-grow: 1;
+    /* flex-grow: 1; */
     align-self: center;
 }
 
@@ -810,6 +810,12 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 .creme_config-semifixed-rtypes-brick .semifixed_rtype-rtype-disabled {
     text-decoration: line-through;
     color: gray;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group-constraints {
+    flex-grow: 1;
+    padding-left: 50px;
+    color: #666;
 }
 
 .creme_config-rtypebricks-brick .rtypebrick-config-group-action {
