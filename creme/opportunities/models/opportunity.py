@@ -98,8 +98,11 @@ class AbstractOpportunity(core_models.CremeEntity):
     sales_phase = models.ForeignKey(
         SalesPhase, verbose_name=_('Sales phase'), on_delete=models.PROTECT,
     )
-    chance_to_win = models.PositiveIntegerField(
-        _(r'% of chance to win'), blank=True, null=True,
+    # chance_to_win = models.PositiveIntegerField(
+    #     _(r'% of chance to win'), blank=True, null=True,
+    # ).set_tags(optional=True)
+    chance_to_win = core_fields.IntegerPercentField(
+        _('Chance to win'), blank=True, null=True,
     ).set_tags(optional=True)
 
     expected_closing_date = models.DateField(
