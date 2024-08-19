@@ -387,6 +387,10 @@ ul.multi-select {
     background: linear-gradient(#fafdff, #e7f4f9);
 }
 
+.form-block-field-value .percent-widget-marker {
+    font-size: 14px;
+}
+
 input.dperiod-value {
     width: 40px;
 }

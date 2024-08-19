@@ -60,6 +60,18 @@ class DurationField(models.CharField):
     pass
 
 
+class IntegerPercentField(models.PositiveIntegerField):
+    def formfield(self, **kwargs):
+        from ..forms import fields as form_fields
+
+        return super().formfield(**{
+            'form_class': form_fields.IntegerPercentField,
+            'min_value': 0,
+            'max_value': 100,
+            **kwargs
+        })
+
+
 class UnsafeHTMLField(models.TextField):
     pass
 

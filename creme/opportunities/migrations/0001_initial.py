@@ -76,13 +76,32 @@ class Migration(migrations.Migration):
                 ('reference', models.CharField(max_length=100, verbose_name='Reference', blank=True)),
                 ('estimated_sales', models.PositiveIntegerField(null=True, verbose_name='Estimated sales', blank=True)),
                 ('made_sales', models.PositiveIntegerField(null=True, verbose_name='Made sales', blank=True)),
-                ('chance_to_win', models.PositiveIntegerField(null=True, verbose_name='% of chance to win', blank=True)),
+                # ('chance_to_win', models.PositiveIntegerField(null=True, verbose_name='% of chance to win', blank=True)),
+                ('chance_to_win', core_fields.IntegerPercentField(null=True, verbose_name='Chance to win', blank=True)),
                 ('expected_closing_date', models.DateField(null=True, verbose_name='Expected closing date', blank=True)),
                 ('closing_date', models.DateField(null=True, verbose_name='Actual closing date', blank=True)),
                 ('first_action_date', models.DateField(null=True, verbose_name='Date of the first action', blank=True)),
-                ('currency', models.ForeignKey(on_delete=PROTECT, default=1, verbose_name='Currency', to='creme_core.Currency')),
-                ('origin', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Origin', blank=True, to='opportunities.Origin', null=True)),
-                ('sales_phase', models.ForeignKey(on_delete=PROTECT, verbose_name='Sales phase', to='opportunities.SalesPhase')),
+                (
+                    'currency',
+                    models.ForeignKey(
+                        verbose_name='Currency', to='creme_core.Currency',
+                        on_delete=PROTECT, default=1,
+                    )
+                ),
+                (
+                    'origin',
+                    models.ForeignKey(
+                        verbose_name='Origin', to='opportunities.Origin',
+                        on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                    )
+                ),
+                (
+                    'sales_phase',
+                    models.ForeignKey(
+                        verbose_name='Sales phase', to='opportunities.SalesPhase',
+                        on_delete=PROTECT,
+                    )
+                ),
             ],
             options={
                 'swappable': 'OPPORTUNITIES_OPPORTUNITY_MODEL',

@@ -23,6 +23,7 @@
             - You can now create unsuccessful phone calls from an Opportunity's detail-view :
                 - A button has been added (not enabled in default installations).
                 - In the block "Linked Contacts", you can activate an new action in the configuration (idem).
+            - The field 'Opportunity.chance_to_win' checks now that the value is between 0 & 100.
 
   Developers side :
   -----------------

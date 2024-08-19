@@ -41,6 +41,7 @@ from creme.creme_core.gui.field_printers import (
     print_file_html,
     print_image_html,
     print_integer_html,
+    print_percent_html,
     print_text_html,
     print_unchecked_url_html,
     print_unsafehtml_html,
@@ -437,6 +438,26 @@ class FieldsPrintersTestCase(CremeTestCase):
             '<a href="http://www.bebop.org">www.bebop.org</a>'
             '</p>',
             p2
+        )
+
+    def test_print_percent_html(self):
+        from creme.creme_core.models.fields import IntegerPercentField
+
+        instance = CremeEntity()
+        user = self.user
+        field = IntegerPercentField()
+
+        self.assertEqual(
+            '', print_percent_html(instance=instance, value=None, user=user, field=field),
+        )
+
+        self.assertHTMLEqual(
+            '<span class="percent-value">0</span><span class="percent-marker">%</span>',
+            print_percent_html(instance=instance, value=0, user=user, field=field),
+        )
+        self.assertHTMLEqual(
+            '<span class="percent-value">57</span><span class="percent-marker">%</span>',
+            print_percent_html(instance=instance, value=57, user=user, field=field),
         )
 
     def test_print_color_html(self):

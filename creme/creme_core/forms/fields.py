@@ -60,7 +60,8 @@ __all__ = (
     'FilteredEntityTypeField',
     'OptionalField', 'OptionalChoiceField', 'OptionalModelChoiceField',
     'ListEditionField',
-    'DatePeriodField', 'DateRangeField', 'ColorField', 'DurationField',
+    'DatePeriodField', 'DateRangeField',
+    'IntegerPercentField', 'ColorField', 'DurationField',
     'ChoiceOrCharField',
     'CTypeChoiceField', 'EntityCTypeChoiceField',
     'MultiCTypeChoiceField', 'MultiEntityCTypeChoiceField',
@@ -1597,6 +1598,10 @@ class DateRangeField(fields.MultiValueField):
 
     def widget_attrs(self, widget):
         return {'render_as': self.render_as}
+
+
+class IntegerPercentField(fields.IntegerField):
+    widget = core_widgets.IntegerPercentInput
 
 
 class ColorField(fields.CharField):

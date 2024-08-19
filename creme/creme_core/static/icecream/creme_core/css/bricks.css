@@ -833,6 +833,10 @@
     color: hsla(216, 2%, 30%, 1);
 }
 
+.brick-tiles .brick-tile-value .percent-marker {
+    font-weight: 500;
+}
+
 /* brick types - tiles type - end */
 
 /* brick types - key/value list */

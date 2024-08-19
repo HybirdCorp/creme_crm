@@ -223,6 +223,15 @@ def print_decimal_text(*, value, **kwargs) -> str:
     return number_format(value) if value is not None else ''
 
 
+def print_percent_html(*, value, **kwargs) -> str:
+    # NB: force grouping instead of <USE_THOUSAND_SEPARATOR = True> in settings
+    #     to not impact CSV output, reports etc...
+    return format_html(
+        '<span class="percent-value">{value}</span><span class="percent-marker">%</span>',
+        value=number_format(value, force_grouping=True),
+    ) if value is not None else ''
+
+
 def print_boolean_html(*, value, **kwargs) -> str:
     return bool_as_html(value) if value is not None else ''
 
@@ -597,7 +606,8 @@ class _FieldPrintersRegistry:
             (fields.DurationField,      print_duration),
             (fields.DatePeriodField,    simple_print_html),  # TODO: JSONField ?
 
-            (fields.ColorField,         print_color_html),
+            (fields.IntegerPercentField, print_percent_html),
+            (fields.ColorField,          print_color_html),
 
             (fields.UnsafeHTMLField,    print_unsafehtml_html),
         ]

@@ -414,6 +414,10 @@ ul.multi-select {
     background-color: #ebebeb; /* desaturate and lighten */
 }
 
+.form-block-field-value .percent-widget-marker {
+    font-size: 16px;
+}
+
 input.dperiod-value {
     width: 40px;
 }
