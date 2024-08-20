@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -106,7 +106,8 @@ def handle_replace_statuses(sender, model_field, replacing_instance, **kwargs):
         tpl_mngr = billing.get_template_base_model().objects
 
         for pk in tpl_mngr.filter(
-            status_id=sender.pk,
+            # status_id=sender.pk,
+            status_uuid=sender.uuid,
             ct=ContentType.objects.get_for_model(model),
         ).values_list('pk', flat=True):
             # NB1: we perform a .save(), not an .update() in order to:
@@ -116,7 +117,8 @@ def handle_replace_statuses(sender, model_field, replacing_instance, **kwargs):
             #      overriding other fields (if there are concurrent accesses)
             with atomic():
                 tpl = tpl_mngr.select_for_update().filter(pk=pk).first()
-                tpl.status_id = replacing_instance.id
+                # tpl.status_id = replacing_instance.id
+                tpl.status_uuid = replacing_instance.uuid
                 tpl.save()
 
 
@@ -141,7 +143,7 @@ _WORKFLOWS = {
 }
 
 
-# NB: in Base.save(), target relationship is created after source relationships
+# NB: in Base.save(), target relationship is created after source relationships,
 #     so we trigger this code target relationship creation, as the source should be OK too.
 @receiver(signals.post_save, sender=Relation)
 def manage_creation_workflows(sender, instance, **kwargs):

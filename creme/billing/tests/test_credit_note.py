@@ -1,6 +1,7 @@
 from datetime import date
 from decimal import Decimal
 from functools import partial
+from uuid import uuid4
 
 from django.template import Context, Template
 from django.urls import reverse
@@ -845,23 +846,25 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_build(self):
         user = self.get_root_user()
-        status = CreditNoteStatus.objects.exclude(is_default=True).first()
+        status1 = CreditNoteStatus.objects.exclude(is_default=True).first()
         create_orga = partial(Organisation.objects.create, user=user)
         tpl = TemplateBase.objects.create(
             user=user,
             ct=CreditNote,
-            status_id=status.id,
+            # status_id=status1.id,
+            status_uuid=status1.uuid,
             source=create_orga(name='Source'),
             target=create_orga(name='Target'),
         )
 
         credit_note1 = CreditNote().build(tpl)
         self.assertIsNotNone(credit_note1.pk)
-        self.assertEqual(user,   credit_note1.user)
-        self.assertEqual(status, credit_note1.status)
+        self.assertEqual(user,    credit_note1.user)
+        self.assertEqual(status1, credit_note1.status)
 
         # ---
-        tpl.status_id = self.UNUSED_PK
+        # tpl.status_id = self.UNUSED_PK
+        tpl.status_uuid = uuid4()
         status2 = CreditNote().build(tpl).status
         self.assertIsInstance(status2, CreditNoteStatus)
         self.assertTrue(status2.is_default)

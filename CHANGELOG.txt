@@ -101,6 +101,8 @@
                 - The field 'Activity.floating_type' got some light changes.
                   It's now a 'PositiveSmallIntegerField', it ahs a 'choices' attribute & it's viewable.
                 - Some small changes have been made in the class 'views.buttons.UnsuccessfulPhoneCallCreation'.
+            * Billing :
+                - In the model 'AbstractTemplateBase', the field "status_id" has been replaced by the field "status_uuid"
 
     Internal breaking changes :
     ---------------------------

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,14 +58,20 @@ class TemplateBaseVerboseStatusField(FunctionField):
         e_id = entity.id
         status = cache.get(e_id)
 
-        if status is None or status.id != entity.status_id:
+        # if status is None or status.id != entity.status_id:
+        if status is None or status.uuid != entity.status_uuid:
             status_model = entity.ct.model_class()._meta.get_field('status').remote_field.model
 
             try:
-                status = status_model.objects.get(id=entity.status_id)
+                # status = status_model.objects.get(id=entity.status_id)
+                status = status_model.objects.get(uuid=entity.status_uuid)
             except status_model.DoesNotExist as e:
                 logger.warning('Invalid status in TemplateBase(id=%s) [%s]', e_id, e)
-                status = status_model(id=entity.status_id, name='')  # TODO: color='000000'?
+                # status = status_model(id=entity.status_id, name='')
+                status = status_model(
+                    uuid=entity.status_uuid,
+                    name=_('? (Error in the Template, edit it to fix)'),
+                )  # TODO: color='000000'?
 
             cache[e_id] = status
 

@@ -168,7 +168,8 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
 
         self.assertEqual(user,      tpl.user)
         self.assertEqual(currency,  tpl.currency)
-        self.assertEqual(status.id, tpl.status_id)
+        # self.assertEqual(status.id, tpl.status_id)
+        self.assertEqual(status.uuid, tpl.status_uuid)
         self.assertEqual(discount,  tpl.discount)
         self.assertEqual(source,    tpl.source)
         self.assertEqual(target,    tpl.target)

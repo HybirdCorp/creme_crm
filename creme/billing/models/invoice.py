@@ -102,17 +102,23 @@ class AbstractInvoice(Base):
 
     def build(self, template):
         # Specific recurrent generation rules
-        status_id = None
+        # status_id = None
+        #
+        # if isinstance(template, get_template_base_model()):
+        #     tpl_status_id = template.status_id
+        #     if InvoiceStatus.objects.filter(pk=tpl_status_id).exists():
+        #         status_id = tpl_status_id
+        #
+        # if status_id:
+        #     self.status_id = status_id
+        # else:
+        #     self.status = InvoiceStatus.objects.filter(is_default=True).first()
+        status = None
 
         if isinstance(template, get_template_base_model()):
-            tpl_status_id = template.status_id
-            if InvoiceStatus.objects.filter(pk=tpl_status_id).exists():
-                status_id = tpl_status_id
+            status = InvoiceStatus.objects.filter(uuid=template.status_uuid).first()
 
-        if status_id:
-            self.status_id = status_id
-        else:
-            self.status = InvoiceStatus.objects.filter(is_default=True).first()
+        self.status = status or InvoiceStatus.objects.filter(is_default=True).first()
 
         super().build(template)
         transform_target_into_customer(self.source, self.target, self.user)

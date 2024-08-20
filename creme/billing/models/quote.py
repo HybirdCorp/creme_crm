@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext
@@ -23,8 +25,11 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CREME_REPLACE
 
+from .. import get_template_base_model
 from .base import Base
 from .other_models import QuoteStatus
+
+logger = logging.getLogger(__name__)
 
 
 class AbstractQuote(Base):
@@ -54,16 +59,31 @@ class AbstractQuote(Base):
     def get_lv_absolute_url():
         return reverse('billing__list_quotes')
 
+    # TODO: the code would be more simpler if we had one not custom status...
     def build(self, template):
         # Specific recurrent generation rules
-        tpl_status_id = template.status_id
-        self.status = QuoteStatus.objects.get_or_create(
-            pk=tpl_status_id,
-            defaults={
-                'name': gettext('N/A'),
-                'order': tpl_status_id,
-            },
-        )[0]
+        # tpl_status_id = template.status_id
+        # self.status = QuoteStatus.objects.get_or_create(
+        #     pk=tpl_status_id,
+        #     defaults={
+        #         'name': gettext('N/A'),
+        #         'order': tpl_status_id,
+        #     },
+        # )[0]
+        status = None
+
+        if isinstance(template, get_template_base_model()):
+            status = QuoteStatus.objects.filter(uuid=template.status_uuid).first()
+            if status is None:
+                logger.warning('Invalid status UUID in TemplateBase(id=%s)', template.id)
+
+        if status is None:
+            status = QuoteStatus.objects.order_by('-is_default').first()
+            if status is None:
+                logger.warning('TemplateBase: no Quote Status available, so we create one')
+                status = QuoteStatus.objects.create(name=gettext('N/A'))
+
+        self.status = status
 
         return super().build(template)
 
