@@ -22,9 +22,10 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CREME_REPLACE
 
+from .. import get_template_base_model
 from .base import Base
+# from .templatebase import TemplateBase
 from .other_models import SalesOrderStatus
-from .templatebase import TemplateBase
 
 
 class AbstractSalesOrder(Base):
@@ -60,17 +61,23 @@ class AbstractSalesOrder(Base):
     def build(self, template):
         # Specific recurrent generation rules
         # TODO: factorise with Invoice.build()
-        status_id = None
+        # status_id = None
+        #
+        # if isinstance(template, TemplateBase):
+        #     tpl_status_id = template.status_id
+        #     if SalesOrderStatus.objects.filter(pk=tpl_status_id).exists():
+        #         status_id = tpl_status_id
+        #
+        # if status_id:
+        #     self.status_id = status_id
+        # else:
+        #     self.status = SalesOrderStatus.objects.filter(is_default=True).first()
+        status = None
 
-        if isinstance(template, TemplateBase):
-            tpl_status_id = template.status_id
-            if SalesOrderStatus.objects.filter(pk=tpl_status_id).exists():
-                status_id = tpl_status_id
+        if isinstance(template, get_template_base_model()):
+            status = SalesOrderStatus.objects.filter(uuid=template.status_uuid).first()
 
-        if status_id:
-            self.status_id = status_id
-        else:
-            self.status = SalesOrderStatus.objects.filter(is_default=True).first()
+        self.status = status or SalesOrderStatus.objects.filter(is_default=True).first()
 
         return super().build(template)
 

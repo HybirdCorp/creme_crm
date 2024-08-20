@@ -181,7 +181,7 @@ CNOTE_EDITION_CFORM = CustomFormDescriptor(
 # ------------------------------------------------------------------------------
 class TemplateBaseFormDefault(_BaseCustomFormDefault):
     sub_cells = {
-        # NB: not a problem that "status" is not a real field name ("status_id" is)
+        # NB: not a problem that "status" is not a real field name ("status_uuid" is)
         #     see 'sub_cells' attribute documentation.
         'status': templatebase.BillingTemplateStatusSubCell,
     }

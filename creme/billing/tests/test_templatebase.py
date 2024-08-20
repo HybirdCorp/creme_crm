@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from functools import partial
+from uuid import uuid4
 
 from django.test.utils import override_settings
 from django.utils.translation import gettext as _
@@ -46,11 +47,13 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.source = create_orga(name='Source')
         self.target = create_orga(name='Target')
 
-    def _create_templatebase(self, model, status_id, comment='', **kwargs):
+    # def _create_templatebase(self, model, status_id, comment='', **kwargs):
+    def _create_templatebase(self, model, status_uuid, comment='', **kwargs):
         return TemplateBase.objects.create(
             user=self.user,
             ct=model,
-            status_id=status_id,
+            # status_id=status_id,
+            status_uuid=status_uuid,
             comment=comment,
             source=self.source,
             target=self.target,
@@ -58,15 +61,16 @@ class TemplateBaseTestCase(_BillingTestCase):
         )
 
     def test_detailview(self):
-        # invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
         invoice_status = InvoiceStatus.objects.filter(is_default=False).first()
-        tpl = self._create_templatebase(Invoice, invoice_status.id)
+        # tpl = self._create_templatebase(Invoice, invoice_status.id)
+        tpl = self._create_templatebase(Invoice, status_uuid=invoice_status.uuid)
         response = self.assertGET200(tpl.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_template.html')
 
     def test_status_function_field(self):
         status = InvoiceStatus.objects.filter(is_default=False).first()
-        tpl = self._create_templatebase(Invoice, status.id)
+        # tpl = self._create_templatebase(Invoice, status.id)
+        tpl = self._create_templatebase(Invoice, status_uuid=status.uuid)
 
         with self.assertNoException():
             funf = function_field_registry.get(TemplateBase, 'get_verbose_status')
@@ -102,7 +106,10 @@ class TemplateBaseTestCase(_BillingTestCase):
         invoice_status = InvoiceStatus.objects.filter(is_default=False).first()
         comment = '*Insert a comment here*'
         tpl = self._create_templatebase(
-            Invoice, invoice_status.id, comment,
+            Invoice,
+            # status_id=invoice_status.id,
+            status_uuid=invoice_status.uuid,
+            comment=comment,
             additional_info=AdditionalInformation.objects.all()[0],
             payment_terms=PaymentTerms.objects.all()[0],
         )
@@ -130,10 +137,11 @@ class TemplateBaseTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     def test_create_invoice02(self):
         "Bad status id."
-        pk = 1024
-        self.assertFalse(InvoiceStatus.objects.filter(pk=pk))
+        # pk = 1024
+        # self.assertFalse(InvoiceStatus.objects.filter(pk=pk))
 
-        tpl = self._create_templatebase(Invoice, pk)
+        # tpl = self._create_templatebase(Invoice, pk)
+        tpl = self._create_templatebase(Invoice, status_uuid=uuid4())
 
         with self.assertNoException():
             invoice = tpl.create_entity()
@@ -148,7 +156,8 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         invoice_status = InvoiceStatus.objects.filter(is_default=False).first()
 
-        tpl = self._create_templatebase(Invoice, invoice_status.id)
+        # tpl = self._create_templatebase(Invoice, invoice_status.id)
+        tpl = self._create_templatebase(Invoice, status_uuid=invoice_status.uuid)
         self.assertEqual('', tpl.number)
 
         with self.assertNoException():
@@ -162,7 +171,8 @@ class TemplateBaseTestCase(_BillingTestCase):
         "Source is not managed + fallback number."
         invoice_status = InvoiceStatus.objects.filter(is_default=False).first()
         number = 'INV132'
-        tpl = self._create_templatebase(Invoice, invoice_status.id, number=number)
+        # tpl = self._create_templatebase(Invoice, invoice_status.id, number=number)
+        tpl = self._create_templatebase(Invoice, status_uuid=invoice_status.uuid, number=number)
 
         with self.assertNoException():
             invoice = tpl.create_entity()
@@ -173,7 +183,10 @@ class TemplateBaseTestCase(_BillingTestCase):
     def test_create_quote01(self):
         quote_status = QuoteStatus.objects.filter(is_default=False).first()
         comment = '*Insert an nice comment here*'
-        tpl = self._create_templatebase(Quote, quote_status.id, comment)
+        # tpl = self._create_templatebase(Quote, quote_status.id, comment)
+        tpl = self._create_templatebase(
+            Quote, status_uuid=quote_status.uuid, comment=comment,
+        )
 
         with self.assertNoException():
             quote = tpl.create_entity()
@@ -183,31 +196,66 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(quote_status, quote.status)
 
     @skipIfCustomQuote
-    def test_create_quote02(self):
-        "Bad status id."
-        # pk = 8
-        pk = 1024
-        self.assertFalse(QuoteStatus.objects.filter(pk=pk))
+    def test_create_quote__bad_uuid(self):
+        "Bad status uuid."
+        # pk = 1024
+        # self.assertFalse(QuoteStatus.objects.filter(pk=pk))
+        uid = uuid4()
+        self.assertFalse(QuoteStatus.objects.filter(uuid=uid))
 
-        tpl = self._create_templatebase(Quote, pk)
+        default_status = self.get_object_or_fail(QuoteStatus, is_default=True)
+
+        # tpl = self._create_templatebase(Quote, pk)
+        tpl = self._create_templatebase(Quote, status_uuid=uid)
+
+        with self.assertNoException():
+            quote = tpl.create_entity()
+
+        # status = quote.status
+        # self.assertIsNotNone(status)
+        # self.assertEqual(pk,       status.id)
+        # self.assertEqual(_('N/A'), status.name)
+        self.assertEqual(default_status, quote.status)
+
+    @skipIfCustomQuote
+    def test_create_quote__no_default_status_available(self):
+        QuoteStatus.objects.filter(is_default=True).delete()
+        status_ids = {*QuoteStatus.objects.values_list('id', flat=True)}
+        uid = uuid4()
+
+        tpl = self._create_templatebase(Quote, status_uuid=uid)
 
         with self.assertNoException():
             quote = tpl.create_entity()
 
         status = quote.status
         self.assertIsNotNone(status)
-        self.assertEqual(pk,       status.id)
+        self.assertIn(status.id, status_ids)
+
+    @skipIfCustomQuote
+    def test_create_quote__no_status_available(self):
+        QuoteStatus.objects.all().delete()
+        uid = uuid4()
+
+        tpl = self._create_templatebase(Quote, status_uuid=uid)
+
+        with self.assertNoException():
+            quote = tpl.create_entity()
+
+        status = quote.status
+        self.assertIsNotNone(status)
         self.assertEqual(_('N/A'), status.name)
 
     @skipIfCustomQuote
     @override_settings(QUOTE_NUMBER_PREFIX='QU')
-    def test_create_quote03(self):
+    def test_create_quote__managed_source(self):
         "Source is managed."
         self._set_managed(self.source)
 
         quote_status = QuoteStatus.objects.filter(is_default=False).first()
         comment = '*Insert an nice comment here*'
-        tpl = self._create_templatebase(Quote, quote_status.id, comment)
+        # tpl = self._create_templatebase(Quote, quote_status.id, comment)
+        tpl = self._create_templatebase(Quote, status_uuid=quote_status.uuid, comment=comment)
 
         with self.assertNoException():
             quote = tpl.create_entity()
@@ -220,7 +268,8 @@ class TemplateBaseTestCase(_BillingTestCase):
     @skipIfCustomSalesOrder
     def test_create_order01(self):
         order_status = SalesOrderStatus.objects.filter(is_default=False).first()
-        tpl = self._create_templatebase(SalesOrder, order_status.id)
+        # tpl = self._create_templatebase(SalesOrder, order_status.id)
+        tpl = self._create_templatebase(SalesOrder, status_uuid=order_status.uuid)
 
         with self.assertNoException():
             order = tpl.create_entity()
@@ -231,10 +280,11 @@ class TemplateBaseTestCase(_BillingTestCase):
     @skipIfCustomSalesOrder
     def test_create_order02(self):
         "Bad status id."
-        pk = 1024
-        self.assertFalse(SalesOrder.objects.filter(pk=pk))
-
-        tpl = self._create_templatebase(SalesOrder, pk)
+        # pk = 1024
+        # self.assertFalse(SalesOrder.objects.filter(pk=pk))
+        #
+        # tpl = self._create_templatebase(SalesOrder, pk)
+        tpl = self._create_templatebase(SalesOrder, status_uuid=uuid4())
 
         with self.assertNoException():
             order = tpl.create_entity()
@@ -245,7 +295,10 @@ class TemplateBaseTestCase(_BillingTestCase):
     def test_create_cnote(self):
         cnote_status = CreditNoteStatus.objects.filter(is_default=False).first()
         comment = '*Insert an nice comment here*'
-        tpl = self._create_templatebase(CreditNote, cnote_status.id, comment)
+        # tpl = self._create_templatebase(CreditNote, cnote_status.id, comment)
+        tpl = self._create_templatebase(
+            CreditNote, status_uuid=cnote_status.uuid, comment=comment,
+        )
 
         with self.assertNoException():
             cnote = tpl.create_entity()
@@ -262,7 +315,8 @@ class TemplateBaseTestCase(_BillingTestCase):
         ).order_by('-id')[:2]
 
         name = 'My template'
-        tpl = self._create_templatebase(Invoice, invoice_status1.id, name=name)
+        # tpl = self._create_templatebase(Invoice, invoice_status1.id, name=name)
+        tpl = self._create_templatebase(Invoice, status_uuid=invoice_status1.uuid, name=name)
 
         url = tpl.get_edit_absolute_url()
         response1 = self.assertGET200(url)
@@ -314,7 +368,8 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(name, tpl.name)
         self.assertEqual(date(year=2020, month=11, day=30), tpl.expiration_date)
         self.assertIsNone(tpl.payment_info)
-        self.assertEqual(invoice_status2.id, tpl.status_id)
+        # self.assertEqual(invoice_status2.id, tpl.status_id)
+        self.assertUUIDEqual(invoice_status2.uuid, tpl.status_uuid)
 
         self.assertEqual(source2, tpl.source)
         self.assertEqual(target2, tpl.target)
@@ -323,9 +378,12 @@ class TemplateBaseTestCase(_BillingTestCase):
         new_status, other_status = InvoiceStatus.objects.all()[:2]
         status2del = InvoiceStatus.objects.create(name='OK')
 
-        tpl1 = self._create_templatebase(Invoice, status2del.id)
-        tpl2 = self._create_templatebase(Invoice, other_status.id)
-        tpl3 = self._create_templatebase(Quote,   status2del.id)
+        # tpl1 = self._create_templatebase(Invoice, status2del.id)
+        # tpl2 = self._create_templatebase(Invoice, other_status.id)
+        # tpl3 = self._create_templatebase(Quote,   status2del.id)
+        tpl1 = self._create_templatebase(Invoice, status_uuid=status2del.uuid)
+        tpl2 = self._create_templatebase(Invoice, status_uuid=other_status.uuid)
+        tpl3 = self._create_templatebase(Quote,   status_uuid=status2del.uuid)
 
         invoice = self.create_invoice_n_orgas(user=self.user, name='Nerv')[0]
         invoice.status = status2del
@@ -339,21 +397,27 @@ class TemplateBaseTestCase(_BillingTestCase):
         )
 
         tpl1 = self.assertStillExists(tpl1)
-        self.assertEqual(new_status.id, tpl1.status_id)
+        # self.assertEqual(new_status.id, tpl1.status_id)
+        self.assertUUIDEqual(new_status.uuid, tpl1.status_uuid)
 
         tpl2 = self.refresh(tpl2)
-        self.assertEqual(other_status.id, tpl2.status_id)
+        # self.assertEqual(other_status.id, tpl2.status_id)
+        self.assertUUIDEqual(other_status.uuid, tpl2.status_uuid)
 
         tpl3 = self.refresh(tpl3)
-        self.assertEqual(status2del.id, tpl3.status_id)
+        # self.assertEqual(status2del.id, tpl3.status_id)
+        self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
 
     def test_delete_quote_status(self):
         new_status, other_status = QuoteStatus.objects.all()[:2]
         status2del = QuoteStatus.objects.create(name='OK')
 
-        tpl1 = self._create_templatebase(Quote,   status2del.id)
-        tpl2 = self._create_templatebase(Quote,   other_status.id)
-        tpl3 = self._create_templatebase(Invoice, status2del.id)
+        # tpl1 = self._create_templatebase(Quote,   status2del.id)
+        # tpl2 = self._create_templatebase(Quote,   other_status.id)
+        # tpl3 = self._create_templatebase(Invoice, status2del.id)
+        tpl1 = self._create_templatebase(Quote,   status_uuid=status2del.uuid)
+        tpl2 = self._create_templatebase(Quote,   status_uuid=other_status.uuid)
+        tpl3 = self._create_templatebase(Invoice, status_uuid=status2del.uuid)
 
         quote = self.create_quote_n_orgas(user=self.user, name='Nerv', status=status2del)[0]
 
@@ -365,21 +429,27 @@ class TemplateBaseTestCase(_BillingTestCase):
         )
 
         tpl1 = self.assertStillExists(tpl1)
-        self.assertEqual(new_status.id, tpl1.status_id)
+        # self.assertEqual(new_status.id, tpl1.status_id)
+        self.assertUUIDEqual(new_status.uuid, tpl1.status_uuid)
 
         tpl2 = self.refresh(tpl2)
-        self.assertEqual(other_status.id, tpl2.status_id)
+        # self.assertEqual(other_status.id, tpl2.status_id)
+        self.assertUUIDEqual(other_status.uuid, tpl2.status_uuid)
 
         tpl3 = self.refresh(tpl3)
-        self.assertEqual(status2del.id, tpl3.status_id)
+        # self.assertEqual(status2del.id, tpl3.status_id)
+        self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
 
     def test_delete_salesorder_status(self):
         new_status, other_status = SalesOrderStatus.objects.all()[:2]
         status2del = SalesOrderStatus.objects.create(name='OK')
 
-        tpl1 = self._create_templatebase(SalesOrder, status2del.id)
-        tpl2 = self._create_templatebase(SalesOrder, other_status.id)
-        tpl3 = self._create_templatebase(Invoice,    status2del.id)
+        # tpl1 = self._create_templatebase(SalesOrder, status2del.id)
+        # tpl2 = self._create_templatebase(SalesOrder, other_status.id)
+        # tpl3 = self._create_templatebase(Invoice,    status2del.id)
+        tpl1 = self._create_templatebase(SalesOrder, status_uuid=status2del.uuid)
+        tpl2 = self._create_templatebase(SalesOrder, status_uuid=other_status.uuid)
+        tpl3 = self._create_templatebase(Invoice,    status_uuid=status2del.uuid)
 
         order = self.create_salesorder_n_orgas(user=self.user, name='Order', status=status2del)[0]
 
@@ -391,21 +461,27 @@ class TemplateBaseTestCase(_BillingTestCase):
         )
 
         tpl1 = self.assertStillExists(tpl1)
-        self.assertEqual(new_status.id, tpl1.status_id)
+        # self.assertEqual(new_status.id, tpl1.status_id)
+        self.assertUUIDEqual(new_status.uuid, tpl1.status_uuid)
 
         tpl2 = self.refresh(tpl2)
-        self.assertEqual(other_status.id, tpl2.status_id)
+        # self.assertEqual(other_status.id, tpl2.status_id)
+        self.assertUUIDEqual(other_status.uuid, tpl2.status_uuid)
 
         tpl3 = self.refresh(tpl3)
-        self.assertEqual(status2del.id, tpl3.status_id)
+        # self.assertEqual(status2del.id, tpl3.status_id)
+        self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
 
     def test_delete_creditnote_status(self):
         new_status, other_status = CreditNoteStatus.objects.all()[:2]
         status2del = CreditNoteStatus.objects.create(name='OK')
 
-        tpl1 = self._create_templatebase(CreditNote, status2del.id)
-        tpl2 = self._create_templatebase(CreditNote, other_status.id)
-        tpl3 = self._create_templatebase(Invoice,    status2del.id)
+        # tpl1 = self._create_templatebase(CreditNote, status2del.id)
+        # tpl2 = self._create_templatebase(CreditNote, other_status.id)
+        # tpl3 = self._create_templatebase(Invoice,    status2del.id)
+        tpl1 = self._create_templatebase(CreditNote, status_uuid=status2del.uuid)
+        tpl2 = self._create_templatebase(CreditNote, status_uuid=other_status.uuid)
+        tpl3 = self._create_templatebase(Invoice,    status_uuid=status2del.uuid)
 
         credit_note = self.create_credit_note_n_orgas(
             user=self.user, name='Credit Note', status=status2del,
@@ -419,12 +495,15 @@ class TemplateBaseTestCase(_BillingTestCase):
         )
 
         tpl1 = self.assertStillExists(tpl1)
-        self.assertEqual(new_status.id, tpl1.status_id)
+        # self.assertEqual(new_status.id, tpl1.status_id)
+        self.assertUUIDEqual(new_status.uuid, tpl1.status_uuid)
 
         tpl2 = self.refresh(tpl2)
-        self.assertEqual(other_status.id, tpl2.status_id)
+        # self.assertEqual(other_status.id, tpl2.status_id)
+        self.assertUUIDEqual(other_status.uuid, tpl2.status_uuid)
 
         tpl3 = self.refresh(tpl3)
-        self.assertEqual(status2del.id, tpl3.status_id)
+        # self.assertEqual(status2del.id, tpl3.status_id)
+        self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
 
     # TODO: test form

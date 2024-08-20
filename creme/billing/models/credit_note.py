@@ -59,18 +59,26 @@ class AbstractCreditNote(Base):
     # TODO: factorise the build() methods
     def build(self, template):
         # Specific recurrent generation rules
-        status_id = None
+        # status_id = None
+        #
+        # if isinstance(template, get_template_base_model()):
+        #     tpl_status_id = template.status_id
+        #
+        #     if CreditNoteStatus.objects.filter(pk=tpl_status_id).exists():
+        #         status_id = tpl_status_id
+        #
+        # if status_id:
+        #     self.status_id = status_id
+        # else:
+        #     self.status = CreditNoteStatus.objects.filter(is_default=True).first()
+        #
+        # return super().build(template)
+        status = None
 
         if isinstance(template, get_template_base_model()):
-            tpl_status_id = template.status_id
+            status = CreditNoteStatus.objects.filter(uuid=template.status_uuid).first()
 
-            if CreditNoteStatus.objects.filter(pk=tpl_status_id).exists():
-                status_id = tpl_status_id
-
-        if status_id:
-            self.status_id = status_id
-        else:
-            self.status = CreditNoteStatus.objects.filter(is_default=True).first()
+        self.status = status or CreditNoteStatus.objects.filter(is_default=True).first()
 
         return super().build(template)
 

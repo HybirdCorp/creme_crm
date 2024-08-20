@@ -19,7 +19,8 @@
 import logging
 from datetime import timedelta
 
-from django.db.models import PositiveIntegerField
+# from django.db.models import PositiveIntegerField
+from django.db.models import UUIDField
 from django.urls import reverse
 from django.utils.translation import pgettext_lazy
 
@@ -33,7 +34,8 @@ logger = logging.getLogger(__name__)
 class AbstractTemplateBase(Base):
     ct = CTypeForeignKey(editable=False).set_tags(viewable=False)
     # TODO: avoid deletion of status
-    status_id = PositiveIntegerField(editable=False).set_tags(viewable=False)
+    # status_id = PositiveIntegerField(editable=False).set_tags(viewable=False)
+    status_uuid = UUIDField(editable=False).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('billing', 'Create a template')
     save_label     = pgettext_lazy('billing', 'Save the template')
