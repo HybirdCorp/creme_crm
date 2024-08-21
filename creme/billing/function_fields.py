@@ -51,34 +51,63 @@ class TemplateBaseVerboseStatusField(FunctionField):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._cache = defaultdict(list)
+        # self._cache = defaultdict(list)
+        # e.g. of item: Invoice: {UUID('123...'): InvoiceStatus(name='OK'), UUID(...): ...}
+        self._statuses_per_model = defaultdict(dict)
 
     def __call__(self, entity, user):
-        cache = self._cache
-        e_id = entity.id
-        status = cache.get(e_id)
-
+        # cache = self._cache
+        # e_id = entity.id
+        # status = cache.get(e_id)
+        #
         # if status is None or status.id != entity.status_id:
-        if status is None or status.uuid != entity.status_uuid:
+        #     status_model = entity.ct.model_class()._meta.get_field('status').remote_field.model
+        #
+        #     try:
+        #         status = status_model.objects.get(id=entity.status_id)
+        #     except status_model.DoesNotExist as e:
+        #         logger.warning('Invalid status in TemplateBase(id=%s) [%s]', e_id, e)
+        #         status = status_model(id=entity.status_id, name='')
+        #
+        #     cache[e_id] = status
+        #
+        # return self.result_type(label=status.name, color=status.color)
+        statuses_per_model = self._statuses_per_model
+        statuses = statuses_per_model[entity.ct.model_class()]
+        status_uuid = entity.status_uuid
+        status = statuses.get(entity.status_uuid)
+
+        if status is None:
             status_model = entity.ct.model_class()._meta.get_field('status').remote_field.model
 
             try:
-                # status = status_model.objects.get(id=entity.status_id)
-                status = status_model.objects.get(uuid=entity.status_uuid)
+                status = status_model.objects.get(uuid=status_uuid)
             except status_model.DoesNotExist as e:
-                logger.warning('Invalid status in TemplateBase(id=%s) [%s]', e_id, e)
-                # status = status_model(id=entity.status_id, name='')
+                logger.warning('Invalid status in TemplateBase(id=%s) [%s]', entity.id, e)
                 status = status_model(
-                    uuid=entity.status_uuid,
-                    name=_('? (Error in the Template, edit it to fix)'),
+                    uuid=status_uuid, name=_('? (Error in the Template, edit it to fix)'),
                 )  # TODO: color='000000'?
 
-            cache[e_id] = status
+            statuses[status_uuid] = status
 
         return self.result_type(label=status.name, color=status.color)
 
-    # TODO
-    # def populate_entities(self, entities, user):
+    def populate_entities(self, entities, user):
+        statuses_per_model = self._statuses_per_model
+        uuids_per_model = defaultdict(set)
+
+        for tpl in entities:
+            billing_model = tpl.ct.model_class()
+            status_uuid = tpl.status_uuid
+            if status_uuid not in statuses_per_model[billing_model]:
+                uuids_per_model[billing_model].add(status_uuid)
+
+        for billing_model, uuids in uuids_per_model.items():
+            if uuids:
+                status_model = billing_model._meta.get_field('status').remote_field.model
+                statuses_per_model[billing_model].update(
+                    (status.uuid, status) for status in status_model.objects.filter(uuid__in=uuids)
+                )
 
 
 def sum_totals_no_vat(model, entity, user, **kwargs) -> Decimal:

@@ -113,6 +113,9 @@
             * Creme_config :
                 - In 'core.exporters', the class 'CellsExporterMixin' & the function 'dump_ct()' have been removed.
                 - The function 'core.importers.load_ct()' has been removed.
+            * Creme_config :
+                - In the class 'function_fields.TemplateBaseVerboseStatusField',
+                  the attribute "_cache" has been replaced by "_statuses_per_model".
 
 
 == Version 2.6 ==
