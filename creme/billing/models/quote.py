@@ -27,14 +27,17 @@ from creme.creme_core.models import CREME_REPLACE
 
 from .. import get_template_base_model
 from .base import Base
-from .other_models import QuoteStatus
+from .other_models import QuoteStatus, get_default_quote_status_pk
 
 logger = logging.getLogger(__name__)
 
 
 class AbstractQuote(Base):
     status = models.ForeignKey(
-        QuoteStatus, verbose_name=_('Status of quote'), on_delete=CREME_REPLACE,
+        QuoteStatus,
+        verbose_name=_('Status of quote'),
+        on_delete=CREME_REPLACE,
+        default=get_default_quote_status_pk,
     )
     acceptation_date = models.DateField(
         _('Acceptation date'), blank=True, null=True,

@@ -28,7 +28,7 @@ from creme.persons.workflow import transform_target_into_customer
 from .. import get_template_base_model
 from ..constants import DEFAULT_DECIMAL
 from .base import Base
-from .other_models import InvoiceStatus
+from .other_models import InvoiceStatus, get_default_invoice_status_pk
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +38,7 @@ class AbstractInvoice(Base):
         InvoiceStatus,
         verbose_name=_('Status of invoice'),
         on_delete=deletion.CREME_REPLACE,
+        default=get_default_invoice_status_pk,
     )
     buyers_order_number = models.CharField(
         _("Buyer's order"),
@@ -60,8 +61,8 @@ class AbstractInvoice(Base):
     def _pre_save_clone(self, source):
         super()._pre_save_clone(source=source)
 
-        # TODO: <.set_tags(clonable=False)> + default in FK?
-        status = InvoiceStatus.objects.filter(is_default=True).first()
+        # TODO: <.set_tags(clonable=False)>
+        status = InvoiceStatus.objects.default()
         if status:
             self.status = status
         else:
@@ -118,7 +119,7 @@ class AbstractInvoice(Base):
         if isinstance(template, get_template_base_model()):
             status = InvoiceStatus.objects.filter(uuid=template.status_uuid).first()
 
-        self.status = status or InvoiceStatus.objects.filter(is_default=True).first()
+        self.status = status or InvoiceStatus.objects.default()
 
         super().build(template)
         transform_target_into_customer(self.source, self.target, self.user)
