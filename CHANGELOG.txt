@@ -1,5 +1,9 @@
 == Version 2.5.12 Work in progress (not released -- this is a draft) ==
 
+    # Apps :
+        * Billing :
+            - The layout of the TemplateBase detail-views has been fixed.
+
 
 == Version 2.5.11 ==
 
