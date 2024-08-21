@@ -2,6 +2,10 @@
 
   TODO: compile i18n (activities).
 
+    # Apps :
+        * Billing :
+            - The layout of the TemplateBase detail-views has been fixed.
+
 
 == Version 2.6 ==
 
