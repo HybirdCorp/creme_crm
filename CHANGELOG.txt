@@ -5,6 +5,7 @@
     # Apps :
         * Billing :
             - The layout of the TemplateBase detail-views has been fixed.
+            - The inner-edition of TemplateBase instances bas been fixed.
 
 
 == Version 2.6 ==
