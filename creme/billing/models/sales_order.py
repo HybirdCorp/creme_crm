@@ -25,13 +25,15 @@ from creme.creme_core.models import CREME_REPLACE
 from .. import get_template_base_model
 from .base import Base
 # from .templatebase import TemplateBase
-from .other_models import SalesOrderStatus
+from .other_models import SalesOrderStatus, get_default_sales_order_status_pk
 
 
 class AbstractSalesOrder(Base):
     status = ForeignKey(
         SalesOrderStatus,
-        verbose_name=_('Status of salesorder'), on_delete=CREME_REPLACE,
+        verbose_name=_('Status of salesorder'),
+        on_delete=CREME_REPLACE,
+        default=get_default_sales_order_status_pk,
     )
 
     creation_label = _('Create a salesorder')
@@ -77,7 +79,7 @@ class AbstractSalesOrder(Base):
         if isinstance(template, get_template_base_model()):
             status = SalesOrderStatus.objects.filter(uuid=template.status_uuid).first()
 
-        self.status = status or SalesOrderStatus.objects.filter(is_default=True).first()
+        self.status = status or SalesOrderStatus.objects.default()
 
         return super().build(template)
 

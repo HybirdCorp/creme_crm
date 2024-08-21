@@ -43,6 +43,8 @@
                 * Activities :
                     - The constants 'NARROW', 'FLOATING_TIME' & 'FLOATING' are now deprecated;
                       use 'Activity.FloatingType.*' instead.
+                  * Billing :
+                    - The class 'views.base.BaseCreation' is deprecated.
         # The model 'creme_core.models.FileRef' get a new optional field "description";
           it's used by the new view which displays all FileRefs (so feel free to fill it).
         # Apps :
@@ -102,6 +104,7 @@
                   It's now a 'PositiveSmallIntegerField', it ahs a 'choices' attribute & it's viewable.
                 - Some small changes have been made in the class 'views.buttons.UnsuccessfulPhoneCallCreation'.
             * Billing :
+                - The default statuses are now initialized at models level, not view level.
                 - In the model 'AbstractTemplateBase', the field "status_id" has been replaced by the field "status_uuid"
 
     Internal breaking changes :

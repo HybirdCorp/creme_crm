@@ -6,6 +6,7 @@ from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
 
 import creme.creme_core.models.fields as core_fields
+from creme.billing.models import other_models
 from creme.billing.models.fields import BillingDiscountField
 from creme.creme_core.models import CREME_REPLACE, CREME_REPLACE_NULL
 from creme.creme_core.models.vat import get_default_vat_pk
@@ -243,6 +244,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         verbose_name='Status of credit note',
                         to='billing.CreditNoteStatus', on_delete=CREME_REPLACE,
+                        default=other_models.get_default_credit_note_status_pk,
                     )
                 ),
             ],
@@ -364,7 +366,14 @@ class Migration(migrations.Migration):
                     )
                 ),
 
-                ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status of invoice', to='billing.InvoiceStatus')),
+                (
+                    'status',
+                    models.ForeignKey(
+                        to='billing.InvoiceStatus', verbose_name='Status of invoice',
+                        on_delete=CREME_REPLACE,
+                        default=other_models.get_default_invoice_status_pk,
+                    )
+                ),
                 (
                     'payment_type',
                     models.ForeignKey(
@@ -507,7 +516,11 @@ class Migration(migrations.Migration):
                 ('acceptation_date', models.DateField(null=True, verbose_name='Acceptation date', blank=True)),
                 (
                     'status',
-                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status of quote', to='billing.QuoteStatus')
+                    models.ForeignKey(
+                        to='billing.QuoteStatus', verbose_name='Status of quote',
+                        on_delete=CREME_REPLACE,
+                        default=other_models.get_default_quote_status_pk,
+                    )
                 ),
             ],
             options={
@@ -636,8 +649,9 @@ class Migration(migrations.Migration):
                 (
                     'status',
                     models.ForeignKey(
-                        to='billing.SalesOrderStatus',
-                        on_delete=CREME_REPLACE, verbose_name='Status of salesorder',
+                        to='billing.SalesOrderStatus', verbose_name='Status of salesorder',
+                        on_delete=CREME_REPLACE,
+                        default=other_models.get_default_sales_order_status_pk,
                     )
                 ),
             ],

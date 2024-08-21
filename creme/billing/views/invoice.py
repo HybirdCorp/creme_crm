@@ -34,7 +34,8 @@ from . import base
 Invoice = get_invoice_model()
 
 
-class InvoiceCreation(base.BaseCreation):
+# class InvoiceCreation(base.BaseCreation):
+class InvoiceCreation(generic.EntityCreation):
     model = Invoice
     form_class = custom_forms.INVOICE_CREATION_CFORM
 

@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import Sequence
 
 import creme.billing.forms.base as base_forms
@@ -30,9 +31,15 @@ from creme.creme_core.views import generic
 class BaseCreation(generic.EntityCreation):
     model = Base
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        warnings.warn(
+            'The class billing.views.base.BaseCreation is deprecated.',
+            DeprecationWarning,
+        )
+
     def get_initial(self):
         initial = super().get_initial()
-        # TODO: in models instead?
         status = (
             self.model._meta.get_field('status')
                             .related_model.objects.filter(is_default=True)
@@ -56,13 +63,13 @@ class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
 
     def get_initial(self):
         initial = super().get_initial()
-        status = (
-            self.model._meta.get_field('status')
-            .related_model.objects.filter(is_default=True)
-            .first()
-        )
-        if status is not None:
-            initial['status'] = status.id
+        # status = (
+        #     self.model._meta.get_field('status')
+        #     .related_model.objects.filter(is_default=True)
+        #     .first()
+        # )
+        # if status is not None:
+        #     initial['status'] = status.id
 
         target = self.get_related_entity()
         initial[

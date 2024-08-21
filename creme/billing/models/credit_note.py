@@ -25,13 +25,15 @@ from creme.creme_core.models import CREME_REPLACE, Relation
 from .. import get_template_base_model
 from ..constants import REL_SUB_CREDIT_NOTE_APPLIED
 from .base import Base
-from .other_models import CreditNoteStatus
+from .other_models import CreditNoteStatus, get_default_credit_note_status_pk
 
 
 class AbstractCreditNote(Base):
     status = ForeignKey(
         CreditNoteStatus,
-        verbose_name=_('Status of credit note'), on_delete=CREME_REPLACE,
+        verbose_name=_('Status of credit note'),
+        on_delete=CREME_REPLACE,
+        default=get_default_credit_note_status_pk,
     )
 
     creation_label = _('Create a credit note')
@@ -78,7 +80,7 @@ class AbstractCreditNote(Base):
         if isinstance(template, get_template_base_model()):
             status = CreditNoteStatus.objects.filter(uuid=template.status_uuid).first()
 
-        self.status = status or CreditNoteStatus.objects.filter(is_default=True).first()
+        self.status = status or CreditNoteStatus.objects.default()
 
         return super().build(template)
 

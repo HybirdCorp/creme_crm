@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.conf import settings
 from django.db import models
 from django.db.transaction import atomic
@@ -23,8 +25,11 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
+from creme.creme_core.global_info import get_per_request_cache
 from creme.creme_core.models import CremeModel, MinionModel
 from creme.creme_core.models import fields as core_fields
+
+logger = logging.getLogger(__name__)
 
 
 class SettlementTerms(MinionModel):
@@ -42,6 +47,28 @@ class SettlementTerms(MinionModel):
         ordering = ('name',)
 
 
+class StatusManager(models.Manager):
+    def __init__(self):
+        super().__init__()
+        self._cache_key = None
+
+    def default(self):
+        # NB: contribute_to_class() is called with <AbstractStatus>,
+        #     not InvoiceStatus/QuoteStatus/...
+        cache_key = self._cache_key
+        if cache_key is None:
+            self._cache_key = cache_key = f'billing-default_{self.model.__name__.lower()}'
+
+        cache = get_per_request_cache()
+
+        try:
+            status = cache[cache_key]
+        except KeyError:
+            cache[cache_key] = status = self.filter(is_default=True).first()
+
+        return status
+
+
 class AbstractStatus(MinionModel):
     name = models.CharField(_('Name'), max_length=100)
     order = core_fields.BasicAutoField()
@@ -49,6 +76,8 @@ class AbstractStatus(MinionModel):
     is_default = models.BooleanField(_('Is default?'), default=False)
 
     creation_label = pgettext_lazy('billing-status', 'Create a status')
+
+    objects = StatusManager()
 
     def __str__(self):
         return self.name
@@ -215,3 +244,29 @@ class PaymentInformation(CremeModel):
 
     def get_related_entity(self):
         return self.organisation
+
+
+# Function used for default field values ---------------------------------------
+def _get_default_status_pk(status_model):
+    status = status_model.objects.default()
+    if status is None:
+        logger.warning('No default instance found for %s.', status_model)
+        return None
+
+    return status.pk
+
+
+def get_default_credit_note_status_pk():
+    return _get_default_status_pk(CreditNoteStatus)
+
+
+def get_default_invoice_status_pk():
+    return _get_default_status_pk(InvoiceStatus)
+
+
+def get_default_quote_status_pk():
+    return _get_default_status_pk(QuoteStatus)
+
+
+def get_default_sales_order_status_pk():
+    return _get_default_status_pk(SalesOrderStatus)
