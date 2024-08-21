@@ -2,10 +2,20 @@
 
   TODO: compile i18n (activities).
 
+  Users side :
+  ------------
+
     # Apps :
         * Billing :
             - The layout of the TemplateBase detail-views has been fixed.
             - The inner-edition of TemplateBase instances bas been fixed.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # A crash when a function is used for default value of an enumerable FK has been fixed.
 
 
 == Version 2.6 ==

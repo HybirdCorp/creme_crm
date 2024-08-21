@@ -426,7 +426,7 @@ class EnumerableModelChoiceField(EnumerableChoiceField):
 
         # Handles the model field default value. See ForeignKey.formfield implementation.
         if field.has_default() and initial is None:
-            initial = field.default
+            initial = field.get_default()
             kwargs.setdefault('show_hidden_initial', callable(initial))
 
         enum = self.enumerable(
