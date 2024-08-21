@@ -101,6 +101,56 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         self.assertEqual(render2, render3)
 
+    def test_status_function_field__populate(self):
+        user = self.user
+
+        status1, status2 = InvoiceStatus.objects.filter(is_default=False)[:2]
+        tpl1 = self._create_templatebase(Invoice, status_uuid=status1.uuid)
+        tpl2 = self._create_templatebase(Invoice, status_uuid=status2.uuid)
+
+        funf = function_field_registry.get(TemplateBase, 'get_verbose_status')
+
+        with self.assertNumQueries(1):
+            funf.populate_entities(entities=[tpl1, tpl2], user=user)
+
+        with self.assertNumQueries(0):
+            render1 = funf(tpl1, user).render(ViewTag.TEXT_PLAIN)
+        self.assertEqual(str(status1), render1)
+
+        with self.assertNumQueries(0):
+            render2 = funf(tpl2, user).render(ViewTag.TEXT_PLAIN)
+        self.assertEqual(str(status2), render2)
+
+        # Status already retrieved
+        tpl3 = self._create_templatebase(Invoice, status_uuid=status2.uuid)
+        with self.assertNumQueries(0):
+            funf.populate_entities(entities=[tpl1, tpl2, tpl3], user=user)
+
+        with self.assertNumQueries(0):
+            render3 = funf(tpl3, user).render(ViewTag.TEXT_PLAIN)
+        self.assertEqual(str(status2), render3)
+
+    def test_status_function_field__populate_several_models(self):
+        user = self.user
+
+        status1 = InvoiceStatus.objects.filter(is_default=False).first()
+        status2 = QuoteStatus.objects.filter(is_default=False).first()
+        tpl1 = self._create_templatebase(Invoice, status_uuid=status1.uuid)
+        tpl2 = self._create_templatebase(Quote, status_uuid=status2.uuid)
+
+        funf = function_field_registry.get(TemplateBase, 'get_verbose_status')
+
+        with self.assertNumQueries(2):
+            funf.populate_entities(entities=[tpl1, tpl2], user=user)
+
+        with self.assertNumQueries(0):
+            render1 = funf(tpl1, user).render(ViewTag.TEXT_PLAIN)
+        self.assertEqual(str(status1), render1)
+
+        with self.assertNumQueries(0):
+            render2 = funf(tpl2, user).render(ViewTag.TEXT_PLAIN)
+        self.assertEqual(str(status2), render2)
+
     @skipIfCustomInvoice
     def test_create_invoice01(self):
         invoice_status = InvoiceStatus.objects.filter(is_default=False).first()
