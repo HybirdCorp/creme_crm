@@ -177,6 +177,13 @@ class EntityCell:
         return f'{self.type_id}-{self.value}'
 
     @property
+    def portable_key(self) -> str:
+        """Return an ID that should be unique in a EntityCell set.
+        This is the 'portable' (see to_dict() documentation) version of key.
+        """
+        return f'{self.type_id}-{self.portable_value}'
+
+    @property
     def listview_css_class(self) -> str:
         return self._get_listview_css_class('_listview_css_class')
 

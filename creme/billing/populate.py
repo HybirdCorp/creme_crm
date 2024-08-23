@@ -849,7 +849,8 @@ class Populator(BasePopulator):
         )
         create_report_columns(invoices_report1)
 
-        cell_key = total_no_vat_cell.key
+        # cell_key = total_no_vat_cell.key
+        cell_key = total_no_vat_cell.portable_key
         rgraph1 = create_graph(
             uuid='c94e414d-931c-47bb-a7b9-144245997062',
             name=_('Sum of current year invoices total without taxes / month'),

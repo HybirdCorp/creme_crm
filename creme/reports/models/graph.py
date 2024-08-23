@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -142,7 +142,8 @@ class AbstractReportGraph(CremeEntity):
     def abscissa_info(self, abs_info: AbscissaInfo):
         assert abs_info.cell is not None
 
-        self.abscissa_cell_value = abs_info.cell.value
+        # self.abscissa_cell_value = abs_info.cell.value
+        self.abscissa_cell_value = abs_info.cell.portable_value
         self.abscissa_type = abs_info.graph_type
         self.abscissa_parameter = abs_info.parameter
 
@@ -174,7 +175,8 @@ class AbstractReportGraph(CremeEntity):
         self.ordinate_type = ord_info.aggr_id
 
         cell = ord_info.cell
-        self.ordinate_cell_key = cell.key if cell else ''
+        # self.ordinate_cell_key = cell.key if cell else ''
+        self.ordinate_cell_key = cell.portable_key if cell else ''
 
     # TODO: use creme_core.utils.meta.Order
     def fetch(self,

@@ -23,7 +23,6 @@ class AbscissaGroup(models.IntegerChoices):
     MONTH        = 2,  _('By months'),
     YEAR         = 3,  _('By years'),
     RANGE        = 4,  _('By X days'),
-    # FK           = 5,  _('By values'),
     FK           = 5,  _('By values (configurable)'),
     RELATION     = 6,  _('By values (of related entities)'),
     CHOICES      = 7,  _('By values (not configurable)'),
