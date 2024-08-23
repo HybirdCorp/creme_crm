@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,7 @@ def get_concrete_model(model_setting: str) -> type[Model]:
     """Returns the concrete model that is active in this project corresponding
     to the setting value.
     @param model_setting: A string corresponding to an entry of setting.py,
-           which contains a value in the form ''app_label.model_name'.
+           which contains a value in the form 'app_label.model_name'.
     @return A model class.
     """
     from django.apps import apps
