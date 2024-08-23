@@ -578,7 +578,8 @@ class Populator(BasePopulator):
             ReportGraph.objects.create,
             linked_report=report, user=admin,
             ordinate_type=ReportGraph.Aggregator.SUM,
-            ordinate_cell_key=sales_cell.key,
+            # ordinate_cell_key=sales_cell.key,
+            ordinate_cell_key=sales_cell.portable_key,
         )
         esales_vname = FieldInfo(Opportunity, 'estimated_sales').verbose_name
         rgraph1 = create_graph(

@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
 
@@ -99,7 +101,8 @@ class ReportGraphHandTestCase(CremeTestCase):
             user=user, name='Field Test', linked_report=report,
             abscissa_cell_value='modified', abscissa_type=ReportGraph.Group.MONTH,
             ordinate_type=ReportGraph.Aggregator.SUM,
-            ordinate_cell_key=ordinate_cell.key,
+            # ordinate_cell_key=ordinate_cell.key,
+            ordinate_cell_key=ordinate_cell.portable_key,
         )
 
         hand = RGHMonth(graph)
@@ -282,7 +285,8 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            abscissa_cell_value=str(cfield.id),
+            # abscissa_cell_value=str(cfield.id),
+            abscissa_cell_value=str(cfield.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_DAY,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
@@ -304,7 +308,8 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            abscissa_cell_value=str(cfield.id),
+            # abscissa_cell_value=str(cfield.id),
+            abscissa_cell_value=str(cfield.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_MONTH,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
@@ -326,7 +331,8 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            abscissa_cell_value=str(cfield.id),
+            # abscissa_cell_value=str(cfield.id),
+            abscissa_cell_value=str(cfield.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_YEAR,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
@@ -348,7 +354,8 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            abscissa_cell_value=str(cfield.id),
+            # abscissa_cell_value=str(cfield.id),
+            abscissa_cell_value=str(cfield.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_RANGE,
             abscissa_parameter='90',
             ordinate_type=ReportGraph.Aggregator.COUNT,
@@ -370,7 +377,8 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            abscissa_cell_value=str(cfield.id),
+            # abscissa_cell_value=str(cfield.id),
+            abscissa_cell_value=str(cfield.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_FK,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
@@ -386,7 +394,8 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            abscissa_cell_value='1234',  # < ==
+            # abscissa_cell_value='1234',  # < ==
+            abscissa_cell_value=str(uuid4()),  # < ==
             abscissa_type=ReportGraph.Group.CUSTOM_DAY,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
@@ -413,7 +422,8 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            abscissa_cell_value=str(cfield.id),
+            # abscissa_cell_value=str(cfield.id),
+            abscissa_cell_value=str(cfield.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_FK,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )

@@ -260,9 +260,12 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(field_name,      cell.value)
         self.assertEqual(field_name,      cell.portable_value)
         self.assertEqual(_('First name'), cell.title)
-        self.assertEqual(f'regular_field-{field_name}', cell.key)
         self.assertIs(cell.is_excluded, False)
         self.assertIs(cell.is_multiline, False)
+
+        key = f'regular_field-{field_name}'
+        self.assertEqual(key, cell.key)
+        self.assertEqual(key, cell.portable_key)
 
         dict_cell = {'type': 'regular_field', 'value': field_name}
         self.assertDictEqual(dict_cell, cell.to_dict())
@@ -364,10 +367,14 @@ class EntityCellTestCase(CremeTestCase):
 
         cell1 = EntityCellCustomField(customfield)
         self.assertIsInstance(cell1, EntityCellCustomField)
-        self.assertEqual(str(customfield.id),              cell1.value)
-        self.assertEqual(name,                             cell1.title)
-        self.assertEqual(f'custom_field-{customfield.id}', cell1.key)
-        self.assertEqual(str(customfield.uuid),            cell1.portable_value)
+
+        self.assertEqual(str(customfield.id),   cell1.value)
+        self.assertEqual(str(customfield.uuid), cell1.portable_value)
+
+        self.assertEqual(name, cell1.title)
+        self.assertEqual(f'custom_field-{customfield.id}',   cell1.key)
+        self.assertEqual(f'custom_field-{customfield.uuid}', cell1.portable_key)
+
         self.assertIs(cell1.is_multiline, False)
         self.assertEqual(settings.CSS_NUMBER_LISTVIEW,         cell1.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell1.header_listview_css_class)
