@@ -30,7 +30,8 @@ commands:
     description: Install creme dependencies
     steps:
       - run: sudo apt update
-      - run: sudo apt install -y python3-dev pkg-config libcairo-dev
+      # Weasyprint => pango & libharfbuzz
+      - run: sudo apt install -y python3-dev pkg-config libcairo-dev libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0
 
   install-py-dev-env:
     steps:
@@ -50,7 +51,7 @@ commands:
       # Require setuptools v46.4.0 at least
       - run: ~/venv/bin/pip install -U pip setuptools
       - run: echo "source ~/venv/bin/activate" >> $BASH_ENV
-      - run: pip install -U -e << pipeline.parameters.source_path >>[dev,mysql,pgsql]
+      - run: pip install -U -e << pipeline.parameters.source_path >>[dev,mysql,pgsql,billing_weasyprint]
       - run: pip freeze
       - run: pip list --outdated
 
