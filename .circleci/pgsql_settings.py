@@ -14,3 +14,9 @@ DATABASES = {
         },
     },
 }
+
+BILLING_EXPORTERS = [
+    'creme.billing.exporters.xls.XLSExportEngine',
+    # 'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
+    'creme.billing.exporters.weasyprint.WeasyprintExportEngine',
+]
