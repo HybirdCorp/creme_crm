@@ -1312,6 +1312,8 @@ BILLING_EXPORTERS = [
     # 'creme.billing.exporters.latex.LatexExportEngine',
 
     # Need the package "weasyprint" (pip install creme-crm[billing_weasyprint]).
+    # See https://pypi.org/project/weasyprint/#description
+    # It needs the system package 'Pango' (libpango).
     # 'creme.billing.exporters.weasyprint.WeasyprintExportEngine',
 
     # Other possibilities:
