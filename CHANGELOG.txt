@@ -2,7 +2,7 @@
 
   Users side :
   ------------
-
+    # The confirmation message for definitive deletion in hat-bar brick has been fixed.
     # Apps :
         * Billing :
             - The layout of the TemplateBase detail-views has been fixed.
