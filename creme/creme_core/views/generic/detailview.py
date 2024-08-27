@@ -155,7 +155,7 @@ class RelatedToEntityDetail(CremeModelDetail):
         user.has_perm_to_view_or_die(instance.get_related_entity())
 
 
-class EntityDetail(CremeModelDetail):
+class EntityDetail(base.EntityModelMixin, CremeModelDetail):
     """ Base class for detail view of CremeEntities.
 
     It manages :
@@ -180,7 +180,7 @@ class EntityDetail(CremeModelDetail):
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
-        user.has_perm_to_access_or_die(self.model._meta.app_label)
+        user.has_perm_to_access_or_die(self.get_checked_model()._meta.app_label)
 
     # TODO: change BricksMixin.get_bricks() return type to <dict> ?
     # TODO: add a system for mandatory Brick (& set ButtonsBrick as mandatory) in BricksMixin?
@@ -251,7 +251,8 @@ class CremeModelDetailPopup(base.TitleMixin, CremeModelDetail):
         return data
 
 
-class EntityDetailPopup(CremeModelDetailPopup):
+class EntityDetailPopup(base.EntityModelMixin, CremeModelDetailPopup):
+    model = CremeEntity
     bricks_reload_url_name = 'creme_core__reload_detailview_bricks'
 
     def check_instance_permissions(self, instance, user):
@@ -259,7 +260,7 @@ class EntityDetailPopup(CremeModelDetailPopup):
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
-        user.has_perm_to_access_or_die(self.model._meta.app_label)
+        user.has_perm_to_access_or_die(self.get_checked_model()._meta.app_label)
 
 
 class RelatedToEntityDetailPopup(CremeModelDetailPopup):

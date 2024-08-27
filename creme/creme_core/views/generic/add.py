@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -118,8 +118,7 @@ class CremeModelCreation(base.CustomFormMixin,
             return super().post(*args, **kwargs)
 
 
-# TODO: assert model is an entity ?
-class EntityCreation(CremeModelCreation):
+class EntityCreation(base.EntityModelMixin, CremeModelCreation):
     """ Base class to create CremeEntities with a form.
 
     It's based on CremeModelCreation & adds the credentials checking.
@@ -130,7 +129,7 @@ class EntityCreation(CremeModelCreation):
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
 
-        model = self.model
+        model = self.get_checked_model()
         user.has_perm_to_access_or_die(model._meta.app_label)
         user.has_perm_to_create_or_die(model)
 
@@ -153,7 +152,7 @@ class CremeModelCreationPopup(CremeModelCreation):
         return HttpResponse(self.get_success_url(), content_type='text/plain')
 
 
-class EntityCreationPopup(CremeModelCreationPopup):
+class EntityCreationPopup(base.EntityModelMixin, CremeModelCreationPopup):
     model = models.CremeEntity
     form_class: type[forms.CremeEntityForm] | CustomFormDescriptor = forms.CremeEntityForm
 
@@ -161,7 +160,7 @@ class EntityCreationPopup(CremeModelCreationPopup):
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
 
-        model = self.model
+        model = self.get_checked_model()
         user.has_perm_to_access_or_die(model._meta.app_label)
         user.has_perm_to_create_or_die(model)
 
