@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2022  Hybird
+#    Copyright (C) 2016-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -260,7 +260,7 @@ class CremeModelCreationWizard(CremeWizardView):
         return url or super().get_success_url(form_list=form_list)
 
 
-class EntityCreationWizard(CremeModelCreationWizard):
+class EntityCreationWizard(base.EntityModelMixin, CremeModelCreationWizard):
     """ Base class to create CremeEntities with a wizard.
 
     It's based on CremeModelCreationWizard & adds the credentials checking.
@@ -270,7 +270,7 @@ class EntityCreationWizard(CremeModelCreationWizard):
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
 
-        model = self.model
+        model = self.get_checked_model()
         user.has_perm_to_access_or_die(model._meta.app_label)
         user.has_perm_to_create_or_die(model)
 
@@ -295,7 +295,7 @@ class CremeModelCreationWizardPopup(CremeModelCreationWizard):
         )
 
 
-class EntityCreationWizardPopup(CremeModelCreationWizardPopup):
+class EntityCreationWizardPopup(base.EntityModelMixin, CremeModelCreationWizardPopup):
     """ Base class to create CremeEntities with a wizard within an Inner-Popup.
 
     It's based on CremeModelCreationWizardPopup & adds the credentials checking.
@@ -306,7 +306,7 @@ class EntityCreationWizardPopup(CremeModelCreationWizardPopup):
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
 
-        model = self.model
+        model = self.get_checked_model()
         user.has_perm_to_access_or_die(model._meta.app_label)
         user.has_perm_to_create_or_die(model)
 
@@ -407,7 +407,7 @@ class CremeModelEditionWizard(SingleObjectMixin, CremeWizardView):
         return data
 
 
-class EntityEditionWizard(CremeModelEditionWizard):  # TODO: test
+class EntityEditionWizard(base.EntityModelMixin, CremeModelEditionWizard):  # TODO: test
     """ Base class to edit CremeEntities with a wizard.
 
     It's based on CremeModelEditionWizard & adds the credentials checking.
@@ -420,7 +420,7 @@ class EntityEditionWizard(CremeModelEditionWizard):  # TODO: test
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
-        user.has_perm_to_access_or_die(self.model._meta.app_label)
+        user.has_perm_to_access_or_die(self.get_checked_model()._meta.app_label)
 
 
 class CremeModelEditionWizardPopup(CremeModelEditionWizard):
@@ -443,8 +443,8 @@ class CremeModelEditionWizardPopup(CremeModelEditionWizard):
         )
 
 
-class EntityEditionWizardPopup(CremeModelEditionWizard):  # TODO: test
-    """ Base class to edit CremeEntities with a wizard in an Inner-Popup..
+class EntityEditionWizardPopup(base.EntityModelMixin, CremeModelEditionWizard):  # TODO: test
+    """ Base class to edit CremeEntities with a wizard in an Inner-Popup.
 
     It's based on CremeModelEditionWizard & adds the credentials checking.
     """
@@ -456,4 +456,4 @@ class EntityEditionWizardPopup(CremeModelEditionWizard):  # TODO: test
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
-        user.has_perm_to_access_or_die(self.model._meta.app_label)
+        user.has_perm_to_access_or_die(self.get_checked_model()._meta.app_label)

@@ -172,6 +172,27 @@ class PermissionsMixin:
         ) if redirect_arg_name else url
 
 
+class EntityModelMixin:
+    """Mixin which helps to detect some errors in view with a "model" attribute
+    which must be a CremeEntity subclass.
+    """
+    def get_checked_model(self):
+        model = self.model
+        if model is CremeEntity:
+            raise ValueError(
+                f'The view {type(self)} does not override the attribute "model", '
+                f'which could cause permissions issues.'
+            )
+
+        if not issubclass(model, CremeEntity):
+            raise ValueError(
+                f'The view {type(self)} set the attribute "model" with a class '
+                f'which does not inherit CremeEntity: {model}.'
+            )
+
+        return model
+
+
 class EntityRelatedMixin:
     """Mixin which help building view which retrieve a CremeEntity instance,
     in order to add it some additional data (generally stored in an object
