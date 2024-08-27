@@ -4,6 +4,7 @@
 
   Users side :
   ------------
+    # The confirmation message for definitive deletion in hat-bar brick has been fixed.
     # Apps :
         * Billing :
             - A packaging issue with the optional exporter "WeasyPrint" has been fixed.
