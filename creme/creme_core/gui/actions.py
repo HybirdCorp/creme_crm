@@ -322,7 +322,7 @@ class ActionsRegistry:
 
     def bulk_action_classes(self, model: type[Model]):
         """Get the list of the classes for bulk actions registered for a model.
-        NB: use the method instance_actions() if you want instances of BulkActions
+        NB: use the method bulk_actions() if you want instances of BulkActions
             (which can be used to build a UI, contrarily to the class).
         """
         return self._bulk_action_classes.actions(model=model)
