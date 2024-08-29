@@ -179,7 +179,8 @@ creme.bricks.BrickActionBuilders = creme.action.DefaultActionBuilderRegistry.sub
     },
 
     _build_delete: function(url, options, data) {
-        options = $.extend({}, options || {}, {confirm: true});
+//        options = $.extend({}, options || {}, {confirm: true});
+        options = $.extend({confirm: true}, options || {});
         return this._postQueryAction(url, options, data).onDone(this._refreshBrick.bind(this));
     },
 
