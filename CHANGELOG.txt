@@ -17,6 +17,7 @@
     Non breaking changes :
     ----------------------
         # A crash when a function is used for default value of an enumerable FK has been fixed.
+        # The confirmation message for the brick action 'delete' can now be customised.
 
 
 == Version 2.6 ==

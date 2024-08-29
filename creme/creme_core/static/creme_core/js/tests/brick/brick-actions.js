@@ -337,7 +337,8 @@ QUnit.test('creme.bricks.Brick.action (delete, not confirmed)', function(assert)
 
     brick.action('delete', 'mock/brick/delete').on(this.brickActionListeners).start();
     equal(false, brick.isLoading());
-    this.assertOpenedDialog();
+//    this.assertOpenedDialog();
+    this.assertOpenedConfirmDialog(gettext("Are you sure?"));
     deepEqual([], this.mockListenerCalls('action-cancel'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/delete'));
@@ -399,6 +400,19 @@ QUnit.test('creme.bricks.Brick.action (delete, confirmed, failed)', function(ass
               this.mockListenerCalls('action-fail').map(function(d) { return d.slice(0, 2); }));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/delete/fail'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.test('creme.bricks.Brick.action (delete, with custom confirmation)', function(assert) {
+    var brick = this.createBrickWidget().brick();
+
+    this.assertClosedDialog();
+
+    var msg = 'Are you really sure?';
+    brick.action(
+        'delete', 'mock/brick/delete', {confirm: msg}
+        ).on(this.brickActionListeners).start();
+
+    this.assertOpenedConfirmDialog(msg);
 });
 
 QUnit.test('creme.bricks.Brick.action (update)', function(assert) {
