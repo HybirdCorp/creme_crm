@@ -22,6 +22,7 @@
 {% endblock %}
 
 {% block brick_table_rows %}
+  {% translate 'Do you really want to delete this entity definitely?' as confirm %}
   {% for entity in page.object_list %}
    {% with delete_perm=user|has_perm_to_delete:entity %}
     <tr>
@@ -33,7 +34,7 @@
         </td>
         <td {% brick_table_data_status action %}>
           {% if ENTITIES_DELETION_ALLOWED %}
-            {% brick_table_action id='delete' url=entity.get_delete_absolute_url label=_('Delete definitively') enabled=delete_perm %}
+            {% brick_table_action id='delete' url=entity.get_delete_absolute_url label=_('Delete definitively') confirm=confirm enabled=delete_perm %}
           {% endif %}
         </td>
     </tr>
