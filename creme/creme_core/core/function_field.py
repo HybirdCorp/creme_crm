@@ -150,11 +150,11 @@ class FunctionFieldColorAndLabel(FunctionFieldResult):
         # TODO: factorise with FKPrinter.print_fk_colored_html()?
         return format_html(
             '<div class="ui-creme-colored_status">'
-            ' <div class="ui-creme-color_indicator" style="background-color:#{};" />'
-            ' <span>{}</span>'
+            ' <div class="ui-creme-color_indicator" style="background-color:#{color};"></div>'
+            ' <span>{label}</span>'
             '</div>',
-            self._color,
-            self._data,
+            color=self._color,
+            label=self._data,
         )
 
 # TODO: other types (date, datetime...)

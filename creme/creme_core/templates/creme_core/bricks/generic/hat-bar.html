@@ -77,7 +77,7 @@
              {% with delete_url=object.get_delete_absolute_url %}
               {% if delete_url %}
                <div class='bar-action'>
-                   {% brick_bar_button action='creme_core-detailview-delete' label=_('Delete permanently') url=delete_url icon='delete' confirm=_('Do you really want to send this entity to the trash?') enabled=delete_perm %}
+                   {% brick_bar_button action='creme_core-detailview-delete' label=_('Delete permanently') url=delete_url icon='delete' confirm=_('Do you really want to delete this entity definitely?') enabled=delete_perm %}
                </div>
               {% endif %}
              {% endwith %}
