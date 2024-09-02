@@ -392,10 +392,6 @@ input.dperiod-value {
     width: 40px;
 }
 
-input.dperiod-value {
-    width: 40px;
-}
-
 ul.optional-widget,
 ul.select_or_input-widget {
     display: inline-flex;

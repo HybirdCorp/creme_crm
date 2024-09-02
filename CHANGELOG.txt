@@ -1,3 +1,23 @@
+== Version 2.6.1 ==
+
+  Users side :
+  ------------
+    # The confirmation message for definitive deletion in hat-bar brick has been fixed.
+    # Apps :
+        * Billing :
+            - A packaging issue with the optional exporter "WeasyPrint" has been fixed.
+            - The layout of the TemplateBase detail-views has been fixed.
+            - The inner-edition of TemplateBase instances bas been fixed.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # A crash when a function is used for default value of an enumerable FK has been fixed.
+        # The confirmation message for the brick action 'delete' can now be customised.
+
+
 == Version 2.6 ==
 
   UPGRADE NOTES :

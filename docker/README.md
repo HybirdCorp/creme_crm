@@ -11,6 +11,8 @@ It is developed in [Python](https://www.python.org/) with the web framework [Dja
 
 This [Docker](https://www.docker.com/) image contains everything you need to run a local demo instance of Creme CRM, for testing purposes.
 
+We do not provide a `latest` docker image tag. The full list of tags is available [here](https://hub.docker.com/repository/docker/cremecrm/cremecrm-demo/tags).
+
 Please note that this is **not a production ready image**, as it would require a finer configuration.
 
 
@@ -21,7 +23,7 @@ Please note that this is **not a production ready image**, as it would require a
 Starting an instance is simple:
 
 ```commandline
-docker run --detach --rm --name creme_demo --publish 8001:80 --volume creme_data:/srv/creme/data cremecrm/cremecrm-demo:latest
+docker run --detach --rm --name creme_demo --publish 8001:80 --volume creme_data:/srv/creme/data cremecrm/cremecrm-demo:2.6.1
 ```
 
 This command will run a docker container in daemon mode, named `creme_demo`:
@@ -34,7 +36,7 @@ The exhaustive list of available configuration options can be found in the Envir
 Here is an example command setting up an instance using the French locale:
 
 ```commandline
-docker run --detach --rm --name creme_demo --publish 8001:80 --volume creme_data:/srv/creme/data --env CREME_LANGUAGE_CODE=fr --env CREME_TIME_ZONE=Europe/Paris cremecrm/cremecrm-demo:latest
+docker run --detach --rm --name creme_demo --publish 8001:80 --volume creme_data:/srv/creme/data --env CREME_LANGUAGE_CODE=fr --env CREME_TIME_ZONE=Europe/Paris cremecrm/cremecrm-demo:2.6.0
 ```
 
 The installation process can take a minute or two the first time the command runs.
@@ -69,8 +71,9 @@ Default value: `'django.db.backends.sqlite3'`.
 
 
 #### `CREME_DATABASE_NAME`
-Name of the database, or path to the database file if using 'sqlite3'.
+Name of the database, or path to the database file if using 'sqlite3'.  
 Default value: `'/srv/creme/data/cremecrm.db'`.  
+
 It has been placed in the volume defined in the run command, for persistence.
 
 
@@ -109,6 +112,7 @@ Default value: `'en'`.
 #### `CREME_MEDIA_ROOT`
 Path to the root directory where user media will be stored.  
 Default value: `'/srv/creme/data/media/upload'`.  
+
 It has been placed in the volume defined in the run command, for persistence.
 
 

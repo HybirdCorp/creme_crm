@@ -158,6 +158,7 @@ class BillingConfig(CremeAppConfig):
         register(self.Quote)
         register(self.SalesOrder)
         register(self.CreditNote)
+        register(self.TemplateBase)
         register(self.ProductLine).exclude('on_the_fly_item')
         register(self.ServiceLine).exclude('on_the_fly_item')
 
