@@ -205,10 +205,10 @@ class Job(models.Model):
         jtype = self.type
         return jtype.get_config_form_class(self) if jtype is not None else None
 
-    def refresh(self, force=False):
+    def refresh(self, force: bool = False):
         """Ask the JobScheduler to refresh the job if it's needed, because
         the next runs should be earlier, or disabled.
-        @param force: Boolean ; <True> means the message is sent even if no field has changed.
+        @param force: <True> means the message is sent even if no field has changed.
         """
         from ..core.job import get_queue
 
