@@ -44,11 +44,11 @@ logger = logging.getLogger(__name__)
 
 # TODO: should we rely on a watch dog?
 class JobScheduler:
-    """It should run it its own process (see 'creme_job_manager' command),
+    """It should run within its own process (see 'creme_job_manager' command),
     receive command (START...) from an inter-process queue, and spawn jobs
     in their own process.
 
-    System Jobs & User Jobs are not managed in the same way
+    System Jobs & User Jobs are not managed in the same way:
         - System Jobs are always run when their periodic time has arrived, so
           there can be as many processes for them than there are enabled system
           Jobs.
@@ -82,9 +82,8 @@ class JobScheduler:
         arrive before the Job instance can be retrieved (because of transaction).
         So we create an instance of DeferredJob, which is inserted in the system
         jobs collections, in order to use the timeout/wakeup code.
-        At wakeup, we try to retrieve the related Job ; if it fails again,
-        we use the DeferredJob again, excepted if the numbers of trials reaches
-        its limit.
+        At wakeup, we try to retrieve the related Job; if it fails again, we use
+        the DeferredJob again, excepted if the numbers of trials reaches its limit.
         """
         job_id: int
         trials: int
@@ -156,6 +155,7 @@ class JobScheduler:
             now_value = now()
             period = job.real_periodicity.as_timedelta()
 
+            # TODO: optimise this computing to avoid O(N) complexity
             while next_wakeup < now_value:
                 next_wakeup += period
 
@@ -252,7 +252,7 @@ class JobScheduler:
 
         if job_id in self._system_jobs_starts:
             # If the job is running -> the new waking up is computed at the end
-            # of its execution ; so we ignore it.
+            # of its execution; so we ignore it.
             logger.info(
                 'JobScheduler.handle_command_refresh() -> try to REFRESH the job "%s",'
                 ' which is already running: command is useless.',
@@ -300,7 +300,7 @@ class JobScheduler:
         # XXX: this is an UGLY HACK. We have received a REFRESH command, but the
         #  data which should be used to compute the next wake up could be not
         #  available because of a transaction (i.e. the command has been sent
-        #  during this transaction) ; we force a waking up in a short time & pray
+        #  during this transaction); we force a waking up in a short time & pray
         #  that the transaction is finished.
         #  TODO: improve this.
         #    => IDEA: create a transaction marker within the transaction, send
@@ -327,6 +327,9 @@ class JobScheduler:
                 job_id,
             )
             def_job = self._DeferredJob(job_id=job_id)
+            # NB: we push this deferred job, corresponding to a user job, in
+            #     the heap of _system_ jobs, in order to regularly try to retrieve
+            #     the real job (see start()).
             heappush(self._system_jobs, (def_job.next_wakeup(now()), job_id, def_job))
         else:
             self._push_user_job(job)
