@@ -4,6 +4,9 @@
 
   Users side :
   ------------
+    # Several issues in the job scheduler has been fixed for periodic jobs :
+        - The start date of the jobs depended on the hour the command "creme_job_manager" has started.
+        - Some useless extra runs have been removed.
     # Apps :
         * Documents :
             - You could merge system folders & so, remove them.
