@@ -1,6 +1,12 @@
 == Version 2.4.19 Work in progress (not released -- this is a draft) ==
 
+  TODO: compile .po (documents)
+
+  Users side :
+  ------------
     # Apps :
+        * Documents :
+            - You could merge system folders & so, remove them.
         * Billing :
             - The inner-edition of TemplateBase instances bas been fixed.
 
