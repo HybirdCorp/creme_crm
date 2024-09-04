@@ -1,5 +1,13 @@
 == Version 2.5.13 Work in progress (not released -- this is a draft) ==
 
+  TODO: compile .po (documents)
+
+  Users side :
+  ------------
+    # Apps :
+        * Documents :
+            - You could merge system folders & so, remove them.
+
 
 == Version 2.5.12 ==
 

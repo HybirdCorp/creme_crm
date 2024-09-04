@@ -715,7 +715,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             stack_append(clone)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_deleteview01(self):
+    def test_deleteview__empty(self):
         "No doc inside."
         # user = self.login()
         user = self.login_as_root_and_get()
@@ -728,7 +728,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertRedirects(response, self.LIST_URL)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_deleteview02(self):
+    def test_deleteview__one_doc(self):
         "A doc inside protect from deletion."
         # user = self.login()
         user = self.login_as_root_and_get()
@@ -745,8 +745,20 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertStillExists(folder)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_deleteview03(self):
-        "Un deletable folder: 'Creme'."
+    def test_deleteview__one_child_folder(self):
+        "Folder contains a folder."
+        user = self.login_as_root_and_get()
+
+        create_folder = partial(Folder.objects.create, user=user)
+        folder1 = create_folder(title='Folder#1', description='Folder#1', is_deleted=True)
+        create_folder(title='Folder#2', description='Folder#2', parent_folder=folder1)
+
+        self.assertPOST409(folder1.get_delete_absolute_url())
+        self.assertStillExists(folder1)
+
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
+    def test_deleteview__not_deletable01(self):
+        "Not deletable folder: 'Docs related to entities'."
         # self.login()
         self.login_as_root()
         folder = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_RELATED2ENTITIES)
@@ -754,8 +766,8 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertPOST409(folder.get_delete_absolute_url())
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_deleteview04(self):
-        "Un deletable folder: 'Images'."
+    def test_deleteview__not_deletable02(self):
+        "Not deletable folder: 'Images'."
         # self.login()
         self.login_as_root()
         folder = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_IMAGES)
@@ -866,7 +878,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertCountEqual([doc1, doc2], merged_folder.document_set.all())
 
     def test_merge02(self):
-        "One folder is the parent of the other one"
+        "One folder is the parent of the other one."
         # user = self.login()
         user = self.login_as_root_and_get()
 
@@ -890,3 +902,65 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         # Swapped
         self.assertEqual(folder1, getattr(form, 'entity1', None))
         self.assertEqual(folder3, getattr(form, 'entity2', None))
+
+    def test_merge__one_system_folder(self):
+        user = self.login_as_root_and_get()
+
+        folder1 = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_IMAGES)
+        folder2 = Folder.objects.create(user=user, title='Not system Folder')
+
+        build_url = self.build_merge_url
+        response = self.assertGET200(build_url(folder1, folder2))
+
+        with self.assertNoException():
+            form1 = response.context['form']
+
+        self.assertEqual(folder1, getattr(form1, 'entity1', None))
+        self.assertEqual(folder2, getattr(form1, 'entity2', None))
+
+        # -------------
+        form2 = self.assertGET200(build_url(folder2, folder1)).context['form']
+
+        # Swapped
+        self.assertEqual(folder1, getattr(form2, 'entity1', None))
+        self.assertEqual(folder2, getattr(form2, 'entity2', None))
+
+    def test_merge__two_system_folders(self):
+        self.login_as_root()
+
+        folder1 = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_IMAGES)
+        folder2 = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_RELATED2ENTITIES)
+
+        response = self.client.get(self.build_merge_url(folder1, folder2))
+        self.assertContains(
+            response=response,
+            text=_('Can not merge 2 system Folders.'),
+            status_code=409,
+            # html=True,
+        )
+
+    def test_merge__child_system_folder(self):
+        "The system folder is child of the other one."
+        user = self.login_as_root_and_get()
+
+        create_folder = partial(Folder.objects.create, user=user)
+        folder1 = create_folder(title='Parent')
+        folder2 = create_folder(title='Child', parent_folder=folder1)
+        folder3 = create_folder(title='System', parent_folder=folder2)
+
+        try:
+            Folder.not_deletable_UUIDs.add(str(folder3.uuid))
+
+            response = self.client.get(self.build_merge_url(folder1, folder3))
+            self.assertContains(
+                response=response,
+                text=_(
+                    'Can not merge because a child is a system Folder: {folder}'
+                ).format(folder=folder3),
+                status_code=409,
+                # html=True,
+            )
+
+            self.assertGET409(self.build_merge_url(folder3, folder1))
+        finally:
+            Folder.not_deletable_UUIDs.discard(str(folder3.uuid))

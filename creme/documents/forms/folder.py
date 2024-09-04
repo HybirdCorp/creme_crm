@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,10 +17,15 @@
 ################################################################################
 
 from django.db.models.query_utils import Q
+from django.utils.translation import gettext as _
 
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.gui.bulk_update import FieldOverrider
 from creme.creme_core.models import FieldsConfig
+
+from .. import get_folder_model
+
+Folder = get_folder_model()
 
 
 class BaseFolderCustomForm(CremeEntityForm):
@@ -69,7 +74,23 @@ def get_merge_form_builder():
         #     exclude = ('parent_folder',)
 
         def __init__(self, entity1, entity2, *args, **kwargs):
+            parented = False
+
             if entity2.already_in_children(entity1.id):
+                entity1, entity2 = entity2, entity1
+                parented = True
+
+            if str(entity2.uuid) in Folder.not_deletable_UUIDs:
+                if str(entity1.uuid) in Folder.not_deletable_UUIDs:
+                    raise self.CanNotMergeError(_('Can not merge 2 system Folders.'))
+
+                if parented or entity1.already_in_children(entity2.id):
+                    raise self.CanNotMergeError(
+                        _(
+                            'Can not merge because a child is a system Folder: {folder}'
+                        ).format(folder=entity2)
+                    )
+
                 entity1, entity2 = entity2, entity1
 
             super().__init__(entity1, entity2, *args, **kwargs)
