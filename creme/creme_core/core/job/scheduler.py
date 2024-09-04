@@ -103,7 +103,7 @@ class JobScheduler:
             return self.trials >= 100
 
     def _retrieve_jobs(self) -> None:
-        now_value = now()
+        # now_value = now()
         users_jobs = self._users_jobs
         system_jobs = self._system_jobs
 
@@ -132,7 +132,8 @@ class JobScheduler:
                 users_jobs.appendleft(job)
             else:  # System jobs
                 if jtype.periodic != JobType.NOT_PERIODIC:
-                    heappush(system_jobs, (self._next_wakeup(job, now_value), job.id, job))
+                    # heappush(system_jobs, (self._next_wakeup(job, now_value), job.id, job))
+                    heappush(system_jobs, (self._next_wakeup(job), job.id, job))
                 else:
                     logger.warning(
                         'JobScheduler: job %r is a system job and should be'
@@ -154,7 +155,8 @@ class JobScheduler:
             now_value = now()
             period = job.real_periodicity.as_timedelta()
 
-            # TODO: optimise this computing to avoid O(N) complexity
+            # TODO: optimise this computing to avoid O(N) complexity;
+            #       we could probably remove the argument "reference_run".
             while next_wakeup < now_value:
                 next_wakeup += period
 
@@ -300,11 +302,14 @@ class JobScheduler:
         #  available because of a transaction (i.e. the command has been sent
         #  during this transaction); we force a waking up in a short time & pray
         #  that the transaction is finished.
+        #  (NB: PERIODIC jobs only need the data we've received in the command
+        #  to compute the newt waking up).
         #  TODO: improve this.
         #    => IDEA: create a transaction marker within the transaction, send
         #       its ID in the command, & wait for them to be reachable (so we
         #       are sure the transaction is finished).
-        if job.enabled:
+        # if job.enabled:
+        if job.enabled and job.type.periodic == JobType.PSEUDO_PERIODIC:
             secure_wakeup = now() + timedelta(seconds=30)
             next_wakeup = min(next_wakeup, secure_wakeup)
 
