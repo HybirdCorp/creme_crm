@@ -81,7 +81,7 @@
 {% endblock %}
 
 {% block card_fields %}
-    {% if 'phone' not in hidden_fields %}
+  {% if 'phone' not in hidden_fields %}
     <div class="card-info-field">
         <span class='card-info-key'>{% translate 'Phone' %}</span>
         <span class='card-info-value'>
@@ -89,8 +89,8 @@
             {% brick_card_action_for_field instance=object field='phone' user=user %}
         </span>
     </div>
-    {% endif %}
-    {% if 'mobile' not in hidden_fields %}
+  {% endif %}
+  {% if 'mobile' not in hidden_fields %}
     <div class="card-info-field">
         <span class='card-info-key'>{% translate 'Mobile' %}</span>
         <span class='card-info-value'>
@@ -98,8 +98,8 @@
             {% brick_card_action_for_field instance=object field='mobile' user=user %}
         </span>
     </div>
-    {% endif %}
-    {% if 'email' not in hidden_fields %}
+  {% endif %}
+  {% if 'email' not in hidden_fields %}
     <div class="card-info-field">
         <span class='card-info-key'>{% translate 'Email address' %}</span>
         {% with email=object.email %}
@@ -112,8 +112,28 @@
         </span>
         {% endwith %}
     </div>
-    {% endif %}
+  {% endif %}
 {% endblock %}
+
+{% comment %} EXAMPLE of deletion button with a custom callback URL;
+should we reduce the number of lines to copy/paste?
+(the deletor could return the callback URL, but should it know that we clicked on it from the detail-view, and not another view?)
+
+{% block delete_button %}
+ {% load get_deletion_info from creme_core_tags %}
+ {% get_deletion_info entity=object user=user as deletion %}
+ {% if deletion.enabled %}
+  <div class='card-action'>
+    {% if deletion.error %}
+      {% brick_card_button action='creme_core-detailview-delete' label=deletion.label help_text=deletion.error url='#' icon='delete' enabled=False %}
+    {% else %}
+      {% brick_card_button action='creme_core-detailview-delete' label=deletion.label url=deletion.url __callback_url='creme_core__home'|url icon='delete' confirm=deletion.confirmation enabled=True %}
+    {% endif %}
+  </div>
+ {% endif %}
+{% endblock %}
+
+{% endcomment %}
 
 {% block card_summary %}
   {% for summary_ctxt in summaries %}
