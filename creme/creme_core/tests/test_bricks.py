@@ -4,7 +4,6 @@ from json import dumps as json_dump
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.test import RequestFactory
 from django.urls import reverse
 from django.utils.formats import number_format
 
@@ -100,7 +99,18 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
             if 'menu_button' in node.attrib.get('class').split()
         ]
 
-    def test_buttons_brick01(self):
+    def _assertMenuButtons(self, user, entity, buttons):
+        brick = ButtonsBrick()
+        render = brick.detailview_display(
+            context=self.build_context(user=user, instance=entity)
+        )
+        brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
+        self.assertListEqual(
+            [button.action_id for button in buttons],
+            self._get_button_action_ids(brick_node),
+        )
+
+    def test_buttons_brick(self):
         user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
@@ -110,20 +120,11 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         create_button(button=TestButton3, order=101, model=FakeOrganisation)
         create_button(button=TestButton4, order=102, model=FakeContact)
 
-        request = RequestFactory().get(orga.get_absolute_url())
-        request.user = user
-
-        brick = ButtonsBrick()
-        render = brick.detailview_display(
-            context=self.build_context(user=user, instance=orga)
-        )
-        brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
-        self.assertListEqual(
-            [TestButton1.action_id, TestButton3.action_id, TestButton2.action_id],
-            self._get_button_action_ids(brick_node)
+        self._assertMenuButtons(
+            user=user, entity=orga, buttons=[TestButton1, TestButton3, TestButton2],
         )
 
-    def test_buttons_brick02(self):
+    def test_buttons_brick__duplicate(self):
         "A button present in default config & ContentType's one => not duplicated."
         user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -133,17 +134,8 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         create_button(button=TestButton2, order=101, model=FakeOrganisation)
         create_button(button=TestButton1, order=102, model=FakeOrganisation)
 
-        request = RequestFactory().get(orga.get_absolute_url())
-        request.user = user
-
-        brick = ButtonsBrick()
-        render = brick.detailview_display(
-            context=self.build_context(user=user, instance=orga)
-        )
-        brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
-        self.assertListEqual(
-            [TestButton1.action_id, TestButton2.action_id],
-            self._get_button_action_ids(brick_node),
+        self._assertMenuButtons(
+            user=user, entity=orga, buttons=[TestButton1, TestButton2],
         )
 
     def test_buttons_brick__mandatory(self):
@@ -163,25 +155,92 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
         ButtonMenuItem.objects.create_if_needed(button=TestButton1, order=1)
 
-        request = RequestFactory().get(orga.get_absolute_url())
-        request.user = user
-
-        brick = ButtonsBrick()
-        brick.button_registry.register_mandatory(
+        ButtonsBrick.button_registry.register_mandatory(
             button_class=MandatoryButton1, priority=8,
         ).register_mandatory(
             button_class=MandatoryButton2, priority=1,
         )
-
-        render = brick.detailview_display(
-            context=self.build_context(user=user, instance=orga)
+        self._assertMenuButtons(
+            user=user, entity=orga,
+            buttons=[MandatoryButton2, MandatoryButton1, TestButton1],
         )
-        brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
 
-        self.assertListEqual(
-            [MandatoryButton2.action_id, MandatoryButton1.action_id, TestButton1.action_id],
-            self._get_button_action_ids(brick_node)
+    def test_buttons_brick__superuser_config__empty(self):
+        user = self.get_root_user()
+        orga = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        create_button = ButtonMenuItem.objects.create_if_needed
+        create_button(button=TestButton1, order=1)
+        create_button(button=TestButton2, order=101, model=FakeOrganisation)
+
+        ButtonMenuItem.objects.create(
+            content_type=None, button_id='', order=1, superuser=True,
         )
+        self._assertMenuButtons(user=user, entity=orga, buttons=[])
+
+    def test_buttons_brick__superuser_config__default(self):
+        user = self.get_root_user()
+        orga = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        create_button = ButtonMenuItem.objects.create_if_needed
+        create_button(button=TestButton1, order=1)
+        create_button(button=TestButton2, order=102, model=FakeOrganisation)
+        create_button(button=TestButton3, order=101, role='superuser')
+        create_button(button=TestButton4, order=102, role='superuser')
+
+        self._assertMenuButtons(user=user, entity=orga, buttons=[TestButton3, TestButton4])
+
+    def test_buttons_brick__superuser_config__ctype(self):
+        user = self.get_root_user()
+        orga = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        create_button = ButtonMenuItem.objects.create_if_needed
+        create_button(button=TestButton1, order=1)
+        create_button(button=TestButton2, order=101, model=FakeOrganisation)
+        create_button(button=TestButton3, order=1, role='superuser')
+        create_button(button=TestButton4, order=101, role='superuser', model=FakeOrganisation)
+        create_button(button=TestButton5, order=101, role='superuser', model=FakeContact)
+
+        self._assertMenuButtons(user=user, entity=orga, buttons=[TestButton3, TestButton4])
+
+    def test_buttons_brick__role_config__empty(self):
+        user = self.create_user(role=self.create_role())
+        orga = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        create_button = ButtonMenuItem.objects.create_if_needed
+        create_button(button=TestButton1, order=1)
+        create_button(button=TestButton2, order=102, model=FakeOrganisation)
+
+        ButtonMenuItem.objects.create(
+            content_type=None, button_id='', order=1, role=user.role,
+        )
+        self._assertMenuButtons(user=user, entity=orga, buttons=[])
+
+    def test_buttons_brick__role_config__default(self):
+        user = self.create_user(role=self.create_role())
+        orga = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        create_button = ButtonMenuItem.objects.create_if_needed
+        create_button(button=TestButton1, order=1)
+        create_button(button=TestButton2, order=102, model=FakeOrganisation)
+        create_button(button=TestButton3, order=101, role=user.role)
+        create_button(button=TestButton4, order=102, role=user.role)
+
+        self._assertMenuButtons(user=user, entity=orga, buttons=[TestButton3, TestButton4])
+
+    def test_buttons_brick__role_config__ctype(self):
+        user = self.create_user(role=self.create_role())
+        orga = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        create_button = ButtonMenuItem.objects.create_if_needed
+        create_button(button=TestButton1, order=1)
+        create_button(button=TestButton2, order=101, model=FakeOrganisation)
+        create_button(button=TestButton3, order=1, role=user.role)
+        create_button(button=TestButton4, order=101, role=user.role, model=FakeOrganisation)
+        create_button(button=TestButton5, order=101, role=user.role, model=FakeContact)
+        create_button(button=TestButton5, order=101, role='superuser', model=FakeOrganisation)
+
+        self._assertMenuButtons(user=user, entity=orga, buttons=[TestButton3, TestButton4])
 
     def test_properties_brick(self):
         user = self.login_as_root_and_get()

@@ -1040,47 +1040,137 @@ class ExportingTestCase(TransferBaseTestCase):
 
     def test_buttons(self):
         self.login_as_super(is_staff=True)
+        role = self.create_role()
 
-        default_buttons = [*ButtonMenuItem.objects.filter(content_type=None)]
+        default_buttons = [
+            *ButtonMenuItem.objects.filter(content_type=None, superuser=False, role=None),
+        ]
         self.assertTrue(default_buttons)
 
-        contact_ct = ContentType.objects.get_for_model(FakeContact)
-        self.assertFalse(ButtonMenuItem.objects.filter(content_type=contact_ct))
+        model = FakeContact
+        self.assertFalse(
+            ButtonMenuItem.objects.filter(content_type=ContentType.objects.get_for_model(model))
+        )
 
-        def create_button(i):
-            return ButtonMenuItem.objects.create(
-                content_type=contact_ct,
-                order=i,
-                button_id=Button.generate_id(
-                    'creme_config_export', f'test_export_buttons{i}',
-                ),
-            )
+        def gen_id(i):
+            return Button.generate_id('creme_config_export', f'test_export_buttons{i}')
 
-        bmi1 = create_button(1)
-        bmi2 = create_button(2)
+        create_bmi = ButtonMenuItem.objects.create_if_needed
+        base_ct_bmi1 = create_bmi(order=1001, button=gen_id(1), model=model)
+        base_ct_bmi2 = create_bmi(order=1002, button=gen_id(2), model=model)
+        super_def_bmi1 = create_bmi(order=1, button=gen_id(3), role='superuser')
+        super_def_bmi2 = create_bmi(order=2, button=gen_id(4), role='superuser')
+        super_ct_bmi1 = create_bmi(order=1001, button=gen_id(5), role='superuser', model=model)
+        super_ct_bmi2 = create_bmi(order=1002, button=gen_id(6), role='superuser', model=model)
+        role_def_bmi1 = create_bmi(order=1, button=gen_id(7), role=role)
+        role_def_bmi2 = create_bmi(order=2, button=gen_id(8), role=role)
+        role_ct_bmi1 = create_bmi(order=1, button=gen_id(9), role=role, model=model)
+        role_ct_bmi2 = create_bmi(order=2, button=gen_id(10), role=role, model=model)
 
         response = self.assertGET200(self.URL)
         content = response.json()
 
         loaded_buttons = content.get('buttons')
+        self.maxDiff = None
         self.assertListEqual(
             [
                 {'order': bconf.order, 'button_id': bconf.button_id}
                 for bconf in default_buttons
             ],
-            [d for d in loaded_buttons if 'ctype' not in d],
+            [
+                d
+                for d in loaded_buttons
+                if 'ctype' not in d and 'superuser' not in d and 'role' not in d
+            ],
         )
         self.assertListEqual(
             [
                 {
-                    'order': bmi1.order, 'button_id': bmi1.button_id,
+                    'order': base_ct_bmi1.order, 'button_id': base_ct_bmi1.button_id,
                     'ctype': 'creme_core.fakecontact',
                 }, {
-                    'order': bmi2.order, 'button_id': bmi2.button_id,
+                    'order': base_ct_bmi2.order, 'button_id': base_ct_bmi2.button_id,
                     'ctype': 'creme_core.fakecontact',
                 },
             ],
-            [d for d in loaded_buttons if d.get('ctype') == 'creme_core.fakecontact']
+            [
+                d
+                for d in loaded_buttons
+                if (
+                    d.get('ctype') == 'creme_core.fakecontact'
+                    and 'role' not in d
+                    and 'superuser' not in d
+                )
+            ],
+        )
+        self.assertListEqual(
+            [
+                {
+                    'order': super_def_bmi1.order, 'button_id': super_def_bmi1.button_id,
+                    'superuser': True,
+                }, {
+                    'order': super_def_bmi2.order, 'button_id': super_def_bmi2.button_id,
+                    'superuser': True,
+                },
+            ],
+            [
+                d
+                for d in loaded_buttons
+                if d.get('superuser') and 'ctype' not in d
+            ],
+        )
+        self.assertListEqual(
+            [
+                {
+                    'order': super_ct_bmi1.order, 'button_id': super_ct_bmi1.button_id,
+                    'ctype': 'creme_core.fakecontact',
+                    'superuser': True,
+                }, {
+                    'order': super_ct_bmi2.order, 'button_id': super_ct_bmi2.button_id,
+                    'ctype': 'creme_core.fakecontact',
+                    'superuser': True,
+                },
+            ],
+            [
+                d
+                for d in loaded_buttons
+                if d.get('superuser') and d.get('ctype') == 'creme_core.fakecontact'
+            ],
+        )
+        role_uuid = str(role.uuid)
+        self.assertListEqual(
+            [
+                {
+                    'order': role_def_bmi1.order, 'button_id': role_def_bmi1.button_id,
+                    'role': role_uuid,
+                }, {
+                    'order': role_def_bmi2.order, 'button_id': role_def_bmi2.button_id,
+                    'role': role_uuid,
+                },
+            ],
+            [
+                d
+                for d in loaded_buttons
+                if d.get('role') == role_uuid and 'ctype' not in d
+            ],
+        )
+        self.assertListEqual(
+            [
+                {
+                    'order': role_ct_bmi1.order, 'button_id': role_ct_bmi1.button_id,
+                    'ctype': 'creme_core.fakecontact',
+                    'role': role_uuid,
+                }, {
+                    'order': role_ct_bmi2.order, 'button_id': role_ct_bmi2.button_id,
+                    'ctype': 'creme_core.fakecontact',
+                    'role': role_uuid,
+                },
+            ],
+            [
+                d
+                for d in loaded_buttons
+                if d.get('role') == role_uuid and d.get('ctype') == 'creme_core.fakecontact'
+            ],
         )
 
     def test_search(self):

@@ -5,6 +5,155 @@
 {% block brick_extra_class %}{{block.super}} creme_config-buttonmenu-brick{% endblock %}
 
 {% block brick_header_title %}
+  {% if superusers_buttons != None %}
+    {% brick_header_title title=_('Configuration of buttons — {count} role is configured') plural=_('Configuration of buttons — {count} roles are configured')  count=roles_buttons|length|add:1 icon='config' %}
+  {% elif roles_buttons %}
+    {% brick_header_title title=_('Configuration of buttons — {count} role is configured') plural=_('Configuration of buttons — {count} roles are configured')  count=roles_buttons|length|add:1 icon='config' %}
+  {% else %}
+    {% brick_header_title title=_('Configuration of buttons') icon='config' %}
+  {% endif %}
+{% endblock %}
+
+{% block brick_content %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' delete_url='creme_config__delete_buttons'|url %}
+    <div class="buttonmenu-config-supergroup buttonmenu-config-supergroup-base">
+        <div class="buttonmenu-config-supergroup-summary">
+            <div class="buttonmenu-config-supergroup-title">{% translate 'Base configuration' %}</div>
+            <div class="buttonmenu-config-supergroup-help">{% translate 'Used when no role configuration is available for a user' %}</div>
+            <div class="buttonmenu-config-supergroup-action">
+                {% brick_action id='add' url='creme_config__add_base_buttons'|url display='both' label=_('Configurate the buttons for a new type of entity') enabled=admin_perm %}
+                {% if not all_roles_configured %}
+                 {% brick_action id='add' url='creme_config__clone_base_buttons'|url label=_('Clone the base configuration for a role') icon='clone' display='both' enabled=admin_perm %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="brick-list-item buttonmenu-config-item">
+            <div class="buttonmenu-config-group buttonmenu-config-summary-group">
+                <div class="buttonmenu-config-group-title">{% translate 'Default configuration' %}</div>
+                <div class="buttonmenu-config-group-action">
+                    {% brick_action id='edit' url='creme_config__edit_base_buttons'|url:0 label=_('Edit the default configuration') enabled=admin_perm %}
+                </div>
+            </div>
+            <div class="buttonmenu-config-group">
+                {% config_render_buttons_placeholders base_default_buttons _('No button') %}
+            </div>
+        </div>
+        {% for ctype, buttons_data in base_ctypes_buttons %}
+        <div class="brick-list-item buttonmenu-config-item">
+            <div class="buttonmenu-config-group buttonmenu-config-summary-group">
+                <div class="buttonmenu-config-group-title">{% widget_icon ctype=ctype size='brick-list' class='buttonmenu-config-type-icon' %} {{ctype}}</div>
+                <div class="buttonmenu-config-group-action">
+                    {% brick_action id='edit'   url='creme_config__edit_base_buttons'|url:ctype.id label=_('Edit this configuration')   enabled=admin_perm %}
+                    {% brick_action id='delete' url=delete_url __ctype=ctype.id                    label=_('Delete this configuration') enabled=admin_perm %}
+                </div>
+            </div>
+            <div class="buttonmenu-config-group">
+                {% config_render_buttons_placeholders buttons_data _('No button') %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{# SUPERUSERS ---------------- #}
+    {% if superusers_buttons != None %}
+    <div class="buttonmenu-config-supergroup buttonmenu-config-supergroup-superuser">
+        <div class="buttonmenu-config-supergroup-summary">
+            <div class="buttonmenu-config-supergroup-title">{% translate 'Configuration for superusers' %}</div>
+{#            <div class="buttonmenu-config-supergroup-help"></div> #}
+            <div class="buttonmenu-config-supergroup-action">
+                {% brick_action id='add' url='creme_config__add_superuser_buttons'|url display='both' label=_('Configurate the buttons for a new type of entity') enabled=admin_perm %}
+                {% brick_action id='delete' url=delete_url __role='superuser' label=_('Delete the whole configuration for superusers') display='both' confirm=_('Are you sure you want to delete the whole configuration for superusers?') enabled=admin_perm %}
+                {% if not all_roles_configured %}
+                 {% brick_action id='add' url='creme_config__clone_superuser_buttons'|url label=_("Clone this configuration for another role") icon='clone' display='both' enabled=admin_perm %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="brick-list-item buttonmenu-config-item">
+            <div class="buttonmenu-config-group buttonmenu-config-summary-group">
+                <div class="buttonmenu-config-group-title">{% translate 'Default configuration' %}</div>
+                <div class="buttonmenu-config-group-action">
+                    {% brick_action id='edit' url='creme_config__edit_superuser_buttons'|url:0 label=_('Edit the default configuration') enabled=admin_perm %}
+                </div>
+            </div>
+            <div class="buttonmenu-config-group">
+                {% config_render_buttons_placeholders superusers_buttons.default _('No button') %}
+            </div>
+        </div>
+        {% for ctype, buttons_data in superusers_buttons.ctypes %}
+        <div class="brick-list-item buttonmenu-config-item">
+            <div class="buttonmenu-config-group buttonmenu-config-summary-group">
+                <div class="buttonmenu-config-group-title">{% widget_icon ctype=ctype size='brick-list' class='buttonmenu-config-type-icon' %} {{ctype}}</div>
+                <div class="buttonmenu-config-group-action">
+                    {% brick_action id='edit'   url='creme_config__edit_superuser_buttons'|url:ctype.id label=_('Edit this configuration')   enabled=admin_perm %}
+                    {% brick_action id='delete' url=delete_url __ctype=ctype.id __role='superuser'      label=_('Delete this configuration') enabled=admin_perm %}
+                </div>
+            </div>
+            <div class="buttonmenu-config-group">
+                {% config_render_buttons_placeholders buttons_data _('No button') %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+{# ROLES ---------------- #}
+    {% for role_buttons in roles_buttons %}
+    {% with role=role_buttons.role %}
+    <div class="buttonmenu-config-supergroup buttonmenu-config-supergroup-role">
+        <div class="buttonmenu-config-supergroup-summary">
+            <div class="buttonmenu-config-supergroup-title">{% blocktranslate with role=role %}Configuration for role «{{role}}»{% endblocktranslate %}</div>
+{#            <div class="buttonmenu-config-supergroup-help"></div> #}
+            <div class="buttonmenu-config-supergroup-action">
+                {% brick_action id='add' url='creme_config__add_role_buttons'|url:role.id display='both' label=_('Configurate the buttons for a new type of entity') enabled=admin_perm %}
+                {% brick_action id='delete' url=delete_url __role=role.id label=_('Delete the whole configuration for this role') display='both' confirm=_('Are you sure you want to delete the whole configuration this role?') enabled=admin_perm %}
+                {% if not all_roles_configured %}
+                 {% brick_action id='add' url='creme_config__clone_role_buttons'|url:role.id label=_("Clone this configuration for another role") icon='clone' display='both' enabled=admin_perm %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="brick-list-item buttonmenu-config-item">
+            <div class="buttonmenu-config-group buttonmenu-config-summary-group">
+                <div class="buttonmenu-config-group-title">{% translate 'Default configuration' %}</div>
+                <div class="buttonmenu-config-group-action">{% url 'creme_config__edit_role_buttons' role.id 0 as edition_url %}
+                    {% brick_action id='edit' url=edition_url label=_('Edit the default configuration') enabled=admin_perm %}
+                </div>
+            </div>
+            <div class="buttonmenu-config-group">
+                {% config_render_buttons_placeholders role_buttons.default _('No button') %}
+            </div>
+        </div>
+        {% for ctype, buttons_data in role_buttons.ctypes %}
+        <div class="brick-list-item buttonmenu-config-item">
+            <div class="buttonmenu-config-group buttonmenu-config-summary-group">
+                <div class="buttonmenu-config-group-title">{% widget_icon ctype=ctype size='brick-list' class='buttonmenu-config-type-icon' %} {{ctype}}</div>
+                <div class="buttonmenu-config-group-action">{% url 'creme_config__edit_role_buttons' role.id ctype.id as edition_url %}
+                    {% brick_action id='edit'   url=edition_url                                label=_('Edit this configuration')   enabled=admin_perm %}
+                    {% brick_action id='delete' url=delete_url __ctype=ctype.id __role=role.id label=_('Delete this configuration') enabled=admin_perm %}
+                </div>
+            </div>
+            <div class="buttonmenu-config-group">
+                {% config_render_buttons_placeholders buttons_data _('No button') %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endwith %}
+    {% endfor %}
+
+ {% endwith %}
+{% endblock %}
+
+{% comment %}
+{% extends 'creme_core/bricks/base/list.html' %}
+{% load i18n creme_bricks creme_widgets creme_perms creme_config_tags %}
+{% load url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-buttonmenu-brick{% endblock %}
+
+{% block brick_header_title %}
     {% brick_header_title title=_('{count} Configured type of resource') plural=_('{count} Configured types of resource') empty=_('Configured types of resource') count=buttons|length icon='config' %}
 {% endblock %}
 
@@ -41,3 +190,5 @@
     {% endfor %}
  {% endwith %}
 {% endblock %}
+{% endcomment %}
+

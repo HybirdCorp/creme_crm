@@ -260,7 +260,6 @@ class EntityRelatedMixin:
         @return: An instance of "real" entity.
         """
         try:
-            # entity = getattr(self, 'related_entity')
             entity = self.related_entity  # NOQA
         except AttributeError:
             entity_classes = self.entity_classes

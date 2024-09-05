@@ -574,7 +574,10 @@ class MenuConfigImporter(Importer):
 
 @IMPORTERS.register(data_id=constants.ID_BUTTONS)
 class ButtonsConfigImporter(Importer):
-    def load_bmi(self, bmi_info: dict) -> dict:
+    dependencies = [constants.ID_ROLES]
+
+    # def load_bmi(self, bmi_info: dict) -> dict:
+    def load_bmi(self, bmi_info: dict, validated_data) -> dict:
         data = {
             'button_id': bmi_info['button_id'],
             'order': int(bmi_info['order']),
@@ -585,15 +588,30 @@ class ButtonsConfigImporter(Importer):
             # data['content_type'] = load_ct(natural_ctype)
             data['content_type'] = ctype_from_key(natural_ctype)
 
+        role_uuid = bmi_info.get('role')
+        if role_uuid:
+            if role_uuid in validated_data[UserRole]:
+                data['role_uuid'] = role_uuid
+            else:
+                data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
+        elif bmi_info.get('superuser'):
+            data['superuser'] = True
+
         return data
 
     def _validate_section(self, deserialized_section, validated_data):
-        self._data = [*map(self.load_bmi, deserialized_section)]
+        # self._data = [*map(self.load_bmi, deserialized_section)]
+        self._data = [
+            self.load_bmi(bmi_info, validated_data) for bmi_info in deserialized_section
+        ]
 
     def save(self):
         ButtonMenuItem.objects.all().delete()  # TODO: recycle instances
 
         for data in self._data:
+            role_uuid = data.pop('role_uuid', None)
+            if role_uuid:
+                data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
             ButtonMenuItem.objects.create(**data)
 
 

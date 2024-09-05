@@ -967,6 +967,7 @@ class NotificationChannelConfigItemsBrick(_ConfigAdminBrick):
         return self._render(btc)
 
 
+# TODO: pagination for big number of roles?
 class ButtonMenuBrick(Brick):
     id = Brick.generate_id('creme_config', 'button_menu')
     verbose_name = 'Button menu configuration'
@@ -976,13 +977,36 @@ class ButtonMenuBrick(Brick):
 
     button_registry = button_registry
 
-    def get_buttons(self):
+    # def get_buttons(self):
+    #     default_buttons = []
+    #     buttons_map = defaultdict(list)
+    #
+    #     get_button = self.button_registry.get_button
+    #
+    #     for bmi in :
+    #         if bmi.content_type is not None:
+    #             _button_list = buttons_map[bmi.content_type]
+    #         else:
+    #             _button_list = default_buttons
+    #
+    #         button = get_button(bmi.button_id)
+    #         if button is not None:
+    #             _button_list.append({
+    #                 'label': str(bmi),
+    #                 'description': str(button.description),
+    #             })
+    #
+    #     sort_key = collator.sort_key
+    #     buttons = sorted(buttons_map.items(), key=lambda t: sort_key(str(t[0])))
+    #
+    #     return default_buttons, buttons
+    def _build_buttons_info(self, items):
         default_buttons = []
         buttons_map = defaultdict(list)
 
         get_button = self.button_registry.get_button
 
-        for bmi in core_models.ButtonMenuItem.objects.order_by('order'):
+        for bmi in items:
             if bmi.content_type is not None:
                 _button_list = buttons_map[bmi.content_type]
             else:
@@ -996,17 +1020,64 @@ class ButtonMenuBrick(Brick):
                 })
 
         sort_key = collator.sort_key
-        buttons = sorted(buttons_map.items(), key=lambda t: sort_key(str(t[0])))
+        ctype_buttons = sorted(buttons_map.items(), key=lambda t: sort_key(str(t[0])))
 
-        return default_buttons, buttons
+        return default_buttons, ctype_buttons
 
+    # def detailview_display(self, context):
+    #     default_buttons, buttons = self.get_buttons()
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         default_buttons=default_buttons,
+    #         buttons=buttons,
+    #     ))
     def detailview_display(self, context):
-        default_buttons, buttons = self.get_buttons()
+        items = core_models.ButtonMenuItem.objects.order_by('order')
+
+        base_default_buttons, base_ctypes_buttons = self._build_buttons_info(
+            (item for item in items if not item.superuser and not item.role_id)
+        )
+
+        if superusers_items := [item for item in items if item.superuser]:
+            default_buttons, ctypes_buttons = self._build_buttons_info(
+                superusers_items
+            )
+            superusers_buttons = {
+                'default': default_buttons,
+                'ctypes': ctypes_buttons,
+            }
+        else:
+            superusers_buttons = None
+
+        roles = {role.id: role for role in core_models.UserRole.objects.all()}
+        roles_buttons = []
+        if role_ids := {item.role_id for item in items if item.role_id}:
+            sort_key = collator.sort_key
+            for role in sorted(
+                ([roles[role_id] for role_id in role_ids]),
+                key=lambda r: sort_key(str(r)),
+            ):
+                default_buttons, ctypes_buttons = self._build_buttons_info(
+                    (item for item in items if item.role_id == role.id)
+                )
+                roles_buttons.append({
+                    'role': role,
+                    'default': default_buttons,
+                    'ctypes': ctypes_buttons,
+                })
 
         return self._render(self.get_template_context(
             context,
-            default_buttons=default_buttons,
-            buttons=buttons,
+            base_default_buttons=base_default_buttons,
+            base_ctypes_buttons=base_ctypes_buttons,
+
+            superusers_buttons=superusers_buttons,
+            roles_buttons=roles_buttons,
+
+            all_roles_configured=(
+                superusers_buttons is not None and len(role_ids) == len(roles)
+            ),
         ))
 
 

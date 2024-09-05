@@ -422,6 +422,12 @@ class ButtonMenuItemExporter(Exporter):
             # data['ctype'] = dump_ct(ctype)
             data['ctype'] = ctype_as_key(ctype)
 
+        role = instance.role
+        if role:
+            data['role'] = str(role.uuid)
+        elif instance.superuser:
+            data['superuser'] = True
+
         return data
 
 

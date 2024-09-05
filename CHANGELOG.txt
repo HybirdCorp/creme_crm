@@ -2,10 +2,11 @@
 
   Users side :
   ------------
-    # The deletion buttons have been reworked in detailed views & lis-views;  they are now disabled when a rule
+    # The deletion buttons have been reworked in detailed views & list-views;  they are now disabled when a rule
       avoids you to delete them (e.g. a Contact corresponding to a user) & the reason is displayed as tool-tip.
     # Apps :
         * Creme_config :
+            - The buttons configuration can now be customised per role.
             - In the bricks configuration, default configuration is used as initial value when it's relevant
               (instead of starting with an empty configuration).
             - In the relation types configuration, you can now edit the "minimal display" value for standard types.
@@ -106,6 +107,7 @@
           You won't be impacted unless you read the JSON directly (why would you do this bro?).
           In the model 'RelationBrickItem', the way ContentTypes are stored in the field "json_cells_map" has changed too;
           a natural key with the pattern "app.modelname" is used instead of the ID.
+        # The method 'creme_core.bricks.ButtonsBrick._get_buttons()' has a new mandatory argument.
         # In 'creme_core.core.entity_cell', in the methods 'EntityCell*.build()' :
             - The second argument is now always named "name" (e.g. it was named "customfield_id" in 'EntityCellCustomField.build()').
             - The extra arguments are now keyword only (.e.g. 'EntityCellRegularField' & "is_hidden").
@@ -139,11 +141,12 @@
         # The method 'creme_core.models.CremeModel._delete_stored_file()' is not static anymore.
         # Apps :
             * Creme_config :
+                - The class 'bricks.ButtonMenuBrick' (& its template) has been heavily reworked.
                 - In 'core.exporters', the class 'CellsExporterMixin' & the function 'dump_ct()' have been removed.
                 - The function 'core.importers.load_ct()' has been removed.
-            * Creme_config :
                 - In the class 'function_fields.TemplateBaseVerboseStatusField',
                   the attribute "_cache" has been replaced by "_statuses_per_model".
+                - The views to configurate buttons (& their URL patterns & names) have been heavily reworked.
 
 
 == Version 2.6 ==
