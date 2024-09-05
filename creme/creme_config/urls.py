@@ -628,20 +628,72 @@ button_menu_patterns = [
         button_menu.Portal.as_view(),
         name='creme_config__buttons',
     ),
+
+    # Creattion
+    # re_path(
+    #     r'^wizard[/]?$',
+    #     button_menu.ButtonMenuWizard.as_view(),
+    #     name='creme_config__add_buttons_to_ctype',
+    # ),
     re_path(
-        r'^wizard[/]?$',
-        button_menu.ButtonMenuWizard.as_view(),
-        name='creme_config__add_buttons_to_ctype',
+        r'^add/base[/]?$',
+        button_menu.ButtonMenuBaseCreationWizard.as_view(),
+        name='creme_config__add_base_buttons',
     ),
     re_path(
-        r'^edit/(?P<ct_id>\d+)[/]?$',
-        button_menu.ButtonMenuEdition.as_view(),
-        name='creme_config__edit_ctype_buttons',
+        r'^add/role/(?P<role_id>\d+)[/]?$',
+        button_menu.ButtonMenuRoleCreationWizard.as_view(),
+        name='creme_config__add_role_buttons',
     ),
+    re_path(
+        r'^add/superuser[/]?$',
+        button_menu.ButtonMenuSuperuserCreationWizard.as_view(),
+        name='creme_config__add_superuser_buttons',
+    ),
+
+    # Edition
+    re_path(
+        # r'^edit/(?P<ct_id>\d+)[/]?$',
+        r'^edit/base/(?P<ct_id>\d+)[/]?$',
+        # button_menu.ButtonMenuEdition.as_view(),
+        button_menu.ButtonMenuBaseEdition.as_view(),
+        # name='creme_config__edit_ctype_buttons',
+        name='creme_config__edit_base_buttons',
+    ),
+    re_path(
+        r'^edit/role/(?P<role_id>\d+)/(?P<ct_id>\d+)[/]?$',
+        button_menu.ButtonMenuRoleEdition.as_view(),
+        name='creme_config__edit_role_buttons',
+    ),
+    re_path(
+        r'^edit/superuser/(?P<ct_id>\d+)[/]?$',
+        button_menu.ButtonMenuSuperuserEdition.as_view(),
+        name='creme_config__edit_superuser_buttons',
+    ),
+
+    # Deletion
     re_path(
         r'^delete[/]?$',
         button_menu.ButtonMenuDeletion.as_view(),
-        name='creme_config__delete_ctype_buttons',
+        # name='creme_config__delete_ctype_buttons',
+        name='creme_config__delete_buttons',
+    ),
+
+    # Clone
+    re_path(
+        r'^clone[/]?$',
+        button_menu.ButtonMenuBaseCloning.as_view(),
+        name='creme_config__clone_base_buttons',
+    ),
+    re_path(
+        r'^clone/role/(?P<role_id>\d+)[/]?$',
+        button_menu.ButtonMenuRoleCloning.as_view(),
+        name='creme_config__clone_role_buttons',
+    ),
+    re_path(
+        r'^clone/superuser[/]?$',
+        button_menu.ButtonMenuSuperuserCloning.as_view(),
+        name='creme_config__clone_superuser_buttons',
     ),
 ]
 

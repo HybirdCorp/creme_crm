@@ -559,15 +559,56 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 /* Buttons brick */
 
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup + .buttonmenu-config-supergroup {
+    padding-top: 20px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-summary {
+    padding: 5px;
+    background: #f7f7f7;
+
+    border-bottom: 1px solid #e9e9e9;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-superuser .buttonmenu-config-supergroup-summary,
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-role .buttonmenu-config-supergroup-summary {
+    padding-top: 15px;
+    border-top: 2px solid #dfdfdf;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-summary .buttonmenu-config-supergroup-title {
+    text-transform: uppercase;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-summary .buttonmenu-config-supergroup-help {
+    color: grey;
+    font-style: italic;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-supergroup-action .brick-action {
+    padding-left: 15px;
+}
+
+/*
 .creme_config-buttonmenu-brick .brick-content {
     padding: 0;
 }
+*/
 
 .creme_config-buttonmenu-brick .brick-content .brick-list-item:last-child {
     padding-bottom: 5px;
 }
 
 .creme_config-buttonmenu-brick .buttonmenu-config-item {
+    margin-left: 15px;
+
     font-size: 11px;
 }
 
@@ -638,6 +679,13 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-buttonmenu-brick .buttons-list.instance-buttons.buttons-config .menu_button {
     padding: 4px 12px;
+}
+
+.creme_config-buttonmenu-brick .buttons-list .empty-message {
+    padding: 5px;
+
+    font-style: italic;
+    color: grey;
 }
 
 /* FieldsConfig brick */

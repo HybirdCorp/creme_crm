@@ -737,8 +737,11 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertFalse(role2_child1.superuser)
         self.assertEqual(role2, role2_child1.role)
 
-    def test_buttons(self):
+    def test_buttons01(self):
         self.login_as_super(is_staff=True)
+
+        role = self.create_role(name='Test')
+        role_uuid = str(role.uuid)
 
         contact_ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(ButtonMenuItem.objects.filter(content_type=contact_ct))
@@ -761,6 +764,18 @@ class ImportingTestCase(TransferBaseTestCase):
 
             {'order': 1, 'button_id': gen_bid(5), 'ctype': ct_str},
             {'order': 2, 'button_id': gen_bid(6), 'ctype': ct_str},
+
+            {'order': 1, 'button_id': gen_bid(7), 'superuser': True},
+            {'order': 2, 'button_id': gen_bid(8), 'superuser': True},
+
+            {'order': 1, 'button_id': gen_bid(9),  'superuser': True, 'ctype': ct_str},
+            {'order': 2, 'button_id': gen_bid(10), 'superuser': True, 'ctype': ct_str},
+
+            {'order': 1, 'button_id': gen_bid(11), 'role': role_uuid},
+            {'order': 2, 'button_id': gen_bid(12), 'role': role_uuid},
+
+            {'order': 1, 'button_id': gen_bid(13), 'role': role_uuid, 'ctype': ct_str},
+            {'order': 2, 'button_id': gen_bid(14), 'role': role_uuid, 'ctype': ct_str},
         ]
 
         json_file = StringIO(json_dump({'version': self.VERSION, 'buttons': buttons_data}))
@@ -772,17 +787,114 @@ class ImportingTestCase(TransferBaseTestCase):
             [buttons_data[0], buttons_data[1]],
             [
                 {'order': bmi.order, 'button_id': bmi.button_id}
-                for bmi in ButtonMenuItem.objects.filter(content_type=None)
+                for bmi in ButtonMenuItem.objects.filter(
+                    content_type=None, superuser=False, role=None,
+                )
             ],
         )
         self.assertListEqual(
             [buttons_data[2], buttons_data[3]],
             [
                 {'order': bmi.order, 'button_id': bmi.button_id, 'ctype': ct_str}
-                for bmi in ButtonMenuItem.objects.filter(content_type=contact_ct)
+                for bmi in ButtonMenuItem.objects.filter(
+                    content_type=contact_ct, superuser=False, role=None,
+                )
+            ],
+        )
+        self.assertListEqual(
+            [buttons_data[4], buttons_data[5]],
+            [
+                {'order': bmi.order, 'button_id': bmi.button_id, 'superuser': True}
+                for bmi in ButtonMenuItem.objects.filter(
+                    content_type=None, superuser=True, role=None,
+                )
+            ],
+        )
+        self.assertListEqual(
+            [buttons_data[6], buttons_data[7]],
+            [
+                {
+                    'order': bmi.order, 'button_id': bmi.button_id,
+                    'superuser': True, 'ctype': ct_str,
+                } for bmi in ButtonMenuItem.objects.filter(
+                    content_type=contact_ct, superuser=True, role=None,
+                )
+            ],
+        )
+        self.assertListEqual(
+            [buttons_data[8], buttons_data[9]],
+            [
+                {'order': bmi.order, 'button_id': bmi.button_id, 'role': role_uuid}
+                for bmi in ButtonMenuItem.objects.filter(
+                    content_type=None, superuser=False, role=role,
+                )
+            ],
+        )
+        self.assertListEqual(
+            [buttons_data[10], buttons_data[11]],
+            [
+                {
+                    'order': bmi.order, 'button_id': bmi.button_id,
+                    'role': role_uuid, 'ctype': ct_str,
+                } for bmi in ButtonMenuItem.objects.filter(
+                    content_type=contact_ct, superuser=False, role=role,
+                )
             ],
         )
         self.assertDoesNotExist(orga_bmi)
+
+    def test_buttons02(self):
+        self.login_as_super(is_staff=True)
+
+        def gen_bid(i):
+            return Button.generate_id('creme_config_export', f'test_import_buttons{i}')
+
+        role_uuid = str(uuid4())
+        buttons_data = [
+            {'order': 1, 'button_id': gen_bid(1)},
+            {'order': 2, 'button_id': gen_bid(2)},
+
+            {'order': 1, 'button_id': gen_bid(3), 'role': role_uuid},
+            {'order': 2, 'button_id': gen_bid(4), 'role': role_uuid},
+        ]
+
+        json_file = StringIO(json_dump({
+            'version': self.VERSION,
+            'buttons': buttons_data,
+            'roles': [{
+                'uuid': role_uuid,
+                'name': 'Super-hero',
+
+                'allowed_apps': ['persons'],
+                'admin_4_apps': [],
+
+                'creatable_ctypes': ['creme_core.fakecontact'],
+                'exportable_ctypes': [],
+
+                'credentials': [
+                    {
+                        'value': (
+                            EntityCredentials.VIEW
+                            | EntityCredentials.CHANGE
+                            | EntityCredentials.DELETE
+                        ),
+                        'type': SetCredentials.ESET_ALL,
+                    },
+                ],
+            }],
+        }))
+        json_file.name = 'config-12-09-2024.csv'
+
+        self.assertNoFormError(self.client.post(self.URL, data={'config': json_file}))
+        self.assertListEqual(
+            [buttons_data[2], buttons_data[3]],
+            [
+                {'order': bmi.order, 'button_id': bmi.button_id, 'role': role_uuid}
+                for bmi in ButtonMenuItem.objects.filter(
+                    content_type=None, superuser=False, role__uuid=role_uuid,
+                )
+            ],
+        )
 
     def test_search01(self):
         self.login_as_super(is_staff=True)
@@ -3324,7 +3436,7 @@ class ImportingTestCase(TransferBaseTestCase):
         # --
         default_bricks_data = defaultdict(list)
         for bdl in BrickDetailviewLocation.objects.filter(
-                content_type=None, role=None, superuser=False,
+            content_type=None, role=None, superuser=False,
         ):
             default_bricks_data[bdl.zone].append(
                 {'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone}

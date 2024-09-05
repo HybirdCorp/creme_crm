@@ -64,6 +64,7 @@ class ConfigExport(generic.CheckedView):
         #    - UUID given for CustomFieldEnumValue.
         # 2.7: 1.6
         #    - The cells for RelationBrickItem are now stored as a dictionary.
+        #    - Fields "role" & "superuser" for ButtonMenuItem.
         info[ID_VERSION] = '1.6'
         info.update((e_id, exporter()) for e_id, exporter in self.registry)
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-09 10:52+0200\n"
+"POT-Creation-Date: 2024-09-12 11:23+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1133,21 +1133,55 @@ msgid "Delete the configuration"
 msgstr "Supprimer la configuration"
 
 #, python-brace-format
-msgid "{count} Configured type of resource"
-msgstr "{count} Type de ressource configuré"
+msgid "Configuration of buttons — {count} role is configured"
+msgstr "Configuration des boutons— {count} rôle est configuré"
 
 #, python-brace-format
-msgid "{count} Configured types of resource"
-msgstr "{count} Types de ressource configurés"
+msgid "Configuration of buttons — {count} roles are configured"
+msgstr "Configuration des boutons— {count} rôles sont configurés"
 
-msgid "Configured types of resource"
-msgstr "Types de ressource configurés"
+msgid "Configuration of buttons"
+msgstr "Configuration des boutons"
 
-msgid "New buttons configuration"
-msgstr "Nouvelle configuration de boutons"
+msgid "Base configuration"
+msgstr "Configuration de base"
+
+msgid "Used when no role configuration is available for a user"
+msgstr "Utilisée quand aucune configuration de rôle n'est disponible pour un utilisateur"
+
+msgid "Clone the base configuration for a role"
+msgstr "Cloner la configuration de base pour un rôle"
 
 msgid "No button"
 msgstr "Pas de bouton"
+
+msgid "Configurate the buttons for a new type of entity"
+msgstr "Configurer les boutons pour un nouveau type de fiche"
+
+msgid "Configuration for superusers"
+msgstr "Configuration pour les super-utilisateurs"
+
+msgid "Clone this configuration for another role"
+msgstr "Cloner cette configuration pour un autre rôle"
+
+msgid "Delete the whole configuration for superusers"
+msgstr "Supprimer la configuration complète pour les super-utilisateurs"
+
+msgid "Are you sure you want to delete the whole configuration for superusers?"
+msgstr ""
+"Êtes vous sûr de vouloir supprimer la configuration complète pour les "
+"super-utilisateurs ?"
+
+#, python-format
+msgid "Configuration for role «%(role)s»"
+msgstr "Configuration pour le rôle «%(role)s»"
+
+msgid "Delete the whole configuration for this role"
+msgstr "Supprimer la configuration complète pour ce rôle"
+
+msgid "Are you sure you want to delete the whole configuration this role?"
+msgstr ""
+"Êtes vous sûr de vouloir supprimer la configuration complète pour ce rôle ?"
 
 msgid "New value"
 msgstr "Nouvelle valeur"
@@ -1195,6 +1229,17 @@ msgstr "Supprimer ce choix"
 
 msgid "No choice for this custom field"
 msgstr "Aucun choix pour ce champ personnalisé"
+
+#, python-brace-format
+msgid "{count} Configured type of resource"
+msgstr "{count} Type de ressource configuré"
+
+#, python-brace-format
+msgid "{count} Configured types of resource"
+msgstr "{count} Types de ressource configurés"
+
+msgid "Configured types of resource"
+msgstr "Types de ressource configurés"
 
 msgid "New custom field configuration"
 msgstr "Nouvelle configuration de champ personnalisé"
@@ -2193,9 +2238,6 @@ msgstr "Aucune application ne nécessite de configuration"
 msgid "Configuration of blocks"
 msgstr "Configuration des blocs"
 
-msgid "Configuration of buttons"
-msgstr "Configuration des boutons"
-
 msgid ""
 "Here you can configure the buttons displayed on detailed views, just below "
 "the header block.\n"
@@ -2437,13 +2479,61 @@ msgstr "Modifier la configuration de «{model}»"
 msgid "Edit the block «{object}»"
 msgstr "Modifier le bloc «{object}»"
 
+msgid "This role has no button configuration."
+msgstr "Ce rôle n'a pas de configuration de bouton."
+
 #, python-brace-format
 msgid "New buttons configuration for «{model}»"
 msgstr "Nouvelle configuration de boutons pour «{model}»"
 
+msgid "New buttons base configuration"
+msgstr "Nouvelle configuration de base des boutons"
+
 #, python-brace-format
-msgid "Edit configuration for «{model}»"
-msgstr "Modifier la configuration pour «{model}»"
+msgid "New buttons configuration for role «{role}»"
+msgstr "Nouvelle configuration de boutons pour le rôle «{role}»"
+
+msgid "New buttons configuration for superusers"
+msgstr "Nouvelle configuration de boutons pour les super-utilisateurs"
+
+msgid "Superusers have no button configuration."
+msgstr "Les super-utilisateurs n'ont pas configuration de bouton."
+
+#, python-brace-format
+msgid "Edit base configuration for «{model}»"
+msgstr "Modifier la configuration de base pour «{model}»"
+
+msgid "Edit default base configuration"
+msgstr "Modifier la configuration de base par défaut"
+
+#, python-brace-format
+msgid "Edit configuration of role «{role}» for «{model}»"
+msgstr "Modifier la configuration du rôle «{role}» pour «{model}»"
+
+#, python-brace-format
+msgid "Edit default configuration of role «{role}»"
+msgstr "Modifier la configuration par défaut du rôle «{role}»"
+
+#, python-brace-format
+msgid "Edit configuration of superusers for «{model}»"
+msgstr "Modifier la configuration des super-utilisateurs pour «{model}»"
+
+msgid "Edit default configuration of superusers"
+msgstr "Modifier la configuration par défaut des super-utilisateurs"
+
+# Already in creme_core
+msgid "Clone"
+msgstr ""
+
+msgid "Clone the base configuration"
+msgstr "Cloner la configuration de base"
+
+#, python-brace-format
+msgid "Clone the configuration of «{role}»"
+msgstr "Cloner la configuration de «{role}»"
+
+msgid "Clone the configuration of superusers"
+msgstr "Cloner la configuration des super-utilisateurs"
 
 #, python-brace-format
 msgctxt "creme_config-property"
@@ -2650,10 +2740,6 @@ msgstr "Modifier les droits de «{role}»"
 msgid "Clone the role «{object}»"
 msgstr "Cloner le rôle «{object}»"
 
-# Already in creme_core
-msgid "Clone"
-msgstr ""
-
 #, python-brace-format
 msgid "Delete role «{object}»"
 msgstr "Supprimer le rôle «{object}»"
@@ -2756,9 +2842,6 @@ msgstr "Modifier la configuration de l'instance"
 #~ msgid "Order"
 #~ msgstr "Ordre"
 
-#~ msgid "Edit default portal configuration"
-#~ msgstr "Modifier la configuration de portail par défaut"
-
 #~ msgid "Resource"
 #~ msgstr "Ressource"
 
@@ -2785,9 +2868,6 @@ msgstr "Modifier la configuration de l'instance"
 
 #~ msgid "Related type of relation"
 #~ msgstr "Type de relation associé"
-
-#~ msgid "Customisation of columns"
-#~ msgstr "Personnalisation des colonnes"
 
 #~ msgid "Can't delete"
 #~ msgstr "Suppression interdite"
@@ -2824,9 +2904,6 @@ msgstr "Modifier la configuration de l'instance"
 
 #~ msgid "Title"
 #~ msgstr "Intitulé"
-
-#~ msgid "Default Credentials"
-#~ msgstr "Droits par défaut"
 
 #~ msgid "Can view entity"
 #~ msgstr "Peut voir la fiche"
@@ -2869,9 +2946,6 @@ msgstr "Modifier la configuration de l'instance"
 
 #~ msgid "Default credentials"
 #~ msgstr "Droits par défaut"
-
-#~ msgid "Blocks configuration"
-#~ msgstr "Configuration des blocs"
 
 #~ msgid "Block to display"
 #~ msgstr "Blocs à afficher"

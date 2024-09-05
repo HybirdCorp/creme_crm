@@ -1,15 +1,13 @@
-<div class="buttons-list instance-buttons buttons-config">
-    {% if buttons %}
+{% if buttons %}
+ <div class="buttons-list instance-buttons buttons-config">
     <ul>
       {% for button in buttons %}
-          <li>
-          <span class="menu_button" title="{{ button.description }}">
-              {{ button.label }}
-          </span>
-          </li>
+        <li><span class="menu_button" title="{{ button.description }}">{{ button.label }}</span></li>
       {% endfor %}
     </ul>
-    {% else %}
-      {{ empty_label }}
-    {% endif %}
-</div>
+ </div>
+  {% else %}
+ <div class="buttons-list buttons-list-empty instance-buttons buttons-config">
+    <span class="empty-message">{{ empty_label }}</span>
+ </div>
+{% endif %}
