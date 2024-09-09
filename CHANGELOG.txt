@@ -1,6 +1,6 @@
 == Version 2.5.13 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .po (documents)
+  TODO: compile .po (creme_config, documents)
 
   Users side :
   ------------
