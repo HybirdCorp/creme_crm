@@ -83,7 +83,7 @@ class ButtonMenuEdition(generic.base.EntityCTypeRelatedMixin, base.ConfigEdition
                                           .order_by('order')
 
             if not items:
-                raise Http404('This configuration odes not exist.')
+                raise Http404('This configuration does not exist.')
 
             self.items = items
 
