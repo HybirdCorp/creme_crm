@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,12 @@
 "use strict";
 
 creme.reports = creme.reports || {};
+
+/* TODO : Refactor this controller with polymorphic inputs to allows filters
+ * like the "Nth Month from now" or "N years ago"
+ *
+ * TODO : Deprecate daterange which is only used here ?
+ */
 
 creme.reports.PreviewController = creme.component.Component.sub({
     _init_: function(options) {
@@ -75,12 +81,13 @@ creme.reports.PreviewController = creme.component.Component.sub({
 
     _updateHeader: function() {
         var header = this._header;
-        var has_datefield = !Object.isEmpty($('[name="date_field"]', header).val());
+        var range = $('.ui-creme-daterange', header);
+        var needsRange = !Object.isEmpty($('[name="date_field"]', header).val());
 
-        $('.date-filter', header).toggle(has_datefield);
+        $('.date-filter', header).toggle(needsRange);
 
-        if (!has_datefield) {
-            $('.ui-creme-daterange', header).creme().widget().reset();
+        if (needsRange && range.length > 0) {
+            range.creme().widget().reset();
         }
     },
 
