@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -75,11 +75,11 @@ creme.reports.PreviewController = creme.component.Component.sub({
 
     _updateHeader: function() {
         var header = this._header;
-        var has_datefield = !Object.isEmpty($('[name="date_field"]', header).val());
+        var hasRange = !Object.isEmpty($('[name="date_field"]', header).val());
 
-        $('.date-filter', header).toggle(has_datefield);
+        $('.date-filter', header).toggle(hasRange);
 
-        if (!has_datefield) {
+        if (hasRange) {
             $('.ui-creme-daterange', header).creme().widget().reset();
         }
     },
