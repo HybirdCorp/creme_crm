@@ -13,6 +13,8 @@
         * Emails :
             - There were some issues when the default owner of synchronised emails is a team.
             - A crash when accepting a synchronized email with attachments has been fixed.
+        * Reports :
+            - An issue with the date range visibility in the export filter popup of a report has been fixed.
 
   Developers side :
   -----------------
