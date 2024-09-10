@@ -115,6 +115,10 @@
     display: none;
 }
 
+.ui-creme-daterange .not-visible {
+    visibility: hidden;
+}
+
 /*----------------------------------*/
 ul.ui-layout { margin:0; padding:0; list-style:none; }
 ul.ui-layout li { margin:0; padding:0; list-style:none; }
