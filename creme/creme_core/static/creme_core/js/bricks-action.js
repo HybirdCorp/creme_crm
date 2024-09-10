@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2015-2022  Hybird
+ Copyright (C) 2015-2024  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -43,13 +43,16 @@ creme.bricks.FormDialogAction = creme.dialog.FormDialogAction.sub({
 
     _buildPopup: function(options) {
         options = $.extend({
-            redirectOnSuccess: true
+            redirectOnSuccess: true,
+            // by default it makes sense to close the popup once the submit is successful.
+            // Can be overrided for some uses cases (e.g : a summary of the action)
+            closeOnFormSuccess: true
         }, this.options(), options || {});
 
         var popup = this._super_(creme.dialog.FormDialogAction, '_buildPopup', options);
 
         if (options.redirectOnSuccess) {
-            popup.onFormSuccess(function(event, response) {
+            this.onDone(function(event, response) {
                 if (response.isPlainText() && !Object.isEmpty(response.content)) {
                     creme.utils.goTo(response.content);
                 }

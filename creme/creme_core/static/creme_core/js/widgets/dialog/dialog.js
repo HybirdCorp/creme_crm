@@ -675,7 +675,10 @@ creme.dialogs = $.extend(creme.dialogs, {
     },
 
     form: function(url, options, data) {
-        options = $.extend({validator: 'innerpopup'}, options || {});
+        options = $.extend({
+            validator: 'innerpopup',
+            closeOnFormSuccess: true
+        }, options || {});
         var dialog = new creme.dialog.FormDialog(options);
 
         dialog.fetch(url, {}, data);
