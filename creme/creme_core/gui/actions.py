@@ -18,13 +18,13 @@
 
 from __future__ import annotations
 
-from typing import Type
+from typing import Iterator, Type
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.base import Model
 from django.urls.base import reverse
 
-from creme.creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity, CremeUser
 from creme.creme_core.utils.collections import InheritedDataChain
 
 
@@ -96,7 +96,7 @@ class UIAction:
         return ContentType.objects.get_for_model(self.model)
 
     @property
-    def action_data(self):
+    def action_data(self) -> dict | None:
         """Returns some JSONifiable data the UI will need."""
         options = self._get_options()
         data = self._get_data()
@@ -208,7 +208,7 @@ class ActionsChain(InheritedDataChain):
                 f"Duplicated action '{action_id}' for model {model}"
             )
 
-    def register_actions(self, *action_classes: type[UIAction]):
+    def register_actions(self, *action_classes: type[UIAction]) -> None:
         """Register several UIAction classes.
 
         @param action_classes: Classes inheriting the base_class (see __init__).
@@ -243,7 +243,7 @@ class ActionsChain(InheritedDataChain):
 
         return action_class
 
-    def void_actions(self, model: type[Model], *action_classes: type[UIAction]):
+    def void_actions(self, model: type[Model], *action_classes: type[UIAction]) -> None:
         """Mask several inherited UIActions.
 
         If a model inherits some UIActions classes from one of its parent model,
@@ -291,7 +291,7 @@ class ActionsRegistry:
     # def bulk_action(self, model, action_id):
     #     return self._bulk_action_classes.get_action(action_id=action_id, model=model)
 
-    def instance_action_classes(self, model: type[Model]):
+    def instance_action_classes(self, model: type[Model]) -> list[type[UIAction]]:
         """Get the list of the classes for instances actions registered for a model.
         NB: use the method instance_actions() if you want instances of UIActions
             (which can be used to build a UI, contrarily to the class).
@@ -305,7 +305,7 @@ class ActionsRegistry:
             'instance': instance,
         }
 
-    def instance_actions(self, user, instance: Model):
+    def instance_actions(self, user: CremeUser, instance: Model) -> Iterator[UIAction]:
         """Generator of instance actions.
 
         @param user: User which displays the UI (used for credentials)
@@ -320,7 +320,7 @@ class ActionsRegistry:
         for action_class in self.instance_action_classes(model=model):
             yield action_class(**kwargs)
 
-    def bulk_action_classes(self, model: type[Model]):
+    def bulk_action_classes(self, model: type[Model]) -> list[type[BulkAction]]:
         """Get the list of the classes for bulk actions registered for a model.
         NB: use the method bulk_actions() if you want instances of BulkActions
             (which can be used to build a UI, contrarily to the class).
@@ -333,14 +333,13 @@ class ActionsRegistry:
             'model': model,
         }
 
-    def bulk_actions(self, user, model: type[Model]):
+    def bulk_actions(self, user: CremeUser, model: type[Model]) -> Iterator[BulkAction]:
         """Generator of bulk actions.
 
         @param user: User which displays the UI (used for credentials)
         @param model: Class inheriting <django.db.model.Model>.
         @return: Instance of BulkActions corresponding to the action classes
-                 registered for the given model (see
-                 register_bulk_actions()).
+                 registered for the given model (see register_bulk_actions()).
         """
         ctxt = self._bulk_actions_kwargs(user=user, model=model)
 
@@ -350,15 +349,15 @@ class ActionsRegistry:
     def register_instance_actions(self, *action_classes: type[UIAction]) -> ActionsRegistry:
         """Register several instances actions.
         @param action_classes: Classes inheriting UIAction.
-        @return Self to chain calls.
+        @return: Self to chain calls.
         """
         self._instance_action_classes.register_actions(*action_classes)
         return self
 
-    def register_bulk_actions(self, *action_classes: type[UIAction]) -> ActionsRegistry:
+    def register_bulk_actions(self, *action_classes: type[BulkAction]) -> ActionsRegistry:
         """Register several bulk actions.
         @param action_classes: Classes inheriting BulkAction.
-        @return Self to chain calls.
+        @return: Self to chain calls.
         """
         self._bulk_action_classes.register_actions(*action_classes)
         return self
@@ -375,7 +374,7 @@ class ActionsRegistry:
 
         @param model: Class inheriting <django.db.model.Model>.
         @param action_classes: Classes inheriting <UIAction>.
-        @return Self to chain calls.
+        @return: Self to chain calls.
         """
         self._instance_action_classes.void_actions(model, *action_classes)
         return self
