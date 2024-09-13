@@ -583,30 +583,30 @@ class Populator(BasePopulator):
 
     def _populate_buttons_config_for_invoice(self):
         ButtonMenuItem.objects.create_if_needed(
-            model=self.Invoice, button=buttons.GenerateInvoiceNumberButton, order=0,
+            model=self.Invoice, button=buttons.GenerateInvoiceNumberButton, order=1001,
         )
 
     def _populate_buttons_config_for_quote(self):
         create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Quote)
-        create_bmi(button=buttons.ConvertToInvoiceButton,    order=0)
-        create_bmi(button=buttons.ConvertToSalesOrderButton, order=1)
+        create_bmi(button=buttons.ConvertToInvoiceButton,    order=1001)
+        create_bmi(button=buttons.ConvertToSalesOrderButton, order=1002)
 
     def _populate_buttons_config_for_order(self):
         ButtonMenuItem.objects.create_if_needed(
-            model=self.SalesOrder, button=buttons.ConvertToInvoiceButton, order=0,
+            model=self.SalesOrder, button=buttons.ConvertToInvoiceButton, order=101,
         )
 
     def _populate_buttons_config_for_contact(self):
         create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Contact)
-        create_bmi(button=buttons.AddQuoteButton,      order=100)
-        create_bmi(button=buttons.AddSalesOrderButton, order=101)
-        create_bmi(button=buttons.AddInvoiceButton,    order=102)
+        create_bmi(button=buttons.AddQuoteButton,      order=1010)
+        create_bmi(button=buttons.AddSalesOrderButton, order=1011)
+        create_bmi(button=buttons.AddInvoiceButton,    order=1012)
 
     def _populate_buttons_config_for_organisation(self):
         create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Organisation)
-        create_bmi(button=buttons.AddQuoteButton,      order=100)
-        create_bmi(button=buttons.AddSalesOrderButton, order=101)
-        create_bmi(button=buttons.AddInvoiceButton,    order=102)
+        create_bmi(button=buttons.AddQuoteButton,      order=1010)
+        create_bmi(button=buttons.AddSalesOrderButton, order=1011)
+        create_bmi(button=buttons.AddInvoiceButton,    order=1012)
 
     def _populate_buttons_config(self):
         self._populate_buttons_config_for_invoice()

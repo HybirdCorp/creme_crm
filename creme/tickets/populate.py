@@ -219,7 +219,7 @@ class Populator(BasePopulator):
 
             create_bmi = ButtonMenuItem.objects.create_if_needed
             for model in (persons.get_contact_model(), persons.get_organisation_model()):
-                create_bmi(model=model, button=Linked2TicketButton, order=50)
+                create_bmi(model=model, button=Linked2TicketButton, order=1050)
 
     def _populate_bricks_config(self):
         Ticket = self.Ticket
