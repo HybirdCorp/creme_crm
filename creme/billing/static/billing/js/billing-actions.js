@@ -35,7 +35,8 @@ creme.billing.AddDocumentAction = creme.component.Action.sub({
         var dialog = new creme.dialog.FormDialogAction({
             width: width * 0.8,
             maxWidth: width,
-            url: options.url
+            url: options.url,
+            closeOnFormSuccess: true
         });
 
         dialog.onDone(function(event, data) {

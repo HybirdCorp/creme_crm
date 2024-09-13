@@ -62,7 +62,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             submitData: {},
             noValidate: false,
             validator: 'default',
-            closeOnFormSuccess: true
+            closeOnFormSuccess: false
         }, options || {});
 
         this._super_(creme.dialog.Dialog, '_init_', options);
@@ -143,9 +143,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     },
 
     _onFrameUpdate: function(event, data, dataType, action) {
-        if (action !== 'submit') {
-            this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, data, dataType, action);
-        }
+        this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, data, dataType, action);
 
         var content = this.frame().delegate();
 
@@ -178,14 +176,11 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
              * event after ALL valid submits and send a "cancel" event when the
              * cancel/close button is pressed.
              */
-            if (this.options.closeOnFormSuccess) {
-                this._frame.clear();
-                this._destroyDialog();
+            if (this.options.closeOnFormSuccess || response.isEmpty()) {
+                this.close();
             } else {
-                this._removeButton('send');
-                // TODO : Remove this hack once the 'cancel' behavior will be distinct
-                // from 'close' (see the previous TODO).
-                this._updateButtonLabel('cancel', gettext('Close'));
+                this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, response.content, dataType, 'submit');
+                this.replaceButtons(this._defaultSuccessButtons({}, this.options));
             }
         } else {
             this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, response.content, dataType, 'submit');
@@ -280,8 +275,16 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
     _defaultButtons: function(buttons, options) {
         this._appendButton(buttons, 'cancel', gettext('Cancel'), function(button, e, options) {
-                               this.close();
+                               this.cancel();
                            });
+
+        return buttons;
+    },
+
+    _defaultSuccessButtons: function(buttons, options) {
+        this._appendButton(buttons, 'close', gettext('Close'), function(button, e, options) {
+            this.close();
+        });
 
         return buttons;
     },
@@ -296,8 +299,18 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         return this;
     },
 
+    onFormCancel: function(listeners) {
+        this._events.bind('form-cancel', listeners);
+        return this;
+    },
+
     submitKey: function(value) {
         return Object.property(this, '_submitKey', value);
+    },
+
+    cancel: function(data) {
+        this._events.trigger('form-cancel', Array.isArray(data) ? data : [data], this);
+        return this.close();
     }
 });
 
@@ -313,19 +326,42 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
 
     _buildPopup: function(options) {
         var self = this;
+        var successCb = false;
+        var canceled = false;
         options = $.extend({}, this.options(), options || {});
 
-        var form = new creme.dialog.FormDialog(options).onFormSuccess(this._onSubmit.bind(this))
-                                                       .onClose(function() {
-                                                           self.cancel();
-                                                       })
-                                                       .on(this._listeners);
+        var form = new creme.dialog.FormDialog(options);
+
+        form.onFormSuccess(function(event, response, dataType) {
+            successCb = function() {
+                self._onSubmit(event, response, dataType);
+            };
+        }).onFormCancel(function(event) {
+            canceled = true;
+        }).onClose(function() {
+            if (successCb && !canceled) {
+                successCb();
+            } else {
+                self.cancel();
+            }
+        }).on(this._listeners);
 
         return form;
     },
 
     _openPopup: function(options) {
         this._buildPopup(options).open();
+    },
+
+    addPopupEventListener: function(event, listener) {
+        this._listeners[event] = (this._listeners[event] || []).concat(
+            Array.isArray(listener) ? listener : [listener]
+        );
+        return this;
+    },
+
+    onFrameUpdate: function(listener) {
+        return this.addPopupEventListener('frame-update', listener);
     }
 });
 }(jQuery));

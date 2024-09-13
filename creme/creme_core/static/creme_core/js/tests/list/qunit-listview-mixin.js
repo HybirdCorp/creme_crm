@@ -35,17 +35,18 @@
                 'mock/error': backend.response(500, 'HTTP - Error 500')
             });
 
-            function _entity_edit_view(url, data, options) {
+            function _editEntityView(url, data, options) {
                 var value = data.field_value[0];
+                var entities = data.entities || [];
 
                 if (Object.isEmpty(value)) {
                     return backend.response(200, createEditActionFormHtml({
                         field_name: data._bulk_fieldname,
-                        entities: (data.entities ? data.entities.split('.') : [])
+                        entities: entities
                     }));
                 } else {
                     return backend.response(200, '<div>${count} entitie(s) have been updated !</div>'.template({
-                        count: (data.entities || []).length
+                        count: entities.length
                     }));
                 }
             }
@@ -77,9 +78,9 @@
                         })
                     });
                 },
-                'mock/entity/edit': _entity_edit_view,
-                'mock/entity/edit/field-a': _entity_edit_view,
-                'mock/entity/edit/field-b': _entity_edit_view,
+                'mock/entity/edit': _editEntityView,
+                'mock/entity/edit/field-a': _editEntityView,
+                'mock/entity/edit/field-b': _editEntityView,
                 'mock/entity/addto': function(url, data, options) {
                     if (Object.isEmpty(data.addto[0])) {
                         return backend.response(200, MOCK_FORM_ADDTO);
@@ -127,7 +128,7 @@
                 '<div>'
                   + '<div class="help-sign"><p>${help}</p></div>'
                   + '<form>'
-                      + '<select name="_bulk_fieldname">${fields}</selected>'
+                      + '<select name="_bulk_fieldname">${fields}</select>'
                       + '<input type="text" name="field_value" value="${value}"/>'
                   + '</form>'
               + '</div>'
@@ -361,8 +362,8 @@
 
         createColumnTitleHtml: function(label, options) {
             options = options || {};
-            var is_sorted = options.sorted;
-            var is_sortable = options.sortable || is_sorted;
+            var isSorted = options.sorted;
+            var isSortable = options.sortable || isSorted;
 
             return (
                 '<th data-column-key="${name}" class="lv-column cl_lv ${sortable} ${sorted}">'
@@ -370,8 +371,8 @@
                 + '</th>').template({
                     label: label,
                     name: options.name,
-                    sortable: is_sortable ? 'sortable' : '',
-                    sorted: is_sorted ? 'sorted' : '',
+                    sortable: isSortable ? 'sortable' : '',
+                    sorted: isSorted ? 'sorted' : '',
                     disabled: options.disabled ? 'disabled' : ''
                 });
         },

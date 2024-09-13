@@ -635,13 +635,17 @@ creme.dialog.Dialog = creme.component.Component.sub({
             closeOnEscape: options.closeOnEscape,
             open:      function() { self._onOpen($(this), frame, options); },
             resize:    function() { self._onResize($(this), frame); },
-            close:     function() { self._onClose($(this), frame, options); },
+            close:     function(e) { self._onDialogClose($(this), frame, options); },
             dragStop:  function() { self._onDragStop($(this)); },
             resizeStop: function() { self._onResizeStop($(this)); }
         };
 
         this._dialog = content.dialog(dialogOptions);
         return this;
+    },
+
+    _onDialogClose: function(dialog, frame, options) {
+        this._onClose(dialog, frame, options);
     },
 
     close: function() {
@@ -708,7 +712,10 @@ creme.dialogs = $.extend(creme.dialogs, {
     },
 
     form: function(url, options, data) {
-        options = $.extend({validator: 'innerpopup'}, options || {});
+        options = $.extend({
+            validator: 'innerpopup',
+            closeOnFormSuccess: true
+        }, options || {});
         var dialog = new creme.dialog.FormDialog(options);
 
         dialog.fetch(url, {}, data);

@@ -207,6 +207,12 @@
             - There is no "back" button in the template "creme_core/detailview.html" anymore.
             - Beware if you have overridden 'creme_core/bricks/frags/hat-card-title-indicators.html'
               because the new "Pinned" indicator has been added in it.
+        # Javascript :
+            - Refactor close/cancel behaviour of popups :
+                - Closing a popup before submit will cancel the FormDialogAction instead of setting it as done.
+                - A "form-cancel" event is now triggered by the "cancel" button to differenciate cancelation within wizard steps from "closing" after a success summary.
+                - Submit success no longer directly set the action as done, but waits for popup close event.
+                - closeOnFormSuccess is disabled by default. Existing actions and creme.dialog.form() have to explicitly enable it to keep the previews behaviour
         # Apps :
             * Reports :
                 - The entity model 'ReportGraph' has been replaced by the new simple model 'ReportChart'
