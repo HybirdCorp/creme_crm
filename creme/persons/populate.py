@@ -72,18 +72,18 @@ class Populator(BasePopulator):
     BUTTONS = {
         'CONTACT': [
             # (class, order)
-            (buttons.BecomeProspectButton, 21),
-            (buttons.BecomeSuspectButton,  22),
-            (buttons.BecomeInactiveButton, 23),
+            (buttons.BecomeProspectButton, 1021),
+            (buttons.BecomeSuspectButton,  1022),
+            (buttons.BecomeInactiveButton, 1023),
         ],
         'ORGANISATION': [
             # (class, order)
-            (buttons.BecomeCustomerButton,   20),
-            (buttons.BecomeProspectButton,   21),
-            (buttons.BecomeSuspectButton,    22),
-            (buttons.BecomeInactiveButton,   23),
-            (buttons.BecomeSupplierButton,   24),
-            (buttons.AddLinkedContactButton, 25),
+            (buttons.BecomeCustomerButton,   1020),
+            (buttons.BecomeProspectButton,   1021),
+            (buttons.BecomeSuspectButton,    1022),
+            (buttons.BecomeInactiveButton,   1023),
+            (buttons.BecomeSupplierButton,   1024),
+            (buttons.AddLinkedContactButton, 1025),
         ],
     }
     DOC_CATEGORIES = [

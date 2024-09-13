@@ -417,8 +417,8 @@ class Populator(BasePopulator):
 
     def _populate_buttons_config(self):
         create_button = ButtonMenuItem.objects.create_if_needed
-        create_button(model=self.Organisation, button=LinkedOpportunityButton, order=30)
-        create_button(model=self.Contact,      button=LinkedOpportunityButton, order=30)
+        create_button(model=self.Organisation, button=LinkedOpportunityButton, order=1030)
+        create_button(model=self.Contact,      button=LinkedOpportunityButton, order=1030)
 
     def _populate_bricks_config(self):
         Opportunity = self.Opportunity
