@@ -43,7 +43,10 @@ creme.bricks.FormDialogAction = creme.dialog.FormDialogAction.sub({
 
     _buildPopup: function(options) {
         options = $.extend({
-            redirectOnSuccess: true
+            redirectOnSuccess: true,
+            // by default it makes sense to close the popup once the submit is successful.
+            // Can be overrided for some uses cases (e.g : a summary of the action)
+            closeOnFormSuccess: true
         }, this.options(), options || {});
 
         // comeback is a shortcut for ?callback_url=${location}
@@ -56,7 +59,7 @@ creme.bricks.FormDialogAction = creme.dialog.FormDialogAction.sub({
         var popup = this._super_(creme.dialog.FormDialogAction, '_buildPopup', options);
 
         if (options.redirectOnSuccess) {
-            popup.onFormSuccess(function(event, response) {
+            this.onDone(function(event, response) {
                 if (response.isPlainText() && !Object.isEmpty(response.content)) {
                     creme.utils.goTo(response.content);
                 }

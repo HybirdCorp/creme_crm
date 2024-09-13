@@ -392,7 +392,9 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
             return this;
         }
 
-        var action = new creme.dialog.FormDialogAction();
+        var action = new creme.dialog.FormDialogAction({
+            closeOnFormSuccess: true
+        });
         var model = this._model;
 
         action.onDone(function(event, data) {

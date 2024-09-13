@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2018-2021  Hybird
+    Copyright (C) 2018-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -34,22 +34,23 @@ creme.reports.ExportReportAction = creme.component.Action.sub({
         options = $.extend({}, this.options(), options || {});
 
         var self = this;
+        var action = new creme.dialog.FormDialogAction({
+            url: options.filterUrl,
+            closeOnFormSuccess: true,
+            width: 1024
+        });
 
-        // The export view uses the 'callback_url' feature of inner_popup (maybe only used here).
-        // Emulate it for this case.
-        // TODO : filterform should be used as select and redirection url build in js.
-        creme.dialogs.form(options.filterUrl)
-                     .on('frame-activated', function(event, frame) {
-                         new creme.reports.PreviewController(options).bind(frame.delegate());
-                      })
-                     .onFormSuccess(function(event, response, dataType) {
-                          self.done(response.content);
-                          creme.utils.goTo(response.content);
-                      })
-                     .onClose(function() {
-                          self.cancel();
-                      })
-                     .open({width: 1024});
+        action.addPopupEventListener('frame-update', function(event, frame) {
+            new creme.reports.PreviewController(options).bind(frame.delegate());
+        }).onDone(function(event, response, dataType) {
+            // The export view uses the 'callback_url' feature of inner_popup (maybe only used here).
+            // Emulate it for this case.
+            // TODO : filterform should be used as select and redirection url build in js.
+            self.done(response.content);
+            creme.utils.goTo(response.content);
+        }).onCancel(function() {
+            self.cancel();
+        }).start();
     }
 });
 

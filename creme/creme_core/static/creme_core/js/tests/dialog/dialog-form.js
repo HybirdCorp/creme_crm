@@ -5,7 +5,13 @@ var MOCK_FRAME_CONTENT_FORM = '<form action="mock/submit">' +
                                    '<input type="text" name="lastname" required></input>' +
                                    '<input type="submit" class="ui-creme-dialog-action"></input>' +
                                '</form>';
-var MOCK_FRAME_CONTENT_FORM_ERROR = '<form action="mock/error">' +
+var MOCK_FRAME_CONTENT_FORM_SUMMARY = '<form action="mock/submit/summary">' +
+                                           '<input type="text" name="firstname"></input>' +
+                                           '<input type="text" name="lastname" required></input>' +
+                                           '<input type="submit" class="ui-creme-dialog-action"></input>' +
+                                      '</form>';
+
+var MOCK_FRAME_CONTENT_FORM_ERROR = '<form action="mock/submit/fail">' +
                                          '<input type="text" name="firstname"></input>' +
                                          '<input type="text" name="lastname" required></input>' +
                                          '<input type="submit" class="ui-creme-dialog-action"></input>' +
@@ -96,6 +102,7 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
             'mock/submit/fail': backend.response(200, MOCK_FRAME_CONTENT_FORM_ERROR),
             'mock/submit/required': backend.response(200, MOCK_FRAME_CONTENT_FORM_REQUIRED),
             'mock/submit/wizard': backend.response(200, MOCK_FRAME_CONTENT_FORM_WIZARD),
+            'mock/submit/summary': backend.response(200, MOCK_FRAME_CONTENT_FORM_SUMMARY),
             'mock/submit/multi': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI),
             'mock/submit/multi/unnamed': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED),
             'mock/submit/multi/duplicates': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_DUPLICATES),
@@ -129,6 +136,7 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
             'mock/submit/required': backend.response(200, MOCK_FRAME_CONTENT_FORM_REQUIRED),
             'mock/submit/button': backend.response(200, MOCK_FRAME_CONTENT_FORM_BUTTON),
             'mock/submit/widget': backend.response(200, ''),
+            'mock/submit/summary': backend.response(200, '<html><h5>Well done !</h5></html>'),
             'mock/submit/fail': backend.response(400, 'Unable to submit this form'),
             'mock/submit/multi': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI),
             'mock/submit/multi/unnamed': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED),
@@ -163,6 +171,33 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
 
     afterEach: function() {
         creme.widget.shutdown($('body'));
+    },
+
+    setupMockWizardViews: function() {
+        this.setMockBackendGET({
+            'mock/wizard/fail/start': this.backend.response(200,
+                '<form action="mock/wizard/fail/start">' +
+                    '<input type="text" name="firstname"></input>' +
+                    '<input type="submit" class="ui-creme-dialog-action"></input>' +
+                '</form>'
+            ),
+            'mock/wizard/fail/end': this.backend.response(200,
+                '<form action="mock/wizard/fail/end">' +
+                    '<input type="text" name="lastname"></input>' +
+                    '<input type="submit" class="ui-creme-dialog-action"></input>' +
+                '</form>'
+            )
+        });
+
+        this.setMockBackendPOST({
+            'mock/wizard/fail/start': this.backend.response(200,
+                '<form action="mock/wizard/fail/end">' +
+                    '<input type="text" name="lastname"></input>' +
+                    '<input type="submit" class="ui-creme-dialog-action"></input>' +
+                '</form>'
+            ),
+            'mock/wizard/fail/end': this.backend.response(200, '<h5>Done</h5>')
+        });
     }
 }));
 
@@ -478,6 +513,8 @@ QUnit.test('creme.dialog.FormDialog (submit, invalid response)', function(assert
     assert.equal(gettext('Save'), dialog.button('send').text());
     assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
+    assert.deepEqual([], this.mockListenerCalls('form-error'));
+
     assert.ok(dialog.button('send').is(':not([disabled])'));
     assert.ok(dialog.button('cancel').is(':not([disabled])'));
 
@@ -493,12 +530,47 @@ QUnit.test('creme.dialog.FormDialog (submit, invalid response)', function(assert
     dialog.submit();
 
     assert.deepEqual([
-        ['GET', {}]
+        ['GET', {}],
+        ['POST', {
+            firstname: ['John'],
+            lastname: ['Doe']
+        }]
     ], this.mockBackendUrlCalls('mock/submit/fail'));
 
     assert.ok(dialog.button('send').is('[disabled]'));
     assert.ok(dialog.button('cancel').is(':not([disabled])'));
 });
+
+QUnit.test('creme.dialog.FormDialog (submit, form error)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit', backend: this.backend});
+    dialog.onFormError(this.mockListener('form-error'));
+
+    dialog.open();
+
+    assert.deepEqual([], this.mockListenerCalls('form-error'));
+    assert.deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit'));
+
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+    dialog.submit();
+
+    assert.deepEqual([
+        ['GET', {}],
+        ['POST', {
+            firstname: ['John'],
+            lastname: ['Doe']
+        }]
+    ], this.mockBackendUrlCalls('mock/submit'));
+    assert.deepEqual([
+        ['form-error', MOCK_FRAME_CONTENT_FORM, 'text/html']
+    ], this.mockListenerCalls('form-error'));
+
+    assert.ok(dialog.button('send').is(':not([disabled])'));
+    assert.ok(dialog.button('cancel').is(':not([disabled])'));
+});
+
 
 QUnit.test('creme.dialog.FormDialog (submit lastname required)', function(assert) {
     var dialog = new creme.dialog.FormDialog({url: 'mock/submit/button', backend: this.backend});
@@ -1276,6 +1348,232 @@ QUnit.parametrize('creme.dialogs.form (redirectOnSuccess, response)', [
     });
 
     assert.equal(this.mockRedirectCalls().length, expected.redirectCount);
+});
+
+QUnit.test('creme.dialog.FormDialogAction (cancel)', function(assert) {
+    var action = new creme.dialog.FormDialogAction({
+        url: 'mock/submit',
+        backend: this.backend
+    });
+
+    action.onCancel(this.mockListener('action-cancel'));
+    action.onDone(this.mockListener('action-done'));
+
+    action.start();
+
+    this.assertOpenedDialog();
+    this.closeDialog();
+
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([
+        ['cancel']
+    ], this.mockListenerCalls('action-cancel'));
+});
+
+QUnit.test('creme.dialog.FormDialogAction (submit + close)', function(assert) {
+    var action = new creme.dialog.FormDialogAction({
+        url: 'mock/submit/summary',
+        backend: this.backend
+    });
+
+    action.onCancel(this.mockListener('action-cancel'));
+    action.onDone(this.mockListener('action-done'));
+
+    action.start();
+
+    this.assertOpenedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    this.submitFormDialog({
+        firstname: 'John',
+        lastname: 'Doe'
+    });
+
+    this.assertOpenedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    this.closeDialog();
+
+    assert.deepEqual([['done', 'text/html']], this.mockListenerCalls('action-done').map(function(e) {
+        return [e[0], e[2]];
+    }));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+});
+
+QUnit.test('creme.dialog.FormDialogAction (submit + closeOnFormSuccess)', function(assert) {
+    var action = new creme.dialog.FormDialogAction({
+        url: 'mock/submit/summary',
+        backend: this.backend,
+        closeOnFormSuccess: true
+    });
+
+    action.onCancel(this.mockListener('action-cancel'));
+    action.onDone(this.mockListener('action-done'));
+
+    action.start();
+
+    this.assertOpenedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    this.submitFormDialog({
+        firstname: 'John',
+        lastname: 'Doe'
+    });
+
+    this.assertClosedDialog();
+
+    assert.deepEqual([['done', 'text/html']], this.mockListenerCalls('action-done').map(function(e) {
+        return [e[0], e[2]];
+    }));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+});
+
+QUnit.test('creme.dialog.FormDialogAction (submit fail + close)', function(assert) {
+    var action = new creme.dialog.FormDialogAction({
+        url: 'mock/submit/fail',
+        backend: this.backend
+    });
+
+    action.onCancel(this.mockListener('action-cancel'));
+    action.onDone(this.mockListener('action-done'));
+
+    action.start();
+
+    this.assertOpenedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    this.submitFormDialog({
+        firstname: 'John',
+        lastname: 'Doe'
+    });
+
+    this.assertOpenedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    this.closeDialog();
+
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([
+        ['cancel']
+    ], this.mockListenerCalls('action-cancel'));
+});
+
+QUnit.test('creme.dialog.FormDialogAction (cancel wizard)', function(assert) {
+    this.setupMockWizardViews();
+
+    var action = new creme.dialog.FormDialogAction({
+        url: 'mock/wizard/fail/start',
+        backend: this.backend
+    });
+
+    action.onCancel(this.mockListener('action-cancel'));
+    action.onDone(this.mockListener('action-done'));
+
+    action.start();
+
+    this.assertOpenedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    this.submitFormDialog({
+        firstname: 'John'
+    });
+
+    this.assertOpenedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.equal(1, $('.ui-dialog button[name="cancel"]').length);
+
+    $('.ui-dialog button[name="cancel"]').trigger('click');
+
+    this.assertClosedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([
+        ['cancel']
+    ], this.mockListenerCalls('action-cancel'));
+});
+
+QUnit.test('creme.dialog.FormDialogAction (cancel wizard)', function(assert) {
+    this.setupMockWizardViews();
+
+    var action = new creme.dialog.FormDialogAction({
+        url: 'mock/wizard/fail/start',
+        backend: this.backend
+    });
+
+    action.onCancel(this.mockListener('action-cancel'));
+    action.onDone(this.mockListener('action-done'));
+
+    action.start();
+
+    this.assertOpenedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    this.submitFormDialog({
+        firstname: 'John'
+    });
+
+    this.assertOpenedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    this.submitFormDialog({
+        lastname: 'Doe'
+    });
+
+    this.assertOpenedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.equal(0, $('.ui-dialog button[name="cancel"]').length);
+    assert.equal(1, $('.ui-dialog button[name="close"]').length);
+
+    $('.ui-dialog button[name="close"]').trigger('click');
+
+    this.assertClosedDialog();
+    assert.deepEqual([['done', 'text/html']], this.mockListenerCalls('action-done').map(function(e) {
+        return [e[0], e[2]];
+    }));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+});
+
+QUnit.test('creme.dialog.FormDialogAction (cancel wizard, cross)', function(assert) {
+    this.setupMockWizardViews();
+
+    var action = new creme.dialog.FormDialogAction({
+        url: 'mock/wizard/fail/start',
+        backend: this.backend
+    });
+
+    action.onCancel(this.mockListener('action-cancel'));
+    action.onDone(this.mockListener('action-done'));
+
+    action.start();
+
+    this.assertOpenedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    this.submitFormDialog({
+        firstname: 'John'
+    });
+
+    this.assertOpenedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    $('.ui-dialog-titlebar-close').trigger('click');
+
+    this.assertClosedDialog();
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([
+        ['cancel']
+    ], this.mockListenerCalls('action-cancel'));
 });
 
 }(jQuery));
