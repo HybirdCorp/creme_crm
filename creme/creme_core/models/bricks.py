@@ -20,7 +20,14 @@ from __future__ import annotations
 
 import logging
 from functools import partial
-from typing import TYPE_CHECKING, Iterable, Iterator, Sequence, TypedDict
+from typing import (
+    TYPE_CHECKING,
+    Iterable,
+    Iterator,
+    Literal,
+    Sequence,
+    TypedDict,
+)
 from uuid import UUID, uuid4
 
 from django.conf import settings
@@ -59,12 +66,13 @@ logger = logging.getLogger(__name__)
 
 class BrickDetailviewLocationManager(models.Manager):
     # TODO: Enum for zone
-    def create_if_needed(self,
+    # def create_if_needed(self,
+    def create_if_needed(self, *,
                          brick: type[Brick] | str,
                          order: int,
                          zone: int,
                          model: type[CremeEntity] | ContentType | None = None,
-                         role: None | UserRole | str = None,
+                         role: None | UserRole | Literal['superuser'] = None,
                          ) -> BrickDetailviewLocation:
         """Create an instance of BrickDetailviewLocation, but only if the
         related brick is not already on the configuration.
