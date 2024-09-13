@@ -37,15 +37,16 @@
 
             function _entity_edit_view(url, data, options) {
                 var value = data.field_value[0];
+                var entities = data.entities || [];
 
                 if (Object.isEmpty(value)) {
                     return backend.response(200, createEditActionFormHtml({
                         field_name: data._bulk_fieldname,
-                        entities: (data.entities ? data.entities.split('.') : [])
+                        entities: entities
                     }));
                 } else {
                     return backend.response(200, '<div>${count} entitie(s) have been updated !</div>'.template({
-                        count: (data.entities || []).length
+                        count: entities.length
                     }));
                 }
             }
@@ -127,7 +128,7 @@
                 '<div>'
                   + '<div class="help-sign"><p>${help}</p></div>'
                   + '<form>'
-                      + '<select name="_bulk_fieldname">${fields}</selected>'
+                      + '<select name="_bulk_fieldname">${fields}</select>'
                       + '<input type="text" name="field_value" value="${value}"/>'
                   + '</form>'
               + '</div>'
