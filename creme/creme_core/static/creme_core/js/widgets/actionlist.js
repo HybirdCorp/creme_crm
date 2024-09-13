@@ -99,7 +99,9 @@ creme.widget.CreateSelectorAction = creme.widget.SelectorAction.sub({
 
     _run: function(options) {
         var self = this;
-        var dialogOptions = this._dialogOptions();
+        var dialogOptions = $.extend({
+            closeOnFormSuccess: true
+        }, this._dialogOptions(), options || {});
 
         if (Object.isEmpty(dialogOptions.url)) {
             self.cancel();

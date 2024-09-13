@@ -459,6 +459,11 @@
             - Full rework of creme.notification.NotificationBox.
             - creme.ajax.jqueryAjaxSend() arguments have changed from (url, data, successCb, errorCb, options) to ({url: url, body: data, ...options}, {done: successCb, fail: errorCb}).
             - In 'creme.utils', the functions 'confirmPOSTQuery()' & 'confirmAjaxQuery()' have been removed; use 'creme.utils.ajaxQuery' with the option "confirm: true" instead.
+            - Refactor close/cancel behaviour of popups :
+                - Closing a popup before submit will cancel the FormDialogAction instead of setting it as done.
+                - A "form-cancel" event is now triggered by the "cancel" button to differenciate cancelation within wizard steps from "closing" after a success summary.
+                - Submit success no longer directly set the action as done, but waits for popup close event.
+                - closeOnFormSuccess is disabled by default. Existing actions and creme.dialog.form() have to explicitly enable it to keep the previews behaviour
         # Apps :
             * Creme_config :
                 - In the brick 'GenericModelBrick', "meta" is not injected in the context anymore.

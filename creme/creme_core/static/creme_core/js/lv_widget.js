@@ -162,20 +162,24 @@ creme.lv_widget.AddToSelectedAction = creme.component.Action.sub({
                           })
                          .open();
         } else {
-            var dialog = creme.dialogs.form(options.url, {
-                                                submitData: {ids: selection}
-                                            }, {
-                                                ids: selection
-                                            });
+            var action = new creme.dialog.FormDialogAction({
+                url: options.url,
+                data: {
+                    ids: selection
+                },
+                submitData: {
+                    ids: selection
+                },
+                closeOnFormSuccess: true,
+                width: 800
+            });
 
-            dialog.onFormSuccess(function(event, data) {
-                       list.reload();
-                       self.done();
-                   })
-                   .onClose(function() {
-                       self.cancel();
-                   })
-                   .open({width: 800});
+            action.onDone(function() {
+                list.reload();
+                self.done();
+            }).onCancel(function() {
+                self.cancel();
+            }).start();
         }
     }
 });
@@ -184,7 +188,6 @@ creme.lv_widget.EditSelectedAction = creme.component.Action.sub({
     _init_: function(list, options) {
         this._super_(creme.component.Action, '_init_', this._run, options);
         this._list = list;
-        this._isEditionDone = false;
     },
 
     _run: function(options) {
@@ -192,7 +195,6 @@ creme.lv_widget.EditSelectedAction = creme.component.Action.sub({
 
         var self = this;
         var list = this._list;
-        var isEditionDone = false;
         var selection = list.selectedRows();
 
         if (selection.length < 1) {
@@ -202,39 +204,34 @@ creme.lv_widget.EditSelectedAction = creme.component.Action.sub({
                           })
                          .open();
         } else {
-            var dialog = new creme.dialog.FormDialog({
+            var urlData = {
+                entities: selection.join('.')
+            };
+
+            var action = new creme.dialog.FormDialogAction({
                 url: options.url,
-                data: {
-                    entities: selection.join('.')
+                data: urlData,
+                submitData: {
+                    entities: selection
                 },
-                submitData: {entities: selection},
-                // DO NOT close the popup on form success !
-                closeOnFormSuccess: false
+                width: 800
             });
 
-            dialog.onFormSuccess(function(event, data) {
-                       // The summary must be shown, so we cannot close the
-                       // dialog now. Just store the successful state
-                       isEditionDone = true;
-                   })
-                   .onClose(function() {
-                       if (isEditionDone) {
-                           list.reload();
-                           self.done();
-                       } else {
-                           self.cancel();
-                       }
-                   })
-                   .on('frame-update', function(event, frame) {
-                       frame.delegate().on('change', '[name="_bulk_fieldname"]', function() {
-                           var next = $(this).val();
-                           if (!Object.isNone(next) && next !== dialog.frame().lastFetchUrl()) {
-                               dialog.fetch(next);
-                           }
-                       });
-                   });
+            action.onDone(function() {
+                list.reload();
+                self.done();
+            }).onCancel(function() {
+                self.cancel();
+            }).onFrameUpdate(function(event, frame) {
+                var dialog = this;
 
-             dialog.open({width: 800});
+                frame.delegate().on('change', '[name="_bulk_fieldname"]', function() {
+                    var next = $(this).val();
+                    if (!Object.isNone(next) && next !== frame.lastFetchUrl()) {
+                        dialog.fetch(next);
+                    }
+                });
+            }).start();
         }
     }
 });
@@ -488,7 +485,9 @@ creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegist
             maxWidth: width,
             // validator: 'innerpopup',
             url: url,
-            title: title
+            title: title,
+            closeOnFormSuccess: true,
+            fillFrameOnError: true
         };
     },
 
@@ -514,10 +513,8 @@ creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegist
         var list = this._list;
         options = $.extend(this._defaultDialogOptions(url), options || {});
 
-        return new creme.dialog.FormDialogAction(options, {
-            'form-success': function() {
-                list.reload();
-             }
+        return new creme.dialog.FormDialogAction(options).onDone(function() {
+            list.reload();
         });
     },
 
