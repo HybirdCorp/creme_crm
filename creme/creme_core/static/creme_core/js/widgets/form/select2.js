@@ -476,7 +476,8 @@ S2.define('select2/dropdown/creator', [], function () {
 
             var text = self._lastCreatorText;
             var form = new creme.dialog.FormDialog({
-                url: self.options.get('createURL')
+                url: self.options.get('createURL'),
+                closeOnFormSuccess: true
             });
 
             form.one('frame-update', function(event, frame) {
