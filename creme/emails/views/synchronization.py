@@ -237,15 +237,16 @@ class EmailToSyncAcceptation(_BaseEmailToSyncMultiOperation):
 
         attached_files = [*e2s.attachments.all()]
         if attached_files:
-            folder = get_folder_model().objects.get_or_create(
-                user=user,
-                category=FolderCategory.objects.get(uuid=UUID_FOLDER_CAT_EMAILS),
-                defaults={
-                    'title': gettext("{username}'s files received by email").format(
+            Folder = get_folder_model()
+            folder_cat = FolderCategory.objects.get(uuid=UUID_FOLDER_CAT_EMAILS)
+            folder = Folder.objects.filter(user=user, category=folder_cat).first()
+            if folder is None:
+                folder = Folder.objects.create(
+                    user=user, category=folder_cat,
+                    title=gettext("{username}'s files received by email").format(
                         username=user.username,
                     ),
-                },
-            )[0]
+                )
 
             create_document = partial(
                 get_document_model().objects.create, user=user, linked_folder=folder,

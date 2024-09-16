@@ -12,6 +12,7 @@
             - You could merge system folders & so, remove them.
         * Emails :
             - There were some issues when the default owner of synchronised emails is a team.
+            - A crash when accepting a synchronized email with attachments has been fixed.
 
 
 == Version 2.5.12 ==
