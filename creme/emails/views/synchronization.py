@@ -86,10 +86,13 @@ class SynchronizationConfigItemDeletion(generic.CheckedView):
 
 class EmailToSyncPermissionsMixin:
     def check_email_to_sync_permissions(self, instance, user):
-        if not user.is_staff and instance.user != user:
-            raise PermissionDenied(
-                gettext('You cannot edit or delete this email (not yours)')
-            )
+        if not user.is_staff:
+            owner = instance.user
+
+            if user.id not in owner.teammates if owner.is_team else owner != user:
+                raise PermissionDenied(
+                    gettext('You cannot edit or delete this email (not yours)')
+                )
 
 
 class EmailToSyncCorrection(generic.CremeModelEditionPopup):

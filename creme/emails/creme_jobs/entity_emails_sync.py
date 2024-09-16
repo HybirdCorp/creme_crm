@@ -80,11 +80,14 @@ class _EmailAsKeyDict:
             return entity
 
         for model in self.entity_models:
-            entity = EntityCredentials.filter(
+            model_qs = model.objects.filter(email=email_address)
+            filtered_qs = model_qs if owner.is_team else EntityCredentials.filter(
                 user=owner,
                 perm=EntityCredentials.VIEW | EntityCredentials.LINK,
-                queryset=model.objects.filter(email=email_address),
-            ).first()
+                queryset=model_qs,
+            )
+            entity = filtered_qs.first()
+
             if entity is not None:
                 entities[email_address] = entity
                 break
