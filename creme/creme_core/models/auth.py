@@ -1110,7 +1110,9 @@ class CremeUser(AbstractBaseUser):
 
     @property  # NB notice that a cache is built
     def teams(self) -> list[CremeUser]:
-        assert not self.is_team
+        # assert not self.is_team
+        if self.is_team:
+            raise ValueError('A team cannot belong to another team')
 
         teams = self._teams
         if teams is None:
@@ -1124,7 +1126,9 @@ class CremeUser(AbstractBaseUser):
             key: user ID.
             value CremeUser instance.
         """
-        assert self.is_team
+        # assert self.is_team
+        if not self.is_team:
+            raise ValueError('Only a team can have teammates')
 
         teammates = self._teammates
 
@@ -1138,8 +1142,13 @@ class CremeUser(AbstractBaseUser):
 
     @teammates.setter
     def teammates(self, users: Sequence[CremeUser]):
-        assert self.is_team
-        assert not any(user.is_team for user in users)
+        # assert self.is_team
+        if not self.is_team:
+            raise ValueError('Only a team can have teammates')
+
+        # assert not any(user.is_team for user in users)
+        if any(user.is_team for user in users):
+            raise ValueError('A teammate cannot be a team')
 
         self.teammates_set.set(users)
         self._teammates = None  # Clear cache (we could rebuild it but ...)

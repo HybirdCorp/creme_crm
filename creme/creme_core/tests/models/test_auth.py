@@ -2257,15 +2257,17 @@ class AuthTestCase(CremeTestCase):
 
     def test_create_team01(self):
         user = self.create_user()
-        team = CremeUser.objects.create(username='Teamee')
+        fake_team = CremeUser.objects.create(username='Teamee')
 
-        self.assertFalse(team.is_team)
+        self.assertFalse(fake_team.is_team)
 
-        with self.assertRaises(AssertionError):
-            team.teammates = [user]
+        # with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
+            fake_team.teammates = [user]
 
-        with self.assertRaises(AssertionError):
-            team.teammates  # NOQA
+        # with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
+            fake_team.teammates  # NOQA
 
     def test_create_team02(self):
         user, other = self._create_users()
@@ -2298,6 +2300,14 @@ class AuthTestCase(CremeTestCase):
         team.teammates = [other]
         self.assertEqual(1, len(team.teammates))
         self.assertDictEqual({other.id: other}, self.refresh(team).teammates)
+
+        with self.assertRaises(ValueError):
+            team.teams  # NOQA
+
+        # ---
+        team2 = CremeUser.objects.create(username='Team#2', is_team=True)
+        with self.assertRaises(ValueError):
+            team2.teammates = [team]
 
     def test_team_credentials01(self):
         user, other = self._create_users()
