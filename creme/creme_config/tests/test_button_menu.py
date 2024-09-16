@@ -295,6 +295,11 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertListEqual([(TestButton1.id, 1000)], _buttons_info(ctype=ct))
         self.assertListEqual([('', 1)],               _buttons_info(ctype=None))
 
+    def test_add__perms(self):
+        self.login_as_standard()
+        self.assertGET403(reverse('creme_config__add_base_buttons'))
+        self.assertGET403(reverse('creme_config__add_superuser_buttons'))
+
     def test_edit__base__not_existing(self):
         "Edit Content type without configuration => error."
         self.login_as_root()
@@ -737,6 +742,14 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertListEqual([('',             1)], buttons_info(superuser=True))
         self.assertListEqual([(TestButton1.id, 1)], buttons_info(superuser=False))
 
+    def test_edit__perms(self):
+        user = self.login_as_standard()
+
+        ct = self.contact_ct
+        self.assertGET403(reverse('creme_config__edit_base_buttons', args=(ct.id,)))
+        self.assertGET403(reverse('creme_config__edit_superuser_buttons', args=(0,)))
+        self.assertGET403(reverse('creme_config__edit_role_buttons', args=(user.role.id, 0)))
+
     def test_delete__base__default(self):
         "Can not delete base default configuration."
         self.login_as_root()
@@ -843,6 +856,15 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertStillExists(bmi1)
         self.assertStillExists(bmi3)
         self.assertStillExists(bmi4)
+
+    def test_delete__perms(self):
+        user = self.login_as_standard()
+
+        ct = self.contact_ct
+        url = self.DEL_URL
+        self.assertPOST403(url, data={'ctype': ct.id})
+        self.assertPOST403(url, data={'role': 'superuser', 'ctype': ct.id})
+        self.assertPOST403(url, data={'role': user.role.id, 'ctype': ct.id})
 
     def test_clone__default(self):
         self.login_as_root()
@@ -1006,3 +1028,10 @@ class ButtonMenuConfigTestCase(CremeTestCase):
                                .values('button_id', 'order', 'content_type'),
             ],
         )
+
+    def test_clone__perms(self):
+        user = self.login_as_standard()
+
+        self.assertPOST403(reverse('creme_config__clone_base_buttons'))
+        self.assertPOST403(reverse('creme_config__clone_superuser_buttons'))
+        self.assertPOST403(reverse('creme_config__clone_role_buttons', args=(user.role.id,)))
