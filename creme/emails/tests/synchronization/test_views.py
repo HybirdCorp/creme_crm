@@ -1169,8 +1169,9 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             # category=FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS),
             category=FolderCategory.objects.get(uuid=UUID_FOLDER_CAT_EMAILS),
         )
-        create_folder(user=other_user)
-        folder = create_folder(user=user)
+        create_folder(user=other_user, title='Not mine')
+        folder = create_folder(user=user, title='Mine')
+        create_folder(user=user, title='Mine too')
 
         e2s = EmailToSync.objects.create(
             user=user,
