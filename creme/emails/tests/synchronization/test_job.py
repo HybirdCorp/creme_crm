@@ -836,6 +836,55 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             ],
         )
 
+    @skipIfCustomContact
+    def test_job_related_persons__default_owner_is_team(self):
+        user = self.login_as_emails_user(allowed_apps=['persons'])
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
+
+        team = self.create_team('Mail owner', user)
+        contact = Contact.objects.create(
+            user=user, first_name='Spike', last_name='Spiegel', email='spiegel@bebop.mrs',
+        )
+
+        self.create_config_item(user=team)
+        job = self._get_sync_job()
+
+        from_addr = 'fvalentine@bebop.mrs'
+
+        msg = EmailMessage()
+        msg['Subject'] = 'I want a swordfish'
+        msg['From'] = from_addr
+        msg['To'] = (contact.email,)
+
+        with patch('poplib.POP3_SSL') as pop_mock:
+            # Mocking
+            pop_mock.return_value = self.mock_POP_for_messages((1, msg))
+
+            # Go !
+            entity_emails_sync_type.execute(job)
+
+        e2sync = self.get_alone_element(EmailToSync.objects.all())
+        self.assertEqual(team, e2sync.user)
+
+        self.assertListEqual(
+            [(from_addr, None)],
+            [
+                (person_info.email, person_info.person)
+                for person_info in e2sync.related_persons.filter(
+                    type=EmailToSyncPerson.Type.SENDER,
+                )
+            ],
+        )
+        self.assertListEqual(
+            [(contact.email, contact)],
+            [
+                (person_info.email, person_info.person)
+                for person_info in e2sync.related_persons.filter(
+                    type=EmailToSyncPerson.Type.RECIPIENT,
+                )
+            ],
+        )
+
     def test_job_forwarded_email(self):
         "Only one receiver which is ignored => email is not dropped."
         user = self.get_root_user()

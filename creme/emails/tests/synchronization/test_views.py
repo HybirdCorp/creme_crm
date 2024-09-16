@@ -284,7 +284,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertPOST403(self.DEL_CONF_URL, data={'id': item.id})
         self.assertStillExists(item)
 
-    def test_sync_portal01(self):
+    def test_sync_portal__allowed_user(self):
         user = self.login_as_emails_user()
 
         create_e2s = EmailToSync.objects.create
@@ -305,17 +305,38 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             plural_title='{count} Emails to synchronise',
         )
 
-    def test_sync_portal02(self):
+    def test_sync_portal__forbidden_user(self):
         self.login_as_standard(allowed_apps=['documents'])
         self.assertGET403(reverse('emails__sync_portal'))
 
-    def test_sync_portal03(self):
-        "Staff."
+    def test_sync_portal__staff(self):
         self.login_as_super(is_staff=True)
 
         EmailToSync.objects.create(user=self.get_root_user(), subject='I want a swordfish')
 
         response = self.assertGET200(reverse('emails__sync_portal'))
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=bricks.EmailsToSyncBrick,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Email to synchronise',
+            plural_title='{count} Emails to synchronise',
+        )
+
+    def test_sync_portal__team(self):
+        user = self.login_as_emails_user()
+        team1 = self.create_team('Team OK', user)
+        team2 = self.create_team('Team KO', self.get_root_user())
+
+        create_e2s = EmailToSync.objects.create
+        create_e2s(user=team1, subject='I want a swordfish II')
+        create_e2s(user=team2, subject='I want a swordfish III')
+
+        response = self.assertGET200(reverse('emails__sync_portal'))
+
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
             brick=bricks.EmailsToSyncBrick,
@@ -579,7 +600,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertNoFormError(self.client.post(url, data=data))
         self.assertEqual(contact, self.refresh(recipient).person)
 
-    def test_mark_recipient01(self):
+    def test_mark_recipient(self):
         user = self.login_as_emails_user(allowed_apps=['persons'])
 
         create_e2s = partial(EmailToSync.objects.create, user=user)
@@ -619,7 +640,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertTrue(self.refresh(recipient21).is_main)
         self.assertFalse(self.refresh(recipient22).is_main)
 
-    def test_mark_recipient02(self):
+    def test_mark_recipient__sender(self):
         "Cannot mark senders."
         user = self.login_as_emails_user(allowed_apps=['persons'])
         e2s = EmailToSync.objects.create(user=user, subject='I want a swordfish II')
@@ -632,7 +653,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             data={'id': sender.id},
         )
 
-    def test_mark_recipient03(self):
+    def test_mark_recipient__no_emails_creds(self):
         "No emails credentials."
         user = self.login_as_standard(
             allowed_apps=['persons'],  # <===
@@ -647,7 +668,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             data={'id': recipient.id},
         )
 
-    def test_mark_recipient04(self):
+    def test_mark_recipient__not_owner(self):
         "Not owner."
         self.login_as_emails_user()
         e2s = EmailToSync.objects.create(
@@ -661,6 +682,40 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertPOST403(
             reverse('emails__mark_email_to_sync_recipient', args=(e2s.id,)),
             data={'id': recipient.id},
+        )
+
+    def test_mark_recipient__in_team_owner(self):
+        user = self.login_as_emails_user(allowed_apps=['persons'])
+        team = self.create_team('Default owner', user)
+        e2s = EmailToSync.objects.create(subject='I want a swordfish II', user=team)
+
+        create_person = partial(
+            EmailToSyncPerson.objects.create, type=EmailToSyncPerson.Type.RECIPIENT,
+        )
+        recipient1 = create_person(email_to_sync=e2s, email='spike@bebop.mrs', is_main=True)
+        recipient2 = create_person(email_to_sync=e2s, email='jet@bebop.mrs')
+
+        self.assertPOST200(
+            reverse('emails__mark_email_to_sync_recipient', args=(e2s.id,)),
+            data={'id': recipient2.id},
+        )
+        self.assertTrue(self.refresh(recipient2).is_main)
+        self.assertFalse(self.refresh(recipient1).is_main)
+
+    def test_mark_recipient__not_in_team_owner(self):
+        self.login_as_emails_user(allowed_apps=['persons'])
+        team = self.create_team('Default owner', self.get_root_user())
+        e2s = EmailToSync.objects.create(subject='I want a swordfish II', user=team)
+
+        create_person = partial(
+            EmailToSyncPerson.objects.create, type=EmailToSyncPerson.Type.RECIPIENT,
+        )
+        create_person(email_to_sync=e2s, email='spike@bebop.mrs', is_main=True)
+        recipient2 = create_person(email_to_sync=e2s, email='jet@bebop.mrs')
+
+        self.assertPOST403(
+            reverse('emails__mark_email_to_sync_recipient', args=(e2s.id,)),
+            data={'id': recipient2.id},
         )
 
     def test_delete_recipient01(self):
