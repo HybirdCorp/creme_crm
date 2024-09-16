@@ -10,6 +10,8 @@
     # Apps :
         * Documents :
             - You could merge system folders & so, remove them.
+        * Emails :
+            - There were some issues when the default owner of synchronised emails is a team.
 
 
 == Version 2.5.12 ==
