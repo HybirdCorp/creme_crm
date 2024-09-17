@@ -19,6 +19,8 @@
 
     Non breaking changes :
     ----------------------
+        # The class 'creme_core.creme_jobs.base.JobType' gets a new attribute: configurable.
+          If you set it to 'False', the related job cannot be edited & the value of "enabled" cannot be changed.
         # Javascript:
             * FormDialog:
                 - Form submit error responses with HTML can either replace the default overlay content or the frame content.
