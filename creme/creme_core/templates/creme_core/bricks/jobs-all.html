@@ -73,7 +73,7 @@
             {% if not job.is_finished %}{{job.progress.render}}{% endif %}
         </td>
         <td {% brick_table_data_status action %} >
-        {% if not job.user %}
+        {% if job.type.configurable and not job.user %}
             {% if job.enabled %}
                 {% brick_table_action id='update' url='creme_core__disable_job'|url:job.id label=_('Disable') display='text' enabled=user.is_superuser %}
             {% else %}
@@ -82,7 +82,7 @@
         {% endif %}
         </td>
         <td {% brick_table_data_status action %} >
-        {% if job.get_config_form_class %}
+        {% if job.type.configurable and job.get_config_form_class %}
             {% brick_table_action id='edit' url=job.get_edit_absolute_url label=_('Edit this job') %}
         {% endif %}
         </td>
