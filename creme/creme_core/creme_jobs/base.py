@@ -71,6 +71,7 @@ class JobType:
     code to execute, & some meta-data:
         - verbose_name: is used in the Job views, in order to have a user-friendly display.
         - periodic: must be in {NOT_PERIODIC, PSEUDO_PERIODIC, PERIODIC}
+        - configurable: can the related job be configured (enable/disable, period...).
 
     NOT_PERIODIC: one shot Job (e.g. CSV import). Must be a User Job.
     PERIODIC: these system Jobs are run every Job.periodicity.as_timedelta().
@@ -85,6 +86,8 @@ class JobType:
     id: str = ''   # Override in child classes; use generate_id()
     verbose_name: str = 'JOB'  # Override with a gettext_lazy object
     periodic: int = NOT_PERIODIC
+    # NB: only used for PERIODIC/PSEUDO_PERIODIC jobs of course
+    configurable: bool = True
 
     class Error(Exception):
         pass
