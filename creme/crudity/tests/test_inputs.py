@@ -7,10 +7,6 @@ from django.apps import apps
 from django.db.models.query_utils import Q
 from django.test.utils import override_settings
 
-# from creme.activities.constants import (
-#     ACTIVITYSUBTYPE_MEETING_MEETING,
-#     ACTIVITYTYPE_MEETING,
-# )
 from creme.activities.constants import UUID_SUBTYPE_MEETING_MEETING
 from creme.activities.models import ActivitySubType
 from creme.creme_core.models import FakeContact
@@ -35,11 +31,11 @@ else:
         return _aux
 
 
-@override_settings(
-    USE_L10N=False,
-    DATE_INPUT_FORMATS=['%d/%m/%Y', '%d-%m-%Y'],
-    DATETIME_INPUT_FORMATS=['%Y-%m-%d %H:%M'],
-)
+# @override_settings(
+#     USE_L10N=False,
+#     DATE_INPUT_FORMATS=['%d/%m/%Y', '%d-%m-%Y'],
+#     DATETIME_INPUT_FORMATS=['%Y-%m-%d %H:%M'],
+# )
 class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCase ?
     def setUp(self):
         super().setUp()
@@ -206,19 +202,32 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
 
         self.assertEqual(0, WaitingAction.objects.count())
         email_input.create(self._get_pop_email(
-            body_html="""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-  <head>
-    <meta http-equiv="content-type" content="text/html;
-      charset=ISO-8859-1">
-  </head>
-  <body text="#3366ff" bgcolor="#ffffff">
-    <font face="Calibri">password=contact<br>
-      password=creme<br>
-      created=01-02-2003<br>
-    </font>
-  </body>
-</html>""",
+            # body_html="""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+            # <html>
+            #   <head>
+            #     <meta http-equiv="content-type" content="text/html;
+            #       charset=ISO-8859-1">
+            #   </head>
+            #   <body text="#3366ff" bgcolor="#ffffff">
+            #     <font face="Calibri">password=contact<br>
+            #       password=creme<br>
+            #       created=01-02-2003<br>
+            #     </font>
+            #   </body>
+            # </html>""",
+            body_html=f"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+        <html>
+          <head>
+            <meta http-equiv="content-type" content="text/html;
+              charset=ISO-8859-1">
+          </head>
+          <body text="#3366ff" bgcolor="#ffffff">
+            <font face="Calibri">password=contact<br>
+              password=creme<br>
+              created={self.formfield_value_date(2003, 2, 1)}<br>
+            </font>
+          </body>
+        </html>""",
             senders=('creme@crm.org',),
             subject='create_ce',
         ))
@@ -648,7 +657,13 @@ description3=[[<br>]]
         self.assertFalse(WaitingAction.objects.all())
 
         email_input.create(PopEmail(
-            body=f'password=creme\nuser_id={user.id}\ncreated=01-02-2003\nurl_site=plop',
+            # body=f'password=creme\nuser_id={user.id}\ncreated=01-02-2003\nurl_site=plop',
+            body=(
+                f'password=creme\n'
+                f'user_id={user.id}\n'
+                f'created={self.formfield_value_date(2003, 2, 1)}\n'
+                f'url_site=plop'
+            ),
             senders=('creme@crm.org',),
             subject='create_contact',
         ))
@@ -707,6 +722,7 @@ description3=[[<br>]]
         )
 
     @skipIfCustomContact
+    @override_settings(LANGUAGE_CODE='fr')
     def test_create_contact01(self):
         "Text mail sandboxed"
         user = self.user

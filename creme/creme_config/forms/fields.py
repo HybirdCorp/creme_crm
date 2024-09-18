@@ -23,8 +23,9 @@ from copy import deepcopy
 from django.db.models.base import Model
 from django.forms import ValidationError, fields
 from django.forms import models as modelforms
-from django.forms.fields import CallableChoiceIterator
+# from django.forms.fields import CallableChoiceIterator
 from django.urls import reverse
+from django.utils.choices import CallableChoiceIterator
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 

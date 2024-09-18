@@ -34,13 +34,8 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..core.field_tags import FieldTag
+from . import fields as core_fields
 from .base import CremeModel
-from .fields import (
-    CreationDateTimeField,
-    CremeUserForeignKey,
-    CTypeForeignKey,
-    ModificationDateTimeField,
-)
 from .manager import CremeEntityManager
 
 if TYPE_CHECKING:
@@ -52,12 +47,16 @@ _SEARCH_FIELD_MAX_LENGTH = 200
 
 
 class CremeEntity(CremeModel):
-    created = CreationDateTimeField(_('Creation date')).set_tags(clonable=False)
-    modified = ModificationDateTimeField(_('Last modification')).set_tags(clonable=False)
+    created = core_fields.CreationDateTimeField(_('Creation date')).set_tags(clonable=False)
+    modified = core_fields.ModificationDateTimeField(
+        _('Last modification'),
+    ).set_tags(clonable=False)
 
     # NB: do not clone (so re-compute it) to facilitate "cloning" from a different type
     #     see 'billing'.
-    entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False, clonable=False)
+    entity_type = core_fields.CTypeForeignKey(
+        editable=False,
+    ).set_tags(viewable=False, clonable=False)
 
     header_filter_search_field = models.CharField(
         max_length=_SEARCH_FIELD_MAX_LENGTH, editable=False,
@@ -65,7 +64,7 @@ class CremeEntity(CremeModel):
 
     is_deleted = models.BooleanField(default=False, editable=False).set_tags(viewable=False)
 
-    user = CremeUserForeignKey(verbose_name=_('Owner user'))
+    user = core_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
     description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
 

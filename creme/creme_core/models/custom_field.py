@@ -18,9 +18,9 @@
 
 from __future__ import annotations
 
-import uuid
 from collections import OrderedDict, defaultdict
 from typing import Any, DefaultDict, Iterable, Sequence
+from uuid import uuid4
 
 from django import forms
 from django.core.validators import EMPTY_VALUES
@@ -77,7 +77,7 @@ class CustomField(CremeModel):
     ENUM        = 100
     MULTI_ENUM  = 101
 
-    uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
+    uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
     name = models.CharField(_('Field name'), max_length=100)
     content_type = CTypeForeignKey(verbose_name=_('Related type'))
     field_type = models.PositiveSmallIntegerField(_('Field type'))  # See INT, FLOAT etc...
@@ -392,7 +392,7 @@ class CustomFieldEnumValue(CremeModel):
     )
     value = models.CharField(max_length=100)
     uuid = models.UUIDField(
-        unique=True, editable=False, default=uuid.uuid4,
+        unique=True, editable=False, default=uuid4,
     ).set_tags(viewable=False)
 
     class Meta:

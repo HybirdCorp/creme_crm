@@ -4,10 +4,11 @@ from functools import partial
 from uuid import uuid4
 
 from django.contrib.contenttypes.models import ContentType
-from django.test.utils import override_settings
+# from django.test.utils import override_settings
 from django.utils.formats import date_format, number_format
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
+from django.utils.translation import override as override_language
 from parameterized import parameterized
 
 from creme.creme_core.models import (
@@ -142,11 +143,12 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
-    @override_settings(
-        USE_L10N=False,
-        DATETIME_FORMAT='j F Y H:i',
-        DATETIME_INPUT_FORMATS=['%Y/%m/%d %H:%M:%S'],
-    )
+    # @override_settings(
+    #     USE_L10N=False,
+    #     DATETIME_FORMAT='j F Y H:i',
+    #     DATETIME_INPUT_FORMATS=['%Y/%m/%d %H:%M:%S'],
+    # )
+    @override_language('fr')
     def test_regular_field_datetime(self):
         user = self.get_root_user()
 
@@ -157,7 +159,8 @@ class ReportHandTestCase(CremeTestCase):
 
         aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
         self.assertEqual(
-            localtime(aria.modified).strftime('%Y/%m/%d %H:%M:%S'),
+            # localtime(aria.modified).strftime('%Y/%m/%d %H:%M:%S'),
+            localtime(aria.modified).strftime('%d/%m/%Y %H:%M:%S'),
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 

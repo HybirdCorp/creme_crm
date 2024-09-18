@@ -393,7 +393,11 @@ class NotificationTestCase(CremeTestCase):
         class RelatedToOrganisation(RelatedToModelBaseContent):
             model = FakeOrganisation
 
-        content2 = RelatedToOrganisation.from_dict({'instance': self.UNUSED_PK})
+        orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='Acme')
+        pk = orga.pk
+        orga.delete()
+
+        content2 = RelatedToOrganisation.from_dict({'instance': pk})
         self.assertIsInstance(content2, RelatedToOrganisation)
 
         user = self.get_root_user()

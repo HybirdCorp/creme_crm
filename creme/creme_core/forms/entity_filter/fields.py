@@ -31,7 +31,8 @@ from django.db.models import FileField as ModelFileField
 from django.db.models import ForeignKey as ModelForeignKey
 from django.db.models.query_utils import Q
 from django.forms import DateField, ModelMultipleChoiceField
-from django.forms.fields import CallableChoiceIterator
+# from django.forms.fields import CallableChoiceIterator
+from django.utils.choices import CallableChoiceIterator
 from django.utils.formats import get_format
 from django.utils.translation import gettext_lazy as _
 

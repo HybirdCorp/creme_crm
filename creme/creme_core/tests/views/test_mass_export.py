@@ -371,9 +371,10 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertEqual(result[3], '"","Wong","Edward","","is a girl"')
 
     @override_settings(
-        USE_L10N=False,
-        DATETIME_FORMAT='j F Y H:i',
-        DATETIME_INPUT_FORMATS=['%d-%m-%Y %H:%M:%S'],
+        # USE_L10N=False,
+        # DATETIME_FORMAT='j F Y H:i',
+        # DATETIME_INPUT_FORMATS=['%d-%m-%Y %H:%M:%S'],
+        LANGUAGE_CODE='en',
     )
     def test_list_view_export_datetime(self):
         user = self.login_as_root_and_get()
@@ -393,11 +394,12 @@ class MassExportViewsTestCase(CremeTestCase):
         result = [force_str(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
         self.assertEqual(
-            result[1],
             '"{}","{}"'.format(
                 spike.last_name,
-                localtime(spike.created).strftime('%d-%m-%Y %H:%M:%S'),
+                # localtime(spike.created).strftime('%d-%m-%Y %H:%M:%S'),
+                localtime(spike.created).strftime('%Y-%m-%d %H:%M:%S'),
             ),
+            result[1],
         )
 
     def test_list_view_export_fk_entity(self):
@@ -585,8 +587,9 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertEqual(Path(settings.MEDIA_ROOT, 'xls'), fullpath.parent)
 
     @override_settings(
-        USE_L10N=False,
-        DATE_INPUT_FORMATS=['%d,%m,%Y'],
+        # USE_L10N=False,
+        # DATE_INPUT_FORMATS=['%d,%m,%Y'],
+        LANGUAGE_CODE='fr',
     )
     def test_xls_export02(self):
         "Other CT, other type of fields."
@@ -626,7 +629,8 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertListEqual(next(it), [orga01.name, _('Yes'), ''])
         self.assertListEqual(
             next(it),
-            [orga02.name, _('No'), orga02.creation_date.strftime('%d,%m,%Y')],
+            # [orga02.name, _('No'), orga02.creation_date.strftime('%d,%m,%Y')],
+            [orga02.name, _('No'), orga02.creation_date.strftime('%d/%m/%Y')],
         )
         with self.assertRaises(StopIteration):
             next(it)

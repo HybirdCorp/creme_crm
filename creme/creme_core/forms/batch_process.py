@@ -22,7 +22,8 @@ from functools import partial
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.forms import ModelChoiceField
-from django.forms.fields import CallableChoiceIterator
+# from django.forms.fields import CallableChoiceIterator
+from django.utils.choices import CallableChoiceIterator
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 

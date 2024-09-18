@@ -145,8 +145,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # system time zone.
 TIME_ZONE = 'Europe/Paris'
 
-# Use timezone-aware date-times ? (you probably should keep the "True" value here).
-USE_TZ = True
+# The default value is already 'True' since Django 5.0
+# USE_TZ = True
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -681,6 +681,10 @@ ESLINT = {
 }
 
 # GUI ##########################################################################
+
+# forms.URLField use 'https' by default
+# Django's setting which will be removed with 6.X versions
+FORMS_URLFIELD_ASSUME_HTTPS = True
 
 SOFTWARE_LABEL = 'Crème'
 

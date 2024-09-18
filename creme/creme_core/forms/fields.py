@@ -35,6 +35,7 @@ from django.forms import ValidationError, fields
 from django.forms import models as mforms
 from django.forms import widgets
 from django.urls import reverse
+from django.utils.choices import CallableChoiceIterator
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -417,7 +418,7 @@ class GenericEntityField(EntityCredsJSONField):
         return {'reset': False}
 
     def _update_widget_choices(self):
-        self.widget.content_types = fields.CallableChoiceIterator(self._get_ctypes_options)
+        self.widget.content_types = CallableChoiceIterator(self._get_ctypes_options)
 
     def _create_url(self, user, ctype):
         model = ctype.model_class()
@@ -1070,7 +1071,7 @@ class FilteredEntityTypeField(JSONField):
                 return ctypes_list
 
         self._ctypes = ctypes
-        self.widget.content_types = fields.CallableChoiceIterator(self._get_choices)
+        self.widget.content_types = CallableChoiceIterator(self._get_choices)
 
     @property
     def filter_types(self):
@@ -1287,7 +1288,7 @@ class UnionField(fields.Field):
 
             return w_choices
 
-        self.widget.widgets_choices = fields.CallableChoiceIterator(_widget_choices)
+        self.widget.widgets_choices = CallableChoiceIterator(_widget_choices)
 
     def to_python(self, value):
         # TODO: use 'disabled' attribute?
@@ -1748,7 +1749,7 @@ class CTypeChoiceField(fields.Field):
                 return ctypes_list
 
         self._ctypes = ctypes
-        self.widget.choices = fields.CallableChoiceIterator(
+        self.widget.choices = CallableChoiceIterator(
             lambda: self._build_empty_choice(self._build_ctype_choices(self.ctypes))
         )
 
