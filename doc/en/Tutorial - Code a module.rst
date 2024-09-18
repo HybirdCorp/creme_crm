@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 20-11-2024 for Creme 2.7
+:Version: 02-12-2024 for Creme 2.6
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -29,8 +29,8 @@ Requirements
 
 Creme is developed with a Python framework for websites et Web apps : Django_.
 If you really want to code some modules for Creme, you should know Django.
-Its documentation is complete & quite good ; see here : https://docs.djangoproject.com/en/4.2/.
-To begin, reading the `tutorial <https://docs.djangoproject.com/en/4.2/intro/overview/>`_
+Its documentation is complete & quite good ; see here : https://docs.djangoproject.com/en/5.0/.
+To begin, reading the `tutorial <https://docs.djangoproject.com/en/5.0/intro/overview/>`_
 should be enough.
 
 Creme uses the JavaScript (JS) library jQuery_ too ; to implement some features
@@ -3644,26 +3644,15 @@ by Django ; but some Creme users will probably search here, so it could be
 useful.
 
 Date and number formats can be customised. You'll find the different keys in the
-`official documentation <https://docs.djangoproject.com/en/3.2/ref/settings/#date-format>`_
+`official documentation <https://docs.djangoproject.com/en/5.0/ref/settings/#date-format>`_
 de Django.
 
 **Remark** : notice that the formats used in forms (``DATE_INPUT_FORMATS``,
 ``DATETIME_INPUT_FORMATS`` …) are different and distinct from the formats used
 for simple display (``DATE_FORMAT``, ``DATETIME_FORMAT`` …).
 
-Depending on the value of the settings key ``USE_L10N``, the place where the
-format string are read is different.
-
-**Beware** : this key is now deprecated in Django 4.X and will be removed in
-Django 5.X, where all dates and numbers will be localized.
-
-
-Case USE_L10N = True
-********************
-
-It's the default value in Creme. The formats are different according to the
-user's language, so we'll logically find them in the folders ``locale/``. You
-can see an example in the file
+The formats are different according to the user's language, so we'll logically
+find them in the folders ``locale/``. You can see an example in the file
 ``/your/virtual/env/lib/pythonXXX/site-packages/django/conf/locale/en/formats.py``
 which is used by default in english.
 
@@ -3678,10 +3667,3 @@ In this last file, set the values you want to override. Then in your settings
 set the value : ::
 
     FORMAT_MODULE_PATH = 'my_project.beavers.locale'
-
-
-Case USE_L10N = False
-*********************
-
-In this case, the formats are always the same, ignoring the user's language.
-Set the values seen before directly in your file ``my_project/settings.py``.

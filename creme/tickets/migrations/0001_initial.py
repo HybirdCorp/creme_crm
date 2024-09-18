@@ -4,6 +4,7 @@ from django.db import migrations, models
 from django.db.models.deletion import CASCADE
 
 import creme.creme_core.models.fields as core_fields
+from creme.creme_core.migrations.utils.utils_27 import Char32UUIDField
 from creme.creme_core.models import CREME_REPLACE
 
 
@@ -26,7 +27,8 @@ class Migration(migrations.Migration):
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -43,7 +45,8 @@ class Migration(migrations.Migration):
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -78,7 +81,8 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),

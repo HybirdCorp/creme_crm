@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 20-11-2024 pour la version 2.7 de Creme
+:Version: 02-12-2024 pour la version 2.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -30,8 +30,8 @@ Creme est développé en utilisant un cadriciel (framework) Python spécialisé 
 la création de sites et applications Web : Django_.
 Si vous comptez réellement développer des modules pour Creme, la connaissance de
 Django sera sûrement nécessaire. Heureusement la documentation de celui-ci est vraiment
-complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/4.2/.
-Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/4.2/intro/overview/>`_
+complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/5.0/.
+Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/5.0/intro/overview/>`_
 devrait suffire.
 
 Creme utilise aussi la bibliothèque JavaScript (JS) jQuery_ ; il se peut que pour
@@ -3807,7 +3807,7 @@ outils fournis par Django ; mais comme il est probable que des utilisateurs de
 Creme cherchent ici, elle pourra se révéler utile.
 
 Les formats de date et de nombre peuvent être personnalisés. Vous trouverez
-les différentes clés dans la `documentation officielle <https://docs.djangoproject.com/fr/3.2/ref/settings/#date-format>`_
+les différentes clés dans la `documentation officielle <https://docs.djangoproject.com/fr/5.0/ref/settings/#date-format>`_
 de Django.
 
 **Remarque** : notez que les formats utilisés dans les formulaires
@@ -3815,20 +3815,9 @@ de Django.
 distincts des formats utilisés pour le simple affichage (``DATE_FORMAT``,
 ``DATETIME_FORMAT`` …).
 
-Selon la valeur de la clé de *settings* ``USE_L10N``, l'endroit où sont lues les
-chaînes de format est différent.
-
-**Attention** : cette clé est désormais obsolète dans Django 4.X et sera
-supprimée dans Django 5.X, où toutes les dates et les nombres seront toujours
-affichées en fonctions de la langue.
-
-
-Cas USE_L10N = True
-*******************
-
-C'est la valeur par défaut dans Creme. Les formats sont différents selon la
-langue de l'utilisateur, et on va donc logiquement les trouver dans les
-répertoires ``locale/``. Vous pouvez trouver un exemple en regardant le fichier
+Les formats sont différents selon la langue de l'utilisateur, et on va donc
+logiquement les trouver dans lesrépertoires ``locale/``. Vous pouvez trouver un
+exemple en regardant le fichier
 ``/votre/virtual/env/lib/pythonXXX/site-packages/django/conf/locale/fr/formats.py``
 qui est utilisé par défaut en français.
 
@@ -3843,11 +3832,3 @@ Dans ce dernier fichier, mettez les valeurs que vous voulez écraser. Puis dans
 vos *settings* mettez la valeur : ::
 
     FORMAT_MODULE_PATH = 'my_project.beavers.locale'
-
-
-Cas USE_L10N = False
-********************
-
-Dans ce cas, les formats utilisés sont toujours les mêmes, quelle que soit la
-langue de l'utilisateur. Mettez les valeurs vues au dessus directement dans
-votre fichier ``my_project/settings.py``.

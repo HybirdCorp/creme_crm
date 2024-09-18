@@ -2597,7 +2597,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             report.fetch_all_lines(),
         )
 
-    @override_settings(USE_L10N=True)
+    # @override_settings(USE_L10N=True)
     @override_language('en')
     def test_fetch_field_02(self):
         "FK, date, filter, invalid one."

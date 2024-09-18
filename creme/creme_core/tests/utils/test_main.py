@@ -6,7 +6,7 @@ from os.path import join
 from django.conf import settings
 from django.http import Http404
 from django.test import TestCase
-from django.test.utils import override_settings
+# from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import make_aware, zoneinfo
 from django.utils.translation import gettext, gettext_lazy, ngettext
@@ -557,41 +557,42 @@ class DatesTestCase(CremeTestCase):
             )),
         )
 
-    @override_settings(
-        USE_L10N=False,
-        DATE_INPUT_FORMATS=['%d/%m/%Y', '%Y-%m-%d'],
-        DATETIME_INPUT_FORMATS=['%Y-%m-%d %H:%M'],
-    )
-    def test_dt_from_str01(self):
-        create_dt = self.create_datetime
-        self.assertEqual(
-            create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
-            dt_from_str('2013-07-25 12:28:45'),
-        )
-        self.assertEqual(
-            create_dt(year=2013, month=7, day=25, hour=8, utc=True),
-            dt_from_str('2013-07-25 11:00:00+03:00'),
-        )
-        self.assertIsNone(dt_from_str('25-07-2013 11:00:00'))
+    # @override_settings(
+    #     USE_L10N=False,
+    #     DATE_INPUT_FORMATS=['%d/%m/%Y', '%Y-%m-%d'],
+    #     DATETIME_INPUT_FORMATS=['%Y-%m-%d %H:%M'],
+    # )
+    # def test_dt_from_str01(self):
+    #     create_dt = self.create_datetime
+    #     self.assertEqual(
+    #         create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
+    #         dt_from_str('2013-07-25 12:28:45'),
+    #     )
+    #     self.assertEqual(
+    #         create_dt(year=2013, month=7, day=25, hour=8, utc=True),
+    #         dt_from_str('2013-07-25 11:00:00+03:00'),
+    #     )
+    #     self.assertIsNone(dt_from_str('25-07-2013 11:00:00'))
+    #
+    #     self.assertEqual(
+    #         create_dt(year=2013, month=7, day=25),
+    #         dt_from_str('25/07/2013'),
+    #     )
+    #     self.assertEqual(
+    #         create_dt(year=2014, month=8, day=26),
+    #         dt_from_str('2014-08-26'),
+    #     )
+    #     self.assertIsNone(dt_from_str('26-08-2014'))
+    #
+    #     self.assertEqual(
+    #         create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
+    #         dt_from_str('2013-07-25 12:28:45'),
+    #     )
 
-        self.assertEqual(
-            create_dt(year=2013, month=7, day=25),
-            dt_from_str('25/07/2013'),
-        )
-        self.assertEqual(
-            create_dt(year=2014, month=8, day=26),
-            dt_from_str('2014-08-26'),
-        )
-        self.assertIsNone(dt_from_str('26-08-2014'))
-
-        self.assertEqual(
-            create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
-            dt_from_str('2013-07-25 12:28:45'),
-        )
-
-    @override_settings(USE_L10N=True)
+    # @override_settings(USE_L10N=True)
     @override_language('en')
-    def test_dt_from_str02(self):
+    # def test_dt_from_str02(self):
+    def test_dt_from_str__en(self):
         create_dt = self.create_datetime
         self.assertEqual(
             create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
@@ -614,9 +615,10 @@ class DatesTestCase(CremeTestCase):
             dt_from_str('2013-07-25 12:28:45'),
         )
 
-    @override_settings(USE_L10N=True)
+    # @override_settings(USE_L10N=True)
     @override_language('fr')
-    def test_dt_from_str03(self):
+    # def test_dt_from_str03(self):
+    def test_dt_from_str__fr(self):
         create_dt = self.create_datetime
         self.assertEqual(
             create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
@@ -643,26 +645,28 @@ class DatesTestCase(CremeTestCase):
             dt_from_str('2013-07-25 12:28:45'),
         )
 
-    @override_settings(
-        USE_L10N=False,
-        DATE_INPUT_FORMATS=['%d/%m/%Y', '%Y-%m-%d'],
-    )
-    def test_date_from_str01(self):
-        self.assertEqual(date(year=2013, month=7, day=25), date_from_str('25/07/2013'))
-        self.assertEqual(date(year=2014, month=8, day=26), date_from_str('2014-08-26'))
-        self.assertIsNone(date_from_str('2014/08/26'))
+    # @override_settings(
+    #     USE_L10N=False,
+    #     DATE_INPUT_FORMATS=['%d/%m/%Y', '%Y-%m-%d'],
+    # )
+    # def test_date_from_str01(self):
+    #     self.assertEqual(date(year=2013, month=7, day=25), date_from_str('25/07/2013'))
+    #     self.assertEqual(date(year=2014, month=8, day=26), date_from_str('2014-08-26'))
+    #     self.assertIsNone(date_from_str('2014/08/26'))
 
-    @override_settings(USE_L10N=True)
+    # @override_settings(USE_L10N=True)
     @override_language('en')
-    def test_date_from_str02(self):
+    # def test_date_from_str02(self):
+    def test_date_from_str__en(self):
         self.assertEqual(date(year=2014, month=8, day=26), date_from_str('2014-08-26'))
         self.assertEqual(date(year=2014, month=8, day=26), date_from_str('08/26/2014'))
         self.assertIsNone(date_from_str('25/07/2013'))
         self.assertIsNone(date_from_str('2014/08/26'))
 
-    @override_settings(USE_L10N=True)
+    # @override_settings(USE_L10N=True)
     @override_language('fr')
-    def test_date_from_str03(self):
+    # def test_date_from_str03(self):
+    def test_date_from_str__fr(self):
         self.assertEqual(date(year=2013, month=7, day=25), date_from_str('25/07/2013'))
         self.assertEqual(date(year=2014, month=8, day=26), date_from_str('2014-08-26'))
         self.assertIsNone(date_from_str('2014/08/26'))

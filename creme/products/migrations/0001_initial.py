@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
 
+from creme.creme_core.migrations.utils.utils_27 import Char32UUIDField
 from creme.documents.models.fields import ImageEntityManyToManyField
 
 
@@ -27,7 +28,8 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(max_length=100, verbose_name='Description', blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -45,7 +47,8 @@ class Migration(migrations.Migration):
                 ('category', models.ForeignKey(verbose_name='Parent category', to='products.Category', on_delete=CASCADE)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),

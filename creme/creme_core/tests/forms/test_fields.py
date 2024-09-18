@@ -12,7 +12,7 @@ from django.forms import (
     HiddenInput,
     IntegerField,
 )
-from django.test.utils import override_settings
+# from django.test.utils import override_settings
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
@@ -356,7 +356,28 @@ class DateRangeFieldTestCase(CremeTestCase):
             codes='customized_invalid',
         )
 
-    def _aux_test_ok(self):
+    # def _aux_test_ok(self):
+    #     date_value = self.formfield_value_date
+    #     drange = DateRangeField().clean(['', date_value(2013, 5, 29), date_value(2013, 6, 16)])
+    #     dt = self.create_datetime
+    #     self.assertIsInstance(drange, DateRange)
+    #     self.assertIsInstance(drange, CustomRange)
+    #     self.assertTupleEqual(
+    #         (
+    #             dt(year=2013, month=5, day=29, hour=0,  minute=0,  second=0),
+    #             dt(year=2013, month=6, day=16, hour=23, minute=59, second=59),
+    #         ),
+    #         drange.get_dates(now()),
+    #     )
+    #
+    # @override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y'])
+    # def test_ok01(self):
+    #     self._aux_test_ok()
+    #
+    # @override_settings(USE_L10N=True)
+    # def test_ok02(self):
+    #     self._aux_test_ok()
+    def test_ok(self):
         date_value = self.formfield_value_date
         drange = DateRangeField().clean(['', date_value(2013, 5, 29), date_value(2013, 6, 16)])
         dt = self.create_datetime
@@ -369,14 +390,6 @@ class DateRangeFieldTestCase(CremeTestCase):
             ),
             drange.get_dates(now()),
         )
-
-    @override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y'])
-    def test_ok01(self):
-        self._aux_test_ok()
-
-    @override_settings(USE_L10N=True)
-    def test_ok02(self):
-        self._aux_test_ok()
 
     def test_ok_special_range(self):
         drange = DateRangeField().clean([CurrentYearRange.name, '', ''])

@@ -40,38 +40,38 @@ from creme.reports.tests.base import Report, ReportGraph
 
 class ReportGraphHandTestCase(CremeTestCase):
     def test_generate_date_format(self):
-        with self.settings(USE_L10N=False):
-            with self.settings(DATE_INPUT_FORMATS=['%Y-%m-%d']):
-                self.assertEqual('%Y', _generate_date_format(year=True))
-                self.assertEqual('%Y-%m', _generate_date_format(year=True, month=True))
-                self.assertEqual(
-                    '%Y-%m-%d', _generate_date_format(year=True, month=True, day=True),
-                )
+        # with self.settings(USE_L10N=False):
+        #     with self.settings(DATE_INPUT_FORMATS=['%Y-%m-%d']):
+        #         self.assertEqual('%Y', _generate_date_format(year=True))
+        #         self.assertEqual('%Y-%m', _generate_date_format(year=True, month=True))
+        #         self.assertEqual(
+        #             '%Y-%m-%d', _generate_date_format(year=True, month=True, day=True),
+        #         )
+        #
+        #     with self.settings(DATE_INPUT_FORMATS=['%d/%m/%y']):
+        #         self.assertEqual('%y', _generate_date_format(year=True))
+        #         self.assertEqual('%m/%y', _generate_date_format(year=True, month=True))
+        #         self.assertEqual(
+        #             '%d/%m/%y', _generate_date_format(year=True, month=True, day=True),
+        #         )
+        #
+        #     with self.settings(DATE_INPUT_FORMATS=['%m.%d.%Y', '%d/%m/%y']):
+        #         self.assertEqual('%Y', _generate_date_format(year=True))
+        #         self.assertEqual('%m.%Y', _generate_date_format(year=True, month=True))
+        #         self.assertEqual(
+        #             '%m.%d.%Y', _generate_date_format(year=True, month=True, day=True),
+        #         )
 
-            with self.settings(DATE_INPUT_FORMATS=['%d/%m/%y']):
-                self.assertEqual('%y', _generate_date_format(year=True))
-                self.assertEqual('%m/%y', _generate_date_format(year=True, month=True))
-                self.assertEqual(
-                    '%d/%m/%y', _generate_date_format(year=True, month=True, day=True),
-                )
+        # with self.settings(USE_L10N=True):
+        with override_language('en'):
+            self.assertEqual(
+                '%Y-%m-%d', _generate_date_format(year=True, month=True, day=True),
+            )
 
-            with self.settings(DATE_INPUT_FORMATS=['%m.%d.%Y', '%d/%m/%y']):
-                self.assertEqual('%Y', _generate_date_format(year=True))
-                self.assertEqual('%m.%Y', _generate_date_format(year=True, month=True))
-                self.assertEqual(
-                    '%m.%d.%Y', _generate_date_format(year=True, month=True, day=True),
-                )
-
-        with self.settings(USE_L10N=True):
-            with override_language('en'):
-                self.assertEqual(
-                    '%Y-%m-%d', _generate_date_format(year=True, month=True, day=True),
-                )
-
-            with override_language('fr'):
-                self.assertEqual(
-                    '%d/%m/%Y', _generate_date_format(year=True, month=True, day=True),
-                )
+        with override_language('fr'):
+            self.assertEqual(
+                '%d/%m/%Y', _generate_date_format(year=True, month=True, day=True),
+            )
 
     def test_regular_field_day(self):
         user = self.get_root_user()

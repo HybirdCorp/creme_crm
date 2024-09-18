@@ -3,8 +3,9 @@ from functools import partial
 from json import dumps as json_dump
 
 from django import forms
-from django.forms.fields import CallableChoiceIterator, InvalidJSONInput
+from django.forms.fields import InvalidJSONInput  # CallableChoiceIterator
 from django.urls import reverse
+from django.utils.choices import CallableChoiceIterator
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
