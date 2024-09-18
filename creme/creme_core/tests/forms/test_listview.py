@@ -3,7 +3,7 @@ from functools import partial
 
 # from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from django.test.utils import override_settings
+# from django.test.utils import override_settings
 from django.utils.formats import get_format, number_format
 from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
@@ -177,11 +177,12 @@ class SearchWidgetsTestCase(CremeTestCase):
             widget.render(name=name, value='a'),
         )
 
-    @override_settings(
-        USE_L10N=False,
-        DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y'],
-    )
-    def test_daterangewidget01(self):
+    # @override_settings(
+    #     USE_L10N=False,
+    #     DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y'],
+    # )
+    @override_language('en')
+    def test_daterangewidget(self):
         widget = lv_forms.DateRangeLVSWidget()
         get_value = partial(widget.value_from_datadict, files=None)
         self.assertListEqual(['', ''], get_value(data={}, name='foobar'))
@@ -401,18 +402,20 @@ class SearchFieldsTestCase(CremeTestCase):
             Q(discount__exact=Decimal('0.5')), to_python(value=dec_sep + '5'),
         )
 
-    @override_settings(USE_L10N=False)
-    def test_regular_decimalfield_no_l10n(self):
-        self._aux_test_regular_decimalfield()
+    # @override_settings(USE_L10N=False)
+    # def test_regular_decimalfield_no_l10n(self):
+    #     self._aux_test_regular_decimalfield()
 
-    @override_settings(USE_L10N=True)
+    # @override_settings(USE_L10N=True)
     @override_language('en')
-    def test_regular_decimalfield_l10n_en(self):
+    # def test_regular_decimalfield_l10n_en(self):
+    def test_regular_decimalfield_en(self):
         self._aux_test_regular_decimalfield()
 
-    @override_settings(USE_L10N=True)
+    # @override_settings(USE_L10N=True)
     @override_language('fr')
-    def test_regular_decimalfield_l10n_fr(self):
+    # def test_regular_decimalfield_l10n_fr(self):
+    def test_regular_decimalfield_fr(self):
         self._aux_test_regular_decimalfield()
 
     def test_regular_floatfield(self):

@@ -1123,54 +1123,52 @@ class BaseTestCaseTestCase(CremeTestCase):
     def test_formfield_value_date(self):
         date_obj = date(year=2022, month=2, day=24)
 
-        with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y']):
-            date_str1 = self.formfield_value_date(date_obj)
-            date_str2 = self.formfield_value_date(2023, 6, 12)
-        self.assertEqual('2022-02-24', date_str1)
-        self.assertEqual('2023-06-12', date_str2)
+        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y']):
+        #     date_str1 = self.formfield_value_date(date_obj)
+        #     date_str2 = self.formfield_value_date(2023, 6, 12)
+        # self.assertEqual('2022-02-24', date_str1)
+        # self.assertEqual('2023-06-12', date_str2)
 
-        with self.settings(USE_L10N=True):
-            with override_language('en'):
-                date_str_en = self.formfield_value_date(date_obj)
-            self.assertEqual('2022-02-24', date_str_en)
+        # with self.settings(USE_L10N=True):
+        with override_language('en'):
+            date_str_en = self.formfield_value_date(date_obj)
+        self.assertEqual('2022-02-24', date_str_en)
 
-            with override_language('fr'):
-                with self.settings(USE_L10N=True):
-                    date_str_fr = self.formfield_value_date(date_obj)
-            self.assertEqual('24/02/2022', date_str_fr)
+        with override_language('fr'):
+            date_str_fr = self.formfield_value_date(date_obj)
+        self.assertEqual('24/02/2022', date_str_fr)
 
     def test_formfield_value_datetime(self):
         date_obj = date(year=2022, month=2, day=24)
         dt_obj = datetime(year=2023, month=3, day=21, hour=18, minute=53)
 
-        with self.settings(
-            USE_L10N=False,
-            DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y'],
-            DATETIME_INPUT_FORMATS=['%Y-%m-%d %H:%M:%S', '%m/%d/%Y %H:%M'],
-        ):
-            date_str1 = self.formfield_value_datetime(date_obj)
-            dt_str1 = self.formfield_value_datetime(dt_obj)
-            dt_str2 = self.formfield_value_datetime(
-                year=2024, month=8, day=25, hour=19, minute=48,
-            )
+        # with self.settings(
+        #     USE_L10N=False,
+        #     DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y'],
+        #     DATETIME_INPUT_FORMATS=['%Y-%m-%d %H:%M:%S', '%m/%d/%Y %H:%M'],
+        # ):
+        #     date_str1 = self.formfield_value_datetime(date_obj)
+        #     dt_str1 = self.formfield_value_datetime(dt_obj)
+        #     dt_str2 = self.formfield_value_datetime(
+        #         year=2024, month=8, day=25, hour=19, minute=48,
+        #     )
+        #
+        # self.assertEqual('2022-02-24', date_str1)
+        # self.assertEqual('2023-03-21 18:53:00', dt_str1)
+        # self.assertEqual('2024-08-25 19:48:00', dt_str2)
 
-        self.assertEqual('2022-02-24', date_str1)
-        self.assertEqual('2023-03-21 18:53:00', dt_str1)
-        self.assertEqual('2024-08-25 19:48:00', dt_str2)
+        # with self.settings(USE_L10N=True):
+        with override_language('en'):
+            date_str_en = self.formfield_value_datetime(date_obj)
+            dt_str_en = self.formfield_value_datetime(dt_obj)
+        self.assertEqual('2022-02-24', date_str_en)
+        self.assertEqual('2023-03-21 18:53:00', dt_str_en)
 
-        with self.settings(USE_L10N=True):
-            with override_language('en'):
-                date_str_en = self.formfield_value_datetime(date_obj)
-                dt_str_en = self.formfield_value_datetime(dt_obj)
-            self.assertEqual('2022-02-24', date_str_en)
-            self.assertEqual('2023-03-21 18:53:00', dt_str_en)
-
-            with override_language('fr'):
-                with self.settings(USE_L10N=True):
-                    date_str_fr = self.formfield_value_datetime(date_obj)
-                    dt_str_fr = self.formfield_value_datetime(dt_obj)
-            self.assertEqual('24/02/2022', date_str_fr)
-            self.assertEqual('21/03/2023 18:53:00', dt_str_fr)
+        with override_language('fr'):
+            date_str_fr = self.formfield_value_datetime(date_obj)
+            dt_str_fr = self.formfield_value_datetime(dt_obj)
+        self.assertEqual('24/02/2022', date_str_fr)
+        self.assertEqual('21/03/2023 18:53:00', dt_str_fr)
 
     def test_add_credentials01(self):
         "ALL + wildcard."

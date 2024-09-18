@@ -21,7 +21,7 @@ from datetime import datetime, time
 from json import dumps as json_dump
 
 from django import forms
-from django.forms.fields import CallableChoiceIterator
+# from django.forms.fields import CallableChoiceIterator
 from django.template.base import Template, VariableNode
 from django.utils.timezone import make_aware, now
 from django.utils.translation import gettext_lazy as _
@@ -66,6 +66,15 @@ class _SendingConfigSelect(PrettySelect):
             sub_group,
             0,  # index
         )]
+
+    # NB: we do not call <normalize_choices> because it causes a SQL query to be
+    #     done during migrate (& which makes it fail).
+    # TODO: rewrite a Widget from scratch which do not inherit ChoiceWidget
+    #       & so behaves correctly which our unusual 3-tuples choices?
+    @PrettySelect.choices.setter
+    def choices(self, value):
+        # self._choices = normalize_choices(value)
+        self._choices = value
 
 
 class SendingConfigWidget(forms.MultiWidget):
@@ -116,7 +125,7 @@ class SendingConfigField(forms.MultiValueField):
     def __deepcopy__(self, memo):
         result = super().__deepcopy__(memo)
 
-        # Need to force a new CallableChoiceIterator to be created.
+        # Need to force a new CallableChoiceWithDefaultIterator to be created.
         result.queryset = self.queryset
 
         return result
@@ -132,9 +141,31 @@ class SendingConfigField(forms.MultiValueField):
 
     @queryset.setter
     def queryset(self, value):
+        # qs = value.all()
+        # self.fields[0].queryset = qs
+        # self.widget.choices = CallableChoiceIterator(
+        #     lambda: (
+        #         (
+        #             str(item.id),
+        #             item.name,
+        #             {'default_sender': item.default_sender}
+        #         ) for item in qs
+        #     )
+        # )
+
+        # NB: we copy the old-fashioned CallableChoiceIterator because the new
+        #     one (i.e django.utils.choices.CallableChoiceIterator) does not
+        #     like our 3-tuples.
+        class CallableChoiceWithDefaultIterator:
+            def __init__(this, choices_func):
+                this.choices_func = choices_func
+
+            def __iter__(this):
+                yield from this.choices_func()
+
         qs = value.all()
         self.fields[0].queryset = qs
-        self.widget.choices = CallableChoiceIterator(
+        self.widget.choices = CallableChoiceWithDefaultIterator(
             lambda: (
                 (
                     str(item.id),

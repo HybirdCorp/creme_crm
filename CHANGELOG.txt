@@ -1,8 +1,17 @@
 == Version 2.7 Work in progress (not released -- this is a draft) ==
 
+  UPGRADE NOTES :
+    - If you upgrade your MariaDB server to 10.7+, you have to convert all the UUID fields
+      (which were just CharFields before MariaDB 10.7) to real UUID fields.
+
   Users side :
   ------------
     # The minimal version of Python is now '3.10'.
+    # The version of Django has been upgraded to '5.0' ; for users it means that :
+        - The minimal version of MySQL is now '8.0.11'.
+        - The UUID fields may have to be manually converted if you use MariaDB (see the upgrade notes above).
+        - The URL fields assume "https" by default ; set the setting 'FORMS_URLFIELD_ASSUME_HTTPS' if you prefer "http"
+          (this setting will be removed with Django 6.0 -- & so Creme 2.9 or something like that).
     # A new mandatory app has been added: "Custom entities".
       It allows users to create their own types of entity without coding.
         - You can create up to 20 types.
@@ -58,9 +67,22 @@
                 - A button has been added (not enabled in default installations).
                 - In the block "Linked Contacts", you can activate an new action in the configuration (idem).
             - The field 'Opportunity.chance_to_win' checks now that the value is between 0 & 100.
+        * Crudity :
+            - BEWARE: the date format corresponds now to your server's language (i.e. 'settings.LANGUAGE_CODE').
 
   Developers side :
   -----------------
+    - The version of 'Django' is now "5.0".
+      You should probably read the following releases notes for Django versions :
+        - https://docs.djangoproject.com/en/5.1/releases/5.0/
+          Some important items :
+            - The "logout" view uses now POST only.
+            - The 'settings.py' value 'USE_L10N' has been removed.
+            - The management of choices (models & forms fields) have been reworked ;
+              it caused an issue during our upgrade with a strange couple form-field/form-widget which
+              uses 3-tuples (see 'creme.emails.forms.sending.SendingConfigField' if you have an identical issue).
+              The class 'django.forms.fields.CallableChoiceIterator' has been removed ;
+              use 'django.utils.choices.CallableChoiceIterator' instead.
 
     Non breaking changes :
     ----------------------

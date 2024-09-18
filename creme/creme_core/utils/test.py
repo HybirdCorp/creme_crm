@@ -79,6 +79,7 @@ def creme_init_worker(counter,
                       process_setup=None,
                       process_setup_args=None,
                       debug_mode=None,
+                      used_aliases=None,
                       ):
     _init_worker(
         counter=counter,
@@ -87,6 +88,7 @@ def creme_init_worker(counter,
         process_setup=process_setup,
         process_setup_args=process_setup_args,
         debug_mode=debug_mode,
+        used_aliases=used_aliases,
     )
     creme_test_populate()
 

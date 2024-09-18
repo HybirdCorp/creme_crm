@@ -288,22 +288,22 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         value = date(year=2019, month=8, day=21)
 
-        with override_settings(
-            USE_L10N=False,
-            DATE_FORMAT='j F Y',
-            DATE_INPUT_FORMATS=['%d-%m-%Y'],
-        ):
+        # with override_settings(
+        #     USE_L10N=False,
+        #     DATE_FORMAT='j F Y',
+        #     DATE_INPUT_FORMATS=['%d-%m-%Y'],
+        # ):
+        #     self.assertEqual(
+        #         date_format(value, 'DATE_FORMAT'),
+        #         print_date_html(instance=c, value=value, user=user, field=field),
+        #     )
+
+        # with override_settings(USE_L10N=True):
+        with override_language('en'):
             self.assertEqual(
                 date_format(value, 'DATE_FORMAT'),
                 print_date_html(instance=c, value=value, user=user, field=field),
             )
-
-        with override_settings(USE_L10N=True):
-            with override_language('en'):
-                self.assertEqual(
-                    date_format(value, 'DATE_FORMAT'),
-                    print_date_html(instance=c, value=value, user=user, field=field),
-                )
 
     def test_print_date_text(self):
         c = FakeContact()
@@ -312,24 +312,24 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual('', print_date_text(instance=c, value=None, user=user, field=field))
 
         value = date(year=2019, month=8, day=21)
-        date_input_format = '%d-%m-%Y'
+        # date_input_format = '%d-%m-%Y'
+        #
+        # with override_settings(
+        #         USE_L10N=False,
+        #         DATE_FORMAT='j F Y',
+        #         DATE_INPUT_FORMATS=[date_input_format],
+        # ):
+        #     self.assertEqual(
+        #         value.strftime(date_input_format),
+        #         print_date_text(instance=c, value=value, user=user, field=field),
+        #     )
 
-        with override_settings(
-                USE_L10N=False,
-                DATE_FORMAT='j F Y',
-                DATE_INPUT_FORMATS=[date_input_format],
-        ):
+        # with override_settings(USE_L10N=True):
+        with override_language('en'):
             self.assertEqual(
-                value.strftime(date_input_format),
+                value.strftime('%Y-%m-%d'),
                 print_date_text(instance=c, value=value, user=user, field=field),
             )
-
-        with override_settings(USE_L10N=True):
-            with override_language('en'):
-                self.assertEqual(
-                    value.strftime('%Y-%m-%d'),
-                    print_date_text(instance=c, value=value, user=user, field=field),
-                )
 
     def test_print_datetime_html(self):
         a = FakeActivity()
@@ -341,29 +341,28 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         value = self.create_datetime(year=2019, month=8, day=21, hour=11, minute=30)
 
-        with override_settings(
-            USE_L10N=False,
-            DATETIME_FORMAT='j F Y H:i',
-            DATETIME_INPUT_FORMATS=['%d-%m-%Y %H:%M:%S'],
-        ):
+        # with override_settings(
+        #     USE_L10N=False,
+        #     DATETIME_FORMAT='j F Y H:i',
+        #     DATETIME_INPUT_FORMATS=['%d-%m-%Y %H:%M:%S'],
+        # ):
+        #     self.assertHTMLEqual(
+        #         '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
+        #             seconds=_('Seconds: {}').format(value.second),
+        #             dt=date_format(value, 'DATETIME_FORMAT'),
+        #         ),
+        #         print_datetime_html(instance=a, value=value, user=user, field=field),
+        #     )
+
+        # with override_settings(USE_L10N=True):
+        with override_language('en'):
             self.assertHTMLEqual(
-                # TODO: localtime() ??
                 '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
                     seconds=_('Seconds: {}').format(value.second),
                     dt=date_format(value, 'DATETIME_FORMAT'),
                 ),
                 print_datetime_html(instance=a, value=value, user=user, field=field),
             )
-
-        with override_settings(USE_L10N=True):
-            with override_language('en'):
-                self.assertHTMLEqual(
-                    '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
-                        seconds=_('Seconds: {}').format(value.second),
-                        dt=date_format(value, 'DATETIME_FORMAT'),
-                    ),
-                    print_datetime_html(instance=a, value=value, user=user, field=field),
-                )
 
     def test_print_datetime_text(self):
         a = FakeActivity()
@@ -373,24 +372,24 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         value = self.create_datetime(year=2019, month=8, day=21, hour=11, minute=30)
 
-        dt_input_format = '%d-%m-%Y %H:%M:%S'
+        # dt_input_format = '%d-%m-%Y %H:%M:%S'
+        #
+        # with override_settings(
+        #     USE_L10N=False,
+        #     DATETIME_FORMAT='j F Y H:i',
+        #     DATETIME_INPUT_FORMATS=[dt_input_format],
+        # ):
+        #     self.assertEqual(
+        #         value.strftime(dt_input_format),
+        #         print_datetime_text(instance=a, value=value, user=user, field=field)
+        #     )
 
-        with override_settings(
-            USE_L10N=False,
-            DATETIME_FORMAT='j F Y H:i',
-            DATETIME_INPUT_FORMATS=[dt_input_format],
-        ):
+        # with override_settings(USE_L10N=True):
+        with override_language('en'):
             self.assertEqual(
-                value.strftime(dt_input_format),  # TODO: localtime() ??
-                print_datetime_text(instance=a, value=value, user=user, field=field)
+                value.strftime('%Y-%m-%d %H:%M:%S'),
+                print_datetime_text(instance=a, value=value, user=user, field=field),
             )
-
-        with override_settings(USE_L10N=True):
-            with override_language('en'):
-                self.assertEqual(
-                    value.strftime('%Y-%m-%d %H:%M:%S'),
-                    print_datetime_text(instance=a, value=value, user=user, field=field),
-                )
 
     def test_print_email_html(self):
         c = FakeContact()
@@ -1510,12 +1509,12 @@ class FieldsPrintersTestCase(CremeTestCase):
             render_field(field_name='created'),
         )
 
-        dt_fmt = '%d-%m-%Y %H:%M:%S'
-        with override_settings(USE_L10N=False, DATETIME_INPUT_FORMATS=[dt_fmt]):
-            self.assertEqual(
-                local_dt.strftime(dt_fmt),
-                render_field(field_name='created', tag=ViewTag.TEXT_PLAIN),
-            )
+        # dt_fmt = '%d-%m-%Y %H:%M:%S'
+        # with override_settings(USE_L10N=False, DATETIME_INPUT_FORMATS=[dt_fmt]):
+        #     self.assertEqual(
+        #         local_dt.strftime(dt_fmt),
+        #         render_field(field_name='created', tag=ViewTag.TEXT_PLAIN),
+        #     )
 
         self.assertEqual(
             # f'<ul><li>{cat1.name}</li><li>{cat2.name}</li></ul>',

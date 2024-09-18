@@ -10,6 +10,7 @@ from django.utils.formats import date_format, number_format
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
+from django.utils.translation import override as override_language
 
 from creme.creme_core.core.entity_cell import (
     CELLS_MAP,
@@ -286,21 +287,32 @@ class EntityCellTestCase(CremeTestCase):
         yoko = FakeContact.objects.create(
             user=user, first_name='Yoko', last_name='Littner', birthday=birthday,
         )
-        date_input_format = '%d-%m-%Y'
 
-        with self.settings(
-            USE_L10N=False,
-            DATE_FORMAT='j F Y',
-            DATE_INPUT_FORMATS=[date_input_format],
-        ):
+        with override_language('en'):
             self.assertEqual(
                 date_format(birthday, 'DATE_FORMAT'),
                 cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
             )
             self.assertEqual(
-                birthday.strftime(date_input_format),
+                birthday.strftime('%Y-%m-%d'),
                 cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
             )
+
+        # date_input_format = '%d-%m-%Y'
+        #
+        # with self.settings(
+        #     USE_L10N=False,
+        #     DATE_FORMAT='j F Y',
+        #     DATE_INPUT_FORMATS=[date_input_format],
+        # ):
+        #     self.assertEqual(
+        #         date_format(birthday, 'DATE_FORMAT'),
+        #         cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+        #     )
+        #     self.assertEqual(
+        #         birthday.strftime(date_input_format),
+        #         cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
+        #     )
 
     def test_regular_field_bool(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='is_a_nerd')
@@ -467,14 +479,29 @@ class EntityCellTestCase(CremeTestCase):
             entity=yoko, custom_field=customfield, value=dt,
         )
 
-        dt_input_format = '%Y/%m/%d %H:%M:%S'
+        # dt_input_format = '%Y/%m/%d %H:%M:%S'
+        # local_dt = localtime(dt)
+        #
+        # with self.settings(
+        #     USE_L10N=False,
+        #     DATETIME_FORMAT='j F Y H:i',
+        #     DATETIME_INPUT_FORMATS=[dt_input_format],
+        # ):
+        #     self.assertHTMLEqual(
+        #         '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
+        #             seconds=_('Seconds: {}').format(local_dt.second),
+        #             dt=date_format(local_dt, 'DATETIME_FORMAT'),
+        #         ),
+        #         cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+        #     )
+        #     self.assertEqual(
+        #         local_dt.strftime(dt_input_format),
+        #         cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
+        #     )
+
         local_dt = localtime(dt)
 
-        with self.settings(
-            USE_L10N=False,
-            DATETIME_FORMAT='j F Y H:i',
-            DATETIME_INPUT_FORMATS=[dt_input_format],
-        ):
+        with override_language('en'):
             self.assertHTMLEqual(
                 '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
                     seconds=_('Seconds: {}').format(local_dt.second),
@@ -483,7 +510,7 @@ class EntityCellTestCase(CremeTestCase):
                 cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
             )
             self.assertEqual(
-                local_dt.strftime(dt_input_format),
+                local_dt.strftime('%Y-%m-%d %H:%M:%S'),
                 cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
             )
 
@@ -506,19 +533,28 @@ class EntityCellTestCase(CremeTestCase):
             entity=yoko, custom_field=customfield, value=date_obj,
         )
 
-        date_input_format = '%d-%m-%Y'
-
-        with self.settings(
-            USE_L10N=False,
-            DATE_FORMAT='j F Y',
-            DATE_INPUT_FORMATS=[date_input_format],
-        ):
+        # date_input_format = '%d-%m-%Y'
+        #
+        # with self.settings(
+        #     USE_L10N=False,
+        #     DATE_FORMAT='j F Y',
+        #     DATE_INPUT_FORMATS=[date_input_format],
+        # ):
+        #     self.assertEqual(
+        #         date_format(date_obj, 'DATE_FORMAT'),
+        #         cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+        #     )
+        #     self.assertEqual(
+        #         date_obj.strftime(date_input_format),
+        #         cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
+        #     )
+        with override_language('en'):
             self.assertEqual(
                 date_format(date_obj, 'DATE_FORMAT'),
                 cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
             )
             self.assertEqual(
-                date_obj.strftime(date_input_format),
+                date_obj.strftime('%Y-%m-%d'),
                 cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
             )
 
