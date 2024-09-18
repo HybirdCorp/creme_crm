@@ -9,6 +9,8 @@ from django.utils.timezone import now, zoneinfo
 import creme.creme_core.models.deletion as creme_deletion
 import creme.creme_core.models.fields as core_fields
 
+from .utils.utils_27 import Char32UUIDField
+
 
 class Migration(migrations.Migration):
     # replaces = [
@@ -63,7 +65,8 @@ class Migration(migrations.Migration):
             name='UserRole',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
                 ('raw_allowed_apps', models.TextField(default='')),
                 ('raw_admin_4_apps', models.TextField(default='')),
@@ -268,7 +271,8 @@ class Migration(migrations.Migration):
             name='Sandbox',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('type_id', models.CharField(editable=False, max_length=48, verbose_name='Type of sandbox')),
                 (
                     'role',
@@ -290,7 +294,8 @@ class Migration(migrations.Migration):
             name='CremeEntity',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, unique=True, editable=False)),
+                # ('uuid', models.UUIDField(default=uuid4, unique=True, editable=False)),
+                ('uuid', Char32UUIDField(default=uuid4, unique=True, editable=False)),
                 ('created', core_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
                 ('modified', core_fields.ModificationDateTimeField(default=now, verbose_name='Last modification', editable=False, blank=True)),
                 ('header_filter_search_field', models.CharField(max_length=200, editable=False)),
@@ -323,7 +328,8 @@ class Migration(migrations.Migration):
                         verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
                     )
                 ),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 (
                     'app_label',
                     models.CharField(
@@ -399,7 +405,8 @@ class Migration(migrations.Migration):
                 ('international_symbol', models.CharField(max_length=100, verbose_name='International symbol')),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -412,7 +419,8 @@ class Migration(migrations.Migration):
             fields=[
                 # ('id', models.CharField(max_length=100, serialize=False, editable=False, primary_key=True)),
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=200, verbose_name='Name')),
                 ('json_cells', models.JSONField(default=list, editable=False)),
                 (
@@ -427,7 +435,8 @@ class Migration(migrations.Migration):
             name='CustomField',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, unique=True, editable=False)),
+                # ('uuid', models.UUIDField(default=uuid4, unique=True, editable=False)),
+                ('uuid', Char32UUIDField(default=uuid4, unique=True, editable=False)),
                 ('name', models.CharField(max_length=100, verbose_name='Field name')),
                 ('field_type', models.PositiveSmallIntegerField(verbose_name='Field type')),
                 (
@@ -480,7 +489,8 @@ class Migration(migrations.Migration):
             name='CustomFieldEnumValue',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('value', models.CharField(max_length=100)),
                 (
                     'custom_field',
@@ -745,7 +755,8 @@ class Migration(migrations.Migration):
             name='InstanceBrickConfigItem',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('brick_class_id', models.CharField(editable=False, max_length=300, verbose_name='Block class ID')),
                 ('json_extra_data', models.JSONField(default=dict, editable=False)),
                 (
@@ -831,7 +842,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'verbose_name': 'Language',
@@ -849,7 +861,8 @@ class Migration(migrations.Migration):
             name='NotificationChannel',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=48, verbose_name='Name')),
                 ('description', models.TextField(blank=True, verbose_name='Description')),
                 ('type_id', models.CharField(editable=False, max_length=48)),
@@ -1004,7 +1017,8 @@ class Migration(migrations.Migration):
             name='RelationBrickItem',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(unique=True, editable=False, default=uuid4)),
+                # ('uuid', models.UUIDField(unique=True, editable=False, default=uuid4)),
+                ('uuid', Char32UUIDField(unique=True, editable=False, default=uuid4)),
                 (
                     'relation_type',
                     models.OneToOneField(
@@ -1136,7 +1150,8 @@ class Migration(migrations.Migration):
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('value',),

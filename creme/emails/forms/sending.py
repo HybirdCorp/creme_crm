@@ -21,8 +21,9 @@ from datetime import datetime, time
 from json import dumps as json_dump
 
 from django import forms
-from django.forms.fields import CallableChoiceIterator
+# from django.forms.fields import CallableChoiceIterator
 from django.template.base import Template, VariableNode
+from django.utils.choices import CallableChoiceIterator
 from django.utils.timezone import make_aware, now
 from django.utils.translation import gettext_lazy as _
 

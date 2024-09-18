@@ -8,6 +8,7 @@ from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
 import creme.creme_core.models.fields as core_fields
 from creme.billing.models import other_models
 from creme.billing.models.fields import BillingDiscountField
+from creme.creme_core.migrations.utils.utils_27 import Char32UUIDField
 from creme.creme_core.models import CREME_REPLACE, CREME_REPLACE_NULL
 from creme.creme_core.models.vat import get_default_vat_pk
 
@@ -34,7 +35,8 @@ class Migration(migrations.Migration):
             name='AdditionalInformation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
@@ -80,7 +82,8 @@ class Migration(migrations.Migration):
             name='PaymentTerms',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Payment terms')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
@@ -112,7 +115,8 @@ class Migration(migrations.Migration):
             name='SettlementTerms',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Settlement terms')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
@@ -128,7 +132,8 @@ class Migration(migrations.Migration):
             name='CreditNoteStatus',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'color',
@@ -260,7 +265,8 @@ class Migration(migrations.Migration):
             name='InvoiceStatus',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'color',
@@ -401,7 +407,8 @@ class Migration(migrations.Migration):
             name='QuoteStatus',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'color',
@@ -535,7 +542,8 @@ class Migration(migrations.Migration):
             name='SalesOrderStatus',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'color',

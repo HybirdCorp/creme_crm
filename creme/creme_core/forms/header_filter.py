@@ -28,8 +28,9 @@ from uuid import uuid4
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.db.transaction import atomic
-from django.forms.fields import CallableChoiceIterator, Field
+from django.forms.fields import Field  # CallableChoiceIterator
 from django.forms.widgets import Widget
+from django.utils.choices import CallableChoiceIterator
 from django.utils.translation import gettext_lazy as _
 
 from ..core.entity_cell import (

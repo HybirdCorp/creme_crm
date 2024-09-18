@@ -13,6 +13,7 @@ from django.utils.encoding import force_str
 from django.utils.html import format_html
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
+from django.utils.translation import override as override_language
 from django.utils.translation import pgettext
 from openpyxl import load_workbook
 
@@ -370,11 +371,12 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
         self.assertEqual(result[3], '"","Wong","Edward","","is a girl"')
 
-    @override_settings(
-        USE_L10N=False,
-        DATETIME_FORMAT='j F Y H:i',
-        DATETIME_INPUT_FORMATS=['%d-%m-%Y %H:%M:%S'],
-    )
+    # @override_settings(
+    #     USE_L10N=False,
+    #     DATETIME_FORMAT='j F Y H:i',
+    #     DATETIME_INPUT_FORMATS=['%d-%m-%Y %H:%M:%S'],
+    # )
+    @override_language('en')
     def test_list_view_export_datetime(self):
         user = self.login_as_root_and_get()
 
@@ -393,11 +395,12 @@ class MassExportViewsTestCase(CremeTestCase):
         result = [force_str(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
         self.assertEqual(
-            result[1],
             '"{}","{}"'.format(
                 spike.last_name,
-                localtime(spike.created).strftime('%d-%m-%Y %H:%M:%S'),
+                # localtime(spike.created).strftime('%d-%m-%Y %H:%M:%S'),
+                localtime(spike.created).strftime('%Y-%m-%d %H:%M:%S'),
             ),
+            result[1],
         )
 
     def test_list_view_export_fk_entity(self):
@@ -584,10 +587,11 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists ?!')
         self.assertEqual(Path(settings.MEDIA_ROOT, 'xls'), fullpath.parent)
 
-    @override_settings(
-        USE_L10N=False,
-        DATE_INPUT_FORMATS=['%d,%m,%Y'],
-    )
+    # @override_settings(
+    #     USE_L10N=False,
+    #     DATE_INPUT_FORMATS=['%d,%m,%Y'],
+    # )
+    @override_language('en')
     def test_xls_export02(self):
         "Other CT, other type of fields."
         user = self.login_as_root_and_get()
@@ -626,7 +630,8 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertListEqual(next(it), [orga01.name, _('Yes'), ''])
         self.assertListEqual(
             next(it),
-            [orga02.name, _('No'), orga02.creation_date.strftime('%d,%m,%Y')],
+            # [orga02.name, _('No'), orga02.creation_date.strftime('%d,%m,%Y')],
+            [orga02.name, _('No'), orga02.creation_date.strftime('%d/%m/%Y')],
         )
         with self.assertRaises(StopIteration):
             next(it)

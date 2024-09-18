@@ -4,13 +4,9 @@ from shutil import copy, rmtree
 from tempfile import NamedTemporaryFile, mkdtemp
 
 from django.apps import apps
+# from django.test.utils import override_settings
 from django.db.models.query_utils import Q
-from django.test.utils import override_settings
 
-# from creme.activities.constants import (
-#     ACTIVITYSUBTYPE_MEETING_MEETING,
-#     ACTIVITYTYPE_MEETING,
-# )
 from creme.activities.constants import UUID_SUBTYPE_MEETING_MEETING
 from creme.activities.models import ActivitySubType
 from creme.creme_core.models import FakeContact
@@ -35,11 +31,11 @@ else:
         return _aux
 
 
-@override_settings(
-    USE_L10N=False,
-    DATE_INPUT_FORMATS=['%d/%m/%Y', '%d-%m-%Y'],
-    DATETIME_INPUT_FORMATS=['%Y-%m-%d %H:%M'],
-)
+# @override_settings(
+#     USE_L10N=False,
+#     DATE_INPUT_FORMATS=['%d/%m/%Y', '%d-%m-%Y'],
+#     DATETIME_INPUT_FORMATS=['%Y-%m-%d %H:%M'],
+# )
 class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCase ?
     def setUp(self):
         super().setUp()

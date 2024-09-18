@@ -4,6 +4,7 @@ from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
 
 import creme.creme_core.models.fields as core_fields
+from creme.creme_core.migrations.utils.utils_27 import Char32UUIDField
 from creme.creme_core.models import CREME_REPLACE_NULL
 
 
@@ -26,7 +27,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Origin')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -52,7 +54,8 @@ class Migration(migrations.Migration):
                 ('lost', models.BooleanField(default=False, verbose_name='Lost')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),

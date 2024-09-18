@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import Q, QuerySet
 from django.forms.widgets import Select
 from django.test.testcases import assert_and_parse_html
-from django.test.utils import override_settings
+# from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import gettext as _
@@ -39,43 +39,44 @@ from ..fake_models import FakeContact
 class CalendarWidgetTestCase(CremeTestCase):
     maxDiff = None
 
-    @override_settings(
-        USE_L10N=False,
-        DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y'],
-    )
-    def test_render_no_l10n_01(self):
-        name = 'test_calendar'
-        value = self.formfield_value_date(2022, 2, 25)
-        help_text = _('E.g. {}').format('2024-12-31')
-        self.assertHTMLEqual(
-            f'<div class="creme-datepicker">'
-            f'  <div class="help-text-format">{help_text}</div>'
-            f'  <input type="text" widget="ui-creme-datepicker"'
-            f'         class="ui-creme-datepicker ui-creme-input ui-creme-widget widget-auto"'
-            f'         format="yy-mm-dd" name="{name}" value="{value}">'
-            f'</div>',
-            CalendarWidget().render(name, value),
-        )
+    # @override_settings(
+    #     USE_L10N=False,
+    #     DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y'],
+    # )
+    # def test_render_no_l10n_01(self):
+    #     name = 'test_calendar'
+    #     value = self.formfield_value_date(2022, 2, 25)
+    #     help_text = _('E.g. {}').format('2024-12-31')
+    #     self.assertHTMLEqual(
+    #         f'<div class="creme-datepicker">'
+    #         f'  <div class="help-text-format">{help_text}</div>'
+    #         f'  <input type="text" widget="ui-creme-datepicker"'
+    #         f'         class="ui-creme-datepicker ui-creme-input ui-creme-widget widget-auto"'
+    #         f'         format="yy-mm-dd" name="{name}" value="{value}">'
+    #         f'</div>',
+    #         CalendarWidget().render(name, value),
+    #     )
+    #
+    # @override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y'])
+    # def test_render_no_l10n_02(self):
+    #     "Other format, value, name..."
+    #     name = 'my_calendar'
+    #     value = self.formfield_value_date(2023, 3, 26)
+    #     help_text = _('E.g. {}').format('31/12/2024')
+    #     self.assertHTMLEqual(
+    #         f'<div class="creme-datepicker">'
+    #         f'  <div class="help-text-format">{help_text}</div>'
+    #         f'  <input type="text" widget="ui-creme-datepicker"'
+    #         f'         class="ui-creme-datepicker ui-creme-input ui-creme-widget widget-auto"'
+    #         f'         format="dd/mm/yy" name="{name}" value="{value}">'
+    #         f'</div>',
+    #         CalendarWidget().render(name, value),
+    #     )
 
-    @override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y'])
-    def test_render_no_l10n_02(self):
-        "Other format, value, name..."
-        name = 'my_calendar'
-        value = self.formfield_value_date(2023, 3, 26)
-        help_text = _('E.g. {}').format('31/12/2024')
-        self.assertHTMLEqual(
-            f'<div class="creme-datepicker">'
-            f'  <div class="help-text-format">{help_text}</div>'
-            f'  <input type="text" widget="ui-creme-datepicker"'
-            f'         class="ui-creme-datepicker ui-creme-input ui-creme-widget widget-auto"'
-            f'         format="dd/mm/yy" name="{name}" value="{value}">'
-            f'</div>',
-            CalendarWidget().render(name, value),
-        )
-
-    @override_settings(USE_L10N=True)
+    # @override_settings(USE_L10N=True)
     @override_language('en')
-    def test_render_l10n_en(self):
+    # def test_render_l10n_en(self):
+    def test_render__en(self):
         name = 'my_calendar'
         value = self.formfield_value_date(2023, 3, 26)
         help_text = _('E.g. {}').format('2024-12-31')
@@ -89,9 +90,10 @@ class CalendarWidgetTestCase(CremeTestCase):
             CalendarWidget().render(name, value),
         )
 
-    @override_settings(USE_L10N=True)
+    # @override_settings(USE_L10N=True)
     @override_language('fr')
-    def test_render_l10n_fr(self):
+    # def test_render_l10n_fr(self):
+    def test_render__fr(self):
         name = 'calendar'
         value = self.formfield_value_date(2024, 4, 27)
         help_text = _('E.g. {}').format('31/12/2024')
@@ -117,39 +119,40 @@ class CalendarWidgetTestCase(CremeTestCase):
 class DateTimeWidgetTestCase(CremeTestCase):
     maxDiff = None
 
-    @override_settings(
-        USE_L10N=False,
-        DATE_INPUT_FORMATS=['%d/%m/%Y', '%d-%m-%Y'],
-    )
-    def test_render_no_l10n(self):
-        name = 'test_datetime'
-        value = None
-        self.assertHTMLEqual(
-            f'<ul class="ui-creme-widget widget-auto ui-creme-datetimepicker"'
-            f'    widget="ui-creme-datetimepicker" format="dd/mm/yy">'
-            f'  <input name="{name}" type="hidden">'
-            f'  <li>{_("On")}</li>'
-            f'  <li class="date">'
-            f'    <input type="text" maxlength="12" title="{_("Date")}" />'
-            f'  </li>'
-            f'  <li>{_("at")}</li>'
-            f'  <li class="hour">'
-            f'    <input type="number" min="0" max="23" title="{_("Hour")}" />'
-            f'  </li>'
-            f'  <li>{_("h")}</li>'
-            f'  <li class="minute">'
-            f'    <input type="number" min="0" max="59" title="{_("Minute")}" />'
-            f'  </li>'
-            f'  <li></li>'
-            f'  <li class="clear"><button type="button">{_("Clean")}</button></li>'
-            f'  <li class="now"><button type="button">{_("Now")}</button></li>'
-            f'</ul>',
-            DateTimeWidget().render(name, value),
-        )
+    # @override_settings(
+    #     USE_L10N=False,
+    #     DATE_INPUT_FORMATS=['%d/%m/%Y', '%d-%m-%Y'],
+    # )
+    # def test_render_no_l10n(self):
+    #     name = 'test_datetime'
+    #     value = None
+    #     self.assertHTMLEqual(
+    #         f'<ul class="ui-creme-widget widget-auto ui-creme-datetimepicker"'
+    #         f'    widget="ui-creme-datetimepicker" format="dd/mm/yy">'
+    #         f'  <input name="{name}" type="hidden">'
+    #         f'  <li>{_("On")}</li>'
+    #         f'  <li class="date">'
+    #         f'    <input type="text" maxlength="12" title="{_("Date")}" />'
+    #         f'  </li>'
+    #         f'  <li>{_("at")}</li>'
+    #         f'  <li class="hour">'
+    #         f'    <input type="number" min="0" max="23" title="{_("Hour")}" />'
+    #         f'  </li>'
+    #         f'  <li>{_("h")}</li>'
+    #         f'  <li class="minute">'
+    #         f'    <input type="number" min="0" max="59" title="{_("Minute")}" />'
+    #         f'  </li>'
+    #         f'  <li></li>'
+    #         f'  <li class="clear"><button type="button">{_("Clean")}</button></li>'
+    #         f'  <li class="now"><button type="button">{_("Now")}</button></li>'
+    #         f'</ul>',
+    #         DateTimeWidget().render(name, value),
+    #     )
 
-    @override_settings(USE_L10N=True)
+    # @override_settings(USE_L10N=True)
     @override_language('en')
-    def test_render_l10n_en(self):
+    # def test_render_l10n_en(self):
+    def test_render__en(self):
         name = 'my_dt'
         value = self.formfield_value_datetime(year=2023, month=3, day=26, hour=15)
         self.assertHTMLEqual(
@@ -184,41 +187,42 @@ class DateTimeWidgetTestCase(CremeTestCase):
 class DateRangeSelectTestCase(CremeTestCase):
     maxDiff = None
 
-    @override_settings(
-        USE_L10N=False,
-        DATE_INPUT_FORMATS=['%Y/%m/%d', '%d-%m-%Y'],
-    )
-    def test_render_no_l10n(self):
-        name = 'test_date_range'
-        value = None
-        widget = DateRangeSelect()
-        widget.range_registry = date_range.DateRangeRegistry(
-            date_range.FutureRange(),
-            date_range.PastRange(),
-        )
+    # @override_settings(
+    #     USE_L10N=False,
+    #     DATE_INPUT_FORMATS=['%Y/%m/%d', '%d-%m-%Y'],
+    # )
+    # def test_render_no_l10n(self):
+    #     name = 'test_date_range'
+    #     value = None
+    #     widget = DateRangeSelect()
+    #     widget.range_registry = date_range.DateRangeRegistry(
+    #         date_range.FutureRange(),
+    #         date_range.PastRange(),
+    #     )
+    #
+    #     custom_label = pgettext('creme_core-date_range', 'Customized')
+    #     self.assertHTMLEqual(
+    #         f'<span class="ui-creme-daterange-selector ui-creme-widget widget-auto"'
+    #         f'      data-format="yy/mm/dd" widget="ui-creme-daterange-selector">'
+    #         f'  <input name="{name}"'
+    #         f'         class="ui-creme-daterange-selector ui-creme-input" type="hidden">'
+    #         f'  <select class="daterange-input range-type">'
+    #         f'    <option value="">{custom_label}</option>'
+    #         f'    <option value="in_future">{_("In the future")}</option>'
+    #         f'    <option value="in_past">{_("In the past")}</option>'
+    #         f'  </select>'
+    #         f'  <span class="daterange-inputs">'
+    #         f'    {_("From")}<input type="text" class="daterange-input date-start" />'
+    #         f'    &nbsp;{_("To")}<input type="text" class="daterange-input date-end" />'
+    #         f'  </span>'
+    #         f'</span>',
+    #         widget.render(name, value),
+    #     )
 
-        custom_label = pgettext('creme_core-date_range', 'Customized')
-        self.assertHTMLEqual(
-            f'<span class="ui-creme-daterange-selector ui-creme-widget widget-auto"'
-            f'      data-format="yy/mm/dd" widget="ui-creme-daterange-selector">'
-            f'  <input name="{name}"'
-            f'         class="ui-creme-daterange-selector ui-creme-input" type="hidden">'
-            f'  <select class="daterange-input range-type">'
-            f'    <option value="">{custom_label}</option>'
-            f'    <option value="in_future">{_("In the future")}</option>'
-            f'    <option value="in_past">{_("In the past")}</option>'
-            f'  </select>'
-            f'  <span class="daterange-inputs">'
-            f'    {_("From")}<input type="text" class="daterange-input date-start" />'
-            f'    &nbsp;{_("To")}<input type="text" class="daterange-input date-end" />'
-            f'  </span>'
-            f'</span>',
-            widget.render(name, value),
-        )
-
-    @override_settings(USE_L10N=True)
+    # @override_settings(USE_L10N=True)
     @override_language('en')
-    def test_render_l10n_en(self):
+    # def test_render_l10n_en(self):
+    def test_render__en(self):
         name = 'my_range'
 
         widget = DateRangeSelect()

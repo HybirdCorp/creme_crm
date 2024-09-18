@@ -5,6 +5,7 @@ from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
 
 import creme.polls.models.base
+from creme.creme_core.migrations.utils.utils_27 import Char32UUIDField
 
 
 class Migration(migrations.Migration):
@@ -26,7 +27,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=80, verbose_name='Name')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                # ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                ('uuid', Char32UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
