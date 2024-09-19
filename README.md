@@ -123,7 +123,7 @@ For an upgrade from the previous major version, back up your existing DB
 (of course you should back up regularly, even when you do not upgrade Creme...).
 
 Project creation:
-For new installations AND for upgrades from Creme 2.4, create a new project ;
+For new installations AND for upgrades from a previous version, create a new project;
 with the virtualenv activated, use the following command which creates a new folder:
 ```sh
 >> creme creme_start_project my_project
@@ -185,7 +185,7 @@ clean the DB. When it's done, you can comment the app in local_settings.py
 The repository is using CircleCI and launch some linting tests. To check them locally before any commit or push you can
 use the hooks in '.githooks'. There are two ways to configure them:
 
-Simply change git configuration (works with git 2.9+)
+Simply change git configuration
 ```sh
 >> git config core.hooksPath .githooks
 ```
