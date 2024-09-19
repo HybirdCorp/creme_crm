@@ -443,7 +443,8 @@ END:VCARD"""
 
         self.assertIn('value="1"', str(form['vcf_step']))
 
-        response = self._post_step1(
+        # ---
+        response2 = self._post_step1(
             data={
                 'user':        user_id,
                 'first_name':  first_name,
@@ -468,7 +469,7 @@ END:VCARD"""
             email=email, url_site=url_site,
         )
         self.assertIsNone(contact.sector)
-        self.assertRedirects(response, contact.get_absolute_url())
+        self.assertRedirects(response2, contact.get_absolute_url())
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -995,10 +996,11 @@ END:VCARD"""
 
         self._post_step1(data=data)
         orga = self.refresh(orga)
-        self.assertEqual(name,                 orga.name)
-        self.assertEqual(phone,                orga.phone)
-        self.assertEqual(email,                orga.email)
-        self.assertEqual(f'http://{url_site}', orga.url_site)
+        self.assertEqual(name,     orga.name)
+        self.assertEqual(phone,    orga.phone)
+        self.assertEqual(email,    orga.email)
+        # self.assertEqual(f'http://{url_site}', orga.url_site)
+        self.assertEqual(url_site, orga.url_site)
 
     @skipIfCustomContact
     def test_add_contact_vcf08(self):
@@ -1130,6 +1132,7 @@ END:VCARD"""
 
         email = 'work@work.com'
         phone = '11 11 11 11 11'
+        site = 'www.work.com'
 
         country = 'Japan'
         city = 'Mahora'
@@ -1144,7 +1147,7 @@ FN:{first_name} {last_name}
 ADR;TYPE=WORK:{box};;{street};{city};{department};{zipcode};{country}
 TEL;TYPE=WORK:{phone}
 EMAIL;TYPE=WORK:{email}
-URL;TYPE=WORK:www.work.com
+URL;TYPE=WORK:{site}
 ORG:{name}
 END:VCARD"""
         fields = self._post_step0(user=user, content=content).context['form'].fields
@@ -1183,10 +1186,11 @@ END:VCARD"""
         self.assertEqual(address_count,     Address.objects.count())
 
         orga = self.refresh(orga)
-        self.assertEqual(name,                  orga.name)
-        self.assertEqual(phone,                 orga.phone)
-        self.assertEqual(email,                 orga.email)
-        self.assertEqual('http://www.work.com', orga.url_site)
+        self.assertEqual(name,  orga.name)
+        self.assertEqual(phone, orga.phone)
+        self.assertEqual(email, orga.email)
+        # self.assertEqual(f'http://{site}', orga.url_site)
+        self.assertEqual(site,  orga.url_site)
 
         billing_address = orga.billing_address
         self.assertEqual(address_id,    billing_address.id)
