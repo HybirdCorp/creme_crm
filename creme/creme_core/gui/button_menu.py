@@ -126,8 +126,7 @@ class Button:
 
 
 class ButtonsRegistry:
-    "ButtonsRegistry of <Button> classes, to retrieve them by their ID."
-
+    """Registry of <Button> classes, to retrieve them by their ID."""
     class RegistrationError(Exception):
         pass
 
