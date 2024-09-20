@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2010-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -133,7 +133,7 @@ class RelatedContactsList(EntityRelatedMixin, ContactsList):
             None
         )
 
-        registry = gui.RelatedContactsActionsRegistry(event=self.get_related_entity())
+        registry = gui.RelatedContactActionRegistry(event=self.get_related_entity())
         registry.register_instance_actions(AddRelatedOpportunityAction)
 
         if view_action_class is not None:

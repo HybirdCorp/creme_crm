@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING, Iterable, Iterator
 
 from django.db.models import Model
@@ -163,7 +164,8 @@ class FunctionFieldResultsList(FunctionFieldResult):
         )
 
 
-class _FunctionFieldRegistry:
+# class _FunctionFieldRegistry:
+class FunctionFieldRegistry:
     """Registry for FunctionFields.
 
     FunctionFields are registered relatively to a model.
@@ -217,7 +219,7 @@ class _FunctionFieldRegistry:
     def register(self,
                  model: type[Model],
                  *function_field_classes: type[FunctionField],
-                 ) -> _FunctionFieldRegistry:
+                 ) -> FunctionFieldRegistry:
         """Register some FunctionField classes related to a model.
 
         @param model: A model class.
@@ -256,4 +258,16 @@ class _FunctionFieldRegistry:
                 )
 
 
-function_field_registry = _FunctionFieldRegistry()
+# function_field_registry = _FunctionFieldRegistry()
+function_field_registry = FunctionFieldRegistry()
+
+
+def __getattr__(name):
+    if name == '_FunctionFieldRegistry':
+        warnings.warn(
+            '"_FunctionFieldRegistry" is deprecated; use "FunctionFieldRegistry" instead.',
+            DeprecationWarning,
+        )
+        return FunctionFieldRegistry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

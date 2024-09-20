@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2023  Hybird
+#    Copyright (C) 2019-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellVolatile
-from creme.creme_core.gui.actions import ActionsRegistry
+from creme.creme_core.gui.actions import ActionRegistry
 from creme.creme_core.gui.listview import ListViewButton
 from creme.persons import get_contact_model
 
@@ -39,7 +39,8 @@ class AddContactsButton(ListViewButton):
     template_name = 'events/listview/buttons/link-contacts.html'
 
 
-class RelatedContactsActionsRegistry(ActionsRegistry):
+# class RelatedContactsActionsRegistry(ActionRegistry):
+class RelatedContactActionRegistry(ActionRegistry):
     def __init__(self, event, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.event = event

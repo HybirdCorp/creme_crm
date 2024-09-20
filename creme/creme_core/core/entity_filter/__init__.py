@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-# import warnings
+import warnings
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Iterator
 
@@ -40,15 +40,8 @@ EF_CREDENTIALS = 'creme_core-credentials'
 TYPE_ID_MAX_LENGTH = 36
 
 
-# def __getattr__(name):
-#     if name == 'EF_USER':
-#         warnings.warn('"EF_USER" is deprecated; use EF_REGULAR instead.', DeprecationWarning)
-#         return EF_REGULAR
-#
-#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-
-
-class _EntityFilterRegistry:
+# class _EntityFilterRegistry:
+class EntityFilterRegistry:
     """A registry which stores information about a type of <models.EntityFilter>.
      (current types: regular, credentials, reports -- with the "reports" app).
      Base information:
@@ -138,7 +131,7 @@ class _EntityFilterRegistry:
 
     def register_condition_handlers(
             self,
-            *classes: type[FilterConditionHandler]) -> _EntityFilterRegistry:
+            *classes: type[FilterConditionHandler]) -> EntityFilterRegistry:
         """Register classes of handlers.
 
         @param classes: Classes inheriting
@@ -158,7 +151,7 @@ class _EntityFilterRegistry:
 
     def register_operands(
             self,
-            *classes: type[ConditionDynamicOperand]) -> _EntityFilterRegistry:
+            *classes: type[ConditionDynamicOperand]) -> EntityFilterRegistry:
         """Register classes of operand.
 
         @param classes: Classes inheriting
@@ -178,7 +171,7 @@ class _EntityFilterRegistry:
 
     def register_operators(
             self,
-            *classes: type[ConditionOperator]) -> _EntityFilterRegistry:
+            *classes: type[ConditionOperator]) -> EntityFilterRegistry:
         """Register classes of operator.
 
         @param classes: Classes inheriting
@@ -267,7 +260,8 @@ class _EntityFilterRegistry:
             yield op_cls()
 
 
-class _EntityFilterSuperRegistry:
+# class _EntityFilterSuperRegistry:
+class EntityFilterSuperRegistry:
     """A registry of _EntityFilterRegistry, to manage different types of filter
 
     You'll probably never instantiate one & just used the global instance
@@ -282,13 +276,13 @@ class _EntityFilterSuperRegistry:
     def __init__(self):
         self._registries = OrderedDict()
 
-    def __getitem__(self, registry_id: str) -> _EntityFilterRegistry:
+    def __getitem__(self, registry_id: str) -> EntityFilterRegistry:
         return self._registries[registry_id]
 
-    def __iter__(self) -> Iterator[_EntityFilterRegistry]:
+    def __iter__(self) -> Iterator[EntityFilterRegistry]:
         return iter(self._registries.values())
 
-    def register(self, *registries: _EntityFilterRegistry) -> _EntityFilterSuperRegistry:
+    def register(self, *registries: EntityFilterRegistry) -> EntityFilterSuperRegistry:
         set_default = self._registries.setdefault
 
         for registry in registries:
@@ -312,12 +306,12 @@ class _EntityFilterSuperRegistry:
                 ) from e
 
 
-entity_filter_registries = _EntityFilterSuperRegistry().register(
-    _EntityFilterRegistry(
+entity_filter_registries = EntityFilterSuperRegistry().register(
+    EntityFilterRegistry(
         id=EF_CREDENTIALS,
         verbose_name=_('Credentials filter'),
     ),
-    _EntityFilterRegistry(
+    EntityFilterRegistry(
         id=EF_REGULAR,
         verbose_name=_('Regular filter (usable in list-view)'),
         detail_url_name='creme_core__efilter',
@@ -325,3 +319,25 @@ entity_filter_registries = _EntityFilterSuperRegistry().register(
         deletion_url_name='creme_core__delete_efilter',
     ),
 )
+
+
+def __getattr__(name):
+    # if name == 'EF_USER':
+    #     warnings.warn('"EF_USER" is deprecated; use EF_REGULAR instead.', DeprecationWarning)
+    #     return EF_REGULAR
+
+    if name == '_EntityFilterRegistry':
+        warnings.warn(
+            '"_EntityFilterRegistry" is deprecated; use "EntityFilterRegistry" instead.',
+            DeprecationWarning,
+        )
+        return EntityFilterRegistry
+
+    if name == '_EntityFilterSuperRegistry':
+        warnings.warn(
+            '"_EntityFilterSuperRegistry" is deprecated; use "EntityFilterSuperRegistry" instead.',
+            DeprecationWarning,
+        )
+        return EntityFilterSuperRegistry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

@@ -29,7 +29,7 @@ from ..core import sorter
 from ..core.entity_cell import EntityCellRegularField
 # NB: do not import registries directly to facilitate unit tests
 from ..gui import bricks, bulk_update
-from ..gui.bricks import Brick, BricksManager
+from ..gui.bricks import Brick, BrickManager
 from ..gui.pager import PagerContext
 from ..gui.view_tag import ViewTag
 from ..utils.media import get_current_theme_from_context
@@ -911,7 +911,7 @@ def brick_import(context, app=None, name=None, object=None):
 
         brick = bricks.brick_registry[Brick.generate_id(app, name)]()
 
-    BricksManager.get(context).add_group(brick.id, brick)
+    BrickManager.get(context).add_group(brick.id, brick)
 
     return brick
 
@@ -950,7 +950,7 @@ def brick_declare(context, *bricks):
         {% brick_declare my_bricks my_brick3 %}
         {# See {% brick_display ... %}  to display this instance #}
     """
-    add_group = BricksManager.get(context).add_group
+    add_group = BrickManager.get(context).add_group
 
     for brick_or_seq in bricks:
         if brick_or_seq == '':
@@ -1043,7 +1043,7 @@ def brick_display(context, *bricks, **kwargs):
 
     def pop_group(brick_id):
         try:
-            BricksManager.get(context).pop_group(brick_id)
+            BrickManager.get(context).pop_group(brick_id)
         except KeyError as e:
             raise ValueError(
                 '{{% brick_display %}}: it seems that this brick has not been '
@@ -1076,7 +1076,7 @@ def brick_end(context):
     """You should use this tag in every view which uses some bricks,
     after all Bricks have been displayed.
     """
-    bricks_manager = BricksManager.get(context)
+    bricks_manager = BrickManager.get(context)
 
     res = ''
     remaining_groups = bricks_manager.get_remaining_groups()

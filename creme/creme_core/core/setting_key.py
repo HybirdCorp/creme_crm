@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from functools import partial
 from json import loads as json_load
 from typing import Any, Callable, Iterator
@@ -154,7 +155,8 @@ class UserSettingKey(_SettingKey):
 
 
 # TODO: would be cool to declare class _SettingKeyRegistry[Type[_SettingKey]] ...
-class _SettingKeyRegistry:
+# class _SettingKeyRegistry:
+class SettingKeyRegistry:
     class RegistrationError(Exception):
         pass
 
@@ -168,7 +170,7 @@ class _SettingKeyRegistry:
     def __iter__(self) -> Iterator[_SettingKey]:
         return iter(self._skeys.values())
 
-    def register(self, *skeys: _SettingKey) -> _SettingKeyRegistry:
+    def register(self, *skeys: _SettingKey) -> SettingKeyRegistry:
         setdefault = self._skeys.setdefault
         key_class = self._key_class
 
@@ -185,7 +187,7 @@ class _SettingKeyRegistry:
 
         return self
 
-    def unregister(self, *skeys: _SettingKey) -> _SettingKeyRegistry:
+    def unregister(self, *skeys: _SettingKey) -> SettingKeyRegistry:
         pop = self._skeys.pop
 
         for skey in skeys:
@@ -197,8 +199,21 @@ class _SettingKeyRegistry:
         return self
 
 
-setting_key_registry = _SettingKeyRegistry(SettingKey)
-user_setting_key_registry = _SettingKeyRegistry(UserSettingKey)
+# setting_key_registry = _SettingKeyRegistry(SettingKey)
+setting_key_registry = SettingKeyRegistry(SettingKey)
+# user_setting_key_registry = _SettingKeyRegistry(UserSettingKey)
+user_setting_key_registry = SettingKeyRegistry(UserSettingKey)
+
+
+def __getattr__(name):
+    if name == '_SettingKeyRegistry':
+        warnings.warn(
+            '"_SettingKeyRegistry" is deprecated; use "SettingKeyRegistry" instead.',
+            DeprecationWarning,
+        )
+        return SettingKeyRegistry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 class UserSettingValueManager:

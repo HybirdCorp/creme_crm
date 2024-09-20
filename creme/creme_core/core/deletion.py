@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from typing import TYPE_CHECKING, Iterable
 
 from django.conf import settings
@@ -57,7 +58,8 @@ class Replacer:
         raise NotImplementedError
 
 
-class ReplacersRegistry:
+# class ReplacersRegistry:
+class ReplacerRegistry:
     __slots__ = ('_replacer_classes', )
 
     class RegistrationError(Exception):
@@ -98,7 +100,19 @@ class ReplacersRegistry:
         return replacers
 
 
-REPLACERS_MAP = ReplacersRegistry()
+# REPLACERS_MAP = ReplacersRegistry()
+REPLACERS_MAP = ReplacerRegistry()
+
+
+def __getattr__(name):
+    if name == 'ReplacersRegistry':
+        warnings.warn(
+            '"ReplacersRegistry" is deprecated; use "ReplacerRegistry" instead.',
+            DeprecationWarning,
+        )
+        return ReplacerRegistry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 @REPLACERS_MAP

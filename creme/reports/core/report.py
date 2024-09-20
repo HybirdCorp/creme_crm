@@ -32,7 +32,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.function_field import function_field_registry
-from creme.creme_core.gui.field_printers import field_printers_registry
+from creme.creme_core.gui.field_printers import field_printer_registry
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import CremeEntity, CustomField, RelationType
 from creme.creme_core.utils.meta import FieldInfo
@@ -325,7 +325,7 @@ class RHRegularField(ReportHand):
         )
 
         # TODO: FieldInfo is used by build_field_printer do the same work: can we factorise this ??
-        self._printer = field_printers_registry.build_field_printer(
+        self._printer = field_printer_registry.build_field_printer(
             model=model,
             field_name=report_field.name,
             tag=ViewTag.TEXT_PLAIN,
@@ -360,7 +360,7 @@ class RHForeignKey(RHRegularField):
         else:
             # Small optimization: only used by _get_value_no_subreport()
             if len(field_info) > 1:
-                self._value_extractor = field_printers_registry.build_field_printer(
+                self._value_extractor = field_printer_registry.build_field_printer(
                     model=field_info[0].remote_field.model,
                     field_name=field_info[1].name,
                     tag=ViewTag.TEXT_PLAIN,

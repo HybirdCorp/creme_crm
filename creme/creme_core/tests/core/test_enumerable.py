@@ -10,9 +10,9 @@ from django.utils.translation import gettext as _
 from creme.creme_core import enumerators
 from creme.creme_core.core.entity_filter import EF_CREDENTIALS
 from creme.creme_core.core.enumerable import (
+    EnumerableRegistry,
     Enumerator,
     QSEnumerator,
-    _EnumerableRegistry,
     get_enum_search_fields,
 )
 from creme.creme_core.models import (
@@ -150,7 +150,7 @@ class EnumerableTestCase(CremeTestCase):
 
     def test_basic_choices_fk(self):
         user = self.user
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
         self.assertEqual('_EnumerableRegistry:', str(registry))
 
         enum1 = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
@@ -173,7 +173,7 @@ class EnumerableTestCase(CremeTestCase):
 
     def test_basic_choices_fk__limit(self):
         user = self.user
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
 
         enum = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
         expected = [
@@ -185,7 +185,7 @@ class EnumerableTestCase(CremeTestCase):
         self.assertListEqual(expected, enum.choices(user, limit=100))
 
     def test_basic_choices_fk__only(self):
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
 
         enum = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
         only = [1, 3]
@@ -199,7 +199,7 @@ class EnumerableTestCase(CremeTestCase):
         )
 
     def test_basic_choices_fk__term(self):
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
         enum = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
         self.assertListEqual(
             ['Miss', 'Mister'],
@@ -212,7 +212,7 @@ class EnumerableTestCase(CremeTestCase):
     )
     def test_basic_choices_fk__term__diacritics(self):
         user = self.user
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
 
         create_civility = FakeCivility.objects.create
         create_civility(title='Môssïeur',  shortcut='Mr.')
@@ -235,7 +235,7 @@ class EnumerableTestCase(CremeTestCase):
 
     def test_basic_choices_m2m(self):
         user = self.user
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
 
         enum1 = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
         expected = [
@@ -250,7 +250,7 @@ class EnumerableTestCase(CremeTestCase):
         self.assertListEqual(expected, enum2.choices(user))
 
     def test_basic_choices_m2m__only(self):
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
 
         enum = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
         only = [1, 3]
@@ -265,7 +265,7 @@ class EnumerableTestCase(CremeTestCase):
 
     def test_basic_choices_m2m__limit(self):
         user = self.create_user()
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
 
         enum = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
         expected = [
@@ -277,7 +277,7 @@ class EnumerableTestCase(CremeTestCase):
         self.assertListEqual(expected, enum.choices(user, limit=100))
 
     def test_basic_choices_m2m__term(self):
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
 
         enum = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
         # only the first category "Product image" matches the search
@@ -288,7 +288,7 @@ class EnumerableTestCase(CremeTestCase):
 
     def test_basic_choices_limited_choices_to(self):
         user = self.user
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
 
         create_lang = Language.objects.create
         lang1 = create_lang(name='Klingon [deprecated]')
@@ -306,7 +306,7 @@ class EnumerableTestCase(CremeTestCase):
         self.assertEqual(choices, enum2.choices(user))
 
     def test_choices_not_entity_model(self):
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
 
         with self.assertRaises(ValueError) as error_ctxt1:
             registry.enumerator_by_fieldname(model=FakeTodo, field_name='categories')
@@ -331,7 +331,7 @@ class EnumerableTestCase(CremeTestCase):
         class FakeTodoCategoriesEnumerator(Enumerator):
             pass
 
-        registry = _EnumerableRegistry().register_field(
+        registry = EnumerableRegistry().register_field(
             FakeTodo, 'categories', FakeTodoCategoriesEnumerator
         )
 
@@ -341,13 +341,13 @@ class EnumerableTestCase(CremeTestCase):
         self.assertIsInstance(enum, FakeTodoCategoriesEnumerator)
 
     def test_choices_field_does_not_exist(self):
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
 
         with self.assertRaises(FieldDoesNotExist):
             registry.enumerator_by_fieldname(model=FakeContact, field_name='unknown')
 
     def test_choices_field_not_enumerable(self):
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
 
         with self.assertRaises(ValueError) as error_ctxt1:
             registry.enumerator_by_fieldname(model=FakeContact, field_name='address')
@@ -368,7 +368,7 @@ class EnumerableTestCase(CremeTestCase):
         )
 
     def test_choices_field_not_visible(self):
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
 
         field = FakeTodo._meta.get_field('entity')
         with self.assertRaises(ValueError) as error:
@@ -383,7 +383,7 @@ class EnumerableTestCase(CremeTestCase):
         class FakeTodoEntityEnumerator(Enumerator):
             pass
 
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
 
         registry.register_field(
             FakeTodo, 'entity', FakeTodoEntityEnumerator
@@ -398,7 +398,7 @@ class EnumerableTestCase(CremeTestCase):
         class FakeCivilityEnumerator1(Enumerator):
             pass
 
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
         registry.register_related_model(FakeCivility, FakeCivilityEnumerator1)
         self.assertEqual(
             '_EnumerableRegistry:\n'
@@ -428,7 +428,7 @@ class EnumerableTestCase(CremeTestCase):
         class FakeContactSectorEnumerator1(Enumerator):
             pass
 
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
         registry.register_field(
             FakeContact,
             field_name='sector', enumerator_class=FakeContactSectorEnumerator1,
@@ -466,7 +466,7 @@ class EnumerableTestCase(CremeTestCase):
         class EntityCTypeForeignKeyEnumerator(Enumerator):
             pass
 
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
         registry.register_field_type(
             EntityCTypeForeignKey,
             enumerator_class=EntityCTypeForeignKeyEnumerator,
@@ -489,7 +489,7 @@ class EnumerableTestCase(CremeTestCase):
         class CTypeForeignKeyEnumerator(Enumerator):
             pass
 
-        registry = _EnumerableRegistry()
+        registry = EnumerableRegistry()
         registry.register_field_type(
             CTypeForeignKey, enumerator_class=CTypeForeignKeyEnumerator,
         )
@@ -573,7 +573,7 @@ class EnumerableTestCase(CremeTestCase):
 
         # Hard coded behaviour for entity (remove in the future)
         self.assertIsInstance(
-            _EnumerableRegistry().enumerator_by_fieldname(model=FakeContact, field_name='image'),
+            EnumerableRegistry().enumerator_by_fieldname(model=FakeContact, field_name='image'),
             enumerators.EntityEnumerator,
         )
 

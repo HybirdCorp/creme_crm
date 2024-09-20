@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import Iterator, Type
 
 from django.contrib.contenttypes.models import ContentType
@@ -148,7 +149,8 @@ class VoidAction(UIAction):
     pass
 
 
-class ActionsChain(InheritedDataChain):
+# class ActionsChain(InheritedDataChain):
+class ActionChain(InheritedDataChain):
     """Collections of UIActions per model.
 
     Register & retrieve classes (inheriting UIAction) corresponding to a model.
@@ -260,7 +262,8 @@ class ActionsChain(InheritedDataChain):
             register(VoidAction, action_id=action_class.id, model=model)
 
 
-class ActionsRegistry:
+# class ActionsRegistry:
+class ActionRegistry:
     """Registry for UIAction with 2 groups of actions:
       - action which operate on 1 instance (called "instance action").
       - actions which operate on several instances (called "bulk actions").
@@ -274,7 +277,7 @@ class ActionsRegistry:
         '_bulk_action_classes',
     )
 
-    def __init__(self, instance_chain_class=ActionsChain, bulk_chain_class=ActionsChain):
+    def __init__(self, instance_chain_class=ActionChain, bulk_chain_class=ActionChain):
         self._instance_action_classes = instance_chain_class(base_class=UIAction)
         self._bulk_action_classes = bulk_chain_class(base_class=BulkAction)
 
@@ -346,7 +349,7 @@ class ActionsRegistry:
         for action_class in self.bulk_action_classes(model):
             yield action_class(**ctxt)
 
-    def register_instance_actions(self, *action_classes: type[UIAction]) -> ActionsRegistry:
+    def register_instance_actions(self, *action_classes: type[UIAction]) -> ActionRegistry:
         """Register several instances actions.
         @param action_classes: Classes inheriting UIAction.
         @return: Self to chain calls.
@@ -354,7 +357,7 @@ class ActionsRegistry:
         self._instance_action_classes.register_actions(*action_classes)
         return self
 
-    def register_bulk_actions(self, *action_classes: type[BulkAction]) -> ActionsRegistry:
+    def register_bulk_actions(self, *action_classes: type[BulkAction]) -> ActionRegistry:
         """Register several bulk actions.
         @param action_classes: Classes inheriting BulkAction.
         @return: Self to chain calls.
@@ -365,7 +368,7 @@ class ActionsRegistry:
     def void_instance_actions(self,
                               model: type[Model],
                               *action_classes: type[UIAction],
-                              ) -> ActionsRegistry:
+                              ) -> ActionRegistry:
         """Mask several instance actions for a specific model.
 
         If a model inherits some UIActions classes from one of its parent model,
@@ -382,10 +385,36 @@ class ActionsRegistry:
     def void_bulk_actions(self,
                           model: type[Model],
                           *action_classes: type[UIAction],
-                          ) -> ActionsRegistry:
+                          ) -> ActionRegistry:
         """Like void_instance_actions() but for bulk actions."""
         self._bulk_action_classes.void_actions(model, *action_classes)
         return self
 
 
-actions_registry = ActionsRegistry()
+# actions_registry = ActionsRegistry()
+action_registry = ActionRegistry()
+
+
+def __getattr__(name):
+    if name == 'ActionsRegistry':
+        warnings.warn(
+            '"ActionsRegistry" is deprecated; use "ActionRegistry" instead.',
+            DeprecationWarning,
+        )
+        return ActionRegistry
+
+    if name == 'ActionsChain':
+        warnings.warn(
+            '"ActionsChain" is deprecated; use "ActionChain" instead.',
+            DeprecationWarning,
+        )
+        return ActionChain
+
+    if name == 'actions_registry':
+        warnings.warn(
+            '"actions_registry" is deprecated; use "action_registry" instead.',
+            DeprecationWarning,
+        )
+        return action_registry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

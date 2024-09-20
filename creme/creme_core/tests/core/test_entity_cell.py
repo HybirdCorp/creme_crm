@@ -14,9 +14,9 @@ from creme.creme_core.core.entity_cell import (
     EntityCell,
     EntityCellCustomField,
     EntityCellFunctionField,
+    EntityCellRegistry,
     EntityCellRegularField,
     EntityCellRelation,
-    EntityCellsRegistry,
 )
 from creme.creme_core.core.function_field import (
     FunctionField,
@@ -57,7 +57,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(EntityCellRelation,      CELLS_MAP[EntityCellRelation.type_id])
 
     def test_registry_register01(self):
-        registry = EntityCellsRegistry()
+        registry = EntityCellRegistry()
 
         with self.assertRaises(KeyError):
             registry[EntityCellRegularField.type_id]  # NOQA
@@ -81,16 +81,16 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_registry_register02(self):
         "Duplicate."
-        registry = EntityCellsRegistry().register(EntityCellRegularField)
+        registry = EntityCellRegistry().register(EntityCellRegularField)
 
         class DuplicatedIdCell(EntityCell):
             type_id = EntityCellRegularField.type_id
 
-        with self.assertRaises(EntityCellsRegistry.RegistrationError):
+        with self.assertRaises(EntityCellRegistry.RegistrationError):
             registry.register(DuplicatedIdCell)
 
     def test_registry_call(self):
-        registry = EntityCellsRegistry()
+        registry = EntityCellRegistry()
 
         with self.assertRaises(KeyError):
             registry[EntityCellRegularField.type_id]  # NOQA
@@ -104,7 +104,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIn(EntityCellRegularField.type_id, registry)
 
     def test_registry_deepcopy(self):
-        registry1 = EntityCellsRegistry()
+        registry1 = EntityCellRegistry()
         registry1(EntityCellRegularField)
         registry1(EntityCellCustomField)
 

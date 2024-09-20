@@ -91,7 +91,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
     def test_not_registered_model(self):
         user = self.login_as_root_and_get()
-        BulkUpdate.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
+        BulkUpdate.bulk_update_registry = registry = bulk_update.BulkUpdateRegistry()
         registry.register(FakeOrganisation)  # Not FakeContact
 
         self.assertGET404(
@@ -100,7 +100,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
     def test_no_editable_field(self):
         user = self.login_as_root_and_get()
-        BulkUpdate.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
+        BulkUpdate.bulk_update_registry = registry = bulk_update.BulkUpdateRegistry()
         registry.register(FakeActivity).exclude(
             'user', 'description',
             'title', 'place', 'minutes', 'start', 'end', 'type',
@@ -410,7 +410,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         user = self.login_as_root_and_get()
 
         field_name1 = 'position'
-        BulkUpdate.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
+        BulkUpdate.bulk_update_registry = registry = bulk_update.BulkUpdateRegistry()
         registry.register(FakeContact).exclude(field_name1)
 
         unemployed = FakePosition.objects.create(title='unemployed')
@@ -476,7 +476,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
     def test_regular_field_unique(self):
         user = self.login_as_root_and_get()
 
-        BulkUpdate.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
+        BulkUpdate.bulk_update_registry = registry = bulk_update.BulkUpdateRegistry()
         registry.register(FakeActivity)
 
         atype = FakeActivityType.objects.first()
@@ -618,7 +618,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             def post_clean_instance(this, *, instance, value, form):
                 setattr(instance, field_name, value + timedelta(days=1))
 
-        BulkUpdate.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
+        BulkUpdate.bulk_update_registry = registry = bulk_update.BulkUpdateRegistry()
         registry.register(FakeContact).add_overriders(DateDelayOverrider)
 
         mario, luigi, url = self.create_2_contacts_n_url(user=user, field=field_name)
@@ -676,7 +676,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         "FileFields are excluded."
         user = self.login_as_root_and_get()
 
-        BulkUpdate.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
+        BulkUpdate.bulk_update_registry = registry = bulk_update.BulkUpdateRegistry()
         registry.register(FakeDocument)
 
         doc = FakeDocument.objects.create(
@@ -1586,7 +1586,7 @@ class InnerEditTestCase(_BulkEditTestCase):
     def test_regular_field_unique(self):
         user = self.login_as_root_and_get()
 
-        InnerEdition.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
+        InnerEdition.bulk_update_registry = registry = bulk_update.BulkUpdateRegistry()
         registry.register(FakeActivity)
 
         atype = FakeActivityType.objects.first()
@@ -1626,7 +1626,7 @@ class InnerEditTestCase(_BulkEditTestCase):
             def post_clean_instance(this, *, instance, value, form):
                 setattr(instance, field_name, value.upper())
 
-        InnerEdition.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
+        InnerEdition.bulk_update_registry = registry = bulk_update.BulkUpdateRegistry()
         registry.register(FakeContact).add_overriders(UpperOverrider)
 
         mario = self.create_contact(user=user)
@@ -1653,7 +1653,7 @@ class InnerEditTestCase(_BulkEditTestCase):
             def post_clean_instance(this, *, instance, value, form):
                 raise ValidationError(error_msg)
 
-        InnerEdition.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
+        InnerEdition.bulk_update_registry = registry = bulk_update.BulkUpdateRegistry()
         registry.register(FakeContact).add_overriders(ForbiddenOverrider)
 
         mario = self.create_contact(user=user)
@@ -1671,7 +1671,7 @@ class InnerEditTestCase(_BulkEditTestCase):
     def test_regular_field_file01(self):
         user = self.login_as_root_and_get()
 
-        InnerEdition.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
+        InnerEdition.bulk_update_registry = registry = bulk_update.BulkUpdateRegistry()
         registry.register(FakeDocument)
 
         folder = FakeFolder.objects.create(user=user, title='Earth maps')

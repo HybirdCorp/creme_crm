@@ -142,12 +142,12 @@ class EntityCell:
         return Field
 
     def _get_listview_css_class(self, attr_name: str):
-        from ..gui.field_printers import field_printers_registry
+        from ..gui.field_printers import field_printer_registry
 
         listview_css_class = getattr(self, attr_name)
 
         if listview_css_class is None:
-            registry_getter = getattr(field_printers_registry, f'get{attr_name}_for_field')
+            registry_getter = getattr(field_printer_registry, f'get{attr_name}_for_field')
             listview_css_class = registry_getter(self._get_field_class())
             setattr(self, attr_name, listview_css_class)
 
@@ -261,7 +261,8 @@ class EntityCell:
         }
 
 
-class EntityCellsRegistry:
+# class EntityCellsRegistry:
+class EntityCellRegistry:
     __slots__ = ('_cell_classes', )
 
     class RegistrationError(Exception):
@@ -384,7 +385,19 @@ class EntityCellsRegistry:
         return self
 
 
-CELLS_MAP = EntityCellsRegistry()
+# CELLS_MAP = EntityCellsRegistry()
+CELLS_MAP = EntityCellRegistry()
+
+
+def __getattr__(name):
+    if name == 'EntityCellsRegistry':
+        warnings.warn(
+            '"EntityCellsRegistry" is deprecated; use "EntityCellRegistry" instead.',
+            DeprecationWarning,
+        )
+        return EntityCellRegistry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 # @CELLS_MAP TODO
@@ -520,9 +533,9 @@ class EntityCellRegularField(EntityCell):
         if printer is None:
             # TODO: pass the 'field_printers_registry' in a context dict when
             #       building our instance? (see EntityCellFunctionField too)
-            from ..gui.field_printers import field_printers_registry
+            from ..gui.field_printers import field_printer_registry
 
-            self._printers[tag] = printer = field_printers_registry.build_field_printer(
+            self._printers[tag] = printer = field_printer_registry.build_field_printer(
                 model=entity.__class__,
                 field_name=self.value,
                 tag=tag,
@@ -667,11 +680,11 @@ class EntityCellCustomField(EntityCell):
                     return renderer(entity, cf_value, user, cfield)
             else:
                 # TODO: see EntityCellRegularField for remark on registry
-                from ..gui.field_printers import field_printers_registry
+                from ..gui.field_printers import field_printer_registry
 
                 field_cls = self._get_field_class()
                 regular_printer = next(
-                    field_printers_registry.printers_for_field_type(type=field_cls, tags=tag)
+                    field_printer_registry.printers_for_field_type(type=field_cls, tags=tag)
                 )
                 regular_field = field_cls()
 

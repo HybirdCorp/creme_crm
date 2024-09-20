@@ -40,9 +40,9 @@ from creme.creme_core.core import sorter
 from creme.creme_core.core.entity_cell import EntityCell, EntityCellActions
 from creme.creme_core.core.paginator import FlowPaginator
 from creme.creme_core.forms.listview import ListViewSearchForm
-from creme.creme_core.gui.actions import ActionsRegistry
+from creme.creme_core.gui.actions import ActionRegistry
 from creme.creme_core.gui.actions import (
-    actions_registry as global_actions_registry,
+    action_registry as global_actions_registry,
 )
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import CremeEntity
@@ -118,7 +118,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     transient_arg: str = 'transient'
 
     is_popup_view: bool = False
-    actions_registry: ActionsRegistry = global_actions_registry
+    actions_registry: ActionRegistry = global_actions_registry
     reload_url_name: str = ''
 
     state_class: type[lv_gui.ListViewState] = lv_gui.ListViewState
@@ -260,7 +260,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
             ct_id=ContentType.objects.get_for_model(model).id,
         )
 
-    def get_actions_registry(self) -> ActionsRegistry:
+    def get_actions_registry(self) -> ActionRegistry:
         """ Get the registry of UIActions.
 
         @return: Instance of <creme_core.gui.actions.ActionsRegistry>.

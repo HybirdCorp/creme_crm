@@ -25,7 +25,7 @@ def ready():
     from ..gui.mass_import import import_form_registry
     from ..gui.menu import menu_registry
     from ..gui.merge import merge_form_registry
-    from ..gui.quick_forms import quickforms_registry
+    from ..gui.quick_forms import quickform_registry
     from ..models import CremeEntity
     from ..registry import creme_registry
     from . import (
@@ -130,7 +130,7 @@ def ready():
         fake_custom_forms.FAKEACTIVITY_EDITION_CFORM,
     )
 
-    quickforms_registry.register(
+    quickform_registry.register(
         fake_models.FakeContact,      fake_forms.FakeContactQuickForm
     ).register(
         fake_models.FakeOrganisation, fake_forms.FakeOrganisationQuickForm

@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 from datetime import timedelta
 
 from django.utils.timezone import now
@@ -25,14 +26,15 @@ from django.utils.timezone import now
 from creme.creme_core.models import CremeEntity, Imprint
 
 
-class _ImprintManager:
+# class _ImprintManager:
+class ImprintManager:
     class RegistrationError(Exception):
         pass
 
     def __init__(self) -> None:
         self._granularities: dict[type[CremeEntity], timedelta] = {}
 
-    def register(self, model: type[CremeEntity], **timedelta_kwargs) -> _ImprintManager:
+    def register(self, model: type[CremeEntity], **timedelta_kwargs) -> ImprintManager:
         granularity = timedelta(**timedelta_kwargs)
 
         if self._granularities.setdefault(model, granularity) is not granularity:
@@ -64,4 +66,16 @@ class _ImprintManager:
         return None
 
 
-imprint_manager = _ImprintManager()
+# imprint_manager = _ImprintManager()
+imprint_manager = ImprintManager()
+
+
+def __getattr__(name):
+    if name == '_ImprintManager':
+        warnings.warn(
+            '"_ImprintManager" is deprecated; use "ImprintManager" instead.',
+            DeprecationWarning,
+        )
+        return ImprintManager
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

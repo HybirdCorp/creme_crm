@@ -9,7 +9,7 @@ import creme.activities.constants as a_constants
 from creme.activities import get_activity_model
 from creme.activities.models import ActivitySubType, ActivityType, Calendar
 from creme.activities.tests.base import skipIfCustomActivity
-from creme.creme_core.gui.field_printers import field_printers_registry
+from creme.creme_core.gui.field_printers import field_printer_registry
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.tests.base import CremeTestCase
@@ -61,7 +61,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         contact = user.linked_contact
 
         render_field = partial(
-            field_printers_registry.get_field_value,
+            field_printer_registry.get_field_value,
             instance=contact, field_name='phone', user=user,
         )
 

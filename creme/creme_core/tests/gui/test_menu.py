@@ -750,13 +750,13 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(_('*Quick forms*'),       seq.label)
         self.assertEqual(1,                        seq.level)
         self.assertFalse(seq.single_instance)
-        self.assertIs(quick_forms.quickforms_registry, seq.quickforms_registry)
+        self.assertIs(quick_forms.quickform_registry, seq.quickforms_registry)
 
         with self.assertNoException():
             cdata = QuickFormsEntries.validate({})
         self.assertDictEqual({}, cdata)
 
-        registry = quick_forms.QuickFormsRegistry()
+        registry = quick_forms.QuickFormRegistry()
         seq.quickforms_registry = registry
 
         entry11 = self.get_alone_element(seq)

@@ -12,8 +12,8 @@ from creme.creme_core.gui.icons import Icon, IconRegistry
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.mass_import import FormRegistry
 from creme.creme_core.gui.merge import _MergeFormRegistry
-from creme.creme_core.gui.quick_forms import QuickFormsRegistry
-from creme.creme_core.gui.statistics import _StatisticsRegistry
+from creme.creme_core.gui.quick_forms import QuickFormRegistry
+from creme.creme_core.gui.statistics import StatisticRegistry
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     CremeEntity,
@@ -119,7 +119,7 @@ class GuiTestCase(CremeTestCase):
     def test_statistics01(self):
         user = self.get_root_user()
 
-        registry = _StatisticsRegistry()
+        registry = StatisticRegistry()
 
         s_id = 'persons-contacts'
         label = 'Contacts'
@@ -141,7 +141,7 @@ class GuiTestCase(CremeTestCase):
         perm = 'creme_core'
         id2 = 'persons-organisations'
         id3 = 'creme_core-images'
-        registry = _StatisticsRegistry(
+        registry = StatisticRegistry(
         ).register(
             id1, 'Contacts', lambda: [FakeContact.objects.count()], priority=2, perm=perm,
         ).register(
@@ -164,7 +164,7 @@ class GuiTestCase(CremeTestCase):
         id3 = 'creme_core-images'
         id4 = 'billing-invoices'
         id5 = 'emails-campaigns'
-        registry = _StatisticsRegistry(
+        registry = StatisticRegistry(
         ).register(
             id1, 'Contacts', lambda: [FakeContact.objects.count()]
         ).register(
@@ -188,7 +188,7 @@ class GuiTestCase(CremeTestCase):
         "Duplicated ID."
         id1 = 'persons-contacts'
         id2 = 'persons-organisations'
-        registry = _StatisticsRegistry(
+        registry = StatisticRegistry(
         ).register(
             id1, 'Contacts', lambda: [FakeContact.objects.count()], priority=2,
         ).register(
@@ -202,7 +202,7 @@ class GuiTestCase(CremeTestCase):
         id1 = 'persons-contacts'
         id2 = 'persons-organisations'
         id3 = 'creme_core-images'
-        registry = _StatisticsRegistry(
+        registry = StatisticRegistry(
         ).register(
             id1, 'Contacts', lambda: [FakeContact.objects.count()], priority=3,
         ).register(
@@ -222,7 +222,7 @@ class GuiTestCase(CremeTestCase):
         id1 = 'persons-contacts'
         id2 = 'persons-organisations'
         id3 = 'creme_core-images'
-        registry = _StatisticsRegistry(
+        registry = StatisticRegistry(
         ).register(
             id1, 'Contacts', lambda: [FakeContact.objects.count()], priority=3,
         ).register(
@@ -294,7 +294,7 @@ class GuiTestCase(CremeTestCase):
 
     def test_quickforms_registry01(self):
         "Registration."
-        registry = QuickFormsRegistry()
+        registry = QuickFormRegistry()
 
         self.assertFalse([*registry.models])
         self.assertIsNone(registry.get_form_class(FakeContact))
@@ -329,7 +329,7 @@ class GuiTestCase(CremeTestCase):
 
     def test_quickforms_registry02(self):
         "Un-registration."
-        registry = QuickFormsRegistry()
+        registry = QuickFormRegistry()
 
         with self.assertRaises(registry.UnRegistrationError) as cm:
             registry.unregister(FakeContact)

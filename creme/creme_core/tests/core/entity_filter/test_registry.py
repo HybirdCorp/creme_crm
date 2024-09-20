@@ -1,8 +1,8 @@
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
-    _EntityFilterRegistry,
-    _EntityFilterSuperRegistry,
+    EntityFilterRegistry,
+    EntityFilterSuperRegistry,
     entity_filter_registries,
     operands,
     operators,
@@ -37,7 +37,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
     def test_handlers01(self):
         name = 'Common'
-        registry = _EntityFilterRegistry(id='creme_core-default', verbose_name=name)
+        registry = EntityFilterRegistry(id='creme_core-default', verbose_name=name)
         self.assertEqual(name, registry.verbose_name)
 
         cls1 = RegularFieldConditionHandler
@@ -77,7 +77,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
     def test_handlers02(self):
         "ID collision."
-        registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
+        registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         cls1 = RegularFieldConditionHandler
 
@@ -86,12 +86,12 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
         registry.register_condition_handlers(cls1)
 
-        with self.assertRaises(_EntityFilterRegistry.RegistrationError):
+        with self.assertRaises(EntityFilterRegistry.RegistrationError):
             registry.register_condition_handlers(TestHandler)
 
     def test_handlers03(self):
         "get_handler() + invalid data."
-        registry = _EntityFilterRegistry(
+        registry = EntityFilterRegistry(
             id='creme_core-default', verbose_name='Test',
         ).register_condition_handlers(RegularFieldConditionHandler)
 
@@ -103,7 +103,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         self.assertIsNone(handler)
 
     def test_operands01(self):
-        registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
+        registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         cls1 = operands.CurrentUserOperand
         self.assertIsNone(registry.get_operand(type_id=cls1.type_id, user=None))
@@ -123,7 +123,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
     def test_operands02(self):
         "ID collision."
-        registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
+        registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         cls1 = operands.CurrentUserOperand
 
@@ -132,11 +132,11 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
         registry.register_operands(cls1)
 
-        with self.assertRaises(_EntityFilterRegistry.RegistrationError):
+        with self.assertRaises(EntityFilterRegistry.RegistrationError):
             registry.register_operands(TestOperand)
 
     def test_operator01(self):
-        registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
+        registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         cls1 = operators.EqualsOperator
         self.assertIsNone(registry.get_operator(type_id=cls1.type_id))
@@ -153,18 +153,18 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
     def test_operators02(self):
         "ID collision."
-        registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
+        registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         class TestOperator(operators.EqualsOperator):
             pass
 
         registry.register_operators(operators.EqualsOperator)
 
-        with self.assertRaises(_EntityFilterRegistry.RegistrationError):
+        with self.assertRaises(EntityFilterRegistry.RegistrationError):
             registry.register_operators(TestOperator)
 
     def test_tag01(self):
-        registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
+        registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
         self.assertEqual('', registry.tag)
 
         registry.tag = 'test'
@@ -175,7 +175,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         self.assertEqual('', entity_filter_registries[EF_CREDENTIALS].tag)
 
     def test_tag02(self):
-        registry = _EntityFilterRegistry(
+        registry = EntityFilterRegistry(
             id='creme_core-default', verbose_name='Test', tag='test',
         )
         self.assertEqual('test', registry.tag)
@@ -188,7 +188,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         self.assertEqual(length + 1, len(rid))
 
         with self.assertRaises(ValueError) as cm:
-            _EntityFilterRegistry(id=rid, verbose_name='Test01')
+            EntityFilterRegistry(id=rid, verbose_name='Test01')
 
         self.assertEqual(
             f'The "id" cannot be longer than {length}',
@@ -201,11 +201,11 @@ class EntityFilterSuperRegistryTestCase(CremeTestCase):
         rid1 = 'creme_core-normal'
         rid2 = 'creme_core-system'
         rid3 = 'documents-specific'
-        registry01 = _EntityFilterRegistry(id=rid1, verbose_name='Test01')
-        registry02 = _EntityFilterRegistry(id=rid2, verbose_name='Test02')
-        registry03 = _EntityFilterRegistry(id=rid3, verbose_name='Test03')
+        registry01 = EntityFilterRegistry(id=rid1, verbose_name='Test01')
+        registry02 = EntityFilterRegistry(id=rid2, verbose_name='Test02')
+        registry03 = EntityFilterRegistry(id=rid3, verbose_name='Test03')
 
-        registries = _EntityFilterSuperRegistry().register(
+        registries = EntityFilterSuperRegistry().register(
             registry01, registry02, registry03,
         )
         self.assertIs(registry01, registries[rid1])
@@ -233,11 +233,11 @@ class EntityFilterSuperRegistryTestCase(CremeTestCase):
 
     def test_id_collision(self):
         rid = 'creme_core-listview'
-        registry01 = _EntityFilterRegistry(id=rid, verbose_name='Test01')
-        registry02 = _EntityFilterRegistry(id=rid, verbose_name='Test02')
-        registries = _EntityFilterSuperRegistry()\
+        registry01 = EntityFilterRegistry(id=rid, verbose_name='Test01')
+        registry02 = EntityFilterRegistry(id=rid, verbose_name='Test02')
+        registries = EntityFilterSuperRegistry()\
 
-        with self.assertRaises(_EntityFilterSuperRegistry.RegistrationError):
+        with self.assertRaises(EntityFilterSuperRegistry.RegistrationError):
             registries.register(
                 registry01, registry02,
             )

@@ -12,9 +12,9 @@ from creme.creme_core.core.function_field import (
     FunctionFieldColorAndLabel,
     FunctionFieldDecimal,
     FunctionFieldLink,
+    FunctionFieldRegistry,
     FunctionFieldResult,
     FunctionFieldResultsList,
-    _FunctionFieldRegistry,
 )
 from creme.creme_core.forms.listview import SelectLVSWidget
 from creme.creme_core.function_fields import PropertiesField
@@ -38,7 +38,7 @@ class FunctionFieldsTestCase(CremeTestCase):
         class Klass2(Klass1):
             pass
 
-        registry = _FunctionFieldRegistry()
+        registry = FunctionFieldRegistry()
 
         fname11 = 'name11'
         fname12 = 'name12'
@@ -101,7 +101,7 @@ class FunctionFieldsTestCase(CremeTestCase):
         class Klass:
             pass
 
-        registry = _FunctionFieldRegistry()
+        registry = FunctionFieldRegistry()
 
         class TestFunctionField1(FunctionField):
             name = 'name1'
@@ -113,7 +113,7 @@ class FunctionFieldsTestCase(CremeTestCase):
 
         registry.register(Klass, TestFunctionField1)
 
-        with self.assertRaises(_FunctionFieldRegistry.RegistrationError):
+        with self.assertRaises(FunctionFieldRegistry.RegistrationError):
             registry.register(Klass, TestFunctionField2)
 
     def test_registry03(self):
@@ -124,7 +124,7 @@ class FunctionFieldsTestCase(CremeTestCase):
         class Klass2(Klass1):
             pass
 
-        registry = _FunctionFieldRegistry()
+        registry = FunctionFieldRegistry()
 
         fname1 = 'name1'
         fname2 = 'name2'
@@ -163,13 +163,13 @@ class FunctionFieldsTestCase(CremeTestCase):
         class Klass:
             pass
 
-        registry = _FunctionFieldRegistry()
+        registry = FunctionFieldRegistry()
 
         class TestFunctionField(FunctionField):
             name = 'ff_name'
             verbose_name = 'Verbose name'
 
-        with self.assertRaises(_FunctionFieldRegistry.UnRegistrationError) as cm:
+        with self.assertRaises(FunctionFieldRegistry.UnRegistrationError) as cm:
             registry.unregister(Klass, TestFunctionField)
 
         self.assertEqual(

@@ -135,5 +135,5 @@ def ctype_can_be_mass_imported(ctype: ContentType) -> bool:
 # TODO: what about the global registry ? take it from the context ?
 @register.filter
 def ctype_has_quickform(ctype: ContentType) -> bool:
-    from ..gui.quick_forms import quickforms_registry
-    return quickforms_registry.get_form_class(ctype.model_class()) is not None
+    from ..gui.quick_forms import quickform_registry
+    return quickform_registry.get_form_class(ctype.model_class()) is not None

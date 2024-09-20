@@ -34,7 +34,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_filter import (
     EF_REGULAR,
-    _EntityFilterRegistry,
+    EntityFilterRegistry,
     operators,
 )
 from creme.creme_core.core.field_tags import FieldTag
@@ -370,7 +370,7 @@ class RegularFieldsConditionsWidget(ConditionListWidget):
         super().__init__(None, attrs)
         self.model = model
         self.fields = fields
-        self.efilter_registry = efilter_registry or _EntityFilterRegistry(
+        self.efilter_registry = efilter_registry or EntityFilterRegistry(
             id='creme_core-default',
             verbose_name='Default for RegularFieldsConditionsWidget',
         )
@@ -531,7 +531,7 @@ class CustomFieldsConditionsWidget(ConditionListWidget):
                  ):
         super().__init__(None, attrs)
         self.fields = fields
-        self.efilter_registry = efilter_registry or _EntityFilterRegistry(
+        self.efilter_registry = efilter_registry or EntityFilterRegistry(
             # id=-1,
             id='creme_core-default',
             verbose_name='Default for RegularFieldsConditionsWidget',

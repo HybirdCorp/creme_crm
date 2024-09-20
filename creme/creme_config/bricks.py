@@ -40,7 +40,7 @@ from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.core.notification import notification_registry
 from creme.creme_core.gui.bricks import (
     Brick,
-    BricksManager,
+    BrickManager,
     PaginatedBrick,
     QuerysetBrick,
     brick_registry,
@@ -315,7 +315,7 @@ class CustomFieldsBrick(Brick):
             enum_count=Count('customfieldenumvalue_set'),
         )
 
-        hide_deleted = BricksManager.get(context).get_state(
+        hide_deleted = BrickManager.get(context).get_state(
             brick_id=self.id,
             user=context['user'],
         ).get_extra_data(constants.BRICK_STATE_HIDE_DELETED_CFIELDS)
@@ -502,7 +502,7 @@ class CustomFormsBrick(PaginatedBrick):
     def detailview_display(self, context):
         user = context['user']
 
-        expanded_info = BricksManager.get(context).get_state(
+        expanded_info = BrickManager.get(context).get_state(
             brick_id=self.id, user=user,
         ).get_extra_data(constants.BRICK_STATE_SHOW_CFORMS_DETAILS) or {}
 
@@ -536,7 +536,7 @@ class UsersBrick(_ConfigAdminBrick):
         if not context['user'].is_staff:
             users = users.exclude(is_staff=True)
 
-        hide_inactive = BricksManager.get(context).get_state(
+        hide_inactive = BrickManager.get(context).get_state(
             # brick_id=self.id_,
             brick_id=self.id,
             user=context['user'],

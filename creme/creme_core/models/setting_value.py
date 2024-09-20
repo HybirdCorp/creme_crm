@@ -25,7 +25,7 @@ from django.db import models, transaction
 
 from ..core.setting_key import (
     SettingKey,
-    _SettingKeyRegistry,
+    SettingKeyRegistry,
     setting_key_registry,
 )
 from ..global_info import get_per_request_cache
@@ -41,9 +41,9 @@ class SettingValueManager(models.Manager):
 
     cache_key_fmt = 'creme_core-setting_value-{}'
 
-    key_registry: _SettingKeyRegistry
+    key_registry: SettingKeyRegistry
 
-    def __init__(self, skey_registry: _SettingKeyRegistry, **kwargs):
+    def __init__(self, skey_registry: SettingKeyRegistry, **kwargs):
         super().__init__(**kwargs)
         self.key_registry = skey_registry
 

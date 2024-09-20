@@ -5,9 +5,9 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core import actions
 from creme.creme_core.gui.actions import (
+    ActionChain,
     ActionRegistrationError,
-    ActionsChain,
-    ActionsRegistry,
+    ActionRegistry,
     BulkAction,
     UIAction,
 )
@@ -82,7 +82,7 @@ class ActionsTestCase(CremeTestCase):
 
     def setUp(self):
         super().setUp()
-        self.registry = ActionsRegistry()
+        self.registry = ActionRegistry()
 
     def assertSortedActions(self, expected_classes, actions):
         def key(a):
@@ -143,7 +143,7 @@ class ActionsTestCase(CremeTestCase):
         self.assertFalse(OnlyForFixedUserAction(other_user).is_visible)
 
     def test_actions_chain(self):
-        achain = ActionsChain()
+        achain = ActionChain()
         self.assertListEqual([], achain.actions(model=FakeContact))
 
         class OrgaAction(MockOrganisationAction):
@@ -162,7 +162,7 @@ class ActionsTestCase(CremeTestCase):
         )
 
     def test_actions_chain_error(self):
-        achain = ActionsChain(base_class=MockBulkAction)
+        achain = ActionChain(base_class=MockBulkAction)
 
         with self.assertRaises(ActionRegistrationError) as ctxt:
             achain.register_actions(MockAction)
@@ -172,7 +172,7 @@ class ActionsTestCase(CremeTestCase):
         )
 
     def test_actions_chain_void(self):
-        achain = ActionsChain()
+        achain = ActionChain()
         self.assertListEqual([], achain.actions(model=FakeContact))
 
         class MockA(MockAction):

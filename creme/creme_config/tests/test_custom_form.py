@@ -14,9 +14,9 @@ from creme.creme_core.constants import REL_SUB_HAS
 from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellFunctionField,
+    EntityCellRegistry,
     EntityCellRegularField,
     EntityCellRelation,
-    EntityCellsRegistry,
 )
 from creme.creme_core.forms import (
     LAYOUT_DUAL_FIRST,
@@ -152,7 +152,7 @@ class CustomFormCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase)
         class TestCellCustomFormExtra(EntityCellCustomFormExtra):
             allowed_sub_cell_classes = [TestSubCell01, TestSubCell02]
 
-        registry = EntityCellsRegistry().register(
+        registry = EntityCellRegistry().register(
             EntityCellRegularField,
             EntityCellCustomField,
             EntityCellCustomFormSpecial,

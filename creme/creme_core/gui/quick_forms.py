@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING, Iterator
 
 from creme.creme_core.models import CremeEntity
@@ -26,7 +27,8 @@ if TYPE_CHECKING:
     from creme.creme_core.forms.base import CremeEntityQuickForm
 
 
-class QuickFormsRegistry:
+# class QuickFormsRegistry:
+class QuickFormRegistry:
     """Registry for "quick" forms, ie small forms which can be easily used in an
     inner-popup to create entities on-the-go.
 
@@ -49,7 +51,7 @@ class QuickFormsRegistry:
     def register(self,
                  model: type[CremeEntity],
                  form: type[CremeEntityQuickForm],
-                 ) -> QuickFormsRegistry:
+                 ) -> QuickFormRegistry:
         """Register a form for a given model.
         @raise RegistrationError if a form is already registered.
         """
@@ -94,4 +96,23 @@ class QuickFormsRegistry:
         return iter(self._forms.keys())
 
 
-quickforms_registry = QuickFormsRegistry()
+# quickforms_registry = QuickFormsRegistry()
+quickform_registry = QuickFormRegistry()
+
+
+def __getattr__(name):
+    if name == 'QuickFormsRegistry':
+        warnings.warn(
+            '"QuickFormsRegistry" is deprecated; use "QuickFormRegistry" instead.',
+            DeprecationWarning,
+        )
+        return QuickFormRegistry
+
+    if name == 'quickforms_registry':
+        warnings.warn(
+            '"quickforms_registry" is deprecated; use "quickform_registry" instead.',
+            DeprecationWarning,
+        )
+        return quickform_registry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

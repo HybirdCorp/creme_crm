@@ -1137,7 +1137,7 @@ better &amp; lighter than the previous one.
 
         resend_action = self.get_alone_element(
             action
-            for action in actions.actions_registry
+            for action in actions.action_registry
                                  .instance_actions(user=user, instance=email)
             if isinstance(action, EntityEmailResendAction)
         )
@@ -1157,7 +1157,7 @@ better &amp; lighter than the previous one.
         user = self.login_as_root_and_get()
         resend_action = self.get_alone_element(
             action
-            for action in actions.actions_registry
+            for action in actions.action_registry
                                  .bulk_actions(user=user, model=EntityEmail)
             if isinstance(action, BulkEntityEmailResendAction)
         )

@@ -59,7 +59,7 @@ from creme.creme_core.utils.meta import FieldInfo, is_date_field
 
 from . import (
     EF_REGULAR,
-    _EntityFilterRegistry,
+    EntityFilterRegistry,
     entity_filter_registries,
     operands,
     operators,
@@ -296,7 +296,7 @@ class SubFilterConditionHandler(FilterConditionHandler):
 
 
 class OperatorConditionHandlerMixin:
-    efilter_registry: _EntityFilterRegistry
+    efilter_registry: EntityFilterRegistry
 
     @classmethod
     def _check_operator(cls, operator_id):

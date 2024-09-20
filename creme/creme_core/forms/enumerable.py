@@ -199,7 +199,7 @@ class FieldEnumerableChoiceSet(EnumerableChoiceSet):
 
     def __init__(self, field, *,
                  user=None, empty_label=None,
-                 registry: enumerable._EnumerableRegistry | None = None,
+                 registry: enumerable.EnumerableRegistry | None = None,
                  enumerator: enumerable.Enumerator | None = None,
                  limit: int | None = None,
                  url: str | None = None):

@@ -1,6 +1,6 @@
 from creme.creme_core.core.sandbox import (
     SandboxType,
-    _SandboxTypeRegistry,
+    SandboxTypeRegistry,
     sandbox_type_registry,
 )
 from creme.creme_core.models import Sandbox
@@ -25,7 +25,7 @@ class SandboxTestCase(CremeTestCase):
         self.assertEqual(name, st_type.verbose_name)
 
     def test_registry02(self):
-        registry = _SandboxTypeRegistry()
+        registry = SandboxTypeRegistry()
 
         st_id = SandboxType.generate_id('creme_core', 'test2')
 
@@ -39,7 +39,7 @@ class SandboxTestCase(CremeTestCase):
 
         registry.register(TestSandboxType2_2)
 
-        with self.assertRaises(_SandboxTypeRegistry.Error) as cm:
+        with self.assertRaises(SandboxTypeRegistry.Error) as cm:
             registry.register(TestSandboxType2_3)
 
         self.assertEqual(
@@ -74,9 +74,9 @@ class SandboxTestCase(CremeTestCase):
             # id = SandboxType.generate_id('creme_core', 'test')  NOPE
             verbose_name = 'Test sandbox'
 
-        registry = _SandboxTypeRegistry()
+        registry = SandboxTypeRegistry()
 
-        with self.assertRaises(_SandboxTypeRegistry.Error) as cm:
+        with self.assertRaises(SandboxTypeRegistry.Error) as cm:
             registry.register(TestSandboxType)
 
         self.assertEqual(

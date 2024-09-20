@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_filter import (
     EF_REGULAR,
-    _EntityFilterRegistry,
+    EntityFilterRegistry,
     entity_filter_registries,
     operands,
     operators,
@@ -105,7 +105,7 @@ class OperatorTestCase(CremeTestCase):
     def test_validate_field_values04(self):
         "Operand."
         user = self.get_root_user()
-        registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
+        registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         op = operators.ConditionOperator()
         get_field = FakeOrganisation._meta.get_field

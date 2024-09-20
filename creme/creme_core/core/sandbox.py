@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 
 from creme.creme_core.models import Sandbox
 
@@ -43,7 +44,8 @@ class SandboxType:
     #     return f'Restricted to "{self.sandbox.user}"'
 
 
-class _SandboxTypeRegistry:
+# class _SandboxTypeRegistry:
+class SandboxTypeRegistry:
     class Error(Exception):
         pass
 
@@ -70,4 +72,16 @@ class _SandboxTypeRegistry:
         return None
 
 
-sandbox_type_registry = _SandboxTypeRegistry()
+# sandbox_type_registry = _SandboxTypeRegistry()
+sandbox_type_registry = SandboxTypeRegistry()
+
+
+def __getattr__(name):
+    if name == '_SandboxTypeRegistry':
+        warnings.warn(
+            '"_SandboxTypeRegistry" is deprecated; use "SandboxTypeRegistry" instead.',
+            DeprecationWarning,
+        )
+        return SandboxTypeRegistry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

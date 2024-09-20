@@ -38,7 +38,7 @@ from django.utils.translation import ngettext, pgettext_lazy
 from ..core.entity_filter import (
     EF_REGULAR,
     TYPE_ID_MAX_LENGTH,
-    _EntityFilterRegistry,
+    EntityFilterRegistry,
     entity_filter_registries,
 )
 from ..global_info import get_global_info
@@ -673,7 +673,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         # return all(cond.entities_are_distinct(conds) for cond in conds)
 
     @property
-    def registry(self) -> _EntityFilterRegistry:
+    def registry(self) -> EntityFilterRegistry:
         return self.efilter_registries[self.filter_type]
 
     def filter(self, qs: QuerySet, user: CremeUser | None = None) -> QuerySet:

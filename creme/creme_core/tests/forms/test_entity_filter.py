@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
-    _EntityFilterRegistry,
+    EntityFilterRegistry,
     entity_filter_registries,
     operands,
     operators,
@@ -66,7 +66,7 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.tests.base import CremeTestCase
 
-efilter_registry = _EntityFilterRegistry(
+efilter_registry = EntityFilterRegistry(
     id='creme_core-test_efilter_forms',
     verbose_name='Form tests',
 ).register_condition_handlers(
@@ -3093,7 +3093,7 @@ class RelationSubfiltersConditionsFieldTestCase(CremeTestCase):
 class EntityFilterFormsTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
-        self.efilter_registry = _EntityFilterRegistry(
+        self.efilter_registry = EntityFilterRegistry(
             id='creme_core-efilter_forms_testcase',
             verbose_name='Test',
         )

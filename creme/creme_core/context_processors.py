@@ -22,7 +22,7 @@ from django.utils.timezone import now
 from creme import __version__
 from creme.creme_core import get_world_settings_model
 
-from .gui.bricks import BricksManager
+from .gui.bricks import BrickManager
 from .models import FieldsConfig
 
 
@@ -48,8 +48,9 @@ def get_today(request):
     return {'today': now()}
 
 
+# TODO: rename "get_brick_manager"
 def get_bricks_manager(request):
-    return {BricksManager.var_name: BricksManager()}
+    return {BrickManager.var_name: BrickManager()}
 
 
 def get_fields_configs(request):

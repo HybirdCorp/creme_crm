@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 from itertools import chain
 from typing import Iterable, Iterator, Sequence
 
@@ -112,7 +113,8 @@ class FieldOverrider:
 # NB2: the previous version accepted models which were not inheriting CremeEntity ;
 #      the new version focus on CremeEntity, but maybe the possibility will be
 #      back if it's useful.
-class _BulkUpdateRegistry:
+# class _BulkUpdateRegistry:
+class BulkUpdateRegistry:
     """Registry which stores which fields of entities models can or cannot be
     edited via the inner/bulk edition system, and if they use a specific form.
 
@@ -175,7 +177,7 @@ class _BulkUpdateRegistry:
         # TODO: manage inheritance?
         #      (e.g. if 'user' is excluded in CremeEntity's config, it is
         #       excluded in Document's config automatically)
-        def exclude(self, *field_names: str) -> _BulkUpdateRegistry._ModelConfig:
+        def exclude(self, *field_names: str) -> BulkUpdateRegistry._ModelConfig:
             """Indicate that some regular model fields cannot be edited.
             @param field_names: Names (string) of the fields to exclude.
             @return: The 'self' instance to allow chained calls.
@@ -188,7 +190,7 @@ class _BulkUpdateRegistry:
             }
             for field_name in field_names:
                 if field_name in overridden:
-                    raise _BulkUpdateRegistry.Error(
+                    raise BulkUpdateRegistry.Error(
                         f'The field "{field_name}" cannot be excluded & '
                         f'overridden at the same time.'
                     )
@@ -202,7 +204,7 @@ class _BulkUpdateRegistry:
         #       overridden in Document's config automatically)
         def add_overriders(self,
                            *overriders: type[FieldOverrider],
-                           ) -> _BulkUpdateRegistry._ModelConfig:
+                           ) -> BulkUpdateRegistry._ModelConfig:
             """
             Indicates that some regular model fields should not use their natural
             form-field, & use instead a specific form-field.
@@ -222,13 +224,13 @@ class _BulkUpdateRegistry:
             for overrider_cls in overriders:
                 for field_name in overrider_cls.field_names:
                     if field_name in excluded:
-                        raise _BulkUpdateRegistry.Error(
+                        raise BulkUpdateRegistry.Error(
                             f'The field "{field_name}" cannot be excluded & '
                             f'overridden at the same time.'
                         )
 
                     if field_name in already_overridden:
-                        raise _BulkUpdateRegistry.Error(
+                        raise BulkUpdateRegistry.Error(
                             f'The field "{field_name}" cannot be overridden several times.'
                         )
                     already_overridden.add(field_name)
@@ -247,7 +249,7 @@ class _BulkUpdateRegistry:
             return overrider_classes
 
     def __init__(self) -> None:
-        self._configs: dict[type[CremeEntity], _BulkUpdateRegistry._ModelConfig] = {}
+        self._configs: dict[type[CremeEntity], BulkUpdateRegistry._ModelConfig] = {}
 
     def register(self, model: type[CremeEntity]) -> _ModelConfig:
         """Register a CremeEntity class.
@@ -256,7 +258,7 @@ class _BulkUpdateRegistry:
                 registered. useful to call 'exclude()' & 'add_overriders()'.
         """
         if model in self._configs:
-            raise _BulkUpdateRegistry.Error(
+            raise BulkUpdateRegistry.Error(
                 f'The model "{model}" is already registered.'
             )
 
@@ -483,4 +485,15 @@ class _BulkUpdateRegistry:
         )
 
 
-bulk_update_registry = _BulkUpdateRegistry()
+bulk_update_registry = BulkUpdateRegistry()
+
+
+def __getattr__(name):
+    if name == '_BulkUpdateRegistry':
+        warnings.warn(
+            '"_BulkUpdateRegistry" is deprecated; use "BulkUpdateRegistry" instead.',
+            DeprecationWarning,
+        )
+        return BulkUpdateRegistry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

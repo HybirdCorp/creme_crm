@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.forms.widgets import Label
-from creme.creme_core.gui.quick_forms import quickforms_registry
+from creme.creme_core.gui.quick_forms import quickform_registry
 from creme.creme_core.models import Relation
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
@@ -33,7 +33,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
         contact_count = Contact.objects.count()
         orga_count = Organisation.objects.count()
 
-        models = {*quickforms_registry.models}
+        models = {*quickform_registry.models}
         self.assertIn(Contact, models)
         self.assertIn(Organisation, models)
 

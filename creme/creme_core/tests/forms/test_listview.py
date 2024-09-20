@@ -15,7 +15,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
     EntityCellRelation,
 )
-from creme.creme_core.core.enumerable import QSEnumerator, _EnumerableRegistry
+from creme.creme_core.core.enumerable import EnumerableRegistry, QSEnumerator
 from creme.creme_core.gui.listview import ListViewSearchFieldRegistry
 from creme.creme_core.models import (
     CustomField,
@@ -614,7 +614,7 @@ class SearchFieldsTestCase(CremeTestCase):
             def _queryset(self, user):
                 return FakeSector.objects.exclude(id=s1.id)
 
-        enum_registry = _EnumerableRegistry()
+        enum_registry = EnumerableRegistry()
         enum_registry.register_related_model(FakeSector, FakeSectorEnumerator)
 
         field = lv_forms.RegularRelatedField(

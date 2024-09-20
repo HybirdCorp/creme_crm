@@ -6,9 +6,9 @@ from django.utils.translation import gettext as _
 from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellFunctionField,
+    EntityCellRegistry,
     EntityCellRegularField,
     EntityCellRelation,
-    EntityCellsRegistry,
 )
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.forms.header_filter import (
@@ -1055,13 +1055,13 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
         field = EntityCellsField()
 
         registry1 = field.cell_registry
-        self.assertIsInstance(registry1, EntityCellsRegistry)
+        self.assertIsInstance(registry1, EntityCellRegistry)
         self.assertIn(EntityCellRegularField.type_id,  registry1)
         self.assertIn(EntityCellCustomField.type_id,   registry1)
         self.assertIn(EntityCellFunctionField.type_id, registry1)
         self.assertIn(EntityCellRelation.type_id,      registry1)
 
-        registry2 = EntityCellsRegistry()
+        registry2 = EntityCellRegistry()
         registry2(EntityCellRegularField)
         registry2(EntityCellRelation)
 
@@ -1101,7 +1101,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             EntityCellRegularField.build(FakeContact, fname),
         ]
 
-        registry = EntityCellsRegistry()
+        registry = EntityCellRegistry()
         registry(EntityCellRegularField)
         registry(EntityCellRelation)
 
@@ -1125,7 +1125,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
         field1 = EntityCellsField(model=FakeContact)
         field2 = deepcopy(field1)
 
-        registry = EntityCellsRegistry()
+        registry = EntityCellRegistry()
         registry(EntityCellRegularField)
         registry(EntityCellRelation)
 
