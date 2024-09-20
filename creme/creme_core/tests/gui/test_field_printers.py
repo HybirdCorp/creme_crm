@@ -22,11 +22,11 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RegularFieldConditionHandler,
 )
 from creme.creme_core.gui.field_printers import (
+    FieldPrinterRegistry,
     FKPrinter,
     M2MPrinterForHTML,
     M2MPrinterForText,
     ViewTag,
-    _FieldPrintersRegistry,
     print_boolean_html,
     print_boolean_text,
     print_choice,
@@ -1043,7 +1043,7 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_registry(self):
         "Default."
         user = self.get_root_user()
-        registry = _FieldPrintersRegistry()
+        registry = FieldPrinterRegistry()
 
         sector = FakeSector.objects.all()[0]
         img = FakeImage.objects.create(user=user, name='Mars pix')
@@ -1088,7 +1088,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         def print_integer(*, value, **kwargs):
             return f'#{str(value)}'
 
-        registry = _FieldPrintersRegistry().register_model_field_type(
+        registry = FieldPrinterRegistry().register_model_field_type(
             type=models.IntegerField,
             printer=print_integer,
             tags=ViewTag.HTML_FORM,
@@ -1122,7 +1122,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             print_integerfield_html_args.append((instance, value, user, field))
             return f'<span data-type="integer">{value}</span>'
 
-        registry: _FieldPrintersRegistry = _FieldPrintersRegistry(
+        registry: FieldPrinterRegistry = FieldPrinterRegistry(
         ).register_model_field_type(
             type=models.CharField, printer=print_charfield_html, tags='html*',
         ).register_model_field_type(
@@ -1185,7 +1185,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         def print_charfield_csv(*, instance, value, user, field):
             return f'«{value}»'
 
-        registry = _FieldPrintersRegistry(
+        registry = FieldPrinterRegistry(
         ).register_model_field_type(
             type=models.CharField, printer=print_charfield_html, tags=ViewTag.HTML_DETAIL,
         ).register_model_field(
@@ -1223,7 +1223,7 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_registry_print_choice(self):
         user = self.user
 
-        registry = _FieldPrintersRegistry()
+        registry = FieldPrinterRegistry()
         render_field = partial(
             registry.get_field_value, user=user, field_name='discount_unit',
         )
@@ -1245,7 +1245,7 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_registry_register_choice_printer01(self):
         user = self.user
 
-        registry = _FieldPrintersRegistry()
+        registry = FieldPrinterRegistry()
 
         def print_choices_html(*, instance, value, user, field):
             return '<em>{}</em>'.format(getattr(instance, f'get_{field.name}_display')())
@@ -1278,7 +1278,7 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_registry_register_choice_printer02(self):
         "Register choice-printer for specific field."
         user = self.user
-        registry = _FieldPrintersRegistry()
+        registry = FieldPrinterRegistry()
 
         def print_discount_html(*, instance, value, user, field):
             return '<em>{}</em>'.format(getattr(instance, f'get_{field.name}_display')())
@@ -1317,7 +1317,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry_numeric(self):
         user = self.get_root_user()
-        field_printers_registry = _FieldPrintersRegistry()
+        field_printers_registry = FieldPrinterRegistry()
 
         # Integer
         capital = 12345
@@ -1343,7 +1343,7 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_registry_textfield(self):
         "Test TexField: link => target='_blank'."
         user = self.get_root_user()
-        field_printers_registry = _FieldPrintersRegistry()
+        field_printers_registry = FieldPrinterRegistry()
 
         hawk = FakeOrganisation.objects.create(
             user=user, name='Hawk',
@@ -1364,7 +1364,7 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_registry_booleanfield(self):
         "Boolean Field."
         user = self.get_root_user()
-        field_printers_registry = _FieldPrintersRegistry()
+        field_printers_registry = FieldPrinterRegistry()
 
         create_contact = partial(FakeContact.objects.create, user=user)
         casca = create_contact(first_name='Casca', last_name='Mylove', is_a_nerd=False)
@@ -1390,7 +1390,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         "ForeignKey."
         user = self.get_root_user()
 
-        field_printers_registry = _FieldPrintersRegistry(
+        field_printers_registry = FieldPrinterRegistry(
         ).register_model_field_type(
             type=models.ForeignKey,
             printer=FKPrinter(
@@ -1522,7 +1522,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry_m2m01(self):
         user = self.get_root_user()
-        registry = _FieldPrintersRegistry()
+        registry = FieldPrinterRegistry()
 
         img = FakeImage.objects.create(user=user, name='My img')
         img.categories.set([
@@ -1553,7 +1553,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         user2 = self.create_user(0, theme='')
         team = self.create_team('Team17', user1, user2)
 
-        registry = _FieldPrintersRegistry()
+        registry = FieldPrinterRegistry()
         theme1 = settings.THEMES[0][1]
         self.assertHTMLEqual(
             f'<ul><li>{theme1}</li></ul>',
@@ -1571,7 +1571,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry_m2m_entity01(self):
         user = self.get_root_user()
-        registry = _FieldPrintersRegistry()
+        registry = FieldPrinterRegistry()
 
         create_ml = partial(FakeMailingList.objects.create, user=user)
         ml1 = create_ml(name='Swimsuits', description='Best swimsuits of this year')
@@ -1612,7 +1612,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         camp = FakeEmailCampaign.objects.create(user=user, name='Summer 2020')
         camp.mailing_lists.set([ml1, ml2])
 
-        registry = _FieldPrintersRegistry()
+        registry = FieldPrinterRegistry()
         self.assertHTMLEqual(
             f'<ul><li>{settings.HIDDEN_VALUE}</li><li>{ml1.name}</li></ul>',
             registry.get_field_value(
@@ -1638,7 +1638,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         camp = FakeEmailCampaign.objects.create(user=user, name='Summer 2020')
         camp.mailing_lists.set([ml1, ml2])
 
-        registry = _FieldPrintersRegistry()
+        registry = FieldPrinterRegistry()
         self.assertHTMLEqual(
             f'<ul><li>{ml1.name}</li></ul>',
             registry.get_field_value(
@@ -1657,7 +1657,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         user = self.login_as_standard(allowed_apps=['creme_core'])
         self.add_credentials(user.role, own='*')
 
-        field_printers_registry = _FieldPrintersRegistry()
+        field_printers_registry = FieldPrinterRegistry()
 
         create_img = FakeImage.objects.create
         casca_face = create_img(
@@ -1717,7 +1717,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         CSS_DATE_HEADER_LISTVIEW='header-date',
     )
     def test_registry_css(self):
-        registry = _FieldPrintersRegistry()
+        registry = FieldPrinterRegistry()
         get_css = registry.get_listview_css_class_for_field
         get_header_css = registry.get_header_listview_css_class_for_field
 

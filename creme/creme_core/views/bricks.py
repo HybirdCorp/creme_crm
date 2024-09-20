@@ -27,7 +27,7 @@ from django.template.context import make_context
 from django.template.engine import Engine
 
 from .. import utils
-from ..gui.bricks import Brick, BricksManager, VoidBrick, _BrickRegistry
+from ..gui.bricks import Brick, BrickManager, BrickRegistry, VoidBrick
 from ..gui.bricks import brick_registry as global_brick_registry
 from ..http import CremeJsonResponse
 from ..models import BrickState
@@ -45,7 +45,7 @@ class BricksReloading(generic.CheckedView):
             use with caution :)
     """
     response_class: type[HttpResponseBase] = CremeJsonResponse
-    brick_registry: _BrickRegistry = global_brick_registry
+    brick_registry: BrickRegistry = global_brick_registry
     # Name of the Brick's render method to use ;
     # classically: "detailview_display" or "home_display".
     brick_render_method: str = 'detailview_display'
@@ -76,7 +76,7 @@ class BricksReloading(generic.CheckedView):
         brick_renders = []
         bricks = self.get_bricks()
         context = self.get_bricks_context().flatten()
-        bricks_manager = BricksManager.get(context)
+        bricks_manager = BrickManager.get(context)
 
         all_reloading_info = {}
         all_reloading_info_json = request.GET.get('extra_data')

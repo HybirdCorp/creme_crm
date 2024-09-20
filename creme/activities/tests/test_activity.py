@@ -2362,7 +2362,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         user = self.login_as_root_and_get()
         export_action = self.get_alone_element(
             action
-            for action in actions.actions_registry.bulk_actions(user=user, model=Activity)
+            for action in actions.action_registry.bulk_actions(user=user, model=Activity)
             if isinstance(action, BulkExportICalAction)
         )
         self.assertEqual('activities-export-ical', export_action.type)

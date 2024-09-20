@@ -332,7 +332,7 @@ class EntityCredsJSONField(JSONField):
         """
         super().__init__(**kwargs)
         self._credentials = credentials
-        self.quickforms_registry = quickforms_registry or quick_forms.quickforms_registry
+        self.quickforms_registry = quickforms_registry or quick_forms.quickform_registry
 
     def _check_entity_perms(self, entity, *args):
         user = self._user

@@ -37,9 +37,9 @@ from ..core.entity_cell import (
     EntityCell,
     EntityCellCustomField,
     EntityCellFunctionField,
+    EntityCellRegistry,
     EntityCellRegularField,
     EntityCellRelation,
-    EntityCellsRegistry,
 )
 from ..gui import listview
 from ..gui.view_tag import ViewTag
@@ -500,11 +500,11 @@ class EntityCellsField(Field):
         return result
 
     @property
-    def cell_registry(self) -> EntityCellsRegistry:
+    def cell_registry(self) -> EntityCellRegistry:
         return self._cell_registry
 
     @cell_registry.setter
-    def cell_registry(self, cell_registry: EntityCellsRegistry):
+    def cell_registry(self, cell_registry: EntityCellRegistry):
         self._cell_registry = cell_registry
 
         self._create_sub_fields()

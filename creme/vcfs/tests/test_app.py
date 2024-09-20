@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.gui.actions import actions_registry
+from creme.creme_core.gui.actions import action_registry
 from creme.creme_core.tests.base import CremeTestCase
 from creme.vcfs.actions import GenerateVcfAction
 
@@ -29,7 +29,7 @@ class VcfsTestCase(CremeTestCase):
         contact = user.linked_contact
         action = self.get_alone_element(
             action
-            for action in actions_registry.instance_actions(user=user, instance=contact)
+            for action in action_registry.instance_actions(user=user, instance=contact)
             if isinstance(action, GenerateVcfAction)
         )
         self.assertEqual('redirect', action.type)

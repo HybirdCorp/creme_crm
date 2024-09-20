@@ -15,7 +15,7 @@ from PIL.Image import open as open_img
 
 from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.gui import actions
-from creme.creme_core.gui.field_printers import field_printers_registry
+from creme.creme_core.gui.field_printers import field_printer_registry
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -599,7 +599,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         download_action = self.get_alone_element(
             action
-            for action in actions.actions_registry
+            for action in actions.action_registry
                                  .instance_actions(user=user, instance=doc1)
             if isinstance(action, DownloadAction)
         )
@@ -655,13 +655,13 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             f'''<a onclick="creme.dialogs.image('{image.get_download_absolute_url()}').open();">'''
             f'''{summary}'''
             f'''</a>''',
-            field_printers_registry.get_field_value(
+            field_printer_registry.get_field_value(
                 instance=casca, field_name='image', user=user, tag=ViewTag.HTML_DETAIL,
             ),
         )
         self.assertEqual(
             str(casca.image),
-            field_printers_registry.get_field_value(
+            field_printer_registry.get_field_value(
                 instance=casca, field_name='image', user=user, tag=ViewTag.TEXT_PLAIN,
             ),
         )
@@ -692,7 +692,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
 
         render_field = partial(
-            field_printers_registry.get_field_value,
+            field_printer_registry.get_field_value,
             user=other_user,
             tag=ViewTag.HTML_DETAIL,
         )
@@ -726,7 +726,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
         self.assertHTMLEqual(
             f'<a href="{doc.get_absolute_url()}" target="_self">{doc}</a>',
-            field_printers_registry.get_field_value(
+            field_printer_registry.get_field_value(
                 instance=contact, field_name='image', user=user, tag=ViewTag.HTML_DETAIL,
             ),
         )
@@ -772,7 +772,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
              <li><a href="{doc.get_absolute_url()}" target="_blank">{doc}</a></li>
              <li>XXX</li>
             </ul>''',
-            field_printers_registry.get_field_value(
+            field_printer_registry.get_field_value(
                 instance=product, field_name='images', user=user, tag=ViewTag.HTML_DETAIL,
             ),
         )

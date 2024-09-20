@@ -4,7 +4,7 @@ from django import forms
 from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
 
-from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
+from creme.creme_core.core.setting_key import SettingKey, SettingKeyRegistry
 
 from ..base import CremeTestCase
 
@@ -31,7 +31,7 @@ class SettingKeyTestCase(CremeTestCase):
             type=SettingKey.BOOL,
         )
 
-        registry = _SettingKeyRegistry()
+        registry = SettingKeyRegistry()
         registry.register(sk1, sk2, sk3)
 
         # ------
@@ -83,7 +83,7 @@ class SettingKeyTestCase(CremeTestCase):
             hidden=False,
         )
 
-        registry = _SettingKeyRegistry()
+        registry = SettingKeyRegistry()
         registry.register(sk1)
 
         with self.assertRaises(registry.RegistrationError):

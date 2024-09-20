@@ -16,7 +16,7 @@ from creme.creme_core.bricks import (
     StatisticsBrick,
 )
 from creme.creme_core.gui import button_menu
-from creme.creme_core.gui.statistics import statistics_registry
+from creme.creme_core.gui.statistics import statistic_registry
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
@@ -86,7 +86,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def setUp(self):
         super().setUp()
-        ButtonsBrick.button_registry = button_menu.ButtonsRegistry().register(
+        ButtonsBrick.button_registry = button_menu.ButtonRegistry().register(
             TestButton1, TestButton2, TestButton3, TestButton4, TestButton5,
         )
 
@@ -667,7 +667,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         label3 = 'Fake Addresses'
         fmt3 = 'There are {} Addresses'.format
 
-        statistics_registry.register(
+        statistic_registry.register(
             s_id1, label1, lambda: [fmt1(FakeContact.objects.count())],
         ).register(
             id=s_id2, label=label2,

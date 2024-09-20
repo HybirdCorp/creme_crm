@@ -40,10 +40,11 @@ class ActivitiesConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Activity)
 
-    def register_actions(self, actions_registry):
+    # def register_actions(self, actions_registry):
+    def register_actions(self, action_registry):
         from creme.activities import actions
 
-        actions_registry.register_bulk_actions(actions.BulkExportICalAction)
+        action_registry.register_bulk_actions(actions.BulkExportICalAction)
 
     def register_bricks(self, brick_registry):
         from . import bricks
@@ -150,7 +151,8 @@ class ActivitiesConfig(CremeAppConfig):
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Activity)
 
-    def register_field_printers(self, field_printers_registry):
+    # def register_field_printers(self, field_printers_registry):
+    def register_field_printers(self, field_printer_registry):
         from django.db.models import ForeignKey
 
         from creme.creme_core.gui.field_printers import FKPrinter
@@ -158,7 +160,7 @@ class ActivitiesConfig(CremeAppConfig):
         from .models import Status
 
         # TODO: models.OneToOneField? ManyToManyField?
-        for printer in field_printers_registry.printers_for_field_type(
+        for printer in field_printer_registry.printers_for_field_type(
             type=ForeignKey, tags='html*',
         ):
             printer.register(model=Status, printer=FKPrinter.print_fk_colored_html)
@@ -252,10 +254,11 @@ class ActivitiesConfig(CremeAppConfig):
             setting_keys.unsuccessful_duration_key,
         )
 
-    def register_statistics(self, statistics_registry):
+    # def register_statistics(self, statistics_registry):
+    def register_statistics(self, statistic_registry):
         from .statistics import AveragePerMonthStatistics
 
-        statistics_registry.register(
+        statistic_registry.register(
             id='activities',
             label=AveragePerMonthStatistics.label,
             func=AveragePerMonthStatistics(self.Activity),

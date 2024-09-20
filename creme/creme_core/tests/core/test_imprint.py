@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.utils.timezone import now
 
-from creme.creme_core.core.imprint import _ImprintManager
+from creme.creme_core.core.imprint import ImprintManager
 from creme.creme_core.models import FakeContact, FakeDocument, Imprint
 
 from ..base import CremeTestCase
@@ -10,7 +10,7 @@ from ..base import CremeTestCase
 
 class ImprintManagerTestCase(CremeTestCase):
     def test_register_n_get(self):
-        manager = _ImprintManager()
+        manager = ImprintManager()
         self.assertIsNone(manager.get_granularity(FakeContact))
 
         manager.register(FakeContact, minutes=60)
@@ -20,7 +20,7 @@ class ImprintManagerTestCase(CremeTestCase):
         self.assertEqual(timedelta(hours=2), manager.get_granularity(FakeDocument))
 
     def test_chained_registering(self):
-        manager = _ImprintManager().register(
+        manager = ImprintManager().register(
             FakeContact, minutes=60,
         ).register(
             FakeDocument, hours=2,
@@ -31,14 +31,14 @@ class ImprintManagerTestCase(CremeTestCase):
         self.assertEqual(timedelta(hours=2),    get_granularity(FakeDocument))
 
     def test_double_registering(self):
-        manager = _ImprintManager()
+        manager = ImprintManager()
         manager.register(FakeContact, minutes=60)
 
         with self.assertRaises(manager.RegistrationError):
             manager.register(FakeContact, minutes=90)
 
     def test_create01(self):
-        manager = _ImprintManager()
+        manager = ImprintManager()
         manager.register(FakeContact, minutes=60)
 
         user = self.get_root_user()
@@ -56,7 +56,7 @@ class ImprintManagerTestCase(CremeTestCase):
 
     def test_create02(self):
         "Delay is not passed."
-        manager = _ImprintManager()
+        manager = ImprintManager()
         manager.register(FakeContact, minutes=60)
 
         user = self.get_root_user()
@@ -81,7 +81,7 @@ class ImprintManagerTestCase(CremeTestCase):
 
     def test_create03(self):
         "Delay_is passed."
-        manager = _ImprintManager()
+        manager = ImprintManager()
         manager.register(FakeContact, minutes=30)
 
         user = self.get_root_user()
@@ -94,7 +94,7 @@ class ImprintManagerTestCase(CremeTestCase):
 
     def test_create04(self):
         "Model not registered."
-        manager = _ImprintManager()
+        manager = ImprintManager()
         manager.register(FakeDocument, minutes=60)
 
         user = self.get_root_user()

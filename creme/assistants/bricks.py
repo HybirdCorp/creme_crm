@@ -19,7 +19,7 @@
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.gui.bricks import BricksManager, QuerysetBrick
+from creme.creme_core.gui.bricks import BrickManager, QuerysetBrick
 
 from . import constants
 from .models import Action, Alert, Memo, ToDo, UserMessage
@@ -73,7 +73,7 @@ class TodosBrick(_AssistantsBrick):
 
     # TODO: factorise (is_ok renamed 'is_validated'?)
     def _improve_queryset(self, qs, context):
-        hide_validated = BricksManager.get(context).get_state(
+        hide_validated = BrickManager.get(context).get_state(
             # brick_id=self.id_,
             brick_id=self.id,
             user=context['user'],
@@ -146,7 +146,7 @@ class AlertsBrick(_AssistantsBrick):
     default_hide_validated = True
 
     def _improve_queryset(self, qs, context):
-        hide_validated = BricksManager.get(context).get_state(
+        hide_validated = BrickManager.get(context).get_state(
             # brick_id=self.id_,
             brick_id=self.id,
             user=context['user'],

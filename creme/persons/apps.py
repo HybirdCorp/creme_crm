@@ -125,7 +125,8 @@ class PersonsConfig(CremeAppConfig):
             self.Address,
         )
 
-    def register_field_printers(self, field_printers_registry):
+    # def register_field_printers(self, field_printers_registry):
+    def register_field_printers(self, field_printer_registry):
         from django.contrib.auth import get_user_model
         from django.db import models
         from django.utils.html import format_html
@@ -148,7 +149,7 @@ class PersonsConfig(CremeAppConfig):
         User = get_user_model()
 
         for field in (models.ForeignKey, models.OneToOneField):
-            for printer in field_printers_registry.printers_for_field_type(
+            for printer in field_printer_registry.printers_for_field_type(
                 type=field, tags=[ViewTag.HTML_DETAIL, ViewTag.HTML_LIST],
             ):
                 printer.register(
@@ -158,7 +159,7 @@ class PersonsConfig(CremeAppConfig):
                     ),
                 )
 
-            for printer in field_printers_registry.printers_for_field_type(
+            for printer in field_printer_registry.printers_for_field_type(
                 type=field, tags=[ViewTag.HTML_FORM],
             ):
                 printer.register(
@@ -233,10 +234,11 @@ class PersonsConfig(CremeAppConfig):
             Organisation, partial(form_builder, model=Organisation),
         )
 
-    def register_quickforms(self, quickforms_registry):
+    # def register_quickforms(self, quickforms_registry):
+    def register_quickforms(self, quickform_registry):
         from .forms import quick
 
-        quickforms_registry.register(
+        quickform_registry.register(
             self.Contact, quick.ContactQuickForm,
         ).register(
             self.Organisation, quick.OrganisationQuickForm,
@@ -265,12 +267,13 @@ class PersonsConfig(CremeAppConfig):
                                    .register_field('billing_address__city') \
                                    .register_relationtype(constants.REL_OBJ_EMPLOYED_BY)
 
-    def register_statistics(self, statistics_registry):
+    # def register_statistics(self, statistics_registry):
+    def register_statistics(self, statistic_registry):
         from . import statistics
 
         Contact = self.Contact
         Organisation = self.Organisation
-        statistics_registry.register(
+        statistic_registry.register(
             id='persons-contacts',
             label=Contact._meta.verbose_name_plural,
             func=lambda: [Contact.objects.count()],

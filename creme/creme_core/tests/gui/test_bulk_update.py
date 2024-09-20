@@ -14,10 +14,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellVolatile,
 )
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.gui.bulk_update import (
-    FieldOverrider,
-    _BulkUpdateRegistry,
-)
+from creme.creme_core.gui.bulk_update import BulkUpdateRegistry, FieldOverrider
 from creme.creme_core.models import (
     CustomField,
     FakeActivity,
@@ -38,7 +35,7 @@ from ..base import CremeTestCase
 class BulkUpdateRegistryTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
-        self.bulk_update_registry = _BulkUpdateRegistry()
+        self.bulk_update_registry = BulkUpdateRegistry()
         self.maxDiff = None
 
     def test_register(self):

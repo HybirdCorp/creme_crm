@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 02-09-2024 pour la version 2.7 de Creme
+:Version: 20-09-2024 pour la version 2.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1779,11 +1779,11 @@ telle que : ::
     class BeaversConfig(CremeAppConfig):
         [...]
 
-        def register_quickforms(self, quickforms_registry):  # <- NEW
+        def register_quickforms(self, quickform_registry):  # <- NEW
             from .forms.beaver import BeaverQuickForm
             from .models import Beaver
 
-            quickforms_registry.register(Beaver, BeaverQuickForm)
+            quickform_registry.register(Beaver, BeaverQuickForm)
 
 
 **Attention** : n'enregistrez que des modèles dérivant de ``CremeEntity``. Si
@@ -2146,10 +2146,10 @@ Reste à déclarer notre action dans notre ``apps.py`` : ::
     class BeaversConfig(CremeAppConfig):
         [...]
 
-        def register_actions(self, actions_registry):  # <- NEW
+        def register_actions(self, action_registry):  # <- NEW
             from . import actions
 
-            actions_registry.register_instance_actions(
+            action_registry.register_instance_actions(
                 actions.GenerateBarCodeAction,
             )
 
@@ -2375,7 +2375,7 @@ Puis dans ``my_project/beavers/apps.py``, on créé ladite classe de configurati
 
     # On dérive de la classe originelle, afin de garder toutes les autres méthodes à l'identique.
     class BeaversActivitiesConfig(ActivitiesConfig):
-        def register_statistics(self, statistics_registry):
+        def register_statistics(self, statistic_registry):
             pass  # la méthode ne fait plus rien
 
 
@@ -3352,8 +3352,8 @@ Si vous voulez afficher vos propres statistiques, il faut enregistrer dans votre
     class BeaversConfig(CremeAppConfig):
         [...]
 
-        def register_statistics(self, statistics_registry):  # <- NEW
-            statistics_registry.register(
+        def register_statistics(self, statistic_registry):  # <- NEW
+            statistic_registry.register(
                 id='beavers-beavers',
                 label=Beaver._meta.verbose_name_plural,
                 func=lambda: [Beaver.objects.count()],

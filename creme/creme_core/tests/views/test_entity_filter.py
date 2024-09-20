@@ -13,7 +13,7 @@ from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
-    _EntityFilterRegistry,
+    EntityFilterRegistry,
     entity_filter_registries,
     operands,
     operators,
@@ -2081,7 +2081,7 @@ class UserChoicesTestCase(CremeTestCase):
             verbose_name = 'Main user'
             model = CremeUser
 
-        entity_filter_registries.register(_EntityFilterRegistry(
+        entity_filter_registries.register(EntityFilterRegistry(
             id=cls.EF_TEST,
             verbose_name='Test registry',
         ).register_operands(

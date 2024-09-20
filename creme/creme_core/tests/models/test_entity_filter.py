@@ -12,8 +12,8 @@ from creme import __version__
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
-    _EntityFilterRegistry,
-    _EntityFilterSuperRegistry,
+    EntityFilterRegistry,
+    EntityFilterSuperRegistry,
     entity_filter_registries,
     operands,
     operators,
@@ -154,11 +154,11 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter(name=name, entity_type=FakeContact)
         self.assertEqual(name, str(efilter))
 
-        registry1 = _EntityFilterRegistry(id='creme_core-test1', verbose_name='Test #1')
-        registry2 = _EntityFilterRegistry(
+        registry1 = EntityFilterRegistry(id='creme_core-test1', verbose_name='Test #1')
+        registry2 = EntityFilterRegistry(
             id='creme_core-test2', verbose_name='Test #2', tag='test',
         )
-        efilter.efilter_registries = _EntityFilterSuperRegistry().register(
+        efilter.efilter_registries = EntityFilterSuperRegistry().register(
             registry1, registry2,
         )
         efilter.filter_type = registry1.id

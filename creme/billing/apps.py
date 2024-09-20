@@ -99,10 +99,11 @@ class BillingConfig(CremeAppConfig):
             self.ProductLine,
         )
 
-    def register_actions(self, actions_registry):
+    # def register_actions(self, actions_registry):
+    def register_actions(self, action_registry):
         from . import actions
 
-        actions_registry.register_instance_actions(
+        action_registry.register_instance_actions(
             actions.ExportInvoiceAction,
             actions.ExportQuoteAction,
             actions.GenerateNumberAction,
@@ -240,7 +241,8 @@ class BillingConfig(CremeAppConfig):
             # models.PaymentInformation,
         )
 
-    def register_field_printers(self, field_printers_registry):
+    # def register_field_printers(self, field_printers_registry):
+    def register_field_printers(self, field_printer_registry):
         from django.db.models import ForeignKey
 
         from creme.creme_core.gui.field_printers import FKPrinter
@@ -249,12 +251,12 @@ class BillingConfig(CremeAppConfig):
         from .models.fields import BillingDiscountField
 
         # field_printers_registry.register(BillingDiscountField, print_discount)
-        field_printers_registry.register_model_field_type(
+        field_printer_registry.register_model_field_type(
             type=BillingDiscountField, printer=utils.print_discount, tags='html*',
         )
 
         # TODO: models.OneToOneField? ManyToManyField?
-        for printer in field_printers_registry.printers_for_field_type(
+        for printer in field_printer_registry.printers_for_field_type(
             type=ForeignKey, tags='html*',
         ):
             for model in (
@@ -360,7 +362,8 @@ class BillingConfig(CremeAppConfig):
                 'status',
             ).register_relationtype(constants.REL_SUB_BILL_RECEIVED)
 
-    def register_statistics(self, statistics_registry):
+    # def register_statistics(self, statistics_registry):
+    def register_statistics(self, statistic_registry):
         Invoice = self.Invoice
         Quote = self.Quote
         SalesOrder = self.SalesOrder
@@ -374,7 +377,7 @@ class BillingConfig(CremeAppConfig):
                 count
             ).format(count=count)
 
-        statistics_registry.register(
+        statistic_registry.register(
             id='billing-invoices', label=Invoice._meta.verbose_name_plural,
             func=lambda: [Invoice.objects.count()],
             perm='billing', priority=20,

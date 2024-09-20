@@ -43,7 +43,7 @@ from ..core.deletion import entity_deletor_registry
 from ..core.entity_cell import EntityCell
 from ..core.exceptions import ConflictError
 from ..gui.bulk_update import bulk_update_registry
-from ..gui.field_printers import field_printers_registry
+from ..gui.field_printers import field_printer_registry
 from ..gui.view_tag import ViewTag
 from ..http import is_ajax
 from ..models import CremeEntity, Relation
@@ -532,7 +532,7 @@ class TemplatizeNode(TemplateNode):
 # TODO: pass the registry in the context? pass the user as argument?
 @register.simple_tag(takes_context=True)
 def print_field(context, *, object, field, tag=ViewTag.HTML_DETAIL):
-    return field_printers_registry.get_field_value(
+    return field_printer_registry.get_field_value(
         instance=object,
         field_name=field,
         user=context['user'],

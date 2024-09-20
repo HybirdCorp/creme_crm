@@ -46,10 +46,11 @@ class EmailsConfig(CremeAppConfig):
             self.EntityEmail,
         )
 
-    def register_actions(self, actions_registry):
+    # def register_actions(self, actions_registry):
+    def register_actions(self, action_registry):
         from . import actions
 
-        actions_registry.register_instance_actions(
+        action_registry.register_instance_actions(
             actions.EntityEmailResendAction,
         ).register_bulk_actions(
             actions.BulkEntityEmailResendAction,

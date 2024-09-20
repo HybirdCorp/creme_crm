@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
-from creme.creme_core.gui.field_printers import field_printers_registry
+from creme.creme_core.gui.field_printers import field_printer_registry
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     CremeProperty,
@@ -1383,7 +1383,7 @@ class ContactTestCase(_BaseTestCase):
         deunan = Contact.objects.create(user=user, first_name='Deunan', last_name='Knut')
         kirika = user.linked_contact
 
-        render_field = partial(field_printers_registry.get_field_value, instance=deunan)
+        render_field = partial(field_printer_registry.get_field_value, instance=deunan)
         self.assertEqual(
             f'<a href="{kirika.get_absolute_url()}">Kirika Y.</a>',
             render_field(field_name='user', user=user, tag=ViewTag.HTML_DETAIL),
@@ -1411,7 +1411,7 @@ class ContactTestCase(_BaseTestCase):
 
         self.assertEqual(
             str(eswat),
-            field_printers_registry.get_field_value(
+            field_printer_registry.get_field_value(
                 instance=deunan, field_name='user', user=user, tag=ViewTag.HTML_DETAIL,
             ),
         )
@@ -1429,7 +1429,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(other_user, forbidden_contact.user)
 
         render_field = partial(
-            field_printers_registry.get_field_value,
+            field_printer_registry.get_field_value,
             user=user, field_name='user', tag=ViewTag.HTML_DETAIL,
         )
         self.assertHTMLEqual(

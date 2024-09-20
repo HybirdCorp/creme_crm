@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from collections import defaultdict
 from heapq import heappop, heappush
 from typing import DefaultDict, Iterable, Iterator, Literal, Sequence
@@ -125,7 +126,8 @@ class Button:
         return True
 
 
-class ButtonsRegistry:
+# class ButtonsRegistry:
+class ButtonRegistry:
     """Registry of <Button> classes, to retrieve them by their ID."""
     class RegistrationError(Exception):
         pass
@@ -147,7 +149,7 @@ class ButtonsRegistry:
         for button_id, button_cls in self._button_classes.items():
             yield button_id, button_cls()
 
-    def register(self, *button_classes: type[Button]) -> ButtonsRegistry:
+    def register(self, *button_classes: type[Button]) -> ButtonRegistry:
         """Register several classes of Button at once.
         @return The registry instance to chain calls in a fluent way.
         """
@@ -180,7 +182,7 @@ class ButtonsRegistry:
     def register_mandatory(self,
                            button_class: type[Button],
                            priority: int = 0,
-                           ) -> ButtonsRegistry:
+                           ) -> ButtonRegistry:
         """Register a class of Button which is mandatory.
         It means an instance of this class will be displayed in the button menu
         whatever is the button configuration.
@@ -217,7 +219,7 @@ class ButtonsRegistry:
 
         return self
 
-    def unregister(self, *button_classes: type[Button]) -> ButtonsRegistry:
+    def unregister(self, *button_classes: type[Button]) -> ButtonRegistry:
         """Unregister several Button classes at once.
         All classes must be registered.
         """
@@ -236,7 +238,7 @@ class ButtonsRegistry:
 
         return self
 
-    def unregister_mandatory(self, button_class: type[Button]) -> ButtonsRegistry:
+    def unregister_mandatory(self, button_class: type[Button]) -> ButtonRegistry:
         """Unregister several Button classes at once.
         All classes must be registered with <register_mandatory()>.
         """
@@ -329,4 +331,15 @@ class ButtonsRegistry:
                 yield button
 
 
-button_registry = ButtonsRegistry()
+button_registry = ButtonRegistry()
+
+
+def __getattr__(name):
+    if name == 'ButtonsRegistry':
+        warnings.warn(
+            '"ButtonsRegistry" is deprecated; use "ButtonRegistry" instead.',
+            DeprecationWarning,
+        )
+        return ButtonRegistry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

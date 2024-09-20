@@ -638,7 +638,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         export_action = self.get_alone_element(
             action
-            for action in actions.actions_registry
+            for action in actions.action_registry
                                  .instance_actions(user=user, instance=invoice)
             if isinstance(action, ExportInvoiceAction)
         )
@@ -657,7 +657,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         number_action = self.get_alone_element(
             action
-            for action in actions.actions_registry
+            for action in actions.action_registry
                                  .instance_actions(user=user, instance=invoice)
             if isinstance(action, GenerateNumberAction)
         )
@@ -685,7 +685,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         number_action = self.get_alone_element(
             action
-            for action in actions.actions_registry
+            for action in actions.action_registry
                                  .instance_actions(user=user, instance=invoice)
             if isinstance(action, GenerateNumberAction)
         )

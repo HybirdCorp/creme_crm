@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2022 Hybird
+#    Copyright (C) 2019-2024 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext as _
 
-from ..core.deletion import REPLACERS_MAP, Replacer, ReplacersRegistry
+from ..core.deletion import REPLACERS_MAP, Replacer, ReplacerRegistry
 from .base import CremeModel
 from .fields import CTypeOneToOneField
 from .job import Job
@@ -84,11 +84,11 @@ class DeletionCommand(CremeModel):
         # verbose_name = 'Deletion command'
         # verbose_name_plural = 'Deletion commands'
 
-    replacers_registry: ReplacersRegistry
+    replacers_registry: ReplacerRegistry
 
     def __init__(self,
                  *args,
-                 replacers_registry: ReplacersRegistry | None = None,
+                 replacers_registry: ReplacerRegistry | None = None,
                  **kwargs):
         self.replacers_registry = replacers_registry or REPLACERS_MAP
         super().__init__(*args, **kwargs)

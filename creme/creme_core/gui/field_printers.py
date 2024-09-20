@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 # import warnings
 from functools import partial
 from os.path import splitext
@@ -496,7 +497,8 @@ def print_unsafehtml_html(*, value, **kwargs) -> str:
 
 
 # TODO: Do more specific fields (i.e: currency field....) ?
-class _FieldPrintersRegistry:
+# class _FieldPrintersRegistry:
+class FieldPrinterRegistry:
     class _Printers:
         def __init__(self, printers_for_field_types, default_printer, choice_printer, m2m_joiner):
             self._for_field_types = ClassKeyedMap(
@@ -759,7 +761,7 @@ class _FieldPrintersRegistry:
                                   type: type[models.Field],
                                   printer: FieldPrinter,
                                   tags: ViewTag | Iterable[ViewTag] | str,
-                                  ) -> _FieldPrintersRegistry:
+                                  ) -> FieldPrinterRegistry:
         """Register a printer for a class of model-field.
         @param field: A class inheriting <django.models.Field>.
         @param printer: A callable object. See simple_print_html() for arguments/return.
@@ -776,7 +778,7 @@ class _FieldPrintersRegistry:
                              field_name: str,
                              printer: FieldPrinter,
                              tags: ViewTag | Iterable[ViewTag] | str,
-                             ) -> _FieldPrintersRegistry:
+                             ) -> FieldPrinterRegistry:
         """Register a printer for a specific model-field <MyModel.my_field>.
         @param model: A class inheriting <django.models.Model>.
         @param field_name: The name of a valid field of "model".
@@ -795,7 +797,7 @@ class _FieldPrintersRegistry:
     def register_choice_printer(self,
                                 printer: FieldPrinter,
                                 tags: ViewTag | Iterable[ViewTag] | str,
-                                ) -> _FieldPrintersRegistry:
+                                ) -> FieldPrinterRegistry:
         """Register a printer for fields with a "choices" attribute.
         Notice that a field-with-a-choices-attribute which has a registered
         specific printer (see register_model_field()) will be renderer with
@@ -813,7 +815,7 @@ class _FieldPrintersRegistry:
                                     field: type[models.Field],
                                     css_class: str,
                                     header_css_class: str,
-                                    ) -> _FieldPrintersRegistry:
+                                    ) -> FieldPrinterRegistry:
         """Register CSS classes used in list-views to display field's value and column header.
         @param field: A class inheriting <django.models.Field>.
         @param css_class: CSS class for table cell.
@@ -867,4 +869,23 @@ class _FieldPrintersRegistry:
             yield self._printers[tag]._for_field_types[type]
 
 
-field_printers_registry = _FieldPrintersRegistry()
+# field_printers_registry = _FieldPrintersRegistry()
+field_printer_registry = FieldPrinterRegistry()
+
+
+def __getattr__(name):
+    if name == '_FieldPrintersRegistry':
+        warnings.warn(
+            '"_FieldPrintersRegistry" is deprecated; use "FieldPrinterRegistry" instead.',
+            DeprecationWarning,
+        )
+        return FieldPrinterRegistry
+
+    if name == 'field_printers_registry':
+        warnings.warn(
+            '"field_printers_registry" is deprecated; use "field_printer_registry" instead.',
+            DeprecationWarning,
+        )
+        return field_printer_registry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

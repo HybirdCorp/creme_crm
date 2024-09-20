@@ -99,13 +99,14 @@ class DocumentsConfig(CremeAppConfig):
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Document, self.Folder)
 
-    def register_field_printers(self, field_printers_registry):
+    # def register_field_printers(self, field_printers_registry):
+    def register_field_printers(self, field_printer_registry):
         from django.db import models
 
         from . import gui
 
         Document = self.Document
-        printers = field_printers_registry.printers_for_field_type
+        printers = field_printer_registry.printers_for_field_type
 
         for field in (models.ForeignKey, models.OneToOneField):
             for printer in printers(type=field, tags='html*'):
@@ -152,7 +153,8 @@ class DocumentsConfig(CremeAppConfig):
 
         merge_form_registry.register(self.Folder, folder.get_merge_form_builder)
 
-    def register_quickforms(self, quickforms_registry):
+    # def register_quickforms(self, quickforms_registry):
+    def register_quickforms(self, quickform_registry):
         from .forms import quick
 
-        quickforms_registry.register(self.Document, quick.DocumentQuickForm)
+        quickform_registry.register(self.Document, quick.DocumentQuickForm)

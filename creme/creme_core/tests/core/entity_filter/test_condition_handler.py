@@ -14,7 +14,7 @@ import creme.creme_core.forms.entity_filter.widgets as ef_widgets
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
-    _EntityFilterRegistry,
+    EntityFilterRegistry,
     operands,
     operators,
 )
@@ -194,7 +194,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
     def test_regularfield_formfield(self):
         user = self.get_root_user()
         # efilter_registry = _EntityFilterRegistry(id=None, verbose_name='Test')
-        efilter_registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
+        efilter_registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         formfield1 = RegularFieldConditionHandler.formfield(
             user=user,

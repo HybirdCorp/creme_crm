@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2022  Hybird
+#    Copyright (C) 2016-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,13 +19,15 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from typing import Callable
 
 StatisticsFunc = Callable[[], list]
 logger = logging.getLogger(__name__)
 
 
-class _StatisticsRegistry:
+# class _StatisticsRegistry:
+class StatisticRegistry:
     __slots__ = ('_items',)
 
     class _StatisticsItem:
@@ -54,7 +56,7 @@ class _StatisticsRegistry:
     def _add_item(self,
                   new_item: _StatisticsItem,
                   priority: int | None,
-                  ) -> _StatisticsRegistry:
+                  ) -> StatisticRegistry:
         items = self._items
 
         if priority is None:
@@ -99,7 +101,7 @@ class _StatisticsRegistry:
                  func: StatisticsFunc,
                  perm: str = '',
                  priority: int | None = None,
-                 ) -> _StatisticsRegistry:
+                 ) -> StatisticRegistry:
         if any(id == item.id for item in self._items):
             # TODO: self.RegistrationError ?
             raise ValueError(f'Duplicated id "{id}"')
@@ -110,4 +112,23 @@ class _StatisticsRegistry:
         )
 
 
-statistics_registry = _StatisticsRegistry()
+# statistics_registry = _StatisticsRegistry()
+statistic_registry = StatisticRegistry()
+
+
+def __getattr__(name):
+    if name == '_StatisticsRegistry':
+        warnings.warn(
+            '"_StatisticsRegistry" is deprecated; use "StatisticRegistry" instead.',
+            DeprecationWarning,
+        )
+        return StatisticRegistry
+
+    if name == 'statistics_registry':
+        warnings.warn(
+            '"statistics_registry" is deprecated; use "statistic_registry" instead.',
+            DeprecationWarning,
+        )
+        return statistic_registry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

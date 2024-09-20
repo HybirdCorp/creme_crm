@@ -9,8 +9,8 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
+    EntityCellRegistry,
     EntityCellRegularField,
-    EntityCellsRegistry,
 )
 from creme.creme_core.forms.base import (
     LAYOUT_DUAL_FIRST,
@@ -2324,7 +2324,7 @@ class CustomFormDescriptorTestCase(CremeTestCase):
         )
 
         registry1 = form_desc1.build_cell_registry()
-        self.assertIsInstance(registry1, EntityCellsRegistry)
+        self.assertIsInstance(registry1, EntityCellRegistry)
         self.assertIsNot(registry1, CustomFormDescriptor.base_cell_registry)
         cell_classes1 = {*registry1.cell_classes}
         self.assertIn(EntityCellRegularField, cell_classes1)

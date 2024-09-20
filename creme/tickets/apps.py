@@ -82,7 +82,8 @@ class TicketsConfig(CremeAppConfig):
             self.TicketTemplate,
         )
 
-    def register_field_printers(self, field_printers_registry):
+    # def register_field_printers(self, field_printers_registry):
+    def register_field_printers(self, field_printer_registry):
         from django.db.models import ForeignKey
 
         from creme.creme_core.gui.field_printers import FKPrinter
@@ -90,7 +91,7 @@ class TicketsConfig(CremeAppConfig):
         from .models import Status
 
         # TODO: models.OneToOneField? ManyToManyField?
-        for printer in field_printers_registry.printers_for_field_type(
+        for printer in field_printer_registry.printers_for_field_type(
             type=ForeignKey, tags='html*',
         ):
             printer.register(model=Status, printer=FKPrinter.print_fk_colored_html)
@@ -130,8 +131,9 @@ class TicketsConfig(CremeAppConfig):
             self.Ticket
         ).register_field('title').register_field('status')
 
-    def register_statistics(self, statistics_registry):
-        statistics_registry.register(
+    # def register_statistics(self, statistics_registry):
+    def register_statistics(self, statistic_registry):
+        statistic_registry.register(
             id='tickets-not_closed',
             label=_('Tickets not closed'),
             func=lambda: [self.Ticket.objects.exclude(status__is_closed=True).count()],

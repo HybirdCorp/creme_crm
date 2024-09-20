@@ -45,10 +45,11 @@ class ReportsConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Report)
 
-    def register_actions(self, actions_registry):
+    # def register_actions(self, actions_registry):
+    def register_actions(self, action_registry):
         from . import actions
 
-        actions_registry.register_instance_actions(actions.ExportReportAction)
+        action_registry.register_instance_actions(actions.ExportReportAction)
 
     def register_bricks(self, brick_registry):
         from . import bricks
@@ -175,7 +176,7 @@ class ReportsConfig(CremeAppConfig):
         from .core import entity_filter as reports_filter
 
         entity_filter.entity_filter_registries.register(
-            entity_filter._EntityFilterRegistry(
+            entity_filter.EntityFilterRegistry(
                 id=EF_REPORTS,
                 verbose_name=_('Reports filter'),
                 detail_url_name='reports__efilter',

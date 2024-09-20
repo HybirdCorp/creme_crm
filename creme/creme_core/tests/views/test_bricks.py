@@ -8,9 +8,9 @@ from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.bricks import (
     Brick,
-    BricksManager,
+    BrickManager,
+    BrickRegistry,
     InstanceBrick,
-    _BrickRegistry,
 )
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -153,7 +153,7 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             brick_class_id=ContactBrick.id,
         )
 
-        brick_registry = _BrickRegistry()
+        brick_registry = BrickRegistry()
         brick_registry.register_4_instance(ContactBrick)
 
         brick_id = ibci.brick_id
@@ -281,7 +281,7 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                 nonlocal error, received_extra_data
 
                 try:
-                    received_extra_data = BricksManager.get(context).get_reloading_info(self)
+                    received_extra_data = BrickManager.get(context).get_reloading_info(self)
                 except Exception as e:
                     error = e
 

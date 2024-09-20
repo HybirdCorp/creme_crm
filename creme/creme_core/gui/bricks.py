@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from collections import defaultdict
 from typing import (
     DefaultDict,
@@ -245,7 +246,7 @@ class Brick:
         context['brick_id'] = brick_id
         context['verbose_name'] = self.verbose_name
         context['description'] = self.description
-        context['state'] = BricksManager.get(context).get_state(self.id, context['user'])
+        context['state'] = BrickManager.get(context).get_state(self.id, context['user'])
         context['dependencies'] = [*self._iter_dependencies_info()]
         context['reloading_info'] = self._reloading_info
         context['read_only'] = self.read_only
@@ -278,7 +279,7 @@ class Brick:
         )
 
         # NB:  not 'assert' (it causes problems with bricks in inner popups)
-        if not BricksManager.get(context).brick_is_registered(self):
+        if not BrickManager.get(context).brick_is_registered(self):
             logger.debug('Not registered brick: %s', self.id)
 
         if brick_context.update(template_context):
@@ -690,7 +691,8 @@ class CustomBrick(Brick):
         ))
 
 
-class BricksManager:
+# class BricksManager:
+class BrickManager:
     """The bricks of a page are registered in order to regroup the query to get
     their states.
     """
@@ -709,7 +711,7 @@ class BricksManager:
     def add_group(self, group_name: str, *bricks: Brick) -> None:
         group = self._bricks_groups[group_name]
         if group:
-            raise BricksManager.Error(
+            raise BrickManager.Error(
                 f"This brick's group name already exists: {group_name}"
             )
 
@@ -725,8 +727,8 @@ class BricksManager:
         yield from self._bricks
 
     @staticmethod
-    def get(context) -> BricksManager:
-        return context[BricksManager.var_name]  # Will raise exception if not created: OK
+    def get(context) -> BrickManager:
+        return context[BrickManager.var_name]  # Will raise exception if not created: OK
 
     # TODO: property
     def get_remaining_groups(self) -> list[str]:
@@ -754,7 +756,8 @@ class BricksManager:
         return self._bricks_groups.pop(group_name)
 
 
-class _BrickRegistry:
+# class _BrickRegistry:
+class BrickRegistry:
     """Use to retrieve a Brick by its id.
     Many services (like reloading views) need your Bricks to be registered in.
     """
@@ -773,7 +776,7 @@ class _BrickRegistry:
         self._instance_brick_classes: dict[str, type[InstanceBrick]] = {}
         self._invalid_models: set[type[CremeEntity]] = set()
 
-    def register(self, *brick_classes: type[Brick]) -> _BrickRegistry:
+    def register(self, *brick_classes: type[Brick]) -> BrickRegistry:
         setdefault = self._brick_classes.setdefault
 
         for brick_cls in brick_classes:
@@ -789,7 +792,7 @@ class _BrickRegistry:
 
     # TODO: factorise
     # TODO: def unregister_4_instance()?
-    def register_4_instance(self, *brick_classes: type[InstanceBrick]) -> _BrickRegistry:
+    def register_4_instance(self, *brick_classes: type[InstanceBrick]) -> BrickRegistry:
         setdefault = self._instance_brick_classes.setdefault
 
         for brick_cls in brick_classes:
@@ -808,7 +811,7 @@ class _BrickRegistry:
 
         return self
 
-    def register_invalid_models(self, *models: type[CremeEntity]) -> _BrickRegistry:
+    def register_invalid_models(self, *models: type[CremeEntity]) -> BrickRegistry:
         """Register some models which cannot have a configuration for Bricks on
         their detail-views (e.g. they have no detail-view, or they are not 'classical' ones).
         @param models: Classes inheriting CremeEntity.
@@ -825,7 +828,7 @@ class _BrickRegistry:
     def register_4_model(self,
                          model: type[CremeEntity],
                          brick_cls: type[Brick],
-                         ) -> _BrickRegistry:
+                         ) -> BrickRegistry:
         assert brick_cls.id == MODELBRICK_ID
 
         # NB: the key is the class, not the ContentType.id because it can cause
@@ -837,7 +840,7 @@ class _BrickRegistry:
     def register_hat(self, model: type[CremeEntity],
                      main_brick_cls: type[Brick] | None = None,
                      secondary_brick_classes: Iterable[type[Brick]] = (),
-                     ) -> _BrickRegistry:
+                     ) -> BrickRegistry:
         brick_classes = self._hat_brick_classes[model]
 
         if main_brick_cls is not None:
@@ -869,7 +872,7 @@ class _BrickRegistry:
 
         return self
 
-    def unregister(self, *brick_classes: type[Brick]) -> _BrickRegistry:
+    def unregister(self, *brick_classes: type[Brick]) -> BrickRegistry:
         for brick_cls in brick_classes:
             brick_id = brick_cls.id
 
@@ -883,7 +886,7 @@ class _BrickRegistry:
 
         return self
 
-    def unregister_4_model(self, model: type[CremeEntity]) -> _BrickRegistry:
+    def unregister_4_model(self, model: type[CremeEntity]) -> BrickRegistry:
         if self._object_brick_classes.pop(model, None) is None:
             raise self.UnRegistrationError(
                 f"Invalid Brick for model {model} (already unregistered?)"
@@ -894,7 +897,7 @@ class _BrickRegistry:
     def unregister_hat(self, model: type[CremeEntity],
                        main_brick: bool = False,
                        secondary_brick_classes: Iterable[type[Brick]] = (),
-                       ) -> _BrickRegistry:
+                       ) -> BrickRegistry:
         brick_classes = self._hat_brick_classes[model]
 
         if main_brick:
@@ -1170,4 +1173,23 @@ class _BrickRegistry:
         return model in self._invalid_models
 
 
-brick_registry = _BrickRegistry()
+# brick_registry = _BrickRegistry()
+brick_registry = BrickRegistry()
+
+
+def __getattr__(name):
+    if name == '_BrickRegistry':
+        warnings.warn(
+            '"_BrickRegistry" is deprecated; use "BrickRegistry" instead.',
+            DeprecationWarning,
+        )
+        return BrickRegistry
+
+    if name == 'BricksManager':
+        warnings.warn(
+            '"BricksManager" is deprecated; use "BrickManager" instead.',
+            DeprecationWarning,
+        )
+        return BrickManager
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

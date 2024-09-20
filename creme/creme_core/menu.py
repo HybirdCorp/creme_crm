@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -165,7 +165,7 @@ class QuickFormsEntries(menu.MenuEntrySequence):
     label = _('*Quick forms*')
     form_class = FixedURLEntryForm
 
-    quickforms_registry = quick_forms.quickforms_registry
+    quickforms_registry = quick_forms.quickform_registry
 
     class QuickCreationEntry(menu.MenuEntry):
         id = 'creme_core-quick_forms-link'

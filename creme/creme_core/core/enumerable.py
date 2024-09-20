@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import Iterable, Iterator, Sequence
 
 from django.db.models import CharField, Field, Model
@@ -185,7 +186,8 @@ class QSEnumerator(Enumerator):
         )
 
 
-class _EnumerableRegistry:
+# class _EnumerableRegistry:
+class EnumerableRegistry:
     """Registry which manages the choices available for (enumerable) model fields.
 
     Eg: will be used to propose available choices for filter-conditions
@@ -317,7 +319,7 @@ class _EnumerableRegistry:
                        model: type[Model],
                        field_name: str,
                        enumerator_class: type[Enumerator],
-                       ) -> _EnumerableRegistry:
+                       ) -> EnumerableRegistry:
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for a specific field.
 
@@ -343,7 +345,7 @@ class _EnumerableRegistry:
     def register_field_type(self,
                             field_class: type[Field],
                             enumerator_class: type[Enumerator],
-                            ) -> _EnumerableRegistry:
+                            ) -> EnumerableRegistry:
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for a specific field class.
 
@@ -362,7 +364,7 @@ class _EnumerableRegistry:
     def register_related_model(self,
                                model: type[Model],
                                enumerator_class: type[Enumerator],
-                               ) -> _EnumerableRegistry:
+                               ) -> EnumerableRegistry:
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for ForeignKeys/ManyToManyFields
         which reference a specific model.
@@ -381,4 +383,16 @@ class _EnumerableRegistry:
         return self
 
 
-enumerable_registry = _EnumerableRegistry()
+# enumerable_registry = _EnumerableRegistry()
+enumerable_registry = EnumerableRegistry()
+
+
+def __getattr__(name):
+    if name == '_EnumerableRegistry':
+        warnings.warn(
+            '"_EnumerableRegistry" is deprecated; use "EnumerableRegistry" instead.',
+            DeprecationWarning,
+        )
+        return EnumerableRegistry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

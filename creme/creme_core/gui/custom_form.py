@@ -35,8 +35,8 @@ from django.utils.translation import gettext_lazy as _
 from ..core.entity_cell import (
     EntityCell,
     EntityCellCustomField,
+    EntityCellRegistry,
     EntityCellRegularField,
-    EntityCellsRegistry,
 )
 from ..forms.base import (
     LAYOUT_DUAL_FIRST,
@@ -96,7 +96,7 @@ class EntityCellCustomFormSpecial(EntityCell):
         return str(self.ALLOWED.get(self.value, '??'))
 
 
-base_cell_registry = EntityCellsRegistry().register(
+base_cell_registry = EntityCellRegistry().register(
     EntityCellRegularField,
     EntityCellCustomField,
     EntityCellCustomFormSpecial,
@@ -326,7 +326,7 @@ class FieldGroupList:
     def __init__(self,
                  model: type[Model],
                  groups: Iterable[AbstractFieldGroup],
-                 cell_registry: EntityCellsRegistry,
+                 cell_registry: EntityCellRegistry,
                  ):
         self._model = model
         self._groups = [*groups]
@@ -350,7 +350,7 @@ class FieldGroupList:
         )
 
     @property
-    def cell_registry(self) -> EntityCellsRegistry:
+    def cell_registry(self) -> EntityCellRegistry:
         return self._cell_registry
 
     @property
@@ -361,7 +361,7 @@ class FieldGroupList:
     def from_cells(cls,
                    model: type[Model],
                    data: list[dict | ExtraFieldGroup],
-                   cell_registry: EntityCellsRegistry,
+                   cell_registry: EntityCellRegistry,
                    allowed_extra_group_classes: Iterable[type[ExtraFieldGroup]] = (),
                    ) -> FieldGroupList:
         """High level builder of FieldGroupList and contained AbstractFieldGroups.
@@ -433,7 +433,7 @@ class FieldGroupList:
     def from_dicts(cls,
                    model: type[Model],
                    data: list[dict],
-                   cell_registry: EntityCellsRegistry,
+                   cell_registry: EntityCellRegistry,
                    allowed_extra_group_classes: Sequence[type[ExtraFieldGroup]] = (),
                    ) -> FieldGroupList:
         """Builder of FieldGroupList and contained AbstractFieldGroups
@@ -1006,7 +1006,7 @@ class CustomFormDescriptor:
     def __str__(self):
         return str(self.verbose_name)
 
-    def build_cell_registry(self) -> EntityCellsRegistry:
+    def build_cell_registry(self) -> EntityCellRegistry:
         # NB: notice that we do not modify the attribute type_id
         class DescriptorExtraCells(EntityCellCustomFormExtra):
             allowed_sub_cell_classes = [type(sub_cell) for sub_cell in self.extra_sub_cells]

@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 02-09-2024 for Creme 2.6
+:Version: 20-09-2024 for Creme 2.6
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1730,11 +1730,11 @@ that: ::
     class BeaversConfig(CremeAppConfig):
         [...]
 
-        def register_quickforms(self, quickforms_registry):  # <- NEW
+        def register_quickforms(self, quickform_registry):  # <- NEW
             from .forms.beaver import BeaverQuickForm
             from .models import Beaver
 
-            quickforms_registry.register(Beaver, BeaverQuickForm)
+            quickform_registry.register(Beaver, BeaverQuickForm)
 
 
 **Beware** : register only models inheriting ``CremeEntity``. If you register
@@ -2078,10 +2078,10 @@ The last thing is to declare our action in our ``apps.py``: ::
     class BeaversConfig(CremeAppConfig):
         [...]
 
-        def register_actions(self, actions_registry):  # <- NEW
+        def register_actions(self, action_registry):  # <- NEW
             from . import actions
 
-            actions_registry.register_instance_actions(
+            action_registry.register_instance_actions(
                 actions.GenerateBarCodeAction,
             )
 
@@ -2297,7 +2297,7 @@ class: ::
 
     # We inherit the original class, to keep all the other methods identical.
     class BeaversActivitiesConfig(ActivitiesConfig):
-        def register_statistics(self, statistics_registry):
+        def register_statistics(self, statistic_registry):
             pass  # the method does nothing now
 
 
@@ -3212,8 +3212,8 @@ If you want to display your own statistics, you have to register in your
     class BeaversConfig(CremeAppConfig):
         [...]
 
-        def register_statistics(self, statistics_registry):  # <- NEW
-            statistics_registry.register(
+        def register_statistics(self, statistic_registry):  # <- NEW
+            statistic_registry.register(
                 id='beavers-beavers',
                 label=Beaver._meta.verbose_name_plural,
                 func=lambda: [Beaver.objects.count()],

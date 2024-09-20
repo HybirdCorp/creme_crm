@@ -13,8 +13,8 @@ from creme.creme_core import get_world_settings_model
 from creme.creme_core.constants import ROOT_PASSWORD, UUID_CHANNEL_ADMIN
 from creme.creme_core.core.setting_key import (
     SettingKey,
+    SettingKeyRegistry,
     UserSettingKey,
-    _SettingKeyRegistry,
     user_setting_key_registry,
 )
 from creme.creme_core.models import BrickState, CremeEntity
@@ -1955,7 +1955,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         reg_attname = 'user_setting_key_registry'
         self.assertHasAttr(brick, reg_attname)
 
-        registry = _SettingKeyRegistry(UserSettingKey).register(
+        registry = SettingKeyRegistry(UserSettingKey).register(
             core_sk1, core_sk2, doc_sk1, doc_sk2
         )
         setattr(brick, reg_attname, registry)

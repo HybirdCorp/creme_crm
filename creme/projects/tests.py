@@ -402,7 +402,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
 
         close_action = self.get_alone_element(
             action
-            for action in actions.actions_registry
+            for action in actions.action_registry
                                  .instance_actions(user=user, instance=project)
             if isinstance(action, ProjectCloseAction)
         )
@@ -426,7 +426,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
 
         close_action = self.get_alone_element(
             action
-            for action in actions.actions_registry
+            for action in actions.action_registry
                                  .instance_actions(user=user, instance=project)
             if isinstance(action, ProjectCloseAction)
         )

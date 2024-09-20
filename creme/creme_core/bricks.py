@@ -30,7 +30,7 @@ from .core import notification
 from .core.entity_cell import EntityCellCustomField
 from .creme_jobs.base import JobType
 from .gui import button_menu, statistics
-from .gui.bricks import Brick, BricksManager, QuerysetBrick
+from .gui.bricks import Brick, BrickManager, QuerysetBrick
 from .gui.history import html_history_registry
 from .models import (
     ButtonMenuItem,
@@ -242,7 +242,7 @@ class RelationsBrick(QuerysetBrick):
         if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
             used_rtype_ids = {
                 rt_id
-                for brick in BricksManager.get(context).bricks
+                for brick in BrickManager.get(context).bricks
                 for rt_id in brick.relation_type_deps
             }
             excluded_rtype_ids_set = {
@@ -463,7 +463,7 @@ class StatisticsBrick(Brick):
     )
     template_name = 'creme_core/bricks/statistics.html'
 
-    statistics_registry = statistics.statistics_registry
+    statistics_registry = statistics.statistic_registry
 
     def home_display(self, context):
         has_perm = context['user'].has_perm

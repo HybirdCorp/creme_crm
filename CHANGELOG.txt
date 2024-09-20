@@ -259,7 +259,13 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
+            - In 'creme_core.core' :
+                - Several registries (classes & instances) have been renamed to get more naming consistency ;
+                  the old names are still available but are deprecated.
+                - The constant 'entity_filter.EF_USER' is deprecated ; use 'EF_REGULAR' instead.
             - In 'creme_core.gui' :
+                - Several registries (classes & instances) have been renamed to get more naming consistency ;
+                  the old names are still available but are deprecated.
                 - In 'field_printers', the function 'image_size()' & the constants MAX_HEIGHT/MAX_WIDTH are now deprecated.
                 - In the class 'mass_import.FormRegistry' :
                     - The methods 'get()' & 'is_registered()' are now deprecated.
@@ -270,9 +276,9 @@
                 - Setting the class attribute 'HistoryLine.ENABLED' is deprecated.
                   The method 'HistoryLine.disable()' is deprecated too.
                   Use the new context/decorator 'creme_core.models.toggle_history' instead.
-            - The function 'creme_core.utils.create_if_needed()' is deprecated ;
-              use 'MyModel.objects.get_or_create()' instead.
-            - The constant 'creme_core.core.entity_filter.EF_USER' is deprecated ; use 'EF_REGULAR' instead.
+            - In 'creme_core.utils' :
+                - The function 'bool_from_str()' is deprecated.
+                - The function 'create_if_needed()' is deprecated; use 'MyModel.objects.get_or_create()' instead.
             - In the class-view 'creme_core.views.entity_filter.EntityFilterDeletion' (related to the URL named "creme_core__delete_efilter"),
               the ID of the EntityFilter should now be passed in the URL, not the POST data.
             - In 'creme_core.templatetags' :
@@ -280,24 +286,24 @@
                   use the template-filters of the new library "creme_perms" instead.
                 - The templatetag {% menu_buttons_display %} (from the library "creme_menu") is deprecated;
                   see the new brick 'creme_core.bricks.ButtonsBrick'.
-            - The function 'creme_core.utils.bool_from_str()' is deprecated.
             - In 'creme_core.tests' :
                 - The module 'forms.base' is deprecated.
                   Use these new methods of 'CremeTestCase' instead: assertFormfieldError() & assertValidationError().
                   Then stop using the base class 'FieldTestCase' & 'FieldTestCaseMixin'.
                 - The class 'views.ViewsTestCase' is deprecated ;
                   use the new method 'CremeTestCase.add_credentials()' instead.
-            - In detail-view for CremeEntities, these actions for the "instance" buttons are deprecated (use regular Brick actions instead) :
-                - "creme_core-hatmenubar-addrelationships" => "add-relationships"
-                - "creme_core-hatmenubar-form" => "add"/"edit"
-                - "creme_core-hatmenubar-update" => "update"
-                - "creme_core-hatmenubar-view" => "view"
-                Notice that the actions are not deprecated for models which do not inherit 'CremeEntity' (i.e. do not use the template "view_entity.html").
-            - In Javascript, the use of jQuery 3.x makes the following methods deprecated :
-                - '$.mouseover()' ; use '$.trigger("mouseover")' instead.
-                - '$.mouseenter()' ; use '$.trigger("mouseenter")' instead.
-                - '$.mouseleave()' ; use '$.trigger("mouseleave")' instead.
-                - '$.focusout()' ; use '$.trigger("focusout")' instead.
+            - In Javascript :
+                - In detail-view for CremeEntities, these actions for the "instance" buttons are deprecated (use regular Brick actions instead) :
+                    - "creme_core-hatmenubar-addrelationships" => "add-relationships"
+                    - "creme_core-hatmenubar-form" => "add"/"edit"
+                    - "creme_core-hatmenubar-update" => "update"
+                    - "creme_core-hatmenubar-view" => "view"
+                    Notice that the actions are not deprecated for models which do not inherit 'CremeEntity' (i.e. do not use the template "view_entity.html").
+                - The use of jQuery 3.x makes the following methods deprecated :
+                    - '$.mouseover()' ; use '$.trigger("mouseover")' instead.
+                    - '$.mouseenter()' ; use '$.trigger("mouseenter")' instead.
+                    - '$.mouseleave()' ; use '$.trigger("mouseleave")' instead.
+                    - '$.focusout()' ; use '$.trigger("focusout")' instead.
             - Apps :
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' is now deprecated.
@@ -368,6 +374,12 @@
     Breaking changes :
     ------------------
         # Deprecated stuffs which have been removed :
+            - In 'creme_core.apps.CremeAppConfig', the argument of several method have been renamed
+              (it won't crash because the methods are currently called with positional arguments, but you should rename in your code anyway) :
+                - register_actions()
+                - register_field_printers()
+                - register_quickforms()
+                - register_statistics()
             - In 'creme_core.core' :
                 - In the class 'entity_cell.EntityCell' (& child classes), the methods
                   'render_html()' & 'render_csv()' have been removed.
@@ -387,19 +399,19 @@
             - In templates :
                 - In the file "creme_core/base.html", the '{% block extrahead %}' has been removed.
                 - The file "creme_core/generics/error.html" has been deleted.
-            - In the 'creme_core.tests':
+            - In 'creme_core.tests' :
                 - In the class 'base._CremeTestCase' :
                     - The method 'login()' has been removed.
                     - In the method 'build_request()', the argument "user" is now mandatory.
                 - In the the methods 'views.base.MassImportBaseTestCaseMixin._build_*doc(), the argument "user" is now mandatory.
-            - JQPlot has been removed.
-                - The 'USE_JQPLOT' flag is no longer useful.
-                - The widgets 'ui-creme-jqueryplot' & 'ui-creme-plotselector' have been removed.
-                - The widget 'ui-creme-scrollactivator' has been removed : only used with jqplot to optimize rendering on oldest browsers.
             - In Javascript :
-                * The component 'creme.form.Chosen' and its dependencies have been removed.
-                * Refactor creme.widget.DateRangeSelector widget : 'data-format' attribute replaces 'date_format'.
-                * jQuery 3.x :
+                - JQPlot has been removed.
+                    - The 'USE_JQPLOT' flag is no longer useful.
+                    - The widgets 'ui-creme-jqueryplot' & 'ui-creme-plotselector' have been removed.
+                    - The widget 'ui-creme-scrollactivator' has been removed : only used with jqplot to optimize rendering on oldest browsers.
+                - The component 'creme.form.Chosen' and its dependencies have been removed.
+                - Refactor creme.widget.DateRangeSelector widget : 'data-format' attribute replaces 'date_format'.
+                - jQuery 3.x :
                     - Do not rely on $.ajaxSettings.traditional (deprecated since jQuery 1.9+) :
                         - creme.ajax.param() will always use traditional mode
                         - creme.ajax.jqueryFormSubmit() will use traditional mode as default.
@@ -422,6 +434,8 @@
                     - These class-based views have been removed:
                         - GraphFetching (reports__fetch_graph)
                         - GraphFetchingInstance (reports__fetch_graph_from_brick)
+                * Events :
+                    - The class 'gui.RelatedContactsActionsRegistry' have been renamed "RelatedContactActionRegistry".
         # The way the Bricks' IDs are generated & used has been reworked.
           These IDs have always be designed to retrieve the Bricks classes (on Python/server side), but in facts they were used for the HTML "id" attribute too.
           Now these uses are more distinct ; the IDs of classes do not contain a prefix with "brick"/"block" (because it's useless),

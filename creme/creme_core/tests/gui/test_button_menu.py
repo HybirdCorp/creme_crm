@@ -1,6 +1,6 @@
 from django.test import RequestFactory
 
-from creme.creme_core.gui.button_menu import Button, ButtonsRegistry
+from creme.creme_core.gui.button_menu import Button, ButtonRegistry
 from creme.creme_core.models import FakeContact, FakeOrganisation
 
 from ..base import CremeTestCase
@@ -95,13 +95,13 @@ class ButtonMenuTestCase(CremeTestCase):
         class TestButton4(Button):
             id = Button.generate_id('creme_core', 'test_button_registry_4')
 
-        registry = ButtonsRegistry()
+        registry = ButtonRegistry()
         registry.register(TestButton1, TestButton2, TestButton3, TestButton4)
 
         class DuplicatedTestButton(Button):
             id = TestButton1.id
 
-        with self.assertRaises(ButtonsRegistry.RegistrationError):
+        with self.assertRaises(ButtonRegistry.RegistrationError):
             registry.register(DuplicatedTestButton)
 
         get = registry.get_button
@@ -140,9 +140,9 @@ class ButtonMenuTestCase(CremeTestCase):
             # id = Button.generate_id('creme_core', 'test_button_registry_2') NOPE
             pass
 
-        registry = ButtonsRegistry()
+        registry = ButtonRegistry()
 
-        with self.assertRaises(ButtonsRegistry.RegistrationError) as cm:
+        with self.assertRaises(ButtonRegistry.RegistrationError) as cm:
             registry.register(TestButton1, TestButton2)
 
         self.assertEqual(
@@ -155,9 +155,9 @@ class ButtonMenuTestCase(CremeTestCase):
             # id = Button.generate_id('creme_core', 'test_button_registry') # NOPE
             pass
 
-        registry = ButtonsRegistry()
+        registry = ButtonRegistry()
 
-        with self.assertRaises(ButtonsRegistry.RegistrationError) as cm:
+        with self.assertRaises(ButtonRegistry.RegistrationError) as cm:
             registry.register(TestButton)
 
         self.assertEqual(
@@ -245,7 +245,7 @@ class ButtonMenuTestCase(CremeTestCase):
             def get_ctypes(this):
                 return [FakeOrganisation]
 
-        registry = ButtonsRegistry().register(TestButton1, TestButton2, TestButton3)
+        registry = ButtonRegistry().register(TestButton1, TestButton2, TestButton3)
 
         c = FakeContact.objects.create(
             user=user, first_name='Musubi', last_name='Susono',
@@ -284,7 +284,7 @@ class ButtonMenuTestCase(CremeTestCase):
         class TestButton3(Button):
             id = Button.generate_id('creme_core', 'test_button_registry_3')
 
-        registry = ButtonsRegistry().register(TestButton1, TestButton2, TestButton3)
+        registry = ButtonRegistry().register(TestButton1, TestButton2, TestButton3)
 
         registry.unregister(TestButton1, TestButton3)
         get = registry.get_button
@@ -330,7 +330,7 @@ class ButtonMenuTestCase(CremeTestCase):
             def get_ctypes(this):
                 return [FakeOrganisation]
 
-        registry = ButtonsRegistry().register_mandatory(
+        registry = ButtonRegistry().register_mandatory(
             button_class=TestButton1,
         ).register_mandatory(
             button_class=TestButton2, priority=8,
@@ -401,9 +401,9 @@ class ButtonMenuTestCase(CremeTestCase):
             # id = ...
             pass
 
-        registry = ButtonsRegistry()
+        registry = ButtonRegistry()
 
-        with self.assertRaises(ButtonsRegistry.RegistrationError):
+        with self.assertRaises(ButtonRegistry.RegistrationError):
             registry.register_mandatory(button_class=TestButton)
 
     def test_registry_mandatory_buttons__duplicated_id1(self):
@@ -414,9 +414,9 @@ class ButtonMenuTestCase(CremeTestCase):
             # id = Button.generate_id('creme_core', 'test_button_registry_2')
             id = TestButton1.id  # <===
 
-        registry = ButtonsRegistry().register_mandatory(button_class=TestButton1)
+        registry = ButtonRegistry().register_mandatory(button_class=TestButton1)
 
-        with self.assertRaises(ButtonsRegistry.RegistrationError):
+        with self.assertRaises(ButtonRegistry.RegistrationError):
             registry.register_mandatory(button_class=TestButton2)
 
     def test_registry_mandatory_buttons__duplicated_id2(self):
@@ -433,9 +433,9 @@ class ButtonMenuTestCase(CremeTestCase):
             def get_ctypes(this):
                 return [FakeOrganisation, FakeContact]
 
-        registry = ButtonsRegistry().register_mandatory(button_class=TestButton1)
+        registry = ButtonRegistry().register_mandatory(button_class=TestButton1)
 
-        with self.assertRaises(ButtonsRegistry.RegistrationError):
+        with self.assertRaises(ButtonRegistry.RegistrationError):
             registry.register_mandatory(button_class=TestButton2)
 
     def test_registry_unregister_mandatory_errors(self):
@@ -446,9 +446,9 @@ class ButtonMenuTestCase(CremeTestCase):
         class TestButton2(Button):
             id = Button.generate_id('creme_core', 'test_button_registry_2')
 
-        registry = ButtonsRegistry().register_mandatory(button_class=TestButton2)
+        registry = ButtonRegistry().register_mandatory(button_class=TestButton2)
 
-        with self.assertRaises(ButtonsRegistry.UnRegistrationError) as cm1:
+        with self.assertRaises(ButtonRegistry.UnRegistrationError) as cm1:
             registry.unregister_mandatory(button_class=TestButton1)
 
         self.assertStartsWith(str(cm1.exception), 'Button class with empty ID:')
@@ -456,7 +456,7 @@ class ButtonMenuTestCase(CremeTestCase):
         # ---
         registry.unregister_mandatory(button_class=TestButton2)
 
-        with self.assertRaises(ButtonsRegistry.UnRegistrationError) as cm2:
+        with self.assertRaises(ButtonRegistry.UnRegistrationError) as cm2:
             registry.unregister_mandatory(button_class=TestButton2)
 
         self.assertStartsWith(
@@ -471,7 +471,7 @@ class ButtonMenuTestCase(CremeTestCase):
             def ok_4_display(this, entity):
                 return False
 
-        registry = ButtonsRegistry().register_mandatory(TestButton)
+        registry = ButtonRegistry().register_mandatory(TestButton)
 
         self.assertFalse(
             [*registry.mandatory_buttons(entity=FakeOrganisation())],

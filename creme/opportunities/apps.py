@@ -97,7 +97,8 @@ class OpportunitiesConfig(CremeAppConfig):
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Opportunity)
 
-    def register_field_printers(self, field_printers_registry):
+    # def register_field_printers(self, field_printers_registry):
+    def register_field_printers(self, field_printer_registry):
         from django.db.models import ForeignKey
 
         from creme.creme_core.gui.field_printers import FKPrinter
@@ -105,7 +106,7 @@ class OpportunitiesConfig(CremeAppConfig):
         from .models import SalesPhase
 
         # TODO: models.OneToOneField? ManyToManyField?
-        for printer in field_printers_registry.printers_for_field_type(
+        for printer in field_printer_registry.printers_for_field_type(
             type=ForeignKey, tags='html*',
         ):
             printer.register(model=SalesPhase, printer=FKPrinter.print_fk_colored_html)
@@ -156,12 +157,13 @@ class OpportunitiesConfig(CremeAppConfig):
                               .register_field('sales_phase') \
                               .register_relationtype(REL_SUB_TARGETS)
 
-    def register_statistics(self, statistics_registry):
+    # def register_statistics(self, statistics_registry):
+    def register_statistics(self, statistic_registry):
         from creme.persons import get_organisation_model
 
         from .statistics import CurrentYearStatistics
 
-        statistics_registry.register(
+        statistic_registry.register(
             id='opportunities',
             label=CurrentYearStatistics.label,
             func=CurrentYearStatistics(
