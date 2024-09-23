@@ -400,6 +400,12 @@ a.image-file img {
     max-width: 200px;
 }
 
+ul.limited-list .more-elements {
+    padding-left: 2px;
+    color: #adacac;
+    font-size: 11px;
+}
+
 /* Title bar */
 
 .global-buttons + .hat-bar-container {
