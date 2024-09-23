@@ -1,19 +1,24 @@
 ################################################################################
-#    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2023  Hybird
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+# Copyright (c) 2015-2024 Hybird
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 ################################################################################
 
 from __future__ import annotations
@@ -26,7 +31,8 @@ import bleach
 from bleach.css_sanitizer import CSSSanitizer
 from django.conf import settings
 from django.utils.encoding import force_str
-from django.utils.html import mark_safe
+from django.utils.html import format_html, format_html_join, mark_safe
+from django.utils.translation import ngettext
 
 if TYPE_CHECKING:
     from typing import Callable, Dict, Sequence, Union
@@ -156,3 +162,38 @@ def strip_html(text: str) -> str:
         return sub_text  # Leave as is
 
     return re.sub(r'(?s)<[^>]*>|&#?\w+;', fix_up, text)
+
+
+def render_limited_list(*, items: Sequence, limit: int, render_item=lambda e: str(e)) -> str:
+    """Render the content of a Python list as a <ul> node.
+    @param items: list to render.
+    @param limit: maximum number of elements; a message indicating the list has
+           been truncated is displayed if needed.
+    @param render_item: a callable which takes an element of the list <items>
+           & returns a string.
+    @return: An HTML string. A <ul> element is used only if there are more than 1 element.
+    """
+    if not items:
+        return ''
+
+    length = len(items)
+    if length == 1:
+        return render_item(items[0])
+
+    def rendered_items():
+        for item in items[:limit]:
+            yield render_item(item)
+
+        extra_count = length - limit
+        if extra_count > 0:
+            yield format_html(
+                '<span class="more-elements">{}</span>',
+                ngettext(
+                    '{count} more element', '{count} more elements', extra_count,
+                ).format(count=extra_count)
+            )
+
+    return format_html(
+        '<ul class="limited-list">{}</ul>',
+        format_html_join('', '<li>{}</li>', ([item] for item in rendered_items())),
+    )

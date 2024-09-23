@@ -353,18 +353,19 @@ class ListViewTestCase(CremeTestCase):
         self.assertIn(rtype.predicate, titles)
         rtype_cell_content = content[5]
         self.assertIsList(rtype_cell_content, length=1)
-        self.assertEqual(
-            f'<a href="/tests/contact/{spike.id}" target="_self">{spike}</a>'.encode(),
-            html_tostring(rtype_cell_content[0]).strip(),
+        self.assertHTMLEqual(
+            f'<a href="/tests/contact/{spike.id}" target="_self">{spike}</a>',
+            html_tostring(rtype_cell_content[0], encoding='unicode'),
         )
 
         self.assertNotIn(faye.last_name, content)
 
         ptype_cell_content = content[6]
         self.assertIsList(ptype_cell_content, length=1)
-        self.assertEqual(
-            f'<ul><li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li></ul>'.encode(),
-            html_tostring(ptype_cell_content[0]).strip(),
+        self.assertHTMLEqual(
+            # f'<ul><li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li></ul>',
+            f'<a href="{ptype1.get_absolute_url()}">{ptype1.text}</a>',
+            html_tostring(ptype_cell_content[0], encoding='unicode'),
         )
         self.assertNotIn(ptype2.text, content)  # NB: not really useful...
 
@@ -478,9 +479,9 @@ class ListViewTestCase(CremeTestCase):
         content = self._get_lv_cell_contents(self._get_lv_table_node(self._get_lv_node(response)))
         rtype_cell_content = content[3]
         self.assertIsList(rtype_cell_content, length=1)
-        self.assertEqual(
-            f'<a href="/tests/contact/{spike.id}" target="_blank">{spike}</a>'.encode(),
-            html_tostring(rtype_cell_content[0]).strip(),
+        self.assertHTMLEqual(
+            f'<a href="/tests/contact/{spike.id}" target="_blank">{spike}</a>',
+            html_tostring(rtype_cell_content[0], encoding='unicode'),
         )
 
     def test_no_headerfilter(self):

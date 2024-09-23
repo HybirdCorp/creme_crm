@@ -373,6 +373,12 @@ a.image-file img {
     max-width: 200px;
 }
 
+ul.limited-list .more-elements {
+    padding-left: 2px;
+    color: #858585;
+    font-size: 11px;
+}
+
 /* Title bar */
 
 /*

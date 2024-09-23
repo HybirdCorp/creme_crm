@@ -197,6 +197,10 @@ class EntityCellsWidget(Widget):
             for choice_id, cell in cells:
                 try:
                     # TODO: add a "tag" attribute?
+                    # TODO: would be cool to customize the value used to limit
+                    #  the size of <ul> (see 'settings.CELL_SIZE'), but it would
+                    #  need several API breaking to pass this limit (cells,
+                    #  field printers etc...). Or use a new tag HTML_SAMPLE?
                     value = str(cell.render(entity, user, tag=ViewTag.HTML_LIST))
                 except Exception as e:
                     logger.critical('EntityCellsWidget._build_samples(): %s', e)
