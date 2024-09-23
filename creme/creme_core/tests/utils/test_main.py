@@ -9,7 +9,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import make_aware, zoneinfo
-from django.utils.translation import gettext, gettext_lazy
+from django.utils.translation import gettext, gettext_lazy, ngettext
 from django.utils.translation import override as override_language
 from PIL.Image import open as open_img
 
@@ -46,7 +46,11 @@ from creme.creme_core.utils.dependence_sort import (
     DependenciesLoopError,
     dependence_sort,
 )
-from creme.creme_core.utils.html import escapejson, strip_html
+from creme.creme_core.utils.html import (
+    escapejson,
+    render_limited_list,
+    strip_html,
+)
 from creme.creme_core.utils.log import log_exceptions
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.utils.url import TemplateURLBuilder, parse_path
@@ -350,6 +354,43 @@ better &amp; lighter than the previous one.
 
         # Missing second " + special char \"
         self.assertEqual(['foo', 'bar', '"baz'], smart_split('foo bar" \\"baz '))
+
+    def test_render_limited_list(self):
+        self.assertEqual('', render_limited_list(items=[], limit=200))
+        self.assertEqual('Penpen', render_limited_list(items=['Penpen'], limit=200))
+
+        items = ['EVA-00', 'EVA-01', 'EVA-02<script>']
+        self.assertHTMLEqual(
+            f'<ul class="limited-list">'
+            f' <li>{items[0]}</li>'
+            f' <li>{items[1]}</li>'
+            f' <li>EVA-02&lt;script&gt;</li>'
+            f'</ul>',
+            render_limited_list(items=items, limit=3),
+        )
+
+        one_extra = ngettext(
+            '{count} more element', '{count} more elements', 1,
+        ).format(count=1)
+        self.assertHTMLEqual(
+            f'<ul class="limited-list">'
+            f' <li>{items[0]}</li>'
+            f' <li>{items[1]}</li>'
+            f' <li><span class="more-elements">{one_extra}</span></li>'
+            f'</ul>',
+            render_limited_list(items=items, limit=2),
+        )
+
+        two_extra = ngettext(
+            '{count} more element', '{count} more elements', 2,
+        ).format(count=2)
+        self.assertHTMLEqual(
+            f'<ul class="limited-list">'
+            f' <li>{items[0]}</li>'
+            f' <li><span class="more-elements">{two_extra}</span></li>'
+            f'</ul>',
+            render_limited_list(items=items, limit=1),
+        )
 
     def test_entities_to_str(self):
         user = self.login_as_standard()

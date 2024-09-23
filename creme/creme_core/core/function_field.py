@@ -21,12 +21,14 @@ from __future__ import annotations
 import warnings
 from typing import TYPE_CHECKING, Iterable, Iterator
 
+from django.conf import settings
 from django.db.models import Model
 from django.utils.formats import number_format
-from django.utils.html import escape, format_html, format_html_join
+from django.utils.html import escape, format_html
 
 from ..gui.view_tag import ViewTag
 from ..utils.collections import InheritedDataChain
+from ..utils.html import render_limited_list
 
 if TYPE_CHECKING:
     from ..forms.listview import ListViewSearchField
@@ -152,15 +154,23 @@ class FunctionFieldResultsList(FunctionFieldResult):
         self._data: list[FunctionFieldResult] = [*iterable]  # type: ignore
 
     def render(self, tag):
-        return (
-            '/'.join(e.render(tag) for e in self._data)
-            if tag == ViewTag.TEXT_PLAIN else
-            format_html(
-                '<ul>{}</ul>',
-                format_html_join(
-                    '', '<li>{}</li>', ([e.render(tag)] for e in self._data)
-                )
-            )
+        # return (
+        #     '/'.join(e.render(tag) for e in self._data)
+        #     if tag == ViewTag.TEXT_PLAIN else
+        #     format_html(
+        #         '<ul>{}</ul>',
+        #         format_html_join(
+        #             '', '<li>{}</li>', ([e.render(tag)] for e in self._data)
+        #         )
+        #     )
+        # )
+        if tag == ViewTag.TEXT_PLAIN:
+            return '/'.join(e.render(tag) for e in self._data)
+
+        return render_limited_list(
+            items=self._data,
+            limit=settings.CELL_SIZE,
+            render_item=lambda e: e.render(tag),
         )
 
 

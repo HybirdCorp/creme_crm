@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-30 13:19+0200\n"
+"POT-Creation-Date: 2024-09-24 14:00+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3888,6 +3888,12 @@ msgstr ""
 "Erreur pendant la récupération des e-mails sur \"{host}\" pour l'utilisateur "
 "\"{user}\" [erreur originale : {error}]"
 
+#, python-brace-format
+msgid "{count} more element"
+msgid_plural "{count} more elements"
+msgstr[0] "{count} élément de plus"
+msgstr[1] "{count} éléments de plus"
+
 msgid "France"
 msgstr "France"
 
@@ -4022,7 +4028,8 @@ msgstr "Cette fiche ne peut être supprimée ({reason})"
 msgid ""
 "This entity can not be deleted because of its dependencies ({dependencies})."
 msgstr ""
-"Cette fiche ne peut être supprimée à cause de ses dépendances ({dependencies})."
+"Cette fiche ne peut être supprimée à cause de ses dépendances "
+"({dependencies})."
 
 #, python-brace-format
 msgid "The deletion caused an unexpected error [{error}]."

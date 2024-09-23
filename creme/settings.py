@@ -694,6 +694,13 @@ MENU_ICON_MAX_SIZE = 3145728  # 3 Mega bytes
 # Lines number in common blocks
 BLOCK_SIZE = 10
 
+# Some list-views cells display sub-lists, like cells corresponding to the
+# entities linked by a Relation. These sub-lists can be huge (e.g. there is no limit
+# to the number of Relations an entity can have) & then cause issues (performance
+# & usability). This setting value limits the number of items in the sub-list.
+# Note: it is used by custom blocks (i.e. in detailed views) too.
+CELL_SIZE = 500
+
 # Maximum number of items in the menu entry "Recent entities"
 MAX_LAST_ITEMS = 9
 

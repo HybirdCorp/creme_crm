@@ -23,11 +23,12 @@ import warnings
 from collections import defaultdict
 from typing import DefaultDict, Iterable, Sequence
 
+from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.db.models import Field, Model
 from django.utils.functional import cached_property
-from django.utils.html import escape, format_html, format_html_join
+from django.utils.html import escape  # format_html, format_html_join
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -36,6 +37,7 @@ from ..models import CremeEntity, CustomField, FieldsConfig, RelationType
 from ..models import fields as core_fields
 from ..utils.collections import ClassKeyedMap
 from ..utils.db import populate_related
+from ..utils.html import render_limited_list
 from ..utils.meta import FieldInfo
 from ..utils.unicode_collation import collator
 from .function_field import (
@@ -74,7 +76,7 @@ FIELDS_DATA_TYPES = ClassKeyedMap([
 
 
 class EntityCell:
-    """Represents a value accessor ; it's a kind of super field. It can
+    """Represents a value accessor; it's a kind of super field. It can
     retrieve a value stored in entities (of the same type).
     This values can be (see child classes) :
      - regular fields (in the django model way).
@@ -559,15 +561,19 @@ class EntityCellCustomField(EntityCell):
 
     @staticmethod
     def _multi_enum_html(entity, cf_value, user, cfield):
-        if cf_value is None:
-            return ''
-
-        li_tags = format_html_join(
-            '', '<li>{}</li>',
-            ((str(val),) for val in cf_value.get_enumvalues())
+        # if cf_value is None:
+        #     return ''
+        #
+        # li_tags = format_html_join(
+        #     '', '<li>{}</li>',
+        #     ((str(val),) for val in cf_value.get_enumvalues())
+        # )
+        #
+        # return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
+        return render_limited_list(
+            items=[] if cf_value is None else cf_value.get_enumvalues(),
+            limit=settings.CELL_SIZE,
         )
-
-        return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
 
     _HTML_EXTRA_RENDERER = {
         CustomField.ENUM:
@@ -866,24 +872,38 @@ class EntityCellRelation(EntityCell):
             related_entities = entity.get_related_entities(self.value, True)
             a_target = '_blank' if tag == ViewTag.HTML_FORM else '_self'
 
-            if not related_entities:
-                return ''
-
-            if len(related_entities) == 1:
-                return widget_entity_hyperlink(related_entities[0], user, target=a_target)
+            # if not related_entities:
+            #     return ''
+            #
+            # if len(related_entities) == 1:
+            #     return widget_entity_hyperlink(related_entities[0], user, target=a_target)
 
             sort_key = collator.sort_key
             related_entities.sort(key=lambda e: sort_key(str(e)))
 
-            return format_html(
-                '<ul>{}</ul>',
-                format_html_join(
-                    '', '<li>{}</li>',
-                    (
-                        [widget_entity_hyperlink(e, user, target=a_target)]
-                        for e in related_entities
-                    ),
-                ),
+            # return format_html(
+            #     '<ul>{}</ul>',
+            #     format_html_join(
+            #         '', '<li>{}</li>',
+            #         (
+            #             [widget_entity_hyperlink(e, user, target=a_target)]
+            #             for e in related_entities
+            #         ),
+            #     ),
+            # )
+            # NB: about limiting the number of results
+            #     It would be probably better to limit the number of elements in the SQL query
+            #     (notice we would not have the exact count anymore) but as we often prefetch
+            #     things to group queries it would not be easy & force us to break some APIs.
+            #     Limiting the size of the rendered HTML is not optimal but should be enough
+            #     in the general case to avoid the biggest issues (<ul>s with several thousand
+            #     of <li>s which annoy the browsers).
+            #     This is true with other uses of 'render_limited_list()' (like M2M,
+            #     FunctionFieldResult...).
+            return render_limited_list(
+                items=related_entities,
+                limit=settings.CELL_SIZE,
+                render_item=lambda e: widget_entity_hyperlink(e, user, target=a_target),
             )
         else:
             has_perm = user.has_perm_to_view

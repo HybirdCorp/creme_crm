@@ -1049,8 +1049,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
         self.assertIsNotNone(funf)
         self.assertEqual(
-            '<ul></ul>',
-            funf(self.entity, self.user).render(ViewTag.HTML_LIST),
+            # '<ul></ul>', funf(self.entity, self.user).render(ViewTag.HTML_LIST),
+            '', funf(self.entity, self.user).render(ViewTag.HTML_LIST),
         )
 
         # ---
@@ -1090,7 +1090,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             result = funf(self.entity, self.user)
 
         self.assertEqual(
-            '<ul><li>Alert02</li><li>Alert01</li></ul>',
+            # '<ul><li>Alert02</li><li>Alert01</li></ul>',
+            '<ul class="limited-list"><li>Alert02</li><li>Alert01</li></ul>',
             result.render(ViewTag.HTML_LIST),
         )
 
@@ -1122,12 +1123,13 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             result2 = funf(entity02, user)
 
         self.assertEqual(
-            '<ul><li>Alert02</li><li>Alert01</li></ul>',
+            # '<ul><li>Alert02</li><li>Alert01</li></ul>',
+            '<ul class="limited-list"><li>Alert02</li><li>Alert01</li></ul>',
             result1.render(ViewTag.HTML_LIST),
         )
         self.assertEqual(
-            '<ul><li>Alert04</li></ul>',
-            result2.render(ViewTag.HTML_LIST),
+            # '<ul><li>Alert04</li></ul>', result2.render(ViewTag.HTML_LIST),
+            'Alert04', result2.render(ViewTag.HTML_LIST),
         )
 
     def test_merge(self):
