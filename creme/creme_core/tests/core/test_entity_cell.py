@@ -5,9 +5,11 @@ from functools import partial
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.test.utils import override_settings
 from django.utils.formats import date_format, number_format
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
 from creme.creme_core.core.entity_cell import (
     CELLS_MAP,
@@ -43,6 +45,7 @@ from creme.creme_core.models import (
 from ..base import CremeTestCase
 
 
+@override_settings(CELL_SIZE=50)
 class EntityCellTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
@@ -679,8 +682,12 @@ class EntityCellTestCase(CremeTestCase):
         cf_value.set_value_n_save([enum_value1.id, enum_value3.id])
         yoko = self.refresh(yoko)  # Avoid cache
         self.assertHTMLEqual(
-            f'<ul><li>{enum_value1.value}</li><li>Eva-02&lt;script&gt;</li></ul>',
-            # cell.render_html(entity=yoko, user=user)
+            # f'<ul><li>{enum_value1.value}</li><li>Eva-02&lt;script&gt;</li></ul>',
+            f'<ul class="limited-list">'
+            f' <li>{enum_value1.value}</li>'
+            f' <li>Eva-02&lt;script&gt;</li>'
+            f'</ul>',
+            # cell.render_html(entity=yoko, user=user),
             cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
         )
         self.assertEqual(
@@ -688,6 +695,18 @@ class EntityCellTestCase(CremeTestCase):
             # cell.render_csv(entity=yoko, user=user)
             cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
         )
+
+        with self.settings(CELL_SIZE=1):
+            message = ngettext(
+                '{count} more element', '{count} more elements', 1,
+            ).format(count=1)
+            self.assertHTMLEqual(
+                f'<ul class="limited-list">'
+                f' <li>{enum_value1.value}</li>'
+                f' <li><span class="more-elements">{message}</span></li>'
+                f'</ul>',
+                cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+            )
 
     def test_customfield_deleted(self):
         name = 'Size (cm)'
@@ -746,7 +765,8 @@ class EntityCellTestCase(CremeTestCase):
             cell.render(entity=contacts[0], user=user, tag=ViewTag.TEXT_PLAIN),
         )
         self.assertHTMLEqual(
-            f'<ul>'
+            # f'<ul>'
+            f'<ul class="limited-list">'
             f' <li>'
             f'  <a href="{contacts[2].get_absolute_url()}" target="_self">{contacts[2]}</a>'
             f' </li>'
@@ -758,7 +778,8 @@ class EntityCellTestCase(CremeTestCase):
             cell.render(entity=contacts[0], user=user, tag=ViewTag.HTML_DETAIL),
         )
         self.assertHTMLEqual(
-            f'<ul>'
+            # f'<ul>'
+            f'<ul class="limited-list">'
             f' <li>'
             f'  <a href="{contacts[2].get_absolute_url()}" target="_blank">{contacts[2]}</a>'
             f' </li>'
@@ -768,6 +789,43 @@ class EntityCellTestCase(CremeTestCase):
             f'</ul>',
             cell.render(entity=contacts[0], user=user, tag=ViewTag.HTML_FORM),
         )
+
+        # Limited render (singular) ---
+        with override_settings(CELL_SIZE=1):
+            limit_message1 = ngettext(
+                '{count} more element', '{count} more elements', 1,
+            ).format(count=1)
+            self.assertHTMLEqual(
+                f'<ul class="limited-list">'
+                f' <li>'
+                f'  <a href="{contacts[2].get_absolute_url()}" target="_self">{contacts[2]}</a>'
+                f' </li>'
+                f' <li>'
+                f'  <span class="more-elements">{limit_message1}</span>'
+                f' </li>'
+                f'</ul>',
+                cell.render(entity=contacts[0], user=user, tag=ViewTag.HTML_DETAIL),
+            )
+
+        # Limited render (plural) ---
+        contact3 = create_contact(first_name='En', last_name='Honoka')
+        create_rel(object_entity=contact3)
+
+        with override_settings(CELL_SIZE=1):
+            limit_message2 = ngettext(
+                '{count} more element', '{count} more elements', 2,
+            ).format(count=2)
+            self.assertHTMLEqual(
+                f'<ul class="limited-list">'
+                f' <li>'
+                f'  <a href="{contact3.get_absolute_url()}" target="_self">{contact3}</a>'
+                f' </li>'
+                f' <li>'
+                f'  <span class="more-elements">{limit_message2}</span>'
+                f' </li>'
+                f'</ul>',
+                cell.render(entity=self.refresh(contacts[0]), user=user, tag=ViewTag.HTML_DETAIL),
+            )
 
     def test_relation02(self):
         "Only one related entities."
@@ -863,7 +921,8 @@ class EntityCellTestCase(CremeTestCase):
             cell.render(entity=contact, user=user, tag=ViewTag.TEXT_PLAIN),
         )
         self.assertHTMLEqual(
-            f'<ul>'
+            # f'<ul>'
+            f'<ul class="limited-list">'
             f' <li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</li>'
             f' <li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</li>'
             f'</ul>',

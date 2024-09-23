@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -198,6 +198,10 @@ class EntityCellsWidget(Widget):
                 try:
                     # value = str(cell.render_html(entity, user))
                     # TODO: add a "tag" attribute?
+                    # TODO: would be cool to customize the value used to limit
+                    #  the size of <ul> (see 'settings.CELL_SIZE'), but it would
+                    #  need several API breaking to pass this limit (cells,
+                    #  field printers etc...). Or use a new tag HTML_SAMPLE?
                     value = str(cell.render(entity, user, tag=ViewTag.HTML_LIST))
                 except Exception as e:
                     logger.critical('EntityCellsWidget._build_samples(): %s', e)

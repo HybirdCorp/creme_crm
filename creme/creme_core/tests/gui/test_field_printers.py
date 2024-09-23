@@ -12,6 +12,7 @@ from django.utils.formats import date_format, number_format
 from django.utils.html import escape
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from django.utils.translation import override as override_language
 from django.utils.translation import pgettext
 
@@ -84,6 +85,7 @@ from creme.creme_core.models import (
 from creme.creme_core.tests.base import CremeTestCase
 
 
+@override_settings(CELL_SIZE=3)
 class FieldsPrintersTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
@@ -936,10 +938,24 @@ class FieldsPrintersTestCase(CremeTestCase):
             FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')
         ])
         self.assertHTMLEqual(
-            '<ul><li>A</li><li>B</li><li>C</li></ul>',
+            # '<ul><li>A</li><li>B</li><li>C</li></ul>',
+            '<ul class="limited-list"><li>A</li><li>B</li><li>C</li></ul>',
             # printer(img, img.categories, user, field)
             printer(instance=img, value=img.categories, user=user, field=field),
         )
+
+        with self.settings(CELL_SIZE=1):
+            message = ngettext(
+                '{count} more element', '{count} more elements', 2,
+            ).format(count=2)
+
+            self.assertHTMLEqual(
+                f'<ul class="limited-list">'
+                f' <li>A</li>'
+                f' <li><span class="more-elements">{message}</span></li>'
+                f'</ul>',
+                printer(instance=img, value=img.categories, user=user, field=field),
+            )
 
     def test_many2many_printer_html02(self):
         "Entity without specific handler."
@@ -957,7 +973,8 @@ class FieldsPrintersTestCase(CremeTestCase):
             default_enumerator=M2MPrinterForHTML.enumerator_all,
         )
         self.assertHTMLEqual(
-            f'<ul><li>{img1}</li><li>{img2}</li></ul>',
+            # f'<ul><li>{img1}</li><li>{img2}</li></ul>',
+            f'<ul class="limited-list"><li>{img1}</li><li>{img2}</li></ul>',
             # printer(prod, prod.images, user, field)
             printer(instance=prod, value=prod.images, user=user, field=field),
         )
@@ -992,7 +1009,8 @@ class FieldsPrintersTestCase(CremeTestCase):
             enumerator=M2MPrinterForHTML.enumerator_entity,
         )
         self.assertHTMLEqual(
-            f'<ul>'
+            # f'<ul>'
+            f'<ul class="limited-list">'
             f' <li><a target="_blank" href="{img1.get_absolute_url()}">{img1}</a></li>'
             f' <li>{settings.HIDDEN_VALUE}</li>'
             f'</ul>',
@@ -1556,7 +1574,8 @@ class FieldsPrintersTestCase(CremeTestCase):
             )
 
         self.assertEqual(
-            f'<ul><li>{cat1.name}</li><li>{cat2.name}</li></ul>',
+            # f'<ul><li>{cat1.name}</li><li>{cat2.name}</li></ul>',
+            f'<ul class="limited-list"><li>{cat1.name}</li><li>{cat2.name}</li></ul>',
             render_field(field_name='image__categories'),
         )
         self.assertEqual(
@@ -1589,19 +1608,40 @@ class FieldsPrintersTestCase(CremeTestCase):
             registry.get_field_value, instance=img, user=user, tag=ViewTag.HTML_DETAIL,
         )
         self.assertHTMLEqual(
-            '<ul><li>A</li><li>B</li><li>C</li></ul>',
+            # '<ul><li>A</li><li>B</li><li>C</li></ul>',
+            '<ul class="limited-list"><li>A</li><li>B</li><li>C</li></ul>',
             render_field(field_name='categories'),
         )
         self.assertEqual('A/B/C', render_field(field_name='categories', tag=ViewTag.TEXT_PLAIN))
 
         self.assertHTMLEqual(
-            '<ul><li>A</li><li>B</li><li>C</li></ul>',
+            # '<ul><li>A</li><li>B</li><li>C</li></ul>',
+            '<ul class="limited-list"><li>A</li><li>B</li><li>C</li></ul>',
             render_field(field_name='categories__name'),
         )
         self.assertEqual(
             'A/B/C',
             render_field(field_name='categories__name', tag=ViewTag.TEXT_PLAIN),
         )
+
+        # Truncated render ---
+        with self.settings(CELL_SIZE=2):
+            message = ngettext(
+                '{count} more element', '{count} more elements', 1,
+            ).format(count=1)
+            self.assertHTMLEqual(
+                f'<ul class="limited-list">'
+                f' <li>A</li>'
+                f' <li>B</li>'
+                f' <li><span class="more-elements">{message}</span></li>'
+                f'</ul>',
+                render_field(field_name='categories__name'),
+            )
+
+            self.assertEqual(
+                'A/B/C',
+                render_field(field_name='categories__name', tag=ViewTag.TEXT_PLAIN),
+            )
 
     def test_registry_m2m02(self):
         "Empty sub-values."
@@ -1614,7 +1654,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         registry = _FieldPrintersRegistry()
         theme1 = settings.THEMES[0][1]
         self.assertHTMLEqual(
-            f'<ul><li>{theme1}</li></ul>',
+            # f'<ul><li>{theme1}</li></ul>',
+            theme1,
             registry.get_field_value(
                 instance=team, field_name='teammates_set__theme', user=user1,
                 tag=ViewTag.HTML_DETAIL,
@@ -1641,7 +1682,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         render_field = partial(registry.get_field_value, instance=camp, user=user)
 
         self.assertHTMLEqual(
-            f'<ul><li>{ml2.name}</li><li>{ml1.name}</li></ul>',
+            # f'<ul><li>{ml2.name}</li><li>{ml1.name}</li></ul>',
+            f'<ul class="limited-list"><li>{ml2.name}</li><li>{ml1.name}</li></ul>',
             render_field(field_name='mailing_lists__name', tag=ViewTag.HTML_DETAIL),
         )
         self.assertEqual(
@@ -1650,7 +1692,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
         self.assertHTMLEqual(
-            f'<ul><li><p>{ml1.description}</p></li></ul>',
+            # f'<ul><li><p>{ml1.description}</p></li></ul>',
+            f'<p>{ml1.description}</p>',
             render_field(field_name='mailing_lists__description', tag=ViewTag.HTML_DETAIL),
         )
         self.assertEqual(
@@ -1678,7 +1721,8 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         registry = _FieldPrintersRegistry()
         self.assertHTMLEqual(
-            f'<ul><li>{settings.HIDDEN_VALUE}</li><li>{ml1.name}</li></ul>',
+            # f'<ul><li>{settings.HIDDEN_VALUE}</li><li>{ml1.name}</li></ul>',
+            f'<ul class="limited-list"><li>{settings.HIDDEN_VALUE}</li><li>{ml1.name}</li></ul>',
             registry.get_field_value(
                 instance=camp, field_name='mailing_lists__name', user=user,
                 tag=ViewTag.HTML_DETAIL,
@@ -1704,7 +1748,8 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         registry = _FieldPrintersRegistry()
         self.assertHTMLEqual(
-            f'<ul><li>{ml1.name}</li></ul>',
+            # f'<ul><li>{ml1.name}</li></ul>',
+            ml1.name,
             registry.get_field_value(
                 instance=camp, field_name='mailing_lists__name', user=user,
                 tag=ViewTag.HTML_DETAIL,

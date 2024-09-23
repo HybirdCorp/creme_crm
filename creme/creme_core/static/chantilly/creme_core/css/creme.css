@@ -394,6 +394,12 @@ span.enumerator-empty {
     color: #485860;
 }
 
+ul.limited-list .more-elements {
+    padding-left: 2px;
+    color: #858585;
+    font-size: 11px;
+}
+
 /* Title bar */
 
 /*

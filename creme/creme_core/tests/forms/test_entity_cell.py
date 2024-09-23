@@ -347,7 +347,7 @@ class EntityCellsWidgetTestCase(CremeTestCase):
         model = FakeContact
         loves = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
+            ('test-object_love',  'Is loved by'),
         )[0]
         cfield = CustomField.objects.create(
             name='Size (cm)',
@@ -433,7 +433,8 @@ class EntityCellsWidgetTestCase(CremeTestCase):
                     'regular_field-last_name':       contact2.last_name,
                     'regular_field-email':           '',
                     f'custom_field-{cfield.id}':     '',
-                    f'function_field-{ffield.name}': '<ul></ul>',
+                    # f'function_field-{ffield.name}': '<ul></ul>',
+                    f'function_field-{ffield.name}': '',
                     f'relation-{loves.id}':          '',
                 }, {
                     'regular_field-first_name':      contact1.first_name,
@@ -441,7 +442,8 @@ class EntityCellsWidgetTestCase(CremeTestCase):
                     'regular_field-email':
                         f'<a href="mailto:{contact1.email}">{contact1.email}</a>',
                     f'custom_field-{cfield.id}':     '',
-                    f'function_field-{ffield.name}': '<ul></ul>',
+                    # f'function_field-{ffield.name}': '<ul></ul>',
+                    f'function_field-{ffield.name}': '',
                     f'relation-{loves.id}':          '',
                 },
             ],
