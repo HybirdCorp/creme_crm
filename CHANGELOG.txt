@@ -9,6 +9,7 @@
         - Some useless extra runs have been removed.
     # A new setting, 'CELL_SIZE', has been added; it allows to limit the size of lists
       (relationships, ManyToMany...) & so avoid some performance issues.
+    # The style of the preview table in the header-filter form has been improved.
     # Apps :
         * Documents :
             - You could merge system folders & so, remove them.
