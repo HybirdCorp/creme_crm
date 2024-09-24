@@ -11,6 +11,8 @@
       (relationships, ManyToMany...) & so avoid some performance issues.
     # The style of the preview table in the header-filter form has been improved.
     # Apps :
+        * Persons :
+            - In the bar-brick for Organisations the logo was never displayed.
         * Documents :
             - You could merge system folders & so, remove them.
         * Emails :
