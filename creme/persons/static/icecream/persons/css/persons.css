@@ -17,6 +17,15 @@
 
 /* Brick card contact [end] */
 
+/* Hat bar organisation */
+
+.content-detail-view .brick-hat-bar .persons-organisation-logo {
+    max-width: 48px;
+    max-height: 60px;
+}
+
+/* Hat bar organisation [end] */
+
 /* Brick card organisation */
 
 .persons-organisation-card-brick .card-job,

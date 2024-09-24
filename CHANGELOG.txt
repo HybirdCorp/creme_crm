@@ -8,6 +8,8 @@
         - The start date of the jobs depended on the hour the command "creme_job_manager" has started.
         - Some useless extra runs have been removed.
     # Apps :
+        * Persons :
+            - In the bar-brick for Organisations the logo was never displayed.
         * Documents :
             - You could merge system folders & so, remove them.
         * Emails :
