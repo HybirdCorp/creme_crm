@@ -861,8 +861,17 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
 
 .hfilter_widget .preview_table .preview_row ul,
 .dragtable-drag-wrapper ul {
+    list-style-type: none;
+
     margin: 0;
-    padding-left: 25px;
+/*    padding-left: 25px; */
+    padding: 0px;
+}
+
+/* TODO: remove if we manage to limit in rendered HTML on server side */
+.hfilter_widget .preview_table .preview_row ul li:nth-child(n + 4),
+.dragtable-drag-wrapper ul li:nth-child(n + 4) {
+    display: none;
 }
 
 .hfilter_widget .preview_table_header {
@@ -877,6 +886,18 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
 .hfilter_widget .preview_table_header th:not(:last-child),
 .preview_table_header td:not(:last-child) {
     border-right: 1px solid #ddd;
+}
+
+.hfilter_widget .preview_table .preview_row td {
+    padding: 3px;
+}
+
+.hfilter_widget .preview_table .preview_row p,
+.dragtable-drag-wrapper p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 64px;
+    max-width: 128px;
 }
 
 /* For sample fake filter (disabled in JS)
