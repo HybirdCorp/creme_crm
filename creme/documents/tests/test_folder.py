@@ -659,7 +659,21 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             explore_action.help_text,
         )
 
-    def test_folder_clone01(self):
+    def test_clone(self):
+        user = self.login_as_root_and_get()
+        title = 'folder'
+        folder = Folder.objects.create(user=user, title=title, description='d')
+
+        stack = [folder]
+        stack_append = stack.append
+
+        for i in range(10):
+            cloned_folder = self.clone(folder)
+
+            self.assertNotEqual(stack[-1].title, cloned_folder.title)
+            stack_append(cloned_folder)
+
+    def test_clone__method(self):
         user = self.login_as_root_and_get()
         title = 'folder'
         folder = Folder.objects.create(user=user, title=title, description='d')

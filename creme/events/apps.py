@@ -58,6 +58,9 @@ class EventsConfig(CremeAppConfig):
 
         config_registry.register_model(models.EventType, 'event_type')
 
+    def register_cloners(self, entity_cloner_registry):
+        entity_cloner_registry.register(model=self.Event)
+
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(model=self.Event)
 

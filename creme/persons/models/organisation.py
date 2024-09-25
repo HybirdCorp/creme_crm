@@ -148,8 +148,8 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     def get_absolute_url(self):
         return reverse('persons__view_organisation', args=(self.id,))
 
-    def get_clone_absolute_url(self):
-        return '' if self.is_managed else super().get_clone_absolute_url()
+    # def get_clone_absolute_url(self):
+    #     return '' if self.is_managed else super().get_clone_absolute_url()
 
     @staticmethod
     def get_create_absolute_url():

@@ -23,6 +23,8 @@ from creme.creme_core.models import (
     FakeContact,
     FakeDocument,
     FakeDocumentCategory,
+    FakeInvoice,
+    FakeInvoiceLine,
     FakeOrganisation,
     FakeSector,
     FakeTicket,
@@ -32,7 +34,6 @@ from creme.creme_core.models import (
 )
 
 from ..base import CremeTestCase
-from ..fake_models import FakeInvoice, FakeInvoiceLine
 
 
 class DeletionTestCase(CremeTestCase):

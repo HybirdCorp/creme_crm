@@ -490,9 +490,9 @@ class MarketSegmentCharm(CremeModel):
     def __str__(self):
         return self.name
 
-    @staticmethod
-    def get_clone_absolute_url():
-        return ''
+    # @staticmethod
+    # def get_clone_absolute_url():
+    #     return ''
 
     def get_edit_absolute_url(self):
         return reverse('commercial__edit_charm', args=(self.id,))

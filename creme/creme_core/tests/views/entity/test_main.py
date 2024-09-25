@@ -214,7 +214,7 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertFalse({*names}.symmetric_difference({name for name, vname in json_data}))
         self.assertEqual(len(names), len(json_data))
 
-    def test_clone01(self):
+    def test_clone(self):
         user = self.login_as_root_and_get()
         url = self.CLONE_URL
 
@@ -236,8 +236,7 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertEqual(mario.last_name, oiram.last_name)
         self.assertRedirects(response, oiram.get_absolute_url())
 
-    def test_clone02(self):
-        "Not logged."
+    def test_clone__not_logged(self):
         url = self.CLONE_URL
 
         mario = FakeContact.objects.create(
@@ -254,7 +253,7 @@ class EntityViewsTestCase(CremeTestCase):
             )
         )
 
-    def test_clone03(self):
+    def test_clone__standard_user(self):
         "Not superuser with right credentials."
         user = self.login_as_standard(creatable_models=[FakeContact])
         self.add_credentials(user.role, all='*')
@@ -262,7 +261,7 @@ class EntityViewsTestCase(CremeTestCase):
         mario = FakeContact.objects.create(user=user, first_name='Mario', last_name='Bros')
         self.assertPOST200(self.CLONE_URL, data={'id': mario.id}, follow=True)
 
-    def test_clone04(self):
+    def test_clone__creation_perm(self):
         "Not superuser without creation credentials => error."
         user = self.login_as_standard()
         self.add_credentials(user.role, all='*')
@@ -274,7 +273,7 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertPOST403(self.CLONE_URL, data={'id': mario.id}, follow=True)
         self.assertEqual(count, FakeContact.objects.count())
 
-    def test_clone05(self):
+    def test_clone__view_perm(self):
         "Not superuser without VIEW credentials => error."
         user = self.login_as_standard(creatable_models=[FakeContact])
         self.add_credentials(user.role, all='!VIEW')
@@ -286,17 +285,17 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertPOST403(self.CLONE_URL, data={'id': mario.id}, follow=True)
         self.assertEqual(count, FakeContact.objects.count())
 
-    def test_clone06(self):
+    def test_clone__not_clonable(self):
         """Not clonable entity type."""
         user = self.login_as_root_and_get()
 
         image = FakeImage.objects.create(user=user, name='Img1')
         count = FakeImage.objects.count()
-        self.assertPOST404(self.CLONE_URL, data={'id': image.id}, follow=True)
+        # self.assertPOST404(self.CLONE_URL, data={'id': image.id}, follow=True)
+        self.assertPOST409(self.CLONE_URL, data={'id': image.id}, follow=True)
         self.assertEqual(count, FakeImage.objects.count())
 
-    def test_clone07(self):
-        "Ajax query."
+    def test_clone__ajax(self):
         user = self.login_as_root_and_get()
 
         first_name = 'Mario'

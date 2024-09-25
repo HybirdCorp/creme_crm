@@ -89,6 +89,13 @@ class ProductsConfig(CremeAppConfig):
             enumerators.SubCategoryEnumerator,
         )
 
+    def register_cloners(self, entity_cloner_registry):
+        entity_cloner_registry.register(
+            model=self.Product,
+        ).register(
+            model=self.Service,
+        )
+
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(
             model=self.Product,

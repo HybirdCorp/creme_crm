@@ -161,7 +161,6 @@ else:
             verbose_name_plural = 'Test File bags'
             ordering = ('name',)
 
-    # class FakeImageCategory(CremeModel):
     class FakeImageCategory(MinionModel):
         name = models.CharField(_('Name'), max_length=100)
 
@@ -204,9 +203,9 @@ else:
         def get_absolute_url(self):
             return reverse('creme_core__view_fake_image', args=(self.id,))
 
-        @staticmethod
-        def get_clone_absolute_url():
-            return ''
+        # @staticmethod
+        # def get_clone_absolute_url():
+        #     return ''
 
         @staticmethod
         def get_lv_absolute_url():
@@ -433,12 +432,8 @@ else:
 
     class FakeOrganisation(CremeEntity):
         name = models.CharField(_('Name'), max_length=200)
-        phone = core_fields.PhoneField(
-            _('Phone'), max_length=100, blank=True,  # null=True,
-        )
-        email = models.EmailField(
-            _('Email address'), max_length=100, blank=True,  # null=True,
-        )
+        phone = core_fields.PhoneField(_('Phone'), max_length=100, blank=True)
+        email = models.EmailField(_('Email address'), max_length=100, blank=True)
 
         # NB: keep nullable for some tests
         url_site = models.URLField(
@@ -451,7 +446,7 @@ else:
         capital = models.PositiveIntegerField(
             _('Capital'), blank=True, null=True,
         ).set_tags(optional=True)
-        subject_to_vat = models.BooleanField(_('Subject to VAT'), default=True)  # blank=True
+        subject_to_vat = models.BooleanField(_('Subject to VAT'), default=True)
 
         legal_form = models.ForeignKey(
             FakeLegalForm, verbose_name=_('Legal form'),

@@ -17,7 +17,10 @@ from creme.creme_core.models import (
     Vat,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
-from creme.persons.tests.base import skipIfCustomOrganisation
+from creme.persons.tests.base import (
+    skipIfCustomAddress,
+    skipIfCustomOrganisation,
+)
 
 from ..bricks import CreditNotesBrick, ReceivedCreditNotesBrick
 from ..constants import (
@@ -27,15 +30,18 @@ from ..constants import (
 )
 from ..models import CreditNoteStatus
 from .base import (
+    Address,
     CreditNote,
     Invoice,
     Organisation,
     ProductLine,
+    ServiceLine,
     TemplateBase,
     _BillingTestCase,
     skipIfCustomCreditNote,
     skipIfCustomInvoice,
     skipIfCustomProductLine,
+    skipIfCustomServiceLine,
 )
 
 
@@ -799,6 +805,153 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
         self.assertGET403(self._build_editcomment_url(credit_note))
+
+    @skipIfCustomAddress
+    @skipIfCustomServiceLine
+    def test_clone__not_managed_emitter(self):
+        "Organisation not managed."
+        user = self.login_as_root_and_get()
+        source, target = self.create_orgas(user=user)
+
+        target.billing_address = Address.objects.create(
+            name='Billing address 01',
+            address='BA1 - Address', city='BA1 - City', zipcode='4242',
+            owner=target,
+        )
+        target.save()
+
+        credit_note = self.create_credit_note(
+            user=user, name='Quote001', source=source, target=target,
+            status=CreditNoteStatus.objects.filter(is_default=False)[0],
+        )
+
+        sl = ServiceLine.objects.create(
+            related_item=self.create_service(user=user), user=user,
+            related_document=credit_note,
+        )
+
+        address_count = Address.objects.count()
+
+        origin_b_addr = credit_note.billing_address
+        origin_b_addr.zipcode += ' (edited)'
+        origin_b_addr.save()
+
+        # cloned = self.refresh(credit_note.clone())
+        cloned = self.clone(credit_note)
+        self.assertIsInstance(cloned, CreditNote)
+        self.assertNotEqual(credit_note.pk, cloned.pk)
+        self.assertEqual(credit_note.name,   cloned.name)
+        self.assertEqual(credit_note.status, cloned.status)
+        self.assertEqual('0',                cloned.number)
+
+        self.assertEqual(source, cloned.source)
+        self.assertEqual(target, cloned.target)
+
+        # Lines are cloned
+        cloned_line = self.get_alone_element(cloned.iter_all_lines())
+        self.assertIsInstance(cloned_line, ServiceLine)
+        self.assertNotEqual(sl.pk, cloned_line.pk)
+        self.assertEqual(sl.related_item, cloned_line.related_item)
+        self.assertEqual(sl.quantity,     cloned_line.quantity)
+        self.assertEqual(sl.unit_price,   cloned_line.unit_price)
+
+        # Addresses are cloned
+        self.assertEqual(address_count + 2, Address.objects.count())
+
+        billing_address = cloned.billing_address
+        self.assertIsInstance(billing_address, Address)
+        self.assertEqual(cloned,                billing_address.owner)
+        self.assertEqual(origin_b_addr.name,    billing_address.name)
+        self.assertEqual(origin_b_addr.city,    billing_address.city)
+        self.assertEqual(origin_b_addr.zipcode, billing_address.zipcode)
+
+    def test_clone__managed_emitter(self):
+        "Organisation is managed."
+        user = self.login_as_root_and_get()
+
+        source, target = self.create_orgas(user=user)
+        self._set_managed(source)
+
+        credit_note = self.create_credit_note(
+            user=user, name='My Order', source=source, target=target,
+        )
+        self.assertEqual('0', credit_note.number)
+
+        cloned = self.clone(credit_note)
+        self.assertEqual('0', cloned.number)
+
+    @skipIfCustomAddress
+    @skipIfCustomServiceLine
+    def test_clone__method01(self):
+        "Organisation not managed => number is set to '0'."
+        user = self.login_as_root_and_get()
+        source, target = self.create_orgas(user=user)
+
+        target.billing_address = Address.objects.create(
+            name='Billing address 01',
+            address='BA1 - Address', city='BA1 - City',
+            owner=target,
+        )
+        target.save()
+
+        credit_note = self.create_credit_note(
+            user=user, name='Quote001', source=source, target=target,
+            status=CreditNoteStatus.objects.filter(is_default=False)[0],
+        )
+
+        sl = ServiceLine.objects.create(
+            related_item=self.create_service(user=user), user=user,
+            related_document=credit_note,
+        )
+
+        address_count = Address.objects.count()
+
+        origin_b_addr = credit_note.billing_address
+        origin_b_addr.zipcode += ' (edited)'
+        origin_b_addr.save()
+
+        cloned = self.refresh(credit_note.clone())
+        self.assertIsInstance(cloned, CreditNote)
+        self.assertNotEqual(credit_note.pk, cloned.pk)
+        self.assertEqual(credit_note.name,   cloned.name)
+        self.assertEqual(credit_note.status, cloned.status)
+        self.assertEqual('0',                cloned.number)
+
+        self.assertEqual(source, cloned.source)
+        self.assertEqual(target, cloned.target)
+
+        # Lines are cloned
+        cloned_line = self.get_alone_element(cloned.iter_all_lines())
+        self.assertIsInstance(cloned_line, ServiceLine)
+        self.assertNotEqual(sl.pk, cloned_line.pk)
+        self.assertEqual(sl.related_item, cloned_line.related_item)
+        self.assertEqual(sl.quantity,     cloned_line.quantity)
+        self.assertEqual(sl.unit_price,   cloned_line.unit_price)
+
+        # Addresses are cloned
+        self.assertEqual(address_count + 2, Address.objects.count())
+
+        billing_address = cloned.billing_address
+        self.assertIsInstance(billing_address, Address)
+        self.assertEqual(cloned,                billing_address.owner)
+        self.assertEqual(origin_b_addr.name,    billing_address.name)
+        self.assertEqual(origin_b_addr.city,    billing_address.city)
+        self.assertEqual(origin_b_addr.zipcode, billing_address.zipcode)
+
+    def test_clone__method02(self):
+        "Organisation is managed."
+        user = self.login_as_root_and_get()
+
+        source, target = self.create_orgas(user=user)
+        self._set_managed(source)
+
+        credit_note = self.create_credit_note(
+            user=user, name='My Order', source=source, target=target,
+        )
+        self.assertEqual('0', credit_note.number)
+
+        cloned = credit_note.clone()
+        self.assertEqual('0', cloned.number)
 
     def test_brick(self):
         user = self.login_as_root_and_get()

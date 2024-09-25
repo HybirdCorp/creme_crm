@@ -217,7 +217,7 @@ class SETReplacer(Replacer):
 
 # Deletion of entities ---------------------------------------------------------
 class EntityDeletor:
-    """This class manage the deletion of CremeEntities.
+    """This class manages the deletion of CremeEntities.
      - is the deletion definitive? (i.e. should the entity be moved to the trash)
      - is a user allowed to delete?
      - perform the deletion.

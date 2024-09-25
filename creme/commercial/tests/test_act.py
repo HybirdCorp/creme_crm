@@ -1023,6 +1023,32 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             name='Organisation counter', counter_goal=2, filter=efilter, ctype=Organisation,
         )
 
+        cloned = self.clone(act)
+
+        self.assertEqual(act.name,     cloned.name)
+        self.assertEqual(act.due_date, cloned.due_date)
+        self.assertEqual(act.segment,  cloned.segment)
+
+        cloned_objs = ActObjective.objects.filter(act=cloned).order_by('name')
+        self.assertEqual(2, len(cloned_objs))
+
+        self.assertObjectivesEqual(obj1, cloned_objs[0])
+        self.assertObjectivesEqual(obj2, cloned_objs[1])
+
+    def test_clone__method(self):
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
+
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter01', 'Acme', Organisation, is_custom=True,
+        )
+
+        create_obj = partial(ActObjective.objects.create, act=act)
+        obj1 = create_obj(name='Hello counter')
+        obj2 = create_obj(
+            name='Organisation counter', counter_goal=2, filter=efilter, ctype=Organisation,
+        )
+
         cloned = act.clone()
         self.assertEqual(act.name,     cloned.name)
         self.assertEqual(act.due_date, cloned.due_date)

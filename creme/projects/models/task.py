@@ -82,9 +82,9 @@ class AbstractProjectTask(CremeEntity):
     def get_absolute_url(self):
         return reverse('projects__view_task', args=(self.id,))
 
-    @staticmethod
-    def get_clone_absolute_url():
-        return ''
+    # @staticmethod
+    # def get_clone_absolute_url():
+    #     return ''
 
     def get_edit_absolute_url(self):
         return reverse('projects__edit_task', args=(self.id,))
@@ -190,7 +190,6 @@ class AbstractProjectTask(CremeEntity):
             new_task = task.clone()
             new_task.linked_project = project
             new_task.save()
-            # new_task = task.clone(project) TODO
 
             context[task.id] = {
                 'new_pk':     new_task.id,

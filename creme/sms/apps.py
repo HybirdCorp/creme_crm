@@ -77,6 +77,17 @@ class SMSConfig(CremeAppConfig):
             custom_forms.MESSAGINGLIST_EDITION_CFORM,
         )
 
+    def register_cloners(self, entity_cloner_registry):
+        from . import cloners
+
+        entity_cloner_registry.register(
+            model=self.SMSCampaign,
+        ).register(
+            model=self.MessagingList, cloner_class=cloners.MessagingListCloner,
+        ).register(
+            model=self.MessageTemplate,
+        )
+
     def register_fields_config(self, fields_config_registry):
         from creme import persons
 

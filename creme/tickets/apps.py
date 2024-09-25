@@ -71,6 +71,11 @@ class TicketsConfig(CremeAppConfig):
             custom_forms.TTEMPLATE_EDITION_CFORM,
         )
 
+    def register_cloners(self, entity_cloner_registry):
+        entity_cloner_registry.register(model=self.Ticket)
+        # NB: TicketTemplates can not be cloned
+        #     (because they are closely linked to their RecurrentGenerator)
+
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(model=self.Ticket)
         # NB: TicketTemplates can not be deleted directly

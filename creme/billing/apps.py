@@ -212,6 +212,25 @@ class BillingConfig(CremeAppConfig):
             custom_forms.BTEMPLATE_EDITION_CFORM,
         )
 
+    def register_cloners(self, entity_cloner_registry):
+        from . import cloners
+
+        entity_cloner_registry.register(
+            model=self.Invoice, cloner_class=cloners.InvoiceCloner,
+        ).register(
+            model=self.Quote, cloner_class=cloners.QuoteCloner,
+        ).register(
+            model=self.SalesOrder, cloner_class=cloners.SalesOrderCloner,
+        ).register(
+            model=self.CreditNote, cloner_class=cloners.CreditNoteCloner,
+        ).register(
+            model=self.ProductLine,
+        ).register(
+            model=self.ServiceLine,
+        )
+        # NB: TemplateBase can not be cloned
+        #     (because it is closely linked to its RecurrentGenerator)
+
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(
             model=self.Invoice,

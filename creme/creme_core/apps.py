@@ -38,6 +38,7 @@ from .checks import (  # NB: it registers other checks too
 from .registry import CremeRegistry, creme_registry
 
 if TYPE_CHECKING:
+    from .core.cloning import EntityClonerRegistry
     from .core.deletion import EntityDeletorRegistry
     from .core.download import FileFieldDownLoadRegistry
     from .core.entity_filter import EntityFilterRegistry
@@ -233,6 +234,7 @@ class CremeAppConfig(AppConfig):
     def all_apps_ready(self):
         if not self.MIGRATION_MODE:
             from .core import (
+                cloning,
                 deletion,
                 download,
                 entity_filter,
@@ -269,6 +271,7 @@ class CremeAppConfig(AppConfig):
             self.register_bulk_update(bulk_update.bulk_update_registry)
             self.register_buttons(button_menu.button_registry)
             self.register_cell_sorters(sorter.cell_sorter_registry)
+            self.register_cloners(cloning.entity_cloner_registry)
             self.register_deletors(deletion.entity_deletor_registry)
             self.register_credentials(
                 entity_filter.entity_filter_registries[entity_filter.EF_CREDENTIALS]
@@ -315,6 +318,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_cell_sorters(self, cell_sorter_registry: 'CellSorterRegistry') -> None:
+        pass
+
+    def register_cloners(self, entity_cloner_registry: 'EntityClonerRegistry') -> None:
         pass
 
     def register_deletors(self, entity_deletor_registry: 'EntityDeletorRegistry') -> None:

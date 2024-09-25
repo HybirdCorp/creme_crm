@@ -10,11 +10,15 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.view_tag import ViewTag
-from creme.creme_core.models import FakeContact, FakeOrganisation
+from creme.creme_core.models import (
+    FakeContact,
+    FakeInvoice,
+    FakeOrganisation,
+    FakeTicket,
+)
 from creme.creme_core.utils.html import escapejson
 
 from ..base import CremeTestCase
-from ..fake_models import FakeTicket
 
 
 class CremeCoreTagsTestCase(CremeTestCase):
@@ -885,6 +889,64 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render2.strip(),
         )
 
+    def test_get_cloning_info(self):
+        user = self.get_root_user()
+
+        # Entity is not clonable ---
+        ticket = FakeTicket.objects.create(user=user, title='Golden ticket')
+
+        with self.assertNoException():
+            render1 = Template(
+                '{% load creme_core_tags %}'
+                '{% get_cloning_info entity=entity user=user as cloning %}'
+                '{% if not cloning.enabled %}NOPE{% endif %}'
+            ).render(Context({'user': user, 'entity': ticket}))
+
+        self.assertEqual('NOPE', render1.strip())
+
+        # OK ---
+        contact = FakeContact.objects.create(user=user, first_name='Ryu', last_name='Tadera')
+
+        with self.assertNoException():
+            render2 = Template(
+                '{% load creme_core_tags %}'
+                '{% get_cloning_info entity=entity user=user as cloning %}'
+                '{% if cloning.enabled %}'
+                '<a class="{% if cloning.allowed %}allowed{% endif %}" href="{{cloning.url}}">'
+                'Clone'
+                '</a>'
+                '{% endif %}'
+            ).render(Context({'user': user, 'entity': contact}))
+
+        url = reverse('creme_core__clone_entity')
+        self.assertHTMLEqual(
+            f'<a class="allowed" href="{url}">Clone</a>',
+            render2.strip(),
+        )
+
+        # Forbidden ---
+        invoice = FakeInvoice.objects.create(user=user, name='Invoice #1', number='00001')
+
+        with self.assertNoException():
+            render3 = Template(
+                '{% load creme_core_tags %}'
+                '{% get_cloning_info entity=entity user=user as cloning %}'
+                '{% if cloning.enabled %}'
+                '<a class="{% if not cloning.allowed %}forbidden{% endif %}"'
+                '   href="{{cloning.url}}"'
+                '   data-error="{{cloning.error}}"'
+                '>Clone'
+                '</a>'
+                '{% endif %}'
+            ).render(Context({'user': user, 'entity': invoice}))
+
+        self.assertHTMLEqual(
+            '<a class="forbidden" href="" '
+            '   data-error="an invoice with a number cannot be cloned" '
+            '>Clone</a>',
+            render3.strip(),
+        )
+
     def test_get_deletion_info(self):
         user = self.get_root_user()
         ticket = FakeTicket.objects.create(user=user, title='Golden ticket')
@@ -943,7 +1005,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         # Forbidden ---
         user_contact = FakeContact.objects.create(
-            user=user, first_name='Ryu', last_name='Tadera', is_user=user,
+            user=user, first_name='Jin', last_name='Kagemori', is_user=user,
         )
 
         with self.assertNoException():

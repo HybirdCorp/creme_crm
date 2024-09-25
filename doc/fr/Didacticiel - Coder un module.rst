@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 30-09-2024 pour la version 2.7 de Creme
+:Version: 04-10-2024 pour la version 2.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3006,7 +3006,8 @@ Liste des *tags* et leur utilité :
    Il suffit de mettre ce *tag* à ``False``, et il sera caché dans toute
    l'application.
  - ``clonable``: en mettant ce *tag* à ``False``, la valeur du champ n'est pas
-   copiée lorsque l'entité est clonée.
+   copiée lorsque l'entité est clonée (plus de détails dans la section sur le
+   clonage de fiche).
  - ``optional``: en mettant ce *tag* à ``True``, le champ peut être caché par
    l'utilisateur dans la configuration des champs. Le champ est alors enlevé
    des formulaires ; il est donc évident que le champ doit supporter de ne pas
@@ -3096,29 +3097,75 @@ Le fichier ``my_project/beavers/forms/my_field.py`` ressemblant à ça : ::
 Clonage de fiche
 ~~~~~~~~~~~~~~~~
 
-De base, les entités peuvent être clonées. Si vous souhaitez qu'un modèle ne
-puisse pas l'être, définissez lui la méthode suivante : ::
+Si vous souhaitez qu'un modèle puisse être cloné (depuis la vue détaillée ou la
+vue en liste), cela se passe dans votre ``apps.py`` : ::
 
-    class Beaver(CremeEntity):
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
         [...]
 
-        @staticmethod
-        def get_clone_absolute_url():
-            return ''
+        def register_cloners(self, entity_cloner_registry):
+            entity_cloner_registry.register(model=Beaver)
 
 
-Si vous souhaitez gérer finement ce qui se passe lors d'un clonage, en plus du
-*tag* ``clonable`` vu précédemment, vous pouvez surcharger les méthodes
-suivantes :
+Le comportement par défaut consiste à copier :
 
- - ``_pre_save_clone(self, source)`` (à préférer)
- - ``_post_save_clone(self, source)`` (à préférer)
- - ``_post_clone(self, source)`` (à préférer)
- - ``_clone_m2m(self, source)``
- - ``_clone_object(self)``
- - ``_copy_properties(self, source)``
- - ``_copy_relations(self, source, allowed_internal=())``
- - ``clone(self)``
+ - les champs de votre modèle qui ont le *tag* ``clonable=True``. C'est le cas
+   par défaut, donc si vous voulez exclure un champ de la copie, mettez ce
+   *tag* à ``clonable=False``.
+ - les champs personnalisés.
+ - les propriétés (``CremeProperty``).
+ - les relations dont le type n'est pas marqué comme ``is_internal=True``.
+
+**Un peu plus loin** : vous pouvez gérer plus finement le clonage de fiche en
+passant à la méthode ``register()`` un argument ``cloner_class``. Dans le
+fichier ``my_project/beavers/cloners.py`` : ::
+
+    from django.utils.translation import gettext_lazy as _
+
+    from creme.creme_core.core.cloning import Copier, EntityCloner
+    from creme.creme_core.core.exceptions import ConflictError
+
+    from .constants import STATUS_SICK
+
+
+    class DescriptionCopier(Copier):
+        def copy_to(self, target):
+            target.description = f'{self._source.description} (cloné)'
+
+
+    class BeaverCloner(EntityCloner):
+        pre_save_copiers = [
+            *EntityCloner.pre_save_copiers,
+            DescriptionCopier,
+        ]
+
+        def check_permissions(self, *, user, entity):
+            super().check_permissions(user=user, entity=entity)
+
+            if entity.status_id == STATUS_SICK:
+                raise ConflictError(_('an sick beaver cannot be cloned'))
+
+
+Dans cet exemple :
+
+ - on interdit le clonage dans certains cas.
+ - on personalise la copie de données lors d'un clonage.
+
+Il reste à demander à Creme d'utiliser notre classe : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_cloners(self, entity_cloner_registry):
+            from . import cloners
+
+            entity_cloner_registry.register(
+                model=Beaver, cloner_class=cloners.BeaverCloner,
+            )
 
 
 Import de fichiers CSV

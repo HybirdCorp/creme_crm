@@ -1104,6 +1104,55 @@ class ContactTestCase(_BaseTestCase):
         for i in range(5):
             create_address(name=f'Secret Cave #{i}', address=f'Cave #{i}', po_box='XXX')
 
+        kage_bunshin = self.clone(naruto)
+        self.assertEqual(naruto.first_name, kage_bunshin.first_name)
+        self.assertEqual(naruto.last_name, kage_bunshin.last_name)
+        self.assertIsNone(kage_bunshin.is_user)  # <====
+
+        self.assertEqual(naruto.id, naruto.billing_address.object_id)
+        self.assertEqual(naruto.id, naruto.shipping_address.object_id)
+
+        self.assertEqual(kage_bunshin.id, kage_bunshin.billing_address.object_id)
+        self.assertEqual(kage_bunshin.id, kage_bunshin.shipping_address.object_id)
+
+        addresses   = [*Address.objects.filter(object_id=naruto.id)]
+        c_addresses = [*Address.objects.filter(object_id=kage_bunshin.id)]
+        self.assertEqual(7, len(addresses))
+        self.assertEqual(7, len(c_addresses))
+
+        addresses_map   = {a.address: a for a in addresses}
+        c_addresses_map = {a.address: a for a in c_addresses}
+        self.assertEqual(7, len(addresses_map))
+        self.assertEqual(7, len(c_addresses_map))
+
+        for ident, address in addresses_map.items():
+            address2 = c_addresses_map.get(ident)
+            self.assertIsNotNone(address2, ident)
+            self.assertAddressOnlyContentEqual(address, address2)
+
+    @skipIfCustomAddress
+    def test_clone__method(self):
+        "Addresses & is_user are problematic."
+        user = self.login_as_root_and_get()
+        naruto = self.get_object_or_fail(Contact, is_user=user)
+
+        create_address = partial(
+            Address.objects.create,
+            city='Konoha', state='Konoha', zipcode='111',
+            country='The land of fire', department="Ninjas' homes",
+            owner=naruto,
+        )
+        naruto.billing_address = create_address(
+            name="Naruto's", address='Home', po_box='000',
+        )
+        naruto.shipping_address = create_address(
+            name="Naruto's", address='Home (second entry)', po_box='001',
+        )
+        naruto.save()
+
+        for i in range(5):
+            create_address(name=f'Secret Cave #{i}', address=f'Cave #{i}', po_box='XXX')
+
         kage_bunshin = naruto.clone()
 
         self.assertEqual(naruto.first_name, kage_bunshin.first_name)

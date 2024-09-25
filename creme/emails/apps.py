@@ -122,6 +122,18 @@ class EmailsConfig(CremeAppConfig):
             custom_forms.MAILINGLIST_EDITION_CFORM,
         )
 
+    def register_cloners(self, entity_cloner_registry):
+        from . import cloners
+
+        entity_cloner_registry.register(
+            model=self.MailingList, cloner_class=cloners.MailingListCloner,
+        ).register(
+            model=self.EmailTemplate,
+        ).register(
+            model=self.EmailCampaign,
+        )
+        # Not self.EntityEmail
+
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(
             model=self.EntityEmail,
@@ -131,8 +143,6 @@ class EmailsConfig(CremeAppConfig):
             model=self.EmailTemplate,
         ).register(
             model=self.EmailCampaign,
-        ).register(
-            model=self.EntityEmail,
         )
 
     def register_fields_config(self, fields_config_registry):

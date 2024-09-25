@@ -67,9 +67,9 @@ class AbstractRecurrentGenerator(CremeEntity):
     def get_absolute_url(self):
         return reverse('recurrents__view_generator', args=(self.id,))
 
-    @staticmethod
-    def get_clone_absolute_url():
-        return ''
+    # @staticmethod
+    # def get_clone_absolute_url():
+    #     return ''
 
     @staticmethod
     def get_create_absolute_url():

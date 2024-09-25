@@ -20,6 +20,7 @@ from django.urls.base import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from .core.cloning import entity_cloner_registry
 from .core.deletion import entity_deletor_registry
 from .core.exceptions import ConflictError
 from .gui.actions import BulkEntityAction, EntityAction
@@ -103,25 +104,42 @@ class CloneAction(EntityAction):
     label = _('Clone')
     icon = 'clone'
 
+    cloner_registry = entity_cloner_registry
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        entity = self.instance
+        cloner = self.cloner_registry.get(model=type(entity))
+        if cloner is None:
+            self.is_visible = False
+        else:
+            try:
+                cloner.check_permissions(entity=entity, user=self.user)
+            except (PermissionDenied, ConflictError) as e:
+                self.is_enabled = False
+                self.help_text = e.args[0]
+
     @property
     def url(self):
-        return self.instance.get_clone_absolute_url()
+        # return self.instance.get_clone_absolute_url()
+        return self.instance.get_clone_absolute_url() if self.is_visible else ''
 
     def _get_data(self):
         return {
             'id': self.instance.id,
         }
 
-    @property
-    def is_enabled(self):
-        instance = self.instance
-        user = self.user
-
-        return (
-            bool(self.url)
-            and user.has_perm_to_create(instance)
-            and user.has_perm_to_view(instance)
-        )
+    # @property
+    # def is_enabled(self):
+    #     instance = self.instance
+    #     user = self.user
+    #
+    #     return (
+    #         bool(self.url)
+    #         and user.has_perm_to_create(instance)
+    #         and user.has_perm_to_view(instance)
+    #     )
 
 
 class BulkEditAction(BulkEntityAction):

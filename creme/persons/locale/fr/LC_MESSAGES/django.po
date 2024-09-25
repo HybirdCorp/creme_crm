@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-09 14:13+0200\n"
+"POT-Creation-Date: 2024-10-03 17:06+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -263,6 +263,9 @@ msgstr ""
 "Seul les super-utilisateurs peuvent utiliser ce bouton.\n"
 "App : Comptes et Contacts"
 
+msgid "a managed organisation cannot be cloned"
+msgstr "une société gérée ne peut pas être clonée"
+
 msgid "Contact details"
 msgstr "Coordonnées du contact"
 
@@ -277,6 +280,12 @@ msgstr "Formulaire de création de société"
 
 msgid "Edition form for organisation"
 msgstr "Formulaire de modification de société"
+
+msgid "A user is associated with this contact."
+msgstr "Un utilisateur est relié à ce contact."
+
+msgid "The last managed organisation cannot be deleted."
+msgstr "La dernière société gérée ne peut pas être supprimée."
 
 msgid "Billing address"
 msgstr "Adresse de facturation"
@@ -452,9 +461,6 @@ msgstr "{civility} {first_name} {last_name}"
 msgid "{first_name} {last_name}"
 msgstr "{first_name} {last_name}"
 
-msgid "A user is associated with this contact."
-msgstr "Un utilisateur est relié à ce contact."
-
 msgid "This Contact is related to a user and must have a first name."
 msgstr "Ce Contact est lié à un utilisateur et doit avoir un prénom."
 
@@ -532,9 +538,6 @@ msgstr "Enregistrer la société"
 
 msgid "Organisations"
 msgstr "Sociétés"
-
-msgid "The last managed organisation cannot be deleted."
-msgstr "La dernière société gérée ne peut pas être supprimée."
 
 msgctxt "persons-civility"
 msgid "Title"

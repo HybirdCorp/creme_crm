@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 30-09-2024 for Creme 2.7
+:Version: 04-10-2024 for Creme 2.7
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2879,7 +2879,8 @@ List of tags and their related features:
    users should not see. Set this tag to ``False``, and it will be hidden
    everywhere.
  - ``clonable``: by setting this tag to ``False``, the field's value is not
-   copied when the entity is cloned.
+   copied when the entity is cloned (more details in the section on
+   entity cloning).
  - ``optional``: by setting this tag to ``True``, the field can be hidden by
    users in the fields' configuration UI ; the field is then removed from
    forms. It's obvious that this field does not need to be fille by form
@@ -2966,28 +2967,75 @@ The file ``my_project/beavers/forms/my_field.py`` looks like: ::
 Entity cloning
 ~~~~~~~~~~~~~~
 
-By default, entities can be cloned. If you want a model cannot be cloned,
-define its following method: ::
+If you want a model allows cloning (from the detailed view or the list view),
+edit your ``apps.py`` : ::
 
-    class Beaver(CremeEntity):
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
         [...]
 
-        @staticmethod
-        def get_clone_absolute_url():
-            return ''
+        def register_cloners(self, entity_cloner_registry):
+            entity_cloner_registry.register(model=Beaver)
 
 
-If you want to managed cloning with a better granularity, you have the tag
-``clonable`` seen previously, and you can override the following methods :
+The default behaviour copies :
 
- - ``_pre_save_clone(self, source)`` (preferred)
- - ``_post_save_clone(self, source)`` (preferred)
- - ``_post_clone(self, source)`` (preferred)
- - ``_clone_m2m(self, source)``
- - ``_clone_object(self)``
- - ``_copy_properties(self, source)``
- - ``_copy_relations(self, source, allowed_internal=())``
- - ``clone(self)``
+ - the fields of your model with the *tag* ``clonable=True``. It's the default
+   value, so if you want to exclude a field from the copy, set this *tag*
+   to ``clonable=False``.
+ - the custom fields.
+ - the properties (``CremeProperty``).
+ - the relationships with a type which is not marked comme ``is_internal=True``.
+
+**A bit further** : you can manage the cloning with a better granularity by
+passing to the method ``register()`` an argument ``cloner_class``. In the file
+``my_project/beavers/cloners.py``: ::
+
+    from django.utils.translation import gettext_lazy as _
+
+    from creme.creme_core.core.cloning import Copier, EntityCloner
+    from creme.creme_core.core.exceptions import ConflictError
+
+    from .constants import STATUS_SICK
+
+
+    class DescriptionCopier(Copier):
+        def copy_to(self, target):
+            target.description = f'{self._source.description} (cloned)'
+
+
+    class BeaverCloner(EntityCloner):
+        pre_save_copiers = [
+            *EntityCloner.pre_save_copiers,
+            DescriptionCopier,
+        ]
+
+        def check_permissions(self, *, user, entity):
+            super().check_permissions(user=user, entity=entity)
+
+            if entity.status_id == STATUS_SICK:
+                raise ConflictError(_('an sick beaver cannot be cloned'))
+
+
+In this example :
+
+ - we forbid cloning in some cases.
+ - we customise the copy of data during cloning.
+
+We have now to tell Creme it has to use our class: ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_cloners(self, entity_cloner_registry):
+            from . import cloners
+
+            entity_cloner_registry.register(
+                model=Beaver, cloner_class=cloners.BeaverCloner,
+            )
 
 
 Import of CSV files
