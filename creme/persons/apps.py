@@ -109,6 +109,15 @@ class PersonsConfig(CremeAppConfig):
             custom_forms.ORGANISATION_EDITION_CFORM,
         )
 
+    def register_cloners(self, entity_cloner_registry):
+        from . import cloners
+
+        entity_cloner_registry.register(
+            model=self.Contact, cloner_class=cloners.ContactCloner,
+        ).register(
+            model=self.Organisation, cloner_class=cloners.OrganisationCloner,
+        )
+
     def register_deletors(self, entity_deletor_registry):
         from . import deletors
 

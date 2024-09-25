@@ -1095,6 +1095,17 @@ class _CremeTestCase:
 
         return f"{url}?entities={ids}" if ids else url
 
+    def clone(self, entity):
+        model = type(entity)
+        old_count = model.objects.count()
+
+        self.assertPOST200(
+            entity.get_clone_absolute_url(), data={'id': entity.id}, follow=True,
+        )
+        self.assertEqual(old_count + 1, model.objects.count())
+
+        return model.objects.order_by('-id').first()
+
     @staticmethod
     def formfield_value_date(*args):
         if len(args) == 1:

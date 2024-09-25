@@ -1214,6 +1214,105 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         invoice.additional_info = AdditionalInformation.objects.all()[0]
         invoice.payment_terms = PaymentTerms.objects.all()[0]
+        invoice.generate_number(source)
+        invoice.save()
+
+        kwargs = {'user': user, 'related_document': invoice}
+        ServiceLine.objects.create(related_item=self.create_service(user=user), **kwargs)
+        ServiceLine.objects.create(on_the_fly_item='otf service', **kwargs)
+        ProductLine.objects.create(related_item=self.create_product(user=user), **kwargs)
+        ProductLine.objects.create(on_the_fly_item='otf product', **kwargs)
+
+        self.assertEqual(address_count + 2, Address.objects.count())
+
+        origin_b_addr = invoice.billing_address
+        origin_b_addr.zipcode += ' (edited)'
+        origin_b_addr.save()
+
+        origin_s_addr = invoice.shipping_address
+        origin_s_addr.zipcode += ' (edited)'
+        origin_s_addr.save()
+
+        cloned = self.clone(invoice)
+
+        self.assertNotEqual(invoice, cloned)  # Not the same pk
+        self.assertEqual(invoice.name,   cloned.name)
+        self.assertEqual(currency,       cloned.currency)
+        self.assertEqual(default_status, cloned.status)
+        self.assertIsNone(cloned.additional_info)  # Should not be cloned
+        self.assertIsNone(cloned.payment_terms)    # Should not be cloned
+        self.assertEqual(source, cloned.source)
+        self.assertEqual(target, cloned.target)
+        self.assertEqual('',     cloned.number)
+
+        # Lines are cloned
+        src_line_ids = [line.id for line in invoice.iter_all_lines()]
+        self.assertEqual(4, len(src_line_ids))
+
+        cloned_line_ids = [line.id for line in cloned.iter_all_lines()]
+        self.assertEqual(4, len(cloned_line_ids))
+
+        self.assertFalse({*src_line_ids} & {*cloned_line_ids})
+
+        # Addresses are cloned
+        self.assertEqual(address_count + 4, Address.objects.count())
+
+        billing_address = cloned.billing_address
+        self.assertIsInstance(billing_address, Address)
+        self.assertEqual(cloned,                billing_address.owner)
+        self.assertEqual(origin_b_addr.name,    billing_address.name)
+        self.assertEqual(origin_b_addr.city,    billing_address.city)
+        self.assertEqual(origin_b_addr.zipcode, billing_address.zipcode)
+
+        shipping_address = cloned.shipping_address
+        self.assertIsInstance(shipping_address, Address)
+        self.assertEqual(cloned,                   shipping_address.owner)
+        self.assertEqual(origin_s_addr.name,       shipping_address.name)
+        self.assertEqual(origin_s_addr.department, shipping_address.department)
+        self.assertEqual(origin_s_addr.zipcode,    shipping_address.zipcode)
+
+    @skipIfCustomAddress
+    @skipIfCustomProductLine
+    @skipIfCustomServiceLine
+    def test_clone__method(self):
+        user = self.login_as_root_and_get()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        source = create_orga(name='Source Orga')
+        target = create_orga(name='Target Orga')
+
+        create_address = Address.objects.create
+        target.billing_address = create_address(
+            name='Billing address 01', address='BA1 - Address',
+            po_box='BA1 - PO box', zipcode='BA1 - Zip code',
+            city='BA1 - City', department='BA1 - Department',
+            state='BA1 - State', country='BA1 - Country',
+            owner=target,
+        )
+        target.shipping_address = create_address(
+            name='Shipping address 01', address='SA1 - Address',
+            po_box='SA1 - PO box', zipcode='SA1 - Zip code',
+            city='SA1 - City', department='SA1 - Department',
+            state='SA1 - State', country='SA1 - Country',
+            owner=target,
+        )
+        target.save()
+
+        address_count = Address.objects.count()
+
+        default_status = self.get_object_or_fail(InvoiceStatus, is_default=True)
+        currency = Currency.objects.create(
+            name='Martian dollar', local_symbol='M$',
+            international_symbol='MUSD', is_custom=True,
+        )
+        invoice = self.create_invoice(
+            user=user, name='Invoice001',
+            source=source, target=target,
+            currency=currency,
+            status=InvoiceStatus.objects.filter(is_default=False).first().id,
+        )
+        invoice.additional_info = AdditionalInformation.objects.all()[0]
+        invoice.payment_terms = PaymentTerms.objects.all()[0]
         invoice.save()
 
         kwargs = {'user': user, 'related_document': invoice}

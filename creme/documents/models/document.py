@@ -63,9 +63,9 @@ class AbstractDocument(CremeEntity):
     def get_absolute_url(self):
         return reverse('documents__view_document', args=(self.id,))
 
-    @staticmethod
-    def get_clone_absolute_url():
-        return ''
+    # @staticmethod
+    # def get_clone_absolute_url():
+    #     return ''
 
     @staticmethod
     def get_create_absolute_url():

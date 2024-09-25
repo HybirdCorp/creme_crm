@@ -529,6 +529,32 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         ticket.save()
         self.assertIsNotNone(ticket.closing_date)
 
+        cloned_ticket = self.clone(ticket)
+        self.assertEqual(ticket.title, cloned_ticket.title)
+        self.assertEqual(status_open, cloned_ticket.status)
+        self.assertIsNone(cloned_ticket.closing_date)
+
+    def test_clone__method(self):
+        "The cloned ticket is open."
+        user = self.login_as_root_and_get()
+
+        get_status = Status.objects.get
+        status_open   = get_status(uuid=constants.UUID_STATUS_OPEN)
+        status_closed = get_status(uuid=constants.UUID_STATUS_CLOSED)
+
+        ticket = Ticket.objects.create(
+            user=user,
+            title='ticket',
+            description='blablablabla',
+            status=status_open,
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
+
+        ticket.status = status_closed
+        ticket.save()
+        self.assertIsNotNone(ticket.closing_date)
+
         clone = ticket.clone()
         self.assertEqual(ticket.title, clone.title)
         self.assertEqual(status_open, clone.status)

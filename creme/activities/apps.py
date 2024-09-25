@@ -135,6 +135,13 @@ class ActivitiesConfig(CremeAppConfig):
             custom_forms.ACTIVITY_EDITION_CFORM,
         )
 
+    def register_cloners(self, entity_cloner_registry):
+        from . import cloners
+
+        entity_cloner_registry.register(
+            model=self.Activity, cloner_class=cloners.ActivityCloner,
+        )
+
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(model=self.Activity)
 

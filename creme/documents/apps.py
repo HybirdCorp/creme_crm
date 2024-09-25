@@ -87,6 +87,15 @@ class DocumentsConfig(CremeAppConfig):
             custom_forms.DOCUMENT_EDITION_CFORM,
         )
 
+    def register_cloners(self, entity_cloner_registry):
+        from . import cloners
+
+        entity_cloner_registry.register(
+            model=self.Folder, cloner_class=cloners.FolderCloner,
+        )
+        # TODO?
+        #  register(model=self.Document)
+
     def register_deletors(self, entity_deletor_registry):
         from . import deletors
 

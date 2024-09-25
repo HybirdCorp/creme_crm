@@ -196,9 +196,7 @@ class AbstractReport(CremeEntity):
         for rfield in source.fields.all():
             rfield.clone(report=self)
 
-        # TODO: use signal for this ?
         for graph in source.reportgraph_set.all():
-            # TODO: avoid multiple save()
             new_graph = graph.clone()
             new_graph.linked_report = self
             new_graph.save()

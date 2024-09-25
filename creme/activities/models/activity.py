@@ -175,7 +175,7 @@ class AbstractActivity(CremeEntity):
             self.end   = self.end.replace(hour=23, minute=59)
 
     def _pre_save_clone(self, source):
-        # TODO: Explicit this into description ? Move the activity to another time-slot ?
+        # TODO: explicit this into description? Move the activity to another time-slot?
         if source.busy:
             self.busy = False
 

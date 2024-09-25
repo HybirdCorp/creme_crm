@@ -94,6 +94,17 @@ class CommercialConfig(CremeAppConfig):
             custom_forms.STRATEGY_EDITION_CFORM,
         )
 
+    def register_cloners(self, entity_cloner_registry):
+        from . import cloners
+
+        entity_cloner_registry.register(
+            model=self.Act, cloner_class=cloners.ActCloner,
+        ).register(
+            model=self.Pattern, cloner_class=cloners.PatternCloner,
+        )
+        # TODO? (what about charms/assets/... ?)
+        # .register(model=self.Strategy)
+
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(
             model=self.Act,

@@ -673,7 +673,78 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     @skipIfCustomServiceLine
-    def test_clone01(self):
+    def test_clone__not_managed_emitter(self):
+        "Organisation not managed => number is set to '0'."
+        user = self.login_as_root_and_get()
+        source, target = self.create_orgas(user=user)
+
+        target.billing_address = Address.objects.create(
+            name='Billing address 01',
+            address='BA1 - Address', city='BA1 - City',
+            owner=target,
+        )
+        target.save()
+
+        # status = QuoteStatus.objects.filter(is_default=False)[0] TODO
+
+        quote = self.create_quote(
+            user=user, name='Quote001', source=source, target=target,
+            # status=status,
+            number='12',
+        )
+        quote.acceptation_date = date.today()
+        quote.save()
+
+        sl = ServiceLine.objects.create(
+            related_item=self.create_service(user=user), user=user, related_document=quote,
+        )
+
+        address_count = Address.objects.count()
+
+        origin_b_addr = quote.billing_address
+        origin_b_addr.zipcode += ' (edited)'
+        origin_b_addr.save()
+
+        cloned = self.clone(quote)
+        self.assertIsNone(cloned.acceptation_date)
+        # self.assertTrue(cloned.status.is_default) TODO
+        self.assertEqual('0', cloned.number)
+
+        self.assertNotEqual(quote, cloned)  # Not the same pk
+        self.assertEqual(source, cloned.source)
+        self.assertEqual(target, cloned.target)
+
+        # Lines are cloned
+        cloned_lines = [*cloned.iter_all_lines()]
+        self.assertEqual(1, len(cloned_lines))
+        self.assertNotEqual([sl], cloned_lines)
+
+        # Addresses are cloned
+        self.assertEqual(address_count + 2, Address.objects.count())
+
+        billing_address = cloned.billing_address
+        self.assertIsInstance(billing_address, Address)
+        self.assertEqual(cloned,                billing_address.owner)
+        self.assertEqual(origin_b_addr.name,    billing_address.name)
+        self.assertEqual(origin_b_addr.city,    billing_address.city)
+        self.assertEqual(origin_b_addr.zipcode, billing_address.zipcode)
+
+    def test_clone__managed_emitter(self):
+        "Organisation is managed => number is generated (but only once BUGFIX)."
+        user = self.login_as_root_and_get()
+
+        source, target = self.create_orgas(user=user)
+        self._set_managed(source)
+
+        quote = self.create_quote(user=user, name='My Quote', source=source, target=target)
+        self.assertEqual('DE1', quote.number)
+
+        cloned = self.clone(quote)
+        self.assertEqual('DE2', cloned.number)
+
+    @skipIfCustomAddress
+    @skipIfCustomServiceLine
+    def test_clone__method01(self):
         "Organisation not managed => number is set to '0'."
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
@@ -722,7 +793,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(b_addr.name, billing_address.name)
         self.assertEqual(b_addr.city, billing_address.city)
 
-    def test_clone02(self):
+    def test_clone__method02(self):
         "Organisation is managed => number is generated (but only once BUGFIX)."
         user = self.login_as_root_and_get()
 

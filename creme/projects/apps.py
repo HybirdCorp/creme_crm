@@ -83,6 +83,13 @@ class ProjectsConfig(CremeAppConfig):
             custom_forms.TASK_EDITION_CFORM,
         )
 
+    def register_cloners(self, entity_cloner_registry):
+        from . import cloners
+
+        entity_cloner_registry.register(
+            model=self.Project, cloner_class=cloners.ProjectCloner,
+        )
+
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(
             model=self.Project,

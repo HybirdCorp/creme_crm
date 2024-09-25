@@ -11,6 +11,7 @@ def ready():
 
     from creme.creme_config.tests.fake_models import FakeConfigEntity
 
+    from ..core.cloning import EntityCloner, entity_cloner_registry
     from ..core.deletion import EntityDeletor, entity_deletor_registry
     from ..core.download import filefield_download_registry
     from ..core.exceptions import ConflictError
@@ -70,6 +71,20 @@ def ready():
 
         # No (see creme_config.tests.test_fields_config.FieldsConfigTestCase.test_edit03)
         # fake_models.FakeActivity,
+    )
+
+    class FakeInvoiceCloner(EntityCloner):
+        def check_permissions(self, *, user, entity):
+            super().check_permissions(user=user, entity=entity)
+
+            if entity.number:
+                raise ConflictError('an invoice with a number cannot be cloned')
+
+    entity_cloner_registry.register(
+        model=fake_models.FakeContact,
+    ).register(
+        model=fake_models.FakeInvoice,
+        cloner_class=FakeInvoiceCloner,
     )
 
     class FakeContactDeletor(EntityDeletor):

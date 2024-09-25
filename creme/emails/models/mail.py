@@ -148,9 +148,9 @@ class AbstractEntityEmail(_Email, CremeEntity):
     def get_absolute_url(self):
         return reverse('emails__view_email', args=(self.pk,))
 
-    @staticmethod
-    def get_clone_absolute_url():
-        return ''  # Cannot be cloned
+    # @staticmethod
+    # def get_clone_absolute_url():
+    #     return ''  # Cannot be cloned
 
     @staticmethod
     def get_lv_absolute_url():

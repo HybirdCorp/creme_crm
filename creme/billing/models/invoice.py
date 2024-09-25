@@ -61,14 +61,11 @@ class AbstractInvoice(Base):
     def _pre_save_clone(self, source):
         super()._pre_save_clone(source=source)
 
-        # TODO: <.set_tags(clonable=False)>
         status = InvoiceStatus.objects.default()
         if status:
             self.status = status
         else:
             logger.critical('AbstractInvoice._pre_save_clone(): cannot find a default status')
-
-        # TODO: what about "issuing_date"? should we copy it?
 
     def _get_total(self):
         lines_total, creditnotes_total = self._get_lines_total_n_creditnotes_total()

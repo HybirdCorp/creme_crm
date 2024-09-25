@@ -58,7 +58,7 @@ class CremeEntity(CremeModel):
 
     header_filter_search_field = models.CharField(
         max_length=_SEARCH_FIELD_MAX_LENGTH, editable=False,
-    ).set_tags(viewable=False)
+    ).set_tags(viewable=False, clonable=False)
 
     is_deleted = models.BooleanField(default=False, editable=False).set_tags(viewable=False)
 
@@ -68,7 +68,7 @@ class CremeEntity(CremeModel):
 
     uuid = models.UUIDField(
         unique=True, editable=False, default=uuid.uuid4,
-    ).set_tags(viewable=False)
+    ).set_tags(viewable=False, clonable=False)
 
     sandbox = models.ForeignKey(
         'creme_core.Sandbox',
@@ -190,13 +190,15 @@ class CremeEntity(CremeModel):
 
         return real_entity.get_absolute_url()
 
-    # TODO: not 'staticmethod' (Organisation override is as an classical method)?
-    # TODO: better clone system with a registry?
     @staticmethod
     def get_clone_absolute_url() -> str:
-        """Returns the url of the clone view of this entity type.
-        This URL should only accept POST method, and take an 'id' POST parameter.
-        If '' (void string) is returned, the type can not be cloned.
+        # """Returns the url of the clone view of this entity type.
+        # This URL should only accept POST method, and take an 'id' POST parameter.
+        # If '' (void string) is returned, the type can not be cloned.
+        # """
+        """You should probably not override this method in child classes.
+        Use the cloning system instead (see <creme_core.core.cloning> &
+        <creme_core.apps.CremeAppConfig.register_cloners()>).
         """
         return reverse('creme_core__clone_entity')
 

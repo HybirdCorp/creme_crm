@@ -39,6 +39,7 @@ from django.utils.translation import gettext_lazy as _
 
 from mediagenerator.generators.bundles.utils import _render_include_media
 
+from ..core.cloning import entity_cloner_registry
 from ..core.deletion import entity_deletor_registry
 from ..core.entity_cell import EntityCell
 from ..core.exceptions import ConflictError
@@ -367,6 +368,36 @@ def jsondata(value, **kwargs):
     return mark_safe(
         f'<script type="application/json"{attrs}><!-- {escapejson(content)} --></script>'
     )
+
+
+@register.simple_tag
+def get_cloning_info(entity, user):
+    url = entity.get_clone_absolute_url()
+
+    # TODO: remove in creme 2.8
+    if url == '':
+        logger.warning(
+            'The entity "%s" returns an empty cloning URL; it is now useless '
+            'with the cloning registry (just do not register this model).',
+            entity,
+        )
+
+    cloner = entity_cloner_registry.get(model=type(entity))
+    if cloner is None:
+        return {'enabled': False}
+
+    info = {'enabled': True}
+
+    try:
+        cloner.check_permissions(entity=entity, user=user)
+    except (PermissionDenied, ConflictError) as e:
+        info['allowed'] = False
+        info['error'] = e.args[0]
+    else:
+        info['allowed'] = True
+        info['url'] = url
+
+    return info
 
 
 @register.simple_tag

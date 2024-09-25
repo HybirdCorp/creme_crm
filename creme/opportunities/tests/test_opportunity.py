@@ -719,6 +719,23 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         user = self.login_as_root_and_get()
 
         opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)
+        clone = self.clone(opportunity)
+
+        self.assertEqual(opportunity.name,         clone.name)
+        self.assertEqual(opportunity.sales_phase,  clone.sales_phase)
+        self.assertEqual(opportunity.closing_date, clone.closing_date)
+
+        self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
+        self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=clone)
+
+        self.assertHaveRelation(target, type=constants.REL_OBJ_TARGETS, object=opportunity)
+        # Internal
+        self.assertHaveRelation(target, type=constants.REL_OBJ_TARGETS, object=clone)
+
+    def test_clone__method(self):
+        user = self.login_as_root_and_get()
+
+        opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)
         cloned = opportunity.clone()
 
         self.assertEqual(opportunity.name,         cloned.name)

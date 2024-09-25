@@ -1044,6 +1044,40 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         rfield1 = create_field(name='last_name',             order=1, type=RFT_FIELD)
         rfield2 = create_field(name='get_pretty_properties', order=2, type=RFT_FUNCTION)
 
+        cloned_report = self.clone(report)
+        self.assertIsInstance(cloned_report, Report)
+        self.assertNotEqual(report.id, cloned_report.id)
+        self.assertEqual(report.name,   cloned_report.name)
+        self.assertEqual(report.ct,     cloned_report.ct)
+        self.assertEqual(report.filter, cloned_report.filter)
+
+        rfields = cloned_report.fields.all()
+        self.assertEqual(2, len(rfields))
+
+        def check_clone(source_field, cloned_field):
+            self.assertNotEqual(source_field.id, cloned_field.id)
+            self.assertEqual(source_field.name,       cloned_field.name)
+            self.assertEqual(source_field.order,      cloned_field.order)
+            self.assertEqual(source_field.type,       cloned_field.type)
+            self.assertEqual(source_field.selected,   cloned_field.selected)
+            self.assertEqual(source_field.sub_report, cloned_field.sub_report)
+
+        check_clone(rfield1, rfields[0])
+        check_clone(rfield2, rfields[1])
+
+    def test_clone__method(self):
+        user = self.login_as_root_and_get()
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter', 'Mihana family', FakeContact, is_custom=True,
+        )
+        report = Report.objects.create(
+            user=user, name='Contact report', ct=FakeContact, filter=efilter,
+        )
+
+        create_field = partial(Field.objects.create, report=report)
+        rfield1 = create_field(name='last_name',             order=1, type=RFT_FIELD)
+        rfield2 = create_field(name='get_pretty_properties', order=2, type=RFT_FUNCTION)
+
         cloned_report = report.clone()
         self.assertIsInstance(cloned_report, Report)
         self.assertNotEqual(report.id, cloned_report.id)

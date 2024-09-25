@@ -251,7 +251,6 @@ class _BillingTestCaseMixin:
             category=cat, sub_category=subcat,
         )
 
-    # TODO inline (used once)
     def create_salesorder(self, *, user, name, source, target, currency=None, status=None):
         currency = currency or Currency.objects.all()[0]
         response = self.client.post(

@@ -49,6 +49,10 @@ class RecurrentsConfig(CremeAppConfig):
             custom_forms.GENERATOR_EDITION_CFORM,
         )
 
+    # TODO?
+    # def register_cloners(self, entity_cloner_registry):
+    #     entity_cloner_registry.register(model=self.RecurrentGenerator)
+
     def register_deletors(self, entity_deletor_registry):
         entity_deletor_registry.register(model=self.RecurrentGenerator)
 

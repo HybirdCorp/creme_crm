@@ -53,6 +53,7 @@ from ..auth import SUPERUSER_PERM
 from ..auth.decorators import login_required
 from ..auth.entity_credentials import EntityCredentials
 from ..core import sorter
+from ..core.cloning import EntityCloner, entity_cloner_registry
 from ..core.deletion import EntityDeletor, entity_deletor_registry
 from ..core.entity_cell import (
     CELLS_MAP,
@@ -209,18 +210,44 @@ class FieldsInformation(generic.base.EntityCTypeRelatedMixin,
 class Clone(base.EntityRelatedMixin, base.CheckedView):
     entity_id_arg = 'id'
 
-    def check_related_entity_permissions(self, entity, user):
-        if entity.get_clone_absolute_url() != CremeEntity.get_clone_absolute_url():
-            raise Http404(gettext('This model does not use the generic clone view.'))
+    cloner_registry = entity_cloner_registry
 
-        user.has_perm_to_create_or_die(entity)
-        user.has_perm_to_view_or_die(entity)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.cloner = None
+
+    def get_cloner_for_entity(self, entity: CremeEntity) -> EntityCloner:
+        """Gets the cloner for an entity (based of its type).
+        @raise ConflictError if this tpe has not registered cloner.
+        """
+        cloner = self.cloner
+        if cloner is None:
+            cloner = self.cloner_registry.get(model=type(entity))
+
+            if cloner is None:
+                raise ConflictError(gettext(
+                    'This model does not use the generic clone view.'
+                ))
+
+            self.cloner = cloner
+
+        return cloner
+
+    def check_related_entity_permissions(self, entity, user):
+        # if entity.get_clone_absolute_url() != CremeEntity.get_clone_absolute_url():
+        #     raise Http404(gettext('This model does not use the generic clone view.'))
+        #
+        # user.has_perm_to_create_or_die(entity)
+        # user.has_perm_to_view_or_die(entity)
+        self.get_cloner_for_entity(entity).check_permissions(user=user, entity=entity)
 
     def get_related_entity_id(self):
         return get_from_POST_or_404(self.request.POST, self.entity_id_arg)
 
     def post(self, request, *args, **kwargs):
-        new_entity = self.get_related_entity().clone()  # NB: clone() is @atomic
+        # new_entity = self.get_related_entity().clone()  # NB: clone() is @atomic
+        entity = self.get_related_entity()
+        new_entity = self.get_cloner_for_entity(entity).perform(user=request.user, entity=entity)
 
         if is_ajax(request):
             return HttpResponse(new_entity.get_absolute_url())

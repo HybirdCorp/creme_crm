@@ -1006,7 +1006,7 @@ class BuiltinActionsTestCase(CremeTestCase):
             },
         )
 
-        # ---
+        # Not registered ---
         img = FakeImage.objects.create(user=user, name='Img#1')
         self.assertAction(
             actions.CloneAction(self.get_root_user(), instance=img),
@@ -1014,8 +1014,10 @@ class BuiltinActionsTestCase(CremeTestCase):
             action_id='creme_core-clone',
             action_type='clone',
             url='',
-            is_enabled=False,  # url is ''
-            is_visible=True,
+            # is_enabled=False,
+            is_enabled=True,
+            # is_visible=True,
+            is_visible=False,
             is_default=False,
             label=_('Clone'),
             icon='clone',

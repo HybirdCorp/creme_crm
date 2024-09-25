@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-24 14:00+0200\n"
+"POT-Creation-Date: 2024-10-03 17:04+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -275,6 +275,9 @@ msgstr "{field} ➔ {operator}"
 #, python-brace-format
 msgid "{field} ➔ {operator}: «{value}»"
 msgstr "{field} ➔ {operator} : «{value}»"
+
+msgid "A deleted entity cannot be cloned"
+msgstr "Une fiche supprimée ne peut pas être clonée"
 
 #, python-brace-format
 msgid "In «{model} - {field}», replace by «{new}»"
@@ -2833,6 +2836,10 @@ msgstr "%(software)s > Réinitialisation de votre mot de passe"
 
 msgid "Strategic summary"
 msgstr "Résumé stratégique"
+
+#, python-format
+msgid "Cloning is forbidden (%(error)s)"
+msgstr "Clonage interdit (%(error)s)"
 
 msgid "Do you really want to clone this entity?"
 msgstr "Voulez-vous vraiment cloner cette fiche ?"

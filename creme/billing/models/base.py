@@ -57,7 +57,7 @@ logger = logging.getLogger(__name__)
 
 class Base(CremeEntity):
     name = models.CharField(_('Name'), max_length=100)
-    number = models.CharField(_('Number'), max_length=100, blank=True)
+    number = models.CharField(_('Number'), max_length=100, blank=True).set_tags(clonable=False)
 
     issuing_date = models.DateField(
         _('Issuing date'), blank=True, null=True,
