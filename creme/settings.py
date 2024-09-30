@@ -222,6 +222,15 @@ ALLOWED_HOSTS = ['*']
 # Hint: you can start your own base template with {% extends 'creme_core/base.html' %}.
 BASE_HTML = 'creme_core/base.html'
 
+# These templates are automatically included at the end of the <body> of all the
+# HTML pages; it's a lightweight way to add some <script> everywhere, from an
+# app you install in several projects:
+#  - without having to define a custom base template (i.e. assigned to BASE_HTML).
+#  - without having to {% include %} it in your custom base template.
+# Example:
+#   BASE_HTML_EXTRA_INCLUDED = ['my_app/extra-script.html']
+BASE_HTML_EXTRA_INCLUDED = []
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

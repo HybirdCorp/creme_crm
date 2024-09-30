@@ -29,6 +29,8 @@
     <div class="ui-dialog-within-container"></div>
     <div id="content" class="main_content main-content {% block content_extra_class %}{% endblock %}">{% block content %}{% endblock %}</div>
     {% include 'footer/footer.html' %}
+
+    {% for template_name in BASE_HTML_EXTRA_INCLUDED %}{% include template_name %}{% endfor %}
   {% endblock %}
 </body>
 </html>

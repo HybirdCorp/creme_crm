@@ -7,8 +7,10 @@
     # Several issues in the job scheduler has been fixed for periodic jobs :
         - The start date of the jobs depended on the hour the command "creme_job_manager" has started.
         - Some useless extra runs have been removed.
-    # A new setting, 'CELL_SIZE', has been added; it allows to limit the size of lists
-      (relationships, ManyToMany...) & so avoid some performance issues.
+    # 2 new settings have been added :
+        - 'BASE_HTML_EXTRA_INCLUDED' to include some templates in all pages.
+        - 'CELL_SIZE' to limit the size of lists (relationships, ManyToMany...)
+           & so avoid some performance issues.
     # The style of the preview table in the header-filter form has been improved.
     # Apps :
         * Persons :

@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 13-02-2024 for Creme 2.5
+:Version: 30-09-2024 for Creme 2.5
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2024,6 +2024,35 @@ The last thing is to declare our action in our ``apps.py``: ::
 **Going a bit further** : to code an action managing several entities at once,
 an action class must inherit ``creme.creme_core.gui.actions.UIAction``
 and must be registered with ``actions_registry.register_bulk_actions``.
+
+
+Modifying the base template
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The variable ``settings.BASE_HTML`` allows to customise the template used as
+base by all pages, to modify the <head> part for example.
+
+If it's possible, your own base template should inherit the default base template,
+in order to minimise the copy-pasted parts and facilitate the upgrades of Creme.
+For example, create the file ``my_project/beavers/templates/beavers/my-base.html`` : ::
+
+    {% extends 'creme_core/base.html' %}
+
+    {% block %}
+        {{block.super}}
+        <meta name="publisher" content="Beaver corp.">
+    {% endblock %}
+
+
+and set in ``my_project/settings.py`` : ::
+
+    BASE_HTML = 'beavers/my-base.html'
+
+
+**See also** : there is a variable ``settings.BASE_HTML_EXTRA_INCLUDED``
+which allows to include directly some templates in the base template, at the end
+of "<body>". It's useful to add a tag "<script>" everywhere without having to
+define ``settings.BASE_HTML`` for example.
 
 
 Modifying existing apps
