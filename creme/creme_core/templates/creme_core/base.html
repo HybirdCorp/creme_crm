@@ -31,6 +31,8 @@
       {% block content %}{% endblock %}
     </div>
     {% include 'footer/footer.html' %}
+
+    {% for template_name in BASE_HTML_EXTRA_INCLUDED %}{% include template_name %}{% endfor %}
   {% endblock %}
 </body>
 </html>

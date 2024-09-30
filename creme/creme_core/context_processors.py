@@ -27,7 +27,10 @@ from .models import FieldsConfig
 
 
 def get_base_template(request):
-    return {'BASE_HTML': settings.BASE_HTML}
+    return {
+        'BASE_HTML': settings.BASE_HTML,
+        'BASE_HTML_EXTRA_INCLUDED': settings.BASE_HTML_EXTRA_INCLUDED,
+    }
 
 
 def get_software_label(request):
