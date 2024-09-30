@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-09 10:52+0200\n"
+"POT-Creation-Date: 2024-30-09 15:00+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2067,13 +2067,8 @@ msgid ""
 msgstr ""
 "Ici vous pouvez configurer les boutons affichés dans les vues détaillées, "
 "juste en dessous du bloc entête.\n"
-<<<<<<< HEAD
-"Remarque : les boutons de la configuration par défaut sont toujours placés "
-"au début,avant les boutons spécifiques à un type de fiche."
-=======
 "Remarque : les boutons de la configuration par défaut sont toujours placés "
 "au début, avant les boutons spécifiques à un type de fiche."
->>>>>>> f81ad443f... Typo
 
 msgid "Configuration of custom forms"
 msgstr "Configuration des formulaires personnalisés"
