@@ -492,5 +492,11 @@ class ContactMergeTestCase(_BaseTestCase):
         contact01 = user.linked_contact
         contact02 = self.other_user.linked_contact
 
-        self.assertGET409(self.build_merge_url(contact01, contact02))
+        response1 = self.client.get(self.build_merge_url(contact01, contact02))
+        self.assertContains(
+            response=response1,
+            text=_('Can not merge 2 Contacts which represent some users.'),
+            status_code=409,
+        )
+
         self.assertGET409(self.build_merge_url(contact02, contact01))

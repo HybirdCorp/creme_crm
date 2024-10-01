@@ -1,3 +1,24 @@
+== Version 2.4.19 ==
+
+  Users side :
+  ------------
+    # The support of Python 3.7 has been dropped; it's the end of life for Python 3.8
+      so it should not annoy anybody.
+    # Several issues in the job scheduler has been fixed for periodic jobs :
+        - The start date of the jobs depended on the hour the command "creme_job_manager" has started.
+        - Some useless extra runs have been removed.
+    # Apps :
+        * Persons :
+            - In the bar-brick for Organisations the logo was never displayed.
+        * Documents :
+            - You could merge system folders & so, remove them.
+        * Emails :
+            - There were some issues when the default owner of synchronised emails is a team.
+            - A crash when accepting a synchronized email with attachments has been fixed.
+        * Billing :
+            - The inner-edition of TemplateBase instances bas been fixed.
+
+
 == Version 2.4.18 ==
 
   UPGRADE NOTE :

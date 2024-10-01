@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -163,6 +163,7 @@ class BillingConfig(CremeAppConfig):
         register(self.Quote)
         register(self.SalesOrder)
         register(self.CreditNote)
+        register(self.TemplateBase)
         register(self.ProductLine).exclude('on_the_fly_item')
         register(self.ServiceLine).exclude('on_the_fly_item')
 
