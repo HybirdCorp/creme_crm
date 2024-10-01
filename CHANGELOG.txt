@@ -1,7 +1,5 @@
 == Version 2.4.19 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .po (documents)
-
   Users side :
   ------------
     # Several issues in the job scheduler has been fixed for periodic jobs :
