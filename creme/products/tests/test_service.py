@@ -368,3 +368,25 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
         results = self._get_job_results(job)
         self.assertEqual(len(lines), len(results))
         self._assertNoResultError(results)
+
+    def test_clone(self):
+        user = self.login_as_root_and_get()
+
+        create_image = self._create_image
+        img_1 = create_image(ident=1, user=user)
+        img_2 = create_image(ident=2, user=user)
+
+        sub_cat = SubCategory.objects.all()[0]
+        service = Service.objects.create(
+            user=user, name='Eva00', description='A fake god',
+            unit_price=Decimal('1.23'),
+            category=sub_cat.category, sub_category=sub_cat,
+        )
+        service.images.set([img_1, img_2])
+
+        cloned_service = service.clone()
+        self.assertIsInstance(cloned_service, Service)
+        self.assertNotEqual(service.pk, cloned_service.pk)
+        self.assertEqual(service.name, cloned_service.name)
+        self.assertEqual(sub_cat, cloned_service.sub_category)
+        self.assertCountEqual([img_1, img_2], cloned_service.images.all())

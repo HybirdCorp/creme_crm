@@ -985,3 +985,29 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
         self._execute_job(response2)
         self.assertEqual(count + 2, Product.objects.count())
+
+    def test_clone(self):
+        user = self.login_as_root_and_get()
+
+        sub_cat = SubCategory.objects.all()[0]
+        product = Product.objects.create(
+            user=user, name='Eva00', description='A fake god',
+            unit_price=Decimal('1.23'), code=42,
+            category=sub_cat.category, sub_category=sub_cat,
+        )
+
+        create_image = partial(
+            self._create_image, user=user,
+            folder=get_folder_model().objects.create(user=user, title=_('My Images')),
+        )
+        img_1 = create_image(ident=1)
+        img_2 = create_image(ident=2)
+
+        product.images.set([img_1, img_2])
+
+        cloned_product = product.clone()
+        self.assertIsInstance(cloned_product, Product)
+        self.assertNotEqual(product.pk, cloned_product.pk)
+        self.assertEqual(product.name, cloned_product.name)
+        self.assertEqual(sub_cat, cloned_product.sub_category)
+        self.assertCountEqual([img_1, img_2], cloned_product.images.all())
