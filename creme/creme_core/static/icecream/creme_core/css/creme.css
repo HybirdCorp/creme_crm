@@ -419,6 +419,12 @@ span.enumerator-empty {
     color: #333;
 }
 
+ul.limited-list .more-elements {
+    padding-left: 2px;
+    color: #adacac;
+    font-size: 11px;
+}
+
 /* Title bar */
 
 .global-buttons + .hat-bar-container {

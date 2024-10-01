@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,6 @@ class ButtonMenuItemManager(models.Manager):
                          order: int,
                          ) -> ButtonMenuItem:
         """Creation helper ; useful for populate.py scripts.
-        @param pk: Unique string.
         @param model: Class inheriting CremeEntity, or <None> for "all models".
         @param button: class inheriting <creme_core.gui.button_menu.Button>,
                or button's ID (string -- see Button.id).

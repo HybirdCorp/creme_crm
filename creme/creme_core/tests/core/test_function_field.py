@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils.formats import number_format
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
 from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.core.function_field import (
@@ -239,15 +240,36 @@ class FunctionFieldsTestCase(CremeTestCase):
     def test_result_list(self):
         value1 = 'My value #1'
         value2 = 'My value #2'
-        result = FunctionFieldResultsList([
+        result1 = FunctionFieldResultsList([
             FunctionFieldResult(value1),
             FunctionFieldResult(value2),
         ])
-        self.assertEqual(f'{value1}/{value2}', result.for_csv())
-        self.assertHTMLEqual(
-            f'<ul><li>{value1}</li><li>{value2}</li></ul>',
-            result.for_html(),
-        )
+        # self.assertEqual(f'{value1}/{value2}', result.for_csv())
+        # self.assertHTMLEqual(
+        #     f'<ul><li>{value1}</li><li>{value2}</li></ul>',
+        #     result.for_html(),
+        # )
+        with self.settings(CELL_SIZE=2):
+            self.assertEqual(f'{value1}/{value2}', result1.render(ViewTag.TEXT_PLAIN))
+            self.assertHTMLEqual(
+                # f'<ul><li>{value1}</li><li>{value2}</li></ul>',
+                f'<ul class="limited-list"><li>{value1}</li><li>{value2}</li></ul>',
+                result1.render(ViewTag.HTML_DETAIL),
+            )
+
+        with self.settings(CELL_SIZE=1):
+            self.assertEqual(f'{value1}/{value2}', result1.render(ViewTag.TEXT_PLAIN))
+
+            message = ngettext(
+                '{count} more element', '{count} more elements', 1,
+            ).format(count=1)
+            self.assertHTMLEqual(
+                f'<ul class="limited-list">'
+                f' <li>{value1}</li>'
+                f' <li><span class="more-elements">{message}</span></li>'
+                f'</ul>',
+                result1.render(ViewTag.HTML_DETAIL),
+            )
 
     def test_result_custom(self):
         "A result child class which keeps the old for_html()/for_csv() methods."
@@ -343,7 +365,8 @@ class FunctionFieldsTestCase(CremeTestCase):
             result1.for_csv(),
         )
         self.assertHTMLEqual(
-            f'<ul>'
+            # f'<ul>'
+            f'<ul class="limited-list">'
             f' <li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
             f' <li>'
             f'  <a href="{ptype3.get_absolute_url()}" class="is_deleted">{ptype3.text}</a>'

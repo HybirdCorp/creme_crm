@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 13-02-2024 pour la version 2.5 de Creme
+:Version: 30-09-2024 pour la version 2.5 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2089,6 +2089,37 @@ Reste à déclarer notre action dans notre ``apps.py`` : ::
 **Un peu plus loin** : pour faire une action qui s'exécute sur plusieurs fiches,
 une classe d'action doit dériver de ``creme.creme_core.gui.actions.UIAction``
 et s'enregistre avec ``actions_registry.register_bulk_actions``.
+
+
+Modifier le template de base
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+La variable ``settings.BASE_HTML`` permet de personnaliser le template qui va
+être utilisé comme base par toutes les pages, pour modifier la partie <head>
+par exemple.
+
+Dans la mesure du possible, votre propre template de base devrait hériter du
+template de base par défaut, afin de minimiser les parties copiées-collées et
+faciliter les montées de version de Creme. Par exemple, créez le fichier
+``my_project/beavers/templates/beavers/my-base.html`` : ::
+
+    {% extends 'creme_core/base.html' %}
+
+    {% block %}
+        {{block.super}}
+        <meta name="publisher" content="Beaver corp.">
+    {% endblock %}
+
+
+et assignez dans ``my_project/settings.py`` : ::
+
+    BASE_HTML = 'beavers/my-base.html'
+
+
+**Voir aussi** : il existe aussi une variable ``settings.BASE_HTML_EXTRA_INCLUDED``
+qui permet d'inclure directement des templates dans le template de base, à la
+fin du "<body>". C'est utile pour inclure une balise "<script>" partout sans
+avoir à définir ``settings.BASE_HTML`` par exemple.
 
 
 Modifier les apps existantes

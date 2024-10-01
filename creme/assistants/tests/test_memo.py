@@ -127,7 +127,8 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
         self.assertIsNotNone(funf)
         self.assertEqual(
-            '<ul></ul>', funf(self.entity, self.user).render(ViewTag.HTML_LIST),
+            # '<ul></ul>', funf(self.entity, self.user).render(ViewTag.HTML_LIST),
+            '', funf(self.entity, self.user).render(ViewTag.HTML_LIST),
         )
 
         # ---
@@ -166,7 +167,8 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             result = funf(self.entity, self.user)
 
         self.assertHTMLEqual(
-            '<ul><li>Content02</li><li>Content01</li></ul>',
+            # '<ul><li>Content02</li><li>Content01</li></ul>',
+            '<ul class="limited-list"><li>Content02</li><li>Content01</li></ul>',
             result.render(ViewTag.HTML_LIST),
         )
 
@@ -190,11 +192,13 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             result2 = funf(entity02, user)
 
         self.assertHTMLEqual(
-            '<ul><li>Content02</li><li>Content01</li></ul>',
+            # '<ul><li>Content02</li><li>Content01</li></ul>',
+            '<ul class="limited-list"><li>Content02</li><li>Content01</li></ul>',
             result1.render(ViewTag.HTML_LIST),
         )
         self.assertHTMLEqual(
-            '<ul><li>Content04</li><li>Content03</li></ul>',
+            # '<ul><li>Content04</li><li>Content03</li></ul>',
+            '<ul class="limited-list"><li>Content04</li><li>Content03</li></ul>',
             result2.render(ViewTag.HTML_LIST),
         )
 

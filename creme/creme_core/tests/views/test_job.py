@@ -16,7 +16,7 @@ from creme.creme_core.bricks import (
     MyJobsBrick,
 )
 # Should be a test queue
-from creme.creme_core.core.job import get_queue
+from creme.creme_core.core.job import get_queue, job_type_registry
 from creme.creme_core.creme_jobs import (
     batch_process_type,
     reminder_type,
@@ -28,6 +28,16 @@ from creme.creme_core.utils.dates import dt_to_ISO8601
 
 from ..fake_models import FakeOrganisation
 from .base import BrickTestCaseMixin, ViewsTestCase
+
+
+class _NotConfigurableType(JobType):
+    id = JobType.generate_id('creme_core', 'not_configurable')
+    verbose_name = 'Not configurable test job'
+    periodic = JobType.PERIODIC
+    configurable = False
+
+
+not_configurable_type = _NotConfigurableType()
 
 
 class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
@@ -44,8 +54,13 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         cls.ct_orga_id = ContentType.objects.get_for_model(FakeOrganisation).id
 
+        job_type_registry.register(not_configurable_type)
+
     def tearDown(self):
         self.queue.ping = self._original_queue_ping
+
+        # TODO
+        # job_type_registry.unregister(not_configurable_type)
 
     @staticmethod
     def _build_enable_url(job):
@@ -221,8 +236,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             info_buttons2, reverse('creme_core__disable_job', args=(job.id,)),
         )
 
-    def test_editview01(self):
-        "Not periodic."
+    def test_editview__not_periodic(self):
         # user = self.login()
         user = self.login_as_root_and_get()
 
@@ -235,8 +249,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET409(job.get_edit_absolute_url())
 
     @override_settings(PSEUDO_PERIOD=2)
-    def test_editview02(self):
-        "Pseudo periodic"
+    def test_editview__pseudo_periodic(self):
         # self.login()
         self.login_as_root()
 
@@ -254,7 +267,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertGET409(job.get_edit_absolute_url())
 
-    def test_editview03(self):
+    def test_editview__periodic(self):
         "Periodic: edit periodicity + specific data."
         queue = self.queue
         queue.clear()
@@ -324,7 +337,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             queue.refreshed_jobs
         )
 
-    def test_editview04(self):
+    def test_editview__peridoc__reference_run(self):
         "Periodic: edit reference_run."
         queue = self.queue
         queue.clear()
@@ -363,7 +376,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertTrue(queue.refreshed_jobs)
 
-    def test_editview05(self):
+    def test_editview__periodic__no_change(self):
         "No change of periodicity/reference_run."
         queue = self.queue
         queue.clear()
@@ -397,13 +410,19 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertListEqual([], queue.refreshed_jobs)
 
-    def test_editview06(self):
+    def test_editview__periodic_perms(self):
         "Periodic: credentials errors."
         # self.login(is_superuser=False)
         self.login_as_standard()
 
         job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
         self.assertGET403(job.get_edit_absolute_url())
+
+    def test_editview__not_configurable(self):
+        self.login_as_root()
+
+        job = Job.objects.create(type_id=not_configurable_type.id)
+        self.assertGET409(job.get_edit_absolute_url())
 
     def test_jobs_all01(self):
         # user = self.login()
@@ -656,7 +675,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
         self.assertPOST409(self._build_delete_url(job), follow=True)
 
-    def test_disable01(self):
+    def test_disable(self):
+        self.assertIs(batch_process_type.configurable, True)
+
         queue = self.queue
         queue.clear()
 
@@ -701,7 +722,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             queue.refreshed_jobs,
         )
 
-    def test_disable02(self):
+    def test_disable__user_job(self):
         "Cannot disable a non-system job."
         # user = self.login()
         user = self.login_as_root_and_get()
@@ -709,13 +730,27 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job = self._create_batchprocess_job(user=user)
         self.assertPOST409(self._build_disable_url(job))
 
-    def test_disable03(self):
-        "Only super-users can edit a system job"
+    def test_disable__perms(self):
+        "Only super-users can edit a system job."
         # self.login(is_superuser=False)
         self.login_as_standard()
 
         job = Job.objects.create(type_id=batch_process_type.id)
         self.assertPOST403(self._build_disable_url(job))
+
+    def test_disable__not_configurable(self):
+        self.assertIs(batch_process_type.configurable, True)
+
+        queue = self.queue
+        queue.clear()
+
+        self.login_as_root()
+        self.assertListEqual([], queue.refreshed_jobs)
+
+        job = Job.objects.create(type_id=not_configurable_type.id)
+        self.assertIs(job.enabled, True)
+        self.assertPOST409(self._build_disable_url(job))
+        self.assertPOST409(self._build_enable_url(job))
 
     def test_status01(self):
         # self.login(is_superuser=False)

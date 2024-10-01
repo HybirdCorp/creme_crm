@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2022  Hybird
+#    Copyright (C) 2016-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -68,9 +68,10 @@ class JobProgress:
 
 class JobType:
     """Each Job (see creme_core.models.Job) has a type, which contains the real
-    code to execute, & some meta-data :
+    code to execute, & some meta-data:
         - verbose_name: is used in the Job views, in order to have a user-friendly display.
         - periodic: must be in {NOT_PERIODIC, PSEUDO_PERIODIC, PERIODIC}
+        - configurable: can the related job be configured (enable/disable, period...).
 
     NOT_PERIODIC: one shot Job (e.g. CSV import). Must be a User Job.
     PERIODIC: these system Jobs are run every Job.periodicity.as_timedelta().
@@ -85,6 +86,8 @@ class JobType:
     id: str = ''   # Overload with a string ; use generate_id()
     verbose_name: str = 'JOB'  # Overload with a gettext_lazy object
     periodic: int = NOT_PERIODIC
+    # NB: only used for PERIODIC/PSEUDO_PERIODIC jobs of course
+    configurable: bool = True
 
     class Error(Exception):
         pass
@@ -93,7 +96,7 @@ class JobType:
         return str(self.verbose_name)
 
     def _execute(self, job: Job):
-        "TO BE OVERLOADED BY CHILD CLASSES"
+        "TO BE OVERRIDDEN BY CHILD CLASSES"
         raise NotImplementedError
 
     @property
@@ -105,7 +108,9 @@ class JobType:
         from ..bricks import JobErrorsBrick
         return [JobErrorsBrick()]
 
-    # NB: we do not use __call__ because we want to use instances of JobType in template
+    # NB: we do not use __call__ because we want to use instances of JobType
+    #     in template (the Django template system tries 'foo()' when it
+    #     encounters 'foo').
     def execute(self, job: Job) -> None:
         if self.periodic != self.NOT_PERIODIC and job.last_run:
             # TODO: 'self.result_model' instead of 'JobResult' ??
@@ -166,10 +171,10 @@ class JobType:
         job. It is only meaningful for PSEUDO_PERIODIC type.
         @param job: <creme_core.models.Job> instance (related to this type).
         @param now_value: <datetime> object representing 'now'.
-        @return <None> -> the job has not to be woken up.
-                A <datetime> instance -> the job should be woken up at this time.
-                If it's in the past, it means the job should be run immediately
-                (tip: you can simply return 'now_value').
+        @return: <None> -> the job has not to be woken up.
+                 A <datetime> instance -> the job should be woken up at this time.
+                 If it's in the past, it means the job should be run immediately
+                 (tip: you can simply return 'now_value').
         """
         if self.periodic != self.PSEUDO_PERIODIC:
             raise ValueError(

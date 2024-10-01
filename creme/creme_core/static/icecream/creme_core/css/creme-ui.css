@@ -111,6 +111,10 @@
 .ui-creme-datetimepicker li button[type="button"] { padding: 0px 6px; }
 .ui-creme-datetimepicker li img.ui-datepicker-trigger { vertical-align: middle; }
 
+.ui-creme-daterange .not-visible {
+    visibility: hidden;
+}
+
 /*----------------------------------*/
 ul.ui-layout { margin:0; padding:0; list-style:none; }
 ul.ui-layout li { margin:0; padding:0; list-style:none; }
@@ -278,9 +282,11 @@ ul.ui-creme-widget.is-readonly li {
     position: fixed;
 }
 
+/*
 .ui-dialog-content .ui-creme-overlay {
     background-color: #F6FCFF;
 }
+*/
 
 /*----------------------------------*/
 .ui-creme-jqueryplot[widget="ui-creme-jqueryplot"] {

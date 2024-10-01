@@ -439,7 +439,7 @@ class EmailsToSyncBrick(QuerysetBrick):
 
         qs = EmailToSync.objects.prefetch_related('attachments')
         if not user.is_staff:
-            qs = qs.filter(user=user)
+            qs = qs.filter(user__in=[user, *user.teams])
 
         btc = self.get_template_context(context, qs)
         related_persons = defaultdict(list)

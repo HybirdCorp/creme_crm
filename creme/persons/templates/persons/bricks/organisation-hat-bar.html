@@ -2,11 +2,11 @@
 {% load i18n %}
 
 {% block icon %}
-    {% with img_url=object.image.get_dl_url %}
-        {% if img_url %}
-            {% translate 'Logo' as img_label %}<img src="{{img_url}}" alt="{{img_label}}" title="{{img_label}}" style="max-height:64px;max-width:200px;"/>
-        {% else %}
-            {{block.super}}
-        {% endif %}
-    {% endwith %}
+ {% with img_url=object.image.get_download_absolute_url %}
+  {% if img_url %}
+    {% translate 'Logo' as img_label %}<img class="persons-organisation-logo" src="{{img_url}}" alt="{{img_label}}" title="{{img_label}}" />
+  {% else %}
+    {{block.super}}
+  {% endif %}
+ {% endwith %}
 {% endblock %}
