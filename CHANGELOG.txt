@@ -5,7 +5,8 @@
     # Apps :
         * Graphs :
             - Cloning a Graph caused an error 500.
-
+        * Polls :
+            - The cloning of Campaigns & Replies has been disabled.
 
 
 == Version 2.5.13 ==
