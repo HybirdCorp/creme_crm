@@ -3,6 +3,8 @@
   Users side :
   ------------
     # Apps :
+        * Commercial :
+            - The cloning of Strategy has been disabled.
         * Graphs :
             - Cloning a Graph caused an error 500.
         * Polls :
