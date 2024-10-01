@@ -7,6 +7,8 @@
             - The cloning of Document has been disabled.
         * Commercial :
             - The cloning of Strategy has been disabled.
+        * Emails :
+            - The cloning of Mailing List has been improved.
         * Graphs :
             - Cloning a Graph caused an error 500.
         * Polls :
