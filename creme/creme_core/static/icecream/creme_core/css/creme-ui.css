@@ -115,6 +115,10 @@
     display: none;
 }
 
+.ui-creme-daterange .not-visible {
+    visibility: hidden;
+}
+
 /*----------------------------------*/
 ul.ui-layout { margin:0; padding:0; list-style:none; }
 ul.ui-layout li { margin:0; padding:0; list-style:none; }
@@ -282,9 +286,11 @@ ul.ui-creme-widget.is-readonly li {
     position: fixed;
 }
 
+/*
 .ui-dialog-content .ui-creme-overlay {
     background-color: #F6FCFF;
 }
+*/
 
 /*----------------------------------*/
 ul.ui-creme-actionbuttonlist {

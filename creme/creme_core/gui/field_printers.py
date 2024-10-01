@@ -49,6 +49,7 @@ from ..templatetags.creme_widgets import (
 )
 from ..utils import bool_as_html
 from ..utils.collections import ClassKeyedMap
+from ..utils.html import render_limited_list
 from ..utils.meta import FieldInfo
 from .view_tag import ViewTag
 
@@ -419,18 +420,25 @@ class M2MPrinterForHTML(BaseM2MPrinter):
 
         printer, enumerator = print_enum
         common_args = {'user': user, 'field': field}
-        li_tags = format_html_join(
-            '', '<li>{}</li>',
-            (
-                (
-                    printer(
-                        instance=e, related_instance=instance, value=value, **common_args,
-                    ),
-                ) for e in enumerator(instance=instance, manager=value, **common_args)
-            )
+        # li_tags = format_html_join(
+        #     '', '<li>{}</li>',
+        #     (
+        #         (
+        #             printer(
+        #                 instance=e, related_instance=instance, value=value, **common_args,
+        #             ),
+        #         ) for e in enumerator(instance=instance, manager=value, **common_args)
+        #     )
+        # )
+        #
+        # return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
+        return render_limited_list(
+            items=[*enumerator(instance=instance, manager=value, **common_args)],
+            limit=settings.CELL_SIZE,
+            render_item=lambda e: printer(
+                instance=e, related_instance=instance, value=value, **common_args,
+            ),
         )
-
-        return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
 
 
 class M2MPrinterForText(BaseM2MPrinter):
@@ -620,11 +628,12 @@ class _FieldPrintersRegistry:
             return '/'.join(rendered_fields)
 
         def html_joiner(rendered_fields: Iterable[str]):
-            li_tags = format_html_join(
-                '', '<li>{}</li>', ((v,) for v in rendered_fields)
-            )
-
-            return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
+            # li_tags = format_html_join(
+            #     '', '<li>{}</li>', ((v,) for v in rendered_fields)
+            # )
+            #
+            # return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
+            return render_limited_list(items=[*rendered_fields], limit=settings.CELL_SIZE)
 
         def build_html_fk_printer(target=None):
             return FKPrinter(

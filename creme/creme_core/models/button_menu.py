@@ -40,7 +40,6 @@ class ButtonMenuItemManager(models.Manager):
                          order: int,
                          ) -> ButtonMenuItem:
         """Creation helper ; useful for populate.py scripts.
-        @param pk: Unique string.
         @param model: Class inheriting CremeEntity, or <None> for "all models".
         @param button: class inheriting <creme_core.gui.button_menu.Button>,
                or button's ID (string -- see Button.id).

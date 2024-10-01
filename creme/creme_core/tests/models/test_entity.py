@@ -516,10 +516,11 @@ class EntityTestCase(CremeTestCase):
             result = pp_ff(entity, user)
 
         self.assertIsInstance(result, FunctionFieldResultsList)
-        self.assertEqual(
-            f'<ul>'
-            f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a>'
-            f'</li><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
+        self.assertHTMLEqual(
+            # f'<ul>'
+            f'<ul class="limited-list">'
+            f' <li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li>'
+            f' <li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
             f'</ul>',
             result.render(ViewTag.HTML_LIST),
         )
@@ -552,14 +553,16 @@ class EntityTestCase(CremeTestCase):
             result2 = pp_ff(entity2, user)
 
         self.assertHTMLEqual(
-            f'<ul>'
-            f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li>'
-            f'<li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
+            # f'<ul>'
+            f'<ul class="limited-list">'
+            f' <li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li>'
+            f' <li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
             f'</ul>',
             result1.render(ViewTag.HTML_LIST),
         )
         self.assertHTMLEqual(
-            f'<ul><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li></ul>',
+            # f'<ul><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li></ul>',
+            f'<a href="{ptype2.get_absolute_url()}">{ptype2.text}</a>',
             result2.render(ViewTag.HTML_LIST),
         )
 

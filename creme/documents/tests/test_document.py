@@ -806,7 +806,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
 
     @skipIf(skip_product_test, '"Product" model is not available.')
-    @override_settings(HIDDEN_VALUE='XXX')
+    @override_settings(HIDDEN_VALUE='XXX', CELL_SIZE=20)
     def test_field_printers_m2m(self):
         "Field printer with FK on Image."
         from creme.products import get_product_model
@@ -842,7 +842,8 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         product.images.set([image, doc, forbidden])
 
         self.assertHTMLEqual(
-            f'''<ul>
+            # f'''<ul>
+            f'''<ul class="limited-list">
              <li>
               <a onclick="creme.dialogs.image('{image.get_download_absolute_url()}').open();">
                {image.get_entity_summary(user)}

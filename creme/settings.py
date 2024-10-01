@@ -222,6 +222,15 @@ ALLOWED_HOSTS = ['*']
 # Hint: you can start your own base template with {% extends 'creme_core/base.html' %}.
 BASE_HTML = 'creme_core/base.html'
 
+# These templates are automatically included at the end of the <body> of all the
+# HTML pages; it's a lightweight way to add some <script> everywhere, from an
+# app you install in several projects:
+#  - without having to define a custom base template (i.e. assigned to BASE_HTML).
+#  - without having to {% include %} it in your custom base template.
+# Example:
+#   BASE_HTML_EXTRA_INCLUDED = ['my_app/extra-script.html']
+BASE_HTML_EXTRA_INCLUDED = []
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -699,6 +708,13 @@ MENU_ICON_MAX_SIZE = 3145728  # 3 Mega bytes
 # Lines number in common blocks
 BLOCK_SIZE = 10
 
+# Some list-views cells display sub-lists, like cells corresponding to the
+# entities linked by a Relation. These sub-lists can be huge (e.g. there is no limit
+# to the number of Relations an entity can have) & then cause issues (performance
+# & usability). This setting value limits the number of items in the sub-list.
+# Note: it is used by custom blocks (i.e. in detailed views) too.
+CELL_SIZE = 500
+
 # Maximum number of items in the menu entry "Recent entities"
 MAX_LAST_ITEMS = 9
 
@@ -831,7 +847,7 @@ CREME_LIB_JS = [
     'creme_core/js/lib/momentjs/locale/en-us.js',
     'creme_core/js/lib/momentjs/locale/fr-fr.js',
     'creme_core/js/lib/editor/tinymce.3.4.9.js',
-    'creme_core/js/lib/Sortable/Sortable-1.15.2.js',
+    'creme_core/js/lib/Sortable/Sortable-1.15.3.js',
     'creme_core/js/lib/select2/select2-4.0.13.full.js',
     'creme_core/js/lib/select2/i18n/en.js',
     'creme_core/js/lib/select2/i18n/fr.js',

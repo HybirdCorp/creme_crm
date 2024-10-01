@@ -213,7 +213,7 @@ class Populator(BasePopulator):
         ButtonMenuItem.objects.create_if_needed(
             model=self.EntityEmail,
             button=buttons.EntityEmailLinkButton,
-            order=20,
+            order=1020,
         )
 
     def _populate_bricks_config_for_email(self):

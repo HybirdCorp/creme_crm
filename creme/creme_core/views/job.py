@@ -86,6 +86,9 @@ class JobEdition(generic.CremeModelEditionPopup):
         if instance.user_id is not None:
             raise ConflictError('A non-system job cannot be edited')
 
+        if not instance.type.configurable:
+            raise ConflictError('This type of job cannot be edited (not configurable)')
+
     def get_form_class(self):
         config_form = self.object.get_config_form_class()
         if config_form is None:
@@ -109,6 +112,9 @@ class JobEnabling(generic.CheckedView):
 
         if job.user_id is not None:
             raise ConflictError('A non-system job cannot be disabled')
+
+        if not job.type.configurable:
+            raise ConflictError('This type of job cannot be disabled (not configurable)')
 
         job.enabled = kwargs.get(self.enabled_arg, self.enabled_default)
         job.save()

@@ -18,7 +18,7 @@
         <input class="row-selector-all" type="checkbox" title="{% translate 'Select all' %}"/>
     </th>
 
-    {% if user.is_staff %}
+    {% if user.is_staff %}{# TODO: if any owner is a team too? #}
       {% brick_table_column_for_field ctype=objects_ctype field='user' %}
     {% endif %}
 
