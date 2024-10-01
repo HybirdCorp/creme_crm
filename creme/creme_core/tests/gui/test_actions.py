@@ -16,11 +16,12 @@ from creme.creme_core.models import (
     CremeEntity,
     FakeActivity,
     FakeContact,
+    FakeImage,
     FakeOrganisation,
+    FakeTicket,
 )
 
 from ..base import CremeTestCase
-from ..fake_models import FakeTicket
 
 
 class MockAction(UIAction):
@@ -963,11 +964,12 @@ class BuiltinActionsTestCase(CremeTestCase):
         )
 
     def test_clone_action(self):
-        self.assertTrue(self.user.has_perm_to_create(self.contact))
-        self.assertTrue(self.user.has_perm_to_view(self.contact))
+        user = self.user
+        self.assertTrue(user.has_perm_to_create(self.contact))
+        self.assertTrue(user.has_perm_to_view(self.contact))
 
         self.assertAction(
-            actions.CloneAction(self.user, instance=self.contact),
+            actions.CloneAction(user, instance=self.contact),
             model=FakeContact,
             action_id='creme_core-clone',
             action_type='clone',
@@ -983,11 +985,12 @@ class BuiltinActionsTestCase(CremeTestCase):
             },
         )
 
-        self.assertTrue(self.user.has_perm_to_create(self.contact_other))
-        self.assertFalse(self.user.has_perm_to_view(self.contact_other))
+        # ---
+        self.assertTrue(user.has_perm_to_create(self.contact_other))
+        self.assertFalse(user.has_perm_to_view(self.contact_other))
 
         self.assertAction(
-            actions.CloneAction(self.user, instance=self.contact_other),
+            actions.CloneAction(user, instance=self.contact_other),
             model=FakeContact,
             action_id='creme_core-clone',
             action_type='clone',
@@ -1000,6 +1003,25 @@ class BuiltinActionsTestCase(CremeTestCase):
             action_data={
                 'options': {},
                 'data': {'id': self.contact_other.id},
+            },
+        )
+
+        # ---
+        img = FakeImage.objects.create(user=user, name='Img#1')
+        self.assertAction(
+            actions.CloneAction(self.get_root_user(), instance=img),
+            model=FakeImage,
+            action_id='creme_core-clone',
+            action_type='clone',
+            url='',
+            is_enabled=False,  # url is ''
+            is_visible=True,
+            is_default=False,
+            label=_('Clone'),
+            icon='clone',
+            action_data={
+                'options': {},
+                'data': {'id': img.id},
             },
         )
 
