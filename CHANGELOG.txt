@@ -3,6 +3,8 @@
   Users side :
   ------------
     # Apps :
+        * Documents :
+            - The cloning of Document has been disabled.
         * Recurrents :
             - The cloning of Generator has been disabled.
 
