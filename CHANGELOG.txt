@@ -9,6 +9,8 @@
             - Cloning a Graph caused an error 500.
         * Polls :
             - The cloning of Campaigns & Replies has been disabled.
+        * Recurrents :
+            - The cloning of Generator has been disabled.
 
 
 == Version 2.6.2 ==
