@@ -227,8 +227,10 @@ class AbstractGraph(CremeEntity):
 
     def _post_save_clone(self, source):
         for node in RootNode.objects.filter(graph=source):
-            rn = RootNode.objects.create(graph=self, entity=node.entity)
-            rn.relation_types = node.relation_types.all()
+            # rn = RootNode.objects.create(graph=self, entity=node.entity)
+            # rn.relation_types = node.relation_types.all()
+            rn = RootNode.objects.create(graph=self, real_entity=node.entity)
+            rn.relation_types.set(node.relation_types.all())
 
 
 class Graph(AbstractGraph):
