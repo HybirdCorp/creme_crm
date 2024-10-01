@@ -158,3 +158,19 @@ class MessageTemplateTestCase(CremeTestCase):
 
         self.assertEqual(2, tplt_page.paginator.count)
         self.assertCountEqual([template1, template2], tplt_page.object_list)
+
+    def test_clone(self):
+        user = self.get_root_user()
+        template = MessageTemplate.objects.create(
+            user=user,
+            name='My first template',
+            subject='Insert a joke *here*',
+            body='blablabla',
+        )
+
+        cloned_template = template.clone()
+        self.assertIsInstance(cloned_template, MessageTemplate)
+        self.assertNotEqual(template.pk, cloned_template.pk)
+        self.assertEqual(template.name,    cloned_template.name)
+        self.assertEqual(template.subject, cloned_template.subject)
+        self.assertEqual(template.body,    cloned_template.body)

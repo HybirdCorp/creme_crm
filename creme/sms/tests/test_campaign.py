@@ -183,3 +183,18 @@ class SMSCampaignTestCase(CremeTestCase):
             self._build_remove_list(campaign),
             follow=True, data={'id': mlist.id},
         )
+
+    @skipIfCustomMessagingList
+    def test_clone(self):
+        user = self.get_root_user()
+
+        mlist = MessagingList.objects.create(user=user, name='Ml01')
+
+        campaign = SMSCampaign.objects.create(user=user, name='camp')
+        campaign.lists.add(mlist)
+
+        cloned_camp = campaign.clone()
+        self.assertIsInstance(cloned_camp, SMSCampaign)
+        self.assertNotEqual(campaign.pk, cloned_camp.pk)
+        self.assertEqual(campaign.name, cloned_camp.name)
+        self.assertCountEqual([mlist], campaign.lists.all())

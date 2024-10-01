@@ -316,3 +316,26 @@ class MessagingListTestCase(CremeTestCase):
             reverse('sms__remove_contact_from_mlist', args=(mlist.id,)),
             data={'id': contact.id}, follow=True,
         )
+
+    @skipIfCustomContact
+    def test_clone(self):
+        user = self.get_root_user()
+
+        contact = Contact.objects.create(
+            user=user, first_name='Spike', last_name='Spiegel',
+        )
+
+        mlist = MessagingList.objects.create(user=user, name='ml01')
+        mlist.contacts.add(contact)
+
+        phone = '123 456'
+        Recipient.objects.create(messaging_list=mlist, phone=phone)
+
+        cloned_mlist = mlist.clone()
+        self.assertIsInstance(cloned_mlist, MessagingList)
+        self.assertNotEqual(mlist.pk, cloned_mlist.pk)
+        self.assertEqual(mlist.name, cloned_mlist.name)
+        self.assertCountEqual([contact], cloned_mlist.contacts.all())
+        self.assertCountEqual(
+            [phone], cloned_mlist.recipient_set.values_list('phone', flat=True),
+        )
