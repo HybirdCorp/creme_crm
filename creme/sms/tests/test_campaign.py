@@ -213,3 +213,18 @@ class SMSCampaignTestCase(CremeTestCase):
         self.assertNotEqual(campaign.pk, cloned_camp.pk)
         self.assertEqual(campaign.name, cloned_camp.name)
         self.assertCountEqual([mlist], campaign.lists.all())
+
+    def test_delete(self):
+        user = self.login_as_root_and_get()
+        campaign = SMSCampaign.objects.create(user=user, name='camp')
+
+        url = campaign.get_delete_absolute_url()
+        self.assertPOST200(url, follow=True)
+
+        with self.assertNoException():
+            campaign = self.refresh(campaign)
+
+        self.assertIs(campaign.is_deleted, True)
+
+        self.assertPOST200(url, follow=True)
+        self.assertDoesNotExist(campaign)

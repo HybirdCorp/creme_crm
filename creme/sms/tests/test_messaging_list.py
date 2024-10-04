@@ -362,3 +362,20 @@ class MessagingListTestCase(CremeTestCase):
         self.assertCountEqual(
             [phone], cloned_mlist.recipient_set.values_list('phone', flat=True),
         )
+
+    def test_delete(self):
+        user = self.login_as_root_and_get()
+        mlist = MessagingList.objects.create(user=user, name='List #1')
+        recipient = Recipient.objects.create(messaging_list=mlist, phone='123 456')
+
+        url = mlist.get_delete_absolute_url()
+        self.assertPOST200(url, follow=True)
+
+        with self.assertNoException():
+            mlist = self.refresh(mlist)
+
+        self.assertIs(mlist.is_deleted, True)
+
+        self.assertPOST200(url, follow=True)
+        self.assertDoesNotExist(mlist)
+        self.assertDoesNotExist(recipient)

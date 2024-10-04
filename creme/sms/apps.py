@@ -88,6 +88,15 @@ class SMSConfig(CremeAppConfig):
             model=self.MessageTemplate,
         )
 
+    def register_deletors(self, entity_deletor_registry):
+        entity_deletor_registry.register(
+            model=self.SMSCampaign,
+        ).register(
+            model=self.MessagingList,
+        ).register(
+            model=self.MessageTemplate,
+        )
+
     def register_fields_config(self, fields_config_registry):
         from creme import persons
 
