@@ -65,9 +65,7 @@ def get_concrete_model(model_setting: str) -> type[Model]:
         ) from e
     except LookupError as e:
         raise ImproperlyConfigured(
-            "{} refers to model '{}' that has not been installed".format(
-                model_setting, model_str,
-            )
+            f"{model_setting} refers to model '{model_str}' that has not been installed"
         ) from e
 
 
