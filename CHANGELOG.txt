@@ -128,7 +128,9 @@
         # In 'creme_core.core.entity_cell', in the methods 'EntityCell*.build()' :
             - The second argument is now always named "name" (e.g. it was named "customfield_id" in 'EntityCellCustomField.build()').
             - The extra arguments are now keyword only (.e.g. 'EntityCellRegularField' & "is_hidden").
-        # The method 'creme_core.models.bricks.BrickDetailviewLocationManager.create_if_needed()' now takes its arguments as keywords only.
+        # In 'creme_core.models' :
+            - The method 'CremeEntity.get_clone_absolute_url()' is not static anymore.
+            - The method 'BrickDetailviewLocationManager.create_if_needed()' now takes its arguments as keywords only.
         # In 'creme_core.views' :
             - The class-view 'entity.EntityRestoration' now just checks the deletion credentials & the attribute "is_deleted".
             - The mixin 'entity.EntityDeletionMixin' has been heavily reworked :
