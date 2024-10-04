@@ -190,3 +190,23 @@ class MessageTemplateTestCase(CremeTestCase):
         self.assertEqual(template.name,    cloned_template.name)
         self.assertEqual(template.subject, cloned_template.subject)
         self.assertEqual(template.body,    cloned_template.body)
+
+    def test_delete(self):
+        user = self.login_as_root_and_get()
+        template = MessageTemplate.objects.create(
+            user=user,
+            name='My first template',
+            subject='Insert a joke *here*',
+            body='blablabla',
+        )
+
+        url = template.get_delete_absolute_url()
+        self.assertPOST200(url, follow=True)
+
+        with self.assertNoException():
+            template = self.refresh(template)
+
+        self.assertIs(template.is_deleted, True)
+
+        self.assertPOST200(url, follow=True)
+        self.assertDoesNotExist(template)
