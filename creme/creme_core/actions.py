@@ -56,7 +56,7 @@ class DeleteAction(EntityAction):
         super().__init__(*args, **kwargs)
 
         entity = self.instance
-        deletor = entity_deletor_registry.get(model=type(entity))
+        deletor = self.deletor_registry.get(model=type(entity))
         if deletor is None:
             self.is_visible = False
         else:
@@ -168,7 +168,7 @@ class BulkDeleteAction(BulkEntityAction):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.is_visible = (entity_deletor_registry.get(model=self.model) is not None)
+        self.is_visible = (self.deletor_registry.get(model=self.model) is not None)
 
 
 class BulkAddPropertyAction(BulkEntityAction):
