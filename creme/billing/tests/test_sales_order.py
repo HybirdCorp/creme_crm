@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.gui.view_tag import ViewTag
-from creme.creme_core.models import BrickDetailviewLocation, Currency
+from creme.creme_core.models import BrickDetailviewLocation, Currency, Vat
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import (
     skipIfCustomAddress,
@@ -15,11 +15,12 @@ from creme.persons.tests.base import (
 
 from ..bricks import ReceivedSalesOrdersBrick
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-from ..models import SalesOrderStatus
+from ..models import Line, SalesOrderStatus
 from .base import (
     Address,
     Invoice,
     Organisation,
+    ProductLine,
     SalesOrder,
     ServiceLine,
     _BillingTestCase,
@@ -304,6 +305,39 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertEqual(2, orders_page.paginator.count)
         self.assertCountEqual([order1, order2], orders_page.paginator.object_list)
+
+    def test_delete(self):
+        user = self.login_as_root_and_get()
+        order, source, target = self.create_salesorder_n_orgas(user=user, name='Nerv')
+
+        kwargs = {
+            'user': user, 'related_document': order,
+            'unit_price': Decimal('1000.00'), 'quantity': 2,
+            'discount': Decimal('10.00'),
+            'discount_unit': Line.Discount.PERCENT,
+            'vat_value': Vat.objects.default(),
+        }
+        product_line = ProductLine.objects.create(
+            on_the_fly_item='Flyyy product', **kwargs
+        )
+        service_line = ServiceLine.objects.create(
+            on_the_fly_item='Flyyy service', **kwargs
+        )
+
+        url = order.get_delete_absolute_url()
+        self.assertPOST200(url, follow=True)
+
+        with self.assertNoException():
+            order = self.refresh(order)
+
+        self.assertIs(order.is_deleted, True)
+
+        self.assertPOST200(url, follow=True)
+        self.assertDoesNotExist(order)
+        self.assertDoesNotExist(product_line)
+        self.assertDoesNotExist(service_line)
+        self.assertStillExists(source)
+        self.assertStillExists(target)
 
     def test_delete_status(self):
         user = self.login_as_root_and_get()

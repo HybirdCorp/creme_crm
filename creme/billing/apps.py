@@ -239,6 +239,8 @@ class BillingConfig(CremeAppConfig):
         ).register(
             model=self.SalesOrder,
         ).register(
+            model=self.CreditNote,
+        ).register(
             model=self.ProductLine,
         ).register(
             model=self.ServiceLine,

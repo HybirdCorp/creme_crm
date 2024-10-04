@@ -28,7 +28,7 @@ from ..constants import (
     REL_SUB_BILL_RECEIVED,
     REL_SUB_CREDIT_NOTE_APPLIED,
 )
-from ..models import CreditNoteStatus
+from ..models import CreditNoteStatus, Line
 from .base import (
     Address,
     CreditNote,
@@ -283,6 +283,39 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFalse(self.refresh(credit_note).is_deleted)
         self.assertListEqual([credit_note], self.refresh(invoice).get_credit_notes())
         self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
+
+    def test_delete(self):
+        user = self.login_as_root_and_get()
+        credit_note, source, target = self.create_credit_note_n_orgas(user=user, name='Nerv')
+
+        kwargs = {
+            'user': user, 'related_document': credit_note,
+            'unit_price': Decimal('1000.00'), 'quantity': 2,
+            'discount': Decimal('10.00'),
+            'discount_unit': Line.Discount.PERCENT,
+            'vat_value': Vat.objects.default(),
+        }
+        product_line = ProductLine.objects.create(
+            on_the_fly_item='Flyyy product', **kwargs
+        )
+        service_line = ServiceLine.objects.create(
+            on_the_fly_item='Flyyy service', **kwargs
+        )
+
+        url = credit_note.get_delete_absolute_url()
+        self.assertPOST200(url, follow=True)
+
+        with self.assertNoException():
+            credit_note = self.refresh(credit_note)
+
+        self.assertIs(credit_note.is_deleted, True)
+
+        self.assertPOST200(url, follow=True)
+        self.assertDoesNotExist(credit_note)
+        self.assertDoesNotExist(product_line)
+        self.assertDoesNotExist(service_line)
+        self.assertStillExists(source)
+        self.assertStillExists(target)
 
     def test_delete_status(self):
         user = self.login_as_root_and_get()
