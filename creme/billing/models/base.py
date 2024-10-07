@@ -365,9 +365,7 @@ class Base(CremeEntity):
         if save:
             self.save()
 
-    # NB: build is used by:
-    #   - conversion (e.g. Quote => Invoice)
-    #   - AbstractTemplateBase.create_entity() (recurrent generation)
+    # NB: build is used by conversion (e.g. Quote => Invoice)
     # So it's different from cloning (e.g. we could have different behaviour
     # for field "status" or "issuing_date").
     # TODO: stop using *clone*() methods?

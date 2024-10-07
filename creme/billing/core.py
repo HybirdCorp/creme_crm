@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2022  Hybird
+#    Copyright (C) 2018-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,9 +17,11 @@
 ################################################################################
 
 from creme import billing
+from creme.creme_core.core import cloning
 
 from .constants import REL_SUB_INVOICE_FROM_QUOTE
 
+# Conversion -------------------------------------------------------------------
 CreditNote   = billing.get_credit_note_model()
 Quote        = billing.get_quote_model()
 Invoice      = billing.get_invoice_model()
@@ -58,3 +60,26 @@ def get_models_for_conversion(name):
     for model, conversions in CONVERT_MATRIX.items():
         if name in conversions:
             yield model
+
+
+# Spawning (create entities from TemplateBase) ---------------------------------
+class Spawner(cloning.EntityCloner):
+    """A specific subclass of Cloners made to spawn Invoice/Quote/... from a
+    TemplateBase instance.
+    """
+    post_save_copiers = [
+        # TODO: unit test
+        # NB: useless in vanilla code
+        cloning.ManyToManyFieldsCopier,
+        # Does not mean anything to clone that (types are different).
+        # CustomFieldsCopier,
+        # PropertiesCopier,
+        # RelationsCopier,
+    ]
+
+    def _build_instance(self, *, user, source):
+        spawn_cls = source.ct.model_class()
+        return spawn_cls()
+
+
+spawner_registry = cloning.EntityClonerRegistry()

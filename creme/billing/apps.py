@@ -86,6 +86,7 @@ class BillingConfig(CremeAppConfig):
 
         self.register_billing_algorithm()
         self.register_billing_lines()
+        self.register_billing_spawners()
 
         from . import signals  # NOQA
 
@@ -119,6 +120,19 @@ class BillingConfig(CremeAppConfig):
     def register_billing_lines(self):
         from .registry import lines_registry
         lines_registry.register(self.ProductLine, self.ServiceLine)
+
+    def register_billing_spawners(self):
+        from . import core, spawners
+
+        core.spawner_registry.register(
+            model=self.Invoice, cloner_class=spawners.InvoiceSpawner,
+        ).register(
+            model=self.Quote, cloner_class=spawners.QuoteSpawner,
+        ).register(
+            model=self.SalesOrder, cloner_class=spawners.SalesOrderSpawner,
+        ).register(
+            model=self.CreditNote, cloner_class=spawners.CreditNoteSpawner,
+        )
 
     def register_bricks(self, brick_registry):
         from . import bricks

@@ -7,6 +7,7 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.view_tag import ViewTag
+from creme.creme_core.models import CremeProperty, CremePropertyType
 from creme.persons.tests.base import skipIfCustomOrganisation
 
 from ..models import (
@@ -24,6 +25,7 @@ from .base import (
     Organisation,
     Quote,
     SalesOrder,
+    ServiceLine,
     TemplateBase,
     _BillingTestCase,
     skipIfCustomCreditNote,
@@ -153,6 +155,16 @@ class TemplateBaseTestCase(_BillingTestCase):
 
     @skipIfCustomInvoice
     def test_create_invoice01(self):
+        target_orga = self.target
+        target_orga.billing_address = Address.objects.create(
+            name='Billing address 01', address='BA1 - Address',
+            po_box='BA1 - PO box', zipcode='BA1 - Zip code',
+            city='BA1 - City', department='BA1 - Department',
+            state='BA1 - State', country='BA1 - Country',
+            owner=target_orga,
+        )
+        target_orga.save()
+
         invoice_status = InvoiceStatus.objects.filter(is_default=False).first()
         comment = '*Insert a comment here*'
         tpl = self._create_templatebase(
@@ -163,9 +175,21 @@ class TemplateBaseTestCase(_BillingTestCase):
             additional_info=AdditionalInformation.objects.all()[0],
             payment_terms=PaymentTerms.objects.all()[0],
         )
-        address_count = Address.objects.count()
-
         self.assertEqual('', tpl.number)
+
+        origin_b_addr = tpl.billing_address
+        origin_b_addr.zipcode += ' (edited)'
+        origin_b_addr.save()
+
+        sl = ServiceLine.objects.create(
+            related_item=self.create_service(user=self.user),
+            user=self.user, related_document=tpl,
+        )
+
+        ptype = CremePropertyType.objects.create(text='Tpl property')
+        CremeProperty.objects.create(creme_entity=tpl, type=ptype)
+
+        address_count = Address.objects.count()
 
         with self.assertNoException():
             invoice = tpl.create_entity()
@@ -180,9 +204,25 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         self.assertEqual('0', invoice.number)
         self.assertEqual(date.today(), invoice.issuing_date)
-        self.assertEqual(invoice.issuing_date + timedelta(days=30), invoice.expiration_date)
+        self.assertEqual(
+            invoice.issuing_date + timedelta(days=30),
+            invoice.expiration_date,
+        )
+        self.assertFalse(CremeProperty.objects.filter(creme_entity=invoice))
 
+        # Lines are cloned
+        cloned_lines = [*invoice.iter_all_lines()]
+        self.assertEqual(1, len(cloned_lines))
+        self.assertNotEqual([sl], cloned_lines)
+
+        # Addresses are cloned
         self.assertEqual(address_count + 2, Address.objects.count())
+        billing_address = invoice.billing_address
+        self.assertIsInstance(billing_address, Address)
+        self.assertEqual(invoice,               billing_address.owner)
+        self.assertEqual(origin_b_addr.name,    billing_address.name)
+        self.assertEqual(origin_b_addr.city,    billing_address.city)
+        self.assertEqual(origin_b_addr.zipcode, billing_address.zipcode)
 
     @skipIfCustomInvoice
     def test_create_invoice02(self):

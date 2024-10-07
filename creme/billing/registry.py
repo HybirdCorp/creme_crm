@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@ from collections import defaultdict
 from django.utils.datastructures import OrderedSet
 
 
+# Number algorithms ------------------------------------------------------------
 class Algo:
     def generate_number(self, organisation, ct, *args, **kwargs):
         pass
@@ -58,7 +59,7 @@ class AlgoRegistry:
 algo_registry = AlgoRegistry()
 
 
-# ------------------------------------------------------------------------------
+# Conversion -------------------------------------------------------------------
 class RelationTypeConverterRegistry:
     """ This registry is used when converting a billing document into another billing document.
     The RelationTypes which ContentType doesn't match after the conversion also have to be
@@ -87,7 +88,7 @@ class RelationTypeConverterRegistry:
 relationtype_converter = RelationTypeConverterRegistry()
 
 
-# ------------------------------------------------------------------------------
+# Lines ------------------------------------------------------------------------
 class LinesRegistry:
     """ Stores the different Line classes to use with billing document.
 
