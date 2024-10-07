@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 04-10-2024 for Creme 2.7
+:Version: 07-10-2024 for Creme 2.7
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -742,7 +742,7 @@ Then we create a file : ``my_project/beavers/populate.py``. ::
         SearchConfigItem,
     )
 
-    from .constants import DEFAULT_HFILTER_BEAVER
+    from . import constants
     from .menu import BeaversEntry
     from .models import Beaver
 
@@ -750,35 +750,55 @@ Then we create a file : ``my_project/beavers/populate.py``. ::
     class Populator(BasePopulator):
         dependencies = ['creme_core', 'persons']
 
-        def populate(self):
+        # This method allow to know if the command has already be run for our app.
+        # You MUST implement it.
+        def _already_populated(self):
+            return HeaderFilter.objects.filter(
+                pk=constants.DEFAULT_HFILTER_BEAVER,
+            ).exists()
+
+        # This method is defined by the parent class 'BasePopulator' and is
+        # automatically called.
+        def _populate_header_filters(self):
+            # The method 'create_if_needed()' creates the instance only if it
+            # does not already exist (using the PK).
+            # So, do not worry if it's called each time the commande is run.
             HeaderFilter.objects.create_if_needed(
-                pk=DEFAULT_HFILTER_BEAVER, name=_('Beaver view'), model=Beaver,
+                pk=constants.DEFAULT_HFILTER_BEAVER,
+                name=_('Beaver view'),
+                model=Beaver,
                 cells_desc=[
                     (EntityCellRegularField, {'name': 'name'}),
                     (EntityCellRegularField, {'name': 'birthday'}),
                 ],
             )
 
+        # See remarks for '_populate_header_filters()'.
+        def _populate_search_config(self):
             SearchConfigItem.objects.create_if_needed(Beaver, ['name'])
 
-            if not MenuConfigItem.objects.filter(entry_id__startswith='beavers-').exists():
-                directory = MenuConfigItem.objects.filter(
-                    entry_id=ContainerEntry.id,
-                    entry_data={'label': _('Directory')},
-                ).first()
-                if directory is not None:
-                    MenuConfigItem.objects.create(
-                        entry_id=BeaversEntry.id, order=50, parent=directory,
-                    )
+        # This method is only called the first time the command is run for this app.
+        def _populate_menu_config(self):
+            directory = MenuConfigItem.objects.filter(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Directory')},
+            ).first()
 
-Explanations :
+            if directory is not None:
+                MenuConfigItem.objects.create(
+                    entry_id=BeaversEntry.id, order=50, parent=directory,
+                )
+
+
+Additional explanations :
 
 - we create a ``HeaderFilter`` with 2 columns, simply corresponding
   to the name et the birthday of our beavers. The class
   ``EntityCellRegularField`` corresponds to classical fields in the Beaver
   model (there are other classes, like ``EntityCellRelation`` for example).
-- The line with ``SearchConfigItem`` is for the global search configuration :
-  this one will use the field 'name' for beavers.
+- The instance of ``SearchConfigItem`` we create corresponds to the default
+  configuration of the the global search; this one will use the field 'name'
+  for beavers.
 - We add a menu entry in the section "Directory", normally created by the app
   ``persons`` (that's why we add this app as dependency, with the attribute
   ``dependencies``). We create this entry only if no entry corresponding to our
@@ -798,13 +818,13 @@ user logs in with a new session, the default HeaderFilter vue is used (without
 this improvement the first HeaderFilter by alphabetical oder is used): ::
 
     [...]
-    from ..constants import DEFAULT_HFILTER_BEAVER  # <- NEW
+    from .. import constants  # <- NEW
 
     [...]
 
     class BeaversList(generic.EntitiesList):
         model = Beaver
-        default_headerfilter_id = DEFAULT_HFILTER_BEAVER  # <- NEW
+        default_headerfilter_id = constants.DEFAULT_HFILTER_BEAVER  # <- NEW
 
 
 Icons management
@@ -983,12 +1003,11 @@ Create a file ``my_project/beavers/models/status.py``: ::
     from django.db import models
     from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
-    from creme.creme_core.models import CremeModel
+    from creme.creme_core.models import MinionModel
 
 
-    class Status(CremeModel):
+    class Status(MinionModel):
         name = models.CharField(_('Name'), max_length=100, unique=True)
-        is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
         creation_label = pgettext_lazy('beavers-status', 'Create a status')
 
@@ -998,19 +1017,19 @@ Create a file ``my_project/beavers/models/status.py``: ::
         class Meta:
             app_label = 'beavers'
             verbose_name = _('Beaver status')
-            verbose_name_plural = _('Beaver status')
+            verbose_name_plural = _('Beaver statuses')
             ordering = ('name',)
 
 
-**Notes** : the attribute ``is_custom`` will be used by the module
-*creme_config* as seen later. It's important to name it like that, and
-its type must be ``BooleanField``. Notice the use of ``set_tags()`` which
-permits to hide this field to the user (we'll see the tags again, later).
-Giving a nice default order (attribute ``ordering`` of the class ``Meta``)
-is important, because this order is used, for example, by forms (if you do
+**Note** : we used the abstract parent class ``MinionModel`` which is made for
+this kind of model which will be visible and configurable by users. It notably
+contains the fields ``uuid`` and ``is_custom`` (more explanations on them below).
+
+**Note** : we gave a default order (attribute ``ordering`` of the class ``Meta``)
+which is user friendly;  this order is used, for example, by forms (if you do
 not explicitly give another one, of course).
 
-**Notes** : we used the translation function ``pgettext_lazy()`` which takes
+**Note** : we used the translation function ``pgettext_lazy()`` which takes
 a context parameter. It's to avoid possible collisions with strings in other
 apps. The term "status" being unclear, it could be used by other apps, and
 we can imagine that in some languages (or customised translations), the
@@ -1133,38 +1152,58 @@ file ``beavers/constants.py``, we add some constants: ::
 
     [...]
 
-    STATUS_HEALTHY = 1
-    STATUS_SICK = 2
+    # We used the function 'uuid.uuid4()' in a python shell to generate this values
+    UUID_STATUS_HEALTHY = '3fdcc650-b34a-40ba-a376-926bec866d5e'
+    UUID_STATUS_SICK = 'dc7d6762-7a38-40b6-8c83-e7b4092e6808'
 
 
 We use these constants right now ; edit ``populate.py``: ::
 
     [...]
-    from .constants import STATUS_HEALTHY, STATUS_SICK
+    from . import constants
     from .models import Beaver, Status
 
     class Populator(BasePopulator):
         [...]
 
-        def populate(self):
-            [...]
+        # Notice that we create instances WITHOUT saving them;
+        # '_save_minions()' will decide to call 'save()' (or not).
+        STATUSES = [
+            # These 2 statuses are marked as <is_custom=False> :
+            #  - users cannot delete them.
+            #  - they must always exist (so they will be created if they are not
+            #    found in data-base when we populate it).
+            Status(
+                uuid=constants.UUID_STATUS_HEALTHY,
+                name=_('Healthy'),
+                is_custom=False,
+            ),
+            Status(
+                uuid=constants.UUID_STATUS_SICK,
+                name=_('Sick'),
+                is_custom=False,
+            ),
+            # This status is marked as <is_custom=True> and so '_save_minions()'
+            # will only create it during the first run of the command.
+            Status(
+                uuid='c2649a86-9019-4bf4-9f59-deb33b16ae4e',
+                name=_('Fluffy'),
+                is_custom=True,
+            ),
+        ]
 
-            already_populated = Status.objects.exists()
+        def _populate_statuses(self):
+            self._save_minions(self.STATUSES)
 
-            if not already_populated:
-                Status.objects.create(id=STATUS_HEALTHY, name=_('Healthy'), is_custom=False)
-                Status.objects.create(id=STATUS_SICK,    name=_('Sick'),    is_custom=False)
+        def _populate(self):
+            super()._populate()
+            # The method '_populate_statuses()' is not defined by the parent
+            # class; we have to call it explicitly.
+            self._populate_statuses()
 
 
-By setting the attribute ``is_custom`` to ``False``, we make these 2 ``Status``
-not deletable. The constants we added just before are the PKs of the 2 objects
-``Status`` we create ; so we can easily retrieve these instances of ``Status``
-later.
-
-With the variable ``already_populated``, we are sure that les status are created
-at first deployement, but if users modify the names of status in the
-configuration interface, their modifications won't be overridden during an
-update (and so a run of the command ``creme_populate``).
+Using  UUIDs for our ``Status`` has several virtues. In this document, we'll use
+them to retrieve easily the instances in the data-base.
 
 Run the command again: ::
 
@@ -1305,18 +1344,18 @@ Then ``beavers/populate.py``: ::
     from creme import persons
 
     [...]
-    from . import constants
 
-
-    def populate(self):
+    class Populator(BasePopulator):
         [...]
 
-        Contact = persons.get_contact_model()
+        # This method is defined in BasePopulator & is called automatically
+        def _populate_relation_types(self):
+            Contact = persons.get_contact_model()
 
-        RelationType.objects.smart_update_or_create(
-            (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
-            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
-        )
+            RelationType.objects.smart_update_or_create(
+                (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
+                (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
+            )
 
 
 **Notes** : we set constraints on entity types which can link (Beaver and
@@ -1483,11 +1522,11 @@ Now we add the corresponding template,
             </td>
             <td>
                 <h1 class="beavers-age beavers-age-value">
-                    {% if not age %}
-                        —
-                    {% else %}
-                        {% blocktrans count year=age %}{{year}} year{% plural %}{{year}} years{% endblocktrans %}
-                    {% endif %}
+                  {% if not age %}
+                    —
+                  {% else %}
+                    {% blocktrans count year=age %}{{year}} year{% plural %}{{year}} years{% endblocktrans %}
+                  {% endif %}
                 </h1>
             </td>
         </tr>
@@ -1518,12 +1557,13 @@ deployment), we have to improve our file ``beavers/populate.py``: ::
     from .bricks import BeaverAgeBrick
     from .models import Beaver
 
-    def populate(self):
+
+    class Populator(BasePopulator):
         [...]
 
-        already_populated = Status.objects.exists()
-
-        if not already_populated:
+        # This method is defined in 'BasePopulator' & is called automatically
+        # when you populate the data-base for the first time.
+        def _populate_bricks_config(self):
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
             create_bdl = BrickDetailviewLocation.objects.create_if_needed
@@ -1605,7 +1645,7 @@ it's a convention): ::
 
     from creme.creme_core.gui.button_menu import Button
 
-    from .constants import STATUS_HEALTHY, STATUS_SICK
+    from .constants import UUID_STATUS_SICK
     from .models import Beaver
 
 
@@ -1619,7 +1659,7 @@ it's a convention): ::
             return (Beaver,)
 
         def ok_4_display(self, entity):
-            return (entity.status_id == STATUS_SICK)
+            return (str(entity.status.uuid) == UUID_STATUS_SICK)
 
         # def get_context(self, *, entity, request):
         #     context = super().get_context(entity=entity, request=request)
@@ -1799,9 +1839,7 @@ the default configuration of our CustomForm: ::
     class Populator(BasePopulator):
         [...]
 
-        def populate(self):
-            [...]
-
+        def _populate_custom_forms(self):
             CustomFormConfigItem.objects.create_if_needed(
                 descriptor=custom_forms.BEAVER_CREATION_CFORM,
             )
@@ -2002,11 +2040,11 @@ In ``creme/persons/apps.py``, we register the search field: ::
             #  - the sub-registry for regular fields.
             #  - the sub-registry for 'ForeignKeys'.
             # Then we declare our search field is related to the model 'Address'.
-            search_field_registry[EntityCellRegularField.type_id]\
-                                 .builder_4_model_field_type(ForeignKey)\
-                                 .register_related_model(model=self.Address,
-                                                         sfield_builder=AddressFKField,
-                                                        )
+            search_field_registry[
+                EntityCellRegularField.type_id
+            ].builder_4_model_field_type(ForeignKey).register_related_model(
+                model=self.Address, sfield_builder=AddressFKField,
+            )
 
 
 Actions in the list-view
@@ -2101,7 +2139,7 @@ that an administrator has changed your password).
 
 Even if you can use an existing channel, we will here create a channel specific
 to your app. First we add an UUID which we'll use to retrieve our channel; in
-``beavers/constants.py`` write this : ::
+``beavers/constants.py`` write this: ::
 
     [...]
 
@@ -2110,7 +2148,7 @@ to your app. First we add an UUID which we'll use to retrieve our channel; in
 
 
 We have to create the channel's type too; add a new file
-``beavers/notification.py`` like : ::
+``beavers/notification.py`` like: ::
 
     from django.utils.translation import gettext_lazy as _
 
@@ -2123,7 +2161,7 @@ We have to create the channel's type too; add a new file
         description = _('Important information about beavers')
 
 
-Then we must declare our type in ``beavers/apps.py`` : ::
+Then we must declare our type in ``beavers/apps.py``: ::
 
     [...]
 
@@ -2136,7 +2174,7 @@ Then we must declare our type in ``beavers/apps.py`` : ::
             notification_registry.register_channel_types( BeaversChannelType)
 
 
-Now we create the channel in ``beavers/populate.py`` : ::
+Now we create the channel in ``beavers/populate.py``: ::
 
     [...]
     from creme.creme_core.core.notification import OUTPUT_WEB
@@ -2145,10 +2183,11 @@ Now we create the channel in ``beavers/populate.py`` : ::
     from .notification import BeaversChannelType
 
     [...]
-    class Populator(BasePopulator):
-        def populate(self):
-            [...]
 
+    class Populator(BasePopulator):
+        [...]
+
+        def _populate_notification_channels(self):
             NotificationChannel.objects.get_or_create(
                 uuid=constants.UUID_CHANNEL_BEAVERS,
                 defaults={
@@ -2158,7 +2197,7 @@ Now we create the channel in ``beavers/populate.py`` : ::
             )
 
 
-We can now send notifications in our code like this : ::
+We can now send notifications in our code like this: ::
 
         from creme.creme_core.models import Notification
 
@@ -3014,7 +3053,7 @@ passing to the method ``register()`` an argument ``cloner_class``. In the file
         def check_permissions(self, *, user, entity):
             super().check_permissions(user=user, entity=entity)
 
-            if entity.status_id == STATUS_SICK:
+            if str(entity.status.uuid) == UUID_STATUS_SICK:
                 raise ConflictError(_('an sick beaver cannot be cloned'))
 
 
@@ -3137,10 +3176,10 @@ In ``my_project/beavers/populate.py``, we now create the related instance of
     class Populator(BasePopulator):
         [...]
 
-        def populate(self):
-            [...]
-
-            SettingValue.objects.get_or_create(key_id=beaver_key.id, defaults={'value': True})
+        def _populate_setting_values(self):
+            SettingValue.objects.get_or_create(
+                key_id=beaver_key.id, defaults={'value': True},
+            )
 
 
 Now we register the key in Creme. In ``my_project/beavers/apps.py``: ::
@@ -3406,11 +3445,9 @@ As we created a periodic job, we must create the instance of ``Job`` in our
     [...]
 
     class Populator(BasePopulator):
-        dependencies = ['creme_core']
+        [...]
 
-        def populate(self):
-            [...]
-
+        def _populate_jobs(self):
             Job.objects.get_or_create(
                 type_id=beavers_health_type.id,
                 defaults={
