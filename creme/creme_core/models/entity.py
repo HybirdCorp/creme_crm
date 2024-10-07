@@ -54,7 +54,9 @@ class CremeEntity(CremeModel):
     created = CreationDateTimeField(_('Creation date')).set_tags(clonable=False)
     modified = ModificationDateTimeField(_('Last modification')).set_tags(clonable=False)
 
-    entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
+    # NB: do not clone (so re-compute it) to facilitate "cloning" from a different type
+    #     see 'billing'.
+    entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False, clonable=False)
 
     header_filter_search_field = models.CharField(
         max_length=_SEARCH_FIELD_MAX_LENGTH, editable=False,

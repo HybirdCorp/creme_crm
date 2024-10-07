@@ -186,11 +186,14 @@ class EntityCloner:
         user.has_perm_to_create_or_die(entity)
         user.has_perm_to_view_or_die(entity)
 
-    def _pre_save(self, *, user, source, target):
+    def _build_instance(self, *, user, source) -> CremeEntity:
+        return type(source)()
+
+    def _pre_save(self, *, user, source, target) -> None:
         for copier_class in self.pre_save_copiers:
             copier_class(source=source, user=user).copy_to(target=target)
 
-    def _post_save(self, *, user, source, target):
+    def _post_save(self, *, user, source, target) -> None:
         for copier_class in self.post_save_copiers:
             copier_class(source=source, user=user).copy_to(target=target)
 
@@ -202,7 +205,7 @@ class EntityCloner:
                classes to make some check).
         @param entity: Instance to clone.
         """
-        clone = type(entity)()
+        clone = self._build_instance(user=user, source=entity)
 
         self._pre_save(user=user, source=entity, target=clone)
         clone.save()

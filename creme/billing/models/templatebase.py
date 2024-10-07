@@ -16,8 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# from datetime import timedelta
 import logging
-from datetime import timedelta
 
 # from django.db.models import PositiveIntegerField
 from django.db.models import UUIDField
@@ -66,23 +66,29 @@ class AbstractTemplateBase(Base):
 
     def create_entity(self):
         "This method is used by the generation job."
-        instance_class = self.ct.model_class()
-        instance = instance_class()
-        instance.build(self)
+        # instance_class = self.ct.model_class()
+        # instance = instance_class()
+        # instance.build(self)
+        #
+        # # Common rules for the recurrent generation of a "base" object for billing app.
+        # # See base's child for specific rules
+        # if not instance.generate_number_in_create:  # Avoid double generation
+        #     instance.generate_number()
+        # instance.expiration_date = instance.issuing_date + timedelta(days=30)
+        #
+        # instance.additional_info = self.additional_info
+        # instance.payment_terms = self.payment_terms
+        #
+        # instance.save()
+        #
+        # return instance
+        from ..core import spawner_registry
 
-        # Common rules for the recurrent generation of a "base" object for billing app.
-        # See base's child for specific rules
-        if not instance.generate_number_in_create:  # Avoid double generation
-            instance.generate_number()
-        # TODO: user configurable rules ???
-        instance.expiration_date = instance.issuing_date + timedelta(days=30)
+        spawner = spawner_registry.get(model=self.ct.model_class())
+        # TODO: error if None
 
-        instance.additional_info = self.additional_info
-        instance.payment_terms = self.payment_terms
-
-        instance.save()
-
-        return instance
+        # TODO: take a "user" argument?
+        return spawner.perform(user=self.user, entity=self)
 
 
 class TemplateBase(AbstractTemplateBase):
