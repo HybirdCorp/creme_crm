@@ -17,6 +17,15 @@
             - The cloning of Generator has been disabled.
 
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The tutorials have been improved (better populate scripts, talk about
+          MinionModel & UUIDs).
+
+
 == Version 2.6.2 ==
 
   Users side :
