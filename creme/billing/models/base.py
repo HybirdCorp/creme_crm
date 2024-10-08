@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from datetime import date
 from functools import partial
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -51,6 +52,9 @@ from . import other_models
 from .algo import ConfigBillingAlgo
 from .fields import BillingDiscountField
 from .line import Line
+
+if TYPE_CHECKING:
+    from creme.persons.models import AbstractOrganisation
 
 logger = logging.getLogger(__name__)
 
@@ -247,7 +251,7 @@ class Base(CremeEntity):
         return credit_notes
 
     # TODO: remove "source" argument?
-    def generate_number(self, source: Base | None = None):
+    def generate_number(self, source: AbstractOrganisation | None = None):
         # Lazy loading of number generators
         from creme.billing.registry import algo_registry
 
