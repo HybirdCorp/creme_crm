@@ -48,6 +48,9 @@
                     - The constants 'NARROW', 'FLOATING_TIME' & 'FLOATING' are now deprecated;
                       use 'Activity.FloatingType.*' instead.
                   * Billing :
+                    - In 'registry' :
+                        - The class 'LinesRegistry' is deprecated; use 'LineRegistry' instead.
+                        - The variable 'lines_registry' is deprecated; use 'line_registry' instead.
                     - The class 'views.base.BaseCreation' is deprecated.
         # The model 'creme_core.models.FileRef' get a new optional field "description";
           it's used by the new view which displays all FileRefs (so feel free to fill it).

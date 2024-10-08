@@ -119,11 +119,11 @@ class Populator(BasePopulator):
         complete_goal_models.discard(self.Strategy)
         if apps.is_installed('creme.billing'):
             from creme import billing
-            from creme.billing.registry import lines_registry
+            from creme.billing.registry import line_registry
 
             complete_goal_models.discard(billing.get_credit_note_model())
             complete_goal_models.discard(billing.get_template_base_model())
-            complete_goal_models.difference_update(lines_registry)
+            complete_goal_models.difference_update(line_registry)
 
         RelationType.objects.smart_update_or_create(
             (

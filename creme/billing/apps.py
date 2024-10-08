@@ -118,8 +118,8 @@ class BillingConfig(CremeAppConfig):
         algo_registry.register((SimpleBillingAlgo.ALGO_NAME, SimpleAlgo))
 
     def register_billing_lines(self):
-        from .registry import lines_registry
-        lines_registry.register(self.ProductLine, self.ServiceLine)
+        from .registry import line_registry
+        line_registry.register(self.ProductLine, self.ServiceLine)
 
     def register_billing_spawners(self):
         from . import core, spawners

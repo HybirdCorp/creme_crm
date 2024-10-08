@@ -61,7 +61,7 @@ from .models import (
     SalesOrderStatus,
     SettlementTerms,
 )
-from .registry import lines_registry
+from .registry import line_registry
 
 logger = logging.getLogger(__name__)
 
@@ -307,7 +307,7 @@ class Populator(BasePopulator):
     def _populate_relation_types(self):
         # Product = products.get_product_model()
         # Service = products.get_service_model()
-        line_models = [*lines_registry]
+        line_models = [*line_registry]
 
         create_rtype = RelationType.objects.smart_update_or_create
         create_rtype(

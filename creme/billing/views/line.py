@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,7 @@ from creme.creme_core.views.generic.listview import SelectionMode
 from .. import constants
 from ..core import BILLING_MODELS
 from ..forms import line as line_forms
-from ..registry import lines_registry
+from ..registry import line_registry
 
 ProductLine = billing.get_product_line_model()
 ServiceLine = billing.get_service_line_model()
@@ -96,7 +96,7 @@ class AddingToCatalog(generic.RelatedToEntityFormPopup):
     submit_label = _('Add to the catalog')
     entity_id_url_kwarg = 'line_id'
     entity_form_kwarg = 'line'
-    lines_registry = lines_registry
+    lines_registry = line_registry
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)  # TODO: test
@@ -136,7 +136,7 @@ class ReorderLines(EntityRelatedMixin, ReorderInstances):
         try:
             entity_type_id = CremeEntity.objects.filter(
                 id=entity_id,
-                entity_type__in=[get_for_ct(c) for c in lines_registry],
+                entity_type__in=[get_for_ct(c) for c in line_registry],
             ).values_list('entity_type', flat=True)[0]
         except IndexError:
             raise Http404("No CremeEntity matches the given query.")

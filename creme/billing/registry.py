@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
+import warnings
 from collections import defaultdict
 
 from django.utils.datastructures import OrderedSet
@@ -89,7 +89,8 @@ relationtype_converter = RelationTypeConverterRegistry()
 
 
 # Lines ------------------------------------------------------------------------
-class LinesRegistry:
+# class LinesRegistry:
+class LineRegistry:
     """ Stores the different Line classes to use with billing document.
 
     Generally, it is just ProductLine & ServiceLine.
@@ -107,4 +108,23 @@ class LinesRegistry:
         return iter(self._line_classes)
 
 
-lines_registry = LinesRegistry()
+# lines_registry = LinesRegistry()
+line_registry = LineRegistry()
+
+
+def __getattr__(name):
+    if name == 'LinesRegistry':
+        warnings.warn(
+            '"LinesRegistry" is deprecated; use "LineRegistry" instead.',
+            DeprecationWarning,
+        )
+        return LineRegistry
+
+    if name == 'lines_registry':
+        warnings.warn(
+            '"lines_registry" is deprecated; use "line_registry" instead.',
+            DeprecationWarning,
+        )
+        return line_registry
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
