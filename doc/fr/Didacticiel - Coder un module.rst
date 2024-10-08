@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 07-10-2024 pour la version 2.7 de Creme
+:Version: 08-10-2024 pour la version 2.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3159,8 +3159,10 @@ Le comportement par défaut consiste à copier :
    par défaut, donc si vous voulez exclure un champ de la copie, mettez ce
    *tag* à ``clonable=False``.
  - les champs personnalisés.
- - les propriétés (``CremeProperty``).
- - les relations dont le type n'est pas marqué comme ``is_internal=True``.
+ - les propriétés (``CremeProperty``) dont le type est marqué comme
+   ``is_copiable=True``.
+ - les relations dont le type est marqué comme ``is_copiable=True`` et
+   ``is_internal=False``.
 
 **Un peu plus loin** : vous pouvez gérer plus finement le clonage de fiche en
 passant à la méthode ``register()`` un argument ``cloner_class``. Dans le
