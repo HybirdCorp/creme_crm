@@ -280,9 +280,9 @@ class Base(CremeEntity):
         return lines
 
     def iter_all_lines(self):
-        from ..registry import lines_registry  # TODO: in class attribute ?
+        from ..registry import line_registry  # TODO: in class attribute ?
 
-        for line_cls in lines_registry:
+        for line_cls in line_registry:
             yield from self.get_lines(line_cls)
 
     def _get_lines_total_n_creditnotes_total(self):
