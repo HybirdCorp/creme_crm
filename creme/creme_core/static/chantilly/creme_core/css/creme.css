@@ -115,6 +115,7 @@ td p {
 
 .menu_button.forbidden,
 .menu_button.is-disabled,
+.bar-button.forbidden,
 .card-button.forbidden {
     cursor: default;
     cursor: not-allowed;
