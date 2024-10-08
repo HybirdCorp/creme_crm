@@ -129,7 +129,13 @@
             - The second argument is now always named "name" (e.g. it was named "customfield_id" in 'EntityCellCustomField.build()').
             - The extra arguments are now keyword only (.e.g. 'EntityCellRegularField' & "is_hidden").
         # In 'creme_core.models' :
-            - The method 'CremeEntity.get_clone_absolute_url()' is not static anymore.
+            - In the abstract class 'MinionModel' the field "is_custom" is now marked <editable=False> ;
+              it will at least need a migration (or a manual change in the existing migrations because
+              it has no consequence on the DB).
+            - In the model 'CremeEntity' :
+                - The field "extra_data" is now tagged as <clonable=False>;
+                  use the new cloning system to clone precisely what you want.
+                - The method 'get_clone_absolute_url()' is not static anymore.
             - The method 'BrickDetailviewLocationManager.create_if_needed()' now takes its arguments as keywords only.
         # In 'creme_core.views' :
             - The class-view 'entity.EntityRestoration' now just checks the deletion credentials & the attribute "is_deleted".
@@ -497,9 +503,6 @@
                 - In the method 'execute()' the argument "job" has been removed.
             - In the method 'search.Searcher.search()', the argument "research" has been renamed "searched".
         # In 'creme_core.models' :
-            - In the abstract class 'MinionModel' the field "is_custom" is now marked <editable=False> ;
-              it will at least need a migration (or a manual change in the existing migrations because
-              it has no consequence on the DB).
             - The model 'CremePropertyType' uses now a classical AutoField (i.e. integers) for primary key, and gets an UUIDField.
               A CharField "app_label" has been added too (the app label was given is the previous string primary key).
               The parameters of the method 'CremePropertyTypeManager.smart_update_or_create()' have changed ;
