@@ -3024,8 +3024,10 @@ The default behaviour copies :
    value, so if you want to exclude a field from the copy, set this *tag*
    to ``clonable=False``.
  - the custom fields.
- - the properties (``CremeProperty``).
- - the relationships with a type which is not marked comme ``is_internal=True``.
+ - the properties (``CremeProperty``) with a type which is marked as
+   ``is_copiable=True``.
+ - the relationships with a type which is marked as ``is_copiable=True`` and
+   ``is_internal=False``.
 
 **A bit further** : you can manage the cloning with a better granularity by
 passing to the method ``register()`` an argument ``cloner_class``. In the file
