@@ -345,25 +345,25 @@ class Base(CremeEntity):
 
         self._address_auto_copy = False
 
-    def _copy_relations(self, source, allowed_internal=()):
-        from ..registry import relationtype_converter
-
-        # Not REL_OBJ_CREDIT_NOTE_APPLIED, links to CreditNote are not cloned.
-        relation_create = Relation.objects.create
-        class_map = relationtype_converter.get_class_map(source, self)
-        super()._copy_relations(source, allowed_internal=allowed_internal)
-
-        for relation in source.relations.filter(
-            type__is_internal=False,
-            type__is_copiable=True,
-            type__in=class_map.keys(),
-        ):
-            relation_create(
-                user_id=relation.user_id,
-                subject_entity=self,
-                type=class_map[relation.type],
-                object_entity_id=relation.object_entity_id,
-            )
+    # def _copy_relations(self, source, allowed_internal=()):
+    #     from ..registry import relationtype_converter
+    #
+    #     # Not REL_OBJ_CREDIT_NOTE_APPLIED, links to CreditNote are not cloned.
+    #     relation_create = Relation.objects.create
+    #     class_map = relationtype_converter.get_class_map(source, self)
+    #     super()._copy_relations(source, allowed_internal=allowed_internal)
+    #
+    #     for relation in source.relations.filter(
+    #         type__is_internal=False,
+    #         type__is_copiable=True,
+    #         type__in=class_map.keys(),
+    #     ):
+    #         relation_create(
+    #             user_id=relation.user_id,
+    #             subject_entity=self,
+    #             type=class_map[relation.type],
+    #             object_entity_id=relation.object_entity_id,
+    #         )
 
     def _post_clone(self, source):
         source.invalidate_cache()
@@ -371,7 +371,6 @@ class Base(CremeEntity):
         for line in source.iter_all_lines():
             line.clone(self)
 
-    # TODO: factorise with persons ??
     def _post_save_clone(self, source):
         save = False
 
@@ -386,13 +385,7 @@ class Base(CremeEntity):
         if save:
             self.save()
 
-    # NB: build is used by conversion (e.g. Quote => Invoice)
-    # So it's different from cloning (e.g. we could have different behaviour
-    # for field "status" or "issuing_date").
-    # TODO: stop using *clone*() methods?
-    # TODO: build a better Clone system with a registry & Cloner objects
-    #       (instead of relying on methods overriding)
-    #       and same thing to replace build() (separate conversion & recurrent gen?)
+    # TODO: deprecate
     def build(self, template: Base):
         self._address_auto_copy = False
 

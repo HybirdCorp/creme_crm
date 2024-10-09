@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-20 18:20+0200\n"
+"POT-Creation-Date: 2024-10-14 22:12+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -215,6 +215,9 @@ msgstr ""
 "pré-sélectionnée pour être la cible du devis créé.\n"
 "App: Facturation"
 
+msgid "This conversion has been removed; you should remove this button."
+msgstr "Cette conversion a été enlevée ; vous devriez enlever ce bouton."
+
 msgid "Convert to Invoice"
 msgstr "Convertir en Facture"
 
@@ -250,6 +253,16 @@ msgstr ""
 "Ce bouton convertit automatiquement la fiche courante en devis. Notez que la "
 "fiche courante n'est pas modifiée, un nouveau devis est créé.\n"
 "App : Facturation"
+
+#, python-brace-format
+msgid "{src} (converted into {dest._meta.verbose_name})"
+msgstr "{src} (converti en {dest._meta.verbose_name})"
+
+msgid "A staff user cannot convert."
+msgstr "Un super administrateur ne peut pas convertir."
+
+msgid "This entity cannot be converted because it is deleted."
+msgstr "Cette fiche ne peut pas ête convertie car elle est supprimée."
 
 msgid "Organisations"
 msgstr "Sociétés"
@@ -1270,9 +1283,12 @@ msgstr "Champ <em>«%(field_name)s»</em> :"
 msgid "{} %"
 msgstr "{} %"
 
+msgid "This model cannot be converted."
+msgstr "Ce modèle ne peut pas être converti."
+
 #, python-brace-format
-msgid "{src} (converted into {dest._meta.verbose_name})"
-msgstr "{src} (converti en {dest._meta.verbose_name})"
+msgid "This target model is invalid: \"{model}\""
+msgstr "Ce modèle cible est invalide : \"{model}\""
 
 #, python-brace-format
 msgid "Credit notes for «{entity}»"

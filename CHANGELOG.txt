@@ -23,6 +23,10 @@
             - A field of 'Activity', "Fixed or floating?" (internal name: 'floating_type') is now visible.
             - A "card" brick is now available for the hat of the Activities' detail-view.
               It's use by default by the new installations.
+        * Billing :
+            - The 'Convert to ...' buttons have been reworked :
+                - When a button is disabled, the reason is displayed as tool-tip.
+                - The constraints for properties & relationships are better respected.
         * Opportunities :
             - You can now create unsuccessful phone calls from an Opportunity's detail-view :
                 - A button has been added (not enabled in default installations).
@@ -160,16 +164,30 @@
             * Reports :
                 - In the field 'report.Field.name', the CustomFields are referenced by their UUID now (see types 'RFT_CUSTOM' & 'RFT_AGG_CUSTOM').
             * Billing :
-                - The default statuses are now initialized at models level, not view level.
-                - In the method 'model.Base.generate_number()' :
-                    - The argument "source" has been removed.
-                    - An exception is raised if the source (i.e. emitter Organisation) has not been set.
-                - In the model 'AbstractTemplateBase' :
-                    - The field "status_id" has been replaced by the field "status_uuid".
-                    - The method 'create_entity()' has been re-written to use a new "spawning"
-                      system, which is derived from the new cloning system.
-                      This new system is de-coupled from the clone & conversion systems;
-                      it should be easier to customise from another app.
+                - In 'buttons', the class '_ConvertToButton' (& so, the child classes) has been reworked
+                    - It injects a string "error" in the context.
+                    - "creation_perm" is not injected in the template anymore.
+                  The template has been modified, of course.
+                - In 'core' :
+                    - These variables have been removed : CLASS_MAP, CONVERT_MATRIX, RTYPE_MATRIX.
+                    - The function 'get_models_for_conversion()' has been removed.
+                - In 'registry', the class 'RelationTypeConverterRegistry' & the variable 'relationtype_converter'
+                  have been removed ; you can see in 'creme.opportunities.apps.OpportunitiesConfig.register_billing()'
+                  how to code a feature similar to the old relationship conversion.
+                - In 'models':
+                    - The default statuses are now initialized at models level, not view level.
+                    - In the method 'Base.generate_number()' :
+                        - The argument "source" has been removed.
+                        - An exception is raised if the source (i.e. emitter Organisation) has not been set.
+                    - In the model 'AbstractTemplateBase' :
+                        - The field "status_id" has been replaced by the field "status_uuid".
+                        - The method 'create_entity()' has been re-written to use a new "spawning"
+                          system, which is derived from the new cloning system.
+                          This new system is de-coupled from the clone & conversion systems;
+                          it should be easier to customise from another app.
+                - The class view 'views.convert.Conversion' has been reworked :
+                    - The attribute 'dest_title' has been removed.
+                    - The method 'get_destination_model()' has been removed.
 
     Internal breaking changes :
     ---------------------------

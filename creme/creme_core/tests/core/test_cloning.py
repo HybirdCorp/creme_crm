@@ -4,6 +4,7 @@ from functools import partial
 from django.core.exceptions import PermissionDenied
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.creme_core.core.cloning import (
     CustomFieldsCopier,
@@ -12,7 +13,10 @@ from creme.creme_core.core.cloning import (
     ManyToManyFieldsCopier,
     PropertiesCopier,
     RegularFieldsCopier,
+    RelationAdder,
     RelationsCopier,
+    StrongPropertiesCopier,
+    StrongRelationsCopier,
     entity_cloner_registry,
 )
 from creme.creme_core.core.exceptions import ConflictError
@@ -63,6 +67,7 @@ class CloningTestCase(CremeTestCase):
         create_ptype = CremePropertyType.objects.create
         cls.ptype1 = create_ptype(text='straightforward')
         cls.ptype2 = create_ptype(text='fast')
+        cls.ptype3 = create_ptype(text='cool', is_copiable=False)
 
     def test_regular_fields_copier(self):
         user = self.get_root_user()
@@ -236,12 +241,59 @@ class CloningTestCase(CremeTestCase):
         create_prop = partial(CremeProperty.objects.create, creme_entity=src)
         create_prop(type=self.ptype1)
         create_prop(type=self.ptype2)
+        create_prop(type=self.ptype3)  # Not copiable
 
         target = create_orga(name='Slurm corp')
 
         copier = PropertiesCopier(source=src, user=user)
-        copier.copy_to(target)
-        self.assertSameProperties(entity1=src, entity2=target)
+
+        # Queries:
+        #  - 1 SELECT properties
+        #  - 2 x Creation of property:
+        #    - 2 SAVEPOINT (start & end)
+        #    - 1 INSERT CremeProperty
+        #    - 1 INSERT HistoryLine
+        with self.assertNumQueries(9):
+            copier.copy_to(target)
+
+        self.assertCountEqual(
+            [self.ptype1, self.ptype2],
+            [p.type for p in target.properties.all()],
+        )
+
+    def test_strong_properties_copier(self):
+        user = self.get_root_user()
+
+        self.ptype2.set_subject_ctypes(FakeOrganisation, FakeContact)
+
+        ptype4 = CremePropertyType.objects.create(text='Performant')
+        ptype4.set_subject_ctypes(FakeOrganisation)
+
+        src = FakeOrganisation.objects.create(user=user, name='Planet express')
+
+        create_prop = partial(CremeProperty.objects.create, creme_entity=src)
+        create_prop(type=self.ptype1)
+        create_prop(type=self.ptype2)
+        create_prop(type=self.ptype3)
+        create_prop(type=ptype4)
+
+        target = FakeContact.objects.create(user=user, first_name='Philip', last_name='Fry')
+        copier = StrongPropertiesCopier(source=src, user=user)
+
+        # Queries:
+        #  - 1 SELECT the properties
+        #  - 1 SELECT the ContentTypes constraints
+        #  - 2 x Creation of property:
+        #    - 2 SAVEPOINT (start & end)
+        #    - 1 INSERT CremeProperty
+        #    - 1 INSERT HistoryLine
+        with self.assertNumQueries(10):
+            copier.copy_to(target)
+
+        self.assertCountEqual(
+            [self.ptype1, self.ptype2],
+            [p.type for p in target.properties.all()],
+        )
 
     def test_relations_copier(self):
         user = self.get_root_user()
@@ -262,9 +314,11 @@ class CloningTestCase(CremeTestCase):
         create_rel(type=self.rtype3, object_entity=contact3)  # Not copiable
 
         target = create_orga(name='Slurm corp')
-
         copier = RelationsCopier(source=src, user=user)
+
+        # with self.assertNumQueries(14):
         copier.copy_to(target)
+
         self.assertListEqual(
             [(self.rtype1.id, contact1.id)],
             [*target.relations.values_list('type', 'object_entity')],
@@ -295,6 +349,127 @@ class CloningTestCase(CremeTestCase):
             [(rtype.id, contact.id)],
             [*target.relations.values_list('type', 'object_entity')],
         )
+
+    def test_strong_relations_copier(self):
+        user = self.get_root_user()
+
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype4 = create_rtype(
+            ('test-subject_ct_ok', 'CT OK', [FakeOrganisation, FakeContact]),
+            ('test-object_ct_ok',  'CT OK (symmetrical)'),
+        )[0]  # Subject constraint on ContentTypes is OK
+        rtype5 = create_rtype(
+            ('test-subject_ct_ko', 'CT KO', [FakeOrganisation]),
+            ('test-object_ct_ko', 'CT KO (symmetrical)'),
+        )[0]  # Subject constraint on ContentTypes is NOT OK
+        rtype6 = create_rtype(
+            ('test-subject_prop_1', 'Prop 1', [], [self.ptype1]),
+            ('test-object_prop_1',  'Prop 1 (symmetrical)'),
+        )[0]  # Subject constraint for Properties
+        rtype7 = create_rtype(
+            ('test-subject_prop_2', 'Prop 2', [], [self.ptype2]),
+            ('test-object_prop_2', 'Prop 2 (symmetrical)'),
+        )[0]  # Subject constraint for Properties
+
+        src = FakeOrganisation.objects.create(user=user, name='Planet express')
+
+        create_prop = CremeProperty.objects.create
+        create_prop(type=self.ptype1, creme_entity=src)
+        create_prop(type=self.ptype2, creme_entity=src)
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        contact1 = create_contact(first_name='Philip', last_name='Fry')
+        contact2 = create_contact(first_name='Bender', last_name='Rodriguez')
+        contact3 = create_contact(first_name='Hubert', last_name='Farnsworth')
+
+        create_rel = partial(
+            Relation.objects.create, user=user, subject_entity=src,
+        )
+        create_rel(type=self.rtype1, object_entity=contact1)
+        create_rel(type=self.rtype2, object_entity=contact2)  # Internal
+        create_rel(type=self.rtype3, object_entity=contact3)  # Not copiable
+        create_rel(type=rtype4,      object_entity=contact3)
+        create_rel(type=rtype5,      object_entity=contact3)  # CT not OK
+        create_rel(type=rtype6,      object_entity=contact2)
+        create_rel(type=rtype7,      object_entity=contact2)  # Properties not OK
+
+        target = FakeContact.objects.create(user=user, first_name='Philip', last_name='Fry')
+        create_prop(type=self.ptype1, creme_entity=target)
+
+        copier = StrongRelationsCopier(source=src, user=user)
+
+        # with self.assertNumQueries(46):
+        copier.copy_to(target)
+
+        self.assertCountEqual(
+            [
+                (self.rtype1.id, contact1.id),
+                (rtype4.id,      contact3.id),
+                (rtype6.id,      contact2.id),
+            ],
+            [*target.relations.values_list('type', 'object_entity')],
+        )
+
+    def test_strong_relations_copier__allowed_internal(self):
+        rtype = self.rtype2
+
+        class CustomStrongRelationsCopier(StrongRelationsCopier):
+            allowed_internal_rtype_ids = [rtype.id]
+
+        user = self.get_root_user()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        src    = create_orga(name='Planet express')
+        target = create_orga(name='Slurm corp')
+
+        contact = FakeContact.objects.create(
+            user=user, first_name='Bender', last_name='Rodriguez',
+        )
+        Relation.objects.create(
+            user=user, subject_entity=src, type=rtype, object_entity=contact,
+        )
+
+        copier = CustomStrongRelationsCopier(source=src, user=user)
+        copier.copy_to(target)
+        self.assertListEqual(
+            [(rtype.id, contact.id)],
+            [*target.relations.values_list('type', 'object_entity')],
+        )
+
+    def test_relation_adder(self):
+        rtype = self.rtype1
+
+        class CustomRelationAdder(RelationAdder):
+            rtype_id = rtype.id
+
+        user = self.get_root_user()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        src    = create_orga(name='Planet express')
+        target = create_orga(name='Slurm corp')
+
+        copier = CustomRelationAdder(source=src, user=user)
+        copier.copy_to(target)
+        self.assertHaveRelation(subject=target, type=rtype, object=src)
+
+    @parameterized.expand(['enabled', 'is_copiable'])
+    def test_relation_adder__disabled(self, rtype_attr):
+        rtype = self.rtype1
+        setattr(rtype, rtype_attr, False)
+        rtype.save()
+
+        class CustomRelationAdder(RelationAdder):
+            rtype_id = rtype.id
+
+        user = self.get_root_user()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        src    = create_orga(name='Planet express')
+        target = create_orga(name='Slurm corp')
+
+        copier = CustomRelationAdder(source=src, user=user)
+        copier.copy_to(target)
+        self.assertHaveNoRelation(subject=target, type=rtype, object=src)
 
     def test_registry(self):
         registry = EntityClonerRegistry()

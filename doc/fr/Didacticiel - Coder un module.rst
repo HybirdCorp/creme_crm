@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 08-10-2024 pour la version 2.7 de Creme
+:Version: 15-10-2024 pour la version 2.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3696,9 +3696,13 @@ Liste des différents services
   ``creme.creme_core.utils.date_period.date_period_registry``.
 - Vous pouvez enregistrer de nouveaux intervalles de temps dans
   ``creme.creme_core.utils.date_range.date_range_registry``.
-- L'app **billing** permet d'enregistrer des algorithmes de génération de numéros
-  de facture. Regardez le fichier ``creme/billing/apps.py``, dans la méthode
-  ``register_billing_algorithm()`` pour savoir comment faire.
+- L'app **billing** permet :
+    - d'enregistrer des algorithmes de génération de numéros de facture.
+      Regardez le fichier ``creme/billing/apps.py``, dans la méthode
+      ``register_billing_algorithm()`` pour savoir comment faire.
+    - de personnaliser la conversion de documents (par exemple Devis vers Facture).
+      Regardez le fichier ``creme/billing/apps.py``, dans la méthode
+      ``register_billing_converters()`` pour savoir comment faire.
 - L'app **recurrents** permet de générer des objets de manière récurrente. Regardez
   les fichiers ``recurrents_register.py`` dans les apps ``billing`` ou ``tickets``.
 - L'app **crudity** permet de créer des objets depuis des données externes, comme

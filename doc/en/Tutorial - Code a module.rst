@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 07-10-2024 for Creme 2.7
+:Version: 15-10-2024 for Creme 2.7
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3540,9 +3540,13 @@ List of different services
   ``creme.creme_core.utils.date_period.date_period_registry``.
 - You can register new date ranges in
   ``creme.creme_core.utils.date_range.date_range_registry``.
-- The app **billing** allows the registration of algorithms de generating
-  invoice number. Look at ``creme/billing/apps.py``, in the method
-  ``register_billing_algorithm()`` to know how to do.
+- The app **billing** allows:
+    - the registration of algorithms for generating invoice numbers.
+      Look at ``creme/billing/apps.py``, in the method
+      ``register_billing_algorithm()`` to know how to do.
+    - the customisation of the documents conversion (for example Quote to
+      Invoice). Look at the ``creme/billing/apps.py``, in the method
+      ``register_billing_converters()`` to know how to do.
 - The app **recurrents** can generate objects regularly. Look at files
   ``recurrents_register.py`` in the apps ``billing`` or ``tickets``.
 - The app **crudity** can create objects from external data, like emails.

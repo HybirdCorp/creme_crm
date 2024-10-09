@@ -46,7 +46,7 @@ class TargetCopier(Copier):
         target.target = self._source.target
 
 
-# TODO: factorise with persons ??
+# TODO: factorise with persons?
 class AddressesCopier(Copier):
     address_fields = ['billing_address', 'shipping_address']
 

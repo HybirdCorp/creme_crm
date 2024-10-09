@@ -85,6 +85,7 @@ class BillingConfig(CremeAppConfig):
         super().all_apps_ready()
 
         self.register_billing_algorithm()
+        self.register_billing_converters()
         self.register_billing_lines()
         self.register_billing_spawners()
 
@@ -116,6 +117,28 @@ class BillingConfig(CremeAppConfig):
         from .registry import algo_registry
 
         algo_registry.register((SimpleBillingAlgo.ALGO_NAME, SimpleAlgo))
+
+    def register_billing_converters(self):
+        from . import converters
+        from .core import conversion
+
+        conversion.converter_registry.register(
+            source_model=self.Invoice,
+            target_model=self.Quote,
+            converter_class=converters.InvoiceToQuoteConverter,
+        ).register(
+            source_model=self.Quote,
+            target_model=self.SalesOrder,
+            converter_class=converters.QuoteToSalesOrderConverter,
+        ).register(
+            source_model=self.Quote,
+            target_model=self.Invoice,
+            converter_class=converters.QuoteToInvoiceConverter,
+        ).register(
+            source_model=self.SalesOrder,
+            target_model=self.Invoice,
+            converter_class=converters.SalesOrderToInvoiceConverter,
+        )
 
     def register_billing_lines(self):
         from .core import line

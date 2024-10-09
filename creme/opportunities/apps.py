@@ -181,30 +181,64 @@ class OpportunitiesConfig(CremeAppConfig):
         )
 
     def register_billing(self):
+        # from creme import billing
+        # from creme.billing.registry import relationtype_converter
+        # from creme.creme_core.models import RelationType
+        #
+        # from . import constants
+        #
+        # get_rtype = RelationType.objects.get
+        #
+        # try:
+        #     linked_salesorder = get_rtype(id=constants.REL_SUB_LINKED_SALESORDER)
+        #     linked_invoice    = get_rtype(id=constants.REL_SUB_LINKED_INVOICE)
+        #     linked_quote      = get_rtype(id=constants.REL_SUB_LINKED_QUOTE)
+        # except Exception as e:
+        #     logger.info(
+        #         'A problem occurred: %s\n'
+        #         'It can happen during unit tests or during the "populate" phase. '
+        #         'Otherwise, has the database correctly been populated?', e
+        #     )
+        # else:
+        #     Invoice    = billing.get_invoice_model()
+        #     Quote      = billing.get_quote_model()
+        #     SalesOrder = billing.get_sales_order_model()
+        #
+        #     register_rtype = relationtype_converter.register
+        #     register_rtype(Quote,      linked_quote,      SalesOrder, linked_salesorder)
+        #     register_rtype(Quote,      linked_quote,      Invoice,    linked_invoice)
+        #     register_rtype(SalesOrder, linked_salesorder, Invoice,    linked_invoice)
         from creme import billing
-        from creme.billing.registry import relationtype_converter
-        from creme.creme_core.models import RelationType
+        from creme.billing.core.conversion import converter_registry
 
-        from . import constants
+        from . import billing_converters
 
-        get_rtype = RelationType.objects.get
+        Invoice    = billing.get_invoice_model()
+        Quote      = billing.get_quote_model()
+        SalesOrder = billing.get_sales_order_model()
 
-        try:
-            linked_salesorder = get_rtype(id=constants.REL_SUB_LINKED_SALESORDER)
-            linked_invoice    = get_rtype(id=constants.REL_SUB_LINKED_INVOICE)
-            linked_quote      = get_rtype(id=constants.REL_SUB_LINKED_QUOTE)
-        except Exception as e:
-            logger.info(
-                'A problem occurred: %s\n'
-                'It can happen during unit tests or during the "populate" phase. '
-                'Otherwise, has the database correctly been populated?', e
+        def add_converter(source_model, target_model, converter_cls):
+            cls = converter_registry.get_converter_class(
+                source_model=source_model, target_model=target_model,
             )
-        else:
-            Invoice    = billing.get_invoice_model()
-            Quote      = billing.get_quote_model()
-            SalesOrder = billing.get_sales_order_model()
+            if cls is None:
+                logger.info(
+                    'It seems there is no converter %s => %s, '
+                    'no extra behaviour for Opportunity is added.',
+                    source_model, target_model,
+                )
+            else:
+                cls.post_save_copiers.append(converter_cls)
 
-            register_rtype = relationtype_converter.register
-            register_rtype(Quote,      linked_quote,      SalesOrder, linked_salesorder)
-            register_rtype(Quote,      linked_quote,      Invoice,    linked_invoice)
-            register_rtype(SalesOrder, linked_salesorder, Invoice,    linked_invoice)
+        add_converter(
+            source_model=Quote, target_model=SalesOrder,
+            converter_cls=billing_converters.QuoteToSalesOrderRelationAdder,
+        )
+        add_converter(
+            source_model=Quote, target_model=Invoice,
+            converter_cls=billing_converters.QuoteToInvoiceRelationAdder,
+        )
+        add_converter(
+            source_model=SalesOrder, target_model=Invoice,
+            converter_cls=billing_converters.SalesOrderToInvoiceRelationAdder,
+        )
