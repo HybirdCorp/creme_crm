@@ -82,7 +82,7 @@ class AbstractTemplateBase(Base):
         # instance.save()
         #
         # return instance
-        from ..core import spawner_registry
+        from ..core.spawning import spawner_registry
 
         spawner = spawner_registry.get(model=self.ct.model_class())
         # TODO: error if None

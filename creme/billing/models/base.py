@@ -301,7 +301,7 @@ class Base(CremeEntity):
         return lines
 
     def iter_all_lines(self):
-        from ..registry import line_registry  # TODO: in class attribute ?
+        from ..core.line import line_registry  # TODO: in class attribute ?
 
         for line_cls in line_registry:
             yield from self.get_lines(line_cls)

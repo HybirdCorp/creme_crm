@@ -15,12 +15,12 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 import warnings
 from collections import defaultdict
 
-from django.utils.datastructures import OrderedSet
 
-
+# TODO: move to core
 # Number algorithms ------------------------------------------------------------
 class Algo:
     def generate_number(self, organisation, ct, *args, **kwargs):
@@ -59,6 +59,7 @@ class AlgoRegistry:
 algo_registry = AlgoRegistry()
 
 
+# TODO: move to core
 # Conversion -------------------------------------------------------------------
 class RelationTypeConverterRegistry:
     """ This registry is used when converting a billing document into another billing document.
@@ -90,41 +91,28 @@ relationtype_converter = RelationTypeConverterRegistry()
 
 # Lines ------------------------------------------------------------------------
 # class LinesRegistry:
-class LineRegistry:
-    """ Stores the different Line classes to use with billing document.
-
-    Generally, it is just ProductLine & ServiceLine.
-    """
-    def __init__(self):
-        self._line_classes = OrderedSet()
-
-    def register(self, *classes):
-        all_classes = self._line_classes
-
-        for cls in classes:
-            all_classes.add(cls)
-
-    def __iter__(self):
-        return iter(self._line_classes)
-
-
+#   ...
+#
 # lines_registry = LinesRegistry()
-line_registry = LineRegistry()
 
 
 def __getattr__(name):
     if name == 'LinesRegistry':
+        from .core import line
+
         warnings.warn(
-            '"LinesRegistry" is deprecated; use "LineRegistry" instead.',
+            '"LinesRegistry" is deprecated; use "core.line.LineRegistry" instead.',
             DeprecationWarning,
         )
-        return LineRegistry
+        return line.LineRegistry
 
     if name == 'lines_registry':
+        from .core import line
+
         warnings.warn(
-            '"lines_registry" is deprecated; use "line_registry" instead.',
+            '"lines_registry" is deprecated; use "core.line.line_registry" instead.',
             DeprecationWarning,
         )
-        return line_registry
+        return line.line_registry
 
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
