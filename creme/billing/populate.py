@@ -51,6 +51,7 @@ from creme.creme_core.models import (
 
 from . import bricks, buttons, constants, custom_forms, menu, setting_keys
 from .core import BILLING_MODELS
+from .core.line import line_registry
 from .models import (
     AdditionalInformation,
     CreditNoteStatus,
@@ -61,7 +62,6 @@ from .models import (
     SalesOrderStatus,
     SettlementTerms,
 )
-from .registry import line_registry
 
 logger = logging.getLogger(__name__)
 

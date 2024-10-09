@@ -40,8 +40,8 @@ from creme.creme_core.views.generic.listview import SelectionMode
 
 from .. import constants
 from ..core import BILLING_MODELS
+from ..core.line import line_registry
 from ..forms import line as line_forms
-from ..registry import line_registry
 
 ProductLine = billing.get_product_line_model()
 ServiceLine = billing.get_service_line_model()

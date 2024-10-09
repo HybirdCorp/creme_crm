@@ -25,7 +25,7 @@ from creme.creme_core.core.cloning import Copier
 from creme.creme_core.utils.collections import FluentList
 
 from . import cloners as billing_cloners
-from .core import Spawner
+from .core.spawning import Spawner
 
 logger = logging.getLogger(__name__)
 
