@@ -20,8 +20,8 @@ from __future__ import annotations
 
 import logging
 from datetime import date
+# from typing import TYPE_CHECKING
 from functools import partial
-from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -53,9 +53,8 @@ from .algo import ConfigBillingAlgo
 from .fields import BillingDiscountField
 from .line import Line
 
-if TYPE_CHECKING:
-    from creme.persons.models import AbstractOrganisation
-
+# if TYPE_CHECKING:
+#     from creme.persons.models import AbstractOrganisation
 logger = logging.getLogger(__name__)
 
 
@@ -244,28 +243,46 @@ class Base(CremeEntity):
 
         return credit_notes
 
-    # TODO: remove "source" argument?
-    def generate_number(self, source: AbstractOrganisation | None = None):
+    # def generate_number(self, source: AbstractOrganisation | None = None):
+    def generate_number(self):
         # Lazy loading of number generators
         from creme.billing.registry import algo_registry
 
-        if source is None:
-            source = self.source
+        # if source is None:
+        #     source = self.source
+        source = self.source
+
+        if not source:
+            raise ValueError('You cannot generate a number on a document without source')
 
         if not self.number:
             self.number = '0'
 
-        if source:
-            real_content_type = self.entity_type
+        # if source:
+        #     real_content_type = self.entity_type
+        #
+        #     try:
+        #         name_algo = ConfigBillingAlgo.objects.get(
+        #             organisation=source, ct=real_content_type,
+        #         ).name_algo
+        #         algo = algo_registry.get_algo(name_algo)
+        #         self.number = algo().generate_number(source, real_content_type)
+        #     except Exception as e:
+        #         logger.info('billing.generate_number(): number cannot be generated (%s)', e)
+        real_content_type = self.entity_type
 
+        config = ConfigBillingAlgo.objects.filter(
+            organisation=source, ct=real_content_type,
+        ).first()
+
+        if config is None:
+            logger.info('generate_number(): no configuration found')
+        else:
             try:
-                name_algo = ConfigBillingAlgo.objects.get(
-                    organisation=source, ct=real_content_type,
-                ).name_algo
-                algo = algo_registry.get_algo(name_algo)
+                algo = algo_registry.get_algo(config.name_algo)
                 self.number = algo().generate_number(source, real_content_type)
             except Exception as e:
-                logger.info('billing.generate_number(): number cannot be generated (%s)', e)
+                logger.info('generate_number(): number cannot be generated (%s)', e)
 
     def get_lines(self, klass):
         assert issubclass(klass, Line)
@@ -478,7 +495,8 @@ class Base(CremeEntity):
             self._clean_source_n_target()
 
             if self.generate_number_in_create:
-                self.generate_number(source)
+                # self.generate_number(source)
+                self.generate_number()
 
             super().save(*args, **kwargs)
 
