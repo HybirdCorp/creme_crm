@@ -17,10 +17,10 @@
 ################################################################################
 
 from creme import billing
-from creme.creme_core.core import cloning
 
-from .constants import REL_SUB_INVOICE_FROM_QUOTE
+from ..constants import REL_SUB_INVOICE_FROM_QUOTE
 
+# TODO: move to a separated file
 # Conversion -------------------------------------------------------------------
 CreditNote   = billing.get_credit_note_model()
 Quote        = billing.get_quote_model()
@@ -36,7 +36,6 @@ BILLING_MODELS = [
     TemplateBase,
 ]
 
-# TODO : rework this !
 CLASS_MAP = {
     'credit_note': CreditNote,  # NB: unused
     'invoice':     Invoice,
@@ -60,26 +59,3 @@ def get_models_for_conversion(name):
     for model, conversions in CONVERT_MATRIX.items():
         if name in conversions:
             yield model
-
-
-# Spawning (create entities from TemplateBase) ---------------------------------
-class Spawner(cloning.EntityCloner):
-    """A specific subclass of Cloners made to spawn Invoice/Quote/... from a
-    TemplateBase instance.
-    """
-    post_save_copiers = [
-        # TODO: unit test
-        # NB: useless in vanilla code
-        cloning.ManyToManyFieldsCopier,
-        # Does not mean anything to clone that (types are different).
-        # CustomFieldsCopier,
-        # PropertiesCopier,
-        # RelationsCopier,
-    ]
-
-    def _build_instance(self, *, user, source):
-        spawn_cls = source.ct.model_class()
-        return spawn_cls()
-
-
-spawner_registry = cloning.EntityClonerRegistry()
