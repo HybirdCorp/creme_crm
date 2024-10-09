@@ -119,7 +119,7 @@ class Populator(BasePopulator):
         complete_goal_models.discard(self.Strategy)
         if apps.is_installed('creme.billing'):
             from creme import billing
-            from creme.billing.registry import line_registry
+            from creme.billing.core.line import line_registry
 
             complete_goal_models.discard(billing.get_credit_note_model())
             complete_goal_models.discard(billing.get_template_base_model())

@@ -18,10 +18,6 @@
 
 from creme import billing
 
-from ..constants import REL_SUB_INVOICE_FROM_QUOTE
-
-# TODO: move to a separated file
-# Conversion -------------------------------------------------------------------
 CreditNote   = billing.get_credit_note_model()
 Quote        = billing.get_quote_model()
 Invoice      = billing.get_invoice_model()
@@ -36,26 +32,28 @@ BILLING_MODELS = [
     TemplateBase,
 ]
 
-CLASS_MAP = {
-    'credit_note': CreditNote,  # NB: unused
-    'invoice':     Invoice,
-    'quote':       Quote,
-    'sales_order': SalesOrder,
-}
 
-CONVERT_MATRIX = {
-    Invoice:    {'quote'},
-    Quote:      {'sales_order', 'invoice'},
-    SalesOrder: {'invoice'},
-}
-
-# RelationTypes which link a converted instance & its source.
-RTYPE_MATRIX = {
-    (Quote, Invoice): REL_SUB_INVOICE_FROM_QUOTE,
-}
-
-
-def get_models_for_conversion(name):
-    for model, conversions in CONVERT_MATRIX.items():
-        if name in conversions:
-            yield model
+# Conversion -------------------------------------------------------------------
+# from ..constants import REL_SUB_INVOICE_FROM_QUOTE
+# CLASS_MAP = {
+#     'credit_note': CreditNote,  # NB: unused
+#     'invoice':     Invoice,
+#     'quote':       Quote,
+#     'sales_order': SalesOrder,
+# }
+#
+# CONVERT_MATRIX = {
+#     Invoice:    {'quote'},
+#     Quote:      {'sales_order', 'invoice'},
+#     SalesOrder: {'invoice'},
+# }
+#
+# RTYPE_MATRIX = {
+#     (Quote, Invoice): REL_SUB_INVOICE_FROM_QUOTE,
+# }
+#
+#
+# def get_models_for_conversion(name):
+#     for model, conversions in CONVERT_MATRIX.items():
+#         if name in conversions:
+#             yield model

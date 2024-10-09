@@ -16,16 +16,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
 from creme.creme_core.auth import build_creation_perm as cperm
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import SettingValue
 
 from .. import billing
 from .constants import REL_OBJ_BILL_RECEIVED
-from .core import get_models_for_conversion
+# from .core import get_models_for_conversion
+from .core.conversion import converter_registry
 from .models import Base
 from .setting_keys import button_redirection_key
 
@@ -133,6 +136,7 @@ class AddQuoteButton(_AddBillingDocumentButton):
 class _ConvertToButton(Button):
     template_name = 'billing/buttons/convert-to.html'
     target_model = Base  # Override
+    # TODO: use Conversion.destination_models ?
     target_modelname = ''  # Override
 
     def get_context(self, *, entity, request):
@@ -141,20 +145,39 @@ class _ConvertToButton(Button):
 
         target_model = self.target_model
         context['model_vname'] = target_model._meta.verbose_name
-        context['creation_perm'] = request.user.has_perm_to_create(target_model)
+        # context['creation_perm'] = request.user.has_perm_to_create(target_model)
+
+        converter = converter_registry.get_converter(
+            user=request.user, source=entity, target_model=target_model,
+        )
+        if converter is None:
+            context['error'] = _(
+                'This conversion has been removed; you should remove this button.'
+            )
+        else:
+            try:
+                converter.check_permissions()
+            except (PermissionDenied, ConflictError) as e:
+                context['error'] = str(e)
 
         return context
 
     def get_ctypes(self):
-        return tuple(get_models_for_conversion(self.target_modelname))
+        current_target = self.target_model
 
-    def is_allowed(self, *, entity, request):
-        user = request.user
-        return (
-            super().is_allowed(entity=entity, request=request)
-            and not user.is_staff
-            and not entity.is_deleted
-        )
+        return [
+            source
+            for source, target in converter_registry.models
+            if target == current_target
+        ]
+
+    # def is_allowed(self, *, entity, request):
+    #     user = request.user
+    #     return (
+    #         super().is_allowed(entity=entity, request=request)
+    #         and not user.is_staff
+    #         and not entity.is_deleted
+    #     )
 
 
 class ConvertToInvoiceButton(_ConvertToButton):
