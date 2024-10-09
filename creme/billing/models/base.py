@@ -371,7 +371,6 @@ class Base(CremeEntity):
         for line in source.iter_all_lines():
             line.clone(self)
 
-    # TODO: factorise with persons ??
     def _post_save_clone(self, source):
         save = False
 
@@ -386,13 +385,7 @@ class Base(CremeEntity):
         if save:
             self.save()
 
-    # NB: build is used by conversion (e.g. Quote => Invoice)
-    # So it's different from cloning (e.g. we could have different behaviour
-    # for field "status" or "issuing_date").
-    # TODO: stop using *clone*() methods?
-    # TODO: build a better Clone system with a registry & Cloner objects
-    #       (instead of relying on methods overriding)
-    #       and same thing to replace build() (separate conversion & recurrent gen?)
+    # TODO: deprecate
     def build(self, template: Base):
         self._address_auto_copy = False
 

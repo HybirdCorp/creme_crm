@@ -72,7 +72,6 @@ class RegularFieldsCopier(BaseFieldsCopier):
     before saving the cloned entity).
     """
     def copy_to(self, target):
-        # TODO assert same type?
         source = self.source
 
         for field in source._meta.fields:
@@ -164,10 +163,10 @@ class EntityCloner:
 
     Hint: see class <EntityClonerRegistry>.
     """
-    pre_save_copiers: list[Copier] = [
+    pre_save_copiers: list[type[Copier]] = [
         RegularFieldsCopier,
     ]
-    post_save_copiers: list[Copier] = [
+    post_save_copiers: list[type[Copier]] = [
         ManyToManyFieldsCopier,
         CustomFieldsCopier,
         PropertiesCopier,

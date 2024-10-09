@@ -27,7 +27,6 @@ from ..constants import (
     REL_SUB_BILL_RECEIVED,
     REL_SUB_INVOICE_FROM_QUOTE,
 )
-from ..core import get_models_for_conversion
 from ..models import (
     AdditionalInformation,
     InvoiceStatus,
@@ -54,7 +53,8 @@ from .base import (
 
 
 @skipIfCustomOrganisation
-class ConvertTestCase(_BillingTestCase):
+# class ConvertTestCase(_BillingTestCase):
+class ConversionViewTestCase(_BillingTestCase):
     def _convert(self, status_code, src, dest_type, is_ajax=False):
         http_header = {}
 
@@ -66,13 +66,14 @@ class ConvertTestCase(_BillingTestCase):
             data={'type': dest_type}, follow=True, **http_header
         )
 
-    def test_get_models_for_conversion(self):
-        self.assertListEqual([], [*get_models_for_conversion('unknown')])
-
-        self.assertListEqual([Quote, SalesOrder], [*get_models_for_conversion('invoice')])
-        self.assertListEqual([], [*get_models_for_conversion('credit_note')])
-        self.assertListEqual([Invoice], [*get_models_for_conversion('quote')])
-        self.assertListEqual([Quote], [*get_models_for_conversion('sales_order')])
+    # def test_get_models_for_conversion(self):
+    #     from ..core import get_models_for_conversion
+    #     self.assertListEqual([], [*get_models_for_conversion('unknown')])
+    #
+    #     self.assertListEqual([Quote, SalesOrder], [*get_models_for_conversion('invoice')])
+    #     self.assertListEqual([], [*get_models_for_conversion('credit_note')])
+    #     self.assertListEqual([Invoice], [*get_models_for_conversion('quote')])
+    #     self.assertListEqual([Quote], [*get_models_for_conversion('sales_order')])
 
     @skipIfCustomAddress
     @skipIfCustomQuote
@@ -274,7 +275,6 @@ class ConvertTestCase(_BillingTestCase):
 
         source, target = self.create_orgas(user=user)
         quote = Quote.objects.create(
-            # user=self.other_user, name='My Quote',
             user=self.get_root_user(), name='My Quote',
             issuing_date=now(),
             expiration_date=now() + timedelta(days=10),
@@ -401,7 +401,7 @@ class ConvertTestCase(_BillingTestCase):
         self._convert(200, quote, 'invoice')
 
         invoice = self.get_alone_element(Invoice.objects.all())
-        self.assertEqual(1, invoice.status_id)
+        self.assertEqual(1, invoice.status_id)  # TODO: uuid? is_default?
 
     @skipIfCustomQuote
     def test_not_copiable_relations(self):
@@ -472,6 +472,7 @@ class ConvertTestCase(_BillingTestCase):
             ('test-CONVERT-subject_foobar_not_copiable', 'is loving', [Invoice]),
             ('test-CONVERT-object_foobar_not_copiable',  'is loved by', [Organisation]),
         )
+        # TODO: unregister at end VS override registry in views
         relationtype_converter.register(Quote, rtype1, Invoice, rtype3)
 
         Relation.objects.create(
@@ -493,6 +494,11 @@ class ConvertTestCase(_BillingTestCase):
         user = self.login_as_root_and_get()
         orga = Organisation.objects.create(user=user, name='Arcadia')
         self._convert(409, orga, 'sales_order')
+
+    def test_error_invalid_target(self):
+        user = self.login_as_root_and_get()
+        quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
+        self._convert(409, quote, 'invalid')
 
     @skipIfCustomSalesOrder
     def test_error_bad_combination(self):

@@ -29,6 +29,7 @@ class Spawner(cloning.EntityCloner):
         cloning.ManyToManyFieldsCopier,
         # Does not mean anything to clone that (types are different).
         # CustomFieldsCopier,
+        # TODO? (beware to constraints)
         # PropertiesCopier,
         # RelationsCopier,
     ]
