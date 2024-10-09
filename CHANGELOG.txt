@@ -161,6 +161,9 @@
                 - In the field 'report.Field.name', the CustomFields are referenced by their UUID now (see types 'RFT_CUSTOM' & 'RFT_AGG_CUSTOM').
             * Billing :
                 - The default statuses are now initialized at models level, not view level.
+                - In the method 'model.Base.generate_number()' :
+                    - The argument "source" has been removed.
+                    - An exception is raised if the source (i.e. emitter Organisation) has not been set.
                 - In the model 'AbstractTemplateBase' :
                     - The field "status_id" has been replaced by the field "status_uuid".
                     - The method 'create_entity()' has been re-written to use a new "spawning"

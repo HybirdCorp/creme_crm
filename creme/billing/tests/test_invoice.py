@@ -1214,7 +1214,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         invoice.additional_info = AdditionalInformation.objects.all()[0]
         invoice.payment_terms = PaymentTerms.objects.all()[0]
-        invoice.generate_number(source)
+        invoice.generate_number()
         invoice.save()
 
         kwargs = {'user': user, 'related_document': invoice}
@@ -1675,7 +1675,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             source=source, target=target,
             expiration_date=date(year=2023, month=6, day=1),
         )
-        invoice.generate_number(source)
+        invoice.generate_number()
         invoice.save()
 
         # ----
