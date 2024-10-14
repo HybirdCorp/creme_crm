@@ -18,6 +18,7 @@ from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
 from .. import setting_keys
 from ..constants import REL_SUB_LINKED_PRODUCT, REL_SUB_LINKED_SERVICE
+from ..models import SalesPhase
 from .base import (
     Contact,
     OpportunitiesBaseTestCase,
@@ -765,3 +766,132 @@ class BillingTestCase(OpportunitiesBaseTestCase):
             fmt(models=_('Invoices'), emitter=emitter, target=target),
             response.context.get('list_title'),
         )
+
+    def test_convert__quote_to_salesorder(self):
+        "Some Relations are added during conversion (Quote to SalesOrder)."
+        user = self.login_as_root_and_get()
+        target_orga, emitter_orga = self._create_target_n_emitter(user=user, managed=False)
+
+        create_opp = partial(
+            Opportunity.objects.create,
+            user=user, emitter=emitter_orga, target=target_orga,
+            sales_phase=SalesPhase.objects.all()[0],
+        )
+        opp1 = create_opp(name='Opp #1')
+        opp2 = create_opp(name='Opp #2')
+
+        quote = Quote.objects.create(
+            user=user, name='Quote for my opp', source=emitter_orga, target=target_orga,
+        )
+
+        REL_SUB_LINKED_QUOTE = constants.REL_SUB_LINKED_QUOTE
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, subject_entity=quote, type_id=REL_SUB_LINKED_QUOTE,
+        )
+        create_rel(object_entity=opp1)
+        create_rel(object_entity=opp2)
+
+        self.assertPOST200(
+            reverse('billing__convert', args=(quote.id,)),
+            data={'type': 'sales_order'}, follow=True,
+        )
+
+        sales_order = SalesOrder.objects.order_by('-id')[0]
+        self.assertEqual(
+            _('{src} (converted into {dest._meta.verbose_name})').format(
+                src=quote.name, dest=SalesOrder,
+            ),
+            sales_order.name,
+        )
+        self.assertHaveNoRelation(subject=sales_order, type=REL_SUB_LINKED_QUOTE, object=opp1)
+
+        REL_SUB_LINKED_SALESORDER = constants.REL_SUB_LINKED_SALESORDER
+        self.assertHaveRelation(subject=sales_order, type=REL_SUB_LINKED_SALESORDER, object=opp1)
+        self.assertHaveRelation(subject=sales_order, type=REL_SUB_LINKED_SALESORDER, object=opp2)
+
+    def test_convert__quote_to_invoice(self):
+        "Some Relations are added during conversion (Quote to Invoice)."
+        user = self.login_as_root_and_get()
+        target_orga, emitter_orga = self._create_target_n_emitter(user=user, managed=False)
+
+        create_opp = partial(
+            Opportunity.objects.create,
+            user=user, emitter=emitter_orga, target=target_orga,
+            sales_phase=SalesPhase.objects.all()[0],
+        )
+        opp1 = create_opp(name='Opp #1')
+        opp2 = create_opp(name='Opp #2')
+
+        quote = Quote.objects.create(
+            user=user, name='Quote for my opp', source=emitter_orga, target=target_orga,
+        )
+
+        REL_SUB_LINKED_QUOTE = constants.REL_SUB_LINKED_QUOTE
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, subject_entity=quote, type_id=REL_SUB_LINKED_QUOTE,
+        )
+        create_rel(object_entity=opp1)
+        create_rel(object_entity=opp2)
+
+        self.assertPOST200(
+            reverse('billing__convert', args=(quote.id,)),
+            data={'type': 'invoice'}, follow=True,
+        )
+
+        invoice = Invoice.objects.order_by('-id')[0]
+        self.assertEqual(
+            _('{src} (converted into {dest._meta.verbose_name})').format(
+                src=quote.name, dest=Invoice,
+            ),
+            invoice.name,
+        )
+        self.assertHaveNoRelation(subject=invoice, type=REL_SUB_LINKED_QUOTE, object=opp1)
+
+        REL_SUB_LINKED_INVOICE = constants.REL_SUB_LINKED_INVOICE
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_LINKED_INVOICE, object=opp1)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_LINKED_INVOICE, object=opp2)
+
+    def test_convert__salesorder_to_invoice(self):
+        "Some Relations are added during conversion (SalesOrder to Invoice)."
+        user = self.login_as_root_and_get()
+        target_orga, emitter_orga = self._create_target_n_emitter(user=user, managed=False)
+
+        create_opp = partial(
+            Opportunity.objects.create,
+            user=user, emitter=emitter_orga, target=target_orga,
+            sales_phase=SalesPhase.objects.all()[0],
+        )
+        opp1 = create_opp(name='Opp #1')
+        opp2 = create_opp(name='Opp #2')
+
+        sales_order = SalesOrder.objects.create(
+            user=user, name='Order for my opp', source=emitter_orga, target=target_orga,
+        )
+
+        REL_SUB_LINKED_SALESORDER = constants.REL_SUB_LINKED_SALESORDER
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, subject_entity=sales_order, type_id=REL_SUB_LINKED_SALESORDER,
+        )
+        create_rel(object_entity=opp1)
+        create_rel(object_entity=opp2)
+
+        self.assertPOST200(
+            reverse('billing__convert', args=(sales_order.id,)),
+            data={'type': 'invoice'}, follow=True,
+        )
+
+        invoice = Invoice.objects.order_by('-id')[0]
+        self.assertEqual(
+            _('{src} (converted into {dest._meta.verbose_name})').format(
+                src=sales_order.name, dest=Invoice,
+            ),
+            invoice.name,
+        )
+        self.assertHaveNoRelation(subject=invoice, type=REL_SUB_LINKED_SALESORDER, object=opp1)
+
+        REL_SUB_LINKED_INVOICE = constants.REL_SUB_LINKED_INVOICE
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_LINKED_INVOICE, object=opp1)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_LINKED_INVOICE, object=opp2)
