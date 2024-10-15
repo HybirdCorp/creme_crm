@@ -16,18 +16,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from creme.creme_core.core import copying
 from creme.creme_core.core.cloning import EntityCloner
-from creme.creme_core.core.copying import Copier, ManyToManyFieldsCopier
 from creme.creme_core.utils.collections import FluentList
 
 
-class ChildTaskClonerM2MCopier(ManyToManyFieldsCopier):
+class ChildTaskClonerM2MCopier(copying.ManyToManyFieldsCopier):
     # NB: Parenting is managed by TasksCopier
     #     & we do not want to mark the field as <clonable=False>.
     exclude = ['parent_tasks']
 
 
-class ChildTaskResourcesCopier(Copier):
+class ChildTaskResourcesCopier(copying.PostSaveCopier):
     def copy_to(self, target):
         for resource in self._source.get_resources():
             # TODO: remove method & move its code here?
@@ -38,7 +38,7 @@ class ChildTaskCloner(EntityCloner):
     post_save_copiers = FluentList(
         EntityCloner.post_save_copiers
     ).replace(
-        old=ManyToManyFieldsCopier, new=ChildTaskClonerM2MCopier,
+        old=copying.ManyToManyFieldsCopier, new=ChildTaskClonerM2MCopier,
     ).append(ChildTaskResourcesCopier)
 
     def __init__(self, project):
@@ -50,7 +50,7 @@ class ChildTaskCloner(EntityCloner):
         target.linked_project = self.project
 
 
-class TasksCopier(Copier):
+class TasksCopier(copying.PostSaveCopier):
     task_cloner_class = ChildTaskCloner
 
     def copy_to(self, target):

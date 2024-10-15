@@ -17,10 +17,11 @@
 ################################################################################
 
 from creme.creme_core.core.cloning import EntityCloner
-from creme.creme_core.core.copying import Copier
+from creme.creme_core.core.copying import PreSaveCopier
 
 
-class SourceAndTargetCopier(Copier):
+# TODO: rename property Opportunity.target to "receiver"
+class EmitterAndReceiverCopier(PreSaveCopier):
     def copy_to(self, target):
         source = self._source
         target.emitter = source.emitter
@@ -30,5 +31,5 @@ class SourceAndTargetCopier(Copier):
 class OpportunityCloner(EntityCloner):
     pre_save_copiers = [
         *EntityCloner.pre_save_copiers,
-        SourceAndTargetCopier,
+        EmitterAndReceiverCopier,
     ]

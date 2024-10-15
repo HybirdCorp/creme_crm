@@ -17,16 +17,16 @@
 ################################################################################
 
 from creme.creme_core.core.cloning import EntityCloner
-from creme.creme_core.core.copying import Copier, RegularFieldsCopier
+from creme.creme_core.core.copying import PostSaveCopier, RegularFieldsCopier
 
 
-class ReportFieldsCopier(Copier):
+class ReportFieldsCopier(PostSaveCopier):
     def copy_to(self, target):
         for rfield in self._source.fields.all():
             rfield.clone(report=target)
 
 
-class ReportGraphesCopier(Copier):
+class ReportGraphesCopier(PostSaveCopier):
     def copy_to(self, target):
         source = self._source
 

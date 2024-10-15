@@ -17,10 +17,10 @@
 ################################################################################
 
 from creme.creme_core.core.cloning import EntityCloner
-from creme.creme_core.core.copying import Copier
+from creme.creme_core.core.copying import PostSaveCopier
 
 
-class RecipientsCopier(Copier):
+class RecipientsCopier(PostSaveCopier):
     def copy_to(self, target):
         for recipient in self._source.recipient_set.all():
             recipient.clone(target)

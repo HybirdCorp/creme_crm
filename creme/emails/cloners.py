@@ -17,12 +17,12 @@
 ################################################################################
 
 from creme.creme_core.core.cloning import EntityCloner
-from creme.creme_core.core.copying import Copier
+from creme.creme_core.core.copying import PostSaveCopier
 
 from .models import EmailRecipient
 
 
-class RecipientsCopier(Copier):
+class RecipientsCopier(PostSaveCopier):
     def copy_to(self, target):
         # TODO: bulk_create + pagination
         for recipient in self._source.emailrecipient_set.all():

@@ -21,11 +21,11 @@ from random import randint
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.cloning import EntityCloner
-from creme.creme_core.core.copying import Copier
+from creme.creme_core.core.copying import PreSaveCopier
 from creme.creme_core.utils import truncate_str
 
 
-class TitleCopier(Copier):
+class TitleCopier(PreSaveCopier):
     MAXINT = 100000
 
     def copy_to(self, target):

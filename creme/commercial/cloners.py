@@ -17,10 +17,10 @@
 ################################################################################
 
 from creme.creme_core.core.cloning import EntityCloner
-from creme.creme_core.core.copying import Copier
+from creme.creme_core.core.copying import PostSaveCopier
 
 
-class ObjectivesCopier(Copier):
+class ObjectivesCopier(PostSaveCopier):
     def copy_to(self, target):
         from .models import ActObjective
 
@@ -35,7 +35,7 @@ class ObjectivesCopier(Copier):
         ])
 
 
-class ComponentsCopier(Copier):
+class ComponentsCopier(PostSaveCopier):
     def copy_to(self, target):
         for pattern_component in self._source.get_components_tree():
             pattern_component.clone(target)

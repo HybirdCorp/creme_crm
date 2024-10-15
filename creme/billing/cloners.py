@@ -21,8 +21,8 @@ from __future__ import annotations
 import logging
 import typing
 
+from creme.creme_core.core import copying
 from creme.creme_core.core.cloning import EntityCloner
-from creme.creme_core.core.copying import Copier, RegularFieldsCopier
 from creme.creme_core.utils.collections import FluentList
 
 if typing.TYPE_CHECKING:
@@ -32,19 +32,19 @@ logger = logging.getLogger(__name__)
 
 
 # NB: the cloning & the billing systems both use the words "source" & "target"...
-# TODO: rename to "emitter" & "receiver"?
-class SourceCopier(Copier):
+# TODO: rename properties to "emitter" & "receiver"
+class EmitterCopier(copying.PreSaveCopier):
     def copy_to(self, target):
         target.source = self._source.source
 
 
-class TargetCopier(Copier):
+class ReceiverCopier(copying.PreSaveCopier):
     def copy_to(self, target):
         target.target = self._source.target
 
 
 # TODO: factorise with persons?
-class AddressesCopier(Copier):
+class AddressesCopier(copying.PostSaveCopier):
     address_fields = ['billing_address', 'shipping_address']
 
     def copy_to(self, target):
@@ -58,11 +58,10 @@ class AddressesCopier(Copier):
                 setattr(target, field_name, source_address.clone(target))
                 save = True
 
-        if save:
-            target.save()
+        return save
 
 
-class RelatedItemCopier(Copier):
+class RelatedItemCopier(copying.PreSaveCopier):
     def copy_to(self, target):
         target.related_item = self.source.related_item
 
@@ -89,7 +88,7 @@ class ReassignedLineCloner(EntityCloner):
         target.related_document = self.related_document
 
 
-class LinesCopier(Copier):
+class LinesCopier(copying.PostSaveCopier):
     line_cloner_classes: dict[type['Line'], type[ReassignedLineCloner]] = {}
     default_line_cloner_class = ReassignedLineCloner
 
@@ -106,8 +105,8 @@ class LinesCopier(Copier):
 class BillingBaseCloner(EntityCloner):
     pre_save_copiers = [
         *EntityCloner.pre_save_copiers,
-        SourceCopier,
-        TargetCopier,
+        EmitterCopier,
+        ReceiverCopier,
     ]
     post_save_copiers = [
         *EntityCloner.post_save_copiers,
@@ -122,7 +121,7 @@ class BillingBaseCloner(EntityCloner):
         target._address_auto_copy = False
 
 
-class InvoiceFieldsCopier(RegularFieldsCopier):
+class InvoiceFieldsCopier(copying.RegularFieldsCopier):
     # TODO: what about "issuing_date"? should we copy it?
     # NB: the cloned Invoice uses the default status
     exclude = {'status'}
@@ -131,7 +130,7 @@ class InvoiceFieldsCopier(RegularFieldsCopier):
 class InvoiceCloner(BillingBaseCloner):
     pre_save_copiers = FluentList(
         BillingBaseCloner.pre_save_copiers
-    ).replace(old=RegularFieldsCopier, new=InvoiceFieldsCopier)
+    ).replace(old=copying.RegularFieldsCopier, new=InvoiceFieldsCopier)
 
 
 class QuoteCloner(BillingBaseCloner):

@@ -24,7 +24,7 @@ from django.db.transaction import atomic
 from django.utils.translation import gettext as _
 
 from creme.billing.models import Base
-from creme.creme_core.core.copying import Copier
+from creme.creme_core.core import copying
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeUser
 
@@ -39,8 +39,8 @@ class Converter:
 
     Hint: see class <ConverterRegistry>.
     """
-    pre_save_copiers: list[type[Copier]] = []
-    post_save_copiers: list[type[Copier]] = []
+    pre_save_copiers: list[type[copying.PreSaveCopier]] = []
+    post_save_copiers: list[type[copying.PostSaveCopier]] = []
 
     def __init__(self, *, user: CremeUser, source: Base, target_model: type[Base]):
         """Constructor.
@@ -97,9 +97,14 @@ class Converter:
         for copier_class in self.pre_save_copiers:
             copier_class(source=source, user=user).copy_to(target=target)
 
-    def _post_save(self, *, user, source, target) -> None:
+    def _post_save(self, *, user, source, target) -> bool:
+        """@return: Should the target be saved again?"""
+        save = False
+
         for copier_class in self.post_save_copiers:
-            copier_class(source=source, user=user).copy_to(target=target)
+            save |= bool(copier_class(source=source, user=user).copy_to(target=target))
+
+        return save
 
     @atomic
     def perform(self) -> Base:
@@ -110,7 +115,8 @@ class Converter:
 
         self._pre_save(user=user, source=source, target=converted)
         converted.save()
-        self._post_save(user=user, source=source, target=converted)
+        if self._post_save(user=user, source=source, target=converted):
+            converted.save()
 
         return converted
 
