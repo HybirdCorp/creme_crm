@@ -21,11 +21,8 @@ from __future__ import annotations
 import logging
 import typing
 
-from creme.creme_core.core.cloning import (
-    Copier,
-    EntityCloner,
-    RegularFieldsCopier,
-)
+from creme.creme_core.core.cloning import EntityCloner
+from creme.creme_core.core.copying import Copier, RegularFieldsCopier
 from creme.creme_core.utils.collections import FluentList
 
 if typing.TYPE_CHECKING:

@@ -17,7 +17,8 @@
 ################################################################################
 
 from creme.activities.constants import REL_OBJ_PART_2_ACTIVITY
-from creme.creme_core.core.cloning import Copier, EntityCloner, RelationsCopier
+from creme.creme_core.core.cloning import EntityCloner
+from creme.creme_core.core.copying import Copier, RelationsCopier
 from creme.creme_core.utils.collections import FluentList
 
 

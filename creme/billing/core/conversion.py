@@ -24,7 +24,7 @@ from django.db.transaction import atomic
 from django.utils.translation import gettext as _
 
 from creme.billing.models import Base
-from creme.creme_core.core.cloning import Copier
+from creme.creme_core.core.copying import Copier
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeUser
 

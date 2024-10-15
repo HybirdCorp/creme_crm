@@ -21,7 +21,7 @@ from datetime import date
 
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.core import cloning
+from creme.creme_core.core import copying
 
 from . import cloners as billing_cloners
 from . import constants
@@ -31,7 +31,7 @@ from .models import Base
 logger = logging.getLogger(__name__)
 
 
-class CommonRegularFieldsCopier(cloning.BaseFieldsCopier):
+class CommonRegularFieldsCopier(copying.BaseFieldsCopier):
     def copy_to(self, target):
         source = self.source
 
@@ -41,7 +41,7 @@ class CommonRegularFieldsCopier(cloning.BaseFieldsCopier):
                 setattr(target, fname, getattr(source, fname))
 
 
-class CommonManyToManyFieldsCopier(cloning.BaseFieldsCopier):
+class CommonManyToManyFieldsCopier(copying.BaseFieldsCopier):
     def copy_to(self, target):
         source = self._source
 
@@ -51,19 +51,19 @@ class CommonManyToManyFieldsCopier(cloning.BaseFieldsCopier):
                 getattr(target, field_name).set(getattr(source, field_name).all())
 
 
-class TitleCopier(cloning.BaseFieldsCopier):
+class TitleCopier(copying.BaseFieldsCopier):
     name_format = _('{src} (converted into {dest._meta.verbose_name})')
 
     def copy_to(self, target):
         target.name = self.name_format.format(src=self._source, dest=target)
 
 
-class DatesCopier(cloning.Copier):
+class DatesCopier(copying.Copier):
     def copy_to(self, target):
         target.issuing_date = target.expiration_date = date.today()
 
 
-class QuoteToInvoiceRelationAdder(cloning.RelationAdder):
+class QuoteToInvoiceRelationAdder(copying.RelationAdder):
     rtype_id = constants.REL_SUB_INVOICE_FROM_QUOTE
 
 
@@ -82,8 +82,8 @@ class BillingBaseConverter(Converter):
         # NB: useless in vanilla code
         CommonManyToManyFieldsCopier,
 
-        cloning.StrongPropertiesCopier,
-        cloning.StrongRelationsCopier,
+        copying.StrongPropertiesCopier,
+        copying.StrongRelationsCopier,
 
         billing_cloners.AddressesCopier,
         billing_cloners.LinesCopier,

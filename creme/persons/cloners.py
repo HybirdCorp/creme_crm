@@ -18,7 +18,8 @@
 
 from django.utils.translation import gettext as _
 
-from creme.creme_core.core.cloning import Copier, EntityCloner
+from creme.creme_core.core.cloning import EntityCloner
+from creme.creme_core.core.copying import Copier
 from creme.creme_core.core.exceptions import ConflictError
 
 

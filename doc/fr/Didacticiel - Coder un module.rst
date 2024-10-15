@@ -3170,7 +3170,8 @@ fichier ``my_project/beavers/cloners.py`` : ::
 
     from django.utils.translation import gettext_lazy as _
 
-    from creme.creme_core.core.cloning import Copier, EntityCloner
+    from creme.creme_core.core.cloning import EntityCloner
+    from creme.creme_core.core.copying import Copier
     from creme.creme_core.core.exceptions import ConflictError
 
     from .constants import UUID_STATUS_SICK
