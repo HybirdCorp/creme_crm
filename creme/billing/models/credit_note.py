@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.db.models import ForeignKey
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -58,9 +60,12 @@ class AbstractCreditNote(Base):
     def get_lv_absolute_url():
         return reverse('billing__list_cnotes')
 
-    # TODO: factorise the build() methods
     def build(self, template):
-        # Specific recurrent generation rules
+        warnings.warn(
+            'The method billing.models.Invoice.build() is deprecated.',
+            DeprecationWarning,
+        )
+
         # status_id = None
         #
         # if isinstance(template, get_template_base_model()):

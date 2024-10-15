@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from datetime import date
 # from typing import TYPE_CHECKING
 from functools import partial
@@ -385,8 +386,12 @@ class Base(CremeEntity):
         if save:
             self.save()
 
-    # TODO: deprecate
     def build(self, template: Base):
+        warnings.warn(
+            'The method billing.models.Base.build() is deprecated; '
+            'use the new conversion/spawning systems instead.',
+            DeprecationWarning,
+        )
         self._address_auto_copy = False
 
         self._build_object(template)
@@ -398,7 +403,10 @@ class Base(CremeEntity):
         return self
 
     def _build_object(self, template: Base):
-        logger.debug('=> Clone base object')
+        warnings.warn(
+            'The method billing.models.Base._build_object() is deprecated.',
+            DeprecationWarning,
+        )
 
         self.user         = template.user
         self.name         = template.name
@@ -420,11 +428,17 @@ class Base(CremeEntity):
         # - payment_terms
 
     def _build_relations(self, template: Base):
-        logger.debug('=> Clone relations')
+        warnings.warn(
+            'The method billing.models.Base._build_relations() is deprecated.',
+            DeprecationWarning,
+        )
         self._copy_relations(template)
 
     def _build_properties(self, template: Base):
-        logger.debug('=> Clone properties')
+        warnings.warn(
+            'The method billing.models.Base._build_properties() is deprecated.',
+            DeprecationWarning,
+        )
         self._copy_properties(template)
 
     # TODO: remove *args, **kwargs

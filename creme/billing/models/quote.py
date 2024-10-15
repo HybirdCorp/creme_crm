@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.db import models
 from django.urls import reverse
@@ -62,9 +63,12 @@ class AbstractQuote(Base):
     def get_lv_absolute_url():
         return reverse('billing__list_quotes')
 
-    # TODO: the code would be more simpler if we had one not custom status...
     def build(self, template):
-        # Specific recurrent generation rules
+        warnings.warn(
+            'The method billing.models.Quote.build() is deprecated.',
+            DeprecationWarning,
+        )
+
         # tpl_status_id = template.status_id
         # self.status = QuoteStatus.objects.get_or_create(
         #     pk=tpl_status_id,

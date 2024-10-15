@@ -1030,7 +1030,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(4, len(table_cells))
         self.assertInstanceLink(table_cells[0], entity=credit_note)
 
-    def test_build(self):
+    def test_build(self):  # DEPRECATED
         user = self.get_root_user()
         status1 = CreditNoteStatus.objects.exclude(is_default=True).first()
         create_orga = partial(Organisation.objects.create, user=user)
