@@ -18,12 +18,12 @@
 
 from creme.activities.constants import REL_OBJ_PART_2_ACTIVITY
 from creme.creme_core.core.cloning import EntityCloner
-from creme.creme_core.core.copying import Copier, RelationsCopier
+from creme.creme_core.core.copying import PreSaveCopier, RelationsCopier
 from creme.creme_core.utils.collections import FluentList
 
 
 # TODO: explicit this into description? move the activity to another time-slot?
-class BusyCopier(Copier):
+class BusyCopier(PreSaveCopier):
     def copy_to(self, target):
         target.busy = False
 

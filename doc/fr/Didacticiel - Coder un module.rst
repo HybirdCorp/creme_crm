@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 15-10-2024 pour la version 2.7 de Creme
+:Version: 16-10-2024 pour la version 2.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3171,13 +3171,13 @@ fichier ``my_project/beavers/cloners.py`` : ::
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.core.cloning import EntityCloner
-    from creme.creme_core.core.copying import Copier
+    from creme.creme_core.core.copying import PreSaveCopier
     from creme.creme_core.core.exceptions import ConflictError
 
     from .constants import UUID_STATUS_SICK
 
 
-    class DescriptionCopier(Copier):
+    class DescriptionCopier(PreSaveCopier):
         def copy_to(self, target):
             target.description = f'{self._source.description} (cloné)'
 
@@ -3192,7 +3192,7 @@ fichier ``my_project/beavers/cloners.py`` : ::
             super().check_permissions(user=user, entity=entity)
 
             if str(entity.status.uuid) == UUID_STATUS_SICK:
-                raise ConflictError(_('an sick beaver cannot be cloned'))
+                raise ConflictError(_('a sick beaver cannot be cloned'))
 
 
 Dans cet exemple :

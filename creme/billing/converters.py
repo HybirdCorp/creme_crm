@@ -31,7 +31,7 @@ from .models import Base
 logger = logging.getLogger(__name__)
 
 
-class CommonRegularFieldsCopier(copying.BaseFieldsCopier):
+class CommonRegularFieldsCopier(copying.FieldsCopierMixin, copying.PreSaveCopier):
     def copy_to(self, target):
         source = self.source
 
@@ -41,7 +41,7 @@ class CommonRegularFieldsCopier(copying.BaseFieldsCopier):
                 setattr(target, fname, getattr(source, fname))
 
 
-class CommonManyToManyFieldsCopier(copying.BaseFieldsCopier):
+class CommonManyToManyFieldsCopier(copying.FieldsCopierMixin, copying.PostSaveCopier):
     def copy_to(self, target):
         source = self._source
 
@@ -51,14 +51,14 @@ class CommonManyToManyFieldsCopier(copying.BaseFieldsCopier):
                 getattr(target, field_name).set(getattr(source, field_name).all())
 
 
-class TitleCopier(copying.BaseFieldsCopier):
+class TitleCopier(copying.PreSaveCopier):
     name_format = _('{src} (converted into {dest._meta.verbose_name})')
 
     def copy_to(self, target):
         target.name = self.name_format.format(src=self._source, dest=target)
 
 
-class DatesCopier(copying.Copier):
+class DatesCopier(copying.PreSaveCopier):
     def copy_to(self, target):
         target.issuing_date = target.expiration_date = date.today()
 
@@ -73,8 +73,8 @@ class BillingBaseConverter(Converter):
         CommonRegularFieldsCopier,
         TitleCopier,
         DatesCopier,
-        billing_cloners.SourceCopier,
-        billing_cloners.TargetCopier,
+        billing_cloners.EmitterCopier,
+        billing_cloners.ReceiverCopier,
     ]
     post_save_copiers = [
         *Converter.post_save_copiers,

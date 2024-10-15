@@ -34,10 +34,10 @@ class EntityCloner:
 
     Hint: see class <EntityClonerRegistry>.
     """
-    pre_save_copiers: list[type[copying.Copier]] = [
+    pre_save_copiers: list[type[copying.PreSaveCopier]] = [
         copying.RegularFieldsCopier,
     ]
-    post_save_copiers: list[type[copying.Copier]] = [
+    post_save_copiers: list[type[copying.PostSaveCopier]] = [
         copying.ManyToManyFieldsCopier,
         copying.CustomFieldsCopier,
         copying.PropertiesCopier,
@@ -63,9 +63,14 @@ class EntityCloner:
         for copier_class in self.pre_save_copiers:
             copier_class(source=source, user=user).copy_to(target=target)
 
-    def _post_save(self, *, user, source, target) -> None:
+    def _post_save(self, *, user, source, target) -> bool:
+        """@return: Should the target be saved again?"""
+        save = False
+
         for copier_class in self.post_save_copiers:
-            copier_class(source=source, user=user).copy_to(target=target)
+            save |= bool(copier_class(source=source, user=user).copy_to(target=target))
+
+        return save
 
     @atomic
     def perform(self, *, user: CremeUser, entity: CremeEntity) -> CremeEntity:
@@ -79,7 +84,8 @@ class EntityCloner:
 
         self._pre_save(user=user, source=entity, target=clone)
         clone.save()
-        self._post_save(user=user, source=entity, target=clone)
+        if self._post_save(user=user, source=entity, target=clone):
+            clone.save()
 
         return clone
 

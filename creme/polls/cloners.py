@@ -17,10 +17,10 @@
 ################################################################################
 
 from creme.creme_core.core.cloning import EntityCloner
-from creme.creme_core.core.copying import Copier
+from creme.creme_core.core.copying import PostSaveCopier
 
 
-class TreeCopier(Copier):
+class TreeCopier(PostSaveCopier):
     def copy_to(self, target):
         source = self._source
         source.duplicate_tree(

@@ -19,11 +19,11 @@
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.cloning import EntityCloner
-from creme.creme_core.core.copying import Copier
+from creme.creme_core.core.copying import PostSaveCopier
 from creme.creme_core.core.exceptions import ConflictError
 
 
-class AddressesCopier(Copier):
+class AddressesCopier(PostSaveCopier):
     def copy_to(self, target):
         source = self._source
         save = False
@@ -37,11 +37,10 @@ class AddressesCopier(Copier):
             target.shipping_address = source.shipping_address.clone(target)
             save = True
 
-        if save:
-            target.save()
-
         for address in source.other_addresses:
             address.clone(target)
+
+        return save
 
 
 class ContactCloner(EntityCloner):

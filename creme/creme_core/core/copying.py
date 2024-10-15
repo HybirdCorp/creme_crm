@@ -55,12 +55,24 @@ class Copier:
     def user(self):
         return self._user
 
-    def copy_to(self, target: CremeEntity) -> None:
-        """Performs the copy to the target entity."""
+    def copy_to(self, target: CremeEntity) -> bool | None:
+        """Performs the copy to the target entity.
+        @return: If true, the target has been modified & should be saved.
+        """
         raise NotImplementedError
 
 
-class BaseFieldsCopier(Copier):
+class PreSaveCopier(Copier):
+    pass
+
+
+class PostSaveCopier(Copier):
+    """This kind of Copier must be used on a target entity which has already
+    been saved once at least (& so have a PK).
+    """
+
+
+class FieldsCopierMixin(Copier):
     # Name of the fields to NOT copy from the source
     exclude = set()
 
@@ -68,7 +80,7 @@ class BaseFieldsCopier(Copier):
         return field.get_tag(FieldTag.CLONABLE) and field.name not in self.exclude
 
 
-class RegularFieldsCopier(BaseFieldsCopier):
+class RegularFieldsCopier(FieldsCopierMixin, PreSaveCopier):
     """Specialized copier for regular fields.
     Notice that ManyToManyFields are NOT copied (so this copier can be used
     before saving the cloned entity).
@@ -82,10 +94,8 @@ class RegularFieldsCopier(BaseFieldsCopier):
                 setattr(target, fname, getattr(source, fname))
 
 
-class ManyToManyFieldsCopier(BaseFieldsCopier):
-    """Specialized copier for Many-To-Many fields.
-    This copier must be used after the cloned entity has been saved.
-    """
+class ManyToManyFieldsCopier(FieldsCopierMixin, PostSaveCopier):
+    """Specialized copier for Many-To-Many fields."""
     def copy_to(self, target):
         source = self._source
 
@@ -95,10 +105,8 @@ class ManyToManyFieldsCopier(BaseFieldsCopier):
                 getattr(target, field_name).set(getattr(source, field_name).all())
 
 
-class CustomFieldsCopier(Copier):
-    """Specialized copier for Custom-Fields.
-    This copier must be used after the cloned entity has been saved.
-    """
+class CustomFieldsCopier(PostSaveCopier):
+    """Specialized copier for Custom-Fields."""
     def copy_to(self, target):
         source = self._source
 
@@ -120,10 +128,8 @@ class CustomFieldsCopier(Copier):
             CustomFieldValue.save_values_for_entities(custom_field, [target], value)
 
 
-class PropertiesCopier(Copier):
-    """Specialized copier for CremeProperties.
-    This copier must be used after the cloned entity has been saved.
-    """
+class PropertiesCopier(PostSaveCopier):
+    """Specialized copier for CremeProperties."""
     def _properties_qs(self):
         return self._source.properties.filter(type__is_copiable=True)
 
@@ -140,7 +146,6 @@ class StrongPropertiesCopier(PropertiesCopier):
     It won't be useful in a classical cloning (source & target have the same type)
     but you should use this class when the types are mixed, because the
     ContentType constraints of the CremePropertyTypes are respected.
-    This copier must be used after the cloned entity has been saved.
     """
     def copy_to(self, target):
         property_create = CremeProperty.objects.safe_create
@@ -155,10 +160,8 @@ class StrongPropertiesCopier(PropertiesCopier):
                 property_create(type=prop.type, creme_entity=target)
 
 
-class RelationsCopier(Copier):
-    """Specialized copier for Relations.
-    This copier must be used after the cloned entity has been saved.
-    """
+class RelationsCopier(PostSaveCopier):
+    """Specialized copier for Relations."""
     # IDs of RelationType with <is_internal=True> which must be copied anyway.
     allowed_internal_rtype_ids = []
 
@@ -193,7 +196,6 @@ class StrongRelationsCopier(RelationsCopier):
        types)
      - Constraint for CremeProperties. Notice you should use this Copier after
        CremeProperties have been copied.
-    This copier must be used after the cloned entity has been saved.
     """
     # Check if the Relations already exist (see Relation.objects.safe_multi_save()).
     # Note that <False> does not mean duplicates can be created (it's forbidden by
@@ -231,7 +233,7 @@ class StrongRelationsCopier(RelationsCopier):
         )
 
 
-class RelationAdder(Copier):
+class RelationAdder(PostSaveCopier):
     """Add a Relation with a fixed type between the source & the target."""
     rtype_id = ''
 

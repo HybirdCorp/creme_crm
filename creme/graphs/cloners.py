@@ -17,12 +17,12 @@
 ################################################################################
 
 from creme.creme_core.core.cloning import EntityCloner
-from creme.creme_core.core.copying import Copier
+from creme.creme_core.core.copying import PostSaveCopier
 
 from .models import RootNode
 
 
-class RootNodesCopier(Copier):
+class RootNodesCopier(PostSaveCopier):
     def copy_to(self, target):
         for node in RootNode.objects.filter(graph=self._source):
             rn = RootNode.objects.create(graph=target, real_entity=node.entity)
