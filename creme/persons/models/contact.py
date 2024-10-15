@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -206,6 +207,11 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         )
 
     def _post_save_clone(self, source):
+        warnings.warn(
+            'The method Contact._post_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         self._aux_post_save_clone(source)
 
     def save(self, *args, **kwargs):

@@ -779,7 +779,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     @skipIfCustomServiceLine
-    def test_clone__method01(self):
+    def test_clone__method01(self):  # DEPRECATED
         "Organisation not managed => number is set to '0'."
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
@@ -790,8 +790,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             owner=target,
         )
         target.save()
-
-        # status = QuoteStatus.objects.filter(is_default=False)[0] TODO
 
         quote = self.create_quote(
             user=user, name='Quote001', source=source, target=target,
@@ -809,7 +807,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         quote = self.refresh(quote)
 
         self.assertIsNone(cloned.acceptation_date)
-        # self.assertTrue(cloned.status.is_default) TODO
         self.assertEqual('0', cloned.number)
 
         self.assertNotEqual(quote, cloned)  # Not the same pk
@@ -828,7 +825,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(b_addr.name, billing_address.name)
         self.assertEqual(b_addr.city, billing_address.city)
 
-    def test_clone__method02(self):
+    def test_clone__method02(self):  # DEPRECATED
         "Organisation is managed => number is generated (but only once BUGFIX)."
         user = self.login_as_root_and_get()
 

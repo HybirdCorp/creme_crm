@@ -476,7 +476,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProduct
     @skipIfCustomProductLine
-    def test_product_line_clone(self):
+    def test_product_line_clone__method(self):  # DEPRECATED
         user = self.login_as_root_and_get()
 
         product = self.create_product(user=user)
@@ -509,7 +509,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomServiceLine
-    def test_service_line_clone(self):
+    def test_service_line_clone__method(self):  # DEPRECATED
         user = self.login_as_root_and_get()
 
         service = self.create_service(user=user)

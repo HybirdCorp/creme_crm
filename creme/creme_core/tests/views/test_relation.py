@@ -2122,7 +2122,7 @@ class RelationViewsTestCase(CremeTestCase):
         )
         self.assertStillExists(relation)
 
-    def test_not_copiable_relations01(self):
+    def test_not_copiable_relations01(self):  # DEPRECATED
         user = self.login_as_root_and_get()
 
         self.assertEqual(0, Relation.objects.count())
@@ -2155,7 +2155,7 @@ class RelationViewsTestCase(CremeTestCase):
         entity1.clone()
         self.assertRelationCounts(((rtype1, 1), (rtype2, 1), (rtype3, 2), (rtype4, 2)))
 
-    def test_not_copiable_relations02(self):
+    def test_not_copiable_relations02(self):  # DEPRECATED
         user = self.login_as_root_and_get()
         self.assertEqual(0, Relation.objects.count())
 

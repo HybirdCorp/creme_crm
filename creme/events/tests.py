@@ -1032,7 +1032,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(event.type,       cloned_event.type)
         self.assertEqual(event.start_date, cloned_event.start_date)
 
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.get_root_user()
         event = Event.objects.create(
             user=user, name='Eclipse', type=EventType.objects.all()[0], start_date=now(),

@@ -96,7 +96,7 @@ class CampaignTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(camp.name, cloned_camp.name)
         self.assertCountEqual([ml1, ml2], cloned_camp.mailing_lists.all())
 
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.get_root_user()
         camp = EmailCampaign.objects.create(user=user, name='My campaign')
 

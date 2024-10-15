@@ -437,7 +437,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     @skipIfCustomServiceLine
-    def test_clone__method01(self):
+    def test_clone__method01(self):  # DEPRECATED
         "Organisation not managed => number is set to '0'."
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
@@ -492,7 +492,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(origin_b_addr.city,    billing_address.city)
         self.assertEqual(origin_b_addr.zipcode, billing_address.zipcode)
 
-    def test_clone__method02(self):
+    def test_clone__method02(self):  # DEPRECATED
         "Organisation is managed => number is generated (but only once BUGFIX)."
         user = self.login_as_root_and_get()
 

@@ -288,7 +288,7 @@ class EntityTestCase(CremeTestCase):
         self.assertTrue(get_field('date_joined').get_tag(FieldTag.VIEWABLE))
         self.assertTrue(get_field('role').get_tag(FieldTag.VIEWABLE))
 
-    def test_clone01(self):
+    def test_clone01(self):  # DEPRECATED
         user = self.get_root_user()
         self._build_rtypes_n_ptypes()
 
@@ -327,7 +327,7 @@ class EntityTestCase(CremeTestCase):
         self.assertSameRelationsNProperties(original_ce, clone_ce)
         self.assertFalse(clone_ce.relations.filter(type__is_internal=True))
 
-    def test_clone02(self):
+    def test_clone02(self):  # DEPRECATED
         "Clone regular fields."
         user = self.get_root_user()
         self._build_rtypes_n_ptypes()
@@ -374,7 +374,7 @@ class EntityTestCase(CremeTestCase):
         self.assertCountEqual([language], kage_bunshin.languages.all())
         self.assertFalse(kage_bunshin.preferred_countries.all())  # Not clonable
 
-    def test_clone03(self):
+    def test_clone03(self):  # DEPRECATED
         user = self.get_root_user()
 
         create_cf = partial(
@@ -425,7 +425,7 @@ class EntityTestCase(CremeTestCase):
             {*get_cf_values(cf_multi_enum, clone).value.values_list('pk', flat=True)},
         )
 
-    def test_clone04(self):
+    def test_clone04(self):  # DEPRECATED
         "ManyToMany"
         user = self.get_root_user()
 

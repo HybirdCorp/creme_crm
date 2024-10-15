@@ -1035,7 +1035,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertObjectivesEqual(obj1, cloned_objs[0])
         self.assertObjectivesEqual(obj2, cloned_objs[1])
 
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.login_as_root_and_get()
         act = self.create_act(user=user)
 

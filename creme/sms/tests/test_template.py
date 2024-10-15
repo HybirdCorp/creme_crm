@@ -175,7 +175,7 @@ class MessageTemplateTestCase(CremeTestCase):
         self.assertEqual(template.subject, cloned_template.subject)
         self.assertEqual(template.body,    cloned_template.body)
 
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.get_root_user()
         template = MessageTemplate.objects.create(
             user=user,

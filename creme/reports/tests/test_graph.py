@@ -3168,7 +3168,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         self.assertEqual(rgraph.chart, cloned_rgraph.chart)
 
-    def test_clone_report__method(self):
+    def test_clone_report__method(self):  # DEPRECATED
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(

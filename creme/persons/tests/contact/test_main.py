@@ -1131,7 +1131,7 @@ class ContactTestCase(_BaseTestCase):
             self.assertAddressOnlyContentEqual(address, address2)
 
     @skipIfCustomAddress
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         "Addresses & is_user are problematic."
         user = self.login_as_root_and_get()
         naruto = self.get_object_or_fail(Contact, is_user=user)

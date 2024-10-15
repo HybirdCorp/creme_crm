@@ -316,7 +316,7 @@ class OrganisationTestCase(_BaseTestCase):
             self.assertIsNotNone(address2, ident)
             self.assertAddressOnlyContentEqual(address, address2)
 
-    def test_clone__managed(self):
+    def test_clone__managed(self):  # DEPRECATED
         "Do not clone 'is_managed'."
         user = self.login_as_root_and_get()
         bebop = Organisation.objects.create(user=user, name='Bebop', is_managed=True)
@@ -330,7 +330,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertFalse(cloned.is_managed)
 
     @skipIfCustomAddress
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         "Addresses are problematic."
         user = self.login_as_root_and_get()
 

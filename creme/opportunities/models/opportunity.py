@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from functools import partial
 
 from django.apps import apps
@@ -151,6 +152,11 @@ class AbstractOpportunity(core_models.CremeEntity):
                 raise ValidationError(gettext('Target is required.'))
 
     def _pre_save_clone(self, source):
+        warnings.warn(
+            'The method Opportunity._pre_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         self.emitter = source.emitter
         self.target  = source.target
 

@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -150,6 +152,12 @@ class AbstractProject(CremeEntity):
 
     def _post_save_clone(self, source):
         from creme.projects.models.task import ProjectTask
+
+        warnings.warn(
+            'The method Project._post_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         ProjectTask.clone_scope(source.get_tasks(), self)
 
 

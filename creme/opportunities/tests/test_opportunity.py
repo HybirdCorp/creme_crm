@@ -732,7 +732,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         # Internal
         self.assertHaveRelation(target, type=constants.REL_OBJ_TARGETS, object=clone)
 
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.login_as_root_and_get()
 
         opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)

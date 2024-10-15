@@ -60,6 +60,11 @@ class AbstractInvoice(Base):
         verbose_name_plural = _('Invoices')
 
     def _pre_save_clone(self, source):
+        warnings.warn(
+            'The method Invoice._pre_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         super()._pre_save_clone(source=source)
 
         status = InvoiceStatus.objects.default()

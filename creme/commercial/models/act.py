@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from collections import OrderedDict
 
 from django.conf import settings
@@ -145,6 +146,11 @@ class AbstractAct(CremeEntity):
         return relopps
 
     def _post_save_clone(self, source):
+        warnings.warn(
+            'The method Act._post_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         ActObjective.objects.bulk_create([
             ActObjective(
                 name=objective.name,
@@ -293,6 +299,11 @@ class AbstractActObjectivePattern(CremeEntity):
         return root_components
 
     def _post_save_clone(self, source):
+        warnings.warn(
+            'The method ActObjectivePattern._post_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         for pattern_component in source.get_components_tree():
             pattern_component.clone(self)
 

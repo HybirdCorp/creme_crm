@@ -322,7 +322,7 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
         self.assertCountEqual([doc], cloned_template.attachments.all())
 
     @skipIfCustomDocument
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.login_as_root_and_get()
 
         file_obj = self.build_filedata('Content #1')

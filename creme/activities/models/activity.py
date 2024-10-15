@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -175,11 +177,19 @@ class AbstractActivity(CremeEntity):
             self.end   = self.end.replace(hour=23, minute=59)
 
     def _pre_save_clone(self, source):
-        # TODO: explicit this into description? Move the activity to another time-slot?
+        warnings.warn(
+            'The method CremeEntity._pre_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
         if source.busy:
             self.busy = False
 
     def _copy_relations(self, source, allowed_internal=()):
+        warnings.warn(
+            'The method Activity._copy_relations() is deprecated.',
+            DeprecationWarning,
+        )
+
         super()._copy_relations(
             source,
             allowed_internal=[*allowed_internal, REL_OBJ_PART_2_ACTIVITY],
