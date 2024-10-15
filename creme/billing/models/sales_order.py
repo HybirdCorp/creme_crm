@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.db.models import ForeignKey
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -61,15 +63,16 @@ class AbstractSalesOrder(Base):
         return reverse('billing__list_orders')
 
     def build(self, template):
-        # Specific recurrent generation rules
-        # TODO: factorise with Invoice.build()
+        warnings.warn(
+            'The method billing.models.SalesOrder.build() is deprecated.',
+            DeprecationWarning,
+        )
+
         # status_id = None
-        #
         # if isinstance(template, TemplateBase):
         #     tpl_status_id = template.status_id
         #     if SalesOrderStatus.objects.filter(pk=tpl_status_id).exists():
         #         status_id = tpl_status_id
-        #
         # if status_id:
         #     self.status_id = status_id
         # else:

@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.db import models
 from django.urls import reverse
@@ -99,14 +100,16 @@ class AbstractInvoice(Base):
         return reverse('billing__list_invoices')
 
     def build(self, template):
-        # Specific recurrent generation rules
+        warnings.warn(
+            'The method billing.models.Invoice.build() is deprecated.',
+            DeprecationWarning,
+        )
+
         # status_id = None
-        #
         # if isinstance(template, get_template_base_model()):
         #     tpl_status_id = template.status_id
         #     if InvoiceStatus.objects.filter(pk=tpl_status_id).exists():
         #         status_id = tpl_status_id
-        #
         # if status_id:
         #     self.status_id = status_id
         # else:

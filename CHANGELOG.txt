@@ -357,6 +357,12 @@
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' is now deprecated.
                     - The class-view 'views.contact.ContactNamesEdition' is now deprecated.
+                * Billing :
+                    - In 'models.Base' (& child classes), these methods are deprecated :
+                        - build()
+                        - _build_object()
+                        - _build_relations()
+                        - _build_properties()
                 * Emails :
                     - The function 'utils.get_mime_image()' is deprecated; use 'utils.SignatureImage' instead.
                     - The constructor of 'utils.SignatureRenderer' takes now an argument "domain" ;
