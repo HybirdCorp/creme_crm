@@ -16,11 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.creme_core.core.cloning import (
-    Copier,
-    EntityCloner,
-    ManyToManyFieldsCopier,
-)
+from creme.creme_core.core.cloning import EntityCloner
+from creme.creme_core.core.copying import Copier, ManyToManyFieldsCopier
 from creme.creme_core.utils.collections import FluentList
 
 

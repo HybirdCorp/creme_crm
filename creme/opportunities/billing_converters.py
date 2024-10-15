@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.creme_core.core.cloning import Copier
+from creme.creme_core.core.copying import Copier
 from creme.creme_core.models import Relation, RelationType
 
 from . import constants

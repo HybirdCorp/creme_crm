@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.creme_core.core import cloning
+from creme.creme_core.core import cloning, copying
 
 
 class Spawner(cloning.EntityCloner):
@@ -26,7 +26,7 @@ class Spawner(cloning.EntityCloner):
     post_save_copiers = [
         # TODO: unit test
         # NB: useless in vanilla code
-        cloning.ManyToManyFieldsCopier,
+        copying.ManyToManyFieldsCopier,
         # Does not mean anything to clone that (types are different).
         # CustomFieldsCopier,
         # TODO? (beware to constraints)

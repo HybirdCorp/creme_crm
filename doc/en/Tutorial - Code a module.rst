@@ -3035,7 +3035,8 @@ passing to the method ``register()`` an argument ``cloner_class``. In the file
 
     from django.utils.translation import gettext_lazy as _
 
-    from creme.creme_core.core.cloning import Copier, EntityCloner
+    from creme.creme_core.core.cloning import EntityCloner
+    from creme.creme_core.core.copying import Copier
     from creme.creme_core.core.exceptions import ConflictError
 
     from .constants import STATUS_SICK

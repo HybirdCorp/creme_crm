@@ -21,7 +21,7 @@ from datetime import date, timedelta
 
 from django.utils.translation import gettext
 
-from creme.creme_core.core.cloning import Copier
+from creme.creme_core.core.copying import Copier
 from creme.creme_core.utils.collections import FluentList
 
 from . import cloners as billing_cloners
