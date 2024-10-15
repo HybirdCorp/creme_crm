@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 import uuid
+import warnings
 from collections import defaultdict
 from typing import TYPE_CHECKING, Any, DefaultDict, Literal, Sequence
 
@@ -433,6 +434,11 @@ class CremeEntity(CremeModel):
     def _clone_custom_values(self, source):
         from . import CustomField, CustomFieldValue
 
+        warnings.warn(
+            'The method CremeEntity._clone_custom_values() is deprecated.',
+            DeprecationWarning,
+        )
+
         for custom_field in CustomField.objects.get_for_model(source.entity_type).values():
             custom_value_klass = custom_field.value_class
             try:
@@ -453,22 +459,36 @@ class CremeEntity(CremeModel):
         """Called just before saving the entity which is already populated
         with source attributes (except m2m).
         """
-        pass
+        warnings.warn(
+            'The method CremeEntity._pre_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
 
     def _post_save_clone(self, source: CremeEntity):
         """Called just after saving the entity (m2m and custom fields are
          not already cloned & saved).
         """
-        pass
+        warnings.warn(
+            'The method CremeEntity._post_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
 
     def _post_clone(self, source: CremeEntity):
         """Called after all clone operations (object cloned with all his
          M2M, custom values, properties and relations).
         """
-        pass
+        warnings.warn(
+            'The method CremeEntity._post_clone() is deprecated.',
+            DeprecationWarning,
+        )
 
     def _clone_m2m(self, source: CremeEntity) -> None:
         """Handle the clone of all many to many fields."""
+        warnings.warn(
+            'The method CremeEntity._clone_m2m() is deprecated.',
+            DeprecationWarning,
+        )
+
         for field in source._meta.many_to_many:
             if field.get_tag(FieldTag.CLONABLE):
                 field_name = field.name
@@ -478,6 +498,11 @@ class CremeEntity(CremeModel):
         """Clone and returns a new saved instance of self.
         NB: Clones also customs values.
         """
+        warnings.warn(
+            'The method CremeEntity._clone_object() is deprecated.',
+            DeprecationWarning,
+        )
+
         fields_kv = {}
 
         for field in self._meta.fields:
@@ -499,6 +524,11 @@ class CremeEntity(CremeModel):
     def _copy_properties(self, source: CremeEntity) -> None:
         from . import CremeProperty
 
+        warnings.warn(
+            'The method CremeEntity._copy_properties() is deprecated.',
+            DeprecationWarning,
+        )
+
         creme_property_create = CremeProperty.objects.safe_create
 
         for type_id in source.properties.filter(
@@ -514,6 +544,11 @@ class CremeEntity(CremeModel):
                   Relationships with these types will be cloned anyway.
         """
         from . import Relation, RelationType
+
+        warnings.warn(
+            'The method CremeEntity._copy_relations() is deprecated.',
+            DeprecationWarning,
+        )
 
         relation_create = Relation.objects.safe_create
         query = Q(
@@ -538,6 +573,12 @@ class CremeEntity(CremeModel):
         """Take an entity and makes it copy.
         @returns : A new entity (with a different pk) with sames values
         """
+        warnings.warn(
+            'The method CremeEntity.clone() is deprecated; '
+            'use the new module <creme_core.core.cloning> instead.',
+            DeprecationWarning,
+        )
+
         real_self = self.get_real_entity()
         new_entity = real_self._clone_object()
 

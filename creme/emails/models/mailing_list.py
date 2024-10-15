@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
@@ -114,7 +116,11 @@ class AbstractMailingList(CremeEntity):
     def _post_save_clone(self, source):
         from .recipient import EmailRecipient
 
-        # TODO: bulk_create + pagination
+        warnings.warn(
+            'The method MailingList._post_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         for recipient in source.emailrecipient_set.all():
             EmailRecipient.objects.create(ml=self, address=recipient.address)
 

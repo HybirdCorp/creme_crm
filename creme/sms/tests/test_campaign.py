@@ -200,7 +200,7 @@ class SMSCampaignTestCase(CremeTestCase):
         self.assertCountEqual([mlist], campaign.lists.all())
 
     @skipIfCustomMessagingList
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.get_root_user()
 
         mlist = MessagingList.objects.create(user=user, name='Ml01')

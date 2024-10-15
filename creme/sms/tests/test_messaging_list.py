@@ -341,7 +341,7 @@ class MessagingListTestCase(CremeTestCase):
         )
 
     @skipIfCustomContact
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.get_root_user()
 
         contact = Contact.objects.create(

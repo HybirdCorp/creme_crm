@@ -673,7 +673,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             self.assertNotEqual(stack[-1].title, cloned_folder.title)
             stack_append(cloned_folder)
 
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.login_as_root_and_get()
         title = 'folder'
         folder = Folder.objects.create(user=user, title=title, description='d')

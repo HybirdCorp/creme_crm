@@ -1012,7 +1012,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertEqual(sub_cat, cloned_product.sub_category)
         self.assertCountEqual([img_1, img_2], cloned_product.images.all())
 
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.all()[0]

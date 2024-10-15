@@ -2664,7 +2664,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertNotEqual(activity1.busy, activity2.busy)
         self.assertSameRelationsNProperties(activity1, activity2, exclude_internal=False)
 
-    def test_clone__method01(self):
+    def test_clone__method01(self):  # DEPRECATED
         user = self.login_as_root_and_get()
 
         activity1 = self._create_meeting(user=user)
@@ -2678,7 +2678,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             self.assertEqual(getattr(activity1, attr), getattr(activity2, attr))
 
     @skipIfCustomContact
-    def test_clone__method02(self):
+    def test_clone__method02(self):  # DEPRECATED
         user = self.login_as_root_and_get()
 
         rtype_participant = RelationType.objects.get(pk=constants.REL_SUB_PART_2_ACTIVITY)

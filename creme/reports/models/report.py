@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from itertools import chain
 from typing import TYPE_CHECKING, Iterator, Type
 
@@ -193,6 +194,11 @@ class AbstractReport(CremeEntity):
         )
 
     def _post_save_clone(self, source):
+        warnings.warn(
+            'The method Report._post_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         for rfield in source.fields.all():
             rfield.clone(report=self)
 

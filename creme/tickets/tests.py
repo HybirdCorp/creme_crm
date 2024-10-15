@@ -534,7 +534,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertEqual(status_open, cloned_ticket.status)
         self.assertIsNone(cloned_ticket.closing_date)
 
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         "The cloned ticket is open."
         user = self.login_as_root_and_get()
 

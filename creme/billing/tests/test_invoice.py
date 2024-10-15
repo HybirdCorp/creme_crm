@@ -1274,7 +1274,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomAddress
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -1370,7 +1370,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(origin_s_addr.department, shipping_address.department)
         self.assertEqual(origin_s_addr.zipcode,    shipping_address.zipcode)
 
-    def test_clone_source_n_target(self):
+    def test_clone__method__source_n_target(self):  # DEPRECATED
         "Internal relation-types should not be cloned."
         user = self.login_as_root_and_get()
 

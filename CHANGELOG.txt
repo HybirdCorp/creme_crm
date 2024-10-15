@@ -41,21 +41,36 @@
         # Deprecations :
             - The method 'creme_core.core.entity_cell.EntityCellCustomField.build()' with integer "value" is deprecated;
               pass a string (ID ou UUID) instead.
-            - The method 'creme_core.models.creme_property.CremePropertyTypeManager.smart_update_or_create() is deprecated;
-              use the classical methods 'create()' or 'update_or_create()' instead.
-              Notice: if you still want to set the field "subject_ctypes" from models like before,
-                      you can use the new method 'CremePropertyType.set_subject_ctypes()'.
+            - In 'creme_core.models :
+                - The method 'CremePropertyTypeManager.smart_update_or_create() is deprecated;
+                  use the classical methods 'create()' or 'update_or_create()' instead.
+                  Notice: if you still want to set the field "subject_ctypes" from models like before,
+                          you can use the new method 'CremePropertyType.set_subject_ctypes()'.
+                - These methods of 'CremeEntity' are now deprecated (use the new module 'creme_core.core.cloning' instead) :
+                    - clone()
+                    - _clone_object()
+                    - _clone_custom_values()
+                    - _clone_m2m()
+                    - _copy_properties()
+                    - _copy_relations()
+                    - _pre_save_clone()
+                    - _post_clone()
+                    - _post_save_clone()
             - The method 'creme_core.tests.base._CremeTestCase.assertRelationCount' is deprecated;
               use the new methods 'assertHaveRelation()' & 'assertHaveNoRelation()' instead.
             - App :
+                * Persons :
+                    - The method 'models.base.PersonWithAddressesMixin._post_save_clone()' is deprecated.
                 * Activities :
                     - The constants 'NARROW', 'FLOATING_TIME' & 'FLOATING' are now deprecated;
                       use 'Activity.FloatingType.*' instead.
-                  * Billing :
+                * Billing :
                     - In 'registry' :
                         - The class 'LinesRegistry' is deprecated; use 'core.line.LineRegistry' instead.
                         - The variable 'lines_registry' is deprecated; use 'core.line.line_registry' instead.
                     - The class 'views.base.BaseCreation' is deprecated.
+                * Projects :
+                    - The method 'models.AbstractProjectTask.clone_scope()' is deprecated.
         # The model 'creme_core.models.FileRef' get a new optional field "description";
           it's used by the new view which displays all FileRefs (so feel free to fill it).
         # Apps :

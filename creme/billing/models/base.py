@@ -339,6 +339,11 @@ class Base(CremeEntity):
         return max(DEFAULT_DECIMAL, lines_total_with_tax - creditnotes_total)
 
     def _pre_save_clone(self, source):
+        warnings.warn(
+            'The method Base._pre_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         self.source = source.source
         self.target = source.target
 
@@ -367,12 +372,22 @@ class Base(CremeEntity):
     #         )
 
     def _post_clone(self, source):
+        warnings.warn(
+            'The method Base._post_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         source.invalidate_cache()
 
         for line in source.iter_all_lines():
             line.clone(self)
 
     def _post_save_clone(self, source):
+        warnings.warn(
+            'The method Base._post_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         save = False
 
         if source.billing_address is not None:

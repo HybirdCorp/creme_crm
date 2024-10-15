@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from random import randint
 
 from django.core.exceptions import ValidationError
@@ -121,6 +122,11 @@ class AbstractFolder(CremeEntity):
         return reverse('documents__list_folders')
 
     def _pre_save_clone(self, source):
+        warnings.warn(
+            'The method Folder._pre_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         max_length = self._meta.get_field('title').max_length
         self.title = truncate_str(
             source.title, max_length,

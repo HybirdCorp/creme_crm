@@ -1065,7 +1065,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         check_clone(rfield1, rfields[0])
         check_clone(rfield2, rfields[1])
 
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.login_as_root_and_get()
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Mihana family', FakeContact, is_custom=True,

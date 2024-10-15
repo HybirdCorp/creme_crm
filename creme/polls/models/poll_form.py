@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from functools import partial
 
 from django.conf import settings
@@ -67,6 +68,11 @@ class AbstractPollForm(CremeEntity):
         return reverse('polls__list_forms')
 
     def _post_clone(self, source):
+        warnings.warn(
+            'The method PollForm._post_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         source.duplicate_tree(self, source.lines.filter(disabled=False))
 
     def _build_section_matches(self, instance):

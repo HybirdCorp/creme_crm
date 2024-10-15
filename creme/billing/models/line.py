@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+import warnings
 from functools import partial
 
 from django.core.exceptions import ValidationError
@@ -89,6 +90,11 @@ class Line(CremeEntity):
         ordering = ('created',)
 
     def _pre_save_clone(self, source):
+        warnings.warn(
+            'The method Line._pre_save_clone() is deprecated.',
+            DeprecationWarning,
+        )
+
         self.related_document = source._new_related_document
         self.related_item     = source.related_item
 

@@ -2371,7 +2371,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(count_pforms + 1, PollForm.objects.count())
         self.assertEqual(1, PollFormLine.objects.filter(pform__id=cloned_pform.id).count())
 
-    def test_clone__method01(self):
+    def test_clone__method01(self):  # DEPRECATED
         "Cloning a form with multiple sections, lines and conditions."
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')

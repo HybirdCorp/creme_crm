@@ -567,7 +567,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual([entity], tagged_entities(ptype01))
         self.assertListEqual([entity], tagged_entities(ptype02))
 
-    def test_not_copiable_properties(self):
+    def test_not_copiable_properties(self):  # DEPRECATED
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.create

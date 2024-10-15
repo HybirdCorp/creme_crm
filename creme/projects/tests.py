@@ -1559,7 +1559,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         self.assertSetEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task2))
 
     @skipIfCustomTask
-    def test_project_clone__method01(self):
+    def test_project_clone__method01(self):  # DEPRECATED
         user = self.login_as_root_and_get()
         project = self.create_project(user=user, name='Project')[0]
 
@@ -1600,7 +1600,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         )
 
     @skipIfCustomTask
-    def test_project_clone__method02(self):
+    def test_project_clone__method02(self):  # DEPRECATED
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Project')[0]
