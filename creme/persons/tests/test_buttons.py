@@ -38,8 +38,6 @@ class ButtonsTestCase(CremeTestCase):
 
     def test_become_error(self):
         "Cannot link a managed organisation with itself."
-        # self.create_user()
-
         managed_orga = self.get_alone_element(
             Organisation.objects.filter_managed_by_creme().all()
         )
