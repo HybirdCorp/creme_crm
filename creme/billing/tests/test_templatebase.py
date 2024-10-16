@@ -7,7 +7,12 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.view_tag import ViewTag
-from creme.creme_core.models import CremeProperty, CremePropertyType
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    Relation,
+    RelationType,
+)
 from creme.persons.tests.base import skipIfCustomOrganisation
 
 from ..models import (
@@ -154,7 +159,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(str(status2), render2)
 
     @skipIfCustomInvoice
-    def test_create_invoice01(self):
+    def test_create_invoice(self):
         target_orga = self.target
         target_orga.billing_address = Address.objects.create(
             name='Billing address 01', address='BA1 - Address',
@@ -186,9 +191,6 @@ class TemplateBaseTestCase(_BillingTestCase):
             user=self.user, related_document=tpl,
         )
 
-        ptype = CremePropertyType.objects.create(text='Tpl property')
-        CremeProperty.objects.create(creme_entity=tpl, type=ptype)
-
         address_count = Address.objects.count()
 
         with self.assertNoException():
@@ -208,7 +210,6 @@ class TemplateBaseTestCase(_BillingTestCase):
             invoice.issuing_date + timedelta(days=30),
             invoice.expiration_date,
         )
-        self.assertFalse(CremeProperty.objects.filter(creme_entity=invoice))
 
         # Lines are cloned
         cloned_lines = [*invoice.iter_all_lines()]
@@ -225,8 +226,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(origin_b_addr.zipcode, billing_address.zipcode)
 
     @skipIfCustomInvoice
-    def test_create_invoice02(self):
-        "Bad status id."
+    def test_create_invoice__bad_status_id(self):
         # pk = 1024
         # self.assertFalse(InvoiceStatus.objects.filter(pk=pk))
 
@@ -240,7 +240,7 @@ class TemplateBaseTestCase(_BillingTestCase):
 
     @skipIfCustomInvoice
     @override_settings(INVOICE_NUMBER_PREFIX='INV')
-    def test_create_invoice03(self):
+    def test_create_invoice__managed_emitter(self):
         "Source is managed."
         self._set_managed(self.source)
 
@@ -257,7 +257,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual('INV1', invoice.number)
 
     @skipIfCustomInvoice
-    def test_create_invoice04(self):
+    def test_create_invoice__not_managed_emitter(self):
         "Source is not managed + fallback number."
         invoice_status = InvoiceStatus.objects.filter(is_default=False).first()
         number = 'INV132'
@@ -270,7 +270,8 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(number, invoice.number)
 
     @skipIfCustomQuote
-    def test_create_quote01(self):
+    def test_create_quote(self):
+        "Quote + Properties + Relations."
         quote_status = QuoteStatus.objects.filter(is_default=False).first()
         comment = '*Insert an nice comment here*'
         # tpl = self._create_templatebase(Quote, quote_status.id, comment)
@@ -278,12 +279,54 @@ class TemplateBaseTestCase(_BillingTestCase):
             Quote, status_uuid=quote_status.uuid, comment=comment,
         )
 
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='OK')
+        ptype2 = create_ptype(text='KO')
+        ptype2.set_subject_ctypes(TemplateBase)
+
+        create_prop = partial(CremeProperty.objects.create, creme_entity=tpl)
+        create_prop(type=ptype1)
+        create_prop(type=ptype2)
+
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1 = create_rtype(
+            ('test-subject_ok', 'OK'),
+            ('test-object_ok',  'symmetric OK'),
+        )[0]
+        rtype2 = create_rtype(
+            ('test-subject_ko', 'KO', [TemplateBase]),
+            ('test-object_ko',  'symmetric KO'),
+        )[0]
+
+        user = self.get_root_user()
+        related = Organisation.objects.create(user=user, name='Acme')
+
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, subject_entity=tpl, object_entity=related,
+        )
+        create_rel(type=rtype1)
+        create_rel(type=rtype2)
+
         with self.assertNoException():
             quote = tpl.create_entity()
 
         self.assertIsInstance(quote, Quote)
         self.assertEqual(comment, quote.comment)
         self.assertEqual(quote_status, quote.status)
+
+        self.assertListEqual(
+            [ptype1],
+            [p.type for p in quote.properties.all()],
+        )
+        self.assertListEqual(
+            [(rtype1.id, related.id)],
+            [
+                *quote.relations
+                      .filter(type__in=[rtype1, rtype2])
+                      .values_list('type', 'object_entity'),
+            ],
+        )
 
     @skipIfCustomQuote
     def test_create_quote__bad_uuid(self):
@@ -368,8 +411,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(order_status, order.status)
 
     @skipIfCustomSalesOrder
-    def test_create_order02(self):
-        "Bad status id."
+    def test_create_order__bad_status_id(self):
         # pk = 1024
         # self.assertFalse(SalesOrder.objects.filter(pk=pk))
         #

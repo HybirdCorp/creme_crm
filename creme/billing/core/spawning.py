@@ -24,14 +24,13 @@ class Spawner(cloning.EntityCloner):
     TemplateBase instance.
     """
     post_save_copiers = [
-        # TODO: unit test
         # NB: useless in vanilla code
-        copying.ManyToManyFieldsCopier,
+        copying.ManyToManyFieldsCopier,  # TODO: unit test
+        copying.StrongPropertiesCopier,
+        copying.StrongRelationsCopier,
+
         # Does not mean anything to clone that (types are different).
         # CustomFieldsCopier,
-        # TODO? (beware to constraints)
-        # PropertiesCopier,
-        # RelationsCopier,
     ]
 
     def _build_instance(self, *, user, source):
