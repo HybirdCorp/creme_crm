@@ -103,6 +103,11 @@ class EntityClonerRegistry:
 
     # TODO: 'def clone(instance):' ?
 
+    # TODO?
+    # @property
+    # def models(self) -> Iterator[type[CremeEntity]]:
+    #     yield from self._cloner_classes.keys()
+
     def get(self, model: type[CremeEntity]) -> EntityCloner | None:
         """Hint: if None is returned, you should not clone the instances of
         the given model.

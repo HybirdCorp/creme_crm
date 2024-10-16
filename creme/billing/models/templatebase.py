@@ -70,9 +70,7 @@ class AbstractTemplateBase(Base):
         # instance = instance_class()
         # instance.build(self)
         #
-        # # Common rules for the recurrent generation of a "base" object for billing app.
-        # # See base's child for specific rules
-        # if not instance.generate_number_in_create:  # Avoid double generation
+        # if not instance.generate_number_in_create:
         #     instance.generate_number()
         # instance.expiration_date = instance.issuing_date + timedelta(days=30)
         #
@@ -85,7 +83,8 @@ class AbstractTemplateBase(Base):
         from ..core.spawning import spawner_registry
 
         spawner = spawner_registry.get(model=self.ct.model_class())
-        # TODO: error if None
+        if spawner is None:
+            raise ValueError('Invalid target model; please contact your administrator.')
 
         # TODO: take a "user" argument?
         return spawner.perform(user=self.user, entity=self)
