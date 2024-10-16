@@ -179,9 +179,10 @@
             * Reports :
                 - In the field 'report.Field.name', the CustomFields are referenced by their UUID now (see types 'RFT_CUSTOM' & 'RFT_AGG_CUSTOM').
             * Billing :
-                - In 'buttons', the class '_ConvertToButton' (& so, the child classes) has been reworked
+                - In 'buttons', the class '_ConvertToButton' (& so, the child classes) has been reworked.
                     - It injects a string "error" in the context.
                     - "creation_perm" is not injected in the template anymore.
+                    - The attribute 'target_modelname' has been removed.
                   The template has been modified, of course.
                 - In 'core' :
                     - These variables have been removed : CLASS_MAP, CONVERT_MATRIX, RTYPE_MATRIX.

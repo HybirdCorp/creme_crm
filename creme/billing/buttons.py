@@ -136,14 +136,24 @@ class AddQuoteButton(_AddBillingDocumentButton):
 class _ConvertToButton(Button):
     template_name = 'billing/buttons/convert-to.html'
     target_model = Base  # Override
-    # TODO: use Conversion.destination_models ?
-    target_modelname = ''  # Override
+    # target_modelname = ''
 
     converter_registry = conversion.converter_registry
 
+    def _target_name(self):
+        from .views.convert import Conversion
+
+        target_model = self.target_model
+        for model_name, model_cls in Conversion.target_models.items():
+            if target_model == model_cls:
+                return model_name
+
+        return 'INVALID'
+
     def get_context(self, *, entity, request):
         context = super().get_context(entity=entity, request=request)
-        context['convert_to'] = self.target_modelname
+        # context['convert_to'] = self.target_modelname
+        context['convert_to'] = self._target_name()
 
         target_model = self.target_model
         context['model_vname'] = target_model._meta.verbose_name
@@ -191,7 +201,7 @@ class ConvertToInvoiceButton(_ConvertToButton):
         'App: Billing'
     )
     target_model = Invoice
-    target_modelname = 'invoice'
+    # target_modelname = 'invoice'
 
 
 class ConvertToSalesOrderButton(_ConvertToButton):
@@ -203,7 +213,7 @@ class ConvertToSalesOrderButton(_ConvertToButton):
         'App: Billing'
     )
     target_model = SalesOrder
-    target_modelname = 'sales_order'
+    # target_modelname = 'sales_order'
 
 
 class ConvertToQuoteButton(_ConvertToButton):
@@ -215,4 +225,4 @@ class ConvertToQuoteButton(_ConvertToButton):
         'App: Billing'
     )
     target_model = Quote
-    target_modelname = 'quote'
+    # target_modelname = 'quote'
