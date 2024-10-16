@@ -439,6 +439,17 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(comment, cnote.comment)
         self.assertEqual(cnote_status, cnote.status)
 
+    def test_create_error(self):
+        tpl = self._create_templatebase(Organisation, status_uuid=uuid4())
+
+        with self.assertRaises(ValueError) as cm:
+            tpl.create_entity()
+
+        self.assertEqual(
+            'Invalid target model; please contact your administrator.',
+            str(cm.exception),
+        )
+
     def test_editview(self):
         user = self.user
 
