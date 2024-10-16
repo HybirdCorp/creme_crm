@@ -20,7 +20,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import SettingValue
@@ -28,7 +28,7 @@ from creme.creme_core.models import SettingValue
 from .. import billing
 from .constants import REL_OBJ_BILL_RECEIVED
 # from .core import get_models_for_conversion
-from .core.conversion import converter_registry
+from .core import conversion
 from .models import Base
 from .setting_keys import button_redirection_key
 
@@ -103,7 +103,7 @@ class AddInvoiceButton(_AddBillingDocumentButton):
         'The current entity is pre-selected to be the target of the created invoice.\n'
         'App: Billing'
     )
-    permissions = cperm(Invoice)
+    # permissions = cperm(Invoice)
     url_name = 'billing__create_related_invoice'
 
 
@@ -116,7 +116,7 @@ class AddSalesOrderButton(_AddBillingDocumentButton):
         'The current entity is pre-selected to be the target of the created order.\n'
         'App: Billing'
     )
-    permissions = cperm(SalesOrder)
+    # permissions = cperm(SalesOrder)
     url_name = 'billing__create_related_order'
 
 
@@ -129,7 +129,7 @@ class AddQuoteButton(_AddBillingDocumentButton):
         'The current entity is pre-selected to be the target of the created quote.\n'
         'App: Billing'
     )
-    permissions = cperm(Quote)
+    # permissions = cperm(Quote)
     url_name = 'billing__create_related_quote'
 
 
@@ -139,6 +139,8 @@ class _ConvertToButton(Button):
     # TODO: use Conversion.destination_models ?
     target_modelname = ''  # Override
 
+    converter_registry = conversion.converter_registry
+
     def get_context(self, *, entity, request):
         context = super().get_context(entity=entity, request=request)
         context['convert_to'] = self.target_modelname
@@ -147,7 +149,7 @@ class _ConvertToButton(Button):
         context['model_vname'] = target_model._meta.verbose_name
         # context['creation_perm'] = request.user.has_perm_to_create(target_model)
 
-        converter = converter_registry.get_converter(
+        converter = self.converter_registry.get_converter(
             user=request.user, source=entity, target_model=target_model,
         )
         if converter is None:
@@ -167,7 +169,7 @@ class _ConvertToButton(Button):
 
         return [
             source
-            for source, target in converter_registry.models
+            for source, target in self.converter_registry.models
             if target == current_target
         ]
 
