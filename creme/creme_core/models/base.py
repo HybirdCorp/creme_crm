@@ -102,8 +102,8 @@ class CremeModel(models.Model):
 
 class MinionModel(CremeModel):
     """Base model which is great for small models used to represent "choices" in
-     entities & which you classically register in creme_config.
-     """
+    entities & which you classically register in creme_config.
+    """
     uuid = models.UUIDField(
         unique=True, editable=False, default=uuid.uuid4,
     ).set_tags(viewable=False)

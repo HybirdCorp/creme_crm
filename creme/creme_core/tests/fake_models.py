@@ -709,6 +709,7 @@ else:
             limit_choices_to={'user__is_active': True},
             # related_name='products',
         )
+        creation_year = core_fields.YearField('Creation year', null=True, blank=True)
 
         # creation_label = _('Create a product')
 

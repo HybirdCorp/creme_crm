@@ -110,6 +110,10 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
         verbose_name=_('Logo'), blank=True, null=True, on_delete=models.SET_NULL,
     ).set_tags(optional=True)
 
+    year = core_fields.YearField(
+        'Year TMP', blank=True, null=True,
+    )  # TODO: remove
+
     objects = OrganisationManager()
 
     search_score = 102

@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import operator
+from datetime import date
 from functools import partial
 from typing import Collection
 
@@ -27,6 +28,7 @@ from django.db import models
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext_lazy
 
 from creme.creme_core.utils.db import (
     is_db_equal_case_sensitive,
@@ -37,28 +39,30 @@ from creme.creme_core.utils.meta import FieldInfo
 from . import EF_REGULAR, entity_filter_registries
 
 # IDs
-EQUALS          = 1
-IEQUALS         = 2
-EQUALS_NOT      = 3
-IEQUALS_NOT     = 4
-CONTAINS        = 5
-ICONTAINS       = 6
-CONTAINS_NOT    = 7
-ICONTAINS_NOT   = 8
-GT              = 9
-GTE             = 10
-LT              = 11
-LTE             = 12
-STARTSWITH      = 13
-ISTARTSWITH     = 14
-STARTSWITH_NOT  = 15
-ISTARTSWITH_NOT = 16
-ENDSWITH        = 17
-IENDSWITH       = 18
-ENDSWITH_NOT    = 19
-IENDSWITH_NOT   = 20
-ISEMPTY         = 21
-RANGE           = 22
+EQUALS           = 1
+IEQUALS          = 2
+EQUALS_NOT       = 3
+IEQUALS_NOT      = 4
+CONTAINS         = 5
+ICONTAINS        = 6
+CONTAINS_NOT     = 7
+ICONTAINS_NOT    = 8
+GT               = 9
+GTE              = 10
+LT               = 11
+LTE              = 12
+STARTSWITH       = 13
+ISTARTSWITH      = 14
+STARTSWITH_NOT   = 15
+ISTARTSWITH_NOT  = 16
+ENDSWITH         = 17
+IENDSWITH        = 18
+ENDSWITH_NOT     = 19
+IENDSWITH_NOT    = 20
+ISEMPTY          = 21
+RANGE            = 22
+CURRENTYEAR      = 23
+CURRENTYEAR_PLUS = 24
 
 FIELDTYPES_ALL = {
     'string',
@@ -69,10 +73,12 @@ FIELDTYPES_ALL = {
     'fk', 'fk__null',
     'user', 'user__null',
     'choices', 'choices__null',
+    'year', 'year__null',
 }
 FIELDTYPES_ORDERABLE = {
     'number', 'number__null',
     'date', 'date__null',
+    'year', 'year__null',
 }
 FIELDTYPES_RELATED = {
     'fk', 'fk__null',
@@ -453,6 +459,8 @@ class IEndsWithNotOperator(IEndsWithOperator):
 
 
 class BooleanOperatorBase(ConditionOperator):
+    accept_subpart = False
+
     def validate_field_values(self, *, field, values, user=None,
                               efilter_registry=entity_filter_registries[EF_REGULAR],
                               ):
@@ -468,7 +476,7 @@ class IsEmptyOperator(BooleanOperatorBase):
     type_id = ISEMPTY
     verbose_name = _('Is empty')
     allowed_fieldtypes = FIELDTYPES_NULLABLE
-    accept_subpart = False
+    # accept_subpart = False
     description_patterns = {
         True:  _('«{field}» is empty'),
         False: _('«{field}» is not empty'),
@@ -538,6 +546,66 @@ class RangeOperator(ConditionOperator):
         return [super().validate_field_values(field=field, values=values)]
 
 
+class IsCurrentYearOperator(BooleanOperatorBase):
+    type_id = CURRENTYEAR
+    verbose_name = _('Is the current year')
+    allowed_fieldtypes = ('year', 'year__null')
+    description_patterns = {
+        True:  _('«{field}» is the current year'),
+        False: _('«{field}» is not the current year'),
+    }
+
+    def _accept_value(self, *, field_value, value):
+        equals = (date.today().year == field_value)
+        return equals if value else not equals
+
+    def description(self, *, field_vname, values):
+        if values:
+            return self.description_patterns[bool(values[0])].format(field=field_vname)
+
+        return super().description(field_vname=field_vname, values=values)
+
+    def get_q(self, *, model, field_name, values):
+        query = Q(**{f'{field_name}__exact': date.today().year})
+
+        # Negate filter on false value
+        if not values[0]:
+            query.negate()
+
+        return query
+
+
+class IsCurrentYearPlusOperator(ConditionOperator):
+    type_id = CURRENTYEAR_PLUS
+    verbose_name = _('Is current year +')
+    allowed_fieldtypes = ('year', 'year__null')  # TODO: group for that?
+    accept_subpart = False
+    description_patterns = ngettext_lazy(
+        '«{field}» is {count} year in the future',
+        '«{field}» is {count} years in the future',
+    )
+    # key_pattern = '{}__exact'  # NB: has not real meaning here
+
+    # def _accept_value(self, *, field_value, value):
+    #     if isinstance(value, (list, tuple)):
+    #         return any(
+    #             self._accept_single_value(field_value=field_value, value=v)
+    #             for v in value
+    #         )
+    #
+    #     return self._accept_single_value(field_value=field_value, value=value)
+
+    def description(self, *, field_vname, values):
+        if values:
+            count = values[0]
+            return (self.description_patterns % count).format(field=field_vname, count=count)
+
+        return super().description(field_vname=field_vname, values=values)
+
+    def get_q(self, *, model, field_name, values):
+        return Q(**{f'{field_name}__exact': date.today().year + values[0]})
+
+
 all_operators = (
     EqualsOperator,
     EqualsNotOperator,
@@ -564,4 +632,7 @@ all_operators = (
 
     IsEmptyOperator,
     RangeOperator,
+
+    IsCurrentYearOperator,
+    IsCurrentYearPlusOperator,
 )

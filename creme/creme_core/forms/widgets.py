@@ -1118,6 +1118,29 @@ class IntegerPercentInput(widgets.NumberInput):
     template_name = 'creme_core/forms/widgets/percent.html'
 
 
+class YearInput(widgets.NumberInput):
+    template_name = 'creme_core/forms/widgets/year.html'
+
+    def get_context(self, name, value, attrs):
+        widget_type = 'ui-creme-yearpicker'
+
+        context = super().get_context(name=name, value=value, attrs=attrs)
+        widget_cxt = context['widget']
+        final_attrs = widget_cxt['attrs']
+
+        base_css = (
+            'ui-creme-input ui-creme-widget widget-auto'
+            if final_attrs.pop('auto', True) else
+            'ui-creme-input ui-creme-widget'
+        )
+        final_attrs['class'] = (
+            f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+        ).strip()
+        final_attrs['widget'] = widget_type  # TODO: data-widget[-type]
+
+        return context
+
+
 class ColorInput(widgets.Input):
     input_type = 'color'
     template_name = 'creme_core/forms/widgets/color.html'

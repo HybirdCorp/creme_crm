@@ -262,6 +262,7 @@ span.ui-creme-datepicker-trigger {
 
 /* TODO: factorise ? */
 .creme-datepicker button[name="today"],
+.creme-yearpicker button[name="current-year"],
 .ui-creme-timepicker button,
 .ui-creme-datetimepicker button {
     padding: 3px 11px;
@@ -282,12 +283,14 @@ span.ui-creme-datepicker-trigger {
 }
 
 .creme-datepicker button[name="today"]:hover,
+.creme-yearpicker button[name="current-year"]:hover,
 .ui-creme-timepicker button:hover,
 .ui-creme-datetimepicker button:hover {
     background: linear-gradient(#ffffff, #f3f3f3);
 }
 
 .creme-datepicker button[name="today"]:disabled,
+.creme-yearpicker button[name="current-year"]:disabled,
 .ui-creme-timepicker button:disabled,
 .ui-creme-datetimepicker button:disabled,
 input:disabled + .ui-datepicker-trigger {

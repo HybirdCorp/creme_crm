@@ -40,6 +40,7 @@ from creme.creme_core.core.entity_filter import (
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.enumerators import CustomFieldEnumerator
 from creme.creme_core.models import CremeEntity, CustomField
+from creme.creme_core.models.fields import YearField
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.utils.url import TemplateURLBuilder
 from creme.creme_core.views.entity_filter import EntityFilterUserEnumerator
@@ -214,7 +215,12 @@ class FieldConditionSelector(ChainedInput):
             widget=DynamicInput, type='date', attrs={'auto': False},
         )
         add_input(
-            '^boolean(__null)?.*', widget=DynamicSelect,
+            # '^boolean(__null)?.*', widget=DynamicSelect,
+            '^boolean(__null)?.*$', widget=DynamicSelect,
+            options=_BOOL_OPTIONS, attrs=field_attrs,
+        )
+        add_input(
+            f'^year(__null)?.{operators.CURRENTYEAR}.*$', widget=DynamicSelect,
             options=_BOOL_OPTIONS, attrs=field_attrs,
         )
         add_input(
@@ -277,6 +283,7 @@ class FieldConditionSelector(ChainedInput):
             for cat in sorted(categories.keys(), key=sort_key)
         ]
 
+    # TODO: better system in core.entity_filter to make this generic
     @staticmethod
     def field_choicetype(field):
         isnull = '__null' if field.null or field.many_to_many else ''
@@ -298,6 +305,9 @@ class FieldConditionSelector(ChainedInput):
 
         if isinstance(field, ModelDateField):
             return 'date' + isnull
+
+        if isinstance(field, YearField):
+            return 'year' + isnull
 
         if isinstance(
             field,

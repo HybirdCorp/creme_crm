@@ -72,6 +72,20 @@ class IntegerPercentField(models.PositiveIntegerField):
         })
 
 
+class YearField(models.PositiveIntegerField):
+    def formfield(self, **kwargs):
+        from ..forms import fields as form_fields
+
+        return super().formfield(**{
+            'form_class': form_fields.YearField,
+            **kwargs
+        })
+
+
+class MoneyField(models.DecimalField):
+    pass
+
+
 class UnsafeHTMLField(models.TextField):
     pass
 
@@ -144,10 +158,6 @@ class DatePeriodField(models.TextField):  # TODO: inherit from a JSONField
         return super(
             models.TextField, self,
         ).formfield(**{'form_class': DatePeriodFormField, **kwargs})
-
-
-class MoneyField(models.DecimalField):
-    pass
 
 
 def _transfer_assignation():
