@@ -235,7 +235,7 @@ class EntityFilterRegistry:
     def get_operator(self, type_id: int) -> ConditionOperator | None:
         """Get an instance of operator from its ID.
 
-        @param type_id: Id of the operator's class
+        @param type_id: ID of the operator's class
                (see attribute <ConditionOperator.type_id>).
         @return: Instance of a class inheriting <ConditionOperator>,
                  or None if the ID is invalid or not found.

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-03 17:04+0200\n"
+"POT-Creation-Date: 2024-10-18 16:34+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -586,6 +586,35 @@ msgstr "«{field}» n'est pas vide"
 
 msgid "Range"
 msgstr "Intervalle"
+
+msgid "Is the current year"
+msgstr "Est l'année courante"
+
+#, python-brace-format
+msgid "«{field}» is the current year"
+msgstr "«{field}» est l'année courante"
+
+#, python-brace-format
+msgid "«{field}» is not the current year"
+msgstr "«{field}» n'est pas l'année courante"
+
+msgid "Is current year +"
+msgstr "Est l'année courante +"
+
+#, python-brace-format
+msgid "«{field}» is {count} year in the future"
+msgid_plural "«{field}» is {count} years in the future"
+msgstr[0] "«{field}» est {count} année dans le futur"
+msgstr[1] "«{field}» est {count} années dans le futur"
+
+msgid "Is current year -"
+msgstr "Est l'année courante -"
+
+#, python-brace-format
+msgid "«{field}» is {count} year in the past"
+msgid_plural "«{field}» is {count} years in the past"
+msgstr[0] "«{field}» est {count} année dans le passé"
+msgstr[1] "«{field}» est {count} années dans le passé"
 
 msgid ""
 "The job manager does not respond.\n"

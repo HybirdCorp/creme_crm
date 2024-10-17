@@ -395,6 +395,7 @@
               which do not inherit 'CremeEntity': has_perm_to_view*(), has_perm_to_change*(), has_perm_to_delete*().
             - The class 'EntityFilter' & 'HeaderFilter' got a JSONField "meta_data" to store custom data.
             - The class 'CustomFieldEnumValue' got a UUIDField.
+            - A new field is available: 'fields.YearField'.
         # In 'creme_core.views' :
             - The views which manage Bricks now display a minimal Brick (see 'creme_core.gui.bricks.ForbiddenBrick')
               which contains an error message when the attribute 'Brick.permissions' does not pass the validation.

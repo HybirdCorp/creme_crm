@@ -1973,6 +1973,10 @@ class Migration(migrations.Migration):
                         'images',
                         models.ManyToManyField(verbose_name='Images', to='creme_core.FakeImage', blank=True)
                     ),
+                    (
+                        'creation_year',
+                        core_fields.YearField(verbose_name='Creation year', blank=True, null=True),
+                    ),
                 ],
                 options={
                     'ordering': ('name',),
