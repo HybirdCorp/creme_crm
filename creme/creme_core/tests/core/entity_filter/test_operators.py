@@ -1,8 +1,10 @@
+from datetime import date
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from creme.creme_core.core.entity_filter import (
     EF_REGULAR,
@@ -13,6 +15,7 @@ from creme.creme_core.core.entity_filter import (
 )
 from creme.creme_core.models import FakeContact, FakeOrganisation, Language
 from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_models import FakeProduct
 
 
 class OperatorTestCase(CremeTestCase):
@@ -171,6 +174,7 @@ class OperatorTestCase(CremeTestCase):
                 'fk', 'fk__null',
                 'user', 'user__null',
                 'choices', 'choices__null',
+                'year', 'year__null',
             },
             op.allowed_fieldtypes,
         )
@@ -215,7 +219,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value1, value2, value3]),
         )
 
-    def test_equals_get_q(self):
+    def test_equals__get_q(self):
         op = operators.EqualsOperator()
         self.assertQEqual(
             Q(name__exact='Acme'),
@@ -242,7 +246,7 @@ class OperatorTestCase(CremeTestCase):
             ),
         )
 
-    def test_equals_accept(self):
+    def test_equals__accept(self):
         op = operators.EqualsOperator()
         self.assertIs(op.accept(field_value='Nerv',  values=['Nerv']),  True)
         self.assertIs(op.accept(field_value='Nerv',  values=['Seele']), False)
@@ -311,7 +315,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value1, value2])
         )
 
-    def test_equals_not_accept(self):
+    def test_equals_not__accept(self):
         op = operators.EqualsNotOperator()
         self.assertIs(op.accept(field_value='Nerv', values=['Nerv']),  False)
         self.assertIs(op.accept(field_value='Nerv', values=['Seele']), True)
@@ -383,7 +387,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=['True']),  # not Bool
         )
 
-    def test_is_empty_get_q(self):
+    def test_is_empty__get_q(self):
         op = operators.IsEmptyOperator()
         self.assertQEqual(
             Q(sector__isnull=True),
@@ -413,7 +417,7 @@ class OperatorTestCase(CremeTestCase):
             ),
         )
 
-    def test_is_empty_accept(self):
+    def test_is_empty__accept(self):
         op = operators.IsEmptyOperator()
         self.assertIs(op.accept(field_value='',   values=[True]), True)
         self.assertIs(op.accept(field_value=None, values=[True]), True)
@@ -451,7 +455,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value1, value2])
         )
 
-    def test_range_validate_field_values(self):
+    def test_range__validate_field_values(self):
         op = operators.RangeOperator()
         field = FakeOrganisation._meta.get_field('capital')
 
@@ -470,7 +474,7 @@ class OperatorTestCase(CremeTestCase):
         with self.assertRaises(ValidationError):
             op.validate_field_values(field=field, values=[1000, 'noanint'])
 
-    def test_range_get_q(self):
+    def test_range__get_q(self):
         op = operators.RangeOperator()
         self.assertQEqual(
             Q(capital__range=[1000, 10000]),
@@ -481,7 +485,7 @@ class OperatorTestCase(CremeTestCase):
             ),
         )
 
-    def test_range_accept(self):
+    def test_range__accept(self):
         op = operators.RangeOperator()
         self.assertIs(op.accept(field_value=1000, values=[[100, 1500]]), True)
         self.assertIs(op.accept(field_value=99,   values=[[100, 1500]]), False)
@@ -524,7 +528,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value1, value2]),
         )
 
-    def test_gt_accept(self):
+    def test_gt__accept(self):
         op = operators.GTOperator()
         self.assertIs(op.accept(field_value=1000, values=[100]),  True)
         self.assertIs(op.accept(field_value=1000, values=[999]),  True)
@@ -552,7 +556,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value1]),
         )
 
-    def test_gte_accept(self):
+    def test_gte__accept(self):
         op = operators.GTEOperator()
         self.assertIs(op.accept(field_value=1000, values=[100]),  True)
         self.assertIs(op.accept(field_value=1000, values=[1000]), True)
@@ -580,7 +584,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
-    def test_lt_accept(self):
+    def test_lt__accept(self):
         op = operators.LTOperator()
         self.assertIs(op.accept(field_value=100, values=[1000]), True)
         self.assertIs(op.accept(field_value=100, values=[101]),  True)
@@ -608,7 +612,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value]),
         )
 
-    def test_lte_accept(self):
+    def test_lte__accept(self):
         op = operators.LTEOperator()
         self.assertIs(op.accept(field_value=100, values=[1000]), True)
         self.assertIs(op.accept(field_value=100, values=[100]),  True)
@@ -638,7 +642,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value]),
         )
 
-    def test_iequals_accept(self):
+    def test_iequals__accept(self):
         op = operators.IEqualsOperator()
         self.assertIs(op.accept(field_value='Nerv', values=['Nerv']),  True)
         self.assertIs(op.accept(field_value='Nerv', values=['nerv']),  True)
@@ -666,7 +670,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
-    def test_iequals_not_accept(self):
+    def test_iequals_not__accept(self):
         op = operators.IEqualsNotOperator()
         self.assertIs(op.accept(field_value='Nerv', values=['Nerv']),  False)
         self.assertIs(op.accept(field_value='Nerv', values=['nerv']),  False)
@@ -693,7 +697,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value]),
         )
 
-    def test_contains_accept(self):
+    def test_contains__accept(self):
         op = operators.ContainsOperator()
         self.assertIs(op.accept(field_value='Evil corp',         values=['corp']), True)
         self.assertIs(op.accept(field_value='Acme incorporated', values=['corp']), True)
@@ -740,7 +744,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value]),
         )
 
-    def test_contains_not_accept(self):
+    def test_contains_not__accept(self):
         accept = operators.ContainsNotOperator().accept
         self.assertIs(accept(field_value='Evil corp',        values=['inc']), True)
         self.assertIs(accept(field_value='Acme corporation', values=['inc']), True)
@@ -769,7 +773,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value]),
         )
 
-    def test_icontains_accept(self):
+    def test_icontains__accept(self):
         op = operators.IContainsOperator()
         self.assertIs(op.accept(field_value='Evil corp', values=['corp']), True)
         self.assertIs(op.accept(field_value='Evil corp', values=['CORP']), True)
@@ -797,7 +801,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value]),
         )
 
-    def test_icontains_not_accept(self):
+    def test_icontains_not__accept(self):
         op = operators.IContainsNotOperator()
         self.assertIs(op.accept(field_value='Evil corp', values=['corp']), False)
         self.assertIs(op.accept(field_value='Evil corp', values=['CORP']), False)
@@ -824,7 +828,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value]),
         )
 
-    def test_startswith_accept(self):
+    def test_startswith__accept(self):
         accept = operators.StartsWithOperator().accept
         self.assertIs(accept(field_value='Evil corp',    values=['Evil']), True)
         self.assertIs(accept(field_value='Evil company', values=['Evil']), True)
@@ -869,7 +873,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value]),
         )
 
-    def test_startswith_not_accept(self):
+    def test_startswith_not__accept(self):
         accept = operators.StartswithNotOperator().accept
         self.assertIs(accept(field_value='Evil corp', values=['Evil']), False)
         self.assertIs(accept(field_value='Evil corp', values=['corp']), True)
@@ -896,7 +900,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value]),
         )
 
-    def test_istartswith_accept(self):
+    def test_istartswith__accept(self):
         accept = operators.IStartsWithOperator().accept
         self.assertIs(accept(field_value='Evil corp', values=['Evil']), True)
         self.assertIs(accept(field_value='Evil corp', values=['evil']), True)
@@ -924,7 +928,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value]),
         )
 
-    def test_istartswith_not_accept(self):
+    def test_istartswith_not__accept(self):
         accept = operators.IStartswithNotOperator().accept
         self.assertIs(accept(field_value='Evil corp', values=['Evil']), False)
         self.assertIs(accept(field_value='Evil corp', values=['evil']), False)
@@ -951,7 +955,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value]),
         )
 
-    def test_endswith_accept(self):
+    def test_endswith__accept(self):
         accept = operators.EndsWithOperator().accept
         self.assertIs(accept(field_value='Evil corp',    values=['corp']), True)
         self.assertIs(accept(field_value='Evil corp',    values=['Evil']), False)
@@ -993,7 +997,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value])
         )
 
-    def test_endswith_not_accept(self):
+    def test_endswith_not__accept(self):
         accept = self.get_operator(operators.ENDSWITH_NOT).accept
         self.assertIs(accept(field_value='Evil corp',    values=['corp']), False)
         self.assertIs(accept(field_value='Evil corp',    values=['Evil']), True)
@@ -1018,7 +1022,7 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value]),
         )
 
-    def test_iendswith_accept(self):
+    def test_iendswith__accept(self):
         op = operators.IEndsWithOperator()
         self.assertIs(op.accept(field_value='Evil corp', values=['corp']), True)
         self.assertIs(op.accept(field_value='Evil corp', values=['CORP']), True)
@@ -1047,10 +1051,182 @@ class OperatorTestCase(CremeTestCase):
             op.description(field_vname=field, values=[value]),
         )
 
-    def test_iendswith_not_accept(self):
+    def test_iendswith_not__accept(self):
         accept = operators.IEndsWithNotOperator().accept
         self.assertIs(accept(field_value='Evil corp', values=['corp']), False)
         self.assertIs(accept(field_value='Evil corp', values=['CORP']), False)
         self.assertIs(accept(field_value='Evil corp', values=['Evil']), True)
         self.assertIs(accept(field_value='Evil INC',  values=['inc']),  False)
         self.assertIs(accept(field_value='Evil INC',  values=['corp']), True)
+
+    def test_is_current_year(self):
+        self.assertIsSubclass(operators.IsCurrentYearOperator, operators.BooleanOperatorBase)
+
+        op = self.get_operator(operators.CURRENTYEAR)
+        self.assertIsInstance(op, operators.IsCurrentYearOperator)
+        self.assertFalse(op.accept_subpart)
+        self.assertCountEqual(['year', 'year__null'], op.allowed_fieldtypes)
+
+        field = 'Creation year'
+        self.assertEqual('??', op.description(field_vname=field, values=[]))
+        self.assertEqual(
+            _('«{field}» is the current year').format(field=field),
+            op.description(field_vname=field, values=[True]),
+        )
+        self.assertEqual(
+            _('«{field}» is not the current year').format(field=field),
+            op.description(field_vname=field, values=[False]),
+        )
+
+        self.assertEqual(
+            _('«{field}» is the current year').format(field=field),
+            op.description(field_vname=field, values=['on']),  # not Bool
+        )
+
+    def test_is_current_year__get_q(self):
+        op = operators.IsCurrentYearOperator()
+        current_year = date.today().year
+        self.assertQEqual(
+            Q(creation_year__exact=current_year),
+            op.get_q(
+                model=FakeProduct,
+                field_name='creation_year',
+                values=[True],
+            ),
+        )
+        self.assertQEqual(
+            ~Q(creation_year__exact=current_year),
+            op.get_q(
+                model=FakeProduct,
+                field_name='creation_year',
+                values=[False],
+            ),
+        )
+
+    def test_is_current_year__accept(self):
+        op = operators.IsCurrentYearOperator()
+
+        current_year = date.today().year
+        self.assertIs(op.accept(field_value=current_year, values=[True]),  True)
+        self.assertIs(op.accept(field_value=current_year, values=[False]), False)
+
+        next_year = current_year + 1
+        self.assertIs(op.accept(field_value=next_year, values=[True]),  False)
+        self.assertIs(op.accept(field_value=next_year, values=[False]), True)
+
+    def test_is_current_year_plus(self):
+        op = self.get_operator(operators.CURRENTYEAR_PLUS)
+        self.assertIsInstance(op, operators.IsCurrentYearPlusOperator)
+        self.assertFalse(op.accept_subpart)
+        self.assertCountEqual(['year', 'year__null'], op.allowed_fieldtypes)
+
+        field = 'Creation year'
+        self.assertEqual('??', op.description(field_vname=field, values=[]))
+
+        self.assertEqual(
+            ngettext(
+                '«{field}» is {count} year in the future',
+                '«{field}» is {count} years in the future',
+                1
+            ).format(field=field, count=1),
+            op.description(field_vname=field, values=[1]),
+        )
+        self.assertEqual(
+            ngettext(
+                '«{field}» is {count} year in the future',
+                '«{field}» is {count} years in the future',
+                2
+            ).format(field=field, count=2),
+            op.description(field_vname=field, values=['2']),
+        )
+
+    def test_is_current_year_plus__get_q(self):
+        op = operators.IsCurrentYearPlusOperator()
+        current_year = date.today().year
+        self.assertQEqual(
+            Q(creation_year__exact=current_year + 1),
+            op.get_q(
+                model=FakeProduct,
+                field_name='creation_year',
+                values=[1],
+            ),
+        )
+        self.assertQEqual(
+            Q(creation_year__exact=current_year + 2),
+            op.get_q(
+                model=FakeProduct,
+                field_name='creation_year',
+                values=['2'],
+            ),
+        )
+
+    def test_is_current_year_plus__accept(self):
+        op = operators.IsCurrentYearPlusOperator()
+
+        current_year = date.today().year
+        next_year = current_year + 1
+        self.assertIs(op.accept(field_value=next_year,    values=[1]), True)
+        self.assertIs(op.accept(field_value=current_year, values=[1]), False)
+
+        self.assertIs(op.accept(field_value=current_year,  values=['2']), False)
+        self.assertIs(op.accept(field_value=next_year,     values=['2']), False)
+        self.assertIs(op.accept(field_value=next_year + 1, values=['2']), True)
+
+    def test_is_current_year_minus(self):
+        op = self.get_operator(operators.CURRENTYEAR_MINUS)
+        self.assertIsInstance(op, operators.IsCurrentYearMinusOperator)
+        self.assertFalse(op.accept_subpart)
+        self.assertCountEqual(['year', 'year__null'], op.allowed_fieldtypes)
+
+        field = 'Creation year'
+        self.assertEqual('??', op.description(field_vname=field, values=[]))
+
+        self.assertEqual(
+            ngettext(
+                '«{field}» is {count} year in the past',
+                '«{field}» is {count} years in the past',
+                1
+            ).format(field=field, count=1),
+            op.description(field_vname=field, values=[1]),
+        )
+        self.assertEqual(
+            ngettext(
+                '«{field}» is {count} year in the past',
+                '«{field}» is {count} years in the past',
+                2
+            ).format(field=field, count=2),
+            op.description(field_vname=field, values=['2']),
+        )
+
+    def test_is_current_year_minus__get_q(self):
+        op = operators.IsCurrentYearMinusOperator()
+        current_year = date.today().year
+        self.assertQEqual(
+            Q(creation_year__exact=current_year - 1),
+            op.get_q(
+                model=FakeProduct,
+                field_name='creation_year',
+                values=[1],
+            ),
+        )
+        self.assertQEqual(
+            Q(creation_year__exact=current_year - 2),
+            op.get_q(
+                model=FakeProduct,
+                field_name='creation_year',
+                values=['2'],
+            ),
+        )
+
+    def test_is_current_year_minus__accept(self):
+        op = operators.IsCurrentYearMinusOperator()
+
+        current_year = date.today().year
+        previous_year = current_year - 1
+        self.assertIs(op.accept(field_value=previous_year,    values=[1]), True)
+        self.assertIs(op.accept(field_value=current_year,     values=[1]), False)
+        self.assertIs(op.accept(field_value=current_year + 1, values=[1]), False)
+
+        self.assertIs(op.accept(field_value=current_year,      values=['2']), False)
+        self.assertIs(op.accept(field_value=previous_year,     values=['2']), False)
+        self.assertIs(op.accept(field_value=previous_year - 1, values=['2']), True)

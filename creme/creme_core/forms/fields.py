@@ -1604,8 +1604,12 @@ class IntegerPercentField(fields.IntegerField):
     widget = core_widgets.IntegerPercentInput
 
 
+class YearField(fields.IntegerField):
+    widget = core_widgets.YearInput
+
+
 class ColorField(fields.CharField):
-    """A Field which handles HTML colors (e.g: #F2FAB3) without '#' """
+    """A Field which handles HTML colors (e.g: #F2FAB3) without '#'."""
     default_validators = [validators.validate_color]
     widget = core_widgets.ColorInput
     default_error_messages = {

@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Core 2.6\n"
+"Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-22 17:44+0100\n"
+"POT-Creation-Date: 2024-10-18 16:39+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -232,6 +232,9 @@ msgid "Collapse %d item"
 msgid_plural "Collapse %d items"
 msgstr[0] "Masquer %d élément"
 msgstr[1] "Masquer %d éléments"
+
+msgid "Current year"
+msgstr "Année courante"
 
 msgid "Confirm"
 msgstr "Confirmation"

@@ -20,6 +20,64 @@
 (function($) {
 "use strict";
 
+/* TODO: factorise? */
+/* TODO: unit test */
+creme.widget.YearPicker = creme.widget.declare('ui-creme-yearpicker', {
+    options: {
+        readonly: false,
+        disabled: false
+    },
+
+    _create: function(element, options, cb, sync) {
+        this._input = element;
+        this._disabled = creme.object.isTrue(options.disabled) && element.prop('disabled');
+        this._readonly = creme.object.isTrue(options.readonly) && element.prop('readonly');
+
+        element.prop('disabled', this._disabled);
+        element.prop('readonly', this._readonly);
+
+        var parent = element.parent();
+
+        var list = $('<ul/>').addClass('ui-layout hbox').append($('<li/>').append(element));
+        parent.append(list);
+
+        this._buttons = this._initHelperButtons();
+        this._buttons.forEach(function(button) {
+            list.append($('<li/>').append(button));
+        });
+
+        this._updateDisabledState(element, this._disabled);
+
+        element.addClass('widget-ready');
+    },
+
+    _updateDisabledState: function(element, disabled) {
+        var state = disabled || this._readonly;
+
+        this._buttons.forEach(function(button) {
+            button.prop('disabled', state);
+        });
+    },
+
+    _initHelperButtons: function() {
+        var input = this._input;
+        var button = $('<button>').attr('name', 'current-year')
+                                  .attr('type', 'button')
+                                  .html(gettext('Current year'));
+
+        button.on('click', function(e) {
+            e.preventDefault();
+            input.val(new Date().getFullYear());
+        });
+
+        return [button];
+    },
+
+    val: function(element, value) {
+        return element.val(value);
+    }
+});
+
 creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
     options: {
         /* Know issue: it seems our JS component removes "0" padding for initial value with years < 1000 in the input (but accepts 0 padded years) */
