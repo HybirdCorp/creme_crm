@@ -21,7 +21,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import Relation, RelationType
 
-from .constants import REL_SUB_COMPLETE_GOAL
+from . import constants
 
 
 class CompleteGoalButton(Button):
@@ -33,12 +33,12 @@ class CompleteGoalButton(Button):
         'App: Commercial'
     )
     dependencies = (Relation,)
-    relation_type_deps = (REL_SUB_COMPLETE_GOAL,)
+    relation_type_deps = (constants.REL_SUB_COMPLETE_GOAL,)
     template_name = 'commercial/buttons/complete-goal.html'
     permissions = 'commercial'
 
     def get_context(self, **kwargs):
         context = super().get_context(**kwargs)
-        context['rtype'] = RelationType.objects.get(id=REL_SUB_COMPLETE_GOAL)
+        context['rtype'] = RelationType.objects.get(id=self.relation_type_deps[0])
 
         return context
