@@ -151,17 +151,59 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         )
 
     @skipIfCustomOrganisation
+    def test_related_properties(self):
+        user = self.login_as_root_and_get()
+        target, emitter = self._create_target_n_emitter(user=user)
+
+        opportunity = self.refresh(Opportunity.objects.create(
+            user=user, name='My Opp',
+            sales_phase=SalesPhase.objects.all()[0],
+            emitter=emitter,
+            target=target,
+        ))
+
+        self.assertHaveRelation(target,  type=constants.REL_OBJ_TARGETS,   object=opportunity)
+        self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
+
+        # with self.assertNumQueries(1):
+        with self.assertNumQueries(2):
+            prop_emitter1 = opportunity.emitter
+        self.assertEqual(emitter, prop_emitter1)
+
+        with self.assertNumQueries(2):
+            prop_target1 = opportunity.target
+        self.assertEqual(target, prop_target1)
+
+        # ---
+        opportunity = self.refresh(opportunity)
+        opportunity.populate_relations(
+            entities=[opportunity],
+            relation_type_ids=[constants.REL_OBJ_EMIT_ORGA, constants.REL_SUB_TARGETS],
+        )
+
+        ContentType.objects.get_for_model(CremeEntity)  # Fill cache
+        with self.assertNumQueries(0):
+            prop_emitter2 = opportunity.emitter
+        self.assertEqual(emitter, prop_emitter2)
+
+        with self.assertNumQueries(0):
+            prop_target2 = opportunity.target
+        self.assertEqual(target, prop_target2)
+
+    @skipIfCustomOrganisation
     def test_createview01(self):
         user = self.login_as_root_and_get()
+        target, emitter = self._create_target_n_emitter(user=user)
 
         url = self.ADD_URL
         self.assertGET200(url)
 
-        target, emitter = self._create_target_n_emitter(user=user)
+        # ---
         name = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
-        response = self.client.post(
-            url, follow=True,
+        self.assertNoFormError(self.client.post(
+            url,
+            follow=True,
             data={
                 'user':                  user.pk,
                 'name':                  name,
@@ -174,8 +216,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase,              opportunity.sales_phase)
@@ -195,49 +236,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         response = self.assertGET200(opportunity.get_absolute_url())
         self.assertTemplateUsed(response, 'opportunities/view_opportunity.html')
 
-    @skipIfCustomOrganisation
-    def test_createview02(self):
-        user = self.login_as_root_and_get()
-
-        target, emitter = self._create_target_n_emitter(user=user)
-        name = 'Opportunity01'
-        phase = SalesPhase.objects.all()[0]
-        response = self.client.post(
-            self.ADD_URL, follow=True,
-            data={
-                'user':                  user.pk,
-                'name':                  name,
-                'sales_phase':           phase.id,
-                'expected_closing_date': self.formfield_value_date(2010, 9, 20),
-                'closing_date':          self.formfield_value_date(2010, 10, 11),
-                'first_action_date':     self.formfield_value_date(2010, 7, 13),
-                'currency':              DEFAULT_CURRENCY_PK,
-
-                self.TARGET_KEY: self.formfield_value_generic_entity(target),
-                self.EMITTER_KEY: emitter.id,
-            },
-        )
-        self.assertNoFormError(response)
-
-        opportunity = self.get_object_or_fail(Opportunity, name=name)
-        self.assertEqual(phase,              opportunity.sales_phase)
-        self.assertEqual(date(2010, 9,  20), opportunity.expected_closing_date)
-        self.assertEqual(date(2010, 10, 11), opportunity.closing_date)
-        self.assertEqual(date(2010, 7,  13), opportunity.first_action_date)
-
-        self.assertHaveRelation(target,  type=constants.REL_OBJ_TARGETS,   object=opportunity)
-        self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
-        self.assertHaveRelation(target,  type=REL_SUB_PROSPECT,            object=emitter)
-
-        with self.assertNumQueries(1):
-            prop_emitter = opportunity.emitter
-        self.assertEqual(emitter, prop_emitter)
-
-        with self.assertNumQueries(2):
-            prop_target = opportunity.target
-        self.assertEqual(target, prop_target)
-
-    def test_createview03(self):
+    def test_createview__invalid_related(self):
         "Only contact & orga models are allowed as target."
         user = self.login_as_root_and_get()
 
@@ -247,8 +246,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         name = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
-        response = self.client.post(
-            self.ADD_URL, follow=True,
+        response = self.assertPOST200(
+            self.ADD_URL,
+            follow=True,
             data={
                 'user':                  user.pk,
                 'name':                  name,
@@ -262,7 +262,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 self.EMITTER_KEY: emitter.id,
             },
         )
-        form = response.context['form']
+
+        with self.assertNoException():
+            form = response.context['form']
+
         self.assertFormError(
             form,
             field=self.TARGET_KEY,
@@ -278,7 +281,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertRaises(Opportunity.DoesNotExist, Opportunity.objects.get, name=name)
 
     @skipIfCustomOrganisation
-    def test_createview04(self):
+    def test_createview__link_perms(self):
         "LINK credentials error."
         user = self.login_as_standard(
             allowed_apps=['opportunities'],
@@ -288,7 +291,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         target, emitter = self._create_target_n_emitter(user=user)
         response = self.assertPOST200(
-            self.ADD_URL, follow=True,
+            self.ADD_URL,
+            follow=True,
             data={
                 'user':         user.pk,
                 'name':         'My opportunity',
@@ -301,7 +305,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             },
         )
 
-        form = response.context['form']
+        with self.assertNoException():
+            form = response.context['form']
+
         fmt1 = _('You are not allowed to link this entity: {}').format
         fmt2 = _('Entity #{id} (not viewable)').format
         self.assertFormError(
@@ -312,7 +318,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_createview05(self):
+    def test_createview__not_managed_emitter(self):
         "Emitter not managed by Creme."
         user = self.login_as_root_and_get()
 
@@ -338,27 +344,29 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_add_to_orga01(self):
+    def test_add_to_orga(self):
         user = self.login_as_root_and_get()
 
         target, emitter = self._create_target_n_emitter(user=user)
         url = self._build_addrelated_url(target)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add.html')
 
-        context = response.context
-        self.assertEqual(Opportunity.creation_label, context.get('title'))
-        self.assertEqual(Opportunity.save_label,     context.get('submit_label'))
+        # GET --
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add.html')
 
-        get_initial = context['form'].initial.get
+        context1 = response1.context
+        self.assertEqual(Opportunity.creation_label, context1.get('title'))
+        self.assertEqual(Opportunity.save_label,     context1.get('submit_label'))
+
+        get_initial = context1['form'].initial.get
         self.assertIsInstance(get_initial('sales_phase'), SalesPhase)
         self.assertEqual(target, get_initial('target'))
         self.assertEqual(target, get_initial(self.TARGET_KEY))
 
-        # ----
+        # POST ---
         phase = SalesPhase.objects.all()[0]
         name = f'Opportunity linked to {target}'
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             follow=True,
             data={
@@ -371,8 +379,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase, opportunity.sales_phase)
@@ -381,7 +388,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
         self.assertHaveRelation(target,  type=REL_SUB_PROSPECT,            object=emitter)
 
-        response = self.client.post(
+        # ---
+        self.assertNoFormError(self.client.post(
             url,
             follow=True,
             data={
@@ -394,13 +402,11 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
         self.assertHaveRelation(subject=target, type=REL_SUB_PROSPECT, object=emitter)
 
     @skipIfCustomOrganisation
-    def test_add_to_orga02(self):
-        "Popup version."
+    def test_add_to_orga__popup(self):
         user = self.login_as_root_and_get()
 
         target, emitter = self._create_target_n_emitter(user=user)
@@ -442,7 +448,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
         self.assertHaveRelation(target,  type=REL_SUB_PROSPECT,            object=emitter)
 
-    def test_add_to_orga03(self):
+    def test_add_to_orga__link_perms(self):
         "Try to add with wrong credentials (no link credentials)."
         user = self.login_as_standard(
             allowed_apps=['opportunities'],
@@ -454,7 +460,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertGET403(self._build_addrelated_url(target))
         self.assertGET403(self._build_addrelated_url(target, popup=True))
 
-    def test_add_to_orga04(self):
+    def test_add_to_orga__creation_perms(self):
         "User must be allowed to created Opportunity."
         user = self.login_as_standard(
             allowed_apps=['persons', 'opportunities'],
@@ -475,7 +481,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertGET200(url_popup)
 
     @skipIfCustomContact
-    def test_add_to_contact01(self):
+    def test_add_to_contact(self):
         "Target is a Contact."
         user = self.login_as_root_and_get()
 
@@ -526,8 +532,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertHaveRelation(subject=target, type=REL_SUB_PROSPECT, object=emitter)
 
     @skipIfCustomContact
-    def test_add_to_contact02(self):
-        "Popup version."
+    def test_add_to_contact__popup(self):
         user = self.login_as_root_and_get()
 
         target, emitter = self._create_target_n_emitter(user=user, contact=True)
@@ -559,8 +564,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertHaveRelation(target,  type=REL_SUB_PROSPECT,            object=emitter)
 
     @skipIfCustomContact
-    def test_add_to_contact03(self):
-        "User can not link to the Contact target"
+    def test_add_to_contact__link_perms(self):
+        "User can not link to the Contact target."
         user = self.login_as_standard(
             allowed_apps=['persons', 'opportunities'],
             creatable_models=[Opportunity],
@@ -573,7 +578,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertGET403(self._build_addrelated_url(target))
         self.assertGET403(self._build_addrelated_url(target, popup=True))
 
-    def test_add_to_something01(self):
+    def test_add_to_something(self):
         "Target is not a Contact/Organisation."
         user = self.login_as_root_and_get()
 
@@ -582,7 +587,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertGET404(self._build_addrelated_url(target, popup=True))
 
     @skipIfCustomOrganisation
-    def test_editview01(self):
+    def test_editview(self):
         user = self.login_as_root_and_get()
 
         name = 'opportunity01'
@@ -636,7 +641,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     @skipIfCustomContact
-    def test_editview02(self):
+    def test_editview__target_changes(self):
         user = self.login_as_root_and_get()
 
         name = 'opportunity01'
@@ -683,7 +688,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete01(self):
+    def test_delete__related(self):
         "Cannot delete the target & the source."
         user = self.login_as_root_and_get()
 
@@ -703,7 +708,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete02(self):
+    def test_delete(self):
         "Can delete the Opportunity."
         user = self.login_as_root_and_get()
 
@@ -750,7 +755,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertHaveRelation(target, type=constants.REL_OBJ_TARGETS, object=cloned)
 
     @skipIfCustomOrganisation
-    def test_get_weighted_sales01(self):
+    def test_get_weighted_sales(self):
         user = self.login_as_root_and_get()
 
         opportunity = self._create_opportunity_n_organisations(user=user)[0]
@@ -769,7 +774,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_get_weighted_sales02(self):
+    def test_get_weighted_sales__hidden(self):
         "With field 'estimated_sales' hidden with FieldsConfig."
         user = self.login_as_root_and_get()
 

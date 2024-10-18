@@ -309,6 +309,8 @@ class CremeEntity(CremeModel):
                            ) -> None:
         from . import Relation
 
+        # TODO: remove types which are already populated (for all entities)?
+        #       (return immediately if the type list is empty)
         relations = Relation.objects.filter(
             subject_entity__in=[e.id for e in entities],
             type__in=relation_type_ids,

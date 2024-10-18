@@ -31,7 +31,7 @@ from django.utils.translation import pgettext_lazy
 import creme.creme_core.models as core_models
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import fields as core_fields
-from creme.persons import get_organisation_model
+# from creme.persons import get_organisation_model
 from creme.persons.workflow import transform_target_into_prospect
 
 from .. import constants
@@ -195,14 +195,15 @@ class AbstractOpportunity(core_models.CremeEntity):
     @property
     def emitter(self):
         if not self._opp_emitter:
-            self._opp_emitter = get_organisation_model().objects.get(
-                relations__type=constants.REL_SUB_EMIT_ORGA,
-                relations__object_entity=self.id,
-            )
-            # TODO ? (2 queries, but we could group with target maybe...)
-            # self._opp_emitter = self.get_related_entities(
-            #     constants.REL_OBJ_EMIT_ORGA,
-            # )[0]
+            # self._opp_emitter = get_organisation_model().objects.get(
+            #     relations__type=constants.REL_SUB_EMIT_ORGA,
+            #     relations__object_entity=self.id,
+            # )
+            # NB: 2 queries
+            # TODO: group queries with target (see populate_relations())?
+            self._opp_emitter = self.get_related_entities(
+                constants.REL_OBJ_EMIT_ORGA,
+            )[0]
 
         return self._opp_emitter
 
