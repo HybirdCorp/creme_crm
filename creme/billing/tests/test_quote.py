@@ -2,7 +2,7 @@ from datetime import date
 from decimal import Decimal
 from functools import partial
 
-from django.conf import settings
+# from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template
 from django.test.utils import override_settings
@@ -32,7 +32,8 @@ from ..bricks import ReceivedQuotesBrick
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from ..custom_forms import QUOTE_CREATION_CFORM
 from ..forms.base import BillingSourceSubCell, BillingTargetSubCell
-from ..models import Line, QuoteStatus, SettlementTerms, SimpleBillingAlgo
+# SimpleBillingAlgo
+from ..models import Line, NumberGeneratorItem, QuoteStatus, SettlementTerms
 from .base import (
     Address,
     Invoice,
@@ -169,7 +170,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
         self.assertIsNone(quote.acceptation_date)
-        self.assertEqual('0',   quote.number)
+        # self.assertEqual('0',   quote.number)
+        self.assertEqual('',    quote.number)
         self.assertEqual(terms, quote.payment_type)
 
         self.assertHaveRelation(subject=quote,  type=REL_SUB_BILL_ISSUED,   object=source)
@@ -193,24 +195,32 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         source, target1 = self.create_orgas(user=user)
         self._set_managed(source)
 
-        algo_qs = SimpleBillingAlgo.objects.filter(
-            organisation=source.id,
-            ct=ContentType.objects.get_for_model(Quote),
+        # algo_qs = SimpleBillingAlgo.objects.filter(
+        #     organisation=source.id,
+        #     ct=ContentType.objects.get_for_model(Quote),
+        # )
+        # self.assertEqual([0], [*algo_qs.values_list('last_number', flat=True)])
+        item = self.get_object_or_fail(
+            NumberGeneratorItem,
+            organisation=source,
+            numbered_type=ContentType.objects.get_for_model(Quote),
         )
-        self.assertEqual([0], [*algo_qs.values_list('last_number', flat=True)])
+        item.data['format'] = 'QUO-{counter:04}'
+        item.save()
 
         quote = self.create_quote(user=user, name='My Quote', source=source, target=target1)
 
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
         self.assertIsNone(quote.acceptation_date)
-        self.assertEqual('DE1', quote.number)
+        # self.assertEqual('DE1', quote.number)
+        self.assertStartsWith('QUO-0001', quote.number)
         self.assertIsNone(quote.payment_type)
 
         self.assertHaveRelation(subject=quote,   type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=quote,   type=REL_SUB_BILL_RECEIVED, object=target1)
         self.assertHaveRelation(subject=target1, type=REL_SUB_PROSPECT,      object=source)
 
-        self.assertEqual([1], [*algo_qs.values_list('last_number', flat=True)])
+        # self.assertEqual([1], [*algo_qs.values_list('last_number', flat=True)])
 
         # ---
         target2 = Organisation.objects.create(user=user, name='Target #2')
@@ -219,19 +229,10 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         self.assertHaveRelation(subject=target2, type=REL_SUB_PROSPECT, object=source)
-        self.assertEqual('DE2', quote2.number)
+        # self.assertEqual('DE2', quote2.number)
+        self.assertEqual('QUO-0002', quote2.number)
 
-    def test_createview03(self):
-        "Source is not managed + a number is given."
-        user = self.login_as_root_and_get()
-
-        number = 'Q123'
-        quote, source, target = self.create_quote_n_orgas(
-            user=user, name='My Quote', number=number,
-        )
-        self.assertEqual(number, quote.number)
-
-    def test_createview04(self):
+    def test_createview__no_number_field(self):
         "The field 'number' is not in the form."
         self.login_as_root()
 
@@ -599,12 +600,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomAddress
-    def test_mass_import_no_total01(self):
+    def test_mass_import__no_total01(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_no_total(user=user, model=Quote, status_model=QuoteStatus)
 
-    def test_mass_import_no_total02(self):
-        "Source is managed."
+    def test_mass_import__no_total02(self):
+        "Source is managed + edition is allowed."
         user = self.login_as_root_and_get()
 
         count = Quote.objects.count()
@@ -618,7 +619,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         lines_count = 2
         names = [f'Billdoc #{i:04}' for i in range(1, lines_count + 1)]
-        numbers = [f'INV{i:04}' for i in range(1, lines_count + 1)]  # Should not be used
+        # numbers = [f'INV{i:04}' for i in range(1, lines_count + 1)]  # Should not be used
+        # NB: probably not a good idea to mix generated & mixed numbers...
+        numbers = [
+            '',  # A number should be generated
+            'Q0002',  # Should be used
+        ]
         lines = [
             (names[0], numbers[0], source.name, target1.name),
             (names[1], numbers[1], source.name, target2.name),
@@ -630,7 +636,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         def_status = QuoteStatus.objects.all()[0]
         def_currency = Currency.objects.all()[0]
-        response = self.assertPOST200(
+        response = self.client.post(
             url,
             follow=True,
             data={
@@ -680,7 +686,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
                 # 'dyn_relations',
             },
         )
-
         self.assertNoFormError(response)
 
         self._execute_job(response)
@@ -690,26 +695,225 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(source, quote1.source)
         self.assertEqual(target1, quote1.target)
         number1 = quote1.number
-        self.assertStartsWith(number1, settings.QUOTE_NUMBER_PREFIX)
+        # self.assertStartsWith(number1, settings.QUOTE_NUMBER_PREFIX)
+        self.assertStartsWith(number1, _('QUO') + '-')
 
         quote2 = self.get_object_or_fail(Quote, name=names[1])
         self.assertEqual(source, quote2.source)
         self.assertEqual(target2, quote2.target)
         number2 = quote2.number
-        self.assertStartsWith(number2, settings.QUOTE_NUMBER_PREFIX)
+        # self.assertStartsWith(number2, settings.QUOTE_NUMBER_PREFIX)
+        self.assertEqual(numbers[1], quote2.number)
 
         self.assertNotEqual(number1, number2)
 
-    def test_mass_import_total_no_vat_n_vat(self):
+    def test_mass_import__total_no_vat_n_vat(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_total_no_vat_n_vat(
             user=user, model=Quote, status_model=QuoteStatus,
         )
 
+    def test_mass_import__number_not_editable01(self):
+        "Source is managed + edition is forbidden."
+        user = self.login_as_root_and_get()
+        count = Quote.objects.count()
+
+        source, target = self.create_orgas(user=user)
+        self._set_managed(source)
+
+        item = self.get_object_or_fail(
+            NumberGeneratorItem,
+            numbered_type=ContentType.objects.get_for_model(Quote),
+            organisation=source,
+        )
+        item.is_edition_allowed = False
+        item.save()
+
+        names = ['Quote #001', 'Quote #002']
+        numbers = [
+            '',  # A number should be generated
+            'Q0002',  # Causes an error
+        ]
+        lines = [
+            (names[0], numbers[0], source.name, target.name),
+            (names[1], numbers[1], source.name, target.name),
+        ]
+
+        doc = self._build_csv_doc(lines, user=user)
+        response = self.client.post(
+            self._build_import_url(Quote),
+            follow=True,
+            data={
+                'step':     1,
+                'document': doc.id,
+                # has_header
+
+                'user': user.id,
+                'key_fields': [],
+
+                'name_colselect':   1,
+                'number_colselect': 2,
+
+                'issuing_date_colselect':    0,
+                'expiration_date_colselect': 0,
+
+                'status_colselect': 0,
+                'status_defval':    QuoteStatus.objects.default().pk,
+
+                'discount_colselect': 0,
+                'discount_defval':    '0',
+
+                'currency_colselect': 0,
+                'currency_defval':    Currency.objects.first().pk,
+
+                'acceptation_date_colselect': 0,
+
+                'comment_colselect':         0,
+                'additional_info_colselect': 0,
+                'payment_terms_colselect':   0,
+                'payment_type_colselect':    0,
+
+                'description_colselect':         0,
+                'buyers_order_number_colselect': 0,  # Invoice only...
+
+                'source_persons_organisation_colselect': 3,
+                'source_persons_organisation_create':    False,
+
+                'target_persons_organisation_colselect': 4,
+                'target_persons_organisation_create':    False,
+
+                'target_persons_contact_colselect': 0,
+                'target_persons_contact_create':    False,
+            },
+        )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        self.assertEqual(count + 1, Quote.objects.count())
+
+        quote1 = self.get_object_or_fail(Quote, name=names[0])
+        self.assertStartsWith(quote1.number, _('QUO') + '-')
+
+        j_results = self._get_job_results(job)
+        self.assertEqual(2, len(j_results))
+        self.assertIsNone(j_results[0].messages)
+
+        j_error = j_results[1]
+        self.assertIsNone(j_error.entity)
+        self.assertListEqual(
+            [_('The number is set as not editable by the configuration.')],
+            j_error.messages,
+        )
+
+    def test_mass_import__number_not_editable02(self):
+        "Source is managed + edition is forbidden (update mode)."
+        user = self.login_as_root_and_get()
+
+        source, target = self.create_orgas(user=user)
+        self._set_managed(source)
+
+        item = self.get_object_or_fail(
+            NumberGeneratorItem,
+            numbered_type=ContentType.objects.get_for_model(Quote),
+            organisation=source,
+        )
+        item.is_edition_allowed = False
+        item.save()
+
+        def_status = QuoteStatus.objects.default()
+        create_quote = partial(
+            Quote.objects.create,
+            user=user, status=def_status, source=source, target=target,
+        )
+        quote1 = create_quote(name='Quote #001')
+        quote2 = create_quote(name='Quote #002')
+        self.assertTrue(quote1.number)
+        # print('==+>', quote1.number, quote2.number)
+
+        number2 = quote2.number
+        self.assertTrue(number2)
+
+        old_count = Quote.objects.count()
+        desc = 'Imported from CSV'
+        doc = self._build_csv_doc(
+            [
+                (quote1.name, quote1.number, source.name, target.name, desc),
+                (quote2.name, 'Q#25',        source.name, target.name, desc),
+            ],
+            user=user,
+        )
+        response = self.client.post(
+            self._build_import_url(Quote),
+            follow=True,
+            data={
+                'step':     1,
+                'document': doc.id,
+                # has_header
+
+                'user': user.id,
+                'key_fields': ['name'],
+
+                'name_colselect':   1,
+                'number_colselect': 2,
+
+                'issuing_date_colselect':    0,
+                'expiration_date_colselect': 0,
+
+                'status_colselect': 0,
+                'status_defval':    QuoteStatus.objects.default().pk,
+
+                'discount_colselect': 0,
+                'discount_defval':    '0',
+
+                'currency_colselect': 0,
+                'currency_defval':    Currency.objects.first().pk,
+
+                'acceptation_date_colselect': 0,
+
+                'comment_colselect':         0,
+                'additional_info_colselect': 0,
+                'payment_terms_colselect':   0,
+                'payment_type_colselect':    0,
+
+                'description_colselect':         5,
+                'buyers_order_number_colselect': 0,  # Invoice only...
+
+                'source_persons_organisation_colselect': 3,
+                'source_persons_organisation_create':    False,
+
+                'target_persons_organisation_colselect': 4,
+                'target_persons_organisation_create':    False,
+
+                'target_persons_contact_colselect': 0,
+                'target_persons_contact_create':    False,
+            },
+        )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        self.assertEqual(old_count, Quote.objects.count())
+
+        quote1 = self.refresh(quote1)
+        self.assertEqual(desc, quote1.description)
+
+        quote2 = self.refresh(quote2)
+        self.assertEqual(number2, quote2.number)
+
+        j_results = self._get_job_results(job)
+        self.assertEqual(2, len(j_results))
+        self.assertIsNone(j_results[0].messages)
+
+        j_error = j_results[1]
+        self.assertIsNone(j_error.entity)
+        self.assertListEqual(
+            [_('The number is set as not editable by the configuration.')],
+            j_error.messages,
+        )
+
     @skipIfCustomAddress
     @skipIfCustomServiceLine
     def test_clone__not_managed_emitter(self):
-        "Organisation not managed => number is set to '0'."
+        "Source Organisation is not managed => no number is set."
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
 
@@ -743,7 +947,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         cloned = self.clone(quote)
         self.assertIsNone(cloned.acceptation_date)
         # self.assertTrue(cloned.status.is_default) TODO
-        self.assertEqual('0', cloned.number)
+        # self.assertEqual('0', cloned.number)
+        self.assertEqual('', cloned.number)
 
         self.assertNotEqual(quote, cloned)  # Not the same pk
         self.assertEqual(source, cloned.source)
@@ -771,11 +976,21 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         source, target = self.create_orgas(user=user)
         self._set_managed(source)
 
+        item = self.get_object_or_fail(
+            NumberGeneratorItem,
+            organisation=source,
+            numbered_type=ContentType.objects.get_for_model(Quote),
+        )
+        item.data['format'] = 'QUO-{counter:04}'
+        item.save()
+
         quote = self.create_quote(user=user, name='My Quote', source=source, target=target)
-        self.assertEqual('DE1', quote.number)
+        # self.assertEqual('DE1', quote.number)
+        self.assertEqual('QUO-0001', quote.number)
 
         cloned = self.clone(quote)
-        self.assertEqual('DE2', cloned.number)
+        # self.assertEqual('DE2', cloned.number)
+        self.assertEqual('QUO-0002', cloned.number)
 
     @skipIfCustomAddress
     @skipIfCustomServiceLine
@@ -807,7 +1022,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         quote = self.refresh(quote)
 
         self.assertIsNone(cloned.acceptation_date)
-        self.assertEqual('0', cloned.number)
+        # self.assertEqual('0', cloned.number)
+        self.assertEqual('', cloned.number)
 
         self.assertNotEqual(quote, cloned)  # Not the same pk
         self.assertEqual(source, cloned.source)
@@ -832,11 +1048,21 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         source, target = self.create_orgas(user=user)
         self._set_managed(source)
 
+        item = self.get_object_or_fail(
+            NumberGeneratorItem,
+            organisation=source,
+            numbered_type=ContentType.objects.get_for_model(Quote),
+        )
+        item.data['format'] = 'QUO-{counter:04}'
+        item.save()
+
         quote = self.create_quote(user=user, name='My Quote', source=source, target=target)
-        self.assertEqual('DE1', quote.number)
+        # self.assertEqual('DE1', quote.number)
+        self.assertEqual('QUO-0001', quote.number)
 
         cloned = quote.clone()
-        self.assertEqual('DE2', cloned.number)
+        # self.assertEqual('DE2', cloned.number)
+        self.assertEqual('QUO-0002', cloned.number)
 
     def test_num_queries(self):
         """Avoid the queries about line sa creation

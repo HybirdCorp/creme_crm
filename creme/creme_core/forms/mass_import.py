@@ -1469,7 +1469,6 @@ class ImportForm(CremeModelForm):
 
 
 class ImportForm4CremeEntity(ImportForm):
-    # TODO : Replace by CremeUserChoiceField
     user = EnumerableModelChoiceField(
         label=_('Owner user'), empty_label=None,
         model=CremeEntity, field_name='user',

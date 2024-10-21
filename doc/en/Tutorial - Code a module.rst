@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 16-10-2024 for Creme 2.7
+:Version: 05-11-2024 for Creme 2.7
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3544,7 +3544,7 @@ List of different services
 - The app **billing** allows:
     - the registration of algorithms for generating invoice numbers.
       Look at ``creme/billing/apps.py``, in the method
-      ``register_billing_algorithm()`` to know how to do.
+      ``register_billing_number_generators()`` to know how to do.
     - the customisation of the documents conversion (for example Quote to
       Invoice). Look at the ``creme/billing/apps.py``, in the method
       ``register_billing_converters()`` to know how to do.

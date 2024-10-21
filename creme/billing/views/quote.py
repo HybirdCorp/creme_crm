@@ -56,6 +56,7 @@ class QuoteEdition(generic.EntityEdition):
     pk_url_kwarg = 'quote_id'
 
 
-class QuotesList(generic.EntitiesList):
+# class QuotesList(generic.EntitiesList):
+class QuotesList(base.BaseList):
     model = Quote
     default_headerfilter_id = DEFAULT_HFILTER_QUOTE

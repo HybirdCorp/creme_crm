@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 16-10-2024 pour la version 2.7 de Creme
+:Version: 05-11-2024 pour la version 2.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3700,7 +3700,7 @@ Liste des différents services
 - L'app **billing** permet :
     - d'enregistrer des algorithmes de génération de numéros de facture.
       Regardez le fichier ``creme/billing/apps.py``, dans la méthode
-      ``register_billing_algorithm()`` pour savoir comment faire.
+      ``register_billing_number_generators()`` pour savoir comment faire.
     - de personnaliser la conversion de documents (par exemple Devis vers Facture).
       Regardez le fichier ``creme/billing/apps.py``, dans la méthode
       ``register_billing_converters()`` pour savoir comment faire.

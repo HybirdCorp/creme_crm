@@ -169,7 +169,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_createview02(self):
-        "Credit note total > document billing total where the credit note is applied"
+        "Credit note total > document billing total where the credit note is applied."
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
 
@@ -875,7 +875,8 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotEqual(credit_note.pk, cloned.pk)
         self.assertEqual(credit_note.name,   cloned.name)
         self.assertEqual(credit_note.status, cloned.status)
-        self.assertEqual('0',                cloned.number)
+        # self.assertEqual('0',                cloned.number)
+        self.assertEqual('',                 cloned.number)
 
         self.assertEqual(source, cloned.source)
         self.assertEqual(target, cloned.target)
@@ -908,10 +909,12 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         credit_note = self.create_credit_note(
             user=user, name='My Order', source=source, target=target,
         )
-        self.assertEqual('0', credit_note.number)
+        # self.assertEqual('0', credit_note.number)
+        self.assertEqual('', credit_note.number)
 
         cloned = self.clone(credit_note)
-        self.assertEqual('0', cloned.number)
+        # self.assertEqual('0', cloned.number)
+        self.assertEqual('', cloned.number)
 
     @skipIfCustomAddress
     @skipIfCustomServiceLine
@@ -948,7 +951,8 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotEqual(credit_note.pk, cloned.pk)
         self.assertEqual(credit_note.name,   cloned.name)
         self.assertEqual(credit_note.status, cloned.status)
-        self.assertEqual('0',                cloned.number)
+        # self.assertEqual('0',                cloned.number)
+        self.assertEqual('',                 cloned.number)
 
         self.assertEqual(source, cloned.source)
         self.assertEqual(target, cloned.target)
@@ -981,10 +985,12 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         credit_note = self.create_credit_note(
             user=user, name='My Order', source=source, target=target,
         )
-        self.assertEqual('0', credit_note.number)
+        # self.assertEqual('0', credit_note.number)
+        self.assertEqual('', credit_note.number)
 
         cloned = credit_note.clone()
-        self.assertEqual('0', cloned.number)
+        # self.assertEqual('0', cloned.number)
+        self.assertEqual('', cloned.number)
 
     def test_brick(self):
         user = self.login_as_root_and_get()

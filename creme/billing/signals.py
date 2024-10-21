@@ -16,7 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.conf import settings
+from collections import defaultdict
+
+# from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import signals
 from django.db.transaction import atomic
@@ -25,10 +27,13 @@ from django.dispatch import receiver
 import creme.creme_core.signals as core_signals
 from creme import billing, persons
 from creme.creme_core.models import Relation
+from creme.creme_core.models.utils import assign_2_charfield
 from creme.persons import workflow
 
 from . import constants
-from .models import ConfigBillingAlgo, SimpleBillingAlgo
+from .core.number_generation import number_generator_registry
+# from .models import ConfigBillingAlgo, SimpleBillingAlgo
+from .models import Base, NumberGeneratorItem
 
 Organisation = persons.get_organisation_model()
 
@@ -36,31 +41,53 @@ Invoice = billing.get_invoice_model()
 Quote = billing.get_quote_model()
 
 
+# @receiver(signals.post_save, sender=Organisation)
+# def set_simple_conf_billing(sender, instance, **kwargs):
+#     if not instance.is_managed:
+#         return
+#
+#     if ConfigBillingAlgo.objects.filter(organisation=instance).exists():
+#         return
+#
+#     get_ct = ContentType.objects.get_for_model
+#     for model, prefix in [
+#         (Quote,                           settings.QUOTE_NUMBER_PREFIX),
+#         (Invoice,                         settings.INVOICE_NUMBER_PREFIX),
+#         (billing.get_sales_order_model(), settings.SALESORDER_NUMBER_PREFIX),
+#     ]:
+#         ct = get_ct(model)
+#         ConfigBillingAlgo.objects.create(
+#             organisation=instance, ct=ct, name_algo=SimpleBillingAlgo.ALGO_NAME,
+#         )
+#         SimpleBillingAlgo.objects.create(
+#             organisation=instance, last_number=0, prefix=prefix, ct=ct,
+#         )
 @receiver(
     signals.post_save,
-    sender=Organisation, dispatch_uid='billing-init_number_configuration',
+    sender=Organisation, dispatch_uid='billing-init_number_generation_config',
 )
-def set_simple_conf_billing(sender, instance, **kwargs):
+def init_number_generation_config(sender, instance, **kwargs):
     if not instance.is_managed:
         return
 
-    if ConfigBillingAlgo.objects.filter(organisation=instance).exists():
-        return
+    # TODO: regroup queries?
+    for model, generator_cls in number_generator_registry.registered_items():
+        generator_cls.create_default_item(organisation=instance, model=model)
 
-    get_ct = ContentType.objects.get_for_model
 
-    for model, prefix in [
-        (Quote,                           settings.QUOTE_NUMBER_PREFIX),
-        (Invoice,                         settings.INVOICE_NUMBER_PREFIX),
-        (billing.get_sales_order_model(), settings.SALESORDER_NUMBER_PREFIX),
-    ]:
-        ct = get_ct(model)
-        ConfigBillingAlgo.objects.create(
-            organisation=instance, ct=ct, name_algo=SimpleBillingAlgo.ALGO_NAME,
-        )
-        SimpleBillingAlgo.objects.create(
-            organisation=instance, last_number=0, prefix=prefix, ct=ct,
-        )
+# NB: <sender=Base> does not work (no signal is emitted).
+@receiver(signals.pre_save, dispatch_uid='billing-generate_number')
+def generate_number(sender, instance, **kwargs):
+    if (
+        instance.pk is None
+        and isinstance(instance, Base)
+        and instance.generate_number_in_create
+        and not instance.number
+    ):
+        if item := NumberGeneratorItem.objects.get_for_instance(instance):
+            if gen := number_generator_registry.get(item):
+                # TODO: log if too long?
+                assign_2_charfield(instance, field_name='number', value=gen.perform())
 
 
 @receiver(core_signals.pre_merge_related, dispatch_uid='billing-merge_number_configuration')
@@ -70,33 +97,47 @@ def handle_merge_organisations(sender, other_entity, **kwargs):
     if not isinstance(sender, Organisation):
         return
 
-    # NB: we assume that all CTs are covered if at least one CT is covered
-    #     because ConfigBillingAlgo/SimpleBillingAlgo instances are only
-    #     created in _simple_conf_billing_for_org_managed_by_creme().
-    orga_2_clean = None  # 'cache'
+    # orga_2_clean = None  # 'cache'
+    #
+    # def get_orga_2_clean():
+    #     return sender if not sender.is_managed and other_entity.is_managed else other_entity
+    #
+    # for model in (ConfigBillingAlgo, SimpleBillingAlgo):
+    #     model_filter = model.objects.filter
+    #     orga_ids = {
+    #         *model_filter(
+    #             organisation__in=(sender, other_entity),
+    #         ).values_list('organisation', flat=True),
+    #     }
+    #
+    #     if len(orga_ids) == 2:
+    #         orga_2_clean = orga_2_clean or get_orga_2_clean()
+    #         model_filter(organisation=orga_2_clean).delete()
+    #     else:
+    #         return  # We avoid the queries for the next model (if it's the first iteration)
+    gen_items = defaultdict(list)
+    for gen_item in NumberGeneratorItem.objects.filter(
+        organisation__in=[sender, other_entity],
+    ):
+        gen_items[gen_item.numbered_type_id].append(gen_item)
 
-    def get_orga_2_clean():
-        return sender if not sender.is_managed and other_entity.is_managed else other_entity
+    ids_2_del = []
+    for ct_items in gen_items.values():
+        if len(ct_items) == 2:
+            ids_2_del.extend(
+                gen_item.id
+                for gen_item in ct_items
+                if gen_item.organisation_id == other_entity.id
+            )
 
-    for model in (ConfigBillingAlgo, SimpleBillingAlgo):
-        model_filter = model.objects.filter
-        orga_ids = {
-            *model_filter(
-                organisation__in=(sender, other_entity),
-            ).values_list('organisation', flat=True),
-        }
-
-        if len(orga_ids) == 2:
-            orga_2_clean = orga_2_clean or get_orga_2_clean()
-            model_filter(organisation=orga_2_clean).delete()
-        else:
-            return  # We avoid the queries for the next model (if it's the first iteration)
+    if ids_2_del:
+        NumberGeneratorItem.objects.filter(id__in=ids_2_del).delete()
 
 
 STATUSES_REPLACEMENTS = {
     billing.get_credit_note_model(): 'status',
     Invoice:                         'status',
-    billing.get_quote_model():       'status',
+    Quote:                           'status',
     billing.get_sales_order_model(): 'status',
 }
 
@@ -145,7 +186,7 @@ def manage_line_deletion(sender, instance, **kwargs):
 
 _WORKFLOWS = {
     Invoice: workflow.transform_target_into_customer,
-    Quote: workflow.transform_target_into_prospect,
+    Quote:   workflow.transform_target_into_prospect,
 }
 
 

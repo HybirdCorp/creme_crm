@@ -2,7 +2,7 @@ from datetime import date
 from decimal import Decimal
 from functools import partial
 
-from django.conf import settings
+# from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models.deletion import ProtectedError
 from django.template import Context, Template
@@ -32,7 +32,7 @@ from creme.persons.tests.base import (
     skipIfCustomOrganisation,
 )
 
-from ..actions import ExportInvoiceAction, GenerateNumberAction
+from ..actions import ExportInvoiceAction  # GenerateNumberAction
 from ..constants import (
     REL_OBJ_BILL_ISSUED,
     REL_OBJ_BILL_RECEIVED,
@@ -64,9 +64,9 @@ from .base import (
 @skipIfCustomOrganisation
 @skipIfCustomInvoice
 class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
-    @staticmethod
-    def _build_gennumber_url(invoice):
-        return reverse('billing__generate_invoice_number', args=(invoice.id,))
+    # @staticmethod
+    # def _build_gennumber_url(invoice):
+    #     return reverse('billing__generate_invoice_number', args=(invoice.id,))
 
     def test_status01(self):
         statuses = [*InvoiceStatus.objects.all()]
@@ -270,18 +270,13 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveNoRelation(invoice, REL_SUB_BILL_RECEIVED, target2)
         self.assertHaveRelation(invoice, REL_SUB_BILL_RECEIVED, target3)
 
-    def test_createview01(self):
-        "Source is not managed."
+    def test_creationview(self):
         user = self.login_as_root_and_get()
 
-        response = self.assertGET200(reverse('billing__create_invoice'))
+        # GET ---
+        self.assertGET200(reverse('billing__create_invoice'))
 
-        with self.assertNoException():
-            number_f = response.context['form'].fields['number']
-
-        self.assertFalse(number_f.help_text)
-
-        # ---
+        # POST ---
         name = 'Invoice001'
         currency = Currency.objects.all()[0]
         terms = SettlementTerms.objects.all()[0]
@@ -300,6 +295,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(currency, invoice.currency)
         self.assertEqual(terms,    invoice.payment_type)
         self.assertEqual(date(year=2010, month=10, day=13), invoice.expiration_date)
+        self.assertEqual('', invoice.number)
         self.assertEqual('', invoice.description)
         self.assertIsNone(invoice.payment_info)
         self.assertEqual('', invoice.buyers_order_number)
@@ -330,18 +326,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertHaveRelation(subject=target, type=REL_SUB_CUSTOMER_SUPPLIER, object=source)
 
-    def test_createview02(self):
-        "Source is managed => no number anyway."
-        user = self.login_as_root_and_get()
-
-        source, target = self.create_orgas(user=user)
-        self._set_managed(source)
-
-        invoice = self.create_invoice(user=user, name='Invoice001', source=source, target=target)
-        self.assertEqual('', invoice.number)
-
     @skipIfCustomAddress
-    def test_createview_with_address(self):
+    def test_creationview__with_address(self):
         user = self.login_as_root_and_get()
 
         name = 'Invoice001'
@@ -431,7 +417,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             action_type='edit',
         )
 
-    def test_createview_error(self):
+    def test_creationview__error(self):
         "Credentials errors with Organisation."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'], creatable_models=[Invoice],
@@ -651,52 +637,54 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertTrue(export_action.is_enabled)
         self.assertTrue(export_action.is_visible)
 
-    def test_listview_generate_number_actions(self):
-        user = self.login_as_root_and_get()
-        invoice = self.create_invoice_n_orgas(user=user, name='Invoice #1')[0]
-
-        number_action = self.get_alone_element(
-            action
-            for action in actions.action_registry
-                                 .instance_actions(user=user, instance=invoice)
-            if isinstance(action, GenerateNumberAction)
-        )
-        self.assertEqual('billing-generate_number', number_action.id)
-        self.assertEqual('billing-invoice-number', number_action.type)
-        self.assertEqual(
-            reverse('billing__generate_invoice_number', args=(invoice.id,)),
-            number_action.url,
-        )
-        self.assertTrue(number_action.is_enabled)
-        self.assertTrue(number_action.is_visible)
-        self.assertEqual(_('Generate the number of the Invoice'), number_action.help_text)
-        self.assertEqual({
-            'data': {},
-            'options': {
-                'confirm': _('Do you really want to generate an invoice number?'),
-            },
-        }, number_action.action_data)
-
-    def test_listview_generate_number_actions_disabled(self):
-        user = self.login_as_root_and_get()
-        invoice = self.create_invoice_n_orgas(user=user, name='Invoice #1')[0]
-        invoice.number = 'J03'
-        invoice.save()
-
-        number_action = self.get_alone_element(
-            action
-            for action in actions.action_registry
-                                 .instance_actions(user=user, instance=invoice)
-            if isinstance(action, GenerateNumberAction)
-        )
-        self.assertEqual('billing-generate_number', number_action.id)
-        self.assertEqual('billing-invoice-number', number_action.type)
-        self.assertEqual(
-            reverse('billing__generate_invoice_number', args=(invoice.id,)),
-            number_action.url,
-        )
-        self.assertFalse(number_action.is_enabled)
-        self.assertTrue(number_action.is_visible)
+    # def test_listview_generate_number_actions(self):
+    #     user = self.login_as_root_and_get()
+    #     invoice = self.create_invoice_n_orgas(user=user, name='Invoice #1')[0]
+    #
+    #     number_action = self.get_alone_element(
+    #         action
+    #         for action in actions.action_registry
+    #                              .instance_actions(user=user, instance=invoice)
+    #         if isinstance(action, GenerateNumberAction)
+    #     )
+    #     self.assertEqual('billing-generate_number', number_action.id)
+    #     self.assertEqual('billing-invoice-number', number_action.type)
+    #     self.assertEqual(
+    #         # reverse('billing__generate_invoice_number', args=(invoice.id,)),
+    #         reverse('billing__generate_number', args=(invoice.id,)),
+    #         number_action.url,
+    #     )
+    #     self.assertTrue(number_action.is_enabled)
+    #     self.assertTrue(number_action.is_visible)
+    #     self.assertEqual(_('Generate the number of the Invoice'), number_action.help_text)
+    #     self.assertEqual({
+    #         'data': {},
+    #         'options': {
+    #             'confirm': _('Do you really want to generate an invoice number?'),
+    #         },
+    #     }, number_action.action_data)
+    #
+    # def test_listview_generate_number_action__disabled(self):
+    #     user = self.login_as_root_and_get()
+    #     invoice = self.create_invoice_n_orgas(user=user, name='Invoice #1')[0]
+    #     invoice.number = 'J03'
+    #     invoice.save()
+    #
+    #     number_action = self.get_alone_element(
+    #         action
+    #         for action in actions.action_registry
+    #                              .instance_actions(user=user, instance=invoice)
+    #         if isinstance(action, GenerateNumberAction)
+    #     )
+    #     self.assertEqual('billing-generate_number', number_action.id)
+    #     self.assertEqual('billing-invoice-number', number_action.type)
+    #     self.assertEqual(
+    #         # reverse('billing__generate_invoice_number', args=(invoice.id,)),
+    #         reverse('billing__generate_number', args=(invoice.id,)),
+    #         number_action.url,
+    #     )
+    #     self.assertFalse(number_action.is_enabled)
+    #     self.assertTrue(number_action.is_visible)
 
     def test_editview01(self):
         user = self.login_as_root_and_get()
@@ -994,63 +982,64 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             errors=_('Enter a number between 0 and 100 (it is a percentage).'),
         )
 
-    def test_generate_number01(self):
-        user = self.login_as_root_and_get()
-
-        validated_status = self.get_object_or_fail(InvoiceStatus, is_validated=True)
-        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
-        self.assertFalse(invoice.number)
-        self.assertEqual(1, invoice.status_id)
-
-        issuing_date = invoice.issuing_date
-        self.assertTrue(issuing_date)
-
-        url = self._build_gennumber_url(invoice)
-        self.assertGET405(url, follow=True)
-        self.assertPOST200(url, follow=True)
-
-        invoice = self.refresh(invoice)
-        number = invoice.number
-        # status_id = invoice.status_id
-        status = invoice.status
-        self.assertTrue(number)
-        self.assertEqual(validated_status, status)
-        self.assertEqual(issuing_date, invoice.issuing_date)
-
-        # Already generated
-        self.assertPOST409(url, follow=True)
-        invoice = self.refresh(invoice)
-        self.assertEqual(number, invoice.number)
-        self.assertEqual(status, invoice.status)
-
-    def test_generate_number02(self):
-        user = self.login_as_root_and_get()
-
-        status = InvoiceStatus.objects.create(name='OK', is_validated=True)
-
-        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
-        invoice.issuing_date = None
-        invoice.save()
-
-        self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
-        invoice = self.refresh(invoice)
-        self.assertTrue(invoice.issuing_date)
-        self.assertEqual(status, invoice.status)
-        # NB: this test can fail if run at midnight...
-        self.assertEqual(date.today(), invoice.issuing_date)
-
-    def test_generate_number03(self):
-        "Managed organisation."
-        user = self.login_as_root_and_get()
-
-        invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')
-        self._set_managed(source)
-
-        self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
-        self.assertEqual(
-            settings.INVOICE_NUMBER_PREFIX + '1',
-            self.refresh(invoice).number,
-        )
+    # def test_generate_number__not_managed_organisation01(self):
+    #     user = self.login_as_root_and_get()
+    #
+    #     validated_status = self.get_object_or_fail(InvoiceStatus, is_validated=True)
+    #     invoice, source, __target = self.create_invoice_n_orgas(user=user, name='Invoice001')
+    #     self.assertFalse(invoice.number)
+    #     # self.assertEqual(1, invoice.status_id)
+    #     self.assertTrue(invoice.status.is_default)
+    #
+    #     issuing_date = invoice.issuing_date
+    #     self.assertTrue(issuing_date)
+    #
+    #     url = self._build_gennumber_url(invoice)
+    #     self.assertGET405(url, follow=True)
+    #     self.assertPOST200(url, follow=True)
+    #
+    #     invoice = self.refresh(invoice)
+    #     number = invoice.number
+    #     status = invoice.status
+    #     # self.assertTrue(number)
+    #     self.assertEqual('0', number)
+    #     self.assertEqual(validated_status, status)
+    #     self.assertEqual(issuing_date, invoice.issuing_date)
+    #
+    #     # Already generated
+    #     self.assertPOST409(url, follow=True)
+    #     invoice = self.refresh(invoice)
+    #     self.assertEqual(number, invoice.number)
+    #     self.assertEqual(status, invoice.status)
+    #
+    # def test_generate_number__not_managed_organisation02(self):
+    #     user = self.login_as_root_and_get()
+    #
+    #     status = InvoiceStatus.objects.create(name='OK', is_validated=True)
+    #
+    #     invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
+    #     invoice.issuing_date = None
+    #     invoice.save()
+    #
+    #     self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
+    #     invoice = self.refresh(invoice)
+    #     self.assertTrue(invoice.issuing_date)
+    #     self.assertEqual(status, invoice.status)
+    #     # NB: this test can fail if run at midnight...
+    #     self.assertEqual(date.today(), invoice.issuing_date)
+    #
+    # def test_generate_number__managed_organisation(self):
+    #     "Managed organisation."
+    #     user = self.login_as_root_and_get()
+    #
+    #     invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')
+    #     self._set_managed(source)
+    #
+    #     self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
+    #     self.assertEqual(
+    #         settings.INVOICE_NUMBER_PREFIX + '1',
+    #         self.refresh(invoice).number,
+    #     )
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
@@ -1214,7 +1203,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         invoice.additional_info = AdditionalInformation.objects.all()[0]
         invoice.payment_terms = PaymentTerms.objects.all()[0]
-        invoice.generate_number()
+        # invoice.generate_number()
+        invoice.number = 'INV1235'
         invoice.save()
 
         kwargs = {'user': user, 'related_document': invoice}
@@ -1538,20 +1528,22 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertIsNone(invoice.additional_info)
 
     @skipIfCustomAddress
-    def test_mass_import_no_total(self):
+    def test_mass_import__no_total(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_no_total(
-            user=user, model=Invoice, status_model=InvoiceStatus, number_help_text=False,
+            user=user, model=Invoice, status_model=InvoiceStatus,
+            # number_help_text=False,
+            creation_number_help_text=False,
         )
 
-    def test_mass_import_total_no_vat_n_vat(self):
+    def test_mass_import__total_no_vat_n_vat(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_total_no_vat_n_vat(
             user=user, model=Invoice, status_model=InvoiceStatus,
         )
 
     @skipIfCustomAddress
-    def test_mass_import_update01(self):
+    def test_mass_import__update01(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_update(
             user=user,
@@ -1581,7 +1573,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     #         override_billing_addr=True,
     #     )
     @skipIfCustomAddress
-    def test_mass_import_update02(self):
+    def test_mass_import__update02(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_update(
             user=user,
@@ -1590,16 +1582,17 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomAddress
-    def test_mass_import_update_total01(self):
+    def test_mass_import__update_total01(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_no_total(
             user=user,
             model=Invoice, status_model=InvoiceStatus,
             update=True,
-            number_help_text=False,
+            # number_help_text=False,
+            creation_number_help_text=False,
         )
 
-    def test_mass_import_update_total02(self):
+    def test_mass_import__update_total02(self):
         user = self.login_as_root_and_get()
         doc = self._build_csv_doc([('Bill #1', 'Nerv', 'Acme', '300', '15')], user=user)
         response = self.assertPOST200(
@@ -1674,9 +1667,10 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             status=InvoiceStatus.objects.all()[0],
             source=source, target=target,
             expiration_date=date(year=2023, month=6, day=1),
+            number='INV123',
         )
-        invoice.generate_number()
-        invoice.save()
+        # invoice.generate_number()
+        # invoice.save()
 
         # ----
         response2 = self.assertGET200(target.get_absolute_url())

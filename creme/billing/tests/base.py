@@ -3,6 +3,7 @@ from decimal import Decimal
 from functools import partial
 from unittest import skipIf
 
+from django.contrib.contenttypes.models import ContentType
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import number_format
@@ -24,6 +25,7 @@ from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from ..models import (
     CreditNoteStatus,
     InvoiceStatus,
+    NumberGeneratorItem,
     QuoteStatus,
     SalesOrderStatus,
 )
@@ -136,16 +138,19 @@ class _BillingTestCaseMixin:
 
     def create_invoice(self, *, user, name, source, target,
                        currency=None, discount=Decimal(),
+                       issuing_date=date(year=2010, month=9, day=7),
                        **kwargs):
         currency = currency or Currency.objects.all()[0]
         response = self.client.post(
-            reverse('billing__create_invoice'), follow=True,
+            reverse('billing__create_invoice'),
+            follow=True,
             data={
                 'user':   user.pk,
                 'name':   name,
                 'status': InvoiceStatus.objects.first().id,
 
-                'issuing_date':    self.formfield_value_date(2010,  9,  7),
+                # 'issuing_date':    self.formfield_value_date(2010,  9,  7),
+                'issuing_date':    self.formfield_value_date(issuing_date) if issuing_date else '',
                 'expiration_date': self.formfield_value_date(2010, 10, 13),
 
                 'currency': currency.id,
@@ -314,7 +319,10 @@ class _BillingTestCase(_BillingTestCaseMixin,
                        CremeTestCase):
     @override_settings(SOFTWARE_LABEL='My CRM')
     def _aux_test_csv_import_no_total(self, *, user, model, status_model,
-                                      update=False, number_help_text=True):
+                                      update=False,
+                                      # number_help_text=True,
+                                      creation_number_help_text=True,
+                                      ):
         count = model.objects.count()
         create_orga = partial(Organisation.objects.create, user=user)
         create_contact = partial(Contact.objects.create, user=user)
@@ -401,16 +409,27 @@ class _BillingTestCase(_BillingTestCaseMixin,
         with self.assertNoException():
             number_f = response1.context['form'].fields['number']
 
-        if number_help_text:
-            self.assertEqual(
-                _(
-                    'If you chose an organisation managed by {software} as source organisation, '
-                    'a number will be automatically generated for created «{models}».'
-                ).format(software='My CRM', models=model._meta.verbose_name_plural),
-                number_f.help_text,
-            )
+        # if number_help_text:
+        #     self.assertEqual(
+        #         _(
+        #             'If you chose an organisation managed by {software} as source organisation, '
+        #             'a number will be automatically generated for created «{models}».'
+        #         ).format(software='My CRM', models=model._meta.verbose_name_plural),
+        #         number_f.help_text,
+        #     )
+        # else:
+        #     self.assertFalse(number_f.help_text)
+        help_start = _(
+            'If you chose an organisation managed by {software} as source organisation, '
+            'a number will be automatically generated for created «{models}».'
+        ).format(software='My CRM', models=model._meta.verbose_name_plural)
+        if creation_number_help_text:
+            self.assertStartsWith(number_f.help_text, help_start)
         else:
-            self.assertFalse(number_f.help_text)
+            if number_f.help_text.startswith(help_start):
+                self.failureException(
+                    f'The string {number_f.help_text!r} starts with {help_start!r}'
+                )
 
         # STEP 2 ---
         def_status = status_model.objects.all()[0]
@@ -684,7 +703,15 @@ class _BillingTestCase(_BillingTestCaseMixin,
         create_orga = partial(Organisation.objects.create, user=user)
 
         source1 = create_orga(name='Nerv')
+        self._set_managed(source1)  # Edition is allowed
         source2 = create_orga(name='Seele')
+
+        item = self.get_object_or_fail(
+            NumberGeneratorItem,
+            numbered_type=ContentType.objects.get_for_model(model),
+            organisation=source1,
+        )
+        self.assertTrue(item.is_edition_allowed)
 
         target1 = create_orga(name='Acme1')
         target2 = create_orga(name='Acme2')

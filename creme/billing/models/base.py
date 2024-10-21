@@ -50,7 +50,7 @@ from ..constants import (
     REL_SUB_HAS_LINE,
 )
 from . import other_models
-from .algo import ConfigBillingAlgo
+# from .algo import ConfigBillingAlgo
 from .fields import BillingDiscountField
 from .line import Line
 
@@ -139,7 +139,14 @@ class Base(CremeEntity):
 
     creation_label = _('Create an accounting document')
 
-    generate_number_in_create = True  # TODO: use settings/SettingValue instead ???
+    # Is the "number" fields automatically filled at creation if a number
+    # generation configuration is available (i.e. registered model + managed
+    # emitter Organisation).
+    # Notice that if the configuration allows the manual edition (i.e.
+    # NumberGeneratorItem.is_edition_allowed == True) & a number is given by the
+    # user, no automatic number overrides the user's value.
+    # NB: number is set in billing.signals.generate_number()
+    generate_number_in_create = True
 
     # Caches
     _source = None
@@ -245,45 +252,25 @@ class Base(CremeEntity):
         return credit_notes
 
     # def generate_number(self, source: AbstractOrganisation | None = None):
-    def generate_number(self):
-        # Lazy loading of number generators
-        from creme.billing.registry import algo_registry
-
-        # if source is None:
-        #     source = self.source
-        source = self.source
-
-        if not source:
-            raise ValueError('You cannot generate a number on a document without source')
-
-        if not self.number:
-            self.number = '0'
-
-        # if source:
-        #     real_content_type = self.entity_type
-        #
-        #     try:
-        #         name_algo = ConfigBillingAlgo.objects.get(
-        #             organisation=source, ct=real_content_type,
-        #         ).name_algo
-        #         algo = algo_registry.get_algo(name_algo)
-        #         self.number = algo().generate_number(source, real_content_type)
-        #     except Exception as e:
-        #         logger.info('billing.generate_number(): number cannot be generated (%s)', e)
-        real_content_type = self.entity_type
-
-        config = ConfigBillingAlgo.objects.filter(
-            organisation=source, ct=real_content_type,
-        ).first()
-
-        if config is None:
-            logger.info('generate_number(): no configuration found')
-        else:
-            try:
-                algo = algo_registry.get_algo(config.name_algo)
-                self.number = algo().generate_number(source, real_content_type)
-            except Exception as e:
-                logger.info('generate_number(): number cannot be generated (%s)', e)
+    #     from creme.billing.registry import algo_registry
+    #
+    #     if source is None:
+    #         source = self.source
+    #
+    #     if not self.number:
+    #         self.number = '0'
+    #
+    #     if source:
+    #         real_content_type = self.entity_type
+    #
+    #         try:
+    #             name_algo = ConfigBillingAlgo.objects.get(
+    #                 organisation=source, ct=real_content_type,
+    #             ).name_algo
+    #             algo = algo_registry.get_algo(name_algo)
+    #             self.number = algo().generate_number(source, real_content_type)
+    #         except Exception as e:
+    #             logger.info('billing.generate_number(): number cannot be generated (%s)', e)
 
     def get_lines(self, klass):
         assert issubclass(klass, Line)
@@ -516,9 +503,8 @@ class Base(CremeEntity):
         if not self.pk:  # Creation
             self._clean_source_n_target()
 
-            if self.generate_number_in_create:
-                # self.generate_number(source)
-                self.generate_number()
+            # if self.generate_number_in_create:
+            #     self.generate_number(source)
 
             super().save(*args, **kwargs)
 

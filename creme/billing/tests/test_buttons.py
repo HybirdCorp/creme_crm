@@ -22,23 +22,54 @@ from .base import (
 
 
 class ButtonsTestCase(_BillingTestCase):
-    def test_generate_number(self):
-        button = buttons.GenerateInvoiceNumberButton()
+    def test_generate_number__emitter_not_managed(self):
+        button = buttons.GenerateNumberButton()
 
-        role = self.create_role(allowed_apps=['billing'])
-        self.add_credentials(role=role, own=['CHANGE'])
-        user = self.create_user(role=role)
-
+        user = self.get_root_user()
         request = self.build_request(user=user)
 
-        invoice1 = Invoice(user=user)
-        self.assertTrue(button.ok_4_display(invoice1))
-        self.assertTrue(button.is_allowed(entity=invoice1, request=request))
-
-        self.assertFalse(button.ok_4_display(Invoice(user=user, number='123456')))
-        self.assertFalse(
-            button.is_allowed(entity=Invoice(user=self.get_root_user()), request=request),
+        # ---
+        emitter, receiver = self.create_orgas(user=user)
+        invoice = Invoice.objects.create(
+            user=user, name='Invoice001', source=emitter, target=receiver,
         )
+
+        self.assertTrue(button.ok_4_display(invoice))
+        self.assertTrue(button.is_allowed(entity=invoice, request=request))
+
+        ctxt1 = button.get_context(entity=invoice, request=request)
+        self.assertEqual(
+            _('This entity cannot generate a number (see configuration of the app Billing)'),
+            ctxt1.get('error'),
+        )
+
+        # ---
+        quote = Quote(user=user)
+        self.assertFalse(button.ok_4_display(quote))
+
+    def test_generate_number__emitter_is_managed(self):
+        button = buttons.GenerateNumberButton()
+
+        user = self.get_root_user()
+        request = self.build_request(user=user)
+
+        # ---
+        emitter, receiver = self.create_orgas(user=user)
+        self._set_managed(emitter)
+        invoice = Invoice.objects.create(
+            user=user, name='Invoice001', source=emitter, target=receiver,
+        )
+
+        ctxt1 = button.get_context(entity=invoice, request=request)
+        self.assertNotIn('error', ctxt1)
+
+        # ---
+        invoice.number = 'IN-123'
+
+        ctxt2 = button.get_context(entity=invoice, request=request)
+        with self.assertNoException():
+            error2 = ctxt2['error']
+        self.assertEqual(_('This entity has already a number'), error2)
 
     @skipIfCustomOrganisation
     def test_add_invoice(self):

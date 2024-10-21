@@ -84,7 +84,8 @@ class BillingConfig(CremeAppConfig):
         self.ServiceLine  = billing.get_service_line_model()
         super().all_apps_ready()
 
-        self.register_billing_algorithm()
+        # self.register_billing_algorithm()
+        self.register_billing_number_generators()
         self.register_billing_converters()
         self.register_billing_lines()
         self.register_billing_spawners()
@@ -108,15 +109,35 @@ class BillingConfig(CremeAppConfig):
         action_registry.register_instance_actions(
             actions.ExportInvoiceAction,
             actions.ExportQuoteAction,
-            actions.GenerateNumberAction,
+            # actions.GenerateNumberAction,
+            actions.GenerateInvoiceNumberAction,
+            actions.GenerateCreditNoteNumberAction,
         )
 
-    def register_billing_algorithm(self):
-        from .algos import SimpleAlgo
-        from .models import SimpleBillingAlgo
-        from .registry import algo_registry
+    # def register_billing_algorithm(self):
+    #     from .algos import SimpleAlgo
+    #     from .models import SimpleBillingAlgo
+    #     from .registry import algo_registry
+    #
+    #     algo_registry.register((SimpleBillingAlgo.ALGO_NAME, SimpleAlgo))
 
-        algo_registry.register((SimpleBillingAlgo.ALGO_NAME, SimpleAlgo))
+    def register_billing_number_generators(self):
+        from . import number_generators
+        from .core.number_generation import number_generator_registry
+
+        number_generator_registry.register(
+            model=self.Invoice,
+            generator_cls=number_generators.InvoiceRegularNumberGenerator,
+        ).register(
+            model=self.Quote,
+            generator_cls=number_generators.QuoteRegularNumberGenerator,
+        ).register(
+            model=self.SalesOrder,
+            generator_cls=number_generators.SalesOrderRegularNumberGenerator,
+        ).register(
+            model=self.CreditNote,
+            generator_cls=number_generators.CreditNoteRegularNumberGenerator,
+        )
 
     def register_billing_converters(self):
         from . import converters
@@ -191,12 +212,13 @@ class BillingConfig(CremeAppConfig):
         )
 
     def register_bulk_update(self, bulk_update_registry):
+        from .forms.number_generation import NumberOverrider
+
         register = bulk_update_registry.register
-        register(self.Invoice)
-        register(self.Quote)
-        register(self.SalesOrder)
-        register(self.CreditNote)
-        register(self.TemplateBase)
+        for model in (self.Invoice, self.Quote, self.SalesOrder, self.CreditNote):
+            register(model).add_overriders(NumberOverrider)
+
+        register(self.TemplateBase)  # TODO: what about number?
         register(self.ProductLine).exclude('on_the_fly_item')
         register(self.ServiceLine).exclude('on_the_fly_item')
 
@@ -204,7 +226,8 @@ class BillingConfig(CremeAppConfig):
         from . import buttons
 
         button_registry.register(
-            buttons.GenerateInvoiceNumberButton,
+            # buttons.GenerateInvoiceNumberButton,
+            buttons.GenerateNumberButton,
             buttons.AddQuoteButton,
             buttons.AddSalesOrderButton,
             buttons.AddInvoiceButton,
@@ -227,6 +250,7 @@ class BillingConfig(CremeAppConfig):
 
         config_registry.register_app_bricks(
             'billing',
+            bricks.NumberGeneratorItemsBrick,
             bricks.BillingExportersBrick,
         )
 
@@ -293,6 +317,7 @@ class BillingConfig(CremeAppConfig):
             self.SalesOrder,
             self.CreditNote,
             # TODO ?
+            # self.TemplateBase,
             # self.ServiceLine,
             # self.ProductLine,
             # models.AdditionalInformation,

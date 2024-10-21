@@ -24,6 +24,21 @@
             - A "card" brick is now available for the hat of the Activities' detail-view.
               It's use by default by the new installations.
         * Billing :
+            - The number generation has been heavily reworked. The old number generation system
+              took a prefix in settings & generated numbers in the form "PREFIX15".
+              The new system can be visually configured & is more powerful :
+                - The configuration takes now a format string; there are a mandatory variable "{counter}",
+                  but also "{year}", "{month}" & "{code}" (which corresponds to the new field 'Organisation.code').
+                - The counter can be reset annually/monthly.
+                - The counter can be manually edited (it's useful after a mass-import to keep a consistent numbering).
+                - The manual edition of the number can be forbidden.
+              Notice that if you upgrade from Creme2.6, your existing configuration is migrated &
+              you should not see difference for Invoices/Quotes/Sales Orders.
+              The numbers for Credit Notes are not automatically generated at their creation anymore.
+              These variables in settings.py have been removed :
+                - QUOTE_NUMBER_PREFIX
+                - INVOICE_NUMBER_PREFIX
+                - SALESORDER_NUMBER_PREFIX
             - The 'Convert to ...' buttons have been reworked :
                 - When a button is disabled, the reason is displayed as tool-tip.
                 - The constraints for properties & relationships are better respected.
@@ -179,31 +194,37 @@
             * Reports :
                 - In the field 'report.Field.name', the CustomFields are referenced by their UUID now (see types 'RFT_CUSTOM' & 'RFT_AGG_CUSTOM').
             * Billing :
-                - In 'buttons', the class '_ConvertToButton' (& so, the child classes) has been reworked.
-                    - It injects a string "error" in the context.
-                    - "creation_perm" is not injected in the template anymore.
-                    - The attribute 'target_modelname' has been removed.
+                - The class 'actions.GenerateNumberAction' has been removed (use '_GenerateNumberAction' instead).
+                - In 'buttons' :
+                    - The class 'GenerateInvoiceNumberButton' has been removed (use 'GenerateNumberButton' instead).
+                    - The class '_ConvertToButton' (& so, the child classes) has been reworked.
+                        - It injects a string "error" in the context.
+                        - "creation_perm" is not injected in the template anymore.
+                        - The attribute 'target_modelname' has been removed.
                   The template has been modified, of course.
                 - In 'core' :
                     - These variables have been removed : CLASS_MAP, CONVERT_MATRIX, RTYPE_MATRIX.
                     - The function 'get_models_for_conversion()' has been removed.
-                - In 'registry', the class 'RelationTypeConverterRegistry' & the variable 'relationtype_converter'
-                  have been removed ; you can see in 'creme.opportunities.apps.OpportunitiesConfig.register_billing()'
-                  how to code a feature similar to the old relationship conversion.
-                - In 'models':
+                - In 'registry' :
+                    - The classes 'Algo' & 'AlgoRegistry' have been removed ; see the new method
+                      'apps.BillingConfig.register_billing_number_generators()' to know how to create/register a number generator.
+                    - The class 'RelationTypeConverterRegistry' & the variable 'relationtype_converter'
+                      have been removed ; you can see in 'creme.opportunities.apps.OpportunitiesConfig.register_billing()'
+                      how to code a feature similar to the old relationship conversion.
+                - In 'models' :
                     - The default statuses are now initialized at models level, not view level.
-                    - In the method 'Base.generate_number()' :
-                        - The argument "source" has been removed.
-                        - An exception is raised if the source (i.e. emitter Organisation) has not been set.
+                    - The method 'Base.generate_number()' has been removed.
                     - In the model 'AbstractTemplateBase' :
                         - The field "status_id" has been replaced by the field "status_uuid".
                         - The method 'create_entity()' has been re-written to use a new "spawning"
                           system, which is derived from the new cloning system.
                           This new system is de-coupled from the clone & conversion systems;
                           it should be easier to customise from another app.
-                - The class view 'views.convert.Conversion' has been reworked :
-                    - The attribute 'dest_title' has been removed.
-                    - The method 'get_destination_model()' has been removed.
+                - In 'views' :
+                    - The class 'invoice.InvoiceNumberGeneration' has been removed.
+                    - The class view 'convert.Conversion' has been reworked :
+                        - The attribute 'dest_title' has been removed.
+                        - The method 'get_destination_model()' has been removed.
 
     Internal breaking changes :
     ---------------------------

@@ -39,6 +39,8 @@ from creme.creme_core.models import Vat
 from creme.creme_core.utils import as_int, update_model_instance
 
 from .. import get_product_line_model
+from ..core.number_generation import number_generator_registry
+from ..models import NumberGeneratorItem
 from ..utils import copy_or_create_address
 
 Contact      = persons.get_contact_model()
@@ -406,15 +408,63 @@ def get_import_form_builder(header_dict, choices):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
+            # model = self._meta.model
+            # if model.generate_number_in_create:
+            #     self.fields['number'].help_text = _(
+            #         'If you chose an organisation managed by {software} as source organisation, '
+            #         'a number will be automatically generated for created «{models}».'
+            #     ).format(
+            #         software=settings.SOFTWARE_LABEL,
+            #         models=model._meta.verbose_name_plural,
+            #     )
+            self.fields['number'].help_text = self._build_number_help_text()
+
+        def _build_number_help_text(self):
+            messages = []
             model = self._meta.model
+
             if model.generate_number_in_create:
-                self.fields['number'].help_text = _(
-                    'If you chose an organisation managed by {software} as source organisation, '
-                    'a number will be automatically generated for created «{models}».'
-                ).format(
-                    software=settings.SOFTWARE_LABEL,
-                    models=model._meta.verbose_name_plural,
+                messages.append(
+                    gettext(
+                        'If you chose an organisation managed by {software} as '
+                        'source organisation, a number will be automatically '
+                        'generated for created «{models}».'
+                    ).format(
+                        software=settings.SOFTWARE_LABEL,
+                        models=model._meta.verbose_name_plural,
+                    )
                 )
+
+            allowed = []
+            forbidden = []
+            for item in NumberGeneratorItem.objects.get_for_model(model):
+                if number_generator_registry.get(item):
+                    (allowed if item.is_edition_allowed else forbidden).append(item.organisation)
+
+            if allowed:
+                messages.append(
+                    gettext(
+                        'If the source organisation is {}, the file can set a number.'
+                    ).format('/'.join(str(orga) for orga in allowed))
+                )
+
+            if forbidden:
+                messages.append(
+                    gettext(
+                        'If the source organisation is {}, the file can NOT set a number.'
+                    ).format('/'.join(str(orga) for orga in forbidden))
+                )
+
+            messages.append(
+                gettext(
+                    'Hint: to import numbers when the source is managed, '
+                    'you can configure temporarily the number generation to allow '
+                    'manual edition; you can also edit the counter in order to '
+                    'keep a consistent numbering.'
+                )
+            )
+
+            return '\n'.join(messages)
 
         def clean_totals(self):
             extractor = self.cleaned_data['totals']
@@ -425,6 +475,25 @@ def get_import_form_builder(header_dict, choices):
                 )
 
             return extractor
+
+        def _check_number_edition(self, instance):
+            number = instance.number
+            if instance.pk:  # Edition
+                # TODO: use the future snapshot system instead
+                if getattr(instance, '_instance_backup', {}).get('number') == number:
+                    return  # No change
+            elif not number:
+                return  # Number left empty => filler if needed by signal
+
+            item = NumberGeneratorItem.objects.filter(
+                organisation=instance.source,
+                numbered_type=instance.entity_type,
+            ).first()
+
+            if item and not item.is_edition_allowed:
+                raise ValueError(
+                    gettext('The number is set as not editable by the configuration.')
+                )
 
         def _pre_instance_save(self, instance, line):
             cdata = self.cleaned_data
@@ -437,6 +506,8 @@ def get_import_form_builder(header_dict, choices):
 
                 # Error is really appended if 'err_msg' is not empty
                 append_error(err_msg)
+
+            self._check_number_edition(instance)
 
         def _post_instance_creation(self, instance, line, updated):
             super()._post_instance_creation(instance, line, updated)

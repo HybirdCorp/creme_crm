@@ -1,0 +1,34 @@
+{% extends 'creme_core/bricks/base/list.html' %}
+{% load i18n creme_bricks creme_widgets %}
+{% load url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} billing-number_generators-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Organisation configured for number generation') plural=_('{count} Organisations configured for number generation') empty=_('No Organisation configured for number generation') icon='organisation' count=organisations|length %}
+{% endblock %}
+
+{% block brick_before_content %}
+    <div class="help">{% translate 'Here you can configurate the generation of the numbers (see the field «Number» of Invoice/Quote/…).' %}</div>
+{% endblock %}
+
+{% block brick_content %}
+  {% for orga_wrapper in organisations %}
+    <div class="brick-list-item">
+        <div class="brick-list-item-title">{% widget_entity_hyperlink entity=orga_wrapper.organisation user=user %}</div>
+        <div class="brick-list-item-group">
+          {% for gen_item in orga_wrapper.items %}
+            <div class="brick-tile">
+                <span class="brick-tile-name">
+                    {{gen_item.numbered_type}}
+                    {% brick_action id='edit' url='billing__edit_number_generator'|url:gen_item.id %}
+                </span>
+                <div class="brick-tile-value">
+                    <ul>{% for desc_element in gen_item.description %}<li>{{desc_element}}</li>{% endfor %}</ul>
+                </div>
+            </div>
+          {% endfor %}
+        </div>
+    </div>
+  {% endfor %}
+{% endblock %}

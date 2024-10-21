@@ -1,0 +1,17 @@
+{% load i18n creme_widgets %}{% load blockjsondata from creme_core_tags %}
+{% if button.is_allowed and not button.error %}
+<a class="menu_button menu-button-icon" title="{{button.description}}" data-action="update" href="{% url 'billing__generate_number' object.id %}">
+    {% widget_icon name='invoice' size='instance-button' label=_('Number generation') %}
+    {{button.verbose_name}}
+    {% blockjsondata %}{
+        "options": {
+            "confirm": "{% translate 'Do you really want to generate a billing number?' %}"
+        }
+    }{% endblockjsondata %}
+</a>
+{% else %}
+<span class="menu_button menu-button-icon forbidden" title="{% if button.error %}{{button.error}}{% else %}{{button.description}}{% endif %}">
+    {% widget_icon name='invoice' size='instance-button' label=_('Number generation') %}
+    {{button.verbose_name}}
+</span>
+{% endif %}
