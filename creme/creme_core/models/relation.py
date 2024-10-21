@@ -644,7 +644,7 @@ class SemiFixedRelationType(CremeModel):
         return self.predicate
 
 
-@receiver(pre_merge_related)
+@receiver(pre_merge_related, dispatch_uid='creme_core-manage_relations_merge')
 def _handle_merge(sender, other_entity, **kwargs):
     """The generic creme_core.utils.replace_related_object() cannot correctly
     handle the Relation model :

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.dispatch.dispatcher import receiver
 from .models import GeoAddress, Town
 
 
-@receiver(post_delete, sender=settings.PERSONS_ADDRESS_MODEL)
+@receiver(post_delete, sender=settings.PERSONS_ADDRESS_MODEL, dispatch_uid='geolocation-dispose')
 def dispose_geoaddresses(sender, instance, **kwargs):
     try:
         instance.geoaddress.delete()
@@ -31,7 +31,7 @@ def dispose_geoaddresses(sender, instance, **kwargs):
         pass
 
 
-@receiver(post_save, sender=settings.PERSONS_ADDRESS_MODEL)
+@receiver(post_save, sender=settings.PERSONS_ADDRESS_MODEL, dispatch_uid='geolocation-update')
 def update_geoaddresses(sender, instance, **kwargs):
     try:
         geoaddress = instance.geoaddress

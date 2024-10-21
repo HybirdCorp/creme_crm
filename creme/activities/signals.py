@@ -38,7 +38,10 @@ logger = logging.getLogger(__name__)
 Organisation = get_organisation_model()
 
 
-@receiver(signals.post_delete, sender=Relation)
+@receiver(
+    signals.post_delete,
+    sender=Relation, dispatch_uid='activities-update_activity_calendars',
+)
 def _set_null_calendar_on_delete_participant(sender, instance, **kwargs):
     type_id = instance.type_id
 
@@ -58,7 +61,10 @@ def _set_null_calendar_on_delete_participant(sender, instance, **kwargs):
             activity.calendars.remove(calendar_id)
 
 
-@receiver(signals.post_save, sender=Relation)
+@receiver(
+    signals.post_save,
+    sender=Relation, dispatch_uid='activities-manage_auto_subject_organisation',
+)
 def _set_orga_as_subject(sender, instance, **kwargs):
     if instance.type_id != REL_SUB_PART_2_ACTIVITY:
         return
@@ -90,7 +96,10 @@ def _set_orga_as_subject(sender, instance, **kwargs):
     )
 
 
-@receiver(signals.post_save, sender=settings.AUTH_USER_MODEL)
+@receiver(
+    signals.post_save,
+    sender=settings.AUTH_USER_MODEL, dispatch_uid='activities-create_default_calendar',
+)
 def _create_default_calendar(sender, instance, created, **kwargs):
     if created and not instance.is_staff and instance.is_active:
         is_public = settings.ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC
@@ -106,7 +115,10 @@ def _create_default_calendar(sender, instance, created, **kwargs):
             )
 
 
-@receiver(signals.pre_delete, sender=settings.AUTH_USER_MODEL)
+@receiver(
+    signals.pre_delete,
+    sender=settings.AUTH_USER_MODEL, dispatch_uid='activities-transfer_default_calendar',
+)
 def _transfer_default_calendar(sender, instance, **kwargs):
     # NB: when a User is deleted, his Calendars are given to another User, who
     #     has at this moment 2 default Calendars. When get_user_default_calendar()

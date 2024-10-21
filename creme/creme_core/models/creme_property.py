@@ -301,7 +301,7 @@ class CremeProperty(CremeModel):
         return self.creme_entity
 
 
-@receiver(signals.pre_merge_related)
+@receiver(signals.pre_merge_related, dispatch_uid='creme_core-manage_properties_merge')
 def _handle_merge(sender, other_entity, **kwargs):
     """Delete 'Duplicated' CremeProperties (i.e. exist in the removed entity &
     the remaining entity).
@@ -318,7 +318,10 @@ def _handle_merge(sender, other_entity, **kwargs):
             prop.delete()
 
 
-@receiver(signals.pre_replace_related, sender=CremePropertyType)
+@receiver(
+    signals.pre_replace_related,
+    sender=CremePropertyType, dispatch_uid='creme_core-manage_type_replacement',
+)
 def _handle_replacement(sender, old_instance, new_instance, **kwargs):
     """Delete 'Duplicated' CremeProperties (i.e. one entity has 2 properties
     with the old & the new types).

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from .constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from .models import WaitingAction
 
 
-@receiver(post_save, sender=SettingValue)
+@receiver(post_save, sender=SettingValue, dispatch_uid='crudity-manage_setting_change')
 def post_save_setting_value(sender, instance, **kwargs):
     """Set is_sandbox_by_user value on CreateFromEmailBackend subclasses
     because they are singletons.

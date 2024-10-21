@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,9 @@ if apps.is_installed('creme.activities'):
     from .models import CommercialApproach
 
     # Catching the save of the relation between an activity and an opportunity as a subject
-    @receiver(post_save, sender=Relation)
+    @receiver(
+        post_save, sender=Relation, dispatch_uid='commercial-manage_opp_as_activity_subject',
+    )
     def post_save_relation_opp_subject_activity(sender, instance, **kwargs):
         if instance.type_id == REL_OBJ_ACTIVITY_SUBJECT:
             object_entity = instance.object_entity
@@ -56,7 +58,10 @@ if apps.is_installed('creme.activities'):
                     )
                 )
 
-    @receiver(post_save, sender=get_activity_model())
+    @receiver(
+        post_save,
+        sender=get_activity_model(), dispatch_uid='commercial-synchronise_commapp_n_activity',
+    )
     def sync_with_activity(sender, instance, created, **kwargs):
         # TODO: optimise (only if title has changed - factorise with HistoryLine ??)
         if not created:

@@ -36,7 +36,10 @@ Invoice = billing.get_invoice_model()
 Quote = billing.get_quote_model()
 
 
-@receiver(signals.post_save, sender=Organisation)
+@receiver(
+    signals.post_save,
+    sender=Organisation, dispatch_uid='billing-init_number_configuration',
+)
 def set_simple_conf_billing(sender, instance, **kwargs):
     if not instance.is_managed:
         return
@@ -60,7 +63,7 @@ def set_simple_conf_billing(sender, instance, **kwargs):
         )
 
 
-@receiver(core_signals.pre_merge_related)
+@receiver(core_signals.pre_merge_related, dispatch_uid='billing-merge_number_configuration')
 def handle_merge_organisations(sender, other_entity, **kwargs):
     # TODO: change 'pre_merge_related' to have sender=Organisation & arguments "entity1/entity2"
     #       (& so write '@receiver(core_signals.pre_merge_related, sender=Organisation)' )
@@ -98,7 +101,7 @@ STATUSES_REPLACEMENTS = {
 }
 
 
-@receiver(core_signals.pre_replace_and_delete)
+@receiver(core_signals.pre_replace_and_delete, dispatch_uid='billing-replace_template_status')
 def handle_replace_statuses(sender, model_field, replacing_instance, **kwargs):
     model = model_field.model
 
@@ -122,7 +125,10 @@ def handle_replace_statuses(sender, model_field, replacing_instance, **kwargs):
                 tpl.save()
 
 
-@receiver((signals.post_save, signals.post_delete), sender=Relation)
+@receiver(
+    (signals.post_save, signals.post_delete),
+    sender=Relation, dispatch_uid='billing-manage_linked_credit_notes',
+)
 def manage_linked_credit_notes(sender, instance, **kwargs):
     "The calculated totals of Invoices have to be refreshed."
     if instance.type_id == constants.REL_SUB_CREDIT_NOTE_APPLIED:
@@ -130,7 +136,7 @@ def manage_linked_credit_notes(sender, instance, **kwargs):
 
 
 # TODO: problem, if several lines are deleted at once, lots of useless queries (workflow engine ??)
-@receiver(signals.post_delete, sender=Relation)
+@receiver(signals.post_delete, sender=Relation, dispatch_uid='billing-manage_line_deletion')
 def manage_line_deletion(sender, instance, **kwargs):
     "The calculated totals (Invoice, Quote...) have to be refreshed."
     if instance.type_id == constants.REL_OBJ_HAS_LINE:
@@ -145,7 +151,7 @@ _WORKFLOWS = {
 
 # NB: in Base.save(), target relationship is created after source relationships,
 #     so we trigger this code target relationship creation, as the source should be OK too.
-@receiver(signals.post_save, sender=Relation)
+@receiver(signals.post_save, sender=Relation, dispatch_uid='billing-manage_workflows')
 def manage_creation_workflows(sender, instance, **kwargs):
     if instance.type_id == constants.REL_SUB_BILL_RECEIVED:
         billing_doc = instance.subject_entity
