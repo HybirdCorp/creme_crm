@@ -37,6 +37,8 @@ Quote      = billing.get_quote_model()
 SalesOrder = billing.get_sales_order_model()
 
 
+# TODO: make more generic if we can generate number for other model
+#       VS add other button classes
 class GenerateInvoiceNumberButton(Button):
     id = Button.generate_id('billing', 'generate_invoice_number')
     verbose_name = _('Generate the number of the Invoice')

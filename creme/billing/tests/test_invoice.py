@@ -2,7 +2,7 @@ from datetime import date
 from decimal import Decimal
 from functools import partial
 
-from django.conf import settings
+# from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models.deletion import ProtectedError
 from django.template import Context, Template
@@ -64,9 +64,9 @@ from .base import (
 @skipIfCustomOrganisation
 @skipIfCustomInvoice
 class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
-    @staticmethod
-    def _build_gennumber_url(invoice):
-        return reverse('billing__generate_invoice_number', args=(invoice.id,))
+    # @staticmethod
+    # def _build_gennumber_url(invoice):
+    #     return reverse('billing__generate_invoice_number', args=(invoice.id,))
 
     def test_status01(self):
         statuses = [*InvoiceStatus.objects.all()]
@@ -664,7 +664,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('billing-generate_number', number_action.id)
         self.assertEqual('billing-invoice-number', number_action.type)
         self.assertEqual(
-            reverse('billing__generate_invoice_number', args=(invoice.id,)),
+            # reverse('billing__generate_invoice_number', args=(invoice.id,)),
+            reverse('billing__generate_number', args=(invoice.id,)),
             number_action.url,
         )
         self.assertTrue(number_action.is_enabled)
@@ -692,7 +693,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('billing-generate_number', number_action.id)
         self.assertEqual('billing-invoice-number', number_action.type)
         self.assertEqual(
-            reverse('billing__generate_invoice_number', args=(invoice.id,)),
+            # reverse('billing__generate_invoice_number', args=(invoice.id,)),
+            reverse('billing__generate_number', args=(invoice.id,)),
             number_action.url,
         )
         self.assertFalse(number_action.is_enabled)
@@ -994,63 +996,68 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             errors=_('Enter a number between 0 and 100 (it is a percentage).'),
         )
 
-    def test_generate_number01(self):
-        user = self.login_as_root_and_get()
-
-        validated_status = self.get_object_or_fail(InvoiceStatus, is_validated=True)
-        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
-        self.assertFalse(invoice.number)
-        self.assertEqual(1, invoice.status_id)
-
-        issuing_date = invoice.issuing_date
-        self.assertTrue(issuing_date)
-
-        url = self._build_gennumber_url(invoice)
-        self.assertGET405(url, follow=True)
-        self.assertPOST200(url, follow=True)
-
-        invoice = self.refresh(invoice)
-        number = invoice.number
-        # status_id = invoice.status_id
-        status = invoice.status
-        self.assertTrue(number)
-        self.assertEqual(validated_status, status)
-        self.assertEqual(issuing_date, invoice.issuing_date)
-
-        # Already generated
-        self.assertPOST409(url, follow=True)
-        invoice = self.refresh(invoice)
-        self.assertEqual(number, invoice.number)
-        self.assertEqual(status, invoice.status)
-
-    def test_generate_number02(self):
-        user = self.login_as_root_and_get()
-
-        status = InvoiceStatus.objects.create(name='OK', is_validated=True)
-
-        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
-        invoice.issuing_date = None
-        invoice.save()
-
-        self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
-        invoice = self.refresh(invoice)
-        self.assertTrue(invoice.issuing_date)
-        self.assertEqual(status, invoice.status)
-        # NB: this test can fail if run at midnight...
-        self.assertEqual(date.today(), invoice.issuing_date)
-
-    def test_generate_number03(self):
-        "Managed organisation."
-        user = self.login_as_root_and_get()
-
-        invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')
-        self._set_managed(source)
-
-        self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
-        self.assertEqual(
-            settings.INVOICE_NUMBER_PREFIX + '1',
-            self.refresh(invoice).number,
-        )
+    # def test_generate_number__not_managed_organisation01(self):
+    #     user = self.login_as_root_and_get()
+    #
+    #     validated_status = self.get_object_or_fail(InvoiceStatus, is_validated=True)
+    #     invoice, source, __target = self.create_invoice_n_orgas(user=user, name='Invoice001')
+    #     self.assertFalse(invoice.number)
+    #     # self.assertEqual(1, invoice.status_id)
+    #     self.assertTrue(invoice.status.is_default)
+    #     self.assertFalse(NumberGeneratorItem.objects.filter(
+    #         organisation=source,
+    #         numbered_type=invoice.entity_type,
+    #     ))
+    #
+    #     issuing_date = invoice.issuing_date
+    #     self.assertTrue(issuing_date)
+    #
+    #     url = self._build_gennumber_url(invoice)
+    #     self.assertGET405(url, follow=True)
+    #     self.assertPOST200(url, follow=True)
+    #
+    #     invoice = self.refresh(invoice)
+    #     number = invoice.number
+    #     status = invoice.status
+    #     # self.assertTrue(number)
+    #     self.assertEqual('0', number)
+    #     self.assertEqual(validated_status, status)
+    #     self.assertEqual(issuing_date, invoice.issuing_date)
+    #
+    #     # Already generated
+    #     self.assertPOST409(url, follow=True)
+    #     invoice = self.refresh(invoice)
+    #     self.assertEqual(number, invoice.number)
+    #     self.assertEqual(status, invoice.status)
+    #
+    # def test_generate_number__not_managed_organisation02(self):
+    #     user = self.login_as_root_and_get()
+    #
+    #     status = InvoiceStatus.objects.create(name='OK', is_validated=True)
+    #
+    #     invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
+    #     invoice.issuing_date = None
+    #     invoice.save()
+    #
+    #     self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
+    #     invoice = self.refresh(invoice)
+    #     self.assertTrue(invoice.issuing_date)
+    #     self.assertEqual(status, invoice.status)
+    #     # NB: this test can fail if run at midnight...
+    #     self.assertEqual(date.today(), invoice.issuing_date)
+    #
+    # def test_generate_number__managed_organisation(self):
+    #     "Managed organisation."
+    #     user = self.login_as_root_and_get()
+    #
+    #     invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')
+    #     self._set_managed(source)
+    #
+    #     self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
+    #     self.assertEqual(
+    #         settings.INVOICE_NUMBER_PREFIX + '1',
+    #         self.refresh(invoice).number,
+    #     )
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
@@ -1214,7 +1221,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         invoice.additional_info = AdditionalInformation.objects.all()[0]
         invoice.payment_terms = PaymentTerms.objects.all()[0]
-        invoice.generate_number()
+        # invoice.generate_number()
+        invoice.number = 'INV1235'
         invoice.save()
 
         kwargs = {'user': user, 'related_document': invoice}
@@ -1674,9 +1682,10 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             status=InvoiceStatus.objects.all()[0],
             source=source, target=target,
             expiration_date=date(year=2023, month=6, day=1),
+            number='INV123',
         )
-        invoice.generate_number()
-        invoice.save()
+        # invoice.generate_number()
+        # invoice.save()
 
         # ----
         response2 = self.assertGET200(target.get_absolute_url())

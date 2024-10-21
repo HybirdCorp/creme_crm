@@ -136,6 +136,7 @@ class _BillingTestCaseMixin:
 
     def create_invoice(self, *, user, name, source, target,
                        currency=None, discount=Decimal(),
+                       issuing_date=date(year=2010, month=9, day=7),
                        **kwargs):
         currency = currency or Currency.objects.all()[0]
         response = self.client.post(
@@ -145,7 +146,8 @@ class _BillingTestCaseMixin:
                 'name':   name,
                 'status': InvoiceStatus.objects.first().id,
 
-                'issuing_date':    self.formfield_value_date(2010,  9,  7),
+                # 'issuing_date':    self.formfield_value_date(2010,  9,  7),
+                'issuing_date':    self.formfield_value_date(issuing_date) if issuing_date else '',
                 'expiration_date': self.formfield_value_date(2010, 10, 13),
 
                 'currency': currency.id,

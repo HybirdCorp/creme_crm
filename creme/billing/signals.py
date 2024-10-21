@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.conf import settings
+# from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import signals
 from django.db.transaction import atomic
@@ -28,6 +28,7 @@ from creme.creme_core.models import Relation
 from creme.persons import workflow
 
 from . import constants
+from .core.number_generation import number_generator_registry
 from .models import ConfigBillingAlgo, SimpleBillingAlgo
 
 Organisation = persons.get_organisation_model()
@@ -36,31 +37,47 @@ Invoice = billing.get_invoice_model()
 Quote = billing.get_quote_model()
 
 
+# @receiver(signals.post_save, sender=Organisation)
+# def set_simple_conf_billing(sender, instance, **kwargs):
+#     if not instance.is_managed:
+#         return
+#
+#     if ConfigBillingAlgo.objects.filter(organisation=instance).exists():
+#         return
+#
+#     get_ct = ContentType.objects.get_for_model
+#     for model, prefix in [
+#         (Quote,                           settings.QUOTE_NUMBER_PREFIX),
+#         (Invoice,                         settings.INVOICE_NUMBER_PREFIX),
+#         (billing.get_sales_order_model(), settings.SALESORDER_NUMBER_PREFIX),
+#     ]:
+#         ct = get_ct(model)
+#         ConfigBillingAlgo.objects.create(
+#             organisation=instance, ct=ct, name_algo=SimpleBillingAlgo.ALGO_NAME,
+#         )
+#         SimpleBillingAlgo.objects.create(
+#             organisation=instance, last_number=0, prefix=prefix, ct=ct,
+#         )
 @receiver(
     signals.post_save,
-    sender=Organisation, dispatch_uid='billing-init_number_configuration',
+    sender=Organisation, dispatch_uid='billing-init_number_generation_config',
 )
-def set_simple_conf_billing(sender, instance, **kwargs):
+def init_number_generation_config(sender, instance, **kwargs):
     if not instance.is_managed:
         return
 
-    if ConfigBillingAlgo.objects.filter(organisation=instance).exists():
-        return
+    for model, generator_cls in number_generator_registry.registered_items():
+        # TODO: get_or_create() if unsetting+resetting "managed"
+        generator_cls.default_item(organisation=instance, model=model).save()
 
-    get_ct = ContentType.objects.get_for_model
 
-    for model, prefix in [
-        (Quote,                           settings.QUOTE_NUMBER_PREFIX),
-        (Invoice,                         settings.INVOICE_NUMBER_PREFIX),
-        (billing.get_sales_order_model(), settings.SALESORDER_NUMBER_PREFIX),
-    ]:
-        ct = get_ct(model)
-        ConfigBillingAlgo.objects.create(
-            organisation=instance, ct=ct, name_algo=SimpleBillingAlgo.ALGO_NAME,
-        )
-        SimpleBillingAlgo.objects.create(
-            organisation=instance, last_number=0, prefix=prefix, ct=ct,
-        )
+# NB: <sender=Base> does not work (no signal is emitted).
+@receiver(signals.pre_save, dispatch_uid='billing-generate_number')
+def generate_number(sender, instance, **kwargs):
+    if instance.pk is None:
+        gen = number_generator_registry.get(sender)
+        if gen and gen.trigger_at_creation:
+            instance.number = gen.perform(organisation=instance.source)
 
 
 @receiver(core_signals.pre_merge_related, dispatch_uid='billing-merge_number_configuration')
@@ -78,6 +95,7 @@ def handle_merge_organisations(sender, other_entity, **kwargs):
     def get_orga_2_clean():
         return sender if not sender.is_managed and other_entity.is_managed else other_entity
 
+    # TODO: fix
     for model in (ConfigBillingAlgo, SimpleBillingAlgo):
         model_filter = model.objects.filter
         orga_ids = {
@@ -96,7 +114,7 @@ def handle_merge_organisations(sender, other_entity, **kwargs):
 STATUSES_REPLACEMENTS = {
     billing.get_credit_note_model(): 'status',
     Invoice:                         'status',
-    billing.get_quote_model():       'status',
+    Quote:                           'status',
     billing.get_sales_order_model(): 'status',
 }
 
@@ -145,7 +163,7 @@ def manage_line_deletion(sender, instance, **kwargs):
 
 _WORKFLOWS = {
     Invoice: workflow.transform_target_into_customer,
-    Quote: workflow.transform_target_into_prospect,
+    Quote:   workflow.transform_target_into_prospect,
 }
 
 

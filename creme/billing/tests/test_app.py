@@ -14,6 +14,7 @@ from creme.persons.tests.base import skipIfCustomOrganisation
 
 from .. import bricks, constants, setting_keys
 from ..algos import SimpleAlgo
+from ..core.number_generation import NumberGenerator, NumberGeneratorRegistry
 from ..models import (
     ConfigBillingAlgo,
     CreditNoteStatus,
@@ -96,6 +97,37 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         with self.assertRaises(registry.RegistrationError):
             registry.register((SimpleBillingAlgo.ALGO_NAME, SimpleAlgo))
 
+    def test_number_generator_registry(self):
+        class TestInvoiceNumberGenerator(NumberGenerator):
+            pass
+
+        class TestQuoteNumberGenerator(NumberGenerator):
+            pass
+
+        registry = NumberGeneratorRegistry()
+        self.assertIsNone(registry.get(Invoice))
+
+        registry.register(
+            model=Invoice, generator_cls=TestInvoiceNumberGenerator,
+        ).register(
+            model=Quote, generator_cls=TestQuoteNumberGenerator,
+        )
+        self.assertIsInstance(registry.get(Invoice), TestInvoiceNumberGenerator)
+        self.assertIsInstance(registry.get(Quote),   TestQuoteNumberGenerator)
+
+        # ---
+        with self.assertRaises(NumberGeneratorRegistry.RegistrationError):
+            registry.register(model=Invoice, generator_cls=TestQuoteNumberGenerator)
+
+        # ---
+        registry.unregister(model=Invoice)
+        self.assertIsNone(registry.get(Invoice))
+
+        # ---
+        with self.assertRaises(NumberGeneratorRegistry.UnRegistrationError):
+            registry.unregister(model=Invoice)
+
+    # TODO: remove
     @skipIfCustomOrganisation
     def test_algoconfig(self):
         user = self.get_root_user()

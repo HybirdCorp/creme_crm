@@ -9,6 +9,7 @@ from .views import (
     export,
     invoice,
     line,
+    number_generation,
     payment_information,
     quote,
     sales_order,
@@ -16,6 +17,17 @@ from .views import (
 )
 
 urlpatterns = [
+    re_path(
+        r'^number_generator/edit/(?P<item_id>\d+)[/]?$',
+        number_generation.NumberGeneratorEdition.as_view(),
+        name='billing__edit_number_generator',
+    ),
+    re_path(
+        r'^number_generator/generate/(?P<entity_id>\d+)[/]?$',
+        number_generation.NumberGeneration.as_view(),
+        name='billing__generate_number',
+    ),
+
     re_path(
         r'^exporter/(?P<ct_id>\d+)[/]?$',
         export.ExporterConfigEditionWizard.as_view(),
@@ -104,14 +116,14 @@ urlpatterns = [
             ),
             check_args=Swappable.INT_ID,
         ),
-        Swappable(
-            re_path(
-                r'^invoice/generate_number/(?P<invoice_id>\d+)[/]?$',
-                invoice.InvoiceNumberGeneration.as_view(),
-                name='billing__generate_invoice_number',
-            ),
-            check_args=Swappable.INT_ID,
-        ),
+        # Swappable(
+        #     re_path(
+        #         r'^invoice/generate_number/(?P<invoice_id>\d+)[/]?$',
+        #         invoice.InvoiceNumberGeneration.as_view(),
+        #         name='billing__generate_invoice_number',
+        #     ),
+        #     check_args=Swappable.INT_ID,
+        # ),
         Swappable(
             re_path(
                 r'^invoice/(?P<invoice_id>\d+)[/]?$',

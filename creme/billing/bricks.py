@@ -34,7 +34,12 @@ from creme.creme_core.utils.unicode_collation import collator
 from . import constants, function_fields
 from .exporters import BillingExportEngineManager
 from .forms import line as line_forms
-from .models import ExporterConfigItem, Line, PaymentInformation
+from .models import (
+    ExporterConfigItem,
+    Line,
+    NumberGeneratorItem,
+    PaymentInformation,
+)
 from .setting_keys import payment_info_key
 
 Contact      = persons.get_contact_model()
@@ -355,6 +360,21 @@ class BillingPrettyAddressBrick(persons_bricks.PrettyAddressesBrick):
     id = persons_bricks.PrettyAddressesBrick.generate_id('billing', 'addresses_pretty')
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
     permissions = 'billing'
+
+
+class NumberGeneratorItemsBrick(SimpleBrick):  # TODO Brick?
+    id = Brick.generate_id('billing', 'number_generators')
+    verbose_name = _('Number generation')
+    template_name = 'billing/bricks/number-generators.html'
+    dependencies = (NumberGeneratorItem,)
+    # configurable = False
+    # permissions = 'billing.can_admin' => auto by creme_config views
+
+    # TODO
+    #  def detailview_display(self, context):
+    #     return self._render(self.get_template_context(
+    #         context,
+    #     ))
 
 
 class BillingExportersBrick(Brick):

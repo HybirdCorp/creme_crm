@@ -399,7 +399,8 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotEqual(order.pk, cloned.pk)
         self.assertEqual(order.name,   cloned.name)
         self.assertEqual(order.status, cloned.status)
-        self.assertEqual('0',          cloned.number)
+        # self.assertEqual('0',          cloned.number)
+        self.assertEqual('',           cloned.number)
 
         self.assertEqual(source, cloned.source)
         self.assertEqual(target, cloned.target)
@@ -430,10 +431,12 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self._set_managed(source)
 
         order = self.create_salesorder(user=user, name='My Order', source=source, target=target)
-        self.assertEqual('BC1', order.number)
+        # self.assertEqual('BC1', order.number)
+        self.assertEqual(_('ORD') + '0001', order.number)
 
         cloned = self.clone(order)
-        self.assertEqual('BC2', cloned.number)
+        # self.assertEqual('BC2', cloned.number)
+        self.assertEqual(_('ORD') + '0002', cloned.number)
 
     @skipIfCustomAddress
     @skipIfCustomServiceLine
@@ -469,7 +472,8 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotEqual(order.pk, cloned.pk)
         self.assertEqual(order.name,   cloned.name)
         self.assertEqual(order.status, cloned.status)
-        self.assertEqual('0',          cloned.number)
+        # self.assertEqual('0',          cloned.number)
+        self.assertEqual('',           cloned.number)
 
         self.assertEqual(source, cloned.source)
         self.assertEqual(target, cloned.target)
@@ -500,10 +504,12 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self._set_managed(source)
 
         order = self.create_salesorder(user=user, name='My Order', source=source, target=target)
-        self.assertEqual('BC1', order.number)
+        # self.assertEqual('BC1', order.number)
+        self.assertEqual(_('ORD') + '0001', order.number)
 
         cloned = order.clone()
-        self.assertEqual('BC2', cloned.number)
+        # self.assertEqual('BC2', cloned.number)
+        self.assertEqual(_('ORD') + '0002', cloned.number)
 
     def test_brick(self):
         user = self.login_as_root_and_get()

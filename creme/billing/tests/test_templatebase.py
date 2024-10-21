@@ -2,7 +2,7 @@ from datetime import date, timedelta
 from functools import partial
 from uuid import uuid4
 
-from django.test.utils import override_settings
+# from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.function_field import function_field_registry
@@ -204,7 +204,8 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(self.source, invoice.source)
         self.assertEqual(self.target, invoice.target)
 
-        self.assertEqual('0', invoice.number)
+        # self.assertEqual('0', invoice.number)
+        self.assertEqual('', invoice.number)
         self.assertEqual(date.today(), invoice.issuing_date)
         self.assertEqual(
             invoice.issuing_date + timedelta(days=30),
@@ -239,7 +240,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertTrue(invoice.status.is_default)
 
     @skipIfCustomInvoice
-    @override_settings(INVOICE_NUMBER_PREFIX='INV')
+    # @override_settings(INVOICE_NUMBER_PREFIX='INV')
     def test_create_invoice__managed_emitter(self):
         "Source is managed."
         self._set_managed(self.source)
@@ -254,7 +255,8 @@ class TemplateBaseTestCase(_BillingTestCase):
             invoice = tpl.create_entity()
 
         self.assertIsInstance(invoice, Invoice)
-        self.assertEqual('INV1', invoice.number)
+        # self.assertEqual('INV1', invoice.number)
+        self.assertEqual(_('INV') + '0001', invoice.number)
 
     @skipIfCustomInvoice
     def test_create_invoice__not_managed_emitter(self):
@@ -380,7 +382,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(_('N/A'), status.name)
 
     @skipIfCustomQuote
-    @override_settings(QUOTE_NUMBER_PREFIX='QU')
+    # @override_settings(QUOTE_NUMBER_PREFIX='QU')
     def test_create_quote__managed_source(self):
         "Source is managed."
         self._set_managed(self.source)
@@ -396,7 +398,8 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertIsInstance(quote, Quote)
         self.assertEqual(comment, quote.comment)
         self.assertEqual(quote_status, quote.status)
-        self.assertEqual('QU1', quote.number)
+        # self.assertEqual('QU1', quote.number)
+        self.assertEqual(_('QUO') + '0001', quote.number)
 
     @skipIfCustomSalesOrder
     def test_create_order01(self):

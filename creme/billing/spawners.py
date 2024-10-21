@@ -101,7 +101,7 @@ class BillingBaseSpawner(Spawner):
 
     def _pre_save(self, *, user, source, target):
         super()._pre_save(user=user, source=source, target=target)
-        target.generate_number_in_create = True
+        # target.generate_number_in_create = True
 
         # Do not copy the Addresses of the Receiving Organisation,
         # because we copy the Addresses of the cloned billing entity.

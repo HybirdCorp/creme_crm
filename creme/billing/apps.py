@@ -84,7 +84,8 @@ class BillingConfig(CremeAppConfig):
         self.ServiceLine  = billing.get_service_line_model()
         super().all_apps_ready()
 
-        self.register_billing_algorithm()
+        self.register_billing_algorithm()  # TODO: remove
+        self.register_billing_number_generators()
         self.register_billing_converters()
         self.register_billing_lines()
         self.register_billing_spawners()
@@ -111,12 +112,30 @@ class BillingConfig(CremeAppConfig):
             actions.GenerateNumberAction,
         )
 
-    def register_billing_algorithm(self):
+    def register_billing_algorithm(self):  # TODO: remove
         from .algos import SimpleAlgo
         from .models import SimpleBillingAlgo
         from .registry import algo_registry
 
         algo_registry.register((SimpleBillingAlgo.ALGO_NAME, SimpleAlgo))
+
+    def register_billing_number_generators(self):
+        from . import number_generators
+        from .core.number_generation import number_generator_registry
+
+        number_generator_registry.register(
+            model=self.Invoice,
+            generator_cls=number_generators.InvoiceRegularNumberGenerator,
+        ).register(
+            model=self.Quote,
+            generator_cls=number_generators.QuoteRegularNumberGenerator,
+        ).register(
+            model=self.SalesOrder,
+            generator_cls=number_generators.SalesOrderRegularNumberGenerator,
+        ).register(
+            model=self.CreditNote,
+            generator_cls=number_generators.CreditNoteRegularNumberGenerator,
+        )
 
     def register_billing_converters(self):
         from . import converters
@@ -227,6 +246,7 @@ class BillingConfig(CremeAppConfig):
 
         config_registry.register_app_bricks(
             'billing',
+            bricks.NumberGeneratorItemsBrick,
             bricks.BillingExportersBrick,
         )
 

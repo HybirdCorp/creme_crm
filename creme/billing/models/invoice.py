@@ -52,7 +52,7 @@ class AbstractInvoice(Base):
 
     search_score = 52
 
-    generate_number_in_create = False
+    generate_number_in_create = False  # TODO: remove
 
     class Meta(Base.Meta):
         abstract = True

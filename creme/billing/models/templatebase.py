@@ -40,7 +40,7 @@ class AbstractTemplateBase(Base):
     creation_label = pgettext_lazy('billing', 'Create a template')
     save_label     = pgettext_lazy('billing', 'Save the template')
 
-    generate_number_in_create = False
+    generate_number_in_create = False  # TODO: remove
 
     class Meta(Base.Meta):
         abstract = True

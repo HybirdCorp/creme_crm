@@ -407,7 +407,7 @@ def get_import_form_builder(header_dict, choices):
             super().__init__(*args, **kwargs)
 
             model = self._meta.model
-            if model.generate_number_in_create:
+            if model.generate_number_in_create:  # TODO: fix
                 self.fields['number'].help_text = _(
                     'If you chose an organisation managed by {software} as source organisation, '
                     'a number will be automatically generated for created «{models}».'

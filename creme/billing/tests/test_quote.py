@@ -2,8 +2,8 @@ from datetime import date
 from decimal import Decimal
 from functools import partial
 
-from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
+# from django.conf import settings
+# from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -32,7 +32,7 @@ from ..bricks import ReceivedQuotesBrick
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from ..custom_forms import QUOTE_CREATION_CFORM
 from ..forms.base import BillingSourceSubCell, BillingTargetSubCell
-from ..models import Line, QuoteStatus, SettlementTerms, SimpleBillingAlgo
+from ..models import Line, QuoteStatus, SettlementTerms  # SimpleBillingAlgo
 from .base import (
     Address,
     Invoice,
@@ -169,7 +169,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
         self.assertIsNone(quote.acceptation_date)
-        self.assertEqual('0',   quote.number)
+        # self.assertEqual('0',   quote.number)
+        self.assertEqual('',    quote.number)
         self.assertEqual(terms, quote.payment_type)
 
         self.assertHaveRelation(subject=quote,  type=REL_SUB_BILL_ISSUED,   object=source)
@@ -193,24 +194,25 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         source, target1 = self.create_orgas(user=user)
         self._set_managed(source)
 
-        algo_qs = SimpleBillingAlgo.objects.filter(
-            organisation=source.id,
-            ct=ContentType.objects.get_for_model(Quote),
-        )
-        self.assertEqual([0], [*algo_qs.values_list('last_number', flat=True)])
+        # algo_qs = SimpleBillingAlgo.objects.filter(
+        #     organisation=source.id,
+        #     ct=ContentType.objects.get_for_model(Quote),
+        # )
+        # self.assertEqual([0], [*algo_qs.values_list('last_number', flat=True)])
 
         quote = self.create_quote(user=user, name='My Quote', source=source, target=target1)
 
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
         self.assertIsNone(quote.acceptation_date)
-        self.assertEqual('DE1', quote.number)
+        # self.assertEqual('DE1', quote.number)
+        self.assertEqual(_('QUO') + '0001', quote.number)
         self.assertIsNone(quote.payment_type)
 
         self.assertHaveRelation(subject=quote,   type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=quote,   type=REL_SUB_BILL_RECEIVED, object=target1)
         self.assertHaveRelation(subject=target1, type=REL_SUB_PROSPECT,      object=source)
 
-        self.assertEqual([1], [*algo_qs.values_list('last_number', flat=True)])
+        # self.assertEqual([1], [*algo_qs.values_list('last_number', flat=True)])
 
         # ---
         target2 = Organisation.objects.create(user=user, name='Target #2')
@@ -219,16 +221,15 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         self.assertHaveRelation(subject=target2, type=REL_SUB_PROSPECT, object=source)
-        self.assertEqual('DE2', quote2.number)
+        # self.assertEqual('DE2', quote2.number)
+        self.assertEqual(_('QUO') + '0002', quote2.number)
 
     def test_createview03(self):
         "Source is not managed + a number is given."
         user = self.login_as_root_and_get()
 
         number = 'Q123'
-        quote, source, target = self.create_quote_n_orgas(
-            user=user, name='My Quote', number=number,
-        )
+        quote = self.create_quote_n_orgas(user=user, name='My Quote', number=number)[0]
         self.assertEqual(number, quote.number)
 
     def test_createview04(self):
@@ -690,13 +691,15 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(source, quote1.source)
         self.assertEqual(target1, quote1.target)
         number1 = quote1.number
-        self.assertStartsWith(number1, settings.QUOTE_NUMBER_PREFIX)
+        # self.assertStartsWith(number1, settings.QUOTE_NUMBER_PREFIX)
+        self.assertStartsWith(number1, _('QUO'))
 
         quote2 = self.get_object_or_fail(Quote, name=names[1])
         self.assertEqual(source, quote2.source)
         self.assertEqual(target2, quote2.target)
         number2 = quote2.number
-        self.assertStartsWith(number2, settings.QUOTE_NUMBER_PREFIX)
+        # self.assertStartsWith(number2, settings.QUOTE_NUMBER_PREFIX)
+        self.assertStartsWith(number2, _('QUO'))
 
         self.assertNotEqual(number1, number2)
 
@@ -743,7 +746,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         cloned = self.clone(quote)
         self.assertIsNone(cloned.acceptation_date)
         # self.assertTrue(cloned.status.is_default) TODO
-        self.assertEqual('0', cloned.number)
+        # self.assertEqual('0', cloned.number)
+        self.assertEqual('', cloned.number)
 
         self.assertNotEqual(quote, cloned)  # Not the same pk
         self.assertEqual(source, cloned.source)
@@ -772,10 +776,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self._set_managed(source)
 
         quote = self.create_quote(user=user, name='My Quote', source=source, target=target)
-        self.assertEqual('DE1', quote.number)
+        # self.assertEqual('DE1', quote.number)
+        self.assertEqual(_('QUO') + '0001', quote.number)
 
         cloned = self.clone(quote)
-        self.assertEqual('DE2', cloned.number)
+        # self.assertEqual('DE2', cloned.number)
+        self.assertEqual(_('QUO') + '0002', cloned.number)
 
     @skipIfCustomAddress
     @skipIfCustomServiceLine
@@ -807,7 +813,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         quote = self.refresh(quote)
 
         self.assertIsNone(cloned.acceptation_date)
-        self.assertEqual('0', cloned.number)
+        # self.assertEqual('0', cloned.number)
+        self.assertEqual('', cloned.number)
 
         self.assertNotEqual(quote, cloned)  # Not the same pk
         self.assertEqual(source, cloned.source)
@@ -833,10 +840,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self._set_managed(source)
 
         quote = self.create_quote(user=user, name='My Quote', source=source, target=target)
-        self.assertEqual('DE1', quote.number)
+        # self.assertEqual('DE1', quote.number)
+        self.assertEqual(_('QUO') + '0001', quote.number)
 
         cloned = quote.clone()
-        self.assertEqual('DE2', cloned.number)
+        # self.assertEqual('DE2', cloned.number)
+        self.assertEqual(_('QUO') + '0002', cloned.number)
 
     def test_num_queries(self):
         """Avoid the queries about line sa creation

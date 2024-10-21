@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2020  Hybird
+#    Copyright (C) 2018-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -53,6 +53,7 @@ class ExportQuoteAction(ExportAction):
     model = Quote
 
 
+# TODO: make more generic if other models can generate number VS other actions
 class GenerateNumberAction(UIAction):
     id = UIAction.generate_id('billing', 'generate_number')
     type = 'billing-invoice-number'
@@ -64,8 +65,10 @@ class GenerateNumberAction(UIAction):
 
     @property
     def url(self):
-        return reverse('billing__generate_invoice_number', args=(self.instance.id,))
+        # return reverse('billing__generate_invoice_number', args=(self.instance.id,))
+        return reverse('billing__generate_number', args=(self.instance.id,))
 
+    # TODO: fix
     @property
     def is_enabled(self):
         return self.user.has_perm_to_change(self.instance) and not bool(self.instance.number)
