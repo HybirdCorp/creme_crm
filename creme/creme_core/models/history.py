@@ -1086,7 +1086,7 @@ def _final_entity(entity) -> bool:
     return entity.entity_type_id == _get_ct(entity).id
 
 
-@receiver(signals.post_init)
+@receiver(signals.post_init, dispatch_uid='creme_core-prepare_log_for_history')
 def _prepare_log(sender, instance, **kwargs):
     # NB: optimization (it's checked in HistoryLine.save() anyway)
     if not is_history_enabled():
@@ -1118,7 +1118,7 @@ def _prepare_log(sender, instance, **kwargs):
     # _HistoryLineType._create_entity_backup(instance)
 
 
-@receiver(signals.post_save)
+@receiver(signals.post_save, dispatch_uid='creme_core-create_history_line')
 def _log_creation_edition(sender, instance, created, **kwargs):
     # NB: optimization (it's checked in HistoryLine.save() anyway)
     if not is_history_enabled():
@@ -1151,7 +1151,7 @@ def _log_creation_edition(sender, instance, created, **kwargs):
         )
 
 
-@receiver(signals.m2m_changed)
+@receiver(signals.m2m_changed, dispatch_uid='creme_core-create_history_line_for_m2m')
 def _log_m2m_edition(sender, instance, action, pk_set, **kwargs):
     # NB: optimization (it's checked in HistoryLine.save() anyway)
     if not is_history_enabled():
@@ -1208,7 +1208,7 @@ def _get_deleted_entity_ids() -> set:
     return del_ids
 
 
-@receiver(signals.pre_delete)
+@receiver(signals.pre_delete, dispatch_uid='creme_core-create_history_line_for_deletion')
 def _log_deletion(sender, instance, **kwargs):
     # NB: optimization (it's checked in HistoryLine.save() anyway)
     if not is_history_enabled():
@@ -1245,7 +1245,7 @@ def _log_deletion(sender, instance, **kwargs):
         elif isinstance(instance, CustomFieldValue):
             _HLTCustomFieldsEdition.create_lines(instance, emptied=True)
     except Exception:
-        logger.exception('Error in _log_deletion() ; HistoryLine may not be created.')
+        logger.exception('Error in _log_deletion(); HistoryLine may not be created.')
 
 
 class HistoryConfigItemManager(models.Manager):
@@ -1263,7 +1263,7 @@ class HistoryConfigItem(Model):
         app_label = 'creme_core'
 
 
-@receiver(pre_merge_related)
+@receiver(pre_merge_related, dispatch_uid='creme_core-manage_history_merge')
 def _handle_merge(sender, other_entity, **kwargs):
     # We do not want these lines to be re-assigned to the remaining entity.
     # TODO: should we clone/copy for TYPE_RELATED

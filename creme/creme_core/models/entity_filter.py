@@ -1003,7 +1003,7 @@ class EntityFilterCondition(models.Model):
 # TODO: manage also deletion of:
 #  - instance linked with FK (Sector, Priority...).
 #  - instance of CremeEntity used by Relation handlers.
-@receiver(pre_delete)
+@receiver(pre_delete, dispatch_uid='creme_core-remove_related_filter_conditions')
 def _delete_related_efc(sender, instance, **kwargs):
     from ..core.entity_filter.condition_handler import all_handlers
 

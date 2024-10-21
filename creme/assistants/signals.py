@@ -31,16 +31,17 @@ from .models import Alert, ToDo
 logger = logging.getLogger(__name__)
 
 
-@receiver(post_save, sender=Alert)
-@receiver(post_save, sender=ToDo)
-def _refresh_alert_reminder_job(sender, instance, **kwargs):
+@receiver(post_save, sender=Alert, dispatch_uid='assistants-refresh_alert_job')
+@receiver(post_save, sender=ToDo, dispatch_uid='assistants-refresh_todo_job')
+# def _refresh_alert_reminder_job(sender, instance, **kwargs):
+def _refresh_reminder_job(sender, instance, **kwargs):
     from creme.creme_core.creme_jobs import reminder_type
 
     if instance.to_be_reminded:
         reminder_type.refresh_job()
 
 
-@receiver(post_save)
+@receiver(post_save, dispatch_uid='assistants-update_alert_trigger')
 def _update_alert_trigger_date(sender, instance, created, **kwargs):
     # NB: "@receiver(post_save, sender=CremeEntity)" does not work
     #     (the signal is sent for final class & strict class comparison is done)

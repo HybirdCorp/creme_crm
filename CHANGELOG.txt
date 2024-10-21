@@ -812,6 +812,8 @@
                     - The attribute '_brick_ids' has been replaced by '_brick_classes'.
                     - The method '_register_bricks' now takes Brick classes.
                 - The view 'views.portal.Portal' injects "bricks" (in the context) instead "app_bricks".
+            * Assistants :
+                - The function 'signals._refresh_alert_reminder_job()' has been renamed.
             * Billing :
                 - In JavaScript, the actions "billing-hatmenubar-invoice-number" & "billing-hatmenubar-add-document" have been removed.
             * Report :

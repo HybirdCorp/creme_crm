@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2018  Hybird
+#    Copyright (C) 2016-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from django.dispatch import receiver
 from .models.sending import EmailSending
 
 
-@receiver(post_save, sender=EmailSending)
+@receiver(post_save, sender=EmailSending, dispatch_uid='emails-refresh_campaign_job')
 def _refresh_campaign_job(sender, instance, created, **kwargs):
     from .creme_jobs import campaign_emails_send_type
 

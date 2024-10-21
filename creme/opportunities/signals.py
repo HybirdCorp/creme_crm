@@ -25,7 +25,7 @@ from creme.creme_core.models import Relation
 from . import constants
 
 
-@receiver(post_save, sender=Relation)
+@receiver(post_save, sender=Relation, dispatch_uid='opportunities-transform_as_prospect')
 def _handle_prospect(sender, instance, **kwargs):
     if instance.type_id == constants.REL_SUB_TARGETS:
         from creme.persons import workflow
@@ -66,15 +66,21 @@ if apps.is_installed('creme.billing'):
     # Adding "current" feature to other billing document (sales order, invoice)
     # does not really make sense.
     # If one day it does, we will only have to add senders to the signal.
-    @receiver(post_save, sender=Quote)
+    @receiver(post_save, sender=Quote, dispatch_uid='opportunities-manage_current_quote_edition')
     def _handle_current_quote_change(sender, instance, created, **kwargs):
-        # NB: at creation Quote double-save() for its address ;
+        # NB: at creation Quote double-save() for its address;
         #     the second save() uses the argument <update_fields>.
         if not created and not kwargs.get('update_fields') and use_current_quote():
             for r in instance.get_relations(constants.REL_SUB_CURRENT_DOC, real_obj_entities=True):
                 update_sales(r.real_object)
 
-    @receiver((post_save, post_delete), sender=Relation)
+    # @receiver((post_save, post_delete), sender=Relation)
+    @receiver(
+        post_save, sender=Relation, dispatch_uid='opportunities-manage_current_quote_adding',
+    )
+    @receiver(
+        post_delete, sender=Relation, dispatch_uid='opportunities-manage_current_quote_removing',
+    )
     def _handle_current_quote_set(sender, instance, **kwargs):
         if instance.type_id == constants.REL_SUB_CURRENT_DOC:
             doc = instance.subject_entity.get_real_entity()
@@ -82,7 +88,9 @@ if apps.is_installed('creme.billing'):
             if isinstance(doc, Quote) and use_current_quote():
                 update_sales(instance.real_object)
 
-    @receiver(post_delete, sender=Relation)
+    @receiver(
+        post_delete, sender=Relation, dispatch_uid='opportunities-manage_related_quote_deletion',
+    )
     def _handle_linked_quote_deletion(sender, instance, **kwargs):
         if instance.type_id == constants.REL_SUB_LINKED_QUOTE:
             for relation in Relation.objects.filter(
