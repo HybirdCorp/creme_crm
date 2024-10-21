@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,17 +17,31 @@
 ################################################################################
 
 from django.apps import apps
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
+
+from creme.creme_core.models import Relation
+
+from . import constants
+
+
+@receiver(post_save, sender=Relation)
+def _handle_prospect(sender, instance, **kwargs):
+    if instance.type_id == constants.REL_SUB_TARGETS:
+        from creme.persons import workflow
+
+        opp = instance.subject_entity
+        workflow.transform_target_into_prospect(
+            source=opp.emitter, target=opp.target, user=opp.user,
+        )
+
 
 if apps.is_installed('creme.billing'):
     from django.db.models import Sum
-    from django.db.models.signals import post_delete, post_save
-    from django.dispatch import receiver
 
     from creme.billing import get_quote_model
-    from creme.creme_core.models import Relation, SettingValue
-    from creme.opportunities.constants import REL_SUB_LINKED_QUOTE
+    from creme.creme_core.models import SettingValue
 
-    from .constants import REL_SUB_CURRENT_DOC
     from .setting_keys import quote_key
 
     Quote = get_quote_model()
@@ -57,12 +71,12 @@ if apps.is_installed('creme.billing'):
         # NB: at creation Quote double-save() for its address ;
         #     the second save() uses the argument <update_fields>.
         if not created and not kwargs.get('update_fields') and use_current_quote():
-            for r in instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True):
+            for r in instance.get_relations(constants.REL_SUB_CURRENT_DOC, real_obj_entities=True):
                 update_sales(r.real_object)
 
     @receiver((post_save, post_delete), sender=Relation)
     def _handle_current_quote_set(sender, instance, **kwargs):
-        if instance.type_id == REL_SUB_CURRENT_DOC:
+        if instance.type_id == constants.REL_SUB_CURRENT_DOC:
             doc = instance.subject_entity.get_real_entity()
 
             if isinstance(doc, Quote) and use_current_quote():
@@ -70,10 +84,10 @@ if apps.is_installed('creme.billing'):
 
     @receiver(post_delete, sender=Relation)
     def _handle_linked_quote_deletion(sender, instance, **kwargs):
-        if instance.type_id == REL_SUB_LINKED_QUOTE:
+        if instance.type_id == constants.REL_SUB_LINKED_QUOTE:
             for relation in Relation.objects.filter(
                 subject_entity=instance.subject_entity_id,
-                type_id=REL_SUB_CURRENT_DOC,
+                type_id=constants.REL_SUB_CURRENT_DOC,
                 object_entity=instance.object_entity_id,
             ):
                 relation.delete()
