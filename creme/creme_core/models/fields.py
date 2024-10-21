@@ -40,14 +40,17 @@ from ..utils.serializers import json_encode
 
 
 class SemanticCharField(models.CharField):
+    # NOTE: the attribute must be overridden BEFORE the forms are built
+    #       (so the hooking app must be before the hooked app in INSTALLED_APPS)
+    # TODO: create "lazy" field (with an inner field)?
     formfield_class = None
 
     def formfield(self, form_class=None, **kwargs):
         return super().formfield(form_class=form_class or self.formfield_class, **kwargs)
 
 
-# TODO: add a form field ?? (validation)
-# TODO: fix the max_length value ?
+# TODO: add a form field? (validation)
+# TODO: fix the max_length value?
 # class PhoneField(models.CharField):
 class PhoneField(SemanticCharField):
     pass
