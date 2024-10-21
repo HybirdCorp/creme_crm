@@ -39,6 +39,9 @@ class CremeConfigConfig(CremeAppConfig):
 
     # TODO: define our own classes?
     def hook_password_validators(self):
+        # NB: we say "The password ..." instead of "Your password ..." (django)
+        #     because it could be confusing when an administrator edit the
+        #     password of another user.
         from django.contrib.auth import password_validation
 
         # ---
@@ -52,7 +55,7 @@ class CremeConfigConfig(CremeAppConfig):
         password_validation.MinimumLengthValidator.get_help_text = minlen_get_help_text
 
         # ---
-        def personal_get_help_text(self):
+        def personal_get_help_text(this):
             return _(
                 "The password can’t be too similar to the other personal information."
             )
@@ -60,13 +63,13 @@ class CremeConfigConfig(CremeAppConfig):
         password_validation.UserAttributeSimilarityValidator.get_help_text = personal_get_help_text
 
         # ---
-        def common_get_help_text(self):
+        def common_get_help_text(this):
             return _("The password can’t be a commonly used password.")
 
         password_validation.CommonPasswordValidator.get_help_text = common_get_help_text
 
         # ---
-        def numeric_get_help_text(self):
+        def numeric_get_help_text(this):
             return _("The password can’t be entirely numeric.")
 
         password_validation.NumericPasswordValidator.get_help_text = numeric_get_help_text
