@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,8 @@ from creme.creme_core.models import Relation
 from . import constants
 
 
+# TODO: rename "source" & "target" (words used by clone system)?
+#      (subject/object? prospect_of/prospect?)
 def transform_target_into_prospect(source, target, user):
     """Transform the target into a source prospect. Use REL_SUB_PROSPECT for it.
     Be careful target is subject of REL_SUB_PROSPECT relation and source is

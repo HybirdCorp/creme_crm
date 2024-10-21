@@ -31,9 +31,9 @@ from django.utils.translation import pgettext_lazy
 import creme.creme_core.models as core_models
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import fields as core_fields
-# from creme.persons import get_organisation_model
-from creme.persons.workflow import transform_target_into_prospect
 
+# from creme.persons import get_organisation_model
+# from creme.persons.workflow import transform_target_into_prospect
 from .. import constants
 
 
@@ -245,8 +245,7 @@ class AbstractOpportunity(core_models.CremeEntity):
             # TODO: set *_rel attributes (see billing.Base)
             create_relation(subject_entity=self._opp_emitter, type_id=constants.REL_SUB_EMIT_ORGA)
             create_relation(subject_entity=target,            type_id=constants.REL_OBJ_TARGETS)
-
-            transform_target_into_prospect(self._opp_emitter, target, self.user)
+            # transform_target_into_prospect(self._opp_emitter, target, self.user)
         else:
             super().save(*args, **kwargs)
 
@@ -255,8 +254,8 @@ class AbstractOpportunity(core_models.CremeEntity):
             if old_relation and old_relation.object_entity_id != target.id:
                 old_relation.delete()
                 # TODO: set *_rel attribute (see billing.Base)
-                create_relation(subject_entity=self._opp_target, type_id=constants.REL_OBJ_TARGETS)
-                transform_target_into_prospect(self.emitter, target, self.user)
+                create_relation(subject_entity=target, type_id=constants.REL_OBJ_TARGETS)
+                # transform_target_into_prospect(self.emitter, target, self.user)
 
     if apps.is_installed('creme.billing'):
         def get_current_quote_ids(self):
