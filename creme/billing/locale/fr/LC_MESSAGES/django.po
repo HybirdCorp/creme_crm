@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-14 22:12+0200\n"
+"POT-Creation-Date: 2024-11-08 09:25+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -21,14 +21,17 @@ msgstr "Télécharger"
 msgid "Download as PDF"
 msgstr "Télécharger en tant que PDF"
 
-msgid "Invoice number"
-msgstr "Numéro de Facture"
+msgid "Generate the number"
+msgstr "Générer le numéro"
 
-msgid "Generate the number of the Invoice"
-msgstr "Générer le numéro de facture"
+msgid ""
+"This entity cannot generate a number (see configuration of the app Billing)"
+msgstr ""
+"Cette fiche ne peut pas générer de numéro (voir la configuration de l'app "
+"Facturation)"
 
-msgid "Do you really want to generate an invoice number?"
-msgstr "Voulez vous vraiment générer un numéro de facture ?"
+msgid "Do you really want to generate a number?"
+msgstr "Voulez vous vraiment générer un numéro ?"
 
 msgid "Billing"
 msgstr "Facturation"
@@ -174,10 +177,10 @@ msgstr ""
 "App : Facturation"
 
 msgid ""
-"This button generates the number for the current invoice.\n"
+"This button generates the number for the current Invoice/Credit Note.\n"
 "App: Billing"
 msgstr ""
-"Ce bouton génère le nombre pour la facture actuelle.\n"
+"Ce bouton génère le nombre pour la Facture/Avoir en cours.\n"
 "App : Facturation"
 
 msgid "Create a related invoice"
@@ -264,6 +267,18 @@ msgstr "Un super administrateur ne peut pas convertir."
 msgid "This entity cannot be converted because it is deleted."
 msgstr "Cette fiche ne peut pas ête convertie car elle est supprimée."
 
+msgid "This entity has already a number"
+msgstr "Cette fiche a déjà un numéro"
+
+msgid "Edition is allowed"
+msgstr "La modification est autorisée"
+
+msgid "Edition is forbidden"
+msgstr "La modification est interdite"
+
+msgid "This kind of entity cannot not generate a number."
+msgstr "Ce type de fiche ne peut pas générer de numéro."
+
 msgid "Organisations"
 msgstr "Sociétés"
 
@@ -344,6 +359,9 @@ msgid ""
 msgstr ""
 "Si vous choisissez une société gérée par {software} (comme «{organisation}») "
 "en tant qu'émettrice, un nombre sera automatiquement généré."
+
+msgid "The number is set as not editable by the configuration."
+msgstr "Le numéro est réglé comme non modifiable par la configuration."
 
 msgid "Credit notes"
 msgstr "Avoirs"
@@ -452,8 +470,103 @@ msgstr ""
 "Si vous choisissez une société gérée par {software} en tant qu'émettrice, un "
 "nombre sera automatiquement généré pour les «{models}» créé(e)s."
 
+msgid "If the source organisation is {}, the file can set a number."
+msgstr "Si la société émettrice est {}, le fichier peut renseigner un numéro."
+
+msgid "If the source organisation is {}, the file can NOT set a number."
+msgstr "Si la société émettrice est {}, le fichier NE peut PAS renseigner un numéro."
+
+msgid ""
+"Hint: to import numbers when the source is managed, you can configure "
+"temporarily the number generation to allow manual edition; you can also edit "
+"the counter in order to keep a consistent numbering."
+msgstr ""
+"Astuce : pour importer des numéros lorsque l'émetteur est géré, vous pouvez "
+"configurer temporairement la génération de numéros pour permettre la "
+"modification manuelle ; vous pouvez aussi modifier le compteur pour garder "
+"une numérotation cohérente."
+
 msgid "You cannot compute totals in update mode."
 msgstr "Vous ne pouvez pas calculer les totaux en mode mise-à-jour."
+
+msgid "Pattern"
+msgstr "Motif"
+
+#, python-brace-format
+msgid ""
+"These variables are available:\n"
+" - {counter} is a number which is automatically incremented when a "
+"generation is done. You can use the syntax {counter:0X} to pad the number "
+"with zeros (e.g. \"{counter:04}\" will produce \"0006\" for six). You MUST "
+"use this variable.\n"
+" - {year} & {month} use the current date of the generation.\n"
+" - {code} uses the field «code» of the emitter Organisation."
+msgstr ""
+"Ces variables sont disponibles :\n"
+" - {counter} est un nombre qui est automatiquement incrémenté quand une "
+"génération est faite. Vous pouvez utiliser la syntaxe {counter:0X} pour "
+"combler le compteur avec des zéros (ex:  \"{counter:04}\" produira \"0006\" "
+"pour six). Vous DEVEZ utiliser cette variable.\n"
+" - {year} & {month} utilisent la date courante de la génération.\n"
+" - {code} utilise le champ «code» de la Société émettrice."
+
+msgid "Reset the counter"
+msgstr "Réinitiliser le compteur"
+
+#, python-brace-format
+msgid "When the counter («{counter}» in the pattern) should be reset?"
+msgstr ""
+"Quand le compteur («{counter}» dans le motif) doit-il être réinitialisé ?"
+
+msgid "Current counter"
+msgstr "Compteur courant"
+
+msgid ""
+"Current value of the counter (will be used to generate the NEXT number).\n"
+"Tip: modify this value only if you know what you do; it can be useful after "
+"having imported entities from a CSV/XLS file which contains numbers, in "
+"order to keep a consistent numbering."
+msgstr ""
+"La valeur courante du compteur (elle sera utilisée pour générer le PROCHAIN "
+"numéro).\n"
+"Astuce : modifiez cette valeur seulment si vous savez ce que vous faîtes ; "
+"cela peut être utile après avoir importé des fiches depuis un fichier CSV/"
+"XLS qui contient les numéros, afin de garder une numérotation cohérente."
+
+msgid "The empty variable «{}» is forbidden."
+msgstr "La variable vide «{}» est interdite."
+
+#, python-brace-format
+msgid "The variable «{name}» is invalid."
+msgstr "La variable «{name}» est invalide."
+
+#, python-brace-format
+msgid "You must use the variable «{counter}»."
+msgstr "Vous devez utiliser la variable «{counter}»."
+
+#, python-brace-format
+msgid ""
+"You must use the variable «{year}» if you want to reset the counter each "
+"year."
+msgstr ""
+"Vous devez utiliser la variable «{year}» si vous voulez réinitialiser le "
+"compteur chaque année."
+
+#, python-brace-format
+msgid ""
+"You must use the variable «{month}» if you want to reset the counter each "
+"month."
+msgstr ""
+"Vous devez utiliser la variable «{month}» si vous voulez réinitialiser le "
+"compteur chaque mois."
+
+#, python-brace-format
+msgid ""
+"You must use the variable «{year}» if you want to reset the counter each "
+"month."
+msgstr ""
+"Vous devez utiliser la variable «{year}» si vous voulez réinitialiser le "
+"compteur chaque mois."
 
 msgid "Status"
 msgstr "Statut"
@@ -483,14 +596,8 @@ msgstr "Total des Devis remportés cette année"
 msgid "Total won Quotes last Year"
 msgstr "Total des Devis remportés l'année dernière"
 
-msgid "Organisation"
-msgstr "Société"
-
-msgid "Algo name"
-msgstr "Nom de l'algo"
-
-msgid "Invoice prefix"
-msgstr "Préfixe de la facture"
+msgid "CN"
+msgstr "AV"
 
 msgid "Name"
 msgstr "Nom"
@@ -628,6 +735,12 @@ msgstr ""
 
 msgid "You must define a name for an on the fly item"
 msgstr "Vous devez donner un nom à votre produit/service à la volée"
+
+msgid "Editable number"
+msgstr "Numéro modifiable"
+
+msgid "Can the number be manually edited?"
+msgstr "Est-ce que le numéro peut être changé manuellement ?"
 
 msgid "Create settlement terms"
 msgstr "Créer des délais de règlement"
@@ -827,6 +940,39 @@ msgstr "Patron de document"
 msgctxt "billing"
 msgid "Templates"
 msgstr "Patrons de document"
+
+msgctxt "billing-reset"
+msgid "Never"
+msgstr "Jamais"
+
+msgid "Monthly"
+msgstr "Mensuellement"
+
+msgid "Yearly"
+msgstr "Annuellement"
+
+msgid "An error occurred when generating the number (original error: {})"
+msgstr ""
+"Une erreur s'est produite pendant la génération du numéro (erreur "
+"originale : {})"
+
+msgid "Pattern: «{}»"
+msgstr "Motif : «{}»"
+
+msgid "Current counter: {}"
+msgstr "Compteur courant : {}"
+
+msgid "Counter reset: {}"
+msgstr "Réinitialisation du compteur : {}"
+
+msgid "INV"
+msgstr "FA"
+
+msgid "QUO"
+msgstr "DE"
+
+msgid "ORD"
+msgstr "BC"
 
 msgctxt "billing-creditnote"
 msgid "Draft"
@@ -1167,6 +1313,24 @@ msgstr "Total HT remisé"
 msgid "[add to catalog]"
 msgstr "[ajouter au catalogue]"
 
+#, python-brace-format
+msgid "{count} Organisation configured for number generation"
+msgstr "{count} Société configurée pour générer des numéros"
+
+#, python-brace-format
+msgid "{count} Organisations configured for number generation"
+msgstr "{count} Sociétés configurées pour générer des numéros"
+
+msgid "No Organisation configured for number generation"
+msgstr "Pas de Société configurée pour générer des numéros"
+
+msgid ""
+"Here you can configurate the generation of the numbers (see the field "
+"«Number» of Invoice/Quote/…)."
+msgstr ""
+"Ici vous pouvez configurer la génération des numéros (voir le champ «Numéro» "
+"de Facture/Devis/…)."
+
 msgid "Is default account"
 msgstr "Est le compte par défaut"
 
@@ -1229,8 +1393,11 @@ msgstr "Vous n'avez pas la permission de créer : «%(model)s»"
 msgid "You are not allowed to link this entity"
 msgstr "Vous n'avez pas la permission de relier cette fiche"
 
-msgid "You are not allowed to change this entity"
-msgstr "Vous n'avez pas la permission de modifier cette fiche"
+msgid "Number generation"
+msgstr "Génération de numéro"
+
+msgid "Do you really want to generate a billing number?"
+msgstr "Voulez vous vraiment générer un numéro de facturation ?"
 
 msgid "The totals are just set to 0"
 msgstr "Les totaux sont juste mis à 0"
@@ -1332,6 +1499,17 @@ msgid "Add to the catalog"
 msgstr "Ajouter au catalogue"
 
 #, python-brace-format
+msgid ""
+"Edit the configuration of «{object.numbered_type}» for «{object."
+"organisation}»"
+msgstr ""
+"Modifier la configuration de «{object.numbered_type}» pour «{object."
+"organisation}»"
+
+msgid "The number is generated at creation for this kind of entity"
+msgstr "Le numéro est généré à la création pour ce type de fiche"
+
+#, python-brace-format
 msgid "New payment information in the organisation «{entity}»"
 msgstr "Nouvelle information de paiement pour la société «{entity}»"
 
@@ -1346,6 +1524,21 @@ msgstr "Créer un devis pour «{entity}»"
 #, python-brace-format
 msgid "Create a salesorder for «{entity}»"
 msgstr "Créer un bon de commande pour «{entity}»"
+
+#~ msgid "Invoice number"
+#~ msgstr "Numéro de Facture"
+
+#~ msgid "Generate the number of the Invoice"
+#~ msgstr "Générer le numéro de facture"
+
+#~ msgid "Do you really want to generate an invoice number?"
+#~ msgstr "Voulez vous vraiment générer un numéro de facture ?"
+
+#~ msgid "Organisation"
+#~ msgstr "Société"
+
+#~ msgid "You are not allowed to change this entity"
+#~ msgstr "Vous n'avez pas la permission de modifier cette fiche"
 
 #~ msgid "Update the billing address"
 #~ msgstr "Mettre à jour l'adresse de facturation"

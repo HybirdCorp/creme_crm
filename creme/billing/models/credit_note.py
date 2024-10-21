@@ -41,6 +41,8 @@ class AbstractCreditNote(Base):
     creation_label = _('Create a credit note')
     save_label     = _('Save the credit note')
 
+    generate_number_in_create = False
+
     class Meta(Base.Meta):
         abstract = True
         verbose_name = _('Credit note')

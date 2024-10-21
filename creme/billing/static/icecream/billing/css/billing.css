@@ -414,6 +414,41 @@ ul.bline-error-list > li {
     width: 100%;
 }
 
+/* Brick credit notes - end */
+
+/* Brick number generator */
+
+.billing-number_generators-brick .brick-list-item {
+    padding-top: 5px;
+    padding-left: 8px;
+}
+
+.billing-number_generators-brick .brick-list-item + .brick-list-item {
+    border-top: 1px solid #ccc;
+}
+
+.billing-number_generators-brick .brick-list-item-title {
+    font-size: 15px;
+}
+
+.billing-number_generators-brick .brick-list-item .brick-list-item-group {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.billing-number_generators-brick .brick-list-item .brick-list-item-group .brick-tile-name {
+    font-weight: 600;
+}
+
+.billing-number_generators-brick .brick-list-item .brick-list-item-group .brick-tile-value ul {
+    list-style: none;
+    padding-left: 5px;
+    margin: 5px;
+}
+
+/* Brick number generator - end */
+
 .billing-exporters-brick .billing-exporter-empty,
 .billing-exporters-brick .billing-exporter-error {
     font-style: italic;

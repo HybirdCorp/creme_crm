@@ -15,11 +15,13 @@ QUnit.module("creme.billing.listview.actions", new QUnitMixin(QUnitEventMixin,
     }
 }));
 
-QUnit.test('creme.billing.listview.actions (billing-invoice-number, ok)', function(assert) {
+// QUnit.test('creme.billing.listview.actions (billing-invoice-number, ok)', function(assert) {
+QUnit.test('creme.billing.listview.actions (billing-number, ok)', function(assert) {
     var list = this.createDefaultListView().controller();
     var registry = list.actionBuilders();
 
-    var builder = registry.get('billing-invoice-number');
+//    var builder = registry.get('billing-invoice-number');
+    var builder = registry.get('billing-number');
 
     ok(Object.isFunc(builder));
     var action = builder('mock/invoice/12/number', {
@@ -49,11 +51,13 @@ QUnit.test('creme.billing.listview.actions (billing-invoice-number, ok)', functi
 });
 
 
-QUnit.test('creme.billing.listview.actions (billing-invoice-number, fail)', function(assert) {
+// QUnit.test('creme.billing.listview.actions (billing-invoice-number, fail)', function(assert) {
+QUnit.test('creme.billing.listview.actions (billing-number, fail)', function(assert) {
     var list = this.createDefaultListView().controller();
     var registry = list.actionBuilders();
 
-    var builder = registry.get('billing-invoice-number');
+//    var builder = registry.get('billing-invoice-number');
+    var builder = registry.get('billing-number');
 
     ok(Object.isFunc(builder));
     var action = builder('mock/invoice/12/number/fail', {

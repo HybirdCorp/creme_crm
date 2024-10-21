@@ -18,14 +18,14 @@
 
 from django.utils.translation import gettext_lazy as _
 
+from creme import billing
 from creme.creme_core.models import Relation
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import _check_required_model_fields
 
-from ... import billing
 from .. import constants, custom_forms
-# from . import base
 from ..forms import credit_note as cnote_forms
+from . import base
 
 CreditNote = billing.get_credit_note_model()
 
@@ -96,6 +96,7 @@ class CreditNoteRemoving(generic.CremeModelDeletion):
         return self.object.subject_entity.get_absolute_url()
 
 
-class CreditNotesList(generic.EntitiesList):
+# class CreditNotesList(generic.EntitiesList):
+class CreditNotesList(base.BaseList):
     model = CreditNote
     default_headerfilter_id = constants.DEFAULT_HFILTER_CNOTE

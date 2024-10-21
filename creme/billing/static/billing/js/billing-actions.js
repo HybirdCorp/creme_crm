@@ -78,7 +78,8 @@ $(document).on('brick-setup-actions', '.creme_core-buttons-brick', function(e, b
 });
 
 $(document).on('listview-setup-actions', '.ui-creme-listview', function(e, actions) {
-    actions.register('billing-invoice-number', function(url, options, data, e) {
+//    actions.register('billing-invoice-number', function(url, options, data, e) {
+    actions.register('billing-number', function(url, options, data, e) {
         var list = this._list;
         var action = creme.utils.ajaxQuery(url, $.extend({
             action: 'post',

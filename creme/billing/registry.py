@@ -19,44 +19,46 @@
 # from collections import defaultdict
 import warnings
 
+warnings.warn(
+    'The module "billing.registry" is deprecated.', DeprecationWarning,
+)
 
-# TODO: move to core
 # Number algorithms ------------------------------------------------------------
-class Algo:
-    def generate_number(self, organisation, ct, *args, **kwargs):
-        pass
-
-
-class AlgoRegistry:
-    class RegistrationError(Exception):
-        pass
-
-    def __init__(self):
-        self._algos = {}
-
-    def register(self, *to_register):
-        algos = self._algos
-
-        for name, algo in to_register:
-            if name in algos:
-                raise self.RegistrationError(
-                    f"Duplicated algorithm's id or algorithm registered twice : {name}"
-                )
-
-            algos[name] = algo
-
-    def get_algo(self, name):
-        return self._algos.get(name)
-
-    def __iter__(self):
-        return iter(self._algos.items())
-
-    @property
-    def algorithms(self):
-        return iter(self._algos.values())
-
-
-algo_registry = AlgoRegistry()
+# class Algo:
+#     def generate_number(self, organisation, ct, *args, **kwargs):
+#         pass
+#
+#
+# class AlgoRegistry:
+#     class RegistrationError(Exception):
+#         pass
+#
+#     def __init__(self):
+#         self._algos = {}
+#
+#     def register(self, *to_register):
+#         algos = self._algos
+#
+#         for name, algo in to_register:
+#             if name in algos:
+#                 raise self.RegistrationError(
+#                     f"Duplicated algorithm's id or algorithm registered twice : {name}"
+#                 )
+#
+#             algos[name] = algo
+#
+#     def get_algo(self, name):
+#         return self._algos.get(name)
+#
+#     def __iter__(self):
+#         return iter(self._algos.items())
+#
+#     @property
+#     def algorithms(self):
+#         return iter(self._algos.values())
+#
+#
+# algo_registry = AlgoRegistry()
 
 
 # Conversion -------------------------------------------------------------------

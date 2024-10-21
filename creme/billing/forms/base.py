@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
+from creme.billing.models import NumberGeneratorItem
 from creme.creme_core.forms import (
     CreatorEntityField,
     CremeEntityForm,
@@ -39,7 +40,7 @@ def first_managed_organisation():
         # NB: we use the cache
         return get_organisation_model().objects.filter_managed_by_creme()[0]
     except IndexError:
-        logger.warning('No managed organisation ?!')
+        logger.warning('No managed organisation?!')
 
 
 class BillingSourceSubCell(CustomFormExtraSubCell):
@@ -81,7 +82,9 @@ class BaseCustomForm(CremeEntityForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         instance = self.instance
+        # TODO: use the future snapshot system instead
         self.old_user_id = instance.user_id
+        self.old_number = instance.number
 
         get_key = self.subcell_key
         self.source_cell_key = get_key(BillingSourceSubCell)
@@ -92,8 +95,7 @@ class BaseCustomForm(CremeEntityForm):
             and type(instance).generate_number_in_create
             and 'number' in self.fields
         ):
-            managed_orga = first_managed_organisation()
-            if managed_orga:
+            if managed_orga := first_managed_organisation():
                 self.fields['number'].help_text = gettext(
                     'If you chose an organisation managed by {software} (like «{organisation}») '
                     'as source organisation, a number will be automatically generated.'
@@ -105,6 +107,16 @@ class BaseCustomForm(CremeEntityForm):
 
         instance.source = cdata.get(self.source_cell_key)
         instance.target = cdata.get(self.target_cell_key)
+
+        number = self.cleaned_data['number']
+        if (not instance.pk and number) or (instance.pk and self.old_number != number):
+            item = NumberGeneratorItem.objects.get_for_instance(instance)
+
+            if item and not item.is_edition_allowed:
+                self.add_error(
+                    field='number',
+                    error=_('The number is set as not editable by the configuration.'),
+                )
 
         return cdata
 

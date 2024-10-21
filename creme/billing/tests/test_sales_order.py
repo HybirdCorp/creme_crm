@@ -1,6 +1,7 @@
 from datetime import date
 from decimal import Decimal
 
+from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -15,7 +16,7 @@ from creme.persons.tests.base import (
 
 from ..bricks import ReceivedSalesOrdersBrick
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-from ..models import Line, SalesOrderStatus
+from ..models import Line, NumberGeneratorItem, SalesOrderStatus
 from .base import (
     Address,
     Invoice,
@@ -128,8 +129,12 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=order, type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=order, type=REL_SUB_BILL_RECEIVED, object=target)
 
-    def test_create_related01(self):
-        user = self.login_as_root_and_get()
+    def test_create_related(self):
+        user = self.login_as_standard(
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[SalesOrder],
+        )
+        self.add_credentials(user.role, all='*')
 
         source, target = self.create_orgas(user=user)
         url = self._build_related_creation_url(target) + '?redirection=true'
@@ -184,7 +189,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertEqual(order.get_absolute_url(), response.content.decode())
 
-    def test_create_related02(self):
+    def test_create_related__no_redirection(self):
         "No redirection after the creation."
         user = self.login_as_root_and_get()
 
@@ -220,18 +225,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=order, type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=order, type=REL_SUB_BILL_RECEIVED, object=target)
 
-    def test_create_related03(self):
-        "Not a super-user."
-        user = self.login_as_standard(
-            allowed_apps=['persons', 'billing'],
-            creatable_models=[SalesOrder],
-        )
-        self.add_credentials(user.role, all='*')
-
-        source, target = self.create_orgas(user=user)
-        self.assertGET200(self._build_related_creation_url(target))
-
-    def test_create_related04(self):
+    def test_create_related__creation_perms(self):
         "Creation creds are needed."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -242,7 +236,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         source, target = self.create_orgas(user=user)
         self.assertGET403(self._build_related_creation_url(target))
 
-    def test_create_related05(self):
+    def test_create_related__change_perms(self):
         "CHANGE creds are needed."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -399,7 +393,8 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotEqual(order.pk, cloned.pk)
         self.assertEqual(order.name,   cloned.name)
         self.assertEqual(order.status, cloned.status)
-        self.assertEqual('0',          cloned.number)
+        # self.assertEqual('0',          cloned.number)
+        self.assertEqual('',           cloned.number)
 
         self.assertEqual(source, cloned.source)
         self.assertEqual(target, cloned.target)
@@ -429,11 +424,21 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         source, target = self.create_orgas(user=user)
         self._set_managed(source)
 
+        item = self.get_object_or_fail(
+            NumberGeneratorItem,
+            organisation=source,
+            numbered_type=ContentType.objects.get_for_model(SalesOrder),
+        )
+        item.data['format'] = 'ORD-{counter:04}'
+        item.save()
+
         order = self.create_salesorder(user=user, name='My Order', source=source, target=target)
-        self.assertEqual('BC1', order.number)
+        # self.assertEqual('BC1', order.number)
+        self.assertEqual('ORD-0001', order.number)
 
         cloned = self.clone(order)
-        self.assertEqual('BC2', cloned.number)
+        # self.assertEqual('BC2', cloned.number)
+        self.assertEqual('ORD-0002', cloned.number)
 
     @skipIfCustomAddress
     @skipIfCustomServiceLine
@@ -469,7 +474,8 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotEqual(order.pk, cloned.pk)
         self.assertEqual(order.name,   cloned.name)
         self.assertEqual(order.status, cloned.status)
-        self.assertEqual('0',          cloned.number)
+        # self.assertEqual('0',          cloned.number)
+        self.assertEqual('',           cloned.number)
 
         self.assertEqual(source, cloned.source)
         self.assertEqual(target, cloned.target)
@@ -499,11 +505,21 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         source, target = self.create_orgas(user=user)
         self._set_managed(source)
 
+        item = self.get_object_or_fail(
+            NumberGeneratorItem,
+            organisation=source,
+            numbered_type=ContentType.objects.get_for_model(SalesOrder),
+        )
+        item.data['format'] = 'ORD-{counter:04}'
+        item.save()
+
         order = self.create_salesorder(user=user, name='My Order', source=source, target=target)
-        self.assertEqual('BC1', order.number)
+        # self.assertEqual('BC1', order.number)
+        self.assertEqual('ORD-0001', order.number)
 
         cloned = order.clone()
-        self.assertEqual('BC2', cloned.number)
+        # self.assertEqual('BC2', cloned.number)
+        self.assertEqual('ORD-0002', cloned.number)
 
     def test_brick(self):
         user = self.login_as_root_and_get()

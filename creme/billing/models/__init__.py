@@ -1,9 +1,10 @@
-from .algo import ConfigBillingAlgo, SimpleBillingAlgo  # NOQA
+# from .algo import ConfigBillingAlgo, SimpleBillingAlgo  # NOQA
 from .base import Base  # NOQA
 from .credit_note import AbstractCreditNote, CreditNote  # NOQA
 from .exporters import ExporterConfigItem  # NOQA
 from .invoice import AbstractInvoice, Invoice  # NOQA
 from .line import Line  # NOQA
+from .number_generation import NumberGeneratorItem  # NOQA
 from .other_models import (  # NOQA
     AdditionalInformation,
     CreditNoteStatus,

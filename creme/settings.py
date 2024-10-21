@@ -1312,11 +1312,9 @@ BILLING_SALES_ORDER_FORCE_NOT_CUSTOM   = False
 BILLING_SERVICE_LINE_FORCE_NOT_CUSTOM  = False
 BILLING_TEMPLATE_BASE_FORCE_NOT_CUSTOM = False
 
-# Prefixes used to generate the numbers of the billing documents
-# (with the 'vanilla' number generator)
-QUOTE_NUMBER_PREFIX = 'DE'
-INVOICE_NUMBER_PREFIX = 'FA'
-SALESORDER_NUMBER_PREFIX = 'BC'
+# QUOTE_NUMBER_PREFIX = 'DE'
+# INVOICE_NUMBER_PREFIX = 'FA'
+# SALESORDER_NUMBER_PREFIX = 'BC'
 
 BILLING_EXPORTERS = [
     'creme.billing.exporters.xls.XLSExportEngine',

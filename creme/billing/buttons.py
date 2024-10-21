@@ -28,35 +28,74 @@ from creme.creme_core.models import SettingValue
 from .. import billing
 from .constants import REL_OBJ_BILL_RECEIVED
 # from .core import get_models_for_conversion
-from .core import conversion
-from .models import Base
+from .core import BILLING_MODELS, conversion
+from .core.number_generation import number_generator_registry
+from .models import Base, NumberGeneratorItem
 from .setting_keys import button_redirection_key
 
+CreditNote = billing.get_credit_note_model()
 Invoice    = billing.get_invoice_model()
 Quote      = billing.get_quote_model()
 SalesOrder = billing.get_sales_order_model()
 
 
-class GenerateInvoiceNumberButton(Button):
-    id = Button.generate_id('billing', 'generate_invoice_number')
-    verbose_name = _('Generate the number of the Invoice')
+# class GenerateInvoiceNumberButton(Button):
+#     id = Button.generate_id('billing', 'generate_invoice_number')
+#     verbose_name = _('Generate the number of the Invoice')
+#     description = _(
+#         'This button generates the number for the current invoice.\n'
+#         'App: Billing'
+#     )
+#     dependencies = [Invoice]
+#     template_name = 'billing/buttons/generate-invoice-number.html'
+#
+#     def get_ctypes(self):
+#         return (Invoice,)
+#
+#     def is_allowed(self, *, entity, request):
+#         return super().is_allowed(
+#             entity=entity, request=request,
+#         ) and request.user.has_perm_to_change(entity)
+#
+#     def ok_4_display(self, entity):
+#         return not bool(entity.number)
+class GenerateNumberButton(Button):
+    id = Button.generate_id('billing', 'generate_number')
+    verbose_name = _('Generate the number')
     description = _(
-        'This button generates the number for the current invoice.\n'
+        'This button generates the number for the current Invoice/Credit Note.\n'
         'App: Billing'
     )
-    dependencies = [Invoice]
-    template_name = 'billing/buttons/generate-invoice-number.html'
+    dependencies = (Button.CURRENT,)
+    template_name = 'billing/buttons/generate-number.html'
+
+    generator_registry = number_generator_registry
 
     def get_ctypes(self):
-        return (Invoice,)
+        return [
+            model for model in BILLING_MODELS if not model.generate_number_in_create
+        ]
 
-    def is_allowed(self, *, entity, request):
-        return super().is_allowed(
-            entity=entity, request=request,
-        ) and request.user.has_perm_to_change(entity)
+    def get_context(self, *, entity, request):
+        context = super().get_context(entity=entity, request=request)
+
+        item = NumberGeneratorItem.objects.get_for_instance(entity)
+        if item is None:
+            context['error'] = _(
+                'This entity cannot generate a number (see configuration of the app Billing)'
+            )
+        else:
+            try:
+                self.generator_registry[item].check_permissions(
+                    user=request.user, entity=entity,
+                )
+            except (PermissionDenied, ConflictError) as e:
+                context['error'] = str(e)
+
+        return context
 
     def ok_4_display(self, entity):
-        return not bool(entity.number)
+        return not entity.generate_number_in_create
 
 
 class _AddBillingDocumentButton(Button):

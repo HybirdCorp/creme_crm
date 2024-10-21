@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
+
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
@@ -34,7 +36,12 @@ from creme.creme_core.utils.unicode_collation import collator
 from . import constants, function_fields
 from .exporters import BillingExportEngineManager
 from .forms import line as line_forms
-from .models import ExporterConfigItem, Line, PaymentInformation
+from .models import (
+    ExporterConfigItem,
+    Line,
+    NumberGeneratorItem,
+    PaymentInformation,
+)
 from .setting_keys import payment_info_key
 
 Contact      = persons.get_contact_model()
@@ -355,6 +362,36 @@ class BillingPrettyAddressBrick(persons_bricks.PrettyAddressesBrick):
     id = persons_bricks.PrettyAddressesBrick.generate_id('billing', 'addresses_pretty')
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
     permissions = 'billing'
+
+
+class NumberGeneratorItemsBrick(Brick):
+    id = Brick.generate_id('billing', 'number_generators')
+    verbose_name = 'Number generation'
+    template_name = 'billing/bricks/number-generators.html'
+    dependencies = (NumberGeneratorItem,)
+    # configurable = False
+    # permissions = 'billing.can_admin' => auto by creme_config views
+
+    def detailview_display(self, context):
+        sort_key = collator.sort_key
+
+        class OrganisationWrapper:
+            def __init__(this, organisation, items):
+                this.organisation = organisation
+                items.sort(key=lambda item: sort_key(str(item.numbered_type)))
+                this.items = items
+
+        items_per_orga = defaultdict(list)
+        for item in NumberGeneratorItem.objects.all():
+            items_per_orga[item.organisation_id].append(item)
+
+        return self._render(self.get_template_context(
+            context,
+            organisations=[
+                OrganisationWrapper(organisation=orga, items=items_per_orga[orga.id])
+                for orga in Organisation.objects.filter(id__in=items_per_orga.keys())
+            ],
+        ))
 
 
 class BillingExportersBrick(Brick):

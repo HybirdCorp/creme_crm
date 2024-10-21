@@ -16,19 +16,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import date
-
-from django.db.transaction import atomic
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+# from datetime import date
+#
+# from django.db.transaction import atomic
+# from django.http import HttpResponse
+# from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.core.exceptions import ConflictError
+# from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.views import generic
 
 from .. import constants, custom_forms, get_invoice_model
-from ..models import InvoiceStatus
+# from ..models import InvoiceStatus
 from . import base
 
 Invoice = get_invoice_model()
@@ -59,33 +59,32 @@ class InvoiceEdition(generic.EntityEdition):
     pk_url_kwarg = 'invoice_id'
 
 
-class InvoicesList(generic.EntitiesList):
+# class InvoicesList(generic.EntitiesList):
+class InvoicesList(base.BaseList):
     model = Invoice
     default_headerfilter_id = constants.DEFAULT_HFILTER_INVOICE
 
 
-class InvoiceNumberGeneration(generic.base.EntityRelatedMixin, generic.CheckedView):
-    permissions = 'billing'
-    entity_id_url_kwarg = 'invoice_id'
-    entity_classes = Invoice
-
-    @atomic
-    def post(self, *args, **kwargs):
-        invoice = self.get_related_entity()
-
-        # TODO: move in model ???
-        if not invoice.number:
-            # TODO: safe way if 0 or 2+ statuses?
-            status = get_object_or_404(InvoiceStatus, is_validated=True)
-
-            invoice.generate_number()
-            invoice.status = status
-
-            if not invoice.issuing_date:
-                invoice.issuing_date = date.today()
-
-            invoice.save()
-        else:
-            raise ConflictError(f'This invoice has already a number: {invoice}.')
-
-        return HttpResponse()
+# class InvoiceNumberGeneration(generic.base.EntityRelatedMixin, generic.CheckedView):
+#     permissions = 'billing'
+#     entity_id_url_kwarg = 'invoice_id'
+#     entity_classes = Invoice
+#
+#     @atomic
+#     def post(self, *args, **kwargs):
+#         invoice = self.get_related_entity()
+#
+#         if not invoice.number:
+#             status = get_object_or_404(InvoiceStatus, is_validated=True)
+#
+#             invoice.generate_number()
+#             invoice.status = status
+#
+#             if not invoice.issuing_date:
+#                 invoice.issuing_date = date.today()
+#
+#             invoice.save()
+#         else:
+#             raise ConflictError(f'This invoice has already a number: {invoice}.')
+#
+#         return HttpResponse()

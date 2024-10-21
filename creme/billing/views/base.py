@@ -23,7 +23,10 @@ from typing import Sequence
 
 import creme.billing.forms.base as base_forms
 from creme import persons
+from creme.billing.constants import REL_SUB_BILL_ISSUED
 from creme.billing.models import Base
+from creme.creme_core.core.entity_cell import EntityCellRelation
+from creme.creme_core.models import RelationType
 from creme.creme_core.utils import bool_from_str_extended
 from creme.creme_core.views import generic
 
@@ -83,3 +86,25 @@ class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
             return self.object.get_absolute_url()
 
         return super().get_success_url()
+
+
+class BaseList(generic.EntitiesList):
+    model = Base
+
+    def get_cells(self, hfilter):
+        cells = super().get_cells(hfilter=hfilter)
+        model = self.model
+
+        if not model.generate_number_in_create:
+            # NB: add relations items to use the pre-cache system of list-views
+            #     (see <EntitiesList.paginate_queryset()>)
+            #     So we avoid extra queries when <billing.actions._GenerateNumberAction>
+            #     uses <entity.source> to check permissions.
+            # TODO: do we need a system in UIAction to prefetch things?
+            rtype = RelationType.objects.get(pk=REL_SUB_BILL_ISSUED)
+            cell = EntityCellRelation(model=model, rtype=rtype, is_hidden=True)
+            key = cell.key
+            if not any(key == c.key for c in cells):
+                cells.append(cell)
+
+        return cells

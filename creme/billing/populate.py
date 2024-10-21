@@ -581,9 +581,15 @@ class Populator(BasePopulator):
         create_mitem(entry_id=menu.ProductLinesEntry.id, order=200)
         create_mitem(entry_id=menu.ServiceLinesEntry.id, order=210)
 
+    def _populate_buttons_config_for_credit_note(self):
+        ButtonMenuItem.objects.create_if_needed(
+            model=self.CreditNote, button=buttons.GenerateNumberButton, order=1001,
+        )
+
     def _populate_buttons_config_for_invoice(self):
         ButtonMenuItem.objects.create_if_needed(
-            model=self.Invoice, button=buttons.GenerateInvoiceNumberButton, order=1001,
+            # model=self.Invoice, button=buttons.GenerateInvoiceNumberButton, order=1001,
+            model=self.Invoice, button=buttons.GenerateNumberButton, order=1001,
         )
 
     def _populate_buttons_config_for_quote(self):
@@ -609,6 +615,7 @@ class Populator(BasePopulator):
         create_bmi(button=buttons.AddInvoiceButton,    order=1012)
 
     def _populate_buttons_config(self):
+        self._populate_buttons_config_for_credit_note()
         self._populate_buttons_config_for_invoice()
         self._populate_buttons_config_for_quote()
         self._populate_buttons_config_for_order()

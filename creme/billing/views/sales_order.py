@@ -55,6 +55,7 @@ class SalesOrderEdition(generic.EntityEdition):
     pk_url_kwarg = 'order_id'
 
 
-class SalesOrdersList(generic.EntitiesList):
+# class SalesOrdersList(generic.EntitiesList):
+class SalesOrdersList(base.BaseList):
     model = SalesOrder
     default_headerfilter_id = DEFAULT_HFILTER_ORDER
