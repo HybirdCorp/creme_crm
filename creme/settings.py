@@ -993,6 +993,7 @@ CREME_OPT_JS = [  # OPTIONAL APPS
 
     ('creme.persons',       'persons/js/persons.js'),
 
+    ('creme.activities',    'activities/js/calendar.js'),
     ('creme.activities',    'activities/js/activities.js'),
     ('creme.activities',    'activities/js/activities-calendar.js'),
 

@@ -19,7 +19,7 @@
                 extra = {};
             }
 
-            return new creme.ActivityCalendar($('.calendar-main'), {
+            return new creme.FullActivityCalendar($('.calendar-main'), {
                 owner: "{{user_username}}",
                 eventSelectUrl: '{% url "activities__select_calendars" %}',
                 eventUpdateUrl: '{% url "activities__set_activity_dates" %}',
