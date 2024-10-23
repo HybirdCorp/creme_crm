@@ -19,7 +19,7 @@
                 extra = {};
             }
 
-            return new creme.ActivityCalendar($('.calendar-main'), {
+            creme.userActivityCalendar($('.calendar-main'), {
                 owner: "{{user_username}}",
                 eventSelectUrl: '{% url "activities__select_calendars" %}',
                 eventUpdateUrl: '{% url "activities__set_activity_dates" %}',
@@ -29,6 +29,7 @@
                 defaultView: settings.view || 'month',
                 timezoneOffset: settings.utc_offset,
                 allowEventMove: Boolean(settings.allow_event_move),
+                multipleMode: Boolean(settings.multiple_mode),
                 fullCalendarOptions: $.extend(extra, {
                     slotDuration: settings.slot_duration,
                     businessHours: {
@@ -48,7 +49,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class='calendar-main'>
+    <div class='calendar-main {% if calendar_settings.multiple_mode %}calendar-multiple{% endif %}'>
         <div class='calendar-menu toggle-target'>
             {% if floating_activities %}
             <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group" widget="ui-creme-toggle" title="{% translate 'You can drag and drop these activities in the calendar' %}">
@@ -83,6 +84,7 @@
                     <div class="calendar-menu-item">
                         <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" style="color:#{{calendar.color}};" name="calendar_id"{% if calendar.id in my_selected_calendar_ids %} checked{% endif %}/>
                         <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
+                        {% if calendar_settings.multiple_mode %}<span class="calendar-href" data-calendar="#calendar-{{calendar.id}}">#</span>{% endif %}
                     </div>
                   {% empty%}
                     {% translate 'No calendars' %}
@@ -105,6 +107,7 @@
                         <div class="calendar-menu-item" data-user="{{user_key}}" data-calendar="{{calendar.id}}">
                             <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" style="color:#{{calendar.color}};" name="calendar_id"{% if calendar.id in others_selected_calendar_ids %} checked{% endif %}/>
                             <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
+                            {% if calendar_settings.multiple_mode %}<span class="calendar-href" data-calendar="#calendar-{{calendar.id}}">#</span>{% endif %}
                         </div>
                         {% endfor %}
                     </div> <!-- /.calendar_user_group -->
@@ -115,6 +118,23 @@
                 </div>
             </div>
         </div> <!-- /.calendar-menu -->
-        <div class='calendar with-menu'></div>
+        <div class='calendar with-menu'>
+            {% if calendar_settings.multiple_mode %}
+            {% for calendar in my_calendars %}
+            <div class="sub-calendar {% if calendar.id not in my_selected_calendar_ids %}hidden{% endif %}" id="sub-calendar-{{calendar.id}}">
+                <h5>{{calendar}}</h5>
+                <div class="fc-creme-multi" data-calendar-id="{{calendar.id}}"></div>
+            </div>
+            {% endfor %}
+            {% for user, calendars in other_calendars %}
+                {% for calendar in calendars %}
+                <div class="sub-calendar {% if calendar.id not in my_selected_calendar_ids %}hidden{% endif %}" id="sub-calendar-{{calendar.id}}">
+                    <h5>{{calendar}}</h5>
+                    <div class="fc-creme-multi" data-calendar-id="{{calendar.id}}"></div>
+                </div>
+                {% endfor %}
+            {% endfor %}
+            {% endif %}
+        </div>
     </div> <!-- /.calendar-container -->
 {% endblock %}

@@ -200,6 +200,7 @@ class CalendarView(generic.CheckedTemplateView):
 
         context['calendar_settings'] = {
             "utc_offset": get_current_utc_offset(),
+            "multiple_mode": getattr(settings, "ACTIVITIES_CALENDAR_MULTIPLE", False),
             **CalendarConfigItem.objects.for_user(user).as_dict(),
         }
 

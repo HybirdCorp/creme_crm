@@ -72,6 +72,11 @@
     font-family: 'Open Sans', sans-serif;
 }
 
+.calendar-main.calendar-multiple .calendar-menu {
+    position: fixed;
+    margin-top: 0;
+}
+
 /* apply a natural box layout model to all elements */
 .calendar-menu, .calendar-menu * {
     box-sizing: border-box;
@@ -231,6 +236,12 @@
     color: #777;
 }
 
+.calendar-menu .calendar-href {
+    flex-grow: 1;
+    text-align: right;
+    padding-right: 5px;
+}
+
 /* calendar sidebar - end */
 
 /* calendar */
@@ -245,6 +256,10 @@
 
 .calendar-main .calendar.with-menu {
     margin: 0 0 0 325px;
+}
+
+.calendar .sub-calendar.hidden {
+    display: none;
 }
 
 /* calendar - end */

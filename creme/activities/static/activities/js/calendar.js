@@ -1,0 +1,902 @@
+/*******************************************************************************
+    Creme is a free/open-source Customer Relationship Management software
+    Copyright (C) 2024  Hybird
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*******************************************************************************/
+
+(function($) {
+"use strict";
+
+function momentFormatter(format, dayFormat) {
+    format = format || 'h[h]mm';
+
+    return function(info) {
+        var locale = info.localeCodes[0];
+        var start = convertToMoment(info.start, info.timeZone, locale);
+        var end = info.end ? convertToMoment(info.end, info.timeZone, locale) : null;
+        var output;
+
+        if (end !== null) {
+            var rangeFormat = format;
+
+            if (dayFormat) {
+                if (start.format('MMD') !== end.format('MMD')) {
+                    rangeFormat = dayFormat;
+                }
+            }
+
+            output = [
+                start.format(rangeFormat),
+                end.format(rangeFormat)
+            ].join(info.defaultSeparator);
+        } else {
+            output = start.format(format);
+        }
+
+        return output;
+    };
+};
+
+var FULLCALENDAR_SETTINGS = {
+    // plugins: [ 'interaction', 'timeGrid', 'dayGrid', 'moment' ],
+    locales: [{
+        code: "fr",
+        buttonText: {
+            // prev:     '◄',  // left triangle
+            // next:     '►',  // right triangle
+            today: gettext("Today"),
+            year:  gettext("Year"),
+            month: gettext("Month"),
+            week:  gettext("Week"),
+            day:   gettext("Day"),
+            list:  gettext("Calendar")
+        },
+        weekText: gettext("Week"),
+        allDayContent: gettext("All day"),
+        moreLinkContent: gettext("More"),
+        noEventsContent: gettext("No event to display")
+    }],
+    locale: 'fr',
+    eventTimeFormat: momentFormatter('H[h]mm', 'D/MM h[h]mm'),
+
+    headerToolbar: {
+        left:   'title',
+        center: 'today,prev,next',
+        right:  'week,month'
+    },
+    initialView: 'month',
+    views: {
+        month: {
+            type: 'dayGridMonth',
+            titleFormat: { year: 'numeric', month: 'long' },
+            dayHeaderFormat: { weekday: 'long' }
+        },
+        week: {
+            type: 'timeGridWeek',
+            titleFormat: { year: 'numeric', month: 'long', day: 'numeric' },
+            titleRangeSeparator: ' − ',
+            dayHeaderFormat: { weekday: 'long', day: 'numeric', month: 'long' },
+            weekNumbers: false
+        },
+        day: {
+            type: 'timeGridDay',
+            titleFormat: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
+            dayHeaderFormat: { weekday: 'long', day: 'numeric', month: 'long' }
+        }
+    },
+
+    /* day settings */
+    timeZone: 'UTC',
+    slotMinTime: '00:00:00',
+    slotMaxTime: '24:00:00',
+    scrollTime: '08:00:00',
+    defaultTimedEventDuration: '01:00:00',
+
+    businessHours: {
+        daysOfWeek: [ 1, 2, 3, 4, 5, 6 ], // Monday - Saturday
+        startTime: '8:00', // a start time
+        endTime: '18:00' // an end time
+    },
+
+    /* slots */
+    allDaySlot: true,
+    allDayContent: gettext("All day"),
+    slotLabelFormat: momentFormatter("H[h]mm"),
+    slotLabelInterval: '01:00:00',
+    slotDuration: '00:15:00',
+    defaultRangeSeparator: ' − ',
+
+    /* week settings */
+    weekends: true,
+    firstDay: 1,    // monday
+    fixedWeekCount: true,
+
+    /* ui settings */
+    themeSystem: 'standard',
+    aspectRatio: 2,
+    expandRows: true,
+
+    editable: true,
+    selectable: true,
+    dayMaxEventRows: 4,
+    dayMaxEvents: true,
+    stickyHeaderDates: true,
+    selectMirror: true,
+
+    droppable: true,
+    dropAccept: '.floating-event',
+
+    /* ui plugins */
+    nowIndicator: true
+};
+
+function convertToMoment(input, timeZone, locale) {
+    if (input === null || moment.isMoment(input)) {
+        return input;
+    } else {
+        return moment.utc(input);
+    }
+}
+
+function toISO8601(value, allDay) {
+    return allDay ? value.format('YYYY-MM-DD') : value.utc().toISOString(true);
+}
+
+creme.availableFullCalendarViewNames = function(options) {
+    options = options || {};
+    var views = Object.assign(FULLCALENDAR_SETTINGS, (options.fullCalendarOptions || options)).views || {};
+    return _.keys(views);
+};
+
+creme.ActivityCalendarEventRange = creme.component.Component.sub({
+    _init_: function(event) {
+        event = $.extend({
+            start: moment(),
+            duration: '01:00:00',
+            allDay: false
+        }, event || {});
+
+        $.extend(this, event);
+
+        if (Object.isNone(this.end)) {
+            this.end = this.start.clone();
+
+            if (this.allDay) {
+                this.end.set({hours: 23, minutes: 59, seconds: 0});
+            } else {
+                this.end.add(moment.duration(this.duration));
+            }
+        } else if (this.allDay) {
+            this.end.set({hours: 0, minutes: 0, seconds: 0}).subtract(1, 'minutes');
+        }
+    },
+
+    isSmall: function() {
+        return !this.allDay && (this.end.diff(this.start) < moment.duration('00:31:00').asMilliseconds());
+    },
+
+    toString: function() {
+        return '${start} − ${end}${allday}'.template({
+            start: this.start,
+            end: this.end,
+            allday: this.allDay ? '[ALLDAY]' : ''
+        });
+    }
+});
+
+creme.ActivityCalendar = creme.component.Component.sub({
+    _init_: function(element, options) {
+        this._props = options = $.extend({
+            defaultView: 'month',
+            keepState: false,
+            showWeekNumber: true,
+            showTimezoneInfo: false,
+            allowEventMove: true,
+            fullCalendarOptions: {},
+            headlessMode: false,
+            selectedSourceIds: [],
+            externalEventItemData: _.noop
+        }, options || {});
+
+        this._element = element;
+        this._events = new creme.component.EventHandler();
+
+        Assert.not(element.is('.fc-creme'), 'An ActivityCalendar instance is already bound');
+
+        this.selectedSourceIds(options.selectedSourceIds);
+        this.defaultView(options.defaultView);
+        this.owner(options.owner || '');
+        this.eventUpdateUrl(options.eventUpdateUrl || '');
+        this.eventCreateUrl(options.eventCreateUrl || '');
+        this.eventFetchUrl(options.eventFetchUrl || '');
+        this.eventSelectUrl(options.eventSelectUrl || '');
+        this.keepState(options.keepState);
+        this.showWeekNumber(options.showWeekNumber);
+        this.showTimezoneInfo(options.showTimezoneInfo);
+        this.allowEventMove(options.allowEventMove);
+        this.timezoneOffset(options.timezoneOffset);
+
+        this._setupCalendarUi(element, options);
+        this._setupCalendarExternalEvents(element);
+    },
+
+    trigger: function(event) {
+        var data = Array.copy(arguments).slice(1);
+
+        if (!Object.isNone(this._element)) {
+            this._element.trigger('cal-' + event, [this].concat(data || []));
+        }
+
+        this._events.trigger(event, data, this);
+        return this;
+    },
+
+    one: function(event, listener, decorator) {
+        this._events.one(event, listener, decorator);
+        return this;
+    },
+
+    on: function(event, listener, decorator) {
+        this._events.on(event, listener, decorator);
+        return this;
+    },
+
+    off: function(event, listener) {
+        this._events.off(event, listener);
+        return this;
+    },
+
+    owner: function(owner) {
+        return Object.property(this, '_owner', owner);
+    },
+
+    eventSelectUrl: function(url) {
+        return Object.property(this, '_eventSelectUrl', url);
+    },
+
+    eventUpdateUrl: function(url) {
+        return Object.property(this, '_eventUpdateUrl', url);
+    },
+
+    eventCreateUrl: function(url) {
+        return Object.property(this, '_eventCreateUrl', url);
+    },
+
+    eventFetchUrl: function(url) {
+        return Object.property(this, '_eventFetchUrl', url);
+    },
+
+    allowEventMove: function(state) {
+        return Object.property(this, '_allowEventMove', state);
+    },
+
+    timezoneOffset: function(offset) {
+        return Object.property(this, '_timezoneOffset', offset);
+    },
+
+    defaultView: function(view) {
+        return Object.property(this, '_defaultView', view);
+    },
+
+    keepState: function(keep) {
+        return Object.property(this, '_keepState', keep);
+    },
+
+    showWeekNumber: function(state) {
+        return Object.property(this, '_showWeekNumber', state);
+    },
+
+    showTimezoneInfo: function(state) {
+        return Object.property(this, '_showTimezoneInfo', state);
+    },
+
+    fullCalendar: function() {
+        return this._calendar;
+    },
+
+    fullCalendarView: function(view, options) {
+        if (view === undefined) {
+            return this._calendar.view;
+        }
+
+        var calendar = this._calendar;
+
+        calendar.batchRendering(function() {
+            calendar.changeView(view, options);
+        });
+    },
+
+    fullCalendarEvents: function() {
+        return this._calendar.getEvents();
+    },
+
+    fullCalendarSettings: function() {
+        return this._fullCalendarSettings;
+    },
+
+    goToDate: function(date) {
+        this._calendar.gotoDate(date);
+    },
+
+    element: function() {
+        return this._element;
+    },
+
+    refetchEvents: function() {
+        if (this._calendar) {
+            this._calendar.refetchEvents();
+        }
+
+        return this;
+    },
+
+    selectedSourceIds: function(ids) {
+        if (ids === undefined) {
+            return Array.from(
+                Object.isFunc(this._selectedSourceIds) ? this._selectedSourceIds(this) : this._selectedSourceIds
+            );
+        }
+
+        this._selectedSourceIds = Object.isFunc(ids) ? ids : new Set(ids || []);
+        this.refetchEvents();
+        return this;
+    },
+
+    selectSourceIds: function(ids) {
+        // NB: creating new event source is a bad idea, because these new sources
+        // have to be removed, in order to avoid :
+        //    - duplicated Activities when we go to a page we a newly checked calendar.
+        //    - accumulating event sources.
+        // so we just force a new fetch.
+        // TODO: find a way to only retrieve new events + cache
+        ids = new Set(ids || []);
+
+        var self = this;
+        var query = this._query({
+            url: this.eventSelectUrl(),
+            action: 'POST'
+        }, {
+            add: ids
+        }).onDone(function() {
+            if (!Object.isFunc(self._selectedSourceIds)) {
+                self._selectedSourceIds = self._selectedSourceIds.union(ids);
+            }
+
+            self.refetchEvents();
+        });
+
+        query.start();
+        return this;
+    },
+
+    unselectSourceIds: function(ids) {
+        ids = new Set(ids || []);
+
+        var self = this;
+        var query = this._query({
+            url: this.eventSelectUrl(),
+            action: 'POST'
+        }, {
+            remove: ids
+        }).onDone(function() {
+            var calendar = self.fullCalendar();
+
+            if (!Object.isFunc(self._selectedSourceIds)) {
+                self._selectedSourceIds = self._selectedSourceIds.difference(ids);
+            }
+
+            if (calendar) {
+                var removedEvents = self.fullCalendarEvents().filter(function(event) {
+                    return ids.has(String(event.extendedProps.calendar));
+                });
+
+                calendar.batchRendering(function() {
+                    removedEvents.forEach(function(event) {
+                        event.remove();
+                    });
+                });
+            }
+        });
+
+        query.start();
+        return this;
+    },
+
+    _queryErrorMessage: function(data, error) {
+        if (error.status === 403) {
+            return gettext("You do not have permission, the change will not be saved.");
+        } else if (error.status === 409) {
+            return unescape(data);
+        } else {
+            return gettext("Error, please reload the page.");
+        }
+    },
+
+    _query: function(options, data) {
+        var self = this;
+
+        var query = creme.ajax.query(options.url, options, data)
+                              .onComplete(function() {
+                                  self.trigger('query-complete', {
+                                      activityCalendar: self,
+                                      options: options,
+                                      data: data
+                                  });
+                              });
+
+        if (options.warnOnFail) {
+            return new creme.component.Action(function() {
+                var action = this;
+
+                query.onFail(function(event, data, error) {
+                          var message = self._queryErrorMessage(data, error);
+                          var dialog = creme.dialogs.warning(message);
+
+                          dialog.onClose(function() {
+                                     action.fail(data, error);
+                                 })
+                                .open();
+                      })
+                     .onDone(function(event, data) {
+                         action.done(data);
+                      })
+                     .start();
+            });
+        } else {
+            return query;
+        }
+    },
+
+    toMoment: function(input) {
+        var dateEnv = this.fullCalendar().getCurrentData().dateEnv;
+        var timeZone = dateEnv.timeZone;
+        var locale = dateEnv.locale.codes[0];
+
+        return convertToMoment(input, timeZone, locale);
+    },
+
+    _updateState: function(info) {
+        var previous = (this._viewState || {});
+        var prevDateISO = previous.date ? toISO8601(previous.date, true) : null;
+
+        if (info.view === previous.view && toISO8601(info.start, true) === prevDateISO) {
+            return;
+        }
+
+        /*
+         * In month view the activeStart & activeEnd are enclosing the stored date.
+         * Do not change the state if the date is still within view range.
+         */
+        if (info.view === 'month' && previous.date && previous.date.isBetween(info.start, info.end)) {
+            return;
+        }
+
+        this._viewState = info;
+        this.trigger('state-update', Object.assign({
+            activityCalendar: this
+        }, info));
+    },
+
+    _onCalendarExternalEventUpdate: function(calendar, info) {
+        var self = this;
+        var item = $(info.draggedEl);
+        var range = new creme.ActivityCalendarEventRange({
+            start: this.toMoment(info.date, calendar),
+            duration: calendar.getOption('defaultTimedEventDuration'),
+            allDay: info.allDay
+        });
+
+        var nextEvent = $.extend({}, this._props.externalEventItemData(item), {
+            start: range.start.toDate(),
+            end: range.end.toDate(),
+            allDay: range.allDay
+        });
+
+        this._query({
+                 url: this.eventUpdateUrl(),
+                 action: 'POST',
+                 warnOnFail: true
+             }, {
+                 id: nextEvent.id,
+                 start: toISO8601(range.start, range.allDay),
+                 end: toISO8601(range.end, range.allDay),
+                 allDay: range.allDay
+             })
+            .onDone(function() {
+                 calendar.addEvent(nextEvent);
+                 self.trigger('event-new', {
+                     activityCalendar: self,
+                     calEvent: nextEvent,
+                     activityRange: range,
+                     item: item,
+                     external: true
+                 });
+             })
+            .start();
+    },
+
+    _onCalendarEventUpdate: function(calendar, info) {
+        var self = this;
+        var range = new creme.ActivityCalendarEventRange({
+            start: this.toMoment(info.event.start, calendar),
+            end: this.toMoment(info.event.end, calendar),
+            duration: calendar.getOption('defaultTimedEventDuration'),
+            allDay: info.event.allDay
+        });
+
+        /*
+         * Drag-n-drop from AllDay to a slot will not fill the 'end' attribute.
+         * So do it ourselves.
+         */
+        if (!info.event.allDay && info.event.end === null) {
+            info.event.setEnd(range.end.toDate());
+        }
+
+        this._query({
+                 url: this.eventUpdateUrl(),
+                 action: 'POST',
+                 warnOnFail: true
+             }, {
+                 id: info.event.id,
+                 start: toISO8601(range.start, range.allDay),
+                 end: toISO8601(range.end, range.allDay),
+                 allDay: range.allDay
+             })
+            .onFail(function() {
+                info.revert();
+             })
+            .onDone(function() {
+                 self.trigger('event-update', {
+                     activityCalendar: self,
+                     calEvent: info.event,
+                     activityRange: range
+                 });
+            })
+            .start();
+    },
+
+    _onCalendarEventFetch: function(calendar, info, successCb, failureCb) {
+        var range = new creme.ActivityCalendarEventRange({
+            start: this.toMoment(info.start, calendar),
+            end: this.toMoment(info.end, calendar)
+        });
+
+        var isEditable = this.allowEventMove();
+
+        this._query({
+                url: this.eventFetchUrl(),
+                backend: {dataType: 'json'}
+             }, {
+                calendar_id: this.selectedSourceIds(),
+                start: range.start.format('YYYY-MM-DD'),
+                end: range.end.format('YYYY-MM-DD')
+             })
+            .onDone(function(event, data) {
+                successCb(data.map(function(item) {
+                    item.textColor = new RGBColor(item.color).foreground().toString();
+                    item.editable = item.editable && isEditable;
+                    return item;
+                }));
+             })
+            .onFail(function(event, err) {
+                failureCb(err);
+            })
+            .start();
+    },
+
+    _onCalendarEventCreate: function(calendar, info) {
+        var self = this;
+        var range = new creme.ActivityCalendarEventRange({
+            start: this.toMoment(info.start, calendar),
+            end: this.toMoment(info.end, calendar),
+            duration: calendar.getOption('defaultTimedEventDuration'),
+            allDay: info.allDay
+        });
+
+        var data = {
+            start: toISO8601(range.start, range.allDay),
+            end: toISO8601(range.end, range.allDay),
+            allDay: range.allDay ? 1 : 0
+        };
+
+        creme.dialogs.form(this.eventCreateUrl(), {}, data)
+                     .onFormSuccess(function(event, response) {
+                         self.trigger('event-new', {
+                             activityCalendar: self,
+                             calEvent: info.event,
+                             activityRange: range,
+                             external: false,
+                             redirectUrl: response.content
+                         });
+
+                         if (Object.isEmpty(response.content)) {
+                             calendar.refetchEvents();
+                         }
+                      })
+                     .open({width: '80%'});
+    },
+
+    _onCalendarEventShow: function(calendar, info) {
+        creme.dialogs.url(info.event.url)
+                     .onClose(function() {
+                         calendar.refetchEvents();
+                     }).open({width: '80%'});
+    },
+
+    _formatEventTime: function(info, formatter) {
+        var view = info.view;
+        var event = info.event;
+
+        if (info.event.end !== null) {
+            return view.dateEnv.formatRange(event.start, event.end, formatter);
+        } else {
+            return view.dateEnv.format(event.start, formatter);
+        }
+    },
+
+    _eventTimeSlotCount: function(event, calendar) {
+        var eventDuration = this.toMoment(event.end, calendar).diff(this.toMoment(event.start, calendar));
+        var slotDuration = moment.duration(calendar.getOption('slotDuration')).asMilliseconds();
+        return event.end && Math.round(eventDuration / slotDuration);
+    },
+
+    _renderWeekEventContent: function(calendar, info, createElement) {
+        var event = info.event;
+        var view = info.view;
+        var items = [];
+        var text = info.timeText;
+        var formatter = FullCalendar.createFormatter(calendar.getOption('eventTimeFormat'));
+        var slotCount = this._eventTimeSlotCount(event, calendar);
+        var typeTag = event.extendedProps.type || '';
+
+        if (event.allDay) {
+            items = [
+                createElement('div', {className: 'fc-event-main-frame'},
+                    createElement('div', {className: 'fc-event-title'}, event.title),
+                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
+                )
+            ];
+        } else if (slotCount < 2) {
+            text = view.dateEnv.format(event.start, formatter);
+
+            items = [
+                createElement('div', {className: 'fc-event-main-frame fc-smaller'},
+                    text && (createElement("div", { className: "fc-event-time" }, text)),
+                    createElement('div', {className: 'fc-event-title'}, event.title),
+                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
+                )
+            ];
+        } else if (slotCount < 3) {
+            text = view.dateEnv.format(event.start, formatter);
+
+            items = [
+                createElement('div', {className: 'fc-event-main-frame fc-small'},
+                    text && (createElement("div", { className: "fc-event-time" }, text)),
+                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag)),
+                    createElement('div', {className: 'fc-event-title'}, event.title)
+                )
+            ];
+        } else {
+            text = event.end ? this._formatEventTime(info, formatter) : text;
+
+            items = [
+                createElement('div', {className: 'fc-event-main-frame'},
+                    typeTag && (createElement('div', {className: 'fc-event-type fc-sticky'}, typeTag)),
+                    createElement('div', {className: 'fc-event-header'},
+                        text && (createElement("div", {className: "fc-event-time"}, text))
+                    ),
+                    createElement('div', {className: 'fc-event-title-container'},
+                        createElement('div', {className: 'fc-event-title fc-sticky'}, event.title)
+                    )
+                )
+            ];
+        }
+
+        return items;
+    },
+
+    _renderMonthEventContent: function(calendar, info, createElement) {
+        var event = info.event;
+        var typeTag = event.extendedProps.type || '';
+        var dotColor = info.borderColor || info.backgroundColor;
+        var items = [];
+        var text = info.timeText;
+        var start = this.toMoment(event.start, calendar);
+        var end = this.toMoment(event.end, calendar);
+        var isMultiDay = end && start.format('MMD') !== end.format('MMD');
+
+        if (event.allDay || isMultiDay) {
+            items = [
+                createElement('div', {className: 'fc-event-main-frame'},
+                    createElement('div', {className: 'fc-event-title'}, event.title),
+                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
+                )
+            ];
+        } else {
+            items = [
+                createElement('div', {className: 'fc-daygrid-event-dot', style: {borderColor: dotColor}}),
+                text && (createElement("div", { className: "fc-event-time" }, text)),
+                createElement('div', {className: 'fc-event-title'}, event.title),
+                typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
+            ];
+        }
+
+        return items;
+    },
+
+    _renderCalendarEventContent: function(calendar, info, createElement) {
+        if (info.view.type === 'week') {
+            return this._renderWeekEventContent(calendar, info, createElement);
+        } else {
+            return this._renderMonthEventContent(calendar, info, createElement);
+        }
+    },
+
+    _postRenderCalendarEvent: function(calendar, info) {
+        var formatter = FullCalendar.createFormatter(calendar.getOption('eventTimeFormat'));
+        var title = "${range}\n${tag}${title}".template({
+            range: this._formatEventTime(info, formatter),
+            tag: info.event.extendedProps.type ? info.event.extendedProps.type + '\n' : '',
+            title: info.event.title
+        });
+
+        info.el.setAttribute('alt', title);
+        info.el.setAttribute('title', title);
+
+        if (info.event.extendedProps.busy) {
+            info.el.classList.add('fc-busy');
+        }
+    },
+
+    _postRenderCalendarView: function(calendar, info) {
+        var view = info.view;
+
+        if (this.showWeekNumber()) {
+            var title = this._element.find('.fc-header-toolbar .fc-toolbar-title');
+            var start = this.toMoment(view.activeStart, calendar);
+            var week = title.find('.fc-header-week');
+            var isWeekView = (view.type === 'week');
+
+            if (isWeekView) {
+                if (week.length === 0) {
+                    week = $('<span class="fc-header-week">').appendTo(title);
+                }
+
+                week.text('${label} ${num}'.template({
+                    label: gettext("Week"),
+                    num: start.format('W')
+                }));
+            }
+
+            week.toggleClass('hidden', !isWeekView);
+        }
+    },
+
+    _renderWeekNumber: function(calendar, info) {
+        return this.toMoment(info.date, calendar).format('[S] W');
+    },
+
+    _onCalendarEventOverlap: function(calendar, still, moving) {
+        return true;
+        // return still.extendedProps.calendar !== moving.extendedProps.calendar;
+    },
+
+    _setupCalendarExternalEvents: function(element) {
+        var props = this._props;
+        var container = $(props.externalEventContainer);
+
+        if (container.length > 0) {
+            this._draggable = new FullCalendar.Draggable(container.get(0), {
+                 itemSelector: props.externalEventItemSelector,
+                 eventData: function(el) {
+                     return props.externalEventItemData($(el));
+                 }
+            });
+        }
+    },
+
+    _setupCalendarHandlers: function(calendar) {
+        var self = this;
+
+        calendar.on('select', function(info) {
+            self._onCalendarEventCreate(calendar, info);
+        });
+        calendar.on('eventClick', function(info) {
+            info.jsEvent.preventDefault();
+            self._onCalendarEventShow(calendar, info);
+            return false;
+        });
+        calendar.on('eventResize', function(info) {
+            self._onCalendarEventUpdate(calendar, info);
+            self._postRenderCalendarEvent(calendar, info);
+        });
+        calendar.on('datesSet', function(info) {
+            self._postRenderCalendarView(calendar, info);
+
+            if (self.keepState()) {
+                self._updateState({
+                    view: info.view.type,
+                    start: self.toMoment(info.view.activeStart, calendar),
+                    end: self.toMoment(info.view.activeEnd, calendar)
+                });
+            }
+        });
+        calendar.on('drop', function(info) {
+            self._onCalendarExternalEventUpdate(calendar, info);
+        });
+        calendar.on('eventDrop', function(info) {
+            self._onCalendarEventUpdate(calendar, info);
+        });
+    },
+
+    _setupCalendarUi: function(element, options) {
+        var self = this;
+        var initialState = this._viewState = $.extend({
+            date: options.initialDate ? moment(options.initialDate) : moment(),
+            view: options.initialView
+        });
+
+        var fullCalendarSettings = this._fullCalendarSettings = Object.assign({}, FULLCALENDAR_SETTINGS, options.fullCalendarOptions || {}, {
+            initialView: initialState.view,
+            initialDate: initialState.date.format('YYYY-MM-DD'),
+            weekNumbers: options.showWeekNumber,
+            weekNumberContent: function(info) {
+                return self._renderWeekNumber(calendar, info);
+            },
+            eventContent: function(info, createElement) {
+                return self._renderCalendarEventContent(calendar, info, createElement);
+            },
+            eventDidMount: function(info) {
+                return self._postRenderCalendarEvent(calendar, info);
+            },
+            eventOverlap: function(still, moving) {
+                return self._onCalendarEventOverlap(calendar, still, moving);
+            },
+            nowIndicatorContent: function(info, createElement) {
+                if (self.showTimezoneInfo()) {
+                    var text = moment.utc().utcOffset(self.timezoneOffset()).format('Z');
+                    return createElement('div', {className: 'fc-timegrid-now-timezone'}, 'UTC' + text);
+                }
+            },
+            now: function() {
+                var now = moment().milliseconds(0);
+                var offset = self.timezoneOffset();
+
+                offset = isNaN(offset) ? now.utcOffset() : offset;
+                now = now.utc().add(offset, 'm');
+
+                return now.toISOString(true);
+            }
+        });
+
+        if (options.headlessMode) {
+            fullCalendarSettings.headerToolbar = false;
+        }
+
+        element.addClass('fc-creme');
+
+        var calendar = this._calendar = new FullCalendar.Calendar(element.get(0), fullCalendarSettings);
+        element.data('fc-creme', calendar);
+
+        calendar.addEventSource(function(info, successCb, failureCb) {
+            self._onCalendarEventFetch(calendar, info, successCb, failureCb);
+        });
+
+        this._setupCalendarHandlers(calendar);
+        calendar.render();
+    }
+});
+
+}(jQuery));

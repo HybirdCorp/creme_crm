@@ -323,6 +323,10 @@
     margin-bottom: 10px;
 }
 
+.fc-creme.fc-creme-multi .fc-toolbar.fc-header-toolbar {
+    margin-left: 0;
+}
+
 .fc-creme .fc-header-toolbar .fc-header-week {
     background: #dddddd;
     color: black;
@@ -350,8 +354,20 @@
     left: -330px; /* the width of the sidebar with padding */
 }
 
+.fc-creme.fc-creme-multi .fc-header-left table {
+    left: 0;
+}
+
 .fc-creme .fc-header-center table {
     margin: 0; /* remove the centering */
 }
 
 /* calendar header widget repositioning - end */
+
+.fc-creme.fc-creme-multi {
+    min-height: 1000px;
+}
+
+.fc-hidden {
+    display: none;
+}

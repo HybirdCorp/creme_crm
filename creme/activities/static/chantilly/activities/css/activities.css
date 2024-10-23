@@ -246,6 +246,10 @@
     margin: 0 0 0 325px;
 }
 
+.calendar .sub-calendar.hidden {
+    display: none;
+}
+
 /* calendar - end */
 
 /* Bricks */
