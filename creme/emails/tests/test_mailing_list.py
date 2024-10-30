@@ -731,7 +731,7 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
                 reverse('emails__add_child_mlists', args=(parent.id,)),
                 data={'child': child.id},
             )
-            return response.context['form']
+            return self.get_form_or_fail(response)
 
         children_error = _('List already in the children')
         self.assertFormError(post(mlist01, mlist02), field='child', errors=children_error)

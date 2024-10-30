@@ -307,7 +307,7 @@ class ContactTestCase(_BaseTestCase):
                 },
             )
             self.assertFormError(
-                response.context['form'],
+                self.get_form_or_fail(response),
                 field=None,
                 errors=[
                     _('{address_field}: {error}').format(
@@ -480,7 +480,7 @@ class ContactTestCase(_BaseTestCase):
                 'last_name': contact.last_name,
             },
         )
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         msg = _('This field is required.')
         self.assertFormError(form, field='first_name', errors=msg)
         self.assertFormError(form, field='email',      errors=msg)

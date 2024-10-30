@@ -428,7 +428,7 @@ better &amp; lighter than the previous one.
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_('Both bodies cannot be empty at the same time.'),
         )
@@ -465,7 +465,7 @@ better &amp; lighter than the previous one.
                 'body_html':    '<p>Freeze !</p>',
             },
         )
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         self.assertFormError(
             form,
             field='c_recipients',
@@ -596,7 +596,7 @@ better &amp; lighter than the previous one.
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_('Select at least a Contact or an Organisation'),
         )
@@ -613,10 +613,10 @@ better &amp; lighter than the previous one.
         c = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
 
         url = self._build_create_entitymail_url(c)
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
         with self.assertNoException():
-            recip_field = response.context['form'].fields['c_recipients']
+            recip_field = response1.context['form'].fields['c_recipients']
 
         self.assertIsInstance(recip_field.widget, Label)
         self.assertEqual(
@@ -627,7 +627,8 @@ better &amp; lighter than the previous one.
             recip_field.initial,
         )
 
-        response = self.assertPOST200(
+        # POSt ---
+        response2 = self.assertPOST200(
             url,
             data={
                 'user':         user.id,
@@ -640,7 +641,7 @@ better &amp; lighter than the previous one.
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response2),
             field=None,
             errors=_('Select at least a Contact or an Organisation'),
         )
@@ -657,10 +658,10 @@ better &amp; lighter than the previous one.
         orga = Organisation.objects.create(user=user, name='Venus gate')
 
         url = self._build_create_entitymail_url(orga)
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
         with self.assertNoException():
-            recip_field = response.context['form'].fields['o_recipients']
+            recip_field = response1.context['form'].fields['o_recipients']
 
         self.assertIsInstance(recip_field.widget, Label)
         self.assertEqual(
@@ -671,7 +672,8 @@ better &amp; lighter than the previous one.
             recip_field.initial,
         )
 
-        response = self.assertPOST200(
+        # POST ---
+        response2 = self.assertPOST200(
             url,
             data={
                 'user':         user.id,
@@ -684,7 +686,7 @@ better &amp; lighter than the previous one.
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response2),
             field=None,
             errors=_('Select at least a Contact or an Organisation'),
         )
@@ -769,7 +771,7 @@ better &amp; lighter than the previous one.
                 'body_html':    '<p>Freeze !</p>',
             },
         )
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         msg = _('«%(entity)s» violates the constraints.')
         self.assertFormError(
             form, field='c_recipients', errors=msg % {'entity': contact01},

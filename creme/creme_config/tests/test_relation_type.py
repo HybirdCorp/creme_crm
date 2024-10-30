@@ -613,7 +613,7 @@ class SemiFixedRelationTypeTestCase(_RelationTypeBaseTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='predicate',
             errors=_('%(model_name)s with this %(field_label)s already exists.') % {
                 'model_name': _('Semi-fixed type of relationship'),

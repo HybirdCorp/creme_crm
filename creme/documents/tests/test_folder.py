@@ -357,7 +357,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='parent_folder',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': folder},
         )
@@ -383,7 +383,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='parent_folder',
             errors=_('This folder is one of the child folders of «%(folder)s»') % {
                 'folder': folder1,
@@ -855,9 +855,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         build_url = self.build_merge_url
         response = self.assertGET200(build_url(folder1, folder3))
 
-        with self.assertNoException():
-            form = response.context['form']
-
+        form = self.get_form_or_fail(response)
         self.assertEqual(folder1, getattr(form, 'entity1', None))
         self.assertEqual(folder3, getattr(form, 'entity2', None))
 
@@ -877,9 +875,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         build_url = self.build_merge_url
         response = self.assertGET200(build_url(folder1, folder2))
 
-        with self.assertNoException():
-            form1 = response.context['form']
-
+        form1 = self.get_form_or_fail(response)
         self.assertEqual(folder1, getattr(form1, 'entity1', None))
         self.assertEqual(folder2, getattr(form1, 'entity2', None))
 

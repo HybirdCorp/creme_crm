@@ -866,7 +866,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
                     self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 },
             )
-            return response.context['form']
+            return self.get_form_or_fail(response)
 
         msg = _('Enter a number between 0 and 100 (it is a percentage).')
         self.assertFormError(post('150'), field='discount', errors=msg)
@@ -989,7 +989,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         response = self.assertPOST200(uri, data={field_name:  '110'})
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=field_name,
             errors=_('Enter a number between 0 and 100 (it is a percentage).'),
         )
@@ -1508,7 +1508,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             args=('creme_core', 'currency', currency.id),
         ))
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='replace_billing__invoice_currency',
             errors=_('Deletion is not possible.'),
         )
@@ -1652,7 +1652,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='totals',
             errors=_('You cannot compute totals in update mode.'),
         )

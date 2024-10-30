@@ -716,7 +716,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             data={'participants': self.formfield_value_multi_creator_entity(contact)},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='participants',
             errors=_('Some entities are not linkable: {}').format(contact),
         )
@@ -1052,7 +1052,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             uri, data={'subjects': self.formfield_value_multi_generic_entity(orga)},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='subjects',
             errors=_('Some entities are not linkable: {}').format(orga),
         )
@@ -1074,7 +1074,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             data={'subjects': self.formfield_value_multi_generic_entity(bad_subject)},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='subjects', errors=_('This content type is not allowed.'),
         )
 

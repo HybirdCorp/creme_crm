@@ -217,7 +217,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_(
                 'The choices list must not be empty if you choose the type "Choice list".'
@@ -237,7 +237,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='enum_values',
             errors=_('The choice «{}» is duplicated.').format('Eva01'),
         )
@@ -311,7 +311,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='name',
             errors=_('There is already a custom field with this name.'),
         )
@@ -330,7 +330,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             }
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_(
                 'The choices list must not be empty if you choose the type "Choice list".'
@@ -351,7 +351,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             }
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='enum_values',
             errors=_('The choice «{}» is duplicated.').format('Eva01'),
         )
@@ -405,7 +405,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'name': name},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='name',
             errors=_('There is already a custom field with this name.'),
         )
@@ -769,7 +769,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'choice': eval01.value},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='choice',
             errors=_('The choice «{}» is duplicated.').format(eval01.value),
         )

@@ -536,7 +536,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             data={'person': self.formfield_value_generic_entity(contact)},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='person',
             errors=_('You are not allowed to link this entity: {}').format(contact),
         )

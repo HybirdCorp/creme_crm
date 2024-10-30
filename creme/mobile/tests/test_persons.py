@@ -106,7 +106,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         url = self.CREATE_CONTACT_URL
         arg = {'last_name': first_name}
         response = self.assertGET200(url, data=arg)
-        self.assertEqual(arg, response.context['form'].initial)
+        self.assertEqual(arg, self.get_form_or_fail(response).initial)
 
         orga_name = 'KOF'
         self.assertFalse(Organisation.objects.filter(name=orga_name))
@@ -256,7 +256,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         url = self.CREATE_ORGA_URL
         arg = {'name': name}
         response = self.assertGET200(url, data=arg)
-        self.assertEqual(arg, response.context['form'].initial)
+        self.assertEqual(arg, self.get_form_or_fail(response).initial)
 
         response = self.assertPOST200(
             url, follow=True,

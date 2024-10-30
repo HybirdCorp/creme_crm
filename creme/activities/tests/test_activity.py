@@ -456,7 +456,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         )
 
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         self.assertFormError(
             form,
             field=self.EXTRA_MYPART_KEY,
@@ -1017,7 +1017,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EXTRA_SUBJECTS_KEY,
             errors=_('This content type is not allowed.'),
         )
@@ -1049,7 +1049,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EXTRA_OTHERPART_KEY,
             errors=_('«%(entity)s» violates the constraints.') % {'entity': other},
         )
@@ -1076,7 +1076,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EXTRA_PARTUSERS_KEY,
             errors=_(
                 'Select a valid choice. %(value)s is not one of the available choices.'
@@ -1205,7 +1205,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EXTRA_ALERTPERIOD_KEY,
             errors=_('You cannot set a relative alert on a floating activity'),
         )
@@ -1540,9 +1540,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             type_uuid=constants.UUID_TYPE_MEETING,
         ))
 
-        with self.assertNoException():
-            form = response.context['form']
-
+        form = self.get_form_or_fail(response)
         self.assertListEqual([other_user], form.initial.get(self.EXTRA_PARTUSERS_KEY))
 
     @skipIfCustomOrganisation
@@ -1554,9 +1552,10 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         response = self.assertGET200(
             self._build_add_related_uri(dojo, type_uuid=constants.UUID_TYPE_MEETING),
         )
+        form = self.get_form_or_fail(response)
         self.assertListEqual(
             [dojo.id],
-            [e.id for e in response.context['form'].initial.get(self.EXTRA_SUBJECTS_KEY, ())],
+            [e.id for e in form.initial.get(self.EXTRA_SUBJECTS_KEY, ())],
         )
 
     def test_createview_related04(self):
@@ -1805,7 +1804,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             }
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_(
                 '{participant} already participates to the activity '
@@ -2091,7 +2090,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             data={form_field_name: excluded_sub_type.id},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=form_field_name,
             errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
@@ -2122,7 +2121,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=form_field_name,
             errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
@@ -2402,7 +2401,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EXTRA_SUBTYPE_KEY,
             errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
@@ -2532,7 +2531,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 self.EXTRA_PARTUSERS_KEY: [user.id],
             },
         )
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         msg = _('This field is required.')
         self.assertFormError(form, field=self.EXTRA_START_KEY, errors=msg)
         self.assertFormError(form, field=self.EXTRA_END_KEY,   errors=msg)
@@ -2577,7 +2576,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             args=('activities', 'activity_type', atype.id),
         ))
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='replace_activities__activity_type',
             errors=_('Deletion is not possible.'),
         )

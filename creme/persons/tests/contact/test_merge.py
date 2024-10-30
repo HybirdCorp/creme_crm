@@ -401,7 +401,7 @@ class ContactMergeTestCase(_BaseTestCase):
         }
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='email',
             errors=_('This Contact is related to a user and must have an email address.'),
         )

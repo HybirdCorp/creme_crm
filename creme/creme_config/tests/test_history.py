@@ -61,7 +61,7 @@ class HistoryConfigTestCase(CremeTestCase):
         rtype_ids = [rtype01.id, rtype02.id]
         response = self.client.post(self.ADD_URL, data={'relation_types': rtype_ids})
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='relation_types',
             errors=_(
                 'Select a valid choice. %(value)s is not one of the available choices.'

@@ -787,7 +787,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         response = self.assertPOST200(uri, data={f'override-{field_name}': ''})
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=f'override-{field_name}',
             errors=_('The filter cannot be changed because it is private.'),
         )
@@ -1423,7 +1423,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         response = self.assertPOST200(url, data={'date_field': date_field})
 
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='doc_type', errors=_('This field is required.'),
         )
 
@@ -1447,7 +1447,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_(
                 'If you chose a Date field, and select «customized» '
@@ -1471,7 +1471,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='date_filter',
             errors=_(
                 'Select a valid choice. %(value)s is not one of the available choices.'
@@ -2156,7 +2156,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             data={'columns': f'regular_field-{fname}'},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='columns',
             errors=_('This value is invalid: %(value)s') % {'value': fname},
         )
@@ -2171,7 +2171,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             data={'columns': f'regular_field-{fname}'},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='columns',
             errors=_('This value is invalid: %(value)s') % {'value': fname},
         )

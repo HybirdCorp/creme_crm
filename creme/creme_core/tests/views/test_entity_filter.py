@@ -657,7 +657,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_('The filter must have at least one condition.'),
         )
@@ -744,7 +744,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=ngettext(
                 'A private filter can only use public sub-filters, & '
@@ -774,7 +774,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         self.login_as_root()
 
         response = self.assertGET200(self._build_add_url(self.ct_contact))
-        self.assertIs(response.context['form'].initial.get('is_private'), True)
+        self.assertIs(self.get_form_or_fail(response).initial.get('is_private'), True)
 
     def test_create_missing_lv_absolute_url(self):
         "Missing get_lv_absolute_url() classmethod."
@@ -918,7 +918,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
                 follow=True, data=post_data,
             )
 
-            return response.context['form']
+            return self.get_form_or_fail(response)
 
         form1 = post({**data, 'subfiltercondition': [subfilter.id]})
         self.assertFormError(
@@ -1111,7 +1111,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='regularfieldcondition',
             errors=_('This field is invalid with this model.'),
         )
@@ -1137,7 +1137,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='regularfieldcondition',
             errors=_('This field is invalid with this model.'),
         )
@@ -1477,7 +1477,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_('There is a cycle with a sub-filter.'),
         )
@@ -1521,7 +1521,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_('A private filter must be assigned to a user/team.'),
         )
@@ -1676,7 +1676,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
 
         response = self._aux_edit_subfilter(efilter1, user=user, is_private='on')
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_(
                 'This filter cannot be private because it is a sub-filter '

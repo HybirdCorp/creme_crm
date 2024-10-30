@@ -386,9 +386,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         def get_choices():
             response = self.assertGET200(url)
+            form = self.get_form_or_fail(response)
 
             with self.assertNoException():
-                return [*response.context['form'].fields['role'].choices]
+                return [*form.fields['role'].choices]
 
         choices = get_choices()
         self.assertInChoices(value='',       label='*{}*'.format(_('Superuser')), choices=choices)
@@ -1229,7 +1230,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 },
             )
             self.assertFormError(
-                post_response.context['form'],
+                self.get_form_or_fail(post_response),
                 field='locations',
                 errors=_('The following block should be displayed only once: «%(block)s»') % {
                     'block': brick.verbose_name,
@@ -1369,7 +1370,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         url = self._build_editdetail_url(ct=None)
         response = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='locations', errors=_('Your configuration is empty!'),
         )
 
@@ -1380,7 +1381,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         url = self._build_editdetail_url(ct=None)
         response = self.assertPOST200(url, data={'locations': "{not a dict"})
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='locations', errors=_('Enter a valid JSON.'),
         )
 
@@ -1397,7 +1398,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         url = self._build_editdetail_url(ct=None)
         response = self.assertPOST200(url, data=payload)
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='locations', errors=_("The value doesn't match the expected format."),
         )
 
@@ -1594,9 +1595,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         def get_choices():
             response = self.assertGET200(url)
+            form = self.get_form_or_fail(response)
 
             with self.assertNoException():
-                return [*response.context['form'].fields['role'].choices]
+                return [*form.fields['role'].choices]
 
         choices = get_choices()
         self.assertInChoices(value='',       label='*{}*'.format(_('Superuser')), choices=choices)
@@ -2294,7 +2296,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             )
             if error:
                 self.assertFormError(
-                    response.context['form'],
+                    self.get_form_or_fail(response),
                     field='cells',
                     errors=_('This type of field can not be the first column.'),
                 )
@@ -2328,7 +2330,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 data={'cells': f'regular_field-{field_name},regular_field-name'},
             )
             self.assertFormError(
-                response.context['form'],
+                self.get_form_or_fail(response),
                 field='cells',
                 errors=_('This type of field can not be the first column.'),
             )
@@ -2358,7 +2360,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'cells': f'relation-{rt2.id},regular_field-name'},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='cells',
             errors=_('This type of field can not be the first column.'),
         )
@@ -2397,7 +2399,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='cells',
             errors=_('This value is invalid: %(value)s') % {'value': hidden_fname2},
         )
@@ -2917,7 +2919,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
         response = self.assertGET200(self.CUSTOM_WIZARD_URL)
-        self.assertIn(contact_ct, response.context['form'].fields['ctype'].ctypes)
+        self.assertIn(contact_ct, self.get_form_or_fail(response).fields['ctype'].ctypes)
 
         response = self.assertPOST200(
             self.CUSTOM_WIZARD_URL,
@@ -2927,7 +2929,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 '0-name': 'foobar',
             },
         )
-        self.assertIn('cells', response.context['form'].fields)
+        self.assertIn('cells', self.get_form_or_fail(response).fields)
 
         # Return to first step
         response = self.assertPOST200(
@@ -2937,7 +2939,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 'wizard_goto_step': '0',
             },
         )
-        self.assertIn(contact_ct, response.context['form'].fields['ctype'].ctypes)
+        self.assertIn(contact_ct, self.get_form_or_fail(response).fields['ctype'].ctypes)
 
     def test_BrickDetailviewLocationsBrick(self):
         role = self.role

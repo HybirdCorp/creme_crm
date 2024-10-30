@@ -97,9 +97,9 @@ class BatchProcessViewsTestCase(CremeTestCase):
         url = self._build_add_url(FakeOrganisation)
 
         response = self.assertGET200(url)
+        form = self.get_form_or_fail(response)
 
         with self.assertNoException():
-            form = response.context['form']
             orga_fields = {*form.fields['actions']._fields}
 
         self.assertDictEqual(
@@ -107,7 +107,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
                 'content_type': self.orga_ct,
                 'filter': None,
             },
-            form.initial
+            form.initial,
         )
 
         self.assertIn('name', orga_fields)
@@ -247,7 +247,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='actions',
             errors=_('This field is invalid with this model.'),
         )
@@ -291,9 +291,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
 
         response = self.assertGET200(self._build_add_url(FakeOrganisation, efilter_id=efilter.id))
 
-        with self.assertNoException():
-            form = response.context['form']
-
+        form = self.get_form_or_fail(response)
         self.assertEqual(efilter.id, form.initial['filter'])
 
     def test_several_actions(self):
@@ -334,7 +332,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='actions',
             errors=_('The field «%(field)s» can not be used twice.') % {
                 'field': _('First name'),
@@ -436,7 +434,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='filter',
             errors=_(
                 'Select a valid choice. '

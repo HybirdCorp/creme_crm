@@ -338,7 +338,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 model=get_model_verbose_name(model=FakeContact, count=1),
                 instance=pos2del,
             ),
-            response.context['form'].fields[fname].initial
+            self.get_form_or_fail(response).fields[fname].initial
         )
 
         # Two related entity ---
@@ -357,7 +357,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 model=get_model_verbose_name(model=FakeContact, count=2),
                 instance=pos2del,
             ),
-            response.context['form'].fields[fname].initial,
+            self.get_form_or_fail(response).fields[fname].initial,
         )
 
         # POST ---
@@ -579,7 +579,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 count=1,
                 model=get_model_verbose_name(model=FakeProduct, count=1),
             ),
-            response.context['form'].fields[fname].initial,
+            self.get_form_or_fail(response).fields[fname].initial,
         )
 
         # Several entities will be deleted ---
@@ -594,7 +594,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 count=2,
                 model=get_model_verbose_name(model=FakeProduct, count=2),
             ),
-            response.context['form'].fields[fname].initial,
+            self.get_form_or_fail(response).fields[fname].initial,
         )
 
         # POST ---
@@ -700,12 +700,12 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 model=get_model_verbose_name(model=FakeActivity, count=2),
                 instance=atype,
             ),
-            response.context['form'].fields[fname].initial
+            self.get_form_or_fail(response).fields[fname].initial
         )
 
         response = self.assertPOST200(url)
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=fname, errors=_('Deletion is not possible.'),
         )
 
@@ -751,7 +751,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 instance=status2del,
                 fallback=default_status,
             ),
-            response.context['form'].fields[fname].initial,
+            self.get_form_or_fail(response).fields[fname].initial,
         )
 
         # Two related entity ---
@@ -771,7 +771,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 instance=status2del,
                 fallback=default_status,
             ),
-            response.context['form'].fields[fname].initial,
+            self.get_form_or_fail(response).fields[fname].initial,
         )
 
         # POST ---
@@ -836,7 +836,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 model=get_model_verbose_name(model=FakeTicket, count=1),
                 instance=prio2del,
             ),
-            response.context['form'].fields[fname].initial,
+            self.get_form_or_fail(response).fields[fname].initial,
         )
 
         # One related entity ----
@@ -855,7 +855,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 model=get_model_verbose_name(model=FakeTicket, count=2),
                 instance=prio2del,
             ),
-            response.context['form'].fields[fname].initial,
+            self.get_form_or_fail(response).fields[fname].initial,
         )
 
         # POST ---
@@ -1090,7 +1090,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(url)
         self.assertNotIn(
             'replace_creme_core__fakecontact_position',
-            response.context['form'].fields,
+            self.get_form_or_fail(response).fields,
         )
 
         # POST ---
@@ -1135,7 +1135,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(url)
         self.assertNotIn(
             'replace_creme_core__faketicket_priority',
-            response.context['form'].fields,
+            self.get_form_or_fail(response).fields,
         )
 
         # POST ---
@@ -1162,7 +1162,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(url)
         self.assertNotIn(
             'replace_creme_core__faketicket_status',
-            response.context['form'].fields,
+            self.get_form_or_fail(response).fields,
         )
 
         # POST ---
@@ -1193,7 +1193,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # No related entity ---
         response = self.assertGET200(url)
-        self.assertNotIn(fname, response.context['form'].fields)
+        self.assertNotIn(fname, self.get_form_or_fail(response).fields)
 
         # One related entity ---
         FakeProduct.objects.create(user=self.user, name='Shovel', type=prodtype2del)
@@ -1238,7 +1238,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(url)
         self.assertNotIn(
             'replace_creme_core__fakeactivity_type',
-            response.context['form'].fields,
+            self.get_form_or_fail(response).fields,
         )
 
         # POST ---
@@ -1314,7 +1314,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(url)
         self.assertNotIn(
             'replace_creme_core__fakecontact_civility',
-            response.context['form'].fields,
+            self.get_form_or_fail(response).fields,
         )
 
         # POST ---
@@ -1443,7 +1443,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertNotIn(
             'replace_creme_core__fakedocument_categories',
-            response.context['form'].fields,
+            self.get_form_or_fail(response).fields,
         )
 
         # POST ---

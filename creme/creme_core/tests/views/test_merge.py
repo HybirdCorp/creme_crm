@@ -336,27 +336,33 @@ class MergeViewsTestCase(CremeTestCase):
         contact02.languages.set([language1, language2])
 
         url = self.build_merge_url(contact01, contact02)
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
         with self.assertNoException():
-            f_image = response.context['form'].fields['image']
-            f_languages = response.context['form'].fields['languages']
+            fields = response1.context['form'].fields
+            image_f = fields['image']
+            languages_f = fields['languages']
 
-        self.assertFalse(f_image.required)
-        self.assertEqual([image1.id,  image2.id,  image1.id],  f_image.initial)
+        self.assertFalse(image_f.required)
+        self.assertEqual([image1.id,  image2.id,  image1.id],  image_f.initial)
 
-        self.assertFalse(f_languages.required)
-        self.assertEqual([
-            [language1.id],                 # left
-            [language1.id, language2.id],   # right
-            [language1.id]                  # merged
-        ], f_languages.initial)
+        self.assertFalse(languages_f.required)
+        self.assertListEqual(
+            [
+                [language1.id],                 # left
+                [language1.id, language2.id],   # right
+                [language1.id]                  # merged
+            ],
+            languages_f.initial,
+        )
 
-        self.assertEqual(user, f_image._original_field.user)
-        self.assertEqual(FakeImage, f_image._original_field.model)
+        self.assertEqual(user,      image_f._original_field.user)
+        self.assertEqual(FakeImage, image_f._original_field.model)
 
-        response = self.client.post(
-            url, follow=True,
+        # POST ---
+        response2 = self.client.post(
+            url,
+            follow=True,
             data={
                 'user_1':      user.id,
                 'user_2':      user.id,
@@ -379,8 +385,8 @@ class MergeViewsTestCase(CremeTestCase):
                 'image_merged': image2.id,
             },
         )
-        self.assertNoFormError(response)
-        self.assertRedirects(response, contact01.get_absolute_url())
+        self.assertNoFormError(response2)
+        self.assertRedirects(response2, contact01.get_absolute_url())
 
         self.assertDoesNotExist(contact02)
 
@@ -405,11 +411,11 @@ class MergeViewsTestCase(CremeTestCase):
         response = self.assertGET200(self.build_merge_url(orga01, orga02))
 
         with self.assertNoException():
-            f_name = response.context['form'].fields['name']
+            name_f = response.context['form'].fields['name']
 
         self.assertListEqual(
             [orga01.name, orga02.name, orga02.name],
-            f_name.initial
+            name_f.initial,
         )
 
     def test_merge04(self):
@@ -424,10 +430,10 @@ class MergeViewsTestCase(CremeTestCase):
         response = self.assertGET200(self.build_merge_url(contact01, contact02))
 
         with self.assertNoException():
-            f_image = response.context['form'].fields['image']
+            image_f = response.context['form'].fields['image']
 
-        self.assertEqual(user, f_image._original_field.user)
-        self.assertEqual(FakeImage, f_image._original_field.model)
+        self.assertEqual(user,      image_f._original_field.user)
+        self.assertEqual(FakeImage, image_f._original_field.model)
 
     def test_merge05(self):
         "Unregistered model."

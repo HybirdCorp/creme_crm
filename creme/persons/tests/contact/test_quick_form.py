@@ -290,7 +290,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='organisation',
             errors=_('Several Organisations with this name have been found.'),
         )
@@ -346,7 +346,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='organisation', errors=_('No linkable Organisation found.'),
         )
 
@@ -369,7 +369,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_(
                 'You are not allowed to link with the «{models}» of this user.'

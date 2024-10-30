@@ -674,7 +674,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
                 },
             )
             self.assertFormError(
-                response.context['form'],
+                self.get_form_or_fail(response),
                 field=None,
                 errors=_('The upper bound must be greater than the lower bound.'),
             )
@@ -784,7 +784,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
                 },
             )
             self.assertFormError(
-                response.context['form'],
+                self.get_form_or_fail(response),
                 field=None, errors=_('Give 2 choices at least.'),
             )
 
@@ -823,7 +823,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
                 },
             )
             self.assertFormError(
-                response.context['form'],
+                self.get_form_or_fail(response),
                 field=None, errors=_('Give 2 choices at least.'),
             )
 
@@ -1275,7 +1275,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='old_choices', errors=_('Choices can not be empty.'),
         )
 
@@ -1406,7 +1406,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='old_choices',
             errors=_(
                 'You can not delete the choice "%(choice)s" because it '
@@ -1687,7 +1687,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
         if error:
-            self.assertFormError(response.context['form'], field='conditions', errors=error)
+            self.assertFormError(self.get_form_or_fail(response), field='conditions', errors=error)
         else:
             self.assertNoFormError(response)
 
@@ -1749,7 +1749,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='conditions', errors=_('This source is invalid.'),
         )
 

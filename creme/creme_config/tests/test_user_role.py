@@ -244,7 +244,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(_('Save the role'), context6.get('submit_label'))
 
         with self.assertNoException():
-            fields6 = response.context['form'].fields
+            fields6 = context6['form'].fields
             label_field = fields6['no_filter_label']
 
         self.assertEqual(1, len(fields6))
@@ -1593,7 +1593,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
         self.assertListEqual(
-            ['no_filter_label'], [*response.context['form'].fields.keys()],
+            ['no_filter_label'], [*self.get_form_or_fail(response).fields.keys()],
         )
 
         # POST (step 2) ---
@@ -2109,7 +2109,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         response = self.assertPOST200(self._build_del_role_url(role))
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='to_role', errors=_('This field is required.'),
         )
 

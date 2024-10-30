@@ -57,7 +57,7 @@ class MessageTemplateTestCase(CremeTestCase):
             )
             if error:
                 self.assertFormError(
-                    response.context['form'],
+                    self.get_form_or_fail(response),
                     field=None,
                     errors=error_msg % {
                         'length': len(subject) + len(body) + 3 + special_chars_count,

@@ -54,7 +54,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         response = self.assertPOST200(url, data={'name': name})
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='name',
             errors=_('A segment with this name already exists'),
         )
@@ -69,7 +69,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         response = self.assertPOST200(self.ADD_SEGMENT_URL, data={'name': name})
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='name',
             errors=_('A property with the name «%(name)s» already exists') % {'name': pname},
         )
@@ -145,7 +145,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             segment.get_edit_absolute_url(), data={'name': name},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='name',
             errors=_('A segment with this name already exists'),
         )
@@ -164,7 +164,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             segment.get_edit_absolute_url(), data={'name': name},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='name',
             errors=_('A property with the name «%(name)s» already exists') % {'name': pname},
         )
@@ -293,7 +293,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             self._build_delete_url(segment), data={'to_segment': segment.id},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='to_segment',
             errors=_(
                 'Select a valid choice. That choice is not one of the available choices.'

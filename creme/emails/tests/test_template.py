@@ -126,7 +126,7 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
             },
         )
 
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         error_msg = _('The following variables are invalid: %(vars)s')
         self.assertFormError(
             form, field='body', errors=error_msg % {'vars': 'unexisting_var'},
@@ -194,7 +194,7 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
                 'body_html': '<p>blablabla</p> {{foobar_var}}',
             },
         )
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         error_msg = _('The following variables are invalid: %(vars)s')
         self.assertFormError(
             form, field='body', errors=error_msg % {'vars': 'unexisting_var'},

@@ -285,7 +285,7 @@ class RelationViewsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='relations',
             errors=_('Some entities are not linkable: {}').format(unlinkable),
         )
@@ -309,7 +309,7 @@ class RelationViewsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='relations',
             errors=_('There are duplicates: %(duplicates)s') % {
                 'duplicates': f'({rtype1}, {object1})',
@@ -354,7 +354,7 @@ class RelationViewsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='relations',
             errors=_('An entity can not be linked to itself: %(entities)s') % {
                 'entities': subject,
@@ -703,7 +703,7 @@ class RelationViewsTestCase(CremeTestCase):
         subject = self._create_contact(user=user)
         response = self.assertPOST200(self._build_add_url(subject))
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_('You must give one relationship at least.'),
         )
@@ -734,7 +734,7 @@ class RelationViewsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_('There are duplicates: %(duplicates)s') % {
                 'duplicates': f'({rtype1}, {object1})',
@@ -807,7 +807,7 @@ class RelationViewsTestCase(CremeTestCase):
         url = self._build_add_url(subject)
         response = self.assertPOST200(url, data={'semifixed_rtypes': [sfrt1.id]})
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='semifixed_rtypes',
             errors=Relation.error_messages['missing_subject_property'] % {
                 'entity': subject,
@@ -912,7 +912,7 @@ class RelationViewsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='relations',
             errors=_(
                 'This type of relationship causes a constraint error '
@@ -1208,7 +1208,7 @@ class RelationViewsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='relations',
             errors=_('Some entities are not linkable: {}').format(unlinkable),
         )
@@ -1231,7 +1231,7 @@ class RelationViewsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='relations',
             errors=_('An entity can not be linked to itself: %(entities)s') % {
                 'entities': f'{subject1}, {subject2}',
@@ -1266,7 +1266,7 @@ class RelationViewsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='relations',
             errors=Relation.error_messages['missing_subject_property'] % {
                 'entity': subject,
