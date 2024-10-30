@@ -812,7 +812,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
                 },
             )
             self.assertFormError(
-                response.context['form'],
+                self.get_form_or_fail(response),
                 field='cells',
                 errors='The type of cell in invalid: {type_id}.'.format(
                     type_id=extra_cell.type_id,
@@ -844,7 +844,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='cells',
             errors=_('This value is invalid: %(value)s') % {'value': fname},
         )
@@ -949,7 +949,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='cells',
             errors=_('This value is invalid: %(value)s') % {'value': cfields[0].id},
         )
@@ -1031,7 +1031,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='cells',
             errors=_('This value is invalid: %(value)s') % {'value': 'fakeactivity_start'},
         )
@@ -1146,7 +1146,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='cells',
             errors=_('This value is invalid: %(value)s') % {'value': 'customfields'},
         )
@@ -1344,7 +1344,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='cells',
             errors=_('This value is invalid: %(value)s') % {'value': cfields[1].id},
         )
@@ -1369,7 +1369,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='cells',
             errors=_('This value is invalid: %(value)s') % {'value': cfield.id},
         )

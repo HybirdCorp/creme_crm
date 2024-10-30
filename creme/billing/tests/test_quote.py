@@ -274,7 +274,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         QuoteStatus.objects.update(is_default=False)
 
         response = self.assertGET200(reverse('billing__create_quote'))
-        self.assertIsNone(response.context['form'].initial.get('status'))
+        self.assertIsNone(self.get_form_or_fail(response).initial.get('status'))
 
     def test_create_related01(self):
         user = self.login_as_root_and_get()
@@ -349,7 +349,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             reverse('billing__create_related_quote', args=(target.id,)),
         )
         # self.assertEqual(status.id, response.context['form'].initial.get('status'))
-        self.assertEqual(status.id, response.context['form'].fields['status'].initial)
+        self.assertEqual(status.id, self.get_form_or_fail(response).fields['status'].initial)
 
     def test_create_related__creation_credentials(self):
         "Creation creds are needed."
@@ -385,7 +385,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(
             reverse('billing__create_related_quote', args=(target.id,)),
         )
-        self.assertIsNone(response.context['form'].initial.get('status'))
+        self.assertIsNone(self.get_form_or_fail(response).initial.get('status'))
 
     def test_editview01(self):
         user = self.login_as_root_and_get()
@@ -471,7 +471,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = post(unlinkable_source, unlinkable_target)
         self.assertEqual(200, response.status_code)
 
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         msg_fmt = _('You are not allowed to link this entity: {}').format
         self.assertFormError(form, field=self.SOURCE_KEY, errors=msg_fmt(unlinkable_source))
         self.assertFormError(form, field=self.TARGET_KEY, errors=msg_fmt(unlinkable_target))

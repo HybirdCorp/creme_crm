@@ -263,9 +263,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             },
         )
 
-        with self.assertNoException():
-            form = response.context['form']
-
+        form = self.get_form_or_fail(response)
         self.assertFormError(
             form,
             field=self.TARGET_KEY,
@@ -305,9 +303,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             },
         )
 
-        with self.assertNoException():
-            form = response.context['form']
-
+        form = self.get_form_or_fail(response)
         fmt1 = _('You are not allowed to link this entity: {}').format
         fmt2 = _('Entity #{id} (not viewable)').format
         self.assertFormError(
@@ -336,7 +332,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EMITTER_KEY,
             errors=_(
                 'Select a valid choice. That choice is not one of the available choices.'
@@ -814,7 +810,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             args=('creme_core', 'currency', currency.id),
         ))
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='replace_opportunities__opportunity_currency',
             errors=_('Deletion is not possible.'),
         )

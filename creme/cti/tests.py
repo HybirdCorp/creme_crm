@@ -234,9 +234,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(url)
         self.assertTemplateUsed('persons/add_contact_form.html')
 
-        with self.assertNoException():
-            form = response.context['form']
-
+        form = self.get_form_or_fail(response)
         self.assertEqual(phone, form.initial.get('phone'))
 
         first_name = 'Minnie'
@@ -262,12 +260,11 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         url = reverse('cti__create_organisation', args=(phone,))
         response = self.assertGET200(url)
 
-        with self.assertNoException():
-            form = response.context['form']
-
+        form = self.get_form_or_fail(response)
         self.assertEqual(Organisation, form._meta.model)
         self.assertEqual(phone, form.initial.get('phone'))
 
+        # POST ---
         name = 'Gunsmith cats'
         self.assertNoFormError(self.client.post(
             url,

@@ -466,7 +466,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             }
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='user',
             errors=_('You are not allowed to link with the «{models}» of this user.').format(
                 models=_('Documents'),
@@ -953,7 +953,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='image',
             errors=_(
                 'Upload a valid image. '

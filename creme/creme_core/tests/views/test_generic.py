@@ -802,7 +802,7 @@ class EditionTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='last_name', errors=_('This field is required.'),
         )
         self.assertEqual(lv_url, response.context.get('cancel_url'))

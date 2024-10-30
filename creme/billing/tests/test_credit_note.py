@@ -440,7 +440,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='credit_notes',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': credit_note},
         )
@@ -501,7 +501,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='credit_notes',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': credit_note},
         )
@@ -554,7 +554,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='credit_notes',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': credit_note},
         )

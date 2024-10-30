@@ -344,7 +344,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             args=('products', 'subcategory', sub_cat.id),
         ))
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='replace_products__product_sub_category',
             errors=_('Deletion is not possible.'),
         )
@@ -358,7 +358,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             args=('products', 'category', cat.id),
         ))
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='replace_products__product_category',
             errors=_('Deletion is not possible.'),
         )

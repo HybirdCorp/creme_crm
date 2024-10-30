@@ -214,7 +214,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
         self.assertEqual(200, response.status_code)
 
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         self.assertFormError(
             form,
             field='abscissa',
@@ -358,7 +358,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         response = post(abscissa_field='legal_form')
         self.assertEqual(200, response.status_code)
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='abscissa',
             errors='This entity cell is not allowed.'
         )
@@ -410,7 +410,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         response = post(abscissa_field='legal_form')
         self.assertEqual(200, response.status_code)
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='abscissa',
             errors='This entity cell is not allowed.'
         )
@@ -623,7 +623,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                 ),
             },
         )
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         self.assertFormError(
             form, field='abscissa', errors='This entity cell is not allowed.',
         )
@@ -659,7 +659,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='abscissa',
             errors='This entity cell is not allowed.',
         )
@@ -909,7 +909,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='ordinate',
             errors='This entity cell is not allowed.',
         )

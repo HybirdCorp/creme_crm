@@ -217,7 +217,7 @@ class TransformationIntoUserTestCase(_BaseTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='password_2',
             errors=_("The two password fields didn’t match."),
         )
@@ -240,7 +240,7 @@ class TransformationIntoUserTestCase(_BaseTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='username',
             errors=_('A user with that username already exists.'),
         )
@@ -276,7 +276,7 @@ class TransformationIntoUserTestCase(_BaseTestCase):
                 },
             )
             self.assertFormError(
-                response.context['form'],
+                self.get_form_or_fail(response),
                 field='password_2',
                 errors=_('The password is too similar to the %(verbose_name)s.') % {
                     'verbose_name': field_verbose_name,
@@ -318,7 +318,7 @@ class TransformationIntoUserTestCase(_BaseTestCase):
                 },
             )
             self.assertFormError(
-                response.context['form'],
+                self.get_form_or_fail(response),
                 field='password_2',
                 errors=_('The password is too similar to the %(verbose_name)s.') % {
                     'verbose_name': field_verbose_name,

@@ -116,10 +116,7 @@ class HeaderFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(
             self._build_add_url(ContentType.objects.get_for_model(FakeContact))
         )
-
-        with self.assertNoException():
-            form = response.context['form']
-
+        form = self.get_form_or_fail(response)
         self.assertIs(form.initial.get('is_private'), True)
 
     def test_edit01(self):

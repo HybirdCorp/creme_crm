@@ -282,7 +282,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         # Validation errors ----------
         response = self.assertPOST200(self._build_import_url(Activity), data=data, follow=True)
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='my_participation',
             errors=_('Enter a value if you check the box.'),
         )
@@ -295,7 +295,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='participants', errors='Invalid index',
         )
 
@@ -687,7 +687,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 'participating_users': other_user.pk,
             },
         )
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         self.assertFormError(
             form,
             field='my_participation',

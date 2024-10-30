@@ -138,7 +138,7 @@ class SettingTestCase(CremeTestCase):
 
         response = self.assertPOST200(url, data={'value': 42})
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='value', errors=_('Enter a valid email address.'),
         )
 

@@ -93,7 +93,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             data={'start': start_iso},
         )
 
-        get_initial = response.context['form'].initial.get
+        get_initial = self.get_form_or_fail(response).initial.get
         self.assertTupleEqual(
             (start_date, start_time),
             get_initial(self.EXTRA_START_KEY),
@@ -112,7 +112,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             },
         )
 
-        get_initial = response.context['form'].initial.get
+        get_initial = self.get_form_or_fail(response).initial.get
         self.assertTupleEqual(
             (date(2010, 1, 1), time(16, 35)),
             get_initial(self.EXTRA_START_KEY),
@@ -134,7 +134,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             },
         )
 
-        get_initial = response.context['form'].initial.get
+        get_initial = self.get_form_or_fail(response).initial.get
         self.assertEqual(
             (date(2010, 1, 1), time(16, 35)),
             get_initial(self.EXTRA_START_KEY),
@@ -159,7 +159,10 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
                 }
             ),
         )
-        self.assertFormError(response.context['form'], field=None, errors=_('No participant'))
+        self.assertFormError(
+            self.get_form_or_fail(response),
+            field=None, errors=_('No participant'),
+        )
 
     def test_error_my_participation_no_calendar(self):
         "Selected myself as participant without calendar."
@@ -180,7 +183,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             ),
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EXTRA_MYPART_KEY,
             errors=_('Enter a value if you check the box.'),
         )

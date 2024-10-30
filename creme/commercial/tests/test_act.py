@@ -122,7 +122,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None, errors=_("Due date can't be before start."),
         )
         self.assertFalse(Act.objects.all())
@@ -148,7 +148,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
                 },
             )
 
-            return response.context['form']
+            return self.get_form_or_fail(response)
 
         msg = _('This field is required.')
         date_str = self.formfield_value_date(2011, 11, 20)
@@ -229,7 +229,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None, errors=_("Due date can't be before start."),
         )
         self.assertEqual(date(year=2011, month=12, day=26), self.refresh(act).due_date)
@@ -504,7 +504,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         response = post(priv_efilter)
         self.assertEqual(200, response.status_code)
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='entity_counting', errors=_('This filter is invalid.'),
         )
 
@@ -1140,7 +1140,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             args=('commercial', 'act_type', act.act_type_id),
         ))
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='replace_commercial__act_act_type',
             errors=_('Deletion is not possible.'),
         )

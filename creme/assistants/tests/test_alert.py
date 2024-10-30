@@ -726,10 +726,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_create_errors(self):
         def _fail_creation(**post_data):
             response = self.assertPOST200(self._build_add_url(self.entity), data=post_data)
-
-            with self.assertNoException():
-                form = response.context['form']
-
+            form = self.get_form_or_fail(response)
             self.assertFalse(form.is_valid(), f'Creation should fail with data={post_data}')
 
         user_pk = self.user.pk

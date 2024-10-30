@@ -163,7 +163,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='end_date',
             errors=_('The end date must be after the start date.'),
         )
@@ -719,7 +719,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='related_contacts',
             errors=_('Contact %(contact)s is present twice.') % {'contact': casca},
         )
@@ -749,7 +749,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='related_contacts',
             errors=_('Some entities are not linkable: {}').format(casca),
         )
@@ -898,7 +898,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='cform_extra-opportunities_target',
             errors=_(
                 'Select a valid choice. That choice is not one of the available choices.'

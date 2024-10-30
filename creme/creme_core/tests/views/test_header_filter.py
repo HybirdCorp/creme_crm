@@ -61,7 +61,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
             response,
             _('Create a view of list for «%(ctype)s»') % {'ctype': 'Test Mailing list'},
         )
-        self.assertIs(response.context['form'].initial.get('is_private'), False)
+        self.assertIs(self.get_form_or_fail(response).initial.get('is_private'), False)
 
         name = 'DefaultHeaderFilter'
         response = self.client.post(
@@ -302,7 +302,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
             data={'cells': f'regular_field-{hidden_fname}'},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='cells',
             errors=_('This value is invalid: %(value)s') % {'value': hidden_fname},
         )
@@ -323,7 +323,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
             data={'cells': f'relation-{disabled_rtype.id}'},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='cells',
             errors=_('This type of relationship is disabled.'),
         )
@@ -334,7 +334,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         self.login_as_root()
 
         response = self.assertGET200(self._build_add_url(self.contact_ct))
-        self.assertIs(response.context['form'].initial.get('is_private'), True)
+        self.assertIs(self.get_form_or_fail(response).initial.get('is_private'), True)
 
     def test_create_missing_lv_absolute_url(self):
         "Missing get_lv_absolute_url() class-method."
@@ -525,7 +525,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='user',
             errors=_('A private view of list must be assigned to a user/team.'),
         )

@@ -1172,6 +1172,19 @@ class _CremeTestCase:
             'efilter': efilter.id if efilter else '',
         })
 
+    def get_form_or_fail(self, response, form_name='form'):
+        context = response.context
+        self.assertIsNotNone(
+            context, msg='No context found in the response (no validation error)',
+        )
+
+        form = response.context.get(form_name)
+        self.assertIsNotNone(
+            form, msg='No form found in the response (no validation error)',
+        )
+
+        return form
+
     @staticmethod
     def get_html_tree(content):
         return html5lib.parse(content, namespaceHTMLElements=False)

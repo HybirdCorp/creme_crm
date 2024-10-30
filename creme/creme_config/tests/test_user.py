@@ -448,7 +448,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
 
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         msg = _('This field is required.')
         self.assertFormError(form, field='first_name',   errors=msg)
         self.assertFormError(form, field='last_name',    errors=msg)
@@ -500,7 +500,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='username',
             errors=_(
                 'Enter a valid username. This value may contain only letters, numbers, '
@@ -604,7 +604,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='username',
             errors=_('A user with that username already exists.'),
         )
@@ -630,7 +630,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='username',
             errors=_('A user with that username already exists.'),
         )
@@ -694,7 +694,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='relation',
             errors=_(
                 'Select a valid choice. That choice is not one of the available choices.'
@@ -734,7 +734,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                 },
             )
             self.assertFormError(
-                response.context['form'],
+                self.get_form_or_fail(response),
                 field='password_2',
                 errors=_('The password is too similar to the %(verbose_name)s.') % {
                     'verbose_name': field_verbose_name,
@@ -1088,7 +1088,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             data={'password_1': password, 'password_2': password + '42'},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='password_2',
             errors=_("The two password fields didn’t match."),
         )
@@ -1120,7 +1120,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             url, data={'password_1': password, 'password_2': password}
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='password_2',
             errors=ngettext(
                 'This password is too short. It must contain at least %(min_length)d character.',
@@ -1864,7 +1864,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.client.post(self._build_edit_user_svalue_url(sk), data={'value': ''})
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='value', errors=_('This field is required.'),
         )
 

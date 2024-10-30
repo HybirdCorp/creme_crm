@@ -359,7 +359,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EXTRA_LEADERS_KEY,
             errors=_('Some entities are not linkable: {}').format(
                 _('Entity #{id} (not viewable)').format(id=manager.id),
@@ -386,7 +386,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
 
         create_dt = self.create_datetime
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_('Start ({start}) must be before end ({end}).').format(
                 start=date_format(create_dt(2012, 2, 16), 'DATE_FORMAT'),
@@ -476,7 +476,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
 
         create_dt = self.create_datetime
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_('Start ({start}) must be before end ({end}).').format(
                 start=date_format(create_dt(2012, 3, 27), 'DATE_FORMAT'),
@@ -602,7 +602,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=self.EXTRA_PARENTTASKS_KEY,
             errors=_('«%(entity)s» violates the constraints.') % {'entity': task01},
         )
@@ -762,7 +762,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             data={'parents': self.formfield_value_multi_creator_entity(task01)},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='parents',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': task01},
         )
@@ -795,7 +795,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             build_url(task01), data={'parents': field_value(task03)},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='parents',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': task03},
         )
@@ -1015,7 +1015,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         )
         self.assertEqual(1, len(self.refresh(task).related_activities))
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_(
                 '{participant} already participates to the activity '
@@ -1158,7 +1158,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='resource',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': worker},
         )
@@ -1210,7 +1210,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='resource',
             errors=_('«%(entity)s» violates the constraints.') % {'entity': contact},
         )

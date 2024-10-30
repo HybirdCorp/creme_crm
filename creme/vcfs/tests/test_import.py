@@ -128,9 +128,7 @@ class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
         response = self._post_step0(user=user, content='BEGIN:VCARD\nFN:Test\nEND:VCARD')
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
-
+        form = self.get_form_or_fail(response)
         self.assertIn('value="1"', str(form['vcf_step']))
 
     def test_parsing_vcf00(self):
@@ -367,9 +365,7 @@ URL;TYPE=WORK:www.web-site.com
 END:VCARD"""
         response = self._post_step0(user=user, content=content)
 
-        with self.assertNoException():
-            form = response.context['form']
-
+        form = self.get_form_or_fail(response)
         self.assertEqual(form['organisation'].field.initial, orga.id)
 
     def test_parsing_vcf05(self):
@@ -557,7 +553,7 @@ END:VCARD"""
                 'create_or_attach_orga': True,
             },
         )
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         validation_text = _('Required, if you want to create organisation')
         self.assertFormError(form, field='work_name', errors=validation_text)
         self.assertFormError(form, field='relation',  errors=validation_text)
@@ -1046,7 +1042,7 @@ END:VCARD"""
                 'update_work_address':  True,
             },
         )
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         validation_text = _('Organisation not selected')
         self.assertFormError(form, field='update_work_name',     errors=validation_text)
         self.assertFormError(form, field='update_work_phone',    errors=validation_text)
@@ -1091,7 +1087,7 @@ END:VCARD"""
                 'update_work_address':  True,
             },
         )
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         validation_text = _('Required, if you want to update organisation')
         self.assertFormError(form, field='work_phone',    errors=validation_text)
         self.assertFormError(form, field='work_email',    errors=validation_text)
@@ -2254,7 +2250,7 @@ END:VCARD"""
             errors=True,
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=f'work_{req_fname}',
             errors=_('The field «{}» has been configured as required.').format(
                 Organisation._meta.get_field(req_fname).verbose_name

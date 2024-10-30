@@ -636,7 +636,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             'creme_config__delete_instance', args=('creme_core', 'vat_value', vat.id)
         ))
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='replace_billing__productline_vat_value',
             errors=_('Deletion is not possible.'),
         )
@@ -682,7 +682,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertEqual(_('Add to the catalog'), context.get('submit_label'))
 
-        enum_choiceset = response.context['form'].fields['sub_category'].enum
+        enum_choiceset = self.get_form_or_fail(response).fields['sub_category'].enum
         self.assertEqual(enum_choiceset.field.model, Product)
 
         # ---
@@ -716,7 +716,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         url = self._build_add2catalog_url(service_line)
         response = self.assertGET200(url)
 
-        enum_choiceset = response.context['form'].fields['sub_category'].enum
+        enum_choiceset = self.get_form_or_fail(response).fields['sub_category'].enum
         self.assertEqual(enum_choiceset.field.model, Service)
 
         # Submit new service
@@ -798,7 +798,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_(
                 'You are not allowed to add this item to the catalog '
@@ -825,7 +825,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_(
                 'You are not allowed to add this item to the catalog '

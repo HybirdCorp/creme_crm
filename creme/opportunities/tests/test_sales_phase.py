@@ -112,7 +112,7 @@ class SalesPhaseTestCase(CremeTestCase):
             args=('opportunities', 'sales_phase', sp.id),
         ))
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='replace_opportunities__opportunity_sales_phase',
             errors=_('Deletion is not possible.'),
         )

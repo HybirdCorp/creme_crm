@@ -118,12 +118,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         doc = builder(lines, user=user)
         url = self._build_import_url(FakeContact)
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
+        self.get_form_or_fail(response1)
 
-        with self.assertNoException():
-            response.context['form']  # NOQA
-
-        response = self.client.post(
+        # ---
+        response2 = self.client.post(
             url,
             data={
                 'step':     0,
@@ -131,14 +130,13 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 # has_header
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
-        with self.assertNoException():
-            form = response.context['form']
-
+        form = self.get_form_or_fail(response2)
         self.assertIn('value="1"', str(form['step']))
 
-        response = self.client.post(
+        # ---
+        response3 = self.client.post(
             url,
             follow=True,
             data={
@@ -147,7 +145,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'user': user.id,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response3)
 
         job = self.get_alone_element(Job.objects.all())
         self.assertEqual(user, job.user)
@@ -164,13 +162,13 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             job.description,
         )  # TODO: description of columns ????
 
-        self.assertRedirects(response, job.get_absolute_url())
+        self.assertRedirects(response3, job.get_absolute_url())
 
         self.assertFalse(
             Notification.objects.filter(user=user, channel__uuid=UUID_CHANNEL_JOBS),
         )
 
-        tree = self.get_html_tree(response.content)
+        tree = self.get_html_tree(response3.content)
         self.get_brick_node(tree, brick=MassImportJobErrorsBrick)
 
         mass_import_type.execute(job)
@@ -255,7 +253,6 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         tree = self.get_html_tree(result[1])
         self.get_brick_node(tree, brick_id)
 
-        # self.assertGET404(reload_url, data={'brick_id': JobErrorsBrick.id_})
         self.assertGET404(reload_url, data={'brick_id': JobErrorsBrick.id})
 
     def _test_import02(self, builder):
@@ -520,7 +517,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertNoFormError(response)
-        self.assertIn('value="1"', str(response.context['form']['step']))
+        self.assertIn('value="1"', str(self.get_form_or_fail(response)['step']))
 
         response = self.client.post(
             url,
@@ -1437,7 +1434,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         response = post('notint')
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=f'custom_field-{cf_int.id}', errors=_('Enter a whole number.'),
         )
 
@@ -1467,7 +1464,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             self._build_import_url(FakeContact), data={'step': 0, 'document': doc.id},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_(
                 'Error reading document, unsupported file type: {file}.'
@@ -1499,7 +1496,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='capital', errors=_('Enter a whole number.'),
         )
 
@@ -1521,7 +1518,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='name', errors=_('This field is required.'),
         )
 
@@ -1551,7 +1548,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 # f'custom_field-{cf2.id}_defval': 1,
             },
         )
-        form = response.context['form']
+        form = self.get_form_or_fail(response)
         self.assertFormError(
             form,
             field=f'custom_field-{cf2.id}',
@@ -1630,7 +1627,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='position', errors='You can not create instances',
         )
 
@@ -1654,7 +1651,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='legal_form', errors='You can not create instances',
         )
 
@@ -1681,7 +1678,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='status',
             errors=_(
                 'You can not create a «{model}» with only a value for «{field}»'
@@ -1721,7 +1718,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='sector', errors='You can not create instances',
         )
 
@@ -1752,7 +1749,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='dyn_relations',
             errors=_(
                 'You are not allowed to create: %(model)s'
@@ -2087,7 +2084,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field='position',
             errors=_(
                 'Select a valid choice. "{value}" is not one of the available sub-field.'

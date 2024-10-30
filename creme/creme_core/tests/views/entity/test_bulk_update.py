@@ -448,7 +448,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=field_name, errors=_('This field is required.'),
         )
 
@@ -595,7 +595,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=field_name,
             errors=_('You are not allowed to link this entity: {}').format(
                 _('Entity #{id} (not viewable)').format(id=forbidden.id),
@@ -760,7 +760,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=m2m_name,
             errors=_(
                 'Select a valid choice. %(value)s is not one of the available choices.'
@@ -1202,7 +1202,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=None,
             errors=_('This Contact is related to a user and must have a first name.'),
         )
@@ -1367,7 +1367,7 @@ class InnerEditTestCase(_BulkEditTestCase):
             data={field_name: 'whatever'},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=field_name, errors=_('Enter a valid date.'),
         )
 
@@ -1393,7 +1393,7 @@ class InnerEditTestCase(_BulkEditTestCase):
             data={field_name: ''},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=field_name, errors=_('This field is required.'),
         )
 
@@ -1575,7 +1575,7 @@ class InnerEditTestCase(_BulkEditTestCase):
             uri, data={m2m_name: [categories[0].pk, invalid_pk]},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=m2m_name,
             errors=_(
                 'Select a valid choice. %(value)s is not one of the available choices.'
@@ -1664,7 +1664,7 @@ class InnerEditTestCase(_BulkEditTestCase):
             data={formfield_name: 'luigi'},
         )
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=formfield_name, errors=error_msg,
         )
 
@@ -1831,7 +1831,7 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         response = self.assertPOST200(uri, data={field_name: ''})
         self.assertFormError(
-            response.context['form'],
+            self.get_form_or_fail(response),
             field=field_name, errors=_('This field is required.'),
         )
 
