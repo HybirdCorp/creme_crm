@@ -4,6 +4,10 @@
 
 {% block brick_extra_class %}{{block.super}} billing-exporters-brick{% endblock %}
 
+{% block brick_header_title %}
+    {% brick_header_title title=verbose_name icon='config' %}
+{% endblock %}
+
 {% block brick_table_columns %}
     {% brick_table_column title=_('Type') status='primary' %}
     {% brick_table_column title=_('Exporter') %}
