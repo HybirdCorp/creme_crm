@@ -81,7 +81,7 @@ class TemplateBaseBarHatBrick(BillingBarHatBrick):
     download_button = False
 
 
-class _LinesBrick(SimpleBrick):
+class _LinesBrick(Brick):
     dependencies = (Relation, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     relation_type_deps = (constants.REL_SUB_HAS_LINE, )
     target_ctypes = (CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
@@ -373,7 +373,7 @@ class BillingExportersBrick(Brick):
     verbose_name = _('Exporters')
     template_name = 'billing/bricks/exporters.html'
     dependencies = (ExporterConfigItem,)
-    configurable = False
+    # configurable = False
     # permissions = 'billing.can_admin' => auto by creme_config views
 
     def detailview_display(self, context):
