@@ -1,3 +1,22 @@
+== Version 2.5.14 & 2.5.15 ==
+
+  Users side :
+  ------------
+    # Apps :
+        * Documents :
+            - The cloning of Document has been disabled.
+        * Commercial :
+            - The cloning of Strategy has been disabled.
+        * Emails :
+            - The cloning of Mailing List has been improved.
+        * Graphs :
+            - Cloning a Graph caused an error 500.
+        * Polls :
+            - The cloning of Campaigns & Replies has been disabled.
+        * Recurrents :
+            - The cloning of Generator has been disabled.
+
+
 == Version 2.5.13 ==
 
   Users side :
