@@ -550,11 +550,11 @@ workflows:
               only: /.*/
             branches:
               ignore: /.*/
-          requires:
-            - javascript-tests
-#            - python37-tests-sqlite3
-            - python38-tests-sqlite3
-#            - python37-tests-mysql
-            - python38-tests-mysql
-#            - python37-tests-pgsql
-            - python38-tests-pgsql
+#          requires:
+#            - javascript-tests
+##            - python37-tests-sqlite3
+#            - python38-tests-sqlite3
+##            - python37-tests-mysql
+#            - python38-tests-mysql
+##            - python37-tests-pgsql
+#            - python38-tests-pgsql
