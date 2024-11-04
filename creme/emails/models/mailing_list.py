@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -110,6 +110,13 @@ class AbstractMailingList(CremeEntity):
 
         for child in self.children.filter(is_deleted=False):
             child.get_family_aux(dic)
+
+    def _post_save_clone(self, source):
+        from .recipient import EmailRecipient
+
+        # TODO: bulk_create + pagination
+        for recipient in source.emailrecipient_set.all():
+            EmailRecipient.objects.create(ml=self, address=recipient.address)
 
 
 class MailingList(AbstractMailingList):

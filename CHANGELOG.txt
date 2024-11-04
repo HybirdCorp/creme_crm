@@ -1,3 +1,31 @@
+== Version 2.6.3 ==
+
+  Users side :
+  ------------
+    # Apps :
+        * Documents :
+            - The cloning of Document has been disabled.
+        * Commercial :
+            - The cloning of Strategy has been disabled.
+        * Emails :
+            - The cloning of Mailing List has been improved.
+        * Graphs :
+            - Cloning a Graph caused an error 500.
+        * Polls :
+            - The cloning of Campaigns & Replies has been disabled.
+        * Recurrents :
+            - The cloning of Generator has been disabled.
+
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The tutorials have been improved (better populate scripts, talk about
+          MinionModel & UUIDs).
+
+
 == Version 2.6.2 ==
 
   Users side :

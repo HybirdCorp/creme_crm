@@ -22,8 +22,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+# from creme.persons.workflow import transform_target_into_customer
 from creme.creme_core.models import deletion
-from creme.persons.workflow import transform_target_into_customer
 
 from .. import get_template_base_model
 from ..constants import DEFAULT_DECIMAL
@@ -117,7 +117,7 @@ class AbstractInvoice(Base):
             self.status = InvoiceStatus.objects.filter(is_default=True).first()
 
         super().build(template)
-        transform_target_into_customer(self.source, self.target, self.user)
+        # transform_target_into_customer(self.source, self.target, self.user)
 
         return self
 
