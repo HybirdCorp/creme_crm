@@ -1,3 +1,14 @@
+== Version 2.4.20 ==
+
+  Users side :
+  ------------
+    # Apps :
+        * Documents :
+            - The cloning of Document has been disabled.
+        * Recurrents :
+            - The cloning of Generator has been disabled.
+
+
 == Version 2.4.19 ==
 
   Users side :
