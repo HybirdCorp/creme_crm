@@ -166,7 +166,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
     _onSubmitDone: function(event, response, dataType) {
         if (this._validate(response, dataType)) {
-            this._events.trigger('form-success', [response, dataType], this);
+            this.trigger('form-success', response, dataType);
 
             /*
              * TODO : This is a hotfix for 2.3 release without changing the
@@ -192,7 +192,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             this._updateButtonState("send", true, 'auto');
             this._updateButtonState("cancel", true);
 
-            this._events.trigger('form-error', [response.content, dataType], this);
+            this.trigger('form-error', response.content, dataType);
         }
     },
 

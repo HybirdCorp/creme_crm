@@ -52,6 +52,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
             within:     within,
             fitFrame:   true,
             shrink:     true,
+            propagateEvent: false,
             useFrameTitleBar: true,
             useFrameActions: true,
             fillFrameOnError: false,
@@ -85,11 +86,11 @@ creme.dialog.Dialog = creme.component.Component.sub({
     },
 
     _onFrameCleanup: function() {
-        this._events.trigger('frame-cleanup', [this.frame()], this);
+        this.trigger('frame-cleanup', this.frame());
     },
 
     _onFrameUpdate: function() {
-        this._events.trigger('frame-update', [this.frame()], this);
+        this.trigger('frame-update', this.frame());
 
         if (this.isOpened()) {
             this._activateFrameContent();
@@ -122,7 +123,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
             this.fitToFrameSize();
         }
 
-        this._events.trigger('frame-activated', [this.frame()], this);
+        this.trigger('frame-activated', this.frame());
 
         if (this.options.closeOnEscape) {
             this.resetFocus();
@@ -155,7 +156,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         }
 
         this._destroyDialog();
-        this._events.trigger('close', [options], this);
+        this.trigger('close', options);
     },
 
     _onOpen: function(dialog, frame, options) {
@@ -188,7 +189,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
             this._scrollbackPosition = creme.utils.scrollBack();
         }
 
-        this._events.trigger('open', [options], this);
+        this.trigger('open', options);
     },
 
     _onResize: function(dialog, frame) {
@@ -197,7 +198,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var delegate = frame.delegate();
 
         delegate.width(body.width() - (delegate.position().left + (body.outerWidth() - body.width())));
-        this._events.trigger('resize', [delegate.width(), delegate.height()], this);
+        this.trigger('resize', delegate.width(), delegate.height());
     },
 
     _frameFetchData: function(data) {
@@ -524,6 +525,17 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
     onOpen: function(opened) {
         this._events.bind('open', opened);
+        return this;
+    },
+
+    trigger: function(event) {
+        var data = Array.copy(arguments).slice(1);
+
+        if (this.options.propagateEvent) {
+            $(document).trigger('dialog-' + event, [this].concat(data || []));
+        }
+
+        this._events.trigger(event, data, this);
         return this;
     },
 
