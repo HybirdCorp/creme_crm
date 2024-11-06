@@ -9,7 +9,11 @@
             * Dialog:
                 - Add option 'propagateEvent':.
                     - When enabled, a copy of the event prefixed by 'dialog-' is triggered to allow the usage of external handlers (the dialog element if opened or the window.document).
-                      e.g: $(document).on('dialog-open', function() { ... });
+                      It can be used with the new id option to listen a specific popup.
+                      e.g: $(document).on('dialog-open', '#my-popup', function() { ... });
+                - Add option 'id' to identify the dialog DOM element.
+                - Add 'fitToFrameSize' & 'resize' methods to 'ui.dialog' widget.
+                - Add 'cremeInstance' method to 'ui.dialog' widget : returns the creme.dialog.Dialog instance
 
 
 == Version 2.6.3 ==

@@ -321,11 +321,15 @@ QUnit.test('creme.dialog.Dialog (widget, fill static, not opened)', function(ass
 });
 
 QUnit.test('creme.dialog.Dialog (widget, fetch url)', function(assert) {
-    var dialog = new creme.dialog.Dialog({backend: this.backend});
+    var dialog = new creme.dialog.Dialog({
+        backend: this.backend,
+        id: 'test-popup'
+    });
     dialog.on('frame-activated', this.mockListener('frame-activated'));
 
     $(document).on('dialog-frame-activated', this.mockListener('dialog-frame-activated'));
     $(document).on('dialog-open', this.mockListener('dialog-open'));
+    $(document).on('dialog-before-destroy', this.mockListener('dialog-before-destroy'));
     $(document).on('dialog-close', this.mockListener('dialog-close'));
 
     dialog.open();
@@ -343,15 +347,22 @@ QUnit.test('creme.dialog.Dialog (widget, fetch url)', function(assert) {
 
     deepEqual([], this.mockListenerCalls('dialog-frame-activated'));
     deepEqual([], this.mockListenerCalls('dialog-open'));
+    deepEqual([], this.mockListenerCalls('dialog-before-destroy'));
     deepEqual([], this.mockListenerCalls('dialog-close'));
 });
 
 QUnit.test('creme.dialog.Dialog (widget, fetch url, propagateEvent)', function(assert) {
-    var dialog = new creme.dialog.Dialog({backend: this.backend, propagateEvent: true});
+    var dialog = new creme.dialog.Dialog({
+        backend: this.backend,
+        propagateEvent: true,
+        id: 'test-popup'
+    });
+
     dialog.on('frame-activated', this.mockListener('frame-activated'));
 
     $(document).on('dialog-frame-activated', this.mockListener('dialog-frame-activated'));
     $(document).on('dialog-open', this.mockListener('dialog-open'));
+    $(document).on('dialog-before-destroy', this.mockListener('dialog-before-destroy'));
     $(document).on('dialog-close', this.mockListener('dialog-close'));
 
     dialog.open();
@@ -369,6 +380,7 @@ QUnit.test('creme.dialog.Dialog (widget, fetch url, propagateEvent)', function(a
 
     deepEqual([['dialog-frame-activated', [dialog, dialog.frame()]]], this.mockListenerJQueryCalls('dialog-frame-activated'));
     deepEqual([['dialog-open', [dialog, dialog.options]]], this.mockListenerJQueryCalls('dialog-open'));
+    deepEqual([['dialog-before-destroy', [dialog, dialog.options]]], this.mockListenerJQueryCalls('dialog-before-destroy'));
     deepEqual([['dialog-close', [dialog, dialog.options]]], this.mockListenerJQueryCalls('dialog-close'));
 });
 
@@ -907,8 +919,7 @@ QUnit.test('creme.dialog.Dialog (titlebar, fetch url)', function(assert) {
         '</div>');
 });
 
-
-QUnit.test('creme.dialogs.Dialog (scrollbackOnClose)', function(assert) {
+QUnit.test('creme.dialog.Dialog (scrollbackOnClose)', function(assert) {
     this.withScrollBackFaker(function(faker) {
         faker.result = 789;
 
@@ -936,8 +947,7 @@ QUnit.test('creme.dialogs.Dialog (scrollbackOnClose)', function(assert) {
     });
 });
 
-
-QUnit.test('creme.dialogs.Dialog (scrollbackOnClose, disabled)', function(assert) {
+QUnit.test('creme.dialog.Dialog (scrollbackOnClose, disabled)', function(assert) {
     this.withScrollBackFaker(function(faker) {
         var dialog = new creme.dialog.Dialog({
             scrollbackOnClose: false
@@ -956,8 +966,7 @@ QUnit.test('creme.dialogs.Dialog (scrollbackOnClose, disabled)', function(assert
     });
 });
 
-
-QUnit.test('creme.dialogs.Dialog (closeOnEscape)', function(assert) {
+QUnit.test('creme.dialog.Dialog (closeOnEscape)', function(assert) {
     var dialog = new creme.dialog.Dialog().open();
 
     equal(true, dialog.options.closeOnEscape);
@@ -966,8 +975,7 @@ QUnit.test('creme.dialogs.Dialog (closeOnEscape)', function(assert) {
     ok(dialog.isOpened() === false);
 });
 
-
-QUnit.test('creme.dialogs.Dialog (closeOnEscape, disabled)', function(assert) {
+QUnit.test('creme.dialog.Dialog (closeOnEscape, disabled)', function(assert) {
     var dialog = new creme.dialog.Dialog({
         closeOnEscape: false
     }).open();
@@ -976,6 +984,32 @@ QUnit.test('creme.dialogs.Dialog (closeOnEscape, disabled)', function(assert) {
 
     $(dialog.dialog()).trigger($.Event("keydown", {keyCode: $.ui.keyCode.ESCAPE}));
     ok(dialog.isOpened() === true);
+
+    dialog.close();
+});
+
+QUnit.test('creme.dialog.Dialog (id)', function(assert) {
+    var dialog = new creme.dialog.Dialog({
+        id: 'test-popup'
+    }).open();
+
+    ok(dialog.isOpened() === true);
+    ok($('#test-popup').is('.ui-dialog-content') === true);
+    deepEqual($('#test-popup').data('uiCremeDialog'), dialog);
+
+    dialog.close();
+    equal($('#test-popup').length, 0);
+});
+
+QUnit.test('creme.dialog.Dialog (jquery creme dialog methods)', function(assert) {
+    var dialog = new creme.dialog.Dialog({
+        id: 'test-popup'
+    }).open();
+
+    ok(dialog.isOpened() === true);
+    deepEqual($('#test-popup').dialog('cremeInstance'), dialog);
+    $('#test-popup').dialog('fitToFrameSize');
+    $('#test-popup').dialog('resize', 100, 100);
 
     dialog.close();
 });
