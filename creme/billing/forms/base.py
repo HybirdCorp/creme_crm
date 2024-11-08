@@ -23,13 +23,11 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
+import creme.creme_core.forms as core_forms
 from creme.billing.models import NumberGeneratorItem
-from creme.creme_core.forms import (
-    CreatorEntityField,
-    CremeEntityForm,
-    GenericEntityField,
-)
+from creme.billing.setting_keys import emitter_edition_key
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
+from creme.creme_core.models import CremeEntity, SettingValue
 from creme.persons import get_contact_model, get_organisation_model
 
 logger = logging.getLogger(__name__)
@@ -48,7 +46,18 @@ class BillingSourceSubCell(CustomFormExtraSubCell):
     verbose_name = pgettext_lazy('billing', 'Source organisation')
 
     def formfield(self, instance, user, **kwargs):
-        return CreatorEntityField(
+        if (
+            instance.pk
+            and instance.number
+            and not instance.generate_number_in_create  # Invoice & CreditNote
+            and not SettingValue.objects.get_4_key(emitter_edition_key, default=False).value
+        ):
+            return core_forms.ReadonlyMessageField(
+                label=self.verbose_name, return_value=(),
+                initial=_('Your configuration forbids you to edit the source Organisation'),
+            )
+
+        return core_forms.CreatorEntityField(
             label=self.verbose_name,
             model=get_organisation_model(),
             user=user,
@@ -61,7 +70,7 @@ class BillingTargetSubCell(CustomFormExtraSubCell):
     verbose_name = pgettext_lazy('billing', 'Target')
 
     def formfield(self, instance, user, **kwargs):
-        field = GenericEntityField(
+        field = core_forms.GenericEntityField(
             label=self.verbose_name,
             models=[get_organisation_model(), get_contact_model()],
             user=user,
@@ -73,7 +82,7 @@ class BillingTargetSubCell(CustomFormExtraSubCell):
         return field
 
 
-class BaseCustomForm(CremeEntityForm):
+class BaseCustomForm(core_forms.CremeEntityForm):
     class Meta:
         labels = {
             'discount': _('Overall discount (in %)'),
@@ -105,7 +114,10 @@ class BaseCustomForm(CremeEntityForm):
         cdata = super().clean()
         instance = self.instance
 
-        instance.source = cdata.get(self.source_cell_key)
+        emitter = cdata.get(self.source_cell_key)
+        if isinstance(emitter, CremeEntity):  # Do not assign if ReadonlyMessageField
+            instance.source = emitter
+
         instance.target = cdata.get(self.target_cell_key)
 
         number = self.cleaned_data['number']

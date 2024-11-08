@@ -25,3 +25,10 @@ button_redirection_key = SettingKey(
     ),
     app_label='billing', type=SettingKey.BOOL,
 )
+emitter_edition_key = SettingKey(
+    id='billing-emitter_edition',
+    description=_(
+        'If a Invoice/Credit Note has a number, can the source Organisation be modified?'
+    ),
+    app_label='billing', type=SettingKey.BOOL,
+)
