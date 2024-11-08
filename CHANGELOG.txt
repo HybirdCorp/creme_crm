@@ -1,5 +1,12 @@
 == Version 2.5.16 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # In menu entries with custom URLs, links are now opened in a new tab.
+
+  Developers side :
+  -----------------
+
     Non breaking changes :
     ----------------------
         # Javascript:
@@ -11,6 +18,7 @@
                 - Add option 'id' to identify the dialog DOM element.
                 - Add 'fitToFrameSize' & 'resize' methods to 'ui.dialog' widget.
                 - Add 'cremeInstance' method to 'ui.dialog' widget : returns the creme.dialog.Dialog instance
+
 
 == Version 2.5.14 & 2.5.15 ==
 
