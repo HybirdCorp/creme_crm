@@ -3,6 +3,7 @@
   Users side :
   ------------
     # In mass-import form, the selector for properties was not our expected widget.
+    # In menu entries with custom URLs, links are now opened in a new tab.
 
   Developers side :
   -----------------

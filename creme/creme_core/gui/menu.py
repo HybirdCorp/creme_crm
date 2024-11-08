@@ -268,7 +268,7 @@ class CustomURLEntry(MenuEntry):
             )
 
         return format_html(
-            '<a href="{url}">{label}</a>',
+            '<a href="{url}" target="_blank">{label}</a>',
             url=url,
             label=label,
         )
