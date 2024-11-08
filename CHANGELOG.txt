@@ -80,9 +80,7 @@
                     - The constants 'NARROW', 'FLOATING_TIME' & 'FLOATING' are now deprecated;
                       use 'Activity.FloatingType.*' instead.
                 * Billing :
-                    - In 'registry' :
-                        - The class 'LinesRegistry' is deprecated; use 'core.line.LineRegistry' instead.
-                        - The variable 'lines_registry' is deprecated; use 'core.line.line_registry' instead.
+                    - The module 'registry' is deprecated.
                     - The class 'views.base.BaseCreation' is deprecated.
                 * Projects :
                     - The method 'models.AbstractProjectTask.clone_scope()' is deprecated.
@@ -212,6 +210,7 @@
                       have been removed ; you can see in 'creme.opportunities.apps.OpportunitiesConfig.register_billing()'
                       how to code a feature similar to the old relationship conversion.
                 - In 'models' :
+                    - The models 'ConfigBillingAlgo' & 'SimpleBillingAlgo' have been removed.
                     - The default statuses are now initialized at models level, not view level.
                     - The method 'Base.generate_number()' has been removed.
                     - In the model 'AbstractTemplateBase' :
