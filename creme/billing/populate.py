@@ -565,6 +565,7 @@ class Populator(BasePopulator):
         create_svalue = SettingValue.objects.get_or_create
         create_svalue(key_id=setting_keys.payment_info_key.id,       defaults={'value': True})
         create_svalue(key_id=setting_keys.button_redirection_key.id, defaults={'value': True})
+        create_svalue(key_id=setting_keys.emitter_edition_key.id,    defaults={'value': False})
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

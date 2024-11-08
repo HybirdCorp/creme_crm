@@ -39,6 +39,8 @@
                 - QUOTE_NUMBER_PREFIX
                 - INVOICE_NUMBER_PREFIX
                 - SALESORDER_NUMBER_PREFIX
+            - It's now forbidden by default to edit the source Organisation of a Invoice/CreditNote when a number is set.
+              This behaviour can be changed in the configuration portal of 'billing'.
             - The 'Convert to ...' buttons have been reworked :
                 - When a button is disabled, the reason is displayed as tool-tip.
                 - The constraints for properties & relationships are better respected.

@@ -11,6 +11,7 @@ from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.forms import CreatorEntityField
 from creme.creme_core.gui import actions
 from creme.creme_core.gui.custom_form import FieldGroupList
 from creme.creme_core.gui.view_tag import ViewTag
@@ -440,7 +441,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_RECEIVED, object=target)
 
-    def test_editview02(self):
+    def test_editview__change_related_organisations01(self):
         "Change source/target + perms."
         user = self.login_as_standard(
             allowed_apps=('persons', 'billing'),
@@ -487,7 +488,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveNoRelation(subject=quote, type=REL_SUB_BILL_ISSUED,   object=source1)
         self.assertHaveNoRelation(subject=quote, type=REL_SUB_BILL_RECEIVED, object=target1)
 
-    def test_editview03(self):
+    def test_editview__change_related_organisations02(self):
         "Change source/target + perms: unlinkable but not changed."
         user = self.login_as_standard(
             allowed_apps=('persons', 'billing'),
@@ -521,6 +522,23 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(status, self.refresh(quote).status)
         self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_RECEIVED, object=target)
+
+    def test_editview__emitter_edition_forbidden(self):
+        "SettingValue is ignored."
+        user = self.login_as_root_and_get()
+        # SettingValue.objects.set_4_key(emitter_edition_key, False)
+
+        quote, source, target = self.create_quote_n_orgas(
+            user=user, name='Quote #01', number='Q-001',
+        )
+
+        response = self.assertGET200(quote.get_edit_absolute_url())
+
+        with self.assertNoException():
+            source_f = response.context['form'].fields[self.SOURCE_KEY]
+
+        self.assertIsInstance(source_f, CreatorEntityField)
+        self.assertEqual(source, source_f.initial)
 
     def test_listview(self):
         user = self.login_as_root_and_get()

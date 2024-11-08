@@ -432,6 +432,7 @@ class BillingConfig(CremeAppConfig):
         setting_key_registry.register(
             setting_keys.payment_info_key,
             setting_keys.button_redirection_key,
+            setting_keys.emitter_edition_key,
         )
 
     def register_smart_columns(self, smart_columns_registry):

@@ -12,6 +12,7 @@ from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
 from creme.billing import bricks
+from creme.creme_core.forms import CreatorEntityField, ReadonlyMessageField
 from creme.creme_core.gui import actions
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
@@ -21,6 +22,7 @@ from creme.creme_core.models import (
     FieldsConfig,
     Relation,
     RelationType,
+    SettingValue,
     Vat,
 )
 from creme.creme_core.tests.base import CremeTransactionTestCase
@@ -47,6 +49,7 @@ from ..models import (
     PaymentTerms,
     SettlementTerms,
 )
+from ..setting_keys import emitter_edition_key
 from .base import (
     Address,
     Invoice,
@@ -686,8 +689,9 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     #     self.assertFalse(number_action.is_enabled)
     #     self.assertTrue(number_action.is_visible)
 
-    def test_editview01(self):
+    def test_editview(self):
         user = self.login_as_root_and_get()
+        SettingValue.objects.set_4_key(emitter_edition_key, True)
 
         name = 'Invoice001'
         invoice, source1, target1 = self.create_invoice_n_orgas(user=user, name=name)
@@ -778,9 +782,75 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertDoesNotExist(original_b_addr)
         self.assertDoesNotExist(original_s_addr)
 
+    def test_editview__source_edition_forbidden(self):
+        user = self.login_as_root_and_get()
+        SettingValue.objects.set_4_key(emitter_edition_key, True)
+
+        name = 'Invoice001'
+        invoice, source1, target = self.create_invoice_n_orgas(
+            user=user, name=name, number='INV-001',
+        )
+
+        url = invoice.get_edit_absolute_url()
+
+        # Edition allowed (configuration) ---
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            source_f1 = response1.context['form'].fields[self.SOURCE_KEY]
+
+        self.assertIsInstance(source_f1, CreatorEntityField)
+        self.assertEqual(source1, source_f1.initial)
+
+        # Edition forbidden ---
+        SettingValue.objects.set_4_key(emitter_edition_key, False)
+
+        response2 = self.assertGET200(url)
+
+        with self.assertNoException():
+            source_f2 = response2.context['form'].fields[self.SOURCE_KEY]
+
+        self.assertIsInstance(source_f2, ReadonlyMessageField)
+        self.assertEqual(
+            _('Your configuration forbids you to edit the source Organisation'),
+            source_f2.initial,
+        )
+
+        source2 = Organisation.objects.create(user=user, name='Source #2')
+        name = f'{invoice.name} edited'
+        self.assertNoFormError(self.client.post(
+            url, follow=True,
+            data={
+                'user':     user.pk,
+                'name':     name,
+                'number':   invoice.number,
+                'status':   invoice.status_id,
+                'currency': invoice.currency_id,
+                'discount': '0',
+
+                self.SOURCE_KEY: source2.id,  # < == should not be used
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
+            },
+        ))
+
+        invoice = self.refresh(invoice)
+        self.assertEqual(name, invoice.name)
+        self.assertEqual(source1, invoice.source)
+
+        # Edition allowed (no number) ---
+        invoice.number = ''
+        invoice.save()
+
+        response4 = self.assertGET200(url)
+
+        with self.assertNoException():
+            source_f4 = response4.context['form'].fields[self.SOURCE_KEY]
+
+        self.assertIsInstance(source_f4, CreatorEntityField)
+
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
-    def test_editview02(self):
+    def test_editview__user_change(self):
         "User changes => lines user changes."
         user = self.login_as_root_and_get()
 
@@ -833,7 +903,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             ],  # Refresh
         )
 
-    def test_editview03(self):
+    def test_editview__discount_error(self):
         "Error on discount."
         user = self.login_as_root_and_get()
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')
@@ -860,7 +930,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFormError(post('150'), field='discount', errors=msg)
         self.assertFormError(post('-10'), field='discount', errors=msg)
 
-    def test_editview_payment_info01(self):
+    def test_editview__payment_info01(self):
         user = self.login_as_root_and_get()
 
         source2 = Organisation.objects.create(user=user, name='Sega')
@@ -891,7 +961,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNoFormError(response)
         self.assertIsNone(self.refresh(invoice).payment_info)
 
-    def test_editview_payment_info02(self):
+    def test_editview__payment_info02(self):
         "One PaymentInformation in the source => used automatically."
         user = self.login_as_root_and_get()
 
@@ -917,7 +987,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = self.refresh(invoice)
         self.assertEqual(pi, invoice.payment_info)
 
-    def test_editview_payment_info03(self):
+    def test_editview__payment_info03(self):
         "Several PaymentInformation in the source => default one is used."
         user = self.login_as_root_and_get()
 

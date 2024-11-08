@@ -63,6 +63,11 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertIs(True, sv.value)
 
+        sv = self.get_object_or_fail(
+            SettingValue, key_id=setting_keys.emitter_edition_key.id,
+        )
+        self.assertIs(False, sv.value)
+
     @skipIfNotInstalled('creme.activities')
     def test_populate_activities(self):
         # Contribution to activities
