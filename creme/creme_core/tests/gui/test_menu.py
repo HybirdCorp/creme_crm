@@ -533,7 +533,8 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(url, entry.url)
         self.assertDictEqual({'label': label, 'url': url}, entry.data)
         self.assertHTMLEqual(
-            f'<a href="{url}">{label}</a>',
+            # f'<a href="{url}">{label}</a>',
+            f'<a href="{url}" target="_blank">{label}</a>',
             entry.render(self._build_context()),
         )
 
