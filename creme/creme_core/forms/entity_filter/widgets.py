@@ -43,7 +43,6 @@ from creme.creme_core.enumerators import CustomFieldEnumerator
 from creme.creme_core.models import CremeEntity, CustomField
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.utils.url import TemplateURLBuilder
-from creme.creme_core.views.entity_filter import EntityFilterUserEnumerator
 
 from ..enumerable import (
     EnumerableChoiceSet,
@@ -86,6 +85,11 @@ class UserEnumerableSelect(EnumerableSelect):
 
     # def __init__(self, field, filter_type=EF_USER, attrs=None):
     def __init__(self, field, filter_type=EF_REGULAR, attrs=None):
+        # We avoid early import of the view which breaks some form hooking
+        from creme.creme_core.views.entity_filter import (
+            EntityFilterUserEnumerator,
+        )
+
         user_ctype = ContentType.objects.get_for_model(field.model)
         user_choices_url = reverse(
             'creme_core__efilter_user_choices', args=(user_ctype.id, field.name)

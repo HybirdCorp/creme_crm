@@ -1,5 +1,9 @@
 == Version 2.6.4 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # In mass-import form, the selector for properties was not our expected widget.
+
   Developers side :
   -----------------
 
@@ -33,7 +37,6 @@
             - The cloning of Campaigns & Replies has been disabled.
         * Recurrents :
             - The cloning of Generator has been disabled.
-
 
   Developers side :
   -----------------
