@@ -422,6 +422,9 @@ class AuthTestCase(CremeTestCase):
         self.assertEqual('*superuser*', SUPERUSER_PERM)
         self.assertTrue(has_perm(SUPERUSER_PERM))
 
+        with self.assertNoException():
+            user.has_perm_or_die(SUPERUSER_PERM)
+
         contact1 = self.contact1
         self.assertTrue(has_perm('creme_core.view_entity',   contact1))
         self.assertTrue(has_perm('creme_core.change_entity', contact1))
@@ -446,6 +449,9 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(user.has_perm_to_view(contact2))
         self.assertTrue(user.has_perm_to_change(contact2))
 
+        self.assertTrue(user.has_perm_to_create(FakeContact))
+        self.assertTrue(user.has_perm_to_export(FakeContact))
+
         # Helpers (exception version) ------------------------------------------
         self.assertNoException(user.has_perm_to_view_or_die,   contact1)
         self.assertNoException(user.has_perm_to_change_or_die, contact1)
@@ -466,6 +472,10 @@ class AuthTestCase(CremeTestCase):
         self._create_role('Salesman', ['creme_core'], users=[user])
         self.assertFalse(user.has_perm(SUPERUSER_PERM))
 
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_perm_or_die(SUPERUSER_PERM)
+        self.assertEqual(_('A superuser is required.'), str(cm.exception))
+
     def test_staff(self):
         self.assertEqual('*staff*', STAFF_PERM)
 
@@ -473,11 +483,19 @@ class AuthTestCase(CremeTestCase):
         has_perm = user.has_perm
         self.assertFalse(has_perm(STAFF_PERM))
 
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_perm_or_die(STAFF_PERM)
+        self.assertEqual(_('A staff user is required.'), str(cm.exception))
+
+        # ---
         user.is_superuser = True
         self.assertFalse(has_perm(STAFF_PERM))
 
         user.is_staff = True
         self.assertTrue(has_perm(STAFF_PERM))
+
+        with self.assertNoException():
+            user.has_perm_or_die(STAFF_PERM)
 
     def test_role_esetall_view(self):
         "VIEW + ESET_ALL."
@@ -2057,6 +2075,13 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(has_perm('creme_core.add_relation'))
         self.assertFalse(has_perm_to_create(CremeProperty))  # Helper
 
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_perm_or_die('creme_core.add_cremeproperty')
+        self.assertEqual(
+            _('You are not allowed to create: {}').format(_('Property')),
+            str(cm.exception),
+        )
+
         get_ct = ContentType.objects.get_for_model
         role.creatable_ctypes.set([get_ct(CremeProperty), get_ct(Relation)])
 
@@ -2096,6 +2121,14 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(has_perm('persons.export_organisation'))
         self.assertFalse(has_perm_to_export(FakeContact))  # Helper
 
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_perm_or_die('creme_core.export_fakecontact')
+        self.assertEqual(
+            _('You are not allowed to export: {}').format('Test Contact'),
+            str(cm.exception),
+        )
+
+        # ---
         role.exportable_ctypes.add(ContentType.objects.get_for_model(FakeContact))
 
         user.role = self.refresh(role)  # Refresh cache
@@ -2201,6 +2234,7 @@ class AuthTestCase(CremeTestCase):
         with self.assertNoException():
             user.has_perm_to_admin_or_die('creme_core')
             user.has_perm_to_admin_or_die('documents')
+            user.has_perm_or_die('documents.can_admin')
 
         invalid_app = 'persons'
         with self.assertRaises(PermissionDenied) as cm:
@@ -2210,9 +2244,28 @@ class AuthTestCase(CremeTestCase):
             fmt(apps.get_app_config('persons').verbose_name), str(cm.exception),
         )
 
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_perm_or_die(f'{invalid_app}.can_admin')
+
+        self.assertEqual(
+            fmt(apps.get_app_config('persons').verbose_name), str(cm.exception),
+        )
+
         self.assertTrue(user.has_perm('creme_core'))
         self.assertTrue(user.has_perm('documents'))
         self.assertFalse(user.has_perm('persons'))
+
+        with self.assertNoException():
+            user.has_perm_or_die('documents')
+
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_perm_or_die('persons')
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Accounts and Contacts')
+            ),
+            str(cm.exception),
+        )
 
     def test_app_creds03(self):
         "Superuser."

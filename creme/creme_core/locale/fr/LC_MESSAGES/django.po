@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-18 16:34+0200\n"
+"POT-Creation-Date: 2024-11-13 16:05+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -56,6 +56,12 @@ msgstr "Navigateur web"
 msgctxt "creme_core"
 msgid "Email"
 msgstr "E-mail"
+
+msgid "A staff user is required."
+msgstr "Un administrateur est requis."
+
+msgid "A superuser is required."
+msgstr "Un super-utilisateur est requis."
 
 msgid "You are not super-user."
 msgstr "Vous n'êtes pas super-utilisateur"
@@ -1914,6 +1920,9 @@ msgstr "{user} (équipe)"
 #, python-brace-format
 msgid "{first_name} {last_name}."
 msgstr "{first_name} {last_name}."
+
+msgid "Forbidden (unspecified reason)"
+msgstr "Interdit (raison indéterminée)"
 
 msgid "Invalid app \"{}\""
 msgstr "App invalide \"{}\""
