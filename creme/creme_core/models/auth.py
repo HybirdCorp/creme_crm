@@ -27,6 +27,7 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps
 from django.conf import settings
+from django.contrib.auth import get_backends
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -44,6 +45,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ..auth import EntityCredentials
 from ..core.setting_key import UserSettingValueManager
+from ..utils.content_type import as_ctype
 from ..utils.unicode_collation import collator
 from .entity import CremeEntity
 from .fields import EntityCTypeForeignKey
@@ -55,6 +57,7 @@ if TYPE_CHECKING:
     from .base import CremeModel
 
     EntityInstanceOrClass = Union[Type[CremeEntity], CremeEntity]
+    EntityInstanceOrClassOrCType = Union[Type[CremeEntity], CremeEntity, ContentType]
 
 logger = logging.getLogger(__name__)
 
@@ -217,28 +220,48 @@ class UserRole(models.Model):
     def get_allowed_apps_verbose(self) -> list[str]:  # For templates
         return self._build_apps_verbose(self.allowed_apps)
 
-    def can_create(self, app_name: str, model_name: str) -> bool:
-        """@return True if a model with ContentType(app_name, model_name) can be created."""
-        ct = ContentType.objects.get_by_natural_key(app_name, model_name)
-
+    # def can_create(self, app_name: str, model_name: str) -> bool:
+    #     ct = ContentType.objects.get_by_natural_key(app_name, model_name)
+    #
+    #     if self._creatable_ctypes_set is None:
+    #         self._creatable_ctypes_set = frozenset(
+    #             self.creatable_ctypes.values_list('id', flat=True)
+    #         )
+    #
+    #     return ct.id in self._creatable_ctypes_set
+    def can_create(self, ctype: ContentType, /) -> bool:  # TODO: accept model too?
+        """Creation credentials.
+        @param ctype: ContentType of the model we want to create.
+        @return True if the model can be created.
+        """
         if self._creatable_ctypes_set is None:
             self._creatable_ctypes_set = frozenset(
                 self.creatable_ctypes.values_list('id', flat=True)
             )
 
-        return ct.id in self._creatable_ctypes_set
+        return ctype.id in self._creatable_ctypes_set
 
     # TODO: factorise with can_create() ??
-    def can_export(self, app_name: str, model_name: str) -> bool:
-        """@return True if a model with ContentType(app_name, model_name) can be exported."""
-        ct = ContentType.objects.get_by_natural_key(app_name, model_name)
-
+    # def can_export(self, app_name: str, model_name: str) -> bool:
+    #     ct = ContentType.objects.get_by_natural_key(app_name, model_name)
+    #
+    #     if self._exportable_ctypes_set is None:
+    #         self._exportable_ctypes_set = frozenset(
+    #             self.exportable_ctypes.values_list('id', flat=True)
+    #         )
+    #
+    #     return ct.id in self._exportable_ctypes_set
+    def can_export(self, ctype: ContentType, /) -> bool:
+        """Mass-export credentials.
+        @param ctype: ContentType of the model we want to export.
+        @return True if the model can be exported.
+        """
         if self._exportable_ctypes_set is None:
             self._exportable_ctypes_set = frozenset(
                 self.exportable_ctypes.values_list('id', flat=True)
             )
 
-        return ct.id in self._exportable_ctypes_set
+        return ctype.id in self._exportable_ctypes_set
 
     def can_do_on_model(self, user, model: CremeEntity, owner, perm: int) -> bool:
         """Can the given user execute an action (VIEW, CHANGE etc..) on this model.
@@ -1187,6 +1210,24 @@ class CremeUser(AbstractBaseUser):
         # Check the backends.
         return _user_has_perm(self, perm, obj)
 
+    def has_perm_or_die(self, perm: str, obj=None) -> None:
+        """Version of 'has_perm()' which raises <PermissionDenied> instead of
+        returning <False>.
+        Notice: the backend should forge human-friendly messages (it's the case of
+        the default backend).
+        @raise PermissionDenied.
+        """
+        for backend in get_backends():
+            if not hasattr(backend, 'has_perm'):
+                continue
+
+            # Can raise PermissionDenied
+            if backend.has_perm(self, perm, obj):
+                return
+
+        # TODO: unit test
+        raise PermissionDenied(gettext('Forbidden (unspecified reason)'))
+
     def has_perms(self, perm_list: Iterable[str], obj=None) -> bool:
         has_perm = self.has_perm
 
@@ -1277,19 +1318,43 @@ class CremeUser(AbstractBaseUser):
                 )
             )
 
-    def has_perm_to_create(self, model_or_entity: EntityInstanceOrClass) -> bool:
-        """Helper for has_perm() method.
-        Example: user.has_perm('myapp.add_mymodel') => user.has_perm_to_create(MyModel)
-        """
-        meta = model_or_entity._meta
-        return self.has_perm(f'{meta.app_label}.add_{meta.object_name.lower()}')
+    # def has_perm_to_create(self, model_or_entity: EntityInstanceOrClass) -> bool:
+    #     meta = model_or_entity._meta
+    #     return self.has_perm(f'{meta.app_label}.add_{meta.object_name.lower()}')
+    def has_perm_to_create(self,
+                           ct_or_model_or_entity: EntityInstanceOrClassOrCType,
+                           /) -> bool:
+        """Is the user allowed to create instances of a model?
+        >> user.has_perm_to_create(ContentType.objects.get_for_model(Contact))
 
-    def has_perm_to_create_or_die(self, model_or_entity: EntityInstanceOrClass) -> None:
-        if not self.has_perm_to_create(model_or_entity):
+        >> user.has_perm_to_create(Contact)
+
+        >> contact = Contact.objects.create(user=user, last_name='Doe')
+        >> user.has_perm_to_create(contact)
+        """
+        # TODO: check is a CremeEntity?
+        return self.is_superuser or self.role.can_create(as_ctype(ct_or_model_or_entity))
+
+    # def has_perm_to_create_or_die(self, model_or_entity: EntityInstanceOrClass) -> None:
+    #     if not self.has_perm_to_create(model_or_entity):
+    #         raise PermissionDenied(
+    #             gettext('You are not allowed to create: {}').format(
+    #                 model_or_entity._meta.verbose_name,
+    #             )
+    #         )
+    def has_perm_to_create_or_die(self,
+                                  ct_or_model_or_entity: EntityInstanceOrClassOrCType,
+                                  /) -> None:
+        if not self.has_perm_to_create(ct_or_model_or_entity):
+            # TODO: as_model()?
+            meta = (
+                ct_or_model_or_entity.model_class()._meta
+                if isinstance(ct_or_model_or_entity, ContentType) else
+                ct_or_model_or_entity._meta
+            )
+
             raise PermissionDenied(
-                gettext('You are not allowed to create: {}').format(
-                    model_or_entity._meta.verbose_name,
-                )
+                gettext('You are not allowed to create: {}').format(meta.verbose_name)
             )
 
     # TODO: rename argument (see <has_perm_to_change()>)
@@ -1317,21 +1382,44 @@ class CremeUser(AbstractBaseUser):
             )
 
     # TODO: factorise with has_perm_to_create() ??
-    def has_perm_to_export(self, model_or_entity: EntityInstanceOrClass) -> bool:
-        """Helper for has_perm() method.
-        Example: user.has_perm('myapp.export_mymodel') => user.has_perm_to_export(MyModel)
-        """
-        meta = model_or_entity._meta
-        return self.has_perm(f'{meta.app_label}.export_{meta.object_name.lower()}')
+    # def has_perm_to_export(self, model_or_entity: EntityInstanceOrClass) -> bool:
+    #     meta = model_or_entity._meta
+    #     return self.has_perm(f'{meta.app_label}.export_{meta.object_name.lower()}')
+    def has_perm_to_export(self,
+                           ct_or_model_or_entity: EntityInstanceOrClassOrCType,
+                           /) -> bool:
+        """Is the user allowed to mass-export the instances of a model?
+        >> user.has_perm_to_export(ContentType.objects.get_for_model(Contact))
 
+        >> user.has_perm_to_export(Contact)
+
+        >> contact = Contact.objects.create(user=user, last_name='Doe')
+        >> user.has_perm_to_export(contact)
+        """
+        # TODO: check is a CremeEntity?
+        return self.is_superuser or self.role.can_export(as_ctype(ct_or_model_or_entity))
+
+    # def has_perm_to_export_or_die(self,
+    #                               model_or_entity: type[CremeEntity] | CremeEntity,
+    #                               ) -> None:
+    #     if not self.has_perm_to_export(model_or_entity):
+    #         raise PermissionDenied(
+    #             gettext('You are not allowed to export: {}').format(
+    #                 model_or_entity._meta.verbose_name
+    #             )
+    #         )
     def has_perm_to_export_or_die(self,
-                                  model_or_entity: type[CremeEntity] | CremeEntity,
-                                  ) -> None:
-        if not self.has_perm_to_export(model_or_entity):
+                                  ct_or_model_or_entity: EntityInstanceOrClassOrCType,
+                                  /) -> None:
+        if not self.has_perm_to_export(ct_or_model_or_entity):
+            meta = (
+                ct_or_model_or_entity.model_class()._meta
+                if isinstance(ct_or_model_or_entity, ContentType) else
+                ct_or_model_or_entity._meta
+            )
+
             raise PermissionDenied(
-                gettext('You are not allowed to export: {}').format(
-                    model_or_entity._meta.verbose_name
-                )
+                gettext('You are not allowed to export: {}').format(meta.verbose_name)
             )
 
     def has_perm_to_link(self,

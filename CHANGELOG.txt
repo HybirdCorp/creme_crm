@@ -22,7 +22,7 @@
         * Activities :
             - A field of 'Activity', "Fixed or floating?" (internal name: 'floating_type') is now visible.
             - A "card" brick is now available for the hat of the Activities' detail-view.
-              It's use by default by the new installations.
+              It's used by default by the new installations.
         * Billing :
             - The number generation has been heavily reworked. The old number generation system
               took a prefix in settings & generated numbers in the form "PREFIX15".
@@ -86,8 +86,10 @@
                     - The class 'views.base.BaseCreation' is deprecated.
                 * Projects :
                     - The method 'models.AbstractProjectTask.clone_scope()' is deprecated.
-        # The model 'creme_core.models.FileRef' get a new optional field "description";
-          it's used by the new view which displays all FileRefs (so feel free to fill it).
+        # In 'creme_core.models' :
+            - The models 'CremeUser' gets a new method 'has_perm_or_die()' which raises exceptions with friendly error messages.
+            - The model 'FileRef' gets a new optional field "description";
+              it's used by the new view which displays all FileRefs (so feel free to fill it).
         # Apps :
             * Persons :
                 - The model 'Address' gets new semantic fields (like ZipCodeField) which allow to
@@ -174,6 +176,12 @@
                   use the new cloning system to clone precisely what you want.
                 - The method 'get_clone_absolute_url()' is not static anymore.
             - The method 'BrickDetailviewLocationManager.create_if_needed()' now takes its arguments as keywords only.
+            - In 'CremeUser', the unique argument of tye following methods is now positional only :
+                - has_perm_to_create() & has_perm_to_create_or_die()
+                - has_perm_to_export() & has_perm_to_export_or_die()
+            - In 'UserRole', the arguments of the following methods have changed (2 strings => 1 positional ContentType instance):
+                - can_create()
+                - can_export()
         # In 'creme_core.views' :
             - The class-view 'entity.EntityRestoration' now just checks the deletion credentials & the attribute "is_deleted".
             - The mixin 'entity.EntityDeletionMixin' has been heavily reworked :

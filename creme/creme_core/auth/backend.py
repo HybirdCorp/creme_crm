@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,9 @@
 ################################################################################
 
 from django.contrib.auth.backends import ModelBackend
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
+from django.utils.translation import gettext as _
 
 from . import STAFF_PERM, SUPERUSER_PERM
 from .entity_credentials import EntityCredentials
@@ -30,30 +33,56 @@ class EntityBackend(ModelBackend):
 
     def has_perm(self, user_obj, perm, obj=None):
         if perm == STAFF_PERM:
-            return user_obj.is_staff
+            # return user_obj.is_staff
+            if user_obj.is_staff:
+                return True
+
+            raise PermissionDenied(_('A staff user is required.'))
 
         if perm == SUPERUSER_PERM:
-            return user_obj.is_superuser
+            # return user_obj.is_superuser
+            if user_obj.is_superuser:
+                return True
+
+            raise PermissionDenied(_('A superuser is required.'))
 
         if user_obj.is_superuser:
             return True
 
         if obj is not None:
+            # TODO: has_perm_or_die()
             return EntityCredentials(user_obj, obj).has_perm(perm)
 
         if user_obj.role is not None:
-            app_name, dot, action_name = perm.partition('.')
+            # app_name, dot, action_name = perm.partition('.')
+            app_label, dot, action_name = perm.partition('.')
 
             if not action_name:
-                return user_obj.has_perm_to_access(app_name)
+                # return user_obj.has_perm_to_access(app_name)
+                user_obj.has_perm_to_access_or_die(app_label)
+                return True
 
             if action_name == 'can_admin':
-                return user_obj.has_perm_to_admin(app_name)
+                # return user_obj.has_perm_to_admin(app_name)
+                user_obj.has_perm_to_admin_or_die(app_label)
+                return True
 
             if action_name.startswith(_ADD_PREFIX):
-                return user_obj.role.can_create(app_name, action_name[len(_ADD_PREFIX):])
+                # return user_obj.role.can_create(app_name, action_name[len(_ADD_PREFIX):])
+                ct = ContentType.objects.get_by_natural_key(
+                    app_label=app_label,
+                    model=action_name[len(_ADD_PREFIX):],
+                )
+                user_obj.has_perm_to_create_or_die(ct)
+                return True
 
             if action_name.startswith(_EXPORT_PREFIX):
-                return user_obj.role.can_export(app_name, action_name[len(_EXPORT_PREFIX):])
+                # return user_obj.role.can_export(app_name, action_name[len(_EXPORT_PREFIX):])
+                ct = ContentType.objects.get_by_natural_key(
+                    app_label=app_label,
+                    model=action_name[len(_EXPORT_PREFIX):],
+                )
+                user_obj.has_perm_to_export_or_die(ct)
+                return True
 
         return False
