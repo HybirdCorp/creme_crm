@@ -35,6 +35,11 @@ class CrmButton(Button):
     # relation_type_id = 'OVERRIDE'
     template_name = 'persons/buttons/become.html'
 
+    def check_permissions(self, *, entity, request):
+        super().check_permissions(entity=entity, request=request)
+
+        request.user.has_perm_to_link_or_die(entity)
+
     def get_context(self, **kwargs):
         context = super().get_context(**kwargs)
         context['managed_orga'] = self.__managed_orga
@@ -129,11 +134,18 @@ class AddLinkedContactButton(Button):
     template_name = 'persons/buttons/add-linked-contact.html'
     permissions = build_creation_perm(Contact)  # TODO: 'persons.addrelated_contact' ??
 
-    def get_context(self, *, entity, request):
-        context = super().get_context(entity=entity, request=request)
-        context['contact_link_perm'] = request.user.has_perm_to_link(Contact)
+    def check_permissions(self, *, entity, request):
+        super().check_permissions(entity=entity, request=request)
 
-        return context
+        user = request.user
+        user.has_perm_to_link_or_die(entity)
+        user.has_perm_to_link_or_die(Contact)
+
+    # def get_context(self, *, entity, request):
+    #     context = super().get_context(entity=entity, request=request)
+    #     context['contact_link_perm'] = request.user.has_perm_to_link(Contact)
+    #
+    #     return context
 
     def get_ctypes(self):
         return (Organisation,)

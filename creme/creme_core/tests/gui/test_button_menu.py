@@ -1,4 +1,6 @@
+from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory
+from django.utils.translation import gettext as _
 
 from creme.creme_core.gui.button_menu import Button, ButtonRegistry
 from creme.creme_core.models import FakeContact, FakeOrganisation
@@ -21,17 +23,31 @@ class ButtonMenuTestCase(CremeTestCase):
         request = FakeRequest(user=user)
 
         button = TestButton()
-        self.assertIs(button.is_allowed(entity=c, request=request), True)
+        # self.assertIs(button.is_allowed(entity=c, request=request), True)
         self.assertIs(button.ok_4_display(entity=c), True)
-        self.assertDictEqual(
-            {
-                'description': '',
-                'is_allowed': True,
-                'template_name': 'creme_core/buttons/place-holder.html',
-                'verbose_name': 'BUTTON',
-            },
-            button.get_context(entity=c, request=request),
-        )
+        # TODO: uncomment when 'is_allowed' is removed
+        # self.assertDictEqual(
+        #     {
+        #         'description': '',
+        #         'is_allowed': True,
+        #         'template_name': 'creme_core/buttons/place-holder.html',
+        #         'verbose_name': 'BUTTON',
+        #     },
+        #     button.get_context(entity=c, request=request),
+        # )
+
+        ctxt = button.get_context(entity=c, request=request)
+        self.assertIsDict(ctxt, length=4)
+        self.assertEqual('',                                     ctxt.get('description'))
+        self.assertEqual('creme_core/buttons/place-holder.html', ctxt.get('template_name'))
+        self.assertEqual('BUTTON',                               ctxt.get('verbose_name'))
+
+        is_allowed_func = ctxt.get('is_allowed')
+        self.assertTrue(callable(is_allowed_func))
+
+        with self.assertLogs(level='CRITICAL'):
+            is_allowed = is_allowed_func()
+        self.assertIs(is_allowed, True)
 
     def test_button__permissions(self):
         role = self.create_role(name='Role#1', allowed_apps=['documents', 'persons'])
@@ -64,20 +80,50 @@ class ButtonMenuTestCase(CremeTestCase):
 
         request = FakeRequest(user=user)
         button1 = TestButton01()
-        self.assertIs(button1.is_allowed(entity=c, request=request), False)
-        self.assertDictEqual(
-            {
-                'description': TestButton01.description,
-                'is_allowed': False,
-                'template_name': TestButton01.template_name,
-                'verbose_name': TestButton01.verbose_name,
-            },
-            button1.get_context(entity=c, request=request),
-        )
+        # self.assertIs(button1.is_allowed(entity=c, request=request), False)
+        # TODO: uncomment when 'is_allowed' is removed
+        # self.assertDictEqual(
+        #     {
+        #         'description': TestButton01.description,
+        #         'is_allowed': False,
+        #         'template_name': TestButton01.template_name,
+        #         'verbose_name': TestButton01.verbose_name,
+        #     },
+        #     button1.get_context(entity=c, request=request),
+        # )
+        ctxt = button1.get_context(entity=c, request=request)
+        msg = _('You are not allowed to access to the app: {}').format(_('Core'))
 
-        self.assertIs(TestButton02().is_allowed(entity=c, request=request), True)
-        self.assertIs(TestButton03().is_allowed(entity=c, request=request), False)
-        self.assertIs(TestButton04().is_allowed(entity=c, request=request), True)
+        with self.assertRaises(PermissionDenied) as cm1:
+            button1.check_permissions(entity=c, request=request)
+        self.assertEqual(msg, str(cm1.exception))
+
+        self.assertIsDict(ctxt, length=5)
+        self.assertEqual(TestButton01.description,   ctxt.get('description'))
+        self.assertEqual(TestButton01.template_name, ctxt.get('template_name'))
+        self.assertEqual(TestButton01.verbose_name,  ctxt.get('verbose_name'))
+        self.assertEqual(msg,                        ctxt.get('permission_error'))
+
+        is_allowed_func = ctxt.get('is_allowed')
+        self.assertTrue(callable(is_allowed_func))
+
+        with self.assertLogs(level='CRITICAL'):
+            is_allowed = is_allowed_func()
+        self.assertIs(is_allowed, False)
+
+        # self.assertIs(TestButton02().is_allowed(entity=c, request=request), True)
+        # self.assertIs(TestButton03().is_allowed(entity=c, request=request), False)
+        # self.assertIs(TestButton04().is_allowed(entity=c, request=request), True)
+
+        with self.assertNoException():
+            TestButton02().check_permissions(entity=c, request=request)
+
+        with self.assertRaises(PermissionDenied) as cm3:
+            TestButton03().check_permissions(entity=c, request=request)
+        self.assertEqual(msg, str(cm3.exception))
+
+        with self.assertNoException():
+            TestButton04().check_permissions(entity=c, request=request)
 
     def test_registry(self):
         class TestButton1(Button):
@@ -190,18 +236,34 @@ class ButtonMenuTestCase(CremeTestCase):
         basic_ctxt = {'request': create_request(basic_user),           'entity': entity}
         super_ctxt = {'request': create_request(self.get_root_user()), 'entity': entity}
 
-        is_allowed1 = TestButton01().is_allowed
-        self.assertIs(is_allowed1(**super_ctxt), True)
-        self.assertIs(is_allowed1(**basic_ctxt), True)
+        # is_allowed1 = TestButton01().is_allowed
+        # self.assertIs(is_allowed1(**super_ctxt), True)
+        # self.assertIs(is_allowed1(**basic_ctxt), True)
+
+        button1 = TestButton01()
+        with self.assertNoException():
+            button1.check_permissions(**super_ctxt)
+            button1.check_permissions(**basic_ctxt)
 
         # Other app ---
         class TestButton02(Button):
             id = Button.generate_id('creme_core', 'test_button_registry04_02')
             permissions = 'documents'
 
-        is_allowed2 = TestButton02().is_allowed
-        self.assertIs(is_allowed2(**super_ctxt), True)
-        self.assertIs(is_allowed2(**basic_ctxt), False)
+        # is_allowed2 = TestButton02().is_allowed
+        # self.assertIs(is_allowed2(**super_ctxt), True)
+        # self.assertIs(is_allowed2(**basic_ctxt), False)
+
+        button2 = TestButton02()
+        with self.assertNoException():
+            button2.check_permissions(**super_ctxt)
+
+        with self.assertRaises(PermissionDenied) as cm2:
+            button2.check_permissions(**basic_ctxt)
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(_('Documents')),
+            str(cm2.exception),
+        )
 
         # Creation permission ---
         class TestButton03(Button):
@@ -212,8 +274,18 @@ class ButtonMenuTestCase(CremeTestCase):
             id = Button.generate_id('creme_core', 'test_button_registry04_04')
             permissions = 'creme_core.add_fakeorganisation'
 
-        self.assertTrue(TestButton03().is_allowed(**basic_ctxt))
-        self.assertFalse(TestButton04().is_allowed(**basic_ctxt))
+        # self.assertTrue(TestButton03().is_allowed(**basic_ctxt))
+        # self.assertFalse(TestButton04().is_allowed(**basic_ctxt))
+
+        with self.assertNoException():
+            TestButton03().check_permissions(**basic_ctxt)
+
+        with self.assertRaises(PermissionDenied) as cm4:
+            TestButton04().check_permissions(**basic_ctxt)
+        self.assertEqual(
+            _('You are not allowed to create: {}').format('Test Organisation'),
+            str(cm4.exception),
+        )
 
         # Several permissions ---
         class TestButton05(Button):
@@ -224,8 +296,18 @@ class ButtonMenuTestCase(CremeTestCase):
             id = Button.generate_id('creme_core', 'test_button_registry04_06')
             permissions = ['persons', 'creme_core.add_fakeorganisation']
 
-        self.assertTrue(TestButton05().is_allowed(**basic_ctxt))
-        self.assertFalse(TestButton06().is_allowed(**basic_ctxt))
+        # self.assertTrue(TestButton05().is_allowed(**basic_ctxt))
+        # self.assertFalse(TestButton06().is_allowed(**basic_ctxt))
+
+        with self.assertNoException():
+            TestButton05().check_permissions(**basic_ctxt)
+
+        with self.assertRaises(PermissionDenied) as cm6:
+            TestButton06().check_permissions(**basic_ctxt)
+        self.assertEqual(
+            _('You are not allowed to create: {}').format('Test Organisation'),
+            str(cm6.exception),
+        )
 
     def test_registry__allowed_ctypes(self):
         user = self.get_root_user()

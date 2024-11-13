@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
@@ -76,23 +75,19 @@ class GenerateNumberButton(Button):
             model for model in BILLING_MODELS if not model.generate_number_in_create
         ]
 
-    def get_context(self, *, entity, request):
-        context = super().get_context(entity=entity, request=request)
+    def check_permissions(self, *, entity, request):
+        super().check_permissions(entity=entity, request=request)
 
         item = NumberGeneratorItem.objects.get_for_instance(entity)
         if item is None:
-            context['error'] = _(
-                'This entity cannot generate a number (see configuration of the app Billing)'
-            )
-        else:
-            try:
-                self.generator_registry[item].check_permissions(
-                    user=request.user, entity=entity,
-                )
-            except (PermissionDenied, ConflictError) as e:
-                context['error'] = str(e)
+            raise ConflictError(_(
+                'This entity cannot generate a number '
+                '(see configuration of the app Billing)'
+            ))
 
-        return context
+        self.generator_registry[item].check_permissions(
+            user=request.user, entity=entity,
+        )
 
     def ok_4_display(self, entity):
         return not entity.generate_number_in_create
@@ -104,6 +99,13 @@ class _AddBillingDocumentButton(Button):
     model_to_create = Base  # Override
 
     url_name = 'OVERRIDE_ME'
+
+    def check_permissions(self, *, entity, request):
+        super().check_permissions(entity=entity, request=request)
+
+        user = request.user
+        user.has_perm_to_create_or_die(self.model_to_create)
+        user.has_perm_to_link_or_die(entity)
 
     def get_context(self, *, entity, request):
         context = super().get_context(entity=entity, request=request)
@@ -126,11 +128,11 @@ class _AddBillingDocumentButton(Button):
     def get_ctypes(self):
         return persons.get_organisation_model(), persons.get_contact_model()
 
-    def is_allowed(self, *, entity, request):
-        return (
-            super().is_allowed(entity=entity, request=request)
-            and request.user.has_perm_to_create(self.model_to_create)
-        )
+    # def is_allowed(self, *, entity, request):
+    #     return (
+    #         super().is_allowed(entity=entity, request=request)
+    #         and request.user.has_perm_to_create(self.model_to_create)
+    #     )
 
 
 class AddInvoiceButton(_AddBillingDocumentButton):
@@ -189,27 +191,28 @@ class _ConvertToButton(Button):
 
         return 'INVALID'
 
+    def check_permissions(self, *, entity, request):
+        super().check_permissions(entity=entity, request=request)
+
+        converter = self.converter_registry.get_converter(
+            user=request.user, source=entity, target_model=self.target_model,
+        )
+        if converter is None:
+            raise ConflictError(_(
+                'This conversion has been removed; you should remove this button.'
+            ))
+
+        converter.check_permissions()
+
     def get_context(self, *, entity, request):
         context = super().get_context(entity=entity, request=request)
         # context['convert_to'] = self.target_modelname
         context['convert_to'] = self._target_name()
 
-        target_model = self.target_model
-        context['model_vname'] = target_model._meta.verbose_name
+        # target_model = self.target_model
+        # context['model_vname'] = target_model._meta.verbose_name
         # context['creation_perm'] = request.user.has_perm_to_create(target_model)
-
-        converter = self.converter_registry.get_converter(
-            user=request.user, source=entity, target_model=target_model,
-        )
-        if converter is None:
-            context['error'] = _(
-                'This conversion has been removed; you should remove this button.'
-            )
-        else:
-            try:
-                converter.check_permissions()
-            except (PermissionDenied, ConflictError) as e:
-                context['error'] = str(e)
+        context['model_vname'] = self.target_model._meta.verbose_name
 
         return context
 

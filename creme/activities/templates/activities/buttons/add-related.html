@@ -1,5 +1,16 @@
-{% load i18n creme_perms %}
+{% if button.permission_error %}
+<span class="menu_button menu-button-icon forbidden" title="{{button.permission_error}}">
+    {{button.icon.render}}{{button.verbose_name}}
+</span>
+{% else %}
+<a class="menu_button menu-button-icon" title="{{button.description}}" data-action="redirect"
+   href="{% url 'activities__create_related_activity' object.id %}?callback_url=${location}{% if button.type_uuid %}&activity_type={{button.type_uuid}}{% endif %}">
+    {{button.icon.render}}{{button.verbose_name}}
+</a>
+{% endif %}
 
+{% comment %}
+{% load i18n creme_perms %}
 {% with link_perm=user|has_perm_to_link:object %}
 {% if button.is_allowed and link_perm %}
 <a class="menu_button menu-button-icon" title="{{button.description}}" data-action="redirect"
@@ -13,3 +24,4 @@
 </span>
 {% endif %}
 {% endwith %}
+{% endcomment %}

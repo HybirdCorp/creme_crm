@@ -40,6 +40,10 @@ class LinkedOpportunityButton(Button):
     template_name = 'opportunities/buttons/linked-opp.html'
     permissions = build_creation_perm(Opportunity)
 
+    def check_permissions(self, *, entity, request):
+        super().check_permissions(entity=entity, request=request)
+        request.user.has_perm_to_link_or_die(entity)
+
     def get_ctypes(self):
         from creme import persons
         return (
@@ -72,6 +76,10 @@ if apps.is_installed('creme.activities'):
             'App: Opportunities'
         )
         dependencies = (Activity,)
+
+        def check_permissions(self, *, entity, request):
+            super().check_permissions(entity=entity, request=request)
+            request.user.has_perm_to_link_or_die(entity)
 
         def get_ctypes(self):
             return [Opportunity]

@@ -37,6 +37,10 @@ class Linked2TicketButton(Button):
     template_name = 'tickets/buttons/linked.html'
     permissions = 'tickets'
 
+    def check_permissions(self, *, entity, request):
+        super().check_permissions(entity=entity, request=request)
+        request.user.has_perm_to_link_or_die(entity)
+
     def get_context(self, **kwargs):
         context = super().get_context(**kwargs)
         context['rtype'] = RelationType.objects.get(id=self.relation_type_deps[0])
