@@ -1,3 +1,28 @@
+{% load i18n creme_ctype creme_widgets %}{% load blockjsondata from creme_core_tags %}
+{% if not button.rtype.enabled %}
+<span class="menu_button menu-button-icon forbidden menu-button-error"
+      title="{% blocktranslate with predicate=button.rtype.predicate %}The relationship type «{{predicate}}» is disabled{% endblocktranslate %}">
+    {% widget_icon name='commercial' size='instance-button' label=_('Commercial Action') %}
+    {% translate 'Completes a goal' %}
+</span>
+{% elif button.permission_error %}
+<span class="menu_button menu-button-icon forbidden" title="{{button.permission_error}}">
+    {% widget_icon name='commercial' size='instance-button' label=_('Commercial Action') %}
+    {% translate 'Completes a goal' %}
+</span>
+{% else %}{% ctype_for_swappable 'COMMERCIAL_ACT_MODEL' as act_ctype %}
+<a class="menu_button menu-button-icon" title="{{button.description}}" data-action="add-relationships">
+    {% widget_icon name='commercial' size='instance-button' label=_('Commercial Action') %}
+    {% translate 'Completes a goal' %}
+    {% blockjsondata %}{
+        "data": {
+            "subject_id": {{object.id}}, "rtype_id": "{{button.rtype.id}}", "ctype_id": {{act_ctype.id}}
+        }
+    }{% endblockjsondata %}
+</a>
+{% endif %}
+
+{% comment %}
 {% load i18n creme_ctype creme_perms creme_widgets %}{% load blockjsondata from creme_core_tags %}
 {% with link_perm=user|has_perm_to_link:object %}{% ctype_for_swappable 'COMMERCIAL_ACT_MODEL' as act_ctype %}
 <a class="menu_button menu-button-icon{% if not button.is_allowed or not link_perm or not button.rtype.enabled %} forbidden is-disabled{% endif %}{% if not button.rtype.enabled %} menu-button-error{% endif %}"
@@ -12,3 +37,4 @@
     }{% endblockjsondata %}
 </a>
 {% endwith %}
+{% endcomment %}

@@ -46,6 +46,10 @@ class EntityEmailLinkButton(Button):
     template_name = 'emails/buttons/entityemail-link.html'
     permissions = build_link_perm(EntityEmail)
 
+    def check_permissions(self, *, entity, request):
+        super().check_permissions(entity=entity, request=request)
+        request.user.has_perm_to_link_or_die(entity)
+
     def get_context(self, **kwargs):
         context = super().get_context(**kwargs)
         context['rtypes'] = self.relation_type_deps
@@ -55,7 +59,7 @@ class EntityEmailLinkButton(Button):
     def get_ctypes(self):
         return (EntityEmail,)
 
-    def is_allowed(self, *, entity, request):
-        return super().is_allowed(
-            entity=entity, request=request,
-        ) and request.user.has_perm_to_link(entity)
+    # def is_allowed(self, *, entity, request):
+    #     return super().is_allowed(
+    #         entity=entity, request=request,
+    #     ) and request.user.has_perm_to_link(entity)

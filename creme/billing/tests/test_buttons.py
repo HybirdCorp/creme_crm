@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.exceptions import ConflictError
@@ -33,14 +34,12 @@ class ButtonsTestCase(_BillingTestCase):
         invoice = Invoice.objects.create(
             user=user, name='Invoice001', source=emitter, target=receiver,
         )
-
         self.assertTrue(button.ok_4_display(invoice))
-        self.assertTrue(button.is_allowed(entity=invoice, request=request))
 
         ctxt1 = button.get_context(entity=invoice, request=request)
         self.assertEqual(
             _('This entity cannot generate a number (see configuration of the app Billing)'),
-            ctxt1.get('error'),
+            ctxt1.get('permission_error'),
         )
 
         # ---
@@ -61,14 +60,14 @@ class ButtonsTestCase(_BillingTestCase):
         )
 
         ctxt1 = button.get_context(entity=invoice, request=request)
-        self.assertNotIn('error', ctxt1)
+        self.assertNotIn('permission_error', ctxt1)
 
         # ---
         invoice.number = 'IN-123'
 
         ctxt2 = button.get_context(entity=invoice, request=request)
         with self.assertNoException():
-            error2 = ctxt2['error']
+            error2 = ctxt2['permission_error']
         self.assertEqual(_('This entity has already a number'), error2)
 
     @skipIfCustomOrganisation
@@ -79,22 +78,23 @@ class ButtonsTestCase(_BillingTestCase):
         user1 = self.create_user(
             index=0,
             role=self.create_role(
-                name='Invoice master', allowed_apps=['billing'], creatable_models=[Invoice],
+                name='Invoice master', allowed_apps=['persons', 'billing'],
+                creatable_models=[Invoice],
             ),
         )
+        self.add_credentials(user1.role, all=['LINK'])
         request1 = self.build_request(user=user1)
 
         orga = Organisation.objects.create(user=self.get_root_user(), name='Acme')
         self.assertTrue(button.ok_4_display(orga))
-        self.assertTrue(button.is_allowed(entity=orga, request=request1))
 
         ctxt = button.get_context(entity=orga, request=request1)
-        self.assertIs(True, ctxt.get('is_allowed'))
         self.assertEqual('billing__create_related_invoice', ctxt.get('url_name'))
         self.assertEqual(_('Invoice'),                      ctxt.get('model_vname'))
         self.assertEqual('billing.invoice',                 ctxt.get('model_id'))
         self.assertEqual(REL_OBJ_BILL_RECEIVED,             ctxt.get('rtype_id'))
         self.assertTrue(ctxt.get('redirect'))
+        self.assertIsNone(ctxt.get('permission_error'))
 
         # ---
         user2 = self.create_user(
@@ -103,8 +103,13 @@ class ButtonsTestCase(_BillingTestCase):
                 name='Quote master', allowed_apps=['billing'], creatable_models=[Quote],
             ),
         )
-        self.assertFalse(
-            button.is_allowed(entity=orga, request=self.build_request(user=user2))
+        self.add_credentials(user1.role, all=['LINK', 'VIEW'])
+
+        with self.assertRaises(PermissionDenied) as cm:
+            button.check_permissions(entity=orga, request=self.build_request(user=user2))
+        self.assertEqual(
+            _('You are not allowed to create: {}').format(_('Invoice')),
+            str(cm.exception),
         )
 
     @skipIfCustomContact
@@ -117,9 +122,12 @@ class ButtonsTestCase(_BillingTestCase):
         user1 = self.create_user(
             index=0,
             role=self.create_role(
-                name='Quote master', allowed_apps=['billing'], creatable_models=[Quote],
+                name='Quote master', allowed_apps=['persons', 'billing'],
+                creatable_models=[Quote],
             ),
         )
+        self.add_credentials(user1.role, all=['LINK'])
+
         request1 = self.build_request(user=user1)
 
         contact = Contact.objects.create(
@@ -127,11 +135,11 @@ class ButtonsTestCase(_BillingTestCase):
         )
 
         ctxt = button.get_context(entity=contact, request=request1)
-        self.assertIs(True, ctxt.get('is_allowed'))
         self.assertEqual('billing__create_related_quote', ctxt.get('url_name'))
         self.assertEqual(_('Quote'),                      ctxt.get('model_vname'))
         self.assertEqual('billing.quote',                 ctxt.get('model_id'))
         self.assertFalse(ctxt.get('redirect'))
+        self.assertIsNone(ctxt.get('permission_error'))
 
         # ---
         user2 = self.create_user(
@@ -140,8 +148,12 @@ class ButtonsTestCase(_BillingTestCase):
                 name='Invoice master', allowed_apps=['billing'], creatable_models=[Invoice],
             ),
         )
-        self.assertFalse(button.is_allowed(
-            entity=contact, request=self.build_request(user=user2))
+
+        with self.assertRaises(PermissionDenied) as cm:
+            button.check_permissions(entity=contact, request=self.build_request(user=user2))
+        self.assertEqual(
+            _('You are not allowed to create: {}').format(_('Quote')),
+            str(cm.exception),
         )
 
     @skipIfCustomOrganisation
@@ -166,17 +178,16 @@ class ButtonsTestCase(_BillingTestCase):
         request = self.build_request(user=user)
 
         ctxt1 = button.get_context(entity=quote, request=request)
-        self.assertIs(True, ctxt1.get('is_allowed'))
         self.assertEqual('invoice',    ctxt1.get('convert_to'))
         self.assertEqual(_('Invoice'), ctxt1.get('model_vname'))
-        self.assertNotIn('error', ctxt1)
+        self.assertNotIn('permission_error', ctxt1)
 
         # No converter ---
         button.converter_registry = registry = conversion.ConverterRegistry()
         ctxt2 = button.get_context(entity=quote, request=request)
         self.assertEqual(
             _('This conversion has been removed; you should remove this button.'),
-            ctxt2.get('error'),
+            ctxt2.get('permission_error'),
         )
 
         # Forbidden ---
@@ -190,7 +201,7 @@ class ButtonsTestCase(_BillingTestCase):
             source_model=Quote, target_model=Invoice, converter_class=ForbiddenConverter,
         )
         ctxt3 = button.get_context(entity=quote, request=request)
-        self.assertEqual(error_msg, ctxt3.get('error'))
+        self.assertEqual(error_msg, ctxt3.get('permission_error'))
 
     def test_convert_to_salesorder(self):
         button = buttons.ConvertToSalesOrderButton()
@@ -202,10 +213,9 @@ class ButtonsTestCase(_BillingTestCase):
         request = self.build_request(user=user)
 
         ctxt = button.get_context(entity=quote, request=request)
-        self.assertIs(True, ctxt.get('is_allowed'))
         self.assertEqual('sales_order', ctxt.get('convert_to'))
         self.assertEqual(_('Salesorder'), ctxt.get('model_vname'))
-        self.assertNotIn('error', ctxt)
+        self.assertNotIn('permission_error', ctxt)
 
     def test_convert_to_quote(self):
         button = buttons.ConvertToQuoteButton()
@@ -219,4 +229,4 @@ class ButtonsTestCase(_BillingTestCase):
         ctxt = button.get_context(entity=invoice, request=request)
         self.assertEqual('quote', ctxt.get('convert_to'))
         self.assertEqual(_('Quote'), ctxt.get('model_vname'))
-        self.assertNotIn('error', ctxt)
+        self.assertNotIn('permission_error', ctxt)

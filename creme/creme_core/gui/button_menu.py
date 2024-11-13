@@ -24,8 +24,10 @@ from collections import defaultdict
 from heapq import heappop, heappush
 from typing import DefaultDict, Iterable, Iterator, Literal, Sequence
 
+from django.core.exceptions import PermissionDenied
 from django.db.models import Model
 
+from ..core.exceptions import ConflictError
 from ..models import CremeEntity
 
 logger = logging.getLogger(__name__)
@@ -68,7 +70,6 @@ class Button:
     # Name/path of the template used to render the button.
     template_name: str = 'creme_core/buttons/place-holder.html'
 
-    # permission: Optional[str] = None
     # Permission string(s) ; an empty value means no permission is needed.
     # Example: <'myapp.add_mymodel'>
     # BEWARE: you have to use the template context variable "button.is_allowed"
@@ -81,18 +82,56 @@ class Button:
     @staticmethod
     def generate_id(app_name: str, name: str) -> str:
         """Helper used to create the value of the class attribute 'id'."""
-        # return f'button_{app_name}-{name}'
         return f'{app_name}-{name}'
+
+    def check_permissions(self, *, entity: CremeEntity, request) -> None:
+        """Raises an error if the button has to be disabled.
+        The error is injected in the context (see get_context()).
+        @raise PermissionDenied, ConflictError.
+        """
+        # TODO: user.has_perms_or_die()?
+        permissions = self.permissions
+        if permissions:
+            if isinstance(permissions, str):
+                request.user.has_perm_or_die(permissions)
+            else:
+                for perm in permissions:
+                    request.user.has_perm_or_die(perm)
 
     def get_context(self, *, entity: CremeEntity, request) -> dict:
         """Context used by the template system to render the button."""
-        return {
+        # return {
+        #     'verbose_name': self.verbose_name,
+        #     'description': self.description,
+        #     'is_allowed': self.is_allowed(entity=entity, request=request),
+        #     'template_name': self.template_name,
+        # }
+        is_allowed = True
+
+        def _get_is_allowed():  # TODO: to be removed in creme2.8
+            logger.critical(
+                'The template "%s" for the button <%s> is using the variable '
+                '"button.is_allowed"; use "button.permission_error" instead.',
+                self.template_name, type(self).__name__,
+            )
+            return is_allowed
+
+        ctxt = {
+            'is_allowed': _get_is_allowed,
+
             # 'id': self.id, # TODO?
             'verbose_name': self.verbose_name,
             'description': self.description,
-            'is_allowed': self.is_allowed(entity=entity, request=request),
             'template_name': self.template_name,
         }
+
+        try:
+            self.check_permissions(entity=entity, request=request)
+        except (PermissionDenied, ConflictError) as e:
+            ctxt['permission_error'] = str(e)
+            is_allowed = False
+
+        return ctxt
 
     # TODO: replace with an attribute (like Brick.target_ctypes) -> "compatible_models"?
     def get_ctypes(self) -> Sequence[type[CremeEntity]]:
@@ -103,19 +142,16 @@ class Button:
         """
         return ()
 
-    def is_allowed(self, *, entity, request) -> bool:
-        """Indicate if the button has to be disabled.
-        The value is injected in the context (see get_context()).
-        """
-        permissions = self.permissions
-        if not permissions:
-            return True
-
-        return (
-            request.user.has_perm(permissions)
-            if isinstance(permissions, str) else
-            request.user.has_perms(permissions)
-        )
+    # def is_allowed(self, *, entity, request) -> bool:
+    #     permissions = self.permissions
+    #     if not permissions:
+    #         return True
+    #
+    #     return (
+    #         request.user.has_perm(permissions)
+    #         if isinstance(permissions, str) else
+    #         request.user.has_perms(permissions)
+    #     )
 
     # TODO: pass 'request' too ? (see Restrict2SuperusersButton)
     def ok_4_display(self, entity: CremeEntity) -> bool:
@@ -168,14 +204,15 @@ class ButtonRegistry:
                     f"Duplicated button's ID (or button registered twice): {button_id}"
                 )
 
-            if hasattr(button_cls, 'render'):
+            # TODO: to be removed in creme2.8
+            if hasattr(button_cls, 'is_allowed'):
                 logger.critical(
-                    'The button class %s seems to still use the method "render()"; '
-                    'use the new method "get_context()" instead, and update the '
-                    'related template too (button is ignored).',
+                    'The button class %s still defines a method "is_allowed()"; '
+                    'define the new method "check_permissions()" instead, '
+                    'and update the related template to use the variable '
+                    '"button.permission_error" instead of "button.is_allowed".',
                     button_cls,
                 )
-                continue
 
         return self
 

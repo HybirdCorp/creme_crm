@@ -21,6 +21,7 @@ from __future__ import annotations
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
 
@@ -40,6 +41,10 @@ class AddRelatedActivityButton(Button):
         'App: Activities'
     )
     activity_type_uuid: str | None = None  # None means type is not fixed
+
+    def check_permissions(self, *, entity, request):
+        super().check_permissions(entity=entity, request=request)
+        request.user.has_perm_to_link_or_die(entity)
 
     def get_context(self, *, entity, request):
         context = super().get_context(entity=entity, request=request)
@@ -107,6 +112,15 @@ class AddUnsuccessfulPhoneCallButton(AddRelatedActivityButton):
         'The fields values can be set in the configuration of «Activities».\n'
         'App: Activities'
     )
+
+    def check_permissions(self, *, entity, request):
+        super().check_permissions(entity=entity, request=request)
+
+        user = request.user
+        user.has_perm_to_link_or_die(entity)
+
+        if entity == user.linked_contact:
+            raise ConflictError(_('You cannot call yourself'))
 
     def get_ctypes(self):
         from creme.persons import get_contact_model

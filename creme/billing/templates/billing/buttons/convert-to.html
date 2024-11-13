@@ -1,6 +1,25 @@
 {% load i18n creme_widgets %}{% load blockjsondata from creme_core_tags %}
-{# {% if button.is_allowed and button.creation_perm %} #}
-{% if button.is_allowed and not button.error %}
+{% if button.permission_error %}
+<span class="menu_button menu-button-icon forbidden" title="{{button.permission_error}}">
+    {% widget_icon name='invoice' size='instance-button' label=button.model_vname %}
+    {{button.verbose_name}}
+</span>
+{% else %}
+<a class="menu_button menu-button-icon" title="{{button.description}}"
+   data-action="update-redirect" href="{% url 'billing__convert' object.id %}">
+    {% widget_icon name='invoice' size='instance-button' label=button.model_vname %}
+    {{button.verbose_name}}
+    {% blockjsondata %}{
+        "data": {
+            "type": "{{button.convert_to}}"
+        }
+    }{% endblockjsondata %}
+</a>
+{% endif %}
+
+{% comment %}
+{% load i18n creme_widgets %}{% load blockjsondata from creme_core_tags %}
+{% if button.is_allowed and button.creation_perm %}
 <a class="menu_button menu-button-icon" title="{{button.description}}"
    data-action="update-redirect" href="{% url 'billing__convert' object.id %}">
     {% widget_icon name='invoice' size='instance-button' label=button.model_vname %}
@@ -13,9 +32,9 @@
 </a>
 {% else %}
 <span class="menu_button menu-button-icon forbidden"
-{#      title="{% if not button.creation_perm %}{% blocktranslate with model=button.model_vname %}You are not allowed to create: «{{model}}»{% endblocktranslate %}{% else %}{{button.description}}{% endif %}"> #}
-      title="{% if button.error %}{{button.error}}{% else %}{{button.description}}{% endif %}">
+      title="{% if not button.creation_perm %}{% blocktranslate with model=button.model_vname %}You are not allowed to create: «{{model}}»{% endblocktranslate %}{% else %}{{button.description}}{% endif %}">
     {% widget_icon name='invoice' size='instance-button' label=button.model_vname %}
     {{button.verbose_name}}
 </span>
 {% endif %}
+{% endcomment %}
