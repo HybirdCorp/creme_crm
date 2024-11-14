@@ -1233,8 +1233,9 @@ class CremeUser(AbstractBaseUser):
 
         return all(has_perm(perm, obj) for perm in perm_list)
 
-    def has_perm_to_access(self, app_name: str) -> bool:  # TODO: rename "app_label"
-        return self.is_superuser or self.role.is_app_allowed_or_administrable(app_name)
+    # def has_perm_to_access(self, app_name: str) -> bool:
+    def has_perm_to_access(self, app_label: str, /) -> bool:
+        return self.is_superuser or self.role.is_app_allowed_or_administrable(app_label)
 
     @staticmethod  # TODO: move in utils ?
     def _get_app_verbose_name(app_label: str) -> str:
@@ -1243,7 +1244,8 @@ class CremeUser(AbstractBaseUser):
         except LookupError:
             return gettext('Invalid app "{}"').format(app_label)
 
-    def has_perm_to_access_or_die(self, app_label: str) -> None:
+    # def has_perm_to_access_or_die(self, app_label: str) -> None:
+    def has_perm_to_access_or_die(self, app_label: str, /) -> None:
         if not self.has_perm_to_access(app_label):
             raise PermissionDenied(
                 gettext('You are not allowed to access to the app: {}').format(
@@ -1251,16 +1253,16 @@ class CremeUser(AbstractBaseUser):
                 )
             )
 
-    # TODO: rename "app_label"
-    def has_perm_to_admin(self, app_name: str) -> bool:
-        return self.is_superuser or self.role.is_app_administrable(app_name)
+    # def has_perm_to_admin(self, app_name: str) -> bool:
+    def has_perm_to_admin(self, app_label: str, /) -> bool:
+        return self.is_superuser or self.role.is_app_administrable(app_label)
 
-    # TODO: rename 'app_label'
-    def has_perm_to_admin_or_die(self, app_name: str) -> None:
-        if not self.has_perm_to_admin(app_name):
+    # def has_perm_to_admin_or_die(self, app_name: str) -> None:
+    def has_perm_to_admin_or_die(self, app_label: str, /) -> None:
+        if not self.has_perm_to_admin(app_label):
             raise PermissionDenied(
                 gettext('You are not allowed to configure this app: {}').format(
-                    self._get_app_verbose_name(app_name),
+                    self._get_app_verbose_name(app_label),
                 )
             )
 

@@ -179,9 +179,11 @@
                   use the new cloning system to clone precisely what you want.
                 - The method 'get_clone_absolute_url()' is not static anymore.
             - The method 'BrickDetailviewLocationManager.create_if_needed()' now takes its arguments as keywords only.
-            - In 'CremeUser', the unique argument of tye following methods is now positional only :
+            - In 'CremeUser', the unique argument of the following methods is now positional only :
                 - has_perm_to_create() & has_perm_to_create_or_die()
                 - has_perm_to_export() & has_perm_to_export_or_die()
+                - has_perm_to_access() & has_perm_to_access_or_die()
+                - has_perm_to_admin() & has_perm_to_admin_or_die()
             - In 'UserRole', the arguments of the following methods have changed (2 strings => 1 positional ContentType instance):
                 - can_create()
                 - can_export()
