@@ -2,6 +2,7 @@ from copy import deepcopy
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory
 from django.utils.translation import gettext as _
 
@@ -971,6 +972,12 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertIsInstance(brick3, ForbiddenBrick)
         self.assertEqual(NotAllowedBrick1.id,           brick3.id)
         self.assertEqual(NotAllowedBrick1.verbose_name, brick3.verbose_name)
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Accounts and Contacts')
+            ),
+            brick3.error,
+        )
 
         brick4 = user_bricks[3]
         self.assertIsInstance(brick4, ForbiddenBrick)
@@ -1418,7 +1425,8 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             [c for c in page.object_list if c.id in ids],
         )
 
-    def test_has_perms(self):
+    # def test_has_perms(self):
+    def test_check_permissions(self):
         root = self.get_root_user()
         user = self.create_user(
             role=self.create_role(name='Basic', allowed_apps=['creme_core', 'documents']),
@@ -1434,8 +1442,11 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
 
         brick1 = AlwaysAllowedBrick()
         self.assertEqual('', brick1.permissions)
-        self.assertIs(brick1.has_perms(root), True)
-        self.assertIs(brick1.has_perms(user), True)
+        # self.assertIs(brick1.has_perms(root), True)
+        # self.assertIs(brick1.has_perms(user), True)
+        with self.assertNoException():
+            brick1.check_permissions(root)
+            brick1.check_permissions(user)
 
         # ---
         class SimpleAllowedBrick(SimpleBrick):
@@ -1444,8 +1455,11 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             permissions = 'creme_core'
 
         brick2 = SimpleAllowedBrick()
-        self.assertIs(brick2.has_perms(root), True)
-        self.assertIs(brick2.has_perms(user), True)
+        # self.assertIs(brick2.has_perms(root), True)
+        # self.assertIs(brick2.has_perms(user), True)
+        with self.assertNoException():
+            brick2.check_permissions(root)
+            brick2.check_permissions(user)
 
         # ---
         class MultiAllowedBrick(SimpleBrick):
@@ -1454,8 +1468,11 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             permissions = ['creme_core', 'documents']
 
         brick3 = MultiAllowedBrick()
-        self.assertIs(brick3.has_perms(root), True)
-        self.assertIs(brick3.has_perms(user), True)
+        # self.assertIs(brick3.has_perms(root), True)
+        # self.assertIs(brick3.has_perms(user), True)
+        with self.assertNoException():
+            brick3.check_permissions(root)
+            brick3.check_permissions(user)
 
         # ---
         class SimpleForbiddenBrick(SimpleBrick):
@@ -1464,8 +1481,13 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             permissions = 'persons'
 
         brick4 = SimpleForbiddenBrick()
-        self.assertIs(brick4.has_perms(root), True)
-        self.assertIs(brick4.has_perms(user), False)
+        # self.assertIs(brick4.has_perms(root), True)
+        # self.assertIs(brick4.has_perms(user), False)
+        with self.assertNoException():
+            brick4.check_permissions(root)
+
+        with self.assertRaises(PermissionDenied):
+            brick4.check_permissions(user)
 
         # ---
         class MultiForbiddenBrick(SimpleBrick):
@@ -1474,8 +1496,13 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             permissions = ['documents', 'persons']
 
         brick5 = MultiForbiddenBrick()
-        self.assertIs(brick5.has_perms(root), True)
-        self.assertIs(brick5.has_perms(user), False)
+        # self.assertIs(brick5.has_perms(root), True)
+        # self.assertIs(brick5.has_perms(user), False)
+        with self.assertNoException():
+            brick5.check_permissions(root)
+
+        with self.assertRaises(PermissionDenied):
+            brick5.check_permissions(user)
 
     def test_relation_type_deps(self):
         class OKBrick1(Brick):
