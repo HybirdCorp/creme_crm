@@ -1228,10 +1228,14 @@ class CremeUser(AbstractBaseUser):
         # TODO: unit test
         raise PermissionDenied(gettext('Forbidden (unspecified reason)'))
 
-    def has_perms(self, perm_list: Iterable[str], obj=None) -> bool:
+    def has_perms(self, perm_list: str | Iterable[str], obj=None) -> bool:
         has_perm = self.has_perm
 
-        return all(has_perm(perm, obj) for perm in perm_list)
+        return (
+            has_perm(perm_list, obj)
+            if isinstance(perm_list, str) else
+            all(has_perm(perm, obj) for perm in perm_list)
+        )
 
     # def has_perm_to_access(self, app_name: str) -> bool:
     def has_perm_to_access(self, app_label: str, /) -> bool:
