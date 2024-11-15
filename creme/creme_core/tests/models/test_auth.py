@@ -516,6 +516,13 @@ class AuthTestCase(CremeTestCase):
         )
 
         has_perm = user.has_perm
+        # self.assertTrue(user.has_perm(''))  TODO?
+        self.assertTrue(user.has_perms(''))
+        self.assertTrue(user.has_perms([]))
+        with self.assertNoException():
+            user.has_perms_or_die('')
+            user.has_perms_or_die([])
+
         contact1 = self.contact1
         self.assertTrue(has_perm('creme_core.view_entity',    contact1))
         self.assertFalse(has_perm('creme_core.change_entity', contact1))
@@ -2081,12 +2088,18 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(user.has_perms(['creme_core.add_cremeproperty']))
         self.assertFalse(user.has_perms('creme_core.add_cremeproperty'))
 
-        with self.assertRaises(PermissionDenied) as cm:
+        msg = _('You are not allowed to create: {}').format(_('Property'))
+        with self.assertRaises(PermissionDenied) as cm1:
             user.has_perm_or_die('creme_core.add_cremeproperty')
-        self.assertEqual(
-            _('You are not allowed to create: {}').format(_('Property')),
-            str(cm.exception),
-        )
+        self.assertEqual(msg, str(cm1.exception))
+
+        with self.assertRaises(PermissionDenied) as cm2:
+            user.has_perms_or_die('creme_core.add_cremeproperty')
+        self.assertEqual(msg, str(cm2.exception))
+
+        with self.assertRaises(PermissionDenied) as cm3:
+            user.has_perms_or_die(['creme_core.add_cremeproperty'])
+        self.assertEqual(msg, str(cm3.exception))
 
         # ---
         get_ct = ContentType.objects.get_for_model
@@ -2102,6 +2115,10 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(user.has_perms([
             'creme_core.add_cremeproperty', 'creme_core.add_cremepropertytype'
         ]))
+
+        with self.assertNoException():
+            user.has_perms_or_die('creme_core.add_cremeproperty')
+            user.has_perms_or_die(['creme_core.add_cremeproperty'])
 
         self.assertTrue(has_perm_to_create(CremeProperty))
         self.assertFalse(has_perm_to_create(CremePropertyType))

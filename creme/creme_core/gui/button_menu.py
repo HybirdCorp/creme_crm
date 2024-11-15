@@ -89,14 +89,7 @@ class Button:
         The error is injected in the context (see get_context()).
         @raise PermissionDenied, ConflictError.
         """
-        # TODO: user.has_perms_or_die()?
-        permissions = self.permissions
-        if permissions:
-            if isinstance(permissions, str):
-                request.user.has_perm_or_die(permissions)
-            else:
-                for perm in permissions:
-                    request.user.has_perm_or_die(perm)
+        request.user.has_perms_or_die(self.permissions)
 
     def get_context(self, *, entity: CremeEntity, request) -> dict:
         """Context used by the template system to render the button."""
