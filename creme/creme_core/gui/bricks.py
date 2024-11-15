@@ -35,6 +35,7 @@ from typing import (
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import EmptyPage, InvalidPage, Paginator
 from django.db.models import Model
 from django.template.loader import get_template
@@ -44,6 +45,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ..constants import MODELBRICK_ID
 from ..core.entity_cell import EntityCell, EntityCellRegularField
+from ..core.exceptions import ConflictError
 from ..core.field_tags import FieldTag
 from ..core.sorter import cell_sorter_registry
 from ..models import (
@@ -185,18 +187,20 @@ class Brick:
 
         self._reloading_info = None
 
-    def has_perms(self, user) -> bool:
-        permissions = self.permissions
-
-        # TODO: factorise with 'creme_core.views.generic.base.PermissionsMixin'
-        return bool(
-            not permissions
-            or (
-                user.has_perm(permissions)
-                if isinstance(permissions, str) else
-                user.has_perms(permissions)
-            )
-        )
+    # def has_perms(self, user) -> bool:
+    #     permissions = self.permissions
+    #
+    #     return bool(
+    #         not permissions
+    #         or (
+    #             user.has_perm(permissions)
+    #             if isinstance(permissions, str) else
+    #             user.has_perms(permissions)
+    #         )
+    #     )
+    def check_permissions(self, user) -> None:
+        """@raise PermissionDenied, ConflictError."""
+        user.has_perms_or_die(self.permissions)
 
     @property
     def reloading_info(self):
@@ -298,18 +302,25 @@ class SimpleBrick(Brick):
     detailview_display = Brick._simple_detailview_display
 
 
-class ForbiddenBrick(SimpleBrick):
+# class ForbiddenBrick(SimpleBrick):
+class ForbiddenBrick(Brick):
     """Used by code which needs to get a content for forbidden brick.
     You should not have to use it.
     """
     template_name = 'creme_core/bricks/generic/forbidden.html'
 
-    def __init__(self, *, id, verbose_name):
+    def __init__(self, *, id, verbose_name, error=''):
         super().__init__()
         self.id = id
         self.verbose_name = verbose_name
+        self.error = error
 
-    home_display = Brick._simple_detailview_display
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(context, permissions_error=self.error))
+
+    # home_display = Brick._simple_detailview_display
+    def home_display(self, context):
+        return self.detailview_display(context=context)
 
 
 class VoidBrick(SimpleBrick):
@@ -788,6 +799,14 @@ class BrickRegistry:
             if setdefault(brick_id, brick_cls) is not brick_cls:
                 raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
 
+            # TODO: to be removed in creme2.8
+            if hasattr(brick_cls, 'has_perms'):
+                logger.critical(
+                    'The brick class %s still defines a method "has_perms()"; '
+                    'define the new method "check_permissions()" instead.',
+                    brick_cls,
+                )
+
         return self
 
     # TODO: factorise
@@ -1049,8 +1068,15 @@ class BrickRegistry:
             else:
                 brick = brick_cls()
 
-                if user and not brick.has_perms(user=user):
-                    brick = ForbiddenBrick(id=brick.id, verbose_name=brick.verbose_name)
+                # if user and not brick.has_perms(user=user):
+                #     brick = ForbiddenBrick(id=brick.id, verbose_name=brick.verbose_name)
+                if user:
+                    try:
+                        brick.check_permissions(user=user)
+                    except (PermissionDenied, ConflictError) as e:
+                        brick = ForbiddenBrick(
+                            id=brick.id, verbose_name=brick.verbose_name, error=str(e),
+                        )
 
                 yield brick
 

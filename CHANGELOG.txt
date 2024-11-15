@@ -167,9 +167,12 @@
         # In 'creme_core.core.entity_cell', in the methods 'EntityCell*.build()' :
             - The second argument is now always named "name" (e.g. it was named "customfield_id" in 'EntityCellCustomField.build()').
             - The extra arguments are now keyword only (.e.g. 'EntityCellRegularField' & "is_hidden").
-        # In the class 'creme_core.gui.button_menu.Button', the method 'is_allowed()' has been removed ;
-          use the new method 'check_permissions()'. In the template of your button, you must also use the
-          variable "button.permission_error" instead of "button.is_allowed".
+        # In 'creme_core.gui' :
+            - In the class 'bricks.Brick', the method 'has_perms()' has been removed ;
+              use the new method 'check_permissions()' instead.
+            - In the class 'button_menu.Button', the method 'is_allowed()' has been removed ;
+              use the new method 'check_permissions()' instead. In the template of your button,
+              you must also use the variable "button.permission_error" instead of "button.is_allowed".
         # In 'creme_core.models' :
             - In the abstract class 'MinionModel' the field "is_custom" is now marked <editable=False> ;
               it will at least need a migration (or a manual change in the existing migrations because

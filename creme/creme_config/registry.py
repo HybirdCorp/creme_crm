@@ -23,11 +23,12 @@ import re
 from typing import TYPE_CHECKING, Iterable, Iterator
 
 from django.apps import apps
-from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, PermissionDenied
 from django.db.models import Model
 from django.forms.models import ModelForm, modelform_factory
 from django.urls import reverse
 
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.gui.bricks import Brick, VoidBrick, brick_registry
@@ -728,7 +729,11 @@ class _ConfigRegistry:
                 )
                 continue
 
-            if not brick.has_perms(user=user):
+            # if not brick.has_perms(user=user):
+            #     brick = VoidBrick(id=brick.id)
+            try:
+                brick.check_permissions(user=user)
+            except (PermissionDenied, ConflictError):
                 brick = VoidBrick(id=brick.id)
 
             yield brick
@@ -750,7 +755,11 @@ class _ConfigRegistry:
             brick = Brick()
         else:
             brick = brick_class()
-            if not brick.has_perms(user=user):
+            # if not brick.has_perms(user=user):
+            #     brick = VoidBrick(id=brick.id)
+            try:
+                brick.check_permissions(user=user)
+            except (PermissionDenied, ConflictError):
                 # NB: we use a VoidBrick instead of a ForbiddenBrick because
                 # the Bricks which are displayed of "My settings" cannot be
                 # configured, so you cannot remove a ForbiddenBrick with an
