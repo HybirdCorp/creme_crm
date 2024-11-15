@@ -402,8 +402,14 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         self.assertGET200(reverse('projects__list_projects'))
 
     def test_listview_instance_actions(self):
-        user = self.login_as_root_and_get()
+        # user = self.login_as_root_and_get()
+        user = self.login_as_projects_user(
+            allowed_apps=['persons'], creatable_models=[Project],
+        )
+        self.add_credentials(user.role, all='*')
+
         project = self.create_project(user=user, name='Eva00')[0]
+        self.assertTrue(user.has_perm_to_change(project))
 
         close_action = self.get_alone_element(
             action
@@ -418,8 +424,9 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         )
         self.assertTrue(close_action.is_enabled)
         self.assertTrue(close_action.is_visible)
+        self.assertEqual('', close_action.help_text)
 
-    def test_listview_instance_actions_closed(self):
+    def test_listview_instance_actions__closed(self):
         user = self.login_as_root_and_get()
         project = self.create_project(
             user=user, name='Eva00', start_date=date(2012, 2, 16), end_date=date(2012, 3, 26),
@@ -442,6 +449,28 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         )
         self.assertFalse(close_action.is_enabled)
         self.assertTrue(close_action.is_visible)
+        self.assertEqual(_('Project is already closed.'), close_action.help_text)
+
+    def test_listview_instance_actions__forbidden(self):
+        user = self.login_as_projects_user(
+            allowed_apps=['persons'], creatable_models=[Project],
+        )
+        self.add_credentials(user.role, all='!CHANGE')
+
+        project = self.create_project(user=user, name='Eva00')[0]
+        self.assertFalse(user.has_perm_to_change(project))
+
+        close_action = self.get_alone_element(
+            action
+            for action in actions.action_registry
+                                 .instance_actions(user=user, instance=project)
+            if isinstance(action, ProjectCloseAction)
+        )
+        self.assertFalse(close_action.is_enabled)
+        self.assertEqual(
+            _('You are not allowed to edit this entity: {}').format(project),
+            close_action.help_text,
+        )
 
     def test_project_inner_edit01(self):
         user = self.login_as_root_and_get()

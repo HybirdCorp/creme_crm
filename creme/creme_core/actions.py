@@ -15,6 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from django.core.exceptions import PermissionDenied
 from django.urls.base import reverse
 from django.utils.translation import gettext
@@ -34,13 +35,26 @@ class EditAction(EntityAction):
     label = _('Edit')
     icon = 'edit'
 
-    @property
-    def url(self):
-        return self.instance.get_edit_absolute_url()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = self.instance
+        self._url = url = instance.get_edit_absolute_url()
+        self.is_visible = bool(url)
+
+        try:
+            self.user.has_perm_to_change_or_die(instance)
+        except PermissionDenied as e:
+            self.is_enabled = False
+            self.help_text = str(e)
 
     @property
-    def is_enabled(self):
-        return bool(self.url) and self.user.has_perm_to_change(self.instance)
+    def url(self):
+        # return self.instance.get_edit_absolute_url()
+        return self._url
+
+    # @property
+    # def is_enabled(self):
+    #     return bool(self.url) and self.user.has_perm_to_change(self.instance)
 
 
 class DeleteAction(EntityAction):
@@ -92,9 +106,10 @@ class ViewAction(EntityAction):
     def help_text(self):
         return gettext('Go to the entity {entity}').format(entity=self.instance)
 
-    @property
-    def is_enabled(self):
-        return bool(self.url) and self.user.has_perm_to_view(self.instance)
+    # TODO: can the url be empty?
+    # @property
+    # def is_enabled(self):
+    #     return bool(self.url) and self.user.has_perm_to_view(self.instance)
 
 
 class CloneAction(EntityAction):

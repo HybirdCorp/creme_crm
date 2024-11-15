@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2019  Hybird
+#    Copyright (C) 2018-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import PermissionDenied
 from django.urls.base import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -31,11 +32,25 @@ class ProjectCloseAction(actions.UIAction):
     label = _('Close project')
     icon = 'cancel'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        project = self.instance
+        if project.is_closed:
+            self.is_enabled = False
+            self.help_text = _('Project is already closed.')
+        else:
+            try:
+                self.user.has_perm_to_change_or_die(project)
+            except PermissionDenied as e:
+                self.is_enabled = False
+                self.help_text = str(e)
+
     @property
     def url(self):
         return reverse('projects__close_project', args=(self.instance.id,))
 
-    @property
-    def is_enabled(self):
-        instance = self.instance
-        return self.user.has_perm_to_change(instance) and not instance.is_closed
+    # @property
+    # def is_enabled(self):
+    #     instance = self.instance
+    #     return self.user.has_perm_to_change(instance) and not instance.is_closed

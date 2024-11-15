@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2019  Hybird
+#    Copyright (C) 2018-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,16 +32,12 @@ class GenerateVcfAction(UIAction):
 
     label = _('Generate a VCF')
     icon = 'download'
+    help_text = _('Download as a VCF file')
 
     @property
     def url(self):
         return reverse(self.url_name, args=(self.instance.id,))
 
-    @property
-    def is_enabled(self):
-        return self.user.has_perm_to_view(self.instance)
-
-    # TODO ?
     # @property
-    # def help_text(self):
-    #     return _('Download as a VCF file ....')
+    # def is_enabled(self):
+    #     return self.user.has_perm_to_view(self.instance)
