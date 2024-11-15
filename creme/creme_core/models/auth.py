@@ -1229,6 +1229,12 @@ class CremeUser(AbstractBaseUser):
         raise PermissionDenied(gettext('Forbidden (unspecified reason)'))
 
     def has_perms(self, perm_list: str | Iterable[str], obj=None) -> bool:
+        """Helper for has_perm() when you need to check several permission
+        strings.
+        """
+        if not perm_list:
+            return True
+
         has_perm = self.has_perm
 
         return (
@@ -1236,6 +1242,18 @@ class CremeUser(AbstractBaseUser):
             if isinstance(perm_list, str) else
             all(has_perm(perm, obj) for perm in perm_list)
         )
+
+    def has_perms_or_die(self, perm_list: str | Iterable[str], obj=None) -> None:
+        """Version of 'has_perms()' which raises <PermissionDenied> instead of
+        returning <False>.
+        @raise PermissionDenied.
+        """
+        if perm_list:
+            if isinstance(perm_list, str):
+                self.has_perm_or_die(perm_list, obj)
+            else:
+                for perm in perm_list:
+                    self.has_perm_or_die(perm, obj)
 
     # def has_perm_to_access(self, app_name: str) -> bool:
     def has_perm_to_access(self, app_label: str, /) -> bool:
