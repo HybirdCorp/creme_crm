@@ -422,6 +422,9 @@ class AuthTestCase(CremeTestCase):
         self.assertEqual('*superuser*', SUPERUSER_PERM)
         self.assertTrue(has_perm(SUPERUSER_PERM))
 
+        self.assertTrue(user.has_perms([SUPERUSER_PERM]))
+        self.assertTrue(user.has_perms(SUPERUSER_PERM))
+
         with self.assertNoException():
             user.has_perm_or_die(SUPERUSER_PERM)
 
@@ -2073,7 +2076,10 @@ class AuthTestCase(CremeTestCase):
 
         self.assertFalse(has_perm('creme_core.add_cremeproperty'))
         self.assertFalse(has_perm('creme_core.add_relation'))
-        self.assertFalse(has_perm_to_create(CremeProperty))  # Helper
+        self.assertFalse(has_perm_to_create(CremeProperty))
+
+        self.assertFalse(user.has_perms(['creme_core.add_cremeproperty']))
+        self.assertFalse(user.has_perms('creme_core.add_cremeproperty'))
 
         with self.assertRaises(PermissionDenied) as cm:
             user.has_perm_or_die('creme_core.add_cremeproperty')
@@ -2082,6 +2088,7 @@ class AuthTestCase(CremeTestCase):
             str(cm.exception),
         )
 
+        # ---
         get_ct = ContentType.objects.get_for_model
         role.creatable_ctypes.set([get_ct(CremeProperty), get_ct(Relation)])
 
@@ -2090,7 +2097,12 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(has_perm('creme_core.add_relation'))
         self.assertFalse(has_perm('creme_core.add_cremepropertytype'))
 
-        # Helpers
+        self.assertTrue(user.has_perms(['creme_core.add_cremeproperty']))
+        self.assertTrue(user.has_perms('creme_core.add_cremeproperty'))
+        self.assertFalse(user.has_perms([
+            'creme_core.add_cremeproperty', 'creme_core.add_cremepropertytype'
+        ]))
+
         self.assertTrue(has_perm_to_create(CremeProperty))
         self.assertFalse(has_perm_to_create(CremePropertyType))
 
@@ -2100,7 +2112,6 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(has_perm_to_create(prop))
         self.assertFalse(has_perm_to_create(ptype))
 
-        # Helpers (with exception)
         with self.assertNoException():
             user.has_perm_to_create_or_die(prop)
 
