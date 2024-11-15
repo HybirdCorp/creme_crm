@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme VCFs 2.6\n"
+"Project-Id-Version: Creme VCFs 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-14 18:12+0200\n"
+"POT-Creation-Date: 2024-11-18 11:55+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,6 +18,9 @@ msgstr ""
 
 msgid "Generate a VCF"
 msgstr "Générer un VCF"
+
+msgid "Download as a VCF file"
+msgstr "Télécharger en tant que fichier VCF"
 
 msgid "Vcfs"
 msgstr "Vcfs"

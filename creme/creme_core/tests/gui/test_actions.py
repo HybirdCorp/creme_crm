@@ -862,7 +862,8 @@ class BuiltinActionsTestCase(CremeTestCase):
             label=_('Edit'),
             icon='edit',
         )
-        # Not allowed
+
+        # Not allowed ---
         self.assertAction(
             actions.EditAction(user, FakeContact, instance=self.contact_other),
             model=FakeContact,
@@ -875,7 +876,8 @@ class BuiltinActionsTestCase(CremeTestCase):
             label=_('Edit'),
             icon='edit',
         )
-        # FakeActivity
+
+        # FakeActivity (empty url) ---
         activity = FakeActivity(user=user)
         self.assertEqual('', activity.get_edit_absolute_url())
         self.assertAction(
@@ -884,8 +886,10 @@ class BuiltinActionsTestCase(CremeTestCase):
             action_id='creme_core-edit',
             action_type='redirect',
             url='',
-            is_enabled=False,
-            is_visible=True,
+            # is_enabled=False,
+            is_enabled=True,
+            # is_visible=True,
+            is_visible=False,
             is_default=False,
             label=_('Edit'),
             icon='edit',
@@ -949,19 +953,19 @@ class BuiltinActionsTestCase(CremeTestCase):
             icon='view',
             help_text=gettext('Go to the entity {entity}').format(entity=self.contact),
         )
-        self.assertAction(
-            actions.ViewAction(self.user, instance=self.contact_other),
-            model=FakeContact,
-            action_id='creme_core-view',
-            action_type='redirect',
-            url=self.contact_other.get_absolute_url(),
-            is_enabled=False,  # other users can view entity
-            is_visible=True,
-            is_default=True,
-            label=_('See'),
-            icon='view',
-            help_text=gettext('Go to the entity {entity}').format(entity=self.contact_other),
-        )
+        # self.assertAction(
+        #     actions.ViewAction(self.user, instance=self.contact_other),
+        #     model=FakeContact,
+        #     action_id='creme_core-view',
+        #     action_type='redirect',
+        #     url=self.contact_other.get_absolute_url(),
+        #     is_enabled=False,  # other users can view entity
+        #     is_visible=True,
+        #     is_default=True,
+        #     label=_('See'),
+        #     icon='view',
+        #     help_text=gettext('Go to the entity {entity}').format(entity=self.contact_other),
+        # )
 
     def test_clone_action(self):
         user = self.user

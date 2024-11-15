@@ -3,7 +3,7 @@
     {% if actions.others %}
     <li class="row-actions-trigger" title="{% blocktranslate %}Display the available actions for «&nbsp;{{entity}}&nbsp;»{% endblocktranslate %}">
         <div class="listview-actions-container">
-            {% for action in actions.others %}
+          {% for action in actions.others %}
             <div class="listview-action">
                 <a href="{{action.url}}" {% if action.help_text %}title="{{action.help_text}}"{% endif %} data-action="{{action.type}}" class="{% if not action.is_enabled %}is-disabled{% endif %}">
                     {% if action.icon %}{% widget_icon name=action.icon label=action.label size='listview-menu' class='listview-action-icon' %}{% endif %}
@@ -11,21 +11,21 @@
                     {% if action.action_data %}{% jsondata action.action_data class='listview-action-data' %}{% endif %}
                 </a>
             </div>
-            {% endfor %}
+          {% endfor %}
         </div>
     </li>
     {% endif %}
     <li class="listview-action default-row-action">
-        {% with actions.default as action %}
-        {% if action %}
+     {% with actions.default as action %}
+      {% if action %}
         <a href="{{action.url}}" {% if action.help_text %}title="{{action.help_text}}"{% endif %} data-action="{{action.type}}" class="{% if not action.is_enabled %}is-disabled{% endif %}">
             {% if action.icon %}{% widget_icon name=action.icon label=action.label size='listview-menu' class='listview-action-icon' %}{% endif %}
             {{action.label}}
             {% if action.action_data %}{% jsondata action.action_data class='listview-action-data' %}{% endif %}
         </a>
-        {% else %}
+      {% else %}
         <a>{% translate 'Actions' %}</a>
-        {% endif %}
-        {% endwith %}
+      {% endif %}
+     {% endwith %}
     </li>
 </ul>
