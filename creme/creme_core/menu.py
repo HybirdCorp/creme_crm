@@ -23,6 +23,7 @@ import math
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext
@@ -114,16 +115,23 @@ class PasswordChangeEntry(menu.FixedURLEntry):
     label = _('Change password')
     url_name = 'creme_core__change_own_password'
 
-    def _has_perm(self, context):
+    # def _has_perm(self, context):
+    #     return (
+    #         super()._has_perm(context)
+    #         and get_world_settings_model().objects.instance().password_change_enabled
+    #     )
+    def check_permissions(self, user):
         # NB: notice that even when superusers cannot change their password here,
         #     they still can use the creme_config's view.
         #     So it can be perceived as inconsistent, but it avoids that users
         #     do not understand why the menu entry is not disabled when the
         #     feature is disabled.
-        return (
-            super()._has_perm(context)
-            and get_world_settings_model().objects.instance().password_change_enabled
-        )
+        super().check_permissions(user)
+
+        if not get_world_settings_model().objects.instance().password_change_enabled:
+            raise PermissionDenied(gettext(
+                'Your configuration forbids not superusers to change their own password'
+            ))
 
 
 class CremeEntry(menu.ContainerEntry):

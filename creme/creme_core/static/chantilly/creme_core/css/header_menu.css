@@ -173,6 +173,7 @@
 }
 span.ui-creme-navigation-text-entry {  /* Non-active entries */
     font-weight: 400;
+    cursor: not-allowed;
 }
 .ui-creme-navigation-title {
     color: #fafafa;

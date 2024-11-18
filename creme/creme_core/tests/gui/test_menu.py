@@ -190,7 +190,7 @@ class MenuTestCase(CremeTestCase):
 
         self.assertValidationError(cm3.exception, messages=global_msg)
 
-    def test_url_entry01(self):
+    def test_url_entry(self):
         user = self.login_as_standard()
         self.assertIs(FixedURLEntry.single_instance, True)
 
@@ -213,7 +213,7 @@ class MenuTestCase(CremeTestCase):
             TestEntry().render(self._build_context(user=user)),
         )
 
-    def test_url_entry02(self):
+    def test_url_entry__standard_user(self):
         "With permissions OK."
         user = self.login_as_standard(admin_4_apps=['creme_config'])
 
@@ -236,8 +236,7 @@ class MenuTestCase(CremeTestCase):
 
         self.assertHTMLEqual(expected, TestEntry02().render(ctxt))
 
-    def test_url_entry03(self):
-        "With permissions KO."
+    def test_url_entry__not_allowed(self):
         user = self.login_as_standard()
 
         entry_label = 'Home'
@@ -248,7 +247,16 @@ class MenuTestCase(CremeTestCase):
             url_name = 'creme_core__home'
             permissions = 'creme_config'  # <===
 
-        expected = f'<span class="ui-creme-navigation-text-entry forbidden">{entry_label}</span>'
+        expected = (
+            '<span class="ui-creme-navigation-text-entry forbidden" title="{error}">'
+            '{label}'
+            '</span>'.format(
+                label=entry_label,
+                error=_('You are not allowed to access to the app: {}').format(
+                    _('General configuration')
+                ),
+            )
+        )
         ctxt = self._build_context(user=user)
         self.assertHTMLEqual(expected, TestEntry01().render(ctxt))
 
@@ -258,7 +266,7 @@ class MenuTestCase(CremeTestCase):
 
         self.assertHTMLEqual(expected, TestEntry02().render(ctxt))
 
-    def test_creation_entry01(self):
+    def test_creation_entry(self):
         self.assertIs(CreationEntry.single_instance, True)
 
         entry01 = CreationEntry()
@@ -288,10 +296,9 @@ class MenuTestCase(CremeTestCase):
         entry03 = FakeContactCreationEntry()  # No item
         self.assertEqual(entry_label, entry03.label)
 
-    def test_creation_entry02(self):
+    def test_creation_entry__standard_user(self):
         "Not super-user, but allowed."
         user = self.login_as_standard(creatable_models=[FakeContact])
-
         self.assertHTMLEqual(
             f'<a href="{reverse("creme_core__create_fake_contact")}">'
             f'{_("Create a contact")}'
@@ -299,18 +306,20 @@ class MenuTestCase(CremeTestCase):
             FakeContactCreationEntry().render(self._build_context(user=user)),
         )
 
-    def test_creation_entry03(self):
-        "Not allowed."
+    def test_creation_entry__not_allowed(self):
         user = self.login_as_standard()  # creatable_models=[FakeContact]
 
         self.assertHTMLEqual(
-            f'<span class="ui-creme-navigation-text-entry forbidden">'
-            f'{_("Create a contact")}'
-            f'</span>',
+            '<span class="ui-creme-navigation-text-entry forbidden" title="{error}">'
+            '{label}'
+            '</span>'.format(
+                label=_('Create a contact'),
+                error=_('You are not allowed to create: {}').format('Test Contact'),
+            ),
             FakeContactCreationEntry().render(self._build_context(user=user)),
         )
 
-    def test_listview_entry01(self):
+    def test_listview_entry(self):
         self.assertIs(ListviewEntry.single_instance, True)
 
         ctxt = self._build_context()
@@ -337,7 +346,7 @@ class MenuTestCase(CremeTestCase):
             entry02.render(ctxt),
         )
 
-    def test_listview_entry02(self):
+    def test_listview_entry__standard_user(self):
         "Not super-user, but allowed."
         user = self.login_as_standard()
 
@@ -346,14 +355,15 @@ class MenuTestCase(CremeTestCase):
             FakeContactsEntry().render(self._build_context(user=user)),
         )
 
-    def test_listview_entry03(self):
-        "Not allowed."
+    def test_listview_entry__not_allowed(self):
         user = self.login_as_standard(allowed_apps=['creme_config'])
 
         self.assertHTMLEqual(
-            '<span class="ui-creme-navigation-text-entry forbidden">'
+            '<span class="ui-creme-navigation-text-entry forbidden" title="{}">'
             'Test Contacts'
-            '</span>',
+            '</span>'.format(
+                _('You are not allowed to access to the app: {}').format(_('Core')),
+            ),
             FakeContactsEntry().render(self._build_context(user=user)),
         )
 

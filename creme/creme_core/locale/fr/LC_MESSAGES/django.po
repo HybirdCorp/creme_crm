@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-13 16:05+0100\n"
+"POT-Creation-Date: 2024-11-18 16:43+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1721,6 +1721,11 @@ msgstr[1] "{count} Fiches"
 
 msgid "Change password"
 msgstr "Changer de mot de passe"
+
+msgid "Your configuration forbids not superusers to change their own password"
+msgstr ""
+"Votre configuration interdit les non super-utilisateurs à changer leur propre "
+"mot de passe"
 
 msgid "User"
 msgstr "Utilisateur"
@@ -4130,9 +4135,6 @@ msgid ""
 msgstr ""
 "Le filtre ne peut être supprimé à cause de ses dépendances ({dependencies})."
 
-msgid "You are not allowed to access this view."
-msgstr "Vous n'avez pas la permission d'accéder à cette page."
-
 msgid "It seems you logged out."
 msgstr "Vous semblez vous être déconnecté(e)."
 
@@ -4210,6 +4212,9 @@ msgstr "Veuillez entrer au moins {count} caractères"
 
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+#~ msgid "You are not allowed to access this view."
+#~ msgstr "Vous n'avez pas la permission d'accéder à cette page."
 
 #~ msgid "Delete definitively"
 #~ msgstr "Supprimer définitivement"
