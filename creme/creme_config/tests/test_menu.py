@@ -72,7 +72,7 @@ class MenuEntriesTestCase(CremeTestCase):
             ),
             entry.render({
                 # 'request': self.build_request(user=user),
-                # 'user': user,
+                'user': self.get_root_user(),
                 'TIME_ZONE': tz,
             }),
         )

@@ -22,7 +22,7 @@ import logging
 from collections import defaultdict
 from typing import Iterable, Iterator, Sequence
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.urls import reverse_lazy as reverse
 from django.utils.html import format_html, mark_safe
 from django.utils.translation import gettext
@@ -30,7 +30,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ..auth import build_creation_perm as cperm
 from ..forms import menu as menu_forms
-from ..models import CremeEntity, MenuConfigItem
+from ..models import CremeEntity, CremeUser, MenuConfigItem
 
 logger = logging.getLogger(__name__)
 
@@ -105,18 +105,21 @@ class MenuEntry:
         self.data = data = {} if data is None else data  # Used by creme_config
         self.label = data.get('label') or self.label
 
-    def _has_perm(self, context) -> bool:
-        permissions = self.permissions
-
-        if permissions:
-            user = context['user']
-            return (
-                user.has_perm(permissions)
-                if isinstance(permissions, str) else
-                user.has_perms(permissions)
-            )
-
-        return True
+    # def _has_perm(self, context) -> bool:
+    #     permissions = self.permissions
+    #
+    #     if permissions:
+    #         user = context['user']
+    #         return (
+    #             user.has_perm(permissions)
+    #             if isinstance(permissions, str) else
+    #             user.has_perms(permissions)
+    #         )
+    #
+    #     return True
+    def check_permissions(self, user: CremeUser) -> None:
+        """@raise PermissionDenied."""
+        user.has_perms_or_die(self.permissions)
 
     @property
     def children(self) -> Iterator[MenuEntry]:
@@ -125,6 +128,7 @@ class MenuEntry:
     def render_label(self, context) -> str:
         return self.label
 
+    # TODO: get_context() instead (like form widgets, buttons, etc...)
     def render(self, context) -> str:
         """Render the entry as HTML."""
         return format_html(
@@ -179,20 +183,26 @@ class FixedURLEntry(MenuEntry):
 
         raise ValueError(f'{self} has an empty URL name.')
 
-    # TODO: factorise
     def render(self, context):
         label = self.render_label(context)
 
-        if not self._has_perm(context):
+        # if not self._has_perm(context):
+        #     return format_html(
+        #         '<span class="ui-creme-navigation-text-entry forbidden">{}</span>',
+        #         label,
+        #     )
+        try:
+            self.check_permissions(context['user'])
+        except PermissionDenied as e:
             return format_html(
-                '<span class="ui-creme-navigation-text-entry forbidden">{}</span>',
-                label,
+                '<span class="ui-creme-navigation-text-entry forbidden" title="{error}">'
+                '{label}'
+                '</span>',
+                error=str(e), label=label,
             )
 
         return format_html(
-            '<a href="{url}">{label}</a>',
-            url=self.url,
-            label=label,
+            '<a href="{url}">{label}</a>', url=self.url, label=label,
         )
 
 
@@ -394,6 +404,14 @@ class MenuRegistry:
 
             if setdefault(entry_id, entry_cls) is not entry_cls:
                 raise self.RegistrationError(f"Duplicated entry's id: {entry_id}")
+
+            # TODO: to be removed in creme2.8
+            if hasattr(entry_cls, '_has_perm'):
+                logger.critical(
+                    'The class %s still defines a method "is_allowed()"; '
+                    'define the new method "check_permissions()" instead.',
+                    entry_cls,
+                )
 
         return self
 
