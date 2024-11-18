@@ -20,6 +20,13 @@ class BackendsTestCase(CremeTestCase):
         self.assertCountEqual(
             [CSVImportBackend.id, XLSImportBackend.id], registry.extensions,
         )
+        self.assertTrue(registry)
+
+    def test_registry__empty(self):
+        registry = _BackendRegistry(base.ImportBackend, [])
+        self.assertFalse([*registry.backend_classes])
+        self.assertFalse([*registry.extensions])
+        self.assertFalse(registry)
 
     def test_registration_errors01(self):
         "Duplicates."

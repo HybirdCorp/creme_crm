@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2022  Hybird
+#    Copyright (C) 2013-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -74,6 +74,9 @@ class _BackendRegistry(Generic[BackendBaseClass]):
             self._backend_classes = backends
 
         return self._backend_classes
+
+    def __bool__(self):
+        return bool(self._get_backend_classes())
 
     @property
     def backend_classes(self) -> Iterator[type[BackendBaseClass]]:
