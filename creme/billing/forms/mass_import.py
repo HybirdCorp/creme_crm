@@ -35,12 +35,13 @@ from creme.creme_core.forms.mass_import import (
     EntityExtractorField,
     ImportForm4CremeEntity,
 )
-from creme.creme_core.models import Vat
+from creme.creme_core.models import SettingValue, Vat
 from creme.creme_core.utils import as_int, update_model_instance
 
 from .. import get_product_line_model
 from ..core.number_generation import number_generator_registry
 from ..models import NumberGeneratorItem
+from ..setting_keys import emitter_edition_key
 from ..utils import copy_or_create_address
 
 Contact      = persons.get_contact_model()
@@ -500,12 +501,28 @@ def get_import_form_builder(header_dict, choices):
             append_error = self.append_error
             user = self.user
 
-            for prop_name in ('source', 'target'):
-                entity, err_msg = cdata[prop_name].extract_value(line, user)
-                setattr(instance, prop_name, entity)
+            # Emitter ---
+            emitter, err_msg1 = cdata['source'].extract_value(line, user)
 
-                # Error is really appended if 'err_msg' is not empty
-                append_error(err_msg)
+            if (
+                instance.pk
+                and not instance.generate_number_in_create  # Invoice & CreditNote
+                # TODO: use the future snapshot system instead
+                and getattr(instance, '_instance_backup', {}).get('number')
+                and instance.source != emitter
+                and not SettingValue.objects.get_4_key(emitter_edition_key, default=False).value
+            ):
+                raise ValueError(
+                    gettext('Your configuration forbids you to edit the source Organisation')
+                )
+
+            setattr(instance, 'source', emitter)
+            append_error(err_msg1)  # Error is only appended if 'err_msg' is not empty
+
+            # Receiver ---
+            target, err_msg2 = cdata['target'].extract_value(line, user)
+            setattr(instance, 'target', target)
+            append_error(err_msg2)
 
             self._check_number_edition(instance)
 
