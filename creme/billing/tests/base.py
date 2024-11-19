@@ -840,6 +840,112 @@ class _BillingTestCase(_BillingTestCaseMixin,
         self.assertDoesNotExist(b_addr2)
         self.assertDoesNotExist(s_addr2)
 
+    # model, status_model,
+    def _aux_test_csv_import_update__emitter_edition(self, *, user, model,
+                                                     emitter_edition_ok=True,
+                                                     ):
+        create_orga = partial(Organisation.objects.create, user=user)
+        src1 = create_orga(name='SRC-1')
+        src2 = create_orga(name='SRC-2')
+        tgt = create_orga(name='TGT')
+
+        create_bdoc = partial(model.objects.create, user=user, source=src1, target=tgt)
+        bdoc1 = create_bdoc(name='Bill #001')
+        bdoc2 = create_bdoc(name='Bill #002', number='#122')
+        bdoc3 = create_bdoc(name='Bill #003', number='#123')
+
+        count = model.objects.count()
+
+        description = 'Imported from CSV'
+        lines = [
+            (bdoc1.name, src2.name, tgt.name, description),  # No number => OK
+            (bdoc2.name, src1.name, tgt.name, description),  # No emitter change => OK
+            (bdoc3.name, src2.name, tgt.name, description),  # => Error is some cases
+        ]
+        doc = self._build_csv_doc(lines, user=user)
+        response = self.client.post(
+            self._build_import_url(model),
+            follow=True,
+            data={
+                'step':     1,
+                'document': doc.id,
+
+                'user': user.id,
+                'key_fields': ['name'],
+
+                'name_colselect':   1,
+                'number_colselect': 0,
+
+                'issuing_date_colselect':    0,
+                'expiration_date_colselect': 0,
+
+                'status_colselect': 0,
+                'status_defval':    bdoc1.status_id,
+
+                'discount_colselect': 0,
+                'discount_defval':    '0',
+
+                'currency_colselect': 0,
+                'currency_defval':    bdoc1.currency_id,
+
+                'acceptation_date_colselect': 0,
+
+                'comment_colselect':         0,
+                'additional_info_colselect': 0,
+                'payment_terms_colselect':   0,
+                'payment_type_colselect':    0,
+
+                'description_colselect':         4,
+                'buyers_order_number_colselect': 0,  # Invoice only
+
+                'source_persons_organisation_colselect': 2,
+                'target_persons_organisation_colselect': 3,
+                'target_persons_contact_colselect': 0,
+
+                'totals_mode': '1',
+            },
+        )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        self.assertEqual(count, model.objects.count())
+
+        bdoc1 = self.refresh(bdoc1)
+        self.assertEqual(description, bdoc1.description)
+        self.assertEqual(src2,        bdoc1.source)
+
+        self.assertEqual(description, self.refresh(bdoc2).description)
+
+        j_results = self._get_job_results(job)
+        self.assertEqual(len(lines), len(j_results))
+
+        j_result1 = j_results[0]
+        self.assertEqual(bdoc1.id, j_result1.entity_id)
+        self.assertFalse(j_result1.messages)
+
+        j_result2 = j_results[1]
+        self.assertEqual(bdoc2.id, j_result2.entity_id)
+        self.assertFalse(j_result2.messages)
+
+        bdoc3 = self.refresh(bdoc3)
+        j_result3 = j_results[2]
+        if emitter_edition_ok:
+            self.assertEqual(description, bdoc3.description)
+            self.assertEqual(src2,        bdoc3.source)
+
+            self.assertEqual(bdoc3.id, j_result3.entity_id)
+            self.assertFalse(j_result3.messages)
+        else:
+            self.assertFalse(bdoc3.description)
+            self.assertEqual(src1, bdoc3.source)  # No change
+
+            # self.assertEqual(bdoc2.id, j_result3.entity_id) TODO?
+            self.assertIsNone(j_result3.entity_id)
+            self.assertListEqual(
+                [_('Your configuration forbids you to edit the source Organisation')],
+                j_result3.messages,
+            )
+
     def assertConvertButtons(self, response, expected):
         found = []
 

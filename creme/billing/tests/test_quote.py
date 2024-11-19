@@ -928,6 +928,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             j_error.messages,
         )
 
+    def test_mass_import__emitter_edition(self):
+        user = self.login_as_root_and_get()
+        self._aux_test_csv_import_update__emitter_edition(
+            user=user, model=Quote, emitter_edition_ok=True,
+        )
+
     @skipIfCustomAddress
     @skipIfCustomServiceLine
     def test_clone__not_managed_emitter(self):

@@ -1720,6 +1720,20 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             errors=_('You cannot compute totals in update mode.'),
         )
 
+    def test_mass_import__emitter_edition01(self):
+        user = self.login_as_root_and_get()
+        self._aux_test_csv_import_update__emitter_edition(
+            user=user, model=Invoice, emitter_edition_ok=False,
+        )
+
+    def test_mass_import__emitter_edition02(self):
+        SettingValue.objects.set_4_key(emitter_edition_key, True)
+
+        user = self.login_as_root_and_get()
+        self._aux_test_csv_import_update__emitter_edition(
+            user=user, model=Invoice, emitter_edition_ok=True,
+        )
+
     def test_brick01(self):
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
