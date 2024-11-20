@@ -777,7 +777,10 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         )
 
     def test_edit(self):
-        user = self.login_as_standard(allowed_apps=['reports', 'creme_core'])
+        user = self.login_as_standard(
+            allowed_apps=['reports', 'creme_core'],
+            listable_models=[Report],
+        )
 
         efilter = EntityFilter.objects.create(
             id='test-reports_filter',
@@ -997,7 +1000,9 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         self.assertGET403(efilter.get_edit_absolute_url())
 
     def test_delete(self):
-        user = self.login_as_standard(allowed_apps=['reports', 'creme_core'])
+        user = self.login_as_standard(
+            allowed_apps=['reports', 'creme_core'], listable_models=[Report],
+        )
 
         efilter = EntityFilter.objects.create(
             id='reports-test_delete',

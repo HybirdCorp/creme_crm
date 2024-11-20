@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Core 2.7\n"
+"Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-31 10:52+0200\n"
+"POT-Creation-Date: 2025-09-10 16:50+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1889,6 +1889,9 @@ msgstr "Nom"
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
+msgid "Listable resources"
+msgstr "Ressources listables"
+
 msgid "Exportable resources"
 msgstr "Ressources exportables"
 
@@ -2093,6 +2096,9 @@ msgstr "Vous n'avez pas la permission de relier : {}"
 
 msgid "You are not allowed to unlink this entity: {}"
 msgstr "Vous n'avez pas la permission de délier cette fiche : {}"
+
+msgid "You are not allowed to list: {}"
+msgstr "Vous n'avez pas la permission de lister : {}"
 
 msgid "You are not allowed to view this entity: {}"
 msgstr "Vous n'avez pas la permission de voir cette fiche : {}"
@@ -2928,6 +2934,12 @@ msgstr ""
 "La fonctionnalité de rappel est utilisée par les Alertes & ToDos (de l'app "
 "Assistants) par exemple."
 
+msgid "owns"
+msgstr "possède"
+
+msgid "belongs to"
+msgstr "appartient à"
+
 msgid "Euro"
 msgstr "Euro"
 
@@ -2999,12 +3011,6 @@ msgstr "Portugais"
 
 msgid "Dutch"
 msgstr "Néerlandais"
-
-msgid "owns"
-msgstr "possède"
-
-msgid "belongs to"
-msgstr "appartient à"
 
 msgid "Tools"
 msgstr "Outils"
@@ -3596,9 +3602,6 @@ msgstr "Voulez-vous vraiment supprimer ce filtre ?"
 msgid "Go to the configuration of types"
 msgstr "Aller à la configuration des types"
 
-msgid "Back to the list"
-msgstr "Retour à la liste"
-
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""
 "Vous n'avez pas accès à cette page, veuillez contacter votre administrateur."
@@ -3782,6 +3785,18 @@ msgstr "Enregistrer les modifications"
 
 msgid "Link"
 msgstr "Lier"
+
+msgid "You are not allowed to list"
+msgstr "Vous n'avez pas la permission de lister"
+
+msgid "List-view"
+msgstr "Vue en liste"
+
+msgid "Back to the list"
+msgstr "Retour à la liste"
+
+msgid "You are not allowed to create"
+msgstr "Vous n'avez pas la permission de créer"
 
 msgid "Go to the next entity"
 msgstr "Accéder à la fiche suivante"

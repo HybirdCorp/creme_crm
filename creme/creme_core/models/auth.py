@@ -70,6 +70,7 @@ class UserRoleManager(models.Manager):
 
     def smart_create(self, *,
                      creatable_models: Iterable[type[CremeEntity]] = (),
+                     listable_models: Iterable[type[CremeEntity]] = (),
                      exportable_models: Iterable[type[CremeEntity]] = (),
                      **kwargs
                      ) -> UserRole:
@@ -79,11 +80,17 @@ class UserRoleManager(models.Manager):
         role = self.create(**kwargs)
         get_ct = ContentType.objects.get_for_model
 
+        def as_ctypes(models):
+            return [get_ct(model) for model in models]
+
         if creatable_models:
-            role.creatable_ctypes.set([get_ct(model) for model in creatable_models])
+            role.creatable_ctypes.set(as_ctypes(creatable_models))
+
+        if listable_models:
+            role.listable_ctypes.set(as_ctypes(listable_models))
 
         if exportable_models:
-            role.exportable_ctypes.set([get_ct(model) for model in exportable_models])
+            role.exportable_ctypes.set(as_ctypes(exportable_models))
 
         return role
 
@@ -101,6 +108,10 @@ class UserRole(models.Model):
     creatable_ctypes = models.ManyToManyField(
         ContentType, verbose_name=_('Creatable resources'),
         related_name='roles_allowing_creation',
+    )
+    listable_ctypes = models.ManyToManyField(
+        ContentType, verbose_name=_('Listable resources'),
+        related_name='roles_allowing_list',  # TODO: '+' ?
     )
     exportable_ctypes = models.ManyToManyField(
         ContentType, verbose_name=_('Exportable resources'),
@@ -133,6 +144,7 @@ class UserRole(models.Model):
 
         self._creatable_ctypes_set: frozenset[int] | None = None
         self._exportable_ctypes_set: frozenset[int] | None = None
+        self._listable_ctypes_set: frozenset[int] | None = None
 
         self._setcredentials: list[SetCredentials] | None = None
 
@@ -252,6 +264,18 @@ class UserRole(models.Model):
 
         return ctype.id in self._exportable_ctypes_set
 
+    def can_list(self, ctype: ContentType, /) -> bool:
+        """List-view credentials.
+        @param ctype: ContentType of the model we want to list.
+        @return True if the model can be listed.
+        """
+        if self._listable_ctypes_set is None:
+            self._listable_ctypes_set = frozenset(
+                self.listable_ctypes.values_list('id', flat=True)
+            )
+
+        return ctype.id in self._listable_ctypes_set
+
     def can_do_on_model(self, user, model: CremeEntity, owner, perm: int) -> bool:
         """Can the given user execute an action (VIEW, CHANGE etc..) on this model.
         @param user: User instance; user which tries to do something.
@@ -364,6 +388,14 @@ class UserRole(models.Model):
 
     def portable_key(self) -> str:
         return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        # TODO: remove in the next major version
+        # NB see creme_core.populate.py (we mark the role to avoid a
+        #    modification if the command is run again).
+        self.extra_data['listablemigr'] = True
+
+        super().save(*args, **kwargs)
 
 
 class SetCredentials(models.Model):
@@ -1478,6 +1510,38 @@ class CremeUser(AbstractBaseUser):
                 gettext('You are not allowed to unlink this entity: {}').format(
                     entity.allowed_str(self),
                 )
+            )
+
+    # TODO: factorise?
+    def has_perm_to_list(self,
+                         ct_or_model_or_entity: EntityInstanceOrClassOrCType,
+                         /) -> bool:
+        """Is the user allowed to access the list-views of a model?
+        NB: is concerns page-wide list-views & inner-popup list (used to
+            select entities in forms).
+
+        >> user.has_perm_to_list(ContentType.objects.get_for_model(Contact))
+
+        >> user.has_perm_to_list(Contact)
+
+        >> contact = Contact.objects.create(user=user, last_name='Doe')
+        >> user.has_perm_to_list(contact)
+        """
+        # TODO: check is a CremeEntity?
+        return self.is_superuser or self.role.can_list(as_ctype(ct_or_model_or_entity))
+
+    def has_perm_to_list_or_die(self,
+                                ct_or_model_or_entity: EntityInstanceOrClassOrCType,
+                                /) -> None:
+        if not self.has_perm_to_list(ct_or_model_or_entity):
+            meta = (
+                ct_or_model_or_entity.model_class()._meta
+                if isinstance(ct_or_model_or_entity, ContentType) else
+                ct_or_model_or_entity._meta
+            )
+
+            raise PermissionDenied(
+                gettext('You are not allowed to list: {}').format(meta.verbose_name)
             )
 
     # TODO: rename argument (see <has_perm_to_change()>)

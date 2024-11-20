@@ -187,12 +187,14 @@ class _CremeTestCase:
     def create_role(cls, *,
                     name='Test',
                     creatable_models: Iterable[type[CremeEntity]] = (),
+                    listable_models: Iterable[type[CremeEntity]] = (),
                     exportable_models: Iterable[type[CremeEntity]] = (),
                     **kwargs
                     ) -> UserRole:
         return UserRole.objects.smart_create(
             name=name,
             creatable_models=creatable_models,
+            listable_models=listable_models,
             exportable_models=exportable_models,
             **kwargs
         )
@@ -295,6 +297,7 @@ class _CremeTestCase:
                           allowed_apps: Iterable[str] = ('creme_core',),
                           admin_4_apps: Iterable[str] = (),
                           creatable_models: Iterable[type[CremeEntity]] = (),
+                          listable_models: Iterable[type[CremeEntity]] = (),
                           exportable_models: Iterable[type[CremeEntity]] = (),
                           index: int = 0,
                           password: str = 'test',
@@ -304,6 +307,7 @@ class _CremeTestCase:
             allowed_apps=allowed_apps,
             admin_4_apps=admin_4_apps,
             creatable_models=creatable_models,
+            listable_models=listable_models,
             exportable_models=exportable_models,
         )
         user = self.create_user(index=index, role=role, password=password)

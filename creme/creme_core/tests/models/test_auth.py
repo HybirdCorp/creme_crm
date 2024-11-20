@@ -27,6 +27,7 @@ from creme.creme_core.models import (
     CremeUser,
     CustomEntityType,
     EntityFilter,
+    FakeActivity,
     FakeContact,
     FakeInvoice,
     FakeInvoiceLine,
@@ -131,12 +132,14 @@ class AuthTestCase(CremeTestCase):
         allowed_apps = ['creme_core', 'documents']
         admin_4_apps = ['documents']
         creatable_models = [FakeOrganisation, FakeContact]
+        listable_models = [FakeActivity]
         exportable_models = [FakeInvoice]
         role = UserRole.objects.smart_create(
             name=name,
             allowed_apps=allowed_apps,
             admin_4_apps=admin_4_apps,
             creatable_models=creatable_models,
+            listable_models=listable_models,
             exportable_models=exportable_models,
         )
         self.assertIsInstance(role, UserRole)
@@ -148,6 +151,10 @@ class AuthTestCase(CremeTestCase):
         self.assertCountEqual(
             creatable_models,
             [ct.model_class() for ct in role.creatable_ctypes.all()],
+        )
+        self.assertCountEqual(
+            listable_models,
+            [ct.model_class() for ct in role.listable_ctypes.all()],
         )
         self.assertCountEqual(
             exportable_models,
@@ -2251,6 +2258,54 @@ class AuthTestCase(CremeTestCase):
             str(enabled_cm.exception),
         )
 
+    def test_list_creds01(self):
+        user = self.create_user()
+        role = self._create_role('Coder', ['creme_core'], users=[user])  # 'persons'
+
+        get_ct = ContentType.objects.get_for_model
+        contact_ct = get_ct(FakeContact)
+        orga_ct = get_ct(FakeOrganisation)
+        with self.assertNumQueries(1):
+            self.assertFalse(role.can_list(contact_ct))
+        with self.assertNumQueries(0):
+            self.assertFalse(role.can_list(orga_ct))
+
+        self.assertFalse(user.has_perm('persons.list_contact'))
+        self.assertFalse(user.has_perm('persons.list_organisation'))
+        self.assertFalse(user.has_perm_to_list(FakeContact))
+
+        error_msg = _('You are not allowed to list: {}').format('Test Contact')
+        with self.assertRaises(PermissionDenied) as cm1:
+            user.has_perm_to_list_or_die(contact_ct)
+        self.assertEqual(error_msg, str(cm1.exception))
+
+        with self.assertRaises(PermissionDenied) as cm2:
+            user.has_perm_or_die('creme_core.list_fakecontact')
+        self.assertEqual(error_msg, str(cm2.exception))
+
+        # ---
+        role.listable_ctypes.add(contact_ct)
+
+        user.role = role = self.refresh(role)  # Refresh cache
+        self.assertTrue(role.can_list(contact_ct))
+        self.assertFalse(role.can_list(orga_ct))
+
+        self.assertTrue(user.has_perm('creme_core.list_fakecontact'))
+        self.assertFalse(user.has_perm('creme_core.list_fakeorganisation'))
+        self.assertTrue(user.has_perm_to_list(FakeContact))
+        self.assertFalse(user.has_perm_to_list(FakeOrganisation))
+
+        # Version with exception ---
+        with self.assertNoException():
+            user.has_perm_to_list_or_die(FakeContact)
+
+        self.assertRaises(PermissionDenied, user.has_perm_to_list_or_die, FakeOrganisation)
+
+    def test_list_creds02(self):
+        user = self.build_user(is_superuser=True)
+        self.assertTrue(user.has_perm('persons.list_contact'))
+        self.assertTrue(user.has_perm_to_list(FakeContact))
+
     def test_export_creds01(self):
         user = self.create_user()
         role = self._create_role('Coder', ['creme_core'], users=[user])  # 'persons'
@@ -2260,7 +2315,7 @@ class AuthTestCase(CremeTestCase):
 
         self.assertFalse(has_perm('persons.export_contact'))
         self.assertFalse(has_perm('persons.export_organisation'))
-        self.assertFalse(has_perm_to_export(FakeContact))  # Helper
+        self.assertFalse(has_perm_to_export(FakeContact))
 
         with self.assertRaises(PermissionDenied) as cm:
             user.has_perm_or_die('creme_core.export_fakecontact')
@@ -2278,7 +2333,7 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(has_perm_to_export(FakeContact))
         self.assertFalse(has_perm_to_export(FakeOrganisation))
 
-        # Helpers (with exception)
+        # Version with exception ---
         with self.assertNoException():
             user.has_perm_to_export_or_die(FakeContact)
 

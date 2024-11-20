@@ -268,8 +268,18 @@ class ListViewTestCase(CremeTestCase):
             response, '{}?next={}'.format(reverse('creme_login'), url),
         )
 
+    def test_not_allowed(self):
+        self.login_as_standard()  # listable_models=...
+        self.assertContains(
+            self.client.get(self.url),
+            status_code=403,
+            text=_('You are not allowed to list: {}').format('Test Organisation'),
+            html=True,
+        )
+
     def test_content01(self):
-        user = self.login_as_root_and_get()
+        user = self.login_as_standard(listable_models=[FakeOrganisation])
+        self.add_credentials(user.role, own=['VIEW'])
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
@@ -3415,7 +3425,9 @@ class ListViewTestCase(CremeTestCase):
         self.assertHasAttr(page1_fast, 'next_page_info')  # Means fast mode
 
     def test_listview_popup_GET(self):
-        user = self.login_as_root_and_get()
+        # user = self.login_as_root_and_get()
+        user = self.login_as_standard(listable_models=[FakeOrganisation])
+        self.add_credentials(user.role, own=['VIEW'])
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop   = create_orga(name='Bebop')
@@ -3480,11 +3492,24 @@ class ListViewTestCase(CremeTestCase):
 
         self.assertEqual(1, response.context['page_obj'].paginator.count)
 
+    def test_listview_popup__not_allowed(self):
+        self.login_as_standard()  # listable_models=[FakeOrganisation]
+
+        response = self.client.get(
+            reverse('creme_core__listview_popup'),
+            data={'ct_id': self.ctype.id},
+        )
+        self.assertContains(
+            response,
+            status_code=403,
+            text=_('You are not allowed to list: {}').format('Test Organisation'),
+            html=True,
+        )
+
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_credentials_with_filter01(self):
         "Fast count is not possible."
-        user = self.login_as_standard()
-        # self._set_all_perms_on_own(user)
+        user = self.login_as_standard(listable_models=[FakeOrganisation])
         self.add_credentials(user.role, own='*')
 
         efilter = EntityFilter.objects.create(
@@ -3545,7 +3570,7 @@ class ListViewTestCase(CremeTestCase):
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_credentials_with_filter02(self):
         "Beware of DISTINCT with filter on relationships."
-        user = self.login_as_standard()
+        user = self.login_as_standard(listable_models=[FakeContact])
 
         pilots = RelationType.objects.smart_update_or_create(
             ('test-subject_pilots', 'pilots'),

@@ -893,12 +893,13 @@ class HeaderFilterViewsTestCase(CremeTestCase):
 
     def test_delete__teammate(self):
         "The user belongs to the owner team -> OK."
-        user = self.login_as_standard()
+        model = FakeContact
+        user = self.login_as_standard(listable_models=[model])
         my_team = self.create_team('TeamTitan', user)
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='tests-hf_contact', name='Contact view',
-            model=FakeContact, is_custom=True, user=my_team,
+            model=model, is_custom=True, user=my_team,
         )
         self.assertPOST200(self.DELETE_URL, data={'id': hf.id}, follow=True)
         self.assertDoesNotExist(hf)

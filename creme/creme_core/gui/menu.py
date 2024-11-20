@@ -28,7 +28,7 @@ from django.utils.html import format_html, mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from ..auth import build_creation_perm as cperm
+from .. import auth
 from ..forms import menu as menu_forms
 from ..models import CremeEntity, CremeUser, CustomEntityType, MenuConfigItem
 from ..models.utils import model_verbose_name
@@ -200,7 +200,7 @@ class CreationEntry(FixedURLEntry):
         super().__init__(**kwargs)
         model = self.model
         self.label = model.creation_label
-        self.permissions = cperm(model)
+        self.permissions = auth.build_creation_perm(model)
 
     @property
     def url(self):
@@ -222,9 +222,10 @@ class ListviewEntry(FixedURLEntry):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        meta = self.model._meta
-        self.label = meta.verbose_name_plural
-        self.permissions = meta.app_label
+        model = self.model
+        self.label = model._meta.verbose_name_plural
+        # self.permissions = meta.app_label
+        self.permissions = auth.build_list_perm(model)
 
     @property
     def url(self):
@@ -615,7 +616,7 @@ class _CreationViewLink:
             #     because the url resolver will be used too soon
             #     (the apps could be not totally initialized).
             self._url = get('url')
-            self.perm = get('perm') or cperm(model)
+            self.perm = get('perm') or auth.build_creation_perm(model)
         else:
             try:
                 self.label = kwargs['label']
