@@ -9,6 +9,7 @@
 
     Non breaking changes :
     ----------------------
+        # The method 'CremeUser.has_perm()' works now correctly for link permission on models.
         # Javascript:
             * Dialog:
                 - Add option 'propagateEvent':.
