@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 05-11-2024 pour la version 2.7 de Creme
+:Version: 20-11-2024 pour la version 2.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2774,7 +2774,7 @@ et donc nous pouvons définir ``my_project/my_tickets/urls.py`` tel que : ::
 
     from creme.tickets.views import ticket
 
-    urlpatterns += [
+    urlpatterns = [
         re_path(r'^my_tickets[/]?$',                        ticket.TicketsList.as_view(),    name='tickets__list_tickets'),
         re_path(r'^my_ticket/add[/]?$',                     ticket.TicketCreation.as_view(), name='tickets__create_ticket'),
         re_path(r'^my_ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.TicketEdition.as_view(),  name='tickets__edit_ticket'),
