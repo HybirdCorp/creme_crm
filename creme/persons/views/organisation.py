@@ -28,6 +28,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext
 
+from creme.creme_core.auth import build_link_perm
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import validators
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
@@ -101,10 +102,11 @@ class ContactRelatedToOrganisationMixin:
 
 class CustomerCreation(ContactRelatedToOrganisationMixin, OrganisationCreation):
     title = 'Create a suspect / prospect / customer'   # Overridden in get_title()
+    permissions = build_link_perm(Organisation)
 
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        user.has_perm_to_link_or_die(Organisation)
+    # def check_view_permissions(self, user):
+    #     super().check_view_permissions(user=user)
+    #     user.has_perm_to_link_or_die(Organisation)
 
     def get_form_class(self):
         form_cls = super().get_form_class()

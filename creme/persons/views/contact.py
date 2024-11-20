@@ -28,7 +28,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
-from creme.creme_core.auth import SUPERUSER_PERM
+from creme.creme_core import auth
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
@@ -56,6 +56,7 @@ class ContactCreation(_ContactBaseCreation):
 
 class RelatedContactCreation(_ContactBaseCreation):
     title = _('Create a contact related to «{organisation}»')
+    permissions = [auth.build_link_perm(Contact)]
     orga_id_url_kwarg = 'orga_id'
     rtype_id_url_kwarg = 'rtype_id'
 
@@ -71,9 +72,9 @@ class RelatedContactCreation(_ContactBaseCreation):
         self.linked_orga = self.get_linked_orga()
         return super().post(*args, **kwargs)
 
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        self.request.user.has_perm_to_link_or_die(Contact)
+    # def check_view_permissions(self, user):
+    #     super().check_view_permissions(user=user)
+    #     self.request.user.has_perm_to_link_or_die(Contact)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -272,7 +273,7 @@ class TransformationIntoUser(generic.EntityEdition):
     # Translators: 'object' is a Contact
     title = _('Transform «{object}» into a user')
     submit_label = get_user_model().save_label
-    permissions = SUPERUSER_PERM
+    permissions = auth.SUPERUSER_PERM
 
     def check_instance_permissions(self, instance, user):
         super().check_instance_permissions(instance=instance, user=user)

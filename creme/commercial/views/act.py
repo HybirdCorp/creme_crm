@@ -22,7 +22,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from creme import commercial
-from creme.creme_core.auth import build_creation_perm as cperm
+from creme.creme_core import auth
 from creme.creme_core.auth.decorators import (
     login_required,
     permission_required,
@@ -69,15 +69,19 @@ class ActObjectivePatternCreation(generic.EntityCreation):
 class RelatedOpportunityCreation(generic.AddingInstanceToEntityPopup):
     model = Opportunity
     form_class = OPPORTUNITY_CREATION_CFORM
-    permissions = ['opportunities', cperm(Opportunity)]
+    permissions = [
+        'opportunities',
+        auth.build_creation_perm(Opportunity),
+        auth.build_link_perm(Opportunity),
+    ]
     title = _('Create a linked opportunity')
     entity_id_url_kwarg = 'act_id'
     entity_classes = Act
     entity_form_kwarg = None
 
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        user.has_perm_to_link_or_die(Opportunity)
+    # def check_view_permissions(self, user):
+    #     super().check_view_permissions(user=user)
+    #     user.has_perm_to_link_or_die(Opportunity)
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_link_or_die(entity)
