@@ -1,4 +1,11 @@
 {% extends 'creme_core/generics/view_entity.html' %}
+
+{% block global_buttons_container %}
+    {% include 'persons/frags/listviews-breadcrumbs.html' %}
+{% endblock %}
+
+{% comment %}
+{% extends 'creme_core/generics/view_entity.html' %}
 {% load i18n creme_ctype creme_query %}
 
 {% block global_buttons_container %}
@@ -10,3 +17,4 @@
         <a href="{% url 'persons__list_contacts' %}" class="listview-breadcrumb">{% blocktranslate count count=contacts_count %}{{count}} contact{% plural %}{{count}} contacts{% endblocktranslate %}</a>
     </div>
 {% endblock %}
+{% endcomment %}

@@ -6,6 +6,7 @@ STAFF_PERM     = '*staff*'
 
 _CREATION_PREFIX = 'add_'
 _LINK_PREFIX = 'link_'
+_LIST_PREFIX = 'list_'
 _EXPORT_PREFIX = 'export_'
 
 
@@ -19,6 +20,10 @@ def build_creation_perm(model):
 
 def build_link_perm(model):
     return __build_model_perm(model, prefix=_LINK_PREFIX)
+
+
+def build_list_perm(model):
+    return __build_model_perm(model, prefix=_LIST_PREFIX)
 
 
 def build_export_perm(model):

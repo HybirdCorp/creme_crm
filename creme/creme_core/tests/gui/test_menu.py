@@ -349,7 +349,7 @@ class MenuTestCase(CremeTestCase):
 
     def test_listview_entry__standard_user(self):
         "Not super-user, but allowed."
-        user = self.login_as_standard()
+        user = self.login_as_standard(listable_models=[FakeContact])
 
         self.assertHTMLEqual(
             f'<a href="{reverse("creme_core__list_fake_contacts")}">Test Contacts</a>',
@@ -358,12 +358,14 @@ class MenuTestCase(CremeTestCase):
 
     def test_listview_entry__not_allowed(self):
         user = self.login_as_standard(allowed_apps=['creme_config'])
+        self.assertFalse(user.has_perm_to_list(FakeContact))
 
         self.assertHTMLEqual(
             '<span class="ui-creme-navigation-text-entry forbidden" title="{}">'
             'Test Contacts'
             '</span>'.format(
-                _('You are not allowed to access to the app: {}').format(_('Core')),
+                # _('You are not allowed to access to the app: {}').format(_('Core')),
+                _('You are not allowed to list: {}').format('Test Contact')
             ),
             FakeContactsEntry().render(self._build_context(user=user)),
         )

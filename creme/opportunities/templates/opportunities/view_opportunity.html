@@ -1,10 +1,13 @@
 {% extends 'creme_core/generics/view_entity.html' %}
-{% load i18n creme_ctype creme_query %}
+{% load i18n creme_ctype creme_perms creme_query %}
 
 {% block global_buttons_container %}
- {% query_entities_count ctype='OPPORTUNITIES_OPPORTUNITY_MODEL'|ctype_for_swappable user=user as opportunities_count %}
+ {% with opp_ctype='OPPORTUNITIES_OPPORTUNITY_MODEL'|ctype_for_swappable %}
+  {% if user|has_perm_to_list:opp_ctype %}{% query_entities_count ctype=opp_ctype user=user as opportunities_count %}
     <div class="listviews-breadcrumbs global-buttons">{% translate 'Commercial' %} <span class="listviews-breadcrumbs-separator">/</span>
         {% translate 'List of' context 'opportunities-breadcrumbs' %}
         <a href="{% url 'opportunities__list_opportunities' %}" class="listview-breadcrumb">{% blocktranslate count count=opportunities_count %}{{count}} opportunity{% plural %}{{count}} opportunities{% endblocktranslate %}</a>
     </div>
+  {% endif %}
+ {% endwith %}
 {% endblock %}

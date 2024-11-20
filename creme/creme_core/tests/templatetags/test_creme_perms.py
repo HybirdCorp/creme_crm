@@ -51,6 +51,28 @@ class CremePermsTestCase(CremeTestCase):
 
         self.assertEqual('True#False', render.strip())
 
+    def test_filter_has_perm_to_list(self):
+        role = self.create_role(
+            name='Basic',
+            allowed_apps=['creme_core'],
+            listable_models=[FakeOrganisation],
+        )
+        user = self.create_user(index=0, role=role, password='password')
+        get_ct = ContentType.objects.get_for_model
+
+        with self.assertNoException():
+            render = Template(
+                '{% load creme_perms %}'
+                '{{user|has_perm_to_list:ct1}}#'
+                '{{user|has_perm_to_list:ct2}}'
+            ).render(Context({
+                'user': user,
+                'ct1': get_ct(FakeOrganisation),
+                'ct2': get_ct(FakeContact),
+            }))
+
+        self.assertEqual('True#False', render.strip())
+
     def test_filter_has_perm_to_view(self):
         role = self.create_role(name='Basic', allowed_apps=['creme_core'])
         self.add_credentials(role, own=['VIEW'])

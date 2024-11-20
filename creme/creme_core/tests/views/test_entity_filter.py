@@ -323,7 +323,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
     @override_settings(FILTERS_INITIAL_PRIVATE=False)
     def test_create01(self):
         "Check app credentials."
-        user = self.login_as_standard(allowed_apps=['documents'])
+        user = self.login_as_standard(allowed_apps=['documents'], listable_models=[FakeContact])
 
         self.assertFalse(
             SettingValue.objects.get_4_key(global_filters_edition_key).value
@@ -1833,7 +1833,8 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self.assertNoFormError(response2)
 
     def test_clone(self):
-        user = self.login_as_standard(allowed_apps=['creme_core'])
+        model = FakeContact
+        user = self.login_as_standard(allowed_apps=['creme_core'], listable_models=[model])
 
         # GET (404) ---
         source_pk = 'test-filter01'
@@ -1843,10 +1844,10 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         # GET ---
         # Source efilter
         EntityFilter.objects.smart_update_or_create(
-            pk=source_pk, name='A filter for Misatos', model=FakeContact, is_custom=False,
+            pk=source_pk, name='A filter for Misatos', model=model, is_custom=False,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
-                    model=FakeContact, field_name='first_name',
+                    model=model, field_name='first_name',
                     operator=operators.EQUALS, values=['Misato'],
                 ),
             ],

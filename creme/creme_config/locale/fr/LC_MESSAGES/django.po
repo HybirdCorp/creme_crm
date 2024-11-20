@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Config 2.7\n"
+"Project-Id-Version: Creme Creme-Config 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-28 16:00+0200\n"
+"POT-Creation-Date: 2025-09-10 16:54+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -921,11 +921,20 @@ msgstr ""
 "concernés peuvent créer de nouveaux choix disponibles dans les formulaires "
 "(ex: la fonction pour les contacts)."
 
+# Already in creme_core
 msgid "Creatable resources"
-msgstr "Ressources créables"
+msgstr ""
 
+# Already in creme_core
+msgid "Listable resources"
+msgstr ""
+
+msgid "This types of entities can be listed as list-views."
+msgstr"Ces types de fiches peuvent être listés dans des vues en liste."
+
+# Already in creme_core
 msgid "Exportable resources"
-msgstr "Ressources exportables"
+msgstr ""
 
 msgid ""
 "This types of entities can be downloaded as CSV/XLS files (in the "
@@ -1998,6 +2007,9 @@ msgstr "Nouveau rôle"
 msgid "Creation credentials"
 msgstr "Droits de création"
 
+msgid "List credentials"
+msgstr "Droits de lister"
+
 msgid "Export credentials"
 msgstr "Droits d'export"
 
@@ -2016,6 +2028,9 @@ msgstr "Pas d'application administrée"
 
 msgid "No creation credential"
 msgstr "Pas de droit de création"
+
+msgid "No list credential"
+msgstr "Pas de droit de liste"
 
 msgid "No export credential"
 msgstr "Pas de droit d'export"
@@ -3197,9 +3212,6 @@ msgstr "Modifier la configuration de l'instance"
 
 #~ msgid "All users"
 #~ msgstr "Tous les utilisateurs"
-
-#~ msgid "No credential"
-#~ msgstr "Aucun droit"
 
 #~ msgid "Title"
 #~ msgstr "Intitulé"

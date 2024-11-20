@@ -1,0 +1,17 @@
+{% load i18n creme_ctype creme_perms creme_query %}
+{% with orga_ctype='PERSONS_ORGANISATION_MODEL'|ctype_for_swappable contact_ctype='PERSONS_CONTACT_MODEL'|ctype_for_swappable %}
+{% with contact_perm=user|has_perm_to_list:contact_ctype orga_perm=user|has_perm_to_list:orga_ctype %}
+ {% if contact_perm or orga_perm %}
+    <div class="listviews-breadcrumbs global-buttons">{% translate 'Directory' %} <span class="listviews-breadcrumbs-separator">/</span>
+        {% translate 'List of' context 'persons-breadcrumbs' %}
+        {% if orga_perm %}{% query_entities_count ctype=orga_ctype user=user as organisations_count %}
+         <a href="{% url 'persons__list_organisations' %}" class="listview-breadcrumb">{% blocktranslate count count=organisations_count %}{{count}} organisation{% plural %}{{count}} organisations{% endblocktranslate %}</a>
+        {% endif %}
+        {% if orga_perm and contact_perm %}{% translate 'and' %}{% endif %}
+        {% if contact_perm %}{% query_entities_count ctype=contact_ctype user=user as contacts_count %}
+         <a href="{% url 'persons__list_contacts' %}" class="listview-breadcrumb">{% blocktranslate count count=contacts_count %}{{count}} contact{% plural %}{{count}} contacts{% endblocktranslate %}</a>
+        {% endif %}
+    </div>
+ {% endif %}
+{% endwith %}
+{% endwith %}

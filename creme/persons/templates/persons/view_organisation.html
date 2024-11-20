@@ -1,4 +1,11 @@
 {% extends 'creme_core/generics/view_entity.html' %}
+
+{% block global_buttons_container %}
+    {% include 'persons/frags/listviews-breadcrumbs.html' %}
+{% endblock %}
+
+{% comment %}
+{% extends 'creme_core/generics/view_entity.html' %}
 {% load i18n creme_ctype creme_query %}
 
 {% block global_buttons_container %}
@@ -7,5 +14,7 @@
     <div class="listviews-breadcrumbs global-buttons">{% translate 'Directory' %} <span class="listviews-breadcrumbs-separator">/</span>
         {% translate 'List of' context 'persons-breadcrumbs' %}
         <a href="{% url 'persons__list_organisations' %}" class="listview-breadcrumb">{% blocktranslate count count=organisations_count %}{{count}} organisation{% plural %}{{count}} organisations{% endblocktranslate %}</a> {% translate 'and' %}
-        <a href="{% url 'persons__list_contacts' %}" class="listview-breadcrumb">{% blocktranslate count count=contacts_count %}{{count}} contact{% plural %}{{count}} contacts{% endblocktranslate %}</a></div>
+        <a href="{% url 'persons__list_contacts' %}" class="listview-breadcrumb">{% blocktranslate count count=contacts_count %}{{count}} contact{% plural %}{{count}} contacts{% endblocktranslate %}</a>
+    </div>
 {% endblock %}
+{% endcomment %}

@@ -1,5 +1,14 @@
 == Version 2.8 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Creme_config :
+            - The Roles get a new permission: listable models
+              (i.e. it allows you to access the list-views of a model).
+              The existing roles are migrated to keep the old behaviour: they get
+              list permissions for all models belonging to allowed apps.
+
   Developers side :
   -----------------
 
@@ -110,6 +119,7 @@
                 - the method 'get_actions_registry()' has been renamed "get_action_registry".
             - In the class 'quick_forms.QuickCreation', the attribute
              'quickforms_registry' has been renamed "quickform_registry".
+        # There is no "back" button in the template "creme_core/detailview.html" anymore.
         # Apps :
             * Documents :
                 - The methods 'populate.Populator._populate_header_filters_for_*()' have been removed.
