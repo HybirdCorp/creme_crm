@@ -9,11 +9,17 @@ _LINK_PREFIX = 'link_'
 _EXPORT_PREFIX = 'export_'
 
 
+def __build_model_perm(model, prefix):
+    return f'{model._meta.app_label}.{prefix}{model.__name__.lower()}'
+
+
 def build_creation_perm(model):
-    # return f'{model._meta.app_label}.add_{model.__name__.lower()}'
-    return f'{model._meta.app_label}.{_CREATION_PREFIX}{model.__name__.lower()}'
+    return __build_model_perm(model, prefix=_CREATION_PREFIX)
 
 
 def build_link_perm(model):
-    # return f'{model._meta.app_label}.link_{model.__name__.lower()}'
-    return f'{model._meta.app_label}.{_LINK_PREFIX}{model.__name__.lower()}'
+    return __build_model_perm(model, prefix=_LINK_PREFIX)
+
+
+def build_export_perm(model):
+    return __build_model_perm(model, prefix=_EXPORT_PREFIX)
