@@ -253,6 +253,7 @@
     ---------------------------
     (they should not cause problem if you have not deeply modified the source code of Creme)
 
+        # In 'creme_core.auth.backend', the constants '_*_PREFIX' have been removed.
         # The method 'creme_core.models.CremeModel._delete_stored_file()' is not static anymore.
         # Apps :
             * Creme_config :

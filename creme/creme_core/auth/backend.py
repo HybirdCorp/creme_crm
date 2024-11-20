@@ -21,12 +21,18 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext as _
 
-from . import STAFF_PERM, SUPERUSER_PERM
+from . import (
+    _CREATION_PREFIX,
+    _EXPORT_PREFIX,
+    _LINK_PREFIX,
+    STAFF_PERM,
+    SUPERUSER_PERM,
+)
 from .entity_credentials import EntityCredentials
 
-_ADD_PREFIX = 'add_'
-_LINK_PREFIX = 'link_'
-_EXPORT_PREFIX = 'export_'
+# _ADD_PREFIX = 'add_'
+# _LINK_PREFIX = 'link_'
+# _EXPORT_PREFIX = 'export_'
 
 
 class EntityBackend(ModelBackend):
@@ -68,11 +74,12 @@ class EntityBackend(ModelBackend):
                 user_obj.has_perm_to_admin_or_die(app_label)
                 return True
 
-            if action_name.startswith(_ADD_PREFIX):
+            # if action_name.startswith(_ADD_PREFIX):
+            if action_name.startswith(_CREATION_PREFIX):
                 # return user_obj.role.can_create(app_name, action_name[len(_ADD_PREFIX):])
                 ct = ContentType.objects.get_by_natural_key(
                     app_label=app_label,
-                    model=action_name[len(_ADD_PREFIX):],
+                    model=action_name[len(_CREATION_PREFIX):],
                 )
                 user_obj.has_perm_to_create_or_die(ct)
                 return True
