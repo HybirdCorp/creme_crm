@@ -215,9 +215,8 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
-
-        model = self.model
-        user.has_perm_to_access_or_die(model._meta.app_label)
+        # user.has_perm_to_access_or_die(self.model._meta.app_label)
+        user.has_perm_to_list_or_die(self.model)
 
     def dispatch(self, request, *args, **kwargs):
         user = request.user
