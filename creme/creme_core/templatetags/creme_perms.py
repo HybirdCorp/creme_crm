@@ -32,6 +32,11 @@ def has_perm_to_export(user, ctype):
 
 
 @register.filter
+def has_perm_to_list(user, ctype):
+    return user.has_perm_to_list(ctype)
+
+
+@register.filter
 def has_perm_to_view(user, entity):
     return user.has_perm_to_view(entity)
 

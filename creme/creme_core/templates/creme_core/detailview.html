@@ -10,6 +10,7 @@
         <div class="buttons-list global-buttons">
             <ul>
              {% block global_buttons %}
+{% comment %}
               {% block listview_button %}
                {% if object.get_lv_absolute_url %}
                 <li>
@@ -20,6 +21,7 @@
                 </li>
                {% endif %}
               {% endblock %}
+{% endcomment %}
              {% endblock %}
             </ul>
         </div>

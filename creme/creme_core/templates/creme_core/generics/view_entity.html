@@ -6,19 +6,27 @@
 {% block global_buttons %}
     {{block.super}}
 
+    {% block listview_button %}
+      {% if object.get_lv_absolute_url %}
+        <li>
+            <a {% if user|has_perm_to_list:object.entity_type %}class="menu_button menu-button-icon" href="{{object.get_lv_absolute_url}}"
+               {% else %}class="menu_button menu-button-icon forbidden is-disabled" title="{% translate 'You are not allowed to list' %}"{% endif %}>
+                {% widget_icon name='listview' size='global-button' label=_('List-view') %} {% translate 'Back to the list' %}
+            </a>
+        </li>
+      {% endif %}
+    {% endblock %}
+
     {% block creation_button %}
       {% with url=object.get_create_absolute_url %}
-        {% if url %}
-            <li>
-                {% if user|has_perm_to_create:object.entity_type %}
-                <a class="menu_button menu-button-icon" href="{{url}}">
-                {% else %}
-                <a class="menu_button menu-button-icon forbidden is-disabled">
-                {% endif %}
-                    {% widget_icon name='add' size='global-button' label=_('Create') %} {{object.creation_label}}
-                </a>
-            </li>
-        {% endif %}
+       {% if url %}
+        <li>
+            <a {% if user|has_perm_to_create:object.entity_type %}class="menu_button menu-button-icon" href="{{url}}"
+               {% else %}class="menu_button menu-button-icon forbidden is-disabled" title="{% translate 'You are not allowed to create' %}"{% endif %}>
+                {% widget_icon name='add' size='global-button' label=_('Create') %} {{object.creation_label}}
+            </a>
+        </li>
+       {% endif %}
       {% endwith %}
     {% endblock %}
 {% endblock %}

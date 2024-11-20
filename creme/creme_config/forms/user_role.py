@@ -586,6 +586,32 @@ class UserRoleCreatableCTypesStep(_UserRoleWizardFormStep):
         return instance
 
 
+class UserRoleListableCTypesStep(_UserRoleWizardFormStep):
+    listable_ctypes = MultiEntityCTypeChoiceField(
+        label=_('Listable resources'), required=False,
+        help_text=_('This types of entities can be listed as list-views.'),
+    )
+
+    class Meta(_UserRoleWizardFormStep.Meta):
+        fields = ('listable_ctypes',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['listable_ctypes'].ctypes = filtered_entity_ctypes(
+            self.instance.allowed_apps,
+        )
+
+    def save(self, commit=True, *args, **kwargs):
+        instance = self.instance
+
+        if commit:
+            # Optimisation: we only save the M2M
+            instance.listable_ctypes.set(self.cleaned_data['listable_ctypes'])
+
+        return instance
+
+
+# TODO: factorise
 class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
     exportable_ctypes = MultiEntityCTypeChoiceField(
         label=_('Exportable resources'), required=False,
