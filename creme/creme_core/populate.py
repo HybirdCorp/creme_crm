@@ -265,6 +265,7 @@ class Populator(BasePopulator):
                 app.label for app in creme_app_configs() if app.credentials & CRED_REGULAR
             ],
             creatable_models=entity_models,
+            listable_models=entity_models,
             exportable_models=entity_models,
         )
         SetCredentials.objects.create(
