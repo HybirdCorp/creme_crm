@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 
 from creme import documents
-from creme.creme_core.auth import build_creation_perm as cperm
+from creme.creme_core import auth
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import ellipsis
@@ -51,16 +51,20 @@ class DocumentCreation(generic.EntityCreation):
 class RelatedDocumentCreation(generic.AddingInstanceToEntityPopup):
     model = Document
     form_class = custom_forms.DOCUMENT_CREATION_CFORM
-    permissions = ['documents', cperm(Document)]
+    permissions = [
+        'documents',
+        auth.build_creation_perm(Document),
+        auth.build_link_perm(Document),
+    ]
     title = _('New document for «{entity}»')
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)
         user.has_perm_to_link_or_die(entity)
 
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        user.has_perm_to_link_or_die(Document, owner=None)
+    # def check_view_permissions(self, user):
+    #     super().check_view_permissions(user=user)
+    #     user.has_perm_to_link_or_die(Document, owner=None)
 
     def get_form_class(self):
         form_cls = super().get_form_class()

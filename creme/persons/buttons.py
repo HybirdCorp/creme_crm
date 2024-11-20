@@ -19,7 +19,7 @@
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
-from creme.creme_core.auth import SUPERUSER_PERM, build_creation_perm
+from creme.creme_core import auth
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import Relation, RelationType
 
@@ -132,14 +132,17 @@ class AddLinkedContactButton(Button):
         'App: Accounts and Contacts'
     )
     template_name = 'persons/buttons/add-linked-contact.html'
-    permissions = build_creation_perm(Contact)  # TODO: 'persons.addrelated_contact' ??
+    permissions = [
+        auth.build_creation_perm(Contact),  # TODO: 'persons.addrelated_contact' ??
+        auth.build_link_perm(Contact),
+    ]
 
     def check_permissions(self, *, entity, request):
         super().check_permissions(entity=entity, request=request)
 
         user = request.user
         user.has_perm_to_link_or_die(entity)
-        user.has_perm_to_link_or_die(Contact)
+        # user.has_perm_to_link_or_die(Contact)
 
     # def get_context(self, *, entity, request):
     #     context = super().get_context(entity=entity, request=request)
@@ -164,7 +167,7 @@ class TransformIntoUserButton(Button):
         "App: Accounts and Contacts"
     )
     template_name = 'persons/buttons/contact-as-user.html'
-    permissions = SUPERUSER_PERM
+    permissions = auth.SUPERUSER_PERM
 
     def ok_4_display(self, entity):
         return entity.is_user_id is None

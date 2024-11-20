@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.gui.listview as lv_gui
-from creme.creme_core.auth import build_creation_perm as cperm
+from creme.creme_core import auth
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic import base
 
@@ -45,10 +45,11 @@ class ChildFolderCreation(base.EntityRelatedMixin, generic.EntityCreation):
     entity_id_url_kwarg = 'parent_id'
     entity_classes = Folder
     title = _('Create a sub-folder for «{entity}»')
+    permissions = auth.build_link_perm(Folder)
 
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        user.has_perm_to_link_or_die(Folder, owner=None)
+    # def check_view_permissions(self, user):
+    #     super().check_view_permissions(user=user)
+    #     user.has_perm_to_link_or_die(Folder, owner=None)
 
     def get_form_class(self):
         form_cls = super().get_form_class()
@@ -79,14 +80,18 @@ class ChildFolderCreation(base.EntityRelatedMixin, generic.EntityCreation):
 class ChildFolderCreationPopup(generic.AddingInstanceToEntityPopup):
     model = Folder
     form_class = custom_forms.FOLDER_CREATION_CFORM
-    permissions = ['documents', cperm(Folder)]
+    permissions = [
+        'documents',
+        auth.build_creation_perm(Folder),
+        auth.build_link_perm(Folder),
+    ]
     title = _('Create a sub-folder for «{entity}»')
     entity_id_url_kwarg = 'folder_id'
     entity_classes = Folder
 
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        user.has_perm_to_link_or_die(Folder, owner=None)
+    # def check_view_permissions(self, user):
+    #     super().check_view_permissions(user=user)
+    #     user.has_perm_to_link_or_die(Folder, owner=None)
 
     # TODO: factorise
     def get_form_class(self):
