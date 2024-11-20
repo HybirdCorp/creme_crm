@@ -25,6 +25,7 @@ from . import STAFF_PERM, SUPERUSER_PERM
 from .entity_credentials import EntityCredentials
 
 _ADD_PREFIX = 'add_'
+_LINK_PREFIX = 'link_'
 _EXPORT_PREFIX = 'export_'
 
 
@@ -74,6 +75,15 @@ class EntityBackend(ModelBackend):
                     model=action_name[len(_ADD_PREFIX):],
                 )
                 user_obj.has_perm_to_create_or_die(ct)
+                return True
+
+            if action_name.startswith(_LINK_PREFIX):
+                ct = ContentType.objects.get_by_natural_key(
+                    app_label=app_label,
+                    model=action_name[len(_LINK_PREFIX):],
+                )
+                # return user_obj.has_perm_to_link(ct.model_class())
+                user_obj.has_perm_to_link_or_die(ct.model_class())  # TODO: accept ContentType
                 return True
 
             if action_name.startswith(_EXPORT_PREFIX):
