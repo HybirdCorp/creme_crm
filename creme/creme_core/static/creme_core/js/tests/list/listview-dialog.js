@@ -33,7 +33,8 @@ QUnit.module("creme.listview.dialog", new QUnitMixin(QUnitEventMixin,
         this.setMockBackendGET({
             'mock/listview/selection/none': backend.response(200, noneSelectionListHtml),
             'mock/listview/selection/single': backend.response(200, singleSelectionListHtml),
-            'mock/listview/selection/multiple': backend.response(200, multiSelectionListHtml)
+            'mock/listview/selection/multiple': backend.response(200, multiSelectionListHtml),
+            'mock/listview/selection/invalid': backend.response(403, 'Not allowed')
         });
     }
 }));
@@ -283,6 +284,44 @@ QUnit.test('creme.listview.ListViewDialog (single, validate)', function(assert) 
     deepEqual([
         ['validate', ['1']]
     ], this.mockListenerCalls('validate'));
+});
+
+QUnit.test('creme.listview.ListViewDialog (single, invalid)', function(assert) {
+    var dialog = new creme.lv_widget.ListViewDialog({
+        url: 'mock/listview/selection/invalid',
+        selectionMode: 'single'
+    });
+
+    dialog.open();
+
+    equal(true, dialog.isOpened());
+    equal(1, dialog.buttons().find('button').length);
+    deepEqual([], dialog.selected());
+    deepEqual([], this.mockListenerCalls('validate'));
+
+    dialog.button('close').trigger('click');
+
+    equal(false, dialog.isOpened());
+    deepEqual([], this.mockListenerCalls('validate'));
+});
+
+QUnit.test('creme.listview.ListViewDialog (multiple, invalid)', function(assert) {
+    var dialog = new creme.lv_widget.ListViewDialog({
+        url: 'mock/listview/selection/invalid',
+        selectionMode: 'multiple'
+    });
+
+    dialog.open();
+
+    equal(true, dialog.isOpened());
+    equal(1, dialog.buttons().find('button').length);
+    deepEqual([], dialog.selected());
+    deepEqual([], this.mockListenerCalls('validate'));
+
+    dialog.button('close').trigger('click');
+
+    equal(false, dialog.isOpened());
+    deepEqual([], this.mockListenerCalls('validate'));
 });
 
 QUnit.test('creme.listview.ListViewDialog (empty title)', function(assert) {

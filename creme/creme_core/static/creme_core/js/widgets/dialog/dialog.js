@@ -58,7 +58,6 @@ creme.dialog.Dialog = creme.component.Component.sub({
     },
 
     _initFrame: function(options) {
-        var self = this;
         var frame = this._frame = new creme.dialog.Frame({
             backend: options.backend,
             autoActivate: false,
@@ -68,15 +67,19 @@ creme.dialog.Dialog = creme.component.Component.sub({
         frame.onCleanup(this._onFrameCleanup.bind(this))
              .onUpdate(this._onFrameUpdate.bind(this));
 
-        if (options.fitFrame) {
-            frame.on('fetch-fail submit-fail', function() {
-                      self.fitToFrameSize();
-                      self.position(self.position());
-                  });
-        }
+        frame.on('fetch-fail submit-fail', this._onFrameFail.bind(this));
 
         frame.bind($('<div>').data('creme-dialog', this)
                              .addClass('ui-creme-dialog-frame'));
+    },
+
+    _onFrameFail: function() {
+        this.trigger('frame-fail', this.frame());
+
+        if (this.options.fitFrame) {
+            this.fitToFrameSize();
+            this.position(this.position());
+        }
     },
 
     _onFrameCleanup: function() {
