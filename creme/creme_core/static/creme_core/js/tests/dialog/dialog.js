@@ -219,10 +219,12 @@ QUnit.test('creme.dialog.Dialog (url)', function(assert) {
 QUnit.test('creme.dialog.Dialog (url, invalid)', function(assert) {
     var dialog = new creme.dialog.Dialog({url: 'mock/unknown', backend: this.backend});
     dialog.on('frame-activated', this.mockListener('frame-activated'));
+    dialog.on('frame-fail', this.mockListener('frame-fail'));
     dialog.onOpen(this.mockListener('opened'));
     dialog.onClose(this.mockListener('closed'));
 
     deepEqual([], this.mockListenerCalls('frame-activated'));
+    deepEqual([], this.mockListenerCalls('frame-fail'));
     deepEqual([], this.mockListenerCalls('opened'));
     deepEqual([], this.mockListenerCalls('closed'));
 
@@ -231,6 +233,7 @@ QUnit.test('creme.dialog.Dialog (url, invalid)', function(assert) {
     equal(undefined, dialog.frame().lastFetchUrl());
 
     deepEqual([], this.mockListenerCalls('frame-activated'));
+    deepEqual([['frame-fail', dialog.frame()]], this.mockListenerCalls('frame-fail'));
     deepEqual([['open', dialog.options]], this.mockListenerCalls('opened'));
     deepEqual([], this.mockListenerCalls('closed'));
 

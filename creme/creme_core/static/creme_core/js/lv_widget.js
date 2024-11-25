@@ -262,6 +262,18 @@ creme.lv_widget.ListViewDialog = creme.dialog.Dialog.sub({
         });
     },
 
+    _onFrameFail: function(event, data, error) {
+        var buttons = {};
+
+        this._appendButton(buttons, 'close', gettext('Close'), function(button, e, options) {
+            this.close();
+        });
+
+        this.replaceButtons(buttons);
+
+        this._super_(creme.dialog.Dialog, '_onFrameFail', event, data, error);
+    },
+
     _updateDialogTitle: function() {
         var container = this.content().find('.list-title');
 
