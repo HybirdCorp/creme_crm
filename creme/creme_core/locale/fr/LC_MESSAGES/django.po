@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-26 18:31+0100\n"
+"POT-Creation-Date: 2024-11-26 22:00+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3254,6 +3254,15 @@ msgstr "Enlever les propriétés"
 msgid "Remove the property"
 msgstr "Enlever la propriété"
 
+msgid "Remaining entity"
+msgstr "Fiche restante"
+
+msgid "Reason"
+msgstr "Raison"
+
+msgid "Retry"
+msgstr "Ré-essayer"
+
 #, python-brace-format
 msgid "{count} Deleted entity"
 msgstr "{count} Fiche supprimée"
@@ -4077,7 +4086,8 @@ msgstr "Cette fiche ne peut être supprimée ({reason})"
 msgid ""
 "This entity can not be deleted because of its links with other entities:"
 msgstr ""
-"Cette fiche ne peut être supprimée à cause de ses liens avec d'autres fiches :"
+"Cette fiche ne peut être supprimée à cause de ses liens avec d'autres "
+"fiches :"
 
 #, python-brace-format
 msgid "The deletion caused an unexpected error [{error}]."
@@ -4128,7 +4138,8 @@ msgid "Save the modified filter"
 msgstr "Enregistrer le filtre modifié"
 
 msgid "This filter can not be deleted because of its links with some entities:"
-msgstr "Ce filtre ne peut être supprimé à cause de ses liens avec certaines fiches :"
+msgstr ""
+"Ce filtre ne peut être supprimé à cause de ses liens avec certaines fiches :"
 
 msgid "It seems you logged out."
 msgstr "Vous semblez vous être déconnecté(e)."

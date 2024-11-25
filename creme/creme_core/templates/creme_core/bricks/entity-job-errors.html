@@ -9,16 +9,16 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-    {% for result in page.object_list %}
+  {% for result in page.object_list %}
     <tr>
         <td>{% widget_entity_hyperlink result.real_entity user %}</td>
         <td>
-            {% if result.messages|length > 1 %}
+          {% if result.messages|length > 1 %}
             <ul>{% for error in result.messages %}<li>{{error}}</li>{% endfor %}</ul>
-            {% else %}
+          {% else %}
             {{result.messages.0}}
-            {% endif %}
+          {% endif %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
 {% endblock %}

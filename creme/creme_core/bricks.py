@@ -567,6 +567,12 @@ class EntityJobErrorsBrick(JobErrorsBrick):
         return super()._build_queryset(job).prefetch_related('real_entity')
 
 
+class TrashCleanerJobErrorsBrick(EntityJobErrorsBrick):
+    id = QuerysetBrick.generate_id('creme_core', 'trash_cleaner_job_errors')
+    # verbose_name = 'Trash cleaner job errors'
+    template_name = 'creme_core/bricks/trash-cleaner-errors.html'
+
+
 class MassImportJobErrorsBrick(JobErrorsBrick):
     id = QuerysetBrick.generate_id('creme_core', 'mass_import_job_errors')
     # verbose_name  = 'Mass import job errors'
