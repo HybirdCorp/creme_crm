@@ -5,6 +5,8 @@
     # The deletion & cloning buttons have been reworked in detailed views & list-views;
       they are now disabled when a rule avoids you to delete them (e.g. a Contact corresponding
       to a user) & the reason is displayed as tool-tip.
+    # The deletion views have now a better display for the dependencies issues.
+      Example: entities are displayed as HTML links.
     # Apps :
         * Creme_config :
             - The buttons configuration can now be customised per role.

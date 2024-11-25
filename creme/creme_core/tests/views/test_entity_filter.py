@@ -1893,6 +1893,40 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         self._delete(efilter01)
         self.assertStillExists(efilter01)
 
+    def test_delete__dependencies_error03(self):
+        "Can not delete if used through some FK."
+        user = self.login_as_root_and_get()
+
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter001', 'Filter #01', FakeContact, is_custom=True,
+        )
+        report = FakeReport.objects.create(
+            user=user, ctype=efilter.entity_type, efilter=efilter,
+        )
+
+        response = self._delete(efilter)
+        self.assertStillExists(efilter)
+
+        with self.assertNoException():
+            msg = response.context['error_message']
+
+        self.assertHTMLEqual(
+            '<span>{message}</span>'
+            '<ul>'
+            ' <li>'
+            '  <a href="/tests/report/{report_id}" target="_blank">{label}</a>'
+            ' </li>'
+            '</ul>'.format(
+                message=_(
+                    'This filter can not be deleted because of its links with '
+                    'some entities:'
+                ),
+                report_id=report.id,
+                label=str(report),
+            ),
+            msg,
+        )
+
     # def test_delete__deprecated(self):
     #     self.login_as_root()
     #
