@@ -6,7 +6,8 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from parameterized import parameterized
 
-from creme.creme_core.bricks import EntityJobErrorsBrick, TrashBrick
+# from creme.creme_core.bricks import EntityJobErrorsBrick
+from creme.creme_core.bricks import TrashBrick, TrashCleanerJobErrorsBrick
 from creme.creme_core.creme_jobs import reminder_type, trash_cleaner_type
 # from creme.creme_core.models import CremeEntity
 from creme.creme_core.models import (
@@ -994,7 +995,8 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(entity2.id, jresults)
 
         result_brick = self.get_alone_element(trash_cleaner_type.results_bricks)
-        self.assertIsInstance(result_brick, EntityJobErrorsBrick)
+        # self.assertIsInstance(result_brick, EntityJobErrorsBrick)
+        self.assertIsInstance(result_brick, TrashCleanerJobErrorsBrick)
 
     def test_empty_trash__perms(self):
         "Credentials on specific ContentType."

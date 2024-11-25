@@ -184,8 +184,8 @@ class _TrashCleanerType(JobType):
 
     @property
     def results_bricks(self):
-        from ..bricks import EntityJobErrorsBrick
-        return [EntityJobErrorsBrick()]
+        from .. import bricks
+        return [bricks.TrashCleanerJobErrorsBrick()]
 
 
 trash_cleaner_type = _TrashCleanerType()

@@ -1,0 +1,22 @@
+{% extends 'creme_core/bricks/job-errors.html' %}
+{% load i18n creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-trash-cleaner-errors-brick{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Remaining entity') %}
+    {% brick_table_column title=_('Reason') %}
+    {% brick_table_column title=_('Retry') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+  {% for result in page.object_list %}
+    <tr>
+        <td>{% widget_entity_hyperlink result.real_entity user ignore_deleted=True %}</td>
+        <td>{{result.messages.0}}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_delete_entity_action entity=result.real_entity user=user %}
+        </td>
+    </tr>
+  {% endfor %}
+{% endblock %}
