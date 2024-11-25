@@ -70,7 +70,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         if (options.fitFrame) {
             frame.on('fetch-fail submit-fail', function() {
-                      self.resizeToDefault();
+                      self.fitToFrameSize();
                       self.position(self.position());
                   });
         }
