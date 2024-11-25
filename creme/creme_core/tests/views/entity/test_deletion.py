@@ -1,6 +1,5 @@
 from functools import partial
 
-from django.conf import settings
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -44,7 +43,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     def _build_restore_url(entity):
         return reverse('creme_core__restore_entity', args=(entity.id,))
 
-    def test_delete_dependencies_to_str(self):
+    def test_delete_dependencies_to_html(self):
         from creme.creme_core.views.entity import EntityDeletionMixin
 
         self.assertEqual(3, EntityDeletionMixin.dependencies_limit)
@@ -52,92 +51,142 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         class TestMixin(EntityDeletionMixin):
             dependencies_limit = 4
 
-        dep_2_str = TestMixin().dependencies_to_str
+        to_html = TestMixin().dependencies_to_html
 
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['VIEW'])
 
-        create_orga = partial(FakeOrganisation.objects.create, user=user)
-        entity01 = create_orga(name='Nerv')
-        entity01_msg = _('«{object}» ({model})').format(
-            object=entity01.name,
-            model=FakeOrganisation._meta.verbose_name,
-        )
-        self.assertEqual(
-            entity01_msg,
-            dep_2_str(dependencies=[entity01], user=user),
-        )
-
-        entity02 = create_orga(name='Seele')
-        entity02_msg = _('«{object}» ({model})').format(
-            object=entity02.name,
-            model=FakeOrganisation._meta.verbose_name,
-        )
-        self.assertEqual(
-            f'{entity01_msg}, {entity02_msg}',
-            dep_2_str(dependencies=[entity01, entity02], user=user),
-        )
-
         other_user = self.get_root_user()
-        entity03 = create_orga(user=other_user, name='Acme#1')
-        self.assertEqual(
-            ', '.join([
-                entity01_msg, entity02_msg,
-                ngettext(
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        subject = create_orga(name='Seele')
+        entity1 = create_orga(name='Nerv')
+        entity2 = create_orga(name='Seele', is_deleted=True)
+        entity3 = create_orga(user=other_user, name='Acme#1')
+        entity4 = create_orga(user=other_user, name='Acme#2')
+
+        entity1_link = (
+            f' <a href="/tests/organisation/{entity1.id}" target="_blank">{entity1.name}</a>'
+        )
+        self.assertHTMLEqual(
+            f'<ul><li>{entity1_link}</li></ul>',
+            to_html(instance=subject, dependencies=[entity1], user=user),
+        )
+
+        entity2_link = (
+            f'<a href="/tests/organisation/{entity2.id}" target="_blank" class="is_deleted">'
+            f'{entity2.name}'
+            f'</a>'
+        )
+        self.assertHTMLEqual(
+            f'<ul><li>{entity1_link}</li><li>{entity2_link}</li></ul>',
+            to_html(instance=subject, dependencies=[entity1, entity2], user=user),
+        )
+
+        self.assertHTMLEqual(
+            '<ul>'
+            '   <li>{link1}</li>'
+            '   <li>{link2}</li>'
+            '   <li>{error}</li>'
+            '</ul>'.format(
+                link1=entity1_link,
+                link2=entity2_link,
+                error=ngettext(
                     '{count} not viewable entity',
                     '{count} not viewable entities',
                     1
                 ).format(count=1),
-            ]),
-            dep_2_str(dependencies=[entity01, entity03, entity02], user=user),
+            ),
+            to_html(instance=subject, dependencies=[entity1, entity3, entity2], user=user),
         )
 
-        entity04 = create_orga(user=other_user, name='Acme#2')
-        self.assertEqual(
-            ', '.join([
-                entity01_msg, entity02_msg,
-                ngettext(
+        self.assertHTMLEqual(
+            '<ul>'
+            '   <li>{link1}</li>'
+            '   <li>{link2}</li>'
+            '   <li>{error}</li>'
+            '</ul>'.format(
+                link1=entity1_link,
+                link2=entity2_link,
+                error=ngettext(
                     '{count} not viewable entity',
                     '{count} not viewable entities',
                     2
                 ).format(count=2),
-            ]),
-            dep_2_str(dependencies=[entity01, entity03, entity02, entity04], user=user),
+            ),
+            to_html(
+                instance=subject, user=user,
+                dependencies=[entity1, entity3, entity2, entity4],
+            ),
         )
 
         rtype = RelationType.objects.filter(id__contains='-subject_').first()
         create_rel = partial(Relation.objects.create, user=user, type=rtype)
-        rel01 = create_rel(subject_entity=entity01, object_entity=entity02)
-        self.assertEqual(
-            f'{rtype.predicate} «{entity02.name}»',
-            dep_2_str(dependencies=[rel01], user=user),
+        rel1 = create_rel(subject_entity=entity1, object_entity=entity2)
+        self.assertHTMLEqual(
+            f'<ul><li>{rtype.predicate} {entity2_link}</li></ul>',
+            to_html(instance=entity1, dependencies=[rel1], user=user),
         )
-        self.assertEqual(
-            '',
-            dep_2_str(dependencies=[rel01.symmetric_relation], user=user),
+        self.assertHTMLEqual(
+            '<ul></ul>',
+            to_html(instance=entity1, dependencies=[rel1.symmetric_relation], user=user),
         )
-        self.assertEqual(
-            f'{rtype.predicate} «{entity02.name}»',
-            dep_2_str(dependencies=[rel01, rel01.symmetric_relation], user=user),
-        )
-
-        rel02 = create_rel(subject_entity=entity01, object_entity=entity03)
-        self.assertEqual(
-            f'{rtype.predicate} «{entity02.name}», '
-            f'{rtype.predicate} «{settings.HIDDEN_VALUE}»',
-            dep_2_str(dependencies=[rel02, rel01], user=user),
+        self.assertHTMLEqual(
+            f'<ul><li>{rtype.predicate} {entity2_link}</li></ul>',
+            to_html(instance=entity1, dependencies=[rel1, rel1.symmetric_relation], user=user),
         )
 
-        sector1, sector2 = FakeSector.objects.all()[:2]
-        self.assertEqual(
-            f'{sector1}, {sector2}',
-            dep_2_str(dependencies=[sector1, sector2], user=user),
+        rel2 = create_rel(subject_entity=entity1, object_entity=entity3)
+        rel2_msg = ngettext(
+            '{count} relationship «{predicate}»',
+            '{count} relationships «{predicate}»',
+            1
+        ).format(count=1, predicate=rtype.predicate)
+        self.assertHTMLEqual(
+            f'<ul>'
+            f'  <li>{rtype.predicate} {entity2_link}</li>'
+            f'  <li>{rel2_msg}</li>'
+            f'</ul>',
+            to_html(instance=entity1, dependencies=[rel2, rel1], user=user),
+        )
+
+        sector1, sector2, sector3 = FakeSector.objects.all()[:3]
+        self.assertHTMLEqual(
+            f'<ul><li>{sector1}</li><li>{sector2}</li></ul>',
+            to_html(instance=entity1, dependencies=[sector1, sector2], user=user),
+        )
+
+        self.assertHTMLEqual(
+            '<ul>'
+            ' <li>{error}</li>'
+            ' <li>{label1}</li>'
+            ' <li>{label2}</li>'
+            '</ul>'.format(
+                label1=str(sector2),
+                label2=str(sector3),
+                error=ngettext(
+                    '{count} not viewable entity',
+                    '{count} not viewable entities',
+                    1
+                ).format(count=1),
+            ),
+            to_html(instance=sector1, dependencies=[sector2, sector3, entity3], user=user),
         )
 
         TestMixin.dependencies_limit = 2
-        self.assertEqual(
-            f'{entity01_msg}, {entity02_msg}…',
-            dep_2_str(dependencies=[entity01, entity03, entity02], user=user),
+        self.assertHTMLEqual(
+            '<ul>'
+            '   <li>{link1}</li>'
+            '   <li>{link2}</li>'
+            '   <li>…</li>'
+            '</ul>'.format(
+                link1=entity1_link,
+                link2=entity2_link,
+            ),
+            to_html(
+                instance=entity4, user=user,
+                dependencies=[entity1, entity3, entity2],
+            ),
         )
 
     def test_delete_entity(self):
@@ -362,18 +411,30 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         with self.assertNoException():
             msg = response.context['error_message']
 
-        self.assertEqual(
-            # _(
-            #     '«{entity}» can not be deleted because of its '
-            #     'dependencies ({dependencies}).'
-            # ).format(
-            #     entity=entity01.name,
-            #     dependencies=f'is a daughter of «{entity02.name}»',
-            # ),
-            _(
-                'This entity can not be deleted because of its '
-                'dependencies ({dependencies}).'
-            ).format(dependencies='is a daughter of «Seele &lt;em&gt;corp&lt;/em&gt;»'),
+        # self.assertEqual(
+        #     _(
+        #         '«{entity}» can not be deleted because of its '
+        #         'dependencies ({dependencies}).'
+        #     ).format(
+        #         entity=entity01.name,
+        #         dependencies='is a daughter of «Seele &lt;em&gt;corp&lt;/em&gt;»',
+        #     ),
+        # )
+        self.assertHTMLEqual(
+            '<span>{message}</span>'
+            '<ul>'
+            ' <li>'
+            '  {predicate}<a href="/tests/organisation/{orga_id}" target="_blank">{label}</a>'
+            ' </li>'
+            '</ul>'.format(
+                message=_(
+                    'This entity can not be deleted because of its links with '
+                    'other entities:'
+                ),
+                predicate=rtype.predicate,
+                orga_id=entity02.id,
+                label='Seele &lt;em&gt;corp&lt;/em&gt;',
+            ),
             msg,
         )
 
@@ -515,22 +576,51 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertPOST409(self.DEL_ENTITIES_URL, data={'ids': f'{entity1.id}'})
         self.assertStillExists(entity1)
         self.assertStillExists(entity2)
-        self.assertDictEqual(
-            {
-                'count': 1,
-                'errors': [
-                    _('{entity}: {error}').format(
-                        entity='Nerv &lt;em&gt;inc.&lt;/em&gt;',
-                        error=_(
-                            'This entity can not be deleted because of its '
-                            'dependencies ({dependencies}).'
-                        ).format(
-                            dependencies='is a daughter of «Seele &lt;b&gt;corp.&lt;/b&gt;»',
-                        ),
+        # self.assertDictEqual(
+        #     {
+        #         'count': 1,
+        #         'errors': [
+        #             _('{entity}: {error}').format(
+        #                 entity='Nerv &lt;em&gt;inc.&lt;/em&gt;',
+        #                 error=_(
+        #                     'This entity can not be deleted because of its '
+        #                     'dependencies ({dependencies}).'
+        #                 ).format(
+        #                     dependencies='is a daughter of «Seele &lt;b&gt;corp.&lt;/b&gt;»',
+        #                 ),
+        #             ),
+        #         ],
+        #     },
+        #     response.json(),
+        # )
+        content = response.json()
+        self.assertIsDict(content, length=2)
+        self.assertEqual(1, content.get('count'))
+
+        errors = content.get('errors')
+        self.assertIsList(errors, length=1)
+        self.assertHTMLEqual(
+            _('{entity}: {error}').format(
+                entity='Nerv &lt;em&gt;inc.&lt;/em&gt;',
+                error=(
+                    '<span>{message}</span>'
+                    '<ul>'
+                    ' <li>'
+                    '   is a daughter of'
+                    '   <a href="/tests/organisation/{orga_id}" target="_blank">'
+                    '    Seele &lt;b&gt;corp.&lt;/b&gt;'
+                    '   </a>'
+                    '  </li>'
+                    '</ul>'
+                ).format(
+                    message=_(
+                        'This entity can not be deleted because of its links '
+                        'with other entities:'
                     ),
-                ],
-            },
-            response.json(),
+                    orga_id=entity2.id,
+                ),
+            ),
+            errors[0],
         )
 
     def test_delete_entities__not_allowed(self):
@@ -669,30 +759,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
             response.json(),
         )
-
-    # TODO ??
-    # def test_delete_entities_dependencies(self):
-    #     self.login()
-    #
-    #     create_entity = partial(CremeEntity.objects.create, user=self.user)
-    #     entity01 = create_entity()
-    #     entity02 = create_entity()
-    #     entity03 = create_entity() #not linked => can be deleted
-    #
-    #     rtype, srtype = RelationType.create(('test-subject_linked', 'is linked to'),
-    #                                         ('test-object_linked',  'is linked to')
-    #                                        )
-    #     Relation.objects.create(
-    #           user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02,
-    #     )
-    #
-    #     self.assertPOST(400, self.DEL_ENTITIES_URL,
-    #                     data={'ids': '%s,%s,%s,' % (entity01.id, entity02.id, entity03.id)}
-    #                    )
-    #     self.assertEqual(
-    #           2, CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count()
-    #     )
-    #     self.assertFalse(CremeEntity.objects.filter(pk=entity03.id))
 
     def test_trash_view01(self):
         user = self.login_as_root_and_get()
@@ -920,7 +986,8 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNotNone(jresult1)
         self.assertEqual(entity1.entity_type, jresult1.entity_ctype)
         self.assertListEqual(
-            [_('Can not be deleted because of its dependencies.')],
+            # [_('Can not be deleted because of its dependencies.')],
+            [_('Can not be deleted because of links with other entities.')],
             jresult1.messages,
         )
 

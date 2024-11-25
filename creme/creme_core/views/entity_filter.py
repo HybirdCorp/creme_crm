@@ -455,14 +455,25 @@ class EntityFilterDeletion(EntityFilterMixin, generic.CremeModelDeletion):
             raise ConflictError(e) from e
         # TODO: move in a middleware ??
         except ProtectedError as e:
+            # raise ConflictError(
+            #     gettext(
+            #         'The filter can not be deleted because of its dependencies '
+            #         '({dependencies}).'
+            #     ).format(
+            #         dependencies=self.dependencies_to_str(
+            #             dependencies=e.args[1],
+            #             user=request.user,
+            #         ),
+            #     )
+            # ) from e
             raise ConflictError(
-                gettext(
-                    'The filter can not be deleted because of its dependencies '
-                    '({dependencies}).'
-                ).format(
-                    dependencies=self.dependencies_to_str(
-                        dependencies=e.args[1],
-                        user=request.user,
+                '<span>{message}</span>{dependencies}'.format(
+                    message=gettext(
+                        'This filter can not be deleted because of its links '
+                        'with some entities:'
+                    ),
+                    dependencies=self.dependencies_to_html(
+                        instance=self.object, dependencies=e.args[1], user=request.user,
                     ),
                 )
             ) from e

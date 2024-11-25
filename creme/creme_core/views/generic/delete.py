@@ -16,15 +16,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import islice
+from collections import Counter
 from typing import Sequence
 
-from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils.html import escape
-from django.utils.translation import gettext as _
+from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 from django.utils.translation import ngettext
 
 from creme.creme_core.http import is_ajax
@@ -42,56 +41,97 @@ from .base import CheckedView
 class CremeDeletionMixin:
     dependencies_limit = 3
 
-    def dependencies_to_str(self, *,
-                            dependencies: Sequence[CremeModel],
-                            user: CremeUser,
-                            ) -> str:
+    def dependencies_to_html(self, *,
+                             instance: CremeModel,
+                             dependencies: Sequence[CremeModel],
+                             user: CremeUser,
+                             ) -> str:
         def deps_generator():
             not_viewable_count = 0
             can_view = user.has_perm_to_view
 
-            def is_printable_relation(dep):
-                return isinstance(dep, Relation) and '-object_' not in dep.type_id
+            def entity_as_link(entity):
+                return format_html(
+                    '<a href="{url}" target="_blank"{deleted}>{label}</a>',
+                    url=entity.get_absolute_url(),
+                    deleted=(
+                        mark_safe(' class="is_deleted"')
+                        if entity.is_deleted else
+                        ''
+                    ),
+                    label=entity,
+                )
 
+            # TODO: sort entities alphabetically?
+            # TODO: priority to entity not deleted?
             for dep in dependencies:
                 if isinstance(dep, CremeEntity):
                     if can_view(dep):
-                        yield _('«{object}» ({model})').format(
-                            object=dep, model=dep.entity_type,
-                        )
+                        yield entity_as_link(dep)
                     else:
                         not_viewable_count += 1
 
-            for dep in dependencies:
-                if is_printable_relation(dep) and can_view(dep.object_entity):
-                    yield f'{dep.type.predicate} «{dep.object_entity}»'
+            if isinstance(instance, CremeEntity):
+                not_viewable_relations_counter = Counter()
 
-            if not_viewable_count:
-                yield ngettext(
-                    '{count} not viewable entity',
-                    '{count} not viewable entities',
-                    not_viewable_count
-                ).format(count=not_viewable_count)
+                # TODO: sort predicates alphabetically?
+                for dep in dependencies:
+                    if isinstance(dep, Relation) and dep.subject_entity_id == instance.id:
+                        obj_entity = dep.object_entity
 
-            for dep in dependencies:
-                if is_printable_relation(dep) and not can_view(dep.object_entity):
-                    yield f'{dep.type.predicate} «{settings.HIDDEN_VALUE}»'
+                        if can_view(obj_entity):
+                            yield format_html(
+                                '{predicate} {link}',
+                                predicate=dep.type.predicate,
+                                link=entity_as_link(obj_entity),
+                            )
+                        else:
+                            not_viewable_relations_counter[dep.type.predicate] += 1
 
-            for dep in dependencies:
-                if not isinstance(dep, (CremeEntity, Relation)):
-                    yield str(dep)
+                if not_viewable_count:
+                    yield ngettext(
+                        '{count} not viewable entity',
+                        '{count} not viewable entities',
+                        not_viewable_count
+                    ).format(count=not_viewable_count)
+
+                for predicate, count in not_viewable_relations_counter.items():
+                    yield ngettext(
+                        '{count} relationship «{predicate}»',
+                        '{count} relationships «{predicate}»',
+                        count
+                    ).format(count=count, predicate=predicate)
+
+                for dep in dependencies:
+                    if not isinstance(dep, (CremeEntity, Relation)):
+                        yield str(dep)
+            else:
+                if not_viewable_count:
+                    yield ngettext(
+                        '{count} not viewable entity',
+                        '{count} not viewable entities',
+                        not_viewable_count
+                    ).format(count=not_viewable_count)
+
+                for dep in dependencies:
+                    if not isinstance(dep, CremeEntity):
+                        yield str(dep)
 
         limit = self.dependencies_limit
-        str_deps = [*islice(deps_generator(), limit + 1)]
 
-        do_ellipsis = False
-        if len(str_deps) > limit:
-            str_deps.pop()
-            do_ellipsis = True
+        # NB: we produce tuples for 'format_html_join()'
+        def limited_items():
+            for idx, item in enumerate(deps_generator()):
+                if idx >= limit:
+                    yield ('…',)
+                    break
 
-        result = ', '.join(str_deps[:limit])
+                yield (item,)
 
-        return escape(result + '…' if do_ellipsis else result)
+        return format_html(
+            '<ul>{}</ul>',  # TODO: <class="...">?
+            format_html_join('', '<li>{}</li>', limited_items())
+        )
 
 
 # class CremeDeletion(CheckedView):

@@ -1371,15 +1371,15 @@ class EntityDeletionMixin(generic.CremeDeletionMixin):
             ) from e
         except ProtectedError as e:
             raise ConflictError(
-                gettext(
-                    'This entity can not be deleted because of its dependencies '
-                    '({dependencies}).'
-                ).format(
-                    dependencies=self.dependencies_to_str(
-                        dependencies=e.args[1],
-                        user=user,
+                '<span>{message}</span>{dependencies}'.format(
+                    message=gettext(
+                        'This entity can not be deleted because of its links '
+                        'with other entities:'
                     ),
-                ),
+                    dependencies=self.dependencies_to_html(
+                        instance=entity, dependencies=e.args[1], user=user,
+                    ),
+                )
             ) from e
         except Exception as e:
             logger.exception('Error when trying delete "%s" (id=%s)', entity, entity.id)

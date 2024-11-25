@@ -142,7 +142,8 @@ class _TrashCleanerType(JobType):
                             except ProtectedError:
                                 create_error(
                                     entity,
-                                    _('Can not be deleted because of its dependencies.'),
+                                    # _('Can not be deleted because of its dependencies.'),
+                                    _('Can not be deleted because of links with other entities.'),
                                 )
                             except Exception as e:
                                 logger.exception('Error when trying to empty the trash')
