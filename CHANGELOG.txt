@@ -3,6 +3,7 @@
   Users side :
   ------------
     # In menu entries with custom URLs, links are now opened in a new tab.
+    # Some escaping issues have been fixed.
 
   Developers side :
   -----------------
