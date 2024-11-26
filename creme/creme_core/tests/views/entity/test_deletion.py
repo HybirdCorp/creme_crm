@@ -343,7 +343,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         entity01 = create_orga(name='Nerv', is_deleted=True)
-        entity02 = create_orga(name='Seele')
+        entity02 = create_orga(name='Seele <em>corp</em>')
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_daughter', 'is a daughter of'),
@@ -373,7 +373,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             _(
                 'This entity can not be deleted because of its '
                 'dependencies ({dependencies}).'
-            ).format(dependencies=f'is a daughter of «{entity02.name}»'),
+            ).format(dependencies='is a daughter of «Seele &lt;em&gt;corp&lt;/em&gt;»'),
             msg,
         )
 
@@ -500,8 +500,8 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        entity1 = create_orga(name='Nerv', is_deleted=True)
-        entity2 = create_orga(name='Seele')
+        entity1 = create_orga(name='Nerv <em>inc.</em>', is_deleted=True)
+        entity2 = create_orga(name='Seele <b>corp.</b>')
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_daughter', 'is a daughter of'),
@@ -520,11 +520,13 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'count': 1,
                 'errors': [
                     _('{entity}: {error}').format(
-                        entity=entity1.name,
+                        entity='Nerv &lt;em&gt;inc.&lt;/em&gt;',
                         error=_(
                             'This entity can not be deleted because of its '
                             'dependencies ({dependencies}).'
-                        ).format(dependencies=f'is a daughter of «{entity2.name}»'),
+                        ).format(
+                            dependencies='is a daughter of «Seele &lt;b&gt;corp.&lt;/b&gt;»',
+                        ),
                     ),
                 ],
             },

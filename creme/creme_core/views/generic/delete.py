@@ -23,6 +23,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -90,7 +91,7 @@ class CremeDeletionMixin:
 
         result = ', '.join(str_deps[:limit])
 
-        return result + '…' if do_ellipsis else result
+        return escape(result + '…' if do_ellipsis else result)
 
 
 # class CremeDeletion(CheckedView):
