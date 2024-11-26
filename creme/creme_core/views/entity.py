@@ -42,7 +42,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
-from django.utils.html import format_html
+from django.utils.html import escape, format_html
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -1444,7 +1444,7 @@ class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
             error_msg = gettext('{entity}: {error}')
 
             def format_error(entity, message):
-                return error_msg.format(entity=entity.allowed_str(user), error=message)
+                return error_msg.format(entity=escape(entity.allowed_str(user)), error=message)
 
             for entity in entities:
                 real_entity = entity.get_real_entity()
