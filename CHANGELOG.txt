@@ -1,5 +1,9 @@
 == Version 2.4.21 ==
 
+  Users side :
+  ------------
+    # Some escaping issues have been fixed.
+
 
 == Version 2.4.20 ==
 

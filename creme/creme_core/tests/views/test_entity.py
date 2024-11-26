@@ -160,7 +160,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
         create_c = FakeContact.objects.create
         rei   = create_c(user=user,            first_name='Rei',   last_name='Ayanami')
-        asuka = create_c(user=user,            first_name='Asuka', last_name='Langley')
+        asuka = create_c(user=user,            first_name='Asuka', last_name='<b>Langley</b>')
         mari  = create_c(user=self.other_user, first_name='Mari',  last_name='Makinami')
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -181,7 +181,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
                 {'id': mari.id,  'text': _('Entity #{id} (not viewable)').format(id=mari.id)},
                 {'id': rei.id,   'text': str(rei)},
                 {'id': nerv.id,  'text': str(nerv)},
-                {'id': asuka.id, 'text': str(asuka)},
+                {'id': asuka.id, 'text': 'Asuka &lt;b&gt;Langley&lt;/b&gt;'},
             ],
             response.json(),
         )
@@ -605,6 +605,41 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
         self.get_object_or_fail(CremeEntity, pk=entity02.id)
 
+    def test_delete_entities_dependencies(self):
+        user = self.login()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        entity1 = create_orga(name='Nerv <em>inc.</em>', is_deleted=True)
+        entity2 = create_orga(name='Seele <b>corp.</b>')
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_daughter', 'is a daughter of'),
+            ('test-object_daughter',  'has a daughter'),
+            is_internal=True,
+        )[0]
+        Relation.objects.create(
+            user=user, type=rtype, subject_entity=entity1, object_entity=entity2,
+        )
+
+        response = self.assertPOST409(self.DEL_ENTITIES_URL, data={'ids': f'{entity1.id}'})
+        self.assertStillExists(entity1)
+        self.assertStillExists(entity2)
+        self.assertDictEqual(
+            {
+                'count': 1,
+                'errors': [
+                    _(
+                        '«{entity}» can not be deleted because of its dependencies '
+                        '({dependencies}).'
+                    ).format(
+                        entity='Nerv &lt;em&gt;inc.&lt;/em&gt;',
+                        dependencies='is a daughter of «Seele &lt;b&gt;corp.&lt;/b&gt;»',
+                    )
+                ],
+            },
+            response.json(),
+        )
+
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete_entities_not_allowed(self):
         "Some entities deletion is not allowed."
@@ -684,30 +719,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertEqual(response.content.decode(), _('Operation successfully completed'))
         self.assertDoesNotExist(entity01)
         self.assertDoesNotExist(entity02)
-
-    # TODO ??
-    # def test_delete_entities_dependencies(self):
-    #     self.login()
-    #
-    #     create_entity = partial(CremeEntity.objects.create, user=self.user)
-    #     entity01 = create_entity()
-    #     entity02 = create_entity()
-    #     entity03 = create_entity() #not linked => can be deleted
-    #
-    #     rtype, srtype = RelationType.create(('test-subject_linked', 'is linked to'),
-    #                                         ('test-object_linked',  'is linked to')
-    #                                        )
-    #     Relation.objects.create(
-    #           user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02,
-    #     )
-    #
-    #     self.assertPOST(400, self.DEL_ENTITIES_URL,
-    #                     data={'ids': '%s,%s,%s,' % (entity01.id, entity02.id, entity03.id)}
-    #                    )
-    #     self.assertEqual(
-    #           2, CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count()
-    #     )
-    #     self.assertFalse(CremeEntity.objects.filter(pk=entity03.id))
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_trash_view01(self):
