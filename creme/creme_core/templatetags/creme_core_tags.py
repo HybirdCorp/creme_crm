@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+import warnings
 # import warnings
 from itertools import zip_longest
 from re import compile as compile_re
@@ -442,9 +443,12 @@ def get_efilter_conditions(efilter, user):
     return [*efilter.get_verbose_conditions(user)]
 
 
-# TODO: deprecate ? (not used)
 @register.simple_tag
 def get_entity_summary(entity, user):
+    warnings.warn(
+        'The templatetag {% get_entity_summary %} is deprecated.',
+        DeprecationWarning,
+    )
     return entity.get_entity_summary(user)
 
 

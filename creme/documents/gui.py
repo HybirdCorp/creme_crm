@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2023  Hybird
+#    Copyright (C) 2019-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -68,6 +68,14 @@ class FolderCreationButton(listview.CreationButton):
 
 
 # Field printers ---------------------------------------------------------------
+def _get_image_summary(document):
+    return format_html(
+        '<img class="entity-summary" src="{url}" alt="{name}" title="{name}"/>',
+        url=document.get_download_absolute_url(),
+        name=document.title,
+    )
+
+
 def print_fk_image_html(*, value, user, **kwargs):
     if not user.has_perm_to_view(value):
         return settings.HIDDEN_VALUE
@@ -79,7 +87,8 @@ def print_fk_image_html(*, value, user, **kwargs):
             '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
             url=value.get_download_absolute_url(),
             attrs=mark_safe(' class="is_deleted"' if value.is_deleted else ''),
-            content=value.get_entity_summary(user),
+            # content=value.get_entity_summary(user),
+            content=_get_image_summary(value),
         )
 
     return FKPrinter.print_fk_entity_html(value=value, user=user, **kwargs)
@@ -96,7 +105,8 @@ def print_doc_summary_html(*, instance, user, **kwargs):
             '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
             url=instance.get_download_absolute_url(),
             attrs=mark_safe(' class="is_deleted"' if instance.is_deleted else ''),
-            content=instance.get_entity_summary(user),
+            # content=instance.get_entity_summary(user),
+            content=_get_image_summary(instance),
         )
 
     return M2MPrinterForHTML.printer_entity(

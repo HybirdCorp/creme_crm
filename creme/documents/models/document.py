@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from mimetypes import guess_type
 from os.path import basename
 
@@ -89,6 +90,11 @@ class AbstractDocument(CremeEntity):
         )
 
     def get_entity_summary(self, user):
+        warnings.warn(
+            'The method AbstractDocument.get_entity_summary() is deprecated.',
+            DeprecationWarning,
+        )
+
         if not user.has_perm_to_view(self):
             return self.allowed_str(user)
 

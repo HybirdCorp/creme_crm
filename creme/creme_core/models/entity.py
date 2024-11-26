@@ -29,7 +29,6 @@ from django.db import models
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.urls import reverse
-from django.utils.html import escape
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -354,6 +353,12 @@ class CremeEntity(CremeModel):
                 entity._cvalues_map[cf_id] = cvalues_map[entity_id].get(cf_id)
 
     def get_entity_summary(self, user) -> str:
+        from django.utils.html import escape
+
+        warnings.warn(
+            'The method CremeEntity.get_entity_summary() is deprecated.',
+            DeprecationWarning,
+        )
         return escape(self.allowed_str(user))
 
     def get_custom_fields_n_values(self,

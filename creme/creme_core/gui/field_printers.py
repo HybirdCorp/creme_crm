@@ -406,7 +406,8 @@ class M2MPrinterForHTML(BaseM2MPrinter):
             '<a target="_blank" href="{url}"{attrs}>{content}</a>',
             url=instance.get_absolute_url(),
             attrs=mark_safe(' class="is_deleted"' if instance.is_deleted else ''),
-            content=instance.get_entity_summary(user),
+            # content=instance.get_entity_summary(user),
+            content=str(instance),
         ) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
 
     def __call__(self, *, instance: Model, value, user: CremeUser, field: Field) -> str:

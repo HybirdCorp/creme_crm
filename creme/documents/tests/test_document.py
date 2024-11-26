@@ -631,11 +631,8 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         folder = self.assertStillExists(folder)
         self.assertIsNone(folder.category)
 
-    @skipIfCustomContact
-    def test_field_printers_fk01(self):
-        "Field printer with FK on Image."
+    def test_get_summary(self):  # DEPRECATED
         user = self.login_as_root_and_get()
-
         image = self._create_image(user=user)
         summary = image.get_entity_summary(user)
         self.assertHTMLEqual(
@@ -646,15 +643,24 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             summary,
         )
 
+    @skipIfCustomContact
+    def test_field_printers_fk01(self):
+        "Field printer with FK on Image."
+        user = self.login_as_root_and_get()
+
+        image = self._create_image(user=user)
         casca = get_contact_model().objects.create(
             user=user,
             image=image,
             first_name='Casca', last_name='Mylove',
         )
         self.assertHTMLEqual(
-            f'''<a onclick="creme.dialogs.image('{image.get_download_absolute_url()}').open();">'''
-            f'''{summary}'''
-            f'''</a>''',
+            '''<a onclick="creme.dialogs.image('{url}').open();">'''
+            ''' <img class="entity-summary" src="{url}" alt="{name}" title="{name}"/>'''
+            '''</a>'''.format(
+                url=image.get_download_absolute_url(),
+                name=image.title,
+            ),
             field_printer_registry.get_field_value(
                 instance=casca, field_name='image', user=user, tag=ViewTag.HTML_DETAIL,
             ),
