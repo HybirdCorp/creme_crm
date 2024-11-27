@@ -49,14 +49,18 @@ class NumberOverrider(FieldOverrider):
         # TODO: prefetch <source> for <instances>
         self._item = item = NumberGeneratorItem.objects.get_for_instance(first)
 
-        return (
-            model_field.formfield()
-            if not item or item.is_edition_allowed else
-            ReadonlyMessageField(
+        if item and not item.is_edition_allowed:
+            return ReadonlyMessageField(
                 label=model_field.verbose_name,
                 initial=self.error_messages['configuration'],
             )
-        )
+
+        number_field = model_field.formfield()
+
+        if len(instances) == 1:
+            number_field.initial = first.number
+
+        return number_field
 
     def post_clean_instance(self, *, instance, value, form):
         item = self._item
