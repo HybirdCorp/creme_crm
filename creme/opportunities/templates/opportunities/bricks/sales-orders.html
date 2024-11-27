@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
 {% load i18n creme_bricks creme_perms creme_widgets %}
-{% load and_op url from creme_core_tags %}
+{% load and_op print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} opportunities-sales-orders-brick{% endblock %}
 
@@ -42,7 +42,7 @@
             {% if salesorder_view_perm %}{{salesorder.number}}{% else %}{{HIDDEN_VALUE}}{% endif %}
         </td>
         <td>{% widget_entity_hyperlink salesorder user %}</td>
-        <td>{% if salesorder_view_perm %}{{salesorder.status}}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
+        <td>{% if salesorder_view_perm %}{% print_field object=salesorder field='status' %}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
         <td {% brick_table_data_status action %}>
           {% with salesorder_unlink_perm=user|has_perm_to_unlink:salesorder %}
             {% brick_table_action id='delete' url=delete_relation_url __subject_id=object.id __type=relation_type.id __object_id=salesorder.id label=_('Unlink this salesorder') icon='unlink' enabled=unlink_perm|and_op:salesorder_unlink_perm %}
