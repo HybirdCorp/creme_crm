@@ -119,16 +119,17 @@ def get_creme_entities_repr(request, entities_ids):
     CremeEntity.populate_real_entities([*entities.values()])
 
     user = request.user
-    has_perm = user.has_perm_to_view
+    # has_perm = user.has_perm_to_view
 
     return [
         {
             'id': e_id,
-            'text': (
-                entity.get_real_entity().get_entity_summary(user)
-                if has_perm(entity) else
-                gettext('Entity #{id} (not viewable)').format(id=e_id)
-            ),
+            # 'text': (
+            #     entity.get_real_entity().get_entity_summary(user)
+            #     if has_perm(entity) else
+            #     gettext('Entity #{id} (not viewable)').format(id=e_id)
+            # ),
+            'text': entity.get_real_entity().get_entity_summary(user),
         }
         for e_id, entity in ((e_id, entities.get(e_id)) for e_id in e_ids)
         if entity is not None
