@@ -1082,6 +1082,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
             number_f = response1.context['form'].fields[form_field_name]
 
         self.assertIsInstance(number_f, CharField)
+        self.assertEqual(quote.number, number_f.initial)
 
         # POST ---
         number = 'Q1256'
