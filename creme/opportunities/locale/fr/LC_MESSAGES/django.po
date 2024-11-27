@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-20 10:23+0200\n"
+"POT-Creation-Date: 2024-11-27 21:35+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -540,8 +540,8 @@ msgstr "Générer une facture"
 msgid "Link to an invoice"
 msgstr "Lier à une facture"
 
-msgid "Unlink"
-msgstr "Délier"
+msgid "Edit this invoice"
+msgstr "Modifier cette facture"
 
 msgid "Unlink this invoice"
 msgstr "Délier cette facture"
@@ -661,6 +661,9 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
+msgid "Edit this quote"
+msgstr "Modifier ce devis"
+
 msgid "Unlink this quote"
 msgstr "Délier ce devis"
 
@@ -683,6 +686,9 @@ msgstr "Générer un bon de commande"
 
 msgid "Link to a salesorder"
 msgstr "Lier à un bon"
+
+msgid "Edit this salesorder"
+msgstr "Modifier ce bon"
 
 msgid "Unlink this salesorder"
 msgstr "Délier ce bon"
@@ -732,13 +738,6 @@ msgstr "Total TTC"
 msgid "Phone call"
 msgstr ""
 
-msgid "You are not allowed to link this entity"
-msgstr "Vous n'avez pas la permission de relier cette fiche"
-
-# Already in 'activities'
-msgid "You are not allowed to create an Activity"
-msgstr ""
-
 #, python-format
 msgid "Create an opportunity which targets «%(object)s»."
 msgstr "Créer une opportunité qui cible «%(object)s»."
@@ -780,6 +779,12 @@ msgstr "Créer un contact lié à «{opportunity}»"
 #, python-brace-format
 msgid "New opportunity targeting «{entity}»"
 msgstr "Nouvelle opportunité ciblant «{entity}»"
+
+#~ msgid "Unlink"
+#~ msgstr "Délier"
+
+#~ msgid "You are not allowed to link this entity"
+#~ msgstr "Vous n'avez pas la permission de relier cette fiche"
 
 #~ msgid "forbidden"
 #~ msgstr "interdit"
