@@ -1,6 +1,6 @@
 == Version 2.6.4 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile i18n (billing)
+  TODO: compile i18n (core, billing)
 
   Users side :
   ------------
