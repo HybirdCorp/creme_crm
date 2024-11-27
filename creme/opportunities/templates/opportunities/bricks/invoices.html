@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
 {% load i18n creme_bricks creme_perms creme_widgets %}
-{% load and_op url from creme_core_tags %}
+{% load and_op print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} opportunities-invoices-brick{% endblock %}
 
@@ -42,7 +42,7 @@
             {% if invoice_view_perm %}{{invoice.number}}{% else %}{{HIDDEN_VALUE}}{% endif %}
         </td>
         <td>{% widget_entity_hyperlink invoice user %}</td>
-        <td>{% if invoice_view_perm %}{{invoice.status}}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
+        <td>{% if invoice_view_perm %}{% print_field object=invoice field='status' %}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
         <td {% brick_table_data_status action %}>
           {% with invoice_unlink_perm=user|has_perm_to_unlink:invoice %}
             {% brick_table_action id='delete' url=delete_relation_url __subject_id=object.id __type=relation_type.id __object_id=invoice.id label=_('Unlink this invoice') icon='unlink' enabled=unlink_perm|and_op:invoice_unlink_perm %}
