@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
 {% load i18n creme_bricks creme_perms creme_widgets %}
-{% load and_op in url from creme_core_tags %}
+{% load and_op in print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} opportunities-quotes-brick{% endblock %}
 
@@ -50,7 +50,7 @@
     <tr>
         <td {% brick_table_data_status primary %}>{% if quote_view_perm %}{{quote.number}}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
         <td>{% widget_entity_hyperlink quote user %}</td>
-        <td>{% if quote_view_perm %}{{quote.status}}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
+        <td>{% if quote_view_perm %}{% print_field object=quote field='status' %}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
         <td>
           {% if quote_is_current %}
             <input class="opportunities-current-quote" type="checkbox" data-url="{% url 'opportunities__linked_quote_is_current' object.id quote.id 'unset_current' %}"

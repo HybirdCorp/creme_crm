@@ -7,6 +7,10 @@
     # In mass-import form, the selector for properties was not our expected widget.
     # In menu entries with custom URLs, links are now opened in a new tab.
     # Some escaping issues have been fixed.
+    # Apps :
+        * Opportunities :
+            - In the blocks for related Invoices, Quotes & Sales Orders,
+              the color of the statuses were not displayed.
 
   Developers side :
   -----------------
