@@ -1,6 +1,6 @@
 == Version 2.6.4 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile i18n (core, billing)
+  TODO: compile i18n (core, billing, opportunities)
 
   Users side :
   ------------
@@ -10,7 +10,8 @@
     # Apps :
         * Opportunities :
             - In the blocks for related Invoices, Quotes & Sales Orders,
-              the color of the statuses were not displayed.
+                - The color of the statuses were not displayed.
+                - The multi-inner-edition have been added.
 
   Developers side :
   -----------------
