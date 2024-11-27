@@ -317,7 +317,7 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None,
 
     Eg:
       {% widget_entity_hyperlink my_entity user %}
-      {% widget_entity_hyperlink my_entity user ignored_deleted=True %}
+      {% widget_entity_hyperlink my_entity user ignore_deleted=True %}
       {% widget_entity_hyperlink my_entity user label='An interesting entity' %}
       {% widget_entity_hyperlink my_entity user target='_blank' %}
     """
