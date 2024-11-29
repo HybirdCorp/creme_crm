@@ -195,7 +195,7 @@ class RelationsBrick(QuerysetBrick):
         if isinstance(info, dict):
             def is_a_list_of_strings(key):
                 rtype_ids = info.get(key, ())
-                return isinstance(rtype_ids, (list, tuple)) and all(
+                return isinstance(rtype_ids, list | tuple) and all(
                     isinstance(x, str) for x in rtype_ids
                 )
 

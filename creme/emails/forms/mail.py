@@ -119,7 +119,7 @@ class EntityEmailForm(core_forms.CremeEntityQuickForm):
             '(without fancy layout of course).'
         )
 
-        if isinstance(entity, (Contact, Organisation)):
+        if isinstance(entity, Contact | Organisation):
             fn, msg = (
                 ('c_recipients', _('Beware: the contact «{}» has no email address!'))
                 if isinstance(entity, Contact) else

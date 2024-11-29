@@ -297,7 +297,7 @@ class RHRegularField(ReportHand):
             second_part = field_info[1]
 
             if (
-                isinstance(second_part, (ForeignKey, ManyToManyField))
+                isinstance(second_part, ForeignKey | ManyToManyField)
                 and issubclass(second_part.remote_field.model, CremeEntity)
             ):
                 raise ReportHand.ValueError(

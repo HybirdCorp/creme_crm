@@ -251,7 +251,7 @@ class EqualsOperator(ConditionOperator):
         return v1 == v2
 
     def _accept_value(self, *, field_value, value):
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, list | tuple):
             return any(
                 self._accept_single_value(field_value=field_value, value=v)
                 for v in value
@@ -501,7 +501,7 @@ class IsEmptyOperator(BooleanOperatorBase):
 
         # Add filter for text fields, "isEmpty" should mean null or empty string
         finfo = FieldInfo(model, field_name)  # TODO: what about CustomField ?!
-        if isinstance(finfo[-1], (models.CharField, models.TextField)):
+        if isinstance(finfo[-1], models.CharField | models.TextField):
             query |= Q(**{field_name: ''})
 
         # Negate filter on false value

@@ -73,7 +73,7 @@ class MergeWidget(Widget):
         widget = self._original_widget
         # TODO: improve Widgets with a 'read_only' param
         #   -> each type choose the right html attribute
-        ro_attr = 'disabled' if isinstance(widget, (Select, CheckboxInput)) else 'readonly'
+        ro_attr = 'disabled' if isinstance(widget, Select | CheckboxInput) else 'readonly'
 
         # NB: the classes 'merge_entity1'/'merge_entity2'/'merge_result' won't
         #     be used by complexes Widget

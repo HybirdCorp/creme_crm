@@ -240,7 +240,7 @@ class _CremeTestCase:
                         (perm for flag, perm in CREDS.items() if flag != excluded)
                     )
             else:
-                assert isinstance(flags, (list, tuple))
+                assert isinstance(flags, list | tuple)
                 value = reduce(or_, (CREDS[flag] for flag in flags))
 
             SetCredentials.objects.create(

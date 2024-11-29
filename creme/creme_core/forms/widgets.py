@@ -1190,7 +1190,10 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
         self.creation_label = creation_label
 
     def _choice_count(self):  # TODO: inline ?
-        return sum(len(c[1]) if isinstance(c[1], (list, tuple)) else 1 for c in self.choices)
+        return sum(
+            len(c[1]) if isinstance(c[1], list | tuple) else 1
+            for c in self.choices
+        )
 
     def _build_filtertype(self, count):
         if self._filtertype:
