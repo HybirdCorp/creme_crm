@@ -280,7 +280,7 @@ class EntityFilterManager(models.Manager):
                     latest_pk = ef.pk
 
                     if latest_pk.startswith(new_pk):
-                        copy_num_str = latest_pk[len(new_pk):]
+                        copy_num_str = latest_pk.removeprefix(new_pk)
 
                         if not copy_num_str:
                             new_pk += '2'

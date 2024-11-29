@@ -79,7 +79,7 @@ class EntityBackend(ModelBackend):
                 # return user_obj.role.can_create(app_name, action_name[len(_ADD_PREFIX):])
                 ct = ContentType.objects.get_by_natural_key(
                     app_label=app_label,
-                    model=action_name[len(_CREATION_PREFIX):],
+                    model=action_name.removeprefix(_CREATION_PREFIX),
                 )
                 user_obj.has_perm_to_create_or_die(ct)
                 return True
@@ -87,7 +87,7 @@ class EntityBackend(ModelBackend):
             if action_name.startswith(_LINK_PREFIX):
                 ct = ContentType.objects.get_by_natural_key(
                     app_label=app_label,
-                    model=action_name[len(_LINK_PREFIX):],
+                    model=action_name.removeprefix(_LINK_PREFIX),
                 )
                 # return user_obj.has_perm_to_link(ct.model_class())
                 user_obj.has_perm_to_link_or_die(ct.model_class())  # TODO: accept ContentType
@@ -97,7 +97,7 @@ class EntityBackend(ModelBackend):
                 # return user_obj.role.can_export(app_name, action_name[len(_EXPORT_PREFIX):])
                 ct = ContentType.objects.get_by_natural_key(
                     app_label=app_label,
-                    model=action_name[len(_EXPORT_PREFIX):],
+                    model=action_name.removeprefix(_EXPORT_PREFIX),
                 )
                 user_obj.has_perm_to_export_or_die(ct)
                 return True

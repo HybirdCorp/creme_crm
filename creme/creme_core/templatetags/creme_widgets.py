@@ -274,7 +274,7 @@ def do_render_icon(parser, token):
 
     def compile_arg(token, prefix):
         if token.startswith(prefix):
-            token = token[len(prefix):]
+            token = token.removeprefix(prefix)
 
         return parser.compile_filter(token)
 

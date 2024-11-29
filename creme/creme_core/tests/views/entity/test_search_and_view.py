@@ -214,5 +214,5 @@ class SearchAndViewTestCase(CremeTestCase):
         self.assertStartsWith(next_param, 'next=')
         self.assertURLEqual(
             f'{url}?models={models}&fields={fields}&value={value}',
-            unquote(next_param[len('next='):]),
+            unquote(next_param.removeprefix('next=')),
         )

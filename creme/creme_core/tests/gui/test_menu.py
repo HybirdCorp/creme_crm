@@ -400,7 +400,7 @@ class MenuTestCase(CremeTestCase):
 
         render = entry01.render(ctxt)
         self.assertStartsWith(render, label)
-        self.assertHTMLEqual('<ul></ul>', render[len(label):])
+        self.assertHTMLEqual('<ul></ul>', render.removeprefix(label))
 
         # ----
         children = [FakeContactsEntry(), FakeContactCreationEntry()]
@@ -422,7 +422,7 @@ class MenuTestCase(CremeTestCase):
             f'    </a>'
             f'  </li>'
             f'</ul>',
-            entry02.render(ctxt)[len(label):],
+            entry02.render(ctxt).removeprefix(label),
         )
 
     def test_container_entry02(self):
@@ -465,7 +465,7 @@ class MenuTestCase(CremeTestCase):
             f'    <span class="ui-creme-navigation-text-entry">{SubEntry2.label}</span>'
             f'  </li>'
             f'</ul>',
-            container.render(ctxt)[len(label):],
+            container.render(ctxt).removeprefix(label),
         )
 
     def test_separator0_entry(self):
@@ -676,7 +676,7 @@ class MenuTestCase(CremeTestCase):
         render = entry.render(self._build_context())
         self.assertStartsWith(render, label)
 
-        tree = self.get_html_tree(render[len(label):])
+        tree = self.get_html_tree(render.removeprefix(label))
         li_classes = set()
         for li_node in tree.findall('.//li'):
             classes = {*li_node.get('class').split()}
@@ -734,7 +734,7 @@ class MenuTestCase(CremeTestCase):
             f'    </a>'
             f'  </li>'
             f'</ul>',
-            render[len(entry_label):],
+            render.removeprefix(entry_label),
         )
 
     def test_recent_entities_entry02(self):
@@ -749,7 +749,7 @@ class MenuTestCase(CremeTestCase):
             '<ul>'
             '   <li><span class="ui-creme-navigation-text-entry">{}</span></li>'
             '</ul>'.format(escape(_('No recently visited entity'))),
-            render[len(entry_label):],
+            render.removeprefix(entry_label),
         )
 
     def test_quick_forms_entries(self):
