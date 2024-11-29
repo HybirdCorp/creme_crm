@@ -159,40 +159,41 @@ class AbstractEvent(CremeEntity):
                 user=user,
             )
 
-            if status == constants.INV_STATUS_ACCEPTED:
-                relations.safe_get_or_create(
-                    subject_entity=contact,
-                    type_id=constants.REL_SUB_ACCEPTED_INVITATION,
-                    object_entity=self,
-                    user=user,
-                )
-                relations.filter(
-                    subject_entity=contact.id,
-                    object_entity=self.id,
-                    type=constants.REL_SUB_REFUSED_INVITATION,
-                ).delete()
-            elif status == constants.INV_STATUS_REFUSED:
-                relations.safe_get_or_create(
-                    subject_entity=contact,
-                    type_id=constants.REL_SUB_REFUSED_INVITATION,
-                    object_entity=self,
-                    user=user,
-                )
-                relations.filter(
-                    subject_entity=contact.id,
-                    type=constants.REL_SUB_ACCEPTED_INVITATION,
-                    object_entity=self.id,
-                ).delete()
-            else:
-                assert status == constants.INV_STATUS_NO_ANSWER
-                relations.filter(
-                    subject_entity=contact.id,
-                    type__in=(
-                        constants.REL_SUB_ACCEPTED_INVITATION,
-                        constants.REL_SUB_REFUSED_INVITATION,
-                    ),
-                    object_entity=self.id,
-                ).delete()
+            match status:
+                case constants.INV_STATUS_ACCEPTED:
+                    relations.safe_get_or_create(
+                        subject_entity=contact,
+                        type_id=constants.REL_SUB_ACCEPTED_INVITATION,
+                        object_entity=self,
+                        user=user,
+                    )
+                    relations.filter(
+                        subject_entity=contact.id,
+                        object_entity=self.id,
+                        type=constants.REL_SUB_REFUSED_INVITATION,
+                    ).delete()
+                case constants.INV_STATUS_REFUSED:
+                    relations.safe_get_or_create(
+                        subject_entity=contact,
+                        type_id=constants.REL_SUB_REFUSED_INVITATION,
+                        object_entity=self,
+                        user=user,
+                    )
+                    relations.filter(
+                        subject_entity=contact.id,
+                        type=constants.REL_SUB_ACCEPTED_INVITATION,
+                        object_entity=self.id,
+                    ).delete()
+                case _:
+                    assert status == constants.INV_STATUS_NO_ANSWER
+                    relations.filter(
+                        subject_entity=contact.id,
+                        type__in=(
+                            constants.REL_SUB_ACCEPTED_INVITATION,
+                            constants.REL_SUB_REFUSED_INVITATION,
+                        ),
+                        object_entity=self.id,
+                    ).delete()
 
     def set_presence_status(self, contact, status, user):
         relations = Relation.objects

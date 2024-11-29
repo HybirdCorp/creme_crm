@@ -442,34 +442,36 @@ class _CremeTestCase:
 
         length = len(o)
         for k, v in kwargs.items():
-            if k == 'length':
-                if length != v:
-                    self.fail(f'This dict has not the expected length of {v}: {o}')
-            elif k == 'min_length':
-                if length < v:
-                    self.fail(f'This dict is not longer than {v}: {o}')
-            elif k == 'max_length':
-                if length > v:
-                    self.fail(f'This dict is not shorter than {v}: {o}')
-            else:
-                raise ValueError(f'assertIsDict: unknown argument "{k}"')
+            match k:
+                case 'length':
+                    if length != v:
+                        self.fail(f'This dict has not the expected length of {v}: {o}')
+                case 'min_length':
+                    if length < v:
+                        self.fail(f'This dict is not longer than {v}: {o}')
+                case 'max_length':
+                    if length > v:
+                        self.fail(f'This dict is not shorter than {v}: {o}')
+                case _:
+                    raise ValueError(f'assertIsDict: unknown argument "{k}"')
 
     def assertIsList(self, o, **kwargs):
         self.assertIsInstance(o, list)
 
         length = len(o)
         for k, v in kwargs.items():
-            if k == 'length':
-                if length != v:
-                    self.fail(f'This list has not the expected length of {v}: {o}')
-            elif k == 'min_length':
-                if length < v:
-                    self.fail(f'This list is not longer than {v}: {o}')
-            elif k == 'max_length':
-                if length > v:
-                    self.fail(f'This list is not shorter than {v}: {o}')
-            else:
-                raise ValueError(f'assertIsList: unknown argument "{k}"')
+            match k:
+                case 'length':
+                    if length != v:
+                        self.fail(f'This list has not the expected length of {v}: {o}')
+                case 'min_length':
+                    if length < v:
+                        self.fail(f'This list is not longer than {v}: {o}')
+                case 'max_length':
+                    if length > v:
+                        self.fail(f'This list is not shorter than {v}: {o}')
+                case _:
+                    raise ValueError(f'assertIsList: unknown argument "{k}"')
 
     def assertIsTuple(self, o, *, length):
         self.assertIsInstance(o, tuple)

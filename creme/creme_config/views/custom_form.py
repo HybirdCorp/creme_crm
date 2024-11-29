@@ -387,14 +387,13 @@ class CustomFormShowDetails(EntityCTypeRelatedMixin,
         item: CustomFormConfigItem | None
 
     def get_show(self) -> bool:
-        action = get_from_POST_or_404(self.request.POST, key=self.action_arg)
-
-        if action == self.SHOW:
-            return True
-        elif action == self.HIDE:
-            return False
-
-        raise Http404(f'Invalid argument "action": "{self.action_arg}"')
+        match get_from_POST_or_404(self.request.POST, key=self.action_arg):
+            case self.SHOW:
+                return True
+            case self.HIDE:
+                return False
+            case _:
+                raise Http404(f'Invalid argument "action": "{self.action_arg}"')
 
     def get_ctype_id(self):
         return get_from_POST_or_404(self.request.POST, key=self.ctype_id_arg)

@@ -138,20 +138,21 @@ class RoleRelatedMixin:
         except AttributeError:
             role = self.kwargs[self.role_url_kwarg]
 
-            if role == 'default':
-                role_obj = None
-                superuser = False
-            elif role == 'superuser':
-                role_obj = None
-                superuser = True
-            else:
-                try:
-                    role_id = int(role)
-                except ValueError:
-                    raise Http404('Role must be "default", "superuser" or an integer')
+            match role:
+                case 'default':
+                    role_obj = None
+                    superuser = False
+                case 'superuser':
+                    role_obj = None
+                    superuser = True
+                case _:
+                    try:
+                        role_id = int(role)
+                    except ValueError:
+                        raise Http404('Role must be "default", "superuser" or an integer')
 
-                role_obj = get_object_or_404(UserRole, id=role_id)
-                superuser = False
+                    role_obj = get_object_or_404(UserRole, id=role_id)
+                    superuser = False
 
             self.check_role_info(role_obj, superuser)
 

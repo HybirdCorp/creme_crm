@@ -481,17 +481,16 @@ class SetCredentials(models.Model):
         ctype_id = self.ctype_id
 
         if not ctype_id or ctype_id == entity.entity_type_id:
-            set_type = self.set_type
-
-            if set_type == SetCredentials.ESET_ALL:
-                return self.value
-            elif set_type == SetCredentials.ESET_OWN:
-                user_id = entity.user_id
-                if user.id == user_id or any(user_id == t.id for t in user.teams):
+            match self.set_type:
+                case SetCredentials.ESET_ALL:
                     return self.value
-            else:  # SetCredentials.ESET_FILTER
-                if self.efilter.accept(entity=entity.get_real_entity(), user=user):
-                    return self.value
+                case SetCredentials.ESET_OWN:
+                    user_id = entity.user_id
+                    if user.id == user_id or any(user_id == t.id for t in user.teams):
+                        return self.value
+                case _:  # SetCredentials.ESET_FILTER
+                    if self.efilter.accept(entity=entity.get_real_entity(), user=user):
+                        return self.value
 
         return EntityCredentials.NONE
 

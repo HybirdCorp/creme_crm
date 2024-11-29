@@ -370,23 +370,24 @@ class PropertyTypeBricksReloading(BricksReloading):
         ctypes = ptype.subject_ctypes.all()
 
         for brick_id in self.get_brick_ids():
-            if brick_id == PropertyTypeInfoBrick.id:
-                brick = PropertyTypeInfoBrick(ptype, ctypes)
-            elif brick_id == TaggedMiscEntitiesBrick.id:
-                brick = TaggedMiscEntitiesBrick(ptype, ctypes)
-            else:
-                ctype = TaggedEntitiesBrick.parse_brick_id(brick_id)
-                if ctype is None:
-                    raise Http404(f'Invalid brick id "{brick_id}"')
+            match brick_id:
+                case PropertyTypeInfoBrick.id:
+                    brick = PropertyTypeInfoBrick(ptype, ctypes)
+                case TaggedMiscEntitiesBrick.id:
+                    brick = TaggedMiscEntitiesBrick(ptype, ctypes)
+                case _:
+                    ctype = TaggedEntitiesBrick.parse_brick_id(brick_id)
+                    if ctype is None:
+                        raise Http404(f'Invalid brick id "{brick_id}"')
 
-                brick = TaggedEntitiesBrick(ptype, ctype)
+                    brick = TaggedEntitiesBrick(ptype, ctype)
 
-                # TODO: factorise
-                if not self.request.user.has_perm_to_access(ctype.app_label):
-                    brick = ForbiddenBrick(
-                        id=brick.id,
-                        verbose_name=ctype.model_class()._meta.verbose_name_plural,
-                    )
+                    # TODO: factorise
+                    if not self.request.user.has_perm_to_access(ctype.app_label):
+                        brick = ForbiddenBrick(
+                            id=brick.id,
+                            verbose_name=ctype.model_class()._meta.verbose_name_plural,
+                        )
 
             bricks.append(brick)
 

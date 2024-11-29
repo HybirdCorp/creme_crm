@@ -369,15 +369,16 @@ class Order:
         @return: An Order instance.
         @raise ValueError: invalid "value" argument.
         """
-        if value == 'ASC':
-            asc = True
-        elif value == 'DESC':
-            asc = False
-        else:
-            if required or value not in EMPTY_VALUES:
-                raise ValueError(f'Order value must be ASC or DESC (value={value})')
+        match value:
+            case 'ASC':
+                asc = True
+            case 'DESC':
+                asc = False
+            case _:
+                if required or value not in EMPTY_VALUES:
+                    raise ValueError(f'Order value must be ASC or DESC (value={value})')
 
-            asc = True
+                asc = True
 
         return cls(asc)
 

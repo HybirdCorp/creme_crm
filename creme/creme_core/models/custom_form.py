@@ -40,13 +40,14 @@ class CustomFormConfigItemManager(models.Manager):
 
         desc_id = descriptor.id
 
-        if role is None:
-            role_kwargs = {}
-        elif role == 'superuser':
-            role_kwargs = {'superuser': True}
-        else:
-            assert isinstance(role, UserRole)
-            role_kwargs = {'role': role}
+        match role:
+            case None:
+                role_kwargs = {}
+            case 'superuser':
+                role_kwargs = {'superuser': True}
+            case _:
+                assert isinstance(role, UserRole)
+                role_kwargs = {'role': role}
 
         item = self.filter(descriptor_id=desc_id, **role_kwargs).first()
 
