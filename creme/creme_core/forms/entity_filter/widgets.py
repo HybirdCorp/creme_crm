@@ -519,7 +519,7 @@ class CustomFieldConditionSelector(FieldConditionSelector):
 
     @staticmethod
     def customfield_rname_choicetype(value):
-        type_name = value[len('customfield'):]
+        type_name = value.removeprefix('customfield')
 
         if type_name == 'string':
             return 'string'

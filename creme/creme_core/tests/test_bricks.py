@@ -599,7 +599,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
                 for css_cls in css_classes:
                     if css_cls.startswith(cls_prefix):
                         h_info.append(
-                            (css_cls[len(cls_prefix):], div_node)
+                            (css_cls.removeprefix(cls_prefix), div_node)
                         )
 
         self.assertEqual(2, len(h_info))

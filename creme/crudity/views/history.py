@@ -58,7 +58,7 @@ class HistoryBricksReloading(BricksReloading):
             if not brick_id.startswith(prefix):
                 raise Http404('Invalid brick ID (bad prefix): ' + brick_id)
 
-            ct = get_ctype_or_404(brick_id[len(prefix):])
+            ct = get_ctype_or_404(brick_id.removeprefix(prefix))
 
             if ct.model_class() in models:
                 bricks.append(CrudityHistoryBrick(ct))
