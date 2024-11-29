@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # The minimal version of Python is now '3.10'.
     # The deletion & cloning buttons have been reworked in detailed views & list-views;
       they are now disabled when a rule avoids you to delete them (e.g. a Contact corresponding
       to a user) & the reason is displayed as tool-tip.

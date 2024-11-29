@@ -61,7 +61,7 @@ virtual env, in order to keep the old one working).
 
 ### Dependencies
 
- - Python 3.8+
+ - Python 3.10+
  - MySQL 8+ (or MariaDB 10.4+ but we do not advise you to use MariaDB because it regularly causes strange issues)
    or PostGreSQL 12+
    or SQLite (which is included with Python)
@@ -92,13 +92,13 @@ virtual env, in order to keep the old one working).
 Installation with 'pip':
  - You should probably use "virtualenv".
  - To install Creme itself :
-   - You can just install from pyPI: 'pip install creme-crm==2.6'
+   - You can just install from pyPI: 'pip install creme-crm==2.X'
    - If you retrieved the source, you can use the following command at the source's root: 'pip install -e .'
  - About DB server :
    - If you use MySQL/MariaDB, you must add the 'mysql' flag :
-     'pip install creme-crm[mysql]==2.6' (or 'pip install -e .[mysql]' with the source).
+     'pip install creme-crm[mysql]==2.X' (or 'pip install -e .[mysql]' with the source).
    - For PostGreSQL,  you must add the 'pgsql' flag :
-     'pip install creme-crm[pgsql]==2.6' (or 'pip install -e .[pgsql]' with the source).
+     'pip install creme-crm[pgsql]==2.X' (or 'pip install -e .[pgsql]' with the source).
    - SQLite doesn't require a specific flag (see RECOMMENDATIONS).
  - Notice some of these Python packages need system libraries to be installed.
    For example, here a list of Debian/Ubuntu packages you'll have to install before:
