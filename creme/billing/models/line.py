@@ -99,32 +99,31 @@ class Line(CremeEntity):
         self.related_item     = source.related_item
 
     def clean(self):
-        discount_unit = self.discount_unit
-
-        if discount_unit == self.Discount.PERCENT:
-            if not (0 <= self.discount <= 100):
-                raise ValidationError(
-                    gettext(
-                        'If you choose % for your discount unit, '
-                        'your discount must be between 1 and 100%'
-                    ),
-                    code='invalid_percentage',
-                )
-        elif discount_unit == self.Discount.LINE_AMOUNT:  # Global discount
-            if self.discount > self.unit_price * self.quantity:
-                raise ValidationError(
-                    gettext(
-                        'Your overall discount is superior than'
-                        ' the total line (unit price * quantity)'
-                    ),
-                    code='discount_gt_total',
-                )
-        else:  # DISCOUNT_ITEM_AMOUNT (Unitary discount)
-            if self.discount > self.unit_price:
-                raise ValidationError(
-                    gettext('Your discount is superior than the unit price'),
-                    code='discount_gt_unitprice',
-                )
+        match self.discount_unit:
+            case self.Discount.PERCENT:
+                if not (0 <= self.discount <= 100):
+                    raise ValidationError(
+                        gettext(
+                            'If you choose % for your discount unit, '
+                            'your discount must be between 1 and 100%'
+                        ),
+                        code='invalid_percentage',
+                    )
+            case self.Discount.LINE_AMOUNT:  # Global discount
+                if self.discount > self.unit_price * self.quantity:
+                    raise ValidationError(
+                        gettext(
+                            'Your overall discount is superior than'
+                            ' the total line (unit price * quantity)'
+                        ),
+                        code='discount_gt_total',
+                    )
+            case _:  # DISCOUNT_ITEM_AMOUNT (Unitary discount)
+                if self.discount > self.unit_price:
+                    raise ValidationError(
+                        gettext('Your discount is superior than the unit price'),
+                        code='discount_gt_unitprice',
+                    )
 
         if self.related_item:
             if self.on_the_fly_item:

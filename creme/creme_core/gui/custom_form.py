@@ -714,23 +714,23 @@ class FieldGroupList:
         def get_all_cells_or_fieldnames(group):
             for cell in getattr(group, 'cells', ()):
                 if isinstance(cell, EntityCellCustomFormSpecial):
-                    cvalue = cell.value
-                    if cvalue == EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS:
-                        yield from remaining_field_names
-                    elif cvalue == EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS:
-                        for cfield in remaining_cfields:
-                            yield EntityCellCustomField(cfield)
-                    elif cvalue == EntityCellCustomFormSpecial.RELATIONS:
-                        yield 'rtypes_info'
-                        yield 'relation_types'
-                        yield 'semifixed_rtypes'
-                    elif cvalue == EntityCellCustomFormSpecial.CREME_PROPERTIES:
-                        yield 'property_types'
-                    else:
-                        logger.critical(
-                            'Unknown special cell when building form block: %s',
-                            cvalue,
-                        )
+                    match cvalue := cell.value:
+                        case EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS:
+                            yield from remaining_field_names
+                        case EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS:
+                            for cfield in remaining_cfields:
+                                yield EntityCellCustomField(cfield)
+                        case EntityCellCustomFormSpecial.RELATIONS:
+                            yield 'rtypes_info'
+                            yield 'relation_types'
+                            yield 'semifixed_rtypes'
+                        case EntityCellCustomFormSpecial.CREME_PROPERTIES:
+                            yield 'property_types'
+                        case _:
+                            logger.critical(
+                                'Unknown special cell when building form block: %s',
+                                cvalue,
+                            )
                 else:
                     yield cell
 

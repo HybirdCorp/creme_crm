@@ -904,7 +904,6 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             if cf_type == CustomField.MULTI_ENUM:
                 # NB: we use get_enumvalues() to get a cached result & avoid re-making queries
                 field_value = [v.id for v in cfvalue.get_enumvalues()]
-
             elif cf_type == CustomField.ENUM:
                 field_value = cfvalue.value_id
             else:

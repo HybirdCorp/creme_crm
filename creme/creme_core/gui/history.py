@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2023  Hybird
+#    Copyright (C) 2021-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -123,46 +123,46 @@ class FieldChangeExplainer:
         field = self._field
         values = self._values
         decorated_field = self.decorate_field(field)
-        length = len(values)
 
-        if length == 0:
-            sentence = self.no_value_sentence.format(field=decorated_field)
-        elif length == 1:
-            render_value = (
-                self.render_choice
-                if isinstance(field, Field) and field.choices else
-                self.render_value
-            )  # TODO: factorise
-            sentence = self.new_value_sentence.format(
-                field=decorated_field,
-                value=self.decorate_new_value(
-                    render_value(user=user, value=values[0])
-                ),
-            )
-        else:  # length == 2
-            render_value = (
-                self.render_choice
-                if isinstance(field, Field) and field.choices else
-                self.render_value
-            )
-            new_value = values[1]
-            old_rendered_value = self.decorate_old_value(
-                render_value(user=user, value=values[0])
-            )
-
-            if self.is_empty_value(new_value):
-                sentence = self.emptied_value_sentence.format(
+        match len(values):
+            case 0:
+                sentence = self.no_value_sentence.format(field=decorated_field)
+            case 1:
+                render_value = (
+                    self.render_choice
+                    if isinstance(field, Field) and field.choices else
+                    self.render_value
+                )  # TODO: factorise
+                sentence = self.new_value_sentence.format(
                     field=decorated_field,
-                    oldvalue=old_rendered_value,
-                )
-            else:
-                sentence = self.two_values_sentence.format(
-                    field=decorated_field,
-                    oldvalue=old_rendered_value,
                     value=self.decorate_new_value(
-                        render_value(user=user, value=new_value)
+                        render_value(user=user, value=values[0])
                     ),
                 )
+            case _:  # length == 2
+                render_value = (
+                    self.render_choice
+                    if isinstance(field, Field) and field.choices else
+                    self.render_value
+                )
+                new_value = values[1]
+                old_rendered_value = self.decorate_old_value(
+                    render_value(user=user, value=values[0])
+                )
+
+                if self.is_empty_value(new_value):
+                    sentence = self.emptied_value_sentence.format(
+                        field=decorated_field,
+                        oldvalue=old_rendered_value,
+                    )
+                else:
+                    sentence = self.two_values_sentence.format(
+                        field=decorated_field,
+                        oldvalue=old_rendered_value,
+                        value=self.decorate_new_value(
+                            render_value(user=user, value=new_value)
+                        ),
+                    )
 
         return sentence
 

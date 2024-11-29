@@ -1047,13 +1047,13 @@ class CustomFieldExtractor(SingleColumnExtractor):
         self._custom_field = custom_field
         self._create_if_unfound = create_if_unfound
 
-        ftype = self._custom_field.field_type
-        if ftype == CustomField.ENUM:
-            self._manage_enum = lambda x: x
-        elif ftype == CustomField.MULTI_ENUM:
-            self._manage_enum = lambda x: [x]
-        else:
-            self._manage_enum = None
+        match self._custom_field.field_type:
+            case CustomField.ENUM:
+                self._manage_enum = lambda x: x
+            case CustomField.MULTI_ENUM:
+                self._manage_enum = lambda x: [x]
+            case _:
+                self._manage_enum = None
 
     def extract_value(self, line, user):
         value = self._default_value
