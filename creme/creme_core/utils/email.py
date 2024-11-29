@@ -118,6 +118,7 @@ class MailBox:
             host, username,
         )
 
+        # TODO: "timeout" parameter?
         client_kwargs = {'host': host}
         if self._port:
             client_kwargs['port'] = self._port
