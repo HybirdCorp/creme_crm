@@ -500,7 +500,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             last_field = finfo[-1]
 
             if (
-                isinstance(last_field, (ForeignKey, ManyToManyField))
+                isinstance(last_field, ForeignKey | ManyToManyField)
                 # TODO: meh; need a better API in operators
                 and not isinstance(operator, operators.BooleanOperatorBase)
             ):
@@ -977,7 +977,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             # TODO: validate values is a list containing one Boolean (done
             #       below for ISEMPTY only) when form field has been fixed
 
-        if not isinstance(values, (list, tuple)):
+        if not isinstance(values, list | tuple):
             raise cls.ValueError(
                 f'{cls.__name__}.build_condition(): value is not an array'
             )

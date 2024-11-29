@@ -226,7 +226,7 @@ class NotificationManager(models.Manager):
         """Create as much as needed Notification instances for some Users,
         by respecting their own configuration for the given channel.
         """
-        if isinstance(channel, (str, uuid.UUID)):
+        if isinstance(channel, str | uuid.UUID):
             channel = NotificationChannel.objects.get_for_uuid(channel)
 
         unique_users = {}

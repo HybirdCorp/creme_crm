@@ -270,7 +270,7 @@ class EntityRelatedMixin:
                     self.build_related_entity_queryset(CremeEntity),
                     id=entity_id,
                 ).get_real_entity()
-            elif isinstance(entity_classes, (list, tuple)):  # Sequence of classes
+            elif isinstance(entity_classes, list | tuple):  # Sequence of classes
                 get_for_ct = ContentType.objects.get_for_model
                 entity = get_object_or_404(
                     self.build_related_entity_queryset(CremeEntity),

@@ -515,7 +515,7 @@ def _get_person_or_404(person_id, user):
     person = get_object_or_404(CremeEntity, pk=person_id).get_real_entity()
     user.has_perm_to_view_or_die(person)  # TODO: test
 
-    if not isinstance(person, (Contact, Organisation)):
+    if not isinstance(person, Contact | Organisation):
         raise Http404('"person_id" must be the ID of a Contact/Organisation')
 
     return person

@@ -2048,10 +2048,10 @@ class OrderedChoiceIterator:
         # TODO: manage callable choices?
         #       for choice in (choices() if callable(choices) else choices):
         for choice in choices:
-            if isinstance(choice, (list, tuple)):
+            if isinstance(choice, list | tuple):
                 value_or_group_name, label_or_sub_choices = choice
 
-                if isinstance(label_or_sub_choices, (list, tuple)):
+                if isinstance(label_or_sub_choices, list | tuple):
                     # TODO
                     # yield (choice_cls(group=True.....), value_or_group_name)
                     #
@@ -2061,7 +2061,7 @@ class OrderedChoiceIterator:
                     #         label = choice_kwargs.pop('label')
                     #         yield (choice_cls(**choice_kwargs), label)
                     #     else:
-                    #         assert isinstance(sub_choice, (list, tuple))
+                    #         assert isinstance(sub_choice, list | tuple)
                     #         value, label = sub_choice
                     #         yield (choice_cls(value=value), label)
                     raise ValueError(

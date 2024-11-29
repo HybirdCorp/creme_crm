@@ -92,7 +92,7 @@ class Enumerator:
          Enumerator's style: see choices().
         """
         for k0, v0 in choices:
-            if isinstance(v0, (list, tuple)):
+            if isinstance(v0, list | tuple):
                 for value, label in v0:
                     yield {'value': value, 'label': label, 'group': k0}
             else:

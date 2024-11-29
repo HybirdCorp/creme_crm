@@ -103,7 +103,7 @@ class CremeDeletionMixin:
                     ).format(count=count, predicate=predicate)
 
                 for dep in dependencies:
-                    if not isinstance(dep, (CremeEntity, Relation)):
+                    if not isinstance(dep, CremeEntity | Relation):
                         yield str(dep)
             else:
                 if not_viewable_count:

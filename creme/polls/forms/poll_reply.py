@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2023  Hybird
+#    Copyright (C) 2012-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -77,7 +77,7 @@ class PollRepliesCreationForm(core_forms.CremeForm):
             elif isinstance(entity, PollForm):
                 del fields['pform']
                 self._set_pform_n_validate(entity, Http404)
-            elif isinstance(entity, (Contact, Organisation)):
+            elif isinstance(entity, Contact | Organisation):
                 del fields['persons']
                 del fields['number']
                 self.persons = [entity]

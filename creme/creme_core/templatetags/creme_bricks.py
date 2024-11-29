@@ -1057,7 +1057,7 @@ def brick_display(context, *bricks, **kwargs):
             )
 
         # We avoid generator, because we need to iterate twice (import & display)
-        if isinstance(brick_or_seq, (list, tuple)):
+        if isinstance(brick_or_seq, list | tuple):
             for brick in brick_or_seq:
                 pop_group(brick.id)
                 bricks_to_render.append(brick)
