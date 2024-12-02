@@ -23,7 +23,7 @@ Please note that this is **not a production ready image**, as it would require a
 Starting an instance is simple:
 
 ```commandline
-docker run --detach --rm --name creme_demo --publish 8001:80 --volume creme_data:/srv/creme/data cremecrm/cremecrm-demo:2.6.3
+docker run --detach --rm --name creme_demo --publish 8001:80 --volume creme_data:/srv/creme/data cremecrm/cremecrm-demo:2.6.4
 ```
 
 This command will run a docker container in daemon mode, named `creme_demo`:
