@@ -51,11 +51,13 @@ creme.dialog.Dialog = creme.component.Component.sub({
             within:     within,
             fitFrame:   true,
             shrink:     true,
+            propagateEvent: false,
             useFrameTitleBar: true,
             useFrameActions: true,
             fillFrameOnError: false,
             closeOnEscape: true,
-            scrollbackOnClose: true
+            scrollbackOnClose: true,
+            id: undefined
         }, options || {});
 
         this._initFrame(options);
@@ -84,11 +86,11 @@ creme.dialog.Dialog = creme.component.Component.sub({
     },
 
     _onFrameCleanup: function() {
-        this._events.trigger('frame-cleanup', [this.frame()], this);
+        this.trigger('frame-cleanup', this.frame());
     },
 
     _onFrameUpdate: function() {
-        this._events.trigger('frame-update', [this.frame()], this);
+        this.trigger('frame-update', this.frame());
 
         if (this.isOpened()) {
             this._activateFrameContent();
@@ -121,7 +123,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
             this.fitToFrameSize();
         }
 
-        this._events.trigger('frame-activated', [this.frame()], this);
+        this.trigger('frame-activated', this.frame());
 
         if (this.options.closeOnEscape) {
             this.resetFocus();
@@ -153,8 +155,9 @@ creme.dialog.Dialog = creme.component.Component.sub({
             this._isClosing = false;
         }
 
+        this.trigger('before-destroy', options);
         this._destroyDialog();
-        this._events.trigger('close', [options], this);
+        this.trigger('close', options);
     },
 
     _onOpen: function(dialog, frame, options) {
@@ -187,7 +190,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
             this._scrollbackPosition = creme.utils.scrollBack();
         }
 
-        this._events.trigger('open', [options], this);
+        this.trigger('open', options);
     },
 
     _onResize: function(dialog, frame) {
@@ -196,7 +199,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var delegate = frame.delegate();
 
         delegate.width(body.width() - (delegate.position().left + (body.outerWidth() - body.width())));
-        this._events.trigger('resize', [delegate.width(), delegate.height()], this);
+        this.trigger('resize', delegate.width(), delegate.height());
     },
 
     _frameFetchData: function(data) {
@@ -526,6 +529,31 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return this;
     },
 
+    id: function() {
+        return this.options.id;
+    },
+
+    trigger: function(event) {
+        var data = Array.copy(arguments).slice(1);
+
+        if (this.options.propagateEvent) {
+            /*
+             * When propagateEvent is enabled, a copy of the event prefixed by 'dialog-' is triggered to allow
+             * the usage of external handlers. It can be used with the new id option to listen a specific
+             * popup.
+             * e.g: $(document).on('dialog-open', '#my-popup', function() { ... });
+             */
+            if (this.isOpened()) {
+                $(this._dialog).trigger('dialog-' + event, [this].concat(data || []));
+            } else {
+                $(document).trigger('dialog-' + event, [this].concat(data || []));
+            }
+        }
+
+        this._events.trigger(event, data, this);
+        return this;
+    },
+
     one: function(event, listener, decorator) {
         this._events.one(event, listener, decorator);
         return this;
@@ -560,11 +588,18 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var frame = this._frame;
         var container = frame.delegate();
 
+        var dialogId = Object.isFunc(options.id) ? options.id() : options.id || '';
         var buttons = $.extend(this._defaultButtons({}, options), options.buttons || {});
         var content = $('<div/>').append(container);
         var scroll = Assert.in(options.scroll, _DIALOG_SCROLLTYPES, 'scroll type "${value}" is invalid');
-        var is_framescroll = (scroll === 'frame');
+        var isFramescroll = (scroll === 'frame');
         var position = {};
+
+        content.data('uiCremeDialog', this);
+
+        if (!Object.isEmpty(dialogId)) {
+            content.attr('id', dialogId);
+        }
 
         if (Object.isEmpty(options.within)) {
             position = {
@@ -580,13 +615,14 @@ creme.dialog.Dialog = creme.component.Component.sub({
             };
         }
 
-        var resizable = is_framescroll ? options.resizable : false;
-        var draggable = is_framescroll ? options.draggable : false;
+        var resizable = isFramescroll ? options.resizable : false;
+        var draggable = isFramescroll ? options.draggable : false;
         var width = clamp(options.width, options.minWidth, options.maxWidth);
         var height = clamp(options.height, options.minHeight, options.maxHeight);
         var title = options.title ? String(options.title).decodeHTMLEntities() : options.title;
 
         var dialogOptions = {
+            dialogClass: 'ui-creme-dialog',
             buttons:   Object.values(buttons),
             title:     title,
             modal:     true,
@@ -821,6 +857,26 @@ $.widget("ui.dialog", $.ui.dialog, {
         }
 
         return this._super(event);
+    },
+
+    fitToFrameSize: function() {
+        var dialog = this.cremeInstance();
+
+        if (!Object.isNone(dialog)) {
+            dialog.fitToFrameSize();
+        }
+    },
+
+    resize: function(width, height) {
+        var dialog = this.cremeInstance();
+
+        if (!Object.isNone(dialog)) {
+            dialog.resize(width, height);
+        }
+    },
+
+    cremeInstance: function() {
+        return this.element.data('uiCremeDialog');
     }
 });
 

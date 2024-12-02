@@ -316,7 +316,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         entity01 = create_orga(name='Nerv', is_deleted=True)
-        entity02 = create_orga(name='Seele')
+        entity02 = create_orga(name='Seele <em>corp</em>')
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_daughter', 'is a daughter of'),
@@ -341,7 +341,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
                 'dependencies ({dependencies}).'
             ).format(
                 entity=entity01.name,
-                dependencies=f'is a daughter of «{entity02.name}»',
+                dependencies='is a daughter of «Seele &lt;em&gt;corp&lt;/em&gt;»',
             ),
             msg,
         )
@@ -465,6 +465,41 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
         self.get_object_or_fail(CremeEntity, pk=entity02.id)
 
+    def test_delete_entities_dependencies(self):
+        user = self.login_as_root_and_get()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        entity1 = create_orga(name='Nerv <em>inc.</em>', is_deleted=True)
+        entity2 = create_orga(name='Seele <b>corp.</b>')
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_daughter', 'is a daughter of'),
+            ('test-object_daughter',  'has a daughter'),
+            is_internal=True,
+        )[0]
+        Relation.objects.create(
+            user=user, type=rtype, subject_entity=entity1, object_entity=entity2,
+        )
+
+        response = self.assertPOST409(self.DEL_ENTITIES_URL, data={'ids': f'{entity1.id}'})
+        self.assertStillExists(entity1)
+        self.assertStillExists(entity2)
+        self.assertDictEqual(
+            {
+                'count': 1,
+                'errors': [
+                    _(
+                        '«{entity}» can not be deleted because of its dependencies '
+                        '({dependencies}).'
+                    ).format(
+                        entity='Nerv &lt;em&gt;inc.&lt;/em&gt;',
+                        dependencies='is a daughter of «Seele &lt;b&gt;corp.&lt;/b&gt;»',
+                    )
+                ],
+            },
+            response.json(),
+        )
+
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete_entities_not_allowed(self):
         "Some entities deletion is not allowed."
@@ -549,30 +584,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertEqual(response.content.decode(), _('Operation successfully completed'))
         self.assertDoesNotExist(entity01)
         self.assertDoesNotExist(entity02)
-
-    # TODO ??
-    # def test_delete_entities_dependencies(self):
-    #     self.login()
-    #
-    #     create_entity = partial(CremeEntity.objects.create, user=self.user)
-    #     entity01 = create_entity()
-    #     entity02 = create_entity()
-    #     entity03 = create_entity() #not linked => can be deleted
-    #
-    #     rtype, srtype = RelationType.create(('test-subject_linked', 'is linked to'),
-    #                                         ('test-object_linked',  'is linked to')
-    #                                        )
-    #     Relation.objects.create(
-    #           user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02,
-    #     )
-    #
-    #     self.assertPOST(400, self.DEL_ENTITIES_URL,
-    #                     data={'ids': '%s,%s,%s,' % (entity01.id, entity02.id, entity03.id)}
-    #                    )
-    #     self.assertEqual(
-    #           2, CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count()
-    #     )
-    #     self.assertFalse(CremeEntity.objects.filter(pk=entity03.id))
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_trash_view01(self):

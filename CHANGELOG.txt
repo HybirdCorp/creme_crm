@@ -1,3 +1,34 @@
+== Version 2.5.16 ==
+
+  Users side :
+  ------------
+    # The render of custom menu icons has been fixed for non-square images.
+    # In menu entries with custom URLs, links are now opened in a new tab.
+    # Some escaping issues have been fixed.
+    # Apps :
+        * Opportunities :
+            - In the blocks for related Invoices, Quotes & Sales Orders,
+              the color of the statuses were not displayed.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The method 'CremeUser.has_perm()' works now correctly for link permission on models.
+        # Javascript :
+            - Dialog :
+                - An option 'propagateEvent' has been added :
+                    - When enabled, a copy of the event prefixed by 'dialog-' is triggered to allow the usage of external handlers
+                      (the dialog element if opened or the window.document).
+                      It can be used with the new id option to listen a specific popup.
+                      e.g: $(document).on('dialog-open', '#my-popup', function() { ... });
+                - An option 'id' has been added to identify the dialog DOM element.
+                - The methods 'fitToFrameSize()' & 'resize()' has been added to the widget 'ui.dialog'.
+                - A method 'cremeInstance()' has been added to the widget 'ui.dialog';
+                  it returns the 'creme.dialog.Dialog' instance.
+
+
 == Version 2.5.14 & 2.5.15 ==
 
   Users side :

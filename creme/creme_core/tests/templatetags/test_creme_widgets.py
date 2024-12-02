@@ -393,8 +393,9 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render,
         )
 
-    def test_widget_icon_data01(self):
+    def test_widget_icon_data__high(self):
         path = Path(
+            # 16 x 16 px
             settings.CREME_ROOT, 'static', 'icecream', 'images', 'remove_16.png',
         )
         self.assertTrue(path.exists())
@@ -416,13 +417,42 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         self.assertFalse(dom.children)
 
         get_attribute = dict(dom.attributes).get
-        self.assertEqual('22px', get_attribute('width'))
+        self.assertEqual('22px', get_attribute('height'))
         self.assertEqual(label, get_attribute('alt'))
         self.assertEqual(label, get_attribute('title'))
+        self.assertEqual('', get_attribute('style'))
         self.assertStartsWith(
             get_attribute('src', ''),
             'data:image/png;base64, iVBORw0KGgoAAAANSUh',
         )
+
+    def test_widget_icon_data__large(self):
+        path = Path(
+            # 89 x 40 px
+            settings.CREME_ROOT, 'static', 'common', 'images', 'creme_powered.png',
+        )
+        self.assertTrue(path.exists())
+
+        label = 'Large image'
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_icon data=path label=label size="header-menu-home" %}'
+            ).render(Context({
+                'THEME_NAME': 'icecream',
+                'path': path,
+                'label': label,
+            }))
+
+        dom = assert_and_parse_html(self, render, 'Rendered icon is not valid HTML', None)
+        self.assertEqual('img', dom.name)
+        self.assertFalse(dom.children)
+
+        get_attribute = dict(dom.attributes).get
+        self.assertEqual('30px', get_attribute('width'))
+        self.assertEqual('padding-top: 8px;', get_attribute('style'))
+        self.assertEqual(label, get_attribute('title'))
 
     def test_widget_icon_named_error01(self):
         with self.assertRaises(TemplateSyntaxError) as cm:

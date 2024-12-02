@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,11 +17,13 @@
 ################################################################################
 
 from django.contrib.auth.backends import ModelBackend
+from django.contrib.contenttypes.models import ContentType
 
 from . import STAFF_PERM, SUPERUSER_PERM
 from .entity_credentials import EntityCredentials
 
 _ADD_PREFIX = 'add_'
+_LINK_PREFIX = 'link_'
 _EXPORT_PREFIX = 'export_'
 
 
@@ -52,6 +54,13 @@ class EntityBackend(ModelBackend):
 
             if action_name.startswith(_ADD_PREFIX):
                 return user_obj.role.can_create(app_name, action_name[len(_ADD_PREFIX):])
+
+            if action_name.startswith(_LINK_PREFIX):
+                ct = ContentType.objects.get_by_natural_key(
+                    app_label=app_name,
+                    model=action_name[len(_LINK_PREFIX):],
+                )
+                return user_obj.has_perm_to_link(ct.model_class())  # TODO: accept ContentType
 
             if action_name.startswith(_EXPORT_PREFIX):
                 return user_obj.role.can_export(app_name, action_name[len(_EXPORT_PREFIX):])
