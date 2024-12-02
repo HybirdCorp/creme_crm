@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 from base64 import b64encode
+from io import BytesIO
 from os.path import splitext
 
 from django.conf import settings
@@ -30,6 +31,7 @@ from django.utils.html import escape, format_html
 from django.utils.html import urlize as django_urlize
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from PIL.Image import open as open_img
 
 from ..gui.icons import (
     BaseIcon,
@@ -139,14 +141,33 @@ class DataIconNode(IconNode):
 
                 with open(this.path, 'rb') as img:
                     _base_path, extension = splitext(path)
-                    img_data = b64encode(img.read()).decode()
+                    file_data = img.read()
+
+                    # TODO: store width & height?
+                    with open_img(BytesIO(file_data)) as img:
+                        width, height = img.size
+
+                    img_data = b64encode(file_data).decode()
+
+                if width > height:
+                    size_attr = 'width'
+                    # NB: we pad in order to center vertically the image
+                    # tips: "this.size * height / width" gives the scaled height
+                    padding = (this.size - int(round(this.size * height / width))) // 2
+                    style = f'padding-top: {padding}px;' if padding else ''
+                else:
+                    size_attr = 'height'
+                    style = ''
 
                 return format_html(
-                    '<img src="{url}" {attrs}title="{label}" alt="{label}" width="{size}px"/>',
+                    '<img src="{url}" {attrs}title="{label}" alt="{label}" '
+                    '{size_attr}="{size}px" style="{style}"/>',
+                    size_attr=size_attr,
                     size=this.size,
                     label=this.label,
                     attrs=format_html('class="{}" ', final_css_class) if final_css_class else '',
                     url=f'data:image/{extension[1:]};base64, {img_data}',
+                    style=style,
                 )
 
         return InlinedIcon(path, size=size_px, label=label)
@@ -343,7 +364,7 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None,
 
     Eg:
       {% widget_entity_hyperlink my_entity user %}
-      {% widget_entity_hyperlink my_entity user ignored_deleted=True %}
+      {% widget_entity_hyperlink my_entity user ignore_deleted=True %}
       {% widget_entity_hyperlink my_entity user label='An interesting entity' %}
       {% widget_entity_hyperlink my_entity user target='_blank' %}
     """

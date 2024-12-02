@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_perms creme_widgets %}
-{% load and_op in url from creme_core_tags %}
+{% load i18n creme_bricks creme_cells creme_perms creme_widgets %}
+{% load and_op in inner_edition_uri listify print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} opportunities-quotes-brick{% endblock %}
 
@@ -40,7 +40,7 @@
     {% brick_table_column_for_field ctype=objects_ctype field='name' status='nowrap' %}
     {% brick_table_column_for_field ctype=objects_ctype field='status' %}
     {% brick_table_column title=_('Current quote?') status='nowrap' %}
-    {% brick_table_column title=_('Unlink') status='action' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
 {% endblock %}
 
 {% block brick_table_rows %}
@@ -50,7 +50,7 @@
     <tr>
         <td {% brick_table_data_status primary %}>{% if quote_view_perm %}{{quote.number}}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
         <td>{% widget_entity_hyperlink quote user %}</td>
-        <td>{% if quote_view_perm %}{{quote.status}}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
+        <td>{% if quote_view_perm %}{% print_field object=quote field='status' %}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
         <td>
           {% if quote_is_current %}
             <input class="opportunities-current-quote" type="checkbox" data-url="{% url 'opportunities__linked_quote_is_current' object.id quote.id 'unset_current' %}"
@@ -62,6 +62,14 @@
                    {% if not unlink_perm or not quote_unlink_perm %}disabled="disabled"{% endif %} />
             {% translate 'No' %}
           {% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% cell_4_regularfield model=quote field="number" as number_cell %}
+            {% cell_4_regularfield model=quote field="name" as name_cell %}
+            {% cell_4_regularfield model=quote field="status" as status_cell %}
+            {% listify number_cell name_cell status_cell as cells %}
+            {% inner_edition_uri instance=quote cells=cells as edition_uri %}
+            {% brick_table_action id='edit' url=edition_uri comeback=True label=_('Edit this quote') enabled=user|has_perm_to_change:quote %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_relation_url __subject_id=object.id __type=relation_type.id __object_id=quote.id label=_('Unlink this quote') icon='unlink' enabled=unlink_perm|and_op:quote_unlink_perm %}

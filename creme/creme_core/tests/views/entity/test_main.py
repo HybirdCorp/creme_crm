@@ -102,7 +102,7 @@ class EntityViewsTestCase(CremeTestCase):
 
         create_c = FakeContact.objects.create
         rei   = create_c(user=user,                 first_name='Rei',   last_name='Ayanami')
-        asuka = create_c(user=user,                 first_name='Asuka', last_name='Langley')
+        asuka = create_c(user=user,                 first_name='Asuka', last_name='<b>Langley</b>')
         mari  = create_c(user=self.get_root_user(), first_name='Mari',  last_name='Makinami')
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -123,7 +123,7 @@ class EntityViewsTestCase(CremeTestCase):
                 {'id': mari.id,  'text': _('Entity #{id} (not viewable)').format(id=mari.id)},
                 {'id': rei.id,   'text': str(rei)},
                 {'id': nerv.id,  'text': str(nerv)},
-                {'id': asuka.id, 'text': str(asuka)},
+                {'id': asuka.id, 'text': 'Asuka &lt;b&gt;Langley&lt;/b&gt;'},
             ],
             response.json(),
         )

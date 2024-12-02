@@ -43,7 +43,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
-from django.utils.html import format_html
+from django.utils.html import escape, format_html
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -1298,7 +1298,7 @@ class EntityDeletionMixin:
                 gettext(
                     '«{entity}» can not be deleted because the deletion has '
                     'been disabled by the administrator.'
-                ).format(entity=entity.allowed_str(user)),
+                ).format(entity=escape(entity.allowed_str(user))),
             )
 
         try:
@@ -1310,7 +1310,7 @@ class EntityDeletionMixin:
             raise ConflictError(
                 '{} {}'.format(
                     gettext('«{entity}» can not be deleted.').format(
-                        entity=entity.allowed_str(user),
+                        entity=escape(entity.allowed_str(user)),
                     ),
                     e.args[0],
                 ),
@@ -1321,7 +1321,7 @@ class EntityDeletionMixin:
                     '«{entity}» can not be deleted because of its dependencies '
                     '({dependencies}).'
                 ).format(
-                    entity=entity.allowed_str(user),
+                    entity=escape(entity.allowed_str(user)),
                     dependencies=self.dependencies_to_str(
                         dependencies=e.args[1],
                         user=user,
@@ -1332,7 +1332,7 @@ class EntityDeletionMixin:
             logger.exception('Error when trying delete "%s" (id=%s)', entity, entity.id)
             raise ConflictError(
                 gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
-                    entity=entity.allowed_str(user),
+                    entity=escape(entity.allowed_str(user)),
                     error=e,
                 ),
             ) from e
@@ -1383,7 +1383,7 @@ class EntityDeletionMixin:
 
         result = ', '.join(str_deps[:limit])
 
-        return result + '…' if do_ellipsis else result
+        return escape(result + '…' if do_ellipsis else result)
 
     def move_to_trash(self, entity):
         return False if hasattr(entity, 'get_related_entity') else not entity.is_deleted

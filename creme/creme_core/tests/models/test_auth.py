@@ -436,6 +436,9 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(has_perm('creme_core.link_entity',   contact2))
         self.assertTrue(has_perm('creme_core.unlink_entity', contact2))
 
+        self.assertTrue(has_perm('creme_core.link_fakecontact'))
+        self.assertTrue(has_perm('creme_core.export_fakecontact'))
+
         # Helpers --------------------------------------------------------------
         self.assertTrue(user.has_perm_to_view(contact1))
         self.assertTrue(user.has_perm_to_change(contact1))
@@ -501,6 +504,9 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(has_perm('creme_core.delete_entity', contact1))
         self.assertFalse(has_perm('creme_core.link_entity',   contact1))
         self.assertFalse(has_perm('creme_core.unlink_entity', contact1))
+
+        self.assertFalse(has_perm('creme_core.link_fakecontact'))
+        self.assertFalse(has_perm('creme_core.export_fakecontact'))
 
         contact2 = self.contact2
         self.assertTrue(has_perm('creme_core.view_entity',    contact2))
@@ -719,6 +725,8 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(has_perm('creme_core.delete_entity', contact1))
         self.assertTrue(has_perm('creme_core.link_entity',    contact1))
         self.assertFalse(has_perm('creme_core.unlink_entity', contact1))
+
+        self.assertTrue(has_perm('creme_core.link_fakecontact'))
 
         contact2 = self.contact2
         self.assertFalse(has_perm('creme_core.view_entity', contact2))

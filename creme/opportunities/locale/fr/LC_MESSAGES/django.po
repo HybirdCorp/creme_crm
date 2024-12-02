@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-14 17:34+0200\n"
+"POT-Creation-Date: 2024-11-27 21:35+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -510,8 +510,8 @@ msgstr "Générer une facture"
 msgid "Link to an invoice"
 msgstr "Lier à une facture"
 
-msgid "Unlink"
-msgstr "Délier"
+msgid "Edit this invoice"
+msgstr "Modifier cette facture"
 
 msgid "Unlink this invoice"
 msgstr "Délier cette facture"
@@ -631,6 +631,9 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
+msgid "Edit this quote"
+msgstr "Modifier ce devis"
+
 msgid "Unlink this quote"
 msgstr "Délier ce devis"
 
@@ -653,6 +656,9 @@ msgstr "Générer un bon de commande"
 
 msgid "Link to a salesorder"
 msgstr "Lier à un bon"
+
+msgid "Edit this salesorder"
+msgstr "Modifier ce bon"
 
 msgid "Unlink this salesorder"
 msgstr "Délier ce bon"
@@ -734,6 +740,9 @@ msgstr "Créer un contact lié à «{opportunity}»"
 #, python-brace-format
 msgid "New opportunity targeting «{entity}»"
 msgstr "Nouvelle opportunité ciblant «{entity}»"
+
+#~ msgid "Unlink"
+#~ msgstr "Délier"
 
 #~ msgid "forbidden"
 #~ msgstr "interdit"
