@@ -18,9 +18,9 @@
 
 from __future__ import annotations
 
-import uuid
 from collections import OrderedDict, defaultdict
 from typing import Any, DefaultDict, Iterable, Sequence
+from uuid import uuid4
 
 from django import forms
 from django.core.validators import EMPTY_VALUES
@@ -34,7 +34,7 @@ from ..global_info import get_per_request_cache
 from ..utils.content_type import as_ctype
 from .base import CremeModel
 from .entity import CremeEntity
-from .fields import CremeURLField, CTypeForeignKey
+from .fields import Char32UUIDField, CremeURLField, CTypeForeignKey
 
 __all__ = (
     'CustomField', 'CustomFieldValue',
@@ -77,7 +77,8 @@ class CustomField(CremeModel):
     ENUM        = 100
     MULTI_ENUM  = 101
 
-    uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
+    # uuid = models.UUIDField(unique=True, editable=False, default=uuid4)  # TODO: in creme 2.8
+    uuid = Char32UUIDField(unique=True, editable=False, default=uuid4)
     name = models.CharField(_('Field name'), max_length=100)
     content_type = CTypeForeignKey(verbose_name=_('Related type'))
     field_type = models.PositiveSmallIntegerField(_('Field type'))  # See INT, FLOAT etc...
@@ -391,8 +392,9 @@ class CustomFieldEnumValue(CremeModel):
         CustomField, related_name='customfieldenumvalue_set', on_delete=models.CASCADE,
     )
     value = models.CharField(max_length=100)
-    uuid = models.UUIDField(
-        unique=True, editable=False, default=uuid.uuid4,
+    # uuid = models.UUIDField(  # TODO: in creme 2.8
+    uuid = Char32UUIDField(
+        unique=True, editable=False, default=uuid4,
     ).set_tags(viewable=False)
 
     class Meta:

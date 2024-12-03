@@ -8,8 +8,8 @@ from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
 import creme.creme_core.models.fields as core_fields
 from creme.billing.models import other_models
 from creme.billing.models.fields import BillingDiscountField
-from creme.creme_core.migrations.utils.utils_27 import Char32UUIDField
 from creme.creme_core.models import CREME_REPLACE, CREME_REPLACE_NULL
+from creme.creme_core.models.fields import Char32UUIDField
 from creme.creme_core.models.vat import get_default_vat_pk
 
 

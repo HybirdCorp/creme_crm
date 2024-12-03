@@ -5,7 +5,7 @@ from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
 
 import creme.polls.models.base
-from creme.creme_core.migrations.utils.utils_27 import Char32UUIDField
+from creme.creme_core.models.fields import Char32UUIDField
 
 
 class Migration(migrations.Migration):

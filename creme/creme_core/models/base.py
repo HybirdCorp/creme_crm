@@ -28,6 +28,7 @@ from django.db.transaction import atomic
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from .fields import Char32UUIDField
 from .file_ref import FileRef
 
 logger = logging.getLogger(__name__)
@@ -104,7 +105,8 @@ class MinionModel(CremeModel):
     """Base model which is great for small models used to represent "choices" in
     entities & which you classically register in creme_config.
     """
-    uuid = models.UUIDField(
+    # uuid = models.UUIDField(  # TODO: in creme 2.8
+    uuid = Char32UUIDField(
         unique=True, editable=False, default=uuid.uuid4,
     ).set_tags(viewable=False)
 

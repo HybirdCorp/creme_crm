@@ -33,6 +33,7 @@ from ..core import notification
 from ..global_info import get_per_request_cache
 from ..utils.dates import dt_to_ISO8601
 from . import CremeUser
+from .fields import Char32UUIDField
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +72,9 @@ class NotificationChannel(models.Model):
       as "deleted", & they can be definitively deleted when they have no related
       Notification anymore (see creme_config).
     """
-    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    # TODO: in creme 2.8
+    # uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    uuid = Char32UUIDField(default=uuid.uuid4, unique=True, editable=False)
     name = models.CharField(verbose_name=_('Name'), max_length=48)
     description = models.TextField(verbose_name=_('Description'), blank=True)
     # TODO: check the length in generate_id()?

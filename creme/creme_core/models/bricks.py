@@ -48,7 +48,7 @@ from ..utils.content_type import ctype_as_key, ctype_from_key, entity_ctypes
 from .auth import UserRole
 from .base import CremeModel
 from .entity import CremeEntity
-from .fields import CTypeForeignKey
+from .fields import Char32UUIDField, CTypeForeignKey
 from .relation import RelationType
 from .setting_value import SettingValue
 
@@ -479,7 +479,8 @@ class UUIDBrickItemManager(models.Manager):
 
 
 class RelationBrickItem(StoredBrickClassMixin, CremeModel):
-    uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
+    # uuid = models.UUIDField(unique=True, editable=False, default=uuid4)  # TODO: in creme2.8
+    uuid = Char32UUIDField(unique=True, editable=False, default=uuid4)
     relation_type = models.OneToOneField(
         RelationType, on_delete=models.CASCADE,
         verbose_name=_('Related type of relationship'),
@@ -614,7 +615,8 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
 
 
 class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
-    uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
+    # uuid = models.UUIDField(unique=True, editable=False, default=uuid4)  # TODO: in creme 2.8
+    uuid = Char32UUIDField(unique=True, editable=False, default=uuid4)
     brick_class_id = models.CharField(
         'Block class ID',
         max_length=300, editable=False,
@@ -706,7 +708,8 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
 
 class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
-    uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
+    # uuid = models.UUIDField(unique=True, editable=False, default=uuid4)  # TODO: in creme 2.8
+    uuid = Char32UUIDField(unique=True, editable=False, default=uuid4)
     content_type = CTypeForeignKey(verbose_name=_('Related type'), editable=False)
     name = models.CharField(_('Name'), max_length=200)
     json_cells = models.JSONField(editable=False, default=list)

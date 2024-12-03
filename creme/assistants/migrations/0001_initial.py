@@ -6,7 +6,6 @@ from django.db.models.deletion import CASCADE, PROTECT
 from django.utils.timezone import now
 
 import creme.creme_core.models.fields as creme_fields
-from creme.creme_core.migrations.utils.utils_27 import Char32UUIDField
 
 
 class Migration(migrations.Migration):
@@ -254,7 +253,7 @@ class Migration(migrations.Migration):
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 # ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
-                ('uuid', Char32UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                ('uuid', creme_fields.Char32UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('title',),

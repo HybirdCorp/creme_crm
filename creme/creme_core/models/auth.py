@@ -48,7 +48,7 @@ from ..core.setting_key import UserSettingValueManager
 from ..utils.content_type import as_ctype
 from ..utils.unicode_collation import collator
 from .entity import CremeEntity
-from .fields import EntityCTypeForeignKey
+from .fields import Char32UUIDField, EntityCTypeForeignKey
 
 if TYPE_CHECKING:
     from typing import DefaultDict, Iterable, Sequence, Type, Union
@@ -85,7 +85,8 @@ class UserRoleManager(models.Manager):
 
 class UserRole(models.Model):
     name = models.CharField(_('Name'), max_length=100, unique=True)
-    uuid = models.UUIDField(
+    # uuid = models.UUIDField(  # TODO: in creme 2.8
+    uuid = Char32UUIDField(
         unique=True, editable=False, default=uuid.uuid4,
     ).set_tags(viewable=False)
 
@@ -1532,7 +1533,9 @@ class Sandbox(models.Model):
     user/role, the entities in this sandbox are only accessible to the superusers
     (like the Sandbox built in creme_core.populate.py)
     """
-    uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
+    # TODO: in creme 2.8
+    # uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
+    uuid = Char32UUIDField(unique=True, editable=False, default=uuid.uuid4)
     type_id = models.CharField('Type of sandbox', max_length=48, editable=False)
     role = models.ForeignKey(
         UserRole, verbose_name='Related role', null=True,

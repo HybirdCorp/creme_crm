@@ -7,7 +7,6 @@ from django.db.models.deletion import CASCADE, PROTECT
 
 import creme.creme_core.models.fields as creme_fields
 from creme.activities.models.config import Weekday
-from creme.creme_core.migrations.utils.utils_27 import Char32UUIDField
 from creme.creme_core.models import CREME_REPLACE_NULL
 
 
@@ -46,7 +45,7 @@ class Migration(migrations.Migration):
                     )
                 ),
                 # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', creme_fields.Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'default_day_duration',
@@ -82,7 +81,7 @@ class Migration(migrations.Migration):
                     )
                 ),
                 # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', creme_fields.Char32UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 (
@@ -122,7 +121,7 @@ class Migration(migrations.Migration):
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 # ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                ('uuid', Char32UUIDField(default=uuid4, editable=False, unique=True)),
+                ('uuid', creme_fields.Char32UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),

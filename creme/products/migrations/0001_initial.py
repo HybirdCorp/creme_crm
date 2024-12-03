@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
 
-from creme.creme_core.migrations.utils.utils_27 import Char32UUIDField
+from creme.creme_core.models.fields import Char32UUIDField
 from creme.documents.models.fields import ImageEntityManyToManyField
 
 

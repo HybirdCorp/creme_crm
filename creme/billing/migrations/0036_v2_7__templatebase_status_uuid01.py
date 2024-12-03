@@ -1,7 +1,5 @@
 from django.db import migrations, models
 
-# from creme.creme_core.migrations.utils.utils_27 import Char32UUIDField
-
 
 class Migration(migrations.Migration):
     dependencies = [
@@ -13,7 +11,6 @@ class Migration(migrations.Migration):
             model_name='templatebase',
             name='status_uuid',
             field=models.UUIDField(default='c221d765-415f-4e25-99b6-ac801b85ce20', editable=False),
-            # field=Char32UUIDField(default='c221d765-415f-4e25-99b6-ac801b85ce20', editable=False),
             preserve_default=False,
         ),
     ]

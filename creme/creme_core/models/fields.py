@@ -18,6 +18,7 @@
 
 from collections import defaultdict
 from json import loads as json_load
+from uuid import UUID
 
 from django import forms
 from django.conf import settings
@@ -37,6 +38,21 @@ from ..core.field_tags import FieldTag
 from ..utils.color import random_pastel_color
 from ..utils.date_period import DatePeriod, date_period_registry
 from ..utils.serializers import json_encode
+
+
+# NB: see
+# https://docs.djangoproject.com/en/5.1/releases/5.0/#migrating-existing-uuidfield-on-mariadb-10-7
+class Char32UUIDField(models.UUIDField):
+    def db_type(self, connection):
+        return "char(32)"
+
+    def get_db_prep_value(self, value, connection, prepared=False):
+        value = super().get_db_prep_value(value, connection, prepared)
+        # if value is not None:
+        if isinstance(value, UUID):
+            value = value.hex
+
+        return value
 
 
 class SemanticCharField(models.CharField):

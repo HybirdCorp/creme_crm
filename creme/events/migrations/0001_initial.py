@@ -3,8 +3,8 @@ import uuid
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE
 
-from creme.creme_core.migrations.utils.utils_27 import Char32UUIDField
 from creme.creme_core.models import CREME_REPLACE
+from creme.creme_core.models.fields import Char32UUIDField
 
 
 class Migration(migrations.Migration):

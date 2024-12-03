@@ -35,6 +35,7 @@ from .. import signals
 from ..utils.content_type import as_ctype
 from .base import CremeModel
 from .entity import CremeEntity
+from .fields import Char32UUIDField
 
 logger = logging.getLogger(__name__)
 
@@ -195,7 +196,8 @@ class CremePropertyManager(models.Manager):
 
 
 class CremePropertyType(CremeModel):
-    uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
+    # uuid = models.UUIDField(unique=True, editable=False, default=uuid4)  # TODO: in creme 2.8
+    uuid = Char32UUIDField(unique=True, editable=False, default=uuid4)
     # The label is used by the command "creme_uninstall".
     # Empty string means <type created by a user>.
     app_label = models.CharField(
