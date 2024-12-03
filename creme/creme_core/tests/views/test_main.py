@@ -50,7 +50,6 @@ class MiscViewsTestCase(CremeTestCase):
         self.login_as_root()
 
         self.assertIn('_auth_user_id', self.client.session)
-        # TODO: with django5.0, test GET does not work
         response = self.assertPOST200(reverse('creme_logout'), follow=True)
         self.assertNotIn('_auth_user_id', self.client.session)
 

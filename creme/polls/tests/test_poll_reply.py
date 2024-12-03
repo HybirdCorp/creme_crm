@@ -1477,7 +1477,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "Fill one ENUM question."
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
-        choices = [[1, 'White'], [2, 'Black'], [3, 'Green']]
+        # choices = [[1, 'White'], [2, 'Black'], [3, 'Green']]
+        choices = [(1, 'White'), (2, 'Black'), (3, 'Green')]
         fline = self._get_formline_creator(pform)(
             'What is the main color of a swallow?',
             qtype=PollLineType.ENUM, choices=choices,
@@ -1523,7 +1524,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
-        choices = [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']]
+        # choices = [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']]
+        choices = [(1, 'White'), (2, 'Black'), (3, 'Green'), (4, 'Purple')]
         fline = self._get_formline_creator(pform)(
             'What are the main colors of a swallow?',
             qtype=PollLineType.MULTI_ENUM,

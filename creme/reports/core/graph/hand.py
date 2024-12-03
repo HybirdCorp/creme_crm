@@ -88,6 +88,23 @@ def _generate_date_format(*, year=False, month=False, day=False):
     return separator.join(t[1] for t in parts)
 
 
+# HACK: <.replace('%', '%%')> was done by
+#  <django.db.backends.mysql.schema.DatabaseSchemaEditor.quote_value()> in django 4.2-,
+#  but not in django 5.0. This is probably not the best way to do it;
+#  if you have the answer you're welcome.
+def _get_value_quoter():
+    schema_editor = connection.schema_editor()
+
+    if connection.vendor == 'mysql':
+        def quote_value(x):
+            return schema_editor.quote_value(x.replace('%', '%%'))
+    else:
+        def quote_value(x):
+            return schema_editor.quote_value(x)
+
+    return quote_value
+
+
 class ReportGraphHand:
     "Class that computes abscissa & ordinate values of a ReportGraph."
     verbose_name: str = 'OVERRIDE_ME'
@@ -269,8 +286,10 @@ class _RGHRegularField(ReportGraphHand):
         x_sql, x_params = connection.ops.date_trunc_sql(
             lookup_type=kind, sql=field_name, params=(),
         )
-        schema_editor = connection.schema_editor()
-        x_value_key = x_sql % tuple(schema_editor.quote_value(p) for p in x_params)
+        # schema_editor = connection.schema_editor()
+        # x_value_key = x_sql % tuple(schema_editor.quote_value(p) for p in x_params)
+        quote_value = _get_value_quoter()
+        x_value_key = x_sql % tuple(quote_value(p) for p in x_params)
 
         for key, value in self._aggregate_dates_by_key(entities, abscissa, x_value_key, order):
             date = key
@@ -715,8 +734,10 @@ class _RGHCustomField(ReportGraphHand):
         x_sql, x_params = connection.ops.date_trunc_sql(
             lookup_type=kind, sql=field_name, params=(),
         )
-        schema_editor = connection.schema_editor()
-        x_value_key = x_sql % tuple(schema_editor.quote_value(p) for p in x_params)
+        # schema_editor = connection.schema_editor()
+        # x_value_key = x_sql % tuple(schema_editor.quote_value(p) for p in x_params)
+        quote_value = _get_value_quoter()
+        x_value_key = x_sql % tuple(quote_value(p) for p in x_params)
 
         for key, value in self._aggregate_by_key(entities, x_value_key, order):
             date = key

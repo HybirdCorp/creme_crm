@@ -23,7 +23,6 @@ from json import dumps as json_dump
 from django import forms
 # from django.forms.fields import CallableChoiceIterator
 from django.template.base import Template, VariableNode
-from django.utils.choices import CallableChoiceIterator
 from django.utils.timezone import make_aware, now
 from django.utils.translation import gettext_lazy as _
 
@@ -133,6 +132,7 @@ class SendingConfigField(forms.MultiValueField):
 
     @queryset.setter
     def queryset(self, value):
+        from django.utils.choices import CallableChoiceIterator  # TODO
         qs = value.all()
         self.fields[0].queryset = qs
         self.widget.choices = CallableChoiceIterator(
@@ -144,6 +144,27 @@ class SendingConfigField(forms.MultiValueField):
                 ) for item in qs
             )
         )
+        # TODO: uncomment & fix (makes migrate from scratch fail)
+        # # NB: Old fashioned CallableChoiceIterator because the new one
+        # #     (i.e django.utils.choices.CallableChoiceIterator) seems to not like
+        # #     our 3-tuples.
+        # class CallableChoiceIterator:
+        #     def __init__(this, choices_func):
+        #         this.choices_func = choices_func
+        #
+        #     def __iter__(this):
+        #         yield from this.choices_func()
+        #
+        # self.fields[0].queryset = value.all()
+        # self.widget.choices = CallableChoiceIterator(
+        #     lambda: (
+        #         (
+        #             str(item.id),
+        #             item.name,
+        #             {'default_sender': item.default_sender}
+        #         ) for item in value.all()
+        #     )
+        # )
 
 
 # Forms ------------------------------------------------------------------------
