@@ -297,21 +297,42 @@ jobs:
 #      - run-creme-unit-tests
 
 
-  python311-tests-sqlite3:
+#  python311-tests-sqlite3:
+#    docker:
+#      - image: cimg/python:3.11
+#    resource_class: large
+#    steps:
+#      - checkout-creme
+#      - setup-locale:
+#          language: fr_FR
+#          encoding: UTF-8
+#      - install-creme-system-packages
+#      - install-py-dev-env
+#      - create-creme-project
+#      - setup-creme-unit-tests
+#      - run-creme-unit-tests
+  python311-tests-mariadb:
     docker:
       - image: cimg/python:3.11
+      - image: cimg/mariadb:10.4
+        environment:
+          MYSQL_ROOT_PASSWORD: creme
+          MYSQL_DATABASE: cremecrm
     resource_class: large
     steps:
       - checkout-creme
       - setup-locale:
           language: fr_FR
           encoding: UTF-8
+      - wait-database:
+          port: 3306
       - install-creme-system-packages
+      - run: sudo apt install -y mariadb-client
       - install-py-dev-env
       - create-creme-project
-      - setup-creme-unit-tests
+      - setup-creme-unit-tests:
+          local_settings: 'mysql_settings'
       - run-creme-unit-tests
-
 
   python312-tests-sqlite3:
     docker:
@@ -513,7 +534,8 @@ workflows:
           requires:
             - python310-lint-isort
             - python310-lint-flake8
-      - python311-tests-sqlite3:
+#      - python311-tests-sqlite3:
+      - python311-tests-mariadb:
           requires:
             - python310-lint-isort
             - python310-lint-flake8
