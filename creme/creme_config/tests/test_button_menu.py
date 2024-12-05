@@ -899,12 +899,12 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         # POST ---
         self.assertNoFormError(self.client.post(url, data={'target': role1.id}))
-        self.assertListEqual(
-            [(bmi.button_id, bmi.order) for bmi in existing],
+        self.assertCountEqual(
+            [(bmi.button_id, bmi.order, bmi.content_type_id) for bmi in existing],
             [
                 *ButtonMenuItem.objects
                                .filter(superuser=False, role=role1)
-                               .values_list('button_id', 'order'),
+                               .values_list('button_id', 'order', 'content_type'),
             ],
         )
 
