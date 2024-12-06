@@ -1,0 +1,41 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_perms %}
+{% load url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-customentities-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Type of entity') plural=_('{count} Types of entity') empty=_('Type of entity') icon='relations' %}
+{% endblock %}
+
+{% comment %}
+{% block brick_header_actions %}
+    {% brick_header_action id='add' url='creme_config__create_history_configs'|url label=_('Add some relationship types') enabled=user|has_perm_to_admin:'creme_core' %}
+{% endblock %}
+{% endcomment %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Type') %}
+{#    {% brick_table_column title=_('Action') status='action' %} #}
+{% endblock %}
+
+{% block brick_table_rows %}
+{# {% with admin_perm=user|has_perm_to_admin:'creme_core' rm_url='creme_config__remove_history_config'|url %} #}
+  {% for custom_entity_item in page.object_list %}
+    <tr>
+        <td>
+            {{custom_entity_item.number}} TODO: name
+        </td>
+{% comment %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=rm_url __id=history_item.id label=_('Remove this relationship type') icon='unlink' enabled=admin_perm %}
+        </td>
+{% endcomment %}
+    <tr>
+  {% endfor %}
+{# {% endwith %} #}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No custom type for the moment' %}
+{% endblock %}

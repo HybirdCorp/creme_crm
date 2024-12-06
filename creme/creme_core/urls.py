@@ -6,6 +6,7 @@ from .views import (
     batch_process,
     bricks,
     creme_property,
+    custom_entity,
     entity,
     entity_filter,
     enumerable,
@@ -155,6 +156,30 @@ entity_patterns = [
         # entity.restrict_to_superusers,
         entity.SuperusersRestriction.as_view(),
         name='creme_core__restrict_entity_2_superusers',
+    ),
+]
+
+custom_entity_patterns = [
+    # re_path(
+    #     r'^folders[/]?$',
+    #     folder.FoldersList.as_view(),
+    #     name='documents__list_folders',
+    # ),
+    # re_path(
+    #     r'^folder/add[/]?$',
+    #     folder.FolderCreation.as_view(),
+    #     name='documents__create_folder',
+    # ),
+    # re_path(
+    #     r'^folder/edit/(?P<folder_id>\d+)[/]?$',
+    #     folder.FolderEdition.as_view(),
+    #     name='documents__edit_folder',
+    # ),
+    re_path(
+        r'^type_(?P<type_number>\d+)/(?P<entity_id>\d+)[/]?$',
+        # r'^(?P<entity_id>\d+)[/]?$',
+        custom_entity.CustomEntityDetail.as_view(),
+        name='creme_core__view_custom_entity',
     ),
 ]
 
@@ -430,6 +455,7 @@ notification_patterns = [
 creme_core_patterns = [
     re_path(r'^auth/',          include(auth_patterns)),
     re_path(r'^entity/',        include(entity_patterns)),
+    re_path(r'^custom_entity/', include(custom_entity_patterns)),
     re_path(r'^relation/',      include(relation_patterns)),
     re_path(r'^property/',      include(property_patterns)),
     re_path(r'^bricks/',        include(bricks_patterns)),
