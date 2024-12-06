@@ -24,6 +24,7 @@ from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
     CremeUser,
+    CustomEntityType,
     EntityFilter,
     FakeContact,
     FakeInvoice,
@@ -2082,7 +2083,7 @@ class AuthTestCase(CremeTestCase):
 
         self.assertListEqual([contact1.id, contact4.id], ids_list)
 
-    def test_creation_creds01(self):
+    def test_creation_creds(self):
         user = self.create_user()
         role = self._create_role('Coder', users=[user])
 
@@ -2140,11 +2141,47 @@ class AuthTestCase(CremeTestCase):
         with self.assertNoException():
             user.has_perm_to_create_or_die(prop)
 
-        self.assertRaises(PermissionDenied, user.has_perm_to_create_or_die, ptype)
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_perm_to_create_or_die(ptype)
+        self.assertEqual(
+            _('You are not allowed to create: {}').format(_('Type of property')),
+            str(cm.exception),
+        )
 
-    def test_creation_creds02(self):
+    def test_creation_creds__superuser(self):
         user = self.build_user(is_superuser=True)
         self.assertTrue(user.has_perm('creme_core.add_cremeproperty'))
+
+    def test_creation_creds__custom_entities(self):
+        user = self.create_user()
+        role = self._create_role('Coder', users=[user])
+
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Lab'
+        ce_type.plural_name = 'Labs'
+        ce_type.save()
+
+        msg = _('You are not allowed to create: {}').format(ce_type.name)
+        with self.assertRaises(PermissionDenied) as model_cm:
+            user.has_perm_to_create_or_die(ce_type.entity_model)
+        self.assertEqual(msg, str(model_cm.exception))
+
+        entity = ce_type.entity_model.objects.create(user=user, name='Whatever')
+        with self.assertRaises(PermissionDenied) as instance_cm:
+            user.has_perm_to_create_or_die(entity)
+        self.assertEqual(msg, str(instance_cm.exception))
+
+        with self.assertRaises(PermissionDenied) as ct_cm:
+            user.has_perm_to_create_or_die(entity.entity_type)
+        self.assertEqual(msg, str(ct_cm.exception))
+
+        # ---
+        role.creatable_ctypes.set([entity.entity_type])
+        user.role = self.refresh(role)  # Refresh cache
+
+        with self.assertNoException():
+            user.has_perm_to_create_or_die(ce_type.entity_model)
 
     def test_export_creds01(self):
         user = self.create_user()
@@ -2638,7 +2675,13 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(has_perm_to_link(FakeOrganisation, owner=None))
         self.assertFalse(has_perm_to_link(FakeOrganisation, owner=other_user))
 
-        self.assertRaises(PermissionDenied, user.has_perm_to_link_or_die, FakeOrganisation)
+        # self.assertRaises(PermissionDenied, user.has_perm_to_link_or_die, FakeOrganisation)
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_perm_to_link_or_die(FakeOrganisation)
+        self.assertEqual(
+            _('You are not allowed to link: {}').format('Test Organisation'),
+            str(cm.exception),
+        )
 
     def test_has_perm_to_link03(self):
         "Can LINK all."

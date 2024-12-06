@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING
 from django.db.models import Model
 from django.utils.html import format_html
 
+from ..models.utils import model_verbose_name
 from ..utils.media import get_creme_media_url
 
 if TYPE_CHECKING:
@@ -342,7 +343,8 @@ class IconRegistry:
             except KeyError:
                 logger.warning('Missing image: %s', path)
 
-        return Icon(url=url, size=size_px, label=model._meta.verbose_name)
+        # return Icon(url=url, size=size_px, label=model._meta.verbose_name)
+        return Icon(url=url, size=size_px, label=model_verbose_name(model))
 
     def get_4_instance(self, instance: Model, theme: str, size_px: int) -> Icon:
         url = ''
@@ -372,7 +374,8 @@ class IconRegistry:
 
         return Icon(
             url=url, size=size_px,
-            label=label or instance._meta.verbose_name,
+            # label=label or instance._meta.verbose_name,
+            label=label or model_verbose_name(type(instance)),
         )
 
 

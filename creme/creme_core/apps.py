@@ -151,6 +151,8 @@ class ContentTypesConfig(VanillaContentTypesConfig):
 
         from django.contrib.contenttypes.models import ContentType
 
+        from creme.creme_core.models.utils import model_verbose_name
+
         meta = ContentType._meta
         assert not meta.ordering, 'It seems ContentType has an ordering policy now?!'
 
@@ -160,9 +162,12 @@ class ContentTypesConfig(VanillaContentTypesConfig):
         for fname in ('app_label', 'model'):
             get_ct_field(fname).set_tags(viewable=False)
 
+        def ct_str(this):
+            model = this.model_class()
+            return this.model if model is None else model_verbose_name(model)
+
         # NB: the original prefix with app's name => ugly choices for final users
-        #     => use gettext+context had smooth translation instead
-        ContentType.__str__ = lambda this: this.name
+        ContentType.__str__ = ct_str
 
 
 class CremeAppConfig(AppConfig):
@@ -503,6 +508,12 @@ class CremeCoreConfig(CremeAppConfig):
         ).register_operands(
             *operands.all_operands,
         )
+
+    def register_deletors(self, entity_deletor_registry):
+        from .models import CustomEntityType
+
+        for kls in CustomEntityType.custom_classes.values():
+            entity_deletor_registry.register(kls)
 
     def register_entity_filter(self, entity_filter_registry):
         from .core.entity_filter import condition_handler, operands, operators

@@ -32,6 +32,7 @@ from ..gui import bricks, bulk_update
 from ..gui.bricks import Brick, BrickManager
 from ..gui.pager import PagerContext
 from ..gui.view_tag import ViewTag
+from ..models.utils import model_verbose_name_plural
 from ..utils.media import get_current_theme_from_context
 from ..utils.translation import plural as is_plural
 from ..views.entity import _bulk_has_perm
@@ -511,7 +512,8 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
                 'order': 'desc' if current_is_desc else 'asc',  # TODO: use utils.meta.Order
             }
             help = _('Sort «{model}» by «{field}»').format(
-                model=cell.model._meta.verbose_name_plural,
+                # model=cell.model._meta.verbose_name_plural,
+                model=model_verbose_name_plural(cell.model),
                 field=verbose_name,
             )
 

@@ -204,6 +204,9 @@ gettext-collect:
 			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" -i "templates/creme_core/tests/*" --no-location && \
 			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/creme_core/js/tests/*" --no-location && \
 			popd; \
+        pushd ./creme/custom_entities && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
+			popd; \
 		pushd ./creme/sms && \
 			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \

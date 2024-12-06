@@ -118,6 +118,17 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     color: #818485;
 }
 
+/* CustomEntitiesBrick brick */
+
+.creme_config-customentities-brick .custom-entity-type-deleted {
+    background: #e5ecef !important;
+    color: #818485;
+}
+
+.creme_config-customentities-brick .custom-entity-type-deleted .custom-entity-type-name {
+    text-decoration: line-through;
+}
+
 /* Users brick */
 
 .creme_config-users-brick td.user-password {

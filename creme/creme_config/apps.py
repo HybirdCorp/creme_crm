@@ -105,6 +105,7 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.RelationTypesBrick,
             bricks.CustomRelationTypesBrick,
             bricks.SemiFixedRelationTypesBrick,
+            bricks.CustomEntitiesBrick,
             bricks.CustomFieldsBrick,
             bricks.CustomEnumsBrick,
             bricks.CustomFormsBrick,

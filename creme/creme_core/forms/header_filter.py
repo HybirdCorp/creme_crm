@@ -51,6 +51,7 @@ from ..models import (
     HeaderFilter,
     RelationType,
 )
+from ..models.utils import model_verbose_name
 from ..utils.id_generator import generate_string_id_and_save
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.unicode_collation import collator
@@ -464,7 +465,8 @@ class EntityCellRelationsField(UniformEntityCellsField):
                 raise ValidationError(
                     self.error_messages['incompatible'],
                     code='incompatible',
-                    params={'model': self.model._meta.verbose_name},
+                    # params={'model': self.model._meta.verbose_name},
+                    params={'model': model_verbose_name(self.model)},
                 )
 
             if not rtype.enabled and value not in self._non_hiddable_cells:

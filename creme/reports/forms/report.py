@@ -49,6 +49,7 @@ from creme.creme_core.models import (
     FieldsConfig,
     HeaderFilter,
 )
+from creme.creme_core.models.utils import model_verbose_name
 from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field
 
 from .. import constants, get_report_model
@@ -172,7 +173,8 @@ class ReportEntityCellRelated(_ReportOnlyEntityCell):
 
     @property
     def title(self):
-        return str(self.related_field.related_model._meta.verbose_name)
+        # return str(self.related_field.related_model._meta.verbose_name)
+        return model_verbose_name(self.related_field.related_model)
 
 
 class _ReportEntityCellAggregate(_ReportOnlyEntityCell):

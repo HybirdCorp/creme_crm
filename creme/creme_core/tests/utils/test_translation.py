@@ -3,13 +3,26 @@ from unittest import skipIf
 from django.conf import settings
 from django.utils.translation import override as override_language
 
+from creme.creme_core.models import (
+    CustomEntityType,
+    FakeContact,
+    FakeOrganisation,
+)
 from creme.creme_core.utils.translation import get_model_verbose_name, plural
 
 from ..base import CremeTestCase
-from ..fake_models import FakeContact, FakeOrganisation
 
 
 class TranslationTestCase(CremeTestCase):
+    def _enable_custom_type(self, id, name, plural_name):
+        ce_type = self.get_object_or_fail(CustomEntityType, id=id)
+        ce_type.enabled = True
+        ce_type.name = name
+        ce_type.plural_name = plural_name
+        ce_type.save()
+
+        return ce_type
+
     @skipIf(settings.USE_I18N, "This test is made for <USE_I18N==True>")
     def test_plural__no_i18n(self):
         self.assertTrue(plural(0))
@@ -37,12 +50,25 @@ class TranslationTestCase(CremeTestCase):
 
     @skipIf(not settings.USE_I18N, "This test is made for <USE_I18N==False>")
     def test_get_model_verbose_name__i18n(self):
+        ce_type1 = self._enable_custom_type(id=1, name='Shop',    plural_name='Shops')
+        ce_type2 = self._enable_custom_type(id=2, name='Country', plural_name='Countries')
+
         with override_language('en'):
             self.assertEqual('Test Contacts', get_model_verbose_name(FakeContact, 0))
             self.assertEqual('Test Contact',  get_model_verbose_name(FakeContact, 1))
             self.assertEqual('Test Contacts', get_model_verbose_name(FakeContact, count=2))
 
             self.assertEqual('Test Organisation', get_model_verbose_name(FakeOrganisation, 1))
+
+            self.assertEqual(
+                ce_type1.name, get_model_verbose_name(ce_type1.entity_model, count=1),
+            )
+            self.assertEqual(
+                ce_type2.name, get_model_verbose_name(ce_type2.entity_model, count=1),
+            )
+            self.assertEqual(
+                ce_type1.plural_name, get_model_verbose_name(ce_type1.entity_model, count=2),
+            )
 
         with override_language('fr'):
             self.assertEqual('Test Contact',  get_model_verbose_name(FakeContact, 0))

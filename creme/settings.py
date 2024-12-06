@@ -320,6 +320,9 @@ INSTALLED_CREME_APPS = [
     # Manages the Configuration portal.
     'creme.creme_config',
 
+    # Where custom entities live.
+    'creme.custom_entities',
+
     # Manages Folders & Documents entities.
     # NB: currently used by "creme_core" for mass-importing,
     #     so it's a mandatory app.

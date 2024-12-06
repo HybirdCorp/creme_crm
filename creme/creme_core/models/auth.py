@@ -49,6 +49,7 @@ from ..utils.content_type import as_ctype
 from ..utils.unicode_collation import collator
 from .entity import CremeEntity
 from .fields import EntityCTypeForeignKey
+from .utils import model_verbose_name
 
 if TYPE_CHECKING:
     from typing import DefaultDict, Iterable, Sequence, Type, Union
@@ -1370,14 +1371,15 @@ class CremeUser(AbstractBaseUser):
                                   /) -> None:
         if not self.has_perm_to_create(ct_or_model_or_entity):
             # TODO: as_model()?
-            meta = (
-                ct_or_model_or_entity.model_class()._meta
-                if isinstance(ct_or_model_or_entity, ContentType) else
-                ct_or_model_or_entity._meta
-            )
+            if isinstance(ct_or_model_or_entity, ContentType):
+                model = ct_or_model_or_entity.model_class()
+            elif isinstance(ct_or_model_or_entity, models.Model):
+                model = type(ct_or_model_or_entity)
+            else:
+                model = ct_or_model_or_entity
 
             raise PermissionDenied(
-                gettext('You are not allowed to create: {}').format(meta.verbose_name)
+                gettext('You are not allowed to create: {}').format(model_verbose_name(model))
             )
 
     # TODO: rename argument (see <has_perm_to_change()>)
@@ -1483,7 +1485,8 @@ class CremeUser(AbstractBaseUser):
                 )
             else:
                 msg = gettext('You are not allowed to link: {}').format(
-                    entity_or_model._meta.verbose_name
+                    # entity_or_model._meta.verbose_name
+                    model_verbose_name(entity_or_model)
                 )
 
             raise PermissionDenied(msg)

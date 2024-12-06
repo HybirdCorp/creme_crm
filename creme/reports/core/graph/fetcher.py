@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2023  Hybird
+#    Copyright (C) 2013-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,6 +36,7 @@ from creme.creme_core.models import (
     InstanceBrickConfigItem,
     RelationType,
 )
+from creme.creme_core.models.utils import model_verbose_name
 from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.reports import constants
 
@@ -282,7 +283,8 @@ class RelationLinkedGraphFetcher(GraphFetcher):
                 if not rtype.is_compatible(model):
                     self.error = gettext(
                         'The relationship type is not compatible with «{}».'
-                    ).format(model._meta.verbose_name)
+                        # ).format(model._meta.verbose_name)
+                    ).format(model_verbose_name(model))
                 else:
                     self.verbose_name = gettext(
                         '{rtype} (Relationship)'

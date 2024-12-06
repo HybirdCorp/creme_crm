@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2020 Hybird
+# Copyright (c) 2016-2024 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,13 +24,77 @@
 from typing import Callable
 
 from django.db.models import Model
+from django.utils.translation import gettext
 
 from ..utils import ellipsis
+from .custom_entity import CustomEntityType
 
 
 def assign_2_charfield(instance: Model,
                        field_name: str,
                        value: str,
-                       truncate: Callable[[str, int], str] = ellipsis) -> None:
+                       truncate: Callable[[str, int], str] = ellipsis,
+                       ) -> None:
     field = instance._meta.get_field(field_name)
     setattr(instance, field_name, truncate(value, field.max_length))
+
+
+################################################################################
+#    Creme is a free/open-source Customer Relationship Management software
+#    Copyright (C) 2024  Hybird
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
+
+# TODO: accept ContentType?
+def model_verbose_name(model: type[Model]) -> str:
+    """Retrieve the verbose name of a model.
+    Use it instead of <model._meta.verbose_name> for entity models, because it
+    manages correctly custom entity types.
+    """
+    ce_type = CustomEntityType.objects.get_for_model(model)
+    if ce_type is not None:
+        if not ce_type.enabled:
+            return '?'
+
+        if ce_type.deleted:
+            return gettext('{custom_model} [deleted]').format(
+                custom_model=ce_type.name,
+            )
+
+        return ce_type.name
+
+    return str(model._meta.verbose_name)
+
+
+# TODO: accept ContentType?
+def model_verbose_name_plural(model: type[Model]) -> str:
+    """Retrieve the plural verbose name of a model.
+    Use it instead of <model._meta.verbose_name_plural> for entity models,
+    because it manages correctly custom entity types.
+    """
+    ce_type = CustomEntityType.objects.get_for_model(model)
+    if ce_type is not None:
+        if not ce_type.enabled:
+            return '?'
+
+        if ce_type.deleted:
+            return gettext('{custom_model} [deleted]').format(
+                custom_model=ce_type.plural_name,
+            )
+
+        return ce_type.plural_name
+
+    return str(model._meta.verbose_name_plural)

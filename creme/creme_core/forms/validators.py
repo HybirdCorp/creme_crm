@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@ from django.forms.utils import ValidationError
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
+from ..models.utils import model_verbose_name_plural
 from ..utils import entities_to_str
 
 
@@ -139,13 +140,15 @@ def validate_linkable_model(model, user, owner, code='linknotallowed'):
     validate_authenticated_user(
         user, gettext_lazy('Not authenticated user is not allowed to link «{model}»'),
         code=code,
-        model=model._meta.verbose_name_plural,
+        # model=model._meta.verbose_name_plural,
+        model=model_verbose_name_plural(model),
     )
 
     if not user.has_perm_to_link(model, owner=owner):
         raise ValidationError(
             _('You are not allowed to link with the «{models}» of this user.').format(
-                models=model._meta.verbose_name_plural,
+                # models=model._meta.verbose_name_plural,
+                models=model_verbose_name_plural(model),
             ),
             code=code,
         )

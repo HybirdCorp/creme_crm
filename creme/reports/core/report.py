@@ -35,6 +35,7 @@ from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.field_printers import field_printer_registry
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import CremeEntity, CustomField, RelationType
+from creme.creme_core.models.utils import model_verbose_name
 from creme.creme_core.utils.meta import FieldInfo
 
 from .. import constants
@@ -670,7 +671,8 @@ class RHRelated(ReportHand):
 
         super().__init__(
             report_field,
-            title=str(related_field.related_model._meta.verbose_name),
+            # title=str(related_field.related_model._meta.verbose_name),
+            title=model_verbose_name(related_field.related_model),
             support_subreport=True,
         )
 

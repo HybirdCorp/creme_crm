@@ -36,6 +36,7 @@ from ..menu import (
     ConfigPortalEntry,
     CremeConfigEntry,
     CurrentAppConfigEntry,
+    CustomEntityTypesConfigEntry,
     CustomFieldsConfigEntry,
     CustomFormsConfigEntry,
     FieldsConfigEntry,
@@ -122,6 +123,13 @@ class MenuEntriesTestCase(CremeTestCase):
         self.assertEqual(_('Custom fields'),                     entry.label)
         self.assertEqual(reverse('creme_config__custom_fields'), entry.url)
         self.assertEqual('creme_config',                         entry.permissions)
+
+    def test_custom_entity_types_entry(self):
+        entry = CustomEntityTypesConfigEntry()
+        self.assertEqual('creme_config-custom_entities',               entry.id)
+        self.assertEqual(_('Custom entities'),                         entry.label)
+        self.assertEqual(reverse('creme_config__custom_entity_types'), entry.url)
+        self.assertEqual('creme_config',                               entry.permissions)
 
     def test_fields_entry(self):
         entry = FieldsConfigEntry()
@@ -322,23 +330,24 @@ class MenuEntriesTestCase(CremeTestCase):
 
         self.assertListEqual(
             [
-                (reverse('creme_config__portal'),         _('General configuration')),
-                (reverse('creme_config__world_settings'), _('Instance')),
-                (reverse('creme_config__bricks'),         _('Blocks')),
-                (reverse('creme_config__custom_fields'),  _('Custom fields')),
-                (reverse('creme_config__fields'),         _('Fields')),
-                (reverse('creme_config__custom_forms'),   _('Custom forms')),
-                (reverse('creme_config__history'),        _('History')),
-                (reverse('creme_config__menu'),           _('Menu')),
-                (reverse('creme_config__notification'),   _('Notifications')),
-                (reverse('creme_config__buttons'),        _('Button menu')),
-                (reverse('creme_config__search'),         pgettext('creme_core-noun', 'Search')),
-                (reverse('creme_config__ptypes'),         _('Types of property')),
-                (reverse('creme_config__rtypes'),         _('Types of relationship')),
-                (reverse('creme_config__users'),          _('Users')),
-                (reverse('creme_config__roles'),          _('Roles and credentials')),
-                (reverse('creme_config__efilters'),       _('Filters')),
-                (reverse('creme_config__hfilters'),       _('Views')),
+                (reverse('creme_config__portal'),              _('General configuration')),
+                (reverse('creme_config__world_settings'),      _('Instance')),
+                (reverse('creme_config__bricks'),              _('Blocks')),
+                (reverse('creme_config__custom_fields'),       _('Custom fields')),
+                (reverse('creme_config__custom_entity_types'), _('Custom entities')),
+                (reverse('creme_config__fields'),              _('Fields')),
+                (reverse('creme_config__custom_forms'),        _('Custom forms')),
+                (reverse('creme_config__history'),             _('History')),
+                (reverse('creme_config__menu'),                _('Menu')),
+                (reverse('creme_config__notification'),        _('Notifications')),
+                (reverse('creme_config__buttons'),             _('Button menu')),
+                (reverse('creme_config__search'), pgettext('creme_core-noun', 'Search')),
+                (reverse('creme_config__ptypes'),              _('Types of property')),
+                (reverse('creme_config__rtypes'),              _('Types of relationship')),
+                (reverse('creme_config__users'),               _('Users')),
+                (reverse('creme_config__roles'),               _('Roles and credentials')),
+                (reverse('creme_config__efilters'),            _('Filters')),
+                (reverse('creme_config__hfilters'),            _('Views')),
             ],
             links,
         )
