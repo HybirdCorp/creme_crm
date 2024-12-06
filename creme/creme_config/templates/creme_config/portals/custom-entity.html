@@ -1,0 +1,14 @@
+{% extends 'creme_config/portals/base.html' %}
+{% load i18n creme_widgets %}
+
+{% block page_title %}{% translate 'Configuration of custom entities' %} - {% endblock %}
+
+{% block title %}
+    {{block.super}}{% translate 'Types of custom entity' %}
+{% endblock %}
+
+{% block portal_help %}
+{% blocktranslate asvar help_msg %}Here you can create your own types of entity.
+Notice: the number of types is limited to {{max_count}}.{% endblocktranslate %}
+    {% widget_help_sign message=help_msg %}
+{% endblock %}

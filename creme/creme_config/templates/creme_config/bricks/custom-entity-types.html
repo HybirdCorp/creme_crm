@@ -1,0 +1,59 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_perms %}
+{% load url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-customentities-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Type of entity') plural=_('{count} Types of entity') empty=_('Type of entity') icon='relations' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+  {% if available_slots_count %}
+    {% brick_header_action id='add' url='creme_config__create_custom_entity_type'|url label=_('New custom type') enabled=user|has_perm_to_admin:'creme_core' %}
+  {% else %}
+    {% brick_header_action id='add' label=_('New custom type') enabled=False help_text=_('You have reached the maximum number of custom types.') %}
+  {% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Name') %}
+    {% brick_table_column title=_('Name (plural)') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=3 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' rm_url='creme_config__delete_custom_entity_type'|url restore_url='creme_config__restore_custom_entity_type'|url %}
+  {% for custom_entity_item in page.object_list %}
+    <tr {% if custom_entity_item.deleted %} class="custom-entity-type-deleted"{% endif %}>
+        <td class="custom-entity-type-name">
+            <a href="{{custom_entity_item.entity_model.get_lv_absolute_url}}">{{custom_entity_item.name}}</a>
+        </td>
+        <td class="custom-entity-type-plural">{{custom_entity_item.plural_name}}</td>
+        <td {% brick_table_data_status action %}>
+          {% if custom_entity_item.deleted %}
+            {% brick_table_action id='edit' label=_('You cannot edit a deleted custom type') enabled=False %}
+          {% else %}
+            {% brick_table_action id='edit' url='creme_config__edit_custom_entity_type'|url:custom_entity_item.id label=_('Edit this custom type') enabled=admin_perm %}
+          {% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+          {% if custom_entity_item.deleted %}
+            {% brick_table_action id='delete' url=restore_url __id=custom_entity_item.id label=_('Restore this custom type') icon='restore' enabled=admin_perm %}
+          {% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+          {% if custom_entity_item.deleted %}
+            {% brick_table_action id='delete' url=rm_url __id=custom_entity_item.id label=_('Delete this custom type definitively') enabled=admin_perm %}
+          {% else %}
+            {% brick_table_action id='delete' url=rm_url __id=custom_entity_item.id label=_('Delete this custom type') enabled=admin_perm %}
+          {% endif %}
+        </td>
+    <tr>
+  {% endfor %}
+ {% endwith %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No custom type for the moment' %}
+{% endblock %}

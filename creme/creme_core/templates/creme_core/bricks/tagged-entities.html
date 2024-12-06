@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
 {% load i18n creme_bricks creme_ctype creme_perms creme_widgets %}
-{% load get_meta_value url from creme_core_tags %}
+{% load url from creme_core_tags %}{# get_meta_value #}
 
 {% block brick_extra_class %}
 {{block.super}} creme_core-tagged-entities-brick{% if page.paginator.count == 0 %} is-empty{% endif %}
@@ -18,7 +18,8 @@
 
 {% block brick_header_actions %}
   {% if ctype %}
-    {% blocktranslate with models=ctype.model_class|get_meta_value:'verbose_name_plural' asvar help_text %}Remove all the properties related to the «{{models}}» which you are allowed to edit{% endblocktranslate %}
+{#    {% blocktranslate with models=ctype.model_class|get_meta_value:'verbose_name_plural' asvar help_text %}Remove all the properties related to the «{{models}}» which you are allowed to edit{% endblocktranslate %} #}
+    {% blocktranslate with models=ctype|ctype_verbose_name_plural asvar help_text %}Remove all the properties related to the «{{models}}» which you are allowed to edit{% endblocktranslate %}
     {% brick_header_action id='delete' url='creme_core__remove_properties'|url __ptype_id=ptype_id __ct_id=ctype.id label=_('Remove these properties') help_text=help_text %}
   {% endif %}
 {% endblock %}

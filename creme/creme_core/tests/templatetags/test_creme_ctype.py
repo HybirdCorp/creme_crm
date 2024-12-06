@@ -1,12 +1,19 @@
 from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template
 from django.utils.translation import gettext as _
+from django.utils.translation import override as override_language
 
-from creme.creme_core.models import Currency, FakePosition, FakeSector
+from creme.creme_core.models import (
+    Currency,
+    CustomEntityType,
+    FakePosition,
+    FakeSector,
+)
 from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.creme_core.utils.translation import get_model_verbose_name
 
 from ..base import CremeTestCase
+from ..fake_models import FakeContact
 
 
 class CremeCTypeTagsTestCase(CremeTestCase):
@@ -86,6 +93,66 @@ class CremeCTypeTagsTestCase(CremeTestCase):
             f'{FakeSector._meta.verbose_name}',
             render.strip(),
         )
+
+    @override_language('en')
+    def test_ctype_verbose_name__custom_type(self):
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Warehouse'
+        ce_type.plural_name = 'Warehouses'
+        ce_type.save()
+
+        with self.assertNoException():
+            template = Template(
+                r'{% load creme_ctype %}'
+                r'{{custom_ctype|ctype_verbose_name:1}}#'
+                r'{{custom_ctype|ctype_verbose_name:10}}#'
+                r'{{custom_ctype|ctype_verbose_name}}'
+            )
+            render = template.render(Context({
+                'custom_ctype': ContentType.objects.get_for_model(ce_type.entity_model),
+            }))
+
+        self.assertEqual(
+            f'{ce_type.name}#{ce_type.plural_name}#{ce_type.name}',
+            render.strip(),
+        )
+
+    def test_ctype_verbose_name_plural(self):
+        with self.assertNoException():
+            template = Template(
+                r'{% load creme_ctype %}'
+                r'{{sector_ctype|ctype_verbose_name_plural}}#'
+                r'{{contact_ctype|ctype_verbose_name_plural}}'
+            )
+            render = template.render(Context({
+                'sector_ctype': ContentType.objects.get_for_model(FakeSector),
+                'contact_ctype': ContentType.objects.get_for_model(FakeContact),
+            }))
+
+        self.assertEqual(
+            f'{FakeSector._meta.verbose_name_plural}#'
+            f'{FakeContact._meta.verbose_name_plural}',
+            render.strip(),
+        )
+
+    def test_ctype_verbose_name_plural__custom_type(self):
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Warehouse'
+        ce_type.plural_name = 'Warehouses'
+        ce_type.save()
+
+        with self.assertNoException():
+            template = Template(
+                r'{% load creme_ctype %}'
+                r'{{custom_ctype|ctype_verbose_name_plural}}'
+            )
+            render = template.render(Context({
+                'custom_ctype': ContentType.objects.get_for_model(ce_type.entity_model),
+            }))
+
+        self.assertEqual(ce_type.plural_name, render.strip())
 
     def test_ctype_counted_instances_label01(self):
         "Count == 1."

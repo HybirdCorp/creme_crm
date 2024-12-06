@@ -59,6 +59,7 @@ from ..models import (
     Relation,
     RelationType,
 )
+from ..models.utils import model_verbose_name
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.url import TemplateURLBuilder
 from .base import _CUSTOM_NAME, CremeForm, CremeModelForm, FieldBlockManager
@@ -582,7 +583,8 @@ class EntityExtractor(BaseExtractor):
                     ).format(
                         raw_error=e,
                         value=value,
-                        model=model._meta.verbose_name,
+                        # model=model._meta.verbose_name,
+                        model=model_verbose_name(model),
                     )
                 else:
                     extracted = created
@@ -593,7 +595,8 @@ class EntityExtractor(BaseExtractor):
                 ).format(
                     raw_error=e,
                     value=value,
-                    model=model._meta.verbose_name,
+                    # model=model._meta.verbose_name,
+                    model=model_verbose_name(model),
                 )
 
         return extracted, error_msg
@@ -731,7 +734,8 @@ class EntityExtractorField(forms.Field):
                 if cmd.create and not can_create(cmd.model):
                     raise ValidationError(
                         self.error_messages['nocreationperm'],
-                        params={'model': cmd.model._meta.verbose_name},
+                        # params={'model': cmd.model._meta.verbose_name},
+                        params={'model': model_verbose_name(cmd.model)},
                         code='nocreationperm',
                     )
 
@@ -804,7 +808,8 @@ class RelationExtractor(SingleColumnExtractor):
                     column=self._column_index,
                     field=self._subfield_search,
                     value=value,
-                    model=model._meta.verbose_name,
+                    # model=model._meta.verbose_name,
+                    model=model_verbose_name(model),
                 )
             else:
                 if object_entity is None:
@@ -820,7 +825,8 @@ class RelationExtractor(SingleColumnExtractor):
                                 'tried to build {model} with data={data} '
                                 '(column {column}) ➔ errors={errors}'
                             ).format(
-                                model=model._meta.verbose_name,
+                                # model=model._meta.verbose_name,
+                                model=model_verbose_name(model),
                                 column=self._column_index,
                                 data=data,
                                 errors=creator.errors,
@@ -834,7 +840,8 @@ class RelationExtractor(SingleColumnExtractor):
                             field=self._subfield_search,
                             column=self._column_index,
                             value=value,
-                            model=model._meta.verbose_name,
+                            # model=model._meta.verbose_name,
+                            model=model_verbose_name(model),
                         )
 
         return (self._rtype, object_entity), err_msg
@@ -1543,7 +1550,8 @@ class ImportForm4CremeEntity(ImportForm):
             if extractor.create_if_unfound and not can_create(extractor.related_model):
                 raise ValidationError(
                     self.error_messages['creation_forbidden'],
-                    params={'model': extractor.related_model._meta.verbose_name},
+                    # params={'model': extractor.related_model._meta.verbose_name},
+                    params={'model': model_verbose_name(extractor.related_model)},
                     code='creation_forbidden',
                 )
 

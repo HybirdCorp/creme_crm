@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/base.html' %}
 {% load i18n creme_bricks creme_ctype creme_perms creme_widgets %}
-{% load get_meta_value get_cloning_info get_deletion_info url from creme_core_tags %}
+{% load get_cloning_info get_deletion_info url from creme_core_tags %}{# get_meta_value #}
 
 {% block brick_extra_class %}brick-hat brick-hat-bar{% endblock %}
 
@@ -12,7 +12,8 @@
         <div class="bar-icon">{% block icon %}{% widget_icon instance=object size='brick-hat-bar' %}{% endblock %}</div>
         <div class="bar-title">
             <h1>
-              {% block title %}{{object|get_meta_value:'verbose_name'|capfirst}} : {{object|capfirst}}{% endblock %}
+{#              {% block title %}{{object|get_meta_value:'verbose_name'|capfirst}} : {{object|capfirst}}{% endblock %} #}
+              {% block title %}{% ctype_for_model object as object_ctype %}{{object_ctype|capfirst}} : {{object|capfirst}}{% endblock %}
               {% if object.is_deleted %}
                 <span class="bar-deleted-indicator">[{% translate 'Entity in the trash' %}]</span>
               {% elif object.sandbox %}

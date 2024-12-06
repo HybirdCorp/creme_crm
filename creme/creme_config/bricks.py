@@ -174,6 +174,23 @@ class _ConfigAdminBrick(QuerysetBrick):
     configurable = False
 
 
+class CustomEntitiesBrick(_ConfigAdminBrick):
+    id = _ConfigAdminBrick.generate_id('creme_config', 'custom_entities')
+    verbose_name = _('Types of custom entity')
+    dependencies = (core_models.CustomEntityType,)
+    template_name = 'creme_config/bricks/custom-entity-types.html'
+
+    # TODO: display some stats (number of related entities)
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            core_models.CustomEntityType.objects.filter(enabled=True),
+            available_slots_count=core_models.CustomEntityType.objects.filter(
+                enabled=False,
+            ).count(),
+        ))
+
+
 class PropertyTypesBrick(_ConfigAdminBrick):
     id = _ConfigAdminBrick.generate_id('creme_config', 'property_types')
     verbose_name = _('Types of property')

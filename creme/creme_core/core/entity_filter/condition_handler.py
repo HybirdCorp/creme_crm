@@ -53,6 +53,7 @@ from creme.creme_core.models import (
     RelationType,
 )
 from creme.creme_core.models.custom_field import _TABLES
+from creme.creme_core.models.utils import model_verbose_name_plural
 from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.utils.dates import date_2_dict
 from creme.creme_core.utils.meta import FieldInfo, is_date_field
@@ -1391,7 +1392,8 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
             if ctype is not None:
                 fmt_kwargs['model'] = (
-                    ctype.model_class()._meta.verbose_name_plural
+                    # ctype.model_class()._meta.verbose_name_plural
+                    model_verbose_name_plural(ctype.model_class())
                     if ctype else
                     '???'
                 )

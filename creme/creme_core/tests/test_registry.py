@@ -1,4 +1,5 @@
 from creme.creme_core.models import (
+    CustomEntityType,
     FakeContact,
     FakeDocument,
     FakeOrganisation,
@@ -10,6 +11,15 @@ from .base import CremeTestCase, skipIfNotInstalled
 
 
 class CremeRegistryTestCase(CremeTestCase):
+    def _enable_type(self, id, name):
+        ce_type = self.get_object_or_fail(CustomEntityType, id=id)
+        ce_type.enabled = True
+        ce_type.name = name
+        ce_type.plural_name = f'{name}s'
+        ce_type.save()
+
+        return ce_type
+
     def test_empty(self):
         registry = CremeRegistry()
         self.assertFalse([*registry.iter_entity_models()])
@@ -71,3 +81,33 @@ class CremeRegistryTestCase(CremeTestCase):
             [FakeContact, Contact, Organisation],
             [*registry.iter_entity_models(app_labels=['creme_core', 'persons'])],
         )
+
+    def test_custom_entity_type(self):
+        ce_type = self._enable_type(id=1, name='Shop')
+
+        registry = CremeRegistry().register_entity_models(FakeContact)
+        with self.assertNumQueries(1):
+            models = [*registry.iter_entity_models()]
+        self.assertCountEqual([FakeContact, ce_type.entity_model], models)
+
+        with self.assertNumQueries(0):
+            [*registry.iter_entity_models()] # NOQA
+
+    def test_custom_entity_type__filtered(self):
+        ce_type1 = self._enable_type(id=1, name='Shop')
+        ce_type2 = self._enable_type(id=2, name='Land')
+        ce_type3 = self.get_object_or_fail(CustomEntityType, id=3)
+        self.assertFalse(ce_type3.enabled)
+
+        registry = CremeRegistry().register_entity_models(FakeContact)
+        with self.assertNumQueries(1):
+            models = {
+                *registry.iter_entity_models(app_labels=['creme_core', 'custom_entities'])
+            }
+        self.assertIn(FakeContact,           models)
+        self.assertIn(ce_type1.entity_model, models)
+        self.assertIn(ce_type2.entity_model, models)
+        self.assertNotIn(ce_type3.entity_model, models)
+
+        with self.assertNumQueries(0):
+            [*registry.iter_entity_models(app_labels=['custom_entities'])]  # NOQA

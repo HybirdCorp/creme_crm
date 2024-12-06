@@ -131,6 +131,12 @@ class CustomFieldsConfigEntry(_ConfigURLEntry):
     url_name = 'creme_config__custom_fields'
 
 
+class CustomEntityTypesConfigEntry(_ConfigURLEntry):
+    id = 'creme_config-custom_entities'
+    label = models.CustomEntityType._meta.verbose_name_plural
+    url_name = 'creme_config__custom_entity_types'
+
+
 class FieldsConfigEntry(_ConfigURLEntry):
     id = 'creme_config-fields'
     label = _('Fields')
@@ -268,6 +274,7 @@ class CremeConfigEntry(menu.ContainerEntry):
         WorldConfigEntry,
         BricksConfigEntry,
         CustomFieldsConfigEntry,
+        CustomEntityTypesConfigEntry,
         FieldsConfigEntry,
         CustomFormsConfigEntry,
         HistoryConfigEntry,

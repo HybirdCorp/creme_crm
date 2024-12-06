@@ -301,7 +301,13 @@ class MenuEntriesField(fields.JSONField):
         for cls in self.menu_registry.entry_classes:
             entry_id = cls.id
             if entry_id not in excluded and cls.level == level:
-                yield entry_id, cls().label
+                # yield entry_id, cls().label
+                label = cls().label
+                # NB: entries with empty label are ignored; it's used for example
+                #     by entries for CustomEntities which are not enabled yet.
+                #     Should we find a better system (like an "invalid" attribute)?
+                if label:
+                    yield entry_id, label
 
     def _refresh_widget(self):
         self.widget.regular_entry_choices = CallableChoiceIterator(

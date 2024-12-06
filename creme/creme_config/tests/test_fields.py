@@ -762,6 +762,10 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
         )
 
     def test_attributes01(self):
+        class EmptyLabelEntry(MenuEntry):  # Should be ignored
+            id = 'creme_core-empty_label'
+            model = FakeSector
+
         field = MenuEntriesField()
         self.assertIs(menu_registry, field.menu_registry)
         self.assertEqual(1, field.entry_level)
@@ -780,6 +784,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
             ContainerEntry,
             FakeContactsEntry, FakeContactCreationEntry,
             FakeOrganisationsEntry, FakeOrganisationCreationEntry,
+            EmptyLabelEntry,
         )
         field.menu_registry = my_registry
         self.assertIs(my_registry, field.menu_registry)
@@ -804,6 +809,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
         )
         self.assertNotInChoices(value=FakeContactsEntry.id, choices=choices_list)
         self.assertNotInChoices(value=ContainerEntry.id,    choices=choices_list)
+        self.assertNotInChoices(value=EmptyLabelEntry.id,   choices=choices_list)
 
     def test_attributes02(self):
         my_registry = MenuRegistry().register(

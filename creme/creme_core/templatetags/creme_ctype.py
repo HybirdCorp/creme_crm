@@ -24,6 +24,7 @@ from django.template import Library
 from django.utils.translation import gettext as _
 
 from .. import get_concrete_model
+from ..models import utils
 from ..utils.translation import get_model_verbose_name
 
 register = Library()
@@ -77,7 +78,17 @@ def ctype_for_swappable(model_setting: str) -> ContentType:
 @register.filter
 def ctype_verbose_name(ctype: ContentType, count: int | None  = None) -> str:
     model = ctype.model_class()
-    return model._meta.verbose_name if count is None else get_model_verbose_name(model, count)
+    # return model._meta.verbose_name if count is None else get_model_verbose_name(model, count)
+    return (
+        utils.model_verbose_name(model)
+        if count is None else
+        get_model_verbose_name(model, count)
+    )
+
+
+@register.filter
+def ctype_verbose_name_plural(ctype: ContentType) -> str:
+    return utils.model_verbose_name_plural(ctype.model_class())
 
 
 @register.simple_tag

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-12 11:23+0200\n"
+"POT-Creation-Date: 2024-12-17 20:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -41,6 +41,9 @@ msgstr "Exporter & importer la configuration"
 
 msgid "Instance settings"
 msgstr "Gestion de l'instance"
+
+msgid "Types of custom entity"
+msgstr "Types de fiche personnalisée"
 
 msgid "Types of property"
 msgstr "Types de propriété"
@@ -352,6 +355,19 @@ msgstr "S'applique aux types de fiches"
 msgid "No selected type means that all types are accepted"
 msgstr "Aucun type sélectionné signifiera que tous les types sont acceptés"
 
+msgid "There is already a type with this name."
+msgstr "Il y a déjà un type avec ce nom."
+
+msgid "Name"
+msgstr "Nom"
+
+msgid "Name (plural)"
+msgstr "Nom (pluriel)"
+
+#, python-brace-format
+msgid "{model} view"
+msgstr "Vue de {model}"
+
 msgid "Type of field"
 msgstr "Type du champ"
 
@@ -409,9 +425,6 @@ msgid "This choice is not used by any entity, you can delete it safely."
 msgstr ""
 "Ce choix n'est utilisé par aucune fiche, vous pouvez le supprimer en toute "
 "sécurité."
-
-msgid "Name"
-msgstr "Nom"
 
 msgid "Fields"
 msgstr "Champs"
@@ -1147,7 +1160,12 @@ msgid "Base configuration"
 msgstr "Configuration de base"
 
 msgid "Used when no role configuration is available for a user"
-msgstr "Utilisée quand aucune configuration de rôle n'est disponible pour un utilisateur"
+msgstr ""
+"Utilisée quand aucune configuration de rôle n'est disponible pour un "
+"utilisateur"
+
+msgid "Configurate the buttons for a new type of entity"
+msgstr "Configurer les boutons pour un nouveau type de fiche"
 
 msgid "Clone the base configuration for a role"
 msgstr "Cloner la configuration de base pour un rôle"
@@ -1155,22 +1173,19 @@ msgstr "Cloner la configuration de base pour un rôle"
 msgid "No button"
 msgstr "Pas de bouton"
 
-msgid "Configurate the buttons for a new type of entity"
-msgstr "Configurer les boutons pour un nouveau type de fiche"
-
 msgid "Configuration for superusers"
 msgstr "Configuration pour les super-utilisateurs"
-
-msgid "Clone this configuration for another role"
-msgstr "Cloner cette configuration pour un autre rôle"
 
 msgid "Delete the whole configuration for superusers"
 msgstr "Supprimer la configuration complète pour les super-utilisateurs"
 
 msgid "Are you sure you want to delete the whole configuration for superusers?"
 msgstr ""
-"Êtes vous sûr de vouloir supprimer la configuration complète pour les "
-"super-utilisateurs ?"
+"Êtes vous sûr de vouloir supprimer la configuration complète pour les super-"
+"utilisateurs ?"
+
+msgid "Clone this configuration for another role"
+msgstr "Cloner cette configuration pour un autre rôle"
 
 #, python-format
 msgid "Configuration for role «%(role)s»"
@@ -1206,6 +1221,41 @@ msgstr "Types configurables"
 
 msgid "No type requires configuration"
 msgstr "Aucun type ne nécessite de configuration"
+
+#, python-brace-format
+msgid "{count} Type of entity"
+msgstr "{count} Type de fiche"
+
+#, python-brace-format
+msgid "{count} Types of entity"
+msgstr "{count} Types de fiche"
+
+msgid "Type of entity"
+msgstr "Type de fiche"
+
+msgid "New custom type"
+msgstr "Nouveau type personnalisé"
+
+msgid "You have reached the maximum number of custom types."
+msgstr "Vous avez atteint le nombre maximum de types personnalisés."
+
+msgid "You cannot edit a deleted custom type"
+msgstr "Vous en pouvez pas modifier un type personnalisé supprimé"
+
+msgid "Edit this custom type"
+msgstr "Modifier ce type personnalisé"
+
+msgid "Restore this custom type"
+msgstr "Restaurer ce type personnalisé"
+
+msgid "Delete this custom type definitively"
+msgstr "Supprimer ce type personnalisé définitivement"
+
+msgid "Delete this custom type"
+msgstr "Restaurer ce type personnalisé"
+
+msgid "No custom type for the moment"
+msgstr "Aucun type personnalisé pour le moment"
 
 #, python-brace-format
 msgid "{count} Choice"
@@ -1653,9 +1703,6 @@ msgstr "{count} Type de relation standard"
 #, python-brace-format
 msgid "{count} Standard types of relation"
 msgstr "{count} Types de relation standard"
-
-msgid "New custom type"
-msgstr "Nouveau type personnalisé"
 
 msgid "Subject(s)"
 msgstr "Sujet(s)"
@@ -2154,6 +2201,12 @@ msgstr "Gestion des champs personnalisés"
 msgid "Add new fields to entities"
 msgstr "Ajouter de nouveaux champs aux fiches"
 
+msgid "Custom entity types settings"
+msgstr "Gestion des types de fiche personnalisées"
+
+msgid "Add new types of entity"
+msgstr "Ajouter de nouveaux types de fiche"
+
 msgid "Custom forms settings"
 msgstr "Gestion des formulaires personnalisés"
 
@@ -2248,6 +2301,17 @@ msgstr ""
 "juste en dessous du bloc entête.\n"
 "Remarque : les boutons de la configuration par défaut sont toujours placés "
 "au début, avant les boutons spécifiques à un type de fiche."
+
+msgid "Configuration of custom entities"
+msgstr "Configuration des fiches personnalisés"
+
+#, python-format
+msgid ""
+"Here you can create your own types of entity.\n"
+"Notice: the number of types is limited to %(max_count)s."
+msgstr ""
+"Ici vous pouvez créer vos propres types de fiche.\n"
+"Remarque : le nombre de types est limité à %(max_count)s."
 
 msgid "Configuration of custom forms"
 msgstr "Configuration des formulaires personnalisés"
@@ -2540,6 +2604,24 @@ msgctxt "creme_config-property"
 msgid "Edit the type «{object}»"
 msgstr "Modifier le type «{object}»"
 
+msgid "New custom type of entity"
+msgstr "Nouveau type de fiche personnalisé"
+
+msgid "This custom type does not exist anymore."
+msgstr "Ce type personnalisé n'existe plus."
+
+msgid "This custom type cannot be edited because it is going to be deleted."
+msgstr ""
+"Ce type personnalisé ne peut pas être modifié car il est sur le point d'être "
+"supprimé."
+
+#, python-brace-format
+msgid "This custom type cannot be deleted because {count} entity uses it."
+msgid_plural ""
+"This custom type cannot be deleted because {count} entities use it."
+msgstr[0] "Ce type personnalisé ne peut pas être supprimé car {count} fiche l'utilise."
+msgstr[1] "Ce type personnalisé ne peut pas être supprimé car {count} fiches l'utilisent."
+
 #, python-brace-format
 msgid "New custom field for «{model}»"
 msgstr "Nouveau champ personnalisé pour «{model}»"
@@ -2808,9 +2890,6 @@ msgstr "Modifier la configuration de l'instance"
 
 #~ msgid "You cannot delete this role. [original error: {}]"
 #~ msgstr "Vous ne pouvez pas supprimer ce rôle. [erreur d'origine : {}]"
-
-#~ msgid "{} can not be deleted because of its dependencies."
-#~ msgstr "{} ne peut pas être effacé à cause de ses dépendances."
 
 #~ msgid "Can delete"
 #~ msgstr "Peut supprimer"

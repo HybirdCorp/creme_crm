@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -63,12 +63,23 @@ class CremeRegistry:
                If a container of app labels is given, only models related to
                these apps are yielded.
         """
+        from .models import CustomEntityType
+
         if app_labels is None:
             yield from self._entity_models
+            for ce_type in CustomEntityType.objects.all_types():
+                if ce_type.enabled:  # TODO: in all_types()?
+                    yield ce_type.entity_model
         else:
             for model in self._entity_models:
                 if model._meta.app_label in app_labels:
                     yield model
+
+            for ce_type in CustomEntityType.objects.all_types():
+                if ce_type.enabled:  # TODO: in all_types()?
+                    model = ce_type.entity_model
+                    if model._meta.app_label in app_labels:
+                        yield model
 
 
 creme_registry = CremeRegistry()

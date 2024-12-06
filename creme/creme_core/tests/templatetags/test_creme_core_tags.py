@@ -34,7 +34,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self.assertEqual(
             '#'.join([_('Core'), _('General configuration'), '?', '???']),
-            render.strip())
+            render.strip(),
+        )
 
     def test_get_by_index(self):
         with self.assertNoException():

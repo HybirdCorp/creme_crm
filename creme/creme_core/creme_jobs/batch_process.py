@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2022  Hybird
+#    Copyright (C) 2016-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from django.utils.translation import ngettext
 from ..core.batch_process import BatchAction
 from ..core.paginator import FlowPaginator
 from ..models import EntityCredentials, EntityFilter, EntityJobResult
+from ..models.utils import model_verbose_name
 from .base import JobProgress, JobType
 
 logger = logging.getLogger(__name__)
@@ -149,7 +150,8 @@ class _BatchProcessType(JobType):
         try:
             job_data = job.data
             model = self._get_model(job_data)
-            desc = [gettext('Entity type: {}').format(model._meta.verbose_name)]
+            # desc = [gettext('Entity type: {}').format(model._meta.verbose_name)]
+            desc = [gettext('Entity type: {}').format(model_verbose_name(model))]
 
             efilter = self._get_efilter(job_data, raise_exception=False)
             if efilter is not None:

@@ -35,6 +35,7 @@ from ..core.paginator import FlowPaginator
 from ..forms import creme_property as prop_forms
 from ..gui.bricks import Brick, ForbiddenBrick, QuerysetBrick
 from ..models import CremeEntity, CremeProperty, CremePropertyType
+from ..models.utils import model_verbose_name_plural
 from ..utils import get_from_POST_or_404
 from ..utils.content_type import entity_ctypes
 from . import generic
@@ -336,7 +337,8 @@ class PropertyTypeDetail(generic.CremeModelDetail):
                 if not has_perm_to_access(ctype.app_label):
                     brick = ForbiddenBrick(
                         id=brick.id,
-                        verbose_name=ctype.model_class()._meta.verbose_name_plural,
+                        # verbose_name=ctype.model_class()._meta.verbose_name_plural,
+                        verbose_name=model_verbose_name_plural(ctype.model_class()),
                     )
 
                 bricks.append(brick)
@@ -386,7 +388,8 @@ class PropertyTypeBricksReloading(BricksReloading):
                     if not self.request.user.has_perm_to_access(ctype.app_label):
                         brick = ForbiddenBrick(
                             id=brick.id,
-                            verbose_name=ctype.model_class()._meta.verbose_name_plural,
+                            # verbose_name=ctype.model_class()._meta.verbose_name_plural,
+                            verbose_name=model_verbose_name_plural(ctype.model_class()),
                         )
 
             bricks.append(brick)

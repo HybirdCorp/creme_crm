@@ -532,7 +532,7 @@ class EntityBrick(Brick):
         ]
 
     def _get_title(self, entity: CremeEntity, context) -> str:
-        return gettext('Information «{model}»').format(model=type(entity)._meta.verbose_name)
+        return gettext('Information «{model}»').format(model=entity.entity_type)
 
     def detailview_display(self, context):
         entity = context['object']
