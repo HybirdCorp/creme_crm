@@ -6,6 +6,7 @@ from .views import (
     batch_process,
     bricks,
     creme_property,
+    custom_entity,
     entity,
     entity_filter,
     enumerable,
@@ -155,6 +156,29 @@ entity_patterns = [
         # entity.restrict_to_superusers,
         entity.SuperusersRestriction.as_view(),
         name='creme_core__restrict_entity_2_superusers',
+    ),
+]
+
+custom_entity_patterns = [
+    re_path(
+        r'^type_(?P<type_number>\d+)/list[/]?$',
+        custom_entity.CustomEntitiesList.as_view(),
+        name='creme_core__list_custom_entities',
+    ),
+    re_path(
+        r'^type_(?P<type_number>\d+)/add[/]?$',
+        custom_entity.CustomEntityCreation.as_view(),
+        name='creme_core__create_custom_entity',
+    ),
+    re_path(
+        r'^type_(?P<type_number>\d+)/edit/(?P<entity_id>\d+)[/]?$',
+        custom_entity.CustomEntityEdition.as_view(),
+        name='creme_core__edit_custom_entity',
+    ),
+    re_path(
+        r'^type_(?P<type_number>\d+)/(?P<entity_id>\d+)[/]?$',
+        custom_entity.CustomEntityDetail.as_view(),
+        name='creme_core__view_custom_entity',
     ),
 ]
 
@@ -430,6 +454,7 @@ notification_patterns = [
 creme_core_patterns = [
     re_path(r'^auth/',          include(auth_patterns)),
     re_path(r'^entity/',        include(entity_patterns)),
+    re_path(r'^custom_entity/', include(custom_entity_patterns)),
     re_path(r'^relation/',      include(relation_patterns)),
     re_path(r'^property/',      include(property_patterns)),
     re_path(r'^bricks/',        include(bricks_patterns)),

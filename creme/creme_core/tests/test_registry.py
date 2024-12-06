@@ -1,4 +1,6 @@
+from creme.creme_core.models import CustomEntity1  # NOQA
 from creme.creme_core.models import (
+    CustomEntityType,
     FakeContact,
     FakeDocument,
     FakeOrganisation,
@@ -71,3 +73,16 @@ class CremeRegistryTestCase(CremeTestCase):
             [FakeContact, Contact, Organisation],
             [*registry.iter_entity_models(app_labels=['creme_core', 'persons'])],
         )
+
+    def test_custom_entity_type(self):
+        CustomEntityType.objects.create(number=1, name='Shop')
+
+        registry = CremeRegistry().register_entity_models(FakeContact)
+        with self.assertNumQueries(1):
+            models = [*registry.iter_entity_models()]
+        self.assertCountEqual([FakeContact, CustomEntity1], models)
+
+        with self.assertNumQueries(0):
+            [*registry.iter_entity_models()] # NOQA
+
+        # TODO: complete (app_labels...)
