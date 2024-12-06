@@ -1,0 +1,16 @@
+{% extends 'creme_config/portals/base.html' %}
+{% load i18n creme_widgets %}
+
+{% block page_title %}{% translate 'Configuration of custom entities' %} - {% endblock %}
+
+{% block title %}
+    {{block.super}}{% translate 'Types of custom entities' %}
+{% endblock %}
+
+{% comment %} TODO
+{% block portal_help %}
+{% blocktranslate asvar help_msg %}Here you can configure the buttons displayed on detailed views, just below the header block.
+Notice: the buttons of the default configuration are always placed at the beginning, before the buttons specific to a type of entity.{% endblocktranslate %}
+    {% widget_help_sign message=help_msg %}
+{% endblock %}
+{% endcomment %}

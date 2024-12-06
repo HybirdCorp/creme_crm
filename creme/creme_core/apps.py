@@ -151,6 +151,8 @@ class ContentTypesConfig(VanillaContentTypesConfig):
 
         from django.contrib.contenttypes.models import ContentType
 
+        from creme.creme_core.models import CustomEntityType
+
         meta = ContentType._meta
         assert not meta.ordering, 'It seems ContentType has an ordering policy now?!'
 
@@ -160,9 +162,23 @@ class ContentTypesConfig(VanillaContentTypesConfig):
         for fname in ('app_label', 'model'):
             get_ct_field(fname).set_tags(viewable=False)
 
-        # NB: the original prefix with app's name => ugly choices for final users
-        #     => use gettext+context had smooth translation instead
-        ContentType.__str__ = lambda this: this.name
+        # TODO: clean
+        # # NB: the original prefix with app's name => ugly choices for final users
+        # #     => use gettext+context had smooth translation instead
+        # ContentType.__str__ = lambda this: this.name
+
+        def ct_str(this):
+            if this.app_label == 'creme_core' and this.model.startswith('customentity'):
+                ce_type = CustomEntityType.objects.get_for_id(
+                    int(this.model.removeprefix('customentity'))
+                )
+                return '?' if ce_type is None or not ce_type.enabled else ce_type.name
+
+            # NB: the original prefix with app's name => ugly choices for final users
+            #     => use gettext+context had smooth translation instead
+            return this.name
+
+        ContentType.__str__ = ct_str
 
 
 class CremeAppConfig(AppConfig):

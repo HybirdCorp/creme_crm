@@ -55,6 +55,7 @@ from .models import (
     UserRole,
     Vat,
 )
+from .models.custom_entity import CustomEntityType, custom_classes
 from .registry import creme_registry
 from .utils.date_period import date_period_registry
 
@@ -74,6 +75,7 @@ class Populator(BasePopulator):
             CaseSensitivity.objects.create(text='CasE')
 
         super()._populate()
+        self._populate_custom_entity_types()
         self._populate_currencies()
 
         if settings.TESTS_ON:
@@ -128,6 +130,17 @@ class Populator(BasePopulator):
             ),
             set_type=SetCredentials.ESET_ALL,
         )
+
+    def _populate_custom_entity_types(self):
+        create_type = CustomEntityType.objects.get_or_create
+
+        for idx in custom_classes.keys():
+            create_type(
+                id=idx,
+                defaults={
+                    'name': f'Placeholder #{idx}',
+                },
+            )
 
     def _populate_currencies(self):
         Currency.objects.get_or_create(

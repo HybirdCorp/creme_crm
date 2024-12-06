@@ -4,6 +4,7 @@ from .views import (
     bricks,
     button_menu,
     creme_property_type,
+    custom_entity,
     custom_field,
     custom_form,
     entity_filter,
@@ -175,6 +176,34 @@ role_patterns = [
         r'^delete_credentials[/]?$',
         user_role.CredentialsDeletion.as_view(),
         name='creme_config__remove_role_credentials',
+    ),
+]
+
+custom_entity_patterns = [
+    re_path(
+        r'^portal[/]?$',
+        custom_entity.Portal.as_view(),
+        name='creme_config__custom_entity_types',
+    ),
+    re_path(
+        r'^ct/add[/]?$',
+        custom_entity.CustomEntityTypeCreation.as_view(),
+        name='creme_config__create_custom_entity_type',
+    ),
+    re_path(
+        r'^edit/(?P<cetype_id>\d+)[/]?$',
+        custom_entity.CustomEntityTypeEdition.as_view(),
+        name='creme_config__edit_custom_entity_type',
+    ),
+    re_path(
+        r'^delete[/]?$',
+        custom_entity.CustomEntityDeletion.as_view(),
+        name='creme_config__delete_custom_entity_type',
+    ),
+    re_path(
+        r'^restore[/]?$',
+        custom_entity.CustomEntityRestoration.as_view(),
+        name='creme_config__restore_custom_entity_type',
     ),
 ]
 
@@ -807,6 +836,7 @@ urlpatterns = [
     re_path(r'^world/',         include(world_patterns)),
     re_path(r'^bricks/',        include(bricks_patterns)),
     re_path(r'^button_menu/',   include(button_menu_patterns)),
+    re_path(r'^custom_entity/', include(custom_entity_patterns)),
     re_path(r'^custom_fields/', include(custom_fields_patterns)),
     re_path(r'^custom_forms/',  include(custom_forms_patterns)),
     re_path(r'^fields/',        include(fields_config_patterns)),
