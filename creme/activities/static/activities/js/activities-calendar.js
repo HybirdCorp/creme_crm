@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2024  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -47,7 +47,7 @@ function momentFormatter(format, dayFormat) {
 
         return output;
     };
-};
+}
 
 var FULLCALENDAR_SETTINGS = {
     // plugins: [ 'interaction', 'timeGrid', 'dayGrid', 'moment' ],
@@ -694,93 +694,81 @@ creme.ActivityCalendar = creme.component.Component.sub({
     },
 
     _eventTimeSlotCount: function(event, calendar) {
-        var eventDuration = this.toMoment(event.end, calendar).diff(this.toMoment(event.start, calendar));
-        var slotDuration = moment.duration(calendar.getOption('slotDuration')).asMilliseconds();
-        return event.end && Math.round(eventDuration / slotDuration);
+        if (event.end) {
+            var start = this.toMoment(event.start, calendar);
+            var end = this.toMoment(event.end, calendar);
+            var eventDuration = start ? end.diff(start) : 0;
+            var slotDuration = moment.duration(calendar.getOption('slotDuration')).asMilliseconds();
+            return Math.round(eventDuration / slotDuration);
+        }
     },
 
     _renderWeekEventContent: function(calendar, info, createElement) {
         var event = info.event;
         var view = info.view;
-        var items = [];
         var text = info.timeText;
-        var formatter = FullCalendar.createFormatter(calendar.getOption('eventTimeFormat'));
+        var formatter = FullCalendar.Internal.createFormatter(calendar.getOption('eventTimeFormat'));
         var slotCount = this._eventTimeSlotCount(event, calendar);
         var typeTag = event.extendedProps.type || '';
 
         if (event.allDay) {
-            items = [
-                createElement('div', {className: 'fc-event-main-frame'},
-                    createElement('div', {className: 'fc-event-title'}, event.title),
-                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
-                )
-            ];
+            return createElement('div', {className: 'fc-event-main-frame'},
+                createElement('div', {className: 'fc-event-title'}, event.title),
+                typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
+            );
         } else if (slotCount < 2) {
             text = view.dateEnv.format(event.start, formatter);
 
-            items = [
-                createElement('div', {className: 'fc-event-main-frame fc-smaller'},
-                    text && (createElement("div", { className: "fc-event-time" }, text)),
-                    createElement('div', {className: 'fc-event-title'}, event.title),
-                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
-                )
-            ];
+            return createElement('div', {className: 'fc-event-main-frame fc-smaller'},
+                text && (createElement("div", { className: "fc-event-time" }, text)),
+                createElement('div', {className: 'fc-event-title'}, event.title),
+                typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
+            );
         } else if (slotCount < 3) {
             text = view.dateEnv.format(event.start, formatter);
 
-            items = [
-                createElement('div', {className: 'fc-event-main-frame fc-small'},
-                    text && (createElement("div", { className: "fc-event-time" }, text)),
-                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag)),
-                    createElement('div', {className: 'fc-event-title'}, event.title)
-                )
-            ];
+            return createElement('div', {className: 'fc-event-main-frame fc-small'},
+                text && (createElement("div", { className: "fc-event-time" }, text)),
+                typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag)),
+                createElement('div', {className: 'fc-event-title'}, event.title)
+            );
         } else {
             text = event.end ? this._formatEventTime(info, formatter) : text;
 
-            items = [
-                createElement('div', {className: 'fc-event-main-frame'},
-                    typeTag && (createElement('div', {className: 'fc-event-type fc-sticky'}, typeTag)),
-                    createElement('div', {className: 'fc-event-header'},
-                        text && (createElement("div", {className: "fc-event-time"}, text))
-                    ),
-                    createElement('div', {className: 'fc-event-title-container'},
-                        createElement('div', {className: 'fc-event-title fc-sticky'}, event.title)
-                    )
+            return createElement('div', {className: 'fc-event-main-frame'},
+                typeTag && (createElement('div', {className: 'fc-event-type fc-sticky'}, typeTag)),
+                createElement('div', {className: 'fc-event-header'},
+                    text && (createElement("div", {className: "fc-event-time"}, text))
+                ),
+                createElement('div', {className: 'fc-event-title-container'},
+                    createElement('div', {className: 'fc-event-title fc-sticky'}, event.title)
                 )
-            ];
+            );
         }
-
-        return items;
     },
 
     _renderMonthEventContent: function(calendar, info, createElement) {
         var event = info.event;
         var typeTag = event.extendedProps.type || '';
         var dotColor = info.borderColor || info.backgroundColor;
-        var items = [];
         var text = info.timeText;
         var start = this.toMoment(event.start, calendar);
         var end = this.toMoment(event.end, calendar);
         var isMultiDay = end && start.format('MMD') !== end.format('MMD');
 
         if (event.allDay || isMultiDay) {
-            items = [
-                createElement('div', {className: 'fc-event-main-frame'},
-                    createElement('div', {className: 'fc-event-title'}, event.title),
-                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
-                )
-            ];
+            return createElement('div', {className: 'fc-event-main-frame'},
+                createElement('div', {className: 'fc-event-title'}, event.title),
+                typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
+            );
         } else {
-            items = [
+            return createElement('div', {className: 'fc-event-empty-frame'},
                 createElement('div', {className: 'fc-daygrid-event-dot', style: {borderColor: dotColor}}),
                 text && (createElement("div", { className: "fc-event-time" }, text)),
                 createElement('div', {className: 'fc-event-title'}, event.title),
                 typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
-            ];
+            );
         }
-
-        return items;
     },
 
     _renderCalendarEventContent: function(calendar, info, createElement) {
@@ -792,7 +780,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
     },
 
     _postRenderCalendarEvent: function(calendar, info) {
-        var formatter = FullCalendar.createFormatter(calendar.getOption('eventTimeFormat'));
+        var formatter = FullCalendar.Internal.createFormatter(calendar.getOption('eventTimeFormat'));
         var title = "${range}\n${tag}${title}".template({
             range: this._formatEventTime(info, formatter),
             tag: info.event.extendedProps.type ? info.event.extendedProps.type + '\n' : '',

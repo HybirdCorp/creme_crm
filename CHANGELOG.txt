@@ -28,6 +28,8 @@
     # The deletion views have now a better display for the dependencies issues.
       Example: entities are displayed as HTML links.
     # Apps :
+        * Activities :
+            - The JavaScript component FullCalendar has been upgraded to the version "6.1.15"
         * Creme_config :
             - The buttons configuration can now be customised per role.
             - The property types have now a field "description" (it can be empty of course).
