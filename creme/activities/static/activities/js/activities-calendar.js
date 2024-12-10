@@ -47,7 +47,7 @@ function momentFormatter(format, dayFormat) {
 
         return output;
     };
-};
+}
 
 var FULLCALENDAR_SETTINGS = {
     // plugins: [ 'interaction', 'timeGrid', 'dayGrid', 'moment' ],
@@ -704,7 +704,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
         var view = info.view;
         var items = [];
         var text = info.timeText;
-        var formatter = FullCalendar.createFormatter(calendar.getOption('eventTimeFormat'));
+        var formatter = FullCalendar.Internal.createFormatter(calendar.getOption('eventTimeFormat'));
         var slotCount = this._eventTimeSlotCount(event, calendar);
         var typeTag = event.extendedProps.type || '';
 
@@ -792,7 +792,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
     },
 
     _postRenderCalendarEvent: function(calendar, info) {
-        var formatter = FullCalendar.createFormatter(calendar.getOption('eventTimeFormat'));
+        var formatter = FullCalendar.Internal.createFormatter(calendar.getOption('eventTimeFormat'));
         var title = "${range}\n${tag}${title}".template({
             range: this._formatEventTime(info, formatter),
             tag: info.event.extendedProps.type ? info.event.extendedProps.type + '\n' : '',
@@ -892,7 +892,9 @@ creme.ActivityCalendar = creme.component.Component.sub({
                     return self._renderWeekNumber(calendar, info);
                 },
                 eventContent: function(info, createElement) {
-                    return self._renderCalendarEventContent(calendar, info, createElement);
+                    return {
+                        domNodes: self._renderCalendarEventContent(calendar, info, FullCalendar.Preact.createElement)
+                    };
                 },
                 eventDidMount: function(info) {
                     return self._postRenderCalendarEvent(calendar, info);
