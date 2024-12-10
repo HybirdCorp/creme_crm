@@ -770,9 +770,6 @@ QUnit.parameterize('creme.ActivityCalendar.timezoneOffset', [
     equal(now, expected.toISOString(true));
 });
 
-// SWITCHING TO 'week' DO NOT WORK WITH FULLCALENDAR 5.x
-// TODO : Find why !
-/*
 QUnit.test('creme.ActivityCalendar.rendering (week view)', function(assert) {
     var element = $(this.createDefaultCalendarHtml({
         options: {debounceDelay: 0}
@@ -780,6 +777,7 @@ QUnit.test('creme.ActivityCalendar.rendering (week view)', function(assert) {
 
     var controller = new creme.ActivityCalendar(element, {
                              eventFetchUrl: 'mock/calendar/events',
+                             initialDate: '2023-03-20'
                          });
 
     controller.fullCalendarView('week', {
@@ -792,7 +790,7 @@ QUnit.test('creme.ActivityCalendar.rendering (week view)', function(assert) {
     };
 
     equal(view.type, 'week');
-    equal('${week} ${num}'.template({week: gettext('Week'), num: todayAt().format('W')}),
+    equal('${week} ${num}'.template({week: gettext('Week'), num: moment('2023-03-20').format('W')}),
           element.find('.fc-header-week').text());
 
     deepEqual([{
@@ -800,37 +798,43 @@ QUnit.test('creme.ActivityCalendar.rendering (week view)', function(assert) {
             title: "Event #20-3 (all day)",
             typename: '<div class="fc-event-type">Meeting</div>',
             color: hex2rgb('#fc0000'),
-            isSmall: false
+            isSmall: false,
+            isSmaller: false
         }, {
             timestamp: [todayAt({hours: 8}).format('H[h]mm'), todayAt({hours: 9}).format('H[h]mm')].join(' − '),
             title: "Event #1",
-            typename: '<div class="fc-event-type">Call</div>',
+            typename: '<div class="fc-event-type fc-sticky">Call</div>',
             color: hex2rgb('#fcfcfc'),
-            isSmall: false
+            isSmall: false,
+            isSmaller: false
         }, {
             timestamp: [todayAt({hours: 9}).format('H[h]mm'), todayAt({hours: 10}).format('H[h]mm')].join(' − '),
             title: "Event #2",
-            typename: '<div class="fc-event-type">Call</div>',
+            typename: '<div class="fc-event-type fc-sticky">Call</div>',
             color: hex2rgb('#fcfcfc'),
-            isSmall: false
+            isSmall: false,
+            isSmaller: false
         }, {
             timestamp: [todayAt({hours: 10, minutes: 30}).format('H[h]mm'), todayAt({hours: 12}).format('H[h]mm')].join(' − '),
             title: "Event #10-1",
-            typename: '<div class="fc-event-type">Meeting</div>',
+            typename: '<div class="fc-event-type fc-sticky">Meeting</div>',
             color: hex2rgb('#fc00fc'),
-            isSmall: false
+            isSmall: false,
+            isSmaller: false
         }, {
-            timestamp: [todayAt({hours: 14, minutes: 30}).format('H[h]mm'), todayAt({hours: 14, minutes: 45}).format('H[h]mm')].join(' − '),
+            timestamp: todayAt({hours: 14, minutes: 30}).format('H[h]mm'),
             title: "Event #20-1 (small)",
-            typename: '<div class="fc-event-type">M.</div>',
+            typename: '<div class="fc-event-type">Meeting</div>',
             color: hex2rgb('#fc0000'),
-            isSmall: true
+            isSmall: false,
+            isSmaller: true
         }, {
             timestamp: [todayAt({hours: 16, minutes: 30}).format('H[h]mm'), todayAt({hours: 18}).format('H[h]mm')].join(' − '),
             title: "Event #20-2",
-            typename: '<div class="fc-event-type">Meeting</div>',
+            typename: '<div class="fc-event-type fc-sticky">Meeting</div>',
             color: hex2rgb('#fc0000'),
-            isSmall: false
+            isSmall: false,
+            isSmaller: false
         }
     ], element.find('.calendar .fc-event').map(function() {
         return {
@@ -838,30 +842,27 @@ QUnit.test('creme.ActivityCalendar.rendering (week view)', function(assert) {
             title: $(this).find('.fc-event-title').text(),
             typename: $(this).find('.fc-event-type').prop('outerHTML'),
             color: $(this).is('.fc-daygrid-dot-event') ? $(this).find('.fc-daygrid-event-dot').css('border-color') : $(this).css('background-color'),
-            isSmall: $(this).find('.fc-small').length > 0
+            isSmall: $(this).find('.fc-small').length > 0,
+            isSmaller: $(this).find('.fc-smaller').length > 0
         };
     }).get());
 });
-*/
-/*
- * THIS FEATURE DO NOT WORK WITH FULLCALENDAR v4.x !!
- * TODO : see if we can reimplement it with rending hooks in v5+
- */
-/*
+
 QUnit.test('creme.ActivityCalendar.rendering (hilight, week view)', function(assert) {
     var element = $(this.createDefaultCalendarHtml()).appendTo(this.qunitFixture());
     var controller = new creme.ActivityCalendar(element, {
-                         eventFetchUrl: 'mock/calendar/events'
+                         eventFetchUrl: 'mock/calendar/events',
+                         initialDate: '2023-03-20'
                      });
 
     controller.fullCalendar().changeView('week');
 
     var timeFormat = "H[h]mm";
 
-    var start = todayAt({hours: 8});
-    var end = todayAt({hours: 9, minutes: 45});
+    var start = moment.utc('2023-03-25T08:00:00');
+    var end = moment.utc('2023-03-25T09:45:00');
 
-    deepEqual([], element.find('.calendar .fc-highlight').get());
+    deepEqual([], element.find('.calendar .fc-event-mirror').get());
 
     controller.fullCalendar().select(start.toDate(), end.toDate());
 
@@ -870,13 +871,12 @@ QUnit.test('creme.ActivityCalendar.rendering (hilight, week view)', function(ass
             start: start.format(timeFormat),
             end: end.format(timeFormat)
         })
-    }], element.find('.calendar .fc-highlight .fc-event-time').map(function() {
+    }], element.find('.calendar .fc-event-mirror .fc-event-time').map(function() {
         return {
             content: $(this).text()
         };
     }).get());
 });
-*/
 
 QUnit.test('creme.ActivityCalendar.visibleCalendarIds (selection)', function(assert) {
     var controller = this.createDefaultCalendar();
@@ -1629,7 +1629,6 @@ QUnit.test('creme.ActivityCalendar.external (ok, none remains, allDay)', functio
 
 // SWITCHING TO 'week' DO NOT WORK WITH FULLCALENDAR 5.x
 // TODO : Find why !
-/*
 QUnit.test('creme.ActivityCalendar.external (ok, hour)', function(assert) {
     var controller = this.createDefaultCalendar({
         options: {debounceDelay: 0}
@@ -1665,8 +1664,8 @@ QUnit.test('creme.ActivityCalendar.external (ok, hour)', function(assert) {
         ['mock/calendar/event/update', 'POST', {
             id: 52,
             allDay: false,
-            start: dropEventStart.format(),
-            end: dropEventEnd.format()
+            start: toISO8601(dropEventStart),
+            end: toISO8601(dropEventEnd)
         }]
     ], this.mockBackendUrlCalls());
 
@@ -1720,8 +1719,8 @@ QUnit.test('creme.ActivityCalendar.external (fail, hour)', function(assert) {
         ['mock/calendar/event/update/400', 'POST', {
             id: 52,
             allDay: false,
-            start: dropEventStart.format(),
-            end: dropEventEnd.format()
+            start: toISO8601(dropEventStart),
+            end: toISO8601(dropEventEnd)
         }]
     ], this.mockBackendUrlCalls());
 
@@ -1772,8 +1771,8 @@ QUnit.test('creme.ActivityCalendar.external (ok, none remains, hour)', function(
         ['mock/calendar/event/update', 'POST', {
             id: 51,
             allDay: false,
-            start: dropEventStart.format(),
-            end: dropEventEnd.format()
+            start: toISO8601(dropEventStart),
+            end: toISO8601(dropEventEnd)
         }]
     ], this.mockBackendUrlCalls());
 
@@ -1785,5 +1784,5 @@ QUnit.test('creme.ActivityCalendar.external (ok, none remains, hour)', function(
     );
     equal(0, element.find('.floating-event').length);
 });
-*/
+
 }(jQuery));
