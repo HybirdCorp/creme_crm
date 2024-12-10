@@ -272,7 +272,29 @@ creme.ajax.jqueryAjaxSend = function(url, data, successCb, errorCb, options) {
         headers = {'X-CSRFToken': csrf};
     }
 
+    function getXHR() {
+        var xhr = $.ajaxSettings.xhr();
+
+        function handle(event) {
+            console.log(event);
+            console.log(String(event.currentTarget.getAllResponseHeaders()));
+        }
+
+        xhr.addEventListener("readystatechange", handle);
+        xhr.addEventListener("loadstart", handle);
+        xhr.addEventListener("load", handle);
+        xhr.addEventListener("loadend", handle);
+        xhr.addEventListener("progress", handle);
+        xhr.addEventListener("error", handle);
+        xhr.addEventListener("abort", handle);
+
+        return xhr;
+    }
+
+    console.log(options.method || 'GET', url);
+
     var ajaxOptions = $.extend(true, {
+        xhr:      getXHR,
         async:    !options.sync,
         type:     options.method || 'GET',
         url:      url,

@@ -316,6 +316,23 @@
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
 
+        $('#popup button.popup-redirect-url').on('click', function(e) {
+            e.preventDefault();
+
+            var url = '/test_http_response?status=302';
+
+            var dialog = creme.dialogs.url(url, {
+                title: 'Redirection',
+                minWidth: parseSize($('#popup .popup-minwidth').val()),
+                minHeight: parseSize($('#popup .popup-minheight').val()),
+                closeOnEscape: $('#popup input.popup-closeonescape').is(':checked'),
+                scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame',
+                scrollbackOnClose: $('#popup input.popup-scrollbackonclose').is(':checked')
+            });
+
+            openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
+        });
+
         $('#popup button.popup-image').on('click', function() {
             var url = '{% media_url "common/images/logos/hybird.png" %}';
             var dialog = creme.dialogs.image(url, {
@@ -528,6 +545,9 @@
                     <option value="409">409</option>
                     <option value="500">500</option>
                 </select>
+            </div>
+            <div>
+                <button type="button" class="popup-redirect-url">Redirect</button>
             </div>
         </li>
         <li id="dynamic-frame">

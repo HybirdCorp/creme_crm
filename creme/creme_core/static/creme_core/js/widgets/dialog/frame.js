@@ -334,8 +334,10 @@ creme.dialog.Frame = creme.component.Component.sub({
         overlay.content('')
                .update(true, 'wait', this._overlayDelay);
 
-        query.onDone(function(event, response) {
+        query.onDone(function(event, response, xhr) {
                   self._lastFetchUrl = url;
+                  console.log(xhr.getAllResponseHeaders());
+                  console.log(xhr.getResponseHeader('location'));
                   self.fill(response, 'fetch');
                   events.trigger('fetch-done', [response], this);
               })
