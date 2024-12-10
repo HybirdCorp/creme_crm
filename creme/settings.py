@@ -956,7 +956,8 @@ CREME_CORE_JS = [
 ]
 
 CREME_OPTLIB_JS = [
-    ('creme.activities', 'activities/js/lib/fullcalendar-5.11.4.js'),
+    # ('creme.activities', 'activities/js/lib/fullcalendar-5.11.4.js'),
+    ('creme.activities', 'activities/js/lib/fullcalendar-6.1.15.js'),
     ('creme.geolocation', 'geolocation/js/lib/leaflet-1.9.4.js'),
     ('creme.sketch', 'sketch/js/lib/d3-7.8.5.js'),
     ('creme.sketch', 'sketch/js/lib/filesaver-2.0.4.js'),

@@ -704,7 +704,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
         var view = info.view;
         var items = [];
         var text = info.timeText;
-        var formatter = FullCalendar.createFormatter(calendar.getOption('eventTimeFormat'));
+        var formatter = FullCalendar.Internal.createFormatter(calendar.getOption('eventTimeFormat'));
         var slotCount = this._eventTimeSlotCount(event, calendar);
         var typeTag = event.extendedProps.type || '';
 
@@ -712,7 +712,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
             items = [
                 createElement('div', {className: 'fc-event-main-frame'},
                     createElement('div', {className: 'fc-event-title'}, event.title),
-                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
+                    typeTag ? (createElement('div', {className: 'fc-event-type'}, typeTag)) : undefined
                 )
             ];
         } else if (slotCount < 2) {
@@ -720,9 +720,9 @@ creme.ActivityCalendar = creme.component.Component.sub({
 
             items = [
                 createElement('div', {className: 'fc-event-main-frame fc-smaller'},
-                    text && (createElement("div", { className: "fc-event-time" }, text)),
+                    text ? (createElement("div", { className: "fc-event-time" }, text)) : undefined,
                     createElement('div', {className: 'fc-event-title'}, event.title),
-                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
+                    typeTag ? (createElement('div', {className: 'fc-event-type'}, typeTag)) : undefined
                 )
             ];
         } else if (slotCount < 3) {
@@ -730,8 +730,8 @@ creme.ActivityCalendar = creme.component.Component.sub({
 
             items = [
                 createElement('div', {className: 'fc-event-main-frame fc-small'},
-                    text && (createElement("div", { className: "fc-event-time" }, text)),
-                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag)),
+                    text ? (createElement("div", { className: "fc-event-time" }, text)) : undefined,
+                    typeTag ? (createElement('div', {className: 'fc-event-type'}, typeTag)) : undefined,
                     createElement('div', {className: 'fc-event-title'}, event.title)
                 )
             ];
@@ -740,9 +740,9 @@ creme.ActivityCalendar = creme.component.Component.sub({
 
             items = [
                 createElement('div', {className: 'fc-event-main-frame'},
-                    typeTag && (createElement('div', {className: 'fc-event-type fc-sticky'}, typeTag)),
+                    typeTag ? (createElement('div', {className: 'fc-event-type fc-sticky'}, typeTag)) : undefined,
                     createElement('div', {className: 'fc-event-header'},
-                        text && (createElement("div", {className: "fc-event-time"}, text))
+                        text ? (createElement("div", {className: "fc-event-time"}, text)) : undefined
                     ),
                     createElement('div', {className: 'fc-event-title-container'},
                         createElement('div', {className: 'fc-event-title fc-sticky'}, event.title)
@@ -768,7 +768,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
             items = [
                 createElement('div', {className: 'fc-event-main-frame'},
                     createElement('div', {className: 'fc-event-title'}, event.title),
-                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
+                    typeTag ? (createElement('div', {className: 'fc-event-type'}, typeTag)) : null
                 )
             ];
         } else {
@@ -792,7 +792,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
     },
 
     _postRenderCalendarEvent: function(calendar, info) {
-        var formatter = FullCalendar.createFormatter(calendar.getOption('eventTimeFormat'));
+        var formatter = FullCalendar.Internal.createFormatter(calendar.getOption('eventTimeFormat'));
         var title = "${range}\n${tag}${title}".template({
             range: this._formatEventTime(info, formatter),
             tag: info.event.extendedProps.type ? info.event.extendedProps.type + '\n' : '',
@@ -891,8 +891,8 @@ creme.ActivityCalendar = creme.component.Component.sub({
                 weekNumberContent: function(info) {
                     return self._renderWeekNumber(calendar, info);
                 },
-                eventContent: function(info, createElement) {
-                    return self._renderCalendarEventContent(calendar, info, createElement);
+                eventContent: function(info) {
+                    return self._renderCalendarEventContent(calendar, info, document.createElement);
                 },
                 eventDidMount: function(info) {
                     return self._postRenderCalendarEvent(calendar, info);
