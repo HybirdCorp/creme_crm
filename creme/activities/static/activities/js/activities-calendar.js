@@ -702,85 +702,69 @@ creme.ActivityCalendar = creme.component.Component.sub({
     _renderWeekEventContent: function(calendar, info, createElement) {
         var event = info.event;
         var view = info.view;
-        var items = [];
         var text = info.timeText;
         var formatter = FullCalendar.Internal.createFormatter(calendar.getOption('eventTimeFormat'));
         var slotCount = this._eventTimeSlotCount(event, calendar);
         var typeTag = event.extendedProps.type || '';
 
         if (event.allDay) {
-            items = [
-                createElement('div', {className: 'fc-event-main-frame'},
-                    createElement('div', {className: 'fc-event-title'}, event.title),
-                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
-                )
-            ];
+            return createElement('div', {className: 'fc-event-main-frame'},
+                createElement('div', {className: 'fc-event-title'}, event.title),
+                typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
+            );
         } else if (slotCount < 2) {
             text = view.dateEnv.format(event.start, formatter);
 
-            items = [
-                createElement('div', {className: 'fc-event-main-frame fc-smaller'},
-                    text && (createElement("div", { className: "fc-event-time" }, text)),
-                    createElement('div', {className: 'fc-event-title'}, event.title),
-                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
-                )
-            ];
+            return createElement('div', {className: 'fc-event-main-frame fc-smaller'},
+                text && (createElement("div", { className: "fc-event-time" }, text)),
+                createElement('div', {className: 'fc-event-title'}, event.title),
+                typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
+            );
         } else if (slotCount < 3) {
             text = view.dateEnv.format(event.start, formatter);
 
-            items = [
-                createElement('div', {className: 'fc-event-main-frame fc-small'},
-                    text && (createElement("div", { className: "fc-event-time" }, text)),
-                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag)),
-                    createElement('div', {className: 'fc-event-title'}, event.title)
-                )
-            ];
+            return createElement('div', {className: 'fc-event-main-frame fc-small'},
+                text && (createElement("div", { className: "fc-event-time" }, text)),
+                typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag)),
+                createElement('div', {className: 'fc-event-title'}, event.title)
+            );
         } else {
             text = event.end ? this._formatEventTime(info, formatter) : text;
 
-            items = [
-                createElement('div', {className: 'fc-event-main-frame'},
-                    typeTag && (createElement('div', {className: 'fc-event-type fc-sticky'}, typeTag)),
-                    createElement('div', {className: 'fc-event-header'},
-                        text && (createElement("div", {className: "fc-event-time"}, text))
-                    ),
-                    createElement('div', {className: 'fc-event-title-container'},
-                        createElement('div', {className: 'fc-event-title fc-sticky'}, event.title)
-                    )
+            return createElement('div', {className: 'fc-event-main-frame'},
+                typeTag && (createElement('div', {className: 'fc-event-type fc-sticky'}, typeTag)),
+                createElement('div', {className: 'fc-event-header'},
+                    text && (createElement("div", {className: "fc-event-time"}, text))
+                ),
+                createElement('div', {className: 'fc-event-title-container'},
+                    createElement('div', {className: 'fc-event-title fc-sticky'}, event.title)
                 )
-            ];
+            );
         }
-
-        return items;
     },
 
     _renderMonthEventContent: function(calendar, info, createElement) {
         var event = info.event;
         var typeTag = event.extendedProps.type || '';
         var dotColor = info.borderColor || info.backgroundColor;
-        var items = [];
         var text = info.timeText;
         var start = this.toMoment(event.start, calendar);
         var end = this.toMoment(event.end, calendar);
         var isMultiDay = end && start.format('MMD') !== end.format('MMD');
 
         if (event.allDay || isMultiDay) {
-            items = [
-                createElement('div', {className: 'fc-event-main-frame'},
-                    createElement('div', {className: 'fc-event-title'}, event.title),
-                    typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
-                )
-            ];
+            return createElement('div', {className: 'fc-event-main-frame'},
+                createElement('div', {className: 'fc-event-title'}, event.title),
+                typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
+            );
         } else {
-            items = [
+            return createElement('div', {className: 'fc-event-empty-frame'},
                 createElement('div', {className: 'fc-daygrid-event-dot', style: {borderColor: dotColor}}),
                 text && (createElement("div", { className: "fc-event-time" }, text)),
                 createElement('div', {className: 'fc-event-title'}, event.title),
                 typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
-            ];
+            );
         }
-
-        return items;
     },
 
     _renderCalendarEventContent: function(calendar, info, createElement) {
@@ -892,9 +876,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
                     return self._renderWeekNumber(calendar, info);
                 },
                 eventContent: function(info, createElement) {
-                    return {
-                        domNodes: self._renderCalendarEventContent(calendar, info, FullCalendar.Preact.createElement)
-                    };
+                    return self._renderCalendarEventContent(calendar, info, createElement);
                 },
                 eventDidMount: function(info) {
                     return self._postRenderCalendarEvent(calendar, info);

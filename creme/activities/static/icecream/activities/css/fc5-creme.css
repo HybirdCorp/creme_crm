@@ -89,6 +89,13 @@
     align-items: stretch;
 }
 
+.fc-creme .fc-event .fc-event-empty-frame {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    flex-grow: 1;
+}
+
 .fc-creme .fc-event .fc-event-time {
     padding-right: 2px;
     font-weight: 400;
@@ -135,7 +142,7 @@
 }
 
 .fc-creme .fc-event .fc-small {
-    flex-direction: row;
+    /* flex-direction: row; */
     flex-wrap: wrap;
 }
 
@@ -145,8 +152,9 @@
 }
 
 .fc-creme .fc-event .fc-small .fc-event-title {
-    white-space: nowrap;
-    align-self: center;
+    /* white-space: nowrap; */
+    flex-grow: 1;
+    align-self: flex-end;
 }
 
 .fc-creme .fc-event .fc-smaller .fc-event-title {
