@@ -1,5 +1,13 @@
 == Version 2.6.5 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The custom field brick displayed inner-edition buttons even when it was disabled.
+
+
 == Version 2.6.4 ==
 
   Users side :
