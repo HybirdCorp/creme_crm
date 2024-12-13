@@ -6,6 +6,7 @@
     Non breaking changes :
     ----------------------
         # The custom field brick displayed inner-edition buttons even when it was disabled.
+        # The templatetag {% widget_icon instance=... %} did not use "label" argument.
 
 
 == Version 2.6.4 ==
