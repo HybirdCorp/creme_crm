@@ -9,10 +9,12 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-  {% if cells %}
-    {% has_perm_to change object as edit_perm %}{% inner_edition_uri instance=object cells=cells as edition_uri %}
+ {% if cells %}
+  {% has_perm_to change object as edit_perm %}{% inner_edition_uri instance=object cells=cells as edition_uri %}
+  {% if edition_uri %}
     {% brick_header_action id='edit' url=edition_uri enabled=edit_perm %}
   {% endif %}
+ {% endif %}
 {% endblock %}
 
 {% block brick_content %}
