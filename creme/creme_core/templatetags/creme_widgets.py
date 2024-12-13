@@ -118,6 +118,9 @@ class InstanceIconNode(IconNode):
         icon = icon_registry.get_4_instance(instance=instance, theme=theme, size_px=size_px)
         icon.css_class = css_class
 
+        if label:
+            icon.label = label
+
         return icon
 
 
