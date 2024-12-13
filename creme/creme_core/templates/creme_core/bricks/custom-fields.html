@@ -9,10 +9,12 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-  {% if cells %}
-    {% inner_edition_uri instance=object cells=cells as edition_uri %}
+ {% if cells %}
+  {% inner_edition_uri instance=object cells=cells as edition_uri %}
+  {% if edition_uri %}
     {% brick_header_action id='edit' url=edition_uri enabled=user|has_perm_to_change:object comeback=True %}
   {% endif %}
+ {% endif %}
 {% endblock %}
 
 {% block brick_content %}
