@@ -22,7 +22,7 @@ from creme.creme_core.utils import meta
 from ..base import CremeTestCase
 
 
-class MiscTestCase(CremeTestCase):
+class MetaTestCase(CremeTestCase):
     def test_is_date_field(self):
         entity = CremeEntity()
         get_field = entity._meta.get_field
