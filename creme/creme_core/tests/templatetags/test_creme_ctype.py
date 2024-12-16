@@ -107,7 +107,7 @@ class CremeCTypeTagsTestCase(CremeTestCase):
         )
 
     def test_ctype_counted_instances_label02(self):
-        "Count == 10, assignment"
+        "Count == 10, assignment."
         with self.assertNoException():
             template = Template(
                 r'{% load creme_ctype %}'
