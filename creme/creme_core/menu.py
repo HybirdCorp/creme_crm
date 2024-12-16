@@ -215,7 +215,7 @@ class QuickFormsEntries(menu.MenuEntrySequence):
 
 
 class EntitiesCreationEntry(menu.MenuEntry):
-    """"Entry which displays a specific dialog when you click on it.
+    """Entry which displays a specific dialog when you click on it.
     This dialog proposes several creation links, grouped by theme.
     """
     id = 'creme_core-creation_forms'
