@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2022  Hybird
+#    Copyright (C) 2018-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,6 @@ from . import CremeEntity
 from . import fields as core_fields
 
 
-# TODO: + ForeignKey to ContentType ? (takes more space but less queries)
 class Imprint(models.Model):  # CremeModel ?
     date = models.DateTimeField(auto_now_add=True)
 
