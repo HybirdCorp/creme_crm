@@ -49,6 +49,7 @@ from ..gui.field_printers import field_printer_registry
 from ..gui.view_tag import ViewTag
 from ..http import is_ajax
 from ..models import CremeEntity, Relation
+from ..models.utils import model_verbose_name
 from ..utils import bool_as_html
 from ..utils.currency_format import currency
 from ..utils.html import escapejson
@@ -297,7 +298,8 @@ def uca_sort(iterable):
 
 @register.filter
 def verbose_models(models):
-    return [m._meta.verbose_name for m in models]
+    # return [m._meta.verbose_name for m in models]
+    return [model_verbose_name(m) for m in models]
 
 
 # TODO unit test

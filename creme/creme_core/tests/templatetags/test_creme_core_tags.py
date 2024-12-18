@@ -11,6 +11,7 @@ from django.utils.translation import gettext as _
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
+    CustomEntityType,
     FakeContact,
     FakeInvoice,
     FakeOrganisation,
@@ -212,16 +213,24 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self.assertEqual('foo@bar.org,123-FOOBAR', render.strip())
 
     def test_verbose_models(self):
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Shop'
+        ce_type.plural_name = 'Shops'
+        ce_type.save()
+
         with self.assertNoException():
             template = Template(
                 '{% load creme_core_tags %}'
-                '{% with m=models|verbose_models %}{{m.0}}, {{m.1}}{% endwith %}'
+                '{% with m=models|verbose_models %}{{m.0}}, {{m.1}}, {{m.2}}{% endwith %}'
             )
             render = template.render(Context({
-                'models': [FakeContact, FakeOrganisation],
+                'models': [FakeContact, FakeOrganisation, ce_type.entity_model],
             }))
 
-        self.assertEqual('Test Contact, Test Organisation', render.strip())
+        self.assertEqual(
+            f'Test Contact, Test Organisation, {ce_type.name}', render.strip(),
+        )
 
     def test_templatize(self):
         with self.assertNoException():
