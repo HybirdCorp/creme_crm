@@ -18,6 +18,8 @@
 
 from __future__ import annotations
 
+import warnings
+
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
 from django.template import Library
@@ -61,8 +63,8 @@ def ctype_for_naturalkey(app_label: str, model: str) -> ContentType:
     return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
 
 
-@register.simple_tag
-def ctype_for_swappable(model_setting: str) -> ContentType:
+@register.simple_tag(name='ctype_for_swappable')
+def ctype_for_swappable__deprecated(model_setting: str) -> ContentType:
     """Returns an instance of ContentType for a swappable model.
 
     @param model_setting: String identifying a swappable model.
@@ -70,6 +72,23 @@ def ctype_for_swappable(model_setting: str) -> ContentType:
 
         {% ctype_for_swappable 'PERSONS_CONTACT_MODEL' as contact_ctype %}
         <h1>List of {{contact_ctype}}</h1>
+    """
+    warnings.warn(
+        '{% ctype_for_swappable %} is deprecated; '
+        'use the filter "|ctype_for_swappable" instead.',
+        DeprecationWarning
+    )
+    return ContentType.objects.get_for_model(get_concrete_model(model_setting))
+
+
+@register.filter
+def ctype_for_swappable(model_setting: str) -> ContentType:
+    """Returns an instance of ContentType for a swappable model.
+
+    @param model_setting: String identifying a swappable model.
+    @return: A ContentType instance.
+
+        <h1>Fields of {{ 'PERSONS_CONTACT_MODEL'|ctype_for_swappable }}</h1>
     """
     return ContentType.objects.get_for_model(get_concrete_model(model_setting))
 
@@ -99,10 +118,9 @@ def ctype_counted_instances_label(ctype: ContentType, count: int) -> str:
     @param count: An Integer representing the number of instances of "model".
     @return: A string.
 
-        {% ctype_for_swappable 'PERSONS_CONTACT_MODEL' as contact_ctype %}
-        {% ctype_counted_instances_label ctype=contact_ctype count=12 as my_label %}
+        {% ctype_counted_instances_label ctype='PERSONS_CONTACT_MODEL'|ctype_for_swappable count=12 as my_label %}
         <h1>{{my_label}}</h1>
-    """
+    """  # NOQA
     return _('{count} {model}').format(
         count=count,
         model=get_model_verbose_name(model=ctype.model_class(), count=count),

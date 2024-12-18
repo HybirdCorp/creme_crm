@@ -10,7 +10,8 @@
     {% widget_icon name='commercial' size='instance-button' label=_('Commercial Action') %}
     {% translate 'Completes a goal' %}
 </span>
-{% else %}{% ctype_for_swappable 'COMMERCIAL_ACT_MODEL' as act_ctype %}
+{% else %}
+{% with act_ctype='COMMERCIAL_ACT_MODEL'|ctype_for_swappable %}
 <a class="menu_button menu-button-icon" title="{{button.description}}" data-action="add-relationships">
     {% widget_icon name='commercial' size='instance-button' label=_('Commercial Action') %}
     {% translate 'Completes a goal' %}
@@ -20,6 +21,7 @@
         }
     }{% endblockjsondata %}
 </a>
+{% endwith %}
 {% endif %}
 
 {% comment %}

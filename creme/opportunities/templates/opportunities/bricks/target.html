@@ -14,11 +14,15 @@
 {% block brick_table_head %}{% endblock %}
 
 {% block brick_table_rows %}
-    {% with target=object.target source=object.emitter %}
+  {% with target=object.target source=object.emitter %}
     <tr>
         <td>
-            <h1 class="opportunities-target opportunities-target-label">{% ctype_for_swappable 'PERSONS_ORGANISATION_MODEL' as orga_ctype %}
-            {% if target.entity_type == orga_ctype %}{% translate 'Target organisation' context 'opportunities' %}{% else %}{% translate 'Target contact' context 'opportunities' %}{% endif %}
+            <h1 class="opportunities-target opportunities-target-label">
+              {% if target.entity_type == 'PERSONS_ORGANISATION_MODEL'|ctype_for_swappable %}
+                {% translate 'Target organisation' context 'opportunities' %}
+              {% else %}
+                {% translate 'Target contact' context 'opportunities' %}
+              {% endif %}
             </h1>
         </td>
         <td>
@@ -39,5 +43,5 @@
         </td>
     </tr>
     {% endif %}
-    {% endwith %}
+  {% endwith %}
 {% endblock %}

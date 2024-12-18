@@ -54,7 +54,7 @@ class CremeCTypeTagsTestCase(CremeTestCase):
         )
 
     @skipIfNotInstalled('creme.documents')
-    def test_ctype_for_swappable(self):
+    def test_ctype_for_swappable__simpletag(self):  # DEPRECATED
         from creme import documents
 
         Document = documents.get_document_model()
@@ -64,6 +64,29 @@ class CremeCTypeTagsTestCase(CremeTestCase):
                 r"{% load creme_ctype %}"
                 r"{% ctype_for_swappable 'DOCUMENTS_DOCUMENT_MODEL' as doc_ctype %}"
                 r"<h1>{{doc_ctype}} ({{doc_ctype.id}})</h1>"
+            )
+            render = template.render(Context())
+
+        self.assertEqual(
+            '<h1>{vname} ({id})</h1>'.format(
+                vname=Document._meta.verbose_name,
+                id=ContentType.objects.get_for_model(Document).id,
+            ),
+            render.strip()
+        )
+
+    @skipIfNotInstalled('creme.documents')
+    def test_ctype_for_swappable(self):
+        from creme import documents
+
+        Document = documents.get_document_model()
+
+        with self.assertNoException():
+            template = Template(
+                r"{% load creme_ctype %}"
+                r"{% with doc_ctype='DOCUMENTS_DOCUMENT_MODEL'|ctype_for_swappable %}"
+                r"<h1>{{doc_ctype}} ({{doc_ctype.id}})</h1>"
+                r"{% endwith %}"
             )
             render = template.render(Context())
 

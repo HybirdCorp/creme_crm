@@ -6,11 +6,15 @@
 {% block brick_table_head %}{% endblock %}
 
 {% block brick_table_rows %}
-    {% with target=object.target emitter=object.source %}
+  {% with target=object.target emitter=object.source %}
     <tr>
         <td>
-            <h1 class="billing-target billing-target-label">{% ctype_for_swappable 'PERSONS_ORGANISATION_MODEL' as orga_ctype %}
-            {% if target.entity_type == orga_ctype %}{% translate 'Target organisation' context 'billing' %}{% else %}{% translate 'Target contact' context 'billing' %}{% endif %}
+            <h1 class="billing-target billing-target-label">
+              {% if target.entity_type == 'PERSONS_ORGANISATION_MODEL'|ctype_for_swappable %}
+                {% translate 'Target organisation' context 'billing' %}
+              {% else %}
+                {% translate 'Target contact' context 'billing' %}
+              {% endif %}
             </h1>
         </td>
         <td><h1 class="billing-target billing-target-value">{% if target %}{% widget_entity_hyperlink target user %}{% endif %}</h1></td>
@@ -19,5 +23,5 @@
         <td><h1 class="billing-source billing-source-label">{% translate 'Source organisation' context 'billing' %}</h1></td>
         <td><h1 class="billing-source billing-source-value">{% if emitter %}{% widget_entity_hyperlink emitter user %}{% endif %}</h1></td>
     </tr>
-    {% endwith %}
+  {% endwith %}
 {% endblock %}

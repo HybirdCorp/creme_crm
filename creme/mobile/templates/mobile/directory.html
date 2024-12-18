@@ -25,9 +25,9 @@
   {% include 'mobile/frags/search_div.html' %}
 
   <section class="hideable-content">
-   {% ctype_for_swappable 'PERSONS_CONTACT_MODEL' as contact_ctype %}{% ctype_for_swappable 'PERSONS_ORGANISATION_MODEL' as orga_ctype %}
-   {% with contact_creation_perm=user|has_perm_to_create:contact_ctype orga_creation_perm=user|has_perm_to_create:orga_ctype %}
-    {% if contact_creation_perm or orga_creation_perm %}
+   {% with contact_ctype='PERSONS_CONTACT_MODEL'|ctype_for_swappable orga_ctype='PERSONS_ORGANISATION_MODEL'|ctype_for_swappable %}
+    {% with contact_creation_perm=user|has_perm_to_create:contact_ctype orga_creation_perm=user|has_perm_to_create:orga_ctype %}
+     {% if contact_creation_perm or orga_creation_perm %}
       <div class="create-actions">
         {% if contact_creation_perm %}
           <a href="{% url 'mobile__create_contact' %}" class="button">{% translate 'Create a contact' %}</a>
@@ -36,7 +36,8 @@
           <a href="{% url 'mobile__create_organisation' %}" class="button">{% translate 'Create an organisation' %}</a>
         {% endif %}
       </div>
-    {% endif %}
+     {% endif %}
+    {% endwith %}
    {% endwith %}
 
     <div class="card-list favorites-contact list-contact">

@@ -9,13 +9,14 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-  {% if relation_type.enabled %}
-   {% ctype_for_swappable 'PERSONS_CONTACT_MODEL' as ct_contact %}
+ {% if relation_type.enabled %}
+  {% with ct_contact='PERSONS_CONTACT_MODEL'|ctype_for_swappable %}
    {% with link_perm=user|has_perm_to_link:object creation_perm=user|has_perm_to_create:ct_contact %}
     {% brick_header_action id='add' url='opportunities__create_related_contact'|url:object.id label=_('Create a contact') enabled=creation_perm|and_op:link_perm %}
     {% brick_header_action id='add-relationships' label=_('Link to contacts') icon='link' enabled=link_perm __subject_id=object.id __rtype_id=relation_type.id __ctype_id=objects_ctype.id __multiple=True %}
    {% endwith %}
-  {% endif %}
+  {% endwith %}
+ {% endif %}
 {% endblock %}
 
 {% block brick_before_content %}
