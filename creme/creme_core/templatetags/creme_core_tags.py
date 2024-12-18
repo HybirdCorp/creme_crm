@@ -72,7 +72,8 @@ def app_verbose_name(app_label, default='?'):
     return app.verbose_name
 
 
-@register.filter(name='print_boolean')
+# TODO: deprecate? (seems not used)
+@register.filter
 def print_boolean(x):
     return bool_as_html(x)
 
@@ -89,6 +90,7 @@ def get_by_index(sequence, index):
     return sequence[index]
 
 
+# NB: seems not used any more...
 @register.filter
 def get_value(dic, key, default=''):
     """Get a value from its key in a dictionary-like object, with a default
@@ -96,10 +98,11 @@ def get_value(dic, key, default=''):
 
     Usage:
       View (context):
-          some_dict = {'keyA': 'valueA',
-                       'keyB': {'subKeyA': 'subValueA', 'subKeyB': 'subKeyB'},
-                       'keyC': 'valueC',
-                      }
+          some_dict = {
+              'keyA': 'valueA',
+              'keyB': {'subKeyA': 'subValueA', 'subKeyB': 'subKeyB'},
+              'keyC': 'valueC',
+          }
           keys = ['keyA','keyC']
 
       Template:
@@ -156,27 +159,27 @@ def is_relation(obj):
     return isinstance(obj, Relation)
 
 
-@register.filter(name='lt')
+@register.filter
 def lt(x, y):
     return x < y
 
 
-@register.filter(name='gt')
+@register.filter
 def gt(x, y):
     return x > y
 
 
-@register.filter(name='lte')
+@register.filter
 def lte(x, y):
     return x <= y
 
 
-@register.filter(name='gte')
+@register.filter
 def gte(x, y):
     return x >= y
 
 
-@register.filter(name='eq')
+@register.filter
 def eq(x, y):
     return x == y
 
@@ -507,9 +510,9 @@ def url_join(*args, **params):
     if not params:
         uri = base
     elif urlsplit(base).query:  # There are already some GET params
-        uri = base + '&' + urlencode(params, doseq=True)
+        uri = f'{base}&{urlencode(params, doseq=True)}'
     else:
-        uri = base + '?' + urlencode(params, doseq=True)
+        uri = f'{base}?{urlencode(params, doseq=True)}'
 
     return mark_safe(uri)
 
@@ -700,15 +703,13 @@ class MediaNode(TemplateNode):
 def get_scm_info():
     from ..utils import version
 
-    scm = settings.SCM
-
-    if scm == 'git':
-        return version.get_git_info
-
-    if scm == 'hg':
-        return version.get_hg_info
-
-    return None
+    match settings.SCM:
+        case 'git':
+            return version.get_git_info
+        case 'hg':
+            return version.get_hg_info
+        case _:
+            return None
 
 
 @register.tag(name='blockjsondata')
