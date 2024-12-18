@@ -85,6 +85,7 @@
                     - _post_save_clone()
             - The method 'creme_core.tests.base._CremeTestCase.assertRelationCount' is deprecated;
               use the new methods 'assertHaveRelation()' & 'assertHaveNoRelation()' instead.
+            - In the tag '{% inner_edition_uri %}', the argument "callback_url" is deprecated.
             - App :
                 * Persons :
                     - The method 'models.base.PersonWithAddressesMixin._post_save_clone()' is deprecated.

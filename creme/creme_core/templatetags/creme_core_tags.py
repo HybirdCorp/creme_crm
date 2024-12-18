@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+import warnings
 # import warnings
 from itertools import zip_longest
 from re import compile as compile_re
@@ -464,7 +465,6 @@ def grouper(value, n):
     return zip_longest(fillvalue=None, *args)
 
 
-# TODO: is 'callback_url' still useful with the JS feature "comeback"?
 @register.simple_tag
 def inner_edition_uri(instance, cells, callback_url=None):
     # TODO: pass the registry in context? accept it as argument?
@@ -475,6 +475,10 @@ def inner_edition_uri(instance, cells, callback_url=None):
 
     # if callback_url:
     if callback_url and uri:
+        warnings.warn(
+            'In the tag {% inner_edition_uri %}, the argument "callback_url" is deprecated.',
+            DeprecationWarning
+        )
         uri += f'&callback_url={callback_url}'
 
     return uri
