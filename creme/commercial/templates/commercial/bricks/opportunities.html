@@ -10,11 +10,12 @@
 
 {% block brick_header_actions %}
   {% if relation_type.enabled %}
-    {% ctype_for_swappable 'OPPORTUNITIES_OPPORTUNITY_MODEL' as opp_ct %}
+   {% with opp_ct='OPPORTUNITIES_OPPORTUNITY_MODEL'|ctype_for_swappable %}
     {% with link_perm=user|has_perm_to_link:object opp_creation_perm=user|has_perm_to_create:opp_ct opp_link_perm=user|has_perm_to_link:opp_ct %}
      {% brick_header_action id='add' url='commercial__create_opportunity'|url:object.id label=_('Create a linked opportunity') enabled=link_perm|and_op:opp_creation_perm|and_op:opp_link_perm %}
      {% brick_header_action id='add-relationships' label=_('Link to an existing opportunity') icon='link' enabled=link_perm __subject_id=object.id __rtype_id=relation_type.id __ctype_id=opp_ct.id __multiple=True %}
     {% endwith %}
+   {% endwith %}
   {% endif %}
 {% endblock %}
 

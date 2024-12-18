@@ -10,11 +10,12 @@
 
 {% block brick_header_actions %}
   {% if relation_type.enabled %}
-    {% ctype_for_swappable 'DOCUMENTS_DOCUMENT_MODEL' as ct_doc %}
+   {% with ct_doc='DOCUMENTS_DOCUMENT_MODEL'|ctype_for_swappable %}
     {% with creation_perm=user|has_perm_to_create:ct_doc link_perm=user|has_perm_to_link:object doc_link_perm=user|has_perm_to_link:ct_doc %}
        {% brick_header_action id='add' url='documents__create_related_document'|url:object.id label=_('Create a document') enabled=creation_perm|and_op:link_perm|and_op:doc_link_perm %}
        {% brick_header_action id='add-relationships' label=_('Link to an existing document') icon='link' enabled=link_perm|and_op:doc_link_perm __subject_id=object.id __rtype_id=relation_type.id __ctype_id=ct_doc.id __multiple=True %}
     {% endwith %}
+   {% endwith %}
   {% endif %}
 {% endblock %}
 

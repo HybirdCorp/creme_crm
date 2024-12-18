@@ -2,8 +2,8 @@
 {% load i18n creme_ctype creme_query %}
 
 {% block global_buttons_container %}
-{% ctype_for_swappable 'PERSONS_CONTACT_MODEL' as contact_ctype %}{% query_entities_count ctype=contact_ctype user=user as contacts_count %}
-{% ctype_for_swappable 'PERSONS_ORGANISATION_MODEL' as orga_ctype %}{% query_entities_count ctype=orga_ctype user=user as organisations_count %}
+ {% query_entities_count ctype='PERSONS_CONTACT_MODEL'|ctype_for_swappable user=user as contacts_count %}
+ {% query_entities_count ctype='PERSONS_ORGANISATION_MODEL'|ctype_for_swappable user=user as organisations_count %}
     <div class="listviews-breadcrumbs global-buttons">{% translate 'Directory' %} <span class="listviews-breadcrumbs-separator">/</span>
         {% translate 'List of' context 'persons-breadcrumbs' %}
         <a href="{% url 'persons__list_organisations' %}" class="listview-breadcrumb">{% blocktranslate count count=organisations_count %}{{count}} organisation{% plural %}{{count}} organisations{% endblocktranslate %}</a> {% translate 'and' %}

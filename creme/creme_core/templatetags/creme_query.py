@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2021  Hybird
+#    Copyright (C) 2017-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,10 +38,9 @@ def query_entities_count(*, ctype, user):
     @return: Integer.
         {% load creme_ctype creme_query %}
 
-        {% ctype_for_swappable 'PERSONS_CONTACT_MODEL' as contact_ctype %}
-        {% query_entities_count ctype=contact_ctype user=user as contacts_count %}
+        {% query_entities_count ctype='PERSONS_CONTACT_MODEL'|ctype_for_swappable user=user as contacts_count %}
         <p>Number of Contact(s): {{contacts_count}}</p>
-    """
+    """  # NOQA
     model = ctype.model_class()
     assert issubclass(model, CremeEntity)
 
