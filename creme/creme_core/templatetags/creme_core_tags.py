@@ -119,6 +119,7 @@ def get_value(dic, key, default=''):
         return default
 
 
+# NB: seems not used any more...
 @register.filter
 def get_meta_value(obj, key, default=''):
     try:
