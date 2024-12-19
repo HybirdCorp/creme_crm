@@ -19,7 +19,7 @@ from creme.creme_core.models import (
     RelationType,
 )
 from creme.creme_core.tests.views import base as test_base
-from creme.creme_core.utils.translation import get_model_verbose_name
+from creme.creme_core.utils.translation import smart_model_verbose_name
 from creme.creme_core.views.entity_filter import (
     EntityFilterInfoBrick,
     EntityFilterParentsBrick,
@@ -455,7 +455,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         self.assertEqual(
             _('Filter used by %(count)s %(model)s (field «%(field)s»)') % {
                 'count': 1,
-                'model': get_model_verbose_name(model=Report, count=1),
+                'model': smart_model_verbose_name(model=Report, count=1),
                 'field': _('Filter'),
             },
             self.get_brick_title(reports_brick_node),
