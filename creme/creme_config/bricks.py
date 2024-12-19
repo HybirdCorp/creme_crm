@@ -117,7 +117,7 @@ class GenericModelBrick(QuerysetBrick):
             model.objects.all(),
 
             model=model,
-            meta=meta,
+            # meta=meta,
 
             app_name=self.app_name,
             model_config=model_config,
