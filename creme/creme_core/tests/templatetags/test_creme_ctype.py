@@ -10,7 +10,7 @@ from creme.creme_core.models import (
     FakeSector,
 )
 from creme.creme_core.tests.base import skipIfNotInstalled
-from creme.creme_core.utils.translation import get_model_verbose_name
+from creme.creme_core.utils.translation import smart_model_verbose_name
 
 from ..base import CremeTestCase
 from ..fake_models import FakeContact
@@ -134,8 +134,8 @@ class CremeCTypeTagsTestCase(CremeTestCase):
             }))
 
         self.assertEqual(
-            f'{get_model_verbose_name(model=FakeSector, count=1)}#'
-            f'{get_model_verbose_name(model=FakeSector, count=10)}#'
+            f'{smart_model_verbose_name(model=FakeSector, count=1)}#'
+            f'{smart_model_verbose_name(model=FakeSector, count=10)}#'
             f'{FakeSector._meta.verbose_name}#'
             f'{FakeSector._meta.verbose_name}',
             render.strip(),
@@ -215,7 +215,7 @@ class CremeCTypeTagsTestCase(CremeTestCase):
         self.assertEqual(
             _('{count} {model}').format(
                 count=1,
-                model=get_model_verbose_name(model=FakeSector, count=1),
+                model=smart_model_verbose_name(model=FakeSector, count=1),
             ),
             render.strip(),
         )
@@ -235,7 +235,7 @@ class CremeCTypeTagsTestCase(CremeTestCase):
         self.assertEqual(
             '<h1>{}</h1>'.format(_('{count} {model}').format(
                 count=10,
-                model=get_model_verbose_name(model=FakePosition, count=10),
+                model=smart_model_verbose_name(model=FakePosition, count=10),
             )),
             render.strip()
         )
@@ -253,8 +253,8 @@ class CremeCTypeTagsTestCase(CremeTestCase):
 
         fmt = _('{count} {model}').format
         self.assertEqual(
-            f'{fmt(count=1,  model=get_model_verbose_name(model=FakeSector, count=1))}#'
-            f'{fmt(count=10, model=get_model_verbose_name(model=FakeSector, count=10))}',
+            f'{fmt(count=1, model=smart_model_verbose_name(model=FakeSector, count=1))}#'
+            f'{fmt(count=10, model=smart_model_verbose_name(model=FakeSector, count=10))}',
             render.strip(),
         )
 

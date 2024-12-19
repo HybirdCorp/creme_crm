@@ -83,6 +83,8 @@
                     - _pre_save_clone()
                     - _post_clone()
                     - _post_save_clone()
+            - The function 'creme_core.utils.translation.get_model_verbose_name()' is deprecated;
+              use 'smart_model_verbose_name()' instead.
             - The method 'creme_core.tests.base._CremeTestCase.assertRelationCount' is deprecated;
               use the new methods 'assertHaveRelation()' & 'assertHaveNoRelation()' instead.
             - In 'creme_core.templatetags' :

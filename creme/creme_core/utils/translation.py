@@ -23,6 +23,8 @@
 
 from __future__ import annotations
 
+import warnings
+
 from django.conf import settings
 from django.db.models import Model
 
@@ -60,9 +62,19 @@ else:
 ################################################################################
 
 
-def get_model_verbose_name(model: type[Model], count: int):
+def smart_model_verbose_name(model: type[Model], count: int):
     return (
         utils.model_verbose_name_plural(model)
         if plural(count) else
         utils.model_verbose_name(model)
     )
+
+
+def get_model_verbose_name(model, count):
+    warnings.warn(
+        'The function creme_core.utils.translation.get_model_verbose_name() is deprecated; '
+        'use smart_model_verbose_name() instead.',
+        DeprecationWarning
+    )
+
+    return smart_model_verbose_name(model=model, count=count)

@@ -18,7 +18,7 @@ from creme.creme_core.models import (
     Job,
     JobResult,
 )
-from creme.creme_core.utils.translation import get_model_verbose_name
+from creme.creme_core.utils.translation import smart_model_verbose_name
 
 from ..base import CremeTestCase
 
@@ -355,7 +355,7 @@ class DeletionCommandTestCase(CremeTestCase):
                     instance=sector,
                     dependencies=_('{count} {model}').format(
                         count=1,
-                        model=get_model_verbose_name(FakeOrganisation, 1),
+                        model=smart_model_verbose_name(FakeOrganisation, 1),
                     ),
                 ),
             ],

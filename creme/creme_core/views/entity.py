@@ -100,7 +100,7 @@ from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator, Order
 from ..utils.queries import QSerializer
 from ..utils.serializers import json_encode
-from ..utils.translation import get_model_verbose_name
+from ..utils.translation import smart_model_verbose_name
 from ..utils.unicode_collation import collator
 from . import generic
 from .decorators import jsonify
@@ -781,7 +781,7 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
             count
         ).format(
             count=count,
-            model=get_model_verbose_name(model=self.get_ctype().model_class(), count=count),
+            model=smart_model_verbose_name(model=self.get_ctype().model_class(), count=count),
         )
 
         return context

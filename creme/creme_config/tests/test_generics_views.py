@@ -41,7 +41,7 @@ from creme.creme_core.models.history import TYPE_EDITION, HistoryLine
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_bricks import FakeAppPortalBrick
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
-from creme.creme_core.utils.translation import get_model_verbose_name
+from creme.creme_core.utils.translation import smart_model_verbose_name
 
 from ..bricks import GenericModelBrick, PropertyTypesBrick, SettingsBrick
 
@@ -316,7 +316,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertEqual(
             _('OK: no instance of «{model}» have to be updated.').format(
-                model=get_model_verbose_name(model=FakeContact, count=0),
+                model=smart_model_verbose_name(model=FakeContact, count=0),
             ),
             replace_field.initial,
         )
@@ -335,7 +335,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 1
             ).format(
                 count=1,
-                model=get_model_verbose_name(model=FakeContact, count=1),
+                model=smart_model_verbose_name(model=FakeContact, count=1),
                 instance=pos2del,
             ),
             self.get_form_or_fail(response).fields[fname].initial
@@ -354,7 +354,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 2
             ).format(
                 count=2,
-                model=get_model_verbose_name(model=FakeContact, count=2),
+                model=smart_model_verbose_name(model=FakeContact, count=2),
                 instance=pos2del,
             ),
             self.get_form_or_fail(response).fields[fname].initial,
@@ -562,7 +562,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertEqual(
             _('OK: no instance of «{model}» have to be deleted.').format(
-                model=get_model_verbose_name(model=FakeProduct, count=0),
+                model=smart_model_verbose_name(model=FakeProduct, count=0),
             ),
             replace_field.initial,
         )
@@ -577,7 +577,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 1
             ).format(
                 count=1,
-                model=get_model_verbose_name(model=FakeProduct, count=1),
+                model=smart_model_verbose_name(model=FakeProduct, count=1),
             ),
             self.get_form_or_fail(response).fields[fname].initial,
         )
@@ -592,7 +592,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 2
             ).format(
                 count=2,
-                model=get_model_verbose_name(model=FakeProduct, count=2),
+                model=smart_model_verbose_name(model=FakeProduct, count=2),
             ),
             self.get_form_or_fail(response).fields[fname].initial,
         )
@@ -638,7 +638,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsInstance(replace_field.widget, Label)
         message = _(
             'OK: there is no related instance of «{model}», the deletion can be done.'
-        ).format(model=get_model_verbose_name(model=FakeActivity, count=0))
+        ).format(model=smart_model_verbose_name(model=FakeActivity, count=0))
         self.assertEqual(message, replace_field.initial)
 
         response = self.assertPOST200(url)
@@ -678,7 +678,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 1
             ).format(
                 count=1,
-                model=get_model_verbose_name(model=FakeActivity, count=1),
+                model=smart_model_verbose_name(model=FakeActivity, count=1),
                 instance=atype,
             ),
             replace_field.initial,
@@ -697,7 +697,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 2
             ).format(
                 count=2,
-                model=get_model_verbose_name(model=FakeActivity, count=2),
+                model=smart_model_verbose_name(model=FakeActivity, count=2),
                 instance=atype,
             ),
             self.get_form_or_fail(response).fields[fname].initial
@@ -728,7 +728,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsInstance(replace_field.widget, Label)
         self.assertEqual(
             _('OK: no instance of «{model}» have to be updated.').format(
-                model=get_model_verbose_name(model=FakeTicket, count=0),
+                model=smart_model_verbose_name(model=FakeTicket, count=0),
             ),
             replace_field.initial,
         )
@@ -747,7 +747,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 1
             ).format(
                 count=1,
-                model=get_model_verbose_name(model=FakeTicket, count=1),
+                model=smart_model_verbose_name(model=FakeTicket, count=1),
                 instance=status2del,
                 fallback=default_status,
             ),
@@ -767,7 +767,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 2
             ).format(
                 count=2,
-                model=get_model_verbose_name(model=FakeTicket, count=2),
+                model=smart_model_verbose_name(model=FakeTicket, count=2),
                 instance=status2del,
                 fallback=default_status,
             ),
@@ -814,7 +814,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsInstance(replace_field.widget, Label)
         self.assertEqual(
             _('OK: no instance of «{model}» have to be updated.').format(
-                model=get_model_verbose_name(model=FakeTicket, count=0),
+                model=smart_model_verbose_name(model=FakeTicket, count=0),
             ),
             replace_field.initial,
         )
@@ -833,7 +833,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 1
             ).format(
                 count=1,
-                model=get_model_verbose_name(model=FakeTicket, count=1),
+                model=smart_model_verbose_name(model=FakeTicket, count=1),
                 instance=prio2del,
             ),
             self.get_form_or_fail(response).fields[fname].initial,
@@ -852,7 +852,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 2
             ).format(
                 count=2,
-                model=get_model_verbose_name(model=FakeTicket, count=2),
+                model=smart_model_verbose_name(model=FakeTicket, count=2),
                 instance=prio2del,
             ),
             self.get_form_or_fail(response).fields[fname].initial,
@@ -1209,7 +1209,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 1
             ).format(
                 count=1,
-                model=get_model_verbose_name(model=FakeProduct, count=1),
+                model=smart_model_verbose_name(model=FakeProduct, count=1),
             ),
             replace_field.initial,
         )
@@ -1279,7 +1279,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 1
             ).format(
                 count=1,
-                model=get_model_verbose_name(model=FakeActivity, count=1),
+                model=smart_model_verbose_name(model=FakeActivity, count=1),
                 instance=atype2del,
             ),
             replace_field.initial,

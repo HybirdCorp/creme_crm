@@ -30,7 +30,7 @@ from ..constants import UUID_CHANNEL_JOBS
 from ..forms.mass_import import form_factory, get_header
 from ..models import MassImportJobResult, Notification
 from ..notification import MassImportDoneContent
-from ..utils.translation import get_model_verbose_name
+from ..utils.translation import smart_model_verbose_name
 from .base import JobProgress, JobType
 
 logger = logging.getLogger(__name__)
@@ -122,7 +122,7 @@ class _MassImportType(JobType):
                     created_count
                 ).format(
                     count=created_count,
-                    model=get_model_verbose_name(model, created_count),
+                    model=smart_model_verbose_name(model, created_count),
                 )
             )
         elif updated_count != lines_count:
@@ -140,7 +140,7 @@ class _MassImportType(JobType):
                     updated_count
                 ).format(
                     count=updated_count,
-                    model=get_model_verbose_name(model, updated_count),
+                    model=smart_model_verbose_name(model, updated_count),
                 )
             )
         elif created_count != lines_count:

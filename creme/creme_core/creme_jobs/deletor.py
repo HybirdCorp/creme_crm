@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2022 Hybird
+#    Copyright (C) 2019-2024 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from django.utils.translation import ngettext
 
 from ..models import DeletionCommand, FieldsConfig, JobResult
 from ..signals import pre_replace_and_delete
-from ..utils.translation import get_model_verbose_name
+from ..utils.translation import smart_model_verbose_name
 from .base import JobProgress, JobType
 
 
@@ -93,7 +93,7 @@ class _DeletorType(JobType):
                         dependencies=', '.join(
                             fmt(
                                 count=count,
-                                model=get_model_verbose_name(model=model, count=count),
+                                model=smart_model_verbose_name(model=model, count=count),
                             ) for model, count in counter.items()
                         ),
                     ),

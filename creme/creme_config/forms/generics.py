@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2023  Hybird
+#    Copyright (C) 2019-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,7 @@ from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.forms.base import CremeModelForm, FieldBlockManager
 from creme.creme_core.forms.fields import ReadonlyMessageField
 from creme.creme_core.models import DeletionCommand, FieldsConfig, Job
-from creme.creme_core.utils.translation import get_model_verbose_name
+from creme.creme_core.utils.translation import smart_model_verbose_name
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ class LabelReplacingHandler(ReplacingHandler):
 
         return {
             'count':    count,
-            'model':    get_model_verbose_name(model=self.field.model, count=count),
+            'model':    smart_model_verbose_name(model=self.field.model, count=count),
             'instance': self.instance_to_delete,
         }
 

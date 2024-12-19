@@ -44,7 +44,7 @@ from creme.creme_core.models import (
     HeaderFilter,
     RelationType,
 )
-from creme.creme_core.utils.translation import get_model_verbose_name
+from creme.creme_core.utils.translation import smart_model_verbose_name
 from creme.creme_core.views import entity_filter as efilter_views
 
 from ..base import CremeTestCase
@@ -171,7 +171,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         self.assertEqual(
             _('Filter used by %(count)s %(model)s (field «%(field)s»)') % {
                 'count': 1,
-                'model': get_model_verbose_name(model=FakeReport, count=1),
+                'model': smart_model_verbose_name(model=FakeReport, count=1),
                 'field': _('Filter'),
             },
             self.get_brick_title(reports_brick_node),

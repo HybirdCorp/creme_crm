@@ -27,7 +27,7 @@ from django.utils.translation import gettext as _
 
 from .. import get_concrete_model
 from ..models import utils
-from ..utils.translation import get_model_verbose_name
+from ..utils.translation import smart_model_verbose_name
 
 register = Library()
 
@@ -125,7 +125,7 @@ def ctype_verbose_name(ctype: ContentType, count: int | None  = None) -> str:
         )
         return utils.model_verbose_name(model)
 
-    return get_model_verbose_name(model, count)
+    return smart_model_verbose_name(model, count)
 
 
 @register.filter
@@ -143,7 +143,7 @@ def ctype_counted_instances_label(ctype: ContentType, count: int) -> str:
 
     return _('{count} {model}').format(
         count=count,
-        model=get_model_verbose_name(model=ctype.model_class(), count=count),
+        model=smart_model_verbose_name(model=ctype.model_class(), count=count),
     )
 
 
@@ -159,7 +159,7 @@ def ctype_counted_label(ctype: ContentType, count: int) -> str:
     """
     return _('{count} {model}').format(
         count=count,
-        model=get_model_verbose_name(model=ctype.model_class(), count=count),
+        model=smart_model_verbose_name(model=ctype.model_class(), count=count),
     )
 
 
