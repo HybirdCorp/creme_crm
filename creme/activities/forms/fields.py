@@ -61,7 +61,7 @@ class ActivitySubTypeField(CreatorEnumerableModelChoiceField):
         self.enum.enumerator.limit_choices_to = limit_choices_to
 
     def __deepcopy__(self, memo):
-        result = CreatorEnumerableModelChoiceField.__deepcopy__(self, memo)
+        result = super().__deepcopy__(memo)
         result.limit_choices_to = self.limit_choices_to
         return result
 
