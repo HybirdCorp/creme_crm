@@ -1,3 +1,4 @@
-{% load i18n creme_core_tags creme_bricks %}
-{% blocktranslate with model=backend.model|get_meta_value:'verbose_name' asvar label %}Download email template for «{{model}}»{% endblocktranslate %}
+{% load i18n creme_core_tags creme_bricks creme_ctype %}
+{# {% blocktranslate with model=backend.model|get_meta_value:'verbose_name' asvar label %}Download email template for «{{model}}»{% endblocktranslate %} #}
+{% blocktranslate with model=backend.model|ctype_for_instance asvar label %}Download email template for «{{model}}»{% endblocktranslate %}
 {% brick_header_action id='redirect' url='crudity__dl_email_template'|url:backend.subject icon='download' label=label %}
