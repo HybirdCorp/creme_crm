@@ -19,6 +19,7 @@
 from django import template
 from django.contrib.contenttypes.models import ContentType
 
+from ..models.utils import model_verbose_name
 from ..views import search as search_views
 
 register = template.Library()
@@ -30,7 +31,8 @@ def search_form(*, models, selected_ct_id, search_terms):
     content_types = [
         {
             'id': get_ct(model).id,
-            'verbose_name': str(model._meta.verbose_name),
+            # 'verbose_name': str(model._meta.verbose_name),
+            'verbose_name': model_verbose_name(model),
         } for model in models
     ]
 

@@ -133,6 +133,13 @@ def delete_customtype_history(sender: CustomEntityType, entity_ctype: ContentTyp
     models.HistoryLine.objects.filter(entity_ctype=entity_ctype).delete()
 
 
+@receiver(
+    disable_custom_entity_type, dispatch_uid='creme_config-delete_customtype_search',
+)
+def delete_customtype_search(sender: CustomEntityType, entity_ctype: ContentType, **kwargs):
+    models.SearchConfigItem.objects.filter(content_type=entity_ctype).delete()
+
+
 class CustomEntityDeletion(base.ConfigDeletion):
     ce_type_id_arg = 'id'
 
