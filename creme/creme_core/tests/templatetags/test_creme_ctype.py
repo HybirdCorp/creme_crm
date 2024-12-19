@@ -36,6 +36,28 @@ class CremeCTypeTagsTestCase(CremeTestCase):
             render.strip()
         )
 
+    def test_ctype_for_instance(self):
+        with self.assertNoException():
+            template = Template(
+                r"{% load creme_ctype %}"
+                r"{% with currency_ctype=currency|ctype_for_instance %}"
+                r"<h1>{{currency_ctype}} ({{currency_ctype.id}})</h1>"
+                r"{% endwith %}"
+                r"<span>{{currency_model|ctype_for_instance}}</span>"
+            )
+            render = template.render(Context({
+                'currency': Currency.objects.first(),
+                'currency_model': Currency,  # Works with model too
+            }))
+
+        self.assertEqual(
+            '<h1>{vname} ({id})</h1><span>{vname}</span>'.format(
+                vname=_('Currency'),
+                id=ContentType.objects.get_for_model(Currency).id,
+            ),
+            render.strip()
+        )
+
     def test_ctype_for_naturalkey(self):
         with self.assertNoException():
             template = Template(

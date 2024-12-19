@@ -25,8 +25,8 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% ctype_for_model page.object_list.0 as segment_desc_ctype %}
- {% with edit_perm=user|has_perm_to_change:object delete_url='creme_core__delete_related_to_entity'|url:segment_desc_ctype.id %}
+ {% with segment_desc_ctype=page.object_list.0|ctype_for_instance %}
+  {% with edit_perm=user|has_perm_to_change:object delete_url='creme_core__delete_related_to_entity'|url:segment_desc_ctype.id %}
    {% for segmentinfo in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{{segmentinfo.segment.name}}</td>
@@ -42,6 +42,7 @@
         </td>
     </tr>
    {% endfor %}
+  {% endwith %}
  {% endwith %}
 {% endblock %}
 

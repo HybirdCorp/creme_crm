@@ -13,7 +13,7 @@
         <div class="bar-title">
             <h1>
 {#              {% block title %}{{object|get_meta_value:'verbose_name'|capfirst}} : {{object|capfirst}}{% endblock %} #}
-              {% block title %}{% ctype_for_model object as object_ctype %}{{object_ctype|capfirst}} : {{object|capfirst}}{% endblock %}
+              {% block title %}{{object|ctype_for_instance|capfirst}} : {{object|capfirst}}{% endblock %}
               {% if object.is_deleted %}
                 <span class="bar-deleted-indicator">[{% translate 'Entity in the trash' %}]</span>
               {% elif object.sandbox %}

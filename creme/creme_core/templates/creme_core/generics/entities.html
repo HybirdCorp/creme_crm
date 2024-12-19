@@ -3,7 +3,7 @@
 
 {% block page_title %}{{list_title}} - {% endblock %}
 
-{% block content_extra_class %}content-list-view {% ctype_for_model model as ctype %}content-list-view-{{ctype.app_label}}-{{ctype.model}}{% endblock %}
+{% block content_extra_class %}content-list-view {% with ctype=model|ctype_for_instance %}content-list-view-{{ctype.app_label}}-{{ctype.model}}{% endwith %}{% endblock %}
 
 {% block content %}
     {% include content_template %}

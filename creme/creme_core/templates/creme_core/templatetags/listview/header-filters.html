@@ -5,38 +5,40 @@
     </div>
     <div class="select-wrapper">
         <select name="hfilter" class="lv-state-field list-views-selector">
-            {% for hfilter in global_header_filters %}
+          {% for hfilter in global_header_filters %}
+            <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
+          {% endfor %}
+
+          {% if my_header_filters %}
+            <optgroup label="{% translate 'My views' %}">
+              {% for hfilter in my_header_filters %}
                 <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
-            {% endfor %}
+              {% endfor %}
+            </optgroup>
+          {% endif %}
 
-            {% if my_header_filters %}
-                <optgroup label="{% translate 'My views' %}">
-                {% for hfilter in my_header_filters %}
-                    <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
-                {% endfor %}
-                </optgroup>
-            {% endif %}
-
-             {% for user, hfilters in other_header_filters %}
-                <optgroup label="{% blocktranslate %}Views of {{user}}{% endblocktranslate %}">
-                {% for hfilter in hfilters %}
-                   <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
-                {% endfor %}
-                </optgroup>
-            {% endfor %}
+          {% for user, hfilters in other_header_filters %}
+            <optgroup label="{% blocktranslate %}Views of {{user}}{% endblocktranslate %}">
+              {% for hfilter in hfilters %}
+                <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
+              {% endfor %}
+            </optgroup>
+          {% endfor %}
         </select>
         <div class="select-arrow"></div>
     </div>
-    {% if show_buttons %}{% ctype_for_model model as ctype %}
-        <a href="{% url 'creme_core__create_hfilter' ctype.id %}">
-            {% widget_icon name='add' label=_('Create a custom view') size='listview-filter-action' %}
-        </a>
-        <a href="{{selected.get_edit_absolute_url}}" data-action="redirect" class="{% if not can_edit %}is-disabled{% endif %}">
-            {% widget_icon name='edit' label=_('Edit this view') size='listview-filter-action' %}
-        </a>
-        <a href="{% url 'creme_core__delete_hfilter' %}" data-action="delete" class="{% if not can_delete %}is-disabled{% endif %}">
-            {% widget_icon name='delete' label=_('Delete this custom view') size='listview-filter-action' %}
-            {% blockjsondata class='listview-action-data' %}{"data": {"id": "{{selected.id}}"}}{% endblockjsondata %}
-        </a>
+    {% if show_buttons %}
+     {% with ctype=model|ctype_for_instance %}
+      <a href="{% url 'creme_core__create_hfilter' ctype.id %}">
+          {% widget_icon name='add' label=_('Create a custom view') size='listview-filter-action' %}
+      </a>
+      <a href="{{selected.get_edit_absolute_url}}" data-action="redirect" class="{% if not can_edit %}is-disabled{% endif %}">
+          {% widget_icon name='edit' label=_('Edit this view') size='listview-filter-action' %}
+      </a>
+      <a href="{% url 'creme_core__delete_hfilter' %}" data-action="delete" class="{% if not can_delete %}is-disabled{% endif %}">
+          {% widget_icon name='delete' label=_('Delete this custom view') size='listview-filter-action' %}
+          {% blockjsondata class='listview-action-data' %}{"data": {"id": "{{selected.id}}"}}{% endblockjsondata %}
+      </a>
+     {% endwith %}
     {% endif %}
 </fieldset>

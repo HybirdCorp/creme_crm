@@ -14,8 +14,9 @@
 
 {% block brick_content %}
     <table class="brick-table-content">
-     {% if components %}{% ctype_for_model components.0 as comp_ctype %}
-      {% with edit_perm=user|has_perm_to_change:object delete_url='creme_core__delete_related_to_entity'|url:comp_ctype.id %}
+     {% if components %}
+      {% with comp_ctype=components.0|ctype_for_instance %}
+       {% with edit_perm=user|has_perm_to_change:object delete_url='creme_core__delete_related_to_entity'|url:comp_ctype.id %}
         <tbody>
           {% for component in components %}
             <tr>
@@ -44,6 +45,7 @@
             </tr>
           {% endfor %}
         </tbody>
+       {% endwith %}
       {% endwith %}
      {% else %}
         <thead>

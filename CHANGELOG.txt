@@ -87,8 +87,9 @@
               use the new methods 'assertHaveRelation()' & 'assertHaveNoRelation()' instead.
             - In 'creme_core.templatetags' :
                 - In the module "creme_core_tags", the argument "callback_url" of '{% inner_edition_uri %}' is deprecated.
-                - In the module "creme_ctype", the tag "{% ctype_for_swappable %}" is deprecated;
-                  use the filter "|ctype_for_swappable" instead.
+                - In the module "creme_ctype" :
+                    - The tag "{% ctype_for_model %}" is deprecated; use the filter "|ctype_for_instance" instead.
+                    - The tag "{% ctype_for_swappable %}" is deprecated; use the filter "|ctype_for_swappable" instead.
             - App :
                 * Persons :
                     - The method 'models.base.PersonWithAddressesMixin._post_save_clone()' is deprecated.

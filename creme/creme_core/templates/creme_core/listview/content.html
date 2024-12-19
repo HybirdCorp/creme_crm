@@ -55,15 +55,17 @@
 <table class="listview {% if is_popup_view %}listview-popup{% else %}listview-standalone{% endif %} listview-selection-{{selection_mode}}" cellpadding="0" cellspacing="0" data-total-count="{{paginator.count}}">
     <thead>
         <tr class="lv-state-form">
-            <th>{% ctype_for_model model as ctype %}
+            <th>
               {% block lv_hidden_buttons %}
                 <input class="lv-state-field" value="{{list_view_state.sort_cell_key|default:''}}" type="hidden" name="sort_key" />
                 <input class="lv-state-field" value="{{list_view_state.sort_order}}"        type="hidden" name="sort_order" />
                 <input class="lv-state-field" value=""                                      type="hidden" name="selected_rows" />
                 <input class="lv-state-field" value="{{selection_mode}}"                    type="hidden" name="selection" />
                 <input class="lv-state-field" value="{{extra_q.requested|query_serialize}}" type="hidden" name="q_filter" />
+                {% with ctype=model|ctype_for_instance %}
                 <input class="lv-state-field" value="{{ctype.id}}"                          type="hidden" name="ct_id" />
-               {% endblock %}
+                {% endwith %}
+              {% endblock %}
             </th>
         </tr>
         <tr class="lv-columns-header">
