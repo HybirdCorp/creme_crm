@@ -9,7 +9,8 @@
   {% if count %}
     {% brick_header_title title=objects_ctype|ctype_counted_label:count count=count %}
   {% else %}
-    {% brick_header_title title=meta.verbose_name_plural %}
+{#    {% brick_header_title title=meta.verbose_name_plural %} #}
+    {% brick_header_title title=objects_ctype|ctype_verbose_name_plural %}
   {% endif %}
  {% endwith %}
 {% endblock %}
@@ -39,7 +40,7 @@
     {% for object in page.object_list %}
         {% if model_is_reorderable %}
         <tr data-reorderable-item-order="{{forloop.counter}}" data-reorderable-item-url="{% url 'creme_config__reorder_instance' app_name model_config.model_name object.id %}">
-            <td data-reorderable-handle-column class="ui-sortable-handle brick-configmodel-order" title="{% blocktranslate with type=meta.verbose_name %}Drag and drop to re-order this «{{type}}»{% endblocktranslate %}">
+            <td data-reorderable-handle-column class="ui-sortable-handle brick-configmodel-order" title="{% blocktranslate with type=objects_ctype %}Drag and drop to re-order this «{{type}}»{% endblocktranslate %}">
                 {{reorder_icon.render}}
             </td>
         {% else %}
