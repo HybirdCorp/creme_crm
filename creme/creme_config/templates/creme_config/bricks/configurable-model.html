@@ -5,14 +5,13 @@
 {% block brick_extra_class %}{{block.super}} creme_config-configurable-model-brick{% if model_is_reorderable %} brick-reorderable{% endif %}{% endblock %}
 
 {% block brick_header_title %}
-{% with count=page.paginator.count %}
-    {% if count %}
-        {% ctype_counted_instances_label objects_ctype page.paginator.count as title %}
-        {% brick_header_title title=title count=count %}
-    {% else %}
-        {% brick_header_title title=meta.verbose_name_plural %}
-    {% endif %}
-{% endwith %}
+ {% with count=page.paginator.count %}
+  {% if count %}
+    {% brick_header_title title=objects_ctype|ctype_counted_label:count count=count %}
+  {% else %}
+    {% brick_header_title title=meta.verbose_name_plural %}
+  {% endif %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_header_actions %}

@@ -126,6 +126,7 @@ class CremeCTypeTagsTestCase(CremeTestCase):
                 r'{% load creme_ctype %}'
                 r'{{sector_ctype|ctype_verbose_name:1}}#'
                 r'{{sector_ctype|ctype_verbose_name:10}}#'
+                r'{{sector_ctype|ctype_verbose_name}}#'  # DEPRECATED
                 r'{{sector_ctype|ctype_verbose_name}}'
             )
             render = template.render(Context({
@@ -135,6 +136,7 @@ class CremeCTypeTagsTestCase(CremeTestCase):
         self.assertEqual(
             f'{get_model_verbose_name(model=FakeSector, count=1)}#'
             f'{get_model_verbose_name(model=FakeSector, count=10)}#'
+            f'{FakeSector._meta.verbose_name}#'
             f'{FakeSector._meta.verbose_name}',
             render.strip(),
         )
@@ -199,7 +201,7 @@ class CremeCTypeTagsTestCase(CremeTestCase):
 
         self.assertEqual(ce_type.plural_name, render.strip())
 
-    def test_ctype_counted_instances_label01(self):
+    def test_ctype_counted_instances_label__simpletag01(self):  # DEPRECATED
         "Count == 1."
         with self.assertNoException():
             template = Template(
@@ -218,7 +220,7 @@ class CremeCTypeTagsTestCase(CremeTestCase):
             render.strip(),
         )
 
-    def test_ctype_counted_instances_label02(self):
+    def test_ctype_counted_instances_label__simpletag02(self):  # DEPRECATED
         "Count == 10, assignment."
         with self.assertNoException():
             template = Template(
@@ -236,6 +238,24 @@ class CremeCTypeTagsTestCase(CremeTestCase):
                 model=get_model_verbose_name(model=FakePosition, count=10),
             )),
             render.strip()
+        )
+
+    def test_ctype_counted_instances_label(self):
+        with self.assertNoException():
+            template = Template(
+                r'{% load creme_ctype %}'
+                r'{{ sector_ctype|ctype_counted_label:1 }}#'
+                r'{{ sector_ctype|ctype_counted_label:10 }}'
+            )
+            render = template.render(Context({
+                'sector_ctype': ContentType.objects.get_for_model(FakeSector),
+            }))
+
+        fmt = _('{count} {model}').format
+        self.assertEqual(
+            f'{fmt(count=1,  model=get_model_verbose_name(model=FakeSector, count=1))}#'
+            f'{fmt(count=10, model=get_model_verbose_name(model=FakeSector, count=10))}',
+            render.strip(),
         )
 
     # TODO: ctype_can_be_merged

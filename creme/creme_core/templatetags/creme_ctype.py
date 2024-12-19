@@ -117,11 +117,16 @@ def ctype_for_swappable(model_setting: str) -> ContentType:
 def ctype_verbose_name(ctype: ContentType, count: int | None  = None) -> str:
     model = ctype.model_class()
     # return model._meta.verbose_name if count is None else get_model_verbose_name(model, count)
-    return (
-        utils.model_verbose_name(model)
-        if count is None else
-        get_model_verbose_name(model, count)
-    )
+
+    if count is None:
+        warnings.warn(
+            '|ctype_verbose_name without "count" argument is deprecated; '
+            'you can just print the ContentType instance.',
+            DeprecationWarning,
+        )
+        return utils.model_verbose_name(model)
+
+    return get_model_verbose_name(model, count)
 
 
 @register.filter
@@ -131,15 +136,28 @@ def ctype_verbose_name_plural(ctype: ContentType) -> str:
 
 @register.simple_tag
 def ctype_counted_instances_label(ctype: ContentType, count: int) -> str:
+    warnings.warn(
+        '{% ctype_counted_instances_label %} is deprecated; '
+        'use |ctype_counted_label instead.',
+        DeprecationWarning,
+    )
+
+    return _('{count} {model}').format(
+        count=count,
+        model=get_model_verbose_name(model=ctype.model_class(), count=count),
+    )
+
+
+@register.filter
+def ctype_counted_label(ctype: ContentType, count: int) -> str:
     """ Return a localized string, in order to display label like '1 Contact' or '3 Organisations'.
 
     @param ctype: A ContentType instance relation to your model.
     @param count: An Integer representing the number of instances of "model".
     @return: A string.
 
-        {% ctype_counted_instances_label ctype='PERSONS_CONTACT_MODEL'|ctype_for_swappable count=12 as my_label %}
-        <h1>{{ my_label }}</h1>
-    """  # NOQA
+        <h1>{{ 'PERSONS_CONTACT_MODEL'|ctype_for_swappable|ctype_counted_label:12 }}</h1>
+    """
     return _('{count} {model}').format(
         count=count,
         model=get_model_verbose_name(model=ctype.model_class(), count=count),

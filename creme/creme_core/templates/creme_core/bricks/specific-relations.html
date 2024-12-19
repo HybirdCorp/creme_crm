@@ -53,9 +53,7 @@
     <div class="brick-list-item relation-item">
         {% if cells %}
         <div class="relation-group relation-summary-group">
-            <div class="relation-group-key">
-                {% ctype_counted_instances_label entities.0.entity_type counter as label %}{{label}}
-            </div>
+            <div class="relation-group-key">{{entities.0.entity_type|ctype_counted_label:counter}}</div>
         </div>
         {% elif groups|length > 1 %}
         <div class="relation-group relation-summary-group">

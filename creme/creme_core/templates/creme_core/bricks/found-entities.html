@@ -10,37 +10,36 @@ search-count="{{page.paginator.count}}"
 {% endblock %}
 
 {% block brick_header_title %}
-    {% ctype_counted_instances_label objects_ctype page.paginator.count as title %}
     {% widget_icon ctype=objects_ctype size='brick-header' as ct_icon %}
-    {% brick_header_title title=title icon=ct_icon %}
+    {% brick_header_title title=objects_ctype|ctype_counted_label:page.paginator.count icon=ct_icon %}
 {% endblock %}
 
 {% block brick_table_columns %}
-    {% if cells %}
-        {% brick_table_column title=_('See') status='action' %}
-        {% for cell in cells %}
-            {% brick_table_column title=cell %}
-        {% endfor %}
-    {% else %}
-        <tr><th>{% translate 'It seems that all fields are hidden. Ask your administrator to fix the configuration.' %}</th></tr>
-    {% endif %}
+  {% if cells %}
+    {% brick_table_column title=_('See') status='action' %}
+    {% for cell in cells %}
+        {% brick_table_column title=cell %}
+    {% endfor %}
+  {% else %}
+    <tr><th>{% translate 'It seems that all fields are hidden. Ask your administrator to fix the configuration.' %}</th></tr>
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_rows %}
-    {% for entity in page.object_list %}
+  {% for entity in page.object_list %}
     <tr>
-    {% if cells %}
+      {% if cells %}
         <td>
             <a href="{{entity.get_absolute_url}}" class="brick-action brick-table-action{% if entity.is_deleted %} is_deleted{% endif %}">
                 {% widget_icon name='view' size='brick-table-action' class='brick-action-icon brick-table-action-icon' %}
             </a>
         </td>
-    {% endif %}
-    {% for cell in cells %}
+      {% endif %}
+      {% for cell in cells %}
         <td class="advanced-search-result">{% cell_render cell=cell instance=entity user=user as cell_content %}
             {% if cell_content %}{% if entity.is_deleted %}<div class="is_deleted">{{cell_content}}</div>{% else %}{{cell_content}}{% endif %}{% else %}<span class="empty-field">—</span>{% endif %}
         </td>
-    {% endfor %}
+      {% endfor %}
     </tr>
-    {% endfor %}
+  {% endfor %}
 {% endblock %}
