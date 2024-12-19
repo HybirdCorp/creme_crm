@@ -90,6 +90,7 @@
                 - In the module "creme_ctype" :
                     - The tag "{% ctype_for_model %}" is deprecated; use the filter "|ctype_for_instance" instead.
                     - The tag "{% ctype_for_swappable %}" is deprecated; use the filter "|ctype_for_swappable" instead.
+                    - The tag "{% ctype_counted_instances_label %}" is deprecated; use the filter "|ctype_counted_label" instead.
             - App :
                 * Persons :
                     - The method 'models.base.PersonWithAddressesMixin._post_save_clone()' is deprecated.

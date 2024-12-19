@@ -3,8 +3,7 @@
 
 {% block content %}
 {% with modifications=hline.modifications %}
-    {% ctype_counted_instances_label ctype=hline.entity_ctype count=modifications.0 as counted_instances %}
     {% if modifications|length >= 3 %}{% templatize '{{modifications.2}}' as filter %}{% else %}{% translate 'All' context 'creme_core-filter' as filter %}{% endif %}
-    {% blocktranslate with view=modifications.1 %}Export of «{{counted_instances}}» (view «{{view}}» & filter «{{filter}}»){% endblocktranslate %}
+    {% blocktranslate with counted_instances=hline.entity_ctype|ctype_counted_label:modifications.0 view=modifications.1 %}Export of «{{counted_instances}}» (view «{{view}}» & filter «{{filter}}»){% endblocktranslate %}
 {% endwith %}
 {% endblock %}
