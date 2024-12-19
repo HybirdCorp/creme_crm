@@ -18,6 +18,7 @@ from creme.creme_core.models import (
     FakeContact,
     HeaderFilter,
     HistoryLine,
+    SearchConfigItem,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -236,6 +237,10 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             brick=PropertiesBrick, order=1, zone=BrickDetailviewLocation.LEFT, model=model,
         )
 
+        get_sci = SearchConfigItem.objects.create_if_needed
+        other_sci  = get_sci(model=FakeContact,          fields=['first_name'])
+        custom_sci = get_sci(model=ce_type.entity_model, fields=['name'])
+
         url = reverse('creme_config__delete_custom_entity_type')
         data = {'id': ce_type.id}
         self.assertGET405(url, data=data)
@@ -268,6 +273,9 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertDoesNotExist(custom_bdl)
         self.assertStillExists(existing_bdl)
+
+        self.assertDoesNotExist(custom_sci)
+        self.assertStillExists(other_sci)
 
         # POST (invalid) ---
         self.assertPOST404(url, data=data)

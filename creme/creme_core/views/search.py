@@ -32,6 +32,7 @@ from ..core.search import Searcher
 from ..gui.bricks import QuerysetBrick
 from ..http import CremeJsonResponse
 from ..models import CremeEntity, EntityCredentials
+from ..models.utils import model_verbose_name
 from ..registry import creme_registry
 from ..utils.unicode_collation import collator
 from .bricks import BricksReloading
@@ -120,7 +121,8 @@ class SearcherMixin:
             app_labels=role.allowed_apps if role else None
         )]
         sort_key = collator.sort_key
-        models.sort(key=lambda m: sort_key(str(m._meta.verbose_name)))
+        # models.sort(key=lambda m: sort_key(str(m._meta.verbose_name)))
+        models.sort(key=lambda m: sort_key(model_verbose_name(m)))
 
         return models
 
@@ -174,7 +176,8 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
         context['searched'] = self.get_search_terms()
         context['error_message'] = self.get_search_error()
         context['models'] = models = [*self.get_searcher().models]
-        context['verbose_names'] = [str(model._meta.verbose_name) for model in models]
+        # context['verbose_names'] = [str(model._meta.verbose_name) for model in models]
+        context['verbose_names'] = [*map(model_verbose_name, models)]
 
         ctype = self.get_ctype()
         context['selected_ct_id'] = ctype.id if ctype else None
@@ -264,17 +267,19 @@ class LightSearch(SearcherMixin, base.CheckedView):
         return entry
 
     def build_model_label(self, model):
-        return str(model._meta.verbose_name)
+        # return str(model._meta.verbose_name)
+        return model_verbose_name(model)
 
     def get(self, request, *args, **kwargs):
         terms = self.get_search_terms()
         limit = self.get_limit()
 
         data = {
-            # 'query': {'content': sought,
-            #               'ctype':   ct_id if ct_id else None,
-            #               'limit':   int(limit),
-            #              }
+            # 'query': {
+            #     'content': sought,
+            #     'ctype':   ct_id if ct_id else None,
+            #     'limit':   int(limit),
+            # },
         }
 
         if not terms:
