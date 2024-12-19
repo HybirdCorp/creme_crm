@@ -3,24 +3,24 @@
 
 {% block page_title %}{{object}} - {% endblock %}
 
-{% block content_extra_class %}content-detail-view {% ctype_for_model object as ctype %}content-detail-view-{{ctype.app_label}}-{{ctype.model}}{% endblock %}
+{% block content_extra_class %}content-detail-view {% with ctype=object|ctype_for_instance %}content-detail-view-{{ctype.app_label}}-{{ctype.model}}{% endwith %}{% endblock %}
 
 {% block content %}
     {% block global_buttons_container %}
         <div class="buttons-list global-buttons">
             <ul>
-            {% block global_buttons %}
-                {% block listview_button %}
-                  {% if object.get_lv_absolute_url %}
-                    <li>
-                        <a class="menu_button menu-button-icon" href="{{object.get_lv_absolute_url}}">{% translate 'Back to the list' as back_label %}
-                            {% widget_icon name='listview' size='global-button' label=back_label %}
-                            {{back_label}}
-                        </a>
-                    </li>
-                  {% endif %}
-                {% endblock %}
-            {% endblock %}
+             {% block global_buttons %}
+              {% block listview_button %}
+               {% if object.get_lv_absolute_url %}
+                <li>
+                    <a class="menu_button menu-button-icon" href="{{object.get_lv_absolute_url}}">{% translate 'Back to the list' as back_label %}
+                        {% widget_icon name='listview' size='global-button' label=back_label %}
+                        {{back_label}}
+                    </a>
+                </li>
+               {% endif %}
+              {% endblock %}
+             {% endblock %}
             </ul>
         </div>
     {% endblock %}

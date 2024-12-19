@@ -32,7 +32,6 @@ from ..utils.translation import get_model_verbose_name
 register = Library()
 
 
-# TODO: {% ctype_for_instance %} ? (ctype_for_model already works for instances...)
 # TODO: {% if object|ctype_is:my_ctype %} ?
 
 
@@ -46,7 +45,27 @@ def ctype_for_model(model: type[Model]) -> ContentType:
         {% ctype_for_model currency_model as currency_ctype %}
         <h1>List of {{currency_ctype}}</h1>
     """
+    warnings.warn(
+        '{% ctype_for_model %} is deprecated; '
+        'use the filter "|ctype_for_instance" instead.',
+        DeprecationWarning
+    )
     return ContentType.objects.get_for_model(model)
+
+
+@register.filter
+def ctype_for_instance(instance: Model) -> ContentType:
+    """Returns an instance of ContentType for an instance of model.
+
+    @param instance: Instance of <django.db.models.Model>.
+    @return: A ContentType instance.
+
+        <h1>Type: {{my_contact|ctype_for_instance}}</h1>
+
+    Notice: remember that if you have a model in your context, the template
+            engine of Django will automatically build an instance.
+    """
+    return ContentType.objects.get_for_model(type(instance))
 
 
 @register.simple_tag
@@ -58,7 +77,7 @@ def ctype_for_naturalkey(app_label: str, model: str) -> ContentType:
     @return: A ContentType instance.
 
         {% ctype_for_naturalkey app_label='creme_core' model='currency' as currency_ctype %}
-        <h1>List of {{currency_ctype}}</h1>
+        <h1>List of {{ currency_ctype }}</h1>
     """
     return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
 
@@ -119,7 +138,7 @@ def ctype_counted_instances_label(ctype: ContentType, count: int) -> str:
     @return: A string.
 
         {% ctype_counted_instances_label ctype='PERSONS_CONTACT_MODEL'|ctype_for_swappable count=12 as my_label %}
-        <h1>{{my_label}}</h1>
+        <h1>{{ my_label }}</h1>
     """  # NOQA
     return _('{count} {model}').format(
         count=count,

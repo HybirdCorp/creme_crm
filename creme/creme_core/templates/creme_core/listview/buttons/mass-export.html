@@ -1,6 +1,7 @@
 {% load i18n creme_ctype creme_perms creme_query creme_widgets %}
 {% load jsonify from creme_core_tags %}
-{% if button.backend_choices %}{% ctype_for_model model as ctype %}
+{% if button.backend_choices %}
+{% with ctype=model|ctype_for_instance %}
 <a {% if user|has_perm_to_export:ctype %}
  class="with-icon"
  data-href="{% url 'creme_core__mass_export' %}?ct_id={{ctype.id}}&hfilter={{list_view_state.header_filter_id}}&sort_order={{list_view_state.sort_order}}&sort_key={{list_view_state.sort_cell_key}}&efilter={{list_view_state.entity_filter_id|default:''}}&extra_q={{button.extra_q.total|query_serialize|urlencode}}{% for search_key, search_value in list_view_state.search.items %}&{{search_key}}={{search_value|urlencode}}{% endfor %}"
@@ -9,4 +10,5 @@
 {% else %}class="with-icon forbidden" title="{% translate 'Forbidden' %}"{% endif %}>
     {% translate 'Download' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
 </a>
+{% endwith %}
 {% endif %}
