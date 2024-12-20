@@ -12,12 +12,15 @@ from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
+    CremePropertyType,
     CustomEntityType,
     CustomField,
     EntityFilter,
     FakeContact,
+    FakeProduct,
     HeaderFilter,
     HistoryLine,
+    RelationType,
     SearchConfigItem,
 )
 from creme.creme_core.tests.base import CremeTestCase
@@ -223,6 +226,20 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         model = ce_type.entity_model
         self.assertFalse(ce_type.deleted)
 
+        ptype = CremePropertyType.objects.create(text='In wood')
+        ptype.set_subject_ctypes(FakeContact, model)
+
+        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
+            ('test-subject_design', 'has designed',   [model, FakeProduct]),
+            ('test-object_foobar',  'is designed by', [FakeContact]),
+        )
+
+        role = self.create_role(
+            name='Devops',
+            creatable_models=[FakeContact, model],
+            exportable_models=[FakeProduct, model],
+        )
+
         existing_hf = HeaderFilter.objects.first()
         custom_hf = HeaderFilter.objects.create_if_needed(
             pk='creme_core-hf_customentity1', name='Building view',
@@ -271,6 +288,20 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         ce_type = self.assertStillExists(ce_type)
         self.assertFalse(ce_type.enabled)
         self.assertFalse(ce_type.deleted)
+
+        self.assertListEqual([FakeContact], [*self.refresh(ptype).subject_models])
+
+        self.assertListEqual([FakeProduct], [*self.refresh(rtype1).subject_models])
+        self.assertListEqual([FakeContact], [*self.refresh(rtype2).subject_models])
+
+        self.assertListEqual(
+            [FakeContact],
+            [ct.model_class() for ct in role.creatable_ctypes.all()],
+        )
+        self.assertListEqual(
+            [FakeProduct],
+            [ct.model_class() for ct in role.exportable_ctypes.all()],
+        )
 
         self.assertDoesNotExist(custom_hf)
         self.assertStillExists(existing_hf)

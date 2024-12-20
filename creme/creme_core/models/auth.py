@@ -94,11 +94,11 @@ class UserRole(models.Model):
     # TODO: CTypeManyToManyField ?
     creatable_ctypes = models.ManyToManyField(
         ContentType, verbose_name=_('Creatable resources'),
-        related_name='roles_allowing_creation',  # TODO: '+' ?
+        related_name='roles_allowing_creation',
     )
     exportable_ctypes = models.ManyToManyField(
         ContentType, verbose_name=_('Exportable resources'),
-        related_name='roles_allowing_export',  # TODO: '+' ?
+        related_name='roles_allowing_export',
     )
     raw_allowed_apps = models.TextField(default='')  # Use 'allowed_apps' property
     raw_admin_4_apps = models.TextField(default='')  # Use 'admin_4_apps' property
