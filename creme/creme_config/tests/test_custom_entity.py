@@ -71,13 +71,13 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertFalse(CustomEntityType.objects.filter(enabled=True))
 
-        name = 'Training'
-        plural_name = 'Trainings'
+        name1 = 'Training'
+        plural_name1 = 'Trainings'
 
         # Should not cause a uniqueness error (not enabled)
-        ce_type2 = self.get_object_or_fail(CustomEntityType, id=3)
-        ce_type2.name = name
-        ce_type2.save()
+        ce_type3 = self.get_object_or_fail(CustomEntityType, id=3)
+        ce_type3.name = name1
+        ce_type3.save()
 
         # GET ---
         url = reverse('creme_config__create_custom_entity_type')
@@ -87,33 +87,46 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # POST ---
         self.assertNoFormError(self.client.post(
-            url, data={'name': name, 'plural_name': plural_name},
+            url, data={'name': name1, 'plural_name': plural_name1},
         ))
 
-        ce_type = self.get_alone_element(CustomEntityType.objects.filter(enabled=True))
-        self.assertEqual(1,           ce_type.id)
-        self.assertEqual(name,        ce_type.name)
-        self.assertEqual(plural_name, ce_type.plural_name)
+        ce_type1 = self.get_alone_element(CustomEntityType.objects.filter(enabled=True))
+        self.assertEqual(1,           ce_type1.id)
+        self.assertEqual(name1,        ce_type1.name)
+        self.assertEqual(plural_name1, ce_type1.plural_name)
 
         hfilter = self.get_object_or_fail(
             HeaderFilter,
-            entity_type=ContentType.objects.get_for_model(ce_type.entity_model),
+            entity_type=ContentType.objects.get_for_model(ce_type1.entity_model),
         )
-        self.assertEqual(_('{model} view').format(model=name), hfilter.name)
+        self.assertEqual(_('{model} view').format(model=name1), hfilter.name)
         self.assertEqual('creme_core-hf_custom_entity_1',      hfilter.pk)
         self.assertFalse(hfilter.is_custom)
         self.assertListEqual(
-            [EntityCellRegularField.build(ce_type.entity_model, 'name')],
+            [EntityCellRegularField.build(ce_type1.entity_model, 'name')],
             hfilter.cells,
         )
 
         # Uniqueness ---
-        response3 = self.assertPOST200(url, data={'name': name})
+        response3 = self.assertPOST200(url, data={'name': name1})
         self.assertFormError(
             response3.context['form'],
             field='name',
             errors=_('There is already a type with this name.'),
         )
+
+        # Order by ID
+        name2 = 'Lab'
+        plural_name2 = 'Labss'
+
+        self.assertNoFormError(self.client.post(
+            url, data={'name': name2, 'plural_name': plural_name2},
+        ))
+
+        ce_type2 = self.get_object_or_fail(CustomEntityType, id=2)
+        self.assertTrue(ce_type2.enabled)
+        self.assertEqual(name2,        ce_type2.name)
+        self.assertEqual(plural_name2, ce_type2.plural_name)
 
     def test_creation__no_available(self):
         self.login_as_standard(admin_4_apps=['creme_core'])
