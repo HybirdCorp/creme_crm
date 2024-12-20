@@ -48,7 +48,11 @@ class CustomEntityTypeCreationForm(CremeForm):
     def save(self, *args, **kwargs):
         cdata = self.cleaned_data
 
-        instances = [*CustomEntityType.objects.filter(enabled=False).select_for_update()]
+        instances = [
+            *CustomEntityType.objects.filter(enabled=False)
+                                     .order_by('id')
+                                     .select_for_update(),
+        ]
         instance = instances[0]  # TODO: manage error?
         instance.enabled = True
         instance.name        = cdata['name']
