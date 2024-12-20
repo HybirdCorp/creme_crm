@@ -210,7 +210,8 @@ class CremePropertyType(CremeModel):
     subject_ctypes = models.ManyToManyField(
         ContentType, blank=True,
         verbose_name=_('Related to types of entities'),
-        related_name='subject_ctypes_creme_property_set',  # TODO: '+'
+        # TODO: harmonise with RelationType ("relationtype_subjects_set")
+        related_name='subject_ctypes_creme_property_set',
         help_text=_('No selected type means that all types are accepted'),
     )
     is_custom = models.BooleanField(default=False, editable=False)
