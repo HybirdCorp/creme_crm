@@ -92,6 +92,24 @@ class Portal(base.ConfigPortal):
 
 # Deletion ---------------------------------------------------------------------
 @receiver(
+    disable_custom_entity_type, dispatch_uid='creme_config-delete_customtype_property_constraints',
+)
+def delete_customtype_ptypes_subject_ctypes(sender: CustomEntityType,
+                                            entity_ctype: ContentType,
+                                            **kwargs):
+    entity_ctype.subject_ctypes_creme_property_set.clear()
+
+
+@receiver(
+    disable_custom_entity_type, dispatch_uid='creme_config-delete_customtype_relation_constraints',
+)
+def delete_customtype_rtypes_subject_ctypes(sender: CustomEntityType,
+                                            entity_ctype: ContentType,
+                                            **kwargs):
+    entity_ctype.relationtype_subjects_set.clear()
+
+
+@receiver(
     disable_custom_entity_type, dispatch_uid='creme_config-delete_customtype_hfilters',
 )
 def delete_customtype_hfilters(sender: CustomEntityType, entity_ctype: ContentType, **kwargs):
