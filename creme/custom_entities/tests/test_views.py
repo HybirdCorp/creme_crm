@@ -6,14 +6,23 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.bricks import PropertiesBrick
 from creme.creme_core.constants import MODELBRICK_ID
+from creme.creme_core.creme_jobs import (
+    mass_import_type,
+    temp_files_cleaner_type,
+)
 from creme.creme_core.gui.bricks import Brick
-from creme.creme_core.models import CustomEntityType, HeaderFilter
-from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.models import CustomEntityType, HeaderFilter, Job
+from creme.creme_core.tests.views.base import (
+    BrickTestCaseMixin,
+    MassImportBaseTestCaseMixin,
+)
 
 from .base import CustomEntitiesBaseTestCase
 
 
-class CustomEntityViewsTestCase(BrickTestCaseMixin, CustomEntitiesBaseTestCase):
+class CustomEntityViewsTestCase(BrickTestCaseMixin,
+                                MassImportBaseTestCaseMixin,
+                                CustomEntitiesBaseTestCase):
     def test_detail(self):
         user = self.login_as_root_and_get()
         type_name = 'Training'
@@ -218,6 +227,7 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin, CustomEntitiesBaseTestCase):
 
         self.assertIs(entity.is_deleted, True)
 
+    # TODO: test custom fields?
     def test_cloning(self):
         user = self.login_as_root_and_get()
         ce_type = self._enable_type(id=1, name='Shop')
@@ -242,3 +252,82 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin, CustomEntitiesBaseTestCase):
             reverse('creme_core__clone_entity'),
             data={'id': entity.id}, follow=True,
         )
+
+    # TODO: test custom fields?
+    def test_mass_import(self):
+        user = self.login_as_root_and_get()
+        ce_type = self._enable_type(id=1, name='Shop', plural_name='Shops')
+        model = ce_type.entity_model
+        lines = [
+            ['Video g@mezzz',   'For hardcore gamers & n00b too'],
+            ['Pencils palooza', 'For artists'],
+        ]
+
+        doc = self._build_csv_doc(lines, user=user)
+        url = self._build_import_url(model)
+        response1 = self.assertGET200(url)
+        self.assertEqual(
+            _('Import «{model}» from data file').format(model=ce_type.plural_name),
+            response1.context.get('title'),
+        )
+
+        # ---
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'step':     0,
+                'document': doc.id,
+                # has_header
+            },
+        ))
+
+        # ---
+        response3 = self.client.post(
+            url,
+            follow=True,
+            data={
+                'step': 1,
+                'document': doc.id,
+                'user': user.id,
+                # 'has_header': ...,
+
+                'name_colselect': 1,
+                'description_colselect': 2,
+
+                # 'property_types',
+                # 'fixed_relations',
+                # 'dyn_relations',
+            },
+        )
+        self.assertNoFormError(response3)
+
+        job = self._execute_job(response3)
+        self.assertListEqual(
+            [_('Import «{model}» from {doc}').format(model=ce_type.name, doc=doc)],
+            mass_import_type.get_description(job),
+        )
+
+        results = self._get_job_results(job)
+        self.assertEqual(len(lines), len(results))
+
+        shop1 = model.objects.get(name=lines[0][0])
+        self.assertEqual(lines[0][1], shop1.description)
+
+        shop2 = model.objects.get(name=lines[1][0])
+        self.assertEqual(lines[1][1], shop2.description)
+
+        # Type deletion ---
+        shop1.delete()
+        shop2.delete()
+
+        ce_type.deleted = True
+        ce_type.save()
+
+        self.assertPOST200(
+            reverse('creme_config__delete_custom_entity_type'),
+            data={'id': ce_type.id},
+        )
+        self.assertDoesNotExist(job)
+        self.assertDoesNotExist(results[0])
+
+        self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)

@@ -29,6 +29,7 @@ from creme.documents import get_document_model
 from ..constants import UUID_CHANNEL_JOBS
 from ..forms.mass_import import form_factory, get_header
 from ..models import MassImportJobResult, Notification
+from ..models.utils import model_verbose_name
 from ..notification import MassImportDoneContent
 from ..utils.translation import smart_model_verbose_name
 from .base import JobProgress, JobType
@@ -92,7 +93,8 @@ class _MassImportType(JobType):
             job_data = job.data
             desc = [
                 gettext('Import «{model}» from {doc}').format(
-                    model=self._get_ctype(job_data).model_class()._meta.verbose_name,
+                    # model=self._get_ctype(job_data).model_class()._meta.verbose_name,
+                    model=model_verbose_name(self._get_ctype(job_data).model_class()),
                     doc=self._get_document(self._build_POST(job_data)),
                 ),
             ]
@@ -128,7 +130,8 @@ class _MassImportType(JobType):
         elif updated_count != lines_count:
             stats.append(
                 gettext('No «{model}» has been created.').format(
-                    model=model._meta.verbose_name,
+                    # model=model._meta.verbose_name,
+                    model=model_verbose_name(model),
                 )
             )
 
@@ -146,7 +149,8 @@ class _MassImportType(JobType):
         elif created_count != lines_count:
             stats.append(
                 gettext('No «{model}» has been updated.').format(
-                    model=model._meta.verbose_name,
+                    # model=model._meta.verbose_name,
+                    model=model_verbose_name(model),
                 )
             )
 
