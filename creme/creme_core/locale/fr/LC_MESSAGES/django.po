@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-17 20:24+0100\n"
+"POT-Creation-Date: 2024-12-23 12:57+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2689,6 +2689,9 @@ msgstr "Configuration de recherche par défaut pour «{model}»"
 #, python-brace-format
 msgid "Search configuration of «{role}» for «{model}»"
 msgstr "Configuration de recherche de «{role}» pour «{model}»"
+
+msgid "Invalid custom type"
+msgstr "Type personnalisé invalide"
 
 #, python-brace-format
 msgid "{custom_model} [deleted]"

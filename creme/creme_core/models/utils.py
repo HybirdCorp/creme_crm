@@ -67,7 +67,7 @@ def model_verbose_name(model: type[Model]) -> str:
     ce_type = CustomEntityType.objects.get_for_model(model)
     if ce_type is not None:
         if not ce_type.enabled:
-            return '?'
+            return gettext('Invalid custom type')
 
         if ce_type.deleted:
             return gettext('{custom_model} [deleted]').format(

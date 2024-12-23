@@ -115,8 +115,10 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin, CustomEntitiesBaseTestCase):
         response = self.client.get(ce_type.entity_model.get_create_absolute_url())
         self.assertContains(
             response,
-            _('You cannot create an entity because the custom type is deleted.'),
-            status_code=409,
+            _('You are not allowed to create: {}').format(
+                _('{custom_model} [deleted]').format(custom_model=ce_type.name)
+            ),
+            status_code=403,
             html=True,
         )
 

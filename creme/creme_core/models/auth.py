@@ -45,8 +45,9 @@ from django.utils.translation import gettext_lazy as _
 
 from ..auth import EntityCredentials
 from ..core.setting_key import UserSettingValueManager
-from ..utils.content_type import as_ctype
+from ..utils.content_type import as_ctype, as_model
 from ..utils.unicode_collation import collator
+from .custom_entity import CustomEntityType
 from .entity import CremeEntity
 from .fields import EntityCTypeForeignKey
 from .utils import model_verbose_name
@@ -1356,8 +1357,15 @@ class CremeUser(AbstractBaseUser):
         >> contact = Contact.objects.create(user=user, last_name='Doe')
         >> user.has_perm_to_create(contact)
         """
-        # TODO: check is a CremeEntity?
-        return self.is_superuser or self.role.can_create(as_ctype(ct_or_model_or_entity))
+        # TODO: check is a CremeEntity? (as_entity_model()?)
+        ce_type = CustomEntityType.objects.get_for_model(as_model(ct_or_model_or_entity))
+        if ce_type and (not ce_type.enabled or ce_type.deleted):
+            return False
+
+        if self.is_superuser:
+            return True
+
+        return self.role.can_create(as_ctype(ct_or_model_or_entity))
 
     # def has_perm_to_create_or_die(self, model_or_entity: EntityInstanceOrClass) -> None:
     #     if not self.has_perm_to_create(model_or_entity):
@@ -1370,16 +1378,10 @@ class CremeUser(AbstractBaseUser):
                                   ct_or_model_or_entity: EntityInstanceOrClassOrCType,
                                   /) -> None:
         if not self.has_perm_to_create(ct_or_model_or_entity):
-            # TODO: as_model()?
-            if isinstance(ct_or_model_or_entity, ContentType):
-                model = ct_or_model_or_entity.model_class()
-            elif isinstance(ct_or_model_or_entity, models.Model):
-                model = type(ct_or_model_or_entity)
-            else:
-                model = ct_or_model_or_entity
-
             raise PermissionDenied(
-                gettext('You are not allowed to create: {}').format(model_verbose_name(model))
+                gettext('You are not allowed to create: {}').format(
+                    model_verbose_name(as_model(ct_or_model_or_entity))
+                )
             )
 
     # TODO: rename argument (see <has_perm_to_change()>)

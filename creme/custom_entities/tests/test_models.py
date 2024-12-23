@@ -114,7 +114,7 @@ class CustomEntityModelsTestCase(CustomEntitiesBaseTestCase):
     def test_model_verbose_name__disabled(self):
         ce_type = self.get_object_or_fail(CustomEntityType, id=1)
         self.assertFalse(ce_type.enabled)
-        self.assertEqual('?', model_verbose_name(ce_type.entity_model))
+        self.assertEqual(_('Invalid custom type'), model_verbose_name(ce_type.entity_model))
 
     def test_model_verbose_name__deleted(self):
         ce_type = self._enable_type(id=1, name='Building', deleted=True)
@@ -149,7 +149,7 @@ class CustomEntityModelsTestCase(CustomEntitiesBaseTestCase):
         self.assertEqual('Test Contact', str(ct1))
 
         ct2 = ContentType.objects.get_for_model(CustomEntity1)
-        self.assertEqual('?', str(ct2))
+        self.assertEqual(_('Invalid custom type'), str(ct2))
 
     def test_content_type__enabled(self):
         name1 = 'Shop'

@@ -48,12 +48,26 @@ def ctype_from_key(ctype_key: str, /) -> ContentType:
     return ContentType.objects.get_by_natural_key(app_label=app_label, model=model_name)
 
 
+# TODO: exception if bad type (see <as_model()>)
 def as_ctype(value: ContentType | type[Model] | Model, /) -> ContentType:
     return (
         value
         if isinstance(value, ContentType) else
         ContentType.objects.get_for_model(value)
     )
+
+
+def as_model(value: ContentType | type[Model] | Model, /) -> type[Model]:
+    if isinstance(value, ContentType):
+        return value.model_class()
+
+    if isinstance(value, Model):
+        return type(value)
+
+    if isinstance(value, type) and issubclass(value, Model):
+        return value
+
+    raise TypeError('Type must be ContentType/Model class/Model instance')
 
 
 def entity_ctypes(app_labels: Container[str] | None = None) -> Iterator[ContentType]:
