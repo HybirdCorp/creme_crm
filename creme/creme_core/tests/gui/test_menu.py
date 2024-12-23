@@ -40,6 +40,7 @@ from creme.creme_core.menu import (
 )
 from creme.creme_core.models import (
     CremeEntity,
+    CustomEntityType,
     FakeActivity,
     FakeContact,
     FakeDocument,
@@ -811,7 +812,7 @@ class MenuTestCase(CremeTestCase):
 
         self.assertEqual(FakeOrganisation, entries2[1].model)
 
-    def test_creation_forms_entry01(self):
+    def test_creation_forms_entry(self):
         user = self.get_root_user()
         entry = EntitiesCreationEntry()
         self.assertEqual('creme_core-creation_forms', entry.id)
@@ -1078,8 +1079,7 @@ class MenuTestCase(CremeTestCase):
             entry.as_grid(user),
         )
 
-    def test_creation_forms_entry02(self):
-        "Simplified API."
+    def test_creation_forms_entry__simplified_api(self):
         user = self.get_root_user()
         entry = EntitiesCreationEntry()
 
@@ -1129,8 +1129,7 @@ class MenuTestCase(CremeTestCase):
         with self.assertRaises(TypeError):
             group.add_link('add_contact', label=label, url=url)  # No model + missing perm
 
-    def test_creation_forms_entry03(self):
-        "Link priority."
+    def test_creation_forms_entry__link_priority(self):
         user = self.get_root_user()
         entry = EntitiesCreationEntry()
         registry = entry.creation_menu_registry = CreationMenuRegistry()
@@ -1218,8 +1217,7 @@ class MenuTestCase(CremeTestCase):
         with self.assertRaises(KeyError):
             group.change_links_priority(2, 'add_customer', 'unknown')
 
-    def test_creation_forms_entry04(self):
-        "Remove Link."
+    def test_creation_forms_entry__remove_link(self):
         user = self.get_root_user()
         entry = EntitiesCreationEntry()
         registry = entry.creation_menu_registry = CreationMenuRegistry()
@@ -1249,8 +1247,7 @@ class MenuTestCase(CremeTestCase):
             entry.as_grid(user),
         )
 
-    def test_creation_forms_entry05(self):
-        "Group priority."
+    def test_creation_forms_entry__group_priority(self):
         user = self.get_root_user()
         entry = EntitiesCreationEntry()
         registry = entry.creation_menu_registry = CreationMenuRegistry()
@@ -1297,8 +1294,7 @@ class MenuTestCase(CremeTestCase):
             entry.as_grid(user),
         )
 
-    def test_creation_forms_entry06(self):
-        "Remove Group."
+    def test_creation_forms_entry__remove_group(self):
         user = self.get_root_user()
         entry = EntitiesCreationEntry()
         registry = entry.creation_menu_registry = CreationMenuRegistry()
@@ -1320,8 +1316,7 @@ class MenuTestCase(CremeTestCase):
             entry.as_grid(user),
         )
 
-    def test_creation_forms_entry07(self):
-        "Credentials."
+    def test_creation_forms_entry__credentials(self):
         user = self.login_as_standard(creatable_models=[FakeContact])
         entry = EntitiesCreationEntry()
         registry = entry.creation_menu_registry = CreationMenuRegistry()
@@ -1348,7 +1343,7 @@ class MenuTestCase(CremeTestCase):
             entry.as_grid(user),
         )
 
-    def test_creation_forms_entry08(self):
+    def test_creation_forms_entry__id_uniqueness(self):
         "ID uniqueness."
         registry = CreationMenuRegistry()
 
@@ -1358,6 +1353,31 @@ class MenuTestCase(CremeTestCase):
 
         with self.assertRaises(ValueError):
             group.add_link('add_contact', FakeContact, label='Contact')
+
+    def test_creation_forms_entry__custom_types(self):
+        self.get_root_user()
+        registry = CreationMenuRegistry()
+
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Lab'
+        ce_type.plural_name = 'Labs'
+        ce_type.save()
+
+        groups = [*registry]
+        self.assertEqual(1, len(groups))
+
+        custom_group = groups[0]
+        self.assertEqual('custom_entities',    custom_group.id)
+        self.assertEqual(_('Custom entities'), custom_group.label)
+
+        links = [*custom_group]
+        self.assertEqual(1, len(links))
+
+        link = links[0]
+        self.assertEqual('creme_core-create_custom1', link.id)
+        self.assertEqual(ce_type.entity_model,        link.model)
+        self.assertEqual(ce_type.name,                link.label)
 
     def test_registry01(self):
         item1 = MenuConfigItem(id=1, entry_id=CremeEntry.id, order=0)

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-23 12:57+0100\n"
+"POT-Creation-Date: 2024-12-23 18:35+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1686,6 +1686,9 @@ msgstr "Séparateur"
 msgid "Add a separator"
 msgstr "Ajouter un séparateur"
 
+msgid "Custom entities"
+msgstr "Fiches personnalisées"
+
 msgid "To page {}"
 msgstr "À la page {}"
 
@@ -2172,9 +2175,6 @@ msgstr "Enregistrer le type de fiche"
 
 msgid "Custom entity"
 msgstr "Fiche personnalisée"
-
-msgid "Custom entities"
-msgstr "Fiches personnalisées"
 
 msgid "Field name"
 msgstr "Nom du champ"
