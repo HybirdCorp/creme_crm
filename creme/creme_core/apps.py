@@ -579,6 +579,12 @@ class CremeCoreConfig(CremeAppConfig):
             basename_builder=(lambda instance, field, file_obj: instance.basename),
         )
 
+    def register_mass_import(self, import_form_registry):
+        from .models import CustomEntityType
+
+        for kls in CustomEntityType.custom_classes.values():
+            import_form_registry.register(kls)
+
     def register_notification(self, notification_registry):
         from . import notification as core_notif
         from .core import notification

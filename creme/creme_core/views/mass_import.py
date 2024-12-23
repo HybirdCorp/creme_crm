@@ -37,6 +37,7 @@ from ..forms.mass_import import (
 )
 from ..gui.mass_import import import_form_registry
 from ..models import Job, MassImportJobResult
+from ..models.utils import model_verbose_name_plural
 from ..utils import get_from_POST_or_404
 from ..utils.content_type import get_ctype_or_404
 from .utils import build_cancel_path
@@ -117,7 +118,8 @@ def mass_import(request, ct_id):
         {
             'form': form,
             'title': _('Import «{model}» from data file').format(
-                model=model._meta.verbose_name_plural,
+                # model=model._meta.verbose_name_plural,
+                model=model_verbose_name_plural(model),
             ),
             'cancel_url': cancel_url,
             'submit_label': submit_label,
