@@ -2183,6 +2183,46 @@ class AuthTestCase(CremeTestCase):
         with self.assertNoException():
             user.has_perm_to_create_or_die(ce_type.entity_model)
 
+    def test_creation_creds__disabled_custom_entity_type(self):
+        user = self.get_root_user()
+
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        self.assertFalse(ce_type.enabled)
+
+        model = ce_type.entity_model
+
+        self.assertFalse(user.has_perm_to_create(model))
+
+        with self.assertRaises(PermissionDenied) as enabled_cm:
+            user.has_perm_to_create_or_die(model)
+        self.assertEqual(
+            _('You are not allowed to create: {}').format(_('Invalid custom type')),
+            str(enabled_cm.exception)
+        )
+
+    def test_creation_creds__deleted_custom_entity_type(self):
+        user = self.get_root_user()
+
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Lab'
+        ce_type.plural_name = 'Labs'
+        ce_type.deleted = True
+        ce_type.save()
+
+        model = ce_type.entity_model
+
+        self.assertFalse(user.has_perm_to_create(model))
+
+        with self.assertRaises(PermissionDenied) as enabled_cm:
+            user.has_perm_to_create_or_die(model)
+        self.assertEqual(
+            _('You are not allowed to create: {}').format(
+                _('{custom_model} [deleted]').format(custom_model=ce_type.name)
+            ),
+            str(enabled_cm.exception),
+        )
+
     def test_export_creds01(self):
         user = self.create_user()
         role = self._create_role('Coder', ['creme_core'], users=[user])  # 'persons'

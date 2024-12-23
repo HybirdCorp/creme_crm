@@ -49,13 +49,7 @@ class CustomEntityCreation(CustomEntityMixin, generic.EntityCreation):
 
     @property
     def model(self):
-        ce_type = self.get_custom_type()
-        if ce_type.deleted:
-            raise ConflictError(gettext(
-                'You cannot create an entity because the custom type is deleted.'
-            ))
-
-        return ce_type.entity_model
+        return self.get_custom_type().entity_model
 
     # TODO: custom form?
     @property

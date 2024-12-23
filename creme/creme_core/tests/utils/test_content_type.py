@@ -4,6 +4,7 @@ from django.http import Http404
 from creme.creme_core.models import FakeContact, FakeOrganisation, FakeSector
 from creme.creme_core.utils.content_type import (
     as_ctype,
+    as_model,
     ctype_as_key,
     ctype_choices,
     ctype_from_key,
@@ -36,6 +37,21 @@ class ContentTypeTestCase(CremeTestCase):
         self.assertIs(ctype, as_ctype(ctype))
         self.assertEqual(ctype, as_ctype(FakeOrganisation))
         self.assertEqual(ctype, as_ctype(FakeOrganisation()))
+
+    def test_as_model(self):
+        model = FakeOrganisation
+        self.assertIs(model, as_model(ContentType.objects.get_for_model(model)))
+        self.assertIs(model, as_model(model))
+        self.assertIs(model, as_model(FakeOrganisation(name='Acme')))
+
+        msg = 'Type must be ContentType/Model class/Model instance'
+        with self.assertRaises(TypeError) as cm1:
+            as_model(int)
+        self.assertEqual(msg, str(cm1.exception))
+
+        with self.assertRaises(TypeError) as cm2:
+            as_model(1)
+        self.assertEqual(msg, str(cm2.exception))
 
     def test_creme_entity_content_types01(self):
         ctypes = [*entity_ctypes()]
