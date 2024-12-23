@@ -217,3 +217,28 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin, CustomEntitiesBaseTestCase):
             entity = self.refresh(entity)
 
         self.assertIs(entity.is_deleted, True)
+
+    def test_cloning(self):
+        user = self.login_as_root_and_get()
+        ce_type = self._enable_type(id=1, name='Shop')
+        model = ce_type.entity_model
+        entity = model.objects.create(user=user, name='Acme')
+        self.assertEqual(1, model.objects.count())
+
+        self.assertPOST200(
+            reverse('creme_core__clone_entity'),
+            data={'id': entity.id}, follow=True,
+        )
+        instances = model.objects.order_by('id')
+        self.assertEqual(2, len(instances))
+        self.assertEqual(entity.name, instances[1].name)
+
+    def test_cloning__deleted_type(self):
+        user = self.login_as_root_and_get()
+        ce_type = self._enable_type(id=1, name='Shop', deleted=True)
+        model = ce_type.entity_model
+        entity = model.objects.create(user=user, name='Acme')
+        self.assertPOST403(
+            reverse('creme_core__clone_entity'),
+            data={'id': entity.id}, follow=True,
+        )

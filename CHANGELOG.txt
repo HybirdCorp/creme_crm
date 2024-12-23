@@ -7,7 +7,7 @@
       It allows users to create their own types of entity without coding.
         - You can create up to 20 types.
         - The new types have just one regular field ("name"), you can add custom-field as usual.
-        - Some features are still missing (inner-edition, custom-forms, mass-import, mass-import, cloning...).
+        - Some features are still missing (inner-edition, custom-forms, mass-import...).
         - BEWARE: it you upgrade from a previous version of Creme, 'creme.custom_entities' must be
           in your 'settings.INSTALLED_APPS' (it should be OK it you did not modify it or have modified as advised).
     # The deletion & cloning buttons have been reworked in detailed views & list-views;
