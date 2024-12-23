@@ -693,12 +693,11 @@ class _CreationViewLinksGroup:
     def change_links_priority(self, priority, *link_ids):
         self._links.change_priority(priority, *link_ids)
 
-    def add_link(
-            self,
-            id: str,
-            model=None,
-            priority=None,
-            **kwargs) -> _CreationViewLinksGroup:
+    def add_link(self,
+                 id: str,
+                 model=None,
+                 priority=None,
+                 **kwargs) -> _CreationViewLinksGroup:
         """Add a link to a creation view.
         @param id: unique (in this group) string, which allows to do queries
                (change property, remove...).
@@ -730,16 +729,16 @@ class CreationMenuRegistry:
         return iter(self._groups)
 
     def change_groups_priority(self, priority, *group_ids):
-        """"Change the priority of several groups at once.
+        """Change the priority of several groups at once.
         See _PriorityList.change_priority().
         """
         self._groups.change_priority(priority, *group_ids)
 
-    def get_or_create_group(
-            self,
-            group_id: str,
-            label,
-            priority=None) -> _CreationViewLinksGroup:
+    def get_or_create_group(self,
+                            group_id: str,
+                            label,
+                            priority=None,
+                            ) -> _CreationViewLinksGroup:
         """Get a group of links by its ID, & create it if it does not exist."""
         groups = self._groups
 
@@ -752,7 +751,7 @@ class CreationMenuRegistry:
         return group
 
     def remove_groups(self, *group_ids: str) -> None:
-        """"Remove several groups at once.
+        """Remove several groups at once.
         See _PriorityList.remove().
         """
         self._groups.remove(*group_ids)
