@@ -30,7 +30,8 @@ from django.utils.translation import gettext_lazy as _
 
 from ..auth import build_creation_perm as cperm
 from ..forms import menu as menu_forms
-from ..models import CremeEntity, CremeUser, MenuConfigItem
+from ..models import CremeEntity, CremeUser, CustomEntityType, MenuConfigItem
+from ..models.utils import model_verbose_name
 
 logger = logging.getLogger(__name__)
 
@@ -626,7 +627,8 @@ class _CreationViewLink:
 
         if model is not None:
             get = kwargs.get
-            self.label = get('label') or model._meta.verbose_name
+            # self.label = get('label') or model._meta.verbose_name
+            self.label = get('label') or model_verbose_name(model)
             # NB: we cannot call model.get_create_absolute_url() immediately
             #     because the url resolver will be used too soon
             #     (the apps could be not totally initialized).
@@ -685,7 +687,7 @@ class _CreationViewLinksGroup:
         self._priority = None
 
     def __iter__(self):
-        return iter(self._links)
+        yield from self._links
 
     def __str__(self):
         return f'<Group: id="{self.id}" label="{self.label}" priority={self._priority}>'
@@ -725,10 +727,28 @@ class CreationMenuRegistry:
         # NB: we do not inherit to expose a (slightly) different API
         self._groups = _PriorityList()
 
-    def __iter__(self):
-        return iter(self._groups)
+    def __iter__(self) -> Iterator[_CreationViewLinksGroup]:
+        custom_types = [
+            ce_type
+            for ce_type in CustomEntityType.objects.all_types()
+            if ce_type.enabled
+        ]
+        if custom_types:
+            # TODO: reserve use of this "id"
+            custom_group = self._group_class(id='custom_entities', label=_('Custom entities'))
+            # TODO: sort by label?
+            for priority, ce_type in enumerate(custom_types, start=1):
+                custom_group.add_link(
+                    id=f'creme_core-create_custom{priority}',
+                    model=ce_type.entity_model,
+                    priority=priority,
+                )
 
-    def change_groups_priority(self, priority, *group_ids):
+            yield custom_group
+
+        yield from self._groups
+
+    def change_groups_priority(self, priority, *group_ids) -> None:
         """Change the priority of several groups at once.
         See _PriorityList.change_priority().
         """
