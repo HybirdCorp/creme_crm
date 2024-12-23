@@ -509,6 +509,12 @@ class CremeCoreConfig(CremeAppConfig):
             *operands.all_operands,
         )
 
+    def register_cloners(self, entity_cloner_registry):
+        from .models import CustomEntityType
+
+        for kls in CustomEntityType.custom_classes.values():
+            entity_cloner_registry.register(model=kls)
+
     def register_deletors(self, entity_deletor_registry):
         from .models import CustomEntityType
 
