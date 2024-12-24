@@ -1460,11 +1460,16 @@ class CremeUser(AbstractBaseUser):
                          ) -> bool:
         """Can the user link a future entity of a given class ?
         @param entity_or_model: {Instance of} class inheriting CremeEntity.
-        @param owner: (only used when 1rst param is a class) Instance of CremeUser ;
+        @param owner: (only used when 1rst param is a class) Instance of CremeUser;
                       owner of the (future) entity. 'None' means: is there an
                       owner (at least) that allows linking.
         """
         assert not self.is_team  # Teams can not be logged, it has no sense
+
+        # TODO: move to UserRole? improve UserRole.filter() too?
+        ce_type = CustomEntityType.objects.get_for_model(as_model(entity_or_model))
+        if ce_type and ce_type.deleted:
+            return False
 
         if isinstance(entity_or_model, CremeEntity):
             # TODO: what about related_entity ?

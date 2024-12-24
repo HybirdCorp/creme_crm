@@ -2443,6 +2443,47 @@ class AuthTestCase(CremeTestCase):
             str(cm.exception),
         )
 
+    def test_link_creds__custom_entities(self):
+        user = self.get_root_user()
+
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Lab'
+        ce_type.plural_name = 'Labs'
+        ce_type.save()
+
+        model = ce_type.entity_model
+        self.assertTrue(user.has_perm_to_link(model))
+
+        entity = model.objects.create(user=user, name='Whatever')
+        self.assertTrue(user.has_perm_to_link(entity))
+
+        with self.assertNoException():
+            user.has_perm_to_link_or_die(entity)
+
+    def test_link_creds__deleted_custom_entity_type(self):
+        user = self.get_root_user()
+
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Lab'
+        ce_type.plural_name = 'Labs'
+        ce_type.deleted = True
+        ce_type.save()
+
+        model = ce_type.entity_model
+        self.assertFalse(user.has_perm_to_link(model))
+
+        entity = model.objects.create(user=user, name='Whatever')
+        self.assertFalse(user.has_perm_to_link(entity))
+
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_perm_to_link_or_die(entity)
+        self.assertEqual(
+            _('You are not allowed to link this entity: {}').format(entity.name),
+            str(cm.exception),
+        )
+
     def test_delete01(self):
         "Delete role."
         role = self._create_role(
