@@ -1333,6 +1333,11 @@ class CremeUser(AbstractBaseUser):
         """
         main_entity = self._get_main_entity(entity)
 
+        # TODO: move to UserRole? improve UserRole.filter() too?
+        ce_type = CustomEntityType.objects.get_for_model(type(main_entity))
+        if ce_type and ce_type.deleted:
+            return False
+
         return False if main_entity.is_deleted else self._get_credentials(main_entity).can_change()
 
     def has_perm_to_change_or_die(self, entity: CremeModel) -> None:
