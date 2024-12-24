@@ -171,14 +171,7 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin,
         user = self.login_as_root_and_get()
         ce_type = self._enable_type(id=1, name='Shop', deleted=True)
         entity = ce_type.entity_model.objects.create(user=user, name='Acme')
-
-        response = self.client.get(entity.get_edit_absolute_url())
-        self.assertContains(
-            response,
-            _('You cannot edit this entity because the custom type is deleted.'),
-            status_code=409,
-            html=True,
-        )
+        self.assertGET403(entity.get_edit_absolute_url())
 
     def test_list(self):
         user = self.login_as_root_and_get()

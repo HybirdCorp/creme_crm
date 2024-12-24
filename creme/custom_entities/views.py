@@ -20,7 +20,6 @@ from django.http import Http404
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.models.custom_entity import CustomEntityType
 from creme.creme_core.views import generic
@@ -71,13 +70,7 @@ class CustomEntityCreation(CustomEntityMixin, generic.EntityCreation):
 class CustomEntityEdition(CustomEntityMixin, generic.EntityEdition):
     @property
     def model(self):
-        ce_type = self.get_custom_type()
-        if ce_type.deleted:
-            raise ConflictError(gettext(
-                'You cannot edit this entity because the custom type is deleted.'
-            ))
-
-        return ce_type.entity_model
+        return self.get_custom_type().entity_model
 
     # TODO: factorise
     @property
@@ -90,14 +83,12 @@ class CustomEntityEdition(CustomEntityMixin, generic.EntityEdition):
         return CustomForm
 
 
-# TODO: disable the edition button when the type is deleted
 class CustomEntityDetail(CustomEntityMixin, generic.EntityDetail):
     @property
     def model(self):
         return self.get_custom_type().entity_model
 
 
-# TODO: disable the creation button when the type is deleted
 class CustomEntitiesList(CustomEntityMixin, generic.EntitiesList):
     # default_headerfilter_id = ...
 

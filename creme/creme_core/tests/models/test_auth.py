@@ -2391,6 +2391,58 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(has_perm('creme_core'))
         self.assertTrue(has_perm('creme_core.can_admin'))
 
+    def test_edition_creds__custom_entities(self):
+        user = self.get_root_user()
+
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Lab'
+        ce_type.plural_name = 'Labs'
+        ce_type.save()
+
+        entity = ce_type.entity_model.objects.create(user=user, name='Whatever')
+        self.assertTrue(user.has_perm_to_change(entity))
+
+        with self.assertNoException():
+            user.has_perm_to_change_or_die(entity)
+
+    # NB: should not happen (a type can be disabled only if it ahs no related entity)
+    # def test_edition_creds__disabled_custom_entity_type(self):
+    #     user = self.get_root_user()
+    #
+    #     ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+    #     self.assertFalse(ce_type.enabled)
+    #
+    #     entity = ce_type.entity_model.objects.create(user=user, name='Whatever')
+    #     self.assertFalse(user.has_perm_to_change(entity))
+    #
+    #     with self.assertRaises(PermissionDenied) as cm:
+    #         user.has_perm_to_change_or_die(entity)
+    #     self.assertEqual(
+    #         _('You are not allowed to edit this entity: {}').format(entity.name),
+    #         str(cm.exception),
+    #     )
+
+    def test_edition_creds__deleted_custom_entity_type(self):
+        user = self.get_root_user()
+
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Lab'
+        ce_type.plural_name = 'Labs'
+        ce_type.deleted = True
+        ce_type.save()
+
+        entity = ce_type.entity_model.objects.create(user=user, name='Whatever')
+        self.assertFalse(user.has_perm_to_change(entity))
+
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_perm_to_change_or_die(entity)
+        self.assertEqual(
+            _('You are not allowed to edit this entity: {}').format(entity.name),
+            str(cm.exception),
+        )
+
     def test_delete01(self):
         "Delete role."
         role = self._create_role(
