@@ -172,10 +172,12 @@ def delete_customtype_search(sender: CustomEntityType, entity_ctype: ContentType
     disable_custom_entity_type, dispatch_uid='creme_config-delete_customtype_jobs',
 )
 def delete_customtype_jobs(sender: CustomEntityType, entity_ctype: ContentType, **kwargs):
-    models.Job.objects.filter(type_id=creme_jobs.mass_import_type.id).delete()
+    for job in models.Job.objects.filter(type_id=creme_jobs.mass_import_type.id):
+        # TODO: public API?
+        if job.type._get_ctype(job.data) == entity_ctype:
+            job.delete()
 
     model = sender.entity_model
-
     for job in models.Job.objects.filter(type_id=creme_jobs.batch_process_type.id):
         # TODO: public API?
         if job.type._get_model(job.data) == model:
