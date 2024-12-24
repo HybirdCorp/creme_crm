@@ -246,6 +246,21 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin,
             data={'id': entity.id}, follow=True,
         )
 
+    def test_inner_edition(self):
+        user = self.login_as_root_and_get()
+
+        ce_type = self._enable_type(id=1, name='Shop', plural_name='Shops')
+        instance = ce_type.entity_model.objects.create(user=user, name='Toyzzz')
+
+        field_name = 'name'
+        url = self.build_inneredit_uri(instance, field_name)
+        self.assertGET200(url)
+
+        # POST ---
+        value = 'Super Toyz'
+        self.assertNoFormError(self.client.post(url, data={field_name: value}))
+        self.assertEqual(value, self.refresh(instance).name)
+
     # TODO: test custom fields?
     def test_mass_import(self):
         user = self.login_as_root_and_get()
