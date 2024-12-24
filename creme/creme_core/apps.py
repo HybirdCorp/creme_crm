@@ -488,6 +488,12 @@ class CremeCoreConfig(CremeAppConfig):
             bricks.NotificationsBrick,
         )
 
+    def register_bulk_update(self, bulk_update_registry):
+        from .models import CustomEntityType
+
+        for kls in CustomEntityType.custom_classes.values():
+            bulk_update_registry.register(model=kls)
+
     def register_buttons(self, button_registry):
         from . import buttons
 
