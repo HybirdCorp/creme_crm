@@ -273,6 +273,53 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin,
     # TODO: test custom fields?
     def test_mass_import(self):
         user = self.login_as_root_and_get()
+
+        # ---
+        contact_doc = self._build_csv_doc(lines=[['Rei', 'Ayanami']], user=user)
+        contact_response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                'step': 1,
+                'document': contact_doc.id,
+                'user': user.id,
+                # 'has_header': ...,
+
+                'first_name_colselect': 1,
+                'last_name_colselect': 2,
+
+                'civility_colselect': 0,
+                'description_colselect': 0,
+                'phone_colselect': 0,
+                'mobile_colselect': 0,
+                'position_colselect': 0,
+                'sector_colselect': 0,
+                'email_colselect': 0,
+                'url_site_colselect': 0,
+                'birthday_colselect': 0,
+                'image_colselect': 0,
+
+                'is_a_nerd_colselect': 0,
+                'loves_comics_colselect': 0,
+                'languages_colselect': 0,
+                'preferred_countries_colselect': 0,
+
+                # 'property_types',
+                # 'fixed_relations',
+                # 'dyn_relations',
+
+                'address_value_colselect': 0,
+                'address_zipcode_colselect': 0,
+                'address_city_colselect': 0,
+                'address_department_colselect': 0,
+                'address_country_colselect': 0,
+            },
+        )
+        self.assertNoFormError(contact_response)
+        contact_job = self._get_job(contact_response)
+
+        # ----
+
         ce_type = self._enable_type(id=1, name='Shop', plural_name='Shops')
         model = ce_type.entity_model
         lines = [
@@ -347,6 +394,7 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin,
         self.assertDoesNotExist(job)
         self.assertDoesNotExist(results[0])
 
+        self.assertStillExists(contact_job)
         self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
 
     def test_batch_process(self):

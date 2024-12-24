@@ -1,5 +1,6 @@
 import logging
 # import warnings
+from random import randint
 from tempfile import NamedTemporaryFile
 from xml.etree import ElementTree
 
@@ -292,16 +293,18 @@ class MassImportBaseTestCaseMixin:
 
     def _build_doc(self, tmpfile, user):
         tmpfile.file.seek(0)
-        category = FolderCategory.objects.create(id=10, name='Test category')
+        # category = FolderCategory.objects.create(id=10, name='Test category')
+        category = FolderCategory.objects.get_or_create(name='Test category')[0]
         folder = Folder.objects.create(
             user=user, title='Test folder',
             parent_folder=None,
             category=category,
         )
 
-        title = 'Test doc'
+        title = f'Test doc #{randint(0, 1000):04}'
         response = self.client.post(
-            reverse('documents__create_document'), follow=True,
+            reverse('documents__create_document'),
+            follow=True,
             data={
                 'user':          user.id,
                 'title':         title,
@@ -312,10 +315,11 @@ class MassImportBaseTestCaseMixin:
         )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            doc = Document.objects.get(title=title)
-
-        return doc
+        # with self.assertNoException():
+        #     doc = Document.objects.get(title=title)
+        #
+        # return doc
+        return self.get_object_or_fail(Document, title=title)
 
     def _build_csv_doc(self, lines, *, user, separator=',', extension='csv'):
         content = '\n'.join(
