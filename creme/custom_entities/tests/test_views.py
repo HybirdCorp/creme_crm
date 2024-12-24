@@ -1,5 +1,7 @@
 from functools import partial
+from json import dumps as json_dump
 
+from django.contrib.contenttypes.models import ContentType
 from django.forms import CharField
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -7,11 +9,18 @@ from django.utils.translation import gettext as _
 from creme.creme_core.bricks import PropertiesBrick
 from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.creme_jobs import (
+    batch_process_type,
     mass_import_type,
     temp_files_cleaner_type,
 )
 from creme.creme_core.gui.bricks import Brick
-from creme.creme_core.models import CustomEntityType, HeaderFilter, Job
+from creme.creme_core.models import (
+    CustomEntityType,
+    EntityJobResult,
+    FakeContact,
+    HeaderFilter,
+    Job,
+)
 from creme.creme_core.tests.views.base import (
     BrickTestCaseMixin,
     MassImportBaseTestCaseMixin,
@@ -338,4 +347,67 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin,
         self.assertDoesNotExist(job)
         self.assertDoesNotExist(results[0])
 
+        self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
+
+    def test_batch_process(self):
+        user = self.login_as_root_and_get()
+
+        ce_type = self._enable_type(id=1, name='Shop', plural_name='Shops')
+        model = ce_type.entity_model
+
+        create_entity = partial(model.objects.create, user=user)
+        entity1 = create_entity(name='Happy fruits')
+        entity2 = create_entity(name='Mega bicycles')
+
+        get_ct = ContentType.objects.get_for_model
+        contact_response = self.client.post(
+            reverse('creme_core__batch_process', args=(get_ct(FakeContact).id,)),
+            follow=True,
+            data={
+                'actions': json_dump([{
+                    'name': 'last_name',
+                    'operator': 'upper',
+                    'value': '',
+                }]),
+            },
+        )
+        self.assertNoFormError(contact_response)
+        contact_job = self._get_job(contact_response)
+
+        url = reverse('creme_core__batch_process', args=(get_ct(model).id,))
+        self.assertGET200(url)
+
+        response2 = self.client.post(
+            url,
+            follow=True,
+            data={
+                'actions': json_dump([{
+                    'name': 'name',
+                    'operator': 'upper',
+                    'value': '',
+                }]),
+            },
+        )
+        self.assertNoFormError(response2)
+
+        job = self._get_job(response2)
+        batch_process_type.execute(job)
+        self.assertEqual('HAPPY FRUITS',  self.refresh(entity1).name)
+        self.assertEqual('MEGA BICYCLES', self.refresh(entity2).name)
+
+        # Type deletion ---
+        entity1.delete()
+        entity2.delete()
+
+        ce_type.deleted = True
+        ce_type.save()
+
+        self.assertPOST200(
+            reverse('creme_config__delete_custom_entity_type'),
+            data={'id': ce_type.id},
+        )
+        self.assertDoesNotExist(job)
+        self.assertFalse(EntityJobResult.objects.filter(job=job))
+
+        self.assertStillExists(contact_job)
         self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)

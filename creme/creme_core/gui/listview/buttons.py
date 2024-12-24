@@ -21,11 +21,12 @@ from __future__ import annotations
 from typing import Any, Iterator
 
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext as _
 
 from creme.creme_core import backends
 from creme.creme_core.gui.mass_import import import_form_registry
 from creme.creme_core.gui.visit import EntityVisitor
-from creme.creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity, CustomEntityType
 from creme.creme_core.utils.collections import FluentList
 from creme.creme_core.utils.meta import Order
 
@@ -116,7 +117,7 @@ class MassExportHeaderButton(MassExportButton):
 class MassImportButton(ListViewButton):
     template_name = 'creme_core/listview/buttons/mass-import.html'
 
-    # TODO: try to extract them from the context ?
+    # TODO: try to extract them from the context?
     import_backend_registry = backends.import_backend_registry
     import_form_registry = import_form_registry
 
@@ -127,6 +128,7 @@ class MassImportButton(ListViewButton):
         context['show'] = (
             self.import_backend_registry and model in self.import_form_registry
         )
+        # TODO: use templatetag instead
         context['content_type'] = ContentType.objects.get_for_model(model)
 
         return context
@@ -134,6 +136,17 @@ class MassImportButton(ListViewButton):
 
 class BatchProcessButton(ListViewButton):
     template_name = 'creme_core/listview/buttons/batch-process.html'
+
+    def get_context(self, request, lv_context):
+        context = super().get_context(request=request, lv_context=lv_context)
+
+        ce_type = CustomEntityType.objects.get_for_model(lv_context['model'])
+        if ce_type and ce_type.deleted:
+            context['error'] = _(
+                'The batch processing is disabled because the custom type is deleted'
+            )
+
+        return context
 
 
 class VisitorModeButton(ListViewButton):

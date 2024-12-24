@@ -24,9 +24,8 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
-from creme.creme_core import models
+from creme.creme_core import creme_jobs, models
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.creme_jobs import mass_import_type
 from creme.creme_core.models import CustomEntityType
 from creme.creme_core.utils import get_from_POST_or_404
 
@@ -173,7 +172,14 @@ def delete_customtype_search(sender: CustomEntityType, entity_ctype: ContentType
     disable_custom_entity_type, dispatch_uid='creme_config-delete_customtype_jobs',
 )
 def delete_customtype_jobs(sender: CustomEntityType, entity_ctype: ContentType, **kwargs):
-    models.Job.objects.filter(type_id=mass_import_type.id).delete()
+    models.Job.objects.filter(type_id=creme_jobs.mass_import_type.id).delete()
+
+    model = sender.entity_model
+
+    for job in models.Job.objects.filter(type_id=creme_jobs.batch_process_type.id):
+        # TODO: public API?
+        if job.type._get_model(job.data) == model:
+            job.delete()
 
 
 class CustomEntityDeletion(base.ConfigDeletion):

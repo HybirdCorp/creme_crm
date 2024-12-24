@@ -1,6 +1,12 @@
 {% load i18n creme_widgets creme_ctype %}
+{% if button.error %}
+<a class="with-icon forbidden" title="{{button.error}}">
+    {% translate 'Batch process' as label %}{% widget_icon name='batch_process' label=label size='listview-button' %}{{label}}
+</a>
+{% else %}
 {% with ctype=model|ctype_for_instance %}
 <a class="with-icon" href="{% url 'creme_core__batch_process' ctype.id %}{% if list_view_state.entity_filter_id %}?efilter={{list_view_state.entity_filter_id}}{% endif %}" title="{% translate 'Apply some treatments (like making the name uppercase) on many entities at once' %}">
     {% translate 'Batch process' as label %}{% widget_icon name='batch_process' label=label size='listview-button' %}{{label}}
 </a>
 {% endwith %}
+{% endif %}
