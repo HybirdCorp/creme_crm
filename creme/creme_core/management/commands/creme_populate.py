@@ -319,7 +319,7 @@ class Command(BaseCommand):
                 populator.populate()
             except Exception as e:
                 self.stderr.write(f' Populate "{populator.app}" failed ({type(e)}: {e})')
-                if verbosity >= 1:
+                if verbosity >= 1 or settings.TESTS_ON:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
                     self.stderr.write(
                         ''.join(format_exception(exc_type, exc_value, exc_traceback))
