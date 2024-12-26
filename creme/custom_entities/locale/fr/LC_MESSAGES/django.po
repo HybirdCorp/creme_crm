@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Custom-Entities 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-24 12:08+0100\n"
+"POT-Creation-Date: 2024-12-26 15:38+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -30,6 +30,12 @@ msgstr "Créer une fiche «{model}» [supprimé]"
 #, python-brace-format
 msgid "Create a entity «{model}»"
 msgstr "Créer une fiche «{model}»"
+
+msgid "Creation form"
+msgstr "Formulaire de création"
+
+msgid "Edition form"
+msgstr "Formulaire de modification"
 
 msgid "Name"
 msgstr "Nom"

@@ -8,24 +8,37 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.bricks import PropertiesBrick
 from creme.creme_core.constants import MODELBRICK_ID
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellRegularField,
+)
 from creme.creme_core.creme_jobs import (
     batch_process_type,
     mass_import_type,
     temp_files_cleaner_type,
 )
 from creme.creme_core.gui.bricks import Brick
+from creme.creme_core.gui.custom_form import (
+    CustomFormDescriptor,
+    FieldGroup,
+    FieldGroupList,
+)
 from creme.creme_core.models import (
     CustomEntityType,
+    CustomField,
+    CustomFormConfigItem,
     EntityJobResult,
     FakeContact,
     HeaderFilter,
     Job,
 )
+from creme.creme_core.tests import fake_custom_forms
 from creme.creme_core.tests.views.base import (
     BrickTestCaseMixin,
     MassImportBaseTestCaseMixin,
 )
 
+from .. import custom_forms
 from .base import CustomEntitiesBaseTestCase
 
 
@@ -87,10 +100,48 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin,
         self.assertGET404(entity.get_absolute_url())
 
     def test_creation(self):
+        descriptor = custom_forms.creation_descriptors.get(1)
+        self.assertIsInstance(descriptor, CustomFormDescriptor)
+        self.assertEqual('custom_entities-creation1', descriptor.id)
+        self.assertEqual(_('Creation form'),          descriptor.verbose_name)
+
+        cfci = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=descriptor.id, role=None, superuser=False,
+        )
+
         user = self.login_as_root_and_get()
         ce_type1 = self._enable_type(id=1, name='Shop')
         ce_type2 = self._enable_type(id=2, name='Warehouse')
 
+        model = ce_type1.entity_model
+
+        create_cf = partial(CustomField.objects.create, content_type=model)
+        cf1 = create_cf(field_type=CustomField.STR, name='Punchline')
+        cf2 = create_cf(field_type=CustomField.INT, name='Size (m2)')
+
+        cfci.store_groups(
+            FieldGroupList(
+                model=model,
+                cell_registry=descriptor.build_cell_registry(),
+                groups=[
+                    FieldGroup(
+                        name='My fields',
+                        cells=[
+                            *(
+                                EntityCellRegularField.build(model=model, name=name)
+                                for name in ('user', 'name', 'description')
+                            ),
+                            EntityCellCustomField(cf1),
+                            # EntityCellCustomField(cf2),  # NOPE
+                        ],
+                    ),
+                ],
+            )
+        )
+        cfci.save()
+
+        # GET ---
         url = ce_type1.entity_model.get_create_absolute_url()
         self.assertEqual(
             reverse('custom_entities__create_custom_entity', args=(1,)),
@@ -114,17 +165,33 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin,
             name_f = response1.context['form'].fields['name']
         self.assertIsInstance(name_f, CharField)
 
-        # ---
+        # POST ---
         name = 'Acme'
+        description = 'Sells stuffs'
+        punchline = 'Best stuffs in the universe!'
         self.assertNoFormError(self.client.post(
             url,
             follow=True,
             data={
                 'user': user.id,
                 'name': name,
+                'description': description,
+
+                f'custom_field-{cf1.id}': punchline,
+                f'custom_field-{cf2.id}': 30,
             },
         ))
-        self.get_object_or_fail(ce_type1.entity_model, user=user, name=name)
+
+        instance = self.get_object_or_fail(ce_type1.entity_model, user=user, name=name)
+        self.assertEqual(description, instance.description)
+        self.assertEqual(
+            punchline,
+            cf1.value_class.objects.get(custom_field=cf1, entity=instance).value,
+        )
+        # self.assertEqual(
+        #     30, cf2.value_class.objects.get(custom_field=cf2, entity=instance).value,
+        # )
+        self.assertFalse(cf2.value_class.objects.filter(custom_field=cf2, entity=instance))
 
     def test_creation__deleted_type(self):
         self.login_as_root()
@@ -141,8 +208,45 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin,
         )
 
     def test_edition(self):
-        user = self.login_as_root_and_get()
+        descriptor = custom_forms.edition_descriptors.get(1)
+        self.assertIsInstance(descriptor, CustomFormDescriptor)
+        self.assertEqual('custom_entities-edition1', descriptor.id)
+        self.assertEqual(_('Edition form'),          descriptor.verbose_name)
+
+        cfci = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=descriptor.id, role=None, superuser=False,
+        )
+
         ce_type = self._enable_type(id=1, name='Shop')
+        model = ce_type.entity_model
+
+        create_cf = partial(CustomField.objects.create, content_type=model)
+        cf1 = create_cf(field_type=CustomField.STR, name='Punchline')
+        cf2 = create_cf(field_type=CustomField.INT, name='Size (m2)')
+
+        cfci.store_groups(
+            FieldGroupList(
+                model=model,
+                cell_registry=descriptor.build_cell_registry(),
+                groups=[
+                    FieldGroup(
+                        name='My fields',
+                        cells=[
+                            *(
+                                EntityCellRegularField.build(model=model, name=name)
+                                for name in ('user', 'name', 'description')
+                            ),
+                            EntityCellCustomField(cf1),
+                            # EntityCellCustomField(cf2),  # NOPE
+                        ],
+                    ),
+                ],
+            )
+        )
+        cfci.save()
+
+        user = self.login_as_root_and_get()
         entity = ce_type.entity_model.objects.create(user=user, name='Acme')
 
         url = entity.get_edit_absolute_url()
@@ -166,15 +270,33 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin,
 
         # ---
         name = 'Acme inc'
+        description = 'Sells stuffs'
+        punchline = 'Best stuffs in the universe!'
         self.assertNoFormError(self.client.post(
             url,
             follow=True,
             data={
                 'user': user.id,
                 'name': name,
+                'description': description,
+
+                f'custom_field-{cf1.id}': punchline,
+                f'custom_field-{cf2.id}': 30,
             },
         ))
-        self.assertEqual(name, self.refresh(entity).name)
+
+        entity = self.refresh(entity)
+        self.assertEqual(name,        entity.name)
+        self.assertEqual(description, entity.description)
+
+        self.assertEqual(
+            punchline,
+            cf1.value_class.objects.get(custom_field=cf1, entity=entity).value,
+        )
+        # self.assertEqual(
+        #     30, cf2.value_class.objects.get(custom_field=cf2, entity=entity).value,
+        # )
+        self.assertFalse(cf2.value_class.objects.filter(custom_field=cf2, entity=entity))
 
     def test_edition__deleted_type(self):
         user = self.login_as_root_and_get()
@@ -459,3 +581,151 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin,
 
         self.assertStillExists(contact_job)
         self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
+
+    def test_custom_form_config(self):
+        self.login_as_root()
+
+        ce_type = self._enable_type(id=1, name='Shop', plural_name='Shops')
+        descriptor = custom_forms.creation_descriptors.get(ce_type.id)
+        cfci = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=custom_forms.creation_descriptors.get(ce_type.id).id,
+            role=None, superuser=False,
+        )
+        self.assertGET200(
+            reverse('creme_config__create_custom_form', args=(descriptor.id,))
+        )
+        self.assertGET200(
+            reverse('creme_config__add_custom_form_group', args=(cfci.id,))
+        )
+        self.assertGET200(
+            reverse('creme_config__edit_custom_form_group', args=(cfci.id, 0))
+        )
+
+    def test_custom_form_config__disabled_type(self):
+        self.login_as_root()
+
+        # ce_type = self._enable_type(id=1, ...)
+        descriptor = custom_forms.creation_descriptors.get(1)
+        cfci = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=descriptor.id, role=None, superuser=False,
+        )
+        self.assertGET409(
+            reverse('creme_config__create_custom_form', args=(descriptor.id,))
+        )
+        self.assertGET409(
+            reverse('creme_config__add_custom_form_group', args=(cfci.id,))
+        )
+        self.assertGET409(
+            reverse('creme_config__edit_custom_form_group', args=(cfci.id, 0))
+        )
+
+    def test_custom_form_config__deletion(self):
+        """Default Custom forms are reset, other are deleted."""
+        self.login_as_root()
+        role = self.create_role()
+
+        ce_type = self._enable_type(id=1, name='Shop', deleted=True)
+        model = ce_type.entity_model
+
+        # Should be reset ---
+        creation_descriptor = custom_forms.creation_descriptors.get(ce_type.id)
+        creation_cfci = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=creation_descriptor.id, role=None, superuser=False,
+        )
+        creation_groups = creation_cfci.json_groups  # we capture the initial data...
+        creation_cfci.store_groups(
+            FieldGroupList(
+                model=model,
+                cell_registry=creation_descriptor.build_cell_registry(),
+                groups=[FieldGroup(
+                    name='My creation fields',
+                    cells=[
+                        EntityCellRegularField.build(model=model, name=name)
+                        for name in ('user', 'name')
+                    ],
+                )],
+            )
+        )
+        creation_cfci.save()  # ...then save different new data
+
+        edition_descriptor = custom_forms.edition_descriptors.get(ce_type.id)
+        edition_cfci = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=edition_descriptor.id, role=None, superuser=False,
+        )
+        edition_groups = edition_cfci.json_groups
+        edition_cfci.store_groups(
+            FieldGroupList(
+                model=model,
+                cell_registry=creation_descriptor.build_cell_registry(),
+                groups=[FieldGroup(
+                    name='My edition fields',
+                    cells=[
+                        EntityCellRegularField.build(model=model, name=name)
+                        for name in ('user', 'description', 'name')
+                    ],
+                )],
+            )
+        )
+        edition_cfci.save()
+
+        # Should be deleted ---
+        create_cfci = CustomFormConfigItem.objects.create_if_needed
+        creation_cfci_4_super = create_cfci(descriptor=creation_descriptor, role='superuser')
+        creation_cfci_4_role  = create_cfci(descriptor=creation_descriptor, role=role)
+        edition_cfci_4_super  = create_cfci(descriptor=edition_descriptor, role='superuser')
+
+        # Should not be modified or deleted ---
+        orga_desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM
+        orga_cfci = self.get_object_or_fail(
+            CustomFormConfigItem, descriptor_id=orga_desc.id, role=None, superuser=False,
+        )
+        orga_cfci.store_groups(
+            FieldGroupList(
+                model=orga_desc.model,
+                cell_registry=creation_descriptor.build_cell_registry(),
+                groups=[FieldGroup(
+                    name='My own config',
+                    cells=[
+                        EntityCellRegularField.build(model=orga_desc.model, name=name)
+                        for name in ('user', 'name')
+                    ],
+                )],
+            )
+        )
+        orga_cfci.save()
+        orga_cfci_groups = orga_cfci.json_groups
+
+        orga_cfci_for_role = create_cfci(
+            descriptor=fake_custom_forms.FAKEORGANISATION_CREATION_CFORM, role=role,
+        )
+
+        # ---
+        self.assertPOST200(
+            reverse('creme_config__delete_custom_entity_type'),
+            data={'id': ce_type.id},
+        )
+
+        ce_type = self.assertStillExists(ce_type)
+        self.assertFalse(ce_type.enabled)
+        self.assertFalse(ce_type.deleted)
+
+        creation_cfci = self.assertStillExists(creation_cfci)
+        self.assertListEqual(
+            creation_groups, self.refresh(creation_cfci).groups_as_dicts(),
+        )
+
+        edition_cfci = self.assertStillExists(edition_cfci)
+        self.assertListEqual(
+            edition_groups, self.refresh(edition_cfci).groups_as_dicts(),
+        )
+
+        self.assertDoesNotExist(creation_cfci_4_super)
+        self.assertDoesNotExist(creation_cfci_4_role)
+        self.assertDoesNotExist(edition_cfci_4_super)
+
+        self.assertListEqual(orga_cfci_groups, self.refresh(orga_cfci).json_groups)
+        self.assertStillExists(orga_cfci_for_role)

@@ -32,6 +32,15 @@ class CustomEntitiesConfig(CremeAppConfig):
 
         from . import signals  # NOQA
 
+    def register_custom_forms(self, cform_registry):
+        from . import custom_forms
+
+        for descriptor in custom_forms.creation_descriptors.values():
+            cform_registry.register(descriptor)
+
+        for descriptor in custom_forms.edition_descriptors.values():
+            cform_registry.register(descriptor)
+
     def register_icons(self, icon_registry):
         from .models import all_custom_models
 
