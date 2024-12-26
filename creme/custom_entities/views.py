@@ -20,9 +20,10 @@ from django.http import Http404
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.models.custom_entity import CustomEntityType
+from creme.creme_core.models import CustomEntityType, CustomFormConfigItem
 from creme.creme_core.views import generic
+
+from . import custom_forms
 
 
 class CustomEntityMixin:
@@ -50,15 +51,15 @@ class CustomEntityCreation(CustomEntityMixin, generic.EntityCreation):
     def model(self):
         return self.get_custom_type().entity_model
 
-    # TODO: custom form?
     @property
     def form_class(self):
-        class CustomForm(CremeEntityForm):
-            class Meta:
-                model = self.model
-                fields = ('user', 'name',)
+        descriptor = custom_forms.creation_descriptors.get(self.model.custom_id)
 
-        return CustomForm
+        return descriptor.build_form_class(
+            item=CustomFormConfigItem.objects.get_for_user(
+                descriptor=descriptor, user=self.request.user,
+            ),
+        )
 
     def get_title_format_data(self):
         data = super().get_title_format_data()
@@ -75,12 +76,13 @@ class CustomEntityEdition(CustomEntityMixin, generic.EntityEdition):
     # TODO: factorise
     @property
     def form_class(self):
-        class CustomForm(CremeEntityForm):
-            class Meta:
-                model = self.model
-                fields = ('user', 'name',)
+        descriptor = custom_forms.edition_descriptors.get(self.model.custom_id)
 
-        return CustomForm
+        return descriptor.build_form_class(
+            item=CustomFormConfigItem.objects.get_for_user(
+                descriptor=descriptor, user=self.request.user,
+            ),
+        )
 
 
 class CustomEntityDetail(CustomEntityMixin, generic.EntityDetail):

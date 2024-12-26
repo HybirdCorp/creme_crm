@@ -198,8 +198,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             brick=bricks.CustomFormsBrick,
         )
 
-    def test_form_creation_for_role01(self):
-        "No copy."
+    def test_form_creation_for_role__no_copy(self):
         self.login_as_root()
         role = self.role
 
@@ -270,7 +269,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertIsNone(role_f3.empty_label)
 
-    def test_form_creation_for_role02(self):
+    def test_form_creation_for_role__copy(self):
         "Copy existing instance."
         self.login_as_root()
         role1 = self.role
@@ -331,7 +330,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertListEqual(item1.json_groups, new_item.json_groups)
 
-    def test_form_creation_for_role_error(self):
+    def test_form_creation_for_role__unknown_descriptor_id(self):
         self.login_as_root()
         self.assertGET409(
             reverse('creme_config__create_custom_form', args=('invalid',))

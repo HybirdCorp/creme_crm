@@ -481,8 +481,12 @@ class CustomFormsBrick(PaginatedBrick):
                 return 0, ''
 
         desc_per_model = defaultdict(list)
+        get_custom_type = core_models.CustomEntityType.objects.get_for_model
         for desc in self.registry:
-            desc_per_model[desc.model].append(desc)
+            model = desc.model
+            ce_type = get_custom_type(model)
+            if not ce_type or ce_type.enabled:
+                desc_per_model[model].append(desc)
 
         items_per_desc = defaultdict(list)
         for cfci in core_models.CustomFormConfigItem.objects.filter(

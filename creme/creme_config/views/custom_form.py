@@ -35,7 +35,7 @@ from creme.creme_core.gui.custom_form import (
     FieldGroupList,
     customform_descriptor_registry,
 )
-from creme.creme_core.models import CustomFormConfigItem
+from creme.creme_core.models import CustomEntityType, CustomFormConfigItem
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import BrickStateExtraDataSetting
@@ -63,11 +63,16 @@ class CustomFormMixin:
         if desc is None:
             raise ConflictError(f'The custom form "{descriptor_id}" is invalid.')
 
+        ce_type = CustomEntityType.objects.get_for_model(desc.model)
+        if ce_type and not ce_type.enabled:
+            raise ConflictError(
+                f'The custom form "{descriptor_id}" is related to a disabled custom type.'
+            )
+
         return desc
 
     def get_customform_descriptor(self):
         try:
-            # desc = getattr(self, 'descriptor')
             desc = self.descriptor  # NOQA
         except AttributeError:
             self.descriptor = desc = self.get_customform_descriptor_from_id(
@@ -78,7 +83,6 @@ class CustomFormMixin:
 
     def get_groups(self):
         try:
-            # groups = getattr(self, 'groups')
             groups = self.groups  # NOQA
         except AttributeError:
             self.groups = groups = self.get_customform_descriptor().groups(item=self.object)
@@ -119,6 +123,12 @@ class CustomFormCreation(base.ConfigModelCreation):
 
             if desc is None:
                 raise ConflictError(f'The custom form "{descriptor_id}" is invalid.')
+
+            ce_type = CustomEntityType.objects.get_for_model(desc.model)
+            if ce_type and not ce_type.enabled:
+                raise ConflictError(
+                    f'The custom form "{descriptor_id}" is related to a disabled custom type.'
+                )
 
             self.descriptor = desc
 

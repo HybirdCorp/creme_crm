@@ -141,7 +141,8 @@ class CustomFormExtraSubCell:
     def post_clean_instance(self, *,
                             instance: Model,
                             value,
-                            form: CremeEntityForm) -> None:
+                            form: CremeEntityForm,
+                            ) -> None:
         """This method is called by the generated form after the instance has been cleaned.
         @raise ValidationError.
         """
@@ -150,7 +151,8 @@ class CustomFormExtraSubCell:
     def post_save_instance(self, *,
                            instance: Model,
                            value,
-                           form: CremeEntityForm) -> bool:
+                           form: CremeEntityForm,
+                           ) -> bool:
         """This method is called by the generated form after the instance has been saved.
         @return: A boolean indicating if the instance should be saved again.
         """
