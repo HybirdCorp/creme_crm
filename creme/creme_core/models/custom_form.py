@@ -18,20 +18,24 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from django.db import models
 from django.db.models import F, Q
 from django.utils.translation import gettext_lazy as _
 
-from .auth import UserRole
+from .auth import CremeUser, UserRole
 
 if TYPE_CHECKING:
-    from ..gui.custom_form import CustomFormDescriptor
+    from ..gui.custom_form import CustomFormDescriptor, FieldGroupList
 
 
 class CustomFormConfigItemManager(models.Manager):
-    def create_if_needed(self, *, descriptor, groups_desc=None, role=None):
+    def create_if_needed(self, *,
+                         descriptor: CustomFormDescriptor,
+                         groups_desc=None,
+                         role: Literal['superuser'] | UserRole | None = None,
+                         ) -> CustomFormConfigItem:
         """Creation helper (for "populate" scripts mainly).
         Create an instance of CustomFormConfigItem, related to a
         CustomFormDescriptor, if there is no one.
@@ -65,7 +69,7 @@ class CustomFormConfigItemManager(models.Manager):
 
     def get_for_user(self, *,
                      descriptor: str | CustomFormDescriptor,
-                     user,
+                     user: CremeUser,
                      ) -> CustomFormConfigItem:
         descriptor_id = descriptor if isinstance(descriptor, str) else descriptor.id
         no_user_qs = self.filter(descriptor_id=descriptor_id)
@@ -138,6 +142,6 @@ class CustomFormConfigItem(models.Model):
     def groups_as_dicts(self) -> list[dict]:
         return self.json_groups
 
-    def store_groups(self, groups):
+    def store_groups(self, groups: FieldGroupList) -> None:
         # TODO: specific encoder?
         self.json_groups = [group.as_dict() for group in groups]
