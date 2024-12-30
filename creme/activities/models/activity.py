@@ -119,7 +119,7 @@ class AbstractActivity(CremeEntity):
     # ).set_tags(viewable=False)
     floating_type = models.PositiveSmallIntegerField(
         _('Fixed or floating?'),
-        choices=FloatingType.choices, default=FloatingType.NARROW,
+        choices=FloatingType, default=FloatingType.NARROW,
         editable=False,
     )
 

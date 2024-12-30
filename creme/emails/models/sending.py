@@ -173,12 +173,12 @@ class EmailSending(CremeModel):
     )
     type = models.PositiveSmallIntegerField(
         verbose_name=_('Sending type'),
-        choices=Type.choices, default=Type.IMMEDIATE,
+        choices=Type, default=Type.IMMEDIATE,
     )
     sending_date = models.DateTimeField(_('Sending date'))
     state = models.PositiveSmallIntegerField(
         verbose_name=_('Sending state'), editable=False,
-        choices=State.choices, default=State.PLANNED,
+        choices=State, default=State.PLANNED,
     )
 
     subject   = models.CharField(_('Subject'), max_length=100, editable=False)

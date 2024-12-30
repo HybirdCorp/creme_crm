@@ -59,7 +59,7 @@ class AbstractReportGraph(CremeEntity):
 
     # TODO: string IDs instead of integer ?
     abscissa_type = models.PositiveIntegerField(
-        _('X axis (grouping)'), editable=False, choices=Group.choices,
+        _('X axis (grouping)'), editable=False, choices=Group,
     )
     abscissa_cell_value = models.CharField(
         _('X axis (field)'), max_length=100, editable=False,
@@ -70,7 +70,7 @@ class AbstractReportGraph(CremeEntity):
 
     ordinate_type = models.CharField(
         _('Y axis (type)'), max_length=100, editable=False,
-        choices=Aggregator.choices, default='',
+        choices=Aggregator, default='',
     )
     ordinate_cell_key = models.CharField(
         _('Y axis (field)'), max_length=100, editable=False, default='',
