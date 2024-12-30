@@ -7,9 +7,13 @@
   Users side :
   ------------
     # The minimal version of Python is now '3.10'.
-    # The version of Django has been upgraded to '5.0' ; for users it means that :
+    # The version of Django has been upgraded to '5.1' ; for users it means that :
+        - Python '3.13' is officially supported.
+        - The minimal version of SQLite is now '3.31'.
         - The minimal version of MySQL is now '8.0.11'.
-        - The UUID fields may have to be manually converted if you use MariaDB (see the upgrade notes above).
+        - The minimal version of PostgreSQL is now '13'.
+        - The minimal version of MariaDB is now '10.5' ;
+          the UUID fields may have to be manually converted if you use MariaDB (see the upgrade notes above).
         - The URL fields assume "https" by default ; set the setting 'FORMS_URLFIELD_ASSUME_HTTPS' if you prefer "http"
           (this setting will be removed with Django 6.0 -- & so Creme 2.9 or something like that).
     # A new mandatory app has been added: "Custom entities".
@@ -72,7 +76,7 @@
 
   Developers side :
   -----------------
-    - The version of 'Django' is now "5.0".
+    - The version of 'Django' is now "5.1".
       You should probably read the following releases notes for Django versions :
         - https://docs.djangoproject.com/en/5.1/releases/5.0/
           Some important items :
@@ -83,6 +87,7 @@
               uses 3-tuples (see 'creme.emails.forms.sending.SendingConfigField' if you have an identical issue).
               The class 'django.forms.fields.CallableChoiceIterator' has been removed ;
               use 'django.utils.choices.CallableChoiceIterator' instead.
+        - https://docs.djangoproject.com/en/5.1/releases/5.1/
 
     Non breaking changes :
     ----------------------
