@@ -26,6 +26,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
+from creme.creme_core.models import fields as core_fields
 from creme.creme_core.models.utils import assign_2_charfield
 
 from . import other_models
@@ -33,9 +34,10 @@ from . import other_models
 
 class AbstractDocument(CremeEntity):
     title = models.CharField(_('Name'), max_length=100, blank=True)
-    filedata = models.FileField(
+    filedata = models.FileField(  # TODO: rename "file_data"
         _('File'), max_length=500, upload_to='documents',
     )
+    file_size = core_fields.FileSizeField(_('Size of the file'), editable=False)
     linked_folder = models.ForeignKey(
         settings.DOCUMENTS_FOLDER_MODEL, verbose_name=_('Folder'), on_delete=models.PROTECT,
     )
@@ -112,6 +114,9 @@ class AbstractDocument(CremeEntity):
             # TODO: manage argument "update_fields"? (title set as creation anyway)
             # TODO: truncate but keep extension if possible ?
             assign_2_charfield(self, 'title', basename(self.filedata.path))
+
+        if self.file_size is None:
+            self.file_size = self.filedata.size
 
         super().save(*args, **kwargs)
 

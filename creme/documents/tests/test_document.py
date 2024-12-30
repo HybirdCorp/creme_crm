@@ -11,6 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from PIL.Image import open as open_img
 
 from creme.creme_core.constants import MODELBRICK_ID
@@ -79,6 +80,10 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             max_length=Document._meta.get_field('filedata').max_length,
         ).create()
 
+        content = 'Hi! I am the content'
+        with open(final_path, 'w') as f:
+            f.write(content)
+
         user = self.get_root_user()
         folder = Folder.objects.all()[0]
 
@@ -97,6 +102,22 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             filedata=final_path,
         )
         self.assertEqual(filename, doc2.title)
+
+        size = len(content)
+        self.assertEqual(size, doc2.file_size)
+
+        # Field printer ---
+        self.assertEqual(
+            (
+                ngettext('%(size)d byte', '%(size)d bytes', size) % {'size': size}
+            ).replace(' ', '\xa0'),
+            field_printer_registry.get_field_value(
+                instance=doc1,
+                field_name='file_size',
+                user=user,
+                tag=ViewTag.HTML_DETAIL,
+            ),
+        )
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'pdf'))
     def test_createview01(self):
@@ -133,9 +154,10 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertNoFormError(response)
 
         doc = self.get_alone_element(Document.objects.all())
-        self.assertEqual(title,       doc.title)
-        self.assertEqual(description, doc.description)
-        self.assertEqual(folder,      doc.linked_folder)
+        self.assertEqual(title,        doc.title)
+        self.assertEqual(description,  doc.description)
+        self.assertEqual(folder,       doc.linked_folder)
+        self.assertEqual(len(content), doc.file_size)
         self.assertIsNotNone(doc.mime_type)
         self.assertCountEqual([cat1, cat2], [*doc.categories.all()])
 

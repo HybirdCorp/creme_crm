@@ -28,7 +28,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Field, Manager, Model
-from django.template.defaultfilters import linebreaks
+from django.template.defaultfilters import filesizeformat, linebreaks
 from django.urls import reverse
 from django.utils.formats import date_format, get_format, number_format
 from django.utils.html import escape, format_html, format_html_join
@@ -232,6 +232,10 @@ def print_percent_html(*, value, **kwargs) -> str:
         '<span class="percent-value">{value}</span><span class="percent-marker">%</span>',
         value=number_format(value, force_grouping=True),
     ) if value is not None else ''
+
+
+def print_file_size_html(*, value, **kwargs) -> str:
+    return filesizeformat(value) if value is not None else ''
 
 
 def print_boolean_html(*, value, **kwargs) -> str:
@@ -617,6 +621,7 @@ class FieldPrinterRegistry:
             (fields.DatePeriodField,    simple_print_html),  # TODO: JSONField ?
 
             (fields.IntegerPercentField, print_percent_html),
+            (fields.FileSizeField,       print_file_size_html),
             (fields.ColorField,          print_color_html),
 
             (fields.UnsafeHTMLField,    print_unsafehtml_html),

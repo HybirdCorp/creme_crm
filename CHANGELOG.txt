@@ -41,6 +41,8 @@
                 if you upgrade from an instance of Creme 2.6, you have to configure your blocks to display
                 this field if you want to see it. As the field is optional, you can also hide it to remove
                 it everywhere (notably forms).
+        * Documents :
+            - A new field, automatically filled, has been added to Document: "file_size".
         * Activities :
             - A field of 'Activity', "Fixed or floating?" (internal name: 'floating_type') is now visible.
             - A "card" brick is now available for the hat of the Activities' detail-view.
