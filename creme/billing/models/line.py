@@ -60,7 +60,7 @@ class Line(CremeEntity):
         _('Discount'), max_digits=10, decimal_places=2, default=constants.DEFAULT_DECIMAL,
     )
     discount_unit = models.PositiveIntegerField(
-        _('Discount Unit'), choices=Discount.choices, default=Discount.PERCENT,
+        _('Discount Unit'), choices=Discount, default=Discount.PERCENT,
     )
     vat_value = models.ForeignKey(
         Vat, verbose_name=_('VAT'), on_delete=models.PROTECT,

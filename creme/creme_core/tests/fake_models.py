@@ -579,10 +579,12 @@ else:
 
         name = models.CharField(_('Name of the campaign'), max_length=100)
         type = models.PositiveIntegerField(
-            'Type', choices=Type.choices, null=True, default=None,
+            # 'Type', choices=Type.choices, null=True, default=None,
+            'Type', choices=Type, null=True, default=None,
         )
         status = models.PositiveIntegerField(
-            'Status', choices=Status.choices, default=Status.WAITING,
+            # 'Status', choices=Status.choices, default=Status.WAITING,
+            'Status', choices=Status, default=Status.WAITING,
         )
         mailing_lists = models.ManyToManyField(
             FakeMailingList, verbose_name=_('Related mailing lists'), blank=True,
@@ -666,7 +668,8 @@ else:
         )
         discount_unit = models.PositiveIntegerField(
             _('Discount Unit'), blank=True, null=True,
-            choices=Discount.choices, default=Discount.PERCENT,
+            # choices=Discount.choices, default=Discount.PERCENT,
+            choices=Discount, default=Discount.PERCENT,
         )
         vat_value = models.ForeignKey(
             Vat, verbose_name=_('VAT'), blank=True, null=True,

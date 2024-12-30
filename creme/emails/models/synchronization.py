@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022-2023  Hybird
+#    Copyright (C) 2022-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,7 @@ class EmailSyncConfigItem(core_models.CremeModel):
         POP  = 1, 'POP',
         IMAP = 2, 'IMAP',
 
-    type = models.PositiveSmallIntegerField(choices=Type.choices, default=Type.POP)
+    type = models.PositiveSmallIntegerField(choices=Type, default=Type.POP)
 
     default_user = core_fields.CremeUserForeignKey(
         verbose_name=_('Default owner'), null=True, blank=True,
@@ -130,7 +130,7 @@ class EmailToSyncPerson(core_models.CremeModel):
         RECIPIENT = 2, 'Recipient',
 
     type = models.PositiveSmallIntegerField(
-        choices=Type.choices, default=Type.RECIPIENT, editable=False,
+        choices=Type, default=Type.RECIPIENT, editable=False,
     )
     email_to_sync = models.ForeignKey(
         EmailToSync,

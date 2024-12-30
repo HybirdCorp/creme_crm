@@ -284,7 +284,7 @@ class Notification(models.Model):
     content_id = models.CharField(max_length=48)  # TODO: check the length in generate_id()?
     content_data = models.JSONField(default=dict)
     level = models.PositiveSmallIntegerField(
-        verbose_name=_('Level'), choices=Level.choices, default=Level.NORMAL,
+        verbose_name=_('Level'), choices=Level, default=Level.NORMAL,
     )
     discarded = models.DateTimeField(null=True)
     extra_data = models.JSONField(default=dict)

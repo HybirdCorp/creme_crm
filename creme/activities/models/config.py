@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2023  Hybird
+#    Copyright (C) 2023-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -85,13 +85,13 @@ class CalendarConfigItem(CremeModel):
     view = models.CharField(
         verbose_name=_('Default view mode'),
         max_length=100,
-        choices=CalendarViewMode.choices,
+        choices=CalendarViewMode,
         default='month',
     )
 
     week_start = models.IntegerField(
         _('First day of the week'),
-        choices=Weekday.choices,
+        choices=Weekday,
         default=Weekday.MONDAY.value
     )
 

@@ -53,7 +53,7 @@ class _Email(CremeModel):
     )
     status = models.PositiveSmallIntegerField(
         _('Status'), editable=False,
-        choices=Status.choices, default=Status.NOT_SENT,
+        choices=Status, default=Status.NOT_SENT,
     )
 
     sender    = models.CharField(_('Sender'), max_length=100)
