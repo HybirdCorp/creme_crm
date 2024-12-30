@@ -42,7 +42,7 @@ docker run --detach --rm --name creme_demo --publish 8001:80 --volume creme_data
 The installation process can take a minute or two the first time the command runs.
 Creme will soon be available at [http://localhost:8001](http://localhost:8001).  
 
-You can then login using the default admin user:  
+You can then log in using the default admin user:  
 username: `root`  
 password: `root`
 

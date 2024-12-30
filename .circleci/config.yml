@@ -206,7 +206,7 @@ jobs:
   python310-tests-pgsql:
     docker:
       - image: cimg/python:3.10
-      - image: cimg/postgres:12.10
+      - image: cimg/postgres:13.3
         environment:
           POSTGRES_USER: creme
           POSTGRES_PASSWORD: creme
@@ -314,7 +314,7 @@ jobs:
   python311-tests-mariadb:
     docker:
       - image: cimg/python:3.11
-      - image: cimg/mariadb:10.4
+      - image: cimg/mariadb:10.5
         environment:
           MYSQL_ROOT_PASSWORD: creme
           MYSQL_DATABASE: cremecrm
@@ -349,6 +349,20 @@ jobs:
       - setup-creme-unit-tests
       - run-creme-unit-tests
 
+  python313-tests-sqlite3:
+    docker:
+      - image: cimg/python:3.13
+    resource_class: large
+    steps:
+      - checkout-creme
+      - setup-locale:
+          language: fr_FR
+          encoding: UTF-8
+      - install-creme-system-packages
+      - install-py-dev-env
+      - create-creme-project
+      - setup-creme-unit-tests
+      - run-creme-unit-tests
 
   javascript-lint:
     docker:
@@ -540,6 +554,10 @@ workflows:
             - python310-lint-isort
             - python310-lint-flake8
       - python312-tests-sqlite3:
+          requires:
+            - python310-lint-isort
+            - python310-lint-flake8
+      - python313-tests-sqlite3:
           requires:
             - python310-lint-isort
             - python310-lint-flake8
