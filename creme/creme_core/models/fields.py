@@ -85,6 +85,10 @@ class YearField(models.PositiveIntegerField):
         })
 
 
+class FileSizeField(models.PositiveIntegerField):
+    pass
+
+
 class MoneyField(models.DecimalField):
     pass
 

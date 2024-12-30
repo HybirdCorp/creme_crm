@@ -3561,6 +3561,7 @@ class AuthTestCase(CremeTestCase):
             title='Pretty picture',
             user=user,
             linked_folder=Folder.objects.first(),
+            file_size=0,
         )
 
         efilter = EntityFilter.objects.create(

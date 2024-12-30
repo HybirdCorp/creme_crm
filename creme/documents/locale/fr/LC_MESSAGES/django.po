@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Documents 2.6\n"
+"Project-Id-Version: Creme Documents 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-04 14:09+0200\n"
+"POT-Creation-Date: 2024-12-30 18:36+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -62,6 +62,9 @@ msgstr ""
 "document».\n"
 "App : Documents"
 
+msgid "Copy"
+msgstr "Copie"
+
 msgid "Creation form for folder"
 msgstr "Formulaire de création de classeur"
 
@@ -85,7 +88,8 @@ msgstr "Impossible de fusionner 2 classeurs système."
 
 #, python-brace-format
 msgid "Can not merge because a child is a system Folder: {folder}"
-msgstr "Impossible de fusionner car un enfant est un classeur système : {folder}"
+msgstr ""
+"Impossible de fusionner car un enfant est un classeur système : {folder}"
 
 msgid "Image file"
 msgstr "Fichier image"
@@ -99,6 +103,9 @@ msgstr "Nom"
 
 msgid "File"
 msgstr "Fichier"
+
+msgid "Size of the file"
+msgstr "Taille du fichier"
 
 msgid "Folder"
 msgstr "Classeur"
@@ -146,9 +153,6 @@ msgstr "Ce classeur est un des classeurs enfant de «%(folder)s»"
 
 msgid "Folders"
 msgstr "Classeurs"
-
-msgid "Copy"
-msgstr "Copie"
 
 msgid "Category name"
 msgstr "Nom de la catégorie"
