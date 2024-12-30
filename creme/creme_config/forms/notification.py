@@ -29,6 +29,7 @@ class ChannelForm(CremeModelForm):
     default_outputs = forms.MultipleChoiceField(
         label=_('Default outputs'),
         help_text=_("Default outputs used by users' configurations"),
+        choices=notification_registry.output_choices,
     )
 
     class Meta(CremeModelForm.Meta):
@@ -47,7 +48,7 @@ class ChannelForm(CremeModelForm):
             del fields['required']
 
         output_f = fields['default_outputs']
-        output_f.choices = [*notification_registry.output_choices]
+        # output_f.choices = [*notification_registry.output_choices]
         output_f.initial = chan.default_outputs
 
     def save(self, *args, **kwargs):
@@ -96,7 +97,10 @@ class ChannelRequirementForm(CremeModelForm):
 
 
 class ChannelConfigItemForm(CremeModelForm):
-    outputs = forms.MultipleChoiceField(label=_('Outputs'))
+    outputs = forms.MultipleChoiceField(
+        label=_('Outputs'),
+        choices=notification_registry.output_choices,
+    )
 
     class Meta(CremeModelForm.Meta):
         model = models.NotificationChannelConfigItem
@@ -106,7 +110,7 @@ class ChannelConfigItemForm(CremeModelForm):
         item = self.instance
 
         output_f = self.fields['outputs']
-        output_f.choices = [*notification_registry.output_choices]
+        # output_f.choices = [*notification_registry.output_choices]
         output_f.initial = item.outputs
         output_f.required = item.channel.required
 
