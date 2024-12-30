@@ -165,8 +165,9 @@ class LineEditionForm(core_forms.CremeModelForm):
 
         Discount = self._meta.model.Discount
 
+        discount_unit_f = fields['discount_unit']
         currency_str = related_document.currency.local_symbol
-        discount_units = [
+        discount_unit_f.choices = [
             (Discount.PERCENT, '%'),
             (
                 Discount.LINE_AMOUNT,
@@ -177,9 +178,6 @@ class LineEditionForm(core_forms.CremeModelForm):
                 gettext('{currency} per unit').format(currency=currency_str),
             ),
         ]
-
-        discount_unit_f = fields['discount_unit']
-        discount_unit_f.choices = discount_units
         discount_unit_f.widget.attrs = {'class': 'bound'}
 
     def save(self, *args, **kwargs):
