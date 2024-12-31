@@ -30,6 +30,7 @@
     # Apps :
         * Creme_config :
             - The buttons configuration can now be customised per role.
+            - The property types have now a field "description" (it can be empty of course).
             - In the bricks configuration, default configuration is used as initial value when it's relevant
               (instead of starting with an empty configuration).
             - In the relation types configuration, you can now edit the "minimal display" value for standard types.
