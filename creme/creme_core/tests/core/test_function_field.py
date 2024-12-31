@@ -207,7 +207,22 @@ class FunctionFieldsTestCase(CremeTestCase):
             result.render(ViewTag.HTML_FORM),
         )
 
-    def test_result_link_is_deleted(self):
+    def test_result_link__help_text(self):
+        label = 'My Contacts'
+        url = reverse('creme_core__list_fake_contacts')
+        text = 'List all the viewable contacts'
+        result = FunctionFieldLink(label=label, url=url, help_text=text)
+        self.assertEqual(label, result.render(ViewTag.TEXT_PLAIN))
+        self.assertHTMLEqual(
+            f'<a href="{url}" title="{text}">{label}</a>',
+            result.render(ViewTag.HTML_DETAIL),
+        )
+        self.assertHTMLEqual(
+            f'<a href="{url}" target="_blank" title="{text}">{label}</a>',
+            result.render(ViewTag.HTML_FORM),
+        )
+
+    def test_result_link__is_deleted(self):
         label = 'My Activities'
         url = reverse('creme_core__list_fake_activities')
         result = FunctionFieldLink(label=label, url=url, is_deleted=True)
@@ -218,6 +233,21 @@ class FunctionFieldsTestCase(CremeTestCase):
         )
         self.assertHTMLEqual(
             f'<a href="{url}" class="is_deleted" target="_blank">{label}</a>',
+            result.render(ViewTag.HTML_FORM),
+        )
+
+    def test_result_link__help_n_deleted(self):
+        label = 'My Activities'
+        url = reverse('creme_core__list_fake_activities')
+        text = 'All the activities oh yeah'
+        result = FunctionFieldLink(label=label, url=url, is_deleted=True, help_text=text)
+        self.assertEqual(label, result.render(ViewTag.TEXT_PLAIN))
+        self.assertHTMLEqual(
+            f'<a href="{url}" class="is_deleted" title="{text}">{label}</a>',
+            result.render(ViewTag.HTML_DETAIL),
+        )
+        self.assertHTMLEqual(
+            f'<a href="{url}" class="is_deleted" target="_blank" title="{text}">{label}</a>',
             result.render(ViewTag.HTML_FORM),
         )
 
@@ -291,7 +321,7 @@ class FunctionFieldsTestCase(CremeTestCase):
         # ptype3 = CremePropertyType.objects.create(text='Deleted', enabled=False)
         # ptype4 = create_ptype(text='Baz', subject_ctypes=[FakeOrganisation])
         create_ptype = CremePropertyType.objects.create
-        ptype1 = create_ptype(text='Foo')
+        ptype1 = create_ptype(text='Foo', description='Blablabla')
         ptype2 = create_ptype(text='Bar').set_subject_ctypes(FakeContact, FakeOrganisation)
         ptype3 = create_ptype(text='Deleted', enabled=False)
         ptype4 = create_ptype(text='Baz').set_subject_ctypes(FakeOrganisation)
@@ -318,13 +348,16 @@ class FunctionFieldsTestCase(CremeTestCase):
             result1.render(ViewTag.TEXT_PLAIN),
         )
         self.assertHTMLEqual(
-            # f'<ul>'
             f'<ul class="limited-list">'
             f' <li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
             f' <li>'
             f'  <a href="{ptype3.get_absolute_url()}" class="is_deleted">{ptype3.text}</a>'
             f' </li>'
-            f' <li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li>'
+            f' <li>'
+            f'  <a href="{ptype1.get_absolute_url()}" title="{ptype1.description}">'
+            f'   {ptype1.text}'
+            f'   </a>'
+            f' </li>'
             f'</ul>',
             result1.render(ViewTag.HTML_DETAIL),
         )

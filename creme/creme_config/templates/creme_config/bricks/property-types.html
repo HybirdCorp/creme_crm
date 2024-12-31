@@ -15,6 +15,7 @@
 {% block brick_table_columns %}
     {% brick_table_column_for_field ctype=objects_ctype field='text'           status='primary nowrap' %}
     {% brick_table_column_for_field ctype=objects_ctype field='subject_ctypes' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='description' %}
     {% brick_table_column_for_field ctype=objects_ctype field='app_label' %}
     {% brick_table_column_for_field ctype=objects_ctype field='is_copiable'    status='nowrap' %}
     {% brick_table_column title=_('Statistics') %}
@@ -29,6 +30,7 @@
         <td class="property-subjects">
             {% widget_enumerator prop_type.subject_ctypes.all|uca_sort threshold=8 empty=_('No related type of resource') summary=_('{count} types of resource') %}
         </td>
+        <td class="property-description">{% if prop_type.description %}{{prop_type.description|linebreaks}}{% else %}—{% endif %}</td>
         <td class="property-app_label">{% if prop_type.app_label %}{{prop_type.app_label|app_verbose_name:HIDDEN_VALUE}}{% else %}—{% endif %}</td>
         <td class="property-copiable">{% print_field object=prop_type field='is_copiable' %}</td>
         <td class="property-count">

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -62,28 +62,35 @@ class FunctionFieldDecimal(FunctionFieldResult):
 
 
 class FunctionFieldLink(FunctionFieldResult):
-    def __init__(self, label: str, url: str, is_deleted=False):
+    def __init__(self, label: str, url: str, is_deleted=False, help_text=''):
         super().__init__(label)
         self._url = url
         self._is_deleted = is_deleted
+        self._help_text = help_text
 
     def render(self, tag):
         if tag == ViewTag.TEXT_PLAIN:
             return self._data
 
+        help_text = self._help_text
+
         if tag == ViewTag.HTML_FORM:
             return format_html(
-                '<a href="{}" class="is_deleted" target="_blank">{}</a>'
+                '<a href="{url}" class="is_deleted" target="_blank"{extra_attr}>{label}</a>'
                 if self._is_deleted else
-                '<a href="{}" target="_blank">{}</a>',
-                self._url, self._data,
+                '<a href="{url}" target="_blank"{extra_attr}>{label}</a>',
+                url=self._url,
+                extra_attr=format_html(' title="{}"', help_text) if help_text else '',
+                label=self._data,
             )
 
         return format_html(
-            '<a href="{}" class="is_deleted">{}</a>'
+            '<a href="{url}" class="is_deleted"{extra_attr}>{label}</a>'
             if self._is_deleted else
-            '<a href="{}">{}</a>',
-            self._url, self._data,
+            '<a href="{url}"{extra_attr}>{label}</a>',
+            url=self._url,
+            extra_attr=format_html(' title="{}"', help_text) if help_text else '',
+            label=self._data,
         )
 
 

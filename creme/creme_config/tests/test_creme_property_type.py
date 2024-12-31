@@ -65,6 +65,7 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
 
         prop_type = self._find_property_type(prop_types, text)
         self.assertTrue(prop_type.is_custom)
+        self.assertEqual('', prop_type.description)
         self.assertFalse(prop_type.subject_ctypes.all())
 
     def test_create02(self):
@@ -74,16 +75,19 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         models = [FakeContact, FakeOrganisation]
         text = 'is beautiful'
+        description = 'causes lots of emotion'
         response = self.client.post(
             self.ADD_URL,
             data={
                 'text':           text,
+                'description':    description,
                 'subject_ctypes': [get_ct(model).id for model in models],
             },
         )
         self.assertNoFormError(response)
 
         prop_type = self.get_object_or_fail(CremePropertyType, text=text)
+        self.assertEqual(description, prop_type.description)
         self.assertCountEqual(models, [*prop_type.subject_models])
 
     def test_create03(self):

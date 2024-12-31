@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -60,10 +60,11 @@ class PropertiesField(FunctionField):
         return FunctionFieldResultsList(
             FunctionFieldLink(
                 label=label,
-                url=prop.type.get_absolute_url(),
-                is_deleted=not prop.type.enabled,
-            ) for label, prop in sorted(
-                ((str(p), p) for p in entity.get_properties()),
+                url=ptype.get_absolute_url(),
+                is_deleted=not ptype.enabled,
+                help_text=ptype.description,
+            ) for label, ptype in sorted(
+                ((str(p), p.type) for p in entity.get_properties()),
                 key=lambda t: sort_key(t[0]),
             )
         )
