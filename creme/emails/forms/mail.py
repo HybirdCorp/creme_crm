@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.transaction import atomic
-from django.utils.html import escape
+from django.utils.html import linebreaks  # escape
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -196,7 +196,8 @@ class EntityEmailForm(core_forms.CremeEntityQuickForm):
         body = get_data('body') or strip_html(get_data('body_html')).strip()
         body_html = (
             get_data('body_html')
-            or f'<html><body><code>{escape(body)}</code></body></html>'
+            # or f'<html><body><code>{escape(body)}</code></body></html>'
+            or f'<html><body><code>{linebreaks(body, autoescape=True)}</code></body></html>'
         )
         signature = get_data('signature')
         attachments = get_data('attachments')
