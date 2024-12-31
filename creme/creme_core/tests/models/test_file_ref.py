@@ -38,25 +38,34 @@ class FileRefTestCase(base.CremeTestCase):
             ),
         )
 
-    def test_basename01(self):
+    def test_attrs1(self):
+        content = 'I am the super important content'
         path = self.create_uploaded_file(
             file_name='FileRefTestCase_test_basename01.txt',
             dir_name='models',
+            content=content,
         )
 
         with self.assertNoException():
-            fileref = FileRef.objects.create(filedata=path, basename='test_basename01.txt')
+            file_ref = FileRef.objects.create(
+                filedata=path, basename='test_basename01.txt',
+            )
 
-        self.assertEqual('', fileref.description)
+        self.assertEqual('',           file_ref.description)
+        self.assertEqual(len(content), file_ref.file_size)
 
-    def test_basename02(self):
+    def test_attrs02(self):
         name = 'FileRefTestCase_test_basename02.txt'
-        path = self.create_uploaded_file(file_name=name, dir_name='models')
+        content = 'I am the content! I am super important!'
+        path = self.create_uploaded_file(
+            file_name=name, dir_name='models', content=content,
+        )
 
         with self.assertNoException():
             file_ref = FileRef.objects.create(filedata=path)
 
-        self.assertEqual(name, file_ref.basename)
+        self.assertEqual(name,         file_ref.basename)
+        self.assertEqual(len(content), file_ref.file_size)
 
     def test_job01(self):
         "File is too young to be deleted (just created)"

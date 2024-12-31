@@ -12,6 +12,7 @@
     {% brick_table_column_for_field ctype=objects_ctype field='created' status='primary' %}
     {% brick_table_column_for_field ctype=objects_ctype field='user' %}
     {% brick_table_column_for_field ctype=objects_ctype field='filedata' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='file_size' %}
     {% brick_table_column_for_field ctype=objects_ctype field='temporary' %}
     {% brick_table_column_for_field ctype=objects_ctype field='description' %}
     {% brick_table_column title=_('Actions') status='action' %}
@@ -23,6 +24,7 @@
         <td>{% print_field object=file_ref field='created' %}</td>
         <td>{% print_field object=file_ref field='user' %}</td>
         <td>{{file_ref.filedata}}</td>
+        <td>{% print_field object=file_ref field='file_size' %}</td>
         <td>{% print_field object=file_ref field='temporary' %}</td>
         <td>{% print_field object=file_ref field='description' %}</td>
         <td {% brick_table_data_status action %}>

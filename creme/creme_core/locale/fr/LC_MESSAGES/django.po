@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-23 18:35+0100\n"
+"POT-Creation-Date: 2024-12-31 11:43+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1673,6 +1673,9 @@ msgstr "Champ supprimé (avec id={id}) changé"
 msgid "“{field}” set"
 msgstr "“{field}” modifié"
 
+msgid "The batch processing is disabled because the custom type is deleted"
+msgstr "Le traitement par lot est désactivé car le type personnalisé est supprimé"
+
 msgid "Add a URL entry"
 msgstr "Ajouter une entrée URL"
 
@@ -2447,6 +2450,9 @@ msgstr "Attention: l'app «{app}» a besoin du champ «{field}»."
 
 msgid "Path"
 msgstr "Chemin"
+
+msgid "Size of the file"
+msgstr "Taille du fichier"
 
 msgctxt "creme_core-temporary_file"
 msgid "Created"

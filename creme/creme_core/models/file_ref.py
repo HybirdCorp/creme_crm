@@ -24,11 +24,12 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from .fields import CremeUserForeignKey
+from . import fields
 
 
 class FileRef(models.Model):  # NB: not a CremeModel, because it's used by CremeModel.delete()
-    filedata = models.FileField(verbose_name=_('Path'), max_length=200)
+    filedata = models.FileField(verbose_name=_('Path'), max_length=200)  # TODO: rename "file_data"
+    file_size = fields.FileSizeField(_('Size of the file'), editable=False)
 
     # True/user-friendly name of the file
     # (in 'filedata' there is the path uniqueness constraint).
@@ -37,7 +38,9 @@ class FileRef(models.Model):  # NB: not a CremeModel, because it's used by Creme
     created = models.DateTimeField(
         verbose_name=pgettext_lazy('creme_core-temporary_file', 'Created'), auto_now_add=True,
     )
-    user = CremeUserForeignKey(verbose_name=_('Owner user'), null=True, on_delete=models.SET_NULL)
+    user = fields.CremeUserForeignKey(
+        verbose_name=_('Owner user'), null=True, on_delete=models.SET_NULL,
+    )
     temporary = models.BooleanField(verbose_name=_('To be deleted by the job?'), default=True)
 
     description = models.TextField(verbose_name=_('Description'))
@@ -65,6 +68,9 @@ class FileRef(models.Model):  # NB: not a CremeModel, because it's used by Creme
 
         if not self.basename:
             self.basename = basename(self.filedata.path)
+
+        if self.file_size is None:
+            self.file_size = self.filedata.size
 
         super().save(
             force_insert=force_insert,
