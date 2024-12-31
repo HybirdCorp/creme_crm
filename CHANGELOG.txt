@@ -1,5 +1,12 @@
 == Version 2.6.5 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Emails :
+            - The email form uses HTML line breaks when the HTML body is copied
+              from the plain text body.
+
   Developers side :
   -----------------
 
