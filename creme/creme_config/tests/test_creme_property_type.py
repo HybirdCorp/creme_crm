@@ -67,6 +67,7 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(count + 1, len(prop_types))
 
         prop_type = self._find_property_type(prop_types, text)
+        self.assertTrue(prop_type.is_custom)
         self.assertFalse(prop_type.subject_ctypes.all())
 
     def test_create02(self):
@@ -127,6 +128,7 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
 
         pt = self.refresh(pt)
         self.assertEqual(text, pt.text)
+        self.assertTrue(pt.is_custom)
         self.assertListEqual([FakeOrganisation], [*pt.subject_models])
 
     def test_edit_error01(self):

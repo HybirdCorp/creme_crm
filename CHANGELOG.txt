@@ -1,3 +1,26 @@
+== Version 2.6.5 ==
+
+  Users side :
+  ------------
+    # Apps :
+        * Creme_config :
+            # The new property types were not marked as custom since the release '2.6'.
+              Notice that the fix will only works for new types, it won't fix the types
+              you have created the mast months ; if you want to fix them, change the value
+              of the column 'creme_core_cremepropertytype.is_custom' to "True"/"1" in your DB.
+        * Emails :
+            - The email form uses HTML line breaks when the HTML body is copied
+              from the plain text body.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The custom field brick displayed inner-edition buttons even when it was disabled.
+        # The templatetag {% widget_icon instance=... %} did not use "label" argument.
+
+
 == Version 2.6.4 ==
 
   Users side :

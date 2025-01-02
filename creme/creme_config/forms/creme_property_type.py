@@ -95,3 +95,7 @@ class CremePropertyForm(core_forms.CremeModelForm):
 
     class Meta(core_forms.CremeModelForm.Meta):
         model = CremePropertyType
+
+    def save(self, *args, **kwargs):
+        self.instance.is_custom = True
+        return super().save(*args, **kwargs)

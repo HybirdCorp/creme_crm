@@ -107,6 +107,6 @@ class Export(base.EntityRelatedMixin, base.CheckedView):
         if isinstance(export_result, HttpResponse):
             return export_result
 
-        assert export_result, FileRef
+        assert isinstance(export_result, FileRef)
 
         return HttpResponseRedirect(export_result.get_download_absolute_url())
