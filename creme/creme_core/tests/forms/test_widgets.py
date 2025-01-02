@@ -79,7 +79,7 @@ class CalendarWidgetTestCase(CremeTestCase):
     def test_render__en(self):
         name = 'my_calendar'
         value = self.formfield_value_date(2023, 3, 26)
-        help_text = _('E.g. {}').format('2024-12-31')
+        help_text = _('E.g. {}').format('2025-12-31')
         self.assertHTMLEqual(
             f'<div class="creme-datepicker">'
             f'  <div class="help-text-format">{help_text}</div>'
@@ -96,7 +96,7 @@ class CalendarWidgetTestCase(CremeTestCase):
     def test_render__fr(self):
         name = 'calendar'
         value = self.formfield_value_date(2024, 4, 27)
-        help_text = _('E.g. {}').format('31/12/2024')
+        help_text = _('E.g. {}').format('31/12/2025')
         self.assertHTMLEqual(
             f'<div class="creme-datepicker">'
             f'  <div class="help-text-format">{help_text}</div>'
