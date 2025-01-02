@@ -19,9 +19,9 @@
                 extra = {};
             }
 
-            return new creme.ActivityCalendar($('.calendar-main'), {
+            creme.userActivityCalendar($('.calendar-main'), {
                 owner: "{{user_username}}",
-                eventSelectUrl: '{% url "activities__select_calendars" %}',
+                sourceSelectUrl: '{% url "activities__select_calendars" %}',
                 eventUpdateUrl: '{% url "activities__set_activity_dates" %}',
                 eventCreateUrl: '{% url "activities__create_activity_popup" %}',
                 eventFetchUrl: '{% url "activities__calendars_activities" %}',
@@ -29,7 +29,7 @@
                 defaultView: settings.view || 'month',
                 timezoneOffset: settings.utc_offset,
                 allowEventMove: Boolean(settings.allow_event_move),
-                fullCalendarOptions: $.extend(extra, {
+                fullCalendarOptions: Object.assign(extra, {
                     slotDuration: settings.slot_duration,
                     businessHours: {
                         daysOfWeek: settings.week_days,
