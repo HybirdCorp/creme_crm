@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1384,9 +1384,14 @@ class DatePeriodWidget(widgets.MultiWidget):
         self.widgets[0].choices = choices
 
     def decompress(self, value):
+        # if value:
+        #     d = value.as_dict()
+        #     return d['type'], d['value']
         if value:
-            d = value.as_dict()
-            return d['type'], d['value']
+            # NB: value can be a dict (see DatePeriod.as_dict()) or a DatePeriod directly.
+            dict_value = value if isinstance(value, dict) else value.as_dict()
+
+            return dict_value['type'], dict_value['value']
 
         return None, None
 

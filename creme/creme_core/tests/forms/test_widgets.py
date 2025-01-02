@@ -313,7 +313,7 @@ class DatePeriodWidgetTestCase(CremeTestCase):
             ]
         ]
         name = 'my_period'
-        self.assertHTMLEqual(
+        expected_html = (
             f'<ul class="hbox ui-layout">'
             f' <li>'
             f'  <input class="dperiod-value" min="1" name="{name}_1" type="number" value="1">'
@@ -328,8 +328,13 @@ class DatePeriodWidgetTestCase(CremeTestCase):
             f'   <div class="select-arrow"/>'
             f'  </div>'
             f' </li>'
-            f'</ul>',
-            widget.render(name=name, value=date_period.DaysPeriod(1)),
+            f'</ul>'
+        )
+        self.assertHTMLEqual(
+            expected_html, widget.render(name=name, value=date_period.DaysPeriod(1)),
+        )
+        self.assertHTMLEqual(
+            expected_html, widget.render(name=name, value={'type': 'days', 'value': 1}),
         )
 
     def test_value_from_datadict(self):

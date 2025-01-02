@@ -1,6 +1,7 @@
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 
 from creme.creme_core.models import (
     CremeEntity,
@@ -10,6 +11,8 @@ from creme.creme_core.models import (
     FakeTodo,
     FieldsConfig,
 )
+from creme.creme_core.models.fields import DatePeriodField
+from creme.creme_core.utils.date_period import MonthsPeriod, WeeksPeriod
 
 from ..base import CremeTestCase
 
@@ -49,6 +52,100 @@ class ModelFieldsTestCase(CremeTestCase):
         self.assertEqual(
             ContentType.objects.get_for_model(FakeContact),
             self.refresh(fconf).content_type,
+        )
+
+
+class DatePeriodFieldTestCase(CremeTestCase):
+    def test_ok(self):
+        # from creme.creme_core.tests.fake_models import FakeInvoice
+        # user = self.get_root_user()
+        # inv = FakeInvoice.objects.create(user=user, name='Inv')
+        # self.assertEqual(MonthsPeriod(1), self.refresh(inv).periodicity)
+
+        field = DatePeriodField(name='Periodicity')
+        self.assertIsNone(field.to_python(None))
+        self.assertIsNone(field.to_python({}))
+        self.assertIsNone(field.to_python(''))
+
+        # Dict
+        self.assertEqual(MonthsPeriod(1), field.to_python({'type': 'months', 'value': 1}))
+        self.assertEqual(WeeksPeriod(2),  field.to_python({'type': 'weeks', 'value': 2}))
+        self.assertEqual(MonthsPeriod(1), field.get_prep_value({'type': 'months', 'value': 1}))
+
+        # # Str
+        # self.assertEqual(MonthsPeriod(1), field.to_python('{"type": "months", "value": 1}'))
+        # self.assertEqual(WeeksPeriod(2),  field.to_python('{"type": "weeks", "value": 2}'))
+        # self.assertEqual(WeeksPeriod(2),  field.get_prep_value('{"type": "weeks", "value": 2}'))
+
+        # DatePeriod
+        period = MonthsPeriod(1)
+        self.assertEqual(period, field.to_python(period))
+
+    def test_dict_errors(self):
+        field = DatePeriodField(name='Periodicity')
+
+        with self.assertRaises(ValidationError) as cm:
+            field.to_python({'a_key': 'a_value'})
+        self.assertValidationError(
+            error=cm.exception,
+            messages="DatePeriodField.to_python(): dict is invalid (missing key 'type')",
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            field.to_python({'type': 'invalid', 'value': 1})
+        self.assertValidationError(
+            error=cm.exception,
+            messages="DatePeriodField.to_python(): period is invalid (dict argument)",
+        )
+
+    # def test_str_errors(self):
+    #     field = DatePeriodField(name='Periodicity')
+    #
+    #     with self.assertRaises(ValidationError) as cm:
+    #         field.to_python('{"a_key": "a_value"}')
+    #     self.assertValidationError(
+    #         error=cm.exception,
+    #         messages="DatePeriodField.to_python(): string is invalid (missing key 'type')",
+    #     )
+    #
+    #     with self.assertRaises(ValidationError) as cm:
+    #         field.to_python('{"type": "invalid", "value": 1}')
+    #     self.assertValidationError(
+    #         error=cm.exception,
+    #         messages="DatePeriodField.to_python(): period is invalid (string argument)",
+    #     )
+    #
+    #     with self.assertRaises(ValidationError) as cm:
+    #         field.to_python('{"type": "')
+    #     self.assertValidationError(
+    #         error=cm.exception,
+    #         messages=(
+    #             "DatePeriodField.to_python(): invalid JSON "
+    #             "(Unterminated string starting at: line 1 column 10 (char 9))"
+    #         ),
+    #     )
+
+    def test_type_error(self):
+        field = DatePeriodField(name='Periodicity')
+
+        with self.assertRaises(ValidationError) as cm:
+            field.to_python(123)
+        self.assertValidationError(
+            error=cm.exception,
+            messages=(
+                "DatePeriodField.to_python(): "
+                "value must be None/dict/string/DatePeriod ('int' given)"
+            ),
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            field.to_python([1, 2, 3])
+        self.assertValidationError(
+            error=cm.exception,
+            messages=(
+                "DatePeriodField.to_python(): "
+                "value must be None/dict/string/DatePeriod ('list' given)"
+            ),
         )
 
 
