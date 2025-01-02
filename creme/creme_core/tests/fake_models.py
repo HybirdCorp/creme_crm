@@ -620,6 +620,8 @@ else:
 
         periodicity = core_fields.DatePeriodField(
             _('Periodicity of the generation'), blank=True, null=True,
+            # See .models.test_fields.DatePeriodFieldTestCase.test_ok()
+            # default={'type': 'months', 'value': 1},
         )
 
         total_vat = core_fields.MoneyField(

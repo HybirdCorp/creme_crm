@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,13 +17,14 @@
 ################################################################################
 
 from collections import defaultdict
+# from json import JSONDecodeError
 from json import loads as json_load
 
 from django import forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core import checks
-from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import models
 from django.db.models.aggregates import Max
 from django.db.models.deletion import CASCADE, SET
@@ -129,32 +130,97 @@ class ColorField(models.CharField):
         return super().formfield(**{'form_class': ColorFormField, **kwargs})
 
 
-class DatePeriodField(models.TextField):  # TODO: inherit from a JSONField
-    def to_python(self, value):
-        if not value:  # if value is None: ??
+class DatePeriodField(models.TextField):  # TODO: inherit from JSONField?
+    """Field which stores a 'creme_core.utils.date_period.DatePeriod'.
+    Internally the period is stored as a JSON dictionary (the dictionary is
+    built by 'DatePeriod.as_dict()').
+
+    The field accepts these kind of value :
+        - None (the field should be declared as 'null=True' of course).
+        - DatePeriod instance (hint: retrieve them with
+          'creme_core.utils.date_period.date_period_registry.get_period()' to be
+          sure the period you want is correct).
+          Notice that it cannot be used as 'default' value directly (not serializable),
+          but you can call the method 'DatePeriod.as_dict()'.
+        - dictionary, like the ones 'DatePeriod.as_dict()' generates
+          (e.g. {'type': 'days', 'value': 1}).
+    """
+    # def to_python(self, value):
+    #     if not value:
+    #         return None
+    #
+    #     if isinstance(value, str):
+    #         return date_period_registry.deserialize(json_load(value))
+    #
+    #     # DatePeriod instance
+    #     return value
+    def to_python(self, value) -> DatePeriod | None:
+        if not value:
             return None
 
-        if isinstance(value, str):
-            return date_period_registry.deserialize(json_load(value))
+        if isinstance(value, dict):
+            try:
+                period = date_period_registry.deserialize(value)
+            except KeyError as e:
+                raise ValidationError(
+                    f'{type(self).__name__}.to_python(): dict is invalid (missing key {e})'
+                ) from e
 
-        # DatePeriod instance
-        return value
+            # NB: the dict was not empty (see guard at the beginning),
+            #     so <None> means there is an error.
+            if period is None:
+                raise ValidationError(
+                    f'{type(self).__name__}.to_python(): period is invalid (dict argument)'
+                )
+
+            return period
+
+        # NB: seems not very useful
+        # if isinstance(value, str):
+        #     try:
+        #         period = date_period_registry.deserialize(json_load(value))
+        #     except JSONDecodeError as e:
+        #         raise ValidationError(
+        #             f'DatePeriodField.to_python(): invalid JSON ({e})'
+        #         ) from e
+        #     except KeyError as e:
+        #         raise ValidationError(
+        #             f'DatePeriodField.to_python(): string is invalid (missing key {e})'
+        #         ) from e
+        #
+        #     if period is None:
+        #         raise ValidationError(
+        #             'DatePeriodField.to_python(): period is invalid (string argument)'
+        #         )
+        #
+        #     return period
+
+        if isinstance(value, DatePeriod):
+            return value
+
+        raise ValidationError(
+            f"{type(self).__name__}.to_python(): "
+            f"value must be None/dict/string/DatePeriod ('{type(value).__name__}' given)"
+        )
 
     def from_db_value(self, value, expression, connection):
-        if value is None:
-            return None
+        return None if value is None else date_period_registry.deserialize(json_load(value))
 
-        # 'basestring' instance
-        return date_period_registry.deserialize(json_load(value))
+    def get_prep_value(self, value):
+        return self.to_python(super().get_prep_value(value))
 
-    def get_db_prep_value(self, value, connection, prepared=False):
-        if value is None:
-            return None
+    # def get_db_prep_value(self, value, connection, prepared=False):
+    #     if value is None:
+    #         return None
+    #
+    #     if not isinstance(value, DatePeriod):
+    #         raise ValueError('DatePeriodField: value must be a DatePeriod')
+    #
+    #     return json_encode(value.as_dict())
+    def get_db_prep_value(self, *args, **kwargs):
+        prep_value = super().get_db_prep_value(*args, **kwargs)
 
-        if not isinstance(value, DatePeriod):
-            raise ValueError('DatePeriodField: value must be a DatePeriod')
-
-        return json_encode(value.as_dict())
+        return None if prep_value is None else json_encode(prep_value.as_dict())
 
     def formfield(self, **kwargs):
         # Lazy loading
@@ -584,7 +650,7 @@ class BasicAutoField(models.PositiveIntegerField):
 ################################################################################
 #  Copyright (c) 2007  Michael Trier
 #  Copyright (C) 2014  http://trbs.net
-#  Copyright (C) 2009-2024  Hybird
+#  Copyright (C) 2009-2025  Hybird
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal

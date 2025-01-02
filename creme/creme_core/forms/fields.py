@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1373,7 +1373,27 @@ class MultiEmailField(fields.Field):
 
 class DatePeriodField(fields.MultiValueField):
     """Field to choose a date period (e.g. "3 weeks").
-    Hint: see <creme_core.utils.date_period> too.
+    This period is modeled with an instance of 'creme_core.utils.date_period.DatePeriod'.
+
+    The field generates an instance of DatePeriod, but you can initialize it
+    with a dictionary too (see 'DatePeriod.as_dict()' for the correct keys/values):
+
+        [...]
+        from creme.creme_core.utils.date_period import date_period_registry
+
+        class MyForm(forms.Form):
+            periodicity = DatePeriodField(label=_('Periodicity'))
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+                self.fields['periodicity'].initial = date_period_registry.get_period('days', 1)
+                # OR
+                self.fields['periodicity'].initial = {'type': 'days', 'value': 1}
+
+            def save(self, *args, **kwargs):
+                period = self.cleaned_data['periodicity']  # It's a DatePeriod instance.
+                [...]
     """
     widget = core_widgets.DatePeriodWidget
 

@@ -242,6 +242,8 @@
             - In 'UserRole', the arguments of the following methods have changed (2 strings => 1 positional ContentType instance):
                 - can_create()
                 - can_export()
+            - The field 'fields.DatePeriodField' does not accept strings as value anymore ;
+              but you can now initialize it with a dictionary (e.g. {'type': 'days', 'value': 1}).
         # In 'creme_core.views' :
             - The class-view 'entity.EntityRestoration' now just checks the deletion credentials & the attribute "is_deleted".
             - The mixin 'entity.EntityDeletionMixin' has been heavily reworked :
