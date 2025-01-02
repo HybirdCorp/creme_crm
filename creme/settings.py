@@ -1000,6 +1000,7 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.persons',       'persons/js/persons.js'),
 
     ('creme.activities',    'activities/js/activities.js'),
+    ('creme.activities',    'activities/js/calendar.js'),
     ('creme.activities',    'activities/js/activities-calendar.js'),
 
     ('creme.billing',       'billing/js/billing.js'),
@@ -1143,7 +1144,9 @@ TEST_CREME_CORE_JS = [
 
 TEST_CREME_OPT_JS = [
     # ('creme.my_app',       'my_app/js/tests/my_app.js'),
+    ('creme.activities',    'activities/js/tests/qunit-calendar-mixin.js'),
     ('creme.activities',    'activities/js/tests/activities-listview.js'),
+    ('creme.activities',    'activities/js/tests/calendar.js'),
     ('creme.activities',    'activities/js/tests/activities-calendar.js'),
     ('creme.billing',       'billing/js/tests/billing.js'),
     ('creme.billing',       'billing/js/tests/billing-actions.js'),
