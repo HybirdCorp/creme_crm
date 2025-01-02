@@ -346,7 +346,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertFalse(html_f.required)
 
         sender = user.linked_contact.email
-        body = 'Fresh & tasty !'
+        body = 'Fresh & tasty!\nTry it now!'
         response2 = self.client.post(
             url,
             data={
@@ -363,7 +363,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
         self.assertEqual(body, email.body)
         self.assertEqual(
-            '<html><body><code>Fresh &amp; tasty !</code></body></html>',
+            '<html><body><code><p>Fresh &amp; tasty!<br>Try it now!</p></code></body></html>',
             email.body_html,
         )
 

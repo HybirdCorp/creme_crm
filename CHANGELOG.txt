@@ -1,3 +1,21 @@
+== Version 2.5.17 ==
+
+  Users side :
+  ------------
+    # Apps :
+        * Emails :
+            - The email form uses HTML line breaks when the HTML body is copied
+              from the plain text body.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The custom field brick displayed inner-edition buttons even when it was disabled.
+        # The templatetag {% widget_icon instance=... %} did not use "label" argument.
+
+
 == Version 2.5.16 ==
 
   Users side :
