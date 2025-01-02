@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1.3
 
 # FROM python:3.7-slim-buster as creme-demo
-FROM python:3.8-slim-buster as creme-demo
+FROM python:3.8-slim-bullseye as creme-demo
 
 SHELL ["/bin/bash", "-c"]
 
