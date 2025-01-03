@@ -97,7 +97,7 @@
         # Deprecations :
             - The method 'creme_core.core.entity_cell.EntityCellCustomField.build()' with integer "value" is deprecated;
               pass a string (ID ou UUID) instead.
-            - In 'creme_core.models :
+            - In 'creme_core.models' :
                 - The method 'CremePropertyTypeManager.smart_update_or_create() is deprecated;
                   use the classical methods 'create()' or 'update_or_create()' instead.
                   Notice: if you still want to set the field "subject_ctypes" from models like before,
@@ -122,6 +122,7 @@
                     - The tag "{% ctype_for_model %}" is deprecated; use the filter "|ctype_for_instance" instead.
                     - The tag "{% ctype_for_swappable %}" is deprecated; use the filter "|ctype_for_swappable" instead.
                     - The tag "{% ctype_counted_instances_label %}" is deprecated; use the filter "|ctype_counted_label" instead.
+                    - The filter "|ctype_can_be_mass_imported" is deprecated.
             - App :
                 * Persons :
                     - The method 'models.base.PersonWithAddressesMixin._post_save_clone()' is deprecated.
