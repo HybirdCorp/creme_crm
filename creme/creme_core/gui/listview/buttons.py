@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2024  Hybird
+#    Copyright (C) 2019-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -117,7 +117,6 @@ class MassExportHeaderButton(MassExportButton):
 class MassImportButton(ListViewButton):
     template_name = 'creme_core/listview/buttons/mass-import.html'
 
-    # TODO: try to extract them from the context?
     import_backend_registry = backends.import_backend_registry
     import_form_registry = import_form_registry
 
@@ -128,7 +127,8 @@ class MassImportButton(ListViewButton):
         context['show'] = (
             self.import_backend_registry and model in self.import_form_registry
         )
-        # TODO: use templatetag instead
+        # NB: better to inject ContentType than model class
+        #     (template engine will not call it)
         context['content_type'] = ContentType.objects.get_for_model(model)
 
         return context

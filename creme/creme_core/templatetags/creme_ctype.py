@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2024  Hybird
+#    Copyright (C) 2017-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -163,7 +163,6 @@ def ctype_counted_label(ctype: ContentType, count: int) -> str:
     )
 
 
-# TODO: what about the global registry ? take it from the context ?
 @register.filter
 def ctype_can_be_merged(ctype: ContentType) -> bool:
     """Indicates if 2 instances of a specific model can be used by the merging view of Creme.
@@ -180,7 +179,6 @@ def ctype_can_be_merged(ctype: ContentType) -> bool:
     return ctype.model_class() in merge_form_registry
 
 
-# TODO: what about the global registry ? take it from the context ?
 @register.filter
 def ctype_can_be_mass_imported(ctype: ContentType) -> bool:
     """Indicates if some instances of a specific model can be created from a CSV/XLS/... file.
@@ -194,10 +192,14 @@ def ctype_can_be_mass_imported(ctype: ContentType) -> bool:
     """
     from ..gui.mass_import import import_form_registry
 
+    warnings.warn(
+        'The template filter |ctype_can_be_mass_imported is deprecated',
+        DeprecationWarning,
+    )
+
     return ctype.model_class() in import_form_registry
 
 
-# TODO: what about the global registry ? take it from the context ?
 @register.filter
 def ctype_has_quickform(ctype: ContentType) -> bool:
     from ..gui.quick_forms import quickform_registry
