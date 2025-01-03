@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -353,37 +353,36 @@ class CalendarConfigItemsBrick(QuerysetBrick):
     # permissions = 'activities.can_admin' => useless because views check that.
 
     def detailview_display(self, context):
-        user = context['user']
-        configs = CalendarConfigItem.objects.filter(
-            role__isnull=False, superuser=False,
-        ).order_by('role__name')
-
-        brick_context = self.get_template_context(
+        # user = context['user']
+        btc = self.get_template_context(
             context,
-            configs,
-            has_app_perm=user.has_perm('activities'),  # TODO: remove?
+            queryset=CalendarConfigItem.objects.filter(
+                role__isnull=False, superuser=False,
+            ).order_by('role__name'),
+            # has_app_perm=user.has_perm('activities'),
         )
 
-        page = brick_context['page']
-
         try:
-            default = CalendarConfigItem.objects.get_default()
+            default_item = CalendarConfigItem.objects.get_default()
         except ConflictError as e:
-            brick_context['error'] = e
-            return self._render(brick_context)
+            btc['error'] = e
+        else:
+            page = btc['page']
 
-        if page.number < 2:
-            superuser = CalendarConfigItem.objects.filter(role=None, superuser=True).first()
+            if page.number < 2:
+                superuser_item = CalendarConfigItem.objects.filter(
+                    role=None, superuser=True,
+                ).first()
 
-            brick_context['default'] = default
-            brick_context['superuser'] = superuser
+                btc['default'] = default_item
+                btc['superuser'] = superuser_item
 
-            # Little hack to force display of default & superuser even without any role
-            # configuration
-            paginator = page.paginator
-            paginator.count += 2 if superuser else 1
+                # Small hack to force display of default & superuser even
+                # without any role configuration
+                paginator = page.paginator
+                paginator.count += 2 if superuser_item else 1
 
-        return self._render(brick_context)
+        return self._render(btc)
 
 
 class UnsuccessfulButtonConfigBrick(Brick):
