@@ -261,6 +261,7 @@
                 - In the method 'bricks.NextActivitySummary.get_context()', the returned context does not contain "NARROW" anymore.
                 - In the button 'buttons.AddLinkedContactButton', the variable "contact_link_perm" is not injected anymore.
             * Activities :
+                - The brick 'CalendarConfigItemsBrick' does not inject "has_app_perm" in the template context.
                 - The field 'Activity.floating_type' got some light changes.
                   It's now a 'PositiveSmallIntegerField', it ahs a 'choices' attribute & it's viewable.
                 - Some small changes have been made in the class 'views.buttons.UnsuccessfulPhoneCallCreation'.
