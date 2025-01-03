@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1454,8 +1454,13 @@ class CremeUser(AbstractBaseUser):
                 gettext('You are not allowed to export: {}').format(meta.verbose_name)
             )
 
+    # def has_perm_to_link(self,
+    #                      entity_or_model: EntityInstanceOrClass,
+    #                      owner: CremeUser | None = None,
+    #                      ) -> bool:
     def has_perm_to_link(self,
-                         entity_or_model: EntityInstanceOrClass,
+                         ct_or_model_or_entity: EntityInstanceOrClassOrCType,
+                         /,
                          owner: CremeUser | None = None,
                          ) -> bool:
         """Can the user link a future entity of a given class ?
@@ -1467,41 +1472,45 @@ class CremeUser(AbstractBaseUser):
         assert not self.is_team  # Teams can not be logged, it has no sense
 
         # TODO: move to UserRole? improve UserRole.filter() too?
-        ce_type = CustomEntityType.objects.get_for_model(as_model(entity_or_model))
+        model = as_model(ct_or_model_or_entity)
+        ce_type = CustomEntityType.objects.get_for_model(model)
         if ce_type and ce_type.deleted:
             return False
 
-        if isinstance(entity_or_model, CremeEntity):
+        if isinstance(ct_or_model_or_entity, CremeEntity):
             # TODO: what about related_entity ?
             return (
-                False if entity_or_model.is_deleted else
-                self._get_credentials(entity_or_model).can_link()
+                False if ct_or_model_or_entity.is_deleted else
+                self._get_credentials(ct_or_model_or_entity).can_link()
             )
 
-        assert issubclass(entity_or_model, CremeEntity)
+        assert issubclass(model, CremeEntity)
 
-        return (
-            True if self.is_superuser else
-            self.role.can_do_on_model(self, entity_or_model, owner, EntityCredentials.LINK)
+        return True if self.is_superuser else self.role.can_do_on_model(
+            user=self, model=model, owner=owner, perm=EntityCredentials.LINK,
         )
 
     # TODO: factorise ??
+    # def has_perm_to_link_or_die(self,
+    #                             entity_or_model: EntityInstanceOrClass,
+    #                             owner: CremeUser | None = None,
+    #                             ) -> None:
     def has_perm_to_link_or_die(self,
-                                entity_or_model: EntityInstanceOrClass,
+                                ct_or_model_or_entity: EntityInstanceOrClassOrCType,
+                                /,
                                 owner: CremeUser | None = None,
                                 ) -> None:
-        if not self.has_perm_to_link(entity_or_model, owner):
-            if isinstance(entity_or_model, CremeEntity):
-                msg = gettext('You are not allowed to link this entity: {}').format(
-                    entity_or_model.allowed_str(self)
+        if not self.has_perm_to_link(ct_or_model_or_entity, owner):
+            raise PermissionDenied(
+                gettext('You are not allowed to link this entity: {}').format(
+                    ct_or_model_or_entity.allowed_str(self)
                 )
-            else:
-                msg = gettext('You are not allowed to link: {}').format(
+                if isinstance(ct_or_model_or_entity, CremeEntity) else
+                gettext('You are not allowed to link: {}').format(
                     # entity_or_model._meta.verbose_name
-                    model_verbose_name(entity_or_model)
+                    model_verbose_name(as_model(ct_or_model_or_entity))
                 )
-
-            raise PermissionDenied(msg)
+            )
 
     def has_perm_to_unlink(self, entity: CremeEntity) -> bool:
         # TODO: what about related_entity ?
