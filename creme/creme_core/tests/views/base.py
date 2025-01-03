@@ -121,7 +121,7 @@ class BrickTestCaseMixin:
             brick_node, f".//a[@href='{entity.get_absolute_url()}']"
         )
         if check_text:
-            self.assertEqual(str(entity), link_node.text)
+            self.assertEqual(str(entity), link_node.text.strip())
 
         return link_node
 
