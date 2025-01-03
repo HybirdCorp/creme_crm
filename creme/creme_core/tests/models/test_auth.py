@@ -2785,9 +2785,14 @@ class AuthTestCase(CremeTestCase):
 
         # self.assertTrue(user.has_perm_to_link()) TODO ??
         self.assertTrue(user.has_perm_to_link(FakeOrganisation))
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        self.assertTrue(user.has_perm_to_link(ct))
 
         with self.assertNoException():
             user.has_perm_to_link_or_die(FakeOrganisation)
+
+        with self.assertNoException():
+            user.has_perm_to_link_or_die(ct)
 
     def test_has_perm_to_link02(self):
         "No LINK perm at all."
@@ -2808,13 +2813,18 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(has_perm_to_link(FakeOrganisation, owner=None))
         self.assertFalse(has_perm_to_link(FakeOrganisation, owner=other_user))
 
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        self.assertFalse(has_perm_to_link(ct))
+
         # self.assertRaises(PermissionDenied, user.has_perm_to_link_or_die, FakeOrganisation)
-        with self.assertRaises(PermissionDenied) as cm:
+        with self.assertRaises(PermissionDenied) as model_cm:
             user.has_perm_to_link_or_die(FakeOrganisation)
-        self.assertEqual(
-            _('You are not allowed to link: {}').format('Test Organisation'),
-            str(cm.exception),
-        )
+        msg = _('You are not allowed to link: {}').format('Test Organisation')
+        self.assertEqual(msg, str(model_cm.exception))
+
+        with self.assertRaises(PermissionDenied) as ct_cm:
+            user.has_perm_to_link_or_die(ct)
+        self.assertEqual(msg, str(ct_cm.exception))
 
     def test_has_perm_to_link03(self):
         "Can LINK all."

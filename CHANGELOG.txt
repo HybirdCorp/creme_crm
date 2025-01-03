@@ -233,8 +233,9 @@
                 - The method 'get_clone_absolute_url()' is not static anymore.
             - The method 'BrickDetailviewLocationManager.create_if_needed()' now takes its arguments as keywords only.
             - In 'CremeUser' :
-                 - The unique argument of the following methods is now positional only :
+                 - The first argument of the following methods is now positional only :
                     - has_perm_to_create() & has_perm_to_create_or_die()
+                    - has_perm_to_link() & has_perm_to_link_or_die()
                     - has_perm_to_export() & has_perm_to_export_or_die()
                     - has_perm_to_access() & has_perm_to_access_or_die()
                     - has_perm_to_admin() & has_perm_to_admin_or_die()

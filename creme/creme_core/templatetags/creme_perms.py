@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2023-2024  Hybird
+#    Copyright (C) 2023-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,6 @@
 ################################################################################
 
 from django import template
-from django.contrib.contenttypes.models import ContentType
 
 register = template.Library()
 
@@ -49,12 +48,7 @@ def has_perm_to_delete(user, entity):
 
 @register.filter
 def has_perm_to_link(user, entity_or_ctype):
-    # TODO: rework has_perm_to_link to accept ContentType?
-    return user.has_perm_to_link(
-        entity_or_ctype.model_class()
-        if isinstance(entity_or_ctype, ContentType) else
-        entity_or_ctype
-    )
+    return user.has_perm_to_link(entity_or_ctype)
 
 
 @register.filter
