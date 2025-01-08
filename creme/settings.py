@@ -1002,6 +1002,7 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.activities',    'activities/js/activities.js'),
     ('creme.activities',    'activities/js/calendar.js'),
     ('creme.activities',    'activities/js/activities-calendar.js'),
+    ('creme.activities',    'activities/js/bricks.js'),
 
     ('creme.billing',       'billing/js/billing.js'),
     ('creme.billing',       'billing/js/billing-actions.js'),

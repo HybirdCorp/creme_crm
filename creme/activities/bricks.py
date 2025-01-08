@@ -23,6 +23,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
+from creme.activities.utils import get_current_utc_offset
 from creme.creme_config.bricks import GenericModelBrick
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core.exceptions import ConflictError
@@ -322,6 +323,38 @@ class UserCalendarsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             Calendar.objects.filter(user=context['user']),
+        ))
+
+
+class ActivityCalendarBrick(Brick):
+    id = Brick.generate_id('activities', 'activity_calendar')
+    verbose_name = _('Activities calendar')
+    dependencies = (Activity, Contact, Calendar,)
+    template_name = 'activities/bricks/activity-calendar.html'
+    permissions = 'activities'
+    description = _(
+        'Displays user calendar:\n'
+        '- Only the events from the DEFAULT calendar are displayed.\n'
+        '- The calendar is read-only.\n'
+        'App: Activities'
+    )
+
+    def detailview_display(self, context):
+        user = context['user']
+        settings = {
+            "utc_offset": get_current_utc_offset(),
+            **CalendarConfigItem.objects.for_user(user).as_dict(),
+        }
+
+        return self._render(self.get_template_context(
+            context,
+            calendar_sources=list(
+                Calendar.objects.filter(
+                    user=context['user'],
+                    is_default=True,
+                ).values_list('pk', flat=True)
+            ),
+            calendar_settings=settings,
         ))
 
 
