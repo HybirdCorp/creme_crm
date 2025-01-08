@@ -43,6 +43,7 @@
                  - Add allowEventOverlaps property (boolean or method).
                  - Add allowEventCreate property (boolean).
                  - Move calendar selection state queries to ActivityCalendarController. Improve performance.
+            - A "activity-calendar" brick is now available for the detail-views.
         * Creme_config :
             - The buttons configuration can now be customised per role.
             - The property types have now a field "description" (it can be empty of course).

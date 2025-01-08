@@ -56,7 +56,6 @@
 /* calendar */
 
 .fc-creme .fc-toolbar .fc-toolbar-title {
-    min-width: 365px;
     text-transform: capitalize;
 }
 
@@ -274,6 +273,7 @@
     cursor: pointer;
 }
 
+/*
 .fc-creme .loading-indicator {
     position: relative;
     left: -325px;
@@ -294,6 +294,7 @@
     position: relative;
     top: -3px;
 }
+*/
 
 .fc-creme .fc-timegrid-now-indicator-arrow {
     display: none;
@@ -326,11 +327,6 @@
     display: none;
 }
 
-.fc-creme .fc-toolbar.fc-header-toolbar {
-    margin-left: -325px;
-    margin-bottom: 14px;
-}
-
 .fc-creme .fc-header-toolbar .fc-header-week {
     background: #dddddd;
     color: black;
@@ -346,20 +342,3 @@
 }
 
 /* calendar - end */
-
-/* calendar header widget repositioning */
-
-.fc-creme .fc-header-left table,
-.fc-creme .fc-header-center table {
-    position: relative;
-}
-
-.fc-creme .fc-header-left table {
-    left: -330px; /* the width of the sidebar with padding */
-}
-
-.fc-creme .fc-header-center table {
-    margin: 0; /* remove the centering */
-}
-
-/* calendar header widget repositioning - end */
