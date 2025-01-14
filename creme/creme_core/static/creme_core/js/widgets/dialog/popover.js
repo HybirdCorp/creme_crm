@@ -179,7 +179,7 @@ creme.dialog.Popover = creme.component.Component.sub({
         creme.utils.scrollBack(this._scrollbackPosition, 'slow');
         this._scrollbackPosition = null;
 
-        this._events.trigger('closed', Array.copy(arguments), this);
+        this._events.trigger('closed', Array.from(arguments), this);
 
         return this;
     },

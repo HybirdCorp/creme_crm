@@ -44,7 +44,7 @@
             var self = this;
             return (function(name) {
                 return function() {
-                    self.mockListenerCalls(name).push(Array.copy(arguments));
+                    self.mockListenerCalls(name).push(Array.from(arguments));
                 };
             }(name));
         },
