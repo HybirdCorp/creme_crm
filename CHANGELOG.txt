@@ -203,6 +203,8 @@
                 - "creme_core-hatmenubar-form"
                 - "creme_core-hatmenubar-update"
                 - "creme_core-hatmenubar-view"
+            - Javascript :
+                * ArrayTools & GeneratorTools are no longer used (only by jqplot). So drop them and use underscore or d3 instead.
             - Apps :
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' has been removed.
