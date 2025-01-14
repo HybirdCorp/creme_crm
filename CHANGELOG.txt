@@ -222,6 +222,15 @@
                 - "creme_core-hatmenubar-view"
             - Javascript :
                 * ArrayTools & GeneratorTools are no longer used (only by jqplot). So drop them and use underscore or d3 instead.
+                * Drop fallbacks or helpers for widely implemented Array methods :
+                    - Use Array.prototype.some() native implementation.
+                    - Array.prototype.unique() is removed; Use _.uniq(iterable) instead.
+                    - Array.prototype.removeAt() is removed; Use Array.prototype.splice(index, 1) instead.
+                    - Array.prototype.insertAt() is removed; Use Array.prototype.splice(index, 0, val1, val2, ...) instead.
+                    - Array.prototype.inArray() is removed; Use Array.prototype.indexOf(value) instead.
+                    - Array.prototype.getRange() is removed; Use Array.prototype.slice() instead.
+                    - Array.prototype.exfiltrate() is removed; Use _.without(iterable, val1, val2, ...) instead.
+                    - Array.prototype.contains() is removed; Use Array.prototype.includes(value) instead.
             - Apps :
                 * Activities:
                     - Refactor creme.ActivityCalendar : can be now used as independent component.
