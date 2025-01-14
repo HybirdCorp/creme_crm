@@ -864,8 +864,6 @@ CREME_CORE_JS = [
     'creme_core/js/lib/fallbacks/array-0.9.js',
     'creme_core/js/lib/fallbacks/string-0.1.js',
     'creme_core/js/lib/fallbacks/console.js',
-    'creme_core/js/lib/fallbacks/event-0.1.js',
-    'creme_core/js/lib/fallbacks/htmldocument-0.1.js',
     'creme_core/js/lib/math.js',
     'creme_core/js/lib/color.js',
     'creme_core/js/lib/assert.js',
