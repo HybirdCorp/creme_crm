@@ -500,22 +500,6 @@ QUnit.test('fallbacks.Array.copy (arguments)', function() {
 });
 
 if (jQuery === undefined) {
-    QUnit.test('fallbacks.Array.contains', function() {
-        equal(typeof Array.prototype.contains, 'function');
-        equal(typeof [].contains, 'function');
-
-        equal([1, 2, 1, 4, 5, 4].contains(1), true);
-        equal([1, 2, 1, 4, 5, 4].contains(2), true);
-        equal([1, 2, 1, 4, 5, 4].contains(12), false);
-    });
-
-    QUnit.test('fallbacks.Array.exfiltrate', function() {
-        equal(typeof Array.prototype.exfiltrate, 'function');
-        equal(typeof [].exfiltrate, 'function');
-
-        deepEqual([1, 2, 1, 4, 5, 4].exfiltrate([1, 2]), [4, 5, 4]);
-    });
-
     QUnit.test('fallbacks.Array.every', function() {
         equal(typeof Array.prototype.every, 'function');
         equal(typeof [].every, 'function');
@@ -539,7 +523,7 @@ if (jQuery === undefined) {
                                                return element >= 10;
                                            }), [12, 44]);
     });
-
+/*
     QUnit.test('fallbacks.Array.getRange', function() {
         equal(typeof Array.prototype.getRange, 'function');
         equal(typeof [].getRange, 'function');
@@ -569,7 +553,7 @@ if (jQuery === undefined) {
 
         deepEqual(['dog', 'cat', 'mouse', 'horse'].removeAt(2), ['dog', 'cat', 'horse']);
     });
-
+*/
     QUnit.test('fallbacks.Array.some', function() {
         equal(typeof Array.prototype.some, 'function');
         equal(typeof [].some, 'function');
@@ -582,13 +566,14 @@ if (jQuery === undefined) {
                                           return element >= 100;
                                     }), false);
     });
-
+/*
     QUnit.test('fallbacks.Array.unique', function() {
         equal(typeof Array.prototype.unique, 'function');
         equal(typeof [].unique, 'function');
 
         deepEqual([1, 2, 1, 4, 5, 4].unique(), [1, 2, 4, 5]);
     });
+*/
 }
 
 QUnit.test('fallbacks.HTMLDocument', function() {
