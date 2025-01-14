@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2020-2022  Hybird
+    Copyright (C) 2020-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,7 @@ window.QUnit.parameterize = function(name, scenarios, callable) {
     }
 
     if (arguments.length > 3) {
-        var args = Array.copy(arguments);
+        var args = Array.from(arguments);
         callable = args[arguments.length - 1];
         scenarios = args[1];
         var subScenarios = args.slice(2, arguments.length - 1);
@@ -60,7 +60,7 @@ window.QUnit.parameterize = function(name, scenarios, callable) {
                     subScenarios
                 ).concat([
                     function() {
-                        callable.apply(this, (Array.isArray(scenario) ? scenario : [scenario]).concat(Array.copy(arguments)));
+                        callable.apply(this, (Array.isArray(scenario) ? scenario : [scenario]).concat(Array.from(arguments)));
                     }
                 ])
             );
@@ -72,7 +72,7 @@ window.QUnit.parameterize = function(name, scenarios, callable) {
             QUnit.skip('${name}-${label}'.template({name: name, label: label}));
         } else {
             QUnit.test('${name}-${label}'.template({name: name, label: label}), function() {
-                callable.apply(this, (Array.isArray(scenario) ? scenario : [scenario]).concat(Array.copy(arguments)));
+                callable.apply(this, (Array.isArray(scenario) ? scenario : [scenario]).concat(Array.from(arguments)));
             });
         }
     });

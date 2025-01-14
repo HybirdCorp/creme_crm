@@ -65,7 +65,7 @@ QUnit.module("creme.component.factory.js", new QUnitMixin(QUnitEventMixin, {
     },
 
     pushActionCall: function() {
-        this._mockActionCalls.push(Array.copy(arguments));
+        this._mockActionCalls.push(Array.from(arguments));
     },
 
     mapLinkStartEventType: function(d) {

@@ -71,6 +71,8 @@
     });
 
     appendStatic('copy', function(iterable, start, end) {
+        console.warn('Deprecated; Use Array.from(iterable).slice(start, end) instead');
+
         var res = [];
         start = Math.min(Math.max(0, start || 0), iterable.length);
         end = end !== undefined ? Math.min(Math.max(0, end), iterable.length) : iterable.length;
