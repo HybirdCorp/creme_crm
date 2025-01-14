@@ -3,6 +3,8 @@
   UPGRADE NOTES :
     - If you upgrade your MariaDB server to 10.7+, you have to convert all the UUID fields
       (which were just CharFields before MariaDB 10.7) to real UUID fields.
+    - Many fallbacks and helpers for older browsers (e.g IE 9 & 10) are removed. Read carefully the changelog, it
+      contains tips to upgrade your code.
 
   Users side :
   ------------
@@ -231,6 +233,7 @@
                     - Array.prototype.getRange() is removed; Use Array.prototype.slice() instead.
                     - Array.prototype.exfiltrate() is removed; Use _.without(iterable, val1, val2, ...) instead.
                     - Array.prototype.contains() is removed; Use Array.prototype.includes(value) instead.
+                * Remove fallbacks for HTMLDocument, CSSStyleDeclaration & Event classes.
             - Apps :
                 * Activities:
                     - Refactor creme.ActivityCalendar : can be now used as independent component.
