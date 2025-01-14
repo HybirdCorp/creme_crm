@@ -36,13 +36,7 @@
     # Apps :
         * Activities :
             - The JavaScript component FullCalendar has been upgraded to the version "6.1.15"
-            - Refactor creme.ActivityCalendar
-                 - Move the "calendar user page" features to creme.ActivityCalendarController : floating events, sidebar selection, state within url hash
-                 - creme.ActivityCalendar can be now used as independent component.
-                 - Add headlessMode flag.
-                 - Add allowEventOverlaps property (boolean or method).
-                 - Add allowEventCreate property (boolean).
-                 - Move calendar selection state queries to ActivityCalendarController. Improve performance.
+            - Improve CSS of the calendar sidebar and make it sticky.
             - A "activity-calendar" brick is now available for the detail-views.
         * Creme_config :
             - The buttons configuration can now be customised per role.
@@ -212,6 +206,14 @@
                 - "creme_core-hatmenubar-update"
                 - "creme_core-hatmenubar-view"
             - Apps :
+                * Activities:
+                    - Refactor creme.ActivityCalendar
+                        - Move the "calendar user page" features to creme.ActivityCalendarController : floating events, sidebar selection, state within url hash
+                        - creme.ActivityCalendar can be now used as independent component.
+                        - Add headlessMode flag.
+                        - Add allowEventOverlaps property (boolean or method).
+                        - Add allowEventCreate property (boolean).
+                        - Move calendar selection state queries to ActivityCalendarController. Improve performance.
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' has been removed.
                     - The class-view 'views.contact.ContactNamesEdition' has been removed.

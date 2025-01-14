@@ -207,7 +207,7 @@ creme.ActivityCalendarController = creme.component.Component.sub({
             return handler;
         }
     },
-
+/*
     _resizeSidebar: function() {
         var calendar = this._element.find('.calendar');
         var calendarHeight = calendar.height();
@@ -217,7 +217,7 @@ creme.ActivityCalendarController = creme.component.Component.sub({
 
         sidebar.css('height', (calendarHeight - sidebarMargin) + 'px');
     },
-
+*/
     _filterCalendars: function(element, search) {
         element.find('.other-calendars .calendar-menu-usergroup').each(function() {
             var username = $(this).attr('data-user');
@@ -322,9 +322,11 @@ creme.ActivityCalendarController = creme.component.Component.sub({
 
         calendar.on('event-new', this._onCalendarEventCreate.bind(this));
         calendar.on('range-select', this._onCalendarStateUpdate.bind(this));
+        /*
         calendar.on('query-complete', function() {
             self._resizeSidebar();
         });
+        */
 
         $(window).on('hashchange', function() {
             if (self.keepState()) {
