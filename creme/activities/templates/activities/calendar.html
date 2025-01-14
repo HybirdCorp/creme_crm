@@ -49,72 +49,74 @@
 
 {% block content %}
     <div class='calendar-main'>
-        <div class='calendar-menu toggle-target'>
-            {% if floating_activities %}
-            <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group" widget="ui-creme-toggle" title="{% translate 'You can drag and drop these activities in the calendar' %}">
-                <h4 class='toggle-trigger menu-group-title'>
-                    <span class="menu-group-label">{% translate 'Floating activities' %}</span>
-                </h4>
-                {% if enable_floating_activities_search %}
-                 <div class='floating-event-filter toggle-target'><input type='search' placeholder="{% translate 'FILTER FLOATING ACTIVITIES' %}" /></div>
-                {% endif %}
-                <div class="floating-activities menu-sublist toggle-target">
-                  {% for floating_activity in floating_activities %}
-                    <div class='floating-event'
-                         data-id="{{floating_activity.id}}"
-                         {% if floating_activity.busy %}data-busy="1"{% endif %}
-                         data-calendar="{{floating_activity.calendar.id}}"
-                         data-type="{{floating_activity.type.name}}"
-                         data-popup_url="{% url 'activities__view_activity_popup' floating_activity.id %}"
-                         data-color="#{{floating_activity.calendar.color}}">
-                        <div class="colored-square" style="background-color:#{{floating_activity.calendar.color}};"></div>
-                        <span class="floating-event-label">{{floating_activity.title}}</span>
+        <div class='calendar-side'>
+            <div class='calendar-menu toggle-target'>
+                {% if floating_activities %}
+                <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group" widget="ui-creme-toggle" title="{% translate 'You can drag and drop these activities in the calendar' %}">
+                    <h4 class='toggle-trigger menu-group-title'>
+                        <span class="menu-group-label">{% translate 'Floating activities' %}</span>
+                    </h4>
+                    {% if enable_floating_activities_search %}
+                    <div class='floating-event-filter toggle-target'><input type='search' placeholder="{% translate 'FILTER FLOATING ACTIVITIES' %}" /></div>
+                    {% endif %}
+                    <div class="floating-activities menu-sublist toggle-target">
+                    {% for floating_activity in floating_activities %}
+                        <div class='floating-event'
+                            data-id="{{floating_activity.id}}"
+                            {% if floating_activity.busy %}data-busy="1"{% endif %}
+                            data-calendar="{{floating_activity.calendar.id}}"
+                            data-type="{{floating_activity.type.name}}"
+                            data-popup_url="{% url 'activities__view_activity_popup' floating_activity.id %}"
+                            data-color="#{{floating_activity.calendar.color}}">
+                            <div class="colored-square" style="background-color:#{{floating_activity.calendar.color}};"></div>
+                            <span class="floating-event-label">{{floating_activity.title}}</span>
+                        </div>
+                    {% endfor %}
                     </div>
-                  {% endfor %}
                 </div>
-            </div>
-            {% endif %}
-            <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group" widget="ui-creme-toggle">
-                <h4 class='toggle-trigger menu-group-title'>
-                   <span class="menu-group-label">{% translate 'My calendars' %}</span>
-                </h4>
-                <div class="my-calendars menu-sublist toggle-target">
-                  {% for calendar in my_calendars %}
-                    <div class="calendar-menu-item">
-                        <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" style="color:#{{calendar.color}};" name="calendar_id"{% if calendar.id in my_selected_calendar_ids %} checked{% endif %}/>
-                        <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
-                    </div>
-                  {% empty%}
-                    {% translate 'No calendars' %}
-                  {% endfor %}
-                </div>
-            </div>
-            <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group{% if not others_selected_calendar_ids %} toggle-collapsed{% endif %}" widget="ui-creme-toggle">
-                <h4 class='toggle-trigger menu-group-title'>
-                    <span class="menu-group-label">{% translate 'Collaborators calendars' %}</span>
-                </h4>
-                {% if enable_calendars_search %}
-                 <div class='calendar-menu-filter toggle-target'><input type='search' placeholder="{% translate 'FILTER CALENDARS OR COLLABORATORS' %}" /></div>
                 {% endif %}
-                <div class="other-calendars menu-sublist toggle-target">
-                  {% for user, calendars in others_calendars %}
-                   {% with user_key=user|activities_user_key %}
-                    <div class="calendar-menu-usergroup" data-user="{{user_key}}">
-                        <h5 class="calendar-menu-usergroup-label">{{user}}</h5>
-                        {% for calendar in calendars %}
-                        <div class="calendar-menu-item" data-user="{{user_key}}" data-calendar="{{calendar.id}}">
-                            <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" style="color:#{{calendar.color}};" name="calendar_id"{% if calendar.id in others_selected_calendar_ids %} checked{% endif %}/>
+                <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group" widget="ui-creme-toggle">
+                    <h4 class='toggle-trigger menu-group-title'>
+                    <span class="menu-group-label">{% translate 'My calendars' %}</span>
+                    </h4>
+                    <div class="my-calendars menu-sublist toggle-target">
+                    {% for calendar in my_calendars %}
+                        <div class="calendar-menu-item">
+                            <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" style="color:#{{calendar.color}};" name="calendar_id"{% if calendar.id in my_selected_calendar_ids %} checked{% endif %}/>
                             <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
                         </div>
-                        {% endfor %}
-                    </div> <!-- /.calendar_user_group -->
-                   {% endwith %}
-                  {% empty%}
-                    <span class="calendar-menu-empty">{% translate 'No calendars' %}</span>
-                  {% endfor %}
+                    {% empty%}
+                        {% translate 'No calendars' %}
+                    {% endfor %}
+                    </div>
                 </div>
-            </div>
-        </div> <!-- /.calendar-menu -->
+                <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group{% if not others_selected_calendar_ids %} toggle-collapsed{% endif %}" widget="ui-creme-toggle">
+                    <h4 class='toggle-trigger menu-group-title'>
+                        <span class="menu-group-label">{% translate 'Collaborators calendars' %}</span>
+                    </h4>
+                    {% if enable_calendars_search %}
+                    <div class='calendar-menu-filter toggle-target'><input type='search' placeholder="{% translate 'FILTER CALENDARS OR COLLABORATORS' %}" /></div>
+                    {% endif %}
+                    <div class="other-calendars menu-sublist toggle-target">
+                    {% for user, calendars in others_calendars %}
+                    {% with user_key=user|activities_user_key %}
+                        <div class="calendar-menu-usergroup" data-user="{{user_key}}">
+                            <h5 class="calendar-menu-usergroup-label">{{user}}</h5>
+                            {% for calendar in calendars %}
+                            <div class="calendar-menu-item" data-user="{{user_key}}" data-calendar="{{calendar.id}}">
+                                <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" style="color:#{{calendar.color}};" name="calendar_id"{% if calendar.id in others_selected_calendar_ids %} checked{% endif %}/>
+                                <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
+                            </div>
+                            {% endfor %}
+                        </div> <!-- /.calendar_user_group -->
+                    {% endwith %}
+                    {% empty%}
+                        <span class="calendar-menu-empty">{% translate 'No calendars' %}</span>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div> <!-- /.calendar-menu -->
+        </div>
         <div class='calendar with-menu'></div>
     </div> <!-- /.calendar-container -->
 {% endblock %}

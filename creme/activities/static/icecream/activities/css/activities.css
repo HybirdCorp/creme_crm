@@ -59,6 +59,20 @@
 
 /* Calendar sidebar */
 
+.calendar-side {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 41px 10px 10px 0;
+}
+
+.calendar-menu {
+    position: sticky;
+    top: 60px;
+
+    font-family: 'Open Sans', sans-serif;
+}
+
+/*
 .calendar-menu {
     position: absolute;
     clear: both;
@@ -71,6 +85,7 @@
 
     font-family: 'Open Sans', sans-serif;
 }
+*/
 
 /* apply a natural box layout model to all elements */
 .calendar-menu, .calendar-menu * {
@@ -222,7 +237,7 @@
 
 .calendar-menu .calendar-menu-empty {
     display: block;
-    padding: 5px 10px;
+    padding: 5px 10px 0 10px;
     text-transform: uppercase;
     text-align: left;
     font-weight: 600;
@@ -236,13 +251,19 @@
 /* calendar */
 
 .calendar-main {
-    margin: 20px 0 0 5px;
+    display: flex;
+    margin-top: 10px;
 }
 
 .calendar-main .calendar {
-    width: auto;
+    flex-grow: 1;
 }
 
+.calendar-main .fc-toolbar .fc-left {
+    min-width: 365px;
+}
+
+/*
 .calendar-main .calendar.with-menu {
     margin: 0 0 0 325px;
 }
@@ -250,6 +271,7 @@
 .calendar-main .fc-creme.with-menu .fc-toolbar .fc-toolbar-title {
     min-width: 365px;
 }
+*/
 
 .calendar-main .fc-creme.with-menu .fc-toolbar.fc-header-toolbar {
     margin-left: -325px;
