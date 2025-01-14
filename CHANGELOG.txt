@@ -181,6 +181,8 @@
                     - Add allowEventOverlaps property (boolean or method).
                     - Add allowEventCreate property (boolean).
         # Javascript:
+            * Deprecations:
+                - Array.copy(iterable, start, end) is deprecated; Use native code Array.from(iterable).slice(start, end) instead.
             * FormDialog:
                 - Form submit error responses with HTML can either replace the default overlay content or the frame content.
                 - New creme.dialog.Frame option 'fillOnError'; if enabled the html error response replaces the content.
