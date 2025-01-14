@@ -867,7 +867,6 @@ CREME_CORE_JS = [
     'creme_core/js/lib/fallbacks/event-0.1.js',
     'creme_core/js/lib/fallbacks/htmldocument-0.1.js',
     'creme_core/js/lib/math.js',
-    'creme_core/js/lib/generators-0.1.js',
     'creme_core/js/lib/color.js',
     'creme_core/js/lib/assert.js',
     'creme_core/js/lib/faker.js',
@@ -1093,7 +1092,6 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/dialog/glasspane.js',
 
     'creme_core/js/tests/fallbacks.js',
-    'creme_core/js/tests/generators.js',
     'creme_core/js/tests/color.js',
     'creme_core/js/tests/assert.js',
     'creme_core/js/tests/faker.js',
