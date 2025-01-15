@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022-2023  Hybird
+    Copyright (C) 2022-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ creme.D3Drawable = creme.component.Component.sub({
     defaultProps: {},
 
     _init_: function(options) {
-        this.props($.extend({}, this.defaultProps, options || {}));
+        this.props(Object.assign({}, this.defaultProps, options || {}));
     },
 
     drawAll: function(selection) {
@@ -40,10 +40,10 @@ creme.D3Drawable = creme.component.Component.sub({
 
     props: function(props) {
         if (props === undefined) {
-            return $.extend({}, this._props);
+            return Object.assign({}, this._props);
         }
 
-        this._props = $.extend(this._props || {}, props);
+        this._props = Object.assign(this._props || {}, props);
         return this;
     },
 
