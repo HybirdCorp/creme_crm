@@ -26,7 +26,6 @@
         }
     };
 
-    /* istanbul ignore next */
     appendStatic('property', function(obj, key, value) {
         if (value === undefined) {
             return obj[key];
@@ -34,45 +33,6 @@
 
         obj[key] = value;
         return obj;
-    });
-
-    /* istanbul ignore next */
-    appendStatic('keys', function(obj, all) {
-        var keys = [];
-
-        for (var key in obj) {
-            if (all || obj.hasOwnProperty(key)) {
-                keys.push(key);
-            }
-        }
-
-        return keys;
-    });
-
-    /* istanbul ignore next */
-    appendStatic('values', function(obj, all) {
-        var values = [];
-
-        for (var key in obj) {
-            if (all || obj.hasOwnProperty(key)) {
-                values.push(obj[key]);
-            }
-        }
-
-        return values;
-    });
-
-    /* istanbul ignore next */
-    appendStatic('entries', function(obj, all) {
-        var entries = [];
-
-        for (var key in obj) {
-            if (all || obj.hasOwnProperty(key)) {
-                entries.push([key, obj[key]]);
-            }
-        }
-
-        return entries;
     });
 
     appendStatic('isNone', function(obj) {
@@ -107,16 +67,6 @@
         return (typeof obj === 'number');
     });
 
-    /*
-     * Was used in converters. Not needed any more.
-     *
-    appendStatic('assertIsTypeOf', function(obj, type) {
-        if (typeof obj !== type) {
-            throw Error('"' + obj + '" is not a ' + type);
-        }
-    });
-    */
-
     appendStatic('isFunc', function(obj) {
         return (typeof obj === 'function');
     });
@@ -132,6 +82,7 @@
         }
     });
 
+    // TODO : Only used in creme.component.Component : move it there ?
     appendStatic('proxy', function(delegate, context, options) {
         if (Object.isNone(delegate)) {
             return;
@@ -160,19 +111,6 @@
         }
 
         return proxy;
-    });
-
-    /* istanbul ignore next : compatibility with old IE versions (not really usefull) */
-    appendStatic('getPrototypeOf', function(object) {
-        if (typeof "".__proto__ === 'object') {
-            return object.__proto__;
-        }
-
-        if (Object.isNone(object) || object === Object.prototype) {
-            return null;
-        }
-
-        return Object.isNone(object.constructor) ? null : object.constructor.prototype;
     });
 
     appendStatic('isSubClassOf', function(object, constructor) {
