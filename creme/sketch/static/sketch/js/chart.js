@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022-2023  Hybird
+    Copyright (C) 2022-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ creme.D3Chart = creme.component.Component.sub({
     _init_: function(options) {
         options = options || {};
 
-        this._props = $.extend({
+        this._props = Object.assign({
             drawOnResize: true
         }, this.defaultProps);
 
@@ -48,10 +48,10 @@ creme.D3Chart = creme.component.Component.sub({
 
     props: function(props) {
         if (props === undefined) {
-            return $.extend({}, this._props);
+            return Object.assign({}, this._props);
         }
 
-        this._props = $.extend(this._props || {}, props);
+        this._props = Object.assign(this._props || {}, props);
         return this;
     },
 
@@ -139,9 +139,9 @@ creme.D3Chart = creme.component.Component.sub({
 
     saveAs: function(done, filename, options) {
         var data = this.model() ? this.model().all() : [];
-        var props = $.extend(this.props(), this.exportProps());
+        var props = Object.assign(this.props(), this.exportProps());
 
-        options = $.extend(options || {}, this.exportOptions(data, options, props));
+        options = Object.assign(options || {}, this.exportOptions(data, options, props));
 
         this._withShadowSketch(options, function(sketch) {
             this._export(sketch, data, props);
@@ -153,9 +153,9 @@ creme.D3Chart = creme.component.Component.sub({
 
     asImage: function(done, options) {
         var data = this.model() ? this.model().all() : [];
-        var props = $.extend(this.props(), this.exportProps());
+        var props = Object.assign(this.props(), this.exportProps());
 
-        options = $.extend(options || {}, this.exportOptions(data, options, props));
+        options = Object.assign(options || {}, this.exportOptions(data, options, props));
 
         return this._withShadowSketch(options, function(sketch) {
             this._export(sketch, data, props);
@@ -182,7 +182,7 @@ creme.D3Chart = creme.component.Component.sub({
     _withShadowSketch: function(options, callable) {
         Assert.that(this.hasCanvas(), 'D3Chart must have a target sketch to draw on');
 
-        options = $.extend(this.sketch().size(), options || {});
+        options = Object.assign(this.sketch().size(), options || {});
 
         var id = _.uniqueId('shadow-d3sketch');
         var element = $('<div>').css({

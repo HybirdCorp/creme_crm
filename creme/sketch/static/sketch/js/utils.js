@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022-2024  Hybird
+    Copyright (C) 2022-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {
+(function() {
 "use strict";
 
 function Transform() {
@@ -132,7 +132,7 @@ creme.svgAsXml = function(svg, options) {
 
     return [
         '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${height}">',
-            $(svg).html(),
+            svg.innerHTML,
         '</svg>'
     ].join('\n').template({
         width: options.width || (svg.getAttribute('width') || 'auto'),
@@ -156,7 +156,7 @@ creme.svgAsDataURI = function(svg, options) {
 };
 
 creme.svgAsBlob = function(done, svg, options) {
-    options = $.extend({
+    options = Object.assign({
         encoderType: 'image/svg+xml',
         encoderQuality: 0.8
     }, options || {});
@@ -390,4 +390,4 @@ creme.d3PreventResizeObserverLoop = function(callback) {
     };
 };
 
-}(jQuery));
+}());
