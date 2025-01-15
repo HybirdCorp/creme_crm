@@ -241,6 +241,11 @@
                     - Array.prototype.ltrim() is removed; Use Array.prototype.trimStart() instead.
                     - Array.prototype.rtrim() is removed; Use Array.prototype.trimEnd() instead.
                 * Drop fallbacks for console methods: log(), warn() & error()
+                * Drop fallbacks for widely implemented Object methods :
+                    - Object.keys()
+                    - Object.values()
+                    - Object.entries()
+                    - Object.getPrototypeOf()
             - Apps :
                 * Activities:
                     - Refactor creme.ActivityCalendar : can be now used as independent component.
