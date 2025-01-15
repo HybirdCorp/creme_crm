@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022-2023  Hybird
+    Copyright (C) 2022-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,12 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {
+(function() {
 "use strict";
 
 creme.D3Sketch = creme.component.Component.sub({
     _init_: function(options) {
-        options = $.extend({
+        options = Object.assign({
             ignoreResize: false
         }, options || {});
 
@@ -163,7 +163,7 @@ creme.D3Sketch = creme.component.Component.sub({
     saveAs: function(done, filename, options) {
         // Computed SVG size is set as default for the blob generation because
         // the attribute value may be '100%' or 'auto' and cause issues
-        options = $.extend(this.size(), options);
+        options = Object.assign(this.size(), options);
 
         Assert.that(this.isBound(), 'D3Sketch is not bound');
         Assert.that(Object.isFunc(done), 'A callback is required to convert and save the SVG.');
@@ -189,7 +189,7 @@ creme.D3Sketch = creme.component.Component.sub({
     asImage: function(done, options) {
         // Computed SVG size is set as default for the blob generation because
         // the attribute value may be '100%' or 'auto' and cause issues
-        options = $.extend(this.size(), options);
+        options = Object.assign(this.size(), options);
 
         Assert.that(this.isBound(), 'D3Sketch is not bound');
         Assert.that(Object.isFunc(done), 'A callback is required to convert the SVG as image.');
@@ -198,5 +198,5 @@ creme.D3Sketch = creme.component.Component.sub({
     }
 });
 
-}(jQuery));
+}());
 
