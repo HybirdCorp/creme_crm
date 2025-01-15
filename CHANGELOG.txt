@@ -234,6 +234,12 @@
                     - Array.prototype.exfiltrate() is removed; Use _.without(iterable, val1, val2, ...) instead.
                     - Array.prototype.contains() is removed; Use Array.prototype.includes(value) instead.
                 * Remove fallbacks for HTMLDocument, CSSStyleDeclaration & Event classes.
+                * Drop fallbacks or helpers for widely implemented String methods :
+                    - Use Array.prototype.startsWith() native implementation.
+                    - Use Array.prototype.endsWith() native implementation.
+                    - Use Array.prototype.trim() native implementation.
+                    - Array.prototype.ltrim() is removed; Use Array.prototype.trimStart() instead.
+                    - Array.prototype.rtrim() is removed; Use Array.prototype.trimEnd() instead.
             - Apps :
                 * Activities:
                     - Refactor creme.ActivityCalendar : can be now used as independent component.

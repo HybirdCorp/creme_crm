@@ -595,7 +595,7 @@ QUnit.test('fallbacks.Event', function() {
 QUnit.test('fallbacks.Event.preventDefault', function() {
     equal(typeof Event.prototype.preventDefault, 'function');
 });
-
+/*
 QUnit.test('fallbacks.String.trim', function() {
     equal('', ''.trim());
     equal('', '   '.trim());
@@ -660,7 +660,7 @@ QUnit.test('fallbacks.String.endsWith', function() {
     equal('dcba'.endsWith('d'), false);
     equal('dcba'.startsWith('abcd'), false);
 });
-
+*/
 QUnit.test('fallbacks.String.format (skip format)', function() {
     equal('%d', '%%d'.format(12));
     equal('%12', '%%%d'.format(12));
