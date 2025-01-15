@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {
+(function() {
 "use strict";
 
 function __import(module, path) {
@@ -251,4 +251,4 @@ window.DateFaker.prototype = {
     }
 };
 
-}(jQuery));
+}());

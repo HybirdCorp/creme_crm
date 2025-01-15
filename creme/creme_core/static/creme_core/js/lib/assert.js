@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2020  Hybird
+    Copyright (C) 2020-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {
+(function() {
 "use strict";
 
 var __eval = function(value) {
@@ -66,14 +66,14 @@ window.Assert = {
             return test();
         } catch (e) {
             throw new Error((message || '${error}').template(
-                $.extend({error: e.message}, context || {})
+                Object.assign({error: e.message}, context || {})
             ));
         }
     },
 
     in: function(value, data, message, context) {
         message = message || "${value} is not in the collection";
-        context = $.extend({}, context || {}, {value: value});
+        context = Object.assign({}, context || {}, {value: value});
 
         if (Array.isArray(data) || Object.isString(data)) {
             Assert.that(data.indexOf(value) !== -1, message, context);
@@ -86,7 +86,7 @@ window.Assert = {
 
     notIn: function(value, data, message, context) {
         message = message || "${value} should not be in the collection";
-        context = $.extend({}, context || {}, {value: value});
+        context = Object.assign({}, context || {}, {value: value});
 
         if (Array.isArray(data) || Object.isString(data)) {
             Assert.that(data.indexOf(value) === -1, message, context);
@@ -99,7 +99,7 @@ window.Assert = {
 
     is: function(value, expected, message, context) {
         message = message || '${value} is not a ${expected}';
-        context = $.extend({}, context || {}, {
+        context = Object.assign({}, context || {}, {
             value: Object.isString(value) ? '"' + value + '"' : value,
             expected: __fmtType(expected)
         });
@@ -110,7 +110,7 @@ window.Assert = {
 
     isAnyOf: function(value, expected, message, context) {
         message = message || '${value} is none of [${expected}]';
-        context = $.extend({}, context || {}, {
+        context = Object.assign({}, context || {}, {
             value: Object.isString(value) ? '"' + value + '"' : value,
             expected: expected.map(__fmtType).join(', ')
         });
@@ -126,4 +126,4 @@ window.Assert = {
     }
 };
 
-}(jQuery));
+}());
