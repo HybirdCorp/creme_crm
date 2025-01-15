@@ -148,6 +148,7 @@
             * Deprecations:
                 - Array.copy(iterable, start, end) is deprecated; Use native code Array.from(iterable).slice(start, end) instead.
             * Use Object.assign instead of $.extend to remove the dependency to jQuery for : RGBColor, DateFaker, BrowserVersion & Assert.
+            * Use Object.assign instead of $.extend for sketch components.
             * FormDialog:
                 - Form submit error responses with HTML can either replace the default overlay content or the frame content.
                 - New creme.dialog.Frame option 'fillOnError'; if enabled the html error response replaces the content.
