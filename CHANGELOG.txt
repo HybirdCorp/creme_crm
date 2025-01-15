@@ -223,6 +223,7 @@
                     - Use Array.prototype.trim() native implementation.
                     - Array.prototype.ltrim() is removed; Use Array.prototype.trimStart() instead.
                     - Array.prototype.rtrim() is removed; Use Array.prototype.trimEnd() instead.
+                * Drop fallbacks for console methods: log(), warn() & error()
             - Apps :
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' has been removed.
