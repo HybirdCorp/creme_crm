@@ -43,22 +43,24 @@ creme.d3SpectralColors = function(options) {
 
 creme.d3Colorize = function() {
     var props = {
-         scale: function(d) { return 'black'; }
+         scale: function(d) { return 'black'; },
+         accessor: function(d) { return d.x; }
     };
 
     function colorize(data) {
-        return data.map(function(d) {
+        return data.map(function(d, i) {
             var color = props.color ? props.color(d) : d.color;
             var textColor = props.textColor ? props.textColor(d) : d.textColor;
+            var value = props.accessor ? props.accessor(d, i) : d;
 
-            d.color = color || props.scale(d.x);
+            d.color = color || props.scale(value);
+
+            var rgbColor = new RGBColor(d.color);
+            d.isDarkColor = rgbColor.isDark();
 
             if (textColor) {
                 d.textColor = textColor;
             } else {
-                var rgbColor = new RGBColor(d.color);
-
-                d.isDarkColor = rgbColor.isDark();
                 d.textColor = d.isDarkColor ? 'white' : 'black';
             }
 
@@ -78,6 +80,11 @@ creme.d3Colorize = function() {
 
     colorize.textColor = function(color) {
         props.textColor = color;
+        return colorize;
+    };
+
+    colorize.accessor = function(accessor) {
+        props.accessor = accessor;
         return colorize;
     };
 
