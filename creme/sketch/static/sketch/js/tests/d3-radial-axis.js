@@ -73,7 +73,7 @@ QUnit.test('d3.axisRadial (set props)', function(assert) {
     equal(axis.offset(), 1);
 });
 
-QUnit.test('d3.axisRadialInner', function(assert) {
+QUnit.test('d3.axisRadialInner (linear scale)', function(assert) {
     var scale = d3.scaleLinear()
                   .domain([0, 100])
                   .range([_.toRadian(-180), _.toRadian(180)]);
@@ -88,6 +88,34 @@ QUnit.test('d3.axisRadialInner', function(assert) {
 
     this.assertD3Nodes(output, {
         '.tick text': 11,  /* V0 V10 ... V90 V100 */
+        '.domain': 1
+    });
+
+    axis.tickValues([0, 50, 100]);
+    output.call(axis);
+
+    this.assertD3Nodes(output, {
+        '.tick text': 3,  /* V0 V50 V100 */
+        '.domain': 1
+    });
+});
+
+QUnit.test('d3.axisRadialInner (ordinal scale)', function(assert) {
+    var scale = d3.scaleBand()
+                    .domain([0, 25, 50, 75, 100])
+                    .range([_.toRadian(-180), _.toRadian(180)], 0.1)
+                    .padding(0.1);
+
+    var axis = d3.axisRadialInner(scale, 10)
+                      .tickFormat(function(d) { return 'V' + d; })
+                      .tickPadding(0);
+
+    var output = d3.select(document.createElement('g'));
+
+    output.call(axis);
+
+    this.assertD3Nodes(output, {
+        '.tick text': 5,  /* V0 V25 V25 V75 V100 */
         '.domain': 1
     });
 
