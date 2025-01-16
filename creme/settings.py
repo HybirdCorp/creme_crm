@@ -1162,6 +1162,7 @@ TEST_CREME_OPT_JS = [
     ('creme.sketch',        'sketch/js/tests/bricks.js'),
     ('creme.sketch',        'sketch/js/tests/demo.js'),
     ('creme.sketch',        'sketch/js/tests/invert.js'),
+    ('creme.sketch',        'sketch/js/tests/color.js'),
     ('creme.crudity',       'crudity/js/tests/crudity-actions.js'),
     ('creme.cti',           'cti/js/tests/cti-actions.js'),
     ('creme.emails',        'emails/js/tests/emails-actions.js'),

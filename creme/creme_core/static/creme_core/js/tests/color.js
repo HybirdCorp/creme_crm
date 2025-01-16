@@ -81,6 +81,9 @@ QUnit.test('color.RGBColor (rgb)', function(assert) {
     equal('#FF12FD', new RGBColor([255, 18, 253]).toString());
     equal('#FF12FD', new RGBColor('rgb(255, 18, 253)').toString());
 
+    equal('rgb(255,18,253)', new RGBColor('#FF12FD').rgb());
+    equal('rgb(0,18,0)', new RGBColor({g: 0x12, b: 0}).rgb());
+
     this.assertRaises(function() {
         return new RGBColor().rgb('#aa12fd');
     }, Error, 'Error: "#aa12fd" is not a RGB css value');
@@ -88,6 +91,21 @@ QUnit.test('color.RGBColor (rgb)', function(assert) {
     this.assertRaises(function() {
         return new RGBColor().rgb('hls(1.0, 0.0, 0.0)');
     }, Error, 'Error: "hls(1.0, 0.0, 0.0)" is not a RGB css value');
+
+    this.assertRaises(function() {
+        return new RGBColor().rgb(12);
+    }, Error, 'Error: "12" is not a RGB css value');
+});
+
+QUnit.test('color.RGBColor (css name)', function(assert) {
+    equal('#000000', new RGBColor('black').toString());
+
+    this.assertRaises(function() {
+        return new RGBColor('unknown');
+    }, Error, 'Error: "unknown" is not a valid css named color');
+
+    equal('#FFFF00', new RGBColor('yellow').toString());
+    equal('#FFD700', new RGBColor('gold').toString());
 });
 
 QUnit.test('color.RGBColor (set / clone)', function(assert) {
