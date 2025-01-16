@@ -116,14 +116,16 @@ function radialAxis(scale, radius, outer) {
             tickExit = tickExit.transition(context)
                                     .attr("opacity", epsilon)
                                     .attr("transform", function(d) {
-                                        return isFinite(d = anglePos(d)) ? angularTranslate(d + offset, radius) : this.getAttribute("transform");
+                                        var pos = anglePos(d);
+                                        return isFinite(pos) ? angularTranslate(pos + offset, radius) : this.getAttribute("transform");
                                      });
 
             tickEnter.attr("opacity", epsilon)
                      .attr("transform", function(d) {
                          var p = this.parentNode.__axis;
-                         var next = p && isFinite(p = p(d + offset) ? p : anglePos(d), radius);
-                         return angularTranslate(next);
+                         var pos = p ? p(d) : NaN;
+                         pos = isFinite(pos) ? pos : anglePos(d);
+                         return angularTranslate(pos + offset, radius);
                      });
         }
 
