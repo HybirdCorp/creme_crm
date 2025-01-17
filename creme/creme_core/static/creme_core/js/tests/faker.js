@@ -479,6 +479,14 @@ QUnit.parametrize('DateFaker.with', [
         deepEqual(faker, datefaker);
         equal(expected, new Date().toISOString());
         equal(expected, Date.now().toISOString());
+
+        // constructor should works as usual
+        equal('2020-12-31T00:08:30.000Z', new Date('2020-12-31T00:08:30+00:00').toISOString());
+        equal(new Date('2020-12-31T00:08:30').toISOString(), new Date(2020, 11, 31, 0, 8, 30, 0).toISOString());
+
+        // same for the static methods
+        equal(1609373310000, Date.UTC(2020, 11, 31, 0, 8, 30, 0));
+        equal(1609373310000, Date.parse('2020-12-31T00:08:30+00:00'));
     });
 
     equal(origin, window.Date);
