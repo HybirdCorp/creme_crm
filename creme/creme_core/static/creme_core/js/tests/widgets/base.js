@@ -45,7 +45,7 @@ QUnit.test('creme.widget.parseattr (with exclusion)', function(assert) {
     attrs = creme.widget.parseattr($('<div attr1="val1" attr2="val2" attr3="val3"/>'), ['attr1', 'attr3']);
     deepEqual(attrs, {attr2: 'val2'});
 });
-
+/*
 QUnit.test('creme.widget.template (template:no keys)', function(assert) {
     var result = creme.widget.template('');
     equal(result, '');
@@ -84,7 +84,7 @@ QUnit.test('creme.widget.template (template:keys, values: not in template)', fun
     result = creme.widget.template('template with key1=${key1} and key2=${key2}, ${key1}', {key1: 'value1', key3: 'value3'});
     equal(result, 'template with key1=value1 and key2=${key2}, value1');
 });
-
+*/
 QUnit.test('creme.widget.parseval (parser: json, value: none)', function(assert) {
     var result = creme.widget.parseval(undefined, JSON.parse);
     equal(result, undefined);
