@@ -33,6 +33,7 @@
         - EntityFilters are now grouped by owner in list-views, like HeaderFilters.
     # The deletion views have now a better display for the dependencies issues.
       Example: entities are displayed as HTML links.
+    # NotificationBox : The elapsed time from message creation is now updated each minute.
     # Apps :
         * Activities :
             - The JavaScript component FullCalendar has been upgraded to the version "6.1.15"
@@ -331,6 +332,7 @@
         # Javascript :
             - Removed ChainedSelect.clone() method : not used and does not work anyway.
             - creme.exports.exportAs() is replaced by the 'export-as' action or 'creme.lv_widget.ExportAction'
+            - Full rework of creme.notification.NotificationBox.
         # Apps :
             * Creme_config :
                 - In the brick 'GenericModelBrick', "meta" is not injected in the context anymore.
