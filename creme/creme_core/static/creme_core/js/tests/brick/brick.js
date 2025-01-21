@@ -767,6 +767,28 @@ QUnit.test('creme.bricks.Brick.refresh', function(assert) {
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
+
+QUnit.test('creme.bricks.Brick.refresh (from pager)', function(assert) {
+    var element = $(
+//        '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>'
+        '<div class="brick ui-creme-widget" widget="brick" id="brick-creme_core-test" data-brick-id="creme_core-test"></div>'
+    ).appendTo(this.qunitFixture());
+    var widget = creme.widget.create(element);
+    var brick = widget.brick();
+
+    equal(true, brick.isBound());
+//    equal('brick-for-test', brick.id());
+    equal('brick-creme_core-test', brick.id());
+    equal('creme_core-test', brick.type_id());
+
+    brick._pager.refresh(2);
+    deepEqual([
+//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["creme_core-test"], "creme_core-test_page": 2, "extra_data": "{}"}]
+    ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+
 QUnit.test('creme.bricks.Brick.refresh (no deps)', function(assert) {
 //    var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A"></div>';
 //    var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B"></div>';
@@ -946,5 +968,7 @@ QUnit.test('creme.bricks.Brick.refresh (wildcard deps)', function(assert) {
         ['GET', {"brick_id": ["B", "C"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
+
+
 
 }(jQuery));
