@@ -415,7 +415,7 @@ span.create-group-entry {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
-.notification-box.notification-box-activated .notification-panel {
+.notification-box:hover .notification-panel {
     visibility: visible;
     opacity: 1;
 }
