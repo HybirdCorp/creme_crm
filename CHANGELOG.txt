@@ -246,6 +246,7 @@
                     - Object.values()
                     - Object.entries()
                     - Object.getPrototypeOf()
+                * Drop creme.widget.template(); Use String.prototype.template instead.
             - Apps :
                 * Activities:
                     - Refactor creme.ActivityCalendar : can be now used as independent component.
