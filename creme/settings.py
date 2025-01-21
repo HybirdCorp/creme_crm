@@ -1134,6 +1134,7 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/views/menu.js',
     'creme_core/js/tests/views/search.js',
     'creme_core/js/tests/views/utils.js',
+    'creme_core/js/tests/views/notification.js',
 ]
 
 TEST_CREME_OPT_JS = [
