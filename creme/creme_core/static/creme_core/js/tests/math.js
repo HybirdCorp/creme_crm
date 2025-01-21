@@ -22,18 +22,38 @@ QUnit.test('_.scaleTrunc', function(assert) {
     equal(scaleTrunc(6.28318, 1), 6.2);
 });
 
-QUnit.test('_.clamp', function(assert) {
+QUnit.test('_.clamp vs _.openClamp', function(assert) {
     var clamp = _.clamp;
+    var openClamp = _.openClamp;
 
-    equal(clamp(6.28318, 0, undefined), 6.28318);
-    equal(clamp(6.28318, 3.14, undefined), 6.28318);
-    equal(clamp(-6.28318, 3.14, undefined), 3.14);
-    equal(clamp(-6.28318, undefined, 3.14), -6.28318);
-    equal(clamp(6.28318, undefined, 3.14), 3.14);
+    equal(openClamp(6.28318, 0, undefined), 6.28318);  // [0...
+    equal(clamp(6.28318, 0, undefined), 0);            // ...0]
+
+    equal(openClamp(6.28318, 3.14, undefined), 6.28318);  // [3.14...
+    equal(clamp(6.28318, 3.14, undefined), 3.14);         // ...3.14]
+
+    equal(openClamp(-6.28318, 3.14, undefined), 3.14);  // [3.14...
+    equal(clamp(-6.28318, 3.14, undefined), -6.28318);  // ...3.14]
+
+    equal(openClamp(-6.28318, undefined, 3.14), -6.28318);  // ...3.14]
+    equal(clamp(-6.28318, undefined, 3.14), -6.28318);      // ...3.14]
+
+    equal(openClamp(6.28318, undefined, 3.14), 3.14);  // ...3.14]
+    equal(clamp(6.28318, undefined, 3.14), 3.14);      // ...3.14]
+
+    equal(openClamp(6.28318, 0, 3.14), 3.14);
     equal(clamp(6.28318, 0, 3.14), 3.14);
+
+    equal(openClamp(-6.28318, 0, 3.14), 0);
     equal(clamp(-6.28318, 0, 3.14), 0);
+
+    equal(openClamp(6.28318, 7, 8), 7);
     equal(clamp(6.28318, 7, 8), 7);
+
+    equal(openClamp(15, 7, 8), 8);
     equal(clamp(15, 7, 8), 8);
+
+    equal(openClamp(15, 7, 6), 7);
     equal(clamp(15, 7, 6), 7);
 });
 

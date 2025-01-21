@@ -114,7 +114,7 @@ QUnit.module("creme.form.Select2", new QUnitMixin(QUnitAjaxMixin,
             });
         }
 
-        _.pairs(options.attrs || {}).forEach(function(attr) {
+        _.toPairs(options.attrs || {}).forEach(function(attr) {
             item.attr(attr[0], attr[1]);
         });
 

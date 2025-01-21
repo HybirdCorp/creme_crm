@@ -306,8 +306,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var maxSize = this.maxSize();
         var minSize = this.minSize();
 
-        width = _.clamp(width, minSize.width, maxSize.width);
-        height = _.clamp(height, minSize.height, maxSize.height);
+        width = _.openClamp(width, minSize.width, maxSize.width);
+        height = _.openClamp(height, minSize.height, maxSize.height);
 
         this._dialogOption('width', width);
         this._dialogOption('height', height);
@@ -318,7 +318,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
                 'width': 'auto'
             });
         } else {
-            var framePreferredHeight = _.clamp(this._frame.preferredSize()[1], minSize.height);
+            var framePreferredHeight = _.openClamp(this._frame.preferredSize()[1], minSize.height);
 
             this._frame.delegate().css({
                 'min-height': framePreferredHeight,
@@ -614,8 +614,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         var resizable = isFramescroll ? options.resizable : false;
         var draggable = isFramescroll ? options.draggable : false;
-        var width = _.clamp(options.width, options.minWidth, options.maxWidth);
-        var height = _.clamp(options.height, options.minHeight, options.maxHeight);
+        var width = _.openClamp(options.width, options.minWidth, options.maxWidth);
+        var height = _.openClamp(options.height, options.minHeight, options.maxHeight);
         var title = options.title ? String(options.title).decodeHTMLEntities() : options.title;
 
         var dialogOptions = {

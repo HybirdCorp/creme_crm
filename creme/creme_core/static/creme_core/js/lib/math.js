@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2023  Hybird
+    Copyright (C) 2023-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -30,12 +30,12 @@ function radToDeg(angle) {
     return angle / RADIAN_RATIO;
 }
 
-function clamp(value, lower, upper) {
+function openClamp(value, lower, upper) {
     var hasLower = _.isNumber(lower);
     var hasUpper = _.isNumber(upper);
 
     if (hasLower && hasUpper && lower > upper) {
-        return clamp(value, upper, lower);
+        return openClamp(value, upper, lower);
     }
 
     value = hasUpper ? (upper > value ? value : upper) : value;
@@ -56,20 +56,27 @@ function scaleTrunc(value, precision) {
     return Math.trunc(value * scale) / scale;
 }
 
+/*
 function toNumber(value) {
     return +value;
 }
+*/
 
 _.mixin({
     EPSILON: EPSILON,
 
     absRound: absRound,
-    clamp: clamp,
+    /* clamp already in lodash but only works with [Min...Max] or ...Max] intervals
+     * Some code in creme needs open interval clamp. so rename it.
+     */
+    openClamp: openClamp,
     scaleRound: scaleRound,
     scaleTrunc: scaleTrunc,
     toRadian: degToRad,
-    toDegree: radToDeg,
-    toNumber: toNumber
+    toDegree: radToDeg
+    /* toNumber: toNumber   already in lodash */
+}, {
+    chain: false
 });
 
 }());
