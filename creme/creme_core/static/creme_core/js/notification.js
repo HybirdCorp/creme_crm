@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2024  Hybird
+    Copyright (C) 2024-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -26,56 +26,56 @@
 
 creme.notification = {};
 
-/* TODO: unit tests */
-/* globals setInterval creme_media_url */
+/* globals clearInterval setInterval creme_media_url */
 creme.notification.NotificationBox = creme.component.Component.sub({
-    _init_: function(options) {
-        options = $.extend({
-            refreshDelay: 300000  // In milliseconds. Default 5 minutes.
+    _init_: function(element, options) {
+        options = Object.assign({
+            refreshDelay: 300000,      // In milliseconds. Default 5 minutes.
+            deltaRefreshDelay: 60000,  // In milliseconds. Default 1 minutes.
+            refreshUrl: '',
+            discardUrl: ''
         }, options || {});
 
+        Assert.not(Object.isEmpty(options.refreshUrl), 'refreshUrl is required');
+        Assert.not(Object.isEmpty(options.discardUrl), 'discardUrl is required');
+
+        Assert.not(element.is('.is-active'), 'NotificationBox is already active');
+
+        this._element = element;
         this._refreshDelay = options.refreshDelay;
-
+        this._deltaRefreshDelay = options.deltaRefreshDelay;
         this._initialDataSelector = options.initialDataSelector;
-        if (Object.isEmpty(this._initialDataSelector)) {
-            throw new Error('initialDataSelector is required');
-        }
-
         this._refreshUrl = options.refreshUrl;
-        if (Object.isEmpty(this._refreshUrl)) {
-            throw new Error('refreshUrl is required');
-        }
-
         this._discardUrl = options.discardUrl;
-        if (Object.isEmpty(this._discardUrl)) {
-            throw new Error('discardUrl is required');
-        }
+
+        this.setup(element, options);
+    },
+
+    isFetchActive: function() {
+        return Boolean(this._fetchJob);
+    },
+
+    isPaused: function() {
+        return document.hidden;
+    },
+
+    initialData: function() {
+        var script = this._element.find('script[type$="/json"].notification-box-data:first');
+        var data = creme.utils.JSON.readScriptText(script);
+
+        return Object.assign({
+            count: 0,
+            notifications: []
+        }, Object.isEmpty(data) ? {} : JSON.parse(data));
+    },
+
+    setup: function(element, options) {
+        var self = this;
 
         this._count = 0;
         this._overlay = new creme.dialog.Overlay();
-    },
 
-    isBound: function() {
-        return Object.isNone(this._element) === false;
-    },
-
-    bind: function(element) {
-        if (this.isBound()) {
-            throw new Error('NotificationBox is already bound');
-        }
-
-        this._element = element;
-
-        this._updateBox(
-            JSON.parse(creme.utils.JSON.readScriptText(element.find(this._initialDataSelector)))
-        );
-
-        // Activate panel on hover events
-        element.on('mouseenter', function(e) {
-            $(this).addClass('notification-box-activated');
-        }).on('mouseleave', function(e) {
-            $(this).removeClass('notification-box-activated');
-        });
+        this._updateBox(this.initialData());
 
         // NB: we attach to <ul> & not the parent <div> because the overlay sets
         //     the position as "relative" (which breaks our layout).
@@ -90,13 +90,58 @@ creme.notification.NotificationBox = creme.component.Component.sub({
                         })
                      );
 
-        // TODO: <() => this._refresh()> with more modern JS
-        setInterval(this._refresh.bind(this), this._refreshDelay);
+        element.on('click', '.discard-notification', function(e) {
+            e.preventDefault();
+            self._onDiscardItem($(this).parents('.notification-item:first'));
+        });
+
+        this.startFetch();
+        element.addClass('is-active');
 
         return this;
     },
 
+    startFetch: function() {
+        if (!this.isFetchActive()) {
+            this._fetchJob = setInterval(this._fetchItems.bind(this), this._refreshDelay);
+            this._timeDeltaJob = setInterval(this._updateDeltas.bind(this), this._deltaRefreshDelay);
+        }
+
+        return this;
+    },
+
+    stopFetch: function() {
+        if (!Object.isNone(this._fetchJob)) {
+            clearInterval(this._fetchJob);
+            this._fetchJob = null;
+        }
+
+        if (!Object.isNone(this._timeDeltaJob)) {
+            clearInterval(this._timeDeltaJob);
+            this._timeDeltaJob = null;
+        }
+
+        return this;
+    },
+
+    _onDiscardItem: function(item) {
+        var self = this;
+        var id = item.data('id');
+
+        if (!Object.isEmpty(id)) {
+            creme.utils.ajaxQuery(
+                this._discardUrl,
+                {action: 'post', warnOnFail: true},
+                {id: id}
+            ).onDone(function() {
+                item.remove();
+                self._updateCounter(self._count - 1);
+            }).start();
+        }
+    },
+
     _humanizedTimeDelta: function(secondsTimedelta) {
+        // TODO: use momentjs for this job
         var minutesTimeDelta = Math.round(secondsTimedelta / 60);
 
         if (minutesTimeDelta < 60) {
@@ -126,55 +171,54 @@ creme.notification.NotificationBox = creme.component.Component.sub({
         countWidget.toggleClass('is-empty', !count);
     },
 
+    _updateDeltas: function() {
+        if (this.isPaused()) {
+            return;
+        }
+
+        var now = Date.now();
+
+        $('.notification-item').each(function() {
+            var item = $(this);
+            var created = item.data('created');
+            var label = this._humanizedTimeDelta(Math.round((now - created) / 1000));
+
+            item.find('.notification-created').text(label);
+        }.bind(this));
+    },
+
     _updateItems: function(notifications) {
         var element = this._element;
-        var discardUrl = this._discardUrl;
-        var itemsWidget = element.find('.notification-items');
-        itemsWidget.empty();
+        var items = element.find('.notification-items');
 
-        var now_ts = Date.now();
-        var box = this;
-        notifications.map(function(itemData) {
-            var notif_id = itemData.id;
-            var button = $(
-                '<button type="button" class="discard-notification">${label}</button>'.template(
-                    {label: gettext('Validate')}
-                )
-            ).on('click', function(e) {
-                // e.preventDefault();
-                creme.utils.ajaxQuery(
-                    discardUrl,
-                    {action: 'post', warnOnFail: true},
-                    {id: notif_id}
-                ).onDone(function() {
-                    element.find('[data-notification-id="${id}"]'.template({id: notif_id})).remove();
-                    box._updateCounter(box._count - 1);
-                }).start();
+        var now = Date.now();
+
+        var html = notifications.map(function(itemData) {
+            var created = Date.parse(itemData.created);
+            var createdLabel = new Date(created).toLocaleString();
+
+            return (
+                '<li class="notification-item notification-item-level${level}" data-id="${id}" data-created="${created}">' +
+                    '<span class="notification-channel">${channel}</span>' +
+                    '<span class="notification-subject">${subject}</span>' +
+                    '<span class="notification-created" title="${createdLabel}">${timeDeltaLabel}</span>' +
+                    '<div class="notification-body">${body}</div>' +
+                    '<button type="button" class="discard-notification">${discardLabel}</button>' +
+                '</li>'
+            ).template({
+                id: itemData.id,
+                level: itemData.level,
+                channel: itemData.channel,
+                created: created,
+                createdLabel: createdLabel,
+                timeDeltaLabel: this._humanizedTimeDelta(Math.round((now - created) / 1000)),
+                subject: itemData.subject,
+                body: itemData.body,
+                discardLabel: gettext('Validate')
             });
+        }.bind(this)).join('');
 
-            var created_ts = Date.parse(itemData.created);
-            var created = new Date(created_ts);
-            var item = $(
-                (
-                    '<li class="notification-item notification-item-level${level}" data-notification-id="${id}">' +
-                        '<span class="notification-channel">${channel}</span>' +
-                        '<span class="notification-subject">${subject}</span>' +
-                        '<span class="notification-created" title="${created}">${humanized_created}</span>' +
-                        '<div class="notification-body">${body}</div>' +
-                    '</li>'
-                ).template({
-                    id: notif_id,
-                    level: itemData.level,
-                    channel: itemData.channel,
-                    created: created.toLocaleString(),
-                    // TODO: update dynamically this label every minute
-                    humanized_created: this._humanizedTimeDelta(Math.round((now_ts - created_ts) / 1000)),
-                    subject: itemData.subject,
-                    body: itemData.body
-            })).append(button);
-
-            itemsWidget.append(item);
-        }.bind(this));
+        items.html(html);
     },
 
     _updateBox: function(data) {
@@ -188,45 +232,53 @@ creme.notification.NotificationBox = creme.component.Component.sub({
         container.find('span').text(message || '');
     },
 
-    _refresh: function() {
-        /* TODO: our script will continue to be called even if the tab is not visible
-           (at least on PS -- it seems iOS does not wake up not visible tabs).
-           Here we do not query the server when the tab is not visible, so we avoid
-           to flood the server when there are many Creme tabs.
-           Should we remove the interval when the tab is hidden (and code a way to
-           query the server every time 'refreshDelay' milliseconds have been spend
-           in visible mode)?
-           Hint: see <document.addEventListener("visibilitychange", function() {....})>
+    _fetchItems: function() {
+        /*
+          Skips the fetching if the window/tab is not visible, so we avoid to flood the server
+          when there are many Creme tabs.
+
+          NOTE :
+          The 'visibilitychange' seems a good idea BUT "dangerous" because it appears many times even without any need and
+          can mess up the state of the timeout loop.
+          So keeping the loop and ignoring a fetch each 5 minutes is way more simpler and efficient.
         */
-        if (document.hidden) {
+        if (this.isPaused()) {
             return;
         }
 
+        var self = this;
         var overlay = this._overlay;
+
         overlay.visible(true);
 
-        creme.ajax.query(
+        this._fetchQuery = creme.ajax.query(
             this._refreshUrl, {backend: {sync: false, dataType: 'json'}}
-        ).onDone(
-            function(event, data) {
-                this._updateBox(data);
-                this._updateErrorMessage();
-            }.bind(this)
-        ).onFail(
-            function(event, data, error) {
-                /* E.g.
-                 - event === fail
-                 - data === undefined
-                 - error === {type: 'request', status: 0, request: {…}, message: 'HTTP 0 - error'}
-                */
-                this._updateErrorMessage(
-                    gettext('An error happened when retrieving notifications (%s)').format(error.message)
-                );
-            }.bind(this)
-        ).onComplete(
-            function() { overlay.visible(false); }
-        ).start();
+        ).onDone(function(event, data) {
+            self._updateBox(data);
+            self._updateErrorMessage('');
+        }).onFail(function(event, data, error) {
+            /* E.g.
+             - event === fail
+             - data === undefined
+             - error === {type: 'request', status: 0, request: {…}, message: 'HTTP 0 - error'}
+            */
+            self._updateErrorMessage(
+                gettext('An error happened when retrieving notifications (%s)').format(error.message)
+            );
+        }).onComplete(function() {
+            overlay.visible(false);
+        }).start();
     }
 });
+
+creme.setupNotificationBox = function(element, options) {
+    /*
+      Wrapper function to setup the notification box in a template.
+       - Keeps the template javascript as simple as possible.
+       - The linter often complains about new Object() without returning them on store in a variable.
+       - Allows to add try catch or check if the element exists (e.g : toggle the feature in templates).
+    */
+    return new creme.notification.NotificationBox($(element), options);
+};
 
 }(jQuery));
