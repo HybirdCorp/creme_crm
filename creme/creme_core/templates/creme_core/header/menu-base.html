@@ -65,18 +65,18 @@
 
     <script type="text/javascript">
     {% block script %}
-        $(function () {
+        (function($) {
             new creme.menu.MenuController().bind($('.header-menu'));
-            new creme.notification.NotificationBox({
+            creme.setupNotificationBox($('.notification-box'), {
                 refreshUrl: '{% url "creme_core__last_web_notifications" %}',
                 discardUrl: '{% url "creme_core__discard_notification" %}',
                 initialDataSelector: '.notification-box-data'
-            }).bind($('.notification-box'));
+            });
             new creme.search.SearchBox({
                 searchUrl: '{% url "creme_core__light_search" %}',
                 advancedSearchUrl: '{% url "creme_core__search" %}'
             }).bind($('.search-box'));
-        });
+        }(jQuery));
     {% endblock %}
     </script>
 </div>
