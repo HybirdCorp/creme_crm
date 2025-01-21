@@ -231,6 +231,7 @@
                     - Object.values()
                     - Object.entries()
                     - Object.getPrototypeOf()
+                * Drop creme.widget.template(); Use String.prototype.template instead.
             - Apps :
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' has been removed.
