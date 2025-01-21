@@ -250,6 +250,7 @@ $.extend(creme.widget, {
     },
 
     // TODO : remove it and replace it by creme.utils.template or String.template
+    /*
     template: function(template, values) {
         if (template === undefined || values === undefined) {
             return template;
@@ -282,6 +283,7 @@ $.extend(creme.widget, {
 
         return res;
     },
+    */
 
     parseattr: function(element, excludes) {
         var attributes = {};
