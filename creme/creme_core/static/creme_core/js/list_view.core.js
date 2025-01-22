@@ -572,13 +572,8 @@
             var queryData = $.extend({}, state, {content: 1});
             var queryOptions = {
                 action: 'POST',
-                onDownloadProgress: function(evt) {
-                    var percent = 100;
-
-                    if (evt.lengthComputable && evt.total > 0) {
-                        percent = Math.trunc(Math.max((evt.loaded / evt.total) * 100, 0) / 20) * 20;
-                    }
-
+                progress: function(evt) {
+                    var percent = _.clamp(evt.loadedPercent || 100, 20, 100);
                     self._updateLoadingProgress(percent);
                 }
             };
