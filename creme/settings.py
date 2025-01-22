@@ -840,7 +840,7 @@ CREME_LIB_JS = [
     'creme_core/js/jquery/ui/jquery-ui-1.13.1.js',
     'creme_core/js/jquery/ui/jquery-ui-locale.js',
     'creme_core/js/jquery/extensions/jquery.dragtable.js',
-    'creme_core/js/jquery/extensions/jquery.form-3.51.js',
+    # 'creme_core/js/jquery/extensions/jquery.form-3.51.js',
     'creme_core/js/jquery/extensions/jquery.floatthead-2.2.4.js',
     'creme_core/js/lib/momentjs/moment-2.29.4.js',
     'creme_core/js/lib/momentjs/locale/en-us.js',
@@ -859,6 +859,9 @@ CREME_CORE_JS = [
 
     # jQuery tools
     'creme_core/js/jquery/extensions/jquery.toggle-attr.js',
+
+    # Underscore tools
+    'creme_core/js/lib/underscore/object.js',
 
     # Base tools
     'creme_core/js/lib/fallbacks/object-0.1.js',
@@ -1051,6 +1054,7 @@ TEST_CREME_CORE_JS = [
     'testcore.js',
 
     'creme_core/js/tests/jquery/toggle-attr.js',
+    'creme_core/js/tests/underscore/object.js',
 
     # Content
     'creme_core/js/tests/component/component.js',
@@ -1070,6 +1074,7 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/ajax/query.js',
     'creme_core/js/tests/ajax/localize.js',
     'creme_core/js/tests/ajax/utils.js',
+    'creme_core/js/tests/ajax/backend.js',
 
     'creme_core/js/tests/model/collection.js',
     'creme_core/js/tests/model/renderer-list.js',

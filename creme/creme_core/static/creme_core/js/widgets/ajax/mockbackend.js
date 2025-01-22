@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+/* globals ProgressEvent */
 (function($) {
 "use strict";
 
@@ -32,6 +33,7 @@ creme.ajax.MockAjaxBackend = function(options) {
 
     this.counts = {GET: 0, POST: 0, SUBMIT: 0};
     this.parser = document.createElement('a');
+    this.progressSteps = [];
 };
 
 creme.ajax.MockAjaxBackend.prototype = new creme.ajax.Backend();
@@ -94,6 +96,26 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
         }
 
         var responseData = response.responseText;
+
+        if (options.updateProgress || options.progress) {
+            (this.progressSteps || []).forEach(function(step) {
+                var progressEvent = new ProgressEvent('progress', {
+                    total: 1000,
+                    loaded: _.clamp(step, 0, 100) * 10,
+                    lengthComputable: true
+                });
+
+                progressEvent.loadedPercent = step;
+
+                if (options.updateProgress) {
+                    options.updateProgress(progressEvent);
+                }
+
+                if (options.progress) {
+                    options.progress(progressEvent);
+                }
+            });
+        }
 
         try {
             if (response.status === 200 && options.dataType === 'json') {

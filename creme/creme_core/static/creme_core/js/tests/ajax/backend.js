@@ -2,8 +2,8 @@
 
 (function($) {
 
-QUnit.module("creme.ajax.utils.js", new QUnitMixin(QUnitAjaxMixin,
-                                                   QUnitEventMixin, {
+QUnit.module("creme.ajax.Backend", new QUnitMixin(QUnitAjaxMixin,
+                                                  QUnitEventMixin, {
     afterEach: function() {
         // reset csrftoken cookie
         document.cookie = 'csrftoken=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
@@ -41,7 +41,7 @@ QUnit.parametrize('creme.ajax.Backend.get', [
         backend.get(url, data, successCb, errorCb, queryOptions);
     });
 
-    // retrieve internal callbacks from the ajaxSubmit call
+    // retrieve internal callbacks from the $.ajax call
     var ajaxCall = ajaxFaker.calls()[0][0];
     ok(Object.isFunc(ajaxCall.success));
     ok(Object.isFunc(ajaxCall.error));
@@ -76,7 +76,7 @@ QUnit.parametrize('creme.ajax.Backend.post', [
         backend.post(url, data, successCb, errorCb, queryOptions);
     });
 
-    // retrieve internal callbacks from the ajaxSubmit call
+    // retrieve internal callbacks from the $.ajax call
     var ajaxCall = ajaxFaker.calls()[0][0];
     ok(Object.isFunc(ajaxCall.success));
     ok(Object.isFunc(ajaxCall.error));
@@ -91,7 +91,6 @@ QUnit.parametrize('creme.ajax.Backend.post', [
 
 QUnit.parametrize('creme.ajax.Backend.submit', [
     [{}, {}, {
-        iframe: true,
         traditional: true,
         url: 'mock/a',
         data: {},
@@ -100,7 +99,6 @@ QUnit.parametrize('creme.ajax.Backend.submit', [
         }
     }],
     [{traditional: false}, {}, {
-        iframe: true,
         traditional: false,
         url: 'mock/a',
         data: {},
@@ -109,7 +107,6 @@ QUnit.parametrize('creme.ajax.Backend.submit', [
         }
     }],
     [{headers: {'X-Client-Id': 'my-key'}}, {action: 'mock/b'}, {
-        iframe: true,
         traditional: true,
         url: 'mock/b',
         data: {},
@@ -119,7 +116,6 @@ QUnit.parametrize('creme.ajax.Backend.submit', [
         }
     }],
     [{action: 'mock/b'}, {headers: {'X-Client-Id': 'my-key'}}, {
-        iframe: true,
         traditional: true,
         url: 'mock/b',
         data: {},
@@ -129,10 +125,11 @@ QUnit.parametrize('creme.ajax.Backend.submit', [
         }
     }],
     [{}, {data: {any: 'value'}, headers: {'X-Client-Id': 'my-key'}}, {
-        iframe: true,
         traditional: true,
         url: 'mock/a',
         data: {
+            text: 'A',
+            file: null,
             any: 'value'
         },
         headers: {
@@ -143,8 +140,8 @@ QUnit.parametrize('creme.ajax.Backend.submit', [
 ], function(backendOptions, queryOptions, expected, assert) {
     var successCb = function() {};
     var errorCb = function() {};
-    var submitFaker = new FunctionFaker({
-        instance: $.fn, method: 'ajaxSubmit'
+    var ajaxFaker = new FunctionFaker({
+        instance: $, method: 'ajax'
     });
 
     document.cookie = 'csrftoken=my-token';
@@ -156,22 +153,21 @@ QUnit.parametrize('creme.ajax.Backend.submit', [
         '</form>'
     );
 
-    submitFaker.with(function() {
+    ajaxFaker.with(function() {
         var backend = new creme.ajax.Backend(backendOptions);
         backend.submit(form, successCb, errorCb, queryOptions);
     });
 
-    // retrieve internal callbacks from the ajaxSubmit call
-    var submitCall = submitFaker.calls()[0][0];
-    ok(Object.isFunc(submitCall.success));
-    ok(Object.isFunc(submitCall.error));
+    // retrieve internal callbacks from the $.ajax call
+    var ajaxCall = ajaxFaker.calls()[0][0];
+    ok(Object.isFunc(ajaxCall.success));
+    ok(Object.isFunc(ajaxCall.error));
 
-    equal(form.attr('action'), expected.url);
+    equal(ajaxCall.url, expected.url);
 
-    equal(submitCall.traditional, expected.traditional);
-    equal(submitCall.iframe, expected.iframe);
-    deepEqual(submitCall.data || {}, expected.data);
-    deepEqual(submitCall.headers, expected.headers);
+    equal(ajaxCall.traditional, expected.traditional);
+    deepEqual(ajaxCall.data || new FormData(), this.createFormData(expected.data));
+    deepEqual(ajaxCall.headers, expected.headers);
 });
 
 QUnit.parametrize('creme.ajax.Backend (debug)', [
@@ -180,9 +176,6 @@ QUnit.parametrize('creme.ajax.Backend (debug)', [
 ], function(isDebug, expected, assert) {
     var successCb = function() {};
     var errorCb = function() {};
-    var submitFaker = new FunctionFaker({
-        instance: $.fn, method: 'ajaxSubmit'
-    });
     var ajaxFaker = new FunctionFaker({
         instance: $, method: 'ajax'
     });
@@ -195,19 +188,16 @@ QUnit.parametrize('creme.ajax.Backend (debug)', [
     );
 
     logFaker.with(function() {
-        submitFaker.with(function() {
-            ajaxFaker.with(function() {
-                var backend = new creme.ajax.Backend({debug: isDebug});
+        ajaxFaker.with(function() {
+            var backend = new creme.ajax.Backend({debug: isDebug});
 
-                backend.get('mock/a', {}, successCb, errorCb, {});
-                backend.post('mock/a', {}, successCb, errorCb, {});
-                backend.submit(form, successCb, errorCb, {});
-            });
+            backend.get('mock/a', {}, successCb, errorCb, {});
+            backend.post('mock/a', {}, successCb, errorCb, {});
+            backend.submit(form, successCb, errorCb, {});
         });
     });
 
-    equal(submitFaker.count(), 1);
-    equal(ajaxFaker.count(), 2);
+    equal(ajaxFaker.count(), 3);
     equal(logFaker.count(), expected);
 });
 
