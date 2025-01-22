@@ -107,6 +107,7 @@
               The class 'django.forms.fields.CallableChoiceIterator' has been removed ;
               use 'django.utils.choices.CallableChoiceIterator' instead.
         - https://docs.djangoproject.com/en/5.1/releases/5.1/
+    - The version of 'underscorejs' is now '1.13.7'.
 
     Non breaking changes :
     ----------------------
