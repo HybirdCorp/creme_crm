@@ -326,7 +326,10 @@ QUnit.test('creme.FormGroupsController (reorder groups)', function(assert) {
             {brick_id: ['creme_core-test'], extra_data: '{}'},
             {dataType: 'json', delay: 0, enableUriSearch: false, sync: true}
           ]
-    ], this.mockBackendCalls());
+    ], this.mockBackendCalls().map(function(e) {
+        var request = _.omit(e[3], 'progress');
+        return [e[0], e[1], e[2], request];
+    }));
 });
 
 
@@ -382,7 +385,10 @@ QUnit.test('creme.FormGroupsController (reorder groups, failure)', function(asse
              {"brick_id": ["creme_core-test"], "extra_data": "{}"},
              {dataType: "json", delay: 0, enableUriSearch: false, sync: true}
         ]
-    ], this.mockBackendCalls());
+    ], this.mockBackendCalls().map(function(e) {
+        var request = _.omit(e[3], 'progress');
+        return [e[0], e[1], e[2], request];
+    }));
 });
 
 QUnit.test('creme.FormGroupsController (toggle item)', function(assert) {

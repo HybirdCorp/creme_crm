@@ -191,6 +191,8 @@
             * PopoverAction:
                 - Now accept <script type="*/html"> or dom queries for the content for popovers : allows usage of links.
                 - Factorise action creation in creme.dialog.PopoverAction.fromTarget()
+            * creme.ajax.jqueryAjaxSend() arguments have changed from (url, data, successCb, errorCb, options) to ({url: url, body: data, ...options}, {done: successCb, fail: errorCb}).
+            * Added _.pop() method that works like python dict.pop().
 
     Breaking changes :
     ------------------
@@ -246,6 +248,12 @@
                     - Object.entries()
                     - Object.getPrototypeOf()
                 * Drop creme.widget.template(); Use String.prototype.template instead.
+                * Refactor of creme.ajax.Backend:
+                    - Drop jquery.forms plugin; Use FormData standard API instead.
+                    - $.validateHTML5() is removed (came along jquery.forms)
+                    - Add support for download & upload progress event : new 'uploadProgress' & 'progress' options.
+                        - Refactor 'ListViewController' & 'creme.bricks.BricksReloader'
+                        - 'creme.ajax.Query' now accepts new 'uploadProgress' & 'progress' options.
             - Apps :
                 * Activities:
                     - Refactor creme.ActivityCalendar : can be now used as independent component.
