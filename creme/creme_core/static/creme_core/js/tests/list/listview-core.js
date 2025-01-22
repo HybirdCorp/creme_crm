@@ -481,6 +481,8 @@ QUnit.test('creme.listview.core (select all)', function(assert) {
 });
 
 QUnit.test('creme.listview.core (submitState)', function(assert) {
+    this.backend.progressSteps = [15, 40, 50, 90];
+
     var html = this.createListViewHtml(this.defaultListViewHtmlOptions());
     var element = $(html).appendTo(this.qunitFixture());
     var listview = creme.widget.create(element);
@@ -495,7 +497,8 @@ QUnit.test('creme.listview.core (submitState)', function(assert) {
 
     listview.controller().on('submit-state-start', this.mockListener('submit-state-start'))
                          .on('submit-state-done', this.mockListener('submit-state-done'))
-                         .on('submit-state-complete', this.mockListener('submit-state-complete'));
+                         .on('submit-state-complete', this.mockListener('submit-state-complete'))
+                         .on('submit-state-progress', this.mockListener('submit-state-progress'));
 
     listview.controller().submitState({custom_a: 12}, listener);
 
@@ -542,6 +545,12 @@ QUnit.test('creme.listview.core (submitState)', function(assert) {
     deepEqual([
         ['submit-state-complete', nextUrl.href(), html]
     ], this.mockListenerCalls('submit-state-complete'));
+    deepEqual([
+        ['submit-state-progress', 20],
+        ['submit-state-progress', 40],
+        ['submit-state-progress', 50],
+        ['submit-state-progress', 90]
+    ], this.mockListenerCalls('submit-state-progress'));
 });
 
 QUnit.test('creme.listview.core (submitState, already loading)', function(assert) {

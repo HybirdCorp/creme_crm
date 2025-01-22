@@ -245,14 +245,48 @@ QUnit.test('creme.bricks.Brick.action (refresh)', function(assert) {
     deepEqual([['done']],
               this.mockListenerCalls('action-done').map(function(e) { return e.slice(0, 1); }));
 
-    deepEqual(
-        [[
-            'mock/brick/all/reload', 'GET',
-//             {"brick_id": ["brick-for-test"], "extra_data": "{}"},
-             {"brick_id": ["creme_core-testA"], "extra_data": "{}"},
-             {dataType: "json", delay: 0,  enableUriSearch: false, sync: true}
-        ]], this.mockBackendCalls());
+    deepEqual([[
+        'mock/brick/all/reload', 'GET',
+         {"brick_id": ["creme_core-testA"], "extra_data": "{}"},
+         {dataType: "json", delay: 0,  enableUriSearch: false, sync: true}
+    ]], this.mockBackendCalls().map(function(e) {
+        var request = _.omit(e[3], 'progress');
+        return [e[0], e[1], e[2], request];
+    }));
 });
+
+QUnit.test('creme.bricks.Brick.action (refresh, progress)', function(assert) {
+    this.backend.progressSteps = [15, 40, 50, 90];
+
+    var brick = this.createBrickWidget({id: 'creme_core-testA'}).brick();
+
+    brick.on('brick-loading-progress', this.mockListener('loading-progress'));
+
+    brick.action('refresh').on(this.brickActionListeners).start();
+    equal(false, brick.isLoading());
+
+    deepEqual([
+        ['done']
+    ], this.mockListenerCalls('action-done').map(function(e) { return e.slice(0, 1); }));
+
+    deepEqual([
+        ['brick-loading-progress', 20],
+        ['brick-loading-progress', 20],
+        ['brick-loading-progress', 40],
+        ['brick-loading-progress', 50],
+        ['brick-loading-progress', 90]
+    ], this.mockListenerCalls('loading-progress'));
+
+    deepEqual([[
+          'mock/brick/all/reload', 'GET',
+           {"brick_id": ["creme_core-testA"], "extra_data": "{}"},
+           {dataType: "json", delay: 0,  enableUriSearch: false, sync: true}
+    ]], this.mockBackendCalls().map(function(e) {
+        var request = _.omit(e[3], 'progress');
+        return [e[0], e[1], e[2], request];
+    }));
+});
+
 
 QUnit.test('creme.bricks.Brick.action (add, submit)', function(assert) {
 //    var brick = this.createBrickWidget('brick-for-test').brick();
