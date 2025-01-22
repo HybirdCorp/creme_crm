@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2015-2024  Hybird
+ Copyright (C) 2015-2025  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -1021,12 +1021,8 @@ creme.bricks.BricksReloader.prototype = {
                 sync: false,
                 dataType: 'json'
             },
-            onDownloadProgress: function(evt) {
-                var percent = 100;
-
-                if (evt.lengthComputable && evt.total > 0) {
-                    percent = Math.trunc(Math.max((evt.loaded / evt.total) * 100, 0) / 20) * 20;
-                }
+            progress: function(evt) {
+                var percent = _.clamp(evt.loadedPercent || 100, 20, 100);
 
                 bricks.forEach(function(brick) {
                     brick.setDownloadStatus(percent);

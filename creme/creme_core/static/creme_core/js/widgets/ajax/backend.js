@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2024  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -44,34 +44,69 @@ creme.ajax.Backend = function(options) {
 };
 
 creme.ajax.Backend.prototype = {
-    get: function(url, data, on_success, on_error, options) {
-        var opts = $.extend(true, {method: 'GET'}, this.options, options);
+    get: function(url, data, successCb, errorCb, options) {
+        var opts = $.extend(true, {}, this.options, options);
+        var debug = _.pop(opts, 'debug', false);
 
-        if (opts.debug) {
+        if (debug) {
             console.log('creme.ajax.Backend > GET', url, ' > data:', data, ', options:', opts);
         }
 
-        creme.ajax.jqueryAjaxSend(url, data, on_success, on_error, opts);
+        return creme.ajax.jqueryAjaxSend(Object.assign({
+            url: url,
+            method: 'GET',
+            body: data
+        }, opts), {
+            done: successCb,
+            fail: errorCb
+        });
     },
 
-    post: function(url, data, on_success, on_error, options) {
-        var opts = $.extend(true, {method: 'POST'}, this.options, options);
+    post: function(url, data, successCb, errorCb, options) {
+        var opts = $.extend(true, {}, this.options, options);
+        var debug = _.pop(opts, 'debug', false);
 
-        if (opts.debug) {
+        if (debug) {
             console.log('creme.ajax.Backend > POST', url, ' > data:', data, ', options:', opts);
         }
 
-        creme.ajax.jqueryAjaxSend(url, data, on_success, on_error, opts);
+        return creme.ajax.jqueryAjaxSend(Object.assign({
+            url: url,
+            method: 'POST',
+            body: data,
+            csrf: creme.ajax.cookieCSRF()
+        }, opts), {
+            done: successCb,
+            fail: errorCb
+        });
     },
 
-    submit: function(form, on_success, on_error, options) {
+    submit: function(form, successCb, errorCb, options) {
         var opts = $.extend(true, {}, this.options, options);
+        var formEl = form.get(0);
+        var debug = _.pop(opts, 'debug', false);
 
-        if (opts.debug) {
+        if (debug) {
             console.log('creme.ajax.Backend > SUBMIT', form.attr('action'), '> options:', opts);
         }
 
-        creme.ajax.jqueryFormSubmit(form, on_success, on_error, opts);
+        var url = _.pop(opts, 'url', _.pop(opts, 'action', form.attr('action'))) || '';
+        var data = new FormData(formEl);
+        var extraData = _.pop(opts, 'data', opts.extraData || {});
+        var csrf = data.get('csrfmiddlewaretoken') || creme.ajax.cookieCSRF();
+
+        return creme.ajax.jqueryAjaxSend(Object.assign({
+            url: url,
+            method: 'POST',
+            body: data,
+            extraData: extraData,
+            csrf: csrf
+        }, opts), {
+            done: successCb,
+            fail: errorCb
+        });
+
+        // creme.ajax.jqueryFormSubmit(form, successCb, errorCb, opts);
     },
 
     query: function(options) {
@@ -168,7 +203,7 @@ creme.ajax.serializeFormAsDict = function(form, extraData) {
 
     return data;
 };
-
+/*
 creme.ajax.jqueryFormSubmit = function(form, successCb, errorCb, options) {
     options = options || {};
 
@@ -235,53 +270,111 @@ creme.ajax.jqueryFormSubmit = function(form, successCb, errorCb, options) {
 
     $(form).ajaxSubmit(submitOptions);
 };
+*/
 
-// TODO : replace success_cb/error_cb by listeners.
-creme.ajax.jqueryAjaxSend = function(url, data, successCb, errorCb, options) {
+function xhrEventLoadedPercent(event) {
+    var position = event.loaded || event.position; /* event.position is deprecated */
+    var total = event.total;
+    return (event.lengthComputable > 0 || event.lengthComputable === true) ? Math.ceil(position / total * 100) : 0;
+}
+
+/*
+ * Workaround because jqXHR does not expose upload property
+ * https://github.com/jquery-form/form/blob/master/src/jquery.form.js#L401-L422
+ */
+function progressXHR(listeners) {
+    listeners = listeners || {};
+
+    var xhr = $.ajaxSettings.xhr();
+
+    if (listeners.uploadProgress && xhr.upload) {
+        xhr.upload.addEventListener('progress', function(event) {
+            event.loadedPercent = xhrEventLoadedPercent(event);
+            listeners.uploadProgress(event);
+        }, false);
+    }
+
+    if (listeners.progress) {
+        xhr.addEventListener('progress', function(event) {
+            event.loadedPercent = xhrEventLoadedPercent(event);
+            listeners.progress(event);
+        }, false);
+    }
+
+    return xhr;
+}
+
+function xhrErrorMessage(xhr, textStatus) {
+    if (textStatus === 'parseerror') {
+        return "JSON parse error";
+    } else {
+        return "HTTP ${status} - ${statusText}".template(xhr);
+    }
+};
+
+
+// TODO : Replace listeners by a Promise with 'uploadProgress' & 'progress' callbacks
+creme.ajax.jqueryAjaxSend = function(options, listeners) {
     options = options || {};
+    listeners = Object.assign({
+        done: _.pop(options, 'success'),   /* keeps compatibility with the old API */
+        fail: _.pop(options, 'error'),
+        progress: _.pop(options, 'progress'),
+        uploadProgress: _.pop(options, 'uploadProgress')
+    }, listeners || {});
+
+    var csrf = options.csrf === true ? creme.ajax.cookieCSRF() : options.csrf;
+    var headers = Object.assign({}, options.headers || {}, Object.isEmpty(csrf) ? {} : {'X-CSRFToken': csrf});
+    var method = (options.method || options.type || 'GET').toUpperCase();
+    var body = (options.data || options.body);
+    var extraData = _.pop(options, 'extraData', {});
 
     function _onSuccess(data, textStatus, xhr) {
-        if (Object.isFunc(successCb)) {
-            successCb(data, textStatus, xhr);
-        }
-    };
-
-    function _errorMessage(xhr, textStatus) {
-        if (textStatus === 'parseerror') {
-            return "JSON parse error";
-        } else {
-            return "HTTP ${status} - ${statusText}".template(xhr);
+        if (Object.isFunc(listeners.done)) {
+            listeners.done(data, textStatus, xhr);
         }
     };
 
     function _onError(xhr, textStatus, errorThrown) {
-        if (Object.isFunc(errorCb)) {
-            errorCb(xhr.responseText, {
+        if (Object.isFunc(listeners.fail)) {
+            listeners.fail(xhr.responseText, {
                 type: "request",
                 status: xhr.status,
                 request: xhr,
-                message: _errorMessage(xhr, textStatus)
+                message: xhrErrorMessage(xhr, textStatus)
             });
         }
     };
 
-    var csrf = creme.ajax.cookieCSRF();
-    var headers = {};
-
-    if (Object.isEmpty(csrf) === false) {
-        headers = {'X-CSRFToken': csrf};
-    }
-
     var ajaxOptions = $.extend(true, {
-        async:    !options.sync,
-        type:     options.method || 'GET',
-        url:      url,
-        data:     data || {},
+        async:    !_.pop(options, 'sync'),
+        type:     method,
+        url:      options.url,
+        data:     body,
         dataType: options.dataType || 'json',
         headers:  headers,
         success:  _onSuccess,
         error:    _onError
     }, options);
+
+    // uploadProgress callback needs a custom XHR instance to read the event.
+    if (listeners.uploadProgress || listeners.progress) {
+        ajaxOptions.xhr = function() {
+            return progressXHR(listeners);
+        };
+    }
+
+    // When body is FormData we have to disable all post processing from jquery
+    if (body instanceof FormData) {
+        ajaxOptions.processData = false;
+        ajaxOptions.contentType = false;
+
+        for (var key in extraData) {
+            body.set(key, extraData[key]);
+        }
+    } else if (!Object.isEmpty(extraData)) {
+        ajaxOptions.data = Object.assign(body || {}, extraData);
+    }
 
     return $.ajax(ajaxOptions);
 };

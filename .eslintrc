@@ -27,6 +27,7 @@
     "Blob": true,
     "Set": true,
     "ResizeObserver": true,
+    "FormData": true,
     
     /* External libraries */
     "jQuery": true,
