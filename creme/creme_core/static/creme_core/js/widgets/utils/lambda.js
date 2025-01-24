@@ -73,19 +73,8 @@ creme.utils.Lambda = creme.component.Component.sub({
         parameters = Array.isArray(parameters) ? parameters.join(',') : (parameters || '');
         var body = callable.indexOf('return') !== -1 ? callable : 'return ' + callable + ';';
 
-        /* eslint-disable no-new-func, no-eval */
-        if (!Object.isNone(window['Function'])) {
-            this._lambda = new Function(parameters, body);
-        } else {
-            // HACK : compatibility for older browsers
-            var uuid = _.uniqueId('__lambda__');
-
-            eval('creme.utils["' + uuid + '"] = function(' + parameters + ') {' + body + "};");
-
-            this._lambda = creme.utils[uuid];
-            delete creme.utils[uuid];
-        }
-        /* eslint-enable no-new-func, no-eval */
+        // eslint-disable-next-line no-new-func, no-eval
+        this._lambda = new Function(parameters, body);
 
         return this;
     },
