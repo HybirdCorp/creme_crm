@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,6 +61,7 @@ logger = logging.getLogger(__name__)
 register = Library()
 
 
+# GENERAL PURPOSE ##############################################################
 @register.filter
 def app_verbose_name(app_label, default='?'):
     get_app = apps.get_app_config
@@ -78,6 +79,12 @@ def app_verbose_name(app_label, default='?'):
 @register.filter
 def print_boolean(x):
     return bool_as_html(x)
+
+
+# NB: seems not used any more...
+@register.filter
+def to_timestamp(date):
+    return str(int(date.timestamp()))
 
 
 @register.filter
@@ -149,17 +156,6 @@ def log(msg, level='INFO'):
 @register.filter
 def is_none(obj):
     return obj is None
-
-
-# TODO: replace by a filter 'ctype_is' in creme_ctype.py ?
-@register.filter
-def is_entity(obj):
-    return isinstance(obj, CremeEntity)
-
-
-@register.filter
-def is_relation(obj):
-    return isinstance(obj, Relation)
 
 
 @register.filter
@@ -251,11 +247,6 @@ def mod(integer1, integer2):
     return integer1 % integer2
 
 
-@register.filter(name='range')
-def range_filter(integer, start=0):
-    return range(start, start + integer)
-
-
 @register.filter
 def has_attr(o, attr_name):
     return hasattr(o, attr_name)
@@ -283,10 +274,27 @@ def format_string_brace_named(format_str, **kwargs):
     return format_str.format(**kwargs)
 
 
-# NB: seems not used any more...
+@register.simple_tag
+def listify(*args):
+    return [*args]
+
+
 @register.filter
-def to_timestamp(date):
-    return str(int(date.timestamp()))
+def filter_empty(iterable):
+    return [x for x in iterable if x]
+
+
+# TODO: move to <creme.creme_core.utils> ?
+# See grouper implementation: https://docs.python.org/3/library/itertools.html#itertools-recipes
+@register.filter
+def grouper(value, n):
+    args = [iter(value)] * n
+    return zip_longest(fillvalue=None, *args)
+
+
+@register.filter(name='range')
+def range_filter(integer, start=0):
+    return range(start, start + integer)
 
 
 @register.filter
@@ -297,44 +305,21 @@ def uca_sort(iterable):
     return strs
 
 
-@register.filter
-def verbose_models(models):
-    # return [m._meta.verbose_name for m in models]
-    return [model_verbose_name(m) for m in models]
-
-
-# TODO unit test
-@register.filter
-def allowed_str(instance, user):
-    return instance.allowed_str(user) if hasattr(instance, 'allowed_str') else instance
-
-
-@register.filter
-def format_amount(amount, currency_or_id=None):
-    return currency(amount, currency_or_id)
-
-
 @register.filter('is_ajax')
 def request_is_ajax(request):
     return is_ajax(request)
 
 
+# NB: used only once (inline?)
+# TODO: rename ("instance" is more correct than "model"; "as_choices"?)
 @register.filter
 def optionize_model_iterable(iterable, type='tuple'):
     if type == 'dict':
-        return ({'value': model.id, 'label': str(model)} for model in iterable)
+        # return ({'value': model.id, 'label': str(model)} for model in iterable)
+        return ({'value': model.pk, 'label': str(model)} for model in iterable)
     else:
-        return ((model.id, str(model)) for model in iterable)
-
-
-@register.filter
-def jsonify(value):
-    return json_encode(value)
-
-
-@register.filter
-def filter_empty(iterable):
-    return [x for x in iterable if x]
+        # return ((model.id, str(model)) for model in iterable)
+        return ((model.pk, str(model)) for model in iterable)
 
 
 _css_escapes = {
@@ -352,29 +337,159 @@ def escape_css(value):
     return mark_safe(str(value).translate(_css_escapes).strip())
 
 
-@register.simple_tag
-def listify(*args):
-    return [*args]
+@register.filter
+def url(url_name, arg=None):
+    return reverse(url_name, args=None if arg is None else (arg,))
 
 
 @register.simple_tag
-def jsondata(value, **kwargs):
-    """ Encode and render json data in a <script> tag with attributes.
+def url_join(*args, **params):
+    """ Add some GET parameters to a URL.
+    It's work even if the URL has already some GET parameters.
 
-    {% jsondata data arg1=foo.bar arg2='baz' %}
+    {% url_join my_url arg1=foo.bar arg2='baz' as my_uri %}
     """
-    if value is None:
+    if not args:
         return ''
 
-    if kwargs.pop("type", None) is not None:
-        logger.warning('jsondata tag do not accept custom "type" attribute')
+    # NB: we take the base URL with *args in order to allow all values for GET keys.
+    if len(args) > 1:
+        raise TemplateSyntaxError(
+            '"url_join" takes one & only one positional argument (the base URL)'
+        )
 
-    content = jsonify(value) if not isinstance(value, str) else value
-    attrs = ''.join(f' {k}="{escape(v)}"' for k, v in kwargs.items())
+    base = args[0]
 
-    return mark_safe(
-        f'<script type="application/json"{attrs}><!-- {escapejson(content)} --></script>'
-    )
+    if not base:
+        return ''
+    # TODO: base = str(base) ?
+
+    if not params:
+        uri = base
+    elif urlsplit(base).query:  # There are already some GET params
+        uri = f'{base}&{urlencode(params, doseq=True)}'
+    else:
+        uri = f'{base}?{urlencode(params, doseq=True)}'
+
+    return mark_safe(uri)
+
+
+@register.simple_tag(name='scm_info')
+def get_scm_info():
+    from ..utils import version
+
+    match settings.SCM:
+        case 'git':
+            return version.get_git_info
+        case 'hg':
+            return version.get_hg_info
+        case _:
+            return None
+
+
+# TAG: "templatize" ------------------------------------------------------------
+_templatize_re = compile_re(r'(.*?) as (\w+)')
+
+
+@register.tag(name='templatize')
+def do_templatize(parser, token):
+    try:
+        # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)
+    except ValueError as e:
+        raise TemplateSyntaxError(
+            f'"{token.contents.split()[0]}" tag requires arguments'
+        ) from e
+
+    match = _templatize_re.search(arg)
+    if not match:
+        raise TemplateSyntaxError(
+            f'"{tag_name}" tag has invalid arguments: <{arg}>'
+        )
+
+    template_string, var_name = match.groups()
+
+    first_char = template_string[0]
+    if not (first_char == template_string[-1] and first_char in {'"', "'"}):
+        raise TemplateSyntaxError(
+            f'''"{tag_name}" tag's argument should be in quotes.'''
+        )
+
+    return TemplatizeNode(template_string[1:-1], var_name)
+
+
+class TemplatizeNode(TemplateNode):
+    def __init__(self, template_string, var_name):
+        self.inner_template = Template(template_string)
+        self.var_name = var_name
+
+    def __repr__(self):
+        return '<Templatize node>'
+
+    def render(self, context):
+        context[self.var_name] = self.inner_template.render(context)
+        return ''
+
+
+# CREME SPECIFIC ###############################################################
+
+################################################################################
+#
+# Copyright (c) 2009-2025 Hybird
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+################################################################################
+
+# TODO unit test
+@register.filter
+def allowed_str(instance, user):
+    return instance.allowed_str(user) if hasattr(instance, 'allowed_str') else instance
+
+
+@register.filter
+def format_amount(amount, currency_or_id=None):
+    return currency(amount, currency_or_id)
+
+
+# TODO: replace by a filter 'ctype_is' in creme_ctype.py ?
+@register.filter
+def is_entity(obj):
+    return isinstance(obj, CremeEntity)
+
+
+@register.filter
+def is_relation(obj):
+    return isinstance(obj, Relation)
+
+
+# NB: in Creme section because it uses an encoder which could be creme-specific
+#     in the future
+@register.filter
+def jsonify(value):
+    return json_encode(value)
+
+
+@register.filter
+def verbose_models(models):
+    # return [m._meta.verbose_name for m in models]
+    return [model_verbose_name(m) for m in models]
 
 
 @register.simple_tag
@@ -460,14 +575,6 @@ def get_entity_html_attrs(context, entity):
     return format_html_join(' ', '{}="{}"', entity.get_html_attrs(context).items())
 
 
-# TODO: move to <creme.creme_core.utils> ?
-# See grouper implementation: https://docs.python.org/3/library/itertools.html#itertools-recipes
-@register.filter
-def grouper(value, n):
-    args = [iter(value)] * n
-    return zip_longest(fillvalue=None, *args)
-
-
 @register.simple_tag
 def inner_edition_uri(instance, cells, callback_url=None):
     # TODO: pass the registry in context? accept it as argument?
@@ -486,89 +593,6 @@ def inner_edition_uri(instance, cells, callback_url=None):
 
     return uri
 
-
-@register.filter
-def url(url_name, arg=None):
-    return reverse(url_name, args=None if arg is None else (arg,))
-
-
-@register.simple_tag
-def url_join(*args, **params):
-    """ Add some GET parameters to a URL.
-    It's work even if the URL has already some GET parameters.
-
-    {% url_join my_url arg1=foo.bar arg2='baz' as my_uri %}
-    """
-    if not args:
-        return ''
-
-    # NB: we take the base URL with *args in order to allow all values for GET keys.
-    if len(args) > 1:
-        raise TemplateSyntaxError(
-            '"url_join" takes one & only one positional argument (the base URL)'
-        )
-
-    base = args[0]
-
-    if not base:
-        return ''
-    # TODO: base = str(base) ?
-
-    if not params:
-        uri = base
-    elif urlsplit(base).query:  # There are already some GET params
-        uri = f'{base}&{urlencode(params, doseq=True)}'
-    else:
-        uri = f'{base}?{urlencode(params, doseq=True)}'
-
-    return mark_safe(uri)
-
-
-# TAG: "templatize"-------------------------------------------------------------
-_templatize_re = compile_re(r'(.*?) as (\w+)')
-
-
-@register.tag(name='templatize')
-def do_templatize(parser, token):
-    try:
-        # Splitting by None == splitting by spaces.
-        tag_name, arg = token.contents.split(None, 1)
-    except ValueError as e:
-        raise TemplateSyntaxError(
-            f'"{token.contents.split()[0]}" tag requires arguments'
-        ) from e
-
-    match = _templatize_re.search(arg)
-    if not match:
-        raise TemplateSyntaxError(
-            f'"{tag_name}" tag has invalid arguments: <{arg}>'
-        )
-
-    template_string, var_name = match.groups()
-
-    first_char = template_string[0]
-    if not (first_char == template_string[-1] and first_char in {'"', "'"}):
-        raise TemplateSyntaxError(
-            f'''"{tag_name}" tag's argument should be in quotes.'''
-        )
-
-    return TemplatizeNode(template_string[1:-1], var_name)
-
-
-class TemplatizeNode(TemplateNode):
-    def __init__(self, template_string, var_name):
-        self.inner_template = Template(template_string)
-        self.var_name = var_name
-
-    def __repr__(self):
-        return '<Templatize node>'
-
-    def render(self, context):
-        context[self.var_name] = self.inner_template.render(context)
-        return ''
-
-
-# TAG: "print_field"------------------------------------------------------------
 
 # TODO: need a templatetag to build a ViewTag?
 # TODO: pass the registry in the context? pass the user as argument?
@@ -679,10 +703,9 @@ def print_field(context, *, object, field, tag=ViewTag.HTML_DETAIL):
 #         context[self.var_name] = self.perm_func(var, user)
 #
 #         return ''
-#
-# # TAG : "has_perm_to [end]------------------------------------------------------
 
 
+# TAG : "include_creme_media" --------------------------------------------------
 @register.tag(name='include_creme_media')
 def do_include_creme_media(parser, token):
     try:
@@ -706,17 +729,25 @@ class MediaNode(TemplateNode):
         return _render_include_media(context['THEME_NAME'] + bundle, variation={})
 
 
-@register.simple_tag(name='scm_info')
-def get_scm_info():
-    from ..utils import version
+# JSON data in HTML ------------------------------------------------------------
+@register.simple_tag
+def jsondata(value, **kwargs):
+    """ Encode and render json data in a <script> tag with attributes.
 
-    match settings.SCM:
-        case 'git':
-            return version.get_git_info
-        case 'hg':
-            return version.get_hg_info
-        case _:
-            return None
+    {% jsondata data arg1=foo.bar arg2='baz' %}
+    """
+    if value is None:
+        return ''
+
+    if kwargs.pop("type", None) is not None:
+        logger.warning('jsondata tag do not accept custom "type" attribute')
+
+    content = jsonify(value) if not isinstance(value, str) else value
+    attrs = ''.join(f' {k}="{escape(v)}"' for k, v in kwargs.items())
+
+    return mark_safe(
+        f'<script type="application/json"{attrs}><!-- {escapejson(content)} --></script>'
+    )
 
 
 @register.tag(name='blockjsondata')
