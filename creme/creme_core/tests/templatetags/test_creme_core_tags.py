@@ -11,11 +11,13 @@ from django.utils.translation import gettext as _
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
+    Currency,
     CustomEntityType,
     FakeContact,
     FakeInvoice,
     FakeOrganisation,
     FakeTicket,
+    Language,
 )
 from creme.creme_core.utils.html import escapejson
 
@@ -186,6 +188,16 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self.assertEqual('Hello world', render.strip())
 
+    def test_format_string_brace_named(self):
+        with self.assertNoException():
+            template = Template(
+                "{% load creme_core_tags %}"
+                "{% format_string_brace_named 'Hello {first} & {second}' first='Python' second='Django' %}"  # NOQA
+            )
+            render = template.render(Context())
+
+        self.assertEqual('Hello Python &amp; Django', render.strip())
+
     def test_listify(self):
         with self.assertNoException():
             template = Template(
@@ -211,6 +223,55 @@ class CremeCoreTagsTestCase(CremeTestCase):
             }))
 
         self.assertEqual('foo@bar.org,123-FOOBAR', render.strip())
+
+    def test_grouper(self):
+        ctxt = Context({'mylist': ['A', 'B', 'C', 'D', 'E', 'F']})
+
+        with self.assertNoException():
+            render1 = Template(
+                '{% load creme_core_tags %}'
+                '{% for couple in mylist|grouper:2 %}{{couple.0}},{{couple.1}}#{% endfor %}'
+            ).render(ctxt)
+
+        self.assertEqual('A,B#C,D#E,F#', render1.strip())
+
+        # ---
+        with self.assertNoException():
+            render2 = Template(
+                '{% load creme_core_tags %}'
+                '{% for couple in mylist|grouper:3 %}'
+                '{{couple.0}},{{couple.1}},{{couple.2}}#'
+                '{% endfor %}'
+            ).render(ctxt)
+
+        self.assertEqual('A,B,C#D,E,F#', render2.strip())
+
+    def test_range(self):
+        with self.assertNoException():
+            render1 = Template(
+                '{% load creme_core_tags %}'
+                '{% for x in 3|range %}{{x}}#{% endfor %}'
+            ).render(Context())
+
+        self.assertEqual('0#1#2#', render1.strip())
+
+        # ---
+        with self.assertNoException():
+            render2 = Template(
+                '{% load creme_core_tags %}'
+                '{% for x in 4|range:1 %}{{x}}#{% endfor %}'
+            ).render(Context())
+
+        self.assertEqual('1#2#3#4#', render2.strip())
+
+    def test_uca_sort(self):
+        with self.assertNoException():
+            render1 = Template(
+                '{% load creme_core_tags %}'
+                '{% for word in words|uca_sort %}{{word}},{% endfor %}'
+            ).render(Context({'words': ['Éléphant', 'Apple', 'Zebra', 'Element']}))
+
+        self.assertEqual('Apple,Element,Éléphant,Zebra,', render1.strip())
 
     def test_verbose_models(self):
         ce_type = self.get_object_or_fail(CustomEntityType, id=1)
@@ -278,6 +339,51 @@ class CremeCoreTagsTestCase(CremeTestCase):
             '''"templatize" tag's argument should be in quotes.''',
             str(cm.exception),
         )
+
+    def test_allowed_str(self):
+        root = self.get_root_user()
+        orga = FakeOrganisation.objects.create(user=root, name='<em>Amestris</em>')
+
+        with self.assertNoException():
+            render1 = Template(
+                r'{% load creme_core_tags %}{{orga|allowed_str:user}}'
+            ).render(Context({'orga': orga, 'user': root}))
+
+        self.assertEqual('&lt;em&gt;Amestris&lt;/em&gt;', render1)
+
+        # ---
+        role = self.create_role(allowed_apps=['creme_core'])
+        self.add_credentials(role, own='*')
+        user = self.create_user(role=role)
+
+        with self.assertNoException():
+            render2 = Template(
+                r'{% load creme_core_tags %}{{orga|allowed_str:user}}'
+            ).render(Context({'orga': orga, 'user': user}))
+
+        self.assertEqual(_('Entity #{id} (not viewable)').format(id=orga.id), render2)
+
+        # ---
+        lang = Language(name='Elfic')
+
+        with self.assertNoException():
+            render3 = Template(
+                r'{% load creme_core_tags %}{{obj|allowed_str:user}}'
+            ).render(Context({'obj': lang, 'user': root}))
+
+        self.assertEqual(lang.name, render3)
+
+    def test_format_amount(self):
+        with self.assertNoException():
+            render1 = Template(
+                r'{% load creme_core_tags %}{{value|format_amount:currency}}'
+            ).render(Context({
+                'value': Decimal('4.65'),
+                'currency': Currency.objects.first(),
+            }))
+
+        self.assertIn('4', render1)
+        self.assertIn('65', render1)
 
     # TODO: complete with other field types
     def test_print_field(self):
@@ -673,6 +779,18 @@ class CremeCoreTagsTestCase(CremeTestCase):
                 {'value': orga2.id, 'label': str(orga2)},
             ],
             deserialized
+        )
+
+    def test_escape_css(self):
+        with self.assertNoException():
+            render = Template(
+                '{% load creme_core_tags %}'
+                '<style>.my_class { content:  "{{content|escapecss}}"; }</style>'
+            ).render(Context({'content': '<foobar>'}))
+
+        self.assertEqual(
+            r'<style>.my_class { content:  "\003C foobar\003E"; }</style>',
+            render.strip(),
         )
 
     def test_url01(self):
