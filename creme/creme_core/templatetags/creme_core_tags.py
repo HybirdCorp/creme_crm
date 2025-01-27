@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -56,6 +56,7 @@ register = Library()
 
 @register.filter
 def app_verbose_name(app_label, default='?'):
+    """Get the verbose name of a django app, from its label."""
     get_app = apps.get_app_config
 
     try:
@@ -69,38 +70,47 @@ def app_verbose_name(app_label, default='?'):
 
 @register.filter(name='print_boolean')
 def print_boolean(x):
+    """Represent a boolean value as an HTML check-box with a label."""
     return bool_as_html(x)
 
 
 @register.filter
 def get_by_index(sequence, index):
     """Get the Nth item in a sequence (index can be a context variable).
-    Context:
-       my_list=['a', 'b', 'c']
-       my_idx=1
-    Template:
-      {{my_list|get_by_index:my_idx}}{# Displays 'b' #}
+
+    Usage:
+        Context:
+            {
+                'my_list': ['a', 'b', 'c'],
+                'my_idx': 1,
+            }
+
+        Template file:
+          {{my_list|get_by_index:my_idx}}{# Displays 'b' #}
     """
     return sequence[index]
 
 
 @register.filter
 def get_value(dic, key, default=''):
-    """Get a value from its key in a dictionary-like object, with a default
-    value as fallback (i.e. like dict.get())
+    """Get a value from its key in a dictionary-like object.
+    A default value is used as fallback (like <dict.get()>).
 
     Usage:
-      View (context):
-          some_dict = {'keyA': 'valueA',
-                       'keyB': {'subKeyA': 'subValueA', 'subKeyB': 'subKeyB'},
-                       'keyC': 'valueC',
-                      }
-          keys = ['keyA','keyC']
+        Context:
+            {
+                'some_dict': {
+                  'keyA': 'valueA',
+                  'keyB': {'subKeyA': 'subValueA', 'subKeyB': 'subKeyB'},
+                  'keyC': 'valueC',
+                },
+                'keys': ['keyA','keyC'],
+            }
 
-      Template:
-          {{ some_dict|get_value:"keyA" }}
-          {{ some_dict|get_value:"keyB"|get_value:"subKeyA" }}
-          {% for key in keys %}{{ some_dict|get_value:key }}{% endfor %}
+        Template file:
+            {{ some_dict|get_value:"keyA" }}
+            {{ some_dict|get_value:"keyB"|get_value:"subKeyA" }}
+            {% for key in keys %}{{ some_dict|get_value:key }}{% endfor %}
     """
     try:
         return dic.get(key, default)
@@ -111,6 +121,7 @@ def get_value(dic, key, default=''):
 
 @register.filter
 def get_meta_value(obj, key, default=''):
+    """Get the value of a Meta attribute for a 'django.db.models.Model' instance."""
     try:
         return getattr(obj._meta, key)
     except AttributeError as e:
@@ -130,6 +141,9 @@ _log_levels = {
 
 @register.simple_tag
 def log(msg, level='INFO'):
+    """Log a string using the logging system.
+    It's useful to indicate that a template file is deprecated for example.
+    """
     logger.log(_log_levels.get(level, logging.INFO), msg)
     return ''
 
@@ -153,79 +167,94 @@ def is_relation(obj):
 
 @register.filter(name='lt')
 def lt(x, y):
+    """<Lesser than> operator."""
     return x < y
 
 
 @register.filter(name='gt')
 def gt(x, y):
+    """<Greater than> operator."""
     return x > y
 
 
 @register.filter(name='lte')
 def lte(x, y):
+    """<Lesser or equal> operator."""
     return x <= y
 
 
 @register.filter(name='gte')
 def gte(x, y):
+    """<Greater or equal> operator."""
     return x >= y
 
 
 @register.filter(name='eq')
 def eq(x, y):
+    """<Equal> operator."""
     return x == y
 
 
 @register.filter
 def and_op(object1, object2):
+    """<and> operator."""
     return object1 and object2
 
 
 @register.filter
 def or_op(object1, object2):
+    """<or> operator."""
     return object1 or object2
 
 
 @register.filter
 def not_op(obj):
+    """<not> operator."""
     return not obj
 
 
 @register.filter(name='bool')
 def _bool(object1):
+    """Cast an object to a boolean."""
     return bool(object1)
 
 
 # NB: shortcut for stringformat:'s'
 @register.filter(name='str')
 def _str(object1):
+    """Cast an object to a string."""
     return str(object1)
 
 
 # NB: 'abs' name gives a template syntax error
 @register.filter
 def absolute(integer):
+    """Get the absolute value of a number."""
     return abs(integer)
 
 
 @register.filter(name='in')
 def in_list(obj, sequence):
+    """Is a value contained by a sequence."""
     return obj in sequence
 
 
 # NB: |add is provided by Django
 @register.filter
 def sub(x, y):
+    """Subtraction operator."""
     return x - y
 
 
 @register.filter
 def mult(x, y):
+    """Multiplication operator."""
     return x * y
 
 
 @register.filter
 def idiv(integer1, integer2):
+    """Integer division operator."""
     return integer1 // integer2
 
 
@@ -237,11 +266,16 @@ def idiv(integer1, integer2):
 
 @register.filter
 def mod(integer1, integer2):
+    """Modular operator."""
     return integer1 % integer2
 
 
 @register.filter(name='range')
 def range_filter(integer, start=0):
+    """Create a range iterator.
+    @param integer: number of element in the range.
+    @param start: first value of the range.
+    """
     return range(start, start + integer)
 
 
@@ -258,17 +292,28 @@ def is_iterable(iterable):
 
 @register.filter
 def is_plural(x):
+    """Is a number considered a plural in the current language."""
     return plural(x)
 
 
 @register.filter(name='format')
 def format_string(value, format_str):
+    """Build a string from a format-string with one '%s' element.
+
+    Example:
+        <span>{{ nick_name|format:'Hello %s' }}</span>
+    """
     return format_str % value
 
 
 # TODO: other flavours -> brace_positional, classical_named...
 @register.simple_tag
 def format_string_brace_named(format_str, **kwargs):
+    """Build a string from a format-string using braced+named arguments.
+
+    Example:
+        <h2>{% format_string_brace_named _('Hello {nick_name}') nick_name='Joe' %}</h2>
+    """
     return format_str.format(**kwargs)
 
 
@@ -280,6 +325,7 @@ def to_timestamp(date):
 
 @register.filter
 def uca_sort(iterable):
+    """Get a sorted list of strings, using a correct order for unicode characters."""
     strs = [str(e) for e in iterable]
     strs.sort(key=collator.sort_key)
 
@@ -291,7 +337,6 @@ def verbose_models(models):
     return [m._meta.verbose_name for m in models]
 
 
-# TODO unit test
 @register.filter
 # def allowed_str(entity, user):
 def allowed_str(instance, user):
@@ -311,6 +356,7 @@ def request_is_ajax(request):
 
 @register.filter
 def optionize_model_iterable(iterable, type='tuple'):
+    """Build a choices-friendly generator from an iterable of instances."""
     if type == 'dict':
         return ({'value': model.id, 'label': str(model)} for model in iterable)
     else:
@@ -324,6 +370,9 @@ def jsonify(value):
 
 @register.filter
 def filter_empty(iterable):
+    """Build a list from an iterable object but without the empty elements.
+    Empty means here "evaluated as False", like '', [], (), None...
+    """
     return [x for x in iterable if x]
 
 
@@ -344,6 +393,9 @@ def escape_css(value):
 
 @register.simple_tag
 def listify(*args):
+    """Build a list from several arguments.
+    It can be useful to build a parameter for another tag.
+    """
     return [*args]
 
 
@@ -387,6 +439,10 @@ def get_entity_html_attrs(context, entity):
 # See grouper implementation: https://docs.python.org/3/library/itertools.html#itertools-recipes
 @register.filter
 def grouper(value, n):
+    """Group elements of an iterable.
+    @param value: iterable object.
+    @param n: size of the groups.
+    """
     args = [iter(value)] * n
     return zip_longest(fillvalue=None, *args)
 
