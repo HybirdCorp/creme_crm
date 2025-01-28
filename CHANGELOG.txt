@@ -1,5 +1,13 @@
 == Version 2.6.6 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Persons :
+            - In the hat card for Organisations, the field "Legal form" is now inner-edited with the name.
+              The field was displayed, but was not editable directly.
+
+
 == Version 2.6.5 ==
 
   Users side :
