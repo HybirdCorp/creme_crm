@@ -169,6 +169,10 @@
                       use 'crudity.setting_keys.sandbox_key.id' instead.
             - Javascript:
                 - Array.copy(iterable, start, end) is deprecated; Use native code Array.from(iterable).slice(start, end) instead.
+                - creme.ajax.URL is deprecated; use RelativeURL instead
+                - creme.ajax.parseUrl() is deprecated; Use _.urlAsDict() instead
+                - creme.ajax.params() is deprecated; Use _.encodeURLSearch() instead
+                - creme.ajax.decodeSearchData() is deprecated; Use _.decodeURLSearchData() instead
         # In 'creme_core.models' :
             - The models 'CremeUser' gets a new method 'has_perm_or_die()' which raises exceptions with friendly error messages.
             - The model 'FileRef' gets a new optional field "description";
@@ -184,6 +188,7 @@
                     - Add allowEventOverlaps property (boolean or method).
                     - Add allowEventCreate property (boolean).
         # Javascript:
+            * Add RelativeURL() class as an alternative of URL() that do not accepts relative paths (e.g '/list?page=1' is not a valid URL)
             * FormDialog:
                 - Form submit error responses with HTML can either replace the default overlay content or the frame content.
                 - New creme.dialog.Frame option 'fillOnError'; if enabled the html error response replaces the content.
@@ -254,6 +259,7 @@
                     - Add support for download & upload progress event : new 'uploadProgress' & 'progress' options.
                         - Refactor 'ListViewController' & 'creme.bricks.BricksReloader'
                         - 'creme.ajax.Query' now accepts new 'uploadProgress' & 'progress' options.
+                * creme.ajax.URL.prototype.relativeTo() is replaced by RelativeURL.prototype.fullPath()
             - Apps :
                 * Activities:
                     - Refactor creme.ActivityCalendar : can be now used as independent component.

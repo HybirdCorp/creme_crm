@@ -175,6 +175,12 @@ QUnit.test('creme.ajax.URL (property)', function(assert) {
 
     url.hash('#hackish');
     equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?a=1&a=2&b=true&c=a&d=&d=#hackish', url.href());
+
+    url.search('a=8&b=false&d=');
+    equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?a=8&b=false&d=#hackish', url.href());
+
+    url.search(new URLSearchParams({x: 8, y: -5}));
+    equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?x=8&y=-5#hackish', url.href());
 });
 
 QUnit.test('creme.ajax.URL (searchData)', function(assert) {
@@ -215,6 +221,36 @@ QUnit.test('creme.ajax.URL (searchData, setter)', function(assert) {
     equal('http://admin.com:8080/this/is/a/test?a%5Bone%5D=1&b=b%3D1%2C2%2C3&c%5B%5D=1&c%5B%5D=2&c%5B%5D=3', url.href());
     equal('?a%5Bone%5D=1&b=b%3D1%2C2%2C3&c%5B%5D=1&c%5B%5D=2&c%5B%5D=3', url.search());
     deepEqual({'a[one]': '1', b: 'b=1,2,3', 'c[]': ['1', '2', '3']}, url.searchData());
+
+    url.searchData(new URLSearchParams({x: 8, y: -5, z: 30, a: 'b'}));
+
+    equal('http://admin.com:8080/this/is/a/test?x=8&y=-5&z=30&a=b', url.href());
+    equal('?x=8&y=-5&z=30&a=b', url.search());
+    deepEqual({x: '8', y: '-5', z: '30', a: 'b'}, url.searchData());
+
+    url.searchData('a=4&c=8');
+    deepEqual({a: '4', c: '8'}, url.searchData());
+});
+
+QUnit.test('creme.ajax.URL (searchParams)', function(assert) {
+    var url = new creme.ajax.URL('http://admin.com:8080/this/is/a/test?a=1&b=2&c=true&d=');
+
+    equal(new URLSearchParams({
+        a: '1',
+        b: '2',
+        c: 'true',
+        d: ''
+    }).toString(), url.searchParams().toString());
+
+    url.searchParams(new URLSearchParams({x: 8, y: -5, z: 30, a: 'b'}));
+
+    equal('http://admin.com:8080/this/is/a/test?x=8&y=-5&z=30&a=b', url.href());
+    equal('?x=8&y=-5&z=30&a=b', url.search());
+    deepEqual({x: '8', y: '-5', z: '30', a: 'b'}, url.searchData());
+
+    url.searchParams({x: 1, y: -1, z: 0});
+
+    equal('http://admin.com:8080/this/is/a/test?x=1&y=-1&z=0', url.href());
 });
 
 QUnit.test('creme.ajax.URL (updateSearchData)', function(assert) {
@@ -237,6 +273,9 @@ QUnit.test('creme.ajax.URL (updateSearchData)', function(assert) {
         e: ['a', 'b']
     }, url.searchData());
     equal('http://admin.com:8080/this/is/a/test?a=1&b=5&c=true&d=&e=a&e=b', url.href());
+
+    url.updateSearchData(new URLSearchParams({x: 8, y: -5, a: '33'}));
+    equal('http://admin.com:8080/this/is/a/test?a=33&b=5&c=true&d=&e=a&e=b&x=8&y=-5', url.href());
 });
 
 QUnit.test('creme.ajax.cookieAttr', function(assert) {

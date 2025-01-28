@@ -155,8 +155,8 @@ creme.ActivityCalendarController = creme.component.Component.sub({
     },
 
     _loadStateFromUrl: function(url) {
-        var hash = creme.ajax.parseUrl(url || this._currentUrl()).hash || '';
-        var data = creme.ajax.decodeSearchData(hash.slice(1));
+        var hash = _.urlAsDict(url || this._currentUrl()).hash || '';
+        var data = _.decodeURLSearchData(hash.slice(1));
         var view = data.view && (this.fullCalendarViewNames().indexOf(data.view) !== -1 ? data.view : this.prop('defaultView'));
         var date = data.date ? moment(data.date) : undefined;
         date = date && date.isValid() ? date : undefined;
@@ -165,7 +165,7 @@ creme.ActivityCalendarController = creme.component.Component.sub({
     },
 
     _storeStateInUrl: function(state) {
-        creme.history.push('#' + creme.ajax.param({
+        creme.history.push('#' + _.encodeURLSearch({
             view: state.view,
             date: state.date.format('YYYY-MM-DD')
         }));
