@@ -18,7 +18,7 @@ QUnit.module("creme.emails.brick.actions", new QUnitMixin(QUnitEventMixin,
                                + '<input type="submit" />'
                           + '</form>').template({
                               url: url,
-                              params: creme.ajax.param(data)
+                              params: _.encodeURLSearch(data)
                           });
 
                 return backend.response(200, html);
