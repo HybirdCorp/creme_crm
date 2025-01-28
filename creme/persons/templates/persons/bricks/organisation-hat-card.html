@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/hat-card.html' %}
-{% load i18n creme_bricks creme_listview creme_perms persons_tags %}
-{% load is_field_hidden url url_join from creme_core_tags %}
+{% load i18n creme_bricks creme_cells creme_listview creme_perms persons_tags %}
+{% load inner_edition_uri is_field_hidden listify url url_join from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} persons-organisation-card-brick{% endblock %}
 
@@ -13,7 +13,12 @@
 {#        <span class="card-name">{{object.name}}{% if object.legal_form and 'legal_form' not in hidden_fields %}, {{object.legal_form}}{% endif %} #}
         <span class="card-name">{{object.name}}{% if object.legal_form and not object|is_field_hidden:'legal_form' %}, {{object.legal_form}}{% endif %}
             {% if not object.is_deleted and not object.sandbox %}
-             {% brick_card_action_for_field instance=object field='name' user=user %}
+{#             {% brick_card_action_for_field instance=object field='name' user=user %} #}
+             {% cell_4_regularfield instance=object field="name" as name_cell %}
+             {% cell_4_regularfield instance=object field="legal_form" as lform_cell %}
+             {% listify name_cell lform_cell as cells %}
+             {% inner_edition_uri instance=object cells=cells as edition_uri %}
+             {% brick_card_action id='edit' url=edition_uri enabled=user|has_perm_to_change:object %}
             {% endif %}
             {% include 'creme_core/bricks/frags/hat-card-title-indicators.html' %}
         </span>
