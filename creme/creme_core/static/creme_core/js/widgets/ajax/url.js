@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2018-2024  Hybird
+    Copyright (C) 2018-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 
 creme.ajax = creme.ajax || {};
 
-var __decodeSearchData = creme.ajax.decodeSearchData = function(search) {
+function __decodeSearchData(search) {
     search = search.replace(/^\?/, '');
 
     var searchData = {};
@@ -33,22 +33,23 @@ var __decodeSearchData = creme.ajax.decodeSearchData = function(search) {
             var item = e.split('=');
             var key = decodeURIComponent(item[0]);
             var value = decodeURIComponent(item[1]);
-            var entry = searchData[key];
 
-            if (entry === undefined) {
-                entry = value;
-            } else if (Array.isArray(entry)) {
-                entry.push(value);
-            } else {
-                entry = [entry, value];
-            }
-
-            searchData[key] = entry;
+            _.append(searchData, key, value);
         });
     }
 
     return searchData;
 };
+
+function __decodeURLSearchParams(params) {
+    var data = {};
+
+    params.forEach(function(value, key) {
+        _.append(data, key, value);
+    });
+
+    return data;
+}
 
 creme.ajax.URL = creme.component.Component.sub({
     _init_: function(url) {
@@ -71,7 +72,7 @@ creme.ajax.URL = creme.component.Component.sub({
     },
 
     relativeUrl: function() {
-        return '${pathname}${search}${hash}'.template(this._parser);
+        return this._parser.pathname + this._parser.search + this._parser.hash;
     },
 
     username: function(username) {
@@ -103,13 +104,7 @@ creme.ajax.URL = creme.component.Component.sub({
     },
 
     search: function(search) {
-        if (search === undefined) {
-            return this._parser.search;
-        }
-
-        this._parser.search = search;
-        this._searchData = __decodeSearchData(search);
-        return this;
+        return this._property('search', this);
     },
 
     hash: function(hash) {
@@ -117,33 +112,40 @@ creme.ajax.URL = creme.component.Component.sub({
     },
 
     properties: function() {
+        var url = this._parser;
+
         return {
-            href: this.href(),
-            username: this.username(),
-            password: this.password(),
-            protocol: this.protocol(),
-            host: this.host(),
-            hostname: this.hostname(),
-            port: this.port(),
-            pathname: this.pathname(),
-            search: this.search(),
-            searchData: this.searchData(),
-            hash: this.hash()
+            href: url.href,
+            username: url.username,
+            password: url.password,
+            protocol: url.protocol,
+            host: url.host,
+            hostname: url.hostname,
+            port: url.port,
+            pathname: url.pathname,
+            search: url.search,
+            searchData: __decodeSearchData(url.search),
+            hash: url.hash
         };
     },
 
     searchData: function(data) {
         if (data === undefined) {
-            return this._searchData;
+            return __decodeSearchData(this._url.search);
         }
 
-        this.search(creme.ajax.param(data));
+        data = (data instanceof URLSearchParams) ? data : new URLSearchParams(data);
+        this._parser.search = data.toString();
         return this;
     },
 
     updateSearchData: function(data) {
-        data = data || {};
-        return this.searchData($.extend({}, this._searchData, data));
+        var entries = (data instanceof URLSearchParams) ? __decodeURLSearchParams(data) : data;
+        var origin = __decodeSearchData(this._parser.search);
+        var params = new URLSearchParams(Object.assign(origin, entries));
+
+        this._url.search = params.toString();
+        return this;
     },
 
     toString: function() {
@@ -157,17 +159,17 @@ creme.ajax.parseUrl = function(url) {
     parser.href = url;
 
     return {
-        href: parser.href,
-        username: parser.username,
-        password: parser.password,
-        protocol: parser.protocol,
-        host: parser.host,
-        hostname: parser.hostname,
-        port: parser.port,
-        pathname: parser.pathname,
-        search: parser.search,
-        searchData: __decodeSearchData(parser.search),
-        hash: parser.hash
+        href: url.href,
+        username: url.username,
+        password: url.password,
+        protocol: url.protocol,
+        host: url.host,
+        hostname: url.hostname,
+        port: url.port,
+        pathname: url.pathname,
+        search: url.search,
+        searchData: __decodeSearchData(url.params),
+        hash: url.hash
     };
 };
 
@@ -175,7 +177,10 @@ creme.ajax.param = function(data) {
     // Use explicit traditional=true argument to replace ajaxSettings.traditional deprecated
     // since jQuery 1.9 see (https://bugs.jquery.com/ticket/12137)
     // return $.param(data, jQuery.ajaxSettings.traditional);
-    return $.param(data, true);
+    // return $.param(data, true);
+    return (new URLSearchParams(data)).toString();
 };
+
+creme.ajax.decodeSearchData = __decodeSearchData;
 
 }(jQuery));
