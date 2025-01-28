@@ -59,7 +59,7 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
         }
 
         if (options.enableUriSearch) {
-            var urlInfo = new creme.ajax.URL(url);
+            var urlInfo = _.toRelativeURL(url);
             var searchData = urlInfo.searchData();
 
             if (Object.isEmpty(searchData) === false) {
