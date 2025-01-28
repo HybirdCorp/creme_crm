@@ -1,5 +1,12 @@
 == Version 2.5.18 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Opportunities :
+              - The title of the brick which displays related Opportunities for Contact/Organisation has been improved.
+
+
 == Version 2.5.17 ==
 
   Users side :
