@@ -1,13 +1,15 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load i18n creme_bricks creme_ctype creme_perms creme_widgets %}
 {% load and_op format_amount get_hidden_fields url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} opportunities-opportunities-brick{% endblock %}
 
 {% block brick_header_title %}
- {% if is_organisation %}
+{# {% if is_organisation %} #}
+ {% if object.entity_type == 'PERSONS_ORGANISATION_MODEL'|ctype_for_swappable %}
     {% brick_header_title title=_('{count} Opportunity which targets the organisation') plural=_('{count} Opportunities which target the organisation') empty=_('Opportunities') icon='opportunity' %}
- {% elif is_contact %}
+{# {% elif is_contact %} #}
+ {% elif object.entity_type == 'PERSONS_CONTACT_MODEL'|ctype_for_swappable %}
     {% brick_header_title title=_('{count} Opportunity which targets the contact') plural=_('{count} Opportunities which target the contact') empty=_('Opportunities') icon='opportunity' %}
  {% else %}
     {% brick_header_title title=_('{count} Opportunity which targets the entity') plural=_('{count} Opportunities which target the entity') empty=_('Opportunities') icon='opportunity' %}

@@ -328,8 +328,8 @@ class TargetingOpportunitiesBrick(QuerysetBrick):
             predicate_id=self.relation_type_deps[0],
             # hidden_fields=context['fields_configs'] \
             #    .get_for_model(Opportunity).hidden_field_names,
-            is_organisation=isinstance(entity, Organisation),
-            is_contact=isinstance(entity, Contact),
+            # is_organisation=isinstance(entity, Organisation),
+            # is_contact=isinstance(entity, Contact),
         ))
 
 
