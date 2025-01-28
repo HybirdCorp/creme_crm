@@ -29,8 +29,23 @@ function pop(object, name, defaults) {
     }
 }
 
+function append(object, key, value) {
+    var entry = object[key];
+
+    if (entry === undefined) {
+        entry = value;
+    } else if (Array.isArray(entry)) {
+        entry.push(value);
+    } else {
+        entry = [entry, value];
+    }
+
+    object[key] = entry;
+}
+
 _.mixin({
-    pop: pop
+    pop: pop,
+    append: append
 });
 
 }());

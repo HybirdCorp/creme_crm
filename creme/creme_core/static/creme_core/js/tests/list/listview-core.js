@@ -525,7 +525,7 @@ QUnit.test('creme.listview.core (submitState)', function(assert) {
         ['done', html]
     ], this.mockListenerCalls('submit-complete'));
 
-    var nextUrl = new creme.ajax.URL('mock/listview/reload').updateSearchData({
+    var nextUrl = _.toRelativeURL('mock/listview/reload').updateSearchData({
         sort_key: ['regular_field-name'],
         sort_order: ['ASC'],
         selection: ['multiple'],
@@ -1029,7 +1029,7 @@ QUnit.test('creme.listview.core (resetSearchState)', function(assert) {
         ['done', html]
     ], this.mockListenerCalls('submit-complete'));
 
-    var nextUrl = new creme.ajax.URL('mock/listview/reload').updateSearchData({
+    var nextUrl = _.toRelativeURL('mock/listview/reload').updateSearchData({
         sort_key: ['regular_field-name'],
         sort_order: ['ASC'],
         selection: ['multiple'],

@@ -37,17 +37,17 @@ creme.utils.redirect = function(url) {
 
 creme.utils.locationRelativeUrl = function() {
     // remove 'http://host.com'
-    return (new creme.ajax.URL(window.location.href)).relativeUrl();
+    return _.toRelativeURL(window.location.href).fullPath();
 };
 
 creme.utils.goTo = function(url, data) {
     if (Object.isEmpty(data)) {
         creme.utils.redirect(url);
     } else {
-        var urlinfo = new creme.ajax.URL(url);
+        var urlinfo = _.toRelativeURL(url);
 
         if (Object.isString(data)) {
-            data = creme.ajax.decodeSearchData(data);
+            data = _.decodeURLSearchData(data);
         }
 
         urlinfo.searchData($.extend({}, urlinfo.searchData(), data));

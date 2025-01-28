@@ -1028,7 +1028,7 @@ QUnit.test('creme.listview.row-action (redirect)', function(assert) {
     this.assertClosedPopover();
 
     deepEqual([
-        (new creme.ajax.URL(window.location.href).relativeUrl() + '?redirect#hatbar')
+        (_.toRelativeURL(window.location.href).fullPath() + '?redirect#hatbar')
     ], this.mockRedirectCalls());
 });
 
