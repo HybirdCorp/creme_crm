@@ -184,6 +184,11 @@
         # Javascript:
             * Deprecations:
                 - Array.copy(iterable, start, end) is deprecated; Use native code Array.from(iterable).slice(start, end) instead.
+                - creme.ajax.URL is deprecated; use RelativeURL instead
+                - creme.ajax.parseUrl() is deprecated; Use _.urlAsDict() instead
+                - creme.ajax.params() is deprecated; Use _.encodeURLSearch() instead
+                - creme.ajax.decodeSearchData() is deprecated; Use _.decodeURLSearchData() instead
+         - Add RelativeURL() class as an alternative of URL() that do not accepts relative paths (e.g '/list?page=1' is not a valid URL)
             * Use Object.assign instead of $.extend to remove the dependency to jQuery for : RGBColor, DateFaker, BrowserVersion & Assert.
             * Use Object.assign instead of $.extend for sketch components.
             * FormDialog:
@@ -253,6 +258,7 @@
                     - Add support for download & upload progress event : new 'uploadProgress' & 'progress' options.
                         - Refactor 'ListViewController' & 'creme.bricks.BricksReloader'
                         - 'creme.ajax.Query' now accepts new 'uploadProgress' & 'progress' options.
+                * creme.ajax.URL.prototype.relativeTo() is replaced by RelativeURL.prototype.fullPath()
             - Apps :
                 * Activities:
                     - Refactor creme.ActivityCalendar : can be now used as independent component.
