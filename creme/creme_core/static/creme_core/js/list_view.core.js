@@ -487,7 +487,7 @@
         },
 
         nextStateUrl: function(data) {
-            var link = new creme.ajax.URL(this.reloadUrl());
+            var link = _.toRelativeURL(this.reloadUrl());
 
             // HACK : Since we don't have a specific view to reset the search
             // state, we must cleanup the urls to prevent unexpected "search=clear"
