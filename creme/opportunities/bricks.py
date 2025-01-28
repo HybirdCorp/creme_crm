@@ -330,8 +330,8 @@ class TargetingOpportunitiesBrick(QuerysetBrick):
             #     if is_hidden(fname)
             # },
             hidden_fields=context['fields_configs'].get_for_model(Opportunity).hidden_field_names,
-            is_organisation=isinstance(object, Organisation),
-            is_contact=isinstance(object, Contact),
+            is_organisation=isinstance(entity, Organisation),
+            is_contact=isinstance(entity, Contact),
         ))
 
 
