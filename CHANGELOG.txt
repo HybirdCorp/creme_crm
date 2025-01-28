@@ -308,8 +308,10 @@
                         - The attribute 'dest_title' has been removed.
                         - The method 'get_destination_model()' has been removed.
             * Opportunities :
-                - In the brick classes 'OpportunityCardHatBrick' & 'TargetingOpportunitiesBrick',
-                  the variable "hidden_fields" is not injected anymore.
+                - In 'bricks' :
+                    - In the class 'OpportunityCardHatBrick', the variable "hidden_fields" is not injected anymore.
+                    - In the class 'TargetingOpportunitiesBrick', theses variables are not injected anymore:
+                      "hidden_fields", "is_organisation" & "is_contact".
             * Emails :
                 - In the brick classes 'ContactsBrick' & 'OrganisationsBrick',
                   the variable "field_hidden" is not injected anymore.
