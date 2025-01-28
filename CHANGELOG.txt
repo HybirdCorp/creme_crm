@@ -6,6 +6,9 @@
         * Persons :
             - In the hat card for Organisations, the field "Legal form" is now inner-edited with the name.
               The field was displayed, but was not editable directly.
+        * Billing :
+            - The bricks for related Quotes/SalesOrders/CreditNotes have been improved: better empty expiration date.
+              It's now more consistent with the Invoices' brick.
         * Opportunities :
               - The title of the brick which displays related Opportunities for Contact/Organisation has been improved.
 
