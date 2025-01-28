@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
 {% load i18n creme_bricks creme_perms creme_widgets %}
-{% load and_op format_amount url from creme_core_tags %}
+{% load and_op format_amount get_hidden_fields url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} opportunities-opportunities-brick{% endblock %}
 
@@ -24,6 +24,7 @@
     {% brick_table_column_for_field ctype=objects_ctype field='name' title=_('Name') status='primary' %}
     {% brick_table_column title=_('Sales phase') %}
 
+    {% get_hidden_fields objects_ctype as hidden_fields %}
     {% if 'estimated_sales' not in hidden_fields %}
      {% brick_table_column_for_field ctype=objects_ctype field='estimated_sales' data_type='money' %}
     {% endif %}
@@ -36,6 +37,7 @@
 {% endblock %}
 
 {% block brick_table_rows %}
+ {% get_hidden_fields objects_ctype as hidden_fields %}
  {% with unlink_perm=user|has_perm_to_unlink:object delete_multi_url='creme_core__delete_entities'|url %}
   {% for opportunity in page.object_list %}
     <tr>

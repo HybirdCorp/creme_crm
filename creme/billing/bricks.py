@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -160,7 +160,7 @@ class CreditNotesBrick(PaginatedBrick):
             context,
             context['object'].get_credit_notes(),
             rtype_id=self.relation_type_deps[0],
-            hidden_fields=context['fields_configs'].get_for_model(CreditNote).hidden_field_names,
+            # hidden_fields=context['fields_configs'].get_for_model(CreditNote).hidden_field_names,
         ))
 
 
@@ -210,7 +210,7 @@ class ReceivedInvoicesBrick(QuerysetBrick):
                 relations__object_entity=context['object'].id,  # Contact/Organisation
                 relations__type=constants.REL_SUB_BILL_RECEIVED,
             ).select_related('status', 'currency'),
-            hidden_fields=context['fields_configs'].get_for_model(Invoice).hidden_field_names,
+            # hidden_fields=context['fields_configs'].get_for_model(Invoice).hidden_field_names,
         ))
 
 
@@ -243,7 +243,7 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
             title_plural=self._title_plural,
             empty_title=self._empty_title,
             empty_msg=self._empty_msg,
-            hidden_fields=context['fields_configs'].get_for_model(model).hidden_field_names,
+            # hidden_fields=context['fields_configs'].get_for_model(model).hidden_field_names,
         ))
 
 
@@ -334,12 +334,12 @@ class BillingPaymentInformationBrick(QuerysetBrick):
     order_by = 'name'
 
     def detailview_display(self, context):
-        billing = context['object']
+        billing_doc = context['object']
         pi_qs = PaymentInformation.objects.none()
         hidden = context['fields_configs'].get_for_model(
-            billing.__class__,
+            type(billing_doc)
         ).is_fieldname_hidden('payment_info')
-        organisation = billing.source
+        organisation = billing_doc.source
 
         if not hidden and organisation is not None:
             pi_qs = PaymentInformation.objects.filter(organisation=organisation)

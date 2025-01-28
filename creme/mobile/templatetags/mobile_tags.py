@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2024  Hybird
+#    Copyright (C) 2014-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,7 +58,7 @@ def mobile_location_map_url(address):
 # TODO: move to creme_core ??
 @register.simple_tag(takes_context=True)
 def mobile_prepare_fields(context, instance, *field_names):
-    is_hidden = context['fields_configs'].get_for_model(instance.__class__).is_fieldname_hidden
+    is_hidden = context['fields_configs'].get_for_model(type(instance)).is_fieldname_hidden
 
     for field_name in field_names:
         if is_hidden(field_name):

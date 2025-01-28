@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/hat-card.html' %}
 {% load i18n creme_bricks creme_cells creme_listview creme_perms creme_widgets persons_tags %}
-{% load inner_edition_uri listify url from creme_core_tags %}
+{% load get_hidden_fields inner_edition_uri listify url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} persons-contact-card-brick{% endblock %}
 
@@ -33,6 +33,7 @@
 
 {% block card_secondary %}
   {% block contact_position %}
+    {% get_hidden_fields object as hidden_fields %}
     {% if object.full_position and 'full_position' not in hidden_fields %}
       <div class="card-position">{{object.full_position}}</div>
     {% elif object.position and 'position' not in hidden_fields %}
@@ -81,6 +82,7 @@
 {% endblock %}
 
 {% block card_fields %}
+  {% get_hidden_fields object as hidden_fields %}
   {% if 'phone' not in hidden_fields %}
     <div class="card-info-field">
         <span class='card-info-key'>{% translate 'Phone' %}</span>

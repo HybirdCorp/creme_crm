@@ -17,6 +17,7 @@ from creme.creme_core.models import (
     FakeInvoice,
     FakeOrganisation,
     FakeTicket,
+    FieldsConfig,
     Language,
 )
 from creme.creme_core.utils.html import escapejson
@@ -127,85 +128,75 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     def test_sub(self):
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 '{% load creme_core_tags %}'
                 '{{x|sub:3}}#{{13|sub:6}}'
-            )
-            render = template.render(Context({'x': 5}))
+            ).render(Context({'x': 5}))
 
         self.assertEqual('2#7', render.strip())
 
     def test_mult(self):
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 '{% load creme_core_tags %}'
                 '{{x|mult:3}}#{{10|mult:6}}'
-            )
-            render = template.render(Context({'x': 5}))
+            ).render(Context({'x': 5}))
 
         self.assertEqual('15#60', render.strip())
 
     def test_idiv(self):
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 '{% load creme_core_tags %}'
                 '{{x|idiv:2}}#{{13|idiv:3}}'
-            )
-            render = template.render(Context({'x': 5}))
+            ).render(Context({'x': 5}))
 
         self.assertEqual('2#4', render.strip())
 
     def test_mod(self):
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 '{% load creme_core_tags %}'
                 '{{x|mod:3}}#{{13|mod:6}}'
-            )
-            render = template.render(Context({'x': 5}))
+            ).render(Context({'x': 5}))
 
         self.assertEqual('2#1', render.strip())
 
     def test_has_attr(self):
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 "{% load creme_core_tags %}"
                 "{% if orga|has_attr:'name' %}OK{% else %}KO{% endif %}#"
                 "{% if orga|has_attr:'invalid' %}OK{% else %}KO{% endif %}"
-            )
-            render = template.render(Context({
-                'orga': FakeOrganisation(name='Amestris'),
-            }))
+            ).render(Context({'orga': FakeOrganisation(name='Amestris')}))
 
         self.assertEqual('OK#KO', render.strip())
 
     def test_format(self):
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 "{% load creme_core_tags %}"
                 "{{ 'world'|format:'Hello %s' }}"
-            )
-            render = template.render(Context())
+            ).render(Context())
 
         self.assertEqual('Hello world', render.strip())
 
     def test_format_string_brace_named(self):
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 "{% load creme_core_tags %}"
                 "{% format_string_brace_named 'Hello {first} & {second}' first='Python' second='Django' %}"  # NOQA
-            )
-            render = template.render(Context())
+            ).render(Context())
 
         self.assertEqual('Hello Python &amp; Django', render.strip())
 
     def test_listify(self):
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 '{% load creme_core_tags %}'
                 '{% listify email phone as mylist %}'
                 '{{mylist|join:","}}'
-            )
-            render = template.render(Context({
+            ).render(Context({
                 'email': 'foo@bar.org',
                 'phone': '123-FOOBAR',
             }))
@@ -214,11 +205,10 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     def test_filter_empty(self):
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 '{% load creme_core_tags %}'
                 '{{mylist|filter_empty|join:","}}'
-            )
-            render = template.render(Context({
+            ).render(Context({
                 'mylist': ['', 'foo@bar.org', None, '123-FOOBAR', False],
             }))
 
@@ -281,11 +271,10 @@ class CremeCoreTagsTestCase(CremeTestCase):
         ce_type.save()
 
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 '{% load creme_core_tags %}'
                 '{% with m=models|verbose_models %}{{m.0}}, {{m.1}}, {{m.2}}{% endwith %}'
-            )
-            render = template.render(Context({
+            ).render(Context({
                 'models': [FakeContact, FakeOrganisation, ce_type.entity_model],
             }))
 
@@ -295,12 +284,11 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     def test_templatize(self):
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 r'{% load creme_core_tags %}'
                 r'{% templatize "{{columns|length}}" as colspan %}'
                 r'<h1>{{colspan}}</h1>'
-            )
-            render = template.render(Context({'columns': range(3)}))
+            ).render(Context({'columns': range(3)}))
 
         self.assertEqual('<h1>3</h1>', render.strip())
 
@@ -570,8 +558,9 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     def _assertJsonifyFilter(self, expected, data):
         with self.assertNoException():
-            template = Template("{% load creme_core_tags %}{{data|jsonify|safe}}")
-            render = template.render(Context({'data': data}))
+            render = Template(
+                '{% load creme_core_tags %}{{data|jsonify|safe}}'
+            ).render(Context({'data': data}))
 
         with self.assertNoException():
             deserialized = json_load(render.strip())
@@ -603,7 +592,6 @@ class CremeCoreTagsTestCase(CremeTestCase):
         )
 
         now = datetime(2018, 1, 12, 8, 12, 25, 12345, tzinfo=timezone.utc)
-
         self._assertJsonifyFilter(
             {
                 'a': 12,
@@ -750,35 +738,33 @@ class CremeCoreTagsTestCase(CremeTestCase):
         orgas = [orga1, orga2]
 
         with self.assertNoException():
-            template = Template(
+            render1 = Template(
                 '{% load creme_core_tags %}{{data|optionize_model_iterable|jsonify|safe}}'
-            )
-            render = template.render(Context({'data': orgas}))
+            ).render(Context({'data': orgas}))
 
         with self.assertNoException():
-            deserialized = json_load(render.strip())
+            deserialized = json_load(render1.strip())
 
         self.assertListEqual(
             [[orga1.id, str(orga1)], [orga2.id, str(orga2)]],
-            deserialized
+            deserialized,
         )
 
         # ---
         with self.assertNoException():
-            template = Template(
+            render2 = Template(
                 "{% load creme_core_tags %}{{data|optionize_model_iterable:'dict'|jsonify|safe}}"
-            )
-            render = template.render(Context({'data': orgas}))
+            ).render(Context({'data': orgas}))
 
         with self.assertNoException():
-            deserialized = json_load(render.strip())
+            deserialized = json_load(render2.strip())
 
         self.assertListEqual(
             [
                 {'value': orga1.id, 'label': str(orga1)},
                 {'value': orga2.id, 'label': str(orga2)},
             ],
-            deserialized
+            deserialized,
         )
 
     def test_escape_css(self):
@@ -798,11 +784,10 @@ class CremeCoreTagsTestCase(CremeTestCase):
         url_name = 'creme_core__delete_entities'
 
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 '{% load creme_core_tags %}'
                 '<a href="{{url_name|url}}">Link</a>'
-            )
-            render = template.render(Context({'url_name': url_name}))
+            ).render(Context({'url_name': url_name}))
 
         self.assertEqual(
             f'<a href="{reverse(url_name)}">Link</a>',
@@ -815,13 +800,10 @@ class CremeCoreTagsTestCase(CremeTestCase):
         entity_id = 12
 
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 '{% load creme_core_tags %}'
                 '<a href="{{url_name|url:entity_id}}">Link</a>'
-            )
-            render = template.render(
-                Context({'url_name': url_name, 'entity_id': entity_id})
-            )
+            ).render(Context({'url_name': url_name, 'entity_id': entity_id}))
 
         self.assertEqual(
             f'<a href="{reverse(url_name, args=(entity_id,))}">Link</a>',
@@ -855,14 +837,11 @@ class CremeCoreTagsTestCase(CremeTestCase):
         brick_id2 = 'brick-core-properties'
 
         with self.assertNoException():
-            template = Template(
+            render = Template(
                 '{% load creme_core_tags %}'
                 '{% url_join my_url brick_id_01=brick_id1 brick_id_02=brick_id2 as my_uri %}'
                 '<a href="{{my_uri}}">Link</a>'
-            )
-            render = template.render(Context(
-                {'my_url': url, 'brick_id1': brick_id1, 'brick_id2': brick_id2}
-            ))
+            ).render(Context({'my_url': url, 'brick_id1': brick_id1, 'brick_id2': brick_id2}))
 
         self.assertIn(
             render.strip(),
@@ -894,9 +873,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                 '{% load creme_core_tags %}'
                 '{% url_join my_url brick_id=brick_id as my_uri %}'
                 '<a href="{{my_uri}}">Link</a>'
-            ).render(Context(
-                {'my_url': url, 'brick_id': brick_ids}
-            ))
+            ).render(Context({'my_url': url, 'brick_id': brick_ids}))
 
         self.assertEqual(
             f'<a href="{url}?brick_id={brick_ids[0]}&brick_id={brick_ids[1]}">Link</a>',
@@ -931,9 +908,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                 '{% load creme_core_tags %}'
                 '{% url_join my_url brick_id=brick_id as my_uri %}'
                 '<a href="{{my_uri}}">Link</a>'
-            ).render(
-                Context({'my_url': url, 'brick_id': brick_ids})
-            )
+            ).render(Context({'my_url': url, 'brick_id': brick_ids}))
 
         self.assertEqual(
             f'<a href="{url}&brick_id={brick_ids[0]}&brick_id={brick_ids[1]}">Link</a>',
@@ -963,9 +938,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                 '.foo .bar-label:before {'
                 '   content: "{{value|escapecss}}";'
                 '}'
-            ).render(Context({
-                'value': '''foo© '" 2020><''',
-            }))
+            ).render(Context({'value': '''foo© '" 2020><'''}))
 
         self.assertEqual(
             r'''.foo .bar-label:before {'''
@@ -973,6 +946,74 @@ class CremeCoreTagsTestCase(CremeTestCase):
             r'''}''',
             render.strip(),
         )
+
+    def test_is_field_hidden(self):
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
+        )
+
+        user = self.get_root_user()
+        contact = FakeContact.objects.create(
+            user=user, first_name='Edward', last_name='Elric', phone='123456',
+        )
+
+        # With instance ---
+        with self.assertNoException():
+            render1 = Template(
+                '{% load creme_core_tags %}'
+                '{% if o|is_field_hidden:"first_name" %}?{% else %}{{o.first_name}}{% endif %}#'
+                '{% if o|is_field_hidden:"phone" %}?{% else %}{{o.phone}}{% endif %}'
+            ).render(Context({'o': contact}))
+
+        self.assertEqual(f'{contact.first_name}#?', render1.strip())
+
+        # With ContentType ---
+        with self.assertNoException():
+            render2 = Template(
+                '{% load creme_core_tags %}'
+                '{% if ctype|is_field_hidden:"first_name" %}?{% else %}First name{% endif %}#'
+                '{% if ctype|is_field_hidden:"phone" %}?{% else %}Phone{% endif %}'
+            ).render(Context({'ctype': contact.entity_type}))
+
+        self.assertEqual('First name#?', render2.strip())
+
+    def test_get_hidden_fields(self):
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
+        )
+
+        user = self.get_root_user()
+        contact = FakeContact.objects.create(
+            user=user, first_name='Edward', last_name='Elric', phone='123456',
+        )
+        ctxt = Context({
+            'fields_configs': FieldsConfig.LocalCache(),  # See processors
+            'obj': contact,
+        })
+
+        # With instance ---
+        with self.assertNoException():
+            render1 = Template(
+                '{% load creme_core_tags %}'
+                '{% get_hidden_fields obj as hidden_fields %}'
+                '{% if "first_name" in hidden_fields %}?{% else %}{{obj.first_name}}{% endif %}#'
+                '{% if "phone" in hidden_fields %}?{% else %}{{obj.phone}}{% endif %}'
+            ).render(ctxt)
+
+        self.assertEqual(f'{contact.first_name}#?', render1.strip())
+
+        # With ContentType ---
+        with self.assertNoException():
+            render2 = Template(
+                '{% load creme_core_tags %}'
+                '{% get_hidden_fields obj.entity_type as hidden_fields %}'
+                '{% if "first_name" in hidden_fields %}?{% else %}First name{% endif %}#'
+                '{% if "phone" in hidden_fields %}?{% else %}Phone{% endif %}'
+            ).render(ctxt)
+
+        self.assertEqual('First name#?', render2.strip())
 
     def test_inner_edition_uri(self):
         user = self.get_root_user()
