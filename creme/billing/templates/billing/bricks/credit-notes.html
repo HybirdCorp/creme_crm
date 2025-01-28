@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
 {% load i18n creme_bricks creme_perms creme_widgets %}
-{% load and_op format_amount print_field url from creme_core_tags %}
+{% load and_op format_amount get_hidden_fields print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} billing-cnotes-brick{% endblock %}
 
@@ -18,6 +18,7 @@
     {% brick_table_column title=_('Number') class='cnotes-number' %}
     {% brick_table_column title=_('Status') class='cnotes-status' %}
 
+    {% get_hidden_fields page.object_list.0 as hidden_fields %}
     {% if 'comment' not in hidden_fields %}
     {% brick_table_column title=_('Comment') class='cnotes-comment' %}
     {% endif %}
@@ -36,6 +37,7 @@
 {% endblock %}
 
 {% block brick_table_rows %}
+{% get_hidden_fields page.object_list.0 as hidden_fields %}
 {% with unlink_perm=user|has_perm_to_unlink:object %}
   {% for credit_note in page.object_list %}
    {% if user|has_perm_to_view:credit_note %}

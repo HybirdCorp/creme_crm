@@ -25,6 +25,7 @@ from urllib.parse import urlencode, urlsplit
 
 from django.apps import apps
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 # from django.contrib.contenttypes.models import ContentType
 from django.template import Library
@@ -48,7 +49,7 @@ from ..gui.bulk_update import bulk_update_registry
 from ..gui.field_printers import field_printer_registry
 from ..gui.view_tag import ViewTag
 from ..http import is_ajax
-from ..models import CremeEntity, Relation
+from ..models import CremeEntity, FieldsConfig, Relation
 from ..models.utils import model_verbose_name
 from ..utils import bool_as_html
 from ..utils.currency_format import currency
@@ -533,6 +534,26 @@ def is_entity(obj):
 @register.filter
 def is_relation(obj):
     return isinstance(obj, Relation)
+
+
+@register.filter
+def is_field_hidden(entity_or_ctype: CremeEntity | ContentType, field_name: str) -> bool:
+    """Is a field hidden by configuration?"""
+    return FieldsConfig.objects.get_for_model(
+        entity_or_ctype.model_class()
+        if isinstance(entity_or_ctype, ContentType) else
+        type(entity_or_ctype)
+    ).is_fieldname_hidden(field_name)
+
+
+@register.simple_tag(takes_context=True)
+def get_hidden_fields(context, entity_or_ctype: CremeEntity | ContentType) -> frozenset[str]:
+    """Get the names of all fields hidden by configuration."""
+    return context['fields_configs'].get_for_model(
+        entity_or_ctype.model_class()
+        if isinstance(entity_or_ctype, ContentType) else
+        type(entity_or_ctype)
+    ).hidden_field_names
 
 
 # NB: in Creme section because it uses an encoder which could be creme-specific

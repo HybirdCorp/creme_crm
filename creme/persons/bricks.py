@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -311,8 +311,7 @@ class ContactCardHatBrick(_PersonsCardHatBrick):
 
         return self._render(self.get_template_context(
             context,
-            # TODO: only with templatetags?
-            hidden_fields=context['fields_configs'].get_for_model(Contact).hidden_field_names,
+            # hidden_fields=context['fields_configs'].get_for_model(Contact).hidden_field_names,
 
             max_organisations=max_organisations,
             managed=managed,
@@ -357,9 +356,7 @@ class OrganisationCardHatBrick(_PersonsCardHatBrick):
         organisation = context['object']
         user = context['user']
         managed_orgas = Organisation.objects.filter_managed_by_creme()
-
-        get_fconfigs = context['fields_configs'].get_for_model
-
+        # get_fconfigs = context['fields_configs'].get_for_model
         max_contacts = self.max_related_contacts
 
         def retrieve_contacts_n_count(qs):
@@ -376,8 +373,11 @@ class OrganisationCardHatBrick(_PersonsCardHatBrick):
 
         return self._render(self.get_template_context(
             context,
-            hidden_fields=get_fconfigs(Organisation).hidden_field_names,
-            position_is_hidden=get_fconfigs(Contact).is_fieldname_hidden('position'),
+            # hidden_fields=get_fconfigs(Organisation).hidden_field_names,
+            # position_is_hidden=get_fconfigs(Contact).is_fieldname_hidden('position'),
+            position_is_hidden=context['fields_configs'].get_for_model(
+                Contact
+            ).is_fieldname_hidden('position'),
 
             is_customer=managed_orgas.filter(
                 relations__type=constants.REL_OBJ_CUSTOMER_SUPPLIER,

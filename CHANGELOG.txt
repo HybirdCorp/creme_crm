@@ -260,7 +260,10 @@
             * Creme_config :
                 - In the brick 'GenericModelBrick', "meta" is not injected in the context anymore.
             * Persons :
-                - In the method 'bricks.NextActivitySummary.get_context()', the returned context does not contain "NARROW" anymore.
+                - In 'bricks' :
+                    - In the method 'NextActivitySummary.get_context()', the returned context does not contain "NARROW" anymore.
+                    - In the classes 'ContactCardHatBrick' & 'OrganisationCardHatBrick',
+                      the variable "hidden_fields" is not injected anymore.
                 - In the button 'buttons.AddLinkedContactButton', the variable "contact_link_perm" is not injected anymore.
             * Activities :
                 - The brick 'CalendarConfigItemsBrick' does not inject "has_app_perm" in the template context.
@@ -271,6 +274,8 @@
                 - In the field 'report.Field.name', the CustomFields are referenced by their UUID now (see types 'RFT_CUSTOM' & 'RFT_AGG_CUSTOM').
             * Billing :
                 - The class 'actions.GenerateNumberAction' has been removed (use '_GenerateNumberAction' instead).
+                - In the brick classes 'CreditNotesBrick' & 'Received*Brick',
+                  the variable "hidden_fields" is not injected anymore.
                 - In 'buttons' :
                     - The class 'GenerateInvoiceNumberButton' has been removed (use 'GenerateNumberButton' instead).
                     - The class '_ConvertToButton' (& so, the child classes) has been reworked.
@@ -302,6 +307,14 @@
                     - The class view 'convert.Conversion' has been reworked :
                         - The attribute 'dest_title' has been removed.
                         - The method 'get_destination_model()' has been removed.
+            * Opportunities :
+                - In the brick classes 'OpportunityCardHatBrick' & 'TargetingOpportunitiesBrick',
+                  the variable "hidden_fields" is not injected anymore.
+            * Emails :
+                - In the brick classes 'ContactsBrick' & 'OrganisationsBrick',
+                  the variable "field_hidden" is not injected anymore.
+            * SMS :
+                - In the brick class 'ContactsBrick', the variable "field_hidden" is not injected anymore.
 
     Internal breaking changes :
     ---------------------------

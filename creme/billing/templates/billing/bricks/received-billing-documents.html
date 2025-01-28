@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
 {% load i18n creme_bricks creme_perms creme_widgets %}
-{% load format_amount from creme_core_tags %}
+{% load format_amount is_field_hidden not_op from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} billing-received-brick{% endblock %}
 
@@ -11,7 +11,8 @@
 {% block brick_table_columns %}
     {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary' %}
 
-    {% if 'expiration_date' not in hidden_fields %}
+{#    {% if 'expiration_date' not in hidden_fields %} #}
+    {% if not objects_ctype|is_field_hidden:'expiration_date' %}
     {% brick_table_column_for_field ctype=objects_ctype field='expiration_date' %}
     {% endif %}
 
@@ -20,20 +21,24 @@
 {% endblock %}
 
 {% block brick_table_rows %}
+ {% with display_expiration=objects_ctype|is_field_hidden:'expiration_date'|not_op %}
   {% for billing_document in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink billing_document user %}</td>
         {% if user|has_perm_to_view:billing_document %}
-         {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{billing_document.expiration_date|date:'DATE_FORMAT'}}</td>{% endif %}
+{#         {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{billing_document.expiration_date|date:'DATE_FORMAT'}}</td>{% endif %} #}
+         {% if display_expiration %}<td data-type="date">{{billing_document.expiration_date|date:'DATE_FORMAT'}}</td>{% endif %}
          <td>{{billing_document.status}}</td>
          <td data-type="money">{{billing_document.total_no_vat|format_amount:billing_document.currency}}</td>
         {% else %}
-         {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{HIDDEN_VALUE}}</td>{% endif %}
+{#         {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{HIDDEN_VALUE}}</td>{% endif %} #}
+         {% if display_expiration %}<td data-type="date">{{HIDDEN_VALUE}}</td>{% endif %}
          <td>{{HIDDEN_VALUE}}</td>
          <td data-type="money">{{HIDDEN_VALUE}}</td>
         {% endif %}
     </tr>
   {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

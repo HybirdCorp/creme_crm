@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -170,11 +170,10 @@ class ContactsBrick(_RelatedEntitiesBrick):
     def _get_queryset(self, entity):  # NB: entity==mailing_list
         return entity.contacts.select_related('civility')
 
-    def _update_context(self, context):
-        # TODO: in a templatetag ??
-        context['field_hidden'] = context[
-            'fields_configs'
-        ].get_for_model(Contact).is_fieldname_hidden('email')
+    # def _update_context(self, context):
+    #     context['field_hidden'] = context[
+    #         'fields_configs'
+    #     ].get_for_model(Contact).is_fieldname_hidden('email')
 
 
 class OrganisationsBrick(_RelatedEntitiesBrick):
@@ -187,10 +186,10 @@ class OrganisationsBrick(_RelatedEntitiesBrick):
     def _get_queryset(self, entity):  # NB: entity==mailing_list
         return entity.organisations.all()
 
-    def _update_context(self, context):
-        context['field_hidden'] = context[
-            'fields_configs'
-        ].get_for_model(Organisation).is_fieldname_hidden('email')
+    # def _update_context(self, context):
+    #     context['field_hidden'] = context[
+    #         'fields_configs'
+    #     ].get_for_model(Organisation).is_fieldname_hidden('email')
 
 
 class ChildListsBrick(_RelatedEntitiesBrick):
