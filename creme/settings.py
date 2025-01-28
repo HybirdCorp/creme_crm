@@ -871,6 +871,7 @@ CREME_CORE_JS = [
     'creme_core/js/lib/assert.js',
     'creme_core/js/lib/faker.js',
     'creme_core/js/lib/browser.js',
+    'creme_core/js/lib/url.js',
 
     # Legacy tools
     'creme_core/js/creme.js',

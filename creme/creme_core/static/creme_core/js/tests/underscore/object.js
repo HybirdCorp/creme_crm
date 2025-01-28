@@ -22,4 +22,20 @@ QUnit.test('pop', function(assert) {
     deepEqual(data, {});
 });
 
+QUnit.test('append', function(assert) {
+    var data = {};
+
+    _.append(data, 'a', 1);
+    deepEqual(data, {a: 1});
+
+    _.append(data, 'a', 2);
+    deepEqual(data, {a: [1, 2]});
+
+    _.append(data, 'a', [3, 4]);
+    deepEqual(data, {a: [1, 2, [3, 4]]});
+
+    _.append(data, 'b', 'hello');
+    deepEqual(data, {a: [1, 2, [3, 4]], b: 'hello'});
+});
+
 }());
