@@ -1132,7 +1132,13 @@ class Migration(migrations.Migration):
             name='Vat',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('value', models.DecimalField(default=Decimal('20.0'), verbose_name='VAT', max_digits=4, decimal_places=2)),
+                # ('value', models.DecimalField(default=Decimal('20.0'), verbose_name='VAT', max_digits=4, decimal_places=2)),
+                (
+                    'value',
+                    core_fields.DecimalPercentField(
+                        verbose_name='VAT', decimal_places=2, max_digits=4, default=Decimal('20.0'),
+                    )
+                ),
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),

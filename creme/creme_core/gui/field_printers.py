@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -229,7 +229,7 @@ def print_percent_html(*, value, **kwargs) -> str:
     # NB: force grouping instead of <USE_THOUSAND_SEPARATOR = True> in settings
     #     to not impact CSV output, reports etc...
     return format_html(
-        '<span class="percent-value">{value}</span><span class="percent-marker">%</span>',
+        '<span class="percent-value">{value}</span>&nbsp;<span class="percent-marker">%</span>',
         value=number_format(value, force_grouping=True),
     ) if value is not None else ''
 
@@ -621,6 +621,7 @@ class FieldPrinterRegistry:
             (fields.DatePeriodField,    simple_print_html),  # TODO: JSONField ?
 
             (fields.IntegerPercentField, print_percent_html),
+            (fields.DecimalPercentField, print_percent_html),
             (fields.FileSizeField,       print_file_size_html),
             (fields.ColorField,          print_color_html),
 

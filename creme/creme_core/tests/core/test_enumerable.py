@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.db import connection, models
 from django.utils.translation import gettext as _
+from django.utils.translation import override as override_language
 
 from creme.creme_core import enumerators
 from creme.creme_core.core.entity_filter import EF_CREDENTIALS
@@ -848,6 +849,7 @@ class EnumerableTestCase(CremeTestCase):
             [c['label'] for c in enum.choices(user, term='03')]
         )
 
+    @override_language('en')
     def test_vat_enumerator(self):
         user = self.user
         enum = enumerators.VatEnumerator(FakeInvoiceLine._meta.get_field('vat_value'))
@@ -863,16 +865,20 @@ class EnumerableTestCase(CremeTestCase):
 
         # SQLite seems to compare the floating value so '20' will match '20.00' only
         if connection.vendor == 'sqlite':
-            self.assertListEqual([
-                {'label': '20.00', 'value': vat_200.pk},
-            ], list(enum.choices(user, term='20')))
+            self.assertListEqual(
+                [{'label': '20.00 %', 'value': vat_200.pk}],
+                [*enum.choices(user, term='20')],
+            )
         # The other databases are using a native decimal value so '20' will match
         # both '20.00' & '21.20'
         else:
-            self.assertListEqual([
-                {'label': '20.00', 'value': vat_200.pk},
-                {'label': '21.20', 'value': vat_212.pk},
-            ], list(enum.choices(user, term='20')))
+            self.assertListEqual(
+                [
+                    {'label': '20.00 %', 'value': vat_200.pk},
+                    {'label': '21.20 %', 'value': vat_212.pk},
+                ],
+                [*enum.choices(user, term='20')],
+            )
 
     def test_customfield_enumerator(self):
         user = self.user

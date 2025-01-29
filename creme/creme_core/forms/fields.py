@@ -1622,7 +1622,11 @@ class DateRangeField(fields.MultiValueField):
 
 
 class IntegerPercentField(fields.IntegerField):
-    widget = core_widgets.IntegerPercentInput
+    widget = core_widgets.PercentInput
+
+
+class DecimalPercentField(fields.DecimalField):
+    widget = core_widgets.PercentInput
 
 
 class YearField(fields.IntegerField):

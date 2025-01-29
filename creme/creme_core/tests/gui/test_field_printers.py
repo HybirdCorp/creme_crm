@@ -453,11 +453,11 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
         self.assertHTMLEqual(
-            '<span class="percent-value">0</span><span class="percent-marker">%</span>',
+            '<span class="percent-value">0</span>&nbsp;<span class="percent-marker">%</span>',
             print_percent_html(instance=instance, value=0, user=user, field=field),
         )
         self.assertHTMLEqual(
-            '<span class="percent-value">57</span><span class="percent-marker">%</span>',
+            '<span class="percent-value">57</span>&nbsp;<span class="percent-marker">%</span>',
             print_percent_html(instance=instance, value=57, user=user, field=field),
         )
 

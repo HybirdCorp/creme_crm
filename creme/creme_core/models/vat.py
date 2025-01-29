@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2024  Hybird
+#    Copyright (C) 2013-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,11 +20,13 @@ import logging
 
 from django.db import models
 from django.db.transaction import atomic
+from django.utils.formats import number_format
 from django.utils.translation import gettext_lazy as _
 
 from ..constants import DEFAULT_VAT
 from ..global_info import cached_per_request
 from .base import MinionModel
+from .fields import DecimalPercentField
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +38,8 @@ class VatManager(models.Manager):
 
 
 class Vat(MinionModel):
-    value = models.DecimalField(_('VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
+    # value = models.DecimalField(_('VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
+    value = DecimalPercentField(_('VAT'), default=DEFAULT_VAT)
     is_default = models.BooleanField(_('Is default?'), default=False)
 
     objects = VatManager()
@@ -44,7 +47,8 @@ class Vat(MinionModel):
     creation_label = _('Create a VAT value')
 
     def __str__(self):
-        return str(self.value)
+        # return str(self.value)
+        return f'{number_format(self.value, force_grouping=True)} %'
 
     class Meta:
         app_label = 'creme_core'
