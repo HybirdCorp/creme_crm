@@ -1114,7 +1114,7 @@ class TinyMCEEditor(widgets.Textarea):
         return context
 
 
-class IntegerPercentInput(widgets.NumberInput):
+class PercentInput(widgets.NumberInput):
     template_name = 'creme_core/forms/widgets/percent.html'
 
 

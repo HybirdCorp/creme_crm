@@ -76,6 +76,33 @@ class IntegerPercentField(models.PositiveIntegerField):
         })
 
 
+class DecimalPercentField(models.DecimalField):
+    def __init__(self,
+                 verbose_name=None,
+                 name=None,
+                 max_digits=4,
+                 decimal_places=2,
+                 **kwargs,
+                 ):
+        super().__init__(
+            verbose_name=verbose_name,
+            name=name,
+            max_digits=max_digits,
+            decimal_places=decimal_places,
+            **kwargs
+        )
+
+    def formfield(self, **kwargs):
+        from ..forms import fields as form_fields
+
+        return super().formfield(**{
+            'form_class': form_fields.DecimalPercentField,
+            'min_value': 0,
+            'max_value': 100,
+            **kwargs
+        })
+
+
 class YearField(models.PositiveIntegerField):
     def formfield(self, **kwargs):
         from ..forms import fields as form_fields
