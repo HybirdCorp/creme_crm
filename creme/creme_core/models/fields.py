@@ -552,11 +552,16 @@ class RealEntityForeignKey(FieldCacheMixin):
         setattr(instance, self._ct_field_name, ct)
         setattr(instance, self._fk_field_name, value)
 
-    def get_cache_name(self):  # See FieldCacheMixin
+    # def get_cache_name(self):
+    #     return self.name
+    @property
+    def cache_name(self):  # See FieldCacheMixin
         return self.name
 
-    def get_prefetch_queryset(self, instances, queryset=None):
-        if queryset is not None:
+    # def get_prefetch_queryset(self, instances, queryset=None):
+    def get_prefetch_querysets(self, instances, querysets=None):
+        # if queryset is not None:
+        if querysets is not None:
             raise ValueError("Custom queryset can't be used for this lookup.")
 
         # For efficiency, group the instances by content type and then do 1 query per model

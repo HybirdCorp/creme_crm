@@ -428,7 +428,8 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         self.assertEqual(orga.id, todo.entity_id)
         self.assertEqual(FakeOrganisation, todo.entity_content_type.model_class())
 
-    def test_get_prefetch_queryset(self):
+    # def test_get_prefetch_queryset(self):
+    def test_get_prefetch_querysets(self):
         user = self.user
 
         create_contact = partial(FakeContact.objects.create, user=user)
