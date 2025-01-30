@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,8 @@
 from django.forms import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import EntityFilter
+from creme.creme_core.models import EntityFilter, SettingValue
+from creme.creme_core.setting_keys import global_filters_edition_key
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
 from ..base import CremeModelForm, FieldBlockManager
@@ -58,7 +59,17 @@ class _EntityFilterForm(CremeModelForm):
         super().__init__(*args, **kwargs)
         self.instance.filter_type = efilter_registry.id
         fields = self.fields
-        fields['user'].empty_label = _('All users')
+
+        # fields['user'].empty_label = _('All users')
+        user_f = fields['user']
+        user_f.empty_label = _('No owner')
+        user_f.help_text = _(
+            'If you assign an owner, only the owner can edit or delete the filter; '
+            'filters without owner can be edited/deleted by all users'
+        ) if SettingValue.objects.get_4_key(global_filters_edition_key).value else _(
+            'If you assign an owner, only the owner can edit or delete the filter; '
+            'filters without owner can only be edited/deleted by superusers'
+        )
 
         self.conditions_field_names = fnames = []
         f_kwargs = {

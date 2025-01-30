@@ -50,8 +50,10 @@ from creme.creme_core.models import (
     Language,
     Relation,
     RelationType,
+    SettingValue,
 )
 from creme.creme_core.models.entity_filter import EntityFilterList
+from creme.creme_core.setting_keys import global_filters_edition_key
 
 from ..base import CremeTestCase
 
@@ -204,11 +206,38 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_can_edit__regular_user(self):
         from creme.documents import get_document_model
 
+        self.assertFalse(
+            SettingValue.objects.get_4_key(global_filters_edition_key).value
+        )
+
         user = self.create_user(index=1, role=self.create_role(allowed_apps=['creme_core']))
-        self.assertTrue(EntityFilter(entity_type=FakeContact).can_edit(user)[0])
+        # self.assertTrue(EntityFilter(entity_type=FakeContact).can_edit(user)[0])
+        self.assertTupleEqual(
+            (True, 'OK'),
+            EntityFilter(user=user, entity_type=FakeContact).can_edit(user),
+        )
+        self.assertTupleEqual(
+            (False, _('Only superusers can edit/delete this filter (no owner)')),
+            EntityFilter(entity_type=FakeContact).can_edit(user),
+        )
         self.assertTupleEqual(
             (False, _('You are not allowed to access to this app')),
             EntityFilter(entity_type=get_document_model()).can_edit(user),
+        )
+
+    def test_can_edit__regular_user__setting_value_true(self):
+        setting_value = SettingValue.objects.get_4_key(global_filters_edition_key)
+        setting_value.value = True
+        setting_value.save()
+
+        user = self.create_user(index=1, role=self.get_regular_role())
+        self.assertTupleEqual(
+            (True, 'OK'),
+            EntityFilter(user=user, entity_type=FakeContact).can_edit(user),
+        )
+        self.assertTupleEqual(
+            (True, 'OK'),
+            EntityFilter(entity_type=FakeContact).can_edit(user),
         )
 
     def test_manager_smart_update_or_create01(self):

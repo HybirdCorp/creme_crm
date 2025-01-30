@@ -398,6 +398,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
             pk='reports-test_filter_detailview01', name='My Filter',
             entity_type=FakeContact, is_custom=True,
             filter_type=EF_REPORTS,
+            user=user,
         )
 
         parent_filter = EntityFilter.objects.create(
@@ -788,13 +789,14 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         )
 
     def test_edit(self):
-        self.login_as_standard(allowed_apps=['reports', 'creme_core'])
+        user = self.login_as_standard(allowed_apps=['reports', 'creme_core'])
 
         efilter = EntityFilter.objects.create(
             id='test-reports_filter',
             name='Filter for reports',
             entity_type=FakeContact,
             filter_type=EF_REPORTS,
+            user=user,
         )
         self.assertGET409(reverse('creme_core__edit_efilter', args=(efilter.id,)))
 
@@ -906,13 +908,14 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         self.assertEqual([sub_efilter1.id], sub_filters_f.initial)
 
     def test_edit_popup(self):
-        self.login_as_standard(allowed_apps=['reports', 'creme_core'])
+        user = self.login_as_standard(allowed_apps=['reports', 'creme_core'])
 
         efilter = EntityFilter.objects.create(
             id='test-reports_filter',
             name='Filter for reports',
             entity_type=FakeContact,
             filter_type=EF_REPORTS,
+            user=user,
         )
         url = self._build_edit_popup_url(efilter)
 
@@ -1006,13 +1009,14 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         self.assertGET403(efilter.get_edit_absolute_url())
 
     def test_delete(self):
-        self.login_as_standard(allowed_apps=['reports', 'creme_core'])
+        user = self.login_as_standard(allowed_apps=['reports', 'creme_core'])
 
         efilter = EntityFilter.objects.create(
             id='reports-test_delete',
             name='Filter for reports',
             entity_type=FakeContact,
             filter_type=EF_REPORTS,
+            user=user,
         )
         url = efilter.get_delete_absolute_url()
         self.assertEqual(reverse('reports__delete_efilter', args=(efilter.id,)), url)

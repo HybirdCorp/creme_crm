@@ -661,7 +661,8 @@ class Migration(migrations.Migration):
                     core_fields.CremeUserForeignKey(
                         verbose_name='Owner user', to=settings.AUTH_USER_MODEL,
                         null=True, blank=True,
-                        help_text='All users can see this filter, but only the owner can edit or delete it',
+                        # help_text='All users can see this filter, but only the owner can edit or delete it',
+                        help_text='If you assign an owner, only the owner can edit or delete the filter'
                     )
                 ),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
@@ -705,7 +706,13 @@ class Migration(migrations.Migration):
                 ('id', models.CharField(max_length=100, serialize=False, editable=False, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the view')),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('is_private', models.BooleanField(default=False, verbose_name='Is private?')),
+                (
+                    'is_private',
+                    models.BooleanField(
+                        default=False, verbose_name='Is private?',
+                        help_text='A private view of list can only be used by its owner (or the teammates if the owner is a team)',
+                    )
+                ),
                 # ('json_cells', models.TextField(null=True, editable=False)),
                 ('json_cells', models.JSONField(default=list, editable=False)),
                 ('entity_type', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
@@ -713,6 +720,7 @@ class Migration(migrations.Migration):
                     'user',
                     core_fields.CremeUserForeignKey(
                         verbose_name='Owner user', blank=True, to=settings.AUTH_USER_MODEL, null=True,
+                        help_text='If you assign an owner, only the owner can edit or delete the view',
                     )
                 ),
                 ('extra_data', models.JSONField(default=dict, editable=False)),

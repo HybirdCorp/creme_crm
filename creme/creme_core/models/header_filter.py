@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
+from ..setting_keys import global_filters_edition_key
 from . import CremeEntity, CremeUser
 from . import fields as core_fields
 
@@ -160,7 +161,8 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
     name = models.CharField(_('Name of the view'), max_length=100)
     user = core_fields.CremeUserForeignKey(
         verbose_name=_('Owner user'), blank=True, null=True,
-    )
+        help_text=_('If you assign an owner, only the owner can edit or delete the view'),
+    )  # TODO: .set_null_label(_('No owner'))  # must fix the enumerable view
 
     entity_type = core_fields.CTypeForeignKey(editable=False)
 
@@ -170,7 +172,12 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
     # 'True' means: can only be viewed (and so edited/deleted) by its owner.
     is_private = models.BooleanField(
-        pgettext_lazy('creme_core-header_filter', 'Is private?'), default=False,
+        pgettext_lazy('creme_core-header_filter', 'Is private?'),
+        default=False,
+        help_text=_(
+            'A private view of list can only be used by its owner '
+            '(or the teammates if the owner is a team)'
+        ),
     )
 
     # TODO: CellsField? (what about auto saving on invalid cells?)
@@ -206,7 +213,15 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
             return False, gettext('You are not allowed to access to this app')
 
         if not self.user_id:  # All users allowed
-            return True, 'OK'
+            # return True, 'OK'
+            from .setting_value import SettingValue
+
+            return (
+                (True, 'OK')
+                if user.is_superuser
+                or SettingValue.objects.get_4_key(global_filters_edition_key).value else
+                (False, gettext('Only superusers can edit/delete this view (no owner)'))
+            )
 
         if user.is_staff:
             return True, 'OK'
