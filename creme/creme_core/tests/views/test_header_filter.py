@@ -26,7 +26,9 @@ from creme.creme_core.models import (
     FieldsConfig,
     HeaderFilter,
     RelationType,
+    SettingValue,
 )
+from creme.creme_core.setting_keys import global_filters_edition_key
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_constants import FAKE_REL_SUB_EMPLOYED_BY
 
@@ -51,6 +53,10 @@ class HeaderFilterViewsTestCase(CremeTestCase):
     def test_create01(self):
         self.login_as_root()
 
+        self.assertFalse(
+            SettingValue.objects.get_4_key(global_filters_edition_key).value
+        )
+
         ct = ContentType.objects.get_for_model(FakeMailingList)
         self.assertFalse(HeaderFilter.objects.filter(entity_type=ct))
 
@@ -61,8 +67,21 @@ class HeaderFilterViewsTestCase(CremeTestCase):
             response,
             _('Create a view of list for «%(ctype)s»') % {'ctype': 'Test Mailing list'},
         )
-        self.assertIs(self.get_form_or_fail(response).initial.get('is_private'), False)
 
+        with self.assertNoException():
+            form = response.context['form']
+            user_f = form.fields['user']
+
+        self.assertIs(form.initial.get('is_private'), False)
+        self.assertEqual(
+            _(
+                'If you assign an owner, only the owner can edit or delete the view; '
+                'views without owner can only be edited/deleted by superusers'
+            ),
+            user_f.help_text,
+        )
+
+        # POST ---
         name = 'DefaultHeaderFilter'
         response = self.client.post(
             url,
@@ -89,7 +108,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         lv_url = FakeMailingList.get_lv_absolute_url()
         self.assertRedirects(response, lv_url)
 
-        # --
+        # List-view ---
         context = self.assertGET200(lv_url).context
         selected_hfilter = context['header_filters'].selected
         self.assertIsInstance(selected_hfilter, HeaderFilter)
@@ -98,8 +117,11 @@ class HeaderFilterViewsTestCase(CremeTestCase):
 
     def test_create02(self):
         user = self.login_as_root_and_get()
-
         lv_url = FakeContact.get_lv_absolute_url()
+
+        setting_value = SettingValue.objects.get_4_key(global_filters_edition_key)
+        setting_value.value = True
+        setting_value.save()
 
         # Create a view to post the entity filter
         HeaderFilter.objects.create_if_needed(
@@ -125,10 +147,10 @@ class HeaderFilterViewsTestCase(CremeTestCase):
                 ),
             ],
         )
-        response = self.assertPOST200(lv_url, data={'filter': efilter.id})
-        self.assertEqual(efilter.id, response.context['list_view_state'].entity_filter_id)
+        response1 = self.assertPOST200(lv_url, data={'filter': efilter.id})
+        self.assertEqual(efilter.id, response1.context['list_view_state'].entity_filter_id)
 
-        # --
+        # GET ---
         ct = self.contact_ct
         loves = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
@@ -142,10 +164,12 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
 
         url = self._build_add_url(ct)
-        response = self.assertGET200(url)
+        context2 = self.assertGET200(url).context
 
         with self.assertNoException():
-            cells_f = response.context['form'].fields['cells']
+            fields = context2['form'].fields
+            cells_f = fields['cells']
+            user_f = fields['user']
 
         build_4_field = partial(EntityCellRegularField.build, model=FakeContact)
         self.assertListEqual(
@@ -157,12 +181,20 @@ class HeaderFilterViewsTestCase(CremeTestCase):
                     rtype=RelationType.objects.get(pk=FAKE_REL_SUB_EMPLOYED_BY),
                 ),
             ],
-            cells_f.initial
+            cells_f.initial,
+        )
+        self.assertEqual(
+            _(
+                'If you assign an owner, only the owner can edit or delete the view; '
+                'views without owner can be edited/deleted by all users'
+            ),
+            user_f.help_text,
         )
 
+        # POST ---
         field_name = 'first_name'
         name = 'DefaultHeaderFilter'
-        response = self.client.post(
+        response3 = self.client.post(
             url, follow=True,
             data={
                 'name': name,
@@ -174,7 +206,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
                          f'custom_field-{customfield.id}',
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response3)
 
         hfilter = self.get_object_or_fail(HeaderFilter, name=name)
         self.assertEqual(user, hfilter.user)
@@ -189,15 +221,15 @@ class HeaderFilterViewsTestCase(CremeTestCase):
             hfilter.cells
         )
 
-        self.assertRedirects(response, lv_url)
+        self.assertRedirects(response3, lv_url)
 
-        # --
-        context = self.assertGET200(lv_url).context
-        selected_hfilter = context['header_filters'].selected
+        # List-view ---
+        context4 = self.assertGET200(lv_url).context
+        selected_hfilter = context4['header_filters'].selected
         self.assertIsInstance(selected_hfilter, HeaderFilter)
         self.assertEqual(hfilter.id, selected_hfilter.id)
 
-        lvs = context['list_view_state']
+        lvs = context4['list_view_state']
         self.assertEqual(hfilter.id, lvs.header_filter_id)
         self.assertEqual(efilter.id, lvs.entity_filter_id)
 

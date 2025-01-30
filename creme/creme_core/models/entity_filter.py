@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,6 +42,7 @@ from ..core.entity_filter import (
     entity_filter_registries,
 )
 from ..global_info import get_global_info
+from ..setting_keys import global_filters_edition_key
 from ..utils import update_model_instance
 from ..utils.id_generator import generate_string_id_and_save
 from . import CremeEntity, CremeUser
@@ -336,8 +337,9 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     # to "enumerate" it.
     user = core_fields.CremeUserForeignKey(
         verbose_name=_('Owner user'), blank=True, null=True,
-        help_text=_('All users can see this filter, but only the owner can edit or delete it'),
-    )
+        # help_text=_('All users can see this filter, but only the owner can edit or delete it'),
+        help_text=_('If you assign an owner, only the owner can edit or delete the filter'),
+    )  # TODO: .set_null_label(_('No owner'))  # must fix the enumerable view
     is_private = models.BooleanField(
         pgettext_lazy('creme_core-entity_filter', 'Is private?'),
         default=False,
@@ -432,7 +434,16 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
             return False, gettext('You are not allowed to access to this app')
 
         if not self.user_id:  # All users allowed
-            return True, 'OK'
+            # return True, 'OK'
+            from .setting_value import SettingValue
+
+            return (
+                (True, 'OK')
+                if user.is_superuser
+                or SettingValue.objects.get_4_key(global_filters_edition_key).value else
+                # TODO: should the filter can be (detail-)viewed anyway?
+                (False, gettext('Only superusers can edit/delete this filter (no owner)'))
+            )
 
         if user.is_staff:
             return True, 'OK'

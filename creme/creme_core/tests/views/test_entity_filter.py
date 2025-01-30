@@ -43,7 +43,9 @@ from creme.creme_core.models import (
     FakeReport,
     HeaderFilter,
     RelationType,
+    SettingValue,
 )
+from creme.creme_core.setting_keys import global_filters_edition_key
 from creme.creme_core.utils.translation import smart_model_verbose_name
 from creme.creme_core.views import entity_filter as efilter_views
 
@@ -319,6 +321,10 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         "Check app credentials."
         user = self.login_as_standard(allowed_apps=['documents'])
 
+        self.assertFalse(
+            SettingValue.objects.get_4_key(global_filters_edition_key).value
+        )
+
         ct = self.ct_contact
         self.assertFalse(EntityFilter.objects.filter(entity_type=ct).count())
 
@@ -339,10 +345,18 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         context = response1.context
         with self.assertNoException():
             form = context['form']
+            user_f = form.fields['user']
             # NB: difficult to test the content in a robust way (depends on the DB config)
             context['help_message']  # NOQA
 
         self.assertIs(form.initial.get('is_private'), False)
+        self.assertEqual(
+            _(
+                'If you assign an owner, only the owner can edit or delete the filter; '
+                'filters without owner can only be edited/deleted by superusers'
+            ),
+            user_f.help_text,
+        )
 
         # TODO: test widgets instead
 #        with self.assertNoException():
@@ -403,6 +417,10 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         user = self.login_as_root_and_get()
         ct = self.ct_orga
 
+        setting_value = SettingValue.objects.get_4_key(global_filters_edition_key)
+        setting_value.value = True
+        setting_value.save()
+
         # Can not be a simple sub-filter (bad content type)
         relsubfilfer = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Filter 01', FakeContact, is_custom=True,
@@ -434,7 +452,16 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
 
         with self.assertNoException():
             fields = response1.context['form'].fields
+            user_f = fields['user']
             sb_f = fields['subfiltercondition']
+
+        self.assertEqual(
+            _(
+                'If you assign an owner, only the owner can edit or delete the filter; '
+                'filters without owner can be edited/deleted by all users'
+            ),
+            user_f.help_text,
+        )
 
         subfilter_ids = {f.id for f in sb_f.queryset}
         self.assertIn(subfilter.id, subfilter_ids)

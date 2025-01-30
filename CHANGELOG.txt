@@ -25,6 +25,9 @@
     # The deletion & cloning buttons have been reworked in detailed views & list-views;
       they are now disabled when a rule avoids you to delete them (e.g. a Contact corresponding
       to a user) & the reason is displayed as tool-tip.
+    # The HeaderFilters (views of list) & EntityFilters without owner can now only be edited/deleted by
+      superusers in the default configuration ; a SettingValue has been added to allow all users to
+      edit/delete them (it was the behaviour in previous versions).
     # The deletion views have now a better display for the dependencies issues.
       Example: entities are displayed as HTML links.
     # Apps :

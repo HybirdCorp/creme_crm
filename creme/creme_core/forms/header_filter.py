@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,8 +51,10 @@ from ..models import (
     FieldsConfig,
     HeaderFilter,
     RelationType,
+    SettingValue,
 )
 from ..models.utils import model_verbose_name
+from ..setting_keys import global_filters_edition_key
 from ..utils.id_generator import generate_string_id_and_save
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.unicode_collation import collator
@@ -602,15 +604,15 @@ class _HeaderFilterForm(CremeModelForm):
 
     class Meta(CremeModelForm.Meta):
         model = HeaderFilter
-        help_texts = {
-            'user': _(
-                'All users can see the view, but only the owner can edit or delete it'
-            ),
-            'is_private': _(
-                'A private view of list can only be used by its owner '
-                '(or the teammates if the owner is a team)'
-            ),
-        }
+        # help_texts = {
+        #     'user': _(
+        #         'All users can see the view, but only the owner can edit or delete it'
+        #     ),
+        #     'is_private': _(
+        #         'A private view of list can only be used by its owner '
+        #         '(or the teammates if the owner is a team)'
+        #     ),
+        # }
 
     blocks = CremeModelForm.blocks.new({
         'id': 'cells', 'label': _('Columns'), 'fields': ['cells'],
@@ -618,7 +620,16 @@ class _HeaderFilterForm(CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['user'].empty_label = _('All users')
+        # self.fields['user'].empty_label = _('All users')
+        user_f = self.fields['user']
+        user_f.empty_label = _('No owner')
+        user_f.help_text = _(
+            'If you assign an owner, only the owner can edit or delete the view; '
+            'views without owner can be edited/deleted by all users'
+        ) if SettingValue.objects.get_4_key(global_filters_edition_key).value else _(
+            'If you assign an owner, only the owner can edit or delete the view; '
+            'views without owner can only be edited/deleted by superusers'
+        )
 
     def clean(self):
         cdata = self.cleaned_data

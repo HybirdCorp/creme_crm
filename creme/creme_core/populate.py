@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -245,6 +245,7 @@ class Populator(BasePopulator):
 
     def _populate_setting_values(self):
         create_svalue = SettingValue.objects.get_or_create
+        create_svalue(key_id=setting_keys.global_filters_edition_key.id, defaults={'value': False})
         create_svalue(key_id=setting_keys.block_opening_key.id,   defaults={'value': True})
         create_svalue(key_id=setting_keys.block_showempty_key.id, defaults={'value': True})
         create_svalue(key_id=setting_keys.currency_symbol_key.id, defaults={'value': True})

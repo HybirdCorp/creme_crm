@@ -19,8 +19,10 @@ from creme.creme_core.models import (
     FieldsConfig,
     HeaderFilter,
     RelationType,
+    SettingValue,
 )
 from creme.creme_core.models.header_filter import HeaderFilterList
+from creme.creme_core.setting_keys import global_filters_edition_key
 
 from ..base import CremeTestCase
 
@@ -159,6 +161,9 @@ class HeaderFiltersTestCase(CremeTestCase):
             )
 
     def test_can_edit__root(self):
+        sv_open = SettingValue.objects.get_4_key(global_filters_edition_key)
+        self.assertFalse(sv_open.value)
+
         root = self.get_root_user()
         other = self.create_user()
         team1 = self.create_team('team A', other, root)
@@ -195,11 +200,37 @@ class HeaderFiltersTestCase(CremeTestCase):
     def test_can_edit__regular_user(self):
         from creme.documents import get_document_model
 
+        setting_value = SettingValue.objects.get_4_key(global_filters_edition_key)
+        self.assertFalse(setting_value.value)
+
         user = self.create_user(index=1, role=self.create_role(allowed_apps=['creme_core']))
-        self.assertTrue(HeaderFilter(entity_type=FakeContact).can_edit(user)[0])
+        # self.assertTrue(HeaderFilter(entity_type=FakeContact).can_edit(user)[0])
+        self.assertTupleEqual(
+            (True, 'OK'),
+            HeaderFilter(user=user, entity_type=FakeContact).can_edit(user),
+        )
+        self.assertTupleEqual(
+            (False, _('Only superusers can edit/delete this view (no owner)')),
+            HeaderFilter(entity_type=FakeContact).can_edit(user),
+        )
         self.assertTupleEqual(
             (False, _('You are not allowed to access to this app')),
             HeaderFilter(entity_type=get_document_model()).can_edit(user),
+        )
+
+    def test_can_edit__regular_user__setting_value_true(self):
+        setting_value = SettingValue.objects.get_4_key(global_filters_edition_key)
+        setting_value.value = True
+        setting_value.save()
+
+        user = self.create_user(index=1, role=self.get_regular_role())
+        self.assertTupleEqual(
+            (True, 'OK'),
+            HeaderFilter(user=user, entity_type=FakeContact).can_edit(user),
+        )
+        self.assertTupleEqual(
+            (True, 'OK'),
+            HeaderFilter(entity_type=FakeContact).can_edit(user),
         )
 
     def test_ct_cache(self):
