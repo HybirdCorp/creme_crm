@@ -23,12 +23,32 @@
       <a href="{% url 'creme_core__create_efilter' ctype.id %}">
           {% widget_icon name='add' label=_('Create a custom filter') size='listview-filter-action' %}
       </a>
+{% comment %}
       <a href="{{efilter.get_edit_absolute_url}}" data-action="redirect" class="{% if not can_edit %}is-disabled{% endif %}">
           {% widget_icon name='edit' label=_('Edit this filter') size='listview-filter-action' %}
       </a>
       <a href="{{efilter.get_delete_absolute_url}}" data-action="delete" class="{% if not can_delete %}is-disabled{% endif %}">
           {% widget_icon name='delete' label=_('Delete this custom filter') size='listview-filter-action' %}
       </a>
+{% endcomment %}
+      {% if edition_allowed %}
+      <a href="{{efilter.get_edit_absolute_url}}" data-action="redirect">
+          {% widget_icon name='edit' label=_('Edit this filter') size='listview-filter-action' %}
+      </a>
+      {% elif edition_error %}
+      <a href="#" data-action="redirect" class="is-disabled">
+          {% widget_icon name='edit' label=edition_error size='listview-filter-action' %}
+      </a>
+      {% endif %}
+      {% if deletion_allowed %}
+      <a href="{{efilter.get_delete_absolute_url}}" data-action="delete">
+          {% widget_icon name='delete' label=_('Delete this custom filter') size='listview-filter-action' %}
+      </a>
+      {% elif deletion_error %}
+      <a href="#" data-action="delete" class="is-disabled">
+          {% widget_icon name='delete' label=deletion_error size='listview-filter-action' %}
+      </a>
+      {% endif %}
     {% endif %}
 {% endwith %}
 </fieldset>

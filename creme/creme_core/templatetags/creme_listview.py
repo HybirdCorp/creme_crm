@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from collections import defaultdict
+from typing import TYPE_CHECKING, Sequence
 
 from django.contrib.auth import get_user_model
 from django.db.models.query_utils import Q
@@ -31,35 +34,62 @@ from ..utils.queries import QSerializer
 from ..utils.unicode_collation import collator
 from ..views.generic import EntitiesList
 
+if TYPE_CHECKING:
+    from ..core.entity_cell import EntityCell, EntityCellActions
+    from ..gui.listview import ListViewButtonList
+    from ..models import CremeEntity, CremeUser
+    from ..models.entity_filter import EntityFilterList
+    from ..models.header_filter import HeaderFilterList
+
 logger = logging.getLogger(__name__)
 register = Library()
 
 
 @register.inclusion_tag('creme_core/templatetags/listview/entity-filters.html')
-def listview_entity_filters(*, model, user, efilters, show_buttons):
+def listview_entity_filters(*,
+                            model: type[CremeEntity],
+                            user: CremeUser,
+                            efilters: EntityFilterList,
+                            show_buttons: bool,
+                            ):
     efilter = efilters.selected
 
     if efilter:
         efilter_id = efilter.id
-        can_edit   = efilter.can_edit(user)[0]
-        can_delete = efilter.can_delete(user)[0]
+        # can_edit   = efilter.can_edit(user)[0]
+        edition_allowed, edition_error = efilter.can_edit(user)
+        # can_delete = efilter.can_delete(user)[0]
+        deletion_allowed, deletion_error = efilter.can_delete(user)
     else:
         efilter_id = 0
-        can_edit = can_delete = False
+        # can_edit = can_delete = False
+        edition_allowed = deletion_allowed = False
+        edition_error = deletion_error = ''
 
     return {
         'user': user,
         'model': model,
         'entity_filters': efilters,
         'efilter_id': efilter_id,
-        'can_edit': can_edit,
-        'can_delete': can_delete,
+        # 'can_edit': can_edit,
+        # 'can_delete': can_delete,
         'show_buttons': show_buttons,
+
+        'edition_allowed': edition_allowed,
+        'edition_error': edition_error,
+
+        'deletion_allowed': deletion_allowed,
+        'deletion_error': deletion_error,
     }
 
 
 @register.inclusion_tag('creme_core/templatetags/listview/header-filters.html')
-def listview_header_filters(*, model, user, hfilters, show_buttons):
+def listview_header_filters(*,
+                            model: type[CremeEntity],
+                            user: CremeUser,
+                            hfilters: HeaderFilterList,
+                            show_buttons: bool,
+                            ):
     selected_hfilter = hfilters.selected
 
     grouped_hfilters = defaultdict(list)
@@ -81,6 +111,9 @@ def listview_header_filters(*, model, user, hfilters, show_buttons):
     else:
         other_header_filters = ()
 
+    edition_allowed, edition_error = selected_hfilter.can_edit(user)
+    deletion_allowed, deletion_error = selected_hfilter.can_delete(user)
+
     return {
         'model': model,
 
@@ -90,10 +123,15 @@ def listview_header_filters(*, model, user, hfilters, show_buttons):
 
         'selected': selected_hfilter,
 
-        'can_edit':   selected_hfilter.can_edit(user)[0],
-        'can_delete': selected_hfilter.can_delete(user)[0],
-
         'show_buttons': show_buttons,
+        # 'can_edit':   selected_hfilter.can_edit(user)[0],
+        # 'can_delete': selected_hfilter.can_delete(user)[0],
+
+        'edition_allowed': edition_allowed,
+        'edition_error': edition_error,
+
+        'deletion_allowed': deletion_allowed,
+        'deletion_error': deletion_error,
     }
 
 
@@ -130,7 +168,7 @@ def listview_pager(page):
 
 
 @register.inclusion_tag('creme_core/templatetags/listview/buttons.html', takes_context=True)
-def listview_buttons(context, *, model, buttons):
+def listview_buttons(context, *, model: type[CremeEntity], buttons: ListViewButtonList):
     request = context['request']  # TODO: argument ?
 
     return {
@@ -146,7 +184,11 @@ def listview_buttons(context, *, model, buttons):
 
 
 @register.simple_tag
-def listview_header_colspan(*, cells, is_readonly, is_single_select):
+def listview_header_colspan(*,
+                            cells: Sequence[EntityCell],
+                            is_readonly: bool,
+                            is_single_select: bool,
+                            ):
     colspan = (
         len(cells)
         if is_readonly else
@@ -157,12 +199,12 @@ def listview_header_colspan(*, cells, is_readonly, is_single_select):
 
 
 @register.filter('listview_column_colspan')
-def get_column_colspan(cell, is_readonly):
+def get_column_colspan(cell: EntityCell, is_readonly: bool):
     return 2 if cell.type_id != 'actions' and not is_readonly else 1
 
 
 @register.inclusion_tag('creme_core/templatetags/listview/td-action.html')
-def listview_td_action_for_cell(*, cell, instance, user):
+def listview_td_action_for_cell(*, cell: EntityCell, instance: CremeEntity, user: CremeUser):
     from creme.creme_core.views.entity import _bulk_has_perm
 
     return {
@@ -173,7 +215,7 @@ def listview_td_action_for_cell(*, cell, instance, user):
 
 
 @register.inclusion_tag('creme_core/templatetags/listview/entity-actions.html')
-def listview_entity_actions(*, cell, instance, user):
+def listview_entity_actions(*, cell: EntityCell, instance: CremeEntity, user: CremeUser):
     actions = cell.instance_actions(instance=instance, user=user)
     count = len(actions)
 
@@ -187,7 +229,7 @@ def listview_entity_actions(*, cell, instance, user):
 
 
 @register.inclusion_tag('creme_core/templatetags/listview/header-actions.html')
-def listview_header_actions(*, cell, user):
+def listview_header_actions(*, cell: EntityCellActions, user: CremeUser):
     return {
         'actions': cell.bulk_actions(user),
     }
