@@ -1,15 +1,18 @@
 {% extends BASE_HTML %}
 {% load i18n %}
 
-{% block page_title %}{% translate 'Filter' context 'creme_core-noun' %} - {{form.instance.entity_type}} - {% endblock %}
+{# {% block page_title %}{% translate 'Filter' context 'creme_core-noun' %} - {{form.instance.entity_type}} - {% endblock %} #}
+{% block page_title %}{% if not object.pk %}{% translate 'Create a filter' %}{% else %}{% translate 'Edit a filter' %}{% endif %} - {{form.instance.entity_type}} - {% endblock %}
 
 {% block content %}
 {% translate 'Filter' context 'creme_core-noun' as icon_label %}
-    {% if not form.instance.pk %}
+{#    {% if not form.instance.pk %} #}
+    {% if not object.pk %}
         {% blocktranslate with ctype=form.instance.entity_type asvar form_title %}Create a filter for «{{ctype}}»{% endblocktranslate %}
         {% include 'creme_core/generics/blockform/base.html' with icon_name='filter' icon_label=icon_label title=form_title %}
     {% else %}
-        {% blocktranslate with filter=form.instance asvar form_title %}Edit the filter «{{filter}}»{% endblocktranslate %}
+{#        {% blocktranslate with filter=form.instance asvar form_title %}Edit the filter «{{filter}}»{% endblocktranslate %} #}
+        {% blocktranslate with filter=object asvar form_title %}Edit the filter «{{filter}}»{% endblocktranslate %}
         {% include 'creme_core/generics/blockform/base.html' with icon_name='filter' icon_label=icon_label title=form_title %}
     {% endif %}
 {% endblock %}
