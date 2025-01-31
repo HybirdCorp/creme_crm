@@ -329,6 +329,8 @@
 
         # In 'creme_core.auth.backend', the constants '_*_PREFIX' have been removed.
         # The method 'creme_core.models.CremeModel._delete_stored_file()' is not static anymore.
+        # In 'creme_core.templatetags.creme_listview', the tags {% listview_entity_filters %} & {% listview_header_filters %}
+          do not inject "can_edit" & "can_delete" in the related template context.
         # Apps :
             * Creme_config :
                 - The class 'bricks.ButtonMenuBrick' (& its template) has been heavily reworked.

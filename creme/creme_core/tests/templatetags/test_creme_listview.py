@@ -7,12 +7,15 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.core.paginator import FlowPaginator
 from creme.creme_core.models import (
+    EntityFilter,
     FakeMailingList,
     FakeOrganisation,
     HeaderFilter,
 )
+from creme.creme_core.models.entity_filter import EntityFilterList
 from creme.creme_core.models.header_filter import HeaderFilterList
 from creme.creme_core.templatetags.creme_listview import (
+    listview_entity_filters,
     listview_header_filters,
 )
 
@@ -120,10 +123,15 @@ class CremeListViewTagsTestCase(CremeTestCase):
         self.assertIsInstance(ctxt, dict)
         self.assertIs(ctxt.get('model'), FakeMailingList)
         self.assertIs(ctxt.get('show_buttons'), True)
-
-        self.assertIs(ctxt.get('can_edit'),   True)
-        self.assertIs(ctxt.get('can_delete'), False)
         self.assertEqual(ctxt.get('selected'), hf)
+
+        # self.assertIs(ctxt.get('can_edit'),   True)
+        self.assertIs(True, ctxt.get('edition_allowed'))
+        self.assertEqual('OK', ctxt.get('edition_error'))
+
+        # self.assertIs(ctxt.get('can_delete'), False)
+        self.assertIs(False, ctxt.get('deletion_allowed'))
+        self.assertEqual(_("This view can't be deleted"), ctxt.get('deletion_error'))
 
         self.assertEqual([hf], ctxt.get('global_header_filters'))
         self.assertFalse([*ctxt.get('my_header_filters')])
@@ -155,10 +163,119 @@ class CremeListViewTagsTestCase(CremeTestCase):
         )
         self.assertIs(ctxt.get('show_buttons'), False)
 
-        self.assertIs(ctxt.get('can_edit'),   True)
-        self.assertIs(ctxt.get('can_delete'), True)
+        # self.assertIs(ctxt.get('can_edit'),   True)
+        self.assertIs(True, ctxt.get('edition_allowed'))
+        self.assertEqual('OK', ctxt.get('edition_error'))
+
+        # self.assertIs(ctxt.get('can_delete'), True)
+        self.assertIs(True, ctxt.get('deletion_allowed'))
+        self.assertEqual('OK', ctxt.get('deletion_error'))
 
         self.assertEqual(ctxt.get('selected'), hf02)
         self.assertEqual([hf01],                 ctxt.get('global_header_filters'))
         self.assertEqual([hf02],                 ctxt.get('my_header_filters'))
         self.assertEqual([(other_user, [hf03])], ctxt.get('other_header_filters'))
+
+    def test_listview_header_filters__no_edition(self):
+        user = self.create_user(role=self.get_regular_role())
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test_hf-ml01', name='View', model=FakeMailingList, is_custom=True,
+        )
+
+        hfilters = HeaderFilterList(
+            content_type=ContentType.objects.get_for_model(FakeMailingList),
+            user=user,
+        )
+        hfilters.select_by_id(hf.id)
+
+        ctxt = listview_header_filters(
+            model=FakeMailingList,
+            user=user,
+            hfilters=hfilters,
+            show_buttons=True,
+        )
+        self.assertIs(False, ctxt.get('edition_allowed'))
+        self.assertEqual(
+            _('Only superusers can edit/delete this view (no owner)'),
+            ctxt.get('edition_error'),
+        )
+
+        self.assertIs(False, ctxt.get('deletion_allowed'))
+        self.assertEqual(
+            _('Only superusers can edit/delete this view (no owner)'),
+            ctxt.get('deletion_error'),
+        )
+
+    def test_listview_entity_filters(self):
+        user = self.get_root_user()
+
+        ctype = ContentType.objects.get_for_model(FakeMailingList)
+        self.assertFalse(EntityFilter.objects.filter(entity_type=ctype).first())
+
+        efilter1 = EntityFilter.objects.create(
+            id='creme_core-ml_filter01', name='ML filter #1', entity_type=FakeMailingList,
+        )
+        EntityFilter.objects.create(
+            id='creme_core-ml_filter02', name='ML filter #2', entity_type=FakeMailingList,
+        )
+
+        efilters = EntityFilterList(content_type=ctype, user=user)
+        efilters.select_by_id(efilter1.id)
+
+        ctxt1 = listview_entity_filters(
+            model=FakeMailingList,
+            user=user,
+            efilters=efilters,
+            show_buttons=True,
+        )
+        self.assertIsInstance(ctxt1, dict)
+        self.assertIs(ctxt1.get('model'), FakeMailingList)
+        self.assertIs(ctxt1.get('entity_filters'), efilters)
+        self.assertIs(ctxt1.get('show_buttons'), True)
+        self.assertEqual(ctxt1.get('efilter_id'), efilter1.id)
+
+        self.assertIs(True, ctxt1.get('edition_allowed'))
+        self.assertEqual('OK', ctxt1.get('edition_error'))
+
+        self.assertIs(True, ctxt1.get('deletion_allowed'))
+        self.assertEqual('OK', ctxt1.get('deletion_error'))
+
+        # ---
+        ctxt2 = listview_entity_filters(
+            model=FakeMailingList,
+            user=user,
+            efilters=efilters,
+            show_buttons=False,
+        )
+        self.assertIs(ctxt2.get('show_buttons'), False)
+
+    def test_listview_entity_filters__no_edition(self):
+        user = self.create_user(role=self.get_regular_role())
+
+        efilter = EntityFilter.objects.create(
+            id='creme_core-ml_filter01', name='ML filter #1', entity_type=FakeMailingList,
+            # user=None
+        )
+
+        efilters = EntityFilterList(
+            content_type=ContentType.objects.get_for_model(FakeMailingList), user=user,
+        )
+        efilters.select_by_id(efilter.id)
+
+        ctxt = listview_entity_filters(
+            model=FakeMailingList,
+            user=user,
+            efilters=efilters,
+            show_buttons=True,
+        )
+        self.assertIs(False, ctxt.get('edition_allowed'))
+        self.assertEqual(
+            _('Only superusers can edit/delete this filter (no owner)'),
+            ctxt.get('edition_error'),
+        )
+
+        self.assertIs(False, ctxt.get('deletion_allowed'))
+        self.assertEqual(
+            _('Only superusers can edit/delete this filter (no owner)'),
+            ctxt.get('deletion_error'),
+        )
