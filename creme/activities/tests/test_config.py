@@ -32,6 +32,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDictEqual(
             {
                 'view': 'month',
+                'view_day_start': '00:00',
+                'view_day_end': '24:00',
                 'week_days': [1, 2, 3, 4, 5, 6],
                 'week_start': 1,
                 'day_start': '08:00',
@@ -230,6 +232,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
                 **default.as_dict(),
                 'role': '',
                 'view': 'week',
+                'view_day_start': '00:00:00',
+                'view_day_end': '00:00:00',
                 'week_days': (1, 2, 3, 4),
                 'week_start': '2',
                 'slot_duration': time(0, 30, 0),
@@ -243,6 +247,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             {
                 **default.as_dict(),
                 'view': 'week',
+                'view_day_start': '00:00',
+                'view_day_end': '24:00',
                 'week_days': [1, 2, 3, 4],
                 'week_start': 2,
                 'slot_duration': '00:30:00',
@@ -271,6 +277,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
                 **default.as_dict(),
                 'role': role.id,
                 'view': 'week',
+                'view_day_start': '05:00:00',
+                'view_day_end': '20:00:00',
                 'week_days': (1, 2, 3, 4),
                 'week_start': '2',
                 'slot_duration': time(0, 30, 0),
@@ -284,6 +292,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             {
                 **default.as_dict(),
                 'view': 'week',
+                'view_day_start': '05:00',
+                'view_day_end': '20:00',
                 'week_days': [1, 2, 3, 4],
                 'week_start': 2,
                 'slot_duration': '00:30:00',
@@ -317,6 +327,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             data={
                 **default.as_dict(),
                 'view': 'week',
+                'view_day_start': '00:00:00',
+                'view_day_end': '00:00:00',
                 'week_days': (1, 2, 3, 4),
                 'week_start': '2',
                 'slot_duration': time(0, 30, 0),
@@ -330,6 +342,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             {
                 **default.as_dict(),
                 'view': 'week',
+                'view_day_start': '00:00',
+                'view_day_end': '24:00',
                 'week_days': [1, 2, 3, 4],
                 'week_start': 2,
                 'slot_duration': '00:30:00',

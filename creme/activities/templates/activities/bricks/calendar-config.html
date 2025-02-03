@@ -17,6 +17,7 @@
 {% block brick_table_columns %}
     {% brick_table_column title=_('Role') status='primary nowrap' %}
     {% brick_table_column title=_('Default view mode') status='nowrap' %}
+    {% brick_table_column title=_('Visible hours') status='nowrap' %}
     {% brick_table_column title=_('Business Days') %}
     {% brick_table_column title=_('First day of the week') status='nowrap' %}
     {% brick_table_column title=_('Business Hours') status='nowrap' %}
@@ -31,6 +32,7 @@
     <tr>
         <td {% brick_table_data_status primary %} class="calendar-config-default">{% translate 'Default configuration' %}</td>
         <td>{{ default.view_label }}</td>
+        <td>{% if default.view_day_start == default.view_day_end %}{% translate 'All day' %}{% else %}{{ default.view_day_start }} — {{ default.view_day_end }}{% endif %}</td>
         <td>{{ default.week_days_labels|join:", " }}</td>
         <td>{{ default.week_start_label }}</td>
         <td>{{ default.day_start }} — {{ default.day_end }}</td>
@@ -47,6 +49,7 @@
     <tr>
         <td {% brick_table_data_status primary %} class="calendar-config-superuser">{% translate 'Superuser configuration' %}</td>
         <td>{{ superuser.view_label }}</td>
+        <td>{% if superuser.view_day_start == default.view_day_end %}{% translate 'All day' %}{% else %}{{ superuser.view_day_start }} — {{ superuser.view_day_end }}{% endif %}</td>
         <td>{{ superuser.week_days_labels|join:", " }}</td>
         <td>{{ superuser.week_start_label }}</td>
         <td>{{ superuser.day_start }} — {{ superuser.day_end }}</td>
@@ -65,6 +68,7 @@
     <tr>
         <td {% brick_table_data_status primary %} class="calendar-config-role">{{config.role}}</td>
         <td>{{ config.view_label }}</td>
+        <td>{% if config.view_day_start == default.view_day_end %}{% translate 'All day' %}{% else %}{{ config.view_day_start }} — {{ config.view_day_end }}{% endif %}</td>
         <td>{{ config.week_days_labels|join:", " }}</td>
         <td>{{ config.week_start_label }}</td>
         <td>{{ config.day_start }} — {{ superuser.day_end }}</td>
