@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,11 +39,12 @@ from django.db.transaction import atomic
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from ..constants import (
-    MODELBRICK_ID,
-    SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
-    SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
-)
+from .. import setting_keys
+# from ..constants import (
+#   SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
+#   SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS
+# )
+from ..constants import MODELBRICK_ID
 from ..utils.content_type import ctype_as_key, ctype_from_key, entity_ctypes
 from .auth import UserRole
 from .base import CremeModel
@@ -782,9 +783,11 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
 class BrickStateManager(models.Manager):
     FIELDS: dict[str, str] = {
-        # SettingKey ID                                 BrickState field-name
-        SETTING_BRICK_DEFAULT_STATE_IS_OPEN:           'is_open',  # TODO: constants....
-        SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS: 'show_empty_fields',
+        # SettingKey ID                     BrickState field-name
+        # SETTING_BRICK_DEFAULT_STATE_IS_OPEN:           'is_open',
+        setting_keys.block_opening_key.id:   'is_open',  # TODO: constants...
+        # SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS: 'show_empty_fields',
+        setting_keys.block_showempty_key.id: 'show_empty_fields',
     }
 
     def _get_fields_values(self):

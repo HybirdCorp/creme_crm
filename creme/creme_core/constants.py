@@ -1,3 +1,4 @@
+import warnings
 from decimal import Decimal
 
 from django.conf import settings
@@ -11,7 +12,6 @@ REL_SUB_HAS = 'creme_core-subject_has'
 REL_OBJ_HAS = 'creme_core-object_has'
 
 # Setting keys ---
-SKEY_GLOBAL_FILTERS_EDITION = 'creme_core-global_filters_edition'
 SETTING_BRICK_DEFAULT_STATE_IS_OPEN           = 'creme_core-default_block_state_is_open'
 SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS = 'creme_core-default_block_state_show_empty_fields'
 
@@ -28,4 +28,16 @@ MODELBRICK_ID = 'model'
 DEFAULT_VAT = Decimal(getattr(settings, 'DEFAULT_VAT', '20.0'))  # TODO: depends on country...
 
 DEFAULT_CURRENCY_PK = 1
-DISPLAY_CURRENCY_LOCAL_SYMBOL = 'creme_core-display_currency_local_symbol'
+# DISPLAY_CURRENCY_LOCAL_SYMBOL = 'creme_core-display_currency_local_symbol'
+
+
+def __getattr__(name):
+    if name == 'DISPLAY_CURRENCY_LOCAL_SYMBOL':
+        warnings.warn(
+            '"DISPLAY_CURRENCY_LOCAL_SYMBOL" is deprecated; '
+            'use creme_core.setting_keys.currency_symbol_key.id instead.',
+            DeprecationWarning,
+        )
+        return 'creme_core-display_currency_local_symbol'
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

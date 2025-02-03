@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,9 @@ from django.dispatch.dispatcher import receiver
 
 from creme.creme_core.models import SettingValue
 
-from .constants import SETTING_CRUDITY_SANDBOX_BY_USER
+# from .constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from .models import WaitingAction
+from .setting_keys import sandbox_key
 
 
 @receiver(post_save, sender=SettingValue, dispatch_uid='crudity-manage_setting_change')
@@ -31,7 +32,8 @@ def post_save_setting_value(sender, instance, **kwargs):
     """Set is_sandbox_by_user value on CreateFromEmailBackend subclasses
     because they are singletons.
     """
-    if instance.key_id == SETTING_CRUDITY_SANDBOX_BY_USER:
+    # if instance.key_id == SETTING_CRUDITY_SANDBOX_BY_USER:
+    if instance.key_id == sandbox_key.id:
         # TODO: do not modify existing instances, just check on-the-fly, so we
         #       can change SettingValue as <False -> True -> False> without
         #       losing information.

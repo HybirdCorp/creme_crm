@@ -39,7 +39,7 @@ from creme.persons.tests.base import (
     skipIfCustomOrganisation,
 )
 
-from .. import constants
+from .. import constants, setting_keys
 from ..actions import BulkExportICalAction
 from ..bricks import ActivityCardHatBrick
 from ..custom_forms import ACTIVITY_CREATION_CFORM
@@ -216,10 +216,12 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         efilter = self.get_object_or_fail(EntityFilter, pk=constants.EFILTER_TASKS)
         check_content(efilter, 'Task01', 'Task02')
 
-        sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_DISPLAY_REVIEW)
+        # sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_DISPLAY_REVIEW)
+        sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.review_key.id)
         self.assertIs(sv.value, True)
 
-        sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
+        # sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
+        sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.auto_subjects_key.id)
         self.assertIs(sv.value, True)
 
     def test_status01(self):
@@ -716,7 +718,8 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         user = self.login_as_root_and_get()
         me = user.linked_contact
 
-        sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
+        # sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
+        sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.auto_subjects_key.id)
         sv.value = False  # We disable the auto subjects feature
         sv.save()
 
@@ -2855,7 +2858,8 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_manager_future_linked_to_organisation(self):
         user = self.login_as_root_and_get()
 
-        sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
+        # sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
+        sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.auto_subjects_key.id)
         sv.value = False  # We disable the auto subjects feature
         sv.save()
 
@@ -2965,7 +2969,8 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_manager_past_linked_to_organisation(self):
         user = self.login_as_root_and_get()
 
-        sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
+        # sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
+        sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.auto_subjects_key.id)
         sv.value = False  # We disable the auto subjects feature
         sv.save()
 
