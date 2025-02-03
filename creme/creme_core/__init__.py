@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from creme.creme_core.core.field_tags import _add_tags_to_fields
 _add_tags_to_fields()
 
 
-# ForeignKey's null_label adding ------------------------------------------------
+# ForeignKey's null_label adding -----------------------------------------------
 
 def _get_null_label(self):
     return getattr(self, '_creme_null_label', '')

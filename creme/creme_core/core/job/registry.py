@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2022  Hybird
+#    Copyright (C) 2016-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -62,7 +62,13 @@ class _JobTypeRegistry:
         jtype_id = job_type.id
 
         if not jtype_id:
-            raise _JobTypeRegistry.Error(f'Empty JobType id: {job_type}')
+            raise _JobTypeRegistry.Error(f'Empty JobType id: {type(job_type)}')
+
+        max_length = Job._meta.get_field('type_id').max_length
+        if len(jtype_id) > max_length:
+            raise _JobTypeRegistry.Error(
+                f'JobType id is too long (maximum is {max_length}): {job_type}'
+            )
 
         if self._job_types.setdefault(jtype_id, job_type) is not job_type:
             raise _JobTypeRegistry.Error(f'Duplicated job type id: {jtype_id}')
