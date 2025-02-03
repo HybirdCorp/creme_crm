@@ -39,13 +39,12 @@ from creme.creme_core.models.history import (
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from ..bricks import TodosBrick
-from ..constants import (
-    BRICK_STATE_HIDE_VALIDATED_TODOS,
-    MIN_HOUR_4_TODO_REMINDER,
-)
+# from ..constants import MIN_HOUR_4_TODO_REMINDER
+from ..constants import BRICK_STATE_HIDE_VALIDATED_TODOS
 from ..function_fields import TodosField
 from ..models import Alert, ToDo
 from ..notification import TodoReminderContent
+from ..setting_keys import todo_reminder_key
 from .base import AssistantsTestCase
 
 
@@ -84,7 +83,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self._create_todo('Todo03', 'Description03', user=user2)
 
     def test_populate(self):
-        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         self.assertEqual('assistants', sv.key.app_label)
         self.assertEqual(9, sv.value)
 
@@ -580,7 +580,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         user = self.user
         now_value = now()
 
-        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = localtime(now_value).hour
         sv.save()
 
@@ -625,7 +626,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         if next_hour > 23:
             raise SkipTest('It is too late.')
 
-        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = next_hour
         sv.save()
 
@@ -655,7 +657,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         teammate = self.create_user(0)
         team = self.create_team('Team #1', teammate, user)
 
-        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = max(localtime(now_value).hour - 1, 0)
         sv.save()
 
@@ -680,7 +683,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         now_value = now()
 
-        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = localtime(now_value).hour
         sv.save()
 
@@ -706,7 +710,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         if next_hour > 23:
             raise SkipTest('It is too late.')
 
-        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = next_hour
         sv.save()
 
@@ -739,7 +744,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         if previous_hour < 0:
             raise SkipTest('It is too early.')
 
-        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = previous_hour
         sv.save()
 
@@ -761,7 +767,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         if previous_hour < 0:
             raise SkipTest('It is too early.')
 
-        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = previous_hour
         sv.save()
 

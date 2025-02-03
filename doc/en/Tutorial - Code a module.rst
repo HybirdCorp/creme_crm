@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 30-12-2024 for Creme 2.6
+:Version: 03/02/2025 for Creme 2.7
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3132,16 +3132,6 @@ Global settings
 The model ``SettingValue`` allow to retrieve some global values, ie their are
 used for all the users.
 
-In your file ``my_project/beavers/constants.py`` define the identifier of the
-setting key: ::
-
-    BEAVER_KEY_ID = 'beavers-my_key'
-
-
-As usual, you should prefix with the app's name, in order to avoid collisions
-with keys in others apps ; so to guaranty uniqueness. If the key is not unique
-an exception is raised at start.
-
 In a new file ``my_project/beavers/setting_keys.py`` at your app's root: ::
 
     from django.utils.translation import gettext_lazy as _
@@ -3151,7 +3141,7 @@ In a new file ``my_project/beavers/setting_keys.py`` at your app's root: ::
     from .constants import BEAVER_KEY_ID
 
     beaver_key = SettingKey(
-        id=BEAVER_KEY_ID,
+        id='beavers-my_key',
         description=_('*Set a description here*'),
         app_label='beavers',
         type=SettingKey.BOOL,
@@ -3165,6 +3155,10 @@ We've just created a boolean value. Other available types are :
  - HOUR
  - EMAIL
 
+**Note** : you should prefix the identifier of the setting key (the attribute
+"id") with the app's name, in order to avoid collisions with keys in others
+apps ; so to guaranty uniqueness. If the key is not unique an exception is
+raised at start.
 
 In ``my_project/beavers/populate.py``, we now create the related instance of
 ``SettingValue``, and we set its default value: ::

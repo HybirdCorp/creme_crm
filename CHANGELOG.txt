@@ -100,6 +100,8 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
+            - The constant 'DISPLAY_CURRENCY_LOCAL_SYMBOL' is deprecated;
+              use 'creme_core.setting_keys.currency_symbol_key.id' instead.
             - The method 'creme_core.core.entity_cell.EntityCellCustomField.build()' with integer "value" is deprecated;
               pass a string (ID ou UUID) instead.
             - In 'creme_core.models' :
@@ -131,14 +133,24 @@
             - App :
                 * Persons :
                     - The method 'models.base.PersonWithAddressesMixin._post_save_clone()' is deprecated.
+                * Assistants :
+                    - The constant 'MIN_HOUR_4_TODO_REMINDER' is deprecated;
+                      use 'setting_keys.todo_reminder_key.id' instead.
                 * Activities :
                     - The constants 'NARROW', 'FLOATING_TIME' & 'FLOATING' are now deprecated;
                       use 'Activity.FloatingType.*' instead.
+                    - The constants 'SETTING_*' are now deprecated; use 'activities.setting_keys' instead.
                 * Billing :
                     - The module 'registry' is deprecated.
                     - The class 'views.base.BaseCreation' is deprecated.
+                * Commercial :
+                    - The constant 'DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW' is deprecated;
+                      use setting_keys.orga_approaches_key.id instead.
                 * Projects :
                     - The method 'models.AbstractProjectTask.clone_scope()' is deprecated.
+                * Crudity :
+                    - The constant 'SETTING_CRUDITY_SANDBOX_BY_USER' is deprecated; '
+                      use 'crudity.setting_keys.sandbox_key.id' instead.
         # In 'creme_core.models' :
             - The models 'CremeUser' gets a new method 'has_perm_or_die()' which raises exceptions with friendly error messages.
             - The model 'FileRef' gets a new optional field "description";

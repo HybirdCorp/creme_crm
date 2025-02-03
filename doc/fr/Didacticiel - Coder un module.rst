@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 30-12-2024 pour la version 2.7 de Creme
+:Version: 03-02-2025 pour la version 2.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3268,18 +3268,6 @@ Réglages globaux
 Le modèle ``SettingValue`` permet de récupérer des valeurs globales à
 l'application, c'est-à-dire valables pour tous les utilisateurs.
 
-Dans votre fichier ``my_project/beavers/constants.py`` définissez l'identifiant
-de la clé de configuration : ::
-
-    BEAVER_KEY_ID = 'beavers-my_key'
-
-
-Notez qu'il est conseillé de préfixer par le nom de l'app, afin d'éviter les
-collisions avec les clés d'autres apps ; donc de garantir l'unicité. Si la clé
-n'est pas unique une exception sera soulevée au lancement de l'application ;
-il n'y a donc pas de risque d'avoir un comportement bugué (une clé utilisée
-à la place d'une autre), mais cela obligerait à modifier le code.
-
 Dans un fichier ``my_project/beavers/setting_keys.py`` mettez : ::
 
     from django.utils.translation import gettext_lazy as _
@@ -3289,7 +3277,7 @@ Dans un fichier ``my_project/beavers/setting_keys.py`` mettez : ::
     from .constants import BEAVER_KEY_ID
 
     beaver_key = SettingKey(
-        id=BEAVER_KEY_ID,
+        id='beavers-my_key',
         description=_('*Set a description here*'),
         app_label='beavers',
         type=SettingKey.BOOL,
@@ -3304,6 +3292,12 @@ Ici on a créé une valeur de type booléen. Les types actuellement disponibles
  - HOUR
  - EMAIL
 
+**Note** : il est TRÈS conseillé de préfixer l'identifiant (l'attribut "id") par
+le nom de l'app, afin d'éviter les collisions avec les clés d'autres apps ;
+donc de garantir l'unicité. Si la clé n'est pas unique une exception sera
+soulevée au lancement de l'application ; il n'y a donc pas de risque d'avoir un
+comportement bugué (une clé utilisée à la place d'une autre), mais cela
+obligerait à modifier le code.
 
 Dans votre fichier ``my_project/beavers/populate.py``, nous allons créé l'instance
 de ``SettingValue`` associée, en lui donnant donc sa valeur par défaut : ::
