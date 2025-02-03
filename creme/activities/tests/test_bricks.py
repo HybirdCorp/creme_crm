@@ -1,5 +1,6 @@
 from datetime import timedelta
 from functools import partial
+from json import loads as json_loads
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -26,6 +27,7 @@ from creme.persons.tests.base import (
 
 from ..bricks import (
     ActivityBarHatBrick,
+    ActivityCalendarBrick,
     FutureActivitiesBrick,
     ParticipantsBrick,
     PastActivitiesBrick,
@@ -1249,3 +1251,38 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             self.get_html_tree(response.content), brick=UserCalendarsBrick,
         )
         self.assertIn('brick-void', brick_node.attrib.get('class', ''))
+
+    def test_activity_calendar(self):
+        user = self.login_as_activities_user()
+
+        ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
+
+        default_cal = Calendar.objects.get_default_calendar(user)
+        Calendar.objects.create(user=user, name='Other calendar')
+
+        brick = ActivityCalendarBrick()
+        render = brick.detailview_display(
+            context=self.build_context(user=user, instance=ranma),
+        )
+        brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
+
+        settings = json_loads(
+            brick_node.find('.//script[@class="brick-calendar-settings"]').text[4:-4]
+        )
+        sources = json_loads(
+            brick_node.find('.//script[@class="brick-calendar-sources"]').text[4:-4]
+        )
+
+        self.assertEqual(settings, {
+            'allow_event_move': True,
+            'allow_keep_state': False,
+            'day_end': '18:00',
+            'day_start': '08:00',
+            'extra_data': {},
+            'slot_duration': '00:15:00',
+            'utc_offset': 0,
+            'view': 'month',
+            'week_days': [1, 2, 3, 4, 5, 6],
+            'week_start': 1
+        })
+        self.assertEqual(sources, [default_cal.pk])

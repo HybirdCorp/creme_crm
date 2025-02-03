@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2023-2024  Hybird
+#    Copyright (C) 2023-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,8 +52,19 @@ class BaseCalendarConfigItemForm(CremeModelForm):
         if day_start and day_end and day_start >= day_end:
             raise ValidationError(
                 gettext('Start ({start}) must be before end ({end}).').format(
-                    start=date_format(self.day_start, 'TIME_FORMAT'),
-                    end=date_format(self.day_end, 'TIME_FORMAT'),
+                    start=date_format(day_start, 'TIME_FORMAT'),
+                    end=date_format(day_end, 'TIME_FORMAT'),
+                )
+            )
+
+        view_day_start = cleaned_data.get('view_day_start')
+        view_day_end = cleaned_data.get('view_day_end')
+
+        if view_day_start and view_day_end and view_day_start > view_day_end:
+            raise ValidationError(
+                gettext('Start ({start}) must be before end ({end}).').format(
+                    start=date_format(view_day_start, 'TIME_FORMAT'),
+                    end=date_format(view_day_end, 'TIME_FORMAT'),
                 )
             )
 
