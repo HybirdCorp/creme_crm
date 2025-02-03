@@ -58,8 +58,7 @@ class UnixSocketQueueTestCase(CremeTestCase):
 
 
 class JobTypeRegistryTestCase(CremeTestCase):
-    def test_register01(self):
-        "Not registered."
+    def test_register__not_registered(self):
         class TestJobType(JobType):
             id = JobType.generate_id('creme_core', 'test')
 
@@ -79,23 +78,23 @@ class JobTypeRegistryTestCase(CremeTestCase):
         with self.assertRaises(_JobTypeRegistry.Error):
             registry(job.id)
 
-    def test_register02(self):
+    def test_register(self):
         "OK."
         class TestJobType(JobType):
             id = JobType.generate_id('creme_core', 'test')
 
+        job_type = TestJobType()
         registry = _JobTypeRegistry()
-        registry.register(TestJobType)
+        registry.register(job_type)
 
-        self.assertEqual(TestJobType, registry.get(TestJobType.id))
+        self.assertEqual(job_type, registry.get(TestJobType.id))
 
         # TODO: override the job registry used in Job
         # job = Job.objects.create(type_id=TestJobType.id)
         # registry(job.id)
         # ...
 
-    def test_register03(self):
-        "Duplicated ID."
+    def test_register__duplicated_id(self):
         class TestJobType1(JobType):
             id = JobType.generate_id('creme_core', 'test1')
 
@@ -104,29 +103,50 @@ class JobTypeRegistryTestCase(CremeTestCase):
             pass
 
         registry = _JobTypeRegistry()
-        registry.register(TestJobType1)
+        registry.register(TestJobType1())
 
         with self.assertRaises(_JobTypeRegistry.Error) as cm:
-            registry.register(TestJobType2)
+            registry.register(TestJobType2())
 
         self.assertEqual(
             f'Duplicated job type id: {TestJobType1.id}',
             str(cm.exception),
         )
 
-    def test_register04(self):
-        "Empty ID."
+    def test_register_empty_id(self):
         class TestJobType(JobType):
             # id = JobType.generate_id('creme_core', 'test')  NOPE
             pass
 
+        job_type = TestJobType()
         registry = _JobTypeRegistry()
 
         with self.assertRaises(_JobTypeRegistry.Error) as cm:
-            registry.register(TestJobType)
+            registry.register(job_type)
 
         self.assertEqual(
             f'Empty JobType id: {TestJobType}',
+            str(cm.exception),
+        )
+
+    def test_register_long_id(self):
+        self.assertEqual(48, Job._meta.get_field('type_id').max_length)
+
+        class TestJobType(JobType):
+            id = JobType.generate_id(
+                'creme_core', 'very_very_long_identifiant_oh_yes_i_am_too_long',
+            )
+            verbose_name = 'Very long name job'
+
+        self.assertGreater(len(TestJobType.id), 48)
+
+        registry = _JobTypeRegistry()
+
+        with self.assertRaises(_JobTypeRegistry.Error) as cm:
+            registry.register(TestJobType())
+
+        self.assertEqual(
+            f'JobType id is too long (maximum is 48): {TestJobType.verbose_name}',
             str(cm.exception),
         )
 
