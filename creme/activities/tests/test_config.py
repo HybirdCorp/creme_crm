@@ -33,6 +33,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDictEqual(
             {
                 'view': 'month',
+                'view_day_start': '00:00',
+                'view_day_end': '24:00',
                 'week_days': [1, 2, 3, 4, 5, 6],
                 'week_start': 1,
                 'day_start': '08:00',
@@ -225,11 +227,36 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
                 'slot_duration': time(0, 30, 0),
                 'day_start': '19:00:00',
                 'day_end': '07:00:00',
+                'view_day_start': '19:00:00',
+                'view_day_end': '07:00:00',
             },
         )
 
         self.assertFormError(response.context['form'], None, [
-            _('Start ({start}) must be before end ({end}).').format(
+            _('Day start ({start}) must be before end ({end}).').format(
+                start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
+                end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
+            )
+        ])
+
+        response = self.client.post(
+            self.ADD_URL,
+            data={
+                **default.as_dict(),
+                'role': '',
+                'view': 'week',
+                'week_days': (1, 2, 3, 4),
+                'week_start': '2',
+                'slot_duration': time(0, 30, 0),
+                'day_start': '07:00:00',
+                'day_end': '19:00:00',
+                'view_day_start': '19:00:00',
+                'view_day_end': '07:00:00',
+            },
+        )
+
+        self.assertFormError(response.context['form'], None, [
+            _('Visible start ({start}) must be before end ({end}).').format(
                 start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
                 end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
             )
@@ -257,6 +284,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
                 **default.as_dict(),
                 'role': '',
                 'view': 'week',
+                'view_day_start': '00:00:00',
+                'view_day_end': '00:00:00',
                 'week_days': (1, 2, 3, 4),
                 'week_start': '2',
                 'slot_duration': time(0, 30, 0),
@@ -270,6 +299,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             {
                 **default.as_dict(),
                 'view': 'week',
+                'view_day_start': '00:00',
+                'view_day_end': '24:00',
                 'week_days': [1, 2, 3, 4],
                 'week_start': 2,
                 'slot_duration': '00:30:00',
@@ -298,6 +329,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
                 **default.as_dict(),
                 'role': role.id,
                 'view': 'week',
+                'view_day_start': '05:00:00',
+                'view_day_end': '20:00:00',
                 'week_days': (1, 2, 3, 4),
                 'week_start': '2',
                 'slot_duration': time(0, 30, 0),
@@ -311,6 +344,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             {
                 **default.as_dict(),
                 'view': 'week',
+                'view_day_start': '05:00',
+                'view_day_end': '20:00',
                 'week_days': [1, 2, 3, 4],
                 'week_start': 2,
                 'slot_duration': '00:30:00',
@@ -344,6 +379,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             data={
                 **default.as_dict(),
                 'view': 'week',
+                'view_day_start': '00:00:00',
+                'view_day_end': '00:00:00',
                 'week_days': (1, 2, 3, 4),
                 'week_start': '2',
                 'slot_duration': time(0, 30, 0),
@@ -357,6 +394,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             {
                 **default.as_dict(),
                 'view': 'week',
+                'view_day_start': '00:00',
+                'view_day_end': '24:00',
                 'week_days': [1, 2, 3, 4],
                 'week_start': 2,
                 'slot_duration': '00:30:00',
@@ -386,11 +425,36 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
                 'slot_duration': time(0, 30, 0),
                 'day_start': '19:00:00',
                 'day_end': '07:00:00',
+                'view_day_start': '19:00:00',
+                'view_day_end': '07:00:00',
             },
         )
 
         self.assertFormError(response.context['form'], None, [
-            _('Start ({start}) must be before end ({end}).').format(
+            _('Day start ({start}) must be before end ({end}).').format(
+                start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
+                end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
+            )
+        ])
+
+        response = self.client.post(
+            self._build_edit_url(role_config),
+            data={
+                **default.as_dict(),
+                'role': '',
+                'view': 'week',
+                'week_days': (1, 2, 3, 4),
+                'week_start': '2',
+                'slot_duration': time(0, 30, 0),
+                'day_start': '07:00:00',
+                'day_end': '19:00:00',
+                'view_day_start': '19:00:00',
+                'view_day_end': '07:00:00',
+            },
+        )
+
+        self.assertFormError(response.context['form'], None, [
+            _('Visible start ({start}) must be before end ({end}).').format(
                 start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
                 end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
             )
