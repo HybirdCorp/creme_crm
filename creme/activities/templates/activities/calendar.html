@@ -31,6 +31,8 @@
                 allowEventMove: Boolean(settings.allow_event_move),
                 fullCalendarOptions: Object.assign(extra, {
                     slotDuration: settings.slot_duration,
+                    slotMinTime: settings.view_day_start,
+                    slotMaxTime: settings.view_day_end,
                     businessHours: {
                         daysOfWeek: settings.week_days,
                         startTime: settings.day_start,

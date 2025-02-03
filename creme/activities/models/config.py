@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2023-2024  Hybird
+#    Copyright (C) 2023-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -89,6 +89,19 @@ class CalendarConfigItem(CremeModel):
         default='month',
     )
 
+    view_day_start = models.TimeField(
+        _('View start'), default=time(0, 0, 0), help_text=_(
+            "Start of the displayed hours.\n"
+            "Can be different from the day range that restricts the moves and creation of events"
+        )
+    )
+    view_day_end = models.TimeField(
+        _('View end'), default=time(0, 0, 0), help_text=_(
+            'End of the displayed hours.\n'
+            "Can be different from the day range that restricts the moves and creation of events"
+        )
+    )
+
     week_start = models.IntegerField(
         _('First day of the week'),
         choices=Weekday,
@@ -135,8 +148,17 @@ class CalendarConfigItem(CremeModel):
         return Weekday(self.week_start).label.title()
 
     def as_dict(self):
+        if self.view_day_start != self.view_day_end:
+            view_day_start = self.view_day_start.strftime('%H:%M')
+            view_day_end = self.view_day_end.strftime('%H:%M')
+        else:
+            view_day_start = '00:00'
+            view_day_end = '24:00'
+
         return {
             "view": self.view,
+            "view_day_start": view_day_start,
+            "view_day_end": view_day_end,
             "week_days": list(self.week_days),
             "week_start": self.week_start,
             "day_start": self.day_start.strftime('%H:%M'),

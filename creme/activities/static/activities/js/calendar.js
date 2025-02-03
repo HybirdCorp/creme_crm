@@ -249,7 +249,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
     },
 
     trigger: function(event) {
-        var data = Array.copy(arguments).slice(1);
+        var data = Array.from(arguments).slice(1);
 
         if (!Object.isNone(this._element)) {
             this._element.trigger('cal-' + event, [this].concat(data || []));

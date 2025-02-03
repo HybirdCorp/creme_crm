@@ -1,12 +1,14 @@
 from datetime import timedelta
 from functools import partial
 from json import loads as json_loads
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.test import RequestFactory
 from django.urls import reverse
 from django.utils.timezone import now
+from django.utils.timezone import override as override_tz
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -35,7 +37,6 @@ from ..bricks import (
     SubjectsBrick,
     UserCalendarsBrick,
 )
-# from ..constants import FLOATING
 from ..constants import (
     REL_SUB_ACTIVITY_SUBJECT,
     REL_SUB_LINKED_2_ACTIVITY,
@@ -54,6 +55,7 @@ from .base import (
 )
 
 
+# from ..constants import FLOATING
 @skipIfCustomActivity
 class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     RM_PARTICIPANT_URL = reverse('activities__remove_participant')
@@ -1261,9 +1263,15 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         Calendar.objects.create(user=user, name='Other calendar')
 
         brick = ActivityCalendarBrick()
-        render = brick.detailview_display(
-            context=self.build_context(user=user, instance=ranma),
-        )
+
+        with override_tz('Europe/London'):
+            dst_date = self.create_datetime(2023, 8, 1)
+
+            with patch('creme.activities.utils.now', return_value=dst_date):
+                render = brick.detailview_display(
+                    context=self.build_context(user=user, instance=ranma),
+                )
+
         brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
 
         settings = json_loads(
@@ -1280,9 +1288,12 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             'day_start': '08:00',
             'extra_data': {},
             'slot_duration': '00:15:00',
-            'utc_offset': 0,
+            'utc_offset': 60,
             'view': 'month',
             'week_days': [1, 2, 3, 4, 5, 6],
-            'week_start': 1
+            'week_start': 1,
+            'view_day_start': '00:00',
+            'view_day_end': '24:00',
         })
+
         self.assertEqual(sources, [default_cal.pk])

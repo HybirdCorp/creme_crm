@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-14 10:39+0200\n"
+"POT-Creation-Date: 2025-02-10 13:56+0000\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -90,6 +90,18 @@ msgstr ""
 "Astuce : c'est un bloc complémentaire du bloc «Activités futures».\n"
 "App : Activités"
 
+#, fuzzy
+#| msgid "Edit this calendar"
+msgid "Activities calendar"
+msgstr "Modifier ce calendrier"
+
+msgid ""
+"Displays user calendar:\n"
+"- Only the events from the DEFAULT calendar are displayed.\n"
+"- The calendar is read-only.\n"
+"App: Activities"
+msgstr ""
+
 msgid "On my calendars"
 msgstr "Sur mes calendriers"
 
@@ -164,6 +176,9 @@ msgstr ""
 "Les valeurs des champs peuvent être réglées dans la configuration de "
 "«Activités».\n"
 "App: Activités"
+
+msgid "You cannot call yourself"
+msgstr "Vous ne pouvez pas vous appelez vous-même"
 
 msgid "Create an unavailability"
 msgstr "Créer une indisponibilité"
@@ -406,8 +421,13 @@ msgid "Days of the week"
 msgstr "Jours de la semaine"
 
 #, python-brace-format
-msgid "Start ({start}) must be before end ({end})."
-msgstr "Le début ({start}) doit être avant la fin ({end})."
+msgid "Day start ({start}) must be before end ({end})."
+msgstr "Le début de la journée ({start}) doit être avant la fin ({end})."
+
+#, python-brace-format
+msgid "Visible start ({start}) must be before end ({end})."
+msgstr ""
+"Le début visible de la journée ({start}) doit être avant la fin ({end})."
 
 # Already in core
 msgid "Role"
@@ -595,6 +615,22 @@ msgstr "La configuration par défaut du calendrier n'existe pas."
 
 msgid "Default view mode"
 msgstr "Vue par défaut"
+
+msgid "View start"
+msgstr "Début de la vue"
+
+msgid ""
+"Start of the displayed hours.\n"
+"Can be different from the day range that restricts the events moves"
+msgstr ""
+
+msgid "View end"
+msgstr "Fin de la vue"
+
+msgid ""
+"End of the displayed hours.Can be different from the day range that "
+"restricts the events moves"
+msgstr ""
 
 msgid "First day of the week"
 msgstr "Premier jour de la semaine"
@@ -825,6 +861,13 @@ msgstr[1] "{count} appels téléphoniques par mois"
 msgid "Full detailview"
 msgstr "Fiche complète"
 
+msgctxt "activities"
+msgid "Calendar"
+msgstr "Calendrier"
+
+msgid "Reload"
+msgstr "Rafraîchir"
+
 msgctxt "activities-activity"
 msgid "Future"
 msgstr "Future"
@@ -893,6 +936,9 @@ msgstr "{count} Configurations de calendrier"
 
 msgid "Create for a role"
 msgstr "Créer pour un rôle"
+
+msgid "Visible hours"
+msgstr "Heures visibles"
 
 msgid "Business Days"
 msgstr "Journées de travail"
@@ -1032,8 +1078,8 @@ msgstr "Modifier la configuration"
 
 #, python-format
 msgid ""
-"This button can be placed on Activities' detail-views in the <a href="
-"\"%(config_url)s\">buttons configuration</a>.\n"
+"This button can be placed on Activities' detail-views in the <a "
+"href=\"%(config_url)s\">buttons configuration</a>.\n"
 "It allows to create a not successful Phone Call in one click."
 msgstr ""
 "Ce bouton peut être placé sur les vues détaillés des Activités dans la <a "
@@ -1066,15 +1112,6 @@ msgstr "Supprimer ce calendrier"
 
 msgid "No calendar for the moment"
 msgstr "Aucun calendrier pour le moment"
-
-msgid "You are not allowed to link this entity"
-msgstr "Vous n'avez pas la permission de relier cette fiche"
-
-msgid "You are not allowed to create an Activity"
-msgstr "Vous n'avez pas la permission de créer une Activité"
-
-msgid "You cannot call yourself"
-msgstr "Vous ne pouvez pas vous appelez vous-même"
 
 msgid "You can drag and drop these activities in the calendar"
 msgstr "Vous pouvez glisser-déposer ces activités dans le calendrier"
@@ -1212,6 +1249,12 @@ msgstr "Modifier la configuration du calendrier"
 
 msgid "Create calendar configuration for a role"
 msgstr "Créer une configuration de calendrier pour un rôle"
+
+#~ msgid "You are not allowed to link this entity"
+#~ msgstr "Vous n'avez pas la permission de relier cette fiche"
+
+#~ msgid "You are not allowed to create an Activity"
+#~ msgstr "Vous n'avez pas la permission de créer une Activité"
 
 #~ msgid "forbidden"
 #~ msgstr "interdit"
