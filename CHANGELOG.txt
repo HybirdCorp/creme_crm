@@ -39,6 +39,7 @@
                  - Move calendar selection state queries to ActivityCalendarController. Improve performance.
                  - Improve CSS of the sidebar and make it sticky.
             - A "activity-calendar" brick is now available for the detail-views.
+            - New calendar settings for the visible hours range.
         * Creme_config :
             - The buttons configuration can now be customised per role.
             - The property types have now a field "description" (it can be empty of course).
@@ -46,6 +47,7 @@
               (instead of starting with an empty configuration).
             - In the relation types configuration, you can now edit the "minimal display" value for standard types.
             - A view which displays all "FileRefs" (temporary files) has been added; it's only available for staff users.
+            - In the calendar configuration, the visible hours range is added.
         * Persons :
             - A new optional field has been added to 'Organisation': "code".
               You can use it to distinguish you managed organisations when you get several ones.
