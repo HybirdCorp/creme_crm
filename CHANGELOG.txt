@@ -6,6 +6,14 @@
         * Opportunities :
               - The title of the brick which displays related Opportunities for Contact/Organisation has been improved.
 
+  Developers side :
+  -----------------
+
+    Breaking changes :
+    ------------------
+        - The Job registry now raises an exception when the class attribute "id" is too long
+          (& so cannot be stored in the field "Job.type_id").
+
 
 == Version 2.5.17 ==
 
