@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 30-12-2024 for Creme 2.6
+:Version: 03/02/2025 for Creme 2.7
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3132,26 +3132,14 @@ Global settings
 The model ``SettingValue`` allow to retrieve some global values, ie their are
 used for all the users.
 
-In your file ``my_project/beavers/constants.py`` define the identifier of the
-setting key: ::
-
-    BEAVER_KEY_ID = 'beavers-my_key'
-
-
-As usual, you should prefix with the app's name, in order to avoid collisions
-with keys in others apps ; so to guaranty uniqueness. If the key is not unique
-an exception is raised at start.
-
 In a new file ``my_project/beavers/setting_keys.py`` at your app's root: ::
 
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.core.setting_key import SettingKey
 
-    from .constants import BEAVER_KEY_ID
-
     beaver_key = SettingKey(
-        id=BEAVER_KEY_ID,
+        id='beavers-my_key',
         description=_('*Set a description here*'),
         app_label='beavers',
         type=SettingKey.BOOL,
@@ -3165,6 +3153,10 @@ We've just created a boolean value. Other available types are :
  - HOUR
  - EMAIL
 
+**Note** : you should prefix the identifier of the setting key (the attribute
+"id") with the app's name, in order to avoid collisions with keys in others
+apps ; so to guaranty uniqueness. If the key is not unique an exception is
+raised at start.
 
 In ``my_project/beavers/populate.py``, we now create the related instance of
 ``SettingValue``, and we set its default value: ::
@@ -3204,10 +3196,10 @@ And to use the value in your code: ::
 
     from creme.creme_core.models import SettingValue
 
-    from my_project.beavers.constants import BEAVER_KEY_ID
+    from my_project.beavers.setting_keys import beaver_key
 
 
-    if SettingValue.objects.get(key_id=BEAVER_KEY_ID).value:
+    if SettingValue.objects.get_4_key(beaver_key).value:
         [...]
 
 **A bit further** : you can pass to your ``SettingKey`` the form-field to be
@@ -3224,7 +3216,7 @@ some labels: ::
 
     _choices = {'1': 'One', '2': 'Two', '3': 'Three'}
     beaver_key = SettingKey(
-        id=constants.ANOTHER_KEY_ID,
+        id='beavers-another_key',
         description=_('*Set a description here*'),
         app_label='beavers',
         type=SettingKey.INT,
@@ -3248,22 +3240,14 @@ It's about every user can set its own value.
 It's very similar to the previous section(the 2 APIs are voluntarily close in
 order to be consistent/simple, ahd share code when it's possible).
 
-In ``beavers/constants.py`` define the key identifier (same remark on
-prefix/uniqueness): ::
-
-    BEAVER_USER_KEY_ID = 'beavers-my_user_key'
-
-
 In ``setting_keys.py`` at the app's root: ::
 
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.core.setting_key import UserSettingKey
 
-    from .constants import BEAVER_USER_KEY_ID
-
     beaver_user_key = UserSettingKey(
-        id=BEAVER_USER_KEY_ID,
+        id='beavers-my_user_key',
         description=_('*Set a description here*'),
         app_label='beavers',
         type=UserSettingKey.BOOL,

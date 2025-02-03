@@ -58,14 +58,12 @@ UUID_STATUS_CANCELLED    = '9c23117f-a2eb-4284-8cc2-0c541f87e7ef'
 UUID_STATUS_UNSUCCESSFUL = '480717eb-f4cf-4075-ad9f-24b650e3d538'
 
 # ------------------------------------------------------------------------------
-SETTING_DISPLAY_REVIEW     = 'activities-display_review_activities_blocks'
-SETTING_AUTO_ORGA_SUBJECTS = 'activities-auto_orga_subjects'
-
-# Button "Unsuccessful phone call"
-SETTING_UNSUCCESSFUL_SUBTYPE_UUID = 'activities-unsuccessful_call_subtype'
-SETTING_UNSUCCESSFUL_TITLE        = 'activities-unsuccessful_call_title'
-SETTING_UNSUCCESSFUL_STATUS_UUID  = 'activities-unsuccessful_call_status'
-SETTING_UNSUCCESSFUL_DURATION     = 'activities-unsuccessful_call_duration'
+# SETTING_DISPLAY_REVIEW     = 'activities-display_review_activities_blocks'
+# SETTING_AUTO_ORGA_SUBJECTS = 'activities-auto_orga_subjects'
+# SETTING_UNSUCCESSFUL_SUBTYPE_UUID = 'activities-unsuccessful_call_subtype'
+# SETTING_UNSUCCESSFUL_TITLE        = 'activities-unsuccessful_call_title'
+# SETTING_UNSUCCESSFUL_STATUS_UUID  = 'activities-unsuccessful_call_status'
+# SETTING_UNSUCCESSFUL_DURATION     = 'activities-unsuccessful_call_duration'
 
 # ------------------------------------------------------------------------------
 # NARROW        = 1
@@ -101,5 +99,53 @@ def __getattr__(name):
             DeprecationWarning,
         )
         return 3
+
+    if name == 'SETTING_DISPLAY_REVIEW':
+        warnings.warn(
+            '"SETTING_DISPLAY_REVIEW" is deprecated; '
+            'use activities.setting_keys.review_key.id instead.',
+            DeprecationWarning,
+        )
+        return 'activities-display_review_activities_blocks'
+
+    if name == 'SETTING_AUTO_ORGA_SUBJECTS':
+        warnings.warn(
+            '"SETTING_AUTO_ORGA_SUBJECTS" is deprecated; '
+            'use activities.setting_keys.auto_subjects_key.id instead.',
+            DeprecationWarning,
+        )
+        return 'activities-auto_orga_subjects'
+
+    if name == 'SETTING_UNSUCCESSFUL_SUBTYPE_UUID':
+        warnings.warn(
+            '"SETTING_UNSUCCESSFUL_SUBTYPE_UUID" is deprecated; '
+            'use activities.setting_keys.unsuccessful_subtype_key.id instead.',
+            DeprecationWarning,
+        )
+        return 'activities-unsuccessful_call_subtype'
+
+    if name == 'SETTING_UNSUCCESSFUL_TITLE':
+        warnings.warn(
+            '"SETTING_UNSUCCESSFUL_TITLE" is deprecated; '
+            'use activities.setting_keys.unsuccessful_title_key.id instead.',
+            DeprecationWarning,
+        )
+        return 'activities-unsuccessful_call_title'
+
+    if name == 'SETTING_UNSUCCESSFUL_STATUS_UUID':
+        warnings.warn(
+            '"SETTING_UNSUCCESSFUL_STATUS_UUID" is deprecated; '
+            'use activities.setting_keys.unsuccessful_status_key.id instead.',
+            DeprecationWarning,
+        )
+        return 'activities-unsuccessful_call_status'
+
+    if name == 'SETTING_UNSUCCESSFUL_DURATION':
+        warnings.warn(
+            '"SETTING_UNSUCCESSFUL_DURATION" is deprecated; '
+            'use activities.setting_keys.unsuccessful_duration_key.id instead.',
+            DeprecationWarning,
+        )
+        return 'activities-unsuccessful_call_duration'
 
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

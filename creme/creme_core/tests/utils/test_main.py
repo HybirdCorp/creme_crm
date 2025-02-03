@@ -778,11 +778,13 @@ class CurrencyFormatTestCase(CremeTestCase):
     def test_currency(self):
         from decimal import Decimal
 
-        from creme.creme_core.constants import DISPLAY_CURRENCY_LOCAL_SYMBOL
+        # from creme.creme_core.constants import DISPLAY_CURRENCY_LOCAL_SYMBOL
         from creme.creme_core.models import Currency, SettingValue
+        from creme.creme_core.setting_keys import currency_symbol_key
         from creme.creme_core.utils.currency_format import currency
 
-        sv = self.get_object_or_fail(SettingValue, key_id=DISPLAY_CURRENCY_LOCAL_SYMBOL)
+        # sv = self.get_object_or_fail(SettingValue, key_id=DISPLAY_CURRENCY_LOCAL_SYMBOL)
+        sv = self.get_object_or_fail(SettingValue, key_id=currency_symbol_key.id)
         self.assertTrue(sv.value)
 
         result1 = currency(3)
