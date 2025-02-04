@@ -8,8 +8,8 @@ from creme.creme_core.migrations.utils import utils_26
 def fill_json(apps, schema_editor):
     from creme.creme_core import setting_keys
 
-    utils_26.fill_json_for_setting_key(apps, setting_keys.block_opening_key)
-    utils_26.fill_json_for_setting_key(apps, setting_keys.block_showempty_key)
+    utils_26.fill_json_for_setting_key(apps, setting_keys.brick_opening_key)
+    utils_26.fill_json_for_setting_key(apps, setting_keys.brick_showempty_key)
     utils_26.fill_json_for_setting_key(apps, setting_keys.currency_symbol_key)
 
 

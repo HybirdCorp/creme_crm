@@ -669,8 +669,8 @@ class CremeCoreConfig(CremeAppConfig):
 
         setting_key_registry.register(
             setting_keys.global_filters_edition_key,
-            setting_keys.block_opening_key,
-            setting_keys.block_showempty_key,
+            setting_keys.brick_opening_key,
+            setting_keys.brick_showempty_key,
             setting_keys.currency_symbol_key,
         )
 

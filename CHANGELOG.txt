@@ -119,6 +119,7 @@
                     - _pre_save_clone()
                     - _post_clone()
                     - _post_save_clone()
+            - In 'creme_core.setting_keys', 'block_opening_key' & 'block_showempty_key' have been renamed (old names are deprecated).
             - The function 'creme_core.utils.translation.get_model_verbose_name()' is deprecated;
               use 'smart_model_verbose_name()' instead.
             - The method 'creme_core.tests.base._CremeTestCase.assertRelationCount' is deprecated;

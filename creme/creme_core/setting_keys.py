@@ -1,3 +1,5 @@
+import warnings
+
 from django.utils.translation import gettext_lazy as _
 
 # from . import constants
@@ -11,13 +13,13 @@ global_filters_edition_key = SettingKey(
     ),
     app_label='creme_core', type=SettingKey.BOOL,
 )
-block_opening_key = SettingKey(  # TODO: rename with "brick"
+brick_opening_key = SettingKey(
     # id=constants.SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
     id='creme_core-default_block_state_is_open',  # TODO: rename with "brick"
     description=_('By default, are blocks open?'),
     app_label='creme_core', type=SettingKey.BOOL,
 )
-block_showempty_key = SettingKey(  # TODO: rename with "brick"
+brick_showempty_key = SettingKey(
     # id=constants.SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
     id='creme_core-default_block_state_show_empty_fields',  # TODO: rename with "brick"
     description=_('By default, are empty fields displayed?'),
@@ -32,3 +34,23 @@ currency_symbol_key = SettingKey(
     ),
     app_label='creme_core', type=SettingKey.BOOL,
 )
+
+
+def __getattr__(name):
+    if name == 'block_opening_key':
+        warnings.warn(
+            '"block_opening_key" is deprecated; '
+            'use creme_core.setting_keys.brick_opening_key instead.',
+            DeprecationWarning,
+        )
+        return brick_opening_key
+
+    if name == 'block_showempty_key':
+        warnings.warn(
+            '"block_showempty_key" is deprecated; '
+            'use creme_core.setting_keys.brick_showempty_key instead.',
+            DeprecationWarning,
+        )
+        return brick_showempty_key
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

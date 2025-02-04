@@ -785,9 +785,9 @@ class BrickStateManager(models.Manager):
     FIELDS: dict[str, str] = {
         # SettingKey ID                     BrickState field-name
         # SETTING_BRICK_DEFAULT_STATE_IS_OPEN:           'is_open',
-        setting_keys.block_opening_key.id:   'is_open',  # TODO: constants...
+        setting_keys.brick_opening_key.id: 'is_open',  # TODO: constants...
         # SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS: 'show_empty_fields',
-        setting_keys.block_showempty_key.id: 'show_empty_fields',
+        setting_keys.brick_showempty_key.id: 'show_empty_fields',
     }
 
     def _get_fields_values(self):
