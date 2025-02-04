@@ -1222,7 +1222,8 @@ class BrickTestCase(CremeTestCase):
         class TestBrick(Brick):
             id = Brick.generate_id('creme_core', 'test_brick_models_state03')
 
-        sv_open = SettingValue.objects.get_4_key(setting_keys.block_opening_key)
+        # sv_open = SettingValue.objects.get_4_key(setting_keys.block_opening_key)
+        sv_open = SettingValue.objects.get_4_key(setting_keys.brick_opening_key)
         sv_open.value = False
         sv_open.save()
 
@@ -1231,7 +1232,8 @@ class BrickTestCase(CremeTestCase):
         self.assertTrue(state.show_empty_fields)
 
         # ---
-        sv_show = SettingValue.objects.get_4_key(setting_keys.block_showempty_key)
+        # sv_show = SettingValue.objects.get_4_key(setting_keys.block_showempty_key)
+        sv_show = SettingValue.objects.get_4_key(setting_keys.brick_showempty_key)
         sv_show.value = False
         sv_show.save()
 
@@ -1361,7 +1363,7 @@ class BrickTestCase(CremeTestCase):
         class TestBrick(Brick):
             id = Brick.generate_id('creme_core', 'test_brick_models_states03')
 
-        sv_open = SettingValue.objects.get_4_key(setting_keys.block_opening_key)
+        sv_open = SettingValue.objects.get_4_key(setting_keys.brick_opening_key)
         sv_open.value = False
         sv_open.save()
 
@@ -1375,7 +1377,7 @@ class BrickTestCase(CremeTestCase):
         self.assertTrue(state.show_empty_fields)
 
         # ---
-        sv_show = SettingValue.objects.get_4_key(setting_keys.block_showempty_key)
+        sv_show = SettingValue.objects.get_4_key(setting_keys.brick_showempty_key)
         sv_show.value = False
         sv_show.save()
 
