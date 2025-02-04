@@ -1,3 +1,4 @@
+import warnings
 from functools import partial
 
 from django.forms import URLField
@@ -6,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.setting_key import SettingKey
 
-LOCATION_MAP_URL = SettingKey(
+location_map_url_key = SettingKey(
     id='mobile-location_map_url',
     description=_(
         'URL pattern to map & geolocation services.'
@@ -29,3 +30,15 @@ LOCATION_MAP_URL = SettingKey(
         ))
     ),
 )
+
+
+def __getattr__(name):
+    if name == 'LOCATION_MAP_URL':
+        warnings.warn(
+            '"LOCATION_MAP_URL" is deprecated; '
+            'use mobile.setting_keys.location_map_url_key instead.',
+            DeprecationWarning,
+        )
+        return location_map_url_key
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

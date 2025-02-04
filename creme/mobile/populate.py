@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020  Hybird
+#    Copyright (C) 2020-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,10 +30,10 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
     def populate(self):
-        already_populated = SettingValue.objects.exists_4_key(setting_keys.LOCATION_MAP_URL)
+        already_populated = SettingValue.objects.exists_4_key(setting_keys.location_map_url_key)
 
         if not already_populated:
             SettingValue.objects.set_4_key(
-                setting_keys.LOCATION_MAP_URL,
+                setting_keys.location_map_url_key,
                 'https://www.google.com/maps/?q={search}'
             )
