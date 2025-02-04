@@ -57,7 +57,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         )
 
     def test_api_key(self):
-        with OverrideSettingValueContext(setting_keys.GOOGLE_API_KEY, 'thegoldenticket'):
+        with OverrideSettingValueContext(setting_keys.google_api_key, 'thegoldenticket'):
             self.assertEqual(_MapBrick().get_api_key(), '')
             self.assertEqual(OpenStreetMapDetailMapBrick().get_api_key(), '')
             self.assertEqual(GoogleDetailMapBrick().get_api_key(), 'thegoldenticket')
@@ -208,7 +208,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         )
 
         api_key = 'thegoldenticket'
-        with OverrideSettingValueContext(setting_keys.GOOGLE_API_KEY, api_key):
+        with OverrideSettingValueContext(setting_keys.google_api_key, api_key):
             response = self.assertGET200(contact.get_absolute_url())
 
         self.assertTemplateUsed(response, 'geolocation/bricks/google/detail-map.html')
@@ -274,7 +274,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         )
 
         api_key = 'thegoldenticket'
-        with OverrideSettingValueContext(setting_keys.GOOGLE_API_KEY, api_key):
+        with OverrideSettingValueContext(setting_keys.google_api_key, api_key):
             response = self.assertGET200(reverse('creme_core__home'))
 
         self.assertTemplateUsed(response, 'geolocation/bricks/google/filtered-map.html')
@@ -340,7 +340,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         )
 
         api_key = 'thegoldenticket'
-        with OverrideSettingValueContext(setting_keys.GOOGLE_API_KEY, api_key):
+        with OverrideSettingValueContext(setting_keys.google_api_key, api_key):
             response = self.assertGET200(contact.get_absolute_url())
 
         self.assertTemplateUsed(response, 'geolocation/bricks/google/neighbours-map.html')
