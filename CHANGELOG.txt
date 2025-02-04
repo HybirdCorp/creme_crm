@@ -148,6 +148,8 @@
                       use setting_keys.orga_approaches_key.id instead.
                 * Geolocation :
                     - The SettingKey instances (module 'setting_keys') have been renamed ; old names are deprecated.
+                * Mobile :
+                    - In 'setting_keys', 'LOCATION_MAP_URL' is deprecated; use 'location_map_url_key' instead.
                 * Projects :
                     - The method 'models.AbstractProjectTask.clone_scope()' is deprecated.
                 * Crudity :

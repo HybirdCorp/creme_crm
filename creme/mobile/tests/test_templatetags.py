@@ -52,7 +52,8 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
         user = self.login_as_root_and_get()
         address = self.create_address(user)
 
-        with OverrideSettingValueContext(setting_keys.LOCATION_MAP_URL, pattern):
+        # with OverrideSettingValueContext(setting_keys.LOCATION_MAP_URL, pattern):
+        with OverrideSettingValueContext(setting_keys.location_map_url_key, pattern):
             self.assertEqual(mobile_location_map_url(address), expected)
 
     @parameterized.expand([
@@ -75,7 +76,7 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
         address.geoaddress.longitude = 5.28
         address.geoaddress.save()
 
-        with OverrideSettingValueContext(setting_keys.LOCATION_MAP_URL, pattern):
+        with OverrideSettingValueContext(setting_keys.location_map_url_key, pattern):
             self.assertEqual(mobile_location_map_url(address), expected)
 
     @parameterized.expand([

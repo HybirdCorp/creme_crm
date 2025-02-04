@@ -39,7 +39,8 @@ Organisation = get_organisation_model()
 
 @register.simple_tag
 def mobile_location_map_url(address):
-    url = SettingValue.objects.value_4_key(setting_keys.LOCATION_MAP_URL)
+    # url = SettingValue.objects.value_4_key(setting_keys.LOCATION_MAP_URL)
+    url = SettingValue.objects.value_4_key(setting_keys.location_map_url_key)
     geoaddress = getattr(address, 'geoaddress', None)
     data = {
         'search': str(address).replace(' ', '+'),
