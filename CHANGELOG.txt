@@ -146,6 +146,8 @@
                 * Commercial :
                     - The constant 'DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW' is deprecated;
                       use setting_keys.orga_approaches_key.id instead.
+                * Geolocation :
+                    - The SettingKey instances (module 'setting_keys') have been renamed ; old names are deprecated.
                 * Projects :
                     - The method 'models.AbstractProjectTask.clone_scope()' is deprecated.
                 * Crudity :

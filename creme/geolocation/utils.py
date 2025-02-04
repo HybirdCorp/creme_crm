@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2020  Hybird
+#    Copyright (C) 2014-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -112,13 +112,15 @@ def addresses_from_persons(queryset, user):
 
 def get_radius():
     return SettingValue.objects.value_4_key(
-        setting_keys.NEIGHBOURHOOD_DISTANCE,
+        # setting_keys.NEIGHBOURHOOD_DISTANCE,
+        setting_keys.neighbourhood_distance_key,
         default=constants.DEFAULT_SEPARATING_NEIGHBOURS,
     )
 
 
 def get_google_api_key():
-    return SettingValue.objects.value_4_key(setting_keys.GOOGLE_API_KEY, default='') or ''
+    # return SettingValue.objects.value_4_key(setting_keys.GOOGLE_API_KEY, default='') or ''
+    return SettingValue.objects.value_4_key(setting_keys.google_api_key, default='') or ''
 
 
 def get_openstreetmap_settings():
