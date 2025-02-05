@@ -248,8 +248,8 @@ class Populator(BasePopulator):
         create_svalue(key_id=setting_keys.global_filters_edition_key.id, defaults={'value': False})
         # create_svalue(key_id=setting_keys.block_opening_key.id,   defaults={'value': True})
         create_svalue(key_id=setting_keys.brick_opening_key.id, defaults={'value': True})
-        # create_svalue(key_id=setting_keys.brick_showempty_key.id, defaults={'value': True})
-        create_svalue(key_id=setting_keys.block_showempty_key.id, defaults={'value': True})
+        # create_svalue(key_id=setting_keys.block_showempty_key.id, defaults={'value': True})
+        create_svalue(key_id=setting_keys.brick_showempty_key.id, defaults={'value': True})
         create_svalue(key_id=setting_keys.currency_symbol_key.id, defaults={'value': True})
 
     def _populate_notification_channels(self):
