@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from ..forms import header_filter as hf_forms
@@ -57,6 +58,40 @@ class HeaderFilterCreation(base.EntityCTypeRelatedMixin,
         initial['is_private'] = settings.FILTERS_INITIAL_PRIVATE
 
         return initial
+
+
+class HeaderFilterCloning(entity_filter.FilterMixin,
+                          generic.CremeModelCreation):
+    model = HeaderFilter
+    form_class = hf_forms.HeaderFilterCloningForm
+    template_name = 'creme_core/forms/header-filter.html'
+    pk_url_kwarg = 'hfilter_id'
+    source_form_kwarg = 'source'
+
+    def get_source(self):
+        hfilter = get_object_or_404(HeaderFilter, pk=self.kwargs[self.pk_url_kwarg])
+        self.request.user.has_perm_to_access_or_die(hfilter.entity_type.app_label)
+
+        return hfilter
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.save_in_session('header_filter_id')
+
+        return response
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs[self.source_form_kwarg] = self.get_source()
+
+        return kwargs
+
+    # TODO?
+    # def get_initial(self):
+    #     initial = super().get_initial()
+    #     initial['is_private'] = settings.FILTERS_INITIAL_PRIVATE
+    #
+    #     return initial
 
 
 class HeaderFilterEdition(entity_filter.FilterMixin,

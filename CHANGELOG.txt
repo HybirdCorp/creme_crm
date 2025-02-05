@@ -28,6 +28,7 @@
     # The HeaderFilters (views of list) & EntityFilters without owner can now only be edited/deleted by
       superusers in the default configuration ; a SettingValue has been added to allow all users to
       edit/delete them (it was the behaviour in previous versions).
+    # The HeaderFilters can now be cloned
     # The deletion views have now a better display for the dependencies issues.
       Example: entities are displayed as HTML links.
     # Apps :

@@ -685,6 +685,103 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         )
         self.assertNoFormError(response2)
 
+    def test_clone(self):
+        user = self.login_as_root_and_get()
+
+        # GET (404) ---
+        pk = 'tests-hf_contact'
+        url = reverse('creme_core__clone_hfilter', args=(pk,))
+        self.assertGET404(url)
+
+        # GET ---
+        cells = [
+            EntityCellRegularField.build(model=FakeContact, name='first_name'),
+            EntityCellFunctionField(
+                model=FakeContact,
+                func_field=function_field_registry.get(FakeContact, 'get_pretty_properties'),
+            ),
+        ]
+        source_hf = HeaderFilter.objects.create_if_needed(
+            pk=pk, name='A contact view', model=FakeContact, cells_desc=cells,
+        )
+        self.assertFalse(source_hf.is_custom)
+        self.assertFalse(source_hf.is_private)
+
+        lv_url = FakeContact.get_lv_absolute_url()
+        lv_response1 = self.assertGET200(lv_url)
+        self.assertEqual(source_hf.id, lv_response1.context['list_view_state'].header_filter_id)
+
+        # --------------------------
+        GET_response = self.assertGET200(url)
+        self.assertTemplateUsed(GET_response, 'creme_core/forms/header-filter.html')
+        self.assertContains(
+            GET_response,
+            _('Create a view of list for «%(ctype)s»') % {'ctype': 'Test Contact'},
+        )
+
+        with self.assertNoException():
+            context1 = GET_response.context
+            submit_label = context1['submit_label']
+
+            form1 = context1['form']
+            edited_instance_id = form1.instance.id
+
+            fields1 = form1.fields
+            cells_f = fields1['cells']
+            user_f = fields1['user']
+            is_private_f = fields1['is_private']
+
+        self.assertEqual(HeaderFilter.save_label, submit_label)
+        self.assertEqual('', edited_instance_id)
+        self.assertEqual(cells, cells_f.initial)
+        self.assertEqual(user.id, user_f.initial)
+        self.assertTrue(is_private_f.initial)
+
+        # POST ---
+        field_name1 = 'first_name'
+        field_name2 = 'last_name'
+        name = 'Cloned filter'
+        POST_response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'name': name,
+                'user': user.id,
+                'is_private': 'on',
+                'cells': f'regular_field-{field_name1},regular_field-{field_name2}',
+            },
+        )
+        self.assertNoFormError(POST_response)
+
+        hfilter = self.get_object_or_fail(HeaderFilter, name=name)
+        self.assertNotEqual(source_hf.id, hfilter.id)
+        self.assertEqual(user, hfilter.user)
+        self.assertTrue(hfilter.is_private)
+        self.assertTrue(hfilter.is_custom)
+        self.assertListEqual(
+            [
+                EntityCellRegularField.build(FakeContact, field_name1),
+                EntityCellRegularField.build(FakeContact, field_name2),
+            ],
+            hfilter.cells,
+        )
+
+        self.assertRedirects(POST_response, lv_url)
+
+        # List-view ---
+        lv_context2 = self.assertGET200(lv_url).context
+        self.assertEqual(hfilter.id, lv_context2['header_filters'].selected.id)
+        self.assertEqual(hfilter.id, lv_context2['list_view_state'].header_filter_id)
+
+    def test_clone__apps_credentials(self):
+        self.login_as_standard(allowed_apps=['persons'])
+
+        source_hf = HeaderFilter.objects.create_if_needed(
+            pk='tests-hf_contact', name='A contact view', model=FakeContact,
+            cells_desc=[EntityCellRegularField.build(model=FakeContact, name='last_name')],
+        )
+        self.assertGET403(reverse('creme_core__clone_hfilter', args=(source_hf.id,)))
+
     def test_delete(self):
         self.login_as_root()
 
