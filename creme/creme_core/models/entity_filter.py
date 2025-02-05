@@ -891,14 +891,12 @@ class EntityFilterCondition(models.Model):
 
     def __repr__(self):
         return (
-            'EntityFilterCondition('
-            'filter_id={filter}, type={type}, name={name}, value={value}'
-            ')'.format(
-                filter=self.filter_id,
-                type=self.type,
-                name=self.name or 'None',
-                value=self.value,
-            )
+            f'EntityFilterCondition('
+            f'filter_id="{self.filter_id}", '
+            f'type={self.type}, '
+            f'name="{self.name}", '
+            f'value={self.value}'
+            f')'
         )
 
     def accept(self, entity: CremeEntity, user: CremeUser) -> bool:

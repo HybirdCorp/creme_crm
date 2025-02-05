@@ -33,6 +33,7 @@ from creme.creme_core.models import (
     CremeUser,
     CustomField,
     EntityFilter,
+    EntityFilterCondition,
     FakeCivility,
     FakeContact,
     FakeDocument,
@@ -583,7 +584,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         self.assertEqual(SubFilterConditionHandler.type_id, condition.type)
         self.assertEqual(subfilter.id,                      condition.name)
 
-    def test_create03(self):
+    def test_create__session_kept(self):
         "Existing state session is kept."
         self.login_as_root()
 
@@ -1798,6 +1799,124 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
 
         response2 = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
         self.assertNoFormError(response2)
+
+    def test_clone(self):
+        # user = self.login_as_root_and_get()
+        user = self.login_as_standard(allowed_apps=['creme_core'])
+
+        # GET (404) ---
+        source_pk = 'test-filter01'
+        url = reverse('creme_core__clone_efilter', args=(source_pk,))
+        self.assertGET404(url)
+
+        # GET ---
+        # Source efilter
+        EntityFilter.objects.smart_update_or_create(
+            pk=source_pk, name='A filter for Misatos', model=FakeContact, is_custom=False,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='first_name',
+                    operator=operators.EQUALS, values=['Misato'],
+                ),
+            ],
+        )
+
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/forms/entity-filter.html')
+        self.assertContains(
+            response1,
+            _('Create a filter for «%(ctype)s»') % {'ctype': 'Test Contact'},
+        )
+
+        context1 = response1.context
+        with self.assertNoException():
+            submit_label = context1['submit_label']
+
+            context1['help_message']  # NOQA
+
+            form1 = context1['form']
+            edited_instance_id = form1.instance.id
+
+            fields1 = form1.fields
+            rfield_conds_f = fields1['regularfieldcondition']
+            user_f = fields1['user']
+            is_private_f = fields1['is_private']
+
+        self.assertEqual(EntityFilter.save_label, submit_label)
+        self.assertEqual('', edited_instance_id)
+        self.assertEqual(user.id, user_f.initial)
+        self.assertTrue(is_private_f.initial)
+
+        self.assertEqual(FakeContact, rfield_conds_f.model)
+
+        initial_conds = rfield_conds_f.initial
+        self.assertIsList(initial_conds, length=1)
+        initial_cond = initial_conds[0]
+        self.assertIsInstance(initial_cond, EntityFilterCondition)
+        self.assertEqual(RegularFieldConditionHandler.type_id, initial_cond.type)
+        self.assertEqual('first_name',                         initial_cond.name)
+
+        # ---
+        name = 'Cloned Filter'
+        operator = operators.IEQUALS
+        field_name = 'last_name'
+        value = 'Ikari'
+        response2 = self.client.post(
+            url,
+            follow=True,
+            data={
+                'name': name,
+                'user': user.id,
+                'is_private': 'on',
+                'use_or': 'False',
+                'regularfieldcondition': self._build_rfields_data(
+                    operator=operator,
+                    name=field_name,
+                    value=value,
+                ),
+            },
+        )
+        self.assertNoFormError(response2)
+
+        efilter = self.get_alone_element(EntityFilter.objects.filter(name=name))
+        self.assertNotEqual(source_pk, efilter.id)
+        self.assertEqual(FakeContact, efilter.entity_type.model_class())
+        self.assertTrue(efilter.is_custom)
+        self.assertTrue(efilter.is_private)
+        self.assertEqual(user, efilter.user)
+
+        condition = self.get_alone_element(efilter.conditions.all())
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
+        self.assertEqual(field_name,                           condition.name)
+        self.assertDictEqual(
+            {'operator': operator, 'values': [value]},
+            condition.value,
+        )
+
+        lv_url = FakeContact.get_lv_absolute_url()
+        self.assertRedirects(response2, lv_url)
+
+        # List-view ---
+        context3 = self.assertGET200(lv_url).context
+        selected_efilter = context3['entity_filters'].selected
+        self.assertIsInstance(selected_efilter, EntityFilter)
+        self.assertEqual(efilter.id, selected_efilter.id)
+        self.assertEqual(efilter.id, context3['list_view_state'].entity_filter_id)
+
+    def test_clone__apps_credentials(self):
+        self.login_as_standard(allowed_apps=['persons'])
+
+        source_efilter = EntityFilter.objects.smart_update_or_create(
+            pk='test-filter01', name='A filter for Misatos', model=FakeContact,
+            is_custom=False,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='first_name',
+                    operator=operators.EQUALS, values=['Misato'],
+                ),
+            ],
+        )
+        self.assertGET403(reverse('creme_core__clone_efilter', args=(source_efilter.id,)))
 
     def _delete(self, efilter):
         return self.client.post(
