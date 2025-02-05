@@ -29,6 +29,7 @@
                 {% for hfilter in ctw.all_users_hfilters %}
                     <li>
                         {{hfilter}}
+{# TODO??                        {% brick_action id='add' url='creme_config__clone_hfilter'|url:hfilter.id %} #}
                         {% brick_action id='edit' url='creme_config__edit_hfilter'|url:hfilter.id enabled=hfilter.edition_perm %}
                         {% brick_action id='delete' url=deletion_url __id=hfilter.id enabled=hfilter.deletion_perm %}
                     </li>

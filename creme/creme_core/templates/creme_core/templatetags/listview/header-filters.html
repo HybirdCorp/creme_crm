@@ -32,6 +32,9 @@
       <a href="{% url 'creme_core__create_hfilter' ctype.id %}">
           {% widget_icon name='add' label=_('Create a custom view') size='listview-filter-action' %}
       </a>
+      <a href="{% url 'creme_core__clone_hfilter' selected.id %}" data-action="redirect">
+          {% widget_icon name='clone' label=_('Clone this view') size='listview-filter-action' %}
+      </a>
 {% comment %}
       <a href="{{selected.get_edit_absolute_url}}" data-action="redirect" class="{% if not can_edit %}is-disabled{% endif %}">
           {% widget_icon name='edit' label=_('Edit this view') size='listview-filter-action' %}

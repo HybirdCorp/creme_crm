@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-31 14:11+0100\n"
+"POT-Creation-Date: 2025-02-05 15:20+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3871,6 +3871,9 @@ msgstr "Vues de %(user)s"
 
 msgid "Create a custom view"
 msgstr "Créer une vue personnalisée"
+
+msgid "Clone this view"
+msgstr "Cloner cette vue"
 
 msgid "Edit this view"
 msgstr "Modifier cette vue"

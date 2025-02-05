@@ -345,6 +345,11 @@ headerfilter_patterns = [
         name='creme_core__edit_hfilter',
     ),
     re_path(
+        r'^clone/(?P<hfilter_id>[\w-]+)[/]?$',
+        header_filter.HeaderFilterCloning.as_view(),
+        name='creme_core__clone_hfilter',
+    ),
+    re_path(
         r'^delete[/]?$',
         header_filter.HeaderFilterDeletion.as_view(),
         name='creme_core__delete_hfilter',

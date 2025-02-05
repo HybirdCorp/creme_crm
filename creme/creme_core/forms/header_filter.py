@@ -704,6 +704,38 @@ class HeaderFilterCreationForm(_HeaderFilterForm):
         return instance
 
 
+# TODO: factorise?
+class HeaderFilterCloningForm(_HeaderFilterForm):
+    def __init__(self,
+                 source: HeaderFilter,
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fields = self.fields
+
+        fields['is_private'].initial = True
+        # fields['name'].initial = _('Clone of ...') TODO?
+
+        cells_f = self.fields['cells']
+        ctype = source.entity_type
+        self.instance.entity_type = ctype
+        cells_f.model = ctype.model_class()
+        cells_f.initial = source.cells
+
+    @atomic
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        ct = instance.entity_type
+
+        kwargs['commit'] = False
+        super().save(*args, **kwargs)
+        generate_string_id_and_save(
+            HeaderFilter, [instance],
+            f'creme_core-userhf_{ct.app_label}-{ct.model}',
+        )
+
+        return instance
+
+
 class HeaderFilterEditionForm(_HeaderFilterForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
