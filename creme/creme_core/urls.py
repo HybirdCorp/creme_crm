@@ -304,6 +304,11 @@ entity_filter_patterns = [
         name='creme_core__create_efilter',
     ),
     re_path(
+        r'^clone/(?P<efilter_id>.+)[/]?$',
+        entity_filter.EntityFilterCloning.as_view(),
+        name='creme_core__clone_efilter',
+    ),
+    re_path(
         r'^edit/(?P<efilter_id>.+)[/]?$',
         entity_filter.EntityFilterEdition.as_view(),
         name='creme_core__edit_efilter',

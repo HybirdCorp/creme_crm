@@ -122,7 +122,6 @@ class _EntityFilterForm(CremeModelForm):
         return cdata
 
 
-# class EntityFilterCreateForm(_EntityFilterForm):
 class EntityFilterCreationForm(_EntityFilterForm):
     pk_prefix = 'creme_core-userfilter_'
 
@@ -133,6 +132,48 @@ class EntityFilterCreationForm(_EntityFilterForm):
 
         for field_name in self.conditions_field_names:
             fields[field_name].initialize(ctype)
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        ct = self._entity_type
+
+        super().save(commit=False, *args, **kwargs)
+        generate_string_id_and_save(
+            EntityFilter, [instance],
+            f'{self.pk_prefix}{ct.app_label}-{ct.model}',
+        )
+
+        instance.set_conditions(
+            self.get_cleaned_conditions(),
+            # There cannot be a cycle because we are creating the filter right now
+            check_cycles=False,
+            check_privacy=False,  # Already checked in clean()
+        )
+
+        return instance
+
+
+# TODO: factorise
+class EntityFilterCloningForm(_EntityFilterForm):
+    pk_prefix = 'creme_core-userfilter_'
+
+    def __init__(self, source: EntityFilter, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        ctype = source.entity_type
+        self._entity_type = self.instance.entity_type = ctype
+        fields = self.fields
+
+        fields['is_private'].initial = True
+        # fields['name'].initial = _('Clone of ...') TODO?
+
+        field_kwargs = {
+            'ctype': ctype,
+            'conditions': source.conditions.all(),
+            'efilter': None,
+        }
+
+        for field_name in self.conditions_field_names:
+            fields[field_name].initialize(**field_kwargs)
 
     def save(self, *args, **kwargs):
         instance = self.instance

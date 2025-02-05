@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-05 15:20+0100\n"
+"POT-Creation-Date: 2025-02-07 13:55+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3849,6 +3849,9 @@ msgstr "Informations sur le filtre courant"
 
 msgid "Create a custom filter"
 msgstr "Créer un filtre personnalisé"
+
+msgid "Clone this filter"
+msgstr "Cloner ce filtre"
 
 msgid "Edit this filter"
 msgstr "Modifier ce filtre"

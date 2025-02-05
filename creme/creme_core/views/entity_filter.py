@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -385,6 +385,46 @@ class EntityFilterCreation(base.EntityCTypeRelatedMixin,
         initial['is_private'] = settings.FILTERS_INITIAL_PRIVATE
 
         return initial
+
+
+class EntityFilterCloning(EntityFilterMixin, generic.CremeModelCreation):
+    model = EntityFilter
+    form_class = efilter_forms.EntityFilterCloningForm
+    template_name = 'creme_core/forms/entity-filter.html'
+    pk_url_kwarg = 'efilter_id'
+    source_form_kwarg = 'source'
+
+    def get_source(self):
+        efilter = get_object_or_404(EntityFilter, pk=self.kwargs[self.pk_url_kwarg])
+        self.request.user.has_perm_to_access_or_die(efilter.entity_type.app_label)
+
+        return efilter
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.save_in_session('entity_filter_id')
+
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_message'] = self.get_case_sensitivity_message()
+
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs[self.source_form_kwarg] = self.get_source()
+        kwargs['efilter_registry'] = self.get_efilter_registry()
+
+        return kwargs
+
+    # TODO?
+    # def get_initial(self):
+    #     initial = super().get_initial()
+    #     initial['is_private'] = settings.FILTERS_INITIAL_PRIVATE
+    #
+    #     return initial
 
 
 class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):

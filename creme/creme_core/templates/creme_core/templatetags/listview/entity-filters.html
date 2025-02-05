@@ -23,6 +23,11 @@
       <a href="{% url 'creme_core__create_efilter' ctype.id %}">
           {% widget_icon name='add' label=_('Create a custom filter') size='listview-filter-action' %}
       </a>
+      {% if efilter_id %}
+      <a href="{% url 'creme_core__clone_efilter' efilter_id %}" data-action="redirect">
+          {% widget_icon name='clone' label=_('Clone this filter') size='listview-filter-action' %}
+      </a>
+      {% endif %}
 {% comment %}
       <a href="{{efilter.get_edit_absolute_url}}" data-action="redirect" class="{% if not can_edit %}is-disabled{% endif %}">
           {% widget_icon name='edit' label=_('Edit this filter') size='listview-filter-action' %}
