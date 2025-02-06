@@ -57,9 +57,10 @@ class LatexExporter(ContextMixin, base.BillingExporter):
         # NB: return code seems always 1 even when there is no error...
         subprocess.call(
             [
-                'pdflatex',
-                '-interaction=batchmode',
-                '-output-directory', dir_path,
+                'latexmk',
+                '-lualatex',
+                '-quiet',
+                '-cd',
                 latex_file_path,
             ]
         )
