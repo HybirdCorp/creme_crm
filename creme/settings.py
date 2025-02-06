@@ -1330,7 +1330,7 @@ BILLING_EXPORTERS = [
     'creme.billing.exporters.xls.XLSExportEngine',
     'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
 
-    # You needed to install LateX on the server (the command "pdflatex" is run).
+    # You needed to install LateX on the server (the command "latexmk" and "lualatex" is run).
     # Some extra packages may be needed to render correctly the themes
     # (see FLAVOURS_INFO in 'creme/billing/exporters/latex.py')
     # 'creme.billing.exporters.latex.LatexExportEngine',
