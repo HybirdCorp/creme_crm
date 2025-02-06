@@ -87,7 +87,7 @@ virtual env, in order to keep the old one working).
        If you want PDF export, you can use :
        - xhtml2pdf (default)
        - weasyprint (easy to install on Linux ; harder on Windows)
-       - you can also use the binary "pdflatex" (Ubuntu package 'texlive-latex-base').
+       - you can also use the binary "latexmk" with "lualatex" (Ubuntu packages 'latexmk' and 'texlive-latex-base').
 
 Installation with 'pip':
  - You should probably use "virtualenv".
