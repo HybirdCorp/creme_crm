@@ -1,6 +1,7 @@
 from datetime import time
 
 from django.urls import reverse
+from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
 from creme.activities.bricks import CalendarConfigItemsBrick
@@ -208,6 +209,32 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             self.assertGET200(url).context['form'].instance.as_dict(),
         )
 
+    def test_config_create__errors(self):
+        self.login_as_root()
+
+        default = CalendarConfigItem.objects.get_default()
+
+        response = self.client.post(
+            self.ADD_URL,
+            data={
+                **default.as_dict(),
+                'role': '',
+                'view': 'week',
+                'week_days': (1, 2, 3, 4),
+                'week_start': '2',
+                'slot_duration': time(0, 30, 0),
+                'day_start': '19:00:00',
+                'day_end': '07:00:00',
+            },
+        )
+
+        self.assertFormError(response.context['form'], None, [
+            _('Start ({start}) must be before end ({end}).').format(
+                start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
+                end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
+            )
+        ])
+
     def test_config_create_superuser(self):
         self.login_as_root()
         role = self.get_regular_role()
@@ -338,6 +365,36 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             },
             role_config.as_dict(),
         )
+
+    def test_config_edit__errors(self):
+        self.login_as_root()
+
+        default = CalendarConfigItem.objects.get_default()
+        role_config = self.create_if_needed(
+            role=self.get_regular_role(), superuser=False,
+            view='week', week_days=(1, 2, 4, 5),
+        )
+
+        response = self.client.post(
+            self._build_edit_url(role_config),
+            data={
+                **default.as_dict(),
+                'role': '',
+                'view': 'week',
+                'week_days': (1, 2, 3, 4),
+                'week_start': '2',
+                'slot_duration': time(0, 30, 0),
+                'day_start': '19:00:00',
+                'day_end': '07:00:00',
+            },
+        )
+
+        self.assertFormError(response.context['form'], None, [
+            _('Start ({start}) must be before end ({end}).').format(
+                start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
+                end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
+            )
+        ])
 
     def test_config_delete__not_allowed(self):
         self.login_as_standard()
