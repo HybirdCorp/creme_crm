@@ -1,5 +1,12 @@
 == Version 2.6.7 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Activities :
+            - An issue in calendar configuration, when the end of the day is before the start, has been fixed.
+
+
 == Version 2.6.6 ==
 
   Users side :
