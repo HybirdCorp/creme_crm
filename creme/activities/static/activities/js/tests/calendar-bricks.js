@@ -100,7 +100,7 @@ QUnit.test('creme.ActivityCalendarBrickController.bind', function(assert) {
 
     this.assertRaises(function() {
         controller.bind(brick);
-    }, Error, 'Error: CalendarBrickController is already bound');
+    }, Error, 'Error: ActivityCalendarBrickController is already bound');
 });
 
 QUnit.test('creme.ActivityCalendarBrickController.setup (settings & sources)', function(assert) {

@@ -36,9 +36,9 @@
         * Activities :
             - The JavaScript component FullCalendar has been upgraded to the version "6.1.15"
             - Improve CSS of the calendar sidebar and make it sticky.
-            - A "activity-calendar" brick is now available for the detail-views.
-            - New calendar settings for the visible hours range.
-            - In the calendar configuration, the visible hours range is added.
+            - New 'My Calendar' brick is now available for the home page-view.
+            - In the calendar configuration, the visible hours range is added. Can be different from "business hours" that
+              are setting constraints to activities.
         * Creme_config :
             - The buttons configuration can now be customised per role.
             - The property types have now a field "description" (it can be empty of course).
@@ -170,6 +170,12 @@
             * Persons :
                 - The model 'Address' gets new semantic fields (like ZipCodeField) which allow to
                   easily customise things (like the form field, the field printer etc...).
+            * Activities:
+                - New FullCalendarBrick base class for implementation of calendar bricks.
+                - Refactor of creme.ActivityCalendar :
+                    - Add headlessMode flag.
+                    - Add allowEventOverlaps property (boolean or method).
+                    - Add allowEventCreate property (boolean).
         # Javascript:
             * FormDialog:
                 - Form submit error responses with HTML can either replace the default overlay content or the frame content.
@@ -207,12 +213,8 @@
                 - "creme_core-hatmenubar-view"
             - Apps :
                 * Activities:
-                    - Refactor creme.ActivityCalendar
+                    - Refactor creme.ActivityCalendar : can be now used as independent component.
                         - Move the "calendar user page" features to creme.ActivityCalendarController : floating events, sidebar selection, state within url hash
-                        - creme.ActivityCalendar can be now used as independent component.
-                        - Add headlessMode flag.
-                        - Add allowEventOverlaps property (boolean or method).
-                        - Add allowEventCreate property (boolean).
                         - Move calendar selection state queries to ActivityCalendarController. Improve performance.
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' has been removed.
