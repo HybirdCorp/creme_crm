@@ -1,13 +1,12 @@
 {% extends 'creme_core/bricks/base/base.html' %}
 
 {% load i18n creme_bricks %}
-{% load jsondata templatize from creme_core_tags %}
+{% load jsondata from creme_core_tags %}
 
 {% block brick_extra_class %}activity-fullcalendar-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% trans "Calendar" context "activities" as title_prefix %}{% templatize '{{title_prefix}} — {{verbose_name}}' as title %}
-    {% brick_header_title title=title icon='calendar' %}
+    {% brick_header_title title=verbose_name icon='calendar' %}
 {% endblock %}
 
 {% block brick_header_actions %}
@@ -25,9 +24,9 @@
         (function($) {
             creme.setupActivityCalendarBrick('.brick[data-brick-id="{{brick_id}}"]', {
                 owner: "{{ user.username }}",
-                eventUpdateUrl: '{% url "activities__set_activity_dates" %}',
-                eventCreateUrl: '{% url "activities__create_activity_popup" %}',
-                eventFetchUrl: '{% url "activities__calendars_activities" %}',
+                eventUpdateUrl: '{{ event_update_url }}',
+                eventCreateUrl: '{{ event_create_url }}',
+                eventFetchUrl: '{{ event_fetch_url }}',
                 allowEventCreate: false,
                 allowEventMove: false
             });
