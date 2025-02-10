@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2025  Hybird
+    Copyright (C) 2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -71,7 +71,7 @@ creme.ActivityCalendarBrickController = creme.component.Component.sub({
     },
 
     bind: function(brick) {
-        Assert.that(Object.isNone(this._brick), 'CalendarBrickController is already bound');
+        Assert.that(Object.isNone(this._brick), 'ActivityCalendarBrickController is already bound');
         Assert.is(brick, creme.bricks.Brick, '${brick} is not a creme.bricks.Brick', {brick: brick});
 
         this._brick = brick;
@@ -94,6 +94,10 @@ creme.ActivityCalendarBrickController = creme.component.Component.sub({
             defaultView: settings.view || 'month',
             timezoneOffset: settings.utc_offset || 0,
             allowEventMove: Boolean(settings.allow_event_move),
+            allowEventCreate: Boolean(settings.allow_event_create),
+            headlessMode: Boolean(settings.headless_mode),
+            showWeekNumber: !(settings.show_week_number === false),
+            showTimezoneInfo: Boolean(settings.show_timezone_info),
             fullCalendarOptions: Object.assign(extra, {
                 slotDuration: settings.slot_duration,
                 businessHours: {

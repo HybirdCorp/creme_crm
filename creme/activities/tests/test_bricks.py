@@ -29,8 +29,8 @@ from creme.persons.tests.base import (
 
 from ..bricks import (
     ActivityBarHatBrick,
-    ActivityCalendarBrick,
     FutureActivitiesBrick,
+    MyActivitiesCalendarBrick,
     ParticipantsBrick,
     PastActivitiesBrick,
     RelatedCalendarBrick,
@@ -55,7 +55,6 @@ from .base import (
 )
 
 
-# from ..constants import FLOATING
 @skipIfCustomActivity
 class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     RM_PARTICIPANT_URL = reverse('activities__remove_participant')
@@ -1254,7 +1253,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
         self.assertIn('brick-void', brick_node.attrib.get('class', ''))
 
-    def test_activity_calendar(self):
+    def test_activity_fullcalendar(self):
         user = self.login_as_activities_user()
 
         ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
@@ -1262,13 +1261,13 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         default_cal = Calendar.objects.get_default_calendar(user)
         Calendar.objects.create(user=user, name='Other calendar')
 
-        brick = ActivityCalendarBrick()
+        brick = MyActivitiesCalendarBrick()
 
         with override_tz('Europe/London'):
             dst_date = self.create_datetime(2023, 8, 1)
 
             with patch('creme.activities.utils.now', return_value=dst_date):
-                render = brick.detailview_display(
+                render = brick.home_display(
                     context=self.build_context(user=user, instance=ranma),
                 )
 
@@ -1281,9 +1280,13 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             brick_node.find('.//script[@class="brick-calendar-sources"]').text[4:-4]
         )
 
-        self.assertEqual(settings, {
-            'allow_event_move': True,
+        self.assertDictEqual(settings, {
+            'allow_event_move': False,
+            'allow_event_create': False,
             'allow_keep_state': False,
+            'headless_mode': False,
+            'show_timezone_info': False,
+            'show_week_number': True,
             'day_end': '18:00',
             'day_start': '08:00',
             'extra_data': {},
@@ -1296,4 +1299,4 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             'view_day_end': '24:00',
         })
 
-        self.assertEqual(sources, [default_cal.pk])
+        self.assertListEqual(sources, [default_cal.pk])

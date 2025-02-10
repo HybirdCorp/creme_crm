@@ -55,7 +55,7 @@ class ActivitiesConfig(CremeAppConfig):
             bricks.FutureActivitiesBrick,
             bricks.PastActivitiesBrick,
             bricks.RelatedCalendarBrick,
-            bricks.ActivityCalendarBrick,
+            bricks.MyActivitiesCalendarBrick,
         ).register_hat(
             self.Activity,
             main_brick_cls=bricks.ActivityBarHatBrick,
