@@ -1370,7 +1370,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertEqual(FakeOrganisation.get_create_absolute_url(), hrefs[0])
 
         data_hrefs = [
-            button_node.attrib.get('data-href')
+            button_node.attrib.get('data-action-url')
             for button_node in buttons_node.findall('a')
         ]
         dl_url = '{}?ct_id={}'.format(reverse('creme_core__mass_export'), ct_id)
