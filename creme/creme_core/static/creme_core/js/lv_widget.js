@@ -35,6 +35,33 @@ creme.lv_widget.checkSelectionMode = function(mode) {
     }
 };
 
+creme.lv_widget.ExportAction = creme.component.Action.sub({
+    _init_: function(list, options) {
+        this._super_(creme.component.Action, '_init_', this._run, options);
+        this._list = list;
+    },
+
+    _run: function(options) {
+        options = $.extend({}, this.options(), options || {});
+
+        var self = this;
+        var formats = options.formats || [['', 'No backend found']];
+
+        creme.dialogs.choice(gettext("Select the export format"), {
+            title: gettext("Export"),
+            choices: formats.map(function(item) {
+                return {value: item[0], label: item[1]};
+            }),
+            required: true
+        }).onOk(function(event, data) {
+           creme.utils.goTo(options.url, {type: data});
+           self.done();
+        }).onClose(function() {
+            self.cancel();
+        }).open();
+    }
+});
+
 creme.lv_widget.DeleteSelectedAction = creme.component.Action.sub({
     _init_: function(list, options) {
         this._super_(creme.component.Action, '_init_', this._run, options);
@@ -539,6 +566,12 @@ creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegist
                 cancel: function() { this.cancel(); }
             });
         });
+    },
+
+    _build_export_as: function(url, options, data, e) {
+        return new creme.lv_widget.ExportAction(this._list, Object.assign({
+            url: url
+        }, options));
     },
 
     _build_redirect: function(url, options, data) {

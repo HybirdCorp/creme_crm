@@ -8,6 +8,7 @@ QUnit.module("creme.listview.actions", new QUnitMixin(QUnitEventMixin,
         var backend = this.backend;
 
         this.setMockBackendGET({
+            'mock/entity/export': backend.response(200, '')
         });
 
         this.setMockBackendPOST({
@@ -734,6 +735,94 @@ QUnit.test('creme.listview.MergeSelectedAction (ok)', function(assert) {
     deepEqual(['/mock/entity/merge?id1=2&id2=3'], this.mockRedirectCalls());
 });
 
+QUnit.test('creme.listview.ExportAction (no formats)', function(assert) {
+    var list = this.createDefaultListView().controller();
+
+    var action = new creme.lv_widget.ExportAction(list, {
+        url: '/mock/entity/merge'
+    }).on(this.listviewActionListeners);
+
+    action.start();
+
+    var dialog = this.assertOpenedDialog();
+
+    deepEqual([
+        {value: '', name: 'No backend found'}
+    ], dialog.find('select option').map(function() {
+        return {name: $(this).text(), value: $(this).attr('value')};
+    }).get());
+
+    this.closeDialog();
+
+    deepEqual([], this.mockListenerCalls('action-fail'));
+    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    deepEqual([], this.mockListenerCalls('action-done'));
+
+    deepEqual([], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.listview.ExportAction (cancel)', function(assert) {
+    var list = this.createDefaultListView().controller();
+
+    var action = new creme.lv_widget.ExportAction(list, {
+        url: '/mock/entity/export',
+        formats: [
+             ['csv', 'CSV File format']
+        ]
+    }).on(this.listviewActionListeners);
+
+    action.start();
+
+    var dialog = this.assertOpenedDialog();
+
+    deepEqual([
+        {value: 'csv', name: 'CSV File format'}
+    ], dialog.find('select option').map(function() {
+        return {name: $(this).text(), value: $(this).attr('value')};
+    }).get());
+
+    dialog.find('button[name="cancel"]').trigger('click');
+
+    this.assertClosedDialog();
+
+    deepEqual([], this.mockListenerCalls('action-fail'));
+    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    deepEqual([], this.mockListenerCalls('action-done'));
+
+    deepEqual([], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.listview.ExportAction (ok)', function(assert) {
+    var list = this.createDefaultListView().controller();
+
+    var action = new creme.lv_widget.ExportAction(list, {
+        url: '/mock/entity/export',
+        formats: [
+             ['csv', 'CSV File format']
+        ]
+    }).on(this.listviewActionListeners);
+
+    action.start();
+
+    var dialog = this.assertOpenedDialog();
+
+    deepEqual([
+        {value: 'csv', name: 'CSV File format'}
+    ], dialog.find('select option').map(function() {
+        return {name: $(this).text(), value: $(this).attr('value')};
+    }).get());
+
+    dialog.find('button[name="ok"]').trigger('click');
+
+    this.assertClosedDialog();
+
+    deepEqual([], this.mockListenerCalls('action-fail'));
+    deepEqual([], this.mockListenerCalls('action-cancel'));
+    deepEqual([['done']], this.mockListenerCalls('action-done'));
+
+    deepEqual(['/mock/entity/export?type=csv'], this.mockRedirectCalls());
+});
+
 QUnit.test('creme.listview.actionregistry', function(assert) {
     var list = this.createListView().controller();
     var registry = list.actionBuilders();
@@ -753,6 +842,7 @@ QUnit.test('creme.listview.actionregistry', function(assert) {
     ok(registry.has('delete-selection'));
     ok(registry.has('addto-selection'));
     ok(registry.has('merge-selection'));
+    ok(registry.has('export-as'));
 });
 
 QUnit.test('creme.listview.row-action (update)', function(assert) {

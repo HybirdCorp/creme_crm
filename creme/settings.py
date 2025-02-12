@@ -951,7 +951,6 @@ CREME_CORE_JS = [
     'creme_core/js/detailview.js',
 
     'creme_core/js/entity_cell.js',
-    'creme_core/js/export.js',
     'creme_core/js/merge.js',
     'creme_core/js/relations.js',
     'creme_core/js/jobs.js',

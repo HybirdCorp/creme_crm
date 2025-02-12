@@ -330,6 +330,7 @@
                 - "creme_core/bricks/generic/hat-bar.html"
         # Javascript :
             - Removed ChainedSelect.clone() method : not used and does not work anyway.
+            - creme.exports.exportAs() is replaced by the 'export-as' action or 'creme.lv_widget.ExportAction'
         # Apps :
             * Creme_config :
                 - In the brick 'GenericModelBrick', "meta" is not injected in the context anymore.
