@@ -178,6 +178,30 @@ QUnit.test('creme.D3ChartBrickPopoverAction', function(assert) {
 
         deepEqual([['done']], this.mockListenerCalls('action-done'));
     });
+
+    this.resetMockListenerCalls('action-done');
+
+    this.withFakeMethod({
+        instance: chart,
+        method: 'asImage',
+        callable: function(done) {
+            done();
+        }
+    }, function(faker) {
+        var options = {width: 150, height: 200};
+
+        deepEqual([], this.mockListenerCalls('action-done'), '');
+
+        action.start(options);
+
+        equal(faker.count(), 1, 'asImage called once');
+        deepEqual(faker.calls()[0].slice(1), [{width: 150, height: 200}]);
+
+        // No image, No popover
+        this.assertClosedPopover();
+
+        deepEqual([['done']], this.mockListenerCalls('action-done'));
+    });
 });
 
 QUnit.parametrize('creme.setupD3ChartBrick', [
@@ -189,7 +213,11 @@ QUnit.parametrize('creme.setupD3ChartBrick', [
     var chart = new FakeD3Chart();
     var html = this.createD3ChartBrickHtml({
         data: data,
-        props: props
+        props: props,
+        header: (
+            '<a data-action="sketch-download" class="download" href="my-sketch.svg"><script type="text/json"><!--{"options": {"width": 150, "height": 200}}--></script></a>' +
+            '<a data-action="sketch-popover" class="popover"><script type="text/json"><!--{"options": {"width": 150, "height": 200}}--></script></a>'
+        )
     });
     var element = $(html).appendTo(this.qunitFixture());
 
@@ -209,6 +237,57 @@ QUnit.parametrize('creme.setupD3ChartBrick', [
     // actions are registered
     equal(true, brick.getActionBuilders().builders().indexOf('sketch-download') !== -1);
     equal(true, brick.getActionBuilders().builders().indexOf('sketch-popover') !== -1);
+});
+
+QUnit.test('creme.setupD3ChartBrick (links)', function(assert) {
+    var chart = new FakeD3Chart();
+    var html = this.createD3ChartBrickHtml({
+        header: (
+            '<a data-action="sketch-download" class="download" href="my-sketch.svg"><script type="text/json"><!--{"options": {"width": 150, "height": 200}}--></script></a>' +
+            '<a data-action="sketch-popover" class="popover"><script type="text/json"><!--{"options": {"width": 150, "height": 200}}--></script></a>'
+        )
+    });
+    var element = $(html).appendTo(this.qunitFixture());
+
+    creme.setupD3ChartBrick(element, {chart: chart});
+    var brick = creme.widget.create(element).brick();
+
+    // actions are registered
+    equal(true, brick.getActionBuilders().builders().indexOf('sketch-download') !== -1);
+    equal(true, brick.getActionBuilders().builders().indexOf('sketch-popover') !== -1);
+
+    // try sketch-download
+    this.withFakeMethod({
+        instance: chart,
+        method: 'saveAs',
+        callable: function(done, filename, options) {
+            done();
+        }
+    }, function(faker) {
+        var options = {filename: 'my-sketch.svg', width: 150, height: 200};
+
+        brick.element().find('.download').trigger('click');
+
+        equal(faker.count(), 1);
+        deepEqual(faker.calls()[0].slice(1), ['my-sketch.svg', options]);
+    });
+
+    // try sketch-popover
+    this.withFakeMethod({
+        instance: chart,
+        method: 'asImage',
+        callable: function(done) {
+            done($('<img>'));
+        }
+    }, function(faker) {
+        brick.element().find('.popover').trigger('click');
+
+        equal(faker.count(), 1, 'asImage called once');
+        deepEqual(faker.calls()[0].slice(1), [{width: 150, height: 200}]);
+
+        this.assertOpenedPopover();
+        this.closePopover();
+    });
 });
 
 }(jQuery, QUnit));
