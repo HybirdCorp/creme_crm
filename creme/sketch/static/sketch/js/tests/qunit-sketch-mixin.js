@@ -42,17 +42,20 @@ window.QUnitSketchMixin = {
     createD3ChartBrickHtml: function(options) {
         options = $.extend({
             data: [],
-            props: {}
+            props: {},
+            header: ''
         }, options || {});
 
         var content;
 
         if (!Object.isEmpty(options.data)) {
             content = (
+                '<div class="brick-header">${header}</div>' +
                 '<div class="brick-d3-content"></div>' +
                 '<script class="sketch-chart-data" type="application/json"><!--${data} --></script>'
             ).template({
-                data: JSON.stringify(options.data)
+                data: JSON.stringify(options.data),
+                header: options.header
             });
         } else {
             content = '<div class="brick-d3-content brick-empty"></div>';
