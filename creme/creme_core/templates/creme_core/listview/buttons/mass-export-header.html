@@ -1,11 +1,17 @@
-{% load i18n creme_ctype creme_widgets %}{% load jsonify from creme_core_tags %}
+{% load i18n creme_ctype creme_perms creme_query creme_widgets %}
+{% load blockjsondata jsonify from creme_core_tags %}
 {% if button.backend_choices %}
 {% with ctype=model|ctype_for_instance %}
 <a class="with-icon"
- data-href="{% url 'creme_core__mass_export' %}?ct_id={{ctype.id}}&hfilter={{list_view_state.header_filter_id}}&header=true"
- onclick="event.preventDefault();creme.exports.exportAs($(this).attr('data-href'), {{button.backend_choices|jsonify}}, 'type');"
- title="{% translate 'Download the titles of the columns of the list as a file (.csv, .xls)' %}, to help building a file to import for example">
-    {% translate 'Download header' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
+   data-action="export-as"
+   data-action-url="{% url 'creme_core__mass_export' %}?ct_id={{ctype.id}}&hfilter={{list_view_state.header_filter_id}}&header=true"
+   title="{% translate 'Download the titles of the columns of the list as a file (.csv, .xls)' %}, to help building a file to import for example">
+   {% translate 'Download header' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
+   {% blockjsondata %}{
+        "options": {
+            "formats": {{button.backend_choices|jsonify|safe}}
+        }
+    }{% endblockjsondata %}
 </a>
 {% endwith %}
 {% endif %}
