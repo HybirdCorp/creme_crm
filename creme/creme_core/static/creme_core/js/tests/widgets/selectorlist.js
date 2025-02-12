@@ -176,6 +176,29 @@ QUnit.test('creme.widgets.selectorlist.create (value, no selector)', function(as
     equal(widget.selectors().length, 0);
 });
 
+QUnit.test('creme.widgets.selectorlist.create (value, invalid selector)', function(assert) {
+    var element = this.createSelectorListTag(JSON.stringify([3]));
+    this.appendSelectorListModelTag(element, $('<div class="invalid"></div>'));
+
+    var widget = creme.widget.create(element);
+
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    equal(widget.val(), JSON.stringify([]));
+    equal(widget.selectorModel().length, 1);
+    equal(widget.lastSelector().length, 0);
+    equal(widget.selectors().length, 0);
+
+    var last = widget.appendSelector(13);
+    equal(last, undefined);
+
+    equal(widget.val(), JSON.stringify([]));
+    equal(widget.selectorModel().length, 1);
+    equal(widget.lastSelector().length, 0);
+    equal(widget.selectors().length, 0);
+});
+
 QUnit.test('creme.widgets.selectorlist.create (value, static selector)', function(assert) {
     var element = this.createSelectorListTag(JSON.stringify([3, 5, 3, 15]));
     var ctype = this.createDynamicSelectTag();
@@ -805,5 +828,58 @@ QUnit.test('creme.widgets.selectorlist.appendLast (not empty, no clone last)', f
     equal(widget.selectorModel().length, 1);
     equal(widget.selectors().length, 3);
 });
+
+QUnit.test('creme.widgets.selectorlist (add button)', function(assert) {
+    var element = this.createSelectorListTag(JSON.stringify([{ctype: '3', rtype: '1'}, {ctype: '5', rtype: '6'}]));
+    var model = this.createCTypeRTypeSelectorTag();
+
+    this.appendSelectorListModelTag(element, model);
+    element.append('<button type="button" class="selectorlist-add">');
+
+    var widget = creme.widget.create(element);
+    equal(widget.selectorModel().length, 1);
+    equal(widget.selectors().length, 2);
+
+    element.find('.selectorlist-add').trigger('click');
+
+    equal(widget.val(), JSON.stringify([{ctype: '3', rtype: '1'}, {ctype: '5', rtype: '6'}, {ctype: '15', rtype: '1'}]));
+    equal(widget.selectorModel().length, 1);
+    equal(widget.selectors().length, 3);
+});
+
+QUnit.test('creme.widgets.selectorlist (create button)', function(assert) {
+    var element = this.createSelectorListTag(JSON.stringify([{ctype: '3', rtype: '1'}, {ctype: '5', rtype: '6'}]));
+    var model = this.createCTypeRTypeSelectorTag();
+
+    this.appendSelectorListModelTag(element, model);
+    element.append('<button type="button" class="selectorlist-create">');
+
+    var widget = creme.widget.create(element);
+    equal(widget.selectorModel().length, 1);
+    equal(widget.selectors().length, 2);
+
+    element.find('.selectorlist-create').trigger('click');
+
+    equal(widget.val(), JSON.stringify([{ctype: '3', rtype: '1'}, {ctype: '5', rtype: '6'}, {ctype: '15', rtype: '1'}]));
+    equal(widget.selectorModel().length, 1);
+    equal(widget.selectors().length, 3);
+});
+
+QUnit.test('creme.widgets.selectorlist (delete buttons)', function(assert) {
+    var element = this.createSelectorListTag(JSON.stringify([{ctype: '3', rtype: '1'}, {ctype: '5', rtype: '6'}]));
+    var model = this.createCTypeRTypeSelectorTag();
+
+    this.appendSelectorListModelTag(element, model);
+
+    var widget = creme.widget.create(element);
+    equal(widget.selectors().length, 2);
+
+    equal(element.find('.delete').length, 2);
+    element.find('.delete:first').trigger('click');
+
+    equal(widget.val(), JSON.stringify([{ctype: '5', rtype: '6'}]));
+    equal(widget.selectors().length, 1);
+});
+
 }(jQuery));
 
