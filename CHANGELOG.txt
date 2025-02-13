@@ -173,6 +173,7 @@
                 - creme.ajax.parseUrl() is deprecated; Use _.urlAsDict() instead
                 - creme.ajax.params() is deprecated; Use _.encodeURLSearch() instead
                 - creme.ajax.decodeSearchData() is deprecated; Use _.decodeURLSearchData() instead
+                - creme.utils.confirmSubmit() is deprecated; Use the new 'creme_core-hatmenubar-update-redirect' or 'delete' actions instead.
         # In 'creme_core.models' :
             - The models 'CremeUser' gets a new method 'has_perm_or_die()' which raises exceptions with friendly error messages.
             - The model 'FileRef' gets a new optional field "description";

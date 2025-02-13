@@ -88,6 +88,7 @@ creme.utils.loading = function(div_id, is_loaded, params) {
 };
 
 creme.utils.confirmSubmit = function(atag, msg) {
+    console.warn('creme.utils.confimSubmit is now deprecated; should use actions instead');
     creme.dialogs.confirm(msg || gettext('Are you sure?'))
                  .onOk(function() {
                       $('form', $(atag)).trigger('submit');
