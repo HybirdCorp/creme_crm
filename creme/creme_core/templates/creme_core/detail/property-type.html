@@ -30,6 +30,7 @@
     {% if not object.enabled %}<span class="bar-deleted-indicator">[{% translate 'Disabled' %}]</span>{% endif %}
 {% endblock %}
 
+{# BEWARE : NOT IN A BRICK. Actions that needs a brick reload will not work (page redirections are fine) #}
 {% block title_buttons %}
  {% if object.is_custom %}
   {% with admin_perm=user|has_perm_to_admin:'creme_core' %}
@@ -48,19 +49,10 @@
     {% endif %}
 
     <div class='bar-action'>
-      {% if admin_perm %}{% translate 'Do you really want to delete this property type?' as confirm_msg %}
-        <a onclick="creme.utils.confirmSubmit(this, '{{confirm_msg|escapejs}}');" class="bar-button">
-            {% widget_icon name='delete' size='brick-hat-bar-button' %}
-            <form method="POST" action="{{object.get_delete_absolute_url}}" style="display:none;">{% csrf_token %}</form>
-        </a>
-      {% else %}
-        <span class="bar-button forbidden is-disabled">
-            {% widget_icon name='delete' size='brick-hat-bar-button' %}
-        </span>
-      {% endif %}
+    {% brick_bar_button action='creme_core-hatmenubar-update-redirect' label=_('Delete') url=object.get_delete_absolute_url icon='delete' confirm=_('Do you really want to delete this property type?') enabled=admin_perm __redirect=object.get_lv_absolute_url %}
     </div>
-  {% endwith %}
- {% endif %}
+    {% endwith %}
+{% endif %}
 {% endblock %}
 
 {% block main_content %}

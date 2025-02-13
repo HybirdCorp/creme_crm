@@ -12,7 +12,7 @@
 
             this.__redirect = creme.utils.redirect;
             creme.utils.redirect = function(url) {
-                self._redirectCalls.push(url.replace(/.*?:\/\/[^\/]*/g, ''));
+                self._redirectCalls.push((url || '').replace(/.*?:\/\/[^\/]*/g, ''));
             };
 
             this.__reload = creme.utils.reload;

@@ -27,6 +27,7 @@ QUnit.module("creme.detailview.hatmenubar", new QUnitMixin(QUnitEventMixin,
         this.setMockBackendPOST({
             'mock/relation/add': backend.response(200, ''),
             'mock/update': backend.response(200, ''),
+            'mock/delete': backend.response(200, ''),
             'mock/form': backend.response(200, '/mock/redirected')
         });
 
@@ -182,6 +183,42 @@ QUnit.test('creme.detailview.hatmenubar (form redirect)', function(assert) {
     this.assertClosedDialog();
 });
 
+QUnit.test('creme.detailview.hatmenubar (update-redirect)', function(assert) {
+    var widget = this.createHatMenuBar({
+        buttons: [
+            this.createHatMenuActionButton({
+                url: '/mock/delete',
+                action: 'creme_core-hatmenubar-update-redirect',
+                options: {
+                    confirm: 'Are you sure ?'
+                },
+                data: {
+                    redirect: '/mock/delete/redirect'
+                }
+            })
+        ]
+    });
+
+    this.assertActive(widget.element);
+    this.assertReady(widget.element);
+
+    deepEqual(1, widget.delegate._actionlinks.length);
+
+    var link = widget.delegate._actionlinks[0];
+    equal(true, link.isBound());
+    equal(false, link.isDisabled());
+
+    $(widget.element).find('a.menu_button').click();
+
+    this.assertOpenedDialog();
+    deepEqual([], this.mockBackendUrlCalls('mock/delete'));
+    deepEqual([], this.mockRedirectCalls());
+
+    this.acceptConfirmDialog();
+    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/delete'));
+    deepEqual(['/mock/delete/redirect'], this.mockRedirectCalls());
+});
+
 QUnit.test('creme.detailview.hatmenubar (action registry)', function(assert) {
     var widget = this.createHatMenuBar();
     var registry = widget.delegate._builder;
@@ -191,6 +228,7 @@ QUnit.test('creme.detailview.hatmenubar (action registry)', function(assert) {
     ok(registry.has('creme_core-hatmenubar-view'));
     ok(registry.has('creme_core-hatmenubar-update'));
     ok(registry.has('creme_core-hatmenubar-form'));
+    ok(registry.has('creme_core-hatmenubar-update-redirect'));
 //    ok(registry.has('creme_core-hatmenubar-addrelationships'));
 });
 
