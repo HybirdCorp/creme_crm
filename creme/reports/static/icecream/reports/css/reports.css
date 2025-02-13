@@ -23,7 +23,7 @@
     fill: currentColor;
 }
 
-.brick.reports-graph-brick .brick-content {
+.brick.reports-graph-brick .brick-content:not(.is-empty) {
     padding: 0;
 }
 
