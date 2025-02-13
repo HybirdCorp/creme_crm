@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2023  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,30 +16,59 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {
+(function() {
 "use strict";
 
-/*
-var absround = function(value) {
-    return (0.5 + value) << 0;
+var __namedColors = {
+    black:   "#000000",
+    silver:  "#c0c0c0",
+    gray:    "#808080",
+    white:   "#ffffff",
+    maroon:  "#800000",
+    red:     "#ff0000",
+    purple:  "#800080",
+    fuchsia: "#ff00ff",
+    green:   "#008000",
+    lime:    "#00ff00",
+    olive:   "#808000",
+    yellow:  "#ffff00",
+    navy:    "#000080",
+    blue:    "#0000ff",
+    teal:    "#008080",
+    aqua:    "#00ffff",
+    orange:  "#ffa500"
 };
 
-var scaleround = function(value, precision) {
-    var scale = Math.pow(10, precision || 0);
-    return Math.round(value * scale) / scale;
-};
+function parseCSSColorName(value, cached) {
+    var hex = __namedColors[value];
 
-var clamp = function(value, min, max) {
-    return Math.max(min, Math.min(max, value));
-};
-*/
+    if (hex === undefined) {
+        var ctx = document.createElement('canvas').getContext('2d');
+        ctx.fillStyle = value;
+        hex = ctx.fillStyle;
+
+        if (hex === '#000000' && value.toLowerCase() !== 'black') {
+            throw new Error('"${0}" is not a valid css named color'.template([value]));
+        }
+
+        __namedColors[value] = hex;
+    }
+
+    return hex;
+}
 
 window.RGBColor = function(value) {
     if (Object.isString(value)) {
+        value = value.toLowerCase();
+
         if (value.startsWith('#')) {
             this.hex(value);
-        } else {
+        } else if (value.startsWith('rgb(')) {
             this.rgb(value);
+        } else if (value.match(/[a-z]+$/)) {
+            this.hex(parseCSSColorName(value));
+        } else {
+            throw new Error('"${0}" is not a RGB css value'.template([value]));
         }
     } else if (isFinite(value)) {
         this.decimal(value);
@@ -48,7 +77,7 @@ window.RGBColor = function(value) {
     } else if (value instanceof RGBColor) {
         this.set(value);
     } else {
-        this.set($.extend({r: 0, g: 0, b: 0}, value));
+        this.set(Object.assign({r: 0, g: 0, b: 0}, value));
     }
 };
 
@@ -215,4 +244,4 @@ RGBColor.prototype = {
     }
 };
 
-}(jQuery));
+}());

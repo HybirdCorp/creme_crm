@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2023  Hybird
+    Copyright (C) 2023-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {
+(function() {
 "use strict";
 
 creme.d3ColorRange = function(colors, options) {
@@ -30,7 +30,7 @@ creme.d3ColorRange = function(colors, options) {
 };
 
 creme.d3SpectralColors = function(options) {
-    options = $.extend({
+    options = Object.assign({
         start: 0,
         step: 1.0,
         size: 2
@@ -43,22 +43,24 @@ creme.d3SpectralColors = function(options) {
 
 creme.d3Colorize = function() {
     var props = {
-         scale: function(d) { return 'black'; }
+         scale: function(d) { return 'black'; },
+         accessor: function(d) { return d.x; }
     };
 
     function colorize(data) {
-        return data.map(function(d) {
+        return data.map(function(d, i) {
             var color = props.color ? props.color(d) : d.color;
             var textColor = props.textColor ? props.textColor(d) : d.textColor;
+            var value = props.accessor ? props.accessor(d, i) : d;
 
-            d.color = color || props.scale(d.x);
+            d.color = color || props.scale(value);
+
+            var rgbColor = new RGBColor(d.color);
+            d.isDarkColor = rgbColor.isDark();
 
             if (textColor) {
                 d.textColor = textColor;
             } else {
-                var rgbColor = new RGBColor(d.color);
-
-                d.isDarkColor = rgbColor.isDark();
                 d.textColor = d.isDarkColor ? 'white' : 'black';
             }
 
@@ -81,7 +83,12 @@ creme.d3Colorize = function() {
         return colorize;
     };
 
+    colorize.accessor = function(accessor) {
+        props.accessor = accessor;
+        return colorize;
+    };
+
     return colorize;
 };
 
-}(jQuery));
+}());

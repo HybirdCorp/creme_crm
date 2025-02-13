@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2009-2022  Hybird
+ Copyright (C) 2009-2025  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,6 @@
         }
     };
 
-    /* istanbul ignore next */
     appendStatic('property', function(obj, key, value) {
         if (value === undefined) {
             return obj[key];
@@ -34,45 +33,6 @@
 
         obj[key] = value;
         return obj;
-    });
-
-    /* istanbul ignore next */
-    appendStatic('keys', function(obj, all) {
-        var keys = [];
-
-        for (var key in obj) {
-            if (all || obj.hasOwnProperty(key)) {
-                keys.push(key);
-            }
-        }
-
-        return keys;
-    });
-
-    /* istanbul ignore next */
-    appendStatic('values', function(obj, all) {
-        var values = [];
-
-        for (var key in obj) {
-            if (all || obj.hasOwnProperty(key)) {
-                values.push(obj[key]);
-            }
-        }
-
-        return values;
-    });
-
-    /* istanbul ignore next */
-    appendStatic('entries', function(obj, all) {
-        var entries = [];
-
-        for (var key in obj) {
-            if (all || obj.hasOwnProperty(key)) {
-                entries.push([key, obj[key]]);
-            }
-        }
-
-        return entries;
     });
 
     appendStatic('isNone', function(obj) {
@@ -107,16 +67,6 @@
         return (typeof obj === 'number');
     });
 
-    /*
-     * Was used in converters. Not needed any more.
-     *
-    appendStatic('assertIsTypeOf', function(obj, type) {
-        if (typeof obj !== type) {
-            throw Error('"' + obj + '" is not a ' + type);
-        }
-    });
-    */
-
     appendStatic('isFunc', function(obj) {
         return (typeof obj === 'function');
     });
@@ -132,6 +82,7 @@
         }
     });
 
+    // TODO : Only used in creme.component.Component : move it there ?
     appendStatic('proxy', function(delegate, context, options) {
         if (Object.isNone(delegate)) {
             return;
@@ -142,7 +93,7 @@
 
         var proxy = {__context__: context};
         var filter = Object.isFunc(options.filter) ? options.filter : function () { return true; };
-        var parameters = Object.isFunc(options.arguments) ? function (args) { return options.arguments(Array.copy(args)); } : Array.copy;
+        var parameters = Object.isFunc(options.arguments) ? function (args) { return options.arguments(Array.from(args)); } : Array.from;
 
         for (var key in delegate) {
             var value = delegate[key];
@@ -160,19 +111,6 @@
         }
 
         return proxy;
-    });
-
-    /* istanbul ignore next : compatibility with old IE versions (not really usefull) */
-    appendStatic('getPrototypeOf', function(object) {
-        if (typeof "".__proto__ === 'object') {
-            return object.__proto__;
-        }
-
-        if (Object.isNone(object) || object === Object.prototype) {
-            return null;
-        }
-
-        return Object.isNone(object.constructor) ? null : object.constructor.prototype;
     });
 
     appendStatic('isSubClassOf', function(object, constructor) {

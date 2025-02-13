@@ -12,7 +12,7 @@ QUnit.module("creme.core.utils.js", new QUnitMixin(QUnitAjaxMixin,
         var _mockInlineHtmlEventCalls = this._mockInlineHtmlEventCalls = [];
 
         QUnit.mockInlineHtmlEvent = function() {
-            _mockInlineHtmlEventCalls.push(Array.copy(arguments));
+            _mockInlineHtmlEventCalls.push(Array.from(arguments));
         };
     },
     afterEach: function() {

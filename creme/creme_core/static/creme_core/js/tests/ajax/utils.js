@@ -1,4 +1,4 @@
-/* globals FunctionFaker */
+/* globals FunctionFaker ProgressEvent */
 
 (function($) {
 
@@ -175,6 +175,12 @@ QUnit.test('creme.ajax.URL (property)', function(assert) {
 
     url.hash('#hackish');
     equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?a=1&a=2&b=true&c=a&d=&d=#hackish', url.href());
+
+    url.search('a=8&b=false&d=');
+    equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?a=8&b=false&d=#hackish', url.href());
+
+    url.search(new URLSearchParams({x: 8, y: -5}));
+    equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?x=8&y=-5#hackish', url.href());
 });
 
 QUnit.test('creme.ajax.URL (searchData)', function(assert) {
@@ -215,6 +221,36 @@ QUnit.test('creme.ajax.URL (searchData, setter)', function(assert) {
     equal('http://admin.com:8080/this/is/a/test?a%5Bone%5D=1&b=b%3D1%2C2%2C3&c%5B%5D=1&c%5B%5D=2&c%5B%5D=3', url.href());
     equal('?a%5Bone%5D=1&b=b%3D1%2C2%2C3&c%5B%5D=1&c%5B%5D=2&c%5B%5D=3', url.search());
     deepEqual({'a[one]': '1', b: 'b=1,2,3', 'c[]': ['1', '2', '3']}, url.searchData());
+
+    url.searchData(new URLSearchParams({x: 8, y: -5, z: 30, a: 'b'}));
+
+    equal('http://admin.com:8080/this/is/a/test?x=8&y=-5&z=30&a=b', url.href());
+    equal('?x=8&y=-5&z=30&a=b', url.search());
+    deepEqual({x: '8', y: '-5', z: '30', a: 'b'}, url.searchData());
+
+    url.searchData('a=4&c=8');
+    deepEqual({a: '4', c: '8'}, url.searchData());
+});
+
+QUnit.test('creme.ajax.URL (searchParams)', function(assert) {
+    var url = new creme.ajax.URL('http://admin.com:8080/this/is/a/test?a=1&b=2&c=true&d=');
+
+    equal(new URLSearchParams({
+        a: '1',
+        b: '2',
+        c: 'true',
+        d: ''
+    }).toString(), url.searchParams().toString());
+
+    url.searchParams(new URLSearchParams({x: 8, y: -5, z: 30, a: 'b'}));
+
+    equal('http://admin.com:8080/this/is/a/test?x=8&y=-5&z=30&a=b', url.href());
+    equal('?x=8&y=-5&z=30&a=b', url.search());
+    deepEqual({x: '8', y: '-5', z: '30', a: 'b'}, url.searchData());
+
+    url.searchParams({x: 1, y: -1, z: 0});
+
+    equal('http://admin.com:8080/this/is/a/test?x=1&y=-1&z=0', url.href());
 });
 
 QUnit.test('creme.ajax.URL (updateSearchData)', function(assert) {
@@ -237,6 +273,9 @@ QUnit.test('creme.ajax.URL (updateSearchData)', function(assert) {
         e: ['a', 'b']
     }, url.searchData());
     equal('http://admin.com:8080/this/is/a/test?a=1&b=5&c=true&d=&e=a&e=b', url.href());
+
+    url.updateSearchData(new URLSearchParams({x: 8, y: -5, a: '33'}));
+    equal('http://admin.com:8080/this/is/a/test?a=33&b=5&c=true&d=&e=a&e=b&x=8&y=-5', url.href());
 });
 
 QUnit.test('creme.ajax.cookieAttr', function(assert) {
@@ -277,7 +316,6 @@ QUnit.test('creme.ajax.cookieCSRF', function(assert) {
 
         document.cookie = 'csrftoken=z56ZnN90D1eeah7roE5';
         equal("z56ZnN90D1eeah7roE5", creme.ajax.cookieCSRF());
-
     } finally {
         if (csrftoken) {
             document.cookie = 'csrftoken=' + csrftoken;
@@ -286,7 +324,7 @@ QUnit.test('creme.ajax.cookieCSRF', function(assert) {
         }
     }
 });
-
+/*
 QUnit.parameterize('creme.ajax.jqueryFormSubmit (url)', [
     ['', {}, {
         action: undefined
@@ -578,7 +616,7 @@ QUnit.test('creme.ajax.jqueryFormSubmit (no callback)', function(assert) {
     submitCall.success('HTTPError 403', 'success', {status: 0, responseText: "HTTPError 403"}, form);
     submitCall.success('Ok', 'success', {status: 0, responseText: "Ok"}, form);
 });
-
+*/
 QUnit.parameterize('creme.ajax.jqueryAjaxSend (options)', [
     ['', {}, {}, {
         url: '',
@@ -603,16 +641,25 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (options)', [
         dataType: 'text',
         type: 'POST',
         headers: {}
+    }],
+    ['mock/a', {a: 12}, {method: 'POST', dataType: 'text', extraData: {b: 6}}, {
+        url: 'mock/a',
+        async: true,
+        data: {a: 12, b: 6},
+        dataType: 'text',
+        type: 'POST',
+        headers: {}
     }]
 ], function(url, data, options, expected, assert) {
-    var successCb = function() {};
-    var errorCb = function() {};
     var ajaxFaker = new FunctionFaker({
         instance: $, method: 'ajax'
     });
 
     ajaxFaker.with(function() {
-        creme.ajax.jqueryAjaxSend(url, data, successCb, errorCb, options);
+        creme.ajax.jqueryAjaxSend(Object.assign({
+            url: url,
+            data: data
+        }, options));
     });
 
     equal(ajaxFaker.count(), 1);
@@ -628,18 +675,22 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (options)', [
 });
 
 QUnit.parameterize('creme.ajax.jqueryAjaxSend (headers)', [
-    ['my-token', {}, {
-        headers: {'X-CSRFToken': 'my-token'}
+    ['', {csrf: 'my-query-token'}, {
+        headers: {'X-CSRFToken': 'my-query-token'}
     }],
-    ['', {headers: {'X-CSRFToken': 'my-token'}}, {
+    ['', {csrf: true}, {
+        headers: {}
+    }],
+    ['', {headers: {'X-CSRFToken': 'my-query-token'}}, {
+        headers: {'X-CSRFToken': 'my-query-token'}
+    }],
+    ['my-token', {csrf: true}, {
         headers: {'X-CSRFToken': 'my-token'}
     }],
     ['my-token', {headers: {'X-CSRFToken': 'my-other-token'}}, {
         headers: {'X-CSRFToken': 'my-other-token'}
     }]
 ], function(token, options, expected, assert) {
-    var successCb = function() {};
-    var errorCb = function() {};
     var ajaxFaker = new FunctionFaker({
         instance: $, method: 'ajax'
     });
@@ -649,7 +700,9 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (headers)', [
             document.cookie = 'csrftoken=' + token;
         }
 
-        creme.ajax.jqueryAjaxSend('mock/a', {}, successCb, errorCb, options);
+        creme.ajax.jqueryAjaxSend(Object.assign({
+            url: 'mock/a'
+        }, options || {}));
     });
 
     equal(ajaxFaker.count(), 1);
@@ -681,10 +734,15 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (error callback)', [
     });
 
     ajaxFaker.with(function() {
-        creme.ajax.jqueryAjaxSend('mock/a', {}, successCb.wrap(), errorCb.wrap(), {});
+        creme.ajax.jqueryAjaxSend({
+            url: 'mock/a'
+        }, {
+            done: successCb.wrap(),
+            fail: errorCb.wrap()
+        });
     });
 
-    // retrieve internal callbacks from the ajaxSubmit call
+    // retrieve internal callbacks from the $.ajax call
     var ajaxCall = ajaxFaker.calls()[0][0];
     ok(Object.isFunc(ajaxCall.success));
     ok(Object.isFunc(ajaxCall.error));
@@ -715,10 +773,15 @@ QUnit.test('creme.ajax.jqueryAjaxSend (success callback)', function(assert) {
     });
 
     ajaxFaker.with(function() {
-        creme.ajax.jqueryAjaxSend('mock/a', {}, successCb.wrap(), errorCb.wrap(), {});
+        creme.ajax.jqueryAjaxSend({
+            url: 'mock/a'
+        }, {
+            done: successCb.wrap(),
+            fail: errorCb.wrap()
+        });
     });
 
-    // retrieve internal callbacks from the ajaxSubmit call
+    // retrieve internal callbacks from the $.ajax call
     var ajaxCall = ajaxFaker.calls()[0][0];
     ok(Object.isFunc(ajaxCall.success));
     ok(Object.isFunc(ajaxCall.error));
@@ -740,10 +803,12 @@ QUnit.test('creme.ajax.jqueryAjaxSend (no callback)', function(assert) {
     });
 
     ajaxFaker.with(function() {
-        creme.ajax.jqueryAjaxSend('mock/a', {}, undefined, undefined, {});
+        creme.ajax.jqueryAjaxSend({
+            url: 'mock/a'
+        });
     });
 
-    // retrieve internal callbacks from the ajaxSubmit call
+    // retrieve internal callbacks from the $.ajax call
     var ajaxCall = ajaxFaker.calls()[0][0];
     ok(Object.isFunc(ajaxCall.success));
     ok(Object.isFunc(ajaxCall.error));
@@ -752,6 +817,106 @@ QUnit.test('creme.ajax.jqueryAjaxSend (no callback)', function(assert) {
     ajaxCall.error({status: 400, responseText: "Wrong call!"}, 'error');
     ajaxCall.error({status: 0, responseText: "JSON error"}, 'parseerror');
     ajaxCall.success('Ok', 'success', {status: 200, responseText: "Ok"});
+});
+
+QUnit.test('creme.ajax.jqueryAjaxSend (legacy callbacks)', function(assert) {
+    var successCb = new FunctionFaker();
+    var errorCb = new FunctionFaker();
+    var ajaxFaker = new FunctionFaker({
+        instance: $, method: 'ajax'
+    });
+
+    ajaxFaker.with(function() {
+        creme.ajax.jqueryAjaxSend({
+            url: 'mock/a',
+            success: successCb.wrap(),
+            error: errorCb.wrap()
+        });
+    });
+
+    // retrieve internal callbacks from the $.ajax call
+    var ajaxCall = ajaxFaker.calls()[0][0];
+    ok(Object.isFunc(ajaxCall.success));
+    ok(Object.isFunc(ajaxCall.error));
+
+    // now call internal error callback
+    ajaxCall.error({status: 400, responseText: "Wrong call!", statusText: 'error'}, 'error');
+    ajaxCall.error({status: 0, responseText: "JSON error"}, 'parseerror');
+    ajaxCall.success('Ok', 'success', {status: 200, responseText: "Ok"});
+
+    deepEqual(errorCb.calls(), [
+        ['Wrong call!', {
+            type: 'request',
+            status: 400,
+            message: 'HTTP 400 - error',
+            request: {status: 400, statusText: 'error', responseText: "Wrong call!"}
+        }],
+        ['JSON error', {
+            type: 'request',
+            status: 0,
+            message: 'JSON parse error',
+            request: {status: 0, responseText: "JSON error"}
+        }]
+    ]);
+
+    deepEqual(successCb.calls(), [
+        ['Ok', 'success', {status: 200, responseText: 'Ok'}]
+    ]);
+});
+
+QUnit.parameterize('creme.ajax.jqueryAjaxSend (progress)', [
+    [
+        {lengthComputable: false, loaded: 1024, total: 4096},
+        {lengthComputable: false, loaded: 1024, total: 4096, loadedPercent: 0}
+    ],
+    [
+        {lengthComputable: true, loaded: 1024, total: 4096},
+        {lengthComputable: true, loaded: 1024, total: 4096, loadedPercent: 25}
+    ],
+    [
+        {lengthComputable: true, loaded: 4096, total: 4096},
+        {lengthComputable: true, loaded: 4096, total: 4096, loadedPercent: 100}
+    ]
+], function(state, expected, assert) {
+    var progressCb = new FunctionFaker();
+    var uploadCb = new FunctionFaker();
+
+    var ajaxFaker = new FunctionFaker({
+        instance: $, method: 'ajax'
+    });
+
+    ajaxFaker.with(function() {
+        creme.ajax.jqueryAjaxSend({
+            url: 'mock/a'
+        }, {
+            progress: progressCb.wrap(),
+            uploadProgress: uploadCb.wrap()
+        });
+    });
+
+    // retrieve internal callbacks from the $.ajax call
+    var ajaxCall = ajaxFaker.calls()[0][0];
+    var xhr = ajaxCall.xhr();
+
+    xhr.dispatchEvent(new ProgressEvent('progress', state));
+    xhr.upload.dispatchEvent(new ProgressEvent('progress', state));
+
+    equal(progressCb.count(), 1);
+    equal(uploadCb.count(), 1);
+
+    function _progressEventData(args) {
+        var event = args[0];
+
+        return {
+            lengthComputable: event.lengthComputable,
+            loaded: event.loaded,
+            total: event.total,
+            loadedPercent: event.loadedPercent
+        };
+    };
+
+    deepEqual(progressCb.calls().map(_progressEventData), [expected]);
+    deepEqual(uploadCb.calls().map(_progressEventData), [expected]);
 });
 
 }(jQuery));

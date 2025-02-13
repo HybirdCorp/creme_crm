@@ -3,6 +3,8 @@
   UPGRADE NOTES :
     - If you upgrade your MariaDB server to 10.7+, you have to convert all the UUID fields
       (which were just CharFields before MariaDB 10.7) to real UUID fields.
+    - Many fallbacks and helpers for older browsers (e.g IE 9 & 10) are removed. Read carefully the changelog, it
+      contains tips to upgrade your code.
 
   Users side :
   ------------
@@ -98,6 +100,7 @@
               The class 'django.forms.fields.CallableChoiceIterator' has been removed ;
               use 'django.utils.choices.CallableChoiceIterator' instead.
         - https://docs.djangoproject.com/en/5.1/releases/5.1/
+    - The version of 'underscorejs' is now '1.13.7'.
 
     Non breaking changes :
     ----------------------
@@ -167,10 +170,23 @@
                 - The model 'Address' gets new semantic fields (like ZipCodeField) which allow to
                   easily customise things (like the form field, the field printer etc...).
         # Javascript:
+            * Deprecations:
+                - Array.copy(iterable, start, end) is deprecated; Use native code Array.from(iterable).slice(start, end) instead.
+                - creme.ajax.URL is deprecated; use RelativeURL instead
+                - creme.ajax.parseUrl() is deprecated; Use _.urlAsDict() instead
+                - creme.ajax.params() is deprecated; Use _.encodeURLSearch() instead
+                - creme.ajax.decodeSearchData() is deprecated; Use _.decodeURLSearchData() instead
+                - creme.exports.exportAs() is deprecated; Use creme.lv_widget.DownloadAction instead.
+                - creme.utils.confirmSubmit() is deprecated; Use the new 'creme_core-hatmenubar-delete' or 'delete' actions instead.
+         - Add RelativeURL() class as an alternative of URL() that do not accepts relative paths (e.g '/list?page=1' is not a valid URL)
+            * Use Object.assign instead of $.extend to remove the dependency to jQuery for : RGBColor, DateFaker, BrowserVersion & Assert.
+            * Use Object.assign instead of $.extend for sketch components.
             * FormDialog:
                 - Form submit error responses with HTML can either replace the default overlay content or the frame content.
                 - New creme.dialog.Frame option 'fillOnError'; if enabled the html error response replaces the content.
                 - New creme.dialog.Dialog option 'fillFrameOnError'; if enabled the html error response replaces the content.
+            * creme.ajax.jqueryAjaxSend() arguments have changed from (url, data, successCb, errorCb, options) to ({url: url, body: data, ...options}, {done: successCb, fail: errorCb}).
+            * Added _.pop() method that works like python dict.pop().
 
     Breaking changes :
     ------------------
@@ -201,6 +217,38 @@
                 - "creme_core-hatmenubar-form"
                 - "creme_core-hatmenubar-update"
                 - "creme_core-hatmenubar-view"
+            - Javascript :
+                * ArrayTools & GeneratorTools are no longer used (only by jqplot). So drop them and use underscore or d3 instead.
+                * Drop fallbacks or helpers for widely implemented Array methods :
+                    - Use Array.prototype.some() native implementation.
+                    - Array.prototype.unique() is removed; Use _.uniq(iterable) instead.
+                    - Array.prototype.removeAt() is removed; Use Array.prototype.splice(index, 1) instead.
+                    - Array.prototype.insertAt() is removed; Use Array.prototype.splice(index, 0, val1, val2, ...) instead.
+                    - Array.prototype.inArray() is removed; Use Array.prototype.indexOf(value) instead.
+                    - Array.prototype.getRange() is removed; Use Array.prototype.slice() instead.
+                    - Array.prototype.exfiltrate() is removed; Use _.without(iterable, val1, val2, ...) instead.
+                    - Array.prototype.contains() is removed; Use Array.prototype.includes(value) instead.
+                * Remove fallbacks for HTMLDocument, CSSStyleDeclaration & Event classes.
+                * Drop fallbacks or helpers for widely implemented String methods :
+                    - Use Array.prototype.startsWith() native implementation.
+                    - Use Array.prototype.endsWith() native implementation.
+                    - Use Array.prototype.trim() native implementation.
+                    - Array.prototype.ltrim() is removed; Use Array.prototype.trimStart() instead.
+                    - Array.prototype.rtrim() is removed; Use Array.prototype.trimEnd() instead.
+                * Drop fallbacks for console methods: log(), warn() & error()
+                * Drop fallbacks for widely implemented Object methods :
+                    - Object.keys()
+                    - Object.values()
+                    - Object.entries()
+                    - Object.getPrototypeOf()
+                * Drop creme.widget.template(); Use String.prototype.template instead.
+                * Refactor of creme.ajax.Backend:
+                    - Drop jquery.forms plugin; Use FormData standard API instead.
+                    - $.validateHTML5() is removed (came along jquery.forms)
+                    - Add support for download & upload progress event : new 'uploadProgress' & 'progress' options.
+                        - Refactor 'ListViewController' & 'creme.bricks.BricksReloader'
+                        - 'creme.ajax.Query' now accepts new 'uploadProgress' & 'progress' options.
+                * creme.ajax.URL.prototype.relativeTo() is replaced by RelativeURL.prototype.fullPath()
             - Apps :
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' has been removed.
@@ -280,6 +328,10 @@
               (good news, some {% block %} have been added) :
                 - "creme_core/bricks/base/hat-card.html"
                 - "creme_core/bricks/generic/hat-bar.html"
+        # Javascript :
+            - Refactor creme.notification.NotificationBox & add unit tests
+                - Toggle fetch 'job' when disabling a tab or window.
+                - Elapsed time from message creation is now updated each minute.
         # Apps :
             * Creme_config :
                 - In the brick 'GenericModelBrick', "meta" is not injected in the context anymore.

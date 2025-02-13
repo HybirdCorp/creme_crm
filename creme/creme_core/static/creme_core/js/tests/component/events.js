@@ -9,7 +9,7 @@ QUnit.module("creme.component.EventHandler.js", new QUnitMixin(QUnitEventMixin, 
                 var calls = self._eventListenerCalls;
                 var listenerCalls = calls[name] || [];
 
-                listenerCalls.push([this].concat(Array.copy(arguments)));
+                listenerCalls.push([this].concat(Array.from(arguments)));
                 calls[name] = listenerCalls;
             };
         }(name));
@@ -867,9 +867,9 @@ QUnit.test('creme.component.EventHandler.one (decorator)', function(assert) {
     };
 
     var decorator = function(key, listener, args) {
-        handler.trigger(key + '-pre', Array.copy(args, 1));
+        handler.trigger(key + '-pre', Array.from(args).slice(1));
         listener.apply(this, args);
-        handler.trigger(key + '-post', Array.copy(args, 1));
+        handler.trigger(key + '-post', Array.from(args).slice(1));
     };
 
     handler.on(decorator_listeners);

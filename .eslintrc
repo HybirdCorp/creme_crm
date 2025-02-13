@@ -27,7 +27,10 @@
     "Blob": true,
     "Set": true,
     "ResizeObserver": true,
-    
+    "FormData": true,
+    "URL": true,
+    "URLSearchParams": true,
+
     /* External libraries */
     "jQuery": true,
     "$": true,

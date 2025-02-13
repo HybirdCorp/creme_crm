@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022  Hybird
+    Copyright (C) 2022-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -91,7 +91,7 @@ creme.D3ChartBrickController = creme.component.Component.sub({
 
         brick.getActionBuilders().registerAll({
             'sketch-download': function(url, options, data, e) {
-                options = $.extend({
+                options = Object.assign({
                     filename: url,
                     width: $(window).innerWidth(),
                     height: $(window).innerHeight()
@@ -100,7 +100,7 @@ creme.D3ChartBrickController = creme.component.Component.sub({
                 return new creme.D3ChartBrickDownloadAction(this._brick, self.chart(), options);
             },
             'sketch-popover': function(url, options, data, e) {
-                options = $.extend({
+                options = Object.assign({
                     width: $(window).innerWidth() * 0.8,
                     height: $(window).innerHeight() * 0.8
                 }, options || {});
@@ -121,7 +121,7 @@ creme.D3ChartBrickDownloadAction = creme.component.Action.sub({
     },
 
     _run: function(options) {
-        options = $.extend({}, this.options(), options || {});
+        options = Object.assign({}, this.options(), options || {});
 
         var self = this;
 
@@ -141,7 +141,7 @@ creme.D3ChartBrickPopoverAction = creme.component.Action.sub({
     },
 
     _run: function(options) {
-        options = $.extend({}, this.options(), options || {});
+        options = Object.assign({}, this.options(), options || {});
 
         var self = this;
 

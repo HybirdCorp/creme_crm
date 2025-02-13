@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2020-2022  Hybird
+    Copyright (C) 2020-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {
+(function() {
 "use strict";
 
 function __import(module, path) {
@@ -107,7 +107,7 @@ FunctionFaker.prototype = {
         var faker = this;
 
         return function() {
-            var args = Array.copy(arguments);
+            var args = Array.from(arguments);
             faker._calls.push(args);
 
             if (faker._follow) {
@@ -234,13 +234,23 @@ window.DateFaker.prototype = {
         var frozen = this.frozen;
 
         try {
-            window.Date = function() {
-                return new NativeDate(frozen);
+            window.Date = function(value) {
+                if (arguments.length > 1) {
+                    // This hack allows to call new Date with an array of arguments.
+                    // It is really tricky but do the job since ECMAScript 5+
+                    var D = NativeDate.bind.apply(NativeDate, [null].concat(Array.from(arguments)));
+                    return new D();
+                }
+
+                return new NativeDate(value || frozen);
             };
 
             window.Date.now = function() {
                 return new NativeDate(frozen);
             };
+
+            window.Date.parse = NativeDate.parse;
+            window.Date.UTC = NativeDate.UTC;
 
             callable(this);
         } finally {
@@ -251,4 +261,4 @@ window.DateFaker.prototype = {
     }
 };
 
-}(jQuery));
+}());

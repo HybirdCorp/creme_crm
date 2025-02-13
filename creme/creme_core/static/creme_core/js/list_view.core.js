@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022 Hybird
+    Copyright (C) 2009-2025 Hybird
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU Affero General Public License as published by the Free
@@ -475,7 +475,7 @@
 
         state: function() {
             var fields = this._element.find('.lv-state-field:not(.invalid)');
-            var names = Array.copy(arguments);
+            var names = Array.from(arguments);
 
             if (names.length > 0) {
                 fields = fields.filter(function() {
@@ -487,7 +487,7 @@
         },
 
         nextStateUrl: function(data) {
-            var link = new creme.ajax.URL(this.reloadUrl());
+            var link = _.toRelativeURL(this.reloadUrl());
 
             // HACK : Since we don't have a specific view to reset the search
             // state, we must cleanup the urls to prevent unexpected "search=clear"
@@ -572,13 +572,8 @@
             var queryData = $.extend({}, state, {content: 1});
             var queryOptions = {
                 action: 'POST',
-                onDownloadProgress: function(evt) {
-                    var percent = 100;
-
-                    if (evt.lengthComputable && evt.total > 0) {
-                        percent = Math.trunc(Math.max((evt.loaded / evt.total) * 100, 0) / 20) * 20;
-                    }
-
+                progress: function(evt) {
+                    var percent = _.clamp(evt.loadedPercent || 100, 20, 100);
                     self._updateLoadingProgress(percent);
                 }
             };
