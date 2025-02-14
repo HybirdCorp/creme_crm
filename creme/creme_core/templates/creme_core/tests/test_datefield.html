@@ -1,0 +1,68 @@
+{% extends "creme_core/tests/testbase.html" %}
+
+{% block test_title %}Date fields{% endblock %}
+
+{% block test_header %}
+<style type="text/css">
+    p, h4 {
+        margin-left: 2em;
+    }
+</style>
+{% endblock %}
+
+{% block test_content %}
+<h4>creme.widget.YearPicker</h4>
+<p>
+    <label>Year<input type="text" class="ui-creme-widget ui-creme-yearpicker widget-auto" widget="ui-creme-yearpicker" /></label>
+    <label>Year (readonly)<input type="text" class="ui-creme-widget ui-creme-yearpicker widget-auto" widget="ui-creme-yearpicker" readonly/></label>
+    <label>Year (disabled)<input type="text" class="ui-creme-widget ui-creme-yearpicker widget-auto" widget="ui-creme-yearpicker" disabled/></label>
+</p>
+
+<h4>creme.widget.DatePicker</h4>
+<p>
+    <label>Date (dd-mm-yy)<input type="text" class="ui-creme-widget ui-creme-datepicker widget-auto" widget="ui-creme-datepicker" value="15-10-2025"/></label>
+    <label>Date (dd/mm/yy)<input type="text" class="ui-creme-widget ui-creme-datepicker widget-auto" format="dd/mm/yy" widget="ui-creme-datepicker" value="15/10/2025"/></label>
+    <label>Date (readonly)<input type="text" class="ui-creme-widget ui-creme-datepicker widget-auto" widget="ui-creme-datepicker" readonly/></label>
+    <label>Date (disabled)<input type="text" class="ui-creme-widget ui-creme-datepicker widget-auto" widget="ui-creme-datepicker" disabled/></label>
+</p>
+
+<h4>creme.widget.DateTimePicker</h4>
+<p>
+    <label>Now (dd-mm-yy)</label>
+    <ul class="ui-creme-widget widget-auto ui-creme-datetimepicker ui-layout hbox" widget="ui-creme-datetimepicker">
+        <li class="date"><input type="text" maxlength="12" value="15-10-2025"/><input type="hidden" /></li>
+        <li class="hour"><input type="number"/></li>
+        <li>h</li>
+        <li class="minute"><input type="number"/></li>
+        <li class="clear"><button type="button">Clean</button></li>
+        <li class="now"><button type="button">Now</button></li>
+    </ul>
+    <label>Now (dd/mm/yy)</label>
+    <ul class="ui-creme-widget widget-auto ui-creme-datetimepicker ui-layout hbox" widget="ui-creme-datetimepicker" format="dd/mm/yy">
+        <li class="date"><input type="text" maxlength="12" value="15/10/2025"/><input type="hidden" /></li>
+        <li class="hour"><input type="number"/></li>
+        <li>h</li>
+        <li class="minute"><input type="number"/></li>
+        <li class="clear"><button type="button">Clean</button></li>
+        <li class="now"><button type="button">Now</button></li>
+    </ul>
+    <label>Now (readonly)</label>
+    <ul class="ui-creme-widget widget-auto ui-creme-datetimepicker ui-layout hbox" widget="ui-creme-datetimepicker" readonly>
+        <li class="date"><input type="text" maxlength="12"/><input type="hidden" /></li>
+        <li class="hour"><input type="number"/></li>
+        <li>h</li>
+        <li class="minute"><input type="number"/></li>
+        <li class="clear"><button type="button">Clean</button></li>
+        <li class="now"><button type="button">Now</button></li>
+    </ul>
+    <label>Now (disabled)</label>
+    <ul class="ui-creme-widget widget-auto ui-creme-datetimepicker ui-layout hbox" widget="ui-creme-datetimepicker" disabled>
+        <li class="date"><input type="text" maxlength="12"/><input type="hidden" /></li>
+        <li class="hour"><input type="number"/></li>
+        <li>h</li>
+        <li class="minute"><input type="number"/></li>
+        <li class="clear"><button type="button">Clean</button></li>
+        <li class="now"><button type="button">Now</button></li>
+    </ul>
+</p>
+{% endblock %}
