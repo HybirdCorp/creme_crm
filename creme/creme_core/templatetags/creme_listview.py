@@ -45,6 +45,29 @@ logger = logging.getLogger(__name__)
 register = Library()
 
 
+def _group_filters(user, filters):
+    grouped_filters = defaultdict(list)
+    for filter_ in filters:
+        grouped_filters[filter_.user_id].append(filter_)
+
+    global_filters = grouped_filters.pop(None, ())
+    user_filters   = grouped_filters.pop(user.id, ())
+
+    if grouped_filters:
+        users = get_user_model().objects.in_bulk(grouped_filters.keys())
+        other_filters = [
+            (users.get(user_id), user_filters)
+            for user_id, user_filters in grouped_filters.items()
+        ]
+
+        sort_key = collator.sort_key
+        other_filters.sort(key=lambda t: sort_key(str(t[0])))
+    else:
+        other_filters = ()
+
+    return global_filters, user_filters, other_filters
+
+
 @register.inclusion_tag('creme_core/templatetags/listview/entity-filters.html')
 def listview_entity_filters(*,
                             model: type[CremeEntity],
@@ -52,27 +75,45 @@ def listview_entity_filters(*,
                             efilters: EntityFilterList,
                             show_buttons: bool,
                             ):
-    efilter = efilters.selected
+    # efilter = efilters.selected
+    #
+    # if efilter:
+    #     efilter_id = efilter.id
+    #     can_edit   = efilter.can_edit(user)[0]
+    #     can_delete = efilter.can_delete(user)[0]
+    # else:
+    #     efilter_id = 0
+    #     can_edit = can_delete = False
+    #
+    # return {
+    #     'user': user,
+    #     'model': model,
+    #     'entity_filters': efilters,
+    #     'efilter_id': efilter_id,
+    #     'can_edit': can_edit,
+    #     'can_delete': can_delete,
+    #     'show_buttons': show_buttons,
+    # }
+    global_efilters, my_efilters, other_efilters = _group_filters(user=user, filters=efilters)
 
-    if efilter:
-        efilter_id = efilter.id
-        # can_edit   = efilter.can_edit(user)[0]
-        edition_allowed, edition_error = efilter.can_edit(user)
-        # can_delete = efilter.can_delete(user)[0]
-        deletion_allowed, deletion_error = efilter.can_delete(user)
+    selected_efilter = efilters.selected
+    if selected_efilter:
+        edition_allowed, edition_error = selected_efilter.can_edit(user)
+        deletion_allowed, deletion_error = selected_efilter.can_delete(user)
     else:
-        efilter_id = 0
-        # can_edit = can_delete = False
         edition_allowed = deletion_allowed = False
         edition_error = deletion_error = ''
 
     return {
         'user': user,
         'model': model,
-        'entity_filters': efilters,
-        'efilter_id': efilter_id,
-        # 'can_edit': can_edit,
-        # 'can_delete': can_delete,
+
+        'global_efilters': global_efilters,
+        'my_efilters': my_efilters,
+        'other_efilters': other_efilters,
+
+        'selected': selected_efilter,
+
         'show_buttons': show_buttons,
 
         'edition_allowed': edition_allowed,
@@ -90,27 +131,29 @@ def listview_header_filters(*,
                             hfilters: HeaderFilterList,
                             show_buttons: bool,
                             ):
-    selected_hfilter = hfilters.selected
-
     grouped_hfilters = defaultdict(list)
     for hfilter in hfilters:
         grouped_hfilters[hfilter.user_id].append(hfilter)
 
-    global_header_filters = grouped_hfilters.pop(None, ())
-    my_header_filters     = grouped_hfilters.pop(user.id, ())
+    # global_header_filters = grouped_hfilters.pop(None, ())
+    # my_header_filters     = grouped_hfilters.pop(user.id, ())
+    #
+    # if grouped_hfilters:
+    #     users = get_user_model().objects.in_bulk(grouped_hfilters.keys())
+    #     other_header_filters = [
+    #         (users.get(user_id), user_hfilters)
+    #         for user_id, user_hfilters in grouped_hfilters.items()
+    #     ]
+    #
+    #     sort_key = collator.sort_key
+    #     other_header_filters.sort(key=lambda t: sort_key(str(t[0])))
+    # else:
+    #     other_header_filters = ()
+    global_header_filters, my_header_filters, other_header_filters = _group_filters(
+        user=user, filters=hfilters,
+    )
 
-    if grouped_hfilters:
-        users = get_user_model().objects.in_bulk(grouped_hfilters.keys())
-        other_header_filters = [
-            (users.get(user_id), user_hfilters)
-            for user_id, user_hfilters in grouped_hfilters.items()
-        ]
-
-        sort_key = collator.sort_key
-        other_header_filters.sort(key=lambda t: sort_key(str(t[0])))
-    else:
-        other_header_filters = ()
-
+    selected_hfilter = hfilters.selected
     edition_allowed, edition_error = selected_hfilter.can_edit(user)
     deletion_allowed, deletion_error = selected_hfilter.can_delete(user)
 

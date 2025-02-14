@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2024 Hybird
+# Copyright (C) 2025 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" -i "templates/creme_core/tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-07 13:55+0100\n"
+"POT-Creation-Date: 2025-02-14 19:11+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3843,6 +3843,13 @@ msgstr "Afficher les actions disponibles pour «&nbsp;%(entity)s&nbsp;»"
 msgid "Filter the lines of the table with conditions on fields, relationships…"
 msgstr ""
 "Filtrer les lignes de la table avec des conditions sur les champs, relations…"
+
+msgid "My filters"
+msgstr "Mes filtres"
+
+#, python-format
+msgid "Filters of %(user)s"
+msgstr "Filtres de %(user)s"
 
 msgid "Information on the current filter"
 msgstr "Informations sur le filtre courant"
