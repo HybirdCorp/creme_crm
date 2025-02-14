@@ -328,6 +328,8 @@
               (good news, some {% block %} have been added) :
                 - "creme_core/bricks/base/hat-card.html"
                 - "creme_core/bricks/generic/hat-bar.html"
+        # Javascript :
+            - Removed ChainedSelect.clone() method : not used and does not work anyway.
         # Apps :
             * Creme_config :
                 - In the brick 'GenericModelBrick', "meta" is not injected in the context anymore.
