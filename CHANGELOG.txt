@@ -353,6 +353,7 @@
             - Refactor creme.notification.NotificationBox & add unit tests
                 - Toggle fetch 'job' when disabling a tab or window.
                 - Elapsed time from message creation is now updated each minute.
+            - Removed ChainedSelect.clone() method : not used and does not work anyway.
         # Apps :
             * Creme_config :
                 - In the brick 'GenericModelBrick', "meta" is not injected in the context anymore.
