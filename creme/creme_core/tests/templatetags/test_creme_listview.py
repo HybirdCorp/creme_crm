@@ -208,19 +208,24 @@ class CremeListViewTagsTestCase(CremeTestCase):
 
     def test_listview_entity_filters(self):
         user = self.get_root_user()
+        other_user1 = self.create_user(index=0)
+        other_user2 = self.create_user(index=1)
 
         ctype = ContentType.objects.get_for_model(FakeMailingList)
         self.assertFalse(EntityFilter.objects.filter(entity_type=ctype).first())
 
-        efilter1 = EntityFilter.objects.create(
-            id='creme_core-ml_filter01', name='ML filter #1', entity_type=FakeMailingList,
-        )
-        EntityFilter.objects.create(
-            id='creme_core-ml_filter02', name='ML filter #2', entity_type=FakeMailingList,
-        )
+        create_efilter = partial(EntityFilter.objects.create, entity_type=ctype)
+        g_filter1 = create_efilter(id='creme_core-ml1', name='Second ML filter')
+        g_filter2 = create_efilter(id='creme_core-ml2', name='First ML filter')
+
+        user_filter = create_efilter(id='creme_core-ml3', name='My ML filter', user=user)
+
+        other_filter1 = create_efilter(id='creme_core-ml4', name='ML filter #1', user=other_user1)
+        other_filter2 = create_efilter(id='creme_core-ml5', name='ML filter #2', user=other_user2)
 
         efilters = EntityFilterList(content_type=ctype, user=user)
-        efilters.select_by_id(efilter1.id)
+        # efilters.select_by_id(efilter1.id)
+        efilters.select_by_id(g_filter1.id)
 
         ctxt1 = listview_entity_filters(
             model=FakeMailingList,
@@ -230,9 +235,19 @@ class CremeListViewTagsTestCase(CremeTestCase):
         )
         self.assertIsInstance(ctxt1, dict)
         self.assertIs(ctxt1.get('model'), FakeMailingList)
-        self.assertIs(ctxt1.get('entity_filters'), efilters)
+        # self.assertIs(ctxt1.get('entity_filters'), efilters)
+        self.assertListEqual([g_filter2, g_filter1], ctxt1.get('global_efilters'))
+        self.assertListEqual([user_filter],          ctxt1.get('my_efilters'))
+        self.assertListEqual(
+            [
+                (other_user1, [other_filter1]),
+                (other_user2, [other_filter2]),
+            ],
+            ctxt1.get('other_efilters'),
+        )
         self.assertIs(ctxt1.get('show_buttons'), True)
-        self.assertEqual(ctxt1.get('efilter_id'), efilter1.id)
+        # self.assertEqual(ctxt1.get('efilter_id'), efilter1.id)
+        self.assertEqual(ctxt1.get('selected'), g_filter1)
 
         self.assertIs(True, ctxt1.get('edition_allowed'))
         self.assertEqual('OK', ctxt1.get('edition_error'))
