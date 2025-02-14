@@ -61,7 +61,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
 
             var chained_data = data.map(function(item) {
                 value[name] = item;
-                return $.extend({}, value);
+                return Object.assign({}, value);
             });
 
             element.trigger('change-multiple', [chained_data]);
@@ -218,7 +218,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
     },
 
     context: function(element) {
-        return $.extend({}, this._context);
+        return Object.assign({}, this._context);
     },
 
     val: function(element, value) {
@@ -229,17 +229,6 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         this._updateSelectors(element, creme.widget.cleanval(value, {}));
         this._update(element);
         element.trigger('change');
-    },
-
-    clone: function(element) {
-        var copy = creme.widget.clone(element);
-        var value = this.val(copy);
-
-        if (!value) {
-            this._update(copy);
-        }
-
-        return copy;
     }
 });
 
