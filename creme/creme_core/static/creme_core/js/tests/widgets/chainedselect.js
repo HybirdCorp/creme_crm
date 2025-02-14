@@ -17,8 +17,10 @@ QUnit.module("creme.widget.chainedselect.js", new QUnitMixin(QUnitAjaxMixin, QUn
             'mock/rtype/1/options': this.backend.responseJSON(200, [['rtype.1', 'a'], ['rtype.12', 'b'], ['rtype.3', 'c']]),
             'mock/rtype/5/options': this.backend.responseJSON(200, [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]),
             'mock/rtype/15/options': this.backend.responseJSON(200, [['rtype.12', 'b'], ['rtype.2', 'e']]),
+            'mock/rtype/8/options': this.backend.responseJSON(200, [['rtype.12', 'b'], ['rtype.22', 'y']]),
             'mock/entity/rtype.12/15/options': this.backend.responseJSON(200, [['123', 'John Doe'], ['456', 'Bean Bandit']]),
             'mock/entity/rtype.22/5/options': this.backend.responseJSON(200, [['456', 'Bean Bandit'], ['789', 'Mini May']]),
+            'mock/entity/rtype.22/8/options': this.backend.responseJSON(200, [['123', 'John Doe'], ['789', 'Mini May']]),
             'mock/options/empty': this.backend.responseJSON(200, []),
             'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
             'mock/error': this.backend.response(500, 'HTTP - Error 500')
@@ -62,6 +64,7 @@ QUnit.test('creme.widgets.chainedselect.create (empty, single selector, static)'
 
     equal(widget.val(), JSON.stringify({ctype: '15'}));
     equal(widget.selectors().length, 1);
+    deepEqual(widget.context(), {ctype: '15'});
 
     this.assertDSelectAt(widget, 'ctype', '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c']]);
 
@@ -88,6 +91,7 @@ QUnit.test('creme.widgets.chainedselect.create (empty, single selector, static, 
 
     equal(widget.val(), JSON.stringify({ctype: '15'}));
     equal(widget.selectors().length, 1);
+    deepEqual(widget.context(), {ctype: '15'});
 
     this.assertDSelectAt(widget, 'ctype', '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c']]);
 
@@ -110,6 +114,7 @@ QUnit.test('creme.widgets.chainedselect.create (empty, single selector, url)', f
 
     equal(widget.val(), JSON.stringify({ctype: '15'}));
     equal(widget.selectors().length, 1);
+    deepEqual(widget.context(), {ctype: '15'});
 
     this.assertDSelectAt(widget, 'ctype', '15', [], 'mock/options', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['14', 't'], ['42', 'y']]);
 
@@ -143,6 +148,7 @@ QUnit.test('creme.widgets.chainedselect.create (empty, multi selector)', functio
 
     equal(widget.val(), JSON.stringify({ctype: '15', rtype: '1'}));
     equal(widget.selectors().length, 2);
+    deepEqual(widget.context(), {ctype: '15', rtype: '1'});
 
     this.assertDSelectAt(widget, 'ctype', '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c']]);
     this.assertDSelectAt(widget, 'rtype', '1', [], '', [['1', 'd'], ['6', 'e']]);
@@ -1066,6 +1072,82 @@ QUnit.test('creme.widgets.chainedselect.reset (multi selector, multiple dependen
     this.assertDSelectAt(widget, 'ctype', '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
     this.assertDSelectAt(widget, 'rtype', 'rtype.12', ['ctype'], 'mock/rtype/15/options', [['rtype.12', 'b'], ['rtype.2', 'e']]);
     this.assertDSelectAt(widget, 'entity', '123', ['rtype', 'ctype'], 'mock/entity/rtype.12/15/options', [['123', 'John Doe'], ['456', 'Bean Bandit']]);
+});
+
+QUnit.test('creme.widgets.chainedselect.reset (click)', function(assert) {
+    var element = this.createChainedSelectTag(JSON.stringify({ctype: '5'}));
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
+
+    this.appendChainedSelectorTag(element, 'ctype', ctype);
+    element.append($('<img class="reset" />'));
+
+    var widget = creme.widget.create(element);
+
+    equal(widget.val(), JSON.stringify({ctype: '5'}), 'initial value');
+    equal(5, ctype.creme().widget().val());
+
+    element.find('img.reset').trigger('click');
+
+    equal(widget.val(), JSON.stringify({ctype: '15'}), 'reset value');
+    this.assertDSelectAt(widget, 'ctype', '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c']]);
+});
+
+QUnit.test('creme.widgets.chainedselect.update (multi selector, multiple dependencies)', function(assert) {
+    var element = this.createChainedSelectTag(JSON.stringify({ctype: '5', rtype: 'rtype.22', entity: '789'}));
+
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'},
+            {value: 1, label: 'd'}
+        ]
+    }));
+
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/rtype/${ctype}/options'
+    }));
+
+    var entity = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/entity/${rtype}/${ctype}/options'
+    }));
+
+    this.appendChainedSelectorTag(element, 'ctype', ctype);
+    this.appendChainedSelectorTag(element, 'rtype', rtype);
+    this.appendChainedSelectorTag(element, 'entity', entity);
+
+    var widget = creme.widget.create(element);
+
+    equal(widget.val(), JSON.stringify({ctype: '5', rtype: 'rtype.22', entity: '789'}), 'updated ctype');
+    this.assertDSelectAt(widget, 'ctype', '5', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
+    this.assertDSelectAt(widget, 'rtype', 'rtype.22', ['ctype'], 'mock/rtype/5/options', [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]);
+    this.assertDSelectAt(widget, 'entity', '789', ['rtype', 'ctype'], 'mock/entity/rtype.22/5/options', [['456', 'Bean Bandit'], ['789', 'Mini May']]);
+
+    widget.update({
+        added: [{
+            ctype: {value: 8, label: 'e'},
+            rtype: {value: 'rtype.25', label: 'e'}
+        }],
+        removed: [{
+            ctype: {value: 5, label: 'b'}
+        }],
+        value: {ctype: '8', rtype: 'rtype.22', entity: '789'}
+    });
+
+    equal(widget.val(), JSON.stringify({ctype: '8', rtype: 'rtype.22', entity: '789'}), 'initial value');
+    this.assertDSelectAt(widget, 'ctype', '8', [], '', [['15', 'a'], ['3', 'c'], ['1', 'd'], ['8', 'e']]);
+    this.assertDSelectAt(widget, 'rtype', 'rtype.22', ['ctype'], 'mock/rtype/8/options', [['rtype.12', 'b'], ['rtype.22', 'y']]);
+    this.assertDSelectAt(widget, 'entity', '789', ['rtype', 'ctype'], 'mock/entity/rtype.22/8/options', [['123', 'John Doe'], ['789', 'Mini May']]);
 });
 
 }(jQuery));
