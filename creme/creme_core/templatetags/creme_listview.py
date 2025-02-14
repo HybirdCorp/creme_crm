@@ -52,27 +52,64 @@ def listview_entity_filters(*,
                             efilters: EntityFilterList,
                             show_buttons: bool,
                             ):
-    efilter = efilters.selected
+    # efilter = efilters.selected
+    #
+    # if efilter:
+    #     efilter_id = efilter.id
+    #     can_edit   = efilter.can_edit(user)[0]
+    #     can_delete = efilter.can_delete(user)[0]
+    # else:
+    #     efilter_id = 0
+    #     can_edit = can_delete = False
+    #
+    # return {
+    #     'user': user,
+    #     'model': model,
+    #     'entity_filters': efilters,
+    #     'efilter_id': efilter_id,
+    #     'can_edit': can_edit,
+    #     'can_delete': can_delete,
+    #     'show_buttons': show_buttons,
+    # }
+    # TODO: factorise
+    grouped_efilters = defaultdict(list)
+    for efilter in efilters:
+        grouped_efilters[efilter.user_id].append(efilter)
 
-    if efilter:
-        efilter_id = efilter.id
-        # can_edit   = efilter.can_edit(user)[0]
-        edition_allowed, edition_error = efilter.can_edit(user)
-        # can_delete = efilter.can_delete(user)[0]
-        deletion_allowed, deletion_error = efilter.can_delete(user)
+    global_efilters = grouped_efilters.pop(None, ())
+    my_efilters     = grouped_efilters.pop(user.id, ())
+
+    if grouped_efilters:
+        users = get_user_model().objects.in_bulk(grouped_efilters.keys())
+        other_efilters = [
+            (users.get(user_id), user_filters)
+            for user_id, user_filters in grouped_efilters.items()
+        ]
+
+        sort_key = collator.sort_key
+        other_efilters.sort(key=lambda t: sort_key(str(t[0])))
     else:
-        efilter_id = 0
-        # can_edit = can_delete = False
+        other_efilters = ()
+
+    selected_efilter = efilters.selected
+    if selected_efilter:
+        edition_allowed, edition_error = selected_efilter.can_edit(user)
+        deletion_allowed, deletion_error = selected_efilter.can_delete(user)
+    else:
         edition_allowed = deletion_allowed = False
         edition_error = deletion_error = ''
 
     return {
         'user': user,
         'model': model,
-        'entity_filters': efilters,
-        'efilter_id': efilter_id,
-        # 'can_edit': can_edit,
-        # 'can_delete': can_delete,
+
+        'global_efilters': global_efilters,
+        'my_efilters': my_efilters,
+        'other_efilters': other_efilters,
+
+        'selected': selected_efilter,
+        # 'efilter_id': efilter_id,
+
         'show_buttons': show_buttons,
 
         'edition_allowed': edition_allowed,
@@ -90,8 +127,6 @@ def listview_header_filters(*,
                             hfilters: HeaderFilterList,
                             show_buttons: bool,
                             ):
-    selected_hfilter = hfilters.selected
-
     grouped_hfilters = defaultdict(list)
     for hfilter in hfilters:
         grouped_hfilters[hfilter.user_id].append(hfilter)
@@ -111,6 +146,7 @@ def listview_header_filters(*,
     else:
         other_header_filters = ()
 
+    selected_hfilter = hfilters.selected
     edition_allowed, edition_error = selected_hfilter.can_edit(user)
     deletion_allowed, deletion_error = selected_hfilter.can_delete(user)
 
