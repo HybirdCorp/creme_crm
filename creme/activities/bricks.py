@@ -20,9 +20,11 @@ from itertools import chain
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.urls.base import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
+from creme.activities.utils import get_current_utc_offset
 from creme.creme_config.bricks import GenericModelBrick
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core.exceptions import ConflictError
@@ -322,6 +324,78 @@ class UserCalendarsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             Calendar.objects.filter(user=context['user']),
+        ))
+
+
+class FullCalendarBrick(Brick):
+    verbose_name = _('Activities calendar')
+    dependencies = (Activity, Contact, Calendar,)
+    template_name = 'activities/bricks/activity-fullcalendar.html'
+    permissions = 'activities'
+
+    allow_event_create = False
+
+    show_headless = False
+    show_week_number = True
+    show_timezone_info = False
+
+    def get_calendar_settings(self, context):
+        return {
+            "utc_offset": get_current_utc_offset(),
+            "allow_event_create": self.allow_event_create,
+            "headless_mode": self.show_headless,
+            "show_week_number": self.show_week_number,
+            "show_timezone_info": self.show_timezone_info,
+            **CalendarConfigItem.objects.for_user(context['user']).as_dict(),
+        }
+
+    def get_event_fetch_url(self, context):
+        return reverse('activities__calendars_activities')
+
+    def get_event_update_url(self, context):
+        return reverse('activities__set_activity_dates')
+
+    def get_event_create_url(self, context):
+        return reverse('activities__create_activity_popup')
+
+    def get_calendar_sources(self, context):
+        return list(
+            Calendar.objects.filter(
+                user=context['user'],
+                is_default=True,
+            ).values_list('pk', flat=True)
+        )
+
+    def get_calendar_context(self, context):
+        return {
+            'calendar_sources': self.get_calendar_sources(context),
+            'calendar_settings': self.get_calendar_settings(context),
+            'event_fetch_url': self.get_event_fetch_url(context),
+            'event_update_url': self.get_event_update_url(context),
+            'event_create_url': self.get_event_create_url(context),
+        }
+
+
+class MyActivitiesCalendarBrick(FullCalendarBrick):
+    id = Brick.generate_id('activities', 'my_activities_calendar')
+    verbose_name = _('My Calendar')
+    description = _(
+        'Displays user calendar:\n'
+        '- Only the activities from the DEFAULT calendar are displayed.\n'
+        '- The calendar is read-only.\n'
+        'App: Activities'
+    )
+
+    def get_calendar_settings(self, context):
+        settings = super().get_calendar_settings(context)
+        settings['allow_event_move'] = False
+        return settings
+
+    def home_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            is_home=True,
+            **self.get_calendar_context(context),
         ))
 
 

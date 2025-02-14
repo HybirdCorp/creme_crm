@@ -51,9 +51,20 @@ class BaseCalendarConfigItemForm(CremeModelForm):
 
         if day_start and day_end and day_start >= day_end:
             raise ValidationError(
-                gettext('Start ({start}) must be before end ({end}).').format(
+                gettext('Day start ({start}) must be before end ({end}).').format(
                     start=date_format(day_start, 'TIME_FORMAT'),
                     end=date_format(day_end, 'TIME_FORMAT'),
+                )
+            )
+
+        view_day_start = cleaned_data.get('view_day_start')
+        view_day_end = cleaned_data.get('view_day_end')
+
+        if view_day_start and view_day_end and view_day_start > view_day_end:
+            raise ValidationError(
+                gettext('Visible start ({start}) must be before end ({end}).').format(
+                    start=date_format(view_day_start, 'TIME_FORMAT'),
+                    end=date_format(view_day_end, 'TIME_FORMAT'),
                 )
             )
 

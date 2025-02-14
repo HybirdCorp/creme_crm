@@ -1,11 +1,14 @@
 from datetime import timedelta
 from functools import partial
+from json import loads as json_loads
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.test import RequestFactory
 from django.urls import reverse
 from django.utils.timezone import now
+from django.utils.timezone import override as override_tz
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -27,13 +30,13 @@ from creme.persons.tests.base import (
 from ..bricks import (
     ActivityBarHatBrick,
     FutureActivitiesBrick,
+    MyActivitiesCalendarBrick,
     ParticipantsBrick,
     PastActivitiesBrick,
     RelatedCalendarBrick,
     SubjectsBrick,
     UserCalendarsBrick,
 )
-# from ..constants import FLOATING
 from ..constants import (
     REL_SUB_ACTIVITY_SUBJECT,
     REL_SUB_LINKED_2_ACTIVITY,
@@ -1249,3 +1252,51 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             self.get_html_tree(response.content), brick=UserCalendarsBrick,
         )
         self.assertIn('brick-void', brick_node.attrib.get('class', ''))
+
+    def test_activity_fullcalendar(self):
+        user = self.login_as_activities_user()
+
+        ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
+
+        default_cal = Calendar.objects.get_default_calendar(user)
+        Calendar.objects.create(user=user, name='Other calendar')
+
+        brick = MyActivitiesCalendarBrick()
+
+        with override_tz('Europe/London'):
+            dst_date = self.create_datetime(2023, 8, 1)
+
+            with patch('creme.activities.utils.now', return_value=dst_date):
+                render = brick.home_display(
+                    context=self.build_context(user=user, instance=ranma),
+                )
+
+        brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
+
+        settings = json_loads(
+            brick_node.find('.//script[@class="brick-calendar-settings"]').text[4:-4]
+        )
+        sources = json_loads(
+            brick_node.find('.//script[@class="brick-calendar-sources"]').text[4:-4]
+        )
+
+        self.assertDictEqual(settings, {
+            'allow_event_move': False,
+            'allow_event_create': False,
+            'allow_keep_state': False,
+            'headless_mode': False,
+            'show_timezone_info': False,
+            'show_week_number': True,
+            'day_end': '18:00',
+            'day_start': '08:00',
+            'extra_data': {},
+            'slot_duration': '00:15:00',
+            'utc_offset': 60,
+            'view': 'month',
+            'week_days': [1, 2, 3, 4, 5, 6],
+            'week_start': 1,
+            'view_day_start': '00:00',
+            'view_day_end': '24:00',
+        })
+
+        self.assertListEqual(sources, [default_cal.pk])
