@@ -143,4 +143,42 @@ QUnit.parametrize('creme.widget.DateTimePicker.val (from widget)', [
     equal(element.find('.minute input').val(), expected.minute);
 });
 
+QUnit.test('creme.widget.YearPicker', function(assert) {
+    var element = $(
+        '<input class="ui-creme-widget ui-creme-yearpicker" widget="ui-creme-yearpicker" type="text" value="2025" />'
+    ).appendTo(this.qunitFixture());
+    var widget = creme.widget.create(element);
+
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    equal(element.is('[disabled]'), false);
+    equal(element.is('[readonly]'), false);
+
+    equal('2025', element.val());
+    equal('2025', widget.val());
+});
+
+QUnit.test('creme.widget.YearPicker.val (current year)', function(assert) {
+    var element = $(
+        '<input class="ui-creme-widget ui-creme-yearpicker" widget="ui-creme-yearpicker" type="text" value="2025" />'
+    ).appendTo(this.qunitFixture());
+    var widget = creme.widget.create(element);
+
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    widget.val('2024');
+
+    equal('2024', element.val());
+    equal('2024', widget.val());
+
+    equal(1, $('[name="current-year"]').length);
+
+    $('[name="current-year"]').trigger('click');
+
+    equal(String(new Date().getFullYear()), element.val());
+    equal(String(new Date().getFullYear()), widget.val());
+});
+
 }(jQuery));
