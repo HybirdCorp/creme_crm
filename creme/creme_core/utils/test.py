@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -160,6 +160,19 @@ class CremeDiscoverRunner(DiscoverRunner):
         self._mock_media_path = None
         self._original_media_root = settings.MEDIA_ROOT
 
+        # See add_arguments()
+        self._skipped_tests = [] if kwargs.get('creme_list_skipped', False) else None
+
+    @classmethod
+    def add_arguments(cls, parser):
+        super().add_arguments(parser=parser)
+        parser.add_argument(
+            '--list-skipped',
+            action='store_true',
+            dest='creme_list_skipped',
+            help='Display the list of skipped tests at the end of the output (Creme feature).',
+        )
+
     def setup_test_environment(self, **kwargs):
         super().setup_test_environment(**kwargs)
         self.log('Creating mock media directory...')
@@ -193,3 +206,18 @@ class CremeDiscoverRunner(DiscoverRunner):
             self._clean_mock_media()
 
             raise
+
+    def run_tests(self, test_labels, **kwargs):
+        result = super().run_tests(test_labels, **kwargs)
+        if self._skipped_tests:
+            self.log('Skipped tests:\n' + '\n'.join(self._skipped_tests))
+
+        return result
+
+    def suite_result(self, suite, result, **kwargs):
+        if result.skipped and self._skipped_tests is not None:
+            self._skipped_tests.extend(
+                f' - {source.id()} ({reason})' for source, reason in result.skipped
+            )
+
+        return super().suite_result(suite, result, **kwargs)

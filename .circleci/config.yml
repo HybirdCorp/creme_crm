@@ -117,7 +117,7 @@ commands:
       - run:
           name: "Run Creme unit tests"
           command: |
-            creme test --settings=<< pipeline.parameters.instance_directory >>.settings --noinput --parallel=8 --keepdb creme
+            creme test --settings=<< pipeline.parameters.instance_directory >>.settings --noinput --parallel=8 --keepdb --list-skipped creme
 
   run-creme-coverage:
     description: Run Creme unit tests with coverage
