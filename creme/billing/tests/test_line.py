@@ -295,8 +295,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_listviews(self):
         user = self.login_as_root_and_get()
 
-        invoice1 = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
-        invoice2 = self.create_invoice_n_orgas(user=user, name='Invoice002')[0]
+        source, target = self.create_orgas(user=user)
+
+        invoice1 = self.create_invoice(user=user, source=source, target=target, name='Invoice01')
+        invoice2 = self.create_invoice(user=user, source=source, target=target, name='Invoice02')
 
         create_pline = partial(ProductLine.objects.create, user=user)
         pline1 = create_pline(related_document=invoice1, on_the_fly_item='FlyP1')
@@ -307,10 +309,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         sline2 = create_sline(related_document=invoice2, on_the_fly_item='FlyS2')
 
         # ---------------------------------------------------------------------
-        response = self.assertGET200(reverse('billing__list_product_lines'))
+        product_response = self.assertGET200(reverse('billing__list_product_lines'))
 
         with self.assertNoException():
-            plines_page = response.context['page_obj']
+            plines_page = product_response.context['page_obj']
 
         self.assertEqual(2, plines_page.paginator.count)
 
@@ -318,15 +320,55 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertIn(pline2, plines_page.object_list)
 
         # ---------------------------------------------------------------------
-        response = self.assertGET200(reverse('billing__list_service_lines'))
+        service_response = self.assertGET200(reverse('billing__list_service_lines'))
 
         with self.assertNoException():
-            slines_page = response.context['page_obj']
+            slines_page = service_response.context['page_obj']
 
         self.assertEqual(2, slines_page.paginator.count)
 
         self.assertIn(sline1, slines_page.object_list)
         self.assertIn(sline2, slines_page.object_list)
+
+    @skipIfCustomProduct
+    @skipIfCustomProductLine
+    def test_listviews__related_to_deleted(self):
+        user = self.login_as_root_and_get()
+
+        source, target = self.create_orgas(user=user)
+
+        product1 = self.create_product(user=user, name='Product #1')
+        product2 = self.create_product(user=user, name='Deleted Product')
+        product2.trash()
+
+        create_invoice = partial(
+            self.create_invoice, user=user, source=source, target=target,
+        )
+        invoice1 = create_invoice(name='Invoice01')
+        invoice2 = create_invoice(name='Invoice02')
+        invoice3 = create_invoice(name='Invoice03')
+        invoice3.trash()
+
+        create_pline = partial(ProductLine.objects.create, user=user)
+        pline11 = create_pline(related_document=invoice1, on_the_fly_item='FlyP1')
+        pline12 = create_pline(related_document=invoice1, related_item=product1)
+        pline13 = create_pline(related_document=invoice1, related_item=product2)
+        pline21 = create_pline(related_document=invoice2, on_the_fly_item='FlyP2')
+        pline31 = create_pline(related_document=invoice3, related_item=product1)
+
+        response = self.assertGET200(reverse('billing__list_product_lines'))
+
+        with self.assertNoException():
+            plines_page = response.context['page_obj']
+
+        self.assertEqual(4, plines_page.paginator.count)
+
+        lines = plines_page.object_list
+        self.assertIn(pline11, lines)
+        self.assertIn(pline12, lines)
+        self.assertIn(pline13, lines)
+        self.assertIn(pline21, lines)
+        self.assertNotIn(pline31, lines)
 
     @skipIfCustomProductLine
     def test_delete_product_line01(self):

@@ -77,6 +77,7 @@
             - The 'Convert to ...' buttons have been reworked :
                 - When a button is disabled, the reason is displayed as tool-tip.
                 - The constraints for properties & relationships are better respected.
+            - In the list-views for Product/Service lines, lines related to deleted Invoice/Quote/... are excluded.
         * Opportunities :
             - You can now create unsuccessful phone calls from an Opportunity's detail-view :
                 - A button has been added (not enabled in default installations).
