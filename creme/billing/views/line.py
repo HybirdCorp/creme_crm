@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 from json import loads as jsonloads
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -68,24 +69,42 @@ class ServiceLinesCreation(_LinesCreation):
     title = _('Add one or more service to «{entity}»')
 
 
-class ProductLinesList(generic.EntitiesList):
+class _LinesList(generic.EntitiesList):
+    model = ProductLine
+    internal_q = Q(
+        relations__type_id=constants.REL_OBJ_HAS_LINE,
+        relations__object_entity__is_deleted=False,
+    )
+
+    def get_mode(self):
+        return SelectionMode.NONE
+
+    def get_show_actions(self):
+        return False
+
+
+# class ProductLinesList(generic.EntitiesList):
+#     model = ProductLine
+#
+#     def get_mode(self):
+#         return SelectionMode.NONE
+#
+#     def get_show_actions(self):
+#         return False
+class ProductLinesList(_LinesList):
     model = ProductLine
 
-    def get_mode(self):
-        return SelectionMode.NONE
 
-    def get_show_actions(self):
-        return False
-
-
-class ServiceLinesList(generic.EntitiesList):
+# class ServiceLinesList(generic.EntitiesList):
+#     model = ServiceLine
+#
+#     def get_mode(self):
+#         return SelectionMode.NONE
+#
+#     def get_show_actions(self):
+#         return False
+class ServiceLinesList(_LinesList):
     model = ServiceLine
-
-    def get_mode(self):
-        return SelectionMode.NONE
-
-    def get_show_actions(self):
-        return False
 
 
 class AddingToCatalog(generic.RelatedToEntityFormPopup):
@@ -232,7 +251,7 @@ def multi_save_lines(request, document_id):
             context={'errors': errors}, status=409,
         )
 
-    # Save all formset now that we have not detected any errors
+    # Save all formsets now that we have not detected any errors
     for formset in formset_to_save:
         formset.save()
 
