@@ -180,6 +180,9 @@
                 - creme.ajax.decodeSearchData() is deprecated; Use _.decodeURLSearchData() instead
                 - creme.exports.exportAs() is deprecated; Use creme.lv_widget.DownloadAction instead.
                 - creme.utils.confirmSubmit() is deprecated; Use the new 'creme_core-hatmenubar-delete' or 'delete' actions instead.
+                - creme.utils.showPageLoadOverlay() is deprecated;  Use creme.dialog.Overlay instead.
+                - creme.utils.hidePageLoadOverlay() is deprecated;  Use creme.dialog.Overlay instead.
+                - creme.utils.overlay() is deprecated;  Use creme.dialog.Overlay instead.
          - Add RelativeURL() class as an alternative of URL() that do not accepts relative paths (e.g '/list?page=1' is not a valid URL)
             * Use Object.assign instead of $.extend to remove the dependency to jQuery for : RGBColor, DateFaker, BrowserVersion & Assert.
             * Use Object.assign instead of $.extend for sketch components.

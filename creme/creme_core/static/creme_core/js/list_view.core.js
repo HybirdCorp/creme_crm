@@ -371,6 +371,7 @@
             });
 
             this._element = null;
+            this._overlay = new creme.dialog.Overlay();
             this._loading = false;
 
             this.selectionMode(options.selectionMode);
@@ -513,18 +514,17 @@
 
         _updateLoadingState: function(state) {
             if (state !== this.isLoading()) {
-                /*
-                 * TODO : Toggle css class like bricks
-                 * this._element.toggleClass('is-loading', state);
-                 */
-
                 this._loading = state;
+                this._element.toggleClass('is-loading', state);
+                this._overlay.update(state, '', state ? 100 : 0);
 
+                /*
                 if (state) {
                     creme.utils.showPageLoadOverlay();
                 } else {
                     creme.utils.hidePageLoadOverlay();
                 }
+                */
             }
         },
 
@@ -609,6 +609,7 @@
             var element = this._element;
 
             this._unbindColumnFilters(element);
+            this._overlay.unbind(element);
             this._element = null;
 
             return this;
@@ -621,6 +622,13 @@
 
             this._element = element;
             this._selections.bind(element);
+            this._overlay.addClass('lv-loading')
+                         .content($(
+                             '<h2><img src="${src}"><span>${label}</span></h2>'.template({
+                                 src: creme_media_url('images/wait.gif'),
+                                 label: gettext('Loading…')
+                             })
+                         )).bind(element);
 
             this._bindActions(element);
 
