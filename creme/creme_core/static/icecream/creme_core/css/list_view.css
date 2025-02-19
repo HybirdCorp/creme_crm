@@ -135,6 +135,30 @@
     margin-right: 8px;
 }
 
+.ui-creme-listview-standalone.is-loading {
+    overflow: visible !important;
+}
+
+.ui-creme-listview-standalone .floatThead-container ~ .ui-creme-overlay {
+    z-index: 99;
+}
+
+.ui-creme-listview .lv-loading {
+    background-color: white;
+    opacity: .70;
+    filter: Alpha(Opacity=70);
+}
+
+.ui-creme-listview .lv-loading .overlay-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ui-creme-listview .lv-loading .overlay-content span {
+    padding-left: 10px;
+}
+
 .ui-creme-listview-popup .list-controls {
     margin-top: 5px;
 }
