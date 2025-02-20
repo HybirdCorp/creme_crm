@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -61,7 +61,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
 
             var chained_data = data.map(function(item) {
                 value[name] = item;
-                return $.extend({}, value);
+                return Object.assign({}, value);
             });
 
             element.trigger('change-multiple', [chained_data]);
@@ -139,7 +139,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         var ready = target.is('.widget-ready');
         var widget = target.creme().widget();
 
-        if (ready && $.inArray(name, widget.dependencies()) !== -1) {
+        if (ready && (widget.dependencies() || []).indexOf(name) !== -1) {
             widget.reload(data, undefined, undefined, true);
         }
     },
@@ -218,7 +218,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
     },
 
     context: function(element) {
-        return $.extend({}, this._context);
+        return Object.assign({}, this._context);
     },
 
     val: function(element, value) {
@@ -229,17 +229,6 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         this._updateSelectors(element, creme.widget.cleanval(value, {}));
         this._update(element);
         element.trigger('change');
-    },
-
-    clone: function(element) {
-        var copy = creme.widget.clone(element);
-        var value = this.val(copy);
-
-        if (!value) {
-            this._update(copy);
-        }
-
-        return copy;
     }
 });
 

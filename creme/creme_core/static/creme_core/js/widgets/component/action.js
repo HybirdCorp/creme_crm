@@ -1,6 +1,6 @@
  /*******************************************************************************
  * Creme is a free/open-source Customer Relationship Management software
- * Copyright (C) 2009-2019 Hybird
+ * Copyright (C) 2009-2025 Hybird
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -43,9 +43,9 @@ creme.component.Action = creme.component.Component.sub({
         }
 
         try {
-            this._events.trigger('start', Array.copy(arguments), this);
+            this._events.trigger('start', Array.from(arguments), this);
             this._status = _ActionStatus.RUNNING;
-            this._action.apply(this, Array.copy(arguments));
+            this._action.apply(this, Array.from(arguments));
         } catch (e) {
             console.error(e);
             this.fail(e);
@@ -60,7 +60,7 @@ creme.component.Action = creme.component.Component.sub({
         }
 
         this._status = _ActionStatus.DONE;
-        this._events.trigger('done', Array.copy(arguments), this);
+        this._events.trigger('done', Array.from(arguments), this);
         return this;
     },
 
@@ -70,7 +70,7 @@ creme.component.Action = creme.component.Component.sub({
         }
 
         this._status = _ActionStatus.FAIL;
-        this._events.trigger('fail', Array.copy(arguments), this);
+        this._events.trigger('fail', Array.from(arguments), this);
         return this;
     },
 
@@ -80,12 +80,12 @@ creme.component.Action = creme.component.Component.sub({
         }
 
         this._status = _ActionStatus.CANCEL;
-        this._events.trigger('cancel', Array.copy(arguments), this);
+        this._events.trigger('cancel', Array.from(arguments), this);
         return this;
     },
 
     trigger: function(event) {
-        this._events.trigger(event, Array.copy(arguments).slice(1), this);
+        this._events.trigger(event, Array.from(arguments).slice(1), this);
         return this;
     },
 
@@ -196,17 +196,17 @@ creme.component.Action = creme.component.Component.sub({
         var self = this;
 
         source.onDone(function() {
-            self.start.apply(self, options.passArgs ? Array.copy(arguments).slice(1) : []);
+            self.start.apply(self, options.passArgs ? Array.from(arguments).slice(1) : []);
         });
 
         source.onFail(function(event) {
             self._status = _ActionStatus.FAIL;
-            self._events.trigger('fail', Array.copy(arguments).slice(1), self);
+            self._events.trigger('fail', Array.from(arguments).slice(1), self);
         });
 
         source.onCancel(function(event) {
             self._status = _ActionStatus.CANCEL;
-            self._events.trigger('cancel', Array.copy(arguments).slice(1), self);
+            self._events.trigger('cancel', Array.from(arguments).slice(1), self);
         });
 
         return this;
@@ -222,17 +222,17 @@ creme.component.Action = creme.component.Component.sub({
 
         delegate.onDone(function() {
             self._status = _ActionStatus.DONE;
-            self._events.trigger('done', Array.copy(arguments).slice(1), self);
+            self._events.trigger('done', Array.from(arguments).slice(1), self);
         });
 
         delegate.onFail(function() {
             self._status = _ActionStatus.FAIL;
-            self._events.trigger('fail', Array.copy(arguments).slice(1), self);
+            self._events.trigger('fail', Array.from(arguments).slice(1), self);
         });
 
         delegate.onCancel(function() {
             self._status = _ActionStatus.CANCEL;
-            self._events.trigger('cancel', Array.copy(arguments).slice(1), self);
+            self._events.trigger('cancel', Array.from(arguments).slice(1), self);
         });
 
         return this;

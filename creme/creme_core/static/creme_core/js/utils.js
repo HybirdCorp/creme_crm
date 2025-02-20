@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2024  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -37,17 +37,17 @@ creme.utils.redirect = function(url) {
 
 creme.utils.locationRelativeUrl = function() {
     // remove 'http://host.com'
-    return (new creme.ajax.URL(window.location.href)).relativeUrl();
+    return _.toRelativeURL(window.location.href).fullPath();
 };
 
 creme.utils.goTo = function(url, data) {
     if (Object.isEmpty(data)) {
         creme.utils.redirect(url);
     } else {
-        var urlinfo = new creme.ajax.URL(url);
+        var urlinfo = _.toRelativeURL(url);
 
         if (Object.isString(data)) {
-            data = creme.ajax.decodeSearchData(data);
+            data = _.decodeURLSearchData(data);
         }
 
         urlinfo.searchData($.extend({}, urlinfo.searchData(), data));
@@ -58,17 +58,21 @@ creme.utils.goTo = function(url, data) {
 // TODO : deprecate it ? never used
 creme.utils.showPageLoadOverlay = function() {
     // console.log('show loading overlay');
+    console.warn('creme.utils.showPageLoadOverlay is deprecated; Use creme.dialog.Overlay instead.');
     creme.utils.loading('', false);
 };
 
 // TODO : deprecate it ? never used
 creme.utils.hidePageLoadOverlay = function() {
     // console.log('hide loading overlay');
+    console.warn('creme.utils.showPageLoadOverlay is deprecated; Use creme.dialog.Overlay instead.');
     creme.utils.loading('', true);
 };
 
 // TODO : deprecate it ? Only used in old creme.ajax.* methods (see ajax.js)
 creme.utils.loading = function(div_id, is_loaded, params) {
+    console.warn('creme.utils.loading is deprecated; Use creme.dialog.Overlay instead.');
+
     var overlay = creme.utils._overlay;
 
     if (overlay === undefined) {
@@ -88,6 +92,7 @@ creme.utils.loading = function(div_id, is_loaded, params) {
 };
 
 creme.utils.confirmSubmit = function(atag, msg) {
+    console.warn('creme.utils.confimSubmit is now deprecated; should use actions instead');
     creme.dialogs.confirm(msg || gettext('Are you sure?'))
                  .onOk(function() {
                       $('form', $(atag)).trigger('submit');
@@ -222,6 +227,7 @@ creme.utils.ajaxQuery = function(url, options, data) {
                   }
               });
 
+        /* TODO : remove this feature. */
         if (options.waitingOverlay) {
             query.onStart(function() {
                       creme.utils.showPageLoadOverlay();
@@ -257,7 +263,7 @@ creme.utils.clickOnce = function(element, func) {
 
     if (element.is(':not(.clickonce') && Object.isFunc(func)) {
         element.addClass('clickonce');
-        return func.apply(this, Array.copy(arguments).slice(2));
+        return func.apply(this, Array.from(arguments).slice(2));
     } else {
         return false;
     }

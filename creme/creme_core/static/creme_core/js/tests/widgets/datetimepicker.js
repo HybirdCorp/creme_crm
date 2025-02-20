@@ -34,6 +34,23 @@ QUnit.module("creme.widgets.datetime.js", new QUnitMixin(QUnitAjaxMixin,
         });
 
         return html;
+    },
+
+    createDatePickerHtml: function(options) {
+        options = Object.assign({
+            format: 'dd-mm-yy'
+        }, options || {});
+
+        var html = (
+            '<input class="ui-creme-widget ui-creme-datepicker" widget="ui-creme-datepicker" type="text" format="${format}" value="${value}" ${readonly} ${disabled} />'
+        ).template({
+            readonly: options.readonly ? 'readonly' : '',
+            disabled: options.disabled ? 'disabled' : '',
+            format: options.format,
+            value: options.value ? String(options.value) : ''
+        });
+
+        return html;
     }
 }));
 
@@ -141,6 +158,118 @@ QUnit.parametrize('creme.widget.DateTimePicker.val (from widget)', [
     equal(element.find('.date input').val(), expected.date);
     equal(element.find('.hour input').val(), expected.hour);
     equal(element.find('.minute input').val(), expected.minute);
+});
+
+QUnit.parameterize('creme.widget.DatePicker.create (initial)', [
+    [{format: 'dd-mm-yy', value: ''}, ''],
+    [{format: 'dd-mm-yy', value: '12-02-2025'}, '12-02-2025'],
+    [{format: 'dd/mm/yy', value: '12-02-2025'}, ''],
+    [{format: 'dd/mm/yy', value: '12/02/2025'}, '12/02/2025']
+], function(options, expected, assert) {
+    var element = $(this.createDatePickerHtml(options)).appendTo(this.qunitFixture());
+    var widget = creme.widget.create(element);
+
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+    equal(element.hasClass('hasDatepicker'), true);  // jquery datepicker is enabled
+
+    equal(element.is('[disabled]'), false);
+    equal(element.is('[readonly]'), false);
+
+    equal(expected, element.val());
+    equal(expected, widget.val());
+});
+
+QUnit.parameterize('creme.widget.DatePicker.create (disabled, readonly)', [
+    [{value: '12-02-2025', disabled: true, readonly: false}],
+    [{value: '12-02-2025', disabled: false, readonly: true}],
+    [{value: '12-02-2025', disabled: true, readonly: true}]
+], function(options, assert) {
+    var element = $(this.createDatePickerHtml(options)).appendTo(this.qunitFixture());
+    creme.widget.create(element);
+
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+    equal(element.hasClass('hasDatepicker'), true);  // jquery datepicker is enabled
+
+    equal(element.is('[disabled]'), options.disabled || options.readonly);
+    equal(element.is('[readonly]'), options.readonly);
+});
+
+QUnit.test('creme.widget.DatePicker.val (today)', function(assert) {
+    var element = $(this.createDatePickerHtml({
+        value: '12-02-2024'
+    })).appendTo(this.qunitFixture());
+    var widget = creme.widget.create(element);
+
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    equal('12-02-2024', element.val());
+    equal('12-02-2024', widget.val());
+
+    widget.val('13-03-2023');
+
+    equal('13-03-2023', element.val());
+    equal('13-03-2023', widget.val());
+
+    equal(1, $('[name="today"]').length);
+
+    $('[name="today"]').trigger('click');
+
+    var today = moment().format('DD-MM-YYYY');
+
+    equal(today, element.val());
+    equal(today, widget.val());
+});
+
+QUnit.parameterize('creme.widget.YearPicker.create', [
+    [{value: '2025', disabled: false, readonly: false}],
+    [{value: '2025', disabled: true, readonly: false}],
+    [{value: '2025', disabled: false, readonly: true}],
+    [{value: '', disabled: false, readonly: false}]
+], function(options, assert) {
+    options = options || {};
+
+    var element = $((
+        '<input class="ui-creme-widget ui-creme-yearpicker" widget="ui-creme-yearpicker" type="text" value="${value}" ${readonly} ${disabled} />'
+    ).template({
+        readonly: options.readonly ? 'readonly' : '',
+        disabled: options.disabled ? 'disabled' : '',
+        value: options.value ? String(options.value) : ''
+    })).appendTo(this.qunitFixture());
+    var widget = creme.widget.create(element);
+
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    equal(element.is('[disabled]'), options.disabled || false);
+    equal(element.is('[readonly]'), options.readonly || false);
+
+    equal(options.value, element.val());
+    equal(options.value, widget.val());
+});
+
+QUnit.test('creme.widget.YearPicker.val (current year)', function(assert) {
+    var element = $(
+        '<input class="ui-creme-widget ui-creme-yearpicker" widget="ui-creme-yearpicker" type="text" value="2025" />'
+    ).appendTo(this.qunitFixture());
+    var widget = creme.widget.create(element);
+
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    widget.val('2024');
+
+    equal('2024', element.val());
+    equal('2024', widget.val());
+
+    equal(1, $('[name="current-year"]').length);
+
+    $('[name="current-year"]').trigger('click');
+
+    equal(String(new Date().getFullYear()), element.val());
+    equal(String(new Date().getFullYear()), widget.val());
 });
 
 }(jQuery));

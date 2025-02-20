@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2023-2025  Hybird
+    Copyright (C) 2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -19,36 +19,33 @@
 (function() {
 "use strict";
 
-creme.d3BisectScale = function(getter) {
-    var bisect = d3.bisector(getter).center;
-    var props = {
-        scale: null
-    };
+function pop(object, name, defaults) {
+    if (object instanceof Object && name in object) {
+        var value = object[name];
+        delete object[name];
+        return value;
+    } else {
+        return defaults;
+    }
+}
 
-    function invertLinear(data, pos) {
-        return bisect(data, props.scale.invert(pos), 0);
+function append(object, key, value) {
+    var entry = object[key];
+
+    if (entry === undefined) {
+        entry = value;
+    } else if (Array.isArray(entry)) {
+        entry.push(value);
+    } else {
+        entry = [entry, value];
     }
 
-    function invertOrdinal(data, pos) {
-        var scale = d3.scaleLinear([0, data.length], props.scale.range());
-        var index = Math.max(0, Math.min(Math.floor(scale.invert(pos)), data.length - 1));
-        return getter(data[index]);
-    }
+    object[key] = entry;
+}
 
-    function invert(data, pos) {
-        return props.scale.invert ? invertLinear(data, pos) : invertOrdinal(data, pos);
-    }
-
-    invert.scale = function(scale) {
-        if (scale === undefined) {
-            return props.scale;
-        } else {
-            props.scale = scale;
-            return invert;
-        }
-    };
-
-    return invert;
-};
+_.mixin({
+    pop: pop,
+    append: append
+});
 
 }());
