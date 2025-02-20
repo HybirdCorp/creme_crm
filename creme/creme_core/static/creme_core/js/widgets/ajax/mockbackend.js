@@ -43,7 +43,7 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
     send: function(url, data, method, on_success, on_error, options) {
         var self = this;
         var method_urls = this[method] || {};
-        options = $.extend({}, this.options, options);
+        options = $.extend({}, this.options, options || {});
 
         if (options.sync !== true) {
             options.sync = true;
@@ -97,7 +97,7 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
 
         var responseData = response.responseText;
 
-        if (options.updateProgress || options.progress) {
+        if (options.uploadProgress || options.progress) {
             (this.progressSteps || []).forEach(function(step) {
                 var progressEvent = new ProgressEvent('progress', {
                     total: 1000,
@@ -107,8 +107,8 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
 
                 progressEvent.loadedPercent = step;
 
-                if (options.updateProgress) {
-                    options.updateProgress(progressEvent);
+                if (options.uploadProgress) {
+                    options.uploadProgress(progressEvent);
                 }
 
                 if (options.progress) {
