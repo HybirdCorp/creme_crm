@@ -1,3 +1,5 @@
+/* globals FunctionFaker */
+
 (function($) {
 QUnit.module("creme.ajax.query.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMixin, {
     buildMockBackend: function() {
@@ -476,6 +478,110 @@ QUnit.test('creme.ajax.Query.post (fail)', function(assert) {
     deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 });
 
+QUnit.test('creme.ajax.Query (progress, all handlers)', function(assert) {
+    this.backend.progressSteps = [0, 10, 30, 50, 100];
+
+    var progressCb = new FunctionFaker();
+    var progressEventCb = new FunctionFaker();
+    var uploadCb = new FunctionFaker();
+    var uploadEventCb = new FunctionFaker();
+
+    var query = new creme.ajax.Query({}, this.backend);
+    query.onProgress(progressEventCb.wrap());
+    query.onUploadProgress(uploadEventCb.wrap());
+
+    query.get({}, {
+        progress: progressCb.wrap(),
+        uploadProgress: uploadCb.wrap()
+    });
+
+    deepEqual(0, progressCb.count());
+    deepEqual(0, uploadCb.count());
+    deepEqual(0, progressEventCb.count());
+    deepEqual(0, uploadEventCb.count());
+
+    query.url('mock/custom').get({}, {
+        progress: progressCb.wrap(),
+        uploadProgress: uploadCb.wrap()
+    });
+
+    function progressCall(args) {
+        return [args[0], args[1].loadedPercent];
+    }
+
+    deepEqual(5, progressCb.count());
+    deepEqual(5, uploadCb.count());
+    deepEqual([
+        ['progress', 0],
+        ['progress', 10],
+        ['progress', 30],
+        ['progress', 50],
+        ['progress', 100]
+    ], progressEventCb.calls().map(progressCall));
+    deepEqual([
+        ['upload-progress', 0],
+        ['upload-progress', 10],
+        ['upload-progress', 30],
+        ['upload-progress', 50],
+        ['upload-progress', 100]
+    ], uploadEventCb.calls().map(progressCall));
+});
+
+QUnit.test('creme.ajax.Query (progress, only cb)', function(assert) {
+    this.backend.progressSteps = [0, 10, 30, 50, 100];
+
+    var progressCb = new FunctionFaker();
+    var uploadCb = new FunctionFaker();
+
+    var query = new creme.ajax.Query({}, this.backend);
+
+    query.get({}, {
+        progress: progressCb.wrap(),
+        uploadProgress: uploadCb.wrap()
+    });
+
+    deepEqual(0, progressCb.count());
+    deepEqual(0, uploadCb.count());
+
+    query.url('mock/custom').get({}, {
+        progress: progressCb.wrap(),
+        uploadProgress: uploadCb.wrap()
+    });
+
+    function progressCall(args) {
+        return args[0].loadedPercent;
+    }
+
+    deepEqual([0, 10, 30, 50, 100], progressCb.calls().map(progressCall));
+    deepEqual([0, 10, 30, 50, 100], uploadCb.calls().map(progressCall));
+});
+
+QUnit.test('creme.ajax.Query (progress, only event cb)', function(assert) {
+    this.backend.progressSteps = [0, 10, 30, 50, 100];
+
+    var progressEventCb = new FunctionFaker();
+    var uploadEventCb = new FunctionFaker();
+
+    var query = new creme.ajax.Query({}, this.backend);
+
+    query.onProgress(progressEventCb.wrap());
+    query.onUploadProgress(uploadEventCb.wrap());
+
+    query.get();
+
+    deepEqual(0, progressEventCb.count());
+    deepEqual(0, uploadEventCb.count());
+
+    query.url('mock/custom').get();
+
+    function progressCall(args) {
+        return args[1].loadedPercent;
+    }
+
+    deepEqual([0, 10, 30, 50, 100], progressEventCb.calls().map(progressCall));
+    deepEqual([0, 10, 30, 50, 100], uploadEventCb.calls().map(progressCall));
+});
+
 QUnit.test('creme.ajax.query (get)', function(assert) {
     var query = creme.ajax.query('mock/custom', {}, {}, this.backend);
     query.onDone(this.mockListener('success'));
@@ -568,4 +674,5 @@ QUnit.test('creme.ajax.query (empty url)', function(assert) {
         ], this.mockListenerCalls('error'));
     deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 });
+
 }(jQuery));
