@@ -243,7 +243,6 @@ QUnit.test('MockAjaxBackend.submit', function(assert) {
     equal(response.status, 500);
 });
 
-
 QUnit.test('MockAjaxBackend.post (custom)', function(assert) {
     var response = {};
     this.backend.post('mock/custom', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
