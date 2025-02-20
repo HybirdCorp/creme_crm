@@ -94,17 +94,42 @@ creme.ajax.Query = creme.component.Action.sub({
         return this;
     },
 
+    onProgress: function(progress) {
+        return this.on('progress', progress);
+    },
+
+    onUploadProgress: function(progress) {
+        return this.on('upload-progress', progress);
+    },
+
     _send: function(options) {
         options = $.extend(true, {}, this.options(), options || {});
 
+        var self = this;
         var data = $.extend({}, this.data() || {}, options.data || {});
         // TODO : replace 'action' by 'method'
         var action = (options.action || 'get').toLowerCase();
         var backendOptions = options.backend || {};
         var url = this.url() || '';
 
-        backendOptions.progress = _.pop(options, 'progress', backendOptions.progress);
-        backendOptions.uploadProgress = _.pop(options, 'uploadProgress', backendOptions.uploadProgress);
+        var progressCb = _.pop(options, 'progress', backendOptions.progress);
+        var uploadProgressCb = _.pop(options, 'uploadProgress', backendOptions.uploadProgress);
+
+        // progress is not often used, so we only create a callback when it is needed.
+        if (Object.isFunc(progressCb) || this._events.listeners('progress').length > 0) {
+            backendOptions.progress = function(e) {
+                self.trigger('progress', e);
+                (progressCb || _.noop)(e);
+            };
+        }
+
+        // Same optimization here
+        if (Object.isFunc(uploadProgressCb) || this._events.listeners('upload-progress').length > 0) {
+            backendOptions.uploadProgress = function(e) {
+                self.trigger('upload-progress', e);
+                (uploadProgressCb || _.noop)(e);
+            };
+        }
 
         try {
             if (Object.isNone(this._backend)) {
