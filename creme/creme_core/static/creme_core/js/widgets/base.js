@@ -57,51 +57,6 @@ creme.object = {
         return creme.utils.lambda(script, parameters);
     },
 
-    deferred_start: function(element, name, func, delay) {
-        var key = 'deferred__' + name;
-        var previous = element.data(key);
-
-        if (previous !== undefined) {
-            previous.reject();
-        }
-
-        var deferred = $.Deferred();
-
-        $.when(deferred.promise()).then(function(status) {
-            element.removeData(key);
-            creme.object.invoke(func, element, status);
-        }, null, null);
-
-        element.data(key, deferred);
-
-        if (delay) {
-            window.setTimeout(function() {
-                deferred.resolve();
-            }, delay);
-        } else {
-            deferred.resolve();
-        }
-
-        return deferred;
-    },
-
-    deferred_cancel: function(element, name) {
-        var key = 'deferred__' + name;
-        var previous = element.data(key);
-
-        if (previous !== undefined) {
-            element.removeData(key);
-            previous.reject();
-        }
-
-        return previous;
-    },
-
-    uuid: function() {
-        console.warn('Deprecated and only used by jQPlot; Use _.uniqueId() instead.');
-        return _.uniqueId('widget_');
-    },
-
     isFalse: function(value) {
         return Object.isNone(value) || value === false;
     },
