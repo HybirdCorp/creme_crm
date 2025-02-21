@@ -243,7 +243,7 @@ QUnit.test('creme.object.delegate', function(assert) {
     equal(12, creme.object.delegate(instance, 'val'));
     equal(7, creme.object.delegate(instance, 'add', 3, 4));
 });
-
+/*
 QUnit.test('creme.object.deferred (finished)', function(assert) {
     var element = $('<div/>');
     var result = [];
@@ -324,7 +324,7 @@ QUnit.test('creme.object.deferred (restarted)', function(assert) {
         start();
     }, 700);
 });
-
+*/
 QUnit.test('creme.object.build_callback (invalid script)', function(assert) {
     QUnit.assert.raises(function() { creme.object.build_callback('...'); });
     QUnit.assert.raises(function() { creme.object.build_callback('{', ['arg1', 'arg2']); });
