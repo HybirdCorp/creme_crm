@@ -3,6 +3,7 @@ from datetime import time
 from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.activities.bricks import CalendarConfigItemsBrick
 from creme.activities.models import CalendarConfigItem
@@ -211,7 +212,55 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             self.assertGET200(url).context['form'].instance.as_dict(),
         )
 
-    def test_config_create__errors(self):
+    @parameterized.expand([
+        (
+            {
+                'view_day_start': '00:00:00',
+                'view_day_end': '00:00:00',
+            }, {
+                'day_start': time(8, 0, 0),
+                'day_end': time(18, 0, 0),
+                'view_day_start': time(0, 0, 0),
+                'view_day_end': time(0, 0, 0),
+            }
+        ),
+        (
+            {
+                'day_start': '7:00:00',
+                'day_end': '19:00:00',
+                'view_day_start': '00:00:00',
+                'view_day_end': '00:00:00',
+            }, {
+                'day_start': time(7, 0, 0),
+                'day_end': time(19, 0, 0),
+                'view_day_start': time(0, 0, 0),
+                'view_day_end': time(0, 0, 0),
+            }
+        ),
+        (
+            {
+                'view_day_start': '7:00:00',
+                'view_day_end': '19:00:00',
+            }, {
+                'day_start': time(8, 0, 0),
+                'day_end': time(18, 0, 0),
+                'view_day_start': time(7, 0, 0),
+                'view_day_end': time(19, 0, 0),
+            }
+        ),
+        (
+            {
+                'view_day_start': '8:00:00',
+                'view_day_end': '18:00:00',
+            }, {
+                'day_start': time(8, 0, 0),
+                'day_end': time(18, 0, 0),
+                'view_day_start': time(8, 0, 0),
+                'view_day_end': time(18, 0, 0),
+            }
+        ),
+    ])
+    def test_config_create__day_range(self, options, expected):
         self.login_as_root()
 
         default = CalendarConfigItem.objects.get_default()
@@ -225,19 +274,95 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
                 'week_days': (1, 2, 3, 4),
                 'week_start': '2',
                 'slot_duration': time(0, 30, 0),
-                'day_start': '19:00:00',
-                'day_end': '07:00:00',
-                'view_day_start': '19:00:00',
-                'view_day_end': '07:00:00',
+                **options,
             },
         )
 
-        self.assertFormError(response.context['form'], None, [
-            _('Day start ({start}) must be before end ({end}).').format(
-                start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
-                end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
-            )
-        ])
+        self.assertNoFormError(response)
+
+        config = CalendarConfigItem.objects.exclude(pk=default.pk).get()
+        self.assertEqual(config.day_start, expected['day_start'])
+        self.assertEqual(config.day_end, expected['day_end'])
+        self.assertEqual(config.view_day_start, expected['view_day_start'])
+        self.assertEqual(config.view_day_end, expected['view_day_end'])
+
+    @parameterized.expand([
+        (
+            {
+                'day_start': '19:00:00',
+                'day_end': '07:00:00',
+            }, [
+                _('Day start ({start}) must be before end ({end}).').format(
+                    start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
+                    end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
+                )
+            ]
+        ),
+        (
+            {
+                'view_day_start': '19:00:00',
+                'view_day_end': '07:00:00',
+            }, [
+                _('Visible start ({start}) must be before end ({end}).').format(
+                    start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
+                    end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
+                )
+            ]
+        ),
+        (
+            {
+                'view_day_start': '07:00:00',
+                'view_day_end': '07:00:00',
+            }, [
+                _('Visible start ({start}) must be before end ({end}).').format(
+                    start=date_format(time(7, 0, 0), 'TIME_FORMAT'),
+                    end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
+                )
+            ]
+        ),
+        (
+            {
+                'day_start': '07:00:00',
+                'day_end': '19:00:00',
+                'view_day_start': '10:00:00',
+                'view_day_end': '15:00:00',
+            }, [
+                _(
+                    'The visible range of the day ({start} − {end}) should contains '
+                    'the working hours ({day_start} − {day_end}) or some events will '
+                    'not be displayed'
+                ).format(
+                    start=date_format(time(10, 0, 0), 'TIME_FORMAT'),
+                    end=date_format(time(15, 0, 0), 'TIME_FORMAT'),
+                    day_start=date_format(time(7, 0, 0), 'TIME_FORMAT'),
+                    day_end=date_format(time(19, 0, 0), 'TIME_FORMAT'),
+                )
+            ]
+        ),
+        (
+            {
+                'day_start': '07:00:00',
+                'day_end': '19:00:00',
+                'view_day_start': '7:00:00',
+                'view_day_end': '15:00:00',
+            }, [
+                _(
+                    'The visible range of the day ({start} − {end}) should contains '
+                    'the working hours ({day_start} − {day_end}) or some events will '
+                    'not be displayed'
+                ).format(
+                    start=date_format(time(7, 0, 0), 'TIME_FORMAT'),
+                    end=date_format(time(15, 0, 0), 'TIME_FORMAT'),
+                    day_start=date_format(time(7, 0, 0), 'TIME_FORMAT'),
+                    day_end=date_format(time(19, 0, 0), 'TIME_FORMAT'),
+                )
+            ]
+        ),
+    ])
+    def test_config_create__day_range_errors(self, options, expected):
+        self.login_as_root()
+
+        default = CalendarConfigItem.objects.get_default()
 
         response = self.client.post(
             self.ADD_URL,
@@ -248,19 +373,11 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
                 'week_days': (1, 2, 3, 4),
                 'week_start': '2',
                 'slot_duration': time(0, 30, 0),
-                'day_start': '07:00:00',
-                'day_end': '19:00:00',
-                'view_day_start': '19:00:00',
-                'view_day_end': '07:00:00',
+                **options,
             },
         )
 
-        self.assertFormError(response.context['form'], None, [
-            _('Visible start ({start}) must be before end ({end}).').format(
-                start=date_format(time(19, 0, 0), 'TIME_FORMAT'),
-                end=date_format(time(7, 0, 0), 'TIME_FORMAT'),
-            )
-        ])
+        self.assertFormError(response.context['form'], None, expected)
 
     def test_config_create_superuser(self):
         self.login_as_root()

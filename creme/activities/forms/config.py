@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import time
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.formats import date_format
@@ -59,12 +61,30 @@ class BaseCalendarConfigItemForm(CremeModelForm):
 
         view_day_start = cleaned_data.get('view_day_start')
         view_day_end = cleaned_data.get('view_day_end')
+        view_day_all = (view_day_start == view_day_end) and (view_day_start == time(0, 0, 0))
 
-        if view_day_start and view_day_end and view_day_start > view_day_end:
+        if view_day_all:
+            return cleaned_data
+
+        if view_day_start >= view_day_end:
             raise ValidationError(
                 gettext('Visible start ({start}) must be before end ({end}).').format(
                     start=date_format(view_day_start, 'TIME_FORMAT'),
                     end=date_format(view_day_end, 'TIME_FORMAT'),
+                )
+            )
+
+        if view_day_start > day_start or view_day_end < day_end:
+            raise ValidationError(
+                gettext(
+                    'The visible range of the day ({start} − {end}) should contains '
+                    'the working hours ({day_start} − {day_end}) or some events will '
+                    'not be displayed'
+                ).format(
+                    start=date_format(view_day_start, 'TIME_FORMAT'),
+                    end=date_format(view_day_end, 'TIME_FORMAT'),
+                    day_start=date_format(day_start, 'TIME_FORMAT'),
+                    day_end=date_format(day_end, 'TIME_FORMAT'),
                 )
             )
 

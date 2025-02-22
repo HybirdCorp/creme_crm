@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-13 14:20+0000\n"
+"POT-Creation-Date: 2025-02-20 13:48+0000\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -433,6 +433,14 @@ msgstr "Le début de la journée ({start}) doit être avant la fin ({end})."
 msgid "Visible start ({start}) must be before end ({end})."
 msgstr ""
 "Le début visible de la journée ({start}) doit être avant la fin ({end})."
+
+#, python-brace-format
+msgid ""
+"The visible range of the day ({start} − {end}) should contains the working hours "
+"({day_start} − {day_end}) or some events will not be displayed"
+msgstr ""
+"L'intervalle visible de la journée ({start} − {end}) devrait englober "
+"les heures travaillées ({day_start} − {day_end}) ou certains évènements ne seront pas affichés."
 
 # Already in core
 msgid "Role"
@@ -874,10 +882,6 @@ msgstr[1] "{count} appels téléphoniques par mois"
 msgid "Full detailview"
 msgstr "Fiche complète"
 
-msgctxt "activities"
-msgid "Calendar"
-msgstr "Calendrier"
-
 msgid "Reload"
 msgstr "Rafraîchir"
 
@@ -1262,6 +1266,10 @@ msgstr "Modifier la configuration du calendrier"
 
 msgid "Create calendar configuration for a role"
 msgstr "Créer une configuration de calendrier pour un rôle"
+
+#~ msgctxt "activities"
+#~ msgid "Calendar"
+#~ msgstr "Calendrier"
 
 #~ msgid "You are not allowed to link this entity"
 #~ msgstr "Vous n'avez pas la permission de relier cette fiche"
