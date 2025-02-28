@@ -164,34 +164,6 @@ creme.forms.DateTimePicker.set = function(self, year, month, day, hour, minute) 
     creme.forms.DateTimePicker.setDate(self, new Date(year, month, day, hour, minute));
 };
 
-
-// TODO : create a real widget instead
-creme.forms.toImportField = function(table_id, target_query, speed) {
-    speed = speed !== undefined ? speed : 'normal';
-
-    var $table = $('#' + table_id);
-    var $csv_select    = $table.find('.csv_col_select');
-    var $fields_select = $table.find(target_query);
-
-    function not_in_csv() {
-        return $csv_select.val() === '0';
-    }
-
-    if (not_in_csv()) {
-        $fields_select.hide();
-    }
-
-    function handleColChange() {
-        if (not_in_csv()) {
-            $fields_select.hide(speed);
-        } else {
-            $fields_select.show(speed);
-        }
-    }
-
-    $csv_select.on('change', handleColChange);
-};
-
 // Backport from jquery.form-3.51
 // TODO : factorize code in form controller
 function __validateHTML5(element) {
