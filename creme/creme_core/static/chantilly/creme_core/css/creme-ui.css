@@ -763,3 +763,7 @@ img.entity-summary {
     pointer-events: all;
     opacity: 1.0;
 }
+
+.ui-import-field .import-field-details.hidden {
+    display: none;
+}

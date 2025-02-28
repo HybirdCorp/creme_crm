@@ -489,43 +489,4 @@ QUnit.test('creme.forms.DateTimePicker', function(assert) {
     equal('54', element.find('.minute input').val());
 });
 
-QUnit.parameterize('creme.forms.toImportField', [
-    ['0', false],  // "Not in CSV" => not visible
-    ['1', true]    // "Column 1" => visible
-], function(initial, expected, assert) {
-    this.qunitFixture().append($(
-        '<table id="csv_field_a">' +
-            '<tbody><tr>' +
-                '<td class="csv_column_select">' +
-                    '<select name="column_select" class="csv_col_select">' +
-                        '<option value="0">Not here</option>' +
-                        '<option value="1">Column 1</option>' +
-                        '<option value="2">Column 2</option>' +
-                    '</select>' +
-                '</td>' +
-                '<td class="csv_column_options">' +
-                    '<input type="checkbox" id="field_a_create" name="field_a_create">Create</input>' +
-                '</td>' +
-            '</tr></tbody>' +
-        '</table>')
-    );
-
-    $('#csv_field_a .csv_col_select').val(initial);
-
-    // jquery 3.6+ : replace speed=0 by speed=null or an animation will be triggered anyway
-    // and the ':visible' state may randomly fail
-    creme.forms.toImportField('csv_field_a', '.csv_column_options', null);
-
-    // initial visible state : 0 => hidden, 1 => visible
-    equal($('#csv_field_a .csv_column_options').is(':visible'), expected);
-
-    // toggle state "not in csv" => not visible
-    $('#csv_field_a .csv_col_select').val('0').trigger('change');
-    equal($('#csv_field_a .csv_column_options:not(:visible)').length, 1);
-
-    // toggle state "Column 1" => visible
-    $('#csv_field_a .csv_col_select').val('1').trigger('change');
-    equal($('#csv_field_a .csv_column_options:visible').length, 1);
-});
-
 }(jQuery));
