@@ -332,6 +332,7 @@
         # Javascript :
             - Removed ChainedSelect.clone() method : not used and does not work anyway.
             - creme.exports.exportAs() is replaced by the 'export-as' action or 'creme.lv_widget.ExportAction'
+            - creme.forms.toImportField() is replaced by the widget 'ui-import-field' or 'creme.widget.ImportField'.
             - Full rework of creme.notification.NotificationBox.
         # Apps :
             * Creme_config :

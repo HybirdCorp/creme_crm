@@ -1,13 +1,13 @@
 {% load i18n %}{% load eq from creme_core_tags %}
 {% with id=widget.attrs.id name=widget.name sub_choices=widget.subfield_choices %}
-<table {# name="{{name}}" #}{% include 'django/forms/widgets/attrs.html' %}>
+<table {# name="{{name}}" #}{% include 'django/forms/widgets/attrs.html' %} widget="ui-import-field" class="ui-creme-widget ui-import-field widget-auto">
     <tbody>
         <tr>
-            <td class="csv_column_select">
+            <td class="csv_column_select import-field-select">
                 {% include 'creme_core/forms/widgets/select.html' with widget=widget.column_select %}
             </td>
             {% if sub_choices %}
-            <td class="csv_subfields_select">
+            <td class="csv_subfields_select import-field-details">
             {% with hide_select=sub_choices|length|eq:1 %} {# The 'select' tag is annoying if there is only one option #}
                 {% if not hide_select %}{% translate 'Search by:' %}{% endif %}
 
@@ -24,11 +24,6 @@
                     <input type="checkbox" id="{{id}}_create" name="{{name}}_create"{% if widget.creation_checked %} checked{% endif %}>
                 </label>
                 {% endif %}
-                <script type="text/javascript">
-                    $(document).ready(function() {
-                        creme.forms.toImportField('{{id}}', '.csv_subfields_select');
-                    });
-                </script>
             {% endwith %}
             </td>
             {% endif %}
