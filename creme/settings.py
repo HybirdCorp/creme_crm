@@ -958,6 +958,7 @@ CREME_CORE_JS = [
     'creme_core/js/merge.js',
     'creme_core/js/relations.js',
     'creme_core/js/jobs.js',
+    'creme_core/js/import.js',
 ]
 
 CREME_OPTLIB_JS = [
@@ -1142,6 +1143,7 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/views/search.js',
     'creme_core/js/tests/views/utils.js',
     'creme_core/js/tests/views/notification.js',
+    'creme_core/js/tests/views/import.js',
 ]
 
 TEST_CREME_OPT_JS = [
