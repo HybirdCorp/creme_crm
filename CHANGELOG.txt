@@ -1,5 +1,9 @@
 == Version 2.5.19 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # A content visibility issue on popover opening has been fixed.
+
 
 == Version 2.5.18 ==
 
