@@ -265,6 +265,7 @@
                         - Refactor 'ListViewController' & 'creme.bricks.BricksReloader'
                         - 'creme.ajax.Query' now accepts new 'uploadProgress' & 'progress' options.
                 * creme.ajax.URL.prototype.relativeTo() is replaced by RelativeURL.prototype.fullPath()
+                * Drop creme.forms.toImportField(); Use creme.widget.ImportField ('ui-import-field') instead.
             - Apps :
                 * Activities:
                     - Refactor creme.ActivityCalendar : can be now used as independent component.
