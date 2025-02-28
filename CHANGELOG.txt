@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # A content visibility issue on popover opening has been fixed.
     # Apps :
         * Activities :
             - An issue in calendar configuration, when the end of the day is before the start, has been fixed.
