@@ -237,3 +237,16 @@ class PropertyAddingActionFieldTestCase(CremeTestCase):
         # model1 = FakeContact
         # field1 = RelationAddingTriggerField(model=model1)
         PropertyAddingActionField()
+        self.fail('TODO')
+        # self.assertEqual(model1, field1.model)
+        #
+        # model2 = FakeOrganisation
+        # rtype1 = RelationType.objects.smart_update_or_create(
+        #     ('creme_core-subject_client', 'is a client of', [model1]),
+        #     ('creme_core-object_client', 'has a client',    [model2]),
+        # )[0]
+        # trigger1 = RelationAddingTrigger(
+        #     subject_model=model1, rtype=rtype1, object_model=model2,
+        # )
+        # value1 = self._build_value(rtype=rtype1, model=model2)
+        # self.assertEqual(trigger1, field1.clean(value1))
