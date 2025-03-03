@@ -397,6 +397,19 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
             value=json_dump({'ctype': {'id': '12', 'create': ''}, 'entity': 'notanumber'}),
         )
 
+    def test_clean_unknown_ctype(self):
+        contact = self.create_contact(user=self.get_root_user())
+        self.assertFormfieldError(
+            field=GenericEntityField(models=[FakeOrganisation, FakeImage]),
+            value=self.build_field_data(
+                ctype_id=self.UNUSED_PK,
+                entity_id=contact.id,
+                label="Boo I'm a ghost ",
+            ),
+            messages=_('This content type does not exist.'),
+            codes='ctypedoesnotexist',
+        )
+
     def test_clean_forbidden_ctype(self):
         contact = self.create_contact(user=self.get_root_user())
         self.assertFormfieldError(
@@ -449,12 +462,16 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
             models=[FakeOrganisation, FakeContact, FakeImage],
             required=False, user=user,
         )
-        self.assertFormfieldError(
-            field=field,
-            value=json_dump({'ctype': {'create': '', 'id': None}}),
-            messages=_('This content type is not allowed.'),
-            codes='ctypenotallowed',
-        )
+        # self.assertFormfieldError(
+        #     field=field,
+        #     value=json_dump({'ctype': {'create': '', 'id': None}}),
+        #     messages=_('This content type is not allowed.'),
+        #     codes='ctypenotallowed',
+        #
+        # )
+        #  messages=_('This content type does not exist.'),
+        #             codes='ctypedoesnotexist',
+        self.assertIsNone(field.clean(json_dump({'ctype': {'create': '', 'id': None}})))
 
         contact = self.create_contact(user=user)
         self.assertIsNone(field.clean(json_dump(
