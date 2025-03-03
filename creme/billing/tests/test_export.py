@@ -53,7 +53,7 @@ from .base import (
 )
 from .fake_exporters import OnlyInvoiceExportEngine
 
-pdflatex_not_installed = which('pdflatex') is None
+latex_not_installed = which('lualatex') is None or which('latexmk') is None
 
 try:
     import weasyprint  # NOQA
@@ -360,7 +360,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('it_IT', flavour4.language)
         self.assertEqual('theme/with/odd/name', flavour4.theme)
 
-    @skipIf(pdflatex_not_installed, '"pdflatex" is not installed.')
+    @skipIf(latex_not_installed, '"lualatex" and "latexmk" are not installed.')
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
     def test_exporter_latex(self):
         engine1 = LatexExportEngine(Quote)
@@ -885,7 +885,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    @skipIf(pdflatex_not_installed, '"pdflatex" is not installed.')
+    @skipIf(latex_not_installed, '"lualatex" and "latexmk" are not installed.')
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
     def test_export_invoice_latex(self):
         user = self.login_as_root_and_get()
@@ -1322,7 +1322,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomQuote
     @skipIfCustomServiceLine
-    @skipIf(pdflatex_not_installed, '"pdflatex" is not installed.')
+    @skipIf(latex_not_installed, '"lualatex" and "latexmk" are not installed.')
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
     def test_export_quote_latex(self):
         user = self.login_as_root_and_get()
@@ -1524,7 +1524,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertGET403(self._build_export_url(invoice))
 
-    @skipIf(pdflatex_not_installed, '"pdflatex" is not installed.')
+    @skipIf(latex_not_installed, '"lualatex" and "latexmk" are not installed.')
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
     @skipIfCustomInvoice
     def test_export_latex_credentials01(self):
@@ -1550,7 +1550,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         ).update(engine_id=LatexExportEngine.id)
         self.assertGET403(self._build_export_url(invoice))
 
-    @skipIf(pdflatex_not_installed, '"pdflatex" is not installed.')
+    @skipIf(latex_not_installed, '"lualatex" and "latexmk" are not installed.')
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
     @skipIfCustomInvoice
     def test_export_latex_credentials02(self):
