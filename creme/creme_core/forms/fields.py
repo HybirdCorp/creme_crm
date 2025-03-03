@@ -654,7 +654,7 @@ class RelationEntityField(EntityCredsJSONField):
             allowed if isinstance(allowed, QuerySet) else
             RelationType.objects.filter(id__in=allowed)
         )
-        rtypes = rtypes.order_by('predicate')  # TODO: in RelationType._meta.ordering ??
+        # rtypes = rtypes.order_by('predicate')
 
         self._allowed_rtypes = rtypes
         self.widget.relation_types = self._get_options()
