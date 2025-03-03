@@ -95,9 +95,11 @@ class JSONField(fields.CharField):
         'isdeleted':        _('«%(entity)s» is in the trash.'),
         'isexcluded':       _('«%(entity)s» violates the constraints.'),
 
+        'ctypedoesnotexist': _('This content type does not exist.'),
+        'ctyperequired': _('The content type is required.'),
+
         # Used by child classes
         'entityrequired':   _('The entity is required.'),
-        'ctyperequired':    _('The content type is required.'),
         'ctypenotallowed':  _('This content type is not allowed.'),
     }
     value_type: type | None = None  # Overload this: type of the value returned by the field.
@@ -219,17 +221,38 @@ class JSONField(fields.CharField):
 
         return self._value_from_unjsonfied(data)
 
-    def _clean_entity(self, ctype, entity_pk):
+    def _clean_ctype(self, ctype_id) -> ContentType | None:
+        if not ctype_id:
+            if self.required:
+                raise ValidationError(
+                    self.error_messages['ctyperequired'],
+                    code='ctyperequired',
+                )
+
+            return None
+
+        try:
+            ctype = ContentType.objects.get_for_id(ctype_id)
+        except ContentType.DoesNotExist as e:
+            raise ValidationError(
+                self.error_messages['ctypedoesnotexist'],
+                code='ctypedoesnotexist',
+            ) from e
+
+        return ctype
+
+    def _clean_entity(self, ctype, entity_pk) -> CremeEntity | None:
         "@param ctype: ContentType instance or PK."
         if not isinstance(ctype, ContentType):
-            try:
-                ctype = ContentType.objects.get_for_id(ctype)
-            except ContentType.DoesNotExist as e:
-                raise ValidationError(
-                    self.error_messages['doesnotexist'],
-                    params={'ctype': ctype},
-                    code='doesnotexist',
-                ) from e
+            # try:
+            #     ctype = ContentType.objects.get_for_id(ctype)
+            # except ContentType.DoesNotExist as e:
+            #     raise ValidationError(
+            #         self.error_messages['doesnotexist'],
+            #         params={'ctype': ctype},
+            #         code='doesnotexist',
+            #     ) from e
+            ctype = self._clean_ctype(ctype)
 
         entity = None
 
@@ -463,17 +486,23 @@ class GenericEntityField(EntityCredsJSONField):
         ctype_pk = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
 
         entity_pk = clean_value(data, 'entity', int, required, 'entityrequired')
-        entity = self._clean_entity(self._clean_ctype(ctype_pk), entity_pk)
+        ctype = self._clean_ctype(ctype_pk)
 
-        return self._check_entity_perms(entity)
+        return self._check_entity_perms(
+            entity=self._clean_entity(ctype=ctype, entity_pk=entity_pk),
+        ) if ctype else None
 
     def _clean_ctype(self, ctype_pk):
-        # Check ctype in allowed ones
-        for ct in self.get_ctypes():
-            if ct.pk == ctype_pk:
-                return ct
+        ctype = super()._clean_ctype(ctype_pk)
 
-        raise ValidationError(self.error_messages['ctypenotallowed'], code='ctypenotallowed')
+        if ctype and not any(
+            ctype == allowed_ct for allowed_ct in self.get_ctypes()
+        ):
+            raise ValidationError(
+                self.error_messages['ctypenotallowed'], code='ctypenotallowed',
+            )
+
+        return ctype
 
     def _get_ctypes_options(self):
         create_url = partial(self._create_url, self._user)
