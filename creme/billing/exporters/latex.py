@@ -1,6 +1,7 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2025 Patrick Baus <patrick.baus@quantum-electronic-devices.de>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -57,9 +58,10 @@ class LatexExporter(ContextMixin, base.BillingExporter):
         # NB: return code seems always 1 even when there is no error...
         subprocess.call(
             [
-                'pdflatex',
-                '-interaction=batchmode',
-                '-output-directory', dir_path,
+                'latexmk',
+                '-lualatex',
+                '-quiet',
+                '-cd',
                 latex_file_path,
             ]
         )
