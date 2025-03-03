@@ -238,7 +238,7 @@ class _RelatedActivitiesBrick(QuerysetBrick):
 
 
 class FutureActivitiesBrick(_RelatedActivitiesBrick):
-    id = QuerysetBrick.generate_id('activities', 'future_activities')
+    id = _RelatedActivitiesBrick.generate_id('activities', 'future_activities')
     verbose_name = _('Future activities')
     description = _(
         'Displays activities which:\n'
@@ -266,7 +266,7 @@ class FutureActivitiesBrick(_RelatedActivitiesBrick):
 
 
 class PastActivitiesBrick(_RelatedActivitiesBrick):
-    id = QuerysetBrick.generate_id('activities', 'past_activities')
+    id = _RelatedActivitiesBrick.generate_id('activities', 'past_activities')
     verbose_name = _('Past activities')
     description = _(
         'Displays activities which:\n'
@@ -292,7 +292,7 @@ class PastActivitiesBrick(_RelatedActivitiesBrick):
 
 
 class CalendarsBrick(GenericModelBrick):
-    id = QuerysetBrick.generate_id('activities', 'calendars_config')
+    id = GenericModelBrick.generate_id('activities', 'calendars_config')
     dependencies = (Calendar,)
     template_name = 'activities/bricks/calendars.html'
     # permissions = 'activities.can_admin' => useless because views check that.
@@ -377,7 +377,7 @@ class FullCalendarBrick(Brick):
 
 
 class MyActivitiesCalendarBrick(FullCalendarBrick):
-    id = Brick.generate_id('activities', 'my_activities_calendar')
+    id = FullCalendarBrick.generate_id('activities', 'my_activities_calendar')
     verbose_name = _('My Calendar')
     description = _(
         'Displays user calendar:\n'
