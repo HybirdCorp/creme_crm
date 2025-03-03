@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'ACTIVITIES' APP
-# Copyright (C) 2024 Hybird
+# Copyright (C) 2025 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-20 13:48+0000\n"
+"POT-Creation-Date: 2025-03-03 09:31+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -436,11 +436,12 @@ msgstr ""
 
 #, python-brace-format
 msgid ""
-"The visible range of the day ({start} − {end}) should contains the working hours "
-"({day_start} − {day_end}) or some events will not be displayed"
+"The visible range of the day ({start} − {end}) should contains the working "
+"hours ({day_start} − {day_end}) or some events will not be displayed"
 msgstr ""
-"L'intervalle visible de la journée ({start} − {end}) devrait englober "
-"les heures travaillées ({day_start} − {day_end}) ou certains évènements ne seront pas affichés."
+"L'intervalle visible de la journée ({start} − {end}) devrait englober les "
+"heures travaillées ({day_start} − {day_end}) ou certains évènements ne "
+"seront pas affichés."
 
 # Already in core
 msgid "Role"
@@ -1095,8 +1096,8 @@ msgstr "Modifier la configuration"
 
 #, python-format
 msgid ""
-"This button can be placed on Activities' detail-views in the <a "
-"href=\"%(config_url)s\">buttons configuration</a>.\n"
+"This button can be placed on Activities' detail-views in the <a href="
+"\"%(config_url)s\">buttons configuration</a>.\n"
 "It allows to create a not successful Phone Call in one click."
 msgstr ""
 "Ce bouton peut être placé sur les vues détaillés des Activités dans la <a "
@@ -1139,7 +1140,7 @@ msgstr "Activités flottantes"
 msgid "FILTER FLOATING ACTIVITIES"
 msgstr "FILTRER LES ACTIVITÉS FLOTTANTES"
 
-msgid "No calendars"
+msgid "No calendar"
 msgstr "Aucun calendrier"
 
 msgid "Collaborators calendars"
