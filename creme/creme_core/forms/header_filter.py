@@ -453,7 +453,7 @@ class EntityCellRelationsField(UniformEntityCellsField):
             model, include_internals=True,
         ).filter(
             Q(enabled=True) | Q(id__in=_non_hiddable_rtype_ids)
-        ).order_by('predicate'):
+        ):  # .order_by('predicate')
             cell = cell_class(model=model, rtype=rtype)
 
             yield cell.key, cell
