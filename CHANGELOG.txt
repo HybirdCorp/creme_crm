@@ -3,6 +3,11 @@
   Users side :
   ------------
     # A content visibility issue on popover opening has been fixed.
+    # Apps :
+        * Creme_config :
+            - When you emptied your bricks configuration for "My page" (default or owned)
+              with the form, the configuration displayed a ugly "BLOCK" line.
+              When you tried to edit this configuration, the form did not propose any choice.
 
 
 == Version 2.5.18 ==
@@ -11,7 +16,7 @@
   ------------
     # Apps :
         * Opportunities :
-              - The title of the brick which displays related Opportunities for Contact/Organisation has been improved.
+            - The title of the brick which displays related Opportunities for Contact/Organisation has been improved.
 
   Developers side :
   -----------------
