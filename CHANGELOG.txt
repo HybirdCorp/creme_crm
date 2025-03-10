@@ -4,6 +4,9 @@
   ------------
     # A content visibility issue on popover opening has been fixed.
     # Apps :
+        * Creme_config :
+            - When you emptied your bricks configuration for "My page" (default or owned)
+              with the form, the configuration displayed a ugly "BLOCK" line.
         * Activities :
             - An issue in calendar configuration, when the end of the day is before the start, has been fixed.
 
