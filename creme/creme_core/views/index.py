@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,12 +38,15 @@ class Home(BaseHome):
             if is_superuser else
             Q(role=user.role, superuser=False)
         )
-        locs = BrickHomeLocation.objects \
-                                .filter(role_q | Q(role=None, superuser=False)) \
-                                .order_by('order')
+        locs = BrickHomeLocation.objects.filter(
+            role_q | Q(role=None, superuser=False)
+        ).order_by('order')
 
-        brick_ids = [loc.brick_id for loc in locs if loc.superuser] if is_superuser else \
-                    [loc.brick_id for loc in locs if loc.role_id]
+        brick_ids = [
+            loc.brick_id for loc in locs if loc.superuser
+        ] if is_superuser else [
+            loc.brick_id for loc in locs if loc.role_id
+        ]
 
         if not brick_ids:
             brick_ids = [loc.brick_id for loc in locs]
@@ -55,6 +58,6 @@ class MyPage(BaseHome):
     template_name = 'creme_core/my_page.html'
 
     def get_brick_ids(self):
-        return BrickMypageLocation.objects.filter(user=self.request.user) \
-                                          .order_by('order') \
-                                          .values_list('brick_id', flat=True)
+        return BrickMypageLocation.objects.filter(
+            user=self.request.user,
+        ).order_by('order').values_list('brick_id', flat=True)
