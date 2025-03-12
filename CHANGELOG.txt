@@ -3,8 +3,6 @@
   UPGRADE NOTES :
     - If you upgrade your MariaDB server to 10.7+, you have to convert all the UUID fields
       (which were just CharFields before MariaDB 10.7) to real UUID fields.
-    - Many fallbacks and helpers for older browsers (e.g IE 9 & 10) are removed. Read carefully the changelog, it
-      contains tips to upgrade your code.
 
   Users side :
   ------------
@@ -168,6 +166,8 @@
                 * Crudity :
                     - The constant 'SETTING_CRUDITY_SANDBOX_BY_USER' is deprecated; '
                       use 'crudity.setting_keys.sandbox_key.id' instead.
+            - Javascript:
+                - Array.copy(iterable, start, end) is deprecated; Use native code Array.from(iterable).slice(start, end) instead.
         # In 'creme_core.models' :
             - The models 'CremeUser' gets a new method 'has_perm_or_die()' which raises exceptions with friendly error messages.
             - The model 'FileRef' gets a new optional field "description";
@@ -183,8 +183,6 @@
                     - Add allowEventOverlaps property (boolean or method).
                     - Add allowEventCreate property (boolean).
         # Javascript:
-            * Deprecations:
-                - Array.copy(iterable, start, end) is deprecated; Use native code Array.from(iterable).slice(start, end) instead.
             * FormDialog:
                 - Form submit error responses with HTML can either replace the default overlay content or the frame content.
                 - New creme.dialog.Frame option 'fillOnError'; if enabled the html error response replaces the content.
