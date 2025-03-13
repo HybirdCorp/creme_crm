@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 import warnings
-from typing import Iterable
+from typing import Iterable, Iterator
 from uuid import uuid4
 
 from django.contrib.contenttypes.models import ContentType
@@ -260,13 +260,17 @@ class CremePropertyType(CremeModel):
         return reverse('creme_config__ptypes')
 
     @property
-    def subject_models(self):
+    def subject_models(self) -> Iterator[type[CremeEntity]]:
+        """Get the models which are compatible with this type.
+        Notice that an empty sequence means <All types are compatible>.
+        """
         for ctype in self.subject_ctypes.all():
             yield ctype.model_class()
 
     def set_subject_ctypes(self,
                            *ctypes_or_models: Iterable[ContentType | type[CremeEntity]],
                            ) -> CremePropertyType:
+        """Helper to set the ManyToManyField <subject_ctypes> which accepts models too."""
         get_ct = ContentType.objects.get_for_model
         self.subject_ctypes.set([
             ct_or_model if isinstance(ct_or_model, ContentType) else get_ct(ct_or_model)
@@ -274,6 +278,25 @@ class CremePropertyType(CremeModel):
         ])
 
         return self
+
+    def is_compatible(self, ctype_or_model: ContentType | type[CremeEntity], /) -> bool:
+        """Is the type compatible with a model?
+        Hint: use a .prefetch_related('subject_ctypes') if you want to avoid
+              queries if you call it:
+           - several times of the same instance.
+           - on several instances of the same queryset.
+        """
+        ctypes = self.subject_ctypes.all()
+        if not ctypes:
+            return True
+
+        ctype = (
+            ctype_or_model
+            if isinstance(ctype_or_model, ContentType) else
+            ContentType.objects.get_for_model(ctype_or_model)
+        )
+
+        return ctype in ctypes
 
 
 class CremeProperty(CremeModel):
