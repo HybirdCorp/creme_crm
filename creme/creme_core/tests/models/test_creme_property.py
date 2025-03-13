@@ -14,6 +14,7 @@ from creme.creme_core.models import (
 from creme.creme_core.utils.profiling import CaptureQueriesContext
 
 from ..base import CremeTestCase
+from ..fake_models import FakeActivity
 
 
 class CremePropertyTypeTestCase(CremeTestCase):
@@ -157,6 +158,36 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertCountEqual(
             [get_ct(FakeContact), orga_ct], [*ptype.subject_ctypes.all()],
         )
+
+    def test_is_compatible1(self):
+        ptype = CremePropertyType.objects.create(text='is wonderful')
+        self.assertTrue(ptype.is_compatible(FakeOrganisation))
+        self.assertTrue(ptype.is_compatible(ContentType.objects.get_for_model(FakeContact)))
+
+    def test_is_compatible2(self):
+        ptype = CremePropertyType.objects.create(
+            text='is wonderful',
+        ).set_subject_ctypes(FakeContact, FakeOrganisation)
+
+        with self.assertNumQueries(1):
+            self.assertTrue(ptype.is_compatible(FakeOrganisation))
+
+        with self.assertNumQueries(1):
+            self.assertTrue(ptype.is_compatible(FakeContact))
+
+        self.assertFalse(ptype.is_compatible(FakeActivity))
+
+        get_ct = ContentType.objects.get_for_model
+        self.assertTrue(ptype.is_compatible(get_ct(FakeContact)))
+        self.assertFalse(ptype.is_compatible(get_ct(FakeActivity)))
+
+        # Cached ---
+        ptype = CremePropertyType.objects.filter(
+            id=ptype.id,
+        ).prefetch_related('subject_ctypes').first()
+
+        with self.assertNumQueries(0):
+            self.assertTrue(ptype.is_compatible(FakeOrganisation))
 
 
 class CremePropertyTestCase(CremeTestCase):
