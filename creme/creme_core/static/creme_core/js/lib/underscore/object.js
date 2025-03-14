@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2018-2025  Hybird
+    Copyright (C) 2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -15,32 +15,37 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
-/* globals RelativeURL */
 
 (function() {
 "use strict";
 
-creme.ajax = creme.ajax || {};
+function pop(object, name, defaults) {
+    if (object instanceof Object && name in object) {
+        var value = object[name];
+        delete object[name];
+        return value;
+    } else {
+        return defaults;
+    }
+}
 
-creme.ajax.URL = RelativeURL;
+function append(object, key, value) {
+    var entry = object[key];
 
-creme.ajax.parseUrl = function(url) {
-    console.warn('creme.ajax.parseUrl() is deprecated; Use _.urlAsDict() instead');
-    return _.urlAsDict(url);
-};
+    if (entry === undefined) {
+        entry = value;
+    } else if (Array.isArray(entry)) {
+        entry.push(value);
+    } else {
+        entry = [entry, value];
+    }
 
-creme.ajax.param = function(data) {
-    // Use explicit traditional=true argument to replace ajaxSettings.traditional deprecated
-    // since jQuery 1.9 see (https://bugs.jquery.com/ticket/12137)
-    // return $.param(data, jQuery.ajaxSettings.traditional);
-    // return $.param(data, true);
-    console.warn('creme.ajax.params() is deprecated; Use _.encodeURLSearch() instead');
-    return _.encodeURLSearch(data);
-};
+    object[key] = entry;
+}
 
-creme.ajax.decodeSearchData = function(search) {
-    console.warn('creme.ajax.decodeSearchData() is deprecated; Use _.decodeURLSearchData() instead');
-    return _.decodeURLSearchData(search);
-};
+_.mixin({
+    pop: pop,
+    append: append
+});
 
 }());

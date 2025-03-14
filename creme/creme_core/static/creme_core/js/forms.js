@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2023  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -164,33 +164,18 @@ creme.forms.DateTimePicker.set = function(self, year, month, day, hour, minute) 
     creme.forms.DateTimePicker.setDate(self, new Date(year, month, day, hour, minute));
 };
 
+// Backport from jquery.form-3.51
+// TODO : factorize code in form controller
+function __validateHTML5(element) {
+    var errors = {};
 
-// TODO : create a real widget instead
-creme.forms.toImportField = function(table_id, target_query, speed) {
-    speed = speed !== undefined ? speed : 'normal';
+    $('*:invalid', element).each(function(index, item) {
+        errors[$(this).prop('name')] = item.validationMessage;
+    });
 
-    var $table = $('#' + table_id);
-    var $csv_select    = $table.find('.csv_col_select');
-    var $fields_select = $table.find(target_query);
+    return errors;
+}
 
-    function not_in_csv() {
-        return $csv_select.val() === '0';
-    }
-
-    if (not_in_csv()) {
-        $fields_select.hide();
-    }
-
-    function handleColChange() {
-        if (not_in_csv()) {
-            $fields_select.hide(speed);
-        } else {
-            $fields_select.show(speed);
-        }
-    }
-
-    $csv_select.on('change', handleColChange);
-};
 
 // TODO : create a real form controller with better lifecycle (not just a css class) and
 //        factorize some code with creme.dialog.FormDialog for html5 validation.
@@ -215,7 +200,7 @@ creme.forms.initialize = function(form) {
                 form.attr('novalidate', 'novalidate');
             }
 
-            var isHtml5Valid = Object.isEmpty(form.validateHTML5());
+            var isHtml5Valid = Object.isEmpty(__validateHTML5(form));
 
             if (isHtml5Valid === true) {
                 if (button.is(':not(.is-form-submit)')) {

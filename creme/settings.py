@@ -833,13 +833,13 @@ CREME_LIB_JS = [
     {'filter': 'mediagenerator.filters.media_url.MediaURL'},
 
     'creme_core/js/media.js',
-    'creme_core/js/lib/underscore/underscore-1.13.2.js',
+    'creme_core/js/lib/underscore/underscore-1.13.7.js',
     'creme_core/js/jquery/3.x/jquery-3.7.1.js',
     'creme_core/js/jquery/3.x/jquery-migrate-3.4.1.js',
     'creme_core/js/jquery/ui/jquery-ui-1.13.1.js',
     'creme_core/js/jquery/ui/jquery-ui-locale.js',
     'creme_core/js/jquery/extensions/jquery.dragtable.js',
-    'creme_core/js/jquery/extensions/jquery.form-3.51.js',
+    # 'creme_core/js/jquery/extensions/jquery.form-3.51.js',
     'creme_core/js/jquery/extensions/jquery.floatthead-2.2.4.js',
     'creme_core/js/lib/momentjs/moment-2.29.4.js',
     'creme_core/js/lib/momentjs/locale/en-us.js',
@@ -859,6 +859,9 @@ CREME_CORE_JS = [
     # jQuery tools
     'creme_core/js/jquery/extensions/jquery.toggle-attr.js',
 
+    # Underscore tools
+    'creme_core/js/lib/underscore/object.js',
+
     # Base tools
     'creme_core/js/lib/fallbacks/object-0.1.js',
     'creme_core/js/lib/fallbacks/array-0.9.js',
@@ -868,6 +871,7 @@ CREME_CORE_JS = [
     'creme_core/js/lib/assert.js',
     'creme_core/js/lib/faker.js',
     'creme_core/js/lib/browser.js',
+    'creme_core/js/lib/url.js',
 
     # Legacy tools
     'creme_core/js/creme.js',
@@ -951,10 +955,10 @@ CREME_CORE_JS = [
     'creme_core/js/detailview.js',
 
     'creme_core/js/entity_cell.js',
-    'creme_core/js/export.js',
     'creme_core/js/merge.js',
     'creme_core/js/relations.js',
     'creme_core/js/jobs.js',
+    'creme_core/js/import.js',
 ]
 
 CREME_OPTLIB_JS = [
@@ -1052,6 +1056,7 @@ TEST_CREME_CORE_JS = [
     'testcore.js',
 
     'creme_core/js/tests/jquery/toggle-attr.js',
+    'creme_core/js/tests/underscore/object.js',
 
     # Content
     'creme_core/js/tests/component/component.js',
@@ -1071,6 +1076,7 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/ajax/query.js',
     'creme_core/js/tests/ajax/localize.js',
     'creme_core/js/tests/ajax/utils.js',
+    'creme_core/js/tests/ajax/backend.js',
 
     'creme_core/js/tests/model/collection.js',
     'creme_core/js/tests/model/renderer-list.js',
@@ -1136,6 +1142,8 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/views/menu.js',
     'creme_core/js/tests/views/search.js',
     'creme_core/js/tests/views/utils.js',
+    'creme_core/js/tests/views/notification.js',
+    'creme_core/js/tests/views/import.js',
 ]
 
 TEST_CREME_OPT_JS = [

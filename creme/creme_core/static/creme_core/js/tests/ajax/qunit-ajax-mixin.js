@@ -12,7 +12,7 @@
 
             this.__redirect = creme.utils.redirect;
             creme.utils.redirect = function(url) {
-                self._redirectCalls.push(url.replace(/.*?:\/\/[^\/]*/g, ''));
+                self._redirectCalls.push((url || '').replace(/.*?:\/\/[^\/]*/g, ''));
             };
 
             this.__reload = creme.utils.reload;
@@ -140,6 +140,16 @@
 
         mockHistoryChanges: function() {
             return this._historyChanges;
+        },
+
+        createFormData: function(data) {
+            var formdata = new FormData();
+
+            for (var key in data) {
+                formdata.append(key, data[key]);
+            }
+
+            return formdata;
         }
     };
 }(jQuery));

@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2018-2025  Hybird
+    Copyright (C) 2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -15,32 +15,25 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
-/* globals RelativeURL */
 
-(function() {
+(function($) {
 "use strict";
 
-creme.ajax = creme.ajax || {};
+creme.widget.ImportField = creme.widget.declare('ui-import-field', {
+    _create: function(element, options, cb, sync) {
+        this._element = element;
 
-creme.ajax.URL = RelativeURL;
+        var isNotSelected = element.find('.import-field-select select').val() === '0';
+        element.find('.import-field-body').toggleClass('hidden', isNotSelected);
 
-creme.ajax.parseUrl = function(url) {
-    console.warn('creme.ajax.parseUrl() is deprecated; Use _.urlAsDict() instead');
-    return _.urlAsDict(url);
-};
+        element.on('change', '.import-field-select select', this._onColumnSelect.bind(this));
+        element.addClass('widget-ready');
+    },
 
-creme.ajax.param = function(data) {
-    // Use explicit traditional=true argument to replace ajaxSettings.traditional deprecated
-    // since jQuery 1.9 see (https://bugs.jquery.com/ticket/12137)
-    // return $.param(data, jQuery.ajaxSettings.traditional);
-    // return $.param(data, true);
-    console.warn('creme.ajax.params() is deprecated; Use _.encodeURLSearch() instead');
-    return _.encodeURLSearch(data);
-};
+    _onColumnSelect: function(e) {
+        var isNotSelected = $(e.target).val() === '0';
+        this._element.find('.import-field-body').toggleClass('hidden', isNotSelected);
+    }
+});
 
-creme.ajax.decodeSearchData = function(search) {
-    console.warn('creme.ajax.decodeSearchData() is deprecated; Use _.decodeURLSearchData() instead');
-    return _.decodeURLSearchData(search);
-};
-
-}());
+}(jQuery));

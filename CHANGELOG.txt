@@ -106,6 +106,7 @@
               The class 'django.forms.fields.CallableChoiceIterator' has been removed ;
               use 'django.utils.choices.CallableChoiceIterator' instead.
         - https://docs.djangoproject.com/en/5.1/releases/5.1/
+    - The version of 'underscorejs' is now '1.13.7'.
 
     Non breaking changes :
     ----------------------
@@ -168,6 +169,15 @@
                       use 'crudity.setting_keys.sandbox_key.id' instead.
             - Javascript:
                 - Array.copy(iterable, start, end) is deprecated; Use native code Array.from(iterable).slice(start, end) instead.
+                - creme.ajax.URL is deprecated; use RelativeURL instead
+                - creme.ajax.parseUrl() is deprecated; Use _.urlAsDict() instead
+                - creme.ajax.params() is deprecated; Use _.encodeURLSearch() instead
+                - creme.ajax.decodeSearchData() is deprecated; Use _.decodeURLSearchData() instead
+                - creme.exports.exportAs() is deprecated; Use creme.lv_widget.DownloadAction instead.
+                - creme.utils.confirmSubmit() is deprecated; Use the new 'creme_core-hatmenubar-delete' or 'delete' actions instead.
+                - creme.utils.showPageLoadOverlay() is deprecated;  Use creme.dialog.Overlay instead.
+                - creme.utils.hidePageLoadOverlay() is deprecated;  Use creme.dialog.Overlay instead.
+                - creme.utils.overlay() is deprecated;  Use creme.dialog.Overlay instead.
         # In 'creme_core.models' :
             - The models 'CremeUser' gets a new method 'has_perm_or_die()' which raises exceptions with friendly error messages.
             - The model 'FileRef' gets a new optional field "description";
@@ -183,6 +193,7 @@
                     - Add allowEventOverlaps property (boolean or method).
                     - Add allowEventCreate property (boolean).
         # Javascript:
+            * Add RelativeURL() class as an alternative of URL() that do not accepts relative paths (e.g '/list?page=1' is not a valid URL)
             * FormDialog:
                 - Form submit error responses with HTML can either replace the default overlay content or the frame content.
                 - New creme.dialog.Frame option 'fillOnError'; if enabled the html error response replaces the content.
@@ -190,6 +201,8 @@
             * PopoverAction:
                 - Now accept <script type="*/html"> or dom queries for the content for popovers : allows usage of links.
                 - Factorise action creation in creme.dialog.PopoverAction.fromTarget()
+            * creme.ajax.jqueryAjaxSend() arguments have changed from (url, data, successCb, errorCb, options) to ({url: url, body: data, ...options}, {done: successCb, fail: errorCb}).
+            * Added _.pop() method that works like python dict.pop().
 
     Breaking changes :
     ------------------
@@ -245,6 +258,14 @@
                     - Object.entries()
                     - Object.getPrototypeOf()
                 * Drop creme.widget.template(); Use String.prototype.template instead.
+                * Refactor of creme.ajax.Backend:
+                    - Drop jquery.forms plugin; Use FormData standard API instead.
+                    - $.validateHTML5() is removed (came along jquery.forms)
+                    - Add support for download & upload progress event : new 'uploadProgress' & 'progress' options.
+                        - Refactor 'ListViewController' & 'creme.bricks.BricksReloader'
+                        - 'creme.ajax.Query' now accepts new 'uploadProgress' & 'progress' options.
+                * creme.ajax.URL.prototype.relativeTo() is replaced by RelativeURL.prototype.fullPath()
+                * Drop creme.forms.toImportField(); Use creme.widget.ImportField ('ui-import-field') instead.
             - Apps :
                 * Activities:
                     - Refactor creme.ActivityCalendar : can be now used as independent component.
@@ -330,6 +351,9 @@
                 - "creme_core/bricks/generic/hat-bar.html"
         # Javascript :
             - Removed ChainedSelect.clone() method : not used and does not work anyway.
+            - Refactor creme.notification.NotificationBox & add unit tests
+                - Toggle fetch 'job' when disabling a tab or window.
+                - Elapsed time from message creation is now updated each minute.
         # Apps :
             * Creme_config :
                 - In the brick 'GenericModelBrick', "meta" is not injected in the context anymore.
