@@ -17,6 +17,7 @@ from creme.creme_core.forms.workflows import (
     FixedEntitySourceField,
     ObjectEntitySourceField,
     PropertyAddingActionForm,
+    RelationAddingActionForm,
     RelationAddingTriggerField,
     SubjectEntitySourceField,
 )
@@ -615,12 +616,14 @@ class PropertyAddingActionFormTestCase(CremeTestCase):
         self.assertIsInstance(ptype_f, ModelChoiceField)
         self.assertTrue(ptype_f.required)
         self.assertEqual(CremePropertyType, ptype_f.queryset.model)
-        self.assertInChoices(value=ptype1.id, label=ptype1.text, choices=ptype_f.choices)
-        self.assertInChoices(value=ptype2.id, label=ptype2.text, choices=ptype_f.choices)
+
+        choices = ptype_f.choices
+        self.assertInChoices(value=ptype1.id, label=ptype1.text, choices=choices)
+        self.assertInChoices(value=ptype2.id, label=ptype2.text, choices=choices)
         # NB: we need the final source to know the final model for constraints
-        # self.assertNotInChoices(value=ptype3.id, choices=ptype_f.choices)
-        self.assertInChoices(value=ptype3.id, label=ptype3.text, choices=ptype_f.choices)
-        self.assertNotInChoices(value=ptype4.id, choices=ptype_f.choices)
+        # self.assertNotInChoices(value=ptype3.id, choices=choices)
+        self.assertInChoices(value=ptype3.id, label=ptype3.text, choices=choices)
+        self.assertNotInChoices(value=ptype4.id, choices=choices)
 
     def test_source_field(self):
         user = self.get_root_user()
@@ -743,3 +746,174 @@ class PropertyAddingActionFormTestCase(CremeTestCase):
                 _('This property type is not compatible with the chosen type of entity.'),
             ),
         )
+
+
+class RelationAddingActionFormTestCase(CremeTestCase):
+    def test_fields(self):
+        form = RelationAddingActionForm(
+            user=self.get_root_user(),
+            instance=Workflow(
+                title='My WF',
+                trigger=EntityCreationTrigger(model=FakeOrganisation),
+            ),
+        )
+        self.assertCountEqual(
+            ['subject_source', 'rtype', 'object_source'],
+            form.fields.keys(),
+        )
+
+    def test_rtype_field(self):
+        user = self.get_root_user()
+        model = FakeOrganisation
+
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1, rtype2 = create_rtype(
+            ('test-subject_employee', 'is employed by'),
+            ('test-object_employee', 'has employee'),
+        )
+        rtype3 = create_rtype(
+            ('test-subject_concerns', 'concerns'),
+            ('test-object_concerns', 'is concerned by'),
+        )[0]
+        rtype3.enabled = False
+        rtype3.save()
+
+        form = RelationAddingActionForm(
+            user=user,
+            instance=Workflow(
+                title='My WF', trigger=EntityCreationTrigger(model=model),
+            ),
+        )
+
+        rtype_f = form.fields.get('rtype')
+        self.assertIsInstance(rtype_f, ModelChoiceField)
+        self.assertTrue(rtype_f.required)
+        self.assertEqual(RelationType, rtype_f.queryset.model)
+
+        choices = rtype_f.choices
+        self.assertInChoices(value=rtype1.id, label=str(rtype1), choices=choices)
+        self.assertInChoices(value=rtype2.id, label=str(rtype2), choices=choices)
+        self.assertNotInChoices(value=rtype3.id, choices=choices)
+
+    def test_subject_source_field(self):
+        self.fail('TODO')
+        # user = self.get_root_user()
+        # model = FakeOrganisation
+        # trigger = EntityCreationTrigger(model=model)
+        # form = PropertyAddingActionForm(
+        #     user=user, instance=Workflow(title='My WF', trigger=trigger),
+        # )
+        #
+        # source_f = form.fields.get('source')
+        # self.assertIsInstance(source_f, SourceField)
+        # self.assertEqual(user,    source_f.user)
+        # self.assertEqual(trigger, source_f.trigger)
+
+    # def test_clean__one_action(self):
+    #     user = self.get_root_user()
+    #     ptype = CremePropertyType.objects.create(text='Is cool')
+    #     model = FakeOrganisation
+    #     wf = Workflow(
+    #         title='My WF', trigger=EntityCreationTrigger(model=model),
+    #     )
+    #     data = {
+    #         'ptype': ptype.id,
+    #
+    #         'source': 'created_entity',
+    #         'source_created_entity': '',
+    #     }
+    #     form1 = PropertyAddingActionForm(user=user, instance=wf, data=data)
+    #     self.assertTrue(form1.is_valid())
+    #     expected_action_dicts = [
+    #         PropertyAddingAction(
+    #             entity_source=CreatedEntitySource(model=model), ptype=ptype,
+    #         ).to_dict(),
+    #     ]
+    #     self.assertListEqual(expected_action_dicts, wf.json_actions)
+    #
+    #     # Avoid duplicate ---
+    #     form2 = PropertyAddingActionForm(user=user, instance=wf, data=data)
+    #     self.assertTrue(form2.is_valid())
+    #     self.assertListEqual(expected_action_dicts, wf.json_actions)
+    #
+    # def test_clean__two_actions(self):
+    #     user = self.get_root_user()
+    #
+    #     subject_model = FakeOrganisation
+    #     object_model = FakeContact
+    #
+    #     create_ptype = CremePropertyType.objects.create
+    #     ptype1 = create_ptype(text='Is cool')
+    #     ptype2 = create_ptype(text='Is prosperous').set_subject_ctypes(
+    #         subject_model, object_model,
+    #     )
+    #
+    #     rtype = RelationType.objects.smart_update_or_create(
+    #         ('creme_core-subject_client', 'is concerned by'),
+    #         ('creme_core-object_client',  'concerns'),
+    #     )[0]
+    #
+    #     wf = Workflow(
+    #         title='My WF',
+    #         trigger=RelationAddingTrigger(
+    #             subject_model=subject_model,
+    #             rtype=rtype,
+    #             object_model=object_model,
+    #         ),
+    #         actions=[
+    #             PropertyAddingAction(
+    #                 entity_source=SubjectEntitySource(model=subject_model),
+    #                 ptype=ptype1,
+    #             ),
+    #         ],
+    #     )
+    #     form = PropertyAddingActionForm(
+    #         user=user,
+    #         instance=wf,
+    #         data={
+    #             'ptype': ptype2.id,
+    #
+    #             'source': 'object_entity',
+    #             'source_object_entity': '',
+    #         },
+    #     )
+    #     self.assertTrue(form.is_valid())
+    #     self.assertListEqual(
+    #         [
+    #             PropertyAddingAction(
+    #                 entity_source=SubjectEntitySource(model=subject_model), ptype=ptype1,
+    #             ).to_dict(),
+    #             PropertyAddingAction(
+    #                 entity_source=ObjectEntitySource(model=object_model), ptype=ptype2,
+    #             ).to_dict(),
+    #         ],
+    #         wf.json_actions,
+    #     )
+    #
+    # def test_ptype_error(self):
+    #     user = self.get_root_user()
+    #     model = FakeOrganisation
+    #
+    #     ptype = CremePropertyType.objects.create(
+    #         text='Property for other',
+    #     ).set_subject_ctypes(FakeActivity)
+    #
+    #     form = PropertyAddingActionForm(
+    #         user=user,
+    #         instance=Workflow(
+    #             title='My WF', trigger=EntityCreationTrigger(model=model),
+    #         ),
+    #         data={
+    #             'ptype': ptype.id,
+    #
+    #             'source': 'created_entity',
+    #             'source_created_entity': '',
+    #         },
+    #     )
+    #     self.assertFormInstanceErrors(
+    #         form,
+    #         (
+    #             'ptype',
+    #             _('This property type is not compatible with the chosen type of entity.'),
+    #         ),
+    #     )

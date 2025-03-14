@@ -379,3 +379,38 @@ class PropertyAddingActionForm(BaseWorkflowActionForm):
             )
 
         return PropertyAddingAction(entity_source=entity_source, ptype=ptype)
+
+
+class RelationAddingActionForm(BaseWorkflowActionForm):
+    subject_source = SourceField(label=_('Entity which becomes the subject'))
+    rtype = forms.ModelChoiceField(
+        label=_('Relationship type'),
+        queryset=RelationType.objects.all(),
+        # queryset=RelationType.objects.none(),
+    )
+    object_source = SourceField(label=_('Entity which becomes the object'))
+
+    blocks = core_forms.FieldBlockManager({
+        'id': 'general', 'label': _('Adding a relationship'), 'fields': '*',
+    })
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fields = self.fields
+        # trigger = self.instance.trigger # TODO
+        # fields['source'].trigger = trigger # TODO
+        # TODO: do not exclude <enabled==False> if edition mode + already selected?
+        fields['rtype'].queryset = RelationType.objects.filter(enabled=True)
+
+    # def _build_action(self, cleaned_data):
+    #     # [0] == source kind ID
+    #     entity_source = cleaned_data['source'][1]
+    #     ptype = cleaned_data['ptype']
+    #
+    #     if not ptype.is_compatible(entity_source.model):
+    #         self.add_error(
+    #             'ptype',
+    #             _('This property type is not compatible with the chosen type of entity.'),
+    #         )
+    #
+    #     return PropertyAddingAction(entity_source=entity_source, ptype=ptype)
