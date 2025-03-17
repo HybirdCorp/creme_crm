@@ -11,6 +11,15 @@
             - An issue in calendar configuration, when the end of the day is before the start, has been fixed.
 
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The base form-field 'creme_core.forms.fields.UnionField' did not raise an error
+          when a required instance was cleaned with empty sub-data & non required sub-fields.
+
+
 == Version 2.6.6 ==
 
   Users side :

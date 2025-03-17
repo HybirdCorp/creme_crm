@@ -566,6 +566,45 @@ class AbsoluteOrRelativeDatetimeFieldTestCase(AssistantsTestCase):
         self.assertEqual(cell, field.non_hiddable_cell)
         self.assertEqual(cell, field.fields_choices[1][1].non_hiddable_cell)
 
+    def test_empty_required(self):
+        field = AbsoluteOrRelativeDatetimeField(model=FakeOrganisation)
+        self.assertTrue(field.required)
+
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='[]')
+
+    def test_empty_not_required(self):
+        field = AbsoluteOrRelativeDatetimeField(model=FakeOrganisation, required=False)
+        self.assertFalse(field.required)
+
+        self.assertIsNone(field.clean(None))
+        self.assertIsNone(field.clean((None, None)))
+        self.assertIsNone(field.clean(('', '')))
+
+    def test_clean_invalid_data(self):
+        self.assertFormfieldError(
+            field=AbsoluteOrRelativeDatetimeField(model=FakeOrganisation),
+            value=('unknown_kind', {}),
+            messages=_('This field is required.'),
+            codes='required',
+        )
+
+    def test_incomplete_required(self):
+        field = AbsoluteOrRelativeDatetimeField(model=FakeOrganisation)
+
+        ABSOLUTE = AbsoluteOrRelativeDatetimeField.ABSOLUTE
+        RELATIVE = AbsoluteOrRelativeDatetimeField.RELATIVE
+        msg = _('This field is required.')
+        sub_values = {ABSOLUTE: '', RELATIVE: []}
+        self.assertFormfieldError(
+            field=field, value=(ABSOLUTE, sub_values), messages=msg, codes='required',
+        )
+        self.assertFormfieldError(
+            field=field, value=(RELATIVE, sub_values), messages=msg, codes='required',
+        )
+
 
 class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     @staticmethod
