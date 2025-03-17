@@ -1319,6 +1319,14 @@ class UnionField(fields.Field):
 
         self.widget.widgets_choices = CallableChoiceIterator(_widget_choices)
 
+    def validate(self, value):
+        super().validate(value=value)
+        if value:
+            kind, sub_value = value
+
+            if sub_value in self.empty_values and self.required:
+                raise ValidationError(self.error_messages['required'], code='required')
+
     def to_python(self, value):
         # TODO: use 'disabled' attribute?
         if value:
