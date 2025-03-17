@@ -813,16 +813,17 @@ class TestUnionField(UnionField):
     CHOICE = 'type_choice'
     INT    = 'type_int'
 
-    def __init__(self, **kwargs):
+    def __init__(self, sub_required=True, **kwargs):
         kwargs['fields_choices'] = (
             (
                 self.CHOICE,
                 ChoiceField(
                     label='Fixed choices',
                     choices=[('s', 'Small'), ('m', 'Medium'), ('b', 'Big')],
+                    required=sub_required,
                 )
             ),
-            (self.INT, IntegerField(label='Free size')),
+            (self.INT, IntegerField(label='Free size', required=sub_required)),
         )
 
         super().__init__(**kwargs)
@@ -882,14 +883,40 @@ class UnionFieldTestCase(FieldTestCase):
         self.assertIsNone(clean(()))
         self.assertIsNone(clean(('', {})))
 
-    def test_required(self):
+    def test_required__subfields_required(self):
         cls = TestUnionField
         field = cls()
+        self.assertTrue(field.required)
+
+        field_choices = [*field.fields_choices]
+        self.assertTrue(field_choices[0][1].required)
+        self.assertTrue(field_choices[1][1].required)
+
         clean = field.clean
         self.assertFieldValidationError(cls, 'required', clean, None)
         self.assertFieldValidationError(cls, 'required', clean, ('', {}))
         self.assertFieldValidationError(cls, 'required', clean, (None, {}))
         self.assertFieldValidationError(cls, 'required', clean, ('invalid', {}))
+
+    def test_required__subfields_not_required(self):
+        cls = TestUnionField
+        field = cls(sub_required=False)
+        self.assertTrue(field.required)
+
+        field_choices = [*field.fields_choices]
+        self.assertFalse(field_choices[0][1].required)
+        self.assertFalse(field_choices[1][1].required)
+
+        clean = field.clean
+        code = 'required'
+        self.assertFieldValidationError(cls, code, clean, None)
+        self.assertFieldValidationError(cls, code, clean, ('', {}))
+        self.assertFieldValidationError(cls, code, clean, (None, {}))
+        self.assertFieldValidationError(cls, code, clean, ('invalid', {}))
+
+        sub_values = {TestUnionField.CHOICE: '', TestUnionField.INT: ''}
+        self.assertFieldValidationError(cls, code, clean, (TestUnionField.CHOICE, sub_values))
+        self.assertFieldValidationError(cls, code, clean, (TestUnionField.INT,    sub_values))
 
     def test_invalid(self):
         clean = TestUnionField().clean

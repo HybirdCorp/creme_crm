@@ -9,6 +9,14 @@
               with the form, the configuration displayed a ugly "BLOCK" line.
               When you tried to edit this configuration, the form did not propose any choice.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The base form-field 'creme_core.forms.fields.UnionField' did not raise an error
+          when a required instance was cleaned with empty sub-data & non required sub-fields.
+
 
 == Version 2.5.18 ==
 
