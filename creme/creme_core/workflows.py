@@ -386,9 +386,13 @@ class FixedEntitySource(WorkflowActionSource):
 
         return FixedEntitySourceField(label=_('Specific entity'), user=user)
 
-    # TODO: <None> if error
-    def extract(self, context: dict):
-        return self.entity
+    # TODO: test None case + improve code to avoid multiple queries
+    #       (move in entity property?)
+    def extract(self, context):
+        try:
+            return self.entity
+        except self._model.DoesNotExist:
+            return None
 
     @classmethod
     def from_dict(cls, data, registry):
@@ -455,6 +459,7 @@ class EntityFKSource(WorkflowActionSource):
     def field_name(self):
         return self._field_name
 
+    # TODO: rename??
     @property
     def instance_source(self):
         return self._entity_source
@@ -472,13 +477,13 @@ class EntityFKSource(WorkflowActionSource):
 
         return field if field.choices else None
 
-    def extract(self, context: dict):
+    def extract(self, context):
         # TODO: error?
         instance = self._entity_source.extract(context=context)
         return None if instance is None else getattr(instance, self._field_name)
 
     @classmethod
-    def from_dict(cls, data: dict, registry):
+    def from_dict(cls, data, registry):
         # TODO: error (key, field exists, field is FK?)
         return cls(
             entity_source=registry.build_action_source(data['entity']),
@@ -690,7 +695,7 @@ class PropertyAddingAction(WorkflowAction):
             ptype=data['ptype'],
         )
 
-    def render(self, user) -> str:
+    def render(self, user):
         source = self._entity_source
 
         return mark_safe(

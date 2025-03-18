@@ -8,7 +8,7 @@ from creme.creme_core.models.fields import EntityCTypeForeignKey
 class Migration(migrations.Migration):
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('creme_core', '0161_v2_7__propertytype_description'),
+        ('creme_core', '0164_v2_7__cremeuser_uuid03'),
     ]
 
     operations = [

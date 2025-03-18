@@ -54,47 +54,6 @@ class TriggerField(core_fields.UnionField):
         ]
 
 
-class SourceField(core_fields.UnionField):
-    def __init__(self, trigger=None, user=None, registry=workflow_registry, **kwargs):
-        super().__init__(**kwargs)
-        self.registry = registry
-
-        self._user = user
-        self.trigger = trigger
-
-    def _update_sub_fields(self):
-        user    = self._user
-        trigger = self._trigger
-
-        if trigger is None or user is None:
-            self.fields_choices = []
-        else:
-            self.fields_choices = [
-                (kind_id, field)
-                for kind_id, field in self.registry.action_source_formfields(
-                    root_sources=trigger.root_sources(), user=user,
-                )
-            ]
-
-    @property
-    def trigger(self):
-        return self._trigger
-
-    @trigger.setter
-    def trigger(self, trigger):
-        self._trigger = trigger
-        self._update_sub_fields()
-
-    @property
-    def user(self):
-        return self._user
-
-    @user.setter
-    def user(self, user):
-        self._user = user
-        self._update_sub_fields()
-
-
 # Forms ------------------------------------------------------------------------
 class TriggerStep(_WorkflowWizardFormStep):
     trigger = TriggerField(

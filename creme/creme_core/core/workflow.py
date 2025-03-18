@@ -245,7 +245,7 @@ class WorkflowRegistry:
     # TODO: -> list[tuple(str, FormField)]
     def action_source_formfields(self,
                                  root_sources: Iterable[WorkflowActionSource],
-                                 user
+                                 user,
                                  ):
         # TODO: check that root source classes are registered?
         fields = [(source.type_id, source.config_formfield()) for source in root_sources]

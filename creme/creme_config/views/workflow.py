@@ -67,7 +67,7 @@ class WorkflowCreationWizard(generic.base.EntityCTypeRelatedMixin,
         if step == '3':
             # TODO: registry in attr
             prev_data = self.get_cleaned_data_for_step('2')
-            # TODO: get_action_class()
+            # TODO: workflow_registry.get_action_class()
             action_cls = {
                 cls.type_id: cls
                 for cls in workflow_registry.action_classes

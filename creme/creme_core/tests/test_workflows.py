@@ -37,7 +37,6 @@ from ..core.workflow import (
     WorkflowActionSource,
     workflow_registry,
 )
-# from ..forms import workflows as workflows_forms
 from .base import CremeTestCase
 
 
@@ -77,8 +76,7 @@ class WorkflowsTestCase(CremeTestCase):
 
         # Action config ---
         self.assertListEqual(
-            [CreatedEntitySource(model=FakeContact)],
-            trigger.root_sources()
+            [CreatedEntitySource(model=FakeContact)], trigger.root_sources(),
         )
 
     def test_trigger__entity_creation__eq(self):
@@ -121,8 +119,7 @@ class WorkflowsTestCase(CremeTestCase):
 
         # Action config ---
         self.assertListEqual(
-            [EditedEntitySource(model=FakeOrganisation)],
-            trigger.root_sources()
+            [EditedEntitySource(model=FakeOrganisation)], trigger.root_sources(),
         )
 
     def test_trigger__entity_edition__eq(self):
@@ -1063,7 +1060,7 @@ class WorkflowsTestCase(CremeTestCase):
             deserialized.execute(context={ctxt_key1: None,    ctxt_key2: entity2})
             deserialized.execute(context={ctxt_key1: entity1, ctxt_key2: None})
 
-        # Configuration
+        # Configuration ---
         from creme.creme_core.forms.workflows import RelationAddingActionForm
         self.assertIs(
             RelationAddingActionForm, RelationAddingAction.config_form_class(),
