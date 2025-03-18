@@ -95,6 +95,7 @@ creme.ajax.Backend.prototype = {
         var extraData = _.pop(opts, 'data', opts.extraData || {});
         var csrf = data.get('csrfmiddlewaretoken') || creme.ajax.cookieCSRF();
 
+        // creme.ajax.jqueryFormSubmit(form, successCb, errorCb, opts);
         return creme.ajax.jqueryAjaxSend(Object.assign({
             url: url,
             method: 'POST',
@@ -105,8 +106,6 @@ creme.ajax.Backend.prototype = {
             done: successCb,
             fail: errorCb
         });
-
-        // creme.ajax.jqueryFormSubmit(form, successCb, errorCb, opts);
     },
 
     query: function(options) {

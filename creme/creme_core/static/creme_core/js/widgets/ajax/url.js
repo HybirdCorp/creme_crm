@@ -30,10 +30,6 @@ creme.ajax.parseUrl = function(url) {
 };
 
 creme.ajax.param = function(data) {
-    // Use explicit traditional=true argument to replace ajaxSettings.traditional deprecated
-    // since jQuery 1.9 see (https://bugs.jquery.com/ticket/12137)
-    // return $.param(data, jQuery.ajaxSettings.traditional);
-    // return $.param(data, true);
     console.warn('creme.ajax.params() is deprecated; Use _.encodeURLSearch() instead');
     return _.encodeURLSearch(data);
 };
