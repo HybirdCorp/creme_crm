@@ -107,6 +107,7 @@
               The class 'django.forms.fields.CallableChoiceIterator' has been removed ;
               use 'django.utils.choices.CallableChoiceIterator' instead.
         - https://docs.djangoproject.com/en/5.1/releases/5.1/
+    - The version of 'underscorejs' is now '1.13.7'.
 
     Non breaking changes :
     ----------------------
@@ -174,6 +175,9 @@
                 - creme.ajax.params() is deprecated; Use _.encodeURLSearch() instead
                 - creme.ajax.decodeSearchData() is deprecated; Use _.decodeURLSearchData() instead
                 - creme.utils.confirmSubmit() is deprecated; Use the new 'creme_core-hatmenubar-update-redirect' or 'delete' actions instead.
+                - creme.utils.showPageLoadOverlay() is deprecated;  Use creme.dialog.Overlay instead.
+                - creme.utils.hidePageLoadOverlay() is deprecated;  Use creme.dialog.Overlay instead.
+                - creme.utils.overlay() is deprecated;  Use creme.dialog.Overlay instead.
         # In 'creme_core.models' :
             - The model 'CremeUser' :
                 - gets a new field 'uuid'.

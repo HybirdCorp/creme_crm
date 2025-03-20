@@ -55,20 +55,19 @@ creme.utils.goTo = function(url, data) {
     }
 };
 
-// TODO : deprecate it ? never used
 creme.utils.showPageLoadOverlay = function() {
-    // console.log('show loading overlay');
+    console.warn('creme.utils.showPageLoadOverlay is deprecated; Use creme.dialog.Overlay instead.');
     creme.utils.loading('', false);
 };
 
-// TODO : deprecate it ? never used
 creme.utils.hidePageLoadOverlay = function() {
-    // console.log('hide loading overlay');
+    console.warn('creme.utils.showPageLoadOverlay is deprecated; Use creme.dialog.Overlay instead.');
     creme.utils.loading('', true);
 };
 
-// TODO : deprecate it ? Only used in old creme.ajax.* methods (see ajax.js)
 creme.utils.loading = function(div_id, is_loaded, params) {
+    console.warn('creme.utils.loading is deprecated; Use creme.dialog.Overlay instead.');
+
     var overlay = creme.utils._overlay;
 
     if (overlay === undefined) {
@@ -223,6 +222,7 @@ creme.utils.ajaxQuery = function(url, options, data) {
                   }
               });
 
+        /* TODO : remove this feature. */
         if (options.waitingOverlay) {
             query.onStart(function() {
                       creme.utils.showPageLoadOverlay();
