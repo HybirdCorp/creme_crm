@@ -1,4 +1,5 @@
 from functools import partial
+from uuid import UUID
 
 from django.apps import apps
 from django.conf import settings
@@ -94,6 +95,11 @@ class AuthTestCase(CremeTestCase):
         )
 
     def test_populate(self):
+        user = self.get_root_user()
+        self.assertUUIDEqual(
+            'f53e8537-9aae-454c-adc1-a89df9563c28', user.uuid,
+        )
+
         sandbox = self.get_object_or_fail(Sandbox, uuid=constants.UUID_SANDBOX_SUPERUSERS)
         self.assertIsNone(sandbox.role)
         self.assertIsNone(sandbox.user)
@@ -294,6 +300,7 @@ class AuthTestCase(CremeTestCase):
             user = CremeUser.objects.create_user(**data)
 
         self.assertIsInstance(user, CremeUser)
+        self.assertIsInstance(user.uuid, UUID)
         self.assertEqual(username,   user.username)
         self.assertEqual(first_name, user.first_name)
         self.assertEqual(last_name,  user.last_name)

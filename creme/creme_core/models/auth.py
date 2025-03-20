@@ -934,6 +934,10 @@ class CremeUserManager(BaseUserManager):
 class CremeUser(AbstractBaseUser):
     username_validator = UnicodeUsernameValidator()
 
+    uuid = models.UUIDField(
+        unique=True, editable=False, default=uuid.uuid4,
+    ).set_tags(viewable=False)
+
     # NB: auth.models.AbstractUser.username max_length == 150 (since django 1.10) => increase too ?
     username = models.CharField(
         _('Username'), max_length=30, unique=True,

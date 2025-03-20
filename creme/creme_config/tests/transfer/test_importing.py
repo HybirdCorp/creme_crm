@@ -1565,21 +1565,24 @@ class ImportingTestCase(TransferBaseTestCase):
                 'id':    'creme_config-test_import_headerfilters02',
                 'name':  'Organisation view with spécial character in name',
                 'ctype': 'creme_core.fakeorganisation',
-                'user':  other_user.username,
+                # 'user':  other_user.username,
+                'user':  str(other_user.uuid),
                 'cells': [],
                 'extra_data': {'my_value': 'my_value'},
             }, {
                 'id':         'creme_config-test_import_headerfilters03',
                 'name':       'Private contact view',
                 'ctype':      'creme_core.fakecontact',
-                'user':       other_user.username,
+                # 'user':       other_user.username,
+                'user': str(other_user.uuid),
                 'is_private': True,
                 'cells':      [],
             }, {
                 'id':    'creme_config-test_import_headerfilters04',
                 'name':  "Invalid user's Organisation view",
                 'ctype': 'creme_core.fakeorganisation',
-                'user':  'invalid',
+                # 'user':  'invalid',
+                'user':  str(uuid4()),  # Unknown user
                 'cells': [],
             },
         ]
@@ -1996,7 +1999,8 @@ class ImportingTestCase(TransferBaseTestCase):
                 'id':     'creme_config-test_import_entityfilters01_2',
                 'name':   'Organisation view with spécial characters in name',
                 'ctype':  ct_str_o,
-                'user':   other_user.username,
+                # 'user':   other_user.username,
+                'user':   str(other_user.uuid),
                 'use_or': False,
                 'conditions': [
                     {
@@ -2026,7 +2030,8 @@ class ImportingTestCase(TransferBaseTestCase):
                 'id':         'creme_config-test_import_entityfilters01_3',
                 'name':       'Private contact view',
                 'ctype':      ct_str_c,
-                'user':       other_user.username,
+                # 'user':       other_user.username,
+                'user':       str(other_user.uuid),
                 'is_private': True,
                 'use_or':     True,
                 'conditions': [
@@ -2044,7 +2049,8 @@ class ImportingTestCase(TransferBaseTestCase):
                 'id':         'creme_config-test_import_entityfilters01_4',
                 'name':       "Invalid user's Organisation view",
                 'ctype':      ct_str_o,
-                'user':       'invalid',  # <==
+                # 'user':       'invalid',  # <==
+                'user':       str(uuid4()),  # <==
                 'conditions': [],
             }, {
                 'id':         'creme_config-test_import_entityfilters01_5',

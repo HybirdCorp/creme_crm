@@ -94,7 +94,9 @@ class Populator(BasePopulator):
         login = constants.ROOT_USERNAME
         password = constants.ROOT_PASSWORD
         self.root = get_user_model().objects.create_superuser(
-            pk=1, username=login, password=password,
+            pk=1,  # TODO: remove?
+            uuid='f53e8537-9aae-454c-adc1-a89df9563c28',  # TODO: constant?
+            username=login, password=password,
             first_name='Fulbert', last_name='Creme',
             email=_('replaceMe@byYourAddress.com'),
         )
