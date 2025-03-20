@@ -1560,7 +1560,8 @@ class ExportingTestCase(TransferBaseTestCase):
                 'id': hf2.id,
                 'name': hf2.name,
                 'ctype': 'creme_core.fakeorganisation',
-                'user': other_user.username,
+                # 'user': other_user.username,
+                'user': str(other_user.uuid),
                 'cells': [
                     {'type': EntityCellRegularField.type_id, 'value': 'name'},
                     {'type': EntityCellRegularField.type_id, 'value': 'description'},
@@ -1573,7 +1574,8 @@ class ExportingTestCase(TransferBaseTestCase):
                 'id': hf3.id,
                 'name': hf3.name,
                 'ctype': 'creme_core.fakeorganisation',
-                'user': other_user.username,
+                # 'user': other_user.username,
+                'user': str(other_user.uuid),
                 'is_private': True,
                 'cells': [
                     {'type': EntityCellRegularField.type_id, 'value': 'name'},
@@ -1715,7 +1717,8 @@ class ExportingTestCase(TransferBaseTestCase):
                 'name':  ef2.name,
                 'ctype': ct_str_o,
                 'filter_type': EF_REGULAR,
-                'user':  other_user.username,
+                # 'user':  other_user.username,
+                'user': str(other_user.uuid),
                 'use_or': True,
                 'conditions': [
                     {
@@ -1745,7 +1748,8 @@ class ExportingTestCase(TransferBaseTestCase):
                 'name':  ef3.name,
                 'ctype': ct_str_o,
                 'filter_type': EF_REGULAR,
-                'user':  other_user.username,
+                # 'user':  other_user.username,
+                'user': str(other_user.uuid),
                 'is_private': True,
                 'use_or': False,
                 'conditions': [

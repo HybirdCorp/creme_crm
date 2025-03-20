@@ -175,7 +175,9 @@
                 - creme.ajax.decodeSearchData() is deprecated; Use _.decodeURLSearchData() instead
                 - creme.utils.confirmSubmit() is deprecated; Use the new 'creme_core-hatmenubar-update-redirect' or 'delete' actions instead.
         # In 'creme_core.models' :
-            - The models 'CremeUser' gets a new method 'has_perm_or_die()' which raises exceptions with friendly error messages.
+            - The model 'CremeUser' :
+                - gets a new field 'uuid'.
+                - gets a new method 'has_perm_or_die()' which raises exceptions with friendly error messages.
             - The model 'FileRef' gets a new optional field "description";
               it's used by the new view which displays all FileRefs (so feel free to fill it).
         # Apps :

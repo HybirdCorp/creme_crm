@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2024  Hybird
+#    Copyright (C) 2017-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -944,17 +944,21 @@ class HeaderFiltersImporter(Importer):
                 ),
             }
 
-            username = hfilter_info.get('user')
-            if username:
+            # username = hfilter_info.get('user')
+            user_uuid = hfilter_info.get('user')
+            # if username:
+            if user_uuid:
                 data['is_private'] = bool(hfilter_info.get('is_private', False))
 
                 try:
-                    data['user'] = User.objects.get(username=username)
+                    # data['user'] = User.objects.get(username=username)
+                    data['user'] = User.objects.get(uuid=user_uuid)
                 except User.DoesNotExist:
                     logger.warning(
                         'HeaderFiltersImporter: this user does not exist '
                         '(filter is dropped): %s',
-                        username,
+                        # username,
+                        user_uuid,
                     )
                     return None
 
@@ -1425,17 +1429,21 @@ class EntityFiltersImporter(Importer):
                 'extra_data': efilter_info.get('extra_data') or {},
             }
 
-            username = efilter_info.get('user')
-            if username:
+            # username = efilter_info.get('user')
+            user_uuid = efilter_info.get('user')
+            # if username:
+            if user_uuid:
                 data['is_private'] = bool(efilter_info.get('is_private', False))
 
                 try:
-                    data['user'] = User.objects.get(username=username)
+                    # data['user'] = User.objects.get(username=username)
+                    data['user'] = User.objects.get(uuid=user_uuid)
                 except User.DoesNotExist:
                     logger.warning(
                         'EntityFiltersImporter: this user does not exist '
                         '(filter is dropped): %s',
-                        username,
+                        # username,
+                        user_uuid,
                     )
                     return None
 
