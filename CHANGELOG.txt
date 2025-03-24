@@ -1,5 +1,7 @@
 == Version 2.6.7 Work in progress (not released -- this is a draft) ==
 
+  TODO: compile .po (persons)
+
   Users side :
   ------------
     # A content visibility issue on popover opening has been fixed.
@@ -7,9 +9,11 @@
         * Creme_config :
             - When you emptied your bricks configuration for "My page" (default or owned)
               with the form, the configuration displayed a ugly "BLOCK" line.
+        * Persons :
+            - A crash in the view to create a user from a Contact has been fixed.
+              It happened when the email of the Contact was used by an existing user.
         * Activities :
             - An issue in calendar configuration, when the end of the day is before the start, has been fixed.
-
 
   Developers side :
   -----------------

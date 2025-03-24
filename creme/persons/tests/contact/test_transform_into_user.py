@@ -39,6 +39,7 @@ class TransformationIntoUserTestCase(_BaseTestCase):
         with self.assertNoException():
             fields = context1['form'].fields
             role_f = fields['role']
+            email_f = fields['email']
 
         self.assertIn('username', fields)
         self.assertIn('displayed_name', fields)
@@ -46,9 +47,16 @@ class TransformationIntoUserTestCase(_BaseTestCase):
         self.assertIn('password_2', fields)
         self.assertNotIn('last_name', fields)
         self.assertNotIn('first_name', fields)
-        self.assertNotIn('email', fields)
+        # self.assertNotIn('email', fields)
 
         self.assertEqual('*{}*'.format(_('Superuser')), role_f.empty_label)
+
+        self.assertTrue(email_f.required)
+        self.assertEqual(email, email_f.initial)
+        self.assertEqual(
+            _('The email of the Contact will be updated if you change it.'),
+            email_f.help_text,
+        )
 
         # ---
         username = 'spikes'
@@ -62,6 +70,7 @@ class TransformationIntoUserTestCase(_BaseTestCase):
                 'password_1': password,
                 'password_2': password,
                 # 'role': ...
+                'email': email,
             },
         )
         self.assertNoFormError(response2)
@@ -245,6 +254,49 @@ class TransformationIntoUserTestCase(_BaseTestCase):
             errors=_('A user with that username already exists.'),
         )
 
+    def test_transform_into_user__duplicated_user_email(self):
+        user = self.login_as_root_and_get()
+        contact = Contact.objects.create(
+            user=user, last_name='Spiegel',
+            first_name='Spike',
+            email=user.email,  # <==
+        )
+
+        url = self._build_as_user_url(contact)
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            email_f = response1.context['form'].fields['email']
+
+        self.assertTrue(email_f.required)
+        self.assertFalse(email_f.initial)
+        self.assertEqual(
+            _('BEWARE: the email of the Contact is already used by a user & will be updated.'),
+            email_f.help_text,
+        )
+
+        # ---
+        password = 'sp4c3 c0wg1rL'
+        data = {
+            'username': 'spike',
+            'password_1': password,
+            'password_2': password,
+            'email': user.email,
+        }
+        response2 = self.assertPOST200(url, data=data)
+        self.assertFormError(
+            response2.context['form'],
+            field='email',
+            errors=_('An active user with the same email address already exists.'),
+        )
+
+        # ---
+        email = 'spiegel@bebop.mrs'
+        self.assertNoFormError(self.client.post(
+            url, follow=True, data={**data, 'email': email},
+        ))
+        self.assertEqual(email, self.refresh(contact).email)
+
     @override_settings(
         AUTH_PASSWORD_VALIDATORS=[{
             'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -315,6 +367,8 @@ class TransformationIntoUserTestCase(_BaseTestCase):
 
                     'password_1': password,
                     'password_2': password,
+
+                    'email': email,
                 },
             )
             self.assertFormError(
