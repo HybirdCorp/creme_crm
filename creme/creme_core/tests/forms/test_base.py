@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.forms.boundfield import BoundField
 from django.test.utils import override_settings
+from django.utils.safestring import SafeString
 from django.utils.translation import gettext as _
 
 from creme.creme_config.forms.fields import (
@@ -728,7 +729,7 @@ class CremeEntityFormTestCase(CremeTestCase):
                 predicate=rtype2.predicate,
                 entity=orga,
             ),
-            info_field.initial
+            info_field.initial,
         )
 
         # ---
@@ -739,13 +740,15 @@ class CremeEntityFormTestCase(CremeTestCase):
         fields2 = FakeContactForm(user=user, forced_relations=forced_relations).fields
 
         self.assertIn('relation_types', fields2)
+        initial_info2 = fields2['rtypes_info'].initial
         self.assertHTMLEqual(
             _('These relationships will be added: {}').format(
                 f'<ul><li>{rtype2.predicate} «{orga}»</li>'
                 f'<li>{rtype1.predicate} «{contact1}»</li></ul>'
             ),
-            fields2['rtypes_info'].initial,
+            initial_info2,
         )
+        self.assertIsInstance(initial_info2, SafeString)
 
         # ---
         form = FakeContactForm(
