@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.forms.boundfield import BoundField
 from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -669,7 +670,7 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
                     )
                 else:
                     # TODO: ngettext() ?
-                    info = gettext('These relationships will be added: {}').format(
+                    info = mark_safe(gettext('These relationships will be added: {}').format(
                         format_html(
                             '<ul>{}</ul>',  # TODO:  class="form-help-label" ??
                             format_html_join(
@@ -680,7 +681,7 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
                                 )
                             )
                         )
-                    )
+                    ))
 
             if self.user.has_perm_to_link(type(instance)):
                 ctype = instance.entity_type
