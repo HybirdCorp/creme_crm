@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2024  Hybird
+#    Copyright (C) 2013-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -396,7 +396,7 @@ class EntityCellActions(EntityCell):
         corresponding to the registered bulk actions (see 'registry' attribute).
 
         @param user: User who displays this page (used to compute credentials).
-               Instance of 'django.contrib.auth.get_auth_model()'.
+               Instance of 'django.contrib.auth.get_user_model()'.
         @return: A list of instances of 'gui.actions.BulkActions'.
         """
         # TODO: filter by is_visible in actions_registry.bulk_actions() ??
@@ -412,7 +412,7 @@ class EntityCellActions(EntityCell):
 
         @param instance: Should be an instance of 'self.model'.
         @param user: User who displays this page (used to compute credentials).
-               Instance of 'django.contrib.auth.get_auth_model()'.
+               Instance of 'django.contrib.auth.get_user_model()'.
         @return: A list of instances of 'gui.actions.UIActions'.
         """
         # TODO: filter by is_visible in actions_registry.instance_actions() ??
