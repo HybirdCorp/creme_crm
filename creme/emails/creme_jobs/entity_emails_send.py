@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,6 +50,11 @@ class _EntityEmailsSendType(JobType):
             return now_value
 
         if filter_mail(status=Status.SENDING_ERROR).exists():
+            # NB: if we regularly create EntityEmail with status SENDING_ERROR
+            #     the wake-up is regularly delayed in the future (& so the job
+            #     never re-run). It's probably not an issue because if the new
+            #     e-mails have often an error status, your mail server is
+            #     probably broken & you have more important issues...
             return now_value + timedelta(minutes=ENTITY_EMAILS_RETRY)
 
         return None
