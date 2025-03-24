@@ -16,6 +16,8 @@
 
     Non breaking changes :
     ----------------------
+        # The display of 'creme_core.forms.base.CremeEntityForm.forced_relations_info'
+          was too much escaped with several relationships.
         # The base form-field 'creme_core.forms.fields.UnionField' did not raise an error
           when a required instance was cleaned with empty sub-data & non required sub-fields.
 
