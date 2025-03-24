@@ -21,6 +21,9 @@ Florian FABRE
     Developer
     ffabre AT hybird DOT org
 
+Kim GEMO
+    Developer
+
 Régis MONTOYA
     Developer
 

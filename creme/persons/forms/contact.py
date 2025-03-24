@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -99,12 +99,28 @@ class UserFromContactCreationForm(CremeModelForm):
             first_name_f.required = True
             first_name_f.help_text = _('The first name of the Contact will be updated.')
 
-        if contact.email:
-            instance.email = contact.email
-            del fields['email']
+        # if contact.email:
+        #     instance.email = contact.email
+        #     del fields['email']
+        # else:
+        #     email_f = fields['email']
+        #     email_f.required = True
+        #     email_f.help_text = _('The email of the Contact will be updated.')
+        email_f = fields['email']
+        email_f.required = True
+        email = contact.email
+        if email:
+            if type(instance).objects.filter(email=email):
+                email_f.help_text = _(
+                    'BEWARE: the email of the Contact is already used by a '
+                    'user & will be updated.'
+                )
+            else:
+                email_f.initial = email
+                email_f.help_text = _(
+                    'The email of the Contact will be updated if you change it.'
+                )
         else:
-            email_f = fields['email']
-            email_f.required = True
             email_f.help_text = _('The email of the Contact will be updated.')
 
     # Derived from django.contrib.auth.forms.UserCreationForm
