@@ -3,7 +3,8 @@ from email.mime.image import MIMEImage
 from django.core import mail as django_mail
 from django.utils.html import escape
 
-from creme.documents.tests.base import _DocumentsTestCase
+# from creme.documents.tests.base import _DocumentsTestCase
+from creme.documents.tests.base import DocumentsTestCaseMixin
 
 from ..models import EmailSignature
 # from ..utils import get_mime_image
@@ -11,7 +12,8 @@ from ..utils import EMailSender, SignatureImage, SignatureRenderer, get_domain
 from .base import EntityEmail, _EmailsTestCase
 
 
-class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
+# class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
+class UtilsTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
     class TestEMailSender(EMailSender):
         subject = 'Test'
 

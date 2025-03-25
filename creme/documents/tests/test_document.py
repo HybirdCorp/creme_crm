@@ -189,7 +189,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         title = 'My doc'
         file_obj = self.build_filedata('Content', suffix='.' + ext)
-        doc = self._create_doc(title, file_obj, user=user)
+        doc = self._create_doc(title, file_obj=file_obj, user=user)
 
         filedata = doc.filedata
 
