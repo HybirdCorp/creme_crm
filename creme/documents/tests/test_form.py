@@ -40,10 +40,11 @@ class ImageEntityFieldTestCase(_DocumentsTestCase):
         field.user = self.user
         self.assertIsNone(field.clean(''))
 
-        img = self._create_image()
+        # img = self._create_image()
+        img = self._create_image(user=self.user)
         self.assertEqual(img, field.clean(str(img.id)))
 
-        doc = self._create_doc('foobar.txt')
+        doc = self._create_doc('foobar.txt', user=self.user)
         self.assertIsNone(field.clean(''))
         self.assertFormfieldError(
             field=field, value=str(doc.id),
@@ -60,7 +61,7 @@ class ImageEntityFieldTestCase(_DocumentsTestCase):
             codes='required', messages=Field.default_error_messages['required'],
         )
 
-        doc = self._create_doc('foobar.txt')
+        doc = self._create_doc('foobar.txt', user=self.user)
         self.assertFormfieldError(
             field=field, value=str(doc.id),
             messages=_('«%(entity)s» violates the constraints.') % {'entity': str(doc)},
@@ -81,14 +82,14 @@ class ImageEntityFieldTestCase(_DocumentsTestCase):
         self.assertTrue(field.widget.creation_allowed)
 
         # Clean
-        img1 = self._create_image(title='Icon#1', ident=1)
+        img1 = self._create_image(title='Icon#1', ident=1, user=self.user)
         self.assertFormfieldError(
             field=field, value=str(img1.id),
             messages=_('«%(entity)s» violates the constraints.')  % {'entity': str(img1)},
             codes='isexcluded',
         )
 
-        img2 = self._create_image(title='Python Show 2018', ident=2)
+        img2 = self._create_image(title='Python Show 2018', ident=2, user=self.user)
         self.assertEqual(img2, field.clean(str(img2.id)))
 
     def test_qfilter_init02(self):
@@ -105,14 +106,14 @@ class ImageEntityFieldTestCase(_DocumentsTestCase):
         self.assertTrue(field.widget.creation_allowed)
 
         # Clean
-        img1 = self._create_image(title='Icon#1', ident=1)
+        img1 = self._create_image(title='Icon#1', ident=1, user=self.user)
         self.assertFormfieldError(
             field=field, value=str(img1.id),
             codes='isexcluded',
             messages=_('«%(entity)s» violates the constraints.') % {'entity': str(img1)},
         )
 
-        img2 = self._create_image(title='Python Show 2018', ident=2)
+        img2 = self._create_image(title='Python Show 2018', ident=2, user=self.user)
         self.assertEqual(img2, field.clean(str(img2.id)))
 
     def test_qfilter_property01(self):
@@ -130,14 +131,14 @@ class ImageEntityFieldTestCase(_DocumentsTestCase):
         self.assertTrue(field.widget.creation_allowed)
 
         # Clean
-        img1 = self._create_image(title='Icon#1')
+        img1 = self._create_image(title='Icon#1', user=self.user)
         self.assertFormfieldError(
             field=field, value=str(img1.id),
             codes='isexcluded',
             messages=_('«%(entity)s» violates the constraints.') % {'entity': str(img1)},
         )
 
-        img2 = self._create_image(title='Python show 2018')
+        img2 = self._create_image(title='Python show 2018', user=self.user)
         self.assertEqual(img2, field.clean(str(img2.id)))
 
     def test_qfilter_property02(self):
@@ -155,14 +156,14 @@ class ImageEntityFieldTestCase(_DocumentsTestCase):
         self.assertTrue(field.widget.creation_allowed)
 
         # Clean
-        img1 = self._create_image(title='Icon#1')
+        img1 = self._create_image(title='Icon#1', user=self.user)
         self.assertFormfieldError(
             field=field, value=str(img1.id),
             codes='isexcluded',
             messages=_('«%(entity)s» violates the constraints.') % {'entity': str(img1)},
         )
 
-        img2 = self._create_image(title='Python show 2018')
+        img2 = self._create_image(title='Python show 2018', user=self.user)
         self.assertEqual(img2, field.clean(str(img2.id)))
 
     def test_force_creation(self):
@@ -240,10 +241,10 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase):
         field.user = self.user
         self.assertListEqual([], field.clean('[]'))
 
-        img = self._create_image()
+        img = self._create_image(user=self.user)
         self.assertListEqual([img], field.clean(self._build_value(img)))
 
-        doc = self._create_doc('foobar.txt')
+        doc = self._create_doc('foobar.txt', user=self.user)
         # self.assertEqual([], field.clean(json_dump([doc.id]))) TODO ?
         self.assertFormfieldError(
             field=field, value=self._build_value(doc),
@@ -261,7 +262,7 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase):
             codes='required', messages=_('This field is required.'),
         )
 
-        doc = self._create_doc('foobar.txt')
+        doc = self._create_doc('foobar.txt', user=self.user)
         self.assertFormfieldError(
             field=field, value=self._build_value(doc),
             codes='isexcluded',
@@ -281,15 +282,15 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase):
         self.assertTrue(field.widget.creation_allowed)
 
         # Clean
-        img1 = self._create_image(title='Icon#1')
+        img1 = self._create_image(title='Icon#1', user=self.user)
         self.assertFormfieldError(
             field=field, value=self._build_value(img1),
             codes='isexcluded',
             messages=_('«%(entity)s» violates the constraints.') % {'entity': str(img1)},
         )
 
-        img2 = self._create_image(title='Python show 2018')
-        img3 = self._create_image(title='Python show 2019')
+        img2 = self._create_image(title='Python show 2018', user=self.user)
+        img3 = self._create_image(title='Python show 2019', user=self.user)
         self.assertEqual([img2, img3], field.clean(self._build_value(img2, img3)))
 
     def test_qfilter_property01(self):
@@ -307,14 +308,14 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase):
         self.assertTrue(field.widget.creation_allowed)
 
         # Clean
-        img1 = self._create_image(title='Icon#1')
+        img1 = self._create_image(title='Icon#1', user=self.user)
         self.assertFormfieldError(
             field=field, value=self._build_value(img1),
             codes='isexcluded',
             messages=_('«%(entity)s» violates the constraints.') % {'entity': str(img1)},
         )
 
-        img2 = self._create_image(title='Python Show 2018')
+        img2 = self._create_image(title='Python Show 2018', user=self.user)
         self.assertListEqual([img2], field.clean(self._build_value(img2)))
 
     def test_qfilter_property02(self):
@@ -332,14 +333,14 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase):
         self.assertTrue(field.widget.creation_allowed)
 
         # Clean
-        img1 = self._create_image(title='Icon#1')
+        img1 = self._create_image(title='Icon#1', user=self.user)
         self.assertFormfieldError(
             field=field, value=self._build_value(img1),
             codes='isexcluded',
             messages=_('«%(entity)s» violates the constraints.') % {'entity': str(img1)},
         )
 
-        img2 = self._create_image(title='Python Show 2018')
+        img2 = self._create_image(title='Python Show 2018', user=self.user)
         self.assertEqual([img2], field.clean(self._build_value(img2)))
 
     def test_force_creation(self):

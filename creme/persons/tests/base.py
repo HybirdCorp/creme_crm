@@ -1,8 +1,10 @@
 from unittest import skipIf
 
 from creme import persons
+from creme.creme_core.tests.base import CremeTestCase
 from creme.documents import get_document_model
-from creme.documents.tests.base import _DocumentsTestCase
+# from creme.documents.tests.base import _DocumentsTestCase
+from creme.documents.tests.base import DocumentsTestCaseMixin
 
 skip_address_tests = persons.address_model_is_custom()
 skip_contact_tests = persons.contact_model_is_custom()
@@ -27,7 +29,8 @@ def skipIfCustomOrganisation(test_func):
     return skipIf(skip_organisation_tests, 'Custom Organisation model in use')(test_func)
 
 
-class _BaseTestCase(_DocumentsTestCase):
+# class _BaseTestCase(_DocumentsTestCase):
+class _BaseTestCase(DocumentsTestCaseMixin, CremeTestCase):
     def login_as_persons_user(self, *, allowed_apps=(), **kwargs):
         return super().login_as_standard(allowed_apps=['persons', *allowed_apps], **kwargs)
 

@@ -1,8 +1,10 @@
 from unittest import skipIf
 
+from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 from creme.documents import get_document_model
-from creme.documents.tests.base import _DocumentsTestCase
+# from creme.documents.tests.base import _DocumentsTestCase
+from creme.documents.tests.base import DocumentsTestCaseMixin
 
 from .. import product_model_is_custom, service_model_is_custom
 
@@ -18,7 +20,10 @@ def skipIfCustomService(test_func):
     return skipIf(skip_service_tests, 'Custom Service model in use')(test_func)
 
 
-class _ProductsTestCase(_DocumentsTestCase, MassImportBaseTestCaseMixin):
+# class _ProductsTestCase(_DocumentsTestCase, MassImportBaseTestCaseMixin):
+class _ProductsTestCase(MassImportBaseTestCaseMixin,
+                        DocumentsTestCaseMixin,
+                        CremeTestCase):
     EXTRA_CATEGORY_KEY = 'cform_extra-products_subcategory'
 
     def login_as_basic_user(self, creatable_model):

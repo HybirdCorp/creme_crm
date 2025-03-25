@@ -23,19 +23,23 @@ def skipIfCustomFolder(test_func):
     return skipIf(skip_folder_tests, 'Custom folder model in use')(test_func)
 
 
-class _DocumentsTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.ADD_DOC_URL = reverse('documents__create_document')
+# class _DocumentsTestCase(CremeTestCase):
+#     @classmethod
+#     def setUpClass(cls):
+#         super().setUpClass()
+#         cls.ADD_DOC_URL = reverse('documents__create_document')
+class DocumentsTestCaseMixin:
+    ADD_DOC_URL = reverse('documents__create_document')
 
-    # TODO: user mandatory?
-    def _create_doc(self, title,
-                    file_obj=None, folder=None, description=None, user=None,
+    # def _create_doc(self, title,
+    #                 file_obj=None, folder=None, description=None, user=None,
+    #                 **extra_data):
+    def _create_doc(self, title, *, user,
+                    file_obj=None, folder=None, description=None,
                     **extra_data):
-        file_obj = file_obj or self.build_filedata(f'{title} : Content')
+        file_obj = file_obj or self.build_filedata(f'{title}: Content')
         folder = folder or Folder.objects.all()[0]
-        user = user or self.user
+        user = user
         data = {
             'user': user.pk,
             'title': title,
@@ -52,8 +56,8 @@ class _DocumentsTestCase(CremeTestCase):
 
         return self.get_object_or_fail(Document, title=title)
 
-    # TODO: user mandatory?
-    def _create_image(self, ident=1, user=None, title=None, folder=None, description=None):
+    # def _create_image(self, ident=1, user=None, title=None, folder=None, description=None):
+    def _create_image(self, *, ident=1, user, title=None, folder=None, description=None):
         IMAGE_PATHS = {
             1: 'creme_22.png',
             2: 'add_16.png',
@@ -76,3 +80,7 @@ class _DocumentsTestCase(CremeTestCase):
                 description=description,
                 user=user,
             )
+
+
+class _DocumentsTestCase(DocumentsTestCaseMixin, CremeTestCase):
+    pass
