@@ -19,7 +19,8 @@ from creme.creme_core.models import (
     RelationType,
 )
 from creme.creme_core.tests.base import CremeTestCase
-from creme.documents.tests.base import _DocumentsTestCase
+# from creme.documents.tests.base import _DocumentsTestCase
+from creme.documents.tests.base import DocumentsTestCaseMixin
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 from creme.persons.models import Sector
 
@@ -36,7 +37,8 @@ from .base import (
 )
 
 
-class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
+# class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
+class VcfImportTestCase(DocumentsTestCaseMixin, CremeTestCase):
     image_data = (
         '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODw'
         'wQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoI'
