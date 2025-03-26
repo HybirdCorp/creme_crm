@@ -2,6 +2,35 @@
     "use strict";
 
     window.QUnitWidgetMixin = {
+        htmlAttrs: function(attrs) {
+            return Object.entries(attrs || {}).map(function(opt) {
+                var name = opt[0], value = String(opt[1] || '').escapeHTML();
+                return '${0}="${1}"'.template([name, value]);
+            }).join(' ');
+        },
+
+        fillWidgetTag: function(element, options) {
+            options = Object.assign({
+                widget: '',
+                auto: false,
+                attrs: {}
+            }, options || {});
+
+            element.addClass('ui-creme-widget')
+                   .addClass(options.widget)
+                   .toggleClass('widget-auto', options.auto)
+                   .attr('widget', options.widget);
+
+            Object.entries(options.attrs || {}).forEach(function(e) {
+                var key = e[0], value = e[1];
+                if (!Object.isNone(value)) {
+                    element.attr(key, value);
+                }
+            });
+
+            return element;
+        },
+
         createDynamicInputTag: function(value, noauto) {
             var select = $('<input type="text" widget="ui-creme-dinput" class="ui-creme-dinput ui-creme-widget"/>');
 
@@ -17,7 +46,7 @@
         },
 
         createSelectHtml: function(options) {
-            options = $.extend({
+            options = Object.assign({
                 auto: true,
                 choices: [],
                 disabled: false,
@@ -86,36 +115,52 @@
         },
 
         createEntitySelectorTag: function(options, noauto) {
-            options = $.extend({
+            options = Object.assign({
                 label: "select a mock",
                 labelURL: "mock/label/${id}"
             }, options || {});
 
-            var select = creme.widget.buildTag($('<span/>'), 'ui-creme-entityselector', options, !noauto)
-                             .append($('<button type="button"/>'))
-                             .append($('<input type="text" class="ui-creme-entityselector ui-creme-input"/>').val(options.value));
+            var value = _.pop(options, 'value', '');
+            var auto = _.pop(options, 'auto', !noauto);
 
-            return select;
+            var html = (
+                '<span class="ui-creme-widget ui-creme-entityselector ${auto}" ${attrs} widget="ui-creme-entityselector">' +
+                    '<input type="text" class="ui-creme-entityselector ui-creme-input" value="${value}" />' +
+                    '<button type="button"></button>' +
+                '</span>'
+            ).template({
+                auto: auto ? 'widget-auto' : '',
+                attrs: this.htmlAttrs(options),
+                value: (Object.isNone(_.pop(value)) ? '' : String(value)).escapeHTML()
+            });
+
+            return $(html);
         },
 
         createChainedSelectTag: function(value, noauto) {
-            var element = creme.widget.buildTag($('<span/>'), 'ui-creme-chainedselect', {}, !noauto)
-                               .append('<input type="hidden" class="ui-creme-input ui-creme-chainedselect"/>')
-                               .append('<ul/>');
+            var html = (
+                '<span class="ui-creme-widget ui-creme-chainedselect ${auto}" widget="ui-creme-chainedselect">' +
+                    '<input type="hidden" class="ui-creme-chainedselect ui-creme-input" value="${value}"/>' +
+                    '<ul></ul>' +
+                '</span>'
+            ).template({
+                auto: !noauto ? 'widget-auto' : '',
+                value: (Object.isNone(value) ? '' : String(value)).escapeHTML()
+            });
 
-            if (value !== undefined) {
-                $('input.ui-creme-input', element).val(value);
-            }
-
-            return element;
+            return $(html);
         },
 
         appendChainedSelectorTag: function(element, name, selector, tag) {
-            tag = tag || 'li';
+            var item = $((
+                '<${tag} chained-name="${name}" class="ui-creme-chainedselect-item"></${tag}>'
+            ).template({
+                tag: tag || 'li',
+                name: name
+            }));
 
-            $('ul', element).append($('<' + tag + '/>').attr('chained-name', name)
-                                                       .addClass('ui-creme-chainedselect-item')
-                                                       .append(selector));
+            item.append(selector);
+            item.appendTo(element.find('ul'));
 
             return selector;
         },

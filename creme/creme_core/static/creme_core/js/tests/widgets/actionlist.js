@@ -53,9 +53,18 @@ QUnit.module("creme.widget.actionlist.js", new QUnitMixin(QUnitAjaxMixin,
             buttons: []
         }, options || {});
 
-        var createActionButtonHtml = this.createActionButtonHtml.bind(this);
-        var list = creme.widget.buildTag($('<ul/>'), 'ui-creme-actionbuttonlist', options.options, !options.noauto);
+        var list = $((
+            '<ul class="ui-creme-widget ui-creme-actionbuttonlist ${auto}" ${attrs} widget="ui-creme-actionbuttonlist"></ul>'
+        ).template({
+            auto: options.noauto ? '' : 'widget-auto',
+            attrs: Object.entries(options.options || {}).map(function(opt) {
+                return '${0}="${1}"'.template(opt);
+            }).join(' ')
+        }));
+
         list.append($('<li class="delegate" />').append(options.delegate));
+
+        var createActionButtonHtml = this.createActionButtonHtml.bind(this);
 
         options.buttons.forEach(function(button) {
             list.append('<li>${button}</li>'.template({
@@ -76,10 +85,6 @@ QUnit.module("creme.widget.actionlist.js", new QUnitMixin(QUnitAjaxMixin,
             disabled: false
         }, options || {});
 
-        var renderAttr = function(attr) {
-            return '${0}="${1}"'.template(attr);
-        };
-
         return (
             '<button type="button" name="${name}" title="${label}" class="ui-creme-actionbutton with-icon" ${disabled} ${attrs}>' +
                 '<img width="16px"></img>' +
@@ -90,7 +95,7 @@ QUnit.module("creme.widget.actionlist.js", new QUnitMixin(QUnitAjaxMixin,
             label: options.label || options.name,
             url: options.url || '',
             disabled: options.disabled ? 'disabled="disabled"' : '',
-            attrs: Object.entries(options.attrs).map(renderAttr).join(' ')
+            attrs: this.htmlAttrs(options.attrs)
         });
     }
 }));
