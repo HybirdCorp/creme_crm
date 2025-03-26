@@ -53,10 +53,6 @@ creme.object = {
         }
     },
 
-    build_callback: function(script, parameters) {
-        return creme.utils.lambda(script, parameters);
-    },
-
     isFalse: function(value) {
         return Object.isNone(value) || value === false;
     },
@@ -274,6 +270,7 @@ $.extend(creme.widget, {
     },
 
     parseopt: function(element, defaults, options) {
+        // TODO : only used in actionlist or in widget create. should be internal
         var opts = {};
 
         Object.keys(defaults || {}).forEach(function(name) {
@@ -320,6 +317,7 @@ $.extend(creme.widget, {
     },
 
     values_list: function(elements, data, parser) {
+        // TODO : only used in selectorlist. Move it there and refactor it.
         var values;
 
         if (data === undefined) {
@@ -362,6 +360,7 @@ $.extend(creme.widget, {
     },
 
     writeAttr: function(element, options) {
+        // TODO : only used in tests remove it
         for (var key in options) {
             var value = options[key];
 
@@ -374,6 +373,7 @@ $.extend(creme.widget, {
     },
 
     buildTag: function(element, widget, options, auto) {
+        // TODO : only used in tests remove it
         element.addClass('ui-creme-widget')
                .addClass(widget)
                .attr('widget', widget);
