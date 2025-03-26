@@ -317,6 +317,8 @@
                     - Object.entries()
                     - Object.getPrototypeOf()
                 * Drop creme.widget.template(); Use String.prototype.template instead.
+                * Drop creme.widget.writeAttr(); Use QUnitWidgetMixin.htmlAttrs() instead (only for unit tests).
+                * Drop creme.widget.buildTag(); Use QUnitWidgetMixin.fillWidgetTag() instead (only for unit tests).
                 * Refactor of creme.ajax.Backend:
                     - Drop jquery.forms plugin; Use FormData standard API instead.
                     - $.validateHTML5() is removed (came along jquery.forms)
@@ -324,8 +326,9 @@
                         - Refactor 'ListViewController' & 'creme.bricks.BricksReloader'
                         - 'creme.ajax.Query' now accepts new 'uploadProgress' & 'progress' options.
                 * creme.ajax.URL.prototype.relativeTo() is replaced by RelativeURL.prototype.fullPath()
-            	* creme.utils.JSON.encoder() is removed; Use JSON.stringify instead.
-            	* creme.utils.JSON.decoder() is removed; Use _.cleanJSON() instead.
+                * creme.utils.JSON.encoder() is removed; Use JSON.stringify instead.
+                * creme.utils.JSON.decoder() is removed; Use _.cleanJSON() instead.
+                * creme.objects.build_callback() is removed.
             - Apps :
                 * Activities:
                     - Refactor creme.ActivityCalendar : can be now used as independent component.

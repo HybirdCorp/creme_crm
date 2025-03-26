@@ -53,10 +53,6 @@ creme.object = {
         }
     },
 
-    build_callback: function(script, parameters) {
-        return creme.utils.lambda(script, parameters);
-    },
-
     isFalse: function(value) {
         return Object.isNone(value) || value === false;
     },
@@ -168,7 +164,7 @@ $.extend(creme.widget, {
         var widget = creme.widget.find(name);
 
         if (typeof widget !== 'object') {
-            console.warn('Widget "${name}" is not registered'.template({name: name}));
+            console.warn('Widget "${name}" is not registered'.template({name: name || ''}));
             return;
         }
 
@@ -274,6 +270,7 @@ $.extend(creme.widget, {
     },
 
     parseopt: function(element, defaults, options) {
+        // TODO : only used in actionlist or in widget create. should be internal
         var opts = {};
 
         Object.keys(defaults || {}).forEach(function(name) {
@@ -320,6 +317,7 @@ $.extend(creme.widget, {
     },
 
     values_list: function(elements, data, parser) {
+        // TODO : only used in selectorlist. Move it there and refactor it.
         var values;
 
         if (data === undefined) {
@@ -359,8 +357,8 @@ $.extend(creme.widget, {
         }
 
         return Object.isFunc(element.data) && !Object.isNone(element.data('CremeWidget'));
-    },
-
+    }
+/*
     writeAttr: function(element, options) {
         for (var key in options) {
             var value = options[key];
@@ -388,6 +386,7 @@ $.extend(creme.widget, {
 
         return this.writeAttr(element, options);
     }
+*/
 });
 
 $.fn.creme = function() {
