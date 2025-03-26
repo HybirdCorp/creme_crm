@@ -300,11 +300,11 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 /*----------------------------------*/
-.ui-creme-toggle .toggle-target.toggle-collapsed {
+.toggle-collapsable.toggle-collapsed {
     display: none;
 }
 
-.ui-creme-toggle .toggle-trigger {
+.ui-creme-toggle [data-toggle] {
     cursor: pointer;
 }
 

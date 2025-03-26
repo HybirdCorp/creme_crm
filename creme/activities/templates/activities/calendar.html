@@ -52,16 +52,16 @@
 {% block content %}
     <div class='calendar-main'>
         <div class='calendar-side'>
-            <div class='calendar-menu toggle-target'>
+            <div class='calendar-menu'>
                 {% if floating_activities %}
                 <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group" widget="ui-creme-toggle" title="{% translate 'You can drag and drop these activities in the calendar' %}">
-                    <h4 class='toggle-trigger menu-group-title'>
+                    <h4 class='menu-group-title' data-toggle="#floating-events">
                         <span class="menu-group-label">{% translate 'Floating activities' %}</span>
                     </h4>
                     {% if enable_floating_activities_search %}
-                    <div class='floating-event-filter toggle-target'><input type='search' placeholder="{% translate 'FILTER FLOATING ACTIVITIES' %}" /></div>
+                    <div class='floating-event-filter' id="floating-events"><input type='search' placeholder="{% translate 'FILTER FLOATING ACTIVITIES' %}" /></div>
                     {% endif %}
-                    <div class="floating-activities menu-sublist toggle-target">
+                    <div class="floating-activities toggle-collapsable menu-sublist" id="floating-events">
                       {% for floating_activity in floating_activities %}
                         <div class='floating-event'
                             data-id="{{floating_activity.id}}"
@@ -78,10 +78,10 @@
                 </div>
                 {% endif %}
                 <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group" widget="ui-creme-toggle">
-                    <h4 class='toggle-trigger menu-group-title'>
+                    <h4 class='menu-group-title' data-toggle=".my-calendars">
                     <span class="menu-group-label">{% translate 'My calendars' %}</span>
                     </h4>
-                    <div class="my-calendars menu-sublist toggle-target">
+                    <div class="my-calendars menu-sublist toggle-collapsable">
                       {% for calendar in my_calendars %}
                         <div class="calendar-menu-item">
                             <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" style="color:#{{calendar.color}};" name="calendar_id"{% if calendar.id in my_selected_calendar_ids %} checked{% endif %}/>
@@ -92,14 +92,14 @@
                       {% endfor %}
                     </div>
                 </div>
-                <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group{% if not others_selected_calendar_ids %} toggle-collapsed{% endif %}" widget="ui-creme-toggle">
-                    <h4 class='toggle-trigger menu-group-title'>
+                <div class="ui-creme-widget ui-creme-toggle widget-auto menu-group" widget="ui-creme-toggle">
+                    <h4 class='menu-group-title{% if not others_selected_calendar_ids %} toggle-collapsed{% endif %}' data-toggle="#other-calendars">
                         <span class="menu-group-label">{% translate 'Collaborators calendars' %}</span>
                     </h4>
                     {% if enable_calendars_search %}
-                    <div class='calendar-menu-filter toggle-target'><input type='search' placeholder="{% translate 'FILTER CALENDARS OR COLLABORATORS' %}" /></div>
+                    <div class='calendar-menu-filter' id="other-calendars"><input type='search' placeholder="{% translate 'FILTER CALENDARS OR COLLABORATORS' %}" /></div>
                     {% endif %}
-                    <div class="other-calendars menu-sublist toggle-target">
+                    <div class="other-calendars menu-sublist toggle-collapsable{% if not others_selected_calendar_ids %} toggle-collapsed{% endif %}" id="other-calendars">
                      {% for user, calendars in others_calendars %}
                       {% with user_key=user|activities_user_key %}
                         <div class="calendar-menu-usergroup" data-user="{{user_key}}">
