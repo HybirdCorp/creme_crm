@@ -53,9 +53,18 @@ QUnit.module("creme.widget.actionlist.js", new QUnitMixin(QUnitAjaxMixin,
             buttons: []
         }, options || {});
 
-        var createActionButtonHtml = this.createActionButtonHtml.bind(this);
-        var list = creme.widget.buildTag($('<ul/>'), 'ui-creme-actionbuttonlist', options.options, !options.noauto);
+        var list = $((
+            '<ul class="ui-creme-widget ui-creme-actionbuttonlist ${auto}" ${attrs} widget="ui-creme-actionbuttonlist"></ul>'
+        ).template({
+            auto: options.noauto ? '' : 'widget-auto',
+            attrs: Object.entries(options.options || {}).map(function(opt) {
+                return '${0}="${1}"'.template(opt);
+            }).join(' ')
+        }));
+
         list.append($('<li class="delegate" />').append(options.delegate));
+
+        var createActionButtonHtml = this.createActionButtonHtml.bind(this);
 
         options.buttons.forEach(function(button) {
             list.append('<li>${button}</li>'.template({

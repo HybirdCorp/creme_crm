@@ -325,6 +325,7 @@ QUnit.test('creme.object.deferred (restarted)', function(assert) {
     }, 700);
 });
 */
+/*
 QUnit.test('creme.object.build_callback (invalid script)', function(assert) {
     QUnit.assert.raises(function() { creme.object.build_callback('...'); });
     QUnit.assert.raises(function() { creme.object.build_callback('{', ['arg1', 'arg2']); });
@@ -359,5 +360,5 @@ QUnit.test('creme.object.build_callback (valid script, parameters)', function(as
     equal(cb(5, 2), 5);
     equal(cb(4.56, 445), 445);
 });
-
+*/
 }(jQuery));

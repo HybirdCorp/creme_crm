@@ -32,21 +32,30 @@ QUnit.module("creme.widget.selectorlist.js", new QUnitMixin(QUnitAjaxMixin, QUni
     },
 
     createSelectorListTag: function(value, noauto, options) {
-        var element = creme.widget.buildTag($('<div/>'), 'ui-creme-selectorlist', options, !noauto)
-                           .append('<input type="hidden" class="ui-creme-input ui-creme-selectorlist"/>')
-                           .append('<div class="inner-selector-model" style="display:none;"/>')
-                           .append('<ul class="selectors ui-layout"/>')
-                           .append('<div class="add"/>');
+        var html = (
+            '<span class="ui-creme-widget ui-creme-selectorlist ${auto}" ${attrs} widget="ui-creme-selectorlist">' +
+                '<input type="hidden" class="ui-creme-selectorlist ui-creme-input" value="${value}"/>' +
+                '<div class="inner-selector-model" style="display:none;"/>' +
+                '<ul class="selectors ui-layout"/>' +
+                '<div class="add"/>' +
+            '</span>'
+        ).template({
+            auto: !noauto ? 'widget-auto' : '',
+            value: Object.isNone(value) ? '' : String(value),
+            attrs: Object.entries(options || {}).map(function(opt) {
+                return '${0}="${1}"'.template(opt);
+            }).join(' ')
+        });
 
-        if (value !== undefined) {
-            $('input.ui-creme-input', element).val(value);
-        }
-
-        return element;
+        return $(html);
     },
 
     appendSelectorListModelTag: function(element, selector, widget, options) {
-        var selectorTag = creme.widget.buildTag(selector, widget, options, false);
+        var selectorTag = this.fillWidgetTag(selector, {
+            widget: widget,
+            attrs: options,
+            auto: false
+        });
         $('.inner-selector-model', element).append(selectorTag);
         return selectorTag;
     },

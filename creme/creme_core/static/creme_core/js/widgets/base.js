@@ -164,7 +164,7 @@ $.extend(creme.widget, {
         var widget = creme.widget.find(name);
 
         if (typeof widget !== 'object') {
-            console.warn('Widget "${name}" is not registered'.template({name: name}));
+            console.warn('Widget "${name}" is not registered'.template({name: name || ''}));
             return;
         }
 
@@ -357,8 +357,8 @@ $.extend(creme.widget, {
         }
 
         return Object.isFunc(element.data) && !Object.isNone(element.data('CremeWidget'));
-    },
-
+    }
+/*
     writeAttr: function(element, options) {
         // TODO : only used in tests remove it
         for (var key in options) {
@@ -388,6 +388,7 @@ $.extend(creme.widget, {
 
         return this.writeAttr(element, options);
     }
+*/
 });
 
 $.fn.creme = function() {
