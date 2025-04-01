@@ -571,6 +571,8 @@ QUnit.test('creme.search.SearchBox.keys (up/down)', function() {
 QUnit.test('creme.search.SearchBox.keys (escape => close popover)', function() {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
+        debounceDelay: 0,
+        focusDebounceDelay: 0,
         searchUrl: 'mock/search',
         advancedSearchUrl: 'mock/advancedsearch'
     }).bind(element);
@@ -579,23 +581,15 @@ QUnit.test('creme.search.SearchBox.keys (escape => close popover)', function() {
 
     element.find('input[type="text"]').trigger('focus');
 
-    stop(2);
+    equal(true, search.isOpened());
+    equal(1, element.find('.inline-search-results.showing').length);
+    equal(1, $('.glasspane').length);
 
-    setTimeout(function() {
-        equal(true, search.isOpened());
-        equal(1, element.find('.inline-search-results.showing').length);
-        equal(1, $('.glasspane').length);
-        start();
+    element.find('input[type="text"]').trigger($.Event("keydown", {keyCode: 27}));
 
-        element.find('input[type="text"]').trigger($.Event("keydown", {keyCode: 27}));
-
-        setTimeout(function() {
-            equal(false, search.isOpened());
-            equal(0, element.find('.inline-search-results.showing').length);
-            equal(0, $('.glasspane').length);
-            start();
-        }, 100);
-    }, 100);
+    equal(false, search.isOpened());
+    equal(0, element.find('.inline-search-results.showing').length);
+    equal(0, $('.glasspane').length);
 });
 
 QUnit.parameterize('creme.search.SearchBox.search (debounce)', [
