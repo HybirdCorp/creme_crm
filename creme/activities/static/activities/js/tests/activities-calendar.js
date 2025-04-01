@@ -407,6 +407,29 @@ QUnit.test('creme.ActivityCalendarController (hashchange)', function(assert) {
     });
 });
 
+QUnit.test('creme.ActivityCalendarController.setViewState', function(assert) {
+    var element = $(this.createDefaultUserCalendarHtml()).appendTo(this.qunitFixture());
+    var controller = creme.userActivityCalendar(element, {
+        keepState: true,
+        initialDate: '2023-03-20'
+    });
+    var view = controller.fullCalendar().view;
+
+    equal(view.type, 'month');
+    equal(moment(view.activeStart).format('YYYY-MM-DD'), '2023-02-27');
+    equal(moment(view.activeEnd).format('YYYY-MM-DD'), '2023-04-10');
+
+    controller.setViewState({
+        view: 'week',
+        date: '2023-01-30'
+    });
+
+    view = controller.fullCalendar().view;
+    equal(view.type, 'week');
+    equal(moment(view.activeStart).format('YYYY-MM-DD'), '2023-01-30');
+    equal(moment(view.activeEnd).format('YYYY-MM-DD'), '2023-02-06');
+});
+
 QUnit.test('creme.ActivityCalendarController.selectedSourceIds (selection)', function(assert) {
     var controller = this.createDefaultUserCalendar({
         options: {debounceDelay: 0}

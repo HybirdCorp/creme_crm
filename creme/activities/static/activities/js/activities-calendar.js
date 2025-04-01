@@ -131,6 +131,15 @@ creme.ActivityCalendarController = creme.component.Component.sub({
         return this._calendar.fullCalendarEvents();
     },
 
+    setViewState: function(state) {
+        this._calendar.fullCalendarView(
+            state.view,
+            state.date ? state.date.format('YYYY-MM-DD') : undefined
+        );
+
+        return this;
+    },
+
     goToDate: function(date) {
         this.calendar().goToDate(date);
     },
