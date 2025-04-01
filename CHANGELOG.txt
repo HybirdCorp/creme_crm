@@ -1,7 +1,5 @@
 == Version 2.6.7 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .po (persons)
-
   Users side :
   ------------
     # A content visibility issue on popover opening has been fixed.
