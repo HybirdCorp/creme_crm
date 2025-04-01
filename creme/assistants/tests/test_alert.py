@@ -588,6 +588,42 @@ class AbsoluteOrRelativeDatetimeFieldTestCase(FieldTestCase):
         self.assertEqual(cell, field.non_hiddable_cell)
         self.assertEqual(cell, field.fields_choices[1][1].non_hiddable_cell)
 
+    def test_empty_required(self):
+        cls = AbsoluteOrRelativeDatetimeField
+        field = cls(model=FakeOrganisation)
+        self.assertTrue(field.required)
+
+        clean = field.clean
+        self.assertFieldValidationError(cls, 'required', clean, None)
+        self.assertFieldValidationError(cls, 'required', clean, '')
+        self.assertFieldValidationError(cls, 'required', clean, '[]')
+
+    def test_empty_not_required(self):
+        field = AbsoluteOrRelativeDatetimeField(model=FakeOrganisation, required=False)
+        self.assertFalse(field.required)
+
+        self.assertIsNone(field.clean(None))
+        self.assertIsNone(field.clean((None, None)))
+        self.assertIsNone(field.clean(('', '')))
+
+    def test_clean_invalid_data(self):
+        cls = AbsoluteOrRelativeDatetimeField
+        field = cls(model=FakeOrganisation)
+        self.assertFieldValidationError(
+            cls, 'required', field.clean, ('unknown_kind', {}),
+        )
+        self.assertFieldValidationError(cls, 'required', field.clean, None)
+
+    def test_incomplete_required(self):
+        cls = AbsoluteOrRelativeDatetimeField
+        field = cls(model=FakeOrganisation)
+
+        ABSOLUTE = AbsoluteOrRelativeDatetimeField.ABSOLUTE
+        RELATIVE = AbsoluteOrRelativeDatetimeField.RELATIVE
+        sub_values = {ABSOLUTE: '', RELATIVE: []}
+        self.assertFieldValidationError(cls, 'required', field.clean, (ABSOLUTE, sub_values))
+        self.assertFieldValidationError(cls, 'required', field.clean, (RELATIVE, sub_values))
+
 
 class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     @staticmethod

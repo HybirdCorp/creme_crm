@@ -158,7 +158,7 @@ commands:
 orbs:
 # See https://circleci.com/developer/orbs/orb/circleci/browser-tools
 #  browser-tools: circleci/browser-tools@1.4.3
-  browser-tools: circleci/browser-tools@1.4.8
+  browser-tools: circleci/browser-tools@1.5.2
 
 jobs:
   python38-lint-isort:
@@ -421,7 +421,6 @@ jobs:
       - run: pip install -U pip setuptools wheel
       # We need an up-to-date pip version to install twine
 #      - run: pip install -U twine
-      # TODO: remove this fix with 2.5.19 if possible
       # FIX: we also need an up-to-date version of packaging
       #      see issue https://github.com/pypa/twine/issues/1216
       - run: pip install --upgrade twine packaging

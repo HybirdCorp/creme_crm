@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -759,7 +759,9 @@ class BrickDefaultMypageLocationsBrick(_ConfigAdminBrick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
             context,
-            BrickMypageLocation.objects.filter(user=None),
+            BrickMypageLocation.objects.filter(user=None).exclude(brick_id=''),
+            # TODO: uncomment when the DB is clean (useless empty brick IDs removed)
+            # BrickMypageLocation.objects.filter(user=None),
         ))
 
 
@@ -773,7 +775,12 @@ class BrickMypageLocationsBrick(_ConfigAdminBrick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
             context,
-            BrickMypageLocation.objects.filter(user=context['user']),
+            BrickMypageLocation.objects.filter(
+                user=context['user'],
+            ).exclude(brick_id=''),
+            # TODO: see above (should we remove the empty brick ids in DB? It
+            #       indicates that the copy of the default configuration has been made :think:)
+            # BrickMypageLocation.objects.filter(user=context['user']),
         ))
 
 

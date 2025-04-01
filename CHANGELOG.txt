@@ -1,10 +1,32 @@
+== Version 2.5.19 ==
+
+  Users side :
+  ------------
+    # A content visibility issue on popover opening has been fixed.
+    # Apps :
+        * Creme_config :
+            - When you emptied your bricks configuration for "My page" (default or owned)
+              with the form, the configuration displayed a ugly "BLOCK" line.
+              When you tried to edit this configuration, the form did not propose any choice.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The display of 'creme_core.forms.base.CremeEntityForm.forced_relations_info'
+          was too much escaped with several relationships.
+        # The base form-field 'creme_core.forms.fields.UnionField' did not raise an error
+          when a required instance was cleaned with empty sub-data & non required sub-fields.
+
+
 == Version 2.5.18 ==
 
   Users side :
   ------------
     # Apps :
         * Opportunities :
-              - The title of the brick which displays related Opportunities for Contact/Organisation has been improved.
+            - The title of the brick which displays related Opportunities for Contact/Organisation has been improved.
 
   Developers side :
   -----------------
