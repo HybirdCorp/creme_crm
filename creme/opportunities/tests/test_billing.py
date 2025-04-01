@@ -18,7 +18,6 @@ from creme.products.models import SubCategory
 from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
 from .. import setting_keys
-from ..constants import REL_SUB_LINKED_PRODUCT, REL_SUB_LINKED_SERVICE
 from ..models import SalesPhase
 from .base import (
     Contact,
@@ -102,7 +101,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomProduct
     @skipIfCustomService
-    def test_generate_new_doc01(self):
+    def test_generate_new_doc__quote(self):
         user = self.login_as_root_and_get()
         self.assertEqual(0, Quote.objects.count())
 
@@ -122,13 +121,13 @@ class BillingTestCase(OpportunitiesBaseTestCase):
             unit='week',
         )
 
-        opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)
+        opp, target, emitter = self._create_opportunity_n_organisations(user=user)
 
-        create_rel = partial(Relation.objects.create, user=user, object_entity=opportunity)
-        create_rel(subject_entity=product, type_id=REL_SUB_LINKED_PRODUCT)
-        create_rel(subject_entity=service, type_id=REL_SUB_LINKED_SERVICE)
+        create_rel = partial(Relation.objects.create, user=user, object_entity=opp)
+        create_rel(subject_entity=product, type_id=constants.REL_SUB_LINKED_PRODUCT)
+        create_rel(subject_entity=service, type_id=constants.REL_SUB_LINKED_SERVICE)
 
-        url = self._build_gendoc_url(opportunity)
+        url = self._build_gendoc_url(opp)
         self.assertGET405(url)
         self.assertPOST200(url, follow=True)
 
@@ -136,15 +135,13 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(date.today(), quote.issuing_date)
         self.assertEqual(1, quote.status_id)
         self.assertTrue(quote.number)
-        self.assertEqual(
-            f'{quote.number} — {opportunity.name}', quote.name
-        )
+        self.assertEqual(f'{quote.number} — {opp.name}', quote.name)
 
         self.assertHaveRelation(quote, type=REL_SUB_BILL_ISSUED,   object=emitter)
         self.assertHaveRelation(quote, type=REL_SUB_BILL_RECEIVED, object=target)
 
-        self.assertHaveRelation(quote, type=constants.REL_SUB_LINKED_QUOTE,  object=opportunity)
-        self.assertHaveRelation(quote, type=constants.REL_SUB_CURRENT_DOC,   object=opportunity)
+        self.assertHaveRelation(quote, type=constants.REL_SUB_LINKED_QUOTE,  object=opp)
+        self.assertHaveRelation(quote, type=constants.REL_SUB_CURRENT_DOC,   object=opp)
 
         self.assertHaveRelation(target, type=REL_SUB_PROSPECT, object=emitter)
 
@@ -163,32 +160,30 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(service,            line2.related_item)
 
     @skipIfCustomOrganisation
-    def test_generate_new_doc02(self):
+    def test_generate_new_doc__salesorder(self):
         user = self.login_as_root_and_get()
 
-        opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)
-        url = self._build_gendoc_url(opportunity)
+        opp, target, emitter = self._create_opportunity_n_organisations(user=user)
+        url = self._build_gendoc_url(opp, model=SalesOrder)
 
         self.client.post(url)
-        quote1 = Quote.objects.all()[0]
+        s_order1 = SalesOrder.objects.all()[0]
 
         self.client.post(url)
-        quote2 = self.get_alone_element(Quote.objects.exclude(pk=quote1.id))
+        s_order2 = self.get_alone_element(SalesOrder.objects.exclude(pk=s_order1.id))
 
-        self.assertHaveRelation(quote2, type=REL_SUB_BILL_ISSUED,   object=emitter)
-        self.assertHaveRelation(quote2, type=REL_SUB_BILL_RECEIVED, object=target)
-        self.assertHaveRelation(quote2, type=constants.REL_SUB_LINKED_QUOTE, object=opportunity)
-        self.assertHaveRelation(quote2, type=constants.REL_SUB_CURRENT_DOC,  object=opportunity)
+        self.assertHaveRelation(s_order2, type=REL_SUB_BILL_ISSUED,   object=emitter)
+        self.assertHaveRelation(s_order2, type=REL_SUB_BILL_RECEIVED, object=target)
+        self.assertHaveRelation(s_order2, type=constants.REL_SUB_LINKED_SALESORDER, object=opp)
+        self.assertHaveNoRelation(s_order2, type=constants.REL_SUB_CURRENT_DOC,  object=opp)
 
-        self.assertHaveRelation(quote1, type=REL_SUB_BILL_ISSUED,   object=emitter)
-        self.assertHaveRelation(quote1, type=REL_SUB_BILL_RECEIVED, object=target)
-        self.assertHaveRelation(quote1, type=constants.REL_SUB_LINKED_QUOTE, object=opportunity)
-        self.assertHaveRelation(quote1, type=constants.REL_SUB_CURRENT_DOC,  object=opportunity)
-
-        self.assertHaveRelation(subject=target, type=REL_SUB_PROSPECT, object=emitter)
+        self.assertHaveRelation(s_order1, type=REL_SUB_BILL_ISSUED,   object=emitter)
+        self.assertHaveRelation(s_order1, type=REL_SUB_BILL_RECEIVED, object=target)
+        self.assertHaveRelation(s_order1, type=constants.REL_SUB_LINKED_SALESORDER, object=opp)
+        self.assertHaveNoRelation(s_order1, type=constants.REL_SUB_CURRENT_DOC,  object=opp)
 
     @skipIfCustomOrganisation
-    def test_generate_new_doc03(self):
+    def test_generate_new_doc__invoice(self):
         user = self.login_as_root_and_get()
 
         opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)
@@ -212,8 +207,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertHaveRelation(subject=target, type=REL_SUB_CUSTOMER_SUPPLIER, object=emitter)
 
     @skipIfCustomOrganisation
-    def test_generate_new_doc_error01(self):
-        "Invalid target type."
+    def test_generate_new_doc__error__invalid_target_type(self):
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -223,8 +217,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(contact_count, Contact.objects.count())  # No Contact created
 
     @skipIfCustomOrganisation
-    def test_generate_new_doc_error02(self):
-        "Credentials problems."
+    def test_generate_new_doc__error__credentials(self):
         user = self.login_as_standard(
             allowed_apps=['billing', 'opportunities'],
             creatable_models=[Opportunity],  # Not Quote
@@ -248,8 +241,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertPOST200(url, follow=True)
 
     @skipIfCustomOrganisation
-    def test_generate_new_doc_error03(self):
-        "Relation type is disabled."
+    def test_generate_new_doc__error__disabled_rtype(self):
         user = self.login_as_root_and_get()
 
         opportunity = self._create_opportunity_n_organisations(user=user)[0]
@@ -265,11 +257,11 @@ class BillingTestCase(OpportunitiesBaseTestCase):
             rtype.save()
 
     @skipIfCustomOrganisation
-    def test_current_quote_01(self):
+    def test_current_quote(self):
         user = self.login_as_root_and_get()
 
-        opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)
-        gendoc_url = self._build_gendoc_url(opportunity)
+        opp, target, emitter = self._create_opportunity_n_organisations(user=user)
+        gendoc_url = self._build_gendoc_url(opp)
 
         self.client.post(gendoc_url)
         quote1 = Quote.objects.all()[0]
@@ -279,25 +271,25 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
         self.assertHaveRelation(quote2, type=REL_SUB_BILL_ISSUED,            object=emitter)
         self.assertHaveRelation(quote2, type=REL_SUB_BILL_RECEIVED,          object=target)
-        self.assertHaveRelation(quote2, type=constants.REL_SUB_LINKED_QUOTE, object=opportunity)
-        self.assertHaveRelation(quote2, type=constants.REL_SUB_CURRENT_DOC,  object=opportunity)
+        self.assertHaveRelation(quote2, type=constants.REL_SUB_LINKED_QUOTE, object=opp)
+        self.assertHaveRelation(quote2, type=constants.REL_SUB_CURRENT_DOC,  object=opp)
 
-        url = self._build_currentquote_url(opportunity, quote1)
+        url = self._build_currentquote_url(opp, quote1)
         self.assertGET405(url)
         self.assertPOST200(url, follow=True)
 
         self.assertHaveRelation(quote2, type=REL_SUB_BILL_ISSUED,             object=emitter)
         self.assertHaveRelation(quote2, type=REL_SUB_BILL_RECEIVED,           object=target)
-        self.assertHaveRelation(quote2, type=constants.REL_SUB_LINKED_QUOTE,  object=opportunity)
-        self.assertHaveRelation(quote2, type=constants.REL_SUB_CURRENT_DOC,   object=opportunity)
+        self.assertHaveRelation(quote2, type=constants.REL_SUB_LINKED_QUOTE,  object=opp)
+        self.assertHaveRelation(quote2, type=constants.REL_SUB_CURRENT_DOC,   object=opp)
 
         self.assertHaveRelation(quote1, type=REL_SUB_BILL_ISSUED,             object=emitter)
         self.assertHaveRelation(quote1, type=REL_SUB_BILL_RECEIVED,           object=target)
-        self.assertHaveRelation(quote1, type=constants.REL_SUB_LINKED_QUOTE,  object=opportunity)
-        self.assertHaveRelation(quote1, type=constants.REL_SUB_CURRENT_DOC,   object=opportunity)
+        self.assertHaveRelation(quote1, type=constants.REL_SUB_LINKED_QUOTE,  object=opp)
+        self.assertHaveRelation(quote1, type=constants.REL_SUB_CURRENT_DOC,   object=opp)
 
     @skipIfCustomOrganisation
-    def test_current_quote_02(self):
+    def test_current_quote__estimated_sales(self):
         "Refresh the estimated_sales when we change which quote is the current."
         user = self.login_as_root_and_get()
 
@@ -358,11 +350,11 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(opportunity.made_sales, quote2.total_no_vat)  # 300
 
     @skipIfCustomOrganisation
-    def test_current_quote_03(self):
+    def test_current_quote__do_not_use_for_estimation(self):
         user = self.login_as_root_and_get()
 
         opportunity = self._create_opportunity_n_organisations(user=user)[0]
-        self._set_quote_config(False)
+        self._set_quote_config(use_current_quote=False)
 
         estimated_sales = Decimal('69')
         opportunity.estimated_sales = estimated_sales
@@ -382,9 +374,9 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(opportunity.estimated_sales, estimated_sales)  # 69
 
     @skipIfCustomOrganisation
-    def test_current_quote_04(self):
+    def test_current_quote__use_for_estimation(self):
         user = self.login_as_root_and_get()
-        self._set_quote_config(True)
+        self._set_quote_config(use_current_quote=True)
 
         opportunity = self._create_opportunity_n_organisations(user=user)[0]
         self.client.post(self._build_gendoc_url(opportunity))
@@ -401,9 +393,9 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(300, self.refresh(opportunity).estimated_sales)
 
     @skipIfCustomOrganisation
-    def test_current_quote_05(self):
+    def test_current_quote__relations_deleted(self):
         user = self.login_as_root_and_get()
-        self._set_quote_config(True)
+        self._set_quote_config(use_current_quote=True)
 
         opportunity = self._create_opportunity_n_organisations(user=user)[0]
         self.client.post(self._build_gendoc_url(opportunity))
@@ -425,13 +417,13 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         Relation.objects.filter(
             type__in=(
                 constants.REL_SUB_CURRENT_DOC,
-                constants.REL_OBJ_CURRENT_DOC
+                constants.REL_OBJ_CURRENT_DOC,
             ),
         ).delete()
 
         self.assertEqual(0, self.refresh(opportunity).estimated_sales)
 
-    def test_current_quote_06(self):
+    def test_current_quote__creation_optimization(self):
         "Avoid queries when the billing instance has just been created."
         if billing.quote_model_is_custom():
             return
@@ -463,7 +455,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
             self.assertNotIn(key_id, query_info['sql'])
 
     @skipIfCustomOrganisation
-    def test_current_quote_7(self):
+    def test_current_quote__sync_deletion_of_relations(self):
         "Delete the relationship REL_SUB_LINKED_QUOTE => REL_SUB_CURRENT_DOC is deleted too."
         user = self.login_as_root_and_get()
         self._set_quote_config(True)
@@ -584,8 +576,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_select_relations_billing_objects02(self):
-        "Same target."
+    def test_select_relations_billing_objects__same_target(self):
         user = self.login_as_root_and_get()
 
         get_4_key = SettingValue.objects.get_4_key
@@ -655,7 +646,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_select_relations_billing_objects03(self):
+    def test_select_relations_billing_objects__same_emitter(self):
         "Same emitter."
         user = self.login_as_root_and_get()
 
@@ -727,8 +718,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_select_relations_billing_objects04(self):
-        "2 constraints."
+    def test_select_relations_billing_objects__two_constraints(self):
         user = self.login_as_root_and_get()
 
         get_4_key = SettingValue.objects.get_4_key
