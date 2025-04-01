@@ -1848,8 +1848,33 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(1, self._find_location(HomeOnlyBrick1.id, b_locs).order)
         self.assertEqual(2, self._find_location(CompleteBrick1.id, b_locs).order)
 
-    def test_edit_mypage01(self):
+    def test_edit_default_mypage__empty(self):
         self.login_as_root()
+        url = reverse('creme_config__edit_default_mypage_bricks')
+
+        self.assertNoFormError(self.client.post(url, data={'bricks': '[]'}))
+        # TODO:
+        # self.assertFalse(BrickMypageLocation.objects.filter(user=None))
+        b_loc = self.get_alone_element(BrickMypageLocation.objects.filter(user=None))
+        self.assertEqual('', b_loc.brick_id)
+
+        # ---
+        get_response = self.assertGET200(url)
+
+        with self.assertNoException():
+            bricks_field = get_response.context['form'].fields['bricks']
+            choices = [
+                (choice.value, label) for choice, label in bricks_field.choices
+            ]
+
+        self.assertInChoices(
+            value=CompleteBrick1.id,
+            label=CompleteBrick1.verbose_name,
+            choices=choices,
+        )
+
+    def test_edit_mypage(self):
+        user = self.login_as_root_and_get()
         url = reverse('creme_config__edit_mypage_bricks')
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
@@ -1859,7 +1884,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
         with self.assertNoException():
-            bricks_field = response.context['form'].fields['bricks']
+            bricks_field = context['form'].fields['bricks']
             choices = [
                 (choice.value, label) for choice, label in bricks_field.choices
             ]
@@ -1890,12 +1915,37 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        b_locs = [*BrickMypageLocation.objects.filter(user=self.user)]
+        b_locs = [*BrickMypageLocation.objects.filter(user=user)]
         self.assertEqual(2, len(b_locs))
         self.assertEqual(1, self._find_location(CompleteBrick1.id, b_locs).order)
         self.assertEqual(2, self._find_location(HomeOnlyBrick1.id, b_locs).order)
 
-    def test_edit_mypage02(self):
+    def test_edit_mypage__empty(self):
+        user = self.login_as_root_and_get()
+        url = reverse('creme_config__edit_mypage_bricks')
+
+        self.assertNoFormError(self.client.post(url, data={'bricks': '[]'}))
+        # TODO:
+        # self.assertFalse(BrickMypageLocation.objects.filter(user=user))
+        b_loc = self.get_alone_element(BrickMypageLocation.objects.filter(user=user))
+        self.assertEqual('', b_loc.brick_id)
+
+        # ---
+        get_response = self.assertGET200(url)
+
+        with self.assertNoException():
+            bricks_field = get_response.context['form'].fields['bricks']
+            choices = [
+                (choice.value, label) for choice, label in bricks_field.choices
+            ]
+
+        self.assertInChoices(
+            value=CompleteBrick1.id,
+            label=CompleteBrick1.verbose_name,
+            choices=choices,
+        )
+
+    def test_edit_mypage__perms(self):
         "Not super-user."
         self.login_as_standard()
         self.assertGET200(reverse('creme_config__edit_mypage_bricks'))

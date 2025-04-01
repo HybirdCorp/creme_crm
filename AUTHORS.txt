@@ -8,7 +8,6 @@ Jean-Michel ARMAND:
 
 Raphaël BECK:
     Developer / Documentation writer
-    rbeck AT hybird DOT org
 
 Jonathan CARUANA
     Developer
@@ -22,9 +21,11 @@ Florian FABRE
     Developer
     ffabre AT hybird DOT org
 
+Kim GEMO
+    Developer
+
 Régis MONTOYA
     Developer
-    r3gis AT r3gis DOT fr
 
 Yann PRIME
     Developer

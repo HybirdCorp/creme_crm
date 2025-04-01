@@ -1,3 +1,29 @@
+== Version 2.6.7 ==
+
+  Users side :
+  ------------
+    # A content visibility issue on popover opening has been fixed.
+    # Apps :
+        * Creme_config :
+            - When you emptied your bricks configuration for "My page" (default or owned)
+              with the form, the configuration displayed a ugly "BLOCK" line.
+        * Persons :
+            - A crash in the view to create a user from a Contact has been fixed.
+              It happened when the email of the Contact was used by an existing user.
+        * Activities :
+            - An issue in calendar configuration, when the end of the day is before the start, has been fixed.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The display of 'creme_core.forms.base.CremeEntityForm.forced_relations_info'
+          was too much escaped with several relationships.
+        # The base form-field 'creme_core.forms.fields.UnionField' did not raise an error
+          when a required instance was cleaned with empty sub-data & non required sub-fields.
+
+
 == Version 2.6.6 ==
 
   Users side :
