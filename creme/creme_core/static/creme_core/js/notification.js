@@ -61,7 +61,7 @@ creme.notification.NotificationBox = creme.component.Component.sub({
 
     initialData: function() {
         var script = this._element.find('script[type$="/json"].notification-box-data:first');
-        var data = creme.utils.JSON.readScriptText(script);
+        var data = _.readJSONScriptText(script.get(0));
 
         return Object.assign({
             count: 0,

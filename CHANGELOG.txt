@@ -178,6 +178,11 @@
                 - creme.utils.showPageLoadOverlay() is deprecated;  Use creme.dialog.Overlay instead.
                 - creme.utils.hidePageLoadOverlay() is deprecated;  Use creme.dialog.Overlay instead.
                 - creme.utils.overlay() is deprecated;  Use creme.dialog.Overlay instead.
+                - creme.utilss.JSON.encode is deprecated; Use JSON.stringify() instead.
+                - creme.utilss.JSON.decode is deprecated; Use JSON.parse() or _.cleanJSON() instead.
+                - creme.utilss.JSON.isJSON is deprecated; Use _.isJSON() instead.
+                - creme.utils.JSON.clean is deprecated; Use _.cleanJSON() instead.
+                - creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText() instead.
         # In 'creme_core.models' :
             - The model 'CremeUser' :
                 - gets a new field 'uuid'.
@@ -266,6 +271,8 @@
                         - Refactor 'ListViewController' & 'creme.bricks.BricksReloader'
                         - 'creme.ajax.Query' now accepts new 'uploadProgress' & 'progress' options.
                 * creme.ajax.URL.prototype.relativeTo() is replaced by RelativeURL.prototype.fullPath()
+            	* creme.utils.JSON.encoder() is removed; Use JSON.stringify instead.
+            	* creme.utils.JSON.decoder() is removed; Use _.cleanJSON() instead.
             - Apps :
                 * Activities:
                     - Refactor creme.ActivityCalendar : can be now used as independent component.
@@ -354,7 +361,7 @@
             - creme.exports.exportAs() is replaced by the 'export-as' action or 'creme.lv_widget.ExportAction'
             - creme.forms.toImportField() is replaced by the widget 'ui-import-field' or 'creme.widget.ImportField'.
             - Full rework of creme.notification.NotificationBox.
-            * creme.ajax.jqueryAjaxSend() arguments have changed from (url, data, successCb, errorCb, options) to ({url: url, body: data, ...options}, {done: successCb, fail: errorCb}).
+            - creme.ajax.jqueryAjaxSend() arguments have changed from (url, data, successCb, errorCb, options) to ({url: url, body: data, ...options}, {done: successCb, fail: errorCb}).
         # Apps :
             * Creme_config :
                 - In the brick 'GenericModelBrick', "meta" is not injected in the context anymore.

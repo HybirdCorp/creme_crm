@@ -576,7 +576,7 @@ creme.bricks.Brick = creme.component.Component.sub({
     },
 
     _bindDependencies: function(element) {
-        var data = creme.utils.JSON.clean(element.attr('data-brick-deps'), []);
+        var data = _.cleanJSON(element.attr('data-brick-deps')) || [];
         var deps = this._dependencies = new creme.bricks.Dependencies(data);
 
         return deps;

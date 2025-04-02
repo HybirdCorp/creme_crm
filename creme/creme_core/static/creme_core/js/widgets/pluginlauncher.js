@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2012  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,9 @@ creme.widget.PluginLauncher = creme.widget.declare('ui-creme-jqueryplugin', {
 
     _create: function(element, options, cb, sync, attributes) {
         var plugin_name = options.plugin || '';
-        var plugin_options = this._pluginOptions = creme.utils.JSON.clean(options.plugin_options, {});
+        var plugin_options = this._pluginOptions = (
+            _.isString(options.plugin_options) ? _.cleanJSON(options.plugin_options) || {} : options.plugin_options
+        );
         var plugin = this._plugin = plugin_name !== '' ? element[plugin_name] : undefined;
 
         // console.log('plugin-name:', plugin_name, 'options:', options, 'plugin-options:', plugin_options, 'is_valid:', (typeof plugin === 'function'));

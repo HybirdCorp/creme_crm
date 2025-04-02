@@ -58,14 +58,14 @@ creme.ActivityCalendarBrickController = creme.component.Component.sub({
 
     _calendarSettings: function(element) {
         var script = $('script[type$="/json"].brick-calendar-settings:first', element);
-        var data = creme.utils.JSON.readScriptText(script);
+        var data = _.readJSONScriptText(script.get(0));
 
         return Object.isEmpty(data) ? {} : JSON.parse(data);
     },
 
     _calendarSources: function(element) {
         var script = $('script[type$="/json"].brick-calendar-sources:first', element);
-        var data = creme.utils.JSON.readScriptText(script);
+        var data = _.readJSONScriptText(script.get(0));
 
         return Object.isEmpty(data) ? [] : JSON.parse(data);
     },

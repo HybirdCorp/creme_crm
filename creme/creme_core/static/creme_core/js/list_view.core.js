@@ -124,7 +124,7 @@
 
             try {
                 if (!Object.isEmpty(script)) {
-                    var data = creme.utils.JSON.readScriptText(script);
+                    var data = _.readJSONScriptText(script.get(0));
                     return Object.isEmpty(data) ? {} : JSON.parse(data);
                 }
             } catch (e) {

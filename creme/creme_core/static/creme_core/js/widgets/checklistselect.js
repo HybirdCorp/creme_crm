@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2013-2023  Hybird
+    Copyright (C) 2013-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,10 @@
 
 creme.widget = creme.widget || {};
 
+function __fromJSON(data) {
+    return _.cleanJSON(data) || {};
+}
+
 creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', {
     options: {
         datatype:  'string',
@@ -31,7 +35,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
     _create: function(element, options, cb, sync) {
         var self = this;
 
-        this._converter = options.datatype === 'json' ? creme.utils.JSON.decoder({}) : null;
+        this._converter = options.datatype === 'json' ? __fromJSON : null;
         this.less(element, options.less || element.is('[less]'));
         this.minShowSelectAll(element, options.selectall);
 
@@ -351,7 +355,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         }
 
         var previous = this.val(element);
-        var selections = creme.utils.JSON.clean(value, []);
+        var selections = _.isString(value) ? _.cleanJSON(value) || [] : value;
 
         value = selections.map(function(item) {
             return Object.isString(item) ? item : JSON.stringify(item);
@@ -370,10 +374,12 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
     },
 
     cleanedval: function(element) {
+        var to = this.options.datatype.toLowerCase();
+
         return this.val(element).map(function(value) {
             return creme.utils.convert(value, {
                 from: 'string',
-                to: this.options.datatype.toLowerCase(),
+                to: to,
                 defaults: value
             });
         });

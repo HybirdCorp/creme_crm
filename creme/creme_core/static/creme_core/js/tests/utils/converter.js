@@ -341,11 +341,9 @@ QUnit.parametrize('creme.utils.converters (string-json, fail)', [
 ], function(options, value, expected, assert) {
     var converters = creme.utils.converters();
 
-    var error = this.assertRaises(function() {
+    this.assertRaises(function() {
         converters.convert(value, options);
-    }, Error);
-
-    ok(error.message.indexOf('SyntaxError') !== -1);
+    }, SyntaxError);
 });
 
 QUnit.parameterize('creme.utils.converters (json-string)', [

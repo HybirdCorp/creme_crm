@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022  Hybird
+    Copyright (C) 2022-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -161,14 +161,14 @@ creme.ReportD3ChartSwapper = creme.component.Component.sub({
 
     initialData: function() {
         var script = $('script[type$="/json"].sketch-chart-data:first', this._element);
-        var data = creme.utils.JSON.readScriptText(script);
+        var data = _.readJSONScriptText(script.get(0));
 
         return Object.isEmpty(data) ? [] : JSON.parse(data);
     },
 
     initialProps: function() {
         var script = $('script[type$="/json"].sketch-chart-props:first', this._element);
-        var data = creme.utils.JSON.readScriptText(script);
+        var data = _.readJSONScriptText(script.get(0));
 
         return Object.isEmpty(data) ? {} : JSON.parse(data);
     }

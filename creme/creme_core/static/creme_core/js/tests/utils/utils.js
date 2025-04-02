@@ -21,6 +21,7 @@ QUnit.test('creme.utils.JSON.encode', function(assert) {
                         'c': 12
                        }), '{"a":["a","b",150],"b":"test","c":12}');
 
+    /*
     var encoder = creme.utils.JSON.encoder();
 
     equal(encoder('test'), '"test"');
@@ -30,12 +31,15 @@ QUnit.test('creme.utils.JSON.encode', function(assert) {
                    'b': 'test',
                    'c': 12
                   }), '{"a":["a","b",150],"b":"test","c":12}');
+    */
 });
 
 QUnit.test('creme.utils.JSON.decode (null)', function(assert) {
     var codec = new creme.utils.JSON();
 
-    QUnit.assert.raises(function() { codec.decode(null); });
+    this.assertRaises(function() {
+        codec.decode(null);
+    }, Error, 'Error: Invalid data type or empty string');
 });
 
 QUnit.test('creme.utils.JSON.decode (invalid)', function(assert) {
@@ -45,11 +49,13 @@ QUnit.test('creme.utils.JSON.decode (invalid)', function(assert) {
     QUnit.assert.raises(function() { codec.decode('{"a":1,}'); });
     QUnit.assert.raises(function() { codec.decode('{a:1}'); });
 
+    /*
     var decoder = creme.utils.JSON.decoder();
 
     QUnit.assert.raises(function() { decoder('{"a\':1}'); });
     QUnit.assert.raises(function() { decoder('{"a":1,}'); });
     QUnit.assert.raises(function() { decoder('{a:1}'); });
+    */
 });
 
 QUnit.test('creme.utils.JSON.decode (invalid or null, default)', function(assert) {
@@ -60,6 +66,7 @@ QUnit.test('creme.utils.JSON.decode (invalid or null, default)', function(assert
     equal(codec.decode('{a:1}', 'fail'), 'fail');
     equal(codec.decode(null, 'fail'), 'fail');
 
+    /*
     var decoder = creme.utils.JSON.decoder('default');
 
     equal(decoder('{"a\':1}'), 'default');
@@ -71,6 +78,7 @@ QUnit.test('creme.utils.JSON.decode (invalid or null, default)', function(assert
     equal(decoder('{"a":1,}', 'fail'), 'fail');
     equal(decoder('{a:1}', 'fail'), 'fail');
     equal(decoder(null, 'fail'), 'fail');
+    */
 });
 
 QUnit.test('creme.utils.JSON.decode (valid)', function(assert) {
@@ -78,22 +86,21 @@ QUnit.test('creme.utils.JSON.decode (valid)', function(assert) {
 
     deepEqual(codec.decode('{"a":1, "b":true, "c":[1, 2, 3]}'), {a: 1, b: true, c: [1, 2, 3]});
 
+    /*
     var decoder = creme.utils.JSON.decoder();
 
     deepEqual(decoder('{"a":1, "b":true, "c":[1, 2, 3]}'), {a: 1, b: true, c: [1, 2, 3]});
+    */
 });
 
 QUnit.test('creme.utils.JSON.clean', function(assert) {
     var clean = creme.utils.JSON.clean;
 
-    QUnit.assert.raises(function() { clean('{"a\':1}'); });
-    equal(clean('{"a\':1}', 'default'), 'default');
-
-    equal(clean(null), null);
-    equal(clean(null, 'default'), null);
+    equal(undefined, clean('{"a\':1}'));
+    equal(undefined, clean(null), null);
 
     deepEqual(clean('{"a":1}'), {a: 1});
-    deepEqual(clean({a: 1}), {a: 1});
+    deepEqual({a: 1}, clean({a: 1}));
 });
 
 QUnit.test('creme.utils.comparator (simple)', function(assert) {
@@ -164,8 +171,10 @@ QUnit.test('creme.utils.JSON.readScriptText', function(assert) {
     var invalidTag = $('<div>This not a script</div>');
     equal('', creme.utils.JSON.readScriptText(invalidTag));
 
-    deepEqual([['This element is not a JSON script']],
-              this.mockConsoleWarnCalls().map(function(e) { return e.slice(0, 1); }));
+    deepEqual([
+        ["creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText instead."],
+        ['This element is not a JSON script']
+    ], this.mockConsoleWarnCalls().map(function(e) { return e.slice(0, 1); }));
 
     this.resetMockConsoleWarnCalls();
 
@@ -173,8 +182,10 @@ QUnit.test('creme.utils.JSON.readScriptText', function(assert) {
     invalidTag = $('<script type="application/csv">{}</script>');
     equal('', creme.utils.JSON.readScriptText(invalidTag));
 
-    deepEqual([['This element is not a JSON script']],
-            this.mockConsoleWarnCalls().map(function(e) { return e.slice(0, 1); }));
+    deepEqual([
+        ["creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText instead."],
+        ['This element is not a JSON script']
+    ], this.mockConsoleWarnCalls().map(function(e) { return e.slice(0, 1); }));
 
     equal('', creme.utils.JSON.readScriptText('<script type="text/json"></script>'));
     equal('', creme.utils.JSON.readScriptText('<script type="text/json"><!-- --></script>'));
@@ -183,26 +194,34 @@ QUnit.test('creme.utils.JSON.readScriptText', function(assert) {
     this.resetMockConsoleWarnCalls();
 
     equal('<!-- ->', creme.utils.JSON.readScriptText('<script type="text/json"><!-- -></script>'));
-    deepEqual([['Please use html comment <!-- --> within JSON <script> tag to prevent some browsers to interpret it as javascript']],
-              this.mockConsoleWarnCalls());
+    deepEqual([
+        ["creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText instead."],
+        ['Please use html comment <!-- --> within JSON <script> tag to prevent some browsers to interpret it as javascript']
+    ], this.mockConsoleWarnCalls());
 
     this.resetMockConsoleWarnCalls();
 
     equal('<!--', creme.utils.JSON.readScriptText('<script type="text/json"><!--</script>'));
-    deepEqual([['Please use html comment <!-- --> within JSON <script> tag to prevent some browsers to interpret it as javascript']],
-              this.mockConsoleWarnCalls());
+    deepEqual([
+        ["creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText instead."],
+        ['Please use html comment <!-- --> within JSON <script> tag to prevent some browsers to interpret it as javascript']
+    ], this.mockConsoleWarnCalls());
 
     this.resetMockConsoleWarnCalls();
 
     equal('-->', creme.utils.JSON.readScriptText('<script type="text/json">--></script>'));
-    deepEqual([['Please use html comment <!-- --> within JSON <script> tag to prevent some browsers to interpret it as javascript']],
-              this.mockConsoleWarnCalls());
+    deepEqual([
+        ["creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText instead."],
+        ['Please use html comment <!-- --> within JSON <script> tag to prevent some browsers to interpret it as javascript']
+    ], this.mockConsoleWarnCalls());
 
     this.resetMockConsoleWarnCalls();
 
     equal('{}', creme.utils.JSON.readScriptText('<script type="text/json">{}</script>'));
-    deepEqual([['Please use html comment <!-- --> within JSON <script> tag to prevent some browsers to interpret it as javascript']],
-              this.mockConsoleWarnCalls());
+    deepEqual([
+        ["creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText instead."],
+        ['Please use html comment <!-- --> within JSON <script> tag to prevent some browsers to interpret it as javascript']
+    ], this.mockConsoleWarnCalls());
 
     equal('{}', creme.utils.JSON.readScriptText('<script type="text/json"><!-- {} --></script>'));
     equal('{}', creme.utils.JSON.readScriptText('<script type="text/json">\n<!-- {} -->\n\n</script>'));
@@ -210,28 +229,40 @@ QUnit.test('creme.utils.JSON.readScriptText', function(assert) {
     equal('{}', creme.utils.JSON.readScriptText('<script type="application/json"><!-- {} --></script>'));
     equal('{}', creme.utils.JSON.readScriptText('<script type="application/json">\n<!-- {} -->\n\n</script>'));
 
-    equal('{"a": 12, "b": "-->alert();<script/>"}', creme.utils.JSON.readScriptText('<script type="application/json">\n<!-- {"a": 12, "b": "--\\u003ealert();\\u003cscript/\\u003e"} -->\n\n</script>'));
+    equal('{"a": 12, "b": "-->alert();<script/>"}', creme.utils.JSON.readScriptText(
+        '<script type="application/json">\n<!-- {"a": 12, "b": "--\\u003ealert();\\u003cscript/\\u003e"} -->\n\n</script>'
+    ));
 });
 
 QUnit.test('creme.utils.JSON.readScriptText (ignore empty)', function(assert) {
     equal('', creme.utils.JSON.readScriptText(''));
 
-    deepEqual([['No such JSON script element']],
-              this.mockConsoleWarnCalls().map(function(e) { return e.slice(0, 1); }));
+    deepEqual([
+        ["creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText instead."],
+        ['No such JSON script element']
+    ], this.mockConsoleWarnCalls().map(function(e) { return e.slice(0, 1); }));
 
     this.resetMockConsoleWarnCalls();
-    equal('', creme.utils.JSON.readScriptText($('script.unknown')));
+    equal('', creme.utils.JSON.readScriptText('script.unknown'));
 
-    deepEqual([['No such JSON script element']],
-              this.mockConsoleWarnCalls().map(function(e) { return e.slice(0, 1); }));
+    deepEqual([
+        ["creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText instead."],
+        ['No such JSON script element']
+    ], this.mockConsoleWarnCalls().map(function(e) { return e.slice(0, 1); }));
 
     this.resetMockConsoleWarnCalls();
 
     equal('', creme.utils.JSON.readScriptText('', {ignoreEmpty: true}));
-    deepEqual([], this.mockConsoleWarnCalls());
+    deepEqual([
+        ["creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText instead."]
+    ], this.mockConsoleWarnCalls());
 
-    equal('', creme.utils.JSON.readScriptText($('script.unknown'), {ignoreEmpty: true}));
-    deepEqual([], this.mockConsoleWarnCalls());
+    this.resetMockConsoleWarnCalls();
+
+    equal('', creme.utils.JSON.readScriptText('script.unknown', {ignoreEmpty: true}));
+    deepEqual([
+        ["creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText instead."]
+    ], this.mockConsoleWarnCalls());
 });
 
 }(jQuery));

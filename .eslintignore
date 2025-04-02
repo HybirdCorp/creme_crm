@@ -14,7 +14,7 @@
 **/js/jquery/extensions/jquery.debounce*
 **/js/jquery/extensions/fullcalendar*
 **/js/jquery/ui/*
-**/js/lib/underscore/*
+**/js/lib/underscore/underscore-*
 **/js/lib/momentjs/*
 **/js/lib/leaflet*.js
 **/js/lib/editor/*

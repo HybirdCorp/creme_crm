@@ -40,7 +40,7 @@
             $('#sector-selector').on('creme-widget-create', function(e, widget) {
                 creme.ajax.query('{% url "creme_core__enumerable_choices" TEST_CONTENTTYPES.sector "sector" %}')
                           .onDone(function(e, data) {
-                               widget.model().reset(creme.utils.JSON.clean(data).map(function(item) {
+                               widget.model().reset((_.cleanJSON(data) || []).map(function(item) {
                                    return {value: item[0], label: item[1], visible: true, selected: false};
                                }));
                            })

@@ -60,14 +60,14 @@ creme.D3ChartBrickController = creme.component.Component.sub({
 
     initialData: function() {
         var script = $('script[type$="/json"].sketch-chart-data:first', this._brick.element());
-        var data = creme.utils.JSON.readScriptText(script);
+        var data = _.readJSONScriptText(script.get(0));
 
         return Object.isEmpty(data) ? [] : JSON.parse(data);
     },
 
     initialProps: function() {
         var script = $('script[type$="/json"].sketch-chart-props:first', this._brick.element());
-        var data = creme.utils.JSON.readScriptText(script);
+        var data = _.readJSONScriptText(script.get(0));
 
         return Object.isEmpty(data) ? {} : JSON.parse(data);
     },
