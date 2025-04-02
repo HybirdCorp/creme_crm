@@ -26,8 +26,6 @@
 
 creme.search = creme.search || {};
 
-var _json = new creme.utils.JSON();
-
 var KeyCodes = {
     UP: 38,
     DOWN: 40,
@@ -225,7 +223,7 @@ creme.search.SearchBox = creme.component.Component.sub({
                    })
                   .onDone(function(event, responseData) {
                       try {
-                          var data = self._renderResults(_json.decode(responseData), query);
+                          var data = self._renderResults(JSON.parse(responseData), query);
 
                           if (self._timestamp !== null && timestamp >= self._timestamp) {
                               self._updateState(false, data);

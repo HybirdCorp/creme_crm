@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -24,20 +24,28 @@ creme.utils = creme.utils || {};
 creme.utils.JSON = function() {};
 creme.utils.JSON.prototype = {
     encode: function(data) {
+        console.warn('creme.utils.JSON.encode is deprecated; Use JSON.stringify instead.');
+        return JSON.stringify(data);
+        /*
         if (window.JSON && window.JSON.stringify) {
             return window.JSON.stringify(data);
         }
 
         throw Error('not implemented !');
+        */
     },
 
     isJSON: function(data) {
+        console.warn('creme.utils.JSON.isJSON is deprecated; Use _.isJSON instead.');
+        return _.isJSON(data);
+        /*
         // Make sure the incoming data is actual JSON
         // Logic borrowed from http://json.org/json2.js
         return typeof data === 'string' &&
                (/^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
                                          .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
                                          .replace(/(?:^|:|,)(?:\s*\[)+/g, "")));
+        */
     },
 
     decode: function(data, defaults) {
@@ -49,10 +57,14 @@ creme.utils.JSON.prototype = {
             }
         }
 
+        console.warn('creme.utils.JSON.decode is deprecated; Use _.cleanJSON instead.');
+
         if (typeof data !== "string" || !data) {
             throw Error('Invalid data type or empty string');
         }
 
+        return JSON.parse(data);
+        /*
         // Make sure leading/trailing whitespace is removed (IE can't handle it)
         data = (data || '').trim();
 
@@ -76,9 +88,11 @@ creme.utils.JSON.prototype = {
         } catch (err) {
             throw Error('JSON parse error (fallback): ' + err);
         }
+        */
     }
 };
 
+/*
 creme.utils.JSON.decoder = function(defaults) {
     var codec = new creme.utils.JSON();
 
@@ -90,17 +104,24 @@ creme.utils.JSON.decoder = function(defaults) {
 creme.utils.JSON.encoder = function() {
     return new creme.utils.JSON().encode;
 };
+*/
 
 creme.utils.JSON.clean = function(data, defaults) {
+    console.warn('creme.utils.JSON.clean is deprecated; Use _.cleanJSON instead.');
+    return _.isString(data) ? _.cleanJSON(data) || defaults : data;
+    /*
     return Object.isString(data) ? new creme.utils.JSON().decode(data, defaults) : data;
+    */
 };
 
 creme.utils.JSON.readScriptText = function(element, options) {
+    console.warn('creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText instead.');
     element = $(element).first();
-    options = $.extend({
+    options = Object.assign({
         ignoreEmpty: false
     }, options || {});
 
+    // TODO : seems never used remove it ?
     if (element.length === 0) {
         if (!options.ignoreEmpty) {
             console.warn('No such JSON script element');
@@ -109,6 +130,8 @@ creme.utils.JSON.readScriptText = function(element, options) {
         return '';
     }
 
+    return _.readJSONScriptText(element.get(0));
+    /*
     if (!element.is('script') || ['text/json', 'application/json'].indexOf(element.attr('type')) === -1) {
         console.warn('This element is not a JSON script', element);
         return '';
@@ -135,6 +158,7 @@ creme.utils.JSON.readScriptText = function(element, options) {
                          .replace(/\\u003e/gi, '>')
                          .replace(/\\u2028/gi, '\u2028')
                          .replace(/\\u2029/gi, '\u2029');
+    */
 };
 
 }(jQuery));

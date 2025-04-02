@@ -26,7 +26,7 @@
     {% jsondata widget.subcat_js_map id=id|add:'_subcat_map' %}
     <script type="text/javascript">
         $(document).ready(function() {
-            var subCatMap = JSON.parse(creme.utils.JSON.readScriptText($('#{{id}}_subcat_map')));
+            var subCatMap = JSON.parse(_.readJSONScriptText('#{{id}}_subcat_map'));
 
             $('#{{id}}_cat_defval').on('change', function(e) {
                 var options = subCatMap[$(this).val()] || [];

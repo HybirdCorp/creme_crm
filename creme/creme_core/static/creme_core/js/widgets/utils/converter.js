@@ -129,7 +129,7 @@ var __toFloat = function(value) {
 };
 
 var __fromJSON = function(value) {
-    return creme.utils.JSON.clean(value);
+    return JSON.parse(value);
 };
 
 var __toJSON = function(value) {

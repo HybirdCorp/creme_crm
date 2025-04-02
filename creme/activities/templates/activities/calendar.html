@@ -11,7 +11,7 @@
     {% block calendar_setup_script %}
     <script type='text/javascript'>
         $(document).ready(function() {
-            var settings = JSON.parse(creme.utils.JSON.readScriptText($('#calendar-settings-data')));
+            var settings = JSON.parse(_.readJSONScriptText('#calendar-settings-data'));
             var extra = settings.extra_data || {};
 
             if (Array.isArray(extra) || _.isString(extra) || _.isNumber(extra)) {

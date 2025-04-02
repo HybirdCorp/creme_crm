@@ -865,6 +865,7 @@ CREME_CORE_JS = [
 
     # Underscore tools
     'creme_core/js/lib/underscore/object.js',
+    'creme_core/js/lib/underscore/json.js',
 
     # Base tools
     'creme_core/js/lib/fallbacks/object-0.1.js',

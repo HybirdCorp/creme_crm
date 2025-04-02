@@ -208,7 +208,7 @@ QUnit.test('creme.detailview.hatmenubar (update-redirect)', function(assert) {
     equal(true, link.isBound());
     equal(false, link.isDisabled());
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     this.assertOpenedDialog();
     deepEqual([], this.mockBackendUrlCalls('mock/delete'));

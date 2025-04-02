@@ -36,7 +36,7 @@ creme.widget.SelectorAction = creme.component.Action.sub({
             return;
         }
 
-        data = creme.utils.JSON.clean(data, null);
+        data = _.isString(data) ? _.cleanJSON(data) || null : data;
 
         if (data !== null) {
             delegate.update(data);

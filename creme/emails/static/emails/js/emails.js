@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2024  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -101,10 +101,9 @@ creme.emails.MultiSelectedAction = creme.component.Action.sub({
     _onMultiFail: function(event, data, response) {
         var message = gettext('Some errors occurred.');
         var header = creme.ajax.localizedErrorMessage(response.status);
-        var parser = new creme.utils.JSON();
 
-        if (!Object.isEmpty(data) && parser.isJSON(data)) {
-            var results = parser.decode(data);
+        if (!Object.isEmpty(data) && _.isJSON(data)) {
+            var results = JSON.parse(data);
             var removedCount = results.count - results.errors.length;
 
             if (removedCount > 0) {

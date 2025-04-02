@@ -306,7 +306,7 @@ QUnit.test('creme.model.ChoiceRenderer.parse (converter)', function(assert) {
             '<option value="[3, 4]">b</option>' +
             '<option value="[5, 6]">c</option>' +
         '</options></select>');
-    var options = creme.model.ChoiceRenderer.parse(element, new creme.utils.JSON().decode);
+    var options = creme.model.ChoiceRenderer.parse(element, JSON.parse);
 
     deepEqual(options, [{value: [1, 2], label: 'a', help: undefined, disabled: false, selected: true,  visible: true, readonly: false, tags: []},
                         {value: [3, 4], label: 'b', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
@@ -317,14 +317,14 @@ QUnit.test('creme.model.ChoiceRenderer.parse (converter)', function(assert) {
                     '<option value="[3, 4]" selected>b</option>' +
                     '<option value="[5, 6]" disabled>c</option>' +
                 '</options></select>');
-    options = creme.model.ChoiceRenderer.parse(element, new creme.utils.JSON().decode);
+    options = creme.model.ChoiceRenderer.parse(element, JSON.parse);
 
     deepEqual(options, [{value: [1, 2], label: 'a', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
                         {value: [3, 4], label: 'b', help: undefined, disabled: false, selected: true,  visible: true, readonly: false, tags: []},
                         {value: [5, 6], label: 'c', help: undefined, disabled: true, selected: false,  visible: true, readonly: false, tags: []}]);
 
     element.val("[1, 2]");
-    options = creme.model.ChoiceRenderer.parse(element, new creme.utils.JSON().decode);
+    options = creme.model.ChoiceRenderer.parse(element, JSON.parse);
 
     deepEqual(options, [{value: [1, 2], label: 'a', help: undefined, disabled: false, selected: true,  visible: true, readonly: false, tags: []},
                         {value: [3, 4], label: 'b', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},

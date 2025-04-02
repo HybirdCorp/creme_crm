@@ -74,10 +74,9 @@ creme.lv_widget.DeleteSelectedAction = creme.component.Action.sub({
 
         var message = Object.isType(error, 'string') ? error : (error.message || gettext("Error"));
         var header = creme.ajax.localizedErrorMessage(data);
-        var parser = new creme.utils.JSON();
 
-        if (!Object.isEmpty(message) && parser.isJSON(message)) {
-            var results = parser.decode(message);
+        if (!Object.isEmpty(message) && _.isJSON(message)) {
+            var results = JSON.parse(message);
             var removed_count = results.count - results.errors.length;
 
             header = '';
