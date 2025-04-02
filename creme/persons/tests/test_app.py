@@ -114,7 +114,7 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
         self.assertHaveRelation(subject=target, type=type_id, object=source)
 
         # Do not create duplicate
-        workflow.transform_target_into_prospect(source, target, user)
+        workflow.transform_target_into_customer(source, target, user)
         self.assertHaveRelation(subject=target, type=type_id, object=source)
 
     def test_user_contact_menu_entry01(self):
