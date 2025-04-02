@@ -105,7 +105,7 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
         self.assertRelationCount(1, target, constants.REL_SUB_CUSTOMER_SUPPLIER, source)
 
         # Do not create duplicate
-        workflow.transform_target_into_prospect(source, target, user)
+        workflow.transform_target_into_customer(source, target, user)
         self.assertRelationCount(1, target, constants.REL_SUB_CUSTOMER_SUPPLIER, source)
 
     def test_user_contact_menu_entry01(self):
