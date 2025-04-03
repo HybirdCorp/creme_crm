@@ -200,6 +200,11 @@
                     - Add headlessMode flag.
                     - Add allowEventOverlaps property (boolean or method).
                     - Add allowEventCreate property (boolean).
+            * Geolocation:
+                - The urls used in brick controllers can be now overrided in python : do not require to override an entire template.
+                    - DetailMapBrick.update_address_url
+                    - FilteredMapBrick.addresses_url
+                    - NeighboursMapBrick.neighbours_url
         # Javascript:
             * Add RelativeURL() class as an alternative of URL() that do not accepts relative paths (e.g '/list?page=1' is not a valid URL)
             * FormDialog:

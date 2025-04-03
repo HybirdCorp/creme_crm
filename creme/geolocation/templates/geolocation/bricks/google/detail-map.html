@@ -12,7 +12,7 @@
                      apiKey: '{{map_api_key}}'
                  }),
                  addresses: {{geoaddresses|jsonify|safe}},
-                 locationUrl: '{% url 'geolocation__set_address_info' %}'
+                 locationUrl: '{{update_address_url}}'
              });
          });
     </script>

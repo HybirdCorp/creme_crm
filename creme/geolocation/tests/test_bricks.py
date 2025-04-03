@@ -212,6 +212,10 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
             response = self.assertGET200(contact.get_absolute_url())
 
         self.assertTemplateUsed(response, 'geolocation/bricks/google/detail-map.html')
+        self.assertEqual(
+            response.context['update_address_url'],
+            reverse('geolocation__set_address_info')
+        )
 
         tree = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(tree, brick=GoogleDetailMapBrick)
@@ -250,6 +254,10 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
             response = self.assertGET200(contact.get_absolute_url())
 
         self.assertTemplateUsed(response, 'geolocation/bricks/osm/detail-map.html')
+        self.assertEqual(
+            response.context['update_address_url'],
+            reverse('geolocation__set_address_info')
+        )
 
         tree = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(tree, brick=OpenStreetMapDetailMapBrick)
@@ -278,6 +286,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
             response = self.assertGET200(reverse('creme_core__home'))
 
         self.assertTemplateUsed(response, 'geolocation/bricks/google/filtered-map.html')
+        self.assertEqual(response.context['addresses_url'], reverse('geolocation__addresses'))
 
         tree = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(tree, brick=GoogleFilteredMapBrick)
@@ -310,6 +319,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
             response = self.assertGET200(reverse('creme_core__home'))
 
         self.assertTemplateUsed(response, 'geolocation/bricks/osm/filtered-map.html')
+        self.assertEqual(response.context['addresses_url'], reverse('geolocation__addresses'))
 
         tree = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(tree, brick=OpenStreetMapFilteredMapBrick)
@@ -344,6 +354,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
             response = self.assertGET200(contact.get_absolute_url())
 
         self.assertTemplateUsed(response, 'geolocation/bricks/google/neighbours-map.html')
+        self.assertEqual(response.context['neighbours_url'], reverse('geolocation__neighbours'))
 
         tree = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(tree, brick=GoogleNeighboursMapBrick)
@@ -382,6 +393,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
             response = self.assertGET200(contact.get_absolute_url())
 
         self.assertTemplateUsed(response, 'geolocation/bricks/osm/neighbours-map.html')
+        self.assertEqual(response.context['neighbours_url'], reverse('geolocation__neighbours'))
 
         tree = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(tree, brick=OpenStreetMapNeighboursMapBrick)

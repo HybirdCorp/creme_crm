@@ -11,7 +11,7 @@
                  mapController: new creme.geolocation.GoogleMapController({
                      apiKey: '{{map_api_key}}'
                  }),
-                 addressesUrl: '{% url 'geolocation__addresses' %}'
+                 addressesUrl: '{{addresses_url}}'
              });
          });
     </script>
