@@ -24,11 +24,11 @@ creme.layout = creme.layout || {};
 
 creme.layout.TextAreaAutoSize = creme.component.Component.sub({
     _init_: function(options) {
-        options = Object.assign({min: 2}, options || {});
+        options = $.extend({min: 2}, options || {});
 
         this._min = options.min;
         this._max = options.max;
-        this._listeners = $.proxy(this._onResize, this);
+        this._listeners = this._onResize.bind(this);
     },
 
     _onResize: function(e) {
