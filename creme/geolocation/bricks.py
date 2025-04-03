@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2023  Hybird
+#    Copyright (C) 2014-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 from collections import defaultdict
 
 from django.contrib.contenttypes.models import ContentType
+from django.urls.base import reverse_lazy
 from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 
@@ -93,6 +94,7 @@ class _MapBrick(Brick):
 
 class _DetailMapBrick(_MapBrick):
     target_ctypes = (Contact, Organisation)
+    update_address_url = reverse_lazy('geolocation__set_address_info')
 
     def detailview_display(self, context):
         entity = context['object']
@@ -106,6 +108,7 @@ class _DetailMapBrick(_MapBrick):
             context,
             addresses=addresses,
             geoaddresses=addresses,
+            update_address_url=self.update_address_url,
         ))
 
 
@@ -136,12 +139,15 @@ class OpenStreetMapDetailMapBrick(_DetailMapBrick):
 
 
 class _FilteredMapBrick(_MapBrick):
+    addresses_url = reverse_lazy('geolocation__addresses')
+
     def home_display(self, context):
         return self._render(self.get_template_context(
             context,
             address_filters=self.get_filter_choices(
                 context['user'], Contact, Organisation,
             ),
+            addresses_url=self.addresses_url,
         ))
 
 
@@ -176,6 +182,7 @@ class OpenStreetMapFilteredMapBrick(_FilteredMapBrick):
 class _NeighboursMapBrick(_MapBrick):
     dependencies = (Address, GeoAddress,)
     target_ctypes = (Contact, Organisation)
+    neighbours_url = reverse_lazy('geolocation__neighbours')
 
     # Specific use case
     #  Add a new "ungeolocatable"; the person brick will show an error message
@@ -195,6 +202,7 @@ class _NeighboursMapBrick(_MapBrick):
             ),
             radius=get_radius(),
             maps_blockid=self.detail_map.id,
+            neighbours_url=self.neighbours_url,
         ))
 
 
