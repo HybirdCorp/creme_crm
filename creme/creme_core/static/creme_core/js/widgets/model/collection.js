@@ -94,9 +94,9 @@ creme.model.Delegate = creme.model.Collection.sub({
         this._super_(creme.model.Collection, '_init_');
 
         this._delegateListener = $.extend({
-            update: $.proxy(this._onUpdate, this),
-            add: $.proxy(this._onAdd, this),
-            remove: $.proxy(this._onRemove, this)
+            update: this._onUpdate.bind(this),
+            add: this._onAdd.bind(this),
+            remove: this._onRemove.bind(this)
         }, listeners || {});
 
         this.delegate(delegate);
@@ -141,7 +141,7 @@ creme.model.Delegate = creme.model.Collection.sub({
 creme.model.Filter = creme.model.Delegate.sub({
     _init_: function(delegate, filter) {
         var listeners = {
-            reset: $.proxy(this._onReset, this)
+            reset: this._onReset.bind(this)
         };
 
         this._setFilter(filter);

@@ -24,9 +24,9 @@ creme.model = creme.model || {};
 creme.model.Renderer = creme.component.Component.sub({
     _init_: function(target, model, listeners) {
         this._modelListener = $.extend({
-            update: $.proxy(this._onUpdate, this),
-            add: $.proxy(this._onAdd, this),
-            remove: $.proxy(this._onRemove, this)
+            update: this._onUpdate.bind(this),
+            add: this._onAdd.bind(this),
+            remove: this._onRemove.bind(this)
         }, listeners || {});
 
         this.target(target);

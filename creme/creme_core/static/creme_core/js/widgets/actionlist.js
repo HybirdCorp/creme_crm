@@ -26,7 +26,7 @@ creme.widget.SelectorAction = creme.component.Action.sub({
         this._delegate = delegate;
         this._button = button;
 
-        this.onDone($.proxy(this._updateDelegate, this));
+        this.onDone(this._updateDelegate.bind(this));
     },
 
     _updateDelegate: function(event, data) {

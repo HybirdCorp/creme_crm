@@ -29,9 +29,9 @@ creme.model.AjaxArray = creme.model.Array.sub({
         this._super_(creme.model.Array, '_init_', this.initial());
 
         this._queryListeners = {
-            done: $.proxy(this._onQueryDone, this),
-            fail: $.proxy(this._onQueryError, this),
-            cancel: $.proxy(this._onQueryCancel, this)
+            done: this._onQueryDone.bind(this),
+            fail: this._onQueryError.bind(this),
+            cancel: this._onQueryCancel.bind(this)
         };
     },
 
