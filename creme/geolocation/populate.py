@@ -42,6 +42,11 @@ class Populator(BasePopulator):
             setting_keys.neighbourhood_distance_key
         )
 
+        SettingValue.objects.get_or_create(
+            key_id=setting_keys.use_entity_icon_key.id,
+            defaults={'value': False}
+        )
+
         if already_populated:
             return
 

@@ -402,7 +402,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         orga = Organisation.objects.create(name='Orga 1', user=user)
         address = Address.objects.create(
             name='Addresse',
-            address='13 rue du yahourt',
+            address='27 bis rue du yahourt',
             po_box='',
             zipcode='13008',
             city='Marseille',
@@ -442,7 +442,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         orga = Organisation.objects.create(name='Orga 1', user=user)
         address = Address.objects.create(
             name='Addresse',
-            address='13 rue du yahourt',
+            address='27 bis rue du yahourt',
             po_box='',
             zipcode='01630',
             city='Péron',
@@ -483,7 +483,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         orga = Organisation.objects.create(name='Orga 1', user=user)
         address = Address.objects.create(
             name='My address',
-            address='13 rue du yahourt',
+            address='27 bis rue du yahourt',
             po_box='',
             zipcode='',
             city='',

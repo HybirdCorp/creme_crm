@@ -1184,6 +1184,7 @@ TEST_CREME_OPT_JS = [
     ('creme.geolocation',   'geolocation/js/tests/qunit-geolocation-mixin.js'),
     ('creme.geolocation',   'geolocation/js/tests/geolocation.js'),
     ('creme.geolocation',   'geolocation/js/tests/geolocation-google.js'),
+    ('creme.geolocation',   'geolocation/js/tests/geolocation-leaflet.js'),
     ('creme.geolocation',   'geolocation/js/tests/persons-brick.js'),
     ('creme.geolocation',   'geolocation/js/tests/addresses-brick.js'),
     ('creme.geolocation',   'geolocation/js/tests/persons-neighborhood-brick.js'),

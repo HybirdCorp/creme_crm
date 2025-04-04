@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Graphs 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-14 17:30+0200\n"
+"POT-Creation-Date: 2025-04-07 14:39+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -151,6 +151,9 @@ msgstr "Pas de nœud racine pour le moment"
 #, python-brace-format
 msgid "Add relation types to «{entity}»"
 msgstr "Ajouter des types de relation à «{entity}»"
+
+msgid "Save"
+msgstr ""
 
 #, python-brace-format
 msgid "Add root nodes to «{entity}»"

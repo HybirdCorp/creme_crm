@@ -206,14 +206,18 @@ var __googleMarkerIcons = {
     "default": null
 };
 
-var __getGoogleMarkerIcon = function(name) {
-    name = name || 'default';
-    var icon = __googleMarkerIcons[name];
+var __getGoogleMarkerIcon = function(path) {
+    var icon = __googleMarkerIcons[path || 'default'];
 
     if (icon === undefined) {
-        return name;
+        return {
+            url: path,
+            size: new google.maps.Size(25, 41),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(12, 41)
+        };
     } else if (Object.isFunc(icon)) {
-        return icon(name);
+        return icon(path);
     } else {
         return null;
     }

@@ -17,6 +17,7 @@ from ..utils import (
     get_google_api_key,
     get_radius,
     location_bounding_box,
+    use_entity_icon,
 )
 from .base import Address, Contact, GeoLocationBaseTestCase, Organisation
 
@@ -24,6 +25,7 @@ from .base import Address, Contact, GeoLocationBaseTestCase, Organisation
 class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
+    @OverrideSettingValueContext(setting_keys.use_entity_icon_key, False)
     def test_address_as_dict(self):
         user = self.get_root_user()
 
@@ -35,8 +37,8 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         self.assertDictEqual(
             {
                 'id': address.pk,
-                'content': '13 rue du yahourt 13012 Marseille 13',
-                'title': '13 rue du yahourt',
+                'content': '27 bis rue du yahourt 13012 Marseille 13',
+                'title': '27 bis rue du yahourt',
                 'owner': 'Orga 1',
                 'is_shipping': False,
                 'is_billing': False,
@@ -48,12 +50,14 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                 'status_label': '',
                 'status': GeoAddress.Status.COMPLETE,
                 'url': orga.get_absolute_url(),
+                'icon': None,
             },
             address_as_dict(address),
         )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
+    @OverrideSettingValueContext(setting_keys.use_entity_icon_key, False)
     def test_address_as_dict_empty_billing_shipping(self):
         user = self.get_root_user()
 
@@ -78,6 +82,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                 'status_label': '',
                 'status': GeoAddress.Status.COMPLETE,
                 'url': orga.get_absolute_url(),
+                'icon': None,
             },
             address_as_dict(address),
         )
@@ -102,12 +107,14 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                 'status_label': '',
                 'status': GeoAddress.Status.COMPLETE,
                 'url': orga.get_absolute_url(),
+                'icon': None,
             },
             address_as_dict(address),
         )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
+    @OverrideSettingValueContext(setting_keys.use_entity_icon_key, False)
     def test_address_as_dict_empty(self):
         user = self.get_root_user()
 
@@ -131,13 +138,15 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                 'geocoded': False,
                 'status_label': '',
                 'status': GeoAddress.Status.COMPLETE,
-                'url': orga.get_absolute_url()
+                'url': orga.get_absolute_url(),
+                'icon': None
             },
             address_as_dict(address),
         )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
+    @OverrideSettingValueContext(setting_keys.use_entity_icon_key, False)
     def test_address_as_dict_missing_geoaddress01(self):
         user = self.get_root_user()
 
@@ -168,12 +177,14 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                 'status_label': _('Not localized'),
                 'status': GeoAddress.Status.UNDEFINED,
                 'url': orga.get_absolute_url(),
+                'icon': None,
             },
             address_as_dict(address),
         )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
+    @OverrideSettingValueContext(setting_keys.use_entity_icon_key, False)
     def test_address_as_dict_missing_geoaddress02(self):
         "With select_related."
         user = self.get_root_user()
@@ -204,6 +215,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                 'status_label': _('Not localized'),
                 'status': GeoAddress.Status.UNDEFINED,
                 'url': orga.get_absolute_url(),
+                'icon': None,
             },
             address_as_dict(address),
         )
@@ -261,6 +273,12 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
 
         with OverrideSettingValueContext(setting_keys.GOOGLE_API_KEY, 'thegoldenticket'):
             self.assertEqual(get_google_api_key(), 'thegoldenticket')
+
+    def test_use_entity_icon_key(self):
+        self.assertEqual(use_entity_icon(), False)
+
+        with OverrideSettingValueContext(setting_keys.use_entity_icon_key, True):
+            self.assertEqual(use_entity_icon(), True)
 
     def test_get_openstreetmap_settings(self):
         self.assertDictEqual(

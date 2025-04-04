@@ -205,6 +205,9 @@
                     - DetailMapBrick.update_address_url
                     - FilteredMapBrick.addresses_url
                     - NeighboursMapBrick.neighbours_url
+                - Markers with custom icons are now supported in maps:
+                    - New registry geomarker_icon_registry allows to register an icon for a model.
+                    - New setting key 'geolocation-use_entity_icon_key' enables the feature.
         # Javascript:
             * Add RelativeURL() class as an alternative of URL() that do not accepts relative paths (e.g '/list?page=1' is not a valid URL)
             * FormDialog:
@@ -429,6 +432,8 @@
             * Emails :
                 - In the brick classes 'ContactsBrick' & 'OrganisationsBrick',
                   the variable "field_hidden" is not injected anymore.
+            * Geolocation:
+                - _MapBrick.get_addresses_as_dict() is now an instance method, not a static one.
             * Mobile :
                 - The class 'forms.PhoneInput' has been removed.
             * SMS :

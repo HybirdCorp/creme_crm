@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2014-2023  Hybird
+    Copyright (C) 2014-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -46,22 +46,16 @@ creme.geolocation.Location = creme.component.Component.sub({
         options = options || {};
 
         if (options instanceof creme.geolocation.Location) {
-            return this._init_({
-                id: options.id(),
-                content: options.content(),
-                title: options.title(),
-                owner: options.owner(),
-                position: options.position(),
-                visible: options.visible(),
-                status: options.status(),
-                url: options.url()
-            });
+            return this._init_(options.props());
         }
 
         this.id(options.id);
         this.content(options.content || '');
         this.title(options.title || '');
         this.owner(options.owner);
+        this.icon(options.icon);
+        this.iconShadow(options.iconShadow);
+        this.extraData(options.extraData);
 
         if (options.latitude) {
             this.position({lat: options.latitude, lng: options.longitude});
@@ -72,6 +66,34 @@ creme.geolocation.Location = creme.component.Component.sub({
         this.visible(options.visible || false);
         this.status(options.status || creme.geolocation.LocationStatus.UNDEFINED);
         this.url(options.url);
+    },
+
+    props: function() {
+        return {
+            id: this.id(),
+            content: this.content(),
+            title: this.title(),
+            owner: this.owner(),
+            position: this.position(),
+            visible: this.visible(),
+            status: this.status(),
+            url: this.url(),
+            icon: this.icon(),
+            iconShadow: this.iconShadow(),
+            extraData: this.extraData()
+        };
+    },
+
+    extraData: function(extra) {
+        return Object.property(this, '_extraData', extra);
+    },
+
+    icon: function(icon) {
+        return Object.property(this, '_icon', icon);
+    },
+
+    iconShadow: function(icon) {
+        return Object.property(this, '_iconShadow', icon);
     },
 
     id: function(id) {
@@ -260,6 +282,8 @@ creme.geolocation.GeoMapController = creme.component.Component.sub({
                       location: location,
                       position: position,
                       status: status,
+                      icon: location.icon(),
+                      iconShadow: location.iconShadow(),
                       draggable: options.draggable || false,
                       searchData: data,
                       extraData: options.extraData || {}
@@ -275,9 +299,10 @@ creme.geolocation.GeoMapController = creme.component.Component.sub({
         var marker = this.updateOrAddMarker(options.id, options);
         this.trigger('marker-move', [
             marker,
-            $.extend(this.getMarkerProperties(options.id), {
+            Object.assign(this.getMarkerProperties(options.id), {
                 status: options.status,
-                searchData: options.searchData
+                searchData: options.searchData,
+                location: options.location
             })
         ]);
     },

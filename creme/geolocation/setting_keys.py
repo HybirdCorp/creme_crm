@@ -21,6 +21,14 @@ google_api_key = SettingKey(
 )
 
 
+use_entity_icon_key = SettingKey(
+    id='geolocation-use_entity_icon_key',
+    description=_('Show customizable marker icon of address related entity'),
+    app_label='geolocation',
+    type=SettingKey.BOOL,
+)
+
+
 def __getattr__(name):
     if name == 'NEIGHBOURHOOD_DISTANCE':
         warnings.warn(
