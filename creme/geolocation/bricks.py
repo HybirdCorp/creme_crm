@@ -66,8 +66,7 @@ class _MapBrick(Brick):
 
         return choices
 
-    @staticmethod
-    def get_addresses_as_dict(entity):
+    def get_addresses_as_dict(self, entity):
         return [
             {
                 k: (escape(v) if isinstance(v, str) else v)

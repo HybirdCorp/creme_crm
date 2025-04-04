@@ -40,7 +40,7 @@ class GeoLocationBaseTestCase(CremeTestCase):
 
     @staticmethod
     def create_address(owner,
-                       address='13 rue du yahourt',
+                       address='27 bis rue du yahourt',
                        zipcode='13008',
                        town='Marseille',
                        geoloc=None,
@@ -68,7 +68,7 @@ class GeoLocationBaseTestCase(CremeTestCase):
 
     def create_billing_address(self,
                                owner,
-                               address='13 rue du yahourt',
+                               address='27 bis rue du yahourt',
                                zipcode='13008',
                                town='Marseille',
                                geoloc=None,
@@ -82,7 +82,7 @@ class GeoLocationBaseTestCase(CremeTestCase):
 
     def create_shipping_address(self,
                                 owner,
-                                address='13 rue du yahourt',
+                                address='27 bis rue du yahourt',
                                 zipcode='13008',
                                 town='Marseille',
                                 geoloc=None,
