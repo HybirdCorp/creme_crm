@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2020  Hybird
+    Copyright (C) 2020-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@
 creme.geolocation = creme.geolocation || {};
 
 function __iconMark(options) {
-    return leaflet.icon($.extend({
+    return leaflet.icon(Object.assign({
         className: 'geolocation-leaflet-marker',
         iconUrl: options.iconUrl,
         iconRetinaUrl: options.iconRetinaUrl,
@@ -74,24 +74,36 @@ function __markerDraggable(marker, state) {
     return marker;
 }
 
+function __iconMediaURL(path) {
+    if (String(path || '').includes('/' + window.THEME_NAME + '/')) {
+        return path;
+    } else {
+        return creme_media_url(path);
+    }
+}
 
-function __getIcon(name) {
-    name = name || 'default';
-    var icon = __ICONS[name];
+function __getIcon(path, shadowPath) {
+    var icon = __ICONS[path || 'default'];
 
     if (Object.isFunc(icon)) {
-        icon = icon(name);
+        icon = icon(path, shadowPath);
+    } else if (path) {
+        icon = __iconMark({
+            iconUrl: __iconMediaURL(path),
+            iconRetinaUrl: __iconMediaURL(path),
+            shadowUrl: shadowPath ? __iconMediaURL(shadowPath) : ''
+        });
     }
 
     return icon || __iconDefault();
 }
 
 
-function __markerIcon(marker, name) {
-    if (name === undefined) {
+function __markerIcon(marker, path, shadowPath) {
+    if (path === undefined) {
         return marker.getIcon();
     } else {
-        marker.setIcon(__getIcon(name));
+        marker.setIcon(__getIcon(path, shadowPath));
         return marker;
     }
 }
@@ -378,7 +390,7 @@ creme.geolocation.LeafletMapController = creme.geolocation.GeoMapController.sub(
         var marker = leaflet.marker([position.lat, position.lng], {
             title: options.title,
             draggable: true,
-            icon: __getIcon(options.icon)
+            icon: __getIcon(options.icon, options.iconShadow)
         });
 
         this._itemVisibility(marker, options.visible);
@@ -443,7 +455,7 @@ creme.geolocation.LeafletMapController = creme.geolocation.GeoMapController.sub(
         var marker = this._markers[id];
 
         __markerDraggable(marker, options.draggable);
-        __markerIcon(marker, options.icon);
+        __markerIcon(marker, options.icon, options.iconShadow);
 
         this._itemVisibility(marker, options.visible);
         this._itemExtraData(marker, options.extraData);

@@ -11,6 +11,8 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.tests.base import OverrideSettingValueContext
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.geolocation.models import GeoAddress
+from creme.geolocation.registry import geomarker_icon_registry
 from creme.persons.constants import FILTER_CONTACT_ME, FILTER_MANAGED_ORGA
 from creme.persons.tests.base import (
     skipIfCustomAddress,
@@ -34,6 +36,8 @@ from .base import Contact, GeoLocationBaseTestCase, Organisation
 @skipIfCustomContact
 @skipIfCustomOrganisation
 class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
+    maxDiff = None
+
     def setUp(self):
         super().setUp()
         self.brick = _MapBrick()
@@ -71,6 +75,86 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
             'copyright_title': settings.GEOLOCATION_OSM_COPYRIGHT_TITLE,
         })
         self.assertEqual(GoogleDetailMapBrick().get_map_settings(), {})
+
+    def test_addresses_as_dict(self):
+        user = self.login_as_root_and_get()
+        contact = user.linked_contact
+        orga = Organisation.objects.create(name='Orga 1', user=user)
+        address_a = self.create_address(contact)
+        address_b = self.create_address(orga)
+
+        self.assertEqual(_MapBrick().get_addresses_as_dict(contact), [{
+            'id': address_a.pk,
+            'content': '27 bis rue du yahourt 13008 Marseille 13',
+            'title': '27 bis rue du yahourt',
+            'owner': str(contact),
+            'is_shipping': False,
+            'is_billing': False,
+            'is_complete': False,
+            'latitude': None,
+            'longitude': None,
+            'draggable': True,
+            'geocoded': False,
+            'status_label': _('Not localized'),
+            'status': GeoAddress.Status.UNDEFINED,
+            'url': contact.get_absolute_url(),
+            'icon': None,
+        }])
+
+        self.assertEqual(_MapBrick().get_addresses_as_dict(orga), [{
+            'id': address_b.pk,
+            'content': '27 bis rue du yahourt 13008 Marseille 13',
+            'title': '27 bis rue du yahourt',
+            'owner': 'Orga 1',
+            'is_shipping': False,
+            'is_billing': False,
+            'is_complete': False,
+            'latitude': None,
+            'longitude': None,
+            'draggable': True,
+            'geocoded': False,
+            'status_label': _('Not localized'),
+            'status': GeoAddress.Status.UNDEFINED,
+            'url': orga.get_absolute_url(),
+            'icon': None,
+        }])
+
+        with OverrideSettingValueContext(setting_keys.use_entity_icon_key, True):
+            self.assertEqual(_MapBrick().get_addresses_as_dict(contact), [{
+                'id': address_a.pk,
+                'content': '27 bis rue du yahourt 13008 Marseille 13',
+                'title': '27 bis rue du yahourt',
+                'owner': str(contact),
+                'is_shipping': False,
+                'is_billing': False,
+                'is_complete': False,
+                'latitude': None,
+                'longitude': None,
+                'draggable': True,
+                'geocoded': False,
+                'status_label': _('Not localized'),
+                'status': GeoAddress.Status.UNDEFINED,
+                'url': contact.get_absolute_url(),
+                'icon': geomarker_icon_registry.icon_for_model(Contact).url,
+            }])
+
+            self.assertEqual(_MapBrick().get_addresses_as_dict(orga), [{
+                'id': address_b.pk,
+                'content': '27 bis rue du yahourt 13008 Marseille 13',
+                'title': '27 bis rue du yahourt',
+                'owner': 'Orga 1',
+                'is_shipping': False,
+                'is_billing': False,
+                'is_complete': False,
+                'latitude': None,
+                'longitude': None,
+                'draggable': True,
+                'geocoded': False,
+                'status_label': _('Not localized'),
+                'status': GeoAddress.Status.UNDEFINED,
+                'url': orga.get_absolute_url(),
+                'icon': geomarker_icon_registry.icon_for_model(Organisation).url,
+            }])
 
     def test_filter_choices01(self):
         user = self.get_root_user()

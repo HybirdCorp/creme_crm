@@ -28,6 +28,7 @@ from creme.creme_core.models import SettingValue
 from creme.persons import get_address_model
 
 from . import constants, setting_keys
+from .registry import geomarker_icon_registry
 
 
 def address_as_dict(address):
@@ -37,6 +38,7 @@ def address_as_dict(address):
     content    = str(address)
     owner      = address.owner
     address_id = address.id
+    owner_icon = geomarker_icon_registry.icon_for_instance(owner).url
 
     geoaddress = GeoAddress.get_geoaddress(address)
 
@@ -60,6 +62,7 @@ def address_as_dict(address):
         'draggable':    geoaddress.draggable,
         'geocoded':     geoaddress.geocoded,
         'url':          owner.get_absolute_url(),
+        'icon':         owner_icon if use_entity_icon() else None
     }
 
 
@@ -121,6 +124,10 @@ def get_radius():
 def get_google_api_key():
     # return SettingValue.objects.value_4_key(setting_keys.GOOGLE_API_KEY, default='') or ''
     return SettingValue.objects.value_4_key(setting_keys.google_api_key, default='') or ''
+
+
+def use_entity_icon():
+    return SettingValue.objects.value_4_key(setting_keys.use_entity_icon_key, default=False)
 
 
 def get_openstreetmap_settings():
