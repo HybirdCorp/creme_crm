@@ -1247,7 +1247,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             '<ul class="errorlist"><li>{}</li></ul>'.format(
                 _('An active user with the same email address already exists.')
             ),
-            response1.content.decode(),
+            # response1.content.decode(),
+            response1.text,
         )
 
         # ---

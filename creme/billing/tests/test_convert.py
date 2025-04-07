@@ -5,7 +5,7 @@ from functools import partial
 from django.db.models.query_utils import Q
 # from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.encoding import force_str
+# from django.utils.encoding import force_str
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
@@ -324,7 +324,8 @@ class ConversionTestCase(_BillingTestCase):
         self.assertEqual(1, SalesOrder.objects.count())
 
         self.assertEqual(
-            force_str(response.content),
+            # force_str(response.content),
+            response.text,
             SalesOrder.objects.first().get_absolute_url(),
         )
 

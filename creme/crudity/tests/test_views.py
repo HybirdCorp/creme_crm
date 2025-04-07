@@ -233,7 +233,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         self.assertEqual(
             _('Operation successfully completed'),
-            response.content.decode()
+            # response.content.decode()
+            response.text,
         )
 
     def test_delete02(self):
@@ -267,7 +268,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         self.assertEqual(
             _('You are not allowed to validate/delete the waiting action <{}>').format(wa2.id),
-            response.content.decode()
+            # response.content.decode()
+            response.text,
         )
 
     def test_delete03(self):
@@ -354,7 +356,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         config = configparser.RawConfigParser()
 
         with self.assertNoException():
-            config.read_file(io.StringIO(response.content.decode()))
+            # config.read_file(io.StringIO(response.content.decode()))
+            config.read_file(io.StringIO(response.text))
 
         with self.assertNoException():
             action = config.get('head', 'action')
@@ -406,7 +409,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         config = configparser.RawConfigParser()
 
         with self.assertNoException():
-            config.read_file(io.StringIO(response.content.decode()))
+            # config.read_file(io.StringIO(response.content.decode()))
+            config.read_file(io.StringIO(response.text))
 
         with self.assertNoException():
             username = config.get('head', 'username')

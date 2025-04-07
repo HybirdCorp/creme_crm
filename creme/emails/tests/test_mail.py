@@ -1081,7 +1081,8 @@ better &amp; lighter than the previous one.
 
         self.assertIn(
             escape(_('No type of relationship is compatible.')),
-            error_response.content.decode(),
+            # error_response.content.decode(),
+            error_response.text,
         )
 
     def test_brick(self):
@@ -1179,7 +1180,8 @@ better &amp; lighter than the previous one.
         response = self.assertGET200(
             reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html'))
         )
-        self.assertEqual(b'', response.content)
+        # self.assertEqual(b'', response.content)
+        self.assertEqual('', response.text)
         self.assertEqual('SAMEORIGIN', response.get('X-Frame-Options'))
 
     def test_get_sanitized_html_field02(self):
@@ -1199,7 +1201,8 @@ better &amp; lighter than the previous one.
             '<p>hi</p>'
             '<img alt="Totoro">'
             '<img alt="Nekobus" src="{}nekobus.jpg">'.format(settings.MEDIA_URL),
-            response.content.decode(),
+            # response.content.decode(),
+            response.text,
         )
 
         response = self.assertGET200(url + '?external_img=on')
@@ -1207,7 +1210,8 @@ better &amp; lighter than the previous one.
             '<p>hi</p>'
             '<img alt="Totoro" src="http://external/images/totoro.jpg">'
             '<img alt="Nekobus" src="{}nekobus.jpg">'.format(settings.MEDIA_URL),
-            response.content.decode(),
+            # response.content.decode(),
+            response.text,
         )
         # TODO: improve sanitization test (other tags, css...)
 

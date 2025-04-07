@@ -370,7 +370,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertGET405(url, data=data)
 
         response = self.assertPOST200(url, data=data)
-        self.assertEqual(_('Operation successfully completed'), response.content.decode())
+        # self.assertEqual(_('Operation successfully completed'), response.content.decode())
+        self.assertEqual(_('Operation successfully completed'), response.text)
 
         self.assertDoesNotExist(e2s1)
         self.assertDoesNotExist(e2s2)

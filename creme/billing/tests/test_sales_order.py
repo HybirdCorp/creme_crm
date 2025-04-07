@@ -187,7 +187,8 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=order, type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=order, type=REL_SUB_BILL_RECEIVED, object=target)
 
-        self.assertEqual(order.get_absolute_url(), response.content.decode())
+        # self.assertEqual(order.get_absolute_url(), response.content.decode())
+        self.assertEqual(order.get_absolute_url(), response.text)
 
     def test_create_related__no_redirection(self):
         "No redirection after the creation."
