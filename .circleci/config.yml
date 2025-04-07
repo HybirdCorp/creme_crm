@@ -206,7 +206,7 @@ jobs:
   python310-tests-pgsql:
     docker:
       - image: cimg/python:3.10
-      - image: cimg/postgres:13.3
+      - image: cimg/postgres:14.17
         environment:
           POSTGRES_USER: creme
           POSTGRES_PASSWORD: creme

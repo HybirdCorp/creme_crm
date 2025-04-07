@@ -207,15 +207,16 @@ class BaseTestCaseTestCase(CremeTestCase):
             extra = forms.CharField(required=False, max_length=3)
 
         form1 = MyForm(data={})
-        self.assertFormInstanceErrors(form1, ('name', _('This field is required.')))
+        validation_msg = _('This field is required.')
+        self.assertFormInstanceErrors(form1, ('name', validation_msg))
 
         # ---
         form2 = MyForm(data={'name': 'foo'})
-        with self.assertRaises(self.failureException) as cm2:
+        with self.assertRaises(self.failureException) as cm1:
             self.assertFormInstanceErrors(form2, ('extra', 'What ever'))
         self.assertEqual(
             'The error "extra" has not been found in the form (fields: [])',
-            str(cm2.exception),
+            str(cm1.exception),
         )
 
         # ---
@@ -223,19 +224,16 @@ class BaseTestCaseTestCase(CremeTestCase):
         with self.assertRaises(self.failureException) as cm2:
             self.assertFormInstanceErrors(form1, ('name', msg))
         self.assertEqual(
-            'The error "{}" has not been found in the field errors '
-            '(<ul class="errorlist"><li>{}</li></ul>)'.format(
-                msg,
-                _('This field is required.'),
-            ),
+            f'The error "{msg}" has not been found in the field errors '
+            f'(<ul class="errorlist" id="id_name_error"><li>{validation_msg}</li></ul>)',
             str(cm2.exception),
         )
 
         # ---
-        value = 'ths value is too long'
+        value = 'the value is too long'
         form3 = MyForm(data={'extra': value})
         with self.assertRaises(self.failureException) as cm3:
-            self.assertFormInstanceErrors(form3, ('name', _('This field is required.')))
+            self.assertFormInstanceErrors(form3, ('name', validation_msg))
         self.assertEqual(
             "Unexpected errors have been found in the form: {}".format([
                 (

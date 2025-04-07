@@ -63,7 +63,7 @@ virtual env, in order to keep the old one working).
 
  - Python 3.10+
  - MySQL 8.0.11+ (or MariaDB 10.5+ but we do not advise you to use MariaDB because it regularly causes strange issues)
-   or PostGreSQL 13+
+   or PostGreSQL 14+
    or SQLite (which is included with Python)
  - A web server compatible with Python, like Apache 2.4
  - Redis 3+

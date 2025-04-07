@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,8 @@ from typing import Any, DefaultDict, Iterable, Iterator
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.base import DeserializationError
-from django.core.serializers.python import _get_model
+# from django.core.serializers.python import _get_model
+from django.core.serializers.python import Deserializer
 
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.collections import OrderedSet
@@ -280,7 +281,8 @@ class CRUDityRegistry:
                 input_name     = backend_cfg.pop('input', '')
                 # TODO: use ContentType.objects.get_by_natural_key() ?
                 # TODO: accept swappable ID ?
-                model          = _get_model(backend_cfg.pop('model'))
+                # model          = _get_model(backend_cfg.pop('model'))
+                model          = Deserializer._get_model_from_node(backend_cfg.pop('model'))
                 method         = backend_cfg.pop('method', '')
                 subject        = backend_cfg['subject']
             except KeyError as e:
