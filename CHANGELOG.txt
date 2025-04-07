@@ -1,5 +1,12 @@
 == Version 2.5.20 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Opportunities :
+            - Unsetting the current Quote was not possible if you did not create the relationship yourself.
+
+
 == Version 2.5.19 ==
 
   Users side :
