@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -293,9 +293,17 @@ class RecentEntitiesEntry(menu.MenuEntry):
 
         if lv_items:
             li_tags = format_html_join(
-                '',
-                '<li><a href="{}"><span class="ui-creme-navigation-ctype">{}</span>{}</a></li>',
-                ((lvi.url, lvi.ctype, lvi.name) for lvi in lv_items)
+                '\n',
+                '<li>'
+                '<a href="{url}">'
+                '<span class="ui-creme-navigation-ctype">{ctype}</span>'
+                '{name}'
+                '</a>'
+                '</li>',
+                (
+                    {'url': lvi.url, 'ctype': lvi.ctype, 'name': lvi.name}
+                    for lvi in lv_items
+                ),
             )
         else:
             li_tags = format_html(
