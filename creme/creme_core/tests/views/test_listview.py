@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.encoding import force_str
+# from django.utils.encoding import force_str
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
@@ -519,7 +519,8 @@ class ListViewTestCase(CremeTestCase):
             self.assertInHTML(
                 f'<input class="lv-state-field" value="{selection}" '
                 f'name="selection" type="hidden" />',
-                force_str(response.content),
+                # force_str(response.content),
+                response.text,
             )
 
         post('none')
@@ -540,7 +541,8 @@ class ListViewTestCase(CremeTestCase):
             self.assertInHTML(
                 f'<input class="lv-state-field" value="{selection}" '
                 f'name="selection" type="hidden" />',
-                force_str(response.content),
+                # force_str(response.content),
+                response.text,
             )
 
         get('none')

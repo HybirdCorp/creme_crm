@@ -60,7 +60,8 @@ class SalesPhaseTestCase(CremeTestCase):
         sp2 = create_phase(name='Abandoned',   order=1)
 
         response = self.assertGET200(self.PORTAL_URL)
-        content = response.content.decode()
+        # content = response.content.decode()
+        content = response.text
         sp1_index = self.assertIndex(sp1.name, content)
         sp2_index = self.assertIndex(sp2.name, content)
         self.assertLess(sp2_index, sp1_index)  # order_by('order')

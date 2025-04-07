@@ -1395,7 +1395,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                 start=start,
                 end=end
             ),
-            response.content.decode(),
+            # response.content.decode(),
+            response.text,
         )
 
     def test_export_filter_not_superuser01(self):
@@ -1501,7 +1502,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                 url=reverse('reports__export_report', args=(report.id,)),
                 type=doc_type,
             ),
-            response.content.decode(),
+            # response.content.decode(),
+            response.text,
         )
 
     def test_report_csv__empty(self):
@@ -1525,7 +1527,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             '"{}","{}","{}","{}"\r\n'.format(
                 _('Name'), _('Owner user'), rt.predicate, _('Properties'),
             ),
-            response.content.decode(),
+            # response.content.decode(),
+            response.text,
         )
 
     def test_report_csv__no_filter(self):
@@ -1539,7 +1542,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             self._build_export_url(report), data={'doc_type': 'csv'},
         )
 
-        content = (s for s in response.content.decode().split('\r\n') if s)
+        # content = (s for s in response.content.decode().split('\r\n') if s)
+        content = (s for s in response.text.split('\r\n') if s)
         self.assertEqual(
             smart_str('"{}","{}","{}","{}"'.format(
                 _('Last name'), _('Owner user'), _('owns'), _('Properties'),
@@ -1572,7 +1576,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
 
-        content = [s for s in response.content.decode().split('\r\n') if s]
+        # content = [s for s in response.content.decode().split('\r\n') if s]
+        content = [s for s in response.text.split('\r\n') if s]
         self.assertEqual(3, len(content))
 
         self.assertEqual(f'"Ayanami","{user}","","Kawaii"', content[1])
@@ -1598,7 +1603,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
 
-        content1 = [s for s in response1.content.decode().split('\r\n') if s]
+        # content1 = [s for s in response1.content.decode().split('\r\n') if s]
+        content1 = [s for s in response1.text.split('\r\n') if s]
         self.assertEqual(2, len(content1))
         self.assertEqual(f'"Baby","{user}","",""', content1[1])
 
@@ -1615,7 +1621,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
 
-        content2 = [s for s in response2.content.decode().split('\r\n') if s]
+        # content2 = [s for s in response2.content.decode().split('\r\n') if s]
+        content2 = [s for s in response2.text.split('\r\n') if s]
         self.assertEqual(2, len(content2))
         self.assertEqual(f'"Baby","{user}","",""', content2[1])
 
@@ -1668,7 +1675,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
-        content = (s for s in response.content.decode().split('\r\n') if s)
+        # content = (s for s in response.content.decode().split('\r\n') if s)
+        content = (s for s in response.text.split('\r\n') if s)
         self.assertEqual(smart_str('"{}"'.format(_('Last name'))), next(content))
 
         self.assertEqual('"Ayanami"',   next(content))
@@ -1687,11 +1695,14 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self._create_persons(user=user)
 
         report = self._create_simple_contacts_report(user=user)
-        Field.objects.create(report=report, type=RFT_FIELD, order=2, name='image__' + hidden_fname)
+        Field.objects.create(
+            report=report, type=RFT_FIELD, order=2, name=f'image__{hidden_fname}',
+        )
 
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
-        content = (s for s in response.content.decode().split('\r\n') if s)
+        # content = (s for s in response.content.decode().split('\r\n') if s)
+        content = (s for s in response.text.split('\r\n') if s)
         self.assertEqual(smart_str('"{}"'.format(_('Last name'))), next(content))
 
         self.assertEqual('"Ayanami"',   next(content))
@@ -1716,7 +1727,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
-        content = (s for s in response.content.decode().split('\r\n') if s)
+        # content = (s for s in response.content.decode().split('\r\n') if s)
+        content = (s for s in response.text.split('\r\n') if s)
         self.assertEqual(
             smart_str('"{}","is an employee of"'.format(_('Last name'))),
             next(content),
@@ -1746,7 +1758,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
 
-        content = [s for s in response.content.decode().split('\r\n') if s]
+        # content = [s for s in response.content.decode().split('\r\n') if s]
+        content = [s for s in response.text.split('\r\n') if s]
         self.assertEqual(2, len(content))
         self.assertEqual('"{}"'.format(_('Last name')), content[0])
         self.assertEqual(f'"{osaka.last_name}"',        content[1])

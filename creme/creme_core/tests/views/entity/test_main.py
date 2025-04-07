@@ -317,7 +317,8 @@ class EntityViewsTestCase(CremeTestCase):
             ).order_by('created')
 
         self.assertEqual(mario.last_name, oiram.last_name)
-        self.assertEqual(oiram.get_absolute_url(), response.content.decode())
+        # self.assertEqual(oiram.get_absolute_url(), response.content.decode())
+        self.assertEqual(oiram.get_absolute_url(), response.text)
 
     def test_restrict_entity_2_superusers01(self):
         user = self.login_as_root_and_get()

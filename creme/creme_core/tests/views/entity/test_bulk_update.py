@@ -1609,7 +1609,8 @@ class InnerEditTestCase(_BulkEditTestCase):
         response = self.client.get(self.build_inneredit_uri(sector, 'title'))
         self.assertIn(
             escape(f'This model is not a entity model: {FakeSector}'),
-            response.content.decode(),
+            # response.content.decode(),
+            response.text,
         )
 
     def test_regular_field_overrider(self):

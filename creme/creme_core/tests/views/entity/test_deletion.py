@@ -273,7 +273,8 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'callback_url': cb_url},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        self.assertEqual(cb_url, response.content.decode())
+        # self.assertEqual(cb_url, response.content.decode())
+        self.assertEqual(cb_url, response.text)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
     def test_delete_entity__disabled(self):
@@ -510,7 +511,8 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET405(url, data=data)
 
         response = self.assertPOST200(url, data=data)
-        self.assertEqual(response.content.decode(), _('Operation successfully completed'))
+        # self.assertEqual(response.content.decode(), _('Operation successfully completed'))
+        self.assertEqual(response.text, _('Operation successfully completed'))
 
         # entity1 = self.get_object_or_fail(CremeEntity, pk=entity1.id)
         entity1 = self.get_object_or_fail(FakeOrganisation, pk=entity1.id)
@@ -674,7 +676,8 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         url = self.DEL_ENTITIES_URL
         data = {'ids': f'{entity1.id},{entity2.id}'}
         response1 = self.assertPOST200(url, data=data)
-        self.assertEqual(response1.content.decode(), _('Operation successfully completed'))
+        # self.assertEqual(response1.content.decode(), _('Operation successfully completed'))
+        self.assertEqual(response1.text, _('Operation successfully completed'))
 
         entity1 = self.assertStillExists(entity1)
         self.assertTrue(entity1.is_deleted)
@@ -715,7 +718,8 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertPOST200(
             self.DEL_ENTITIES_URL, data={'ids': f'{entity1.id},{entity2.id}'},
         )
-        self.assertEqual(response.content.decode(), _('Operation successfully completed'))
+        # self.assertEqual(response.content.decode(), _('Operation successfully completed'))
+        self.assertEqual(response.text, _('Operation successfully completed'))
         self.assertDoesNotExist(entity1)
         self.assertDoesNotExist(entity2)
 
@@ -1177,4 +1181,5 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # AJAX version
         response2 = self.assertPOST200(url, headers={'X-Requested-With': 'XMLHttpRequest'})
-        self.assertEqual(redir_url, response2.content.decode())
+        # self.assertEqual(redir_url, response2.content.decode())
+        self.assertEqual(redir_url, response2.text)
