@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2023-2024 Hybird
+# Copyright (c) 2023-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -52,7 +52,7 @@ class SymmetricEncrypter:
             length=32,
             salt=salt,
             # see django/contrib/auth/hashers.py
-            iterations=870000,
+            iterations=1_000_000,
         )
         self.fernet = Fernet(key=base64.urlsafe_b64encode(kdf.derive(secret)))
 
