@@ -1141,9 +1141,9 @@ class YearInput(widgets.NumberInput):
         return context
 
 
-class ColorInput(widgets.Input):
-    input_type = 'color'
-    template_name = 'creme_core/forms/widgets/color.html'
+# class ColorInput(widgets.Input):
+#     input_type = 'color'
+#     template_name = 'creme_core/forms/widgets/color.html'
 
 
 class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultiple):
