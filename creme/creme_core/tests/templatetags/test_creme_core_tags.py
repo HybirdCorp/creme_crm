@@ -686,26 +686,26 @@ class CremeCoreTagsTestCase(CremeTestCase):
     def test_jsondata_node(self):
         # self.maxDiff = None
         self._assertJsonscriptNode(
-            '<script type="application/json"><!--  --></script>',
-            ''
+            expected='<script type="application/json"><!--  --></script>',
+            data='',
         )
 
         data = '-->'
         self._assertJsonscriptNode(
-            r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>',
-            data
+            expected=r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>',
+            data=data,
         )
 
         data = '--></script><script'
         self._assertJsonscriptNode(
-            r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>',
-            data
+            expected=r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>',
+            data=data,
         )
 
         data = '-->&gt;/script&lt;&gt;script'
         self._assertJsonscriptNode(
-            r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>',
-            data
+            expected=r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>',
+            data=data,
         )
 
         self._assertJsonscriptNode('<script type="application/json"><!-- [] --></script>', '[]')
@@ -713,20 +713,38 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         data = '{"a":12,"b":"-->alert();<script/>"}'
         self._assertJsonscriptNode(
-            r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>',
-            data
+            expected=r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>',
+            data=data,
         )
 
         self._assertJsonscriptNode(
-            '<script type="application/json" class="test" name="&lt;script/&gt;">'
-            '<!--  --></script>',
-            '', "class='test' name='<script/>'",
+            expected=(
+                '<script type="application/json" class="test" name="&lt;script/&gt;">'
+                '<!--  -->'
+                '</script>'
+            ),
+            data='',
+            args="class='test' name='<script/>'",
         )
 
         self._assertJsonscriptNode(
-            '<script type="application/json" class="test" name="script#1">'
-            '<!--  --></script>',
-            '', "class='test' name=name",
+            expected=(
+                '<script type="application/json" class="test" name="script#1">'
+                '<!--  -->'
+                '</script>'
+            ),
+            data='',
+            args="class='test' name=name",
+        )
+
+        self._assertJsonscriptNode(
+            expected=(
+                '<script type="application/json" name="script#1">'
+                '<!--  -->'
+                '</script>'
+            ),
+            data='',
+            args="type='ignore-me' name=name",
         )
 
     def test_optionize_model_iterable_filter(self):
