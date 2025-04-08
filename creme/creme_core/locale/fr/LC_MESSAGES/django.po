@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-03 11:37+0100\n"
+"POT-Creation-Date: 2025-04-08 16:57+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -65,6 +65,23 @@ msgstr "Un super-utilisateur est requis."
 
 msgid "You are not super-user."
 msgstr "Vous n'êtes pas super-utilisateur"
+
+#, python-format
+msgid "The password must contain at least %(min_length)d character."
+msgid_plural "The password must contain at least %(min_length)d characters."
+msgstr[0] "Le mot de passe doit contenir au minimum %(min_length)d caractère."
+msgstr[1] "Le mot de passe doit contenir au minimum %(min_length)d caractères."
+
+msgid "The password can’t be too similar to the other personal information."
+msgstr ""
+"Le mot de passe ne peut pas trop ressembler aux autres informations "
+"personnelles."
+
+msgid "The password can’t be a commonly used password."
+msgstr "Le mot de passe ne peut pas être un mot de passe couramment utilisé."
+
+msgid "The password can’t be entirely numeric."
+msgstr "Le mot de passe ne peut pas être entièrement numérique."
 
 msgid "CSV File (delimiter: ',')"
 msgstr "Fichier CSV (séparateur: ',')"
@@ -3575,10 +3592,6 @@ msgid "More"
 msgstr "Plus"
 
 #, python-format
-msgid "Conditions of «%(efilter)s»"
-msgstr "Conditions du filtre «%(efilter)s»"
-
-#, python-format
 msgid "%(title)s: step %(current_step)s of %(step_count)s"
 msgstr "%(title)s : étape %(current_step)s sur %(step_count)s"
 
@@ -4321,6 +4334,9 @@ msgstr "Veuillez entrer au moins {count} caractères"
 
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+#~ msgid "Conditions of «%(efilter)s»"
+#~ msgstr "Conditions du filtre «%(efilter)s»"
 
 #~ msgid "All users"
 #~ msgstr "Tous les utilisateurs"
