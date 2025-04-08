@@ -96,6 +96,8 @@ class CremePropertyTypeManager(models.Manager):
 
         return property_type
 
+    smart_update_or_create.alters_data = True
+
 
 # TODO: factorise with RelationManager ?
 class CremePropertyManager(models.Manager):
@@ -111,6 +113,8 @@ class CremePropertyManager(models.Manager):
                 self.create(**kwargs)
         except IntegrityError:
             logger.exception('Avoid a CremeProperty duplicate: %s ?!', kwargs)
+
+    safe_create.alters_data = True
 
     def safe_get_or_create(self, **kwargs) -> CremeProperty:
         """Kind of safe version of 'get_or_create'.
@@ -142,6 +146,8 @@ class CremePropertyManager(models.Manager):
             )
 
         return prop
+
+    safe_get_or_create.alters_data = True
 
     def safe_multi_save(self,
                         properties: Iterable[CremeProperty],
@@ -192,6 +198,8 @@ class CremePropertyManager(models.Manager):
                     count += 1
 
         return count
+
+    safe_multi_save.alters_data = True
 
 
 class CremePropertyType(CremeModel):
