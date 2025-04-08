@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# from django.utils.translation import ngettext
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import ngettext
 
 from creme.creme_core.apps import CremeAppConfig
 
@@ -32,47 +32,44 @@ class CremeConfigConfig(CremeAppConfig):
     def all_apps_ready(self):
         super().all_apps_ready()
 
-        self.hook_password_validators()
+        # self.hook_password_validators()
 
         from .registry import config_registry
         self.populate_config_registry(config_registry)
 
-    # TODO: define our own classes?
-    def hook_password_validators(self):
-        # NB: we say "The password ..." instead of "Your password ..." (django)
-        #     because it could be confusing when an administrator edit the
-        #     password of another user.
-        from django.contrib.auth import password_validation
-
-        # ---
-        def minlen_get_help_text(this):
-            return ngettext(
-                'The password must contain at least %(min_length)d character.',
-                'The password must contain at least %(min_length)d characters.',
-                this.min_length,
-            ) % {'min_length': this.min_length}
-
-        password_validation.MinimumLengthValidator.get_help_text = minlen_get_help_text
-
-        # ---
-        def personal_get_help_text(this):
-            return _(
-                "The password can’t be too similar to the other personal information."
-            )
-
-        password_validation.UserAttributeSimilarityValidator.get_help_text = personal_get_help_text
-
-        # ---
-        def common_get_help_text(this):
-            return _("The password can’t be a commonly used password.")
-
-        password_validation.CommonPasswordValidator.get_help_text = common_get_help_text
-
-        # ---
-        def numeric_get_help_text(this):
-            return _("The password can’t be entirely numeric.")
-
-        password_validation.NumericPasswordValidator.get_help_text = numeric_get_help_text
+    # def hook_password_validators(self):
+    #     from django.contrib.auth import password_validation
+    #
+    #     # ---
+    #     def minlen_get_help_text(this):
+    #         return ngettext(
+    #             'The password must contain at least %(min_length)d character.',
+    #             'The password must contain at least %(min_length)d characters.',
+    #             this.min_length,
+    #         ) % {'min_length': this.min_length}
+    #
+    #     password_validation.MinimumLengthValidator.get_help_text = minlen_get_help_text
+    #
+    #     # ---
+    #     def personal_get_help_text(this):
+    #         return _(
+    #             "The password can’t be too similar to the other personal information."
+    #         )
+    #
+    #     password_validation.UserAttributeSimilarityValidator.get_help_text = \
+    #         personal_get_help_text
+    #
+    #     # ---
+    #     def common_get_help_text(this):
+    #         return _("The password can’t be a commonly used password.")
+    #
+    #     password_validation.CommonPasswordValidator.get_help_text = common_get_help_text
+    #
+    #     # ---
+    #     def numeric_get_help_text(this):
+    #         return _("The password can’t be entirely numeric.")
+    #
+    #     password_validation.NumericPasswordValidator.get_help_text = numeric_get_help_text
 
     def populate_config_registry(self, config_registry):
         from creme.creme_core.apps import creme_app_configs

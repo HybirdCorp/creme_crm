@@ -521,7 +521,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfNotCremeUser
     @override_settings(
         AUTH_PASSWORD_VALIDATORS=[{
-            'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+            # 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+            'NAME': 'creme.creme_core.auth.password_validation.NumericPasswordValidator',
         }],
     )
     def test_create_user_password_errors(self):
@@ -714,7 +715,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfNotCremeUser
     @override_settings(
         AUTH_PASSWORD_VALIDATORS=[{
-            'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+            # 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+            'NAME': 'creme.creme_core.auth.password_validation.UserAttributeSimilarityValidator',
         }],
     )
     def test_create_user_similarity_errors(self):
@@ -1105,7 +1107,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     @override_settings(AUTH_PASSWORD_VALIDATORS=[{
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        # 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'creme.creme_core.auth.password_validation.MinimumLengthValidator',
     }])
     def test_change_password04(self):
         self.login_as_root()
