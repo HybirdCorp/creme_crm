@@ -1375,7 +1375,8 @@ class ListViewTestCase(CremeTestCase):
             button_node.attrib.get('data-action-url')
             for button_node in buttons_node.findall('a')
         ]
-        dl_url = '{}?ct_id={}'.format(reverse('creme_core__mass_export'), ct_id)
+        # dl_url = '{}?ct_id={}'.format(reverse('creme_core__mass_export'), ct_id)
+        dl_url = reverse('creme_core__mass_export', query={'ct_id': ct_id})
         dl_uri = data_hrefs[1]
         self.assertStartsWith(dl_uri, dl_url)
         self.assertIn(f'hfilter={hf.id}', dl_uri)
@@ -1390,7 +1391,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertEqual(reverse('creme_core__batch_process', args=(ct_id,)), hrefs[4])
 
     @override_settings(
-        FAST_QUERY_MODE_THRESHOLD=1000000,
+        FAST_QUERY_MODE_THRESHOLD=1_000_000,
         PAGE_SIZES=[10, 25],
         DEFAULT_PAGE_SIZE_IDX=1,
     )

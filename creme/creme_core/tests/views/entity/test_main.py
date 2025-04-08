@@ -247,10 +247,11 @@ class EntityViewsTestCase(CremeTestCase):
         response = self.assertPOST200(url, data={'id': mario.id}, follow=True)
         self.assertRedirects(
             response,
-            '{login_url}?next={clone_url}'.format(
-                login_url=reverse(settings.LOGIN_URL),
-                clone_url=url,
-            )
+            # '{login_url}?next={clone_url}'.format(
+            #     login_url=reverse(settings.LOGIN_URL),
+            #     clone_url=url,
+            # )
+            reverse(settings.LOGIN_URL, query={'next': url}),
         )
 
     def test_clone__standard_user(self):

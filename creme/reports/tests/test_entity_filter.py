@@ -1073,7 +1073,11 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         )
 
         response = self.assertGET200(
-            f'{reverse("creme_core__efilters")}?ct_id={efilter.entity_type_id}&type={EF_REPORTS}'
+            # f'{reverse("creme_core__efilters")}?ct_id={efilter.entity_type_id}&type={EF_REPORTS}'
+            reverse(
+                'creme_core__efilters',
+                query={'ct_id': efilter.entity_type_id, 'type': EF_REPORTS},
+            )
         )
         self.assertListEqual(
             [[efilter.id, f'{efilter.name} [{_("Report")}]']],

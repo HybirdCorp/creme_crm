@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2023  Hybird
+#    Copyright (C) 2023-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,8 @@
 from __future__ import annotations
 
 import json
+# from urllib.parse import urlencode
 from functools import partial
-from urllib.parse import urlencode
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
@@ -170,8 +170,13 @@ class EntityVisitor:
         if self.search_dict:
             parameters.update(self.search_dict)
 
-        url = reverse(
+        # url = reverse(
+        #     self.url_name,
+        #     args=(ContentType.objects.get_for_model(self.model).id,),
+        # )
+        # return f'{url}?{urlencode(parameters)}'
+        return reverse(
             self.url_name,
             args=(ContentType.objects.get_for_model(self.model).id,),
+            query=parameters,
         )
-        return f'{url}?{urlencode(parameters)}'

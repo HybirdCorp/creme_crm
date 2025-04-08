@@ -1498,9 +1498,13 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
         self.assertNoFormError(response)
         self.assertEqual(
-            '{url}?doc_type={type}&date_field='.format(
-                url=reverse('reports__export_report', args=(report.id,)),
-                type=doc_type,
+            # '{url}?doc_type={type}&date_field='.format(
+            #     url=reverse('reports__export_report', args=(report.id,)),
+            #     type=doc_type,
+            # ),
+            reverse(
+                'reports__export_report',
+                args=(report.id,), query={'doc_type': doc_type, 'date_field': ''},
             ),
             # response.content.decode(),
             response.text,
