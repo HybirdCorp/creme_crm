@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -90,8 +90,12 @@ class UserEnumerableSelect(EnumerableSelect):
         )
 
         user_ctype = ContentType.objects.get_for_model(field.model)
-        user_choices_url = reverse(
-            'creme_core__efilter_user_choices', args=(user_ctype.id, field.name)
+        # user_choices_url = reverse(
+        #     'creme_core__efilter_user_choices', args=(user_ctype.id, field.name)
+        # )
+        uri = reverse(
+            'creme_core__efilter_user_choices',
+            args=(user_ctype.id, field.name), query={'filter_type': filter_type},
         )
 
         super().__init__(
@@ -101,7 +105,8 @@ class UserEnumerableSelect(EnumerableSelect):
                     field=field,
                     filter_type=filter_type,
                 ),
-                url=f'{user_choices_url}?filter_type={filter_type}'
+                # url=f'{user_choices_url}?filter_type={filter_type}'
+                url=uri,
             ),
             attrs=attrs,
         )
