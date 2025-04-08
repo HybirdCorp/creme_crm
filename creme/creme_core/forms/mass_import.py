@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -139,12 +139,13 @@ class UploadForm(CremeForm):
         self._header = None
         document_f = self.fields['document']
         document_f.user = self.user
+        item_msg_fmt = gettext('{backend_name}: {help}').format
         document_f.help_text = format_html(
             '<ul class="help-texts">{}</ul>',
             format_html_join(
-                '', '<li>{}: {}</li>',
+                '', '<li>{}</li>',
                 (
-                    (be.verbose_name, be.help_text)
+                    [item_msg_fmt(backend_name=be.verbose_name, help=be.help_text)]
                     for be in import_backend_registry.backend_classes
                 )
             )

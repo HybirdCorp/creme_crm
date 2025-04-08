@@ -6,6 +6,7 @@ from django.forms.boundfield import BoundField
 from django.test.utils import override_settings
 from django.utils.safestring import SafeString
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
 from creme.creme_config.forms.fields import (
     CreatorCustomEnumerableChoiceField,
@@ -725,9 +726,22 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertIn('relation_types', fields2)
         initial_info2 = fields2['rtypes_info'].initial
         self.assertHTMLEqual(
-            _('These relationships will be added: {}').format(
-                f'<ul><li>{rtype2.predicate} «{orga}»</li>'
-                f'<li>{rtype1.predicate} «{contact1}»</li></ul>'
+            # _('These relationships will be added: {}').format(
+            ngettext(
+                'This relationship will be added: {}',
+                'These relationships will be added: {}',
+                number=2,
+            ).format(
+                # f'<ul><li>{rtype2.predicate} «{orga}»</li>'
+                # f'<li>{rtype1.predicate} «{contact1}»</li></ul>'
+                '<ul><li>{item1}</li><li>{item2}</li></ul>'.format(
+                    item1=_('{predicate} «{entity}»').format(
+                        predicate=rtype2.predicate, entity=orga,
+                    ),
+                    item2=_('{predicate} «{entity}»').format(
+                        predicate=rtype1.predicate, entity=contact1,
+                    ),
+                )
             ),
             initial_info2,
         )
