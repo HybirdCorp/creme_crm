@@ -417,6 +417,8 @@
             * Emails :
                 - In the brick classes 'ContactsBrick' & 'OrganisationsBrick',
                   the variable "field_hidden" is not injected anymore.
+            * Mobile :
+                - The class 'forms.PhoneInput' has been removed.
             * SMS :
                 - In the brick class 'ContactsBrick', the variable "field_hidden" is not injected anymore.
 
