@@ -424,10 +424,12 @@
 
         # In 'creme_core.auth.backend', the constants '_*_PREFIX' have been removed.
         # The method 'creme_core.models.CremeModel._delete_stored_file()' is not static anymore.
-        # In 'creme_core.templatetags.creme_listview' :
-            - The tag {% listview_entity_filters %} does not inject the following variables in its template context:
-              "entity_filters", "efilter_id", "can_edit", "can_delete".
-            - The tag {% listview_header_filters %} does not inject "can_edit" & "can_delete" in its template context.
+        # In 'creme_core.templatetags' :
+            - In 'creme_core_tags', the function 'do_jsondata()' & the class 'JsonScriptNode' have been replaced.
+            - In 'creme_listview' :
+                - The tag {% listview_entity_filters %} does not inject the following variables in its template context:
+                  "entity_filters", "efilter_id", "can_edit", "can_delete".
+                - The tag {% listview_header_filters %} does not inject "can_edit" & "can_delete" in its template context.
         # Apps :
             * Creme_config :
                 - The class 'bricks.ButtonMenuBrick' (& its template) has been heavily reworked.
