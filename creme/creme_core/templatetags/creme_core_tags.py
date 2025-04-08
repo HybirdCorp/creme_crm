@@ -32,10 +32,10 @@ from django.template import Library
 from django.template import Node as TemplateNode
 from django.template import Template, TemplateSyntaxError
 from django.template.defaulttags import TemplateLiteral
-from django.template.library import token_kwargs
+# from django.template.library import token_kwargs
 from django.urls import reverse
-from django.utils.encoding import force_str
-from django.utils.html import escape, format_html_join
+# from django.utils.encoding import force_str
+from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -827,37 +827,53 @@ def jsondata(value, **kwargs):
     )
 
 
-@register.tag(name='blockjsondata')
-def do_jsondata(parser, token):
-    """ Encode json of the block and render it in a <script> tag with attributes.
+# @register.tag(name='blockjsondata')
+# def do_jsondata(parser, token):
+#     """ Encode json of the block and render it in a <script> tag with attributes.
+#
+#     {% blockjsondata arg1=foo.bar arg2='baz' %}
+#         {{data}}
+#     {% endblockjsondata %}
+#     """
+#     nodelist = parser.parse(('endblockjsondata',))
+#     parser.delete_first_token()
+#     kwargs = token_kwargs(token.split_contents()[1:], parser)
+#     return JsonScriptNode(nodelist, kwargs)
+#
+#
+# class JsonScriptNode(TemplateNode):
+#     def __init__(self, nodelist, kwargs):
+#         self.nodelist = nodelist
+#         self.kwargs = kwargs
+#
+#     def render(self, context):
+#         output = self.nodelist.render(context)
+#         kwargs = self.kwargs
+#
+#         if kwargs.pop("type", None) is not None:
+#             logger.warning('jsondatablock tag do not accept custom "type" attribute')
+#
+#         attrs = ''.join(
+#             f' {k}="{escape(force_str(v.resolve(context)))}"'
+#             for k, v in kwargs.items()
+#         )
+#
+#         return mark_safe(
+#             f'<script type="application/json"{attrs}><!-- {escapejson(output)} --></script>'
+#         )
+@register.simple_block_tag
+def blockjsondata(content, **attrs):
+    """ Encode JSON of the block and render it in a <script> tag with attributes.
 
     {% blockjsondata arg1=foo.bar arg2='baz' %}
         {{data}}
     {% endblockjsondata %}
     """
-    nodelist = parser.parse(('endblockjsondata',))
-    parser.delete_first_token()
-    kwargs = token_kwargs(token.split_contents()[1:], parser)
-    return JsonScriptNode(nodelist, kwargs)
+    if attrs.pop('type', None) is not None:
+        logger.warning('{% blockjsondata %} tag does not accept custom "type" attribute')
 
-
-class JsonScriptNode(TemplateNode):
-    def __init__(self, nodelist, kwargs):
-        self.nodelist = nodelist
-        self.kwargs = kwargs
-
-    def render(self, context):
-        output = self.nodelist.render(context)
-        kwargs = self.kwargs
-
-        if kwargs.pop("type", None) is not None:
-            logger.warning('jsondatablock tag do not accept custom "type" attribute')
-
-        attrs = ''.join(
-            f' {k}="{escape(force_str(v.resolve(context)))}"'
-            for k, v in kwargs.items()
-        )
-
-        return mark_safe(
-            f'<script type="application/json"{attrs}><!-- {escapejson(output)} --></script>'
-        )
+    return format_html(
+        '<script type="application/json"{attrs}><!-- {content} --></script>',
+        attrs=format_html_join(' ', '{}="{}"', attrs.items()),
+        content=escapejson(content),
+    )

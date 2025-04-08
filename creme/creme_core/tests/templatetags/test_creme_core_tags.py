@@ -620,7 +620,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
         # if expected != output:
         #     self.fail('{} != {}'.format(expected, output))  # TODO: if self.maxDiff is None ??
 
-    def _assertJsonscriptNode(self, expected, data, args=''):
+    def _assertBlockjsondata(self, expected, data, args=''):
         with self.assertNoException():
             template = Template(
                 '{% load creme_core_tags %}'
@@ -683,41 +683,41 @@ class CremeCoreTagsTestCase(CremeTestCase):
             '', "class='test' name=name",
         )
 
-    def test_jsondata_node(self):
+    def test_blockjsondata(self):
         # self.maxDiff = None
-        self._assertJsonscriptNode(
+        self._assertBlockjsondata(
             expected='<script type="application/json"><!--  --></script>',
             data='',
         )
 
         data = '-->'
-        self._assertJsonscriptNode(
+        self._assertBlockjsondata(
             expected=r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>',
             data=data,
         )
 
         data = '--></script><script'
-        self._assertJsonscriptNode(
+        self._assertBlockjsondata(
             expected=r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>',
             data=data,
         )
 
         data = '-->&gt;/script&lt;&gt;script'
-        self._assertJsonscriptNode(
+        self._assertBlockjsondata(
             expected=r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>',
             data=data,
         )
 
-        self._assertJsonscriptNode('<script type="application/json"><!-- [] --></script>', '[]')
-        self._assertJsonscriptNode('<script type="application/json"><!-- {} --></script>', '{}')
+        self._assertBlockjsondata('<script type="application/json"><!-- [] --></script>', '[]')
+        self._assertBlockjsondata('<script type="application/json"><!-- {} --></script>', '{}')
 
         data = '{"a":12,"b":"-->alert();<script/>"}'
-        self._assertJsonscriptNode(
+        self._assertBlockjsondata(
             expected=r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>',
             data=data,
         )
 
-        self._assertJsonscriptNode(
+        self._assertBlockjsondata(
             expected=(
                 '<script type="application/json" class="test" name="&lt;script/&gt;">'
                 '<!--  -->'
@@ -727,7 +727,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             args="class='test' name='<script/>'",
         )
 
-        self._assertJsonscriptNode(
+        self._assertBlockjsondata(
             expected=(
                 '<script type="application/json" class="test" name="script#1">'
                 '<!--  -->'
@@ -737,7 +737,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             args="class='test' name=name",
         )
 
-        self._assertJsonscriptNode(
+        self._assertBlockjsondata(
             expected=(
                 '<script type="application/json" name="script#1">'
                 '<!--  -->'
