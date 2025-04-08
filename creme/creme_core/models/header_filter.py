@@ -152,6 +152,8 @@ class HeaderFilterManager(models.Manager):
 
         return hf
 
+    create_if_needed.alters_data = True
+
 
 class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
     """View of list : sets of columns (see EntityCell) stored for a specific

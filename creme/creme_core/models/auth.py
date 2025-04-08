@@ -84,6 +84,8 @@ class UserRoleManager(models.Manager):
 
         return role
 
+    smart_create.alters_data = True
+
 
 class UserRole(models.Model):
     name = models.CharField(_('Name'), max_length=100, unique=True)
@@ -901,6 +903,8 @@ class CremeUserManager(BaseUserManager):
 
         return user
 
+    create_user.alters_data = True
+
     def create_superuser(self,
                          username,
                          first_name,
@@ -918,6 +922,8 @@ class CremeUserManager(BaseUserManager):
             password=password,
             **extra_fields
         )
+
+    create_superuser.alters_data = True
 
     # TODO: create_staff_user ??
 

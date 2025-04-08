@@ -309,6 +309,8 @@ class EntityFilterManager(models.Manager):
 
         return ef
 
+    smart_update_or_create.alters_data = True
+
 
 class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     """A model that contains conditions that filter queries on CremeEntity objects.

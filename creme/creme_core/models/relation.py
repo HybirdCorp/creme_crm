@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -168,6 +168,8 @@ class RelationTypeManager(models.Manager):
 
         return sub_relation_type, obj_relation_type
 
+    smart_update_or_create.alters_data = True
+
 
 class RelationManager(models.Manager):
     def safe_create(self, **kwargs) -> None:
@@ -182,6 +184,8 @@ class RelationManager(models.Manager):
             self.create(**kwargs)
         except IntegrityError:
             logger.exception('Avoid a Relation duplicate: %s ?!', kwargs)
+
+    safe_create.alters_data = True
 
     def safe_get_or_create(self, **kwargs) -> Relation:
         """Kind of safe version of 'get_or_create'.
@@ -223,6 +227,8 @@ class RelationManager(models.Manager):
             )
 
         return relation
+
+    safe_get_or_create.alters_data = True
 
     def safe_multi_save(self,
                         relations: Iterable[Relation],
@@ -284,6 +290,8 @@ class RelationManager(models.Manager):
                     count += 1
 
         return count
+
+    safe_multi_save.alters_data = True
 
 
 class RelationType(CremeModel):

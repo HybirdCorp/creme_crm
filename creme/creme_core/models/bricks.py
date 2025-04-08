@@ -114,6 +114,8 @@ class BrickDetailviewLocationManager(models.Manager):
             **kwargs
         )[0]
 
+    create_if_needed.alters_data = True
+
     def create_for_model_brick(self,
                                order: int,
                                zone: int,
@@ -124,6 +126,8 @@ class BrickDetailviewLocationManager(models.Manager):
             brick=MODELBRICK_ID, order=order,
             zone=zone, model=model, role=role,
         )
+
+    create_for_model_brick.alters_data = True
 
     def filter_for_model(self, model: type[CremeEntity]) -> models.QuerySet:
         return self.filter(
@@ -161,6 +165,8 @@ class BrickDetailviewLocationManager(models.Manager):
             )
 
         return locations
+
+    multi_create.alters_data = True
 
 
 class BrickDetailviewLocation(CremeModel):
