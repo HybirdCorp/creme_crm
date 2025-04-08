@@ -32,6 +32,7 @@ from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from ..models import (
     CremeEntity,
@@ -664,24 +665,25 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
                     rel = forced_relations_info[0]
                     info = _(
                         'This relationship will be added: {predicate} «{entity}»'
-                    ).format(
-                        predicate=rel[0].predicate,
-                        entity=rel[1],
-                    )
+                    ).format(predicate=rel[0].predicate, entity=rel[1])
                 else:
-                    # TODO: ngettext() ?
-                    info = mark_safe(gettext('These relationships will be added: {}').format(
-                        format_html(
+                    item_msg_fmt = gettext('{predicate} «{entity}»').format
+                    info = mark_safe(
+                        ngettext(
+                            'This relationship will be added: {}',
+                            'These relationships will be added: {}',
+                            number=len(forced_relations_info),
+                        ).format(format_html(
                             '<ul>{}</ul>',  # TODO:  class="form-help-label" ??
                             format_html_join(
-                                '', '<li>{} «{}»</li>',
+                                '', '<li>{}</li>',
                                 (
-                                    (rtype.predicate, entity)
+                                    [item_msg_fmt(predicate=rtype.predicate, entity=entity)]
                                     for rtype, entity in forced_relations_info
                                 )
                             )
-                        )
-                    ))
+                        ))
+                    )
 
             if self.user.has_perm_to_link(type(instance)):
                 ctype = instance.entity_type
