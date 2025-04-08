@@ -1673,7 +1673,8 @@ class YearField(fields.IntegerField):
 class ColorField(fields.CharField):
     """A Field which handles HTML colors (e.g: #F2FAB3) without '#'."""
     default_validators = [validators.validate_color]
-    widget = core_widgets.ColorInput
+    # widget = core_widgets.ColorInput
+    widget = widgets.ColorInput
     default_error_messages = {
         'invalid': _('Enter a valid value (e.g. DF8177).'),
     }

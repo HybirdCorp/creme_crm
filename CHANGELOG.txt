@@ -309,6 +309,8 @@
         # In 'creme_core.core.entity_cell', in the methods 'EntityCell*.build()' :
             - The second argument is now always named "name" (e.g. it was named "customfield_id" in 'EntityCellCustomField.build()').
             - The extra arguments are now keyword only (.e.g. 'EntityCellRegularField' & "is_hidden").
+        # The class 'creme_core.forms.widgets.ColorInput' has been removed; use 'django.forms.widgets.ColorInput' instead.
+          The related template file has been removed too.
         # In 'creme_core.gui' :
             - In the class 'bricks.Brick', the method 'has_perms()' has been removed ;
               use the new method 'check_permissions()' instead.
