@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2023  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -270,7 +270,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
         var context = {
             tag: this._itemtag,
             disabled: disabled || data.readonly ? 'disabled' : '',
-            value: value,
+            value: String(value).escapeHTML(),
             index: index,
             checked: data.selected ? 'checked' : '',
             label: data.label || '',
