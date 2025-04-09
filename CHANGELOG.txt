@@ -6,6 +6,13 @@
         * Opportunities :
             - Unsetting the current Quote was not possible if you did not create the relationship yourself.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Fix conversion issues in creme.widgets.CheckListSelect when json datatype is enabled.
+
 
 == Version 2.6.7 ==
 

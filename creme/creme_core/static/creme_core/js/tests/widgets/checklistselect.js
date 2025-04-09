@@ -97,26 +97,26 @@ QUnit.module("creme.widgets.checklistselect.js", new QUnitMixin(QUnitEventMixin,
         equal(options.length, expected.length, 'checkbox count');
 
         options.each(function(index) {
-            var expected_entry = expected[index];
+            var expectedEntry = expected[index];
             var input = $('input[type="checkbox"]', this);
             var label = $('.checkbox-label', this);
-            var is_visible = expected_entry.visible !== undefined ? expected_entry.visible : true;
+            var isVisible = expectedEntry.visible !== undefined ? expectedEntry.visible : true;
 
-            var expected_label = (
-                    '<span class=\"checkbox-label-text\" ${disabled}>${label}</span>' +
-                    '<span class=\"checkbox-label-help\" ${disabled}></span>'
+            var expectedLabel = (
+                    '<span class="checkbox-label-text" ${disabled}>${label}</span>' +
+                    '<span class="checkbox-label-help" ${disabled}></span>'
                 ).template({
-                     disabled: expected_entry.disabled ? 'disabled' : '',
-                     label: expected_entry.label
+                     disabled: expectedEntry.disabled ? 'disabled' : '',
+                     label: expectedEntry.label
                 });
 
-            equalHtml(expected_label, label, 'checkbox %d label'.format(index));
+            equalHtml(expectedLabel, label, 'checkbox %d label'.format(index));
 
-            equal(input.val(), expected_entry.value, 'checkbox %d value'.format(index));
-            equal(input.is('[disabled]'), expected_entry.disabled || false, 'checkbox %d disabled status'.format(index));
-            equal($(this).is('[readonly]'), expected_entry.readonly || false, 'checkbox %d readonly status'.format(index));
-            equal(input.get()[0].checked, expected_entry.selected || false, 'checkbox %d check status'.format(index));
-            equal($(this).is('.hidden'), !is_visible, 'checkbox %d visible status'.format(index));
+            equal(input.val(), expectedEntry.value, 'checkbox %d value'.format(index));
+            equal(input.is('[disabled]'), expectedEntry.disabled || false, 'checkbox %d disabled status'.format(index));
+            equal($(this).is('[readonly]'), expectedEntry.readonly || false, 'checkbox %d readonly status'.format(index));
+            equal(input.get()[0].checked, expectedEntry.selected || false, 'checkbox %d check status'.format(index));
+            equal($(this).is('.hidden'), !isVisible, 'checkbox %d visible status'.format(index));
         });
     }
 }));
@@ -231,6 +231,34 @@ QUnit.test('creme.widget.CheckListSelect.create (initial value)', function(asser
                             {label: 'item3', value: '1',  selected: true}]);
 
     deepEqual(['12', '1'], widget.val());
+});
+
+QUnit.test('creme.widget.CheckListSelect.create (initial value, json)', function(assert) {
+    var element = this.createCheckListSelectElement({attrs: {datatype: 'json'}}).appendTo(this.qunitFixture());
+    this.addCheckListSelectChoice(element, 'item1', '{"a": 12}');
+    this.addCheckListSelectChoice(element, 'item2', '{"b": 78}');
+    this.addCheckListSelectChoice(element, 'item3', "1");
+
+    $('select', element).val(['{"a": 12}', '1']);
+
+    var widget = creme.widget.create(element);
+
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+    equal(false, widget.disabled());
+    equal(element.hasClass('is-disabled'), false);
+
+    deepEqual([{label: 'item1', value: '{"a": 12}', group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: true},
+               {label: 'item2', value: '{"b": 78}', group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
+               {label: 'item3', value: '1',  group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: true}], widget.model().all());
+
+    this.assertCheckListEntries(widget.content(),
+                           [{label: 'item1', value: '{"a": 12}', selected: true},
+                            {label: 'item2', value: '{"b": 78}', selected: false},
+                            {label: 'item3', value: '1',  selected: true}]);
+
+    deepEqual(['{"a": 12}', '1'], widget.val());
+    deepEqual([{a: 12}, 1], widget.cleanedval());
 });
 
 QUnit.test('creme.widget.CheckListSelect.disable', function(assert) {
@@ -553,7 +581,7 @@ QUnit.parameterize('creme.widget.CheckListSelect.selectAll (show)', [
     [undefined, 3, false],
     [3, 3, false],
     [10, 10, true]
-], function(limit, expected, is_hidden, assert) {
+], function(limit, expected, isHidden, assert) {
     var element = this.createCheckListSelectElement({
         attrs: {
             selectall: limit
@@ -569,8 +597,8 @@ QUnit.parameterize('creme.widget.CheckListSelect.selectAll (show)', [
 
     equal(expected, widget.minShowSelectAll());
 
-    equal(element.find('.checklist-check-all').is('.hidden'), is_hidden);
-    equal(element.find('.checklist-check-none').is('.hidden'), is_hidden);
+    equal(element.find('.checklist-check-all').is('.hidden'), isHidden);
+    equal(element.find('.checklist-check-none').is('.hidden'), isHidden);
 
     widget.minShowSelectAll(5);
 
