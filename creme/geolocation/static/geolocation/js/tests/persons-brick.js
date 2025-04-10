@@ -94,6 +94,12 @@ QUnit.module("creme.geolocation.persons-brick", new QUnitMixin(QUnitEventMixin,
             content = '<div class="geolocation-brick-items">${addresses}</div>'.template({
                 addresses: options.addresses.map(this.renderAddressHtml.bind(this)).join('')
             });
+
+            content += (
+                '<script class="geoaddress-data" type="application/json"><!--${props} --></script>'
+            ).template({
+                props: JSON.stringify(options.addresses)
+            });
         }
 
         content += (
@@ -218,12 +224,13 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (no id addresses)', [
     var addresses = [
             {content: 'unknown'}
         ];
-    var brick = this.createPersonsBrick().brick();
+    var brick = this.createPersonsBrick({
+        addresses: addresses
+    }).brick();
 
     this.assertRaises(function() {
         return new creme.geolocation.PersonsBrick(brick, {
-            mapController: mapController,
-            addresses: addresses
+            mapController: mapController
         });
     }, Error, 'Error: PersonsBrick : empty address id');
 });
@@ -239,12 +246,13 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (duplicate addresses)', 
             id: 'Address_A',
             content: '319 Rue Saint-Pierre, 13005 Marseille'
         }];
-    var brick = this.createPersonsBrick().brick();
+    var brick = this.createPersonsBrick({
+        addresses: addresses
+    }).brick();
 
     this.assertRaises(function() {
         return new creme.geolocation.PersonsBrick(brick, {
-            mapController: mapController,
-            addresses: addresses
+            mapController: mapController
         });
     }, Error, 'Error: PersonsBrick : address "Address_A" already exists');
 });
@@ -395,8 +403,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (markers)', [
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
-        mapController: mapController,
-        addresses: addresses
+        mapController: mapController
     });
 
     stop(1);
@@ -484,8 +491,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (toggle mark)', [
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
-        mapController: new creme.geolocation.GoogleMapController(),
-        addresses: addresses
+        mapController: new creme.geolocation.GoogleMapController()
     });
 
     stop(1);
@@ -571,7 +577,6 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (add mark)', [
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
         mapController: mapController,
-        addresses: addresses,
         locationUrl: '/mock/location/update'
     });
 
@@ -629,7 +634,6 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, save)', [
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
         mapController: mapController,
-        addresses: addresses,
         locationUrl: '/mock/location/update'
     });
 
@@ -680,7 +684,6 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, save failed)
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
         mapController: mapController,
-        addresses: addresses,
         locationUrl: '/mock/location/update/fail'
     });
 
@@ -726,8 +729,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, no url)', [
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
-        mapController: mapController,
-        addresses: addresses
+        mapController: mapController
     });
 
     stop(1);
@@ -795,7 +797,6 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, no geolocation)'
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
         mapController: mapController,
-        addresses: addresses,
         locationUrl: '/mock/location/update'
     });
 
@@ -868,7 +869,6 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not found)', [
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
         mapController: mapController,
-        addresses: addresses,
         locationUrl: '/mock/location/update'
     });
 
@@ -946,7 +946,6 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not visible)', [
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
         mapController: mapController,
-        addresses: addresses,
         locationUrl: '/mock/location/update'
     });
 
@@ -1029,7 +1028,6 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, improve accuracy
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
         mapController: mapController,
-        addresses: addresses,
         locationUrl: '/mock/location/update'
     });
 
@@ -1075,8 +1073,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (collapse state)', [
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
-        mapController: mapController,
-        addresses: addresses
+        mapController: mapController
     });
 
     this.autoResizeFaker = this.fakeMethod({
