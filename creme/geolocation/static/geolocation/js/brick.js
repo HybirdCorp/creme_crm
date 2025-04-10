@@ -24,13 +24,13 @@ creme.geolocation = creme.geolocation || {};
 creme.geolocation.PersonsBrick = creme.component.Component.sub({
     _init_: function(brick, options) {
         options = $.extend({
-            addresses: []
+            addresses: 'script[type$="/json"].geoaddress-data:first'
         }, options || {});
+
+        this._brick = brick;
 
         this.addresses(options.addresses);
         this.locationUrl(options.locationUrl);
-
-        this._brick = brick;
 
         Assert.is(options.mapController, creme.geolocation.GeoMapController, '${value} is not a GeoMapController');
 
@@ -138,6 +138,11 @@ creme.geolocation.PersonsBrick = creme.component.Component.sub({
     addresses: function(addresses) {
         if (addresses === undefined) {
             return Object.values(this._addresses);
+        }
+
+        if (_.isString(addresses)) {
+            var script = _.readJSONScriptText($(addresses, this._brick.element()).get(0));
+            addresses = Object.isEmpty(script) ? [] : JSON.parse(script);
         }
 
         var data = this._addresses = {};
