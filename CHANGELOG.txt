@@ -208,6 +208,7 @@
                 - Markers with custom icons are now supported in maps:
                     - New registry geomarker_icon_registry allows to register an icon for a model.
                     - New setting key 'geolocation-use_entity_icon_key' enables the feature.
+                - JSON data of creme.geolocation.PersonsBrick() controller is stored in a script (see {% jsondata %})
         # Javascript:
             * Add RelativeURL() class as an alternative of URL() that do not accepts relative paths (e.g '/list?page=1' is not a valid URL)
             * FormDialog:

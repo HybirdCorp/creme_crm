@@ -1,6 +1,5 @@
 {% extends 'geolocation/bricks/base/detail-map.html' %}
 {% load i18n creme_bricks %}
-{% load jsonify from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} geolocation-leaflet{% endblock %}
 
@@ -14,7 +13,6 @@
                      tileMapUrl: '{{tilemap_url}}',
                      tileMapAttribution: '&copy; <a href="{{copyright_url}}">{{copyright_title}}</a>'
                  }),
-                 addresses: {{geoaddresses|jsonify|safe}},
                  locationUrl: '{{update_address_url}}'
              });
          });
