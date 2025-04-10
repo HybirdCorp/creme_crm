@@ -45,6 +45,44 @@ var MockGoogleGeocoder = creme.component.Component.sub({
     }
 });
 
+var MockNominatimGeocoder = creme.component.Component.sub({
+    _init_: function() {
+        this.responses = {};
+    },
+
+    mockUpdateResponses: function(reponses) {
+        $.extend(true, this.responses, reponses || {});
+    },
+
+    mockPartialResponse: function(position) {
+        return {
+            position: position,
+            status: creme.geolocation.LocationStatus.PARTIAL
+        };
+    },
+
+    mockResponse: function(position) {
+        return {
+            position: position,
+            status: creme.geolocation.LocationStatus.COMPLETE
+        };
+    },
+
+    search: function(content) {
+        var self = this;
+
+        return new creme.component.Action(function() {
+            var candidates = self.responses[content] || [];
+
+            if (Object.isEmpty(candidates)) {
+                this.fail('No location');
+            } else {
+                this.done(candidates[0].position, candidates[0].status, candidates);
+            }
+        });
+    }
+});
+
 window.QUnitGeolocationMixin = {
     beforeEach: function() {
         var backend = this.backend;
@@ -80,9 +118,25 @@ window.QUnitGeolocationMixin = {
     },
 
     createMockOSMGeocoder: function() {
-        return new creme.geolocation.NominatimGeocoder({
-            url: '/mock/nominatim/search'
+        var geocoder = new MockNominatimGeocoder();
+
+        geocoder.mockUpdateResponses({
+            'marseille': [
+                geocoder.mockPartialResponse({lat: 42, lng: 12})
+            ],
+            'marseille 13015': [
+                geocoder.mockResponse({lat: 42, lng: 12}),
+                geocoder.mockResponse({lat: 42, lng: 12.5})
+            ],
+            '13013 Marseille': [
+                geocoder.mockResponse({lat: 43.178801, lng: 4.5048807})
+            ],
+            '319 Rue Saint-Pierre, 13005 Marseille': [
+                geocoder.mockResponse({lat: 43.291628, lng: 5.4030217})
+            ]
         });
+
+        return geocoder;
     },
 
     createMockGoogleGeocoder: function() {

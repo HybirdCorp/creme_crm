@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-14 17:57+0200\n"
+"POT-Creation-Date: 2025-04-07 14:39+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,6 +18,9 @@ msgstr ""
 
 msgid "Close project"
 msgstr "Clôturer le projet"
+
+msgid "Project is already closed."
+msgstr "Le projet est déjà fermé."
 
 msgid "Projects"
 msgstr "Projets"
@@ -474,9 +477,6 @@ msgstr "Voulez vous vraiment fermer ce projet ?"
 
 msgid "Back to the project"
 msgstr "Retour au projet"
-
-msgid "Project is already closed."
-msgstr "Le projet est déjà fermé."
 
 msgid "Allocation of a new resource"
 msgstr "Affectation d'une nouvelle ressource"

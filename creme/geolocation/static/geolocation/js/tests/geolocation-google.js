@@ -1,4 +1,4 @@
-/* globals QUnitGeolocationMixin */
+/* globals QUnitGeolocationMixin creme_media_url */
 (function($, QUnit) {
 "use strict";
 
@@ -294,7 +294,10 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (add marker)', fu
                 owner: 'fulbert',
                 id: 'Address_A',
                 title: 'Address A',
-                content: '319 Rue Saint-Pierre, 13005 Marseille'
+                content: '319 Rue Saint-Pierre, 13005 Marseille',
+                extraData: {
+                    isProspect: true
+                }
             },
             extraData: {
                 content: 'some custom data'
@@ -332,6 +335,15 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (add marker)', fu
                             lat: 43.291628,
                             lng: 5.4030217
                         },
+                        location: new creme.geolocation.Location({
+                            owner: 'fulbert',
+                            id: 'Address_A',
+                            title: 'Address A',
+                            content: '319 Rue Saint-Pierre, 13005 Marseille',
+                            extraData: {
+                                isProspect: true
+                            }
+                        }),
                         draggable: false,
                         visible: true,
                         status: creme.geolocation.LocationStatus.COMPLETE,
@@ -386,7 +398,10 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (update marker)',
             location: {
                 owner: 'fulbert',
                 id: 'Address_A',
-                content: '319 Rue Saint-Pierre, 13005 Marseille'
+                content: '319 Rue Saint-Pierre, 13005 Marseille',
+                extraData: {
+                    isProspect: true
+                }
             }
         }, {
             done: function(event, position, status, data) {
@@ -422,6 +437,14 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (update marker)',
                             lat: 43.291628,
                             lng: 5.4030217
                         },
+                        location: new creme.geolocation.Location({
+                            owner: 'fulbert',
+                            id: 'Address_A',
+                            content: '319 Rue Saint-Pierre, 13005 Marseille',
+                            extraData: {
+                                isProspect: true
+                            }
+                        }),
                         draggable: false,
                         visible: true,
                         status: creme.geolocation.LocationStatus.COMPLETE,
@@ -476,7 +499,10 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (address has prev
             location: {
                 owner: 'fulbert',
                 id: 'Address_A',
-                content: '319 Rue Saint-Pierre, 13005 Marseille'
+                content: '319 Rue Saint-Pierre, 13005 Marseille',
+                extraData: {
+                    isProspect: true
+                }
             }
         }, {
             done: function(event, position, status, data) {
@@ -512,6 +538,14 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (address has prev
                             lat: 43.291628,
                             lng: 5.4030217
                         },
+                        location: new creme.geolocation.Location({
+                            owner: 'fulbert',
+                            id: 'Address_A',
+                            content: '319 Rue Saint-Pierre, 13005 Marseille',
+                            extraData: {
+                                isProspect: true
+                            }
+                        }),
                         draggable: false,
                         visible: true,
                         status: creme.geolocation.LocationStatus.COMPLETE,
@@ -731,7 +765,7 @@ QUnit.test('creme.geolocation.GoogleMapController.updateMarker', function(assert
         equal(null, marker.getIcon());
 
         controller.updateMarker('A', {
-            icon: 'cross',
+            icon: creme_media_url('geolocation/images/marker-icon.png'),
             position: {lat: 42, lng: 5.5},
             extraData: {address: 'Marseille 13006'}
         });
@@ -745,7 +779,12 @@ QUnit.test('creme.geolocation.GoogleMapController.updateMarker', function(assert
             id: 'A',
             extraData: {address: 'Marseille 13006'}
         }, marker.__extra);
-        equal('cross', marker.getIcon());
+        deepEqual({
+            url: creme_media_url('geolocation/images/marker-icon.png'),
+            size: new google.maps.Size(25, 41),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(12, 41)
+        }, marker.getIcon());
 
         controller.updateMarker('A', {
             icon: 'circle'

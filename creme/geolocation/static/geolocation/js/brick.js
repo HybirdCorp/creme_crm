@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2014-2021  Hybird
+    Copyright (C) 2014-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -24,13 +24,13 @@ creme.geolocation = creme.geolocation || {};
 creme.geolocation.PersonsBrick = creme.component.Component.sub({
     _init_: function(brick, options) {
         options = $.extend({
-            addresses: []
+            addresses: 'script[type$="/json"].geoaddress-data:first'
         }, options || {});
+
+        this._brick = brick;
 
         this.addresses(options.addresses);
         this.locationUrl(options.locationUrl);
-
-        this._brick = brick;
 
         Assert.is(options.mapController, creme.geolocation.GeoMapController, '${value} is not a GeoMapController');
 
@@ -138,6 +138,11 @@ creme.geolocation.PersonsBrick = creme.component.Component.sub({
     addresses: function(addresses) {
         if (addresses === undefined) {
             return Object.values(this._addresses);
+        }
+
+        if (_.isString(addresses)) {
+            var script = _.readJSONScriptText($(addresses, this._brick.element()).get(0));
+            addresses = Object.isEmpty(script) ? [] : JSON.parse(script);
         }
 
         var data = this._addresses = {};
@@ -346,16 +351,22 @@ creme.geolocation.AddressesBrick = creme.component.Component.sub({
         controller.toggleAllMarkers(false);
 
         this._addresses = addresses.map(function(address) {
-            var location = new creme.geolocation.Location($.extend({
-                position: address.latitude ? {lat: address.latitude, lng: address.longitude} : null
-            }, address));
+            var location = new creme.geolocation.Location(Object.assign({
+                position: address.latitude ? {
+                    lat: address.latitude,
+                    lng: address.longitude
+                } : null
+            }, address || {}));
 
             if (location.hasPosition()) {
                 controller.updateOrAddMarker(location.id(), {
                     title: location.markerLabel(),
                     position: location.position(),
                     visible: true,
-                    draggable: false
+                    draggable: false,
+                    icon: location.icon(),
+                    iconShadow: location.iconShadow(),
+                    extraData: location.extraData() || {}
                 });
             }
 
@@ -512,7 +523,10 @@ creme.geolocation.PersonsNeighborhoodBrick = creme.component.Component.sub({
                     title: location.markerLabel(),
                     position: location.position(),
                     draggable: false,
-                    visible: true
+                    visible: true,
+                    icon: location.icon(),
+                    iconShadow: location.iconShadow(),
+                    extraData: location.extraData()
                 };
             }));
 
@@ -520,7 +534,9 @@ creme.geolocation.PersonsNeighborhoodBrick = creme.component.Component.sub({
                 title: origin.markerLabel(),
                 position: origin.position(),
                 draggable: false,
-                icon: 'target'
+                icon: origin.icon() || 'target',
+                iconShadow: origin.iconShadow(),
+                extraData: origin.extraData() || {}
             });
 
             controller.adjustMapToShape('NeighbourhoodCircle');

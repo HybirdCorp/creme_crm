@@ -19,6 +19,7 @@
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
+from creme.persons import get_contact_model, get_organisation_model
 
 
 class GeolocationConfig(CremeAppConfig):
@@ -27,6 +28,10 @@ class GeolocationConfig(CremeAppConfig):
     verbose_name = _('Geolocation')
     dependencies = ['creme.persons']
     credentials = CremeAppConfig.CRED_NONE
+
+    def ready(self):
+        super().ready()
+        self.register_geomarker_icons()
 
     def all_apps_ready(self):
         super().all_apps_ready()
@@ -68,4 +73,17 @@ class GeolocationConfig(CremeAppConfig):
             setting_keys.neighbourhood_distance_key,
             # setting_keys.GOOGLE_API_KEY,
             setting_keys.google_api_key,
+            setting_keys.use_entity_icon_key,
+        )
+
+    def register_geomarker_icons(self):
+        from .registry import GeoMarkerIcon, geomarker_icon_registry
+
+        Contact = get_contact_model()
+        Organisation = get_organisation_model()
+
+        geomarker_icon_registry.register(
+            Contact, GeoMarkerIcon(path='geolocation/images/marker-icon.png')
+        ).register(
+            Organisation, GeoMarkerIcon(path='geolocation/images/marker-icon-red.png')
         )

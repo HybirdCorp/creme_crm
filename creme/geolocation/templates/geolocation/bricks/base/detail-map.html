@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/base.html' %}
 {% load i18n creme_bricks %}
-{% load format from creme_core_tags %}
+{% load format jsondata from creme_core_tags %}
 
 {% block brick_extra_class %}geolocation-brick geolocation-detail-brick{% endblock %}
 
@@ -12,6 +12,7 @@
     {% if addresses and not object.is_deleted %}
         {% block brick_geolocation_script %}{% endblock %}
     {% endif %}
+    {% if geoaddresses %}{% jsondata geoaddresses class="geoaddress-data" %}{% endif %}
 {% endblock %}
 
 {% block brick_content %}

@@ -42,6 +42,11 @@ class Populator(BasePopulator):
             setting_keys.neighbourhood_distance_key
         )
 
+        SettingValue.objects.get_or_create(
+            key_id=setting_keys.use_entity_icon_key.id,
+            defaults={'json_value': False}
+        )
+
         if already_populated:
             return
 
@@ -51,6 +56,7 @@ class Populator(BasePopulator):
         )
 
         SettingValue.objects.set_4_key(setting_keys.google_api_key, '')
+        SettingValue.objects.set_4_key(setting_keys.use_entity_icon_key, False)
 
         if self.verbosity:
             self.stdout.write('\n ', ending='')
