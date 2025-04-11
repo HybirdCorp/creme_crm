@@ -20,12 +20,21 @@
 "use strict";
 
 function isJSON(data) {
+    var output = null;
+
+    try {
+        output = _.isString(data) && data.length > 0 ? JSON.parse(data) : null;
+    } catch (e) {}
+
+    return output !== null;
+    /*
     // Make sure the incoming data is actual JSON
     // Logic borrowed from http://json.org/json2.js
     return _.isString(data) &&
             (/^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
                                         .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
                                         .replace(/(?:^|:|,)(?:\s*\[)+/g, "")));
+    */
 }
 
 function cleanJSON(data, reviver) {
