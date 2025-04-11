@@ -693,6 +693,10 @@ class EntityFKSource(WorkflowActionSource):
 
         return field if field.choices else None
 
+    # @property
+    # def config_formfield_kind_id(self):
+    #     return self.type_id
+
     def extract(self, context):
         instance = self._entity_source.extract(context=context)
         return None if instance is None else getattr(instance, self._field_name)

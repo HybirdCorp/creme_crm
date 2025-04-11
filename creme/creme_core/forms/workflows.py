@@ -199,6 +199,11 @@ class CreatedEntitySourceField(forms.Field):
         from creme.creme_core import workflows
         return workflows.CreatedEntitySource(model=self.model)
 
+    # TODO: unit test
+    def kind_id(self):
+        from creme.creme_core import workflows
+        return workflows.CreatedEntitySource.type_id
+
 
 # TODO: factorise
 class EditedEntitySourceField(forms.Field):
@@ -211,6 +216,11 @@ class EditedEntitySourceField(forms.Field):
     def to_python(self, value):
         from creme.creme_core import workflows
         return workflows.EditedEntitySource(model=self.model)
+
+    # TODO: unit test
+    def kind_id(self):
+        from creme.creme_core import workflows
+        return workflows.EditedEntitySource.type_id
 
 
 # TODO: factorise
@@ -225,6 +235,11 @@ class TaggedEntitySourceField(forms.Field):
         from creme.creme_core import workflows
         return workflows.TaggedEntitySource(model=self.model)
 
+    # TODO: unit test
+    def kind_id(self):
+        from creme.creme_core import workflows
+        return workflows.TaggedEntitySource.type_id
+
 
 # TODO: factorise
 class SubjectEntitySourceField(forms.Field):
@@ -237,6 +252,11 @@ class SubjectEntitySourceField(forms.Field):
     def to_python(self, value):
         from creme.creme_core import workflows
         return workflows.SubjectEntitySource(model=self.model)
+
+    # TODO: unit test
+    def kind_id(self):
+        from creme.creme_core import workflows
+        return workflows.SubjectEntitySource.type_id
 
 
 # TODO: factorise
@@ -251,6 +271,11 @@ class ObjectEntitySourceField(forms.Field):
         from creme.creme_core import workflows
         return workflows.ObjectEntitySource(model=self.model)
 
+    # TODO: unit test
+    def kind_id(self):
+        from creme.creme_core import workflows
+        return workflows.ObjectEntitySource.type_id
+
 
 class FixedEntitySourceField(core_fields.GenericEntityField):
     def __init__(self, **kwargs):
@@ -262,15 +287,21 @@ class FixedEntitySourceField(core_fields.GenericEntityField):
         })
 
     def clean(self, value):
-        from creme.creme_core import workflows
+        from creme.creme_core.workflows import FixedEntitySource
 
         entity = super().clean(value)
 
-        return workflows.FixedEntitySource(entity=entity) if entity else None
+        return FixedEntitySource(entity=entity) if entity else None
 
     # TODO: unit test
     def _value_to_jsonifiable(self, value):
         return super()._value_to_jsonifiable(value=value.entity)
+
+    # TODO: unit test
+    def kind_id(self):
+        from creme.creme_core.workflows import FixedEntitySource
+
+        return FixedEntitySource.type_id
 
 
 # TODO: manage hidden fields?
@@ -287,16 +318,27 @@ class EntityFKSourceField(forms.ChoiceField):
                 and model_field.get_tag(FieldTag.VIEWABLE)
             ],
         })
+        # self.kind_id =
 
     def clean(self, value):
-        from creme.creme_core import workflows
+        from creme.creme_core.workflows import EntityFKSource
 
         field_name = super().clean(value)
 
-        return workflows.EntityFKSource(
+        return EntityFKSource(
             entity_source=self.entity_source,
             field_name=field_name,
         ) if field_name else None
+
+    # TODO: unit test
+    def prepare_value(self, value):
+        return value.field_name
+
+    # TODO: unit test
+    def kind_id(self):
+        from creme.creme_core.workflows import EntityFKSource
+
+        return f'{self.entity_source.type_id}|{EntityFKSource.type_id}'
 
 
 # TODO: factorise (see RelationAddingTriggerField)
@@ -368,6 +410,12 @@ class FirstRelatedEntitySourceField(core_fields.JSONField):
             'ctype': ContentType.objects.get_for_model(value.object_model).id,
         }
 
+    # TODO: unit test
+    def kind_id(self):
+        from creme.creme_core.workflows import FirstRelatedEntitySource
+
+        return f'{self.subject_source.type_id}|{FirstRelatedEntitySource.type_id}'
+
 
 class SourceField(core_fields.UnionField):
     def __init__(self, trigger=None, user=None, registry=workflow_registry, **kwargs):
@@ -384,9 +432,15 @@ class SourceField(core_fields.UnionField):
         if trigger is None or user is None:
             self.fields_choices = []
         else:
+            # self.fields_choices = [
+            #     (kind_id, field)
+            #     for kind_id, field in self.registry.action_source_formfields(
+            #         root_sources=trigger.root_sources(), user=user,
+            #     )
+            # ]
             self.fields_choices = [
-                (kind_id, field)
-                for kind_id, field in self.registry.action_source_formfields(
+                (field.kind_id, field)
+                for field in self.registry.action_source_formfields(
                     root_sources=trigger.root_sources(), user=user,
                 )
             ]
@@ -408,6 +462,35 @@ class SourceField(core_fields.UnionField):
     def user(self, user):
         self._user = user
         self._update_sub_fields()
+
+    # TODO: move to UnionField in another patch ?! (+ use super()?)
+    # def prepare_value(self, value):
+    #     selected_kind_id, sub_value = value
+    #
+    #     return selected_kind_id, {
+    #         kind_id: field.prepare_value(sub_value.get(kind_id))
+    #         for kind_id, field in self.fields_choices
+    #     }
+    # TODO: unit test
+    def prepare_value(self, value):
+        from creme.creme_core.core.workflow import WorkflowActionSource
+        assert isinstance(value, WorkflowActionSource)
+
+        # return selected_kind_id, {
+        #     kind_id: field.prepare_value(sub_value.get(kind_id))
+        #     for kind_id, field in self.fields_choices
+        # }
+        # print('prepare_value', value)
+
+        # selected_kind_id = value.config_formfield_kind_id
+        selected_kind_id = 'HOW TO COMPUTE THIS F**G KIND FROM SOURCE INSTANCE?'
+        field = next(
+            field
+            for kind_id, field in self.fields_choices
+            if kind_id == selected_kind_id
+        )
+
+        return {selected_kind_id: field.prepare_value(value)}
 
 
 # Forms ------------------------------------------------------------------------
@@ -477,15 +560,30 @@ class PropertyAddingActionForm(BaseWorkflowActionForm):
 
         action = self.action
         if action is not None:
-            # TODO: compute that !!
-            from creme.creme_core.workflows import FixedEntitySource
-            initial_d = {
-                'created_entity': '',
-                # 'fixed_entity': '', # FixedEntitySource(entity=entity)
-                'fixed_entity': FixedEntitySource(entity=self.user.linked_contact)
-            }
-            # source_f.initial = ('created_entity', initial_d)
-            source_f.initial = ('fixed_entity', initial_d)
+            # # TODO: compute that !!
+            # from creme.creme_core import workflows as core_workflows
+            # from creme.persons.models import Organisation
+            # model = self.instance.content_type.model_class()
+            # initial_d = {
+            #     'created_entity': '',
+            #     'fixed_entity': core_workflows.FixedEntitySource(
+            #         entity=self.user.linked_contact),
+            #     'created_entity|entity_fk': core_workflows.EntityFKSource(
+            #         entity_source=core_workflows.CreatedEntitySource(model=model),
+            #         field_name='image',
+            #     ),
+            #     'created_entity|first_related': core_workflows.FirstRelatedEntitySource(
+            #         subject_source=core_workflows.CreatedEntitySource(model=model),
+            #         rtype=RelationType.objects.get(id='persons-subject_customer_supplier'),
+            #         object_model=Organisation,
+            #     ),
+            # }
+            # # source_f.initial = ('created_entity', initial_d)
+            # # source_f.initial = ('fixed_entity', initial_d)
+            # # source_f.initial = ('created_entity|entity_fk', initial_d)
+            # source_f.initial = ('created_entity|first_related', initial_d)
+            # print('initial_d:', initial_d)
+            source_f.initial = action.entity_source
 
             ptype_f.initial = action.property_type.id
 
