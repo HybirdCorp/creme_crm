@@ -55,16 +55,19 @@ creme.utils.goTo = function(url, data) {
     }
 };
 
+/* istanbul ignore next */
 creme.utils.showPageLoadOverlay = function() {
     console.warn('creme.utils.showPageLoadOverlay is deprecated; Use creme.dialog.Overlay instead.');
     creme.utils.loading('', false);
 };
 
+/* istanbul ignore next */
 creme.utils.hidePageLoadOverlay = function() {
     console.warn('creme.utils.showPageLoadOverlay is deprecated; Use creme.dialog.Overlay instead.');
     creme.utils.loading('', true);
 };
 
+/* istanbul ignore next */
 creme.utils.loading = function(div_id, is_loaded, params) {
     console.warn('creme.utils.loading is deprecated; Use creme.dialog.Overlay instead.');
 
@@ -86,6 +89,7 @@ creme.utils.loading = function(div_id, is_loaded, params) {
     overlay.update(visible, null, visible ? 100 : 0);
 };
 
+/* istanbul ignore next */
 creme.utils.confirmSubmit = function(atag, msg) {
     console.warn('creme.utils.confimSubmit is now deprecated; should use actions instead');
     creme.dialogs.confirm(msg || gettext('Are you sure?'))
