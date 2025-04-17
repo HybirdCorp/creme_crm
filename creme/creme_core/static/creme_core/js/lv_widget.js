@@ -121,7 +121,14 @@ creme.lv_widget.DeleteSelectedAction = creme.component.Action.sub({
                           })
                          .open();
         } else {
-            var query = creme.utils.confirmPOSTQuery(options.url, {warnOnFail: false, dataType: 'json'}, {ids: selection.join(',')});
+            // var query = creme.utils.confirmPOSTQuery(options.url, {warnOnFail: false, dataType: 'json'}, {ids: selection.join(',')});
+            var query = creme.utils.ajaxQuery(options.url, {
+                action: 'POST',
+                confirm: true,
+                warnOnFail: false,
+                dataType: 'json'
+            }, {ids: selection.join(',')});
+
             query.onFail(this._onDeleteFail.bind(this))
                  .onCancel(function(event, data) {
                      self.cancel();

@@ -438,6 +438,7 @@
             - creme.forms.toImportField() is replaced by the widget 'ui-import-field' or 'creme.widget.ImportField'.
             - Full rework of creme.notification.NotificationBox.
             - creme.ajax.jqueryAjaxSend() arguments have changed from (url, data, successCb, errorCb, options) to ({url: url, body: data, ...options}, {done: successCb, fail: errorCb}).
+            - In 'creme.utils', the functions 'confirmPOSTQuery()' & 'confirmAjaxQuery()' have been removed; use 'creme.utils.ajaxQuery' with the option "confirm: true" instead.
         # Apps :
             * Creme_config :
                 - In the brick 'GenericModelBrick', "meta" is not injected in the context anymore.
