@@ -141,15 +141,19 @@ creme.utils.showErrorNReload = function(delay) {
     dialog.open();
 };
 
+/*
 creme.utils.confirmPOSTQuery = function(url, options, data) {
     options = $.extend({action: 'post'}, options || {});
     return creme.utils.confirmAjaxQuery(url, options, data);
 };
+*/
 
+/*
 creme.utils.confirmAjaxQuery = function(url, options, data) {
     options = $.extend({confirm: true}, options || {});
     return creme.utils.ajaxQuery(url, options, data);
 };
+*/
 
 creme.utils.ajaxQuery = function(url, options, data) {
     /*

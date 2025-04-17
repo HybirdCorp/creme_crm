@@ -131,7 +131,7 @@ creme.emails.MultiSelectedAction = creme.component.Action.sub({
         // options = $.extend({}, this.options(), options || {});
         var self = this;
 
-        var query = creme.utils.confirmPOSTQuery(self._url, {warnOnFail: false}, {ids: self._ids.join(',')});
+        var query = creme.utils.ajaxQuery(self._url, {action: 'POST', confirm: true, warnOnFail: false}, {ids: self._ids.join(',')});
         query.onDone(function() { self._brick.refresh(); })
              .onFail(this._onMultiFail.bind(this))
              .start();
@@ -307,7 +307,7 @@ creme.emails.ResendEMailsAction = creme.component.Action.sub({
                           })
                          .open();
         } else {
-            var query = creme.utils.confirmPOSTQuery(options.url, {warnOnFail: false}, {ids: selection.join(',')});
+            var query = creme.utils.ajaxQuery(options.url, {action: 'POST', confirm: true, warnOnFail: false}, {ids: selection.join(',')});
             query.onFail(this._onResendFail.bind(this))
                  .onCancel(function(event, data) {
                      self.cancel();
