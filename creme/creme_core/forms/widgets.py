@@ -481,7 +481,8 @@ class ChainedInput(widgets.TextInput):
         widget_type = 'ui-creme-chainedselect'
 
         value = self.from_python(value) if self.from_python is not None else value
-        context = super().get_context(name='', value='', attrs=attrs)
+        # context = super().get_context(name='', value='', attrs=attrs)
+        context = super().get_context(name=f'chain|{name}', value='', attrs=attrs)
         widget_cxt = context['widget']
         final_attrs = widget_cxt.pop('attrs')
 
