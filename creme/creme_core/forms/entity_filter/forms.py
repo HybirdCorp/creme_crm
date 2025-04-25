@@ -140,7 +140,8 @@ class EntityFilterCreationForm(_EntityFilterForm):
         super().save(commit=False, *args, **kwargs)
         generate_string_id_and_save(
             EntityFilter, [instance],
-            f'{self.pk_prefix}{ct.app_label}-{ct.model}',
+            # f'{self.pk_prefix}{ct.app_label}-{ct.model}',
+            f'{self.pk_prefix}{ct.app_label}-{ct.model}-',
         )
 
         instance.set_conditions(
@@ -182,7 +183,8 @@ class EntityFilterCloningForm(_EntityFilterForm):
         super().save(commit=False, *args, **kwargs)
         generate_string_id_and_save(
             EntityFilter, [instance],
-            f'{self.pk_prefix}{ct.app_label}-{ct.model}',
+            # f'{self.pk_prefix}{ct.app_label}-{ct.model}',
+            f'{self.pk_prefix}{ct.app_label}-{ct.model}-',
         )
 
         instance.set_conditions(

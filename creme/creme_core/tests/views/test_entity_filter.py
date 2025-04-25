@@ -31,6 +31,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
 from creme.creme_core.models import (
     CremePropertyType,
     CremeUser,
+    CustomEntityType,
     CustomField,
     EntityFilter,
     EntityFilterCondition,
@@ -891,6 +892,37 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             },
             condition.value,
         )
+
+    def test_create__custom_entity(self):
+        self.login_as_root()
+
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Shop'
+        ce_type.plural_name = 'Shops'
+        ce_type.save()
+
+        model = ce_type.entity_model
+        # Avoid an error message ("no view...")
+        HeaderFilter.objects.create_if_needed(
+            pk='creme_core-userhf_creme_core-customeentity1-1',
+            name='Shop lite view', model=model,
+            cells_desc=[EntityCellRegularField.build(model=model, name='name')],
+        )
+
+        ct = ContentType.objects.get_for_model(model)
+        name = 'Acmes'
+        self.assertNoFormError(self.client.post(
+            self._build_add_url(ct),
+            follow=True,
+            data={
+                'name': name,
+                'use_or': 'False',
+                'regularfieldcondition': self._build_rfields_data(
+                    operator=operators.STARTSWITH, name='name', value='Acme',
+                ),
+            },
+        ))
 
     def test_create_subfilters_n_private01(self):
         "Cannot choose a private sub-filter which belongs to another user."
@@ -1916,6 +1948,64 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             ],
         )
         self.assertGET403(reverse('creme_core__clone_efilter', args=(source_efilter.id,)))
+
+    def test_clone__custom_entity(self):
+        self.login_as_root()
+
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Shop'
+        ce_type.plural_name = 'Shops'
+        ce_type.save()
+
+        model = ce_type.entity_model
+        # Avoid an error message ("no view...")
+        HeaderFilter.objects.create_if_needed(
+            pk='creme_core-userhf_creme_core-customeentity1-1',
+            name='Shop lite view', model=model,
+            cells_desc=[EntityCellRegularField.build(model=model, name='name')],
+        )
+
+        source_efilter = EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-userfilter_creme_core-customeentity1-1',
+            name='A filter for Acmes', model=model,
+            is_custom=False,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=model, field_name='name',
+                    operator=operators.EQUALS, values=['Acme'],
+                ),
+            ],
+        )
+
+        name = 'Cloned Filter'
+        operator = operators.STARTSWITH
+        field_name = 'name'
+        value = 'Acmes etc...'
+        self.assertNoFormError(self.client.post(
+            reverse('creme_core__clone_efilter', args=(source_efilter.pk,)),
+            follow=True,
+            data={
+                'name': name,
+                'use_or': 'False',
+                'regularfieldcondition': self._build_rfields_data(
+                    operator=operator,
+                    name=field_name,
+                    value=value,
+                ),
+            },
+        ))
+
+        efilter = self.get_alone_element(EntityFilter.objects.filter(name=name))
+        self.assertEqual(model, efilter.entity_type.model_class())
+
+        condition = self.get_alone_element(efilter.conditions.all())
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
+        self.assertEqual(field_name,                           condition.name)
+        self.assertDictEqual(
+            {'operator': operator, 'values': [value]},
+            condition.value,
+        )
 
     def _delete(self, efilter):
         return self.client.post(
