@@ -17,6 +17,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
 from creme.creme_core.core.entity_filter.operators import EQUALS
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.models import (
+    CustomEntityType,
     CustomField,
     EntityFilter,
     FakeContact,
@@ -389,6 +390,37 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         )
         self.assertNoFormError(response, status=302)
         self.assertRedirects(response, '/')
+
+    def test_create__custom_entity(self):
+        self.login_as_root()
+
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Shop'
+        ce_type.plural_name = 'Shops'
+        ce_type.save()
+
+        model = ce_type.entity_model
+        ct = ContentType.objects.get_for_model(model)
+        name = 'Complete view'
+        self.assertNoFormError(self.client.post(
+            self._build_add_url(ct),
+            follow=True,
+            data={
+                'name':  'Complete view',
+                'cells': 'regular_field-name,regular_field-description',
+            },
+        ))
+
+        hfilter = self.get_alone_element(HeaderFilter.objects.filter(entity_type=ct))
+        self.assertEqual(name, hfilter.name)
+        self.assertListEqual(
+            [
+                EntityCellRegularField.build(model, 'name'),
+                EntityCellRegularField.build(model, 'description'),
+            ],
+            hfilter.cells,
+        )
 
     def test_edit(self):
         self.login_as_root()
@@ -782,6 +814,50 @@ class HeaderFilterViewsTestCase(CremeTestCase):
             cells_desc=[EntityCellRegularField.build(model=FakeContact, name='last_name')],
         )
         self.assertGET403(reverse('creme_core__clone_hfilter', args=(source_hf.id,)))
+
+    def test_clone__custom_entity(self):
+        user = self.login_as_root_and_get()
+
+        ce_type = self.get_object_or_fail(CustomEntityType, id=1)
+        ce_type.enabled = True
+        ce_type.name = 'Shop'
+        ce_type.plural_name = 'Shops'
+        ce_type.save()
+
+        model = ce_type.entity_model
+
+        ffield = function_field_registry.get(model, 'get_pretty_properties')
+        cells = [
+            EntityCellRegularField.build(model=model, name='name'),
+            EntityCellFunctionField(model=model, func_field=ffield),
+        ]
+        source_hf = HeaderFilter.objects.create_if_needed(
+            pk='creme_core-userhf_creme_core-customeentity1-1',
+            name='Source view', model=model, cells_desc=cells,
+        )
+
+        name = 'Cloned filter'
+        self.assertNoFormError(self.client.post(
+            reverse('creme_core__clone_hfilter', args=(source_hf.id,)),
+            follow=True,
+            data={
+                'name': name,
+                'user': user.id,
+                'is_private': 'on',
+                'cells': f'{cells[0].key},{cells[1].key},regular_field-description',
+            },
+        ))
+
+        hfilter = self.get_object_or_fail(HeaderFilter, name=name)
+        self.assertEqual(name, hfilter.name)
+        self.assertListEqual(
+            [
+                EntityCellRegularField.build(model, 'name'),
+                EntityCellFunctionField(model=model, func_field=ffield),
+                EntityCellRegularField.build(model, 'description'),
+            ],
+            hfilter.cells,
+        )
 
     def test_delete(self):
         self.login_as_root()
