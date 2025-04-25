@@ -6,6 +6,13 @@
         * Opportunities :
             - Unsetting the current Quote was not possible if you did not create the relationship yourself.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The creation form for HeaderFilter now accepts models with digits at the end of their name.
+
 
 == Version 2.5.19 ==
 
