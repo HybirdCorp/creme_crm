@@ -684,7 +684,8 @@ class HeaderFilterCreationForm(_HeaderFilterForm):
         super().save(*args, **kwargs)
         generate_string_id_and_save(
             HeaderFilter, [instance],
-            f'creme_core-userhf_{ct.app_label}-{ct.model}',
+            # f'creme_core-userhf_{ct.app_label}-{ct.model}',
+            f'creme_core-userhf_{ct.app_label}-{ct.model}-',
         )
 
         return instance

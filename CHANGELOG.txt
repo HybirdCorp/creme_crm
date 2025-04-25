@@ -11,6 +11,7 @@
 
     Non breaking changes :
     ----------------------
+        # The creation form for HeaderFilter now accepts models with digits at the end of their name.
         # Fix conversion issues in creme.widgets.CheckListSelect when json datatype is enabled.
 
 
