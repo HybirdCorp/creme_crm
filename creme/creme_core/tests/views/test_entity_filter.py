@@ -797,14 +797,14 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         self.assertGET409(self._build_add_url(ContentType.objects.get_for_model(RelationType)))
 
     @override_settings(FILTERS_INITIAL_PRIVATE=True)
-    def test_create_initial_private(self):
+    def test_create__initial_private(self):
         "Use FILTERS_INITIAL_PRIVATE."
         self.login_as_root()
 
         response = self.assertGET200(self._build_add_url(self.ct_contact))
         self.assertIs(self.get_form_or_fail(response).initial.get('is_private'), True)
 
-    def test_create_missing_lv_absolute_url(self):
+    def test_create__missing_lv_absolute_url(self):
         "Missing get_lv_absolute_url() classmethod."
         with self.assertRaises(AttributeError):
             FakeProduct.get_lv_absolute_url()
@@ -827,7 +827,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         self.assertNoFormError(response, status=302)
         self.assertRedirects(response, '/')
 
-    def test_create_creatorfield_fk_filter(self):
+    def test_create__creatorfield_fk_filter(self):
         user = self.login_as_root_and_get()
         folder = FakeFolder.objects.create(title='Folder 01', user=user)
 
@@ -858,7 +858,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             condition.value,
         )
 
-    def test_create_currentuser_filter(self):
+    def test_create__currentuser_filter(self):
         user = self.login_as_root_and_get()
         operand_id = operands.CurrentUserOperand.type_id
 
@@ -891,23 +891,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             },
             condition.value,
         )
-
-    def test_edit_filter_with_integer_values(self):
-        self.login_as_root()
-        civility = FakeCivility.objects.create(title='Other')
-        efilter = EntityFilter.objects.smart_update_or_create(
-            'test-filter01', name='Filter 01', model=FakeContact,
-            conditions=[
-                RegularFieldConditionHandler.build_condition(
-                    model=FakeContact,
-                    operator=operators.EQUALS,
-                    field_name='civility',
-                    values=[civility.pk],
-                ),
-            ],
-        )
-
-        self.assertGET200(efilter.get_edit_absolute_url())
 
     def test_create_subfilters_n_private01(self):
         "Cannot choose a private sub-filter which belongs to another user."
@@ -1599,6 +1582,22 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         )
         self.assertEqual('', efilter.get_edit_absolute_url())
         self.assertGET409(reverse('creme_core__edit_efilter', args=(efilter.id,)))
+
+    def test_edit__with_integer_values(self):
+        self.login_as_root()
+        civility = FakeCivility.objects.create(title='Other')
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter01', name='Filter 01', model=FakeContact,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EQUALS,
+                    field_name='civility',
+                    values=[civility.pk],
+                ),
+            ],
+        )
+        self.assertGET200(efilter.get_edit_absolute_url())
 
     def _aux_edit_subfilter(self, efilter, user=None, is_private=''):
         user = user or self.user
