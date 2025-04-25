@@ -11,7 +11,7 @@
 
     Non breaking changes :
     ----------------------
-        # The creation form for HeaderFilter now accepts models with digits at the end of their name.
+        # The creation forms for HeaderFilter & EntityFilter now accept models with digits at the end of their name.
 
 
 == Version 2.5.19 ==
