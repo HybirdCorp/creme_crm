@@ -20,7 +20,8 @@ import logging
 
 from django.apps import apps
 # from django.conf import settings
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.bricks as core_bricks
 from creme import commercial, persons, products
@@ -55,10 +56,30 @@ from .models import ActType, MarketSegment
 
 logger = logging.getLogger(__name__)
 
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
+Product = products.get_product_model()
+Service = products.get_service_model()
+
+Act = commercial.get_act_model()
+ActObjectivePattern = commercial.get_pattern_model()
+Strategy = commercial.get_strategy_model()
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'products']
 
+    PROPERTY_TYPES = [
+        CremePropertyType.objects.proxy(
+            uuid=constants.UUID_PROP_IS_A_SALESMAN,
+            app_label='commercial',
+            text=_('is a salesman'),
+            subject_models=[Contact],
+            # is_custom=False,
+            # is_copiable=True,
+        ),
+    ]
     JOBS = [
         Job(
             type=creme_jobs.com_approaches_emails_send_type,
@@ -102,15 +123,15 @@ class Populator(BasePopulator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
+        self.Contact      = Contact
+        self.Organisation = Organisation
 
-        self.Product = products.get_product_model()
-        self.Service = products.get_service_model()
+        self.Product = Product
+        self.Service = Service
 
-        self.Act                 = commercial.get_act_model()
-        self.ActObjectivePattern = commercial.get_pattern_model()
-        self.Strategy            = commercial.get_strategy_model()
+        self.Act                 = Act
+        self.ActObjectivePattern = ActObjectivePattern
+        self.Strategy            = Strategy
 
     def _already_populated(self):
         return RelationType.objects.filter(pk=constants.REL_SUB_SOLD).exists()
@@ -158,20 +179,13 @@ class Populator(BasePopulator):
             ),
         )
 
-    def _populate_property_types(self):
-        # CremePropertyType.objects.smart_update_or_create(
-        #     uuid=constants.UUID_PROP_IS_A_SALESMAN,
-        #     app_label='commercial',
-        #     text=_('is a salesman'),
-        #     subject_ctypes=[self.Contact],
-        # )
-        CremePropertyType.objects.update_or_create(
-            uuid=constants.UUID_PROP_IS_A_SALESMAN,
-            defaults={
-                'text': _('is a salesman'),
-                'app_label': 'commercial',
-            },
-        )[0].set_subject_ctypes(self.Contact)
+    # def _populate_property_types(self):
+    #     CremePropertyType.objects.smart_update_or_create(
+    #         uuid=constants.UUID_PROP_IS_A_SALESMAN,
+    #         app_label='commercial',
+    #         text=_('is a salesman'),
+    #         subject_ctypes=[self.Contact],
+    #     )
 
     def _populate_header_filters_for_act(self):
         HeaderFilter.objects.create_if_needed(
@@ -248,7 +262,7 @@ class Populator(BasePopulator):
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
-            entry_data={'label': _('Commercial')},
+            entry_data={'label': gettext('Commercial')},
             defaults={'order': 30},
         )[0]
 
@@ -260,14 +274,14 @@ class Populator(BasePopulator):
 
         directory_entry = MenuConfigItem.objects.filter(
             entry_id=ContainerEntry.id,
-            entry_data={'label': _('Directory')},
+            entry_data={'label': gettext('Directory')},
         ).first()
         if directory_entry is not None:
             create_mitem(entry_id=menu.SalesmenEntry.id, order=100, parent=directory_entry)
 
         creations_entry = MenuConfigItem.objects.filter(
             entry_id=ContainerEntry.id,
-            entry_data={'label': _('+ Creation')},
+            entry_data={'label': gettext('+ Creation')},
         ).first()
         if creations_entry is not None:
             create_mitem(entry_id=menu.ActCreationEntry.id, order=40, parent=creations_entry)
