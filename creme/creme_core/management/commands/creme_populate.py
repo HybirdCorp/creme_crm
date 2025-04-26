@@ -34,6 +34,7 @@ from django.db.models.signals import pre_save
 from creme.creme_core.apps import creme_app_configs
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.models import (
+    CremePropertyType,
     CustomFormConfigItem,
     HeaderFilter,
     Job,
@@ -43,6 +44,7 @@ from creme.creme_core.models import (
     SearchConfigItem,
     SettingValue,
 )
+from creme.creme_core.models.creme_property import CremePropertyTypeProxy
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.dependence_sort import dependence_sort
@@ -61,6 +63,15 @@ def _checked_app_label(app_label, app_labels):
 class BasePopulator:
     dependencies: list[str] = []  # Example: ['appname1', 'appname2']
 
+    PROPERTY_TYPES: list[CremePropertyType | CremePropertyTypeProxy] = [
+        # Example:
+        # CremePropertyType.objects.proxy(
+        #     uuid=constants.UUID_PROP_MY_PROPERTY,
+        #     app_label='my_app',
+        #     text=_('is ....'),
+        #     subject_models=[Contact, Document],
+        # ),
+    ]
     JOBS: list[Job] = []
     SANDBOXES: list[Sandbox] = []
     CUSTOM_FORMS: list[CustomFormDescriptor] = []
@@ -122,7 +133,18 @@ class BasePopulator:
     # Sub-populators -----------------------------------------------------------
     # - Called every time the command is run:
     def _populate_property_types(self) -> None:
-        pass
+        for ptype in self.PROPERTY_TYPES:
+            if isinstance(ptype, CremePropertyType):
+                ptype = CremePropertyTypeProxy(instance=ptype)
+            elif not isinstance(ptype, CremePropertyTypeProxy):
+                raise TypeError(
+                    f'{ptype} is not an instance of CremePropertyType|CremePropertyTypeProxy'
+                )
+
+            if ptype.is_custom:
+                ptype.get_or_create()
+            else:
+                ptype.update_or_create()
 
     def _populate_relation_types(self) -> None:
         pass

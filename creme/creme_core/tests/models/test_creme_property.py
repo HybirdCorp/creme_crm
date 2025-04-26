@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -147,6 +149,182 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertIn(ptype1.id, ptype_ids2)
         self.assertIn(ptype2.id, ptype_ids2)
         self.assertNotIn(ptype3.id, ptype_ids2)
+
+    def test_manager_proxy__get_or_create__minimal(self):
+        count = CremePropertyType.objects.count()
+
+        uuid = uuid4()
+        text1 = 'Is smart'
+        proxy1 = CremePropertyType.objects.proxy(uuid=uuid, text=text1)
+        self.assertEqual(count, CremePropertyType.objects.count())
+        self.assertEqual(uuid, proxy1.uuid)
+        self.assertEqual(text1, proxy1.text)
+        self.assertEqual('',   proxy1.app_label)
+        self.assertEqual('',   proxy1.description)
+        self.assertIs(proxy1.is_custom, False)
+        self.assertIs(proxy1.is_copiable, True)
+        self.assertIs(proxy1.enabled, True)
+        self.assertFalse([*proxy1.subject_models])
+        self.assertFalse([*proxy1.subject_ctypes])
+
+        ptype1, created1 = proxy1.get_or_create()
+        self.assertIs(created1, True)
+        self.assertIsInstance(ptype1, CremePropertyType)
+        self.assertIsNotNone(ptype1.pk)
+        self.assertEqual(uuid, ptype1.uuid)
+        self.assertEqual(text1, ptype1.text)
+        self.assertEqual('',   ptype1.app_label)
+        self.assertEqual('',   ptype1.description)
+        self.assertIs(ptype1.is_custom, False)
+        self.assertIs(ptype1.is_copiable, True)
+        self.assertIs(ptype1.enabled, True)
+        self.assertFalse([*ptype1.subject_ctypes.all()])
+
+        self.assertEqual(count + 1, CremePropertyType.objects.count())
+
+        # get_or_create() again ---
+        ptype2, created2 = proxy1.get_or_create()
+        self.assertIs(created2, False)
+        self.assertIsInstance(ptype2, CremePropertyType)
+        self.assertEqual(count + 1, CremePropertyType.objects.count())
+
+        # New proxy ---
+        proxy2 = CremePropertyType.objects.proxy(uuid=uuid, text='Other text')
+        ptype2, created2 = proxy2.get_or_create()
+        self.assertIs(created2, False)
+        self.assertEqual(text1, ptype2.text)
+        self.assertEqual(count + 1, CremePropertyType.objects.count())
+
+    def test_manager_proxy__get_or_create__more_arguments(self):
+        get_ct = ContentType.objects.get_for_model
+        contact_ct = get_ct(FakeContact)
+        orga_ct = get_ct(FakeOrganisation)
+
+        uuid = uuid4()
+        text = 'Is cool'
+        description = "Lookin cool"
+        app_label = 'creme_core'
+
+        proxy = CremePropertyType.objects.proxy(
+            uuid=uuid, text=text, app_label=app_label, description=description,
+            is_custom=True, is_copiable=False, enabled=False,
+            subject_models=[FakeContact, FakeOrganisation],
+        )
+        self.assertEqual(uuid, proxy.uuid)
+        self.assertEqual(text, proxy.text)
+        self.assertEqual(app_label,   proxy.app_label)
+        self.assertEqual(description, proxy.description)
+        self.assertIs(proxy.is_custom, True)
+        self.assertIs(proxy.is_copiable, False)
+        self.assertIs(proxy.enabled, False)
+        self.assertCountEqual([FakeContact, FakeOrganisation], [*proxy.subject_models])
+        self.assertCountEqual([contact_ct, orga_ct],           [*proxy.subject_ctypes])
+
+        ptype, created = proxy.get_or_create()
+        self.assertIsInstance(ptype, CremePropertyType)
+        self.assertIsNotNone(ptype.pk)
+        self.assertEqual(uuid, ptype.uuid)
+        self.assertEqual(text, ptype.text)
+        self.assertEqual(app_label,   ptype.app_label)
+        self.assertEqual(description, ptype.description)
+        self.assertIs(ptype.is_custom, True)
+        self.assertIs(ptype.is_copiable, False)
+        self.assertIs(ptype.enabled, False)
+        self.assertCountEqual([contact_ct, orga_ct], [*ptype.subject_ctypes.all()])
+
+    def test_manager_proxy__update_or_create(self):
+        get_ct = ContentType.objects.get_for_model
+        contact_ct = get_ct(FakeContact)
+        orga_ct = get_ct(FakeOrganisation)
+
+        uuid = uuid4()
+
+        text1 = 'Is cool'
+        description1 = 'Lookin cool'
+        app_label = 'creme_core'
+
+        # Create ---
+        ptype1 = CremePropertyType.objects.proxy(
+            uuid=uuid, text=text1, app_label=app_label, description=description1,
+            is_custom=True, is_copiable=False,
+            subject_models=[FakeContact, FakeOrganisation],
+        ).update_or_create()
+        self.assertIsInstance(ptype1, CremePropertyType)
+        self.assertIsNotNone(ptype1.pk)
+        self.assertEqual(uuid, ptype1.uuid)
+        self.assertEqual(text1, ptype1.text)
+        self.assertEqual(app_label,   ptype1.app_label)
+        self.assertEqual(description1, ptype1.description)
+        self.assertTrue(ptype1.is_custom)
+        self.assertFalse(ptype1.is_copiable)
+        self.assertTrue(ptype1.enabled)
+        self.assertCountEqual([contact_ct, orga_ct], [*ptype1.subject_ctypes.all()])
+
+        # Update ---
+        text2 = 'Is very cool'
+        description2 = "Lookin' cool"
+        ptype2 = CremePropertyType.objects.proxy(
+            uuid=uuid, text=text2, app_label=app_label, description=description2,
+            subject_models=[FakeContact, FakeActivity],
+        ).update_or_create()
+        self.assertIsInstance(ptype2, CremePropertyType)
+        self.assertEqual(ptype1.pk, ptype2.pk)
+        self.assertEqual(uuid,  ptype2.uuid)
+        self.assertEqual(text2, ptype2.text)
+        self.assertCountEqual(
+            [contact_ct, get_ct(FakeActivity)], [*ptype1.subject_ctypes.all()],
+        )
+
+    def test_manager_proxy__errors(self):
+        with self.assertRaises(ValueError):
+            CremePropertyType.objects.proxy(id=1, uuid=uuid4(), text='Is smart')
+
+        with self.assertRaises(ValueError):
+            CremePropertyType.objects.proxy(pk=1, uuid=uuid4(), text='Is smart')
+
+        proxy = CremePropertyType.objects.proxy(uuid=uuid4(), text='Is smart')
+        with self.assertRaises(AttributeError):
+            proxy.save  # NOQA
+
+    def test_manager_proxy__set_attr(self):
+        proxy = CremePropertyType.objects.proxy(uuid=uuid4(), text='Is smart')
+
+        proxy.text = text = 'Is smart'
+        self.assertEqual(text, proxy.text)
+
+        proxy.description = description = 'Blablabla'
+        self.assertEqual(description, proxy.description)
+
+        ptype = proxy.get_or_create()[0]
+        self.assertEqual(text,        ptype.text)
+        self.assertEqual(description, ptype.description)
+
+        with self.assertRaises(AttributeError):
+            proxy.id = 12
+
+        with self.assertRaises(AttributeError):
+            proxy.pk = 12
+
+    def test_manager_proxy__update_models(self):
+        get_ct = ContentType.objects.get_for_model
+        contact_ct = get_ct(FakeContact)
+        orga_ct = get_ct(FakeOrganisation)
+        activity_ct = get_ct(FakeActivity)
+
+        proxy = CremePropertyType.objects.proxy(
+            uuid=uuid4(), text='Is smart', subject_models=[FakeContact],
+        )
+
+        proxy.add_models(FakeOrganisation, FakeActivity, FakeContact)
+        self.assertCountEqual(
+            [contact_ct, orga_ct, activity_ct], [*proxy.subject_ctypes],
+        )
+
+        proxy.remove_models(FakeOrganisation, FakeContact)
+        self.assertCountEqual([activity_ct], [*proxy.subject_ctypes])
+
+        ptype = proxy.get_or_create()[0]
+        self.assertCountEqual([activity_ct], [*ptype.subject_ctypes.all()])
 
     def test_set_subjects_ctypes(self):
         get_ct = ContentType.objects.get_for_model
