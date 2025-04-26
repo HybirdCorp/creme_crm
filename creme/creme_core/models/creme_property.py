@@ -20,10 +20,12 @@ from __future__ import annotations
 
 import logging
 import warnings
+from copy import deepcopy
 from typing import Iterable, Iterator
 from uuid import uuid4
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import FieldDoesNotExist
 from django.db import IntegrityError, models
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
@@ -37,6 +39,94 @@ from .base import CremeModel
 from .entity import CremeEntity
 
 logger = logging.getLogger(__name__)
+
+
+class CremePropertyTypeProxy:
+    """This class is useful to build CremePropertyType instances in a
+    declarative way in 'populate' scripts.
+    The field 'CremePropertyType.subject_ctypes' is a ManyToManyField, so it
+    cannot be set on instances which have not been saved ; this proxy stores
+    the ContentTypes add update the M2M when it's possible.
+
+    This class implements __getattr__/__setattr__ in order to let you set the
+    fields of the underlying CremePropertyType instance.
+    But to update 'subject_ctypes', you have to use the methods 'add_ctypes()' &
+    'remove_ctypes()'.
+
+    Hint: use CremePropertyType.objects.proxy().
+    """
+    def __init__(self,
+                 instance: CremePropertyType,
+                 subject_ctypes: Iterable[ContentType | type[CremeEntity]] = (),
+                 ):
+        if instance.pk is not None:
+            raise ValueError(f'{instance} is already saved in DB')
+
+        self._instance = instance
+        self._subject_ctypes = {as_ctype(ct_or_model) for ct_or_model in subject_ctypes}
+
+    @property
+    def subject_ctypes(self) -> Iterator[ContentType]:
+        yield from self._subject_ctypes
+
+    def add_ctypes(self,
+                   *ctypes_or_models: ContentType | type[CremeEntity],
+                   ) -> CremePropertyTypeProxy:
+        self._subject_ctypes.update(
+            as_ctype(ct_or_model) for ct_or_model in ctypes_or_models
+        )
+
+        return self
+
+    def remove_ctypes(self,
+                      *ctypes_or_models: ContentType | type[CremeEntity],
+                      ) -> CremePropertyTypeProxy:
+        for ct_or_model in ctypes_or_models:
+            self._subject_ctypes.remove(as_ctype(ct_or_model))
+
+        return self
+
+    def __getattr__(self, name):
+        try:
+            type(self._instance)._meta.get_field(name)
+        except FieldDoesNotExist as e:
+            raise AttributeError(
+                f'CremePropertyTypeProxy has no attribute "{name}" ({e})'
+            ) from e
+
+        return getattr(self._instance, name)
+
+    def __setattr__(self, name, value):
+        if name in ('_instance', '_subject_ctypes'):
+            object.__setattr__(self, name, value)
+        elif name in ('id', 'pk'):
+            raise AttributeError(f"can't set attribute '{name}'")
+        else:
+            self._instance.__setattr__(name, value)
+
+    def get_or_create(self) -> tuple[CremePropertyType, bool]:
+        instance = self._instance
+        saved_instance = type(instance).objects.filter(uuid=instance.uuid).first()
+        if saved_instance is not None:
+            return saved_instance, False
+
+        saved_instance = deepcopy(instance)
+        saved_instance.save()
+        saved_instance.subject_ctypes.set(self._subject_ctypes)
+
+        return saved_instance, True
+
+    def update_or_create(self) -> CremePropertyType:
+        instance = deepcopy(self._instance)
+
+        existing = type(instance).objects.filter(uuid=instance.uuid).first()
+        if existing is not None:
+            instance.pk = existing.pk
+
+        instance.save()
+        instance.subject_ctypes.set(self._subject_ctypes)
+
+        return instance
 
 
 class CremePropertyTypeManager(models.Manager):
@@ -67,7 +157,8 @@ class CremePropertyTypeManager(models.Manager):
         warnings.warn(
             'CremePropertyTypeManager.smart_update_or_create() is deprecated; '
             'use create()/update_or_create() instead '
-            '(& eventually CremePropertyType.set_subject_ctypes() too).'
+            '(& eventually CremePropertyType.set_subject_ctypes() too), '
+            'or eventually CremePropertyTypeManager.proxy().'
         )
 
         if uuid:
@@ -97,6 +188,13 @@ class CremePropertyTypeManager(models.Manager):
         return property_type
 
     smart_update_or_create.alters_data = True
+
+    def proxy(self,
+              subject_ctypes: Iterable[ContentType | type[CremeEntity]] = (),
+              **kwargs):
+        return CremePropertyTypeProxy(
+            instance=self.model(**kwargs), subject_ctypes=subject_ctypes,
+        )
 
 
 # TODO: factorise with RelationManager ?
