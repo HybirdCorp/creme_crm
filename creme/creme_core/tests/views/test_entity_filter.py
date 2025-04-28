@@ -55,7 +55,9 @@ from ..base import CremeTestCase
 from .base import BrickTestCaseMixin, ButtonTestCaseMixin
 
 
-class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTestCase):
+class EntityFilterViewsTestCase(BrickTestCaseMixin,
+                                ButtonTestCaseMixin,
+                                CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

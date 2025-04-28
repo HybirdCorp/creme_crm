@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2024  Hybird
+#    Copyright (C) 2019-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -129,15 +129,15 @@ class EntityFilterRegistry:
 
         return '' if not url_name else reverse(url_name, args=(efilter.id,))
 
-    def register_condition_handlers(
-            self,
-            *classes: type[FilterConditionHandler]) -> EntityFilterRegistry:
+    def register_condition_handlers(self,
+                                    *classes: type[FilterConditionHandler],
+                                    ) -> EntityFilterRegistry:
         """Register classes of handlers.
 
         @param classes: Classes inheriting
                <creme_core.core.entity_filter.condition_handler.FilterConditionHandler>.
         @return: self (to chain registrations).
-        @raises: _EntityFilterRegistry.RegistrationError if an ID is duplicated.
+        @raises: EntityFilterRegistry.RegistrationError if an ID is duplicated.
         """
         setdefault = self._handler_classes.setdefault
 
@@ -149,15 +149,15 @@ class EntityFilterRegistry:
 
         return self
 
-    def register_operands(
-            self,
-            *classes: type[ConditionDynamicOperand]) -> EntityFilterRegistry:
+    def register_operands(self,
+                          *classes: type[ConditionDynamicOperand],
+                          ) -> EntityFilterRegistry:
         """Register classes of operand.
 
         @param classes: Classes inheriting
                <creme_core.core.entity_filter.operands.ConditionDynamicOperand>.
         @return: self (to chain registrations).
-        @raises: _EntityFilterRegistry.RegistrationError if an ID is duplicated.
+        @raises: EntityFilterRegistry.RegistrationError if an ID is duplicated.
         """
         setdefault = self._operand_classes.setdefault
 
@@ -169,15 +169,15 @@ class EntityFilterRegistry:
 
         return self
 
-    def register_operators(
-            self,
-            *classes: type[ConditionOperator]) -> EntityFilterRegistry:
+    def register_operators(self,
+                           *classes: type[ConditionOperator],
+                           ) -> EntityFilterRegistry:
         """Register classes of operator.
 
         @param classes: Classes inheriting
                <creme_core.core.entity_filter.operators.ConditionOperator>.
         @return: self (to chain registrations).
-        @raises: _EntityFilterRegistry.RegistrationError if an ID is duplicated.
+        @raises: EntityFilterRegistry.RegistrationError if an ID is duplicated.
         """
         setdefault = self._operator_classes.setdefault
 
@@ -190,15 +190,15 @@ class EntityFilterRegistry:
 
         return self
 
-    def get_handler(
-            self, *,
-            type_id: int,
-            model: type[CremeEntity],
-            name: str,
-            data: dict | None) -> FilterConditionHandler | None:
+    def get_handler(self, *,
+                    type_id: int,
+                    model: type[CremeEntity],
+                    name: str,
+                    data: dict | None,
+                    ) -> FilterConditionHandler | None:
         """Get an instance of handler from its ID.
 
-        @param type_id: Id of the handler's class
+        @param type_id: ID of the handler's class
                (see attribute <FilterConditionHandler.type_id>).
         @param model: Class inheriting of <creme_core.models.CremeEntity>.
         @param name: Name of the handler.
@@ -210,20 +210,21 @@ class EntityFilterRegistry:
             cls = self._handler_classes[type_id]
         except KeyError:
             logger.warning(
-                '_EntityFilterRegistry.get_handler(): no handler class with type_id="%s" found.',
-                type_id,
+                '%s.get_handler(): no handler class with type_id="%s" found.',
+                type(self).__name__, type_id,
             )
             return None
 
         try:
-            return cls.build(model=model, name=name, data=data)
+            # return cls.build(model=model, name=name, data=data)
+            return cls.build(efilter_type=self.id, model=model, name=name, data=data)
         except cls.DataError:
             return None
 
     def get_operand(self, *, type_id: str, user) -> ConditionDynamicOperand | None:
         """Get an instance of operand from its ID.
 
-        @param type_id: Id of the operand's class
+        @param type_id: ID of the operand's class
                (see attribute <ConditionDynamicOperand.type_id>).
         @param user: instance of <django.contrib.auth.get_user_model()>
         @return: Instance of a class inheriting <ConditionDynamicOperand>,
