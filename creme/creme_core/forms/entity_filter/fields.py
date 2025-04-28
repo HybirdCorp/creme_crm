@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,6 +38,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_filter import (
     EF_REGULAR,
+    EntityFilterRegistry,
     condition_handler,
     entity_filter_registries,
     operators,
@@ -69,23 +70,30 @@ class _ConditionsField(JSONField):
     _model = None
 
     def __init__(self, *,
-                 model=CremeEntity,
-                 efilter_registry=None,
-                 condition_cls=EntityFilterCondition,
+                 model: type[CremeEntity] = CremeEntity,
+                 # efilter_registry=None,
+                 efilter_type: str = EF_REGULAR,
+                 condition_cls: type[EntityFilterCondition] = EntityFilterCondition,
                  **kwargs):
         """Constructor.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
-        @param efilter_registry: Instance of <creme_core.core.entity_filter._EntityFilterRegistry>.
+        @param efilter_type: See <creme_core.models.EntityFilter.filter_type>.
         """
         super().__init__(**kwargs)
         self.model = model
-        self.efilter_registry = efilter_registry or entity_filter_registries[EF_REGULAR]
+        self.efilter_type = efilter_type
+        # self.efilter_registry = efilter_registry or entity_filter_registries[EF_REGULAR]
         self.condition_cls = condition_cls
 
     @property
-    def efilter_type(self):
-        return self._efilter_registry.id
+    def efilter_type(self) -> str:
+        # return self._efilter_registry.id
+        return self._efilter_type
+
+    @efilter_type.setter
+    def efilter_type(self, value: str) -> None:
+        self._efilter_type = self.widget.efilter_type = value
 
     def initialize(self, ctype, conditions=None, efilter=None):
         if conditions:
@@ -94,19 +102,20 @@ class _ConditionsField(JSONField):
         self.model = ctype.model_class()
 
     @property
-    def efilter_registry(self):
-        return self._efilter_registry
+    def efilter_registry(self) -> EntityFilterRegistry:
+        # return self._efilter_registry
+        return entity_filter_registries[self.efilter_type]
 
-    @efilter_registry.setter
-    def efilter_registry(self, efilter_registry):
-        self._efilter_registry = self.widget.efilter_registry = efilter_registry
+    # @efilter_registry.setter
+    # def efilter_registry(self, efilter_registry):
+    #     self._efilter_registry = self.widget.efilter_registry = efilter_registry
 
     @property
-    def model(self):
+    def model(self) -> type[CremeEntity]:
         return self._model
 
     @model.setter
-    def model(self, model):
+    def model(self, model: type[CremeEntity]):
         self._model = model
 
     def _set_initial_conditions(self, conditions):
@@ -1052,23 +1061,34 @@ class PropertiesConditionsField(_ConditionsField):
 
 # TODO: factorise with _ConditionsField (mixin ?)
 class SubfiltersConditionsField(ModelMultipleChoiceField):
-    sub_filter_types = [EF_REGULAR]
+    sub_filter_types = [EF_REGULAR]  # TODO: pass to  __init__?
 
     def __init__(self, *,
                  model=CremeEntity,
-                 efilter_registry=None,
+                 # efilter_registry=None,
+                 efilter_type: str = EF_REGULAR,
                  condition_cls=EntityFilterCondition,
                  user=None,
                  **kwargs):
         super().__init__(queryset=EntityFilter.objects.none(), **kwargs)
         self.user = user
         self.model = model
-        self.efilter_registry = efilter_registry or entity_filter_registries[EF_REGULAR]
+        # self.efilter_registry = efilter_registry or entity_filter_registries[EF_REGULAR]
+        self.efilter_type = efilter_type
         self.condition_cls = condition_cls
 
     @property
     def efilter_type(self):
-        return self.efilter_registry.id
+        # return self.efilter_registry.id
+        return self._efilter_type
+
+    @efilter_type.setter
+    def efilter_type(self, value: str):
+        self._efilter_type = value
+
+    @property
+    def efilter_registry(self):
+        return entity_filter_registries[self.efilter_type]
 
     def clean(self, value):
         build_condition = partial(

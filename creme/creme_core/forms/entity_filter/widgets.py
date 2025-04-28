@@ -32,9 +32,10 @@ from django.db.models.fields.related import RelatedField as ModelRelatedField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+# from creme.creme_core.core.entity_filter import EntityFilterRegistry
 from creme.creme_core.core.entity_filter import (
     EF_REGULAR,
-    EntityFilterRegistry,
+    entity_filter_registries,
     operators,
 )
 from creme.creme_core.core.field_tags import FieldTag
@@ -142,14 +143,14 @@ class CustomFieldEnumerableSelect(EnumerableSelectMultiple):
 
 
 class FieldConditionSelector(ChainedInput):
-    def __init__(
-            self,
-            model=CremeEntity,
-            fields=(),
-            operators=(),
-            filter_type=EF_REGULAR,
-            attrs=None,
-            autocomplete=False):
+    def __init__(self,
+                 model=CremeEntity,
+                 fields=(),
+                 operators=(),
+                 filter_type=EF_REGULAR,  # TODO: "efilter_type"?
+                 attrs=None,
+                 autocomplete=False,
+                 ):
         super().__init__(attrs)
         self.model = model
         self.fields = fields
@@ -330,7 +331,7 @@ class FieldConditionSelector(ChainedInput):
         return 'string'
 
     def get_context(self, name, value, attrs):
-        # TODO : the default datatype should be "json" only for JSONField.
+        # TODO: the default datatype should be "json" only for JSONField.
         field_attrs = {'auto': False, 'datatype': 'json'}
 
         if self.autocomplete:
@@ -382,26 +383,31 @@ class RegularFieldsConditionsWidget(ConditionListWidget):
     def __init__(self,
                  model=CremeEntity,
                  fields=(),
-                 efilter_registry=None,
+                 # efilter_registry=None,
+                 efilter_type: str = EF_REGULAR,
                  attrs=None,
                  enabled=True,  # TODO: use
                  ):
         super().__init__(None, attrs)
         self.model = model
         self.fields = fields
-        self.efilter_registry = efilter_registry or EntityFilterRegistry(
-            id='creme_core-default',
-            verbose_name='Default for RegularFieldsConditionsWidget',
-        )
+        # self.efilter_registry = efilter_registry or EntityFilterRegistry(
+        #     id='creme_core-default',
+        #     verbose_name='Default for RegularFieldsConditionsWidget',
+        # )
+        self.efilter_type = efilter_type
 
     def get_selector(self, name, value, attrs):
-        registry = self.efilter_registry
+        # registry = self.efilter_registry
+        efilter_type = self.efilter_type
 
         return FieldConditionSelector(
             model=self.model,
             fields=self.fields,
-            operators=[*registry.operators],
-            filter_type=registry.id,
+            # operators=[*registry.operators],
+            # filter_type=registry.id,
+            filter_type=efilter_type,
+            operators=[*entity_filter_registries[efilter_type].operators],
             autocomplete=True,
         )
 
@@ -544,17 +550,19 @@ class CustomFieldsConditionsWidget(ConditionListWidget):
 
     def __init__(self,
                  fields=(),
-                 efilter_registry=None,
+                 # efilter_registry=None,
+                 efilter_type: str = EF_REGULAR,
                  attrs=None,
                  enabled=True,
                  ):
         super().__init__(None, attrs)
         self.fields = fields
-        self.efilter_registry = efilter_registry or EntityFilterRegistry(
-            # id=-1,
-            id='creme_core-default',
-            verbose_name='Default for RegularFieldsConditionsWidget',
-        )
+        # self.efilter_registry = efilter_registry or EntityFilterRegistry(
+        #     # id=-1,
+        #     id='creme_core-default',
+        #     verbose_name='Default for RegularFieldsConditionsWidget',
+        # )
+        self.efilter_type = efilter_type
 
     def get_selector(self, name, value, attrs):
         fields = [*self.fields]
@@ -564,7 +572,8 @@ class CustomFieldsConditionsWidget(ConditionListWidget):
 
         return CustomFieldConditionSelector(
             fields=fields, autocomplete=True,
-            operators=[*self.efilter_registry.operators],
+            # operators=[*self.efilter_registry.operators],
+            operators=[*entity_filter_registries[self.efilter_type].operators],
         )
 
 

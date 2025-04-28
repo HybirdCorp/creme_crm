@@ -322,11 +322,24 @@
           In the model 'RelationBrickItem', the way ContentTypes are stored in the field "json_cells_map" has changed too;
           a natural key with the pattern "app.modelname" is used instead of the ID.
         # The method 'creme_core.bricks.ButtonsBrick._get_buttons()' has a new mandatory argument.
-        # In 'creme_core.core.entity_cell', in the methods 'EntityCell*.build()' :
-            - The second argument is now always named "name" (e.g. it was named "customfield_id" in 'EntityCellCustomField.build()').
-            - The extra arguments are now keyword only (.e.g. 'EntityCellRegularField' & "is_hidden").
-        # The class 'creme_core.forms.widgets.ColorInput' has been removed; use 'django.forms.widgets.ColorInput' instead.
-          The related template file has been removed too.
+        # In 'creme_core.core' :
+            - In 'entity_cell', in the methods 'EntityCell*.build()' :
+                - The second argument is now always named "name" (e.g. it was named "customfield_id" in 'EntityCellCustomField.build()').
+                - The extra arguments are now keyword only (.e.g. 'EntityCellRegularField' & "is_hidden").
+            - In 'entity_filter.condition_handler' :
+                - The constructor of 'FilterConditionHandler' takes only keyword arguments now.
+                - In the 'FilterConditionHandler' & its child classes :
+                    - The class attribute 'efilter_registry' is now a read only property;
+                      use the new setter 'efilter_type' if you have to change the registry.
+                    - The constructor & the class-method 'build()' get new mandatory argument "efilter_type".
+                - The class-methods of 'OperatorConditionHandlerMixin' are now classical methods.
+        # In 'creme_core.forms' :
+            - The class 'widgets.ColorInput' has been removed; use 'django.forms.widgets.ColorInput' instead.
+              The related template file has been removed too.
+            - In 'entity_filters' :
+                - The constructor of the field classes take now an argument "efilter_type" instead of "efilter_registry".
+                - The constructor of the widget classes 'RegularFieldsConditionsWidget' & 'CustomFieldsConditionsWidget'
+                  take now an argument "efilter_type" instead of "efilter_registry".
         # In 'creme_core.gui' :
             - In the class 'bricks.Brick', the method 'has_perms()' has been removed ;
               use the new method 'check_permissions()' instead.

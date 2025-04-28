@@ -5,11 +5,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+# from creme.creme_core.core.entity_filter import entity_filter_registries
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
     condition_handler,
-    entity_filter_registries,
     operators,
 )
 from creme.creme_core.models import (
@@ -107,7 +107,8 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
             field = ReportRelationSubfiltersConditionsField(model=FakeContact)
             field.user = user
 
-        field.efilter_registry = entity_filter_registries[EF_REPORTS]
+        # field.efilter_registry = entity_filter_registries[EF_REPORTS]
+        field.efilter_type = EF_REPORTS
 
         conditions = field.clean(json_dump([
             {
@@ -217,19 +218,18 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
 
         field = ReportRelationSubfiltersConditionsField(
             model=FakeContact, user=user,
-            efilter_registry=entity_filter_registries[EF_REPORTS],
+            # efilter_registry=entity_filter_registries[EF_REPORTS],
+            efilter_type=EF_REPORTS,
         )
 
-        conditions = field.clean(json_dump([{
+        condition = self.get_alone_element(field.clean(json_dump([{
             'rtype': rtype.id,
             'has': True,
             'ctype': efilter.entity_type_id,
             'filter': efilter.id,
-        }]))
-        self.assertEqual(1, len(conditions))
+        }])))
         self.assertDictEqual(
-            {'has': True, 'filter_id': efilter.id},
-            conditions[0].value,
+            {'has': True, 'filter_id': efilter.id}, condition.value,
         )
 
     def test_disabled_rtype01(self):
@@ -273,31 +273,27 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
         field = ReportRelationSubfiltersConditionsField(
             model=FakeContact,
             user=self.get_root_user(),
-            efilter_registry=entity_filter_registries[EF_REPORTS]
+            # efilter_registry=entity_filter_registries[EF_REPORTS],
+            efilter_type=EF_REPORTS,
         )
+
+        ct = ContentType.objects.get_for_model(FakeContact)
         field.initialize(
-            ctype=ContentType.objects.get_for_model(FakeContact),
+            ctype=ct,
             conditions=[
                 ReportRelationSubFilterConditionHandler.build_condition(
-                    model=FakeContact,
-                    rtype=rtype,
-                    subfilter=efilter,
+                    model=FakeContact, rtype=rtype, subfilter=efilter,
                 ),
             ],
         )
         efilter_id = efilter.id
-        condition = self.get_alone_element(
-            field.clean(json_dump([{
-                'rtype': rtype.id, 'has': True,
-                'ctype': ContentType.objects.get_for_model(FakeContact).id,
-                'filter': efilter_id,
-            }]))
-        )
+        condition = self.get_alone_element(field.clean(json_dump([{
+            'rtype': rtype.id, 'has': True, 'ctype': ct.id, 'filter': efilter_id,
+        }])))
         self.assertEqual(ReportRelationSubFilterConditionHandler.type_id, condition.type)
         self.assertEqual(rtype.id, condition.name)
         self.assertDictEqual(
-            {'has': True, 'filter_id': efilter_id},
-            condition.value,
+            {'has': True, 'filter_id': efilter_id}, condition.value,
         )
 
 

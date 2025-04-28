@@ -51,7 +51,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         self.assertListEqual(
             [
                 f'WARNING:creme.creme_core.core.entity_filter:'
-                f'_EntityFilterRegistry.get_handler(): '
+                f'EntityFilterRegistry.get_handler(): '
                 f'no handler class with type_id="{cls1.type_id}" found.',
             ],
             logs_manager.output,

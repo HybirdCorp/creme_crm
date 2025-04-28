@@ -75,7 +75,8 @@ class _EntityFilterForm(CremeModelForm):
         f_kwargs = {
             'user': self.user,
             'required': False,
-            'efilter_registry': efilter_registry,
+            # 'efilter_registry': efilter_registry,
+            'efilter_type': efilter_registry.id,
         }
         for handler_cls in efilter_registry.handler_classes:
             fname = self._handler_fieldname(handler_cls)
