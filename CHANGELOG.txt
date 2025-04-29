@@ -13,6 +13,9 @@
     Non breaking changes :
     ----------------------
         # The creation forms for HeaderFilter & EntityFilter now accept models with digits at the end of their name.
+        # Apps :
+            * Billing :
+                - The Relation cache is now used in 'Line.related_document'.
 
 
 == Version 2.5.19 ==

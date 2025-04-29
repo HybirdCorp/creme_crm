@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -194,15 +194,19 @@ class Line(CremeEntity):
         related = self._related_document
 
         if related is False:
-            try:
-                related = self.relations.get(
-                    type=constants.REL_OBJ_HAS_LINE,
-                    subject_entity=self.id,
-                ).real_object  # .object_entity.get_real_entity()
-            except Relation.DoesNotExist:
-                related = None
-
-            self._related_document = related
+            # try:
+            #     related = self.relations.get(
+            #         type=constants.REL_OBJ_HAS_LINE,
+            #         subject_entity=self.id,
+            #     ).real_object  # .object_entity.get_real_entity()
+            # except Relation.DoesNotExist:
+            #     related = None
+            #
+            # self._related_document = related
+            relations = self.get_relations(constants.REL_OBJ_HAS_LINE)
+            self._related_document = related = (
+                relations[0].real_object if relations else None
+            )
 
         return related
 
