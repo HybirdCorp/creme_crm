@@ -280,7 +280,8 @@ class HistoryRenderTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='Gainax')
 
         # 1 value ---
-        old_description = "Awesome animation studio"
+        # old_description = "Awesome animation studio"
+        old_description = 'Awesome!\nanimation studio'
         orga = self.refresh(orga)
         orga.description = old_description
         orga.save()
@@ -295,10 +296,12 @@ class HistoryRenderTestCase(CremeTestCase):
                         f' <summary>{_("Details of modifications")}</summary>'
                         f' <details>'
                         f'  <div class="history-line-field-change-text-old_value">'
-                        f'   <h4>{_("Old value")}</h4><p></p>'
+                        # f'   <h4>{_("Old value")}</h4><p></p>'
+                        f'   <h4>{_("Old value")}</h4><p class="empty-field">—</p>'
                         f'  </div>'
                         f'  <div class="history-line-field-change-text-new_value">'
-                        f'   <h4>{_("New value")}</h4><p>{orga.description}</p>'
+                        # f'   <h4>{_("New value")}</h4><p>{orga.description}</p>'
+                        f'   <h4>{_("New value")}</h4><p>Awesome!<br>animation studio</p>'
                         f'  </div>'
                         f' </details>'
                         f'</a>'
@@ -310,7 +313,8 @@ class HistoryRenderTestCase(CremeTestCase):
 
         # 2 values ---
         orga = self.refresh(orga)
-        orga.description += ' which created "Evangelion".'
+        # orga.description += ' which created "Evangelion".'
+        orga.description = 'Created "Evangelion"'
         orga.save()
 
         self.assertHTMLEqual(
@@ -323,7 +327,8 @@ class HistoryRenderTestCase(CremeTestCase):
                         f' <summary>{_("Details of modifications")}</summary>'
                         f' <details>'
                         f'  <div class="history-line-field-change-text-old_value">'
-                        f'   <h4>{_("Old value")}</h4><p>{old_description}</p>'
+                        # f'   <h4>{_("Old value")}</h4><p>{old_description}</p>'
+                        f'   <h4>{_("Old value")}</h4><p>Awesome!<br>animation studio</p>'
                         f'  </div>'
                         f'  <div class="history-line-field-change-text-new_value">'
                         f'   <h4>{_("New value")}</h4><p>{orga.description}</p>'
@@ -356,7 +361,8 @@ class HistoryRenderTestCase(CremeTestCase):
                         f'   <h4>{_("Old value")}</h4><p>{description_backup}</p>'
                         f'  </div>'
                         f'  <div class="history-line-field-change-text-new_value">'
-                        f'   <h4>{_("New value")}</h4><p></p>'
+                        # f'   <h4>{_("New value")}</h4><p></p>'
+                        f'   <h4>{_("New value")}</h4><p class="empty-field">—</p>'
                         f'  </div>'
                         f' </details>'
                         f'</a>'

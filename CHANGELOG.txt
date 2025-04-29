@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # The render of history lines on TextFields (like "description") with line breaks has been improved.
     # Apps :
         * Opportunities :
             - Unsetting the current Quote was not possible if you did not create the relationship yourself.
