@@ -14,6 +14,9 @@
     ----------------------
         # The creation forms for HeaderFilter & EntityFilter now accept models with digits at the end of their name.
         # Fix conversion issues in creme.widgets.CheckListSelect when json datatype is enabled.
+        # Apps :
+            * Billing :
+                - The Relation cache is now used in 'Line.related_document'.
 
 
 == Version 2.6.7 ==
