@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -166,7 +166,7 @@ class BasePopulator:
                 raise ValueError(f'{o} is not an instance of {model}')
 
             if o.pk is not None:
-                raise ValueError(f'{o} is a saved in DB')
+                raise ValueError(f'{o} is already saved in DB')
 
         unsaved_instances = deepcopy(unsaved_instances)
 
