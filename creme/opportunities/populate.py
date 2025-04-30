@@ -67,6 +67,12 @@ class Populator(BasePopulator):
         custom_forms.OPPORTUNITY_CREATION_CFORM,
         custom_forms.OPPORTUNITY_EDITION_CFORM,
     ]
+    SETTING_VALUES = [
+        SettingValue(key=setting_keys.quote_key,              value=False),
+        SettingValue(key=setting_keys.target_constraint_key,  value=True),
+        SettingValue(key=setting_keys.emitter_constraint_key, value=True),
+        SettingValue(key=setting_keys.unsuccessful_key,       value=False),
+    ]
     SEARCH = ['name', 'made_sales', 'sales_phase__name', 'origin__name']
     SALES_PHASES = [
         # is_custom=True => only created during the first execution
@@ -365,12 +371,12 @@ class Populator(BasePopulator):
             model=self.Opportunity, fields=self.SEARCH,
         )
 
-    def _populate_setting_values(self):
-        create_sv = SettingValue.objects.get_or_create
-        create_sv(key_id=setting_keys.quote_key.id,              defaults={'value': False})
-        create_sv(key_id=setting_keys.target_constraint_key.id,  defaults={'value': True})
-        create_sv(key_id=setting_keys.emitter_constraint_key.id, defaults={'value': True})
-        create_sv(key_id=setting_keys.unsuccessful_key.id,       defaults={'value': False})
+    # def _populate_setting_values(self):
+    #     create_sv = SettingValue.objects.get_or_create
+    #     create_sv(key_id=setting_keys.quote_key.id,              defaults={'value': False})
+    #     create_sv(key_id=setting_keys.target_constraint_key.id,  defaults={'value': True})
+    #     create_sv(key_id=setting_keys.emitter_constraint_key.id, defaults={'value': True})
+    #     create_sv(key_id=setting_keys.unsuccessful_key.id,       defaults={'value': False})
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

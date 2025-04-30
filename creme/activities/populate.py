@@ -69,6 +69,22 @@ class Populator(BasePopulator):
         custom_forms.UNAVAILABILITY_CREATION_CFORM,
         custom_forms.ACTIVITY_EDITION_CFORM,
     ]
+    SETTING_VALUES = [
+        SettingValue(key=setting_keys.review_key, value=True),
+        SettingValue(key=setting_keys.auto_subjects_key, value=True),
+        SettingValue(
+            key=setting_keys.unsuccessful_subtype_key,
+            value=constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
+        ),
+        SettingValue(
+            key=setting_keys.unsuccessful_title_key, value=_('Unsuccessful call'),
+        ),
+        SettingValue(
+            key=setting_keys.unsuccessful_status_key,
+            value=constants.UUID_STATUS_UNSUCCESSFUL,
+        ),
+        SettingValue(key=setting_keys.unsuccessful_duration_key, value=3),
+    ]
     BUTTONS = [
         # (class, order)
         (buttons.AddRelatedActivityButton, 10),
@@ -456,27 +472,27 @@ class Populator(BasePopulator):
             model=self.Activity, fields=self.SEARCH,
         )
 
-    def _populate_setting_values(self):
-        create_svalue = SettingValue.objects.get_or_create
-        create_svalue(key_id=setting_keys.review_key.id,        defaults={'value': True})
-        create_svalue(key_id=setting_keys.auto_subjects_key.id, defaults={'value': True})
-
-        create_svalue(
-            key_id=setting_keys.unsuccessful_subtype_key.id,
-            defaults={'value': constants.UUID_SUBTYPE_PHONECALL_OUTGOING},
-        )
-        create_svalue(
-            key_id=setting_keys.unsuccessful_title_key.id,
-            defaults={'value': _('Unsuccessful call')},
-        )
-        create_svalue(
-            key_id=setting_keys.unsuccessful_status_key.id,
-            defaults={'value': constants.UUID_STATUS_UNSUCCESSFUL},
-        )
-        create_svalue(
-            key_id=setting_keys.unsuccessful_duration_key.id,
-            defaults={'value': 3},
-        )
+    # def _populate_setting_values(self):
+    #     create_svalue = SettingValue.objects.get_or_create
+    #     create_svalue(key_id=setting_keys.review_key.id,        defaults={'value': True})
+    #     create_svalue(key_id=setting_keys.auto_subjects_key.id, defaults={'value': True})
+    #
+    #     create_svalue(
+    #         key_id=setting_keys.unsuccessful_subtype_key.id,
+    #         defaults={'value': constants.UUID_SUBTYPE_PHONECALL_OUTGOING},
+    #     )
+    #     create_svalue(
+    #         key_id=setting_keys.unsuccessful_title_key.id,
+    #         defaults={'value': _('Unsuccessful call')},
+    #     )
+    #     create_svalue(
+    #         key_id=setting_keys.unsuccessful_status_key.id,
+    #         defaults={'value': constants.UUID_STATUS_UNSUCCESSFUL},
+    #     )
+    #     create_svalue(
+    #         key_id=setting_keys.unsuccessful_duration_key.id,
+    #         defaults={'value': 3},
+    #     )
 
     def _populate_menu_config(self):
         create_mitem = MenuConfigItem.objects.create

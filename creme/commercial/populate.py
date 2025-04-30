@@ -76,6 +76,9 @@ class Populator(BasePopulator):
         custom_forms.STRATEGY_CREATION_CFORM,
         custom_forms.STRATEGY_EDITION_CFORM,
     ]
+    SETTING_VALUES = [
+        SettingValue(key=setting_keys.orga_approaches_key, value=True),
+    ]
     SEARCH = {
         'ACT': ['name', 'expected_sales', 'cost', 'goal'],
         'STRATEGY': ['name'],
@@ -236,11 +239,11 @@ class Populator(BasePopulator):
         create_sci(model=self.Strategy,            key='STRATEGY')
         create_sci(model=self.ActObjectivePattern, key='PATTERN')
 
-    def _populate_setting_values(self):
-        SettingValue.objects.get_or_create(
-            key_id=setting_keys.orga_approaches_key.id,
-            defaults={'value': True},
-        )
+    # def _populate_setting_values(self):
+    #     SettingValue.objects.get_or_create(
+    #         key_id=setting_keys.orga_approaches_key.id,
+    #         defaults={'value': True},
+    #     )
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

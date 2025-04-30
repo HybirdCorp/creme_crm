@@ -41,6 +41,7 @@ from creme.creme_core.models import (
     NotificationChannel,
     Sandbox,
     SearchConfigItem,
+    SettingValue,
 )
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.content_type import entity_ctypes
@@ -63,6 +64,7 @@ class BasePopulator:
     JOBS: list[Job] = []
     SANDBOXES: list[Sandbox] = []
     CUSTOM_FORMS: list[CustomFormDescriptor] = []
+    SETTING_VALUES: list[SettingValue] = []
     NOTIFICATION_CHANNELS: list[NotificationChannel] = []
 
     def __init__(self, verbosity, app, all_apps, options, stdout, style):
@@ -167,7 +169,16 @@ class BasePopulator:
         pass
 
     def _populate_setting_values(self) -> None:
-        pass
+        for svalue in self.SETTING_VALUES:
+            if not isinstance(svalue, SettingValue):
+                raise TypeError(f'{svalue} is not a SettingValue')
+
+            if svalue.pk is not None:
+                raise ValueError(f'{svalue} is already saved in DB')
+
+        for svalue in deepcopy(self.SETTING_VALUES):
+            if not SettingValue.objects.filter(key_id=svalue.key_id).exists():
+                svalue.save()
 
     def _populate_notification_channels(self) -> None:
         for channel in self.NOTIFICATION_CHANNELS:
