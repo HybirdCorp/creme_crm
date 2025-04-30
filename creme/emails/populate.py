@@ -20,7 +20,7 @@ import logging
 from functools import partial
 
 from django.apps import apps
-from django.conf import settings
+# from django.conf import settings
 from django.utils.translation import gettext as _
 
 import creme.creme_core.bricks as core_bricks
@@ -50,6 +50,14 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'documents']
 
+    JOBS = [
+        Job(type=creme_jobs.entity_emails_send_type),
+        Job(type=creme_jobs.campaign_emails_send_type),
+        Job(
+            type=creme_jobs.entity_emails_sync_type,
+            periodicity=date_period_registry.get_period('minutes', 30),
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.CAMPAIGN_CREATION_CFORM,
         custom_forms.CAMPAIGN_EDITION_CFORM,
@@ -163,30 +171,30 @@ class Populator(BasePopulator):
             ],
         )
 
-    def _populate_jobs(self):
-        create_job = Job.objects.get_or_create
-        create_job(
-            type_id=creme_jobs.entity_emails_send_type.id,
-            defaults={
-                'language': settings.LANGUAGE_CODE,
-                'status':   Job.STATUS_OK,
-            },
-        )
-        create_job(
-            type_id=creme_jobs.campaign_emails_send_type.id,
-            defaults={
-                'language': settings.LANGUAGE_CODE,
-                'status':   Job.STATUS_OK,
-            },
-        )
-        create_job(
-            type_id=creme_jobs.entity_emails_sync_type.id,
-            defaults={
-                'language':    settings.LANGUAGE_CODE,
-                'periodicity': date_period_registry.get_period('minutes', 30),
-                'status':      Job.STATUS_OK,
-            },
-        )
+    # def _populate_jobs(self):
+    #     create_job = Job.objects.get_or_create
+    #     create_job(
+    #         type_id=creme_jobs.entity_emails_send_type.id,
+    #         defaults={
+    #             'language': settings.LANGUAGE_CODE,
+    #             'status':   Job.STATUS_OK,
+    #         },
+    #     )
+    #     create_job(
+    #         type_id=creme_jobs.campaign_emails_send_type.id,
+    #         defaults={
+    #             'language': settings.LANGUAGE_CODE,
+    #             'status':   Job.STATUS_OK,
+    #         },
+    #     )
+    #     create_job(
+    #         type_id=creme_jobs.entity_emails_sync_type.id,
+    #         defaults={
+    #             'language':    settings.LANGUAGE_CODE,
+    #             'periodicity': date_period_registry.get_period('minutes', 30),
+    #             'status':      Job.STATUS_OK,
+    #         },
+    #     )
 
     # def _populate_custom_forms(self):
     #     create_cfci = CustomFormConfigItem.objects.create_if_needed

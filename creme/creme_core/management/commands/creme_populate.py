@@ -36,6 +36,7 @@ from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.models import (
     CustomFormConfigItem,
     HeaderFilter,
+    Job,
     MinionModel,
     SearchConfigItem,
 )
@@ -57,6 +58,7 @@ def _checked_app_label(app_label, app_labels):
 class BasePopulator:
     dependencies: list[str] = []  # Example: ['appname1', 'appname2']
 
+    JOBS: list[Job] = []
     CUSTOM_FORMS: list[CustomFormDescriptor] = []
 
     def __init__(self, verbosity, app, all_apps, options, stdout, style):
@@ -126,7 +128,19 @@ class BasePopulator:
         pass
 
     def _populate_jobs(self) -> None:
-        pass
+        # These are system jobs, with only one instance per type.
+        for job in self.JOBS:
+            if not isinstance(job, Job):
+                raise TypeError(f'{job} is not a Job')
+
+            if job.pk is not None:
+                raise ValueError(f'{job} is already saved in DB')
+
+        for job in deepcopy(self.JOBS):
+            if not Job.objects.filter(type_id=job.type_id).exists():
+                job.language = settings.LANGUAGE_CODE
+                job.status = Job.STATUS_OK
+                job.save()
 
     def _populate_sandboxes(self) -> None:
         pass

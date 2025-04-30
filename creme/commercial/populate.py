@@ -19,7 +19,7 @@
 import logging
 
 from django.apps import apps
-from django.conf import settings
+# from django.conf import settings
 from django.utils.translation import gettext as _
 
 import creme.creme_core.bricks as core_bricks
@@ -59,6 +59,15 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'products']
 
+    JOBS = [
+        Job(
+            type=creme_jobs.com_approaches_emails_send_type,
+            periodicity=date_period_registry.get_period('days', 1),
+            # The CommercialApproach field for Activities' CustomForms is not
+            # in the default configuration, so an enabled job would be annoying.
+            enabled=False,
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.ACT_CREATION_CFORM,
         custom_forms.ACT_EDITION_CFORM,
@@ -194,18 +203,18 @@ class Populator(BasePopulator):
         self._populate_header_filters_for_strategy()
         self._populate_header_filters_for_pattern()
 
-    def _populate_jobs(self):
-        Job.objects.get_or_create(
-            type_id=creme_jobs.com_approaches_emails_send_type.id,
-            defaults={
-                'language':    settings.LANGUAGE_CODE,
-                'periodicity': date_period_registry.get_period('days', 1),
-                'status':      Job.STATUS_OK,
-                # The CommercialApproach field for Activities' CustomForms is not
-                # in the default configuration, so a enabled job would be annoying.
-                'enabled': False,
-            },
-        )
+    # def _populate_jobs(self):
+    #     Job.objects.get_or_create(
+    #         type_id=creme_jobs.com_approaches_emails_send_type.id,
+    #         defaults={
+    #             'language':    settings.LANGUAGE_CODE,
+    #             'periodicity': date_period_registry.get_period('days', 1),
+    #             'status':      Job.STATUS_OK,
+    #             # The CommercialApproach field for Activities' CustomForms is not
+    #             # in the default configuration, so a enabled job would be annoying.
+    #             'enabled': False,
+    #         },
+    #     )
 
     # def _populate_custom_forms(self):
     #     create_cform = CustomFormConfigItem.objects.create_if_needed
