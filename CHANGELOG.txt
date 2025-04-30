@@ -16,7 +16,8 @@
         # Apps :
             * Billing :
                 - The Relation cache is now used in 'Line.related_document'.
-                - In 'models.Base._pre_delete()', the RelationType ID 'REL_OBJ_LINE_RELATED_ITEM' is not used anymore.
+                - The handler 'signals.manage_line_deletion()' now avoid to re-compte the totals when its the whole entity (e.g. Invoice) which is being deleted.
+                  It's faster & it avoids some inconsistent states where the entity has no emitter/receiver in its 'save() too.
 
 
 == Version 2.5.19 ==
