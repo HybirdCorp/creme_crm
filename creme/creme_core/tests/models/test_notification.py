@@ -34,7 +34,7 @@ from ..base import CremeTestCase
 
 
 class NotificationChannelTestCase(CremeTestCase):
-    def test_manager_create01(self):
+    def test_manager_create__custom(self):
         "Custom."
         name = 'My_channel'
         description = 'Very useful'
@@ -58,7 +58,7 @@ class NotificationChannelTestCase(CremeTestCase):
 
         self.assertEqual(name, str(channel))
 
-    def test_manager_create02(self):
+    def test_manager_create__not_custom(self):
         "Not custom + not required."
         uid = uuid4()
         channel = NotificationChannel.objects.create(
@@ -119,6 +119,26 @@ class NotificationChannelTestCase(CremeTestCase):
                 f'have you run the command "creme_populate"?!'
             ],
         )
+
+    def test_property_type(self):
+        uid = uuid4()
+        channel = NotificationChannel.objects.create(
+            uuid=uid, type=SystemChannelType, required=False,
+            default_outputs=[OUTPUT_EMAIL],
+        )
+        self.assertEqual(SystemChannelType.id, channel.type_id)
+
+        chan_type = channel.type
+        self.assertIsInstance(chan_type, SystemChannelType)
+        self.assertIs(chan_type, channel.type)
+
+        # ---
+        channel.type = JobsChannelType
+        self.assertIsInstance(channel.type, JobsChannelType)
+
+        # ---
+        channel.type = None
+        self.assertIsNone(channel.type)
 
 
 class NotificationChannelConfigItemTestCase(CremeTestCase):

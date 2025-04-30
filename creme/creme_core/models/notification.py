@@ -25,11 +25,12 @@ from typing import Iterable, Iterator, Sequence
 from django.conf import settings
 from django.db import IntegrityError, models
 from django.db.transaction import atomic
-from django.utils.functional import cached_property
+# from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from ..core import notification
+from ..core.notification import NotificationChannelType
 from ..global_info import get_per_request_cache
 from ..utils.dates import dt_to_ISO8601
 from . import CremeUser
@@ -93,6 +94,8 @@ class NotificationChannel(models.Model):
     creation_label = _('Create a channel')
     save_label     = _('Save the channel')
 
+    _channel_type = False
+
     class Meta:
         app_label = 'creme_core'
         # verbose_name = _('Notification channel')
@@ -114,14 +117,31 @@ class NotificationChannel(models.Model):
 
         return self.description if chan_type is None else str(chan_type.description)
 
-    @cached_property
-    def type(self):
-        type_id = self.type_id
-        return (
-            notification.notification_registry.get_channel_type(type_id)
-            if type_id else
-            None
-        )
+    # @cached_property
+    # def type(self):
+    #     type_id = self.type_id
+    #     return (
+    #         notification.notification_registry.get_channel_type(type_id)
+    #         if type_id else
+    #         None
+    #     )
+    @property
+    def type(self) -> NotificationChannelType | None:
+        chan_type = self._channel_type
+        if chan_type is False:
+            type_id = self.type_id
+            self._channel_type = chan_type = (
+                notification.notification_registry.get_channel_type(type_id)
+                if type_id else
+                None
+            )
+
+        return chan_type
+
+    @type.setter
+    def type(self, value):
+        self.type_id = value.id if value else None
+        self._channel_type = False
 
     def save(self, *args, **kwargs):
         if not self.default_outputs:
