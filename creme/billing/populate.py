@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,12 +35,12 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
     ButtonMenuItem,
     CustomBrickConfigItem,
-    CustomFormConfigItem,
     EntityFilter,
     HeaderFilter,
     MenuConfigItem,
@@ -69,6 +69,18 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
 
+    CUSTOM_FORMS = [
+        custom_forms.INVOICE_CREATION_CFORM,
+        custom_forms.INVOICE_EDITION_CFORM,
+        custom_forms.QUOTE_CREATION_CFORM,
+        custom_forms.QUOTE_EDITION_CFORM,
+        custom_forms.ORDER_CREATION_CFORM,
+        custom_forms.ORDER_EDITION_CFORM,
+        custom_forms.CNOTE_CREATION_CFORM,
+        custom_forms.CNOTE_EDITION_CFORM,
+        custom_forms.BTEMPLATE_CREATION_CFORM,
+        custom_forms.BTEMPLATE_EDITION_CFORM,
+    ]
     SEARCH = {
         'INVOICE':     ['name', 'number', 'status__name'],
         'QUOTE':       ['name', 'number', 'status__name'],
@@ -537,18 +549,18 @@ class Populator(BasePopulator):
         self._populate_header_filters_for_productline()
         self._populate_header_filters_for_serviceline()
 
-    def _populate_custom_forms(self):
-        create_cform = CustomFormConfigItem.objects.create_if_needed
-        create_cform(descriptor=custom_forms.INVOICE_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.INVOICE_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.QUOTE_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.QUOTE_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.ORDER_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.ORDER_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.CNOTE_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.CNOTE_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.BTEMPLATE_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.BTEMPLATE_EDITION_CFORM)
+    # def _populate_custom_forms(self):
+    #     create_cform = CustomFormConfigItem.objects.create_if_needed
+    #     create_cform(descriptor=custom_forms.INVOICE_CREATION_CFORM)
+    #     create_cform(descriptor=custom_forms.INVOICE_EDITION_CFORM)
+    #     create_cform(descriptor=custom_forms.QUOTE_CREATION_CFORM)
+    #     create_cform(descriptor=custom_forms.QUOTE_EDITION_CFORM)
+    #     create_cform(descriptor=custom_forms.ORDER_CREATION_CFORM)
+    #     create_cform(descriptor=custom_forms.ORDER_EDITION_CFORM)
+    #     create_cform(descriptor=custom_forms.CNOTE_CREATION_CFORM)
+    #     create_cform(descriptor=custom_forms.CNOTE_EDITION_CFORM)
+    #     create_cform(descriptor=custom_forms.BTEMPLATE_CREATION_CFORM)
+    #     create_cform(descriptor=custom_forms.BTEMPLATE_EDITION_CFORM)
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

@@ -28,11 +28,11 @@ from creme import emails, persons
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
     CustomBrickConfigItem,
-    CustomFormConfigItem,
     HeaderFilter,
     Job,
     MenuConfigItem,
@@ -50,6 +50,14 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'documents']
 
+    CUSTOM_FORMS = [
+        custom_forms.CAMPAIGN_CREATION_CFORM,
+        custom_forms.CAMPAIGN_EDITION_CFORM,
+        custom_forms.TEMPLATE_CREATION_CFORM,
+        custom_forms.TEMPLATE_EDITION_CFORM,
+        custom_forms.MAILINGLIST_CREATION_CFORM,
+        custom_forms.MAILINGLIST_EDITION_CFORM,
+    ]
     SEARCH = {
         'CAMPAIGN': ['name', 'mailing_lists__name'],
         'MAILING_LIST': [
@@ -180,14 +188,14 @@ class Populator(BasePopulator):
             },
         )
 
-    def _populate_custom_forms(self):
-        create_cfci = CustomFormConfigItem.objects.create_if_needed
-        create_cfci(descriptor=custom_forms.CAMPAIGN_CREATION_CFORM)
-        create_cfci(descriptor=custom_forms.CAMPAIGN_EDITION_CFORM)
-        create_cfci(descriptor=custom_forms.TEMPLATE_CREATION_CFORM)
-        create_cfci(descriptor=custom_forms.TEMPLATE_EDITION_CFORM)
-        create_cfci(descriptor=custom_forms.MAILINGLIST_CREATION_CFORM)
-        create_cfci(descriptor=custom_forms.MAILINGLIST_EDITION_CFORM)
+    # def _populate_custom_forms(self):
+    #     create_cfci = CustomFormConfigItem.objects.create_if_needed
+    #     create_cfci(descriptor=custom_forms.CAMPAIGN_CREATION_CFORM)
+    #     create_cfci(descriptor=custom_forms.CAMPAIGN_EDITION_CFORM)
+    #     create_cfci(descriptor=custom_forms.TEMPLATE_CREATION_CFORM)
+    #     create_cfci(descriptor=custom_forms.TEMPLATE_EDITION_CFORM)
+    #     create_cfci(descriptor=custom_forms.MAILINGLIST_CREATION_CFORM)
+    #     create_cfci(descriptor=custom_forms.MAILINGLIST_EDITION_CFORM)
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

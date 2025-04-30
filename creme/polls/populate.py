@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2024  Hybird
+#    Copyright (C) 2012-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,9 +27,9 @@ from creme import persons, polls
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
-    CustomFormConfigItem,
     HeaderFilter,
     MenuConfigItem,
     SearchConfigItem,
@@ -44,6 +44,12 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
+    CUSTOM_FORMS = [
+        custom_forms.CAMPAIGN_CREATION_CFORM,
+        custom_forms.CAMPAIGN_EDITION_CFORM,
+        custom_forms.PFORM_CREATION_CFORM,
+        custom_forms.PFORM_EDITION_CFORM,
+    ]
     POLL_TYPES = [
         # is_custom=True => only created during the first execution
         PollType(uuid='90d3d792-4354-43d2-8da2-9abf7cdd1421', name=_('Survey')),
@@ -97,12 +103,12 @@ class Populator(BasePopulator):
             ],
         )
 
-    def _populate_custom_forms(self):
-        create_cfci = CustomFormConfigItem.objects.create_if_needed
-        create_cfci(descriptor=custom_forms.CAMPAIGN_CREATION_CFORM)
-        create_cfci(descriptor=custom_forms.CAMPAIGN_EDITION_CFORM)
-        create_cfci(descriptor=custom_forms.PFORM_CREATION_CFORM)
-        create_cfci(descriptor=custom_forms.PFORM_EDITION_CFORM)
+    # def _populate_custom_forms(self):
+    #     create_cfci = CustomFormConfigItem.objects.create_if_needed
+    #     create_cfci(descriptor=custom_forms.CAMPAIGN_CREATION_CFORM)
+    #     create_cfci(descriptor=custom_forms.CAMPAIGN_EDITION_CFORM)
+    #     create_cfci(descriptor=custom_forms.PFORM_CREATION_CFORM)
+    #     create_cfci(descriptor=custom_forms.PFORM_EDITION_CFORM)
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed
