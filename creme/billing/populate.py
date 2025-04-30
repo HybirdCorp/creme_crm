@@ -81,6 +81,11 @@ class Populator(BasePopulator):
         custom_forms.BTEMPLATE_CREATION_CFORM,
         custom_forms.BTEMPLATE_EDITION_CFORM,
     ]
+    SETTING_VALUES = [
+        SettingValue(key=setting_keys.payment_info_key,       value=True),
+        SettingValue(key=setting_keys.button_redirection_key, value=True),
+        SettingValue(key=setting_keys.emitter_edition_key,    value=False),
+    ]
     SEARCH = {
         'INVOICE':     ['name', 'number', 'status__name'],
         'QUOTE':       ['name', 'number', 'status__name'],
@@ -573,11 +578,11 @@ class Populator(BasePopulator):
         for model in (self.ProductLine, self.ServiceLine):
             create_sci(model=model, fields=[], disabled=True)
 
-    def _populate_setting_values(self):
-        create_svalue = SettingValue.objects.get_or_create
-        create_svalue(key_id=setting_keys.payment_info_key.id,       defaults={'value': True})
-        create_svalue(key_id=setting_keys.button_redirection_key.id, defaults={'value': True})
-        create_svalue(key_id=setting_keys.emitter_edition_key.id,    defaults={'value': False})
+    # def _populate_setting_values(self):
+    #     create_svalue = SettingValue.objects.get_or_create
+    #     create_svalue(key_id=setting_keys.payment_info_key.id,       defaults={'value': True})
+    #     create_svalue(key_id=setting_keys.button_redirection_key.id, defaults={'value': True})
+    #     create_svalue(key_id=setting_keys.emitter_edition_key.id,    defaults={'value': False})
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

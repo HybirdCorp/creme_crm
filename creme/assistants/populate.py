@@ -43,6 +43,9 @@ from .setting_keys import todo_reminder_key
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
+    SETTING_VALUES = [
+        SettingValue(key=todo_reminder_key, value=9),
+    ]
     NOTIFICATION_CHANNELS = [
         NotificationChannel(
             uuid=constants.UUID_CHANNEL_USERMESSAGES,
@@ -80,10 +83,10 @@ class Populator(BasePopulator):
     def _populate_message_priorities(self):
         self._save_minions(self.PRIORITIES)
 
-    def _populate_setting_values(self):
-        SettingValue.objects.get_or_create(
-            key_id=todo_reminder_key.id, defaults={'value': 9},
-        )
+    # def _populate_setting_values(self):
+    #     SettingValue.objects.get_or_create(
+    #         key_id=todo_reminder_key.id, defaults={'value': 9},
+    #     )
 
     # def _populate_notification_channels(self):
     #     NotificationChannel.objects.get_or_create(
