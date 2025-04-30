@@ -180,6 +180,10 @@ class Base(CremeEntity):
                 # ],
                 type=REL_SUB_HAS_LINE,
                 subject_entity=self.id):
+            # NB: see billing.signals.manage_line_deletion().
+            #     We avoid to compute the total at each deletion because the
+            #     instance is totally deleted, so its slow & useless.
+            relation._avoid_billing_total_update = True
             relation._delete_without_transaction()
 
         for line in lines:
