@@ -38,6 +38,7 @@ from creme.creme_core.models import (
     HeaderFilter,
     Job,
     MinionModel,
+    Sandbox,
     SearchConfigItem,
 )
 from creme.creme_core.utils.collections import OrderedSet
@@ -59,6 +60,7 @@ class BasePopulator:
     dependencies: list[str] = []  # Example: ['appname1', 'appname2']
 
     JOBS: list[Job] = []
+    SANDBOXES: list[Sandbox] = []
     CUSTOM_FORMS: list[CustomFormDescriptor] = []
 
     def __init__(self, verbosity, app, all_apps, options, stdout, style):
@@ -143,7 +145,16 @@ class BasePopulator:
                 job.save()
 
     def _populate_sandboxes(self) -> None:
-        pass
+        for sandbox in self.SANDBOXES:
+            if not isinstance(sandbox, Sandbox):
+                raise TypeError(f'{sandbox} is not a Sandbox')
+
+            if sandbox.pk is not None:
+                raise ValueError(f'{sandbox} is already saved in DB')
+
+        for sandbox in deepcopy(self.SANDBOXES):
+            if not Sandbox.objects.filter(uuid=sandbox.uuid).exists():
+                sandbox.save()
 
     def _populate_custom_forms(self) -> None:
         create_cfci = CustomFormConfigItem.objects.create_if_needed

@@ -76,6 +76,13 @@ class Populator(BasePopulator):
         Job(type=creme_jobs.reminder_type),
         Job(type=creme_jobs.notification_emails_sender_type),
     ]
+    SANDBOXES = [
+        Sandbox(
+            uuid=constants.UUID_SANDBOX_SUPERUSERS,
+            # 'superuser': True,
+            type=sandboxes.OnlySuperusersType,
+        ),
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -252,14 +259,14 @@ class Populator(BasePopulator):
     #         },
     #     )
 
-    def _populate_sandboxes(self):
-        Sandbox.objects.get_or_create(
-            uuid=constants.UUID_SANDBOX_SUPERUSERS,
-            defaults={
-                # 'superuser': True,
-                'type_id': sandboxes.OnlySuperusersType.id,
-            },
-        )
+    # def _populate_sandboxes(self):
+    #     Sandbox.objects.get_or_create(
+    #         uuid=constants.UUID_SANDBOX_SUPERUSERS,
+    #         defaults={
+    #             # 'superuser': True,
+    #             'type_id': sandboxes.OnlySuperusersType.id,
+    #         },
+    #     )
 
     def _populate_setting_values(self):
         create_svalue = SettingValue.objects.get_or_create
