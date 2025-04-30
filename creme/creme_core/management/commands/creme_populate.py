@@ -38,6 +38,7 @@ from creme.creme_core.models import (
     HeaderFilter,
     Job,
     MinionModel,
+    NotificationChannel,
     Sandbox,
     SearchConfigItem,
 )
@@ -62,6 +63,7 @@ class BasePopulator:
     JOBS: list[Job] = []
     SANDBOXES: list[Sandbox] = []
     CUSTOM_FORMS: list[CustomFormDescriptor] = []
+    NOTIFICATION_CHANNELS: list[NotificationChannel] = []
 
     def __init__(self, verbosity, app, all_apps, options, stdout, style):
         self.verbosity = verbosity
@@ -168,7 +170,16 @@ class BasePopulator:
         pass
 
     def _populate_notification_channels(self) -> None:
-        pass
+        for channel in self.NOTIFICATION_CHANNELS:
+            if not isinstance(channel, NotificationChannel):
+                raise TypeError(f'{channel} is not a NotificationChannel')
+
+            if channel.pk is not None:
+                raise ValueError(f'{channel} is already saved in DB')
+
+        for channel in deepcopy(self.NOTIFICATION_CHANNELS):
+            if not NotificationChannel.objects.filter(uuid=channel.uuid).exists():
+                channel.save()
 
     # - Called only the first time the command is run:
     def _populate_menu_config(self) -> None:

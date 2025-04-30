@@ -83,6 +83,32 @@ class Populator(BasePopulator):
             type=sandboxes.OnlySuperusersType,
         ),
     ]
+    NOTIFICATION_CHANNELS = [
+        NotificationChannel(
+            uuid=constants.UUID_CHANNEL_SYSTEM,
+            type=notification.SystemChannelType,
+            required=True,
+            default_outputs=[OUTPUT_WEB],
+        ),
+        NotificationChannel(
+            uuid=constants.UUID_CHANNEL_ADMIN,
+            type=notification.AdministrationChannelType,
+            default_outputs=[OUTPUT_WEB],
+            required=False,
+        ),
+        NotificationChannel(
+            uuid=constants.UUID_CHANNEL_JOBS,
+            type=notification.JobsChannelType,
+            default_outputs=[OUTPUT_WEB],
+            required=False,
+        ),
+        NotificationChannel(
+            uuid=constants.UUID_CHANNEL_REMINDERS,
+            type=notification.RemindersChannelType,
+            required=True,
+            default_outputs=[OUTPUT_EMAIL],
+        ),
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -277,40 +303,40 @@ class Populator(BasePopulator):
         create_svalue(key_id=setting_keys.brick_showempty_key.id, defaults={'value': True})
         create_svalue(key_id=setting_keys.currency_symbol_key.id, defaults={'value': True})
 
-    def _populate_notification_channels(self):
-        create_channel = NotificationChannel.objects.get_or_create
-        create_channel(
-            uuid=constants.UUID_CHANNEL_SYSTEM,
-            defaults={
-                'type_id': notification.SystemChannelType.id,
-                'required': True,
-                'default_outputs': [OUTPUT_WEB],
-            },
-        )
-        create_channel(
-            uuid=constants.UUID_CHANNEL_ADMIN,
-            defaults={
-                'type_id': notification.AdministrationChannelType.id,
-                'default_outputs': [OUTPUT_WEB],
-                'required': False,
-            },
-        )
-        create_channel(
-            uuid=constants.UUID_CHANNEL_JOBS,
-            defaults={
-                'type_id': notification.JobsChannelType.id,
-                'default_outputs': [OUTPUT_WEB],
-                'required': False,
-            },
-        )
-        create_channel(
-            uuid=constants.UUID_CHANNEL_REMINDERS,
-            defaults={
-                'type_id': notification.RemindersChannelType.id,
-                'required': True,
-                'default_outputs': [OUTPUT_EMAIL],
-            },
-        )
+    # def _populate_notification_channels(self):
+    #     create_channel = NotificationChannel.objects.get_or_create
+    #     create_channel(
+    #         uuid=constants.UUID_CHANNEL_SYSTEM,
+    #         defaults={
+    #             'type_id': notification.SystemChannelType.id,
+    #             'required': True,
+    #             'default_outputs': [OUTPUT_WEB],
+    #         },
+    #     )
+    #     create_channel(
+    #         uuid=constants.UUID_CHANNEL_ADMIN,
+    #         defaults={
+    #             'type_id': notification.AdministrationChannelType.id,
+    #             'default_outputs': [OUTPUT_WEB],
+    #             'required': False,
+    #         },
+    #     )
+    #     create_channel(
+    #         uuid=constants.UUID_CHANNEL_JOBS,
+    #         defaults={
+    #             'type_id': notification.JobsChannelType.id,
+    #             'default_outputs': [OUTPUT_WEB],
+    #             'required': False,
+    #         },
+    #     )
+    #     create_channel(
+    #         uuid=constants.UUID_CHANNEL_REMINDERS,
+    #         defaults={
+    #             'type_id': notification.RemindersChannelType.id,
+    #             'required': True,
+    #             'default_outputs': [OUTPUT_EMAIL],
+    #         },
+    #     )
 
     def _populate_menu_config(self):
         create_mitem = MenuConfigItem.objects.create

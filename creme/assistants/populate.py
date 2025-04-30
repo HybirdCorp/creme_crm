@@ -43,6 +43,14 @@ from .setting_keys import todo_reminder_key
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
+    NOTIFICATION_CHANNELS = [
+        NotificationChannel(
+            uuid=constants.UUID_CHANNEL_USERMESSAGES,
+            type=UserMessagesChannelType,
+            required=True,
+            default_outputs=[notification.OUTPUT_EMAIL, notification.OUTPUT_WEB],
+        ),
+    ]
     PRIORITIES = [
         UserMessagePriority(
             uuid=constants.UUID_PRIORITY_IMPORTANT,
@@ -77,18 +85,18 @@ class Populator(BasePopulator):
             key_id=todo_reminder_key.id, defaults={'value': 9},
         )
 
-    def _populate_notification_channels(self):
-        NotificationChannel.objects.get_or_create(
-            uuid=constants.UUID_CHANNEL_USERMESSAGES,
-            defaults={
-                'type_id': UserMessagesChannelType.id,
-                'required': True,
-                'default_outputs': [
-                    notification.OUTPUT_EMAIL,
-                    notification.OUTPUT_WEB,
-                ],
-            },
-        )
+    # def _populate_notification_channels(self):
+    #     NotificationChannel.objects.get_or_create(
+    #         uuid=constants.UUID_CHANNEL_USERMESSAGES,
+    #         defaults={
+    #             'type_id': UserMessagesChannelType.id,
+    #             'required': True,
+    #             'default_outputs': [
+    #                 notification.OUTPUT_EMAIL,
+    #                 notification.OUTPUT_WEB,
+    #             ],
+    #         },
+    #     )
 
     def _populate_bricks_config(self):
         create_bdl = partial(
