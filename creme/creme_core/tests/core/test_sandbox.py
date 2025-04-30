@@ -47,7 +47,7 @@ class SandboxTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-        sandbox1 = Sandbox(type_id=TestSandboxType2_2.id)
+        sandbox1 = Sandbox(type=TestSandboxType2_2)
         self.assertIsInstance(registry.get(sandbox1), TestSandboxType2_2)
 
         class TestSandboxType2_4(SandboxType):  # Not registered

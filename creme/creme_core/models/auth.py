@@ -1587,3 +1587,7 @@ class Sandbox(models.Model):
         from ..core.sandbox import sandbox_type_registry
 
         return sandbox_type_registry.get(self)
+
+    @type.setter
+    def type(self, value: SandboxType):
+        self.type_id = value.id
