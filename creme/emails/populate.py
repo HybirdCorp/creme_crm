@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -60,6 +60,13 @@ class Populator(BasePopulator):
         'TEMPLATE': ['name', 'subject', 'body', 'attachments__title'],
         'EMAIL': ['sender', 'recipient', 'subject'],
     }
+    FOLDER_CATEGORIES = [
+        FolderCategory(
+            uuid=constants.UUID_FOLDER_CAT_EMAILS,
+            name=_('Documents received by email'),
+            is_custom=False,
+        ),
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -81,13 +88,7 @@ class Populator(BasePopulator):
         self._populate_folder_categories()
 
     def _populate_folder_categories(self):
-        FolderCategory.objects.get_or_create(
-            uuid=constants.UUID_FOLDER_CAT_EMAILS,
-            defaults={
-                'name': _('Documents received by email'),
-                'is_custom': False,
-            },
-        )
+        self._save_minions(self.FOLDER_CATEGORIES)
 
     def _populate_relation_types(self):
         create_rtype = RelationType.objects.smart_update_or_create
