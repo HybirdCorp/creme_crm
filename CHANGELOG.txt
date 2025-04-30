@@ -17,6 +17,7 @@
         # Apps :
             * Billing :
                 - The Relation cache is now used in 'Line.related_document'.
+                - In 'models.Base._DELETABLE_INTERNAL_RTYPE_IDS', the RelationType ID 'REL_OBJ_LINE_RELATED_ITEM' has been removed.
 
 
 == Version 2.6.7 ==
