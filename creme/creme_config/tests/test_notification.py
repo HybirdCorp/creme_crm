@@ -429,7 +429,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
 
         chan = NotificationChannel.objects.create(
             name='My channel', default_outputs=[OUTPUT_WEB],
-            type_id=SystemChannelType.id,  # <==
+            type=SystemChannelType,  # <==
         )
         self.assertPOST409(reverse('creme_config__delete_notif_channel'), data={'id': chan.id})
 
