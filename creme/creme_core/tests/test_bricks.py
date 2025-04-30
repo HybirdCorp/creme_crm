@@ -114,11 +114,11 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        create_button = ButtonMenuItem.objects.create_if_needed
+        create_button = ButtonMenuItem.objects.create
         create_button(button=TestButton1, order=1)
-        create_button(button=TestButton2, order=102, model=FakeOrganisation)
-        create_button(button=TestButton3, order=101, model=FakeOrganisation)
-        create_button(button=TestButton4, order=102, model=FakeContact)
+        create_button(button=TestButton2, order=102, content_type=FakeOrganisation)
+        create_button(button=TestButton3, order=101, content_type=FakeOrganisation)
+        create_button(button=TestButton4, order=102, content_type=FakeContact)
 
         self._assertMenuButtons(
             user=user, entity=orga, buttons=[TestButton1, TestButton3, TestButton2],
@@ -129,10 +129,10 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        create_button = ButtonMenuItem.objects.create_if_needed
+        create_button = ButtonMenuItem.objects.create
         create_button(button=TestButton1, order=1)
-        create_button(button=TestButton2, order=101, model=FakeOrganisation)
-        create_button(button=TestButton1, order=102, model=FakeOrganisation)
+        create_button(button=TestButton2, order=101, content_type=type(orga))
+        create_button(button=TestButton1, order=102, content_type=type(orga))
 
         self._assertMenuButtons(
             user=user, entity=orga, buttons=[TestButton1, TestButton2],
@@ -153,7 +153,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        ButtonMenuItem.objects.create_if_needed(button=TestButton1, order=1)
+        ButtonMenuItem.objects.create(button=TestButton1, order=1)
 
         ButtonsBrick.button_registry.register_mandatory(
             button_class=MandatoryButton1, priority=8,
@@ -169,9 +169,9 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        create_button = ButtonMenuItem.objects.create_if_needed
+        create_button = ButtonMenuItem.objects.create
         create_button(button=TestButton1, order=1)
-        create_button(button=TestButton2, order=101, model=FakeOrganisation)
+        create_button(button=TestButton2, order=101, content_type=type(orga))
 
         ButtonMenuItem.objects.create(
             content_type=None, button_id='', order=1, superuser=True,
@@ -182,11 +182,11 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        create_button = ButtonMenuItem.objects.create_if_needed
+        create_button = ButtonMenuItem.objects.create
         create_button(button=TestButton1, order=1)
-        create_button(button=TestButton2, order=102, model=FakeOrganisation)
-        create_button(button=TestButton3, order=101, role='superuser')
-        create_button(button=TestButton4, order=102, role='superuser')
+        create_button(button=TestButton2, order=102, content_type=type(orga))
+        create_button(button=TestButton3, order=101, superuser=True)
+        create_button(button=TestButton4, order=102, superuser=True)
 
         self._assertMenuButtons(user=user, entity=orga, buttons=[TestButton3, TestButton4])
 
@@ -194,12 +194,12 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        create_button = ButtonMenuItem.objects.create_if_needed
+        create_button = ButtonMenuItem.objects.create
         create_button(button=TestButton1, order=1)
-        create_button(button=TestButton2, order=101, model=FakeOrganisation)
-        create_button(button=TestButton3, order=1, role='superuser')
-        create_button(button=TestButton4, order=101, role='superuser', model=FakeOrganisation)
-        create_button(button=TestButton5, order=101, role='superuser', model=FakeContact)
+        create_button(button=TestButton2, order=101, content_type=type(orga))
+        create_button(button=TestButton3, order=1,   superuser=True)
+        create_button(button=TestButton4, order=101, superuser=True, content_type=type(orga))
+        create_button(button=TestButton5, order=101, superuser=True, content_type=FakeContact)
 
         self._assertMenuButtons(user=user, entity=orga, buttons=[TestButton3, TestButton4])
 
@@ -207,39 +207,36 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.create_user(role=self.create_role())
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        create_button = ButtonMenuItem.objects.create_if_needed
-        create_button(button=TestButton1, order=1)
-        create_button(button=TestButton2, order=102, model=FakeOrganisation)
-
-        ButtonMenuItem.objects.create(
-            content_type=None, button_id='', order=1, role=user.role,
-        )
+        create_bmi = ButtonMenuItem.objects.create
+        create_bmi(button=TestButton1, order=1)
+        create_bmi(button=TestButton2, order=102, content_type=type(orga))
+        create_bmi(button_id='',       order=1,   content_type=None, role=user.role)
         self._assertMenuButtons(user=user, entity=orga, buttons=[])
 
     def test_buttons_brick__role_config__default(self):
         user = self.create_user(role=self.create_role())
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        create_button = ButtonMenuItem.objects.create_if_needed
-        create_button(button=TestButton1, order=1)
-        create_button(button=TestButton2, order=102, model=FakeOrganisation)
-        create_button(button=TestButton3, order=101, role=user.role)
-        create_button(button=TestButton4, order=102, role=user.role)
-
-        self._assertMenuButtons(user=user, entity=orga, buttons=[TestButton3, TestButton4])
+        create_bmi = ButtonMenuItem.objects.create
+        create_bmi(button=TestButton1, order=1)
+        create_bmi(button=TestButton2, order=102, content_type=(type(orga)))
+        create_bmi(button=TestButton3, order=101, role=user.role)
+        create_bmi(button=TestButton4, order=102, role=user.role)
+        self._assertMenuButtons(
+            user=user, entity=orga, buttons=[TestButton3, TestButton4],
+        )
 
     def test_buttons_brick__role_config__ctype(self):
         user = self.create_user(role=self.create_role())
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        create_button = ButtonMenuItem.objects.create_if_needed
-        create_button(button=TestButton1, order=1)
-        create_button(button=TestButton2, order=101, model=FakeOrganisation)
-        create_button(button=TestButton3, order=1, role=user.role)
-        create_button(button=TestButton4, order=101, role=user.role, model=FakeOrganisation)
-        create_button(button=TestButton5, order=101, role=user.role, model=FakeContact)
-        create_button(button=TestButton5, order=101, role='superuser', model=FakeOrganisation)
-
+        create_bmi = ButtonMenuItem.objects.create
+        create_bmi(button=TestButton1, order=1)
+        create_bmi(button=TestButton2, order=101, content_type=FakeOrganisation)
+        create_bmi(button=TestButton3, order=1, role=user.role)
+        create_bmi(button=TestButton4, order=101, role=user.role, content_type=FakeOrganisation)
+        create_bmi(button=TestButton5, order=101, role=user.role, content_type=FakeContact)
+        create_bmi(button=TestButton5, order=101, superuser=True, content_type=FakeOrganisation)
         self._assertMenuButtons(user=user, entity=orga, buttons=[TestButton3, TestButton4])
 
     def test_properties_brick(self):

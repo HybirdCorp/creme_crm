@@ -258,8 +258,8 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         custom_cfield  = create_cf(content_type=model,       name='Color')
 
         existing_bmi = ButtonMenuItem.objects.first()
-        custom_bmi = ButtonMenuItem.objects.create_if_needed(
-            model=model, button=Restrict2SuperusersButton, order=1024,
+        custom_bmi = ButtonMenuItem.objects.create(
+            content_type=model, button=Restrict2SuperusersButton, order=1024,
         )
 
         existing_bdl = BrickDetailviewLocation.objects.first()

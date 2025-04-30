@@ -1,3 +1,5 @@
+from functools import partial
+
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -156,9 +158,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertGET409(url)
 
         # GET ---
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-        create_bmi(button='', order=1, role=role)
-        create_bmi(button=TestButton1, order=1, role=role, model=FakeOrganisation)
+        create_bmi = ButtonMenuItem.objects.create
+        create_bmi(button_id='', order=1, role=role)
+        create_bmi(button=TestButton1, order=1, role=role, content_type=FakeOrganisation)
 
         step0_get_ctxt = self.assertGET200(url).context
         self.assertEqual(
@@ -230,9 +232,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertGET409(url)
 
         # GET ---
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-        create_bmi(button='', order=1, role='superuser')
-        create_bmi(button=TestButton5, order=1, role='superuser', model=FakeOrganisation)
+        create_bmi = partial(ButtonMenuItem.objects.create, superuser=True, order=1)
+        create_bmi(button_id='')
+        create_bmi(button=TestButton5, content_type=FakeOrganisation)
 
         step0_get_ctxt = self.assertGET200(url).context
         self.assertEqual(
@@ -361,8 +363,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         ct = self.contact_ct
 
-        ButtonMenuItem.objects.create_if_needed(
-            model=FakeContact, button=TestButton4, order=1,
+        ButtonMenuItem.objects.create(
+            content_type=FakeContact, button=TestButton4, order=1,
         )
 
         # url = reverse('creme_config__edit_ctype_buttons', args=(ct.id,))
@@ -408,8 +410,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         ct = self.contact_ct
 
-        ButtonMenuItem.objects.create_if_needed(
-            model=FakeContact, button=TestButton1, order=1,
+        ButtonMenuItem.objects.create(
+            content_type=FakeContact, button=TestButton1, order=1,
         )
 
         self.assertNoFormError(self.client.post(
@@ -441,11 +443,11 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         role = user.role
         url = reverse('creme_config__edit_role_buttons', args=(role.id, 0))
 
-        create_bmi = ButtonMenuItem.objects.create_if_needed
+        create_bmi = ButtonMenuItem.objects.create
         create_bmi(button=TestButton1, order=1, role=role)
         create_bmi(button=TestButton2, order=2, role=role)
-        create_bmi(button=TestButton4, order=1, role=role, model=FakeContact)
-        create_bmi(button=TestButton5, order=1, role='superuser', model=FakeContact)
+        create_bmi(button=TestButton4, order=1, role=role, content_type=FakeContact)
+        create_bmi(button=TestButton5, order=1, superuser=True, content_type=FakeContact)
 
         # GET ---
         response1 = self.assertGET200(url)
@@ -496,16 +498,16 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         role = self.create_role()
         ct = self.contact_ct
 
-        create_bmi = ButtonMenuItem.objects.create_if_needed
+        create_bmi = ButtonMenuItem.objects.create
         create_bmi(button=TestButton3, order=2)
         create_bmi(button=TestButton1, order=1, role=role)
-        create_bmi(button=TestButton2, order=101, model=FakeContact)
-        create_bmi(button=TestButton3, order=102, model=FakeContact)
+        create_bmi(button=TestButton2, order=101, content_type=ct)
+        create_bmi(button=TestButton3, order=102, content_type=ct)
         # NB: order should be something 1001 in normal cases
-        create_bmi(button=TestButton2, order=101, role=role, model=FakeContact)
-        create_bmi(button=TestButton3, order=102, role=role, model=FakeContact)
-        create_bmi(button=TestButton2, order=101, role='superuser', model=FakeContact)
-        create_bmi(button=TestButton4, order=102, role='superuser', model=FakeContact)
+        create_bmi(button=TestButton2, order=101, role=role, content_type=ct)
+        create_bmi(button=TestButton3, order=102, role=role, content_type=ct)
+        create_bmi(button=TestButton2, order=101, superuser=True, content_type=ct)
+        create_bmi(button=TestButton4, order=102, superuser=True, content_type=ct)
 
         url = reverse('creme_config__edit_role_buttons', args=(role.id, ct.id,))
 
@@ -553,7 +555,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.login_as_root()
         role = self.create_role()
 
-        ButtonMenuItem.objects.create_if_needed(button=TestButton1, order=1, role=role)
+        ButtonMenuItem.objects.create(button=TestButton1, order=1, role=role)
         self.assertNoFormError(self.client.post(
             reverse('creme_config__edit_role_buttons', args=(role.id, 0)),
             data={'button_ids': []},
@@ -571,18 +573,19 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.login_as_root()
         role = self.create_role()
 
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-        create_bmi(button=TestButton1, order=1, model=FakeContact)
-        create_bmi(button=TestButton2, order=1, model=FakeContact, role=role)
+        ct = self.contact_ct
+        create_bmi = partial(ButtonMenuItem.objects.create, content_type=ct)
+        create_bmi(button=TestButton1, order=1)
+        create_bmi(button=TestButton2, order=1, role=role)
 
         self.assertNoFormError(self.client.post(
-            reverse('creme_config__edit_role_buttons', args=(role.id, self.contact_ct.id,)),
+            reverse('creme_config__edit_role_buttons', args=(role.id, ct.id,)),
             data={'button_ids': []},
         ))
 
         def buttons_info(role):
             return [*ButtonMenuItem.objects.filter(
-                content_type=self.contact_ct, superuser=False, role=role,
+                content_type=ct, superuser=False, role=role,
             ).values_list('button_id', 'order')]
 
         self.assertListEqual([('',             1)], buttons_info(role=role))
@@ -600,14 +603,15 @@ class ButtonMenuConfigTestCase(CremeTestCase):
     def test_edit__superuser__default(self):
         self.login_as_root()
 
+        ct = self.contact_ct
         role = self.create_role()
         url = reverse('creme_config__edit_superuser_buttons', args=(0,))
 
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-        create_bmi(button=TestButton1, order=1, role='superuser')
-        create_bmi(button=TestButton2, order=2, role='superuser')
-        create_bmi(button=TestButton4, order=1, role='superuser', model=FakeContact)
-        create_bmi(button=TestButton5, order=1, role=role, model=FakeContact)
+        create_bmi = ButtonMenuItem.objects.create
+        create_bmi(button=TestButton1, order=1, superuser=True)
+        create_bmi(button=TestButton2, order=2, superuser=True)
+        create_bmi(button=TestButton4, order=1, superuser=True, content_type=ct)
+        create_bmi(button=TestButton5, order=1, role=role, content_type=ct)
 
         # GET ---
         response1 = self.assertGET200(url)
@@ -630,7 +634,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertListEqual([TestButton1.id, TestButton2.id], buttons_f.initial)
 
         # POST ---
-        response2 = self.client.post(url, data={'button_ids': [TestButton2.id, TestButton3.id]})
+        response2 = self.client.post(
+            url, data={'button_ids': [TestButton2.id, TestButton3.id]},
+        )
         self.assertNoFormError(response2)
 
         def button_info(**kwargs):
@@ -642,11 +648,11 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         )
         self.assertListEqual(
             [(TestButton4.id, 1)],
-            button_info(content_type=self.contact_ct, superuser=True, role=None),
+            button_info(content_type=ct, superuser=True, role=None),
         )
         self.assertListEqual(
             [(TestButton5.id, 1)],
-            button_info(content_type=self.contact_ct, superuser=False, role=role),
+            button_info(content_type=ct, superuser=False, role=role),
         )
 
     def test_edit__superuser__for_model(self):
@@ -655,16 +661,16 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         role = self.create_role()
         ct = self.contact_ct
 
-        create_bmi = ButtonMenuItem.objects.create_if_needed
+        create_bmi = ButtonMenuItem.objects.create
         create_bmi(button=TestButton3, order=1)
-        create_bmi(button=TestButton2, order=101, model=FakeContact)
-        create_bmi(button=TestButton3, order=102, model=FakeContact)
-        create_bmi(button=TestButton1, order=1, role='superuser')
+        create_bmi(button=TestButton2, order=101, content_type=ct)
+        create_bmi(button=TestButton3, order=102, content_type=ct)
+        create_bmi(button=TestButton1, order=1, superuser=True)
         # NB: order should be something 1001 in normal cases
-        create_bmi(button=TestButton2, order=101, role='superuser', model=FakeContact)
-        create_bmi(button=TestButton3, order=102, role='superuser', model=FakeContact)
-        create_bmi(button=TestButton2, order=101, role=role, model=FakeContact)
-        create_bmi(button=TestButton4, order=102, role=role, model=FakeContact)
+        create_bmi(button=TestButton2, order=101, superuser=True, content_type=ct)
+        create_bmi(button=TestButton3, order=102, superuser=True, content_type=ct)
+        create_bmi(button=TestButton2, order=101, role=role, content_type=ct)
+        create_bmi(button=TestButton4, order=102, role=role, content_type=ct)
 
         url = reverse('creme_config__edit_superuser_buttons', args=(ct.id,))
 
@@ -708,8 +714,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_edit__superuser__set_default_empty(self):
         self.login_as_root()
-        ButtonMenuItem.objects.create_if_needed(button=TestButton1, order=1, role='superuser')
 
+        ButtonMenuItem.objects.create(button=TestButton1, order=1, superuser=True)
         self.assertNoFormError(self.client.post(
             reverse('creme_config__edit_superuser_buttons', args=(0,)),
             data={'button_ids': []},
@@ -725,12 +731,13 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_edit__superuser__set_model_empty(self):
         self.login_as_root()
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-        create_bmi(button=TestButton1, order=1, model=FakeContact)
-        create_bmi(button=TestButton2, order=1, model=FakeContact, role='superuser')
+        ct = self.contact_ct
+        create_bmi = partial(ButtonMenuItem.objects.create, content_type=ct)
+        create_bmi(button=TestButton1, order=1)
+        create_bmi(button=TestButton2, order=1, superuser=True)
 
         self.assertNoFormError(self.client.post(
-            reverse('creme_config__edit_superuser_buttons', args=(self.contact_ct.id,)),
+            reverse('creme_config__edit_superuser_buttons', args=(ct.id,)),
             data={'button_ids': []},
         ))
 
@@ -765,12 +772,12 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         ct = self.contact_ct
 
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-        bmi1 = create_bmi(button=TestButton1, order=1)
-        bmi2 = create_bmi(button=TestButton1, order=1, model=FakeContact)
-        bmi3 = create_bmi(button=TestButton1, order=1, role='superuser')
-        bmi4 = create_bmi(button=TestButton1, order=1, role='superuser', model=FakeContact)
-        bmi5 = create_bmi(button=TestButton1, order=1, role=self.create_role(), model=FakeContact)
+        create_bmi = partial(ButtonMenuItem.objects.create, order=1)
+        bmi1 = create_bmi(button=TestButton1)
+        bmi2 = create_bmi(button=TestButton1, content_type=ct)
+        bmi3 = create_bmi(button=TestButton1, superuser=True)
+        bmi4 = create_bmi(button=TestButton1, superuser=True, content_type=ct)
+        bmi5 = create_bmi(button=TestButton1, role=self.create_role(), content_type=ct)
 
         # self.assertPOST200(self.DEL_URL, data={'id': ct.id})
         self.assertPOST200(self.DEL_URL, data={'ctype': ct.id})
@@ -786,11 +793,11 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         user = self._login_as_core_admin()
         role = user.role
 
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-        bmi1 = create_bmi(button='',          order=1, role=role)
-        bmi2 = create_bmi(button=TestButton1, order=1, role=role, model=FakeContact)
-        bmi3 = create_bmi(button=TestButton1, order=1, role='superuser')
-        bmi4 = create_bmi(button=TestButton1, order=1)
+        create_bmi = partial(ButtonMenuItem.objects.create, order=1)
+        bmi1 = create_bmi(button_id='',       role=role)
+        bmi2 = create_bmi(button=TestButton1, role=role, content_type=self.contact_ct)
+        bmi3 = create_bmi(button=TestButton1, superuser=True)
+        bmi4 = create_bmi(button=TestButton1)
 
         self.assertPOST200(self.DEL_URL, data={'role': role.id})
         self.assertDoesNotExist(bmi1)
@@ -804,17 +811,15 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.login_as_root()
 
         role = self.create_role()
+        ct = self.contact_ct
 
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-        bmi1 = create_bmi(button='',          order=1, role=role)
-        bmi2 = create_bmi(button=TestButton1, order=1, role=role, model=FakeContact)
-        bmi3 = create_bmi(button=TestButton1, order=1, role='superuser')
-        bmi4 = create_bmi(button=TestButton1, order=1)
+        create_bmi = partial(ButtonMenuItem.objects.create, order=1)
+        bmi1 = create_bmi(button_id='',       role=role)
+        bmi2 = create_bmi(button=TestButton1, role=role, content_type=ct)
+        bmi3 = create_bmi(button=TestButton1, superuser=True)
+        bmi4 = create_bmi(button=TestButton1)
 
-        self.assertPOST200(
-            self.DEL_URL,
-            data={'role': role.id, 'ctype': self.contact_ct.id},
-        )
+        self.assertPOST200(self.DEL_URL, data={'role': role.id, 'ctype': ct.id})
         self.assertDoesNotExist(bmi2)
         self.assertStillExists(bmi1)
         self.assertStillExists(bmi3)
@@ -825,11 +830,11 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         role = self.create_role()
 
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-        bmi1 = create_bmi(button=TestButton1, order=1, role='superuser')
-        bmi2 = create_bmi(button=TestButton1, order=1, role='superuser', model=FakeContact)
-        bmi3 = create_bmi(button='',          order=1, role=role)
-        bmi4 = create_bmi(button=TestButton1, order=1)
+        create_bmi = partial(ButtonMenuItem.objects.create, order=1)
+        bmi1 = create_bmi(button=TestButton1, superuser=True)
+        bmi2 = create_bmi(button=TestButton1, superuser=True, content_type=FakeContact)
+        bmi3 = create_bmi(button_id='', role=role)
+        bmi4 = create_bmi(button=TestButton1,)
 
         self.assertPOST200(self.DEL_URL, data={'role': 'superuser'})
         self.assertDoesNotExist(bmi1)
@@ -841,16 +846,17 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.login_as_root()
 
         role = self.create_role()
+        ct = self.contact_ct
 
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-        bmi1 = create_bmi(button='',          order=1, role='superuser')
-        bmi2 = create_bmi(button=TestButton1, order=1, role='superuser', model=FakeContact)
-        bmi3 = create_bmi(button=TestButton1, order=1, role=role, model=FakeContact)
-        bmi4 = create_bmi(button=TestButton1, order=1, model=FakeContact)
+        create_bmi = partial(ButtonMenuItem.objects.create, order=1)
+        bmi1 = create_bmi(button_id='',       superuser=True)
+        bmi2 = create_bmi(button=TestButton1, superuser=True, content_type=ct)
+        bmi3 = create_bmi(button=TestButton1, role=role,      content_type=ct)
+        bmi4 = create_bmi(button=TestButton1,                 content_type=ct)
 
         self.assertPOST200(
             self.DEL_URL,
-            data={'role': 'superuser', 'ctype': self.contact_ct.id},
+            data={'role': 'superuser', 'ctype': ct.id},
         )
         self.assertDoesNotExist(bmi2)
         self.assertStillExists(bmi1)
@@ -877,8 +883,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         role2 = self.create_role(name='Role #2')
         role3 = self.create_role(name='Role #3')
 
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-        create_bmi(button=TestButton1, order=1, role='superuser')
+        create_bmi = ButtonMenuItem.objects.create
+        create_bmi(button=TestButton1, order=1, superuser=True)
         create_bmi(button=TestButton4, order=2, role=role3)
 
         # GET ---
@@ -924,10 +930,11 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         )
 
         # GET ---
-        create_bmi = ButtonMenuItem.objects.create_if_needed
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        create_bmi = ButtonMenuItem.objects.create
         create_bmi(button=TestButton1, order=1, role=role1)
-        create_bmi(model=FakeOrganisation, button=TestButton4, order=1, role=role1)
-        create_bmi(model=FakeOrganisation, button=TestButton5, order=2, role=role1)
+        create_bmi(content_type=ct, button=TestButton4, order=1, role=role1)
+        create_bmi(content_type=ct, button=TestButton5, order=2, role=role1)
 
         response2 = self.assertGET200(url)
         self.assertEqual(
@@ -945,12 +952,11 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         # POST ---
         self.assertNoFormError(self.client.post(url, data={'target': role2.id}))
 
-        ct_id = ContentType.objects.get_for_model(FakeOrganisation).id
         self.assertCountEqual(
             [
                 {'button_id': TestButton1.id, 'order': 1, 'content_type': None},
-                {'button_id': TestButton4.id, 'order': 1, 'content_type': ct_id},
-                {'button_id': TestButton5.id, 'order': 2, 'content_type': ct_id},
+                {'button_id': TestButton4.id, 'order': 1, 'content_type': ct.id},
+                {'button_id': TestButton5.id, 'order': 2, 'content_type': ct.id},
             ],
             [
                 *ButtonMenuItem.objects
@@ -962,23 +968,22 @@ class ButtonMenuConfigTestCase(CremeTestCase):
     def test_clone__role_to_superuser(self):
         user = self._login_as_core_admin()
         role = user.role
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
 
-        create_bmi = ButtonMenuItem.objects.create_if_needed
+        create_bmi = ButtonMenuItem.objects.create
         create_bmi(button=TestButton1, order=1, role=role)
-        create_bmi(button=TestButton4, order=1, role=role, model=FakeOrganisation)
-        create_bmi(button=TestButton5, order=2, role=role, model=FakeOrganisation)
+        create_bmi(button=TestButton4, order=1, role=role, content_type=ct)
+        create_bmi(button=TestButton5, order=2, role=role, content_type=ct)
 
         self.assertNoFormError(self.client.post(
             reverse('creme_config__clone_role_buttons', args=(role.id,)),
             data={'target': ''},
         ))
-
-        ct_id = ContentType.objects.get_for_model(FakeOrganisation).id
         self.assertCountEqual(
             [
                 {'button_id': TestButton1.id, 'order': 1, 'content_type': None},
-                {'button_id': TestButton4.id, 'order': 1, 'content_type': ct_id},
-                {'button_id': TestButton5.id, 'order': 2, 'content_type': ct_id},
+                {'button_id': TestButton4.id, 'order': 1, 'content_type': ct.id},
+                {'button_id': TestButton5.id, 'order': 2, 'content_type': ct.id},
             ],
             [
                 *ButtonMenuItem.objects
@@ -990,6 +995,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
     def test_clone__superuser(self):
         self.login_as_root()
         role = self.create_role(name='Role')
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
 
         # GET (error) ---
         url = reverse('creme_config__clone_superuser_buttons')
@@ -1000,10 +1006,10 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         )
 
         # GET ---
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-        create_bmi(button=TestButton1, order=1, role='superuser')
-        create_bmi(model=FakeOrganisation, button=TestButton4, order=1, role='superuser')
-        create_bmi(model=FakeOrganisation, button=TestButton5, order=2, role='superuser')
+        create_bmi = partial(ButtonMenuItem.objects.create, superuser=True)
+        create_bmi(button=TestButton1, order=1)
+        create_bmi(button=TestButton4, order=1, content_type=ct)
+        create_bmi(button=TestButton5, order=2, content_type=ct)
 
         response1 = self.assertGET200(url)
         self.assertEqual(
@@ -1014,13 +1020,12 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         # POST ---
         self.assertNoFormError(self.client.post(url, data={'target': role.id}))
 
-        ct_id = ContentType.objects.get_for_model(FakeOrganisation).id
         self.maxDiff = None
         self.assertCountEqual(
             [
                 {'button_id': TestButton1.id, 'order': 1, 'content_type': None},
-                {'button_id': TestButton4.id, 'order': 1, 'content_type': ct_id},
-                {'button_id': TestButton5.id, 'order': 2, 'content_type': ct_id},
+                {'button_id': TestButton4.id, 'order': 1, 'content_type': ct.id},
+                {'button_id': TestButton5.id, 'order': 2, 'content_type': ct.id},
             ],
             [
                 *ButtonMenuItem.objects

@@ -57,10 +57,8 @@ class VcfExportTestCase(CremeTestCase):
 
     def test_button(self):
         user = self.login_as_root_and_get()
-        ButtonMenuItem.objects.create_if_needed(
-            model=Contact,
-            button=GenerateVcfButton,
-            order=100,
+        ButtonMenuItem.objects.create(
+            content_type=Contact, button=GenerateVcfButton, order=100,
         )
 
         contact = self.create_contact(user=user)
