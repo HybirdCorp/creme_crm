@@ -61,6 +61,22 @@ from .utils.date_period import date_period_registry
 
 
 class Populator(BasePopulator):
+    JOBS = [
+        Job(
+            type=creme_jobs.sessions_cleaner_type,
+            periodicity=date_period_registry.get_period('days', 1),
+        ),
+        Job(
+            type=creme_jobs.temp_files_cleaner_type,
+            periodicity=date_period_registry.get_period('days', 1),
+            data={
+                'delay': date_period_registry.get_period('days', 1).as_dict(),
+            },
+        ),
+        Job(type=creme_jobs.reminder_type),
+        Job(type=creme_jobs.notification_emails_sender_type),
+    ]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.root = None
@@ -200,41 +216,41 @@ class Populator(BasePopulator):
             (constants.REL_OBJ_HAS, _('belongs to')),
         )
 
-    def _populate_jobs(self):
-        create_job = Job.objects.get_or_create
-        create_job(
-            type_id=creme_jobs.sessions_cleaner_type.id,
-            defaults={
-                'language': settings.LANGUAGE_CODE,
-                'periodicity': date_period_registry.get_period('days', 1),
-                'status': Job.STATUS_OK,
-            },
-        )
-        create_job(
-            type_id=creme_jobs.temp_files_cleaner_type.id,
-            defaults={
-                'language': settings.LANGUAGE_CODE,
-                'periodicity': date_period_registry.get_period('days', 1),
-                'status': Job.STATUS_OK,
-                'data': {
-                    'delay': date_period_registry.get_period('days', 1).as_dict(),
-                },
-            },
-        )
-        create_job(
-            type_id=creme_jobs.reminder_type.id,
-            defaults={
-                'language': settings.LANGUAGE_CODE,
-                'status': Job.STATUS_OK,
-            },
-        )
-        create_job(
-            type_id=creme_jobs.notification_emails_sender_type.id,
-            defaults={
-                'language': settings.LANGUAGE_CODE,
-                'status': Job.STATUS_OK,
-            },
-        )
+    # def _populate_jobs(self):
+    #     create_job = Job.objects.get_or_create
+    #     create_job(
+    #         type_id=creme_jobs.sessions_cleaner_type.id,
+    #         defaults={
+    #             'language': settings.LANGUAGE_CODE,
+    #             'periodicity': date_period_registry.get_period('days', 1),
+    #             'status': Job.STATUS_OK,
+    #         },
+    #     )
+    #     create_job(
+    #         type_id=creme_jobs.temp_files_cleaner_type.id,
+    #         defaults={
+    #             'language': settings.LANGUAGE_CODE,
+    #             'periodicity': date_period_registry.get_period('days', 1),
+    #             'status': Job.STATUS_OK,
+    #             'data': {
+    #                 'delay': date_period_registry.get_period('days', 1).as_dict(),
+    #             },
+    #         },
+    #     )
+    #     create_job(
+    #         type_id=creme_jobs.reminder_type.id,
+    #         defaults={
+    #             'language': settings.LANGUAGE_CODE,
+    #             'status': Job.STATUS_OK,
+    #         },
+    #     )
+    #     create_job(
+    #         type_id=creme_jobs.notification_emails_sender_type.id,
+    #         defaults={
+    #             'language': settings.LANGUAGE_CODE,
+    #             'status': Job.STATUS_OK,
+    #         },
+    #     )
 
     def _populate_sandboxes(self):
         Sandbox.objects.get_or_create(
