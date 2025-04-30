@@ -1,20 +1,32 @@
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.buttons import Restrict2SuperusersButton
-from creme.creme_core.gui.button_menu import Button
+from creme.creme_core.gui.button_menu import Button, button_registry
 from creme.creme_core.models import ButtonMenuItem, FakeContact
 
 from ..base import CremeTestCase
 
 
+class TestButton(Button):
+    id = Button.generate_id('creme_core', 'test_button_menu')
+    verbose_name = 'Testing purpose'
+
+
 class ButtonMenuItemTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        button_registry.register(TestButton)
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        button_registry.unregister(TestButton)
+
     def test_manager_create_if_needed(self):
         content_type = ContentType.objects.get_for_model(FakeContact)
         old_count = ButtonMenuItem.objects.count()
-
-        class TestButton(Button):
-            id = Button.generate_id('creme_core', 'test_manager_create_if_needed01')
-            verbose_name = 'Testing purpose'
 
         order = 10
         ButtonMenuItem.objects.create_if_needed(
@@ -41,10 +53,6 @@ class ButtonMenuItemTestCase(CremeTestCase):
 
     def test_manager_create_if_needed__no_ctype(self):
         "Default config (content_type=None)."
-        class TestButton(Button):
-            id = Button.generate_id('creme_core', 'test_manager_create_if_needed02')
-            verbose_name = 'Testing purpose'
-
         old_count = ButtonMenuItem.objects.count()
         bmi = ButtonMenuItem.objects.create_if_needed(
             model=None, button=TestButton, order=15,
@@ -54,10 +62,6 @@ class ButtonMenuItemTestCase(CremeTestCase):
 
     def test_manager_create_if_needed__button_id(self):
         "Button ID."
-        class TestButton(Button):
-            id = Button.generate_id('creme_core', 'test_manager_create_if_needed03')
-            verbose_name = 'Testing purpose'
-
         order = 10
         ButtonMenuItem.objects.create_if_needed(
             model=FakeContact, button=TestButton.id, order=order,
@@ -131,6 +135,24 @@ class ButtonMenuItemTestCase(CremeTestCase):
     #         ButtonMenuItem(content_type=ct, button_id=button_id, order=1, role=role2),
     #     )
 
+    def test_property_button__class(self):
+        bmi = ButtonMenuItem(button=TestButton)
+        self.assertEqual(TestButton.id, bmi.button_id)
+        self.assertIsInstance(bmi.button, TestButton)
+        self.assertEqual(TestButton.verbose_name, str(bmi))
+
+    def test_property_button__instance(self):
+        bmi = ButtonMenuItem(button=TestButton())
+        self.assertEqual(TestButton.id, bmi.button_id)
+        self.assertIsInstance(bmi.button, TestButton)
+        self.assertEqual(TestButton.verbose_name, str(bmi))
+
+    def test_property_button__invalid(self):
+        bmi = ButtonMenuItem()
+        self.assertEqual('', bmi.button_id)
+        self.assertIsNone(bmi.button)
+        self.assertEqual(_('Deprecated button'), str(bmi))
+
     def test_clone_for_role(self):
         bmi1 = ButtonMenuItem(content_type=None, button_id='', order=1)
         self.assertIs(bmi1.superuser, False)
@@ -148,7 +170,7 @@ class ButtonMenuItemTestCase(CremeTestCase):
         role = self.create_role()
         bmi2 = ButtonMenuItem(
             content_type=ContentType.objects.get_for_model(FakeContact),
-            button_id=Restrict2SuperusersButton.id, order=2, role=role
+            button_id=Restrict2SuperusersButton.id, order=2, role=role,
         )
         clone2 = bmi2.clone_for_role(role=role)
         self.assertEqual(bmi2.content_type, clone2.content_type)

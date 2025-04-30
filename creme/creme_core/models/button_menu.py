@@ -86,10 +86,18 @@ class ButtonMenuItem(CremeModel):
         ordering = ('order',)
 
     def __str__(self):
-        from creme.creme_core.gui.button_menu import button_registry
-
-        button = button_registry.get_button(self.button_id)
+        button = self.button
         return str(button.verbose_name) if button else gettext('Deprecated button')
+
+    @property
+    def button(self):
+        from ..gui.button_menu import button_registry
+
+        return button_registry.get_button(self.button_id)
+
+    @button.setter
+    def button(self, value: Button | type[Button]):
+        self.button_id = value.id
 
     # TODO?
     # def __eq__(self, other):

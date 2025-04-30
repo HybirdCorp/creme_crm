@@ -328,7 +328,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         user = self.login_as_root_and_get()
         activities_count = Activity.objects.count()
 
-        ButtonMenuItem.objects.create_if_needed(
+        ButtonMenuItem.objects.create(
             button=buttons.AddUnsuccessfulPhoneCallButton, order=1,
         )
 

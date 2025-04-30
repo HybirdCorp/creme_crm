@@ -376,9 +376,9 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
 
     def test_button(self):
         self.login_as_root()
-        ButtonMenuItem.objects.create_if_needed(
-            model=Opportunity,
-            button=buttons.AddUnsuccessfulPhoneCallButton, order=1,
+        ButtonMenuItem.objects.create(
+            content_type=Opportunity, order=1,
+            button=buttons.AddUnsuccessfulPhoneCallButton,
         )
 
         opp = self.opp
