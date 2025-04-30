@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,12 +32,12 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
     ButtonMenuItem,
     CustomBrickConfigItem,
-    CustomFormConfigItem,
     EntityFilter,
     HeaderFilter,
     MenuConfigItem,
@@ -63,6 +63,10 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities', 'products', 'billing']
 
+    CUSTOM_FORMS = [
+        custom_forms.OPPORTUNITY_CREATION_CFORM,
+        custom_forms.OPPORTUNITY_EDITION_CFORM,
+    ]
     SEARCH = ['name', 'made_sales', 'sales_phase__name', 'origin__name']
     SALES_PHASES = [
         # is_custom=True => only created during the first execution
@@ -351,10 +355,10 @@ class Populator(BasePopulator):
             ],
         )
 
-    def _populate_custom_forms(self):
-        create_cfci = CustomFormConfigItem.objects.create_if_needed
-        create_cfci(descriptor=custom_forms.OPPORTUNITY_CREATION_CFORM)
-        create_cfci(descriptor=custom_forms.OPPORTUNITY_EDITION_CFORM)
+    # def _populate_custom_forms(self):
+    #     create_cfci = CustomFormConfigItem.objects.create_if_needed
+    #     create_cfci(descriptor=custom_forms.OPPORTUNITY_CREATION_CFORM)
+    #     create_cfci(descriptor=custom_forms.OPPORTUNITY_EDITION_CFORM)
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(

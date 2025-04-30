@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,12 +31,12 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
     ButtonMenuItem,
     CustomBrickConfigItem,
-    CustomFormConfigItem,
     EntityFilter,
     HeaderFilter,
     MenuConfigItem,
@@ -63,6 +63,12 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
+    CUSTOM_FORMS = [
+        custom_forms.ACTIVITY_CREATION_CFORM,
+        custom_forms.ACTIVITY_CREATION_FROM_CALENDAR_CFORM,
+        custom_forms.UNAVAILABILITY_CREATION_CFORM,
+        custom_forms.ACTIVITY_EDITION_CFORM,
+    ]
     BUTTONS = [
         # (class, order)
         (buttons.AddRelatedActivityButton, 10),
@@ -438,12 +444,12 @@ class Populator(BasePopulator):
             ],
         )
 
-    def _populate_custom_forms(self):
-        create_cfci = CustomFormConfigItem.objects.create_if_needed
-        create_cfci(descriptor=custom_forms.ACTIVITY_CREATION_CFORM)
-        create_cfci(descriptor=custom_forms.ACTIVITY_CREATION_FROM_CALENDAR_CFORM)
-        create_cfci(descriptor=custom_forms.UNAVAILABILITY_CREATION_CFORM)
-        create_cfci(descriptor=custom_forms.ACTIVITY_EDITION_CFORM)
+    # def _populate_custom_forms(self):
+    #     create_cfci = CustomFormConfigItem.objects.create_if_needed
+    #     create_cfci(descriptor=custom_forms.ACTIVITY_CREATION_CFORM)
+    #     create_cfci(descriptor=custom_forms.ACTIVITY_CREATION_FROM_CALENDAR_CFORM)
+    #     create_cfci(descriptor=custom_forms.UNAVAILABILITY_CREATION_CFORM)
+    #     create_cfci(descriptor=custom_forms.ACTIVITY_EDITION_CFORM)
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(

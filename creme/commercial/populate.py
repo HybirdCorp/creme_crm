@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,11 +27,11 @@ from creme import commercial, persons, products
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
     CremePropertyType,
-    CustomFormConfigItem,
     HeaderFilter,
     Job,
     MenuConfigItem,
@@ -59,6 +59,14 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'products']
 
+    CUSTOM_FORMS = [
+        custom_forms.ACT_CREATION_CFORM,
+        custom_forms.ACT_EDITION_CFORM,
+        custom_forms.PATTERN_CREATION_CFORM,
+        custom_forms.PATTERN_EDITION_CFORM,
+        custom_forms.STRATEGY_CREATION_CFORM,
+        custom_forms.STRATEGY_EDITION_CFORM,
+    ]
     SEARCH = {
         'ACT': ['name', 'expected_sales', 'cost', 'goal'],
         'STRATEGY': ['name'],
@@ -199,14 +207,14 @@ class Populator(BasePopulator):
             },
         )
 
-    def _populate_custom_forms(self):
-        create_cform = CustomFormConfigItem.objects.create_if_needed
-        create_cform(descriptor=custom_forms.ACT_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.ACT_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.PATTERN_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.PATTERN_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.STRATEGY_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.STRATEGY_EDITION_CFORM)
+    # def _populate_custom_forms(self):
+    #     create_cform = CustomFormConfigItem.objects.create_if_needed
+    #     create_cform(descriptor=custom_forms.ACT_CREATION_CFORM)
+    #     create_cform(descriptor=custom_forms.ACT_EDITION_CFORM)
+    #     create_cform(descriptor=custom_forms.PATTERN_CREATION_CFORM)
+    #     create_cform(descriptor=custom_forms.PATTERN_EDITION_CFORM)
+    #     create_cform(descriptor=custom_forms.STRATEGY_CREATION_CFORM)
+    #     create_cform(descriptor=custom_forms.STRATEGY_EDITION_CFORM)
 
     def _populate_search_config(self):
         def create_sci(model, key):

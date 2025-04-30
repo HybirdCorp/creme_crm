@@ -32,7 +32,13 @@ from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models.signals import pre_save
 
 from creme.creme_core.apps import creme_app_configs
-from creme.creme_core.models import HeaderFilter, MinionModel, SearchConfigItem
+from creme.creme_core.gui.custom_form import CustomFormDescriptor
+from creme.creme_core.models import (
+    CustomFormConfigItem,
+    HeaderFilter,
+    MinionModel,
+    SearchConfigItem,
+)
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.dependence_sort import dependence_sort
@@ -50,6 +56,8 @@ def _checked_app_label(app_label, app_labels):
 
 class BasePopulator:
     dependencies: list[str] = []  # Example: ['appname1', 'appname2']
+
+    CUSTOM_FORMS: list[CustomFormDescriptor] = []
 
     def __init__(self, verbosity, app, all_apps, options, stdout, style):
         self.verbosity = verbosity
@@ -124,7 +132,9 @@ class BasePopulator:
         pass
 
     def _populate_custom_forms(self) -> None:
-        pass
+        create_cfci = CustomFormConfigItem.objects.create_if_needed
+        for descriptor in self.CUSTOM_FORMS:
+            create_cfci(descriptor=descriptor)
 
     def _populate_search_config(self) -> None:
         pass
