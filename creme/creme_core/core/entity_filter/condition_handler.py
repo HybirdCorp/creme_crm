@@ -770,7 +770,10 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
         )
         DateFieldHandlerMixin.__init__(self, **kwargs)
 
-    # def accept(self, *, entity, user):  TODO ? (not needed currently for credentials filters)
+    def accept(self, *, entity, user):
+        return self._get_date_range().accept(
+            value=self.field_info.value_from(entity), now=now(),
+        )
 
     @classmethod
     # def build(cls, *, model, name, data):
@@ -844,7 +847,12 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
 
 class BaseCustomFieldConditionHandler(FilterConditionHandler):
     # def __init__(self, *, model=None, custom_field, related_name=None):
-    def __init__(self, *, efilter_type, model=None, custom_field, related_name=None):
+    def __init__(self, *,
+                 efilter_type,
+                 model=None,
+                 custom_field: CustomField | str,
+                 related_name: str | None = None,
+                 ):
         """Constructor.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>
@@ -1191,7 +1199,13 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
         )
         DateFieldHandlerMixin.__init__(self, **kwargs)
 
-    # def accept(self, *, entity, user):  TODO ? (not needed currently for credentials filters)
+    def accept(self, *, entity, user):
+        cfvalue = entity.get_custom_value(self.custom_field)
+
+        return self._get_date_range().accept(
+            value=cfvalue.value if cfvalue else None,
+            now=now(),
+        )
 
     @classmethod
     # def build(cls, *, model, name, data):
