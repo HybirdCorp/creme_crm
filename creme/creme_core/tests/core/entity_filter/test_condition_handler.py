@@ -1368,7 +1368,7 @@ class DateRegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             DateRegularFieldConditionHandler.build(
                 efilter_type=EF_REGULAR,
                 model=FakeOrganisation,
-                name='name',
+                name='created',
                 data={'start': 'notadict'},
             )
 
@@ -1376,7 +1376,7 @@ class DateRegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             DateRegularFieldConditionHandler.build(
                 efilter_type=EF_REGULAR,
                 model=FakeOrganisation,
-                name='name',
+                name='created',
                 data={'start': {'foo': 'bar'}},
             )
 
@@ -1384,7 +1384,7 @@ class DateRegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             DateRegularFieldConditionHandler.build(
                 efilter_type=EF_REGULAR,
                 model=FakeOrganisation,
-                name='name',
+                name='created',
                 data={'start': {'year': 'notanint'}},
             )
 
@@ -1405,6 +1405,81 @@ class DateRegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIsInstance(formfield2, MyField)
         self.assertIs(formfield2.required, False)
         self.assertIsNone(formfield2.user)
+
+    def test_accept__date(self):
+        user = self.get_root_user()
+
+        current_year = now().year
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        o1 = create_orga(
+            name='Evil Corp',
+            creation_date=date(year=current_year, month=2, day=2),
+        )
+        o2 = create_orga(
+            name='Genius incorporated',
+            creation_date=date(year=current_year - 1, month=2, day=2),
+        )
+        o3 = create_orga(name='Acme')
+
+        handler = DateRegularFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            field_name='creation_date',
+            date_range='current_year',
+        )
+        self.assertIs(handler.accept(entity=o1, user=user), True)
+        self.assertIs(handler.accept(entity=o2, user=user), False)
+        self.assertIs(handler.accept(entity=o3, user=user), False)
+
+    def test_accept__datetime(self):
+        user = self.get_root_user()
+
+        current_year = now().year
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        o1 = create_orga(
+            name='Evil Corp',
+            created=self.create_datetime(year=current_year, month=2, day=2),
+        )
+        o2 = create_orga(
+            name='Genius incorporated',
+            created=self.create_datetime(year=current_year - 1, month=2, day=2),
+        )
+
+        handler = DateRegularFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            field_name='created',
+            date_range='current_year',
+        )
+        self.assertIs(handler.accept(entity=o1, user=user), True)
+        self.assertIs(handler.accept(entity=o2, user=user), False)
+
+    def test_accept__fk_subfield(self):
+        user = self.get_root_user()
+
+        current_year = now().year
+        create_img = partial(FakeImage.objects.create, user=user)
+        img1 = create_img(
+            name='Evil Corp logo',
+            created=self.create_datetime(year=current_year, month=2, day=2),
+        )
+        img2 = create_img(
+            name='Genius incorporated logo',
+            created=self.create_datetime(year=current_year - 1, month=2, day=2),
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        o1 = create_orga(name='Evil Corp', image=img1)
+        o2 = create_orga(name='Genius incorporated', image=img2)
+
+        handler = DateRegularFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            field_name='image__created',
+            date_range='current_year',
+        )
+        self.assertIs(handler.accept(entity=o1, user=user), True)
+        self.assertIs(handler.accept(entity=o2, user=user), False)
 
     def test_build_condition(self):
         # GTE ---
@@ -2688,6 +2763,40 @@ class DateCustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIsInstance(formfield2, MyField)
         self.assertIs(formfield2.required, False)
         self.assertIsNone(formfield2.user)
+
+    def test_accept(self):
+        user = self.get_root_user()
+
+        custom_field = CustomField.objects.create(
+            name='Inauguration',
+            content_type=FakeOrganisation,
+            field_type=CustomField.DATE,
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        o1 = create_orga(name='Evil Corp')
+        o2 = create_orga(name='Genius incorporated')
+        o3 = create_orga(name='Acme')
+
+        klass = custom_field.value_class
+
+        def set_cfvalue(entity, value):
+            klass(custom_field=custom_field, entity=entity).set_value_n_save(value)
+
+        current_year = now().year
+        set_cfvalue(o1, date(year=current_year, month=2, day=2))
+        set_cfvalue(o2, date(year=current_year - 1, month=2, day=2))
+
+        handler = DateCustomFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            custom_field=custom_field,
+            related_name='customfielddate',
+            date_range='current_year',
+        )
+        self.assertIs(handler.accept(entity=o1, user=user), True)
+        self.assertIs(handler.accept(entity=o2, user=user), False)
+        self.assertIs(handler.accept(entity=o3, user=user), False)
 
     def test_build_condition__datetime(self):
         custom_field = CustomField.objects.create(

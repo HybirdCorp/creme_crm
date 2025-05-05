@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ from calendar import monthrange
 from collections import OrderedDict
 from datetime import date, datetime, timedelta
 
+from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _
 
@@ -40,8 +41,11 @@ def get_quarter(month: int) -> int:
     return ((month - 1) // 3) + 1
 
 
-def get_quarter_dates(year: int, quarter: int):
-    """@param quarter: 1 <= integer <= 4"""
+def get_quarter_dates(year: int, quarter: int) -> tuple[datetime, datetime]:
+    """Start & end of a quarter.
+    @param quarter: 1 <= integer <= 4
+    @return Aware datetimes.
+    """
     month = quarter * 3
 
     return (
@@ -56,7 +60,7 @@ def get_quarter_dates(year: int, quarter: int):
 
 class DateRange:
     name: str = 'base_date_range'  # Override in child classes
-    verbose_name = 'Date range'  # Override in child classes
+    verbose_name: str = 'Date range'  # Override in child classes
 
     def __str__(self):
         return str(self.verbose_name)
@@ -65,7 +69,7 @@ class DateRange:
     def get_dates(now):
         raise NotImplementedError
 
-    def get_q_dict(self, field: str, now) -> dict:
+    def get_q_dict(self, field: str, now: datetime) -> dict:
         start, end = self.get_dates(now)
 
         if start:
@@ -75,6 +79,15 @@ class DateRange:
             return {f'{field}__gte': start}
 
         return {f'{field}__lte': end}
+
+    def _accept(self, value: date, now: date) -> bool:
+        raise NotImplementedError
+
+    def accept(self, value: date | None, now: datetime) -> bool:
+        return False if value is None else self._accept(
+            value=value,
+            now=now.date() if not isinstance(value, datetime) else now,
+        )
 
 
 class CustomRange(DateRange):
@@ -97,6 +110,21 @@ class CustomRange(DateRange):
     def get_dates(self, now):
         return self._start, self._end
 
+    def _accept(self, value, now):
+        start = self._start
+        end = self._end
+
+        if start:
+            return (
+                start.date() <= value <= end.date()
+                if not isinstance(value, datetime) else
+                start <= value <= end
+            ) if end else (
+                value >= (start.date() if not isinstance(value, datetime) else start)
+            )
+        else:
+            return value <= (end.date() if not isinstance(value, datetime) else end)
+
 
 class PreviousYearRange(DateRange):
     name = 'previous_year'
@@ -109,6 +137,9 @@ class PreviousYearRange(DateRange):
             make_aware(datetime(year=year, month=1,  day=1,  **_DAY_START)),
             make_aware(datetime(year=year, month=12, day=31, **_DAY_END))
         )
+
+    def _accept(self, value, now):
+        return value.year == now.year - 1
 
 
 class CurrentYearRange(DateRange):
@@ -123,6 +154,9 @@ class CurrentYearRange(DateRange):
             make_aware(datetime(year=year, month=12, day=31, **_DAY_END))
         )
 
+    def _accept(self, value, now):
+        return value.year == now.year
+
 
 class NextYearRange(DateRange):
     name = 'next_year'
@@ -135,6 +169,9 @@ class NextYearRange(DateRange):
             make_aware(datetime(year=year, month=1,  day=1,  **_DAY_START)),
             make_aware(datetime(year=year, month=12, day=31, **_DAY_END))
         )
+
+    def _accept(self, value, now):
+        return value.year == now.year + 1
 
 
 class PreviousMonthRange(DateRange):
@@ -154,6 +191,10 @@ class PreviousMonthRange(DateRange):
 
         return start, end
 
+    def _accept(self, value, now):
+        prev_month = now - relativedelta(months=1)
+        return value.month == prev_month.month and value.year == prev_month.year
+
 
 class CurrentMonthRange(DateRange):
     name = 'current_month'
@@ -165,6 +206,9 @@ class CurrentMonthRange(DateRange):
             now.replace(day=1,                                       **_DAY_START),
             now.replace(day=get_month_last_day(now.year, now.month), **_DAY_END)
         )
+
+    def _accept(self, value, now):
+        return value.month == now.month and value.year == now.year
 
 
 class NextMonthRange(DateRange):
@@ -184,13 +228,29 @@ class NextMonthRange(DateRange):
 
         return start, end
 
+    def _accept(self, value, now):
+        next_month = now + relativedelta(months=1)
+        return value.month == next_month.month and value.year == next_month.year
 
-class PreviousQuarterRange(DateRange):
+
+class _QuarterRange(DateRange):
+    def _accept(self, value, now):
+        start, end = self.get_dates(now)
+        if not isinstance(value, datetime):
+            value = make_aware(datetime(
+                year=value.year, month=value.month, day=value.day,
+            ))
+
+        return start <= value <= end
+
+
+# class PreviousQuarterRange(DateRange):
+class PreviousQuarterRange(_QuarterRange):
     name = 'previous_quarter'
     verbose_name = _('Previous quarter')
 
     @staticmethod
-    def get_dates(now):
+    def get_dates(now: date) -> tuple[datetime, datetime]:
         current_quarter = get_quarter(now.month)
 
         if current_quarter > 1:
@@ -203,7 +263,8 @@ class PreviousQuarterRange(DateRange):
         return get_quarter_dates(year, previous_quarter)
 
 
-class CurrentQuarterRange(DateRange):
+# class CurrentQuarterRange(DateRange):
+class CurrentQuarterRange(_QuarterRange):
     name = 'current_quarter'
     verbose_name = _('Current quarter')
 
@@ -212,7 +273,8 @@ class CurrentQuarterRange(DateRange):
         return get_quarter_dates(now.year, get_quarter(now.month))
 
 
-class NextQuarterRange(DateRange):
+# class NextQuarterRange(DateRange):
+class NextQuarterRange(_QuarterRange):
     name = 'next_quarter'
     verbose_name = _('Next quarter')
 
@@ -238,6 +300,9 @@ class FutureRange(DateRange):
     def get_dates(now):
         return now, None
 
+    def _accept(self, value, now):
+        return value >= now
+
 
 class PastRange(DateRange):
     name = 'in_past'
@@ -246,6 +311,9 @@ class PastRange(DateRange):
     @staticmethod
     def get_dates(now):
         return None, now
+
+    def _accept(self, value, now):
+        return value < now
 
 
 class YesterdayRange(DateRange):
@@ -260,6 +328,12 @@ class YesterdayRange(DateRange):
             yesterday.replace(**_DAY_END),
         )
 
+    def accept(self, value, now):
+        return (
+            (now - timedelta(days=1)).date()
+            == (value.date() if isinstance(value, datetime) else value)
+        )
+
 
 class TodayRange(DateRange):
     name = 'today'
@@ -271,6 +345,9 @@ class TodayRange(DateRange):
             now.replace(**_DAY_START),
             now.replace(**_DAY_END),
         )
+
+    def accept(self, value, now):
+        return now.date() == (value.date() if isinstance(value, datetime) else value)
 
 
 class TomorrowRange(DateRange):
@@ -285,6 +362,12 @@ class TomorrowRange(DateRange):
             tomorrow.replace(**_DAY_END),
         )
 
+    def accept(self, value, now):
+        return (
+            (now + timedelta(days=1)).date()
+            == (value.date() if isinstance(value, datetime) else value)
+        )
+
 
 class EmptyRange(DateRange):
     name = 'empty'
@@ -293,6 +376,9 @@ class EmptyRange(DateRange):
     def get_q_dict(self, field, now):
         return {f'{field}__isnull': True}
 
+    def accept(self, value, now):
+        return value is None
+
 
 class NotEmptyRange(DateRange):
     name = 'not_empty'
@@ -300,6 +386,9 @@ class NotEmptyRange(DateRange):
 
     def get_q_dict(self, field, now):
         return {f'{field}__isnull': False}
+
+    def accept(self, value, now):
+        return value is not None
 
 
 class DateRangeRegistry:
