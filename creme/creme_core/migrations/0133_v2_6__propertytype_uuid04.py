@@ -93,14 +93,17 @@ def convert_history_lines(apps, schema_editor):
         for hline in page.object_list:
             # NB: format is ["My entity", 'app_label-my_ptype_id']
             value = json_load(hline.value)
-            old_ptype_id = value[1]
+            # old_ptype_id = value[1]
+            line_ptype_id = value[1]
 
             # We avoid already converted lines to make this code re-runnable
             # (even if it's probably a bad idea to re-run after an error...)
-            try:
-                UUID(old_ptype_id)
-            except ValueError:
-                ptype = filter_ptype(old_id=old_ptype_id).first()
+            # try:
+            #     UUID(old_ptype_id)
+            # except ValueError:
+            if not isinstance(line_ptype_id, int):
+                # ptype = filter_ptype(old_id=old_ptype_id).first()
+                ptype = filter_ptype(old_id=line_ptype_id).first()
 
                 hline.value = json_dump([value[0], (0 if ptype is None else ptype.id)])
                 hline.save()

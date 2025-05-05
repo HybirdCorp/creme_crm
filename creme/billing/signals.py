@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -131,8 +131,14 @@ def manage_linked_credit_notes(sender, instance, **kwargs):
 @receiver(signals.post_delete, sender=Relation)
 def manage_line_deletion(sender, instance, **kwargs):
     "The calculated totals (Invoice, Quote...) have to be refreshed."
-    if instance.type_id == constants.REL_OBJ_HAS_LINE:
-        instance.real_object.save()
+    # if instance.type_id == constants.REL_OBJ_HAS_LINE:
+    #     instance.real_object.save()
+    if (
+        instance.type_id == constants.REL_SUB_HAS_LINE
+        # NB: see billing.models.base.Base._pre_delete() for this ugly hack
+        and not getattr(instance, '_avoid_billing_total_update', False)
+    ):
+        instance.subject_entity.get_real_entity().save()
 
 
 _WORKFLOWS = {

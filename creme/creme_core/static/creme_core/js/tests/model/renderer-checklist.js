@@ -167,7 +167,7 @@ QUnit.test('creme.model.CheckListRenderer.render (data)', function(assert) {
                 '</div>' +
            '</li>' +
            '<li class="checkbox-field " checklist-index="3" tags="">' +
-                '<input type="checkbox" value="{\"x\":11,\"y\":17}" checklist-index="3">' +
+                '<input type="checkbox" value="{&quot;x&quot;:11,&quot;y&quot;:17}" checklist-index="3">' +
                 '<div class="checkbox-label">' +
                     '<span class="checkbox-label-text">d</span>' +
                     '<span class="checkbox-label-help"></span>' +

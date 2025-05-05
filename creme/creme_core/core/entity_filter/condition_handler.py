@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -110,9 +110,9 @@ class FilterConditionHandler:
 
         @param entity: Instance of <CremeEntity>.
         @param user: Instance of <django.contrib.auth.get_user_model()> ; it's
-               the current user (& so is used to retrieve it & it's teams by the
-               operand <CurrentUserOperand>.
-        @return: A boolean ; True means the entity is accepted.
+               the current user (it is used to retrieve it & its teams by the
+               operand <CurrentUserOperand>).
+        @return: A boolean; <True> means the entity is accepted.
         """
         raise NotImplementedError
 

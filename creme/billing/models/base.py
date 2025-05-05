@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,7 +43,6 @@ from ..constants import (
     DEFAULT_DECIMAL,
     REL_OBJ_CREDIT_NOTE_APPLIED,
     REL_OBJ_HAS_LINE,
-    REL_OBJ_LINE_RELATED_ITEM,
     REL_SUB_BILL_ISSUED,
     REL_SUB_BILL_RECEIVED,
     REL_SUB_HAS_LINE,
@@ -134,7 +133,6 @@ class Base(CremeEntity):
         REL_SUB_BILL_ISSUED,
         REL_SUB_BILL_RECEIVED,
         # REL_SUB_HAS_LINE,
-        REL_OBJ_LINE_RELATED_ITEM,
     )
 
     creation_label = _('Create an accounting document')
@@ -182,6 +180,10 @@ class Base(CremeEntity):
                 # ],
                 type=REL_SUB_HAS_LINE,
                 subject_entity=self.id):
+            # NB: see billing.signals.manage_line_deletion().
+            #     We avoid to compute the total at each deletion because the
+            #     instance is totally deleted, so its slow & useless.
+            relation._avoid_billing_total_update = True
             relation._delete_without_transaction()
 
         for line in lines:
