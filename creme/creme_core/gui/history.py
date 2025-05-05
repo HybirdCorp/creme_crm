@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2023  Hybird
+#    Copyright (C) 2021-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ from django.template.loader import get_template
 from django.utils.encoding import force_str
 from django.utils.formats import date_format, number_format
 from django.utils.hashable import make_hashable
-from django.utils.html import escape, format_html
+from django.utils.html import escape, format_html, linebreaks
 from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
 from django.utils.translation import gettext
@@ -251,10 +251,12 @@ class HTMLTextFieldChangeExplainer(HTMLFieldChangeExplainer):
                     ' <summary>{summary}</summary>'
                     ' <details>'
                     '  <div class="history-line-field-change-text-old_value">'
-                    '   <h4>{old_title}</h4><p>{old}</p>'
+                    # '   <h4>{old_title}</h4><p>{old}</p>'
+                    '   <h4>{old_title}</h4>{old}'
                     '  </div>'
                     '  <div class="history-line-field-change-text-new_value">'
-                    '   <h4>{new_title}</h4><p>{new}</p>'
+                    # '   <h4>{new_title}</h4><p>{new}</p>'
+                    '   <h4>{new_title}</h4>{new}'
                     '  </div>'
                     ' </details>'
                     '</a>',
@@ -262,10 +264,20 @@ class HTMLTextFieldChangeExplainer(HTMLFieldChangeExplainer):
                     summary=gettext('Details of modifications'),
 
                     old_title=gettext('Old value'),
-                    old=old_value,
+                    # old=old_value,
+                    old=mark_safe(
+                        linebreaks(old_value, autoescape=True)
+                        if old_value else
+                        '<p class="empty-field">—</p>'
+                    ),
 
                     new_title=gettext('New value'),
-                    new=new_value,
+                    # new=new_value,
+                    new=mark_safe(
+                        linebreaks(new_value, autoescape=True)
+                        if new_value else
+                        '<p class="empty-field">—</p>'
+                    ),
                 ),
             )
 

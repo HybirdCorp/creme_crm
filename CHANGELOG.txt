@@ -1,3 +1,25 @@
+== Version 2.5.20 ==
+
+  Users side :
+  ------------
+    # The render of history lines on TextFields (like "description") with line breaks has been improved.
+    # Apps :
+        * Opportunities :
+            - Unsetting the current Quote was not possible if you did not create the relationship yourself.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The creation forms for HeaderFilter & EntityFilter now accept models with digits at the end of their name.
+        # Apps :
+            * Billing :
+                - The Relation cache is now used in 'Line.related_document'.
+                - The handler 'signals.manage_line_deletion()' now avoid to re-compte the totals when its the whole entity (e.g. Invoice) which is being deleted.
+                  It's faster & it avoids some inconsistent states where the entity has no emitter/receiver in its 'save() too.
+
+
 == Version 2.5.19 ==
 
   Users side :

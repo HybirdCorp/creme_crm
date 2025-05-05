@@ -305,9 +305,9 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertRelationCount(1, quote2, constants.REL_SUB_LINKED_QUOTE,  opportunity)
         self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC,   opportunity)
 
-        url = self._build_currentquote_url(opportunity, quote1)
-        self.assertGET405(url)
-        self.assertPOST200(url, follow=True)
+        url1 = self._build_currentquote_url(opportunity, quote1)
+        self.assertGET405(url1)
+        self.assertPOST200(url1, follow=True)
 
         self.assertRelationCount(1, quote2, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote2, REL_SUB_BILL_RECEIVED, target)
@@ -318,6 +318,38 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertRelationCount(1, quote1, REL_SUB_BILL_RECEIVED, target)
         self.assertRelationCount(1, quote1, constants.REL_SUB_LINKED_QUOTE,  opportunity)
         self.assertRelationCount(1, quote1, constants.REL_SUB_CURRENT_DOC,   opportunity)
+
+        # Unset ---
+        url2 = self._build_currentquote_url(opportunity, quote1, action='unset_current')
+        self.assertGET405(url2)
+        self.assertPOST200(url2, follow=True)
+        self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC, opportunity)
+        self.assertRelationCount(0, quote1, constants.REL_SUB_CURRENT_DOC, opportunity)
+
+    @skipIfCustomOrganisation
+    def test_current_quote__existing(self):
+        "Relation should be considered even if the user is different."
+        user1 = self.login_as_root_and_get()
+        user2 = self.create_user()
+
+        opp, target, emitter = self._create_opportunity_n_organisations(user=user1)
+        quote = Quote.objects.create(
+            user=user2, name='My Quote',
+            status=QuoteStatus.objects.all()[0],
+            source=emitter, target=target,
+        )
+
+        Relation.objects.create(
+            user=user2,
+            subject_entity=quote,
+            type_id=constants.REL_SUB_CURRENT_DOC,
+            object_entity=opp,
+        )
+        build_url = partial(self._build_currentquote_url, opp, quote)
+        self.assertPOST200(build_url(), follow=True)
+
+        self.assertPOST200(build_url(action='unset_current'), follow=True)
+        self.assertRelationCount(0, quote, constants.REL_SUB_CURRENT_DOC, opp)
 
     @skipIfCustomOrganisation
     def test_current_quote_02(self):
