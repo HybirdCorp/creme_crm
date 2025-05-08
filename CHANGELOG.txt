@@ -55,6 +55,9 @@
                 if you upgrade from an instance of Creme 2.6, you have to configure your blocks to display
                 this field if you want to see it. As the field is optional, you can also hide it to remove
                 it everywhere (notably forms).
+            - A new optional field has been added to 'Organisation': "eori".
+              This field stores the Economic Operators Registration and Identification number required for custom clearance
+              regarding import and export in/out of the EU.
         * Documents :
             - A new field, automatically filled, has been added to Document: "file_size".
         * Activities :

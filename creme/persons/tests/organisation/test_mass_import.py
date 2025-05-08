@@ -41,6 +41,7 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
         'subject_to_vat_colselect': 0,
         'capital_colselect':        0,
         'siret_colselect':          0,
+        'eori_colselect':           0,
 
         # 'property_types', 'fixed_relations', 'dyn_relations',
 
