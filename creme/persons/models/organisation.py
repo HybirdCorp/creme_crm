@@ -95,6 +95,12 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     siret = models.CharField(_('SIRET'),    max_length=100, blank=True).set_tags(optional=True)
     rcs   = models.CharField(_('RCS/RM'),   max_length=100, blank=True).set_tags(optional=True)
 
+    eori = models.CharField(
+        _('EORI number'), max_length=17, blank=True,
+        help_text=_('Economic Operators Registration and Identification number.'
+                    'Required for customs clearance in the EU.'),
+    ).set_tags(optional=True)
+
     tvaintra = models.CharField(
         _('VAT number'), max_length=100, blank=True,
     ).set_tags(optional=True)

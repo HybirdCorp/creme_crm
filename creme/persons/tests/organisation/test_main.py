@@ -43,6 +43,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertEqual('', orga.rcs)
 
         self.assertEqual('', orga.tvaintra)
+        self.assertEqual('', orga.eori)
 
     def test_populated_orga_uuid(self):
         first_orga = Organisation.objects.order_by('id').first()
