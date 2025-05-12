@@ -358,6 +358,7 @@ class Populator(BasePopulator):
         directory_entry = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
             entry_data={'label': _('Directory')},
+            role=None, superuser=False,
             defaults={'order': 20},
         )[0]
 
