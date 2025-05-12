@@ -1136,10 +1136,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             self.get_form_or_fail(response),
             field='password_2',
             errors=ngettext(
-                'This password is too short. It must contain at least %(min_length)d character.',
-                'This password is too short. It must contain at least %(min_length)d characters.',
+                'This password is too short. It must contain at least %d character.',
+                'This password is too short. It must contain at least %d characters.',
                 8
-            ) % {'min_length': 8},
+            ) % (8,),
         )
 
     @skipIfNotCremeUser
