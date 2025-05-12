@@ -1,5 +1,9 @@
 == Version 2.6.9 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # The 'populate' scripts could failed on menu configuration in some cases.
+
 
 == Version 2.6.8 ==
 
