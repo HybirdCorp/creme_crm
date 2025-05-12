@@ -4,6 +4,7 @@
   ------------
     # The command "creme_populate" now returns a correct error code if an error happened.
       It's a backport from Creme 2.6
+    # The 'populate' scripts could failed on menu configuration in some cases.
 
 
 == Version 2.5.20 ==
