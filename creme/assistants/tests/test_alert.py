@@ -1013,6 +1013,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_offset_signal01(self):
         entity = self.entity
+        # # We refresh to simulate a real edition (i.e. no snapshot) => useless
+        # entity = self.refresh(self.entity)
         alert = Alert.objects.create(
             user=self.user,
             real_entity=self.entity,
@@ -1037,6 +1039,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_offset_signal02(self):
         """date == NULL."""
         entity = self.entity
+        # entity = self.refresh(self.entity)
         entity.birthday = date(year=1980, month=2, day=15)
         entity.save()
 

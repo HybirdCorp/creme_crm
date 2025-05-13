@@ -187,6 +187,8 @@
                 - creme.utilss.JSON.isJSON is deprecated; Use _.isJSON() instead.
                 - creme.utils.JSON.clean is deprecated; Use _.cleanJSON() instead.
                 - creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText() instead.
+        # A new module 'creme_core.core.snapshot' has been added to get the changes which occurred on a model since its loading ;
+          it's already used by the history system & the new workflow engine.
         # In 'creme_core.models' :
             - The class 'django.db.models.Model' is contributed to add a method 'get_m2m_values()'
               which manages cached lists of instances linked by the 'ManyToManyFields'.
@@ -484,7 +486,13 @@
     (they should not cause problem if you have not deeply modified the source code of Creme)
 
         # In 'creme_core.auth.backend', the constants '_*_PREFIX' have been removed.
-        # The method 'creme_core.models.CremeModel._delete_stored_file()' is not static anymore.
+        # In 'creme_core.models' :
+            - The method 'CremeModel._delete_stored_file()' is not static anymore.
+            - In 'history' :
+                - The method '_HistoryLineType._create_entity_backup()' has been removed.
+                - In the class '_HLTCustomFieldsEdition', the attribute 'backup_attname'
+                  & the method '_create_cvalue_backup' have been removed.
+                - The function '_prepare_log()' has been removed.
         # In 'creme_core.templatetags' :
             - In 'creme_core_tags', the function 'do_jsondata()' & the class 'JsonScriptNode' have been replaced.
             - In 'creme_listview' :

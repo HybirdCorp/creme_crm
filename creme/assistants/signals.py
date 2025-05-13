@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,16 +41,36 @@ def _refresh_reminder_job(sender, instance, **kwargs):
         reminder_type.refresh_job()
 
 
+# NB: "@receiver(post_save, sender=CremeEntity)" does not work
+#     (the signal is sent for final class & strict class comparison is done)
 @receiver(post_save, dispatch_uid='assistants-update_alert_trigger')
 def _update_alert_trigger_date(sender, instance, created, **kwargs):
-    # NB: "@receiver(post_save, sender=CremeEntity)" does not work
-    #     (the signal is sent for final class & strict class comparison is done)
     if created:
         # The instance has just been created, no alert can exist yet
         return
 
     if not isinstance(instance, CremeEntity):
         return
+
+    # TODO: exclude 'modified' from available fields & activate this code?
+    # NB: Sadly this optimisation does not work because CremeEntity.modified is
+    #     updated at each edition.
+    # IDEA: we could regroup the queries by using the Workflow post-processing
+    # from django.db.models import DateField
+    # from ..creme_core.core.field_tags import FieldTag
+    # from ..creme_core.core.snapshot import Snapshot
+    # snapshot = Snapshot.get_for_instance(instance)
+    # if snapshot is None:
+    #     # Instance has been created & modified in the same request;
+    #     # we assume no Alert is created in the same request AND needs to update
+    #     # its trigger date (the date-field would have been modified after the
+    #     # Alert has been created => ewwwww...)
+    #     return
+    # if not any(
+    #     isinstance(diff.field, DateField) and diff.field.get_tag(FieldTag.VIEWABLE)
+    #     for diff in snapshot.compare(instance)
+    # ):
+    #     return
 
     for alert in Alert.objects.filter(
         entity_id=instance.id,

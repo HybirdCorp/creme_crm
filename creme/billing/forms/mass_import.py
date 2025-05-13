@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2024  Hybird
+#    Copyright (C) 2013-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from creme import persons
+from creme.creme_core.core.snapshot import Snapshot
 from creme.creme_core.forms.mass_import import (
     BaseExtractorWidget,
     EntityExtractorField,
@@ -479,9 +480,9 @@ def get_import_form_builder(header_dict, choices):
 
         def _check_number_edition(self, instance):
             number = instance.number
-            if instance.pk:  # Edition
-                # TODO: use the future snapshot system instead
-                if getattr(instance, '_instance_backup', {}).get('number') == number:
+            snapshot = Snapshot.get_for_instance(instance)
+            if snapshot is not None:  # Edition
+                if snapshot.get_initial_instance().number  == number:
                     return  # No change
             elif not number:
                 return  # Number left empty => filler if needed by signal
@@ -504,11 +505,11 @@ def get_import_form_builder(header_dict, choices):
             # Emitter ---
             emitter, err_msg1 = cdata['source'].extract_value(line, user)
 
+            snapshot = Snapshot.get_for_instance(instance)
             if (
-                instance.pk
+                snapshot is not None
                 and not instance.generate_number_in_create  # Invoice & CreditNote
-                # TODO: use the future snapshot system instead
-                and getattr(instance, '_instance_backup', {}).get('number')
+                and snapshot.get_initial_instance().number
                 and instance.source != emitter
                 and not SettingValue.objects.get_4_key(emitter_edition_key, default=False).value
             ):
