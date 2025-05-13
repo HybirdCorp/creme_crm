@@ -30,6 +30,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RelationSubFilterConditionHandler,
     SubFilterConditionHandler,
 )
+from creme.creme_core.core.snapshot import Snapshot
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -38,6 +39,7 @@ from creme.creme_core.models import (
     CustomFieldEnum,
     CustomFieldEnumValue,
     CustomFieldMultiEnum,
+    CustomFieldValue,
     EntityFilter,
     EntityFilterCondition,
     FakeContact,
@@ -690,6 +692,32 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIs(handler4.accept(entity=doc2, user=user), True)
         self.assertIs(handler4.accept(entity=doc3, user=user), False)
 
+    def test_accept__m2m_n_snapshot(self):
+        user = self.get_root_user()
+        doc = FakeDocument.objects.create(
+            user=user, title='Picture#1',
+            linked_folder=FakeFolder.objects.create(user=user, title='My docs'),
+        )
+        cat = FakeDocumentCategory.objects.create(name='Picture')
+
+        doc = self.refresh(doc)  # to get a valid snapshot
+        doc.categories.set([cat])
+
+        handler = RegularFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeDocument,
+            field_name='categories',
+            operator_id=operators.EQUALS,
+            values=[cat.id],
+        )
+        self.assertIs(handler.accept(entity=doc, user=user), True)
+
+        # Snapshot => should use previous state
+        self.assertFalse(handler.accept(
+            entity=Snapshot.get_for_instance(doc).get_initial_instance(),
+            user=user,
+        ))
+
     def test_accept__m2m_subfield(self):
         user = self.get_root_user()
 
@@ -710,7 +738,7 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
             user=user,
             linked_folder=FakeFolder.objects.create(user=user, title='My docs'),
         )
-        doc1 = create_doc(title='Picture#1')
+        doc1 = self.refresh(create_doc(title='Picture#1'))  # refresh() for valid snapshot
         doc1.categories.set([cat1])
         self.assertIs(handler.accept(entity=doc1, user=user), True)
 
@@ -720,6 +748,12 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
 
         doc3 = create_doc(title='Video#1')
         self.assertIs(handler.accept(entity=doc3, user=user), False)
+
+        # Snapshot
+        self.assertFalse(handler.accept(
+            entity=Snapshot.get_for_instance(doc1).get_initial_instance(),
+            user=user,
+        ))
 
     def test_accept__nested_m2m(self):
         "Subfield is an M2M."
@@ -2212,6 +2246,69 @@ class CustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIs(handler4.accept(entity=swordfish, user=user), True)
         self.assertIs(handler4.accept(entity=bebop,     user=user), True)
         self.assertIs(handler4.accept(entity=redtail,   user=user), False)
+
+    def test_accept__snapshot__int(self):
+        user = self.get_root_user()
+
+        custom_field = CustomField.objects.create(
+            name='Number of ships', field_type=CustomField.INT,
+            content_type=FakeOrganisation,
+        )
+
+        bebop = FakeOrganisation.objects.create(user=user, name='Bebop')
+        CustomFieldValue.save_values_for_entities(custom_field, [bebop], 2)
+
+        handler = CustomFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            custom_field=custom_field,
+            operator_id=operators.GTE,
+            values=[4],
+            related_name='customfieldint',
+        )
+
+        bebop = self.refresh(bebop)
+        CustomFieldValue.save_values_for_entities(custom_field, [bebop], 5)
+        self.assertTrue(handler.accept(entity=bebop, user=user))
+        self.assertFalse(handler.accept(
+            entity=Snapshot.get_for_instance(bebop).get_initial_instance(),
+            user=user,
+        ))
+
+    def test_accept__snapshot__multi_enum(self):
+        user = self.get_root_user()
+
+        custom_field = CustomField.objects.create(
+            name='Type of ship', field_type=CustomField.MULTI_ENUM,
+            content_type=FakeOrganisation,
+        )
+
+        create_evalue = partial(
+            CustomFieldEnumValue.objects.create, custom_field=custom_field,
+        )
+        enum_attack = create_evalue(value='Attack')
+        enum_fret   = create_evalue(value='Fret')
+        enum_house  = create_evalue(value='House')
+
+        bebop = FakeOrganisation.objects.create(user=user, name='Bebop')
+        CustomFieldValue.save_values_for_entities(custom_field, [bebop], [enum_house])
+
+        handler = CustomFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            custom_field=custom_field,
+            operator_id=operators.EQUALS,
+            values=[enum_attack.id, enum_fret.id],
+            related_name='customfieldmultienum',
+        )
+
+        bebop = self.refresh(bebop)
+        CustomFieldValue.save_values_for_entities(custom_field, [bebop], [enum_fret, enum_house])
+        self.assertTrue(handler.accept(entity=bebop, user=user))
+        self.assertFalse(handler.accept(
+            entity=Snapshot.get_for_instance(bebop).get_initial_instance(),
+            user=user,
+        ))
 
     def test_build_condition__operator_id(self):
         custom_field = CustomField.objects.create(
