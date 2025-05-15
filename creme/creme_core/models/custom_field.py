@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -221,6 +221,8 @@ class CustomFieldValue(CremeModel):
 
         if cls.is_empty_value(value):
             cf_values_qs.delete()
+            for entity in entities:
+                entity._cvalues_map[custom_field.id] = None
         else:
             cf_values = {
                 cf_value.entity_id: cf_value
@@ -234,6 +236,7 @@ class CustomFieldValue(CremeModel):
                     custom_value = cfv_klass(custom_field=custom_field, entity=entity)
 
                 custom_value.set_value_n_save(value)
+                entity._cvalues_map[custom_field.id] = custom_value
 
 
 class CustomFieldString(CustomFieldValue):
