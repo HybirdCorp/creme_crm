@@ -29,6 +29,7 @@ from creme.creme_core.models import (
     CustomFieldString,
     CustomFieldText,
     CustomFieldURL,
+    CustomFieldValue,
     FakeContact,
     FakeOrganisation,
 )
@@ -644,6 +645,32 @@ by a man named Tochiro.
         self.assertDoesNotExist(cf_value1)
         self.assertDoesNotExist(cf_value2)
         self.assertStillExists(cf_value3)
+
+    def test_save_values_for_entities__update_cache(self):
+        cfield = CustomField.objects.create(
+            name='Length of ship',
+            field_type=CustomField.INT,
+            content_type=FakeOrganisation,
+        )
+        orga = FakeOrganisation.objects.create(
+            user=self.get_root_user(), name='Arcadia',
+        )
+        self.assertIsNone(orga.get_custom_value(cfield))
+
+        # Edition ---
+        value = 456
+        CustomFieldValue.save_values_for_entities(
+            custom_field=cfield, entities=[orga], value=value,
+        )
+        cvalue = orga.get_custom_value(cfield)
+        self.assertIsInstance(cvalue, CustomFieldInteger)
+        self.assertEqual(value, cvalue.value)
+
+        # Empty value => deletion ---
+        CustomFieldValue.save_values_for_entities(
+            custom_field=cfield, entities=[orga], value=None,
+        )
+        self.assertIsNone(orga.get_custom_value(cfield))
 
     def test_get_custom_values_map01(self):
         create_cfield = partial(
