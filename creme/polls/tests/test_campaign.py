@@ -177,7 +177,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
         name = 'Reply'
         reply_number = 2
         self.assertNoFormError(self.client.post(
-            self.ADD_REPLY_URL,
+            self.ADD_REPLIES_URL,
             follow=True,
             data={
                 'user':     user.id,
@@ -194,12 +194,14 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     @skipIfCustomPollForm
     @skipIfCustomPollReply
-    def test_create_preply_from_campaign01(self):
+    # def test_create_preply_from_campaign01(self):
+    def test_create_preplies_from_campaign(self):
         "Create several replies linked to a given campaign."
         user = self.login_as_root_and_get()
         pform, camp = self._create_pform_n_campaign(user=user)
 
-        url = reverse('polls__create_reply_from_campaign', args=(camp.id,))
+        # url = reverse('polls__create_reply_from_campaign', args=(camp.id,))
+        url = reverse('polls__create_replies_from_campaign', args=(camp.id,))
         response1 = self.assertGET200(url)
         self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add-popup.html')
 
@@ -230,31 +232,33 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     @skipIfCustomPollForm
     @skipIfCustomPollReply
-    def test_create_preply_from_campaign02(self):
-        "Not superuser."
+    def test_create_preplies_from_campaign__not_super_user(self):
         user = self.login_as_polls_user(creatable_models=[PollReply])
         self.add_credentials(user.role, all='*')
 
         pform, camp = self._create_pform_n_campaign(user=user)
-        self.assertGET200(reverse('polls__create_reply_from_campaign', args=(camp.id,)))
+        # self.assertGET200(reverse('polls__create_reply_from_campaign', args=(camp.id,)))
+        self.assertGET200(reverse('polls__create_replies_from_campaign', args=(camp.id,)))
 
     @skipIfCustomPollForm
     @skipIfCustomPollReply
-    def test_create_preply_from_campaign03(self):
+    def test_create_preplies_from_campaign__creation_perms(self):
         "Creation credentials are needed."
         user = self.login_as_polls_user()  # creatable_models=[PollReply]
         self.add_credentials(user.role, all='*')
 
         pform, camp = self._create_pform_n_campaign(user=user)
 
-        self.assertGET403(reverse('polls__create_reply_from_campaign', args=(camp.id,)))
+        # self.assertGET403(reverse('polls__create_reply_from_campaign', args=(camp.id,)))
+        self.assertGET403(reverse('polls__create_replies_from_campaign', args=(camp.id,)))
 
     @skipIfCustomPollForm
     @skipIfCustomPollReply
-    def test_create_preply_from_campaign04(self):
+    def test_create_preply_from_campaign__link_perms(self):
         "LINK credentials are needed."
         user = self.login_as_polls_user(creatable_models=[PollReply])
         self.add_credentials(user.role, all='!LINK')
 
         pform, camp = self._create_pform_n_campaign(user=user)
-        self.assertGET403(reverse('polls__create_reply_from_campaign', args=(camp.id,)))
+        # self.assertGET403(reverse('polls__create_reply_from_campaign', args=(camp.id,)))
+        self.assertGET403(reverse('polls__create_replies_from_campaign', args=(camp.id,)))

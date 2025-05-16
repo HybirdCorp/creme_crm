@@ -451,6 +451,12 @@
                 - _MapBrick.get_addresses_as_dict() is now an instance method, not a static one.
             * Mobile :
                 - The class 'forms.PhoneInput' has been removed.
+            * Polls :
+                - The following views have been renamed :
+                    - "polls__create_reply"               => "polls__create_replies"
+                    - "polls__create_reply_from_pform"    => "polls__create_replies_from_pform"
+                    - "polls__create_reply_from_campaign" => "polls__create_replies_from_campaign"
+                    - "polls__create_reply_from_person"   => "polls__create_replies_from_person"
             * SMS :
                 - In the brick class 'ContactsBrick', the variable "field_hidden" is not injected anymore.
 
