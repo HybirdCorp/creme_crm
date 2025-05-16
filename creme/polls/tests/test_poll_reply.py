@@ -84,8 +84,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         return reverse('polls__link_reply_to_person', args=(entity.id,))
 
     @staticmethod
-    def _build_preply_from_person_url(person):
-        return reverse('polls__create_reply_from_person', args=(person.id,))
+    # def _build_preply_from_person_url(person):
+    def _build_preplies_from_person_url(person):
+        # return reverse('polls__create_reply_from_person', args=(person.id,))
+        return reverse('polls__create_replies_from_person', args=(person.id,))
 
     def _build_reply_with_bool_line(self, user):
         return self._build_reply_with_1_line(
@@ -268,12 +270,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         return PollReply.objects.create(user=user, pform=pform, name='Reply#1', type=ptype)
 
     @staticmethod
-    def _build_preply_from_pform_url(pform):
-        return reverse('polls__create_reply_from_pform', args=(pform.id,))
+    # def _build_preply_from_pform_url(pform):
+    def _build_preplies_from_pform_url(pform):
+        # return reverse('polls__create_reply_from_pform', args=(pform.id,))
+        return reverse('polls__create_replies_from_pform', args=(pform.id,))
 
     def _build_preply_from_pform(self, pform, name='Reply#1'):
         self.assertNoFormError(self.client.post(
-            self._build_preply_from_pform_url(pform),
+            self._build_preplies_from_pform_url(pform),
             data={
                 'user': pform.user.id,   # TODO: "user" argument?
                 'name': name,
@@ -360,7 +364,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             raw_answer='1', operator=PollFormLineCondition.EQUALS,
         )
 
-        url = self.ADD_REPLY_URL
+        url = self.ADD_REPLIES_URL
         response1 = self.assertGET200(url)
         get_ctxt1 = response1.context.get
         self.assertEqual(_('Create replies'),   get_ctxt1('title'))
@@ -455,7 +459,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         )
         self.assertBrickHeaderHasButton(
             self.get_brick_header_buttons(replies_node),
-            url=reverse('polls__create_reply_from_pform', args=(pform.id,)),
+            # url=reverse('polls__create_reply_from_pform', args=(pform.id,)),
+            url=self._build_preplies_from_pform_url(pform),
             label=_('Create replies'),
         )
         self.assertBrickHasAction(
@@ -468,7 +473,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "Create view: validation error when no PollForm."
         user = self.login_as_root_and_get()
         response = self.assertPOST200(
-            self.ADD_REPLY_URL,
+            self.ADD_REPLIES_URL,
             follow=True,
             data={
                 'user': user.id,
@@ -485,7 +490,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         response = self.assertPOST200(
-            self.ADD_REPLY_URL,
+            self.ADD_REPLIES_URL,
             follow=True,
             data={
                 'user':  user.id,
@@ -511,7 +516,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         )
 
         response = self.assertPOST200(
-            self.ADD_REPLY_URL,
+            self.ADD_REPLIES_URL,
             follow=True,
             data={
                 'user':  user.id,
@@ -542,7 +547,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         name = 'Reply#1'
         response = self.client.post(
-            self.ADD_REPLY_URL,
+            self.ADD_REPLIES_URL,
             follow=True,
             data={
                 'user':  user.id,
@@ -573,7 +578,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         name = 'Reply'
         reply_number = 5
         response = self.client.post(
-            self.ADD_REPLY_URL,
+            self.ADD_REPLIES_URL,
             follow=True,
             data={
                 'user':   user.id,
@@ -614,7 +619,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         name = 'FReply'
         response = self.client.post(
-            self.ADD_REPLY_URL, follow=True,
+            self.ADD_REPLIES_URL, follow=True,
             data={
                 'user':    user.id,
                 'name':    name,
@@ -641,7 +646,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         create_line('Do you like swallows?')
         create_line('What type of swallow?')
 
-        url = self._build_preply_from_pform_url(pform)
+        url = self._build_preplies_from_pform_url(pform)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
@@ -665,7 +670,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "Create from PollForm: no lines causes a 404 error."
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
-        self.assertGET404(self._build_preply_from_pform_url(pform))
+        self.assertGET404(self._build_preplies_from_pform_url(pform))
 
     def test_create_from_pollform03(self):
         "Create from PollForm: no _valid_ lines causes a 404 error."
@@ -676,7 +681,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             qtype=PollLineType.STRING,
             disabled=True,  # <=========
         )
-        self.assertGET404(self._build_preply_from_pform_url(pform))
+        self.assertGET404(self._build_preplies_from_pform_url(pform))
 
     def test_create_from_pollform04(self):
         "Create from PollForm: disabled lines are not copied."
@@ -728,7 +733,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         name = 'Reply'
         reply_number = 5
         response = self.client.post(
-            self._build_preply_from_pform_url(pform),
+            self._build_preplies_from_pform_url(pform),
             data={
                 'user':   user.id,
                 'name':   name,
@@ -752,7 +757,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         create_line = self._get_formline_creator(pform)
         create_line('Do you like swallows?')
 
-        self.assertGET200(self._build_preply_from_pform_url(pform))
+        self.assertGET200(self._build_preplies_from_pform_url(pform))
 
     def test_create_from_pollform08(self):
         "Creation creds are needed."
@@ -764,7 +769,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         create_line = self._get_formline_creator(pform)
         create_line('Do you like swallows?')
 
-        self.assertGET403(self._build_preply_from_pform_url(pform))
+        self.assertGET403(self._build_preplies_from_pform_url(pform))
 
     def test_create_from_pollform09(self):
         "LINK creds are needed."
@@ -776,7 +781,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         create_line = self._get_formline_creator(pform)
         create_line('Do you like swallows?')
 
-        self.assertGET403(self._build_preply_from_pform_url(pform))
+        self.assertGET403(self._build_preplies_from_pform_url(pform))
 
     def _aux_test_link_to(self, user, person):
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -871,7 +876,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def _aux_test_create_from_person(self, person):
         user = person.user  # TODO: argument "user"
 
-        url = self._build_preply_from_person_url(person)
+        url = self._build_preplies_from_person_url(person)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
@@ -927,7 +932,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_create_from_person03(self):
         "From an Activity --> error."
         user = self.login_as_root_and_get()
-        self.assertGET404(self._build_preply_from_person_url(self._create_activity(user=user)))
+        self.assertGET404(self._build_preplies_from_person_url(self._create_activity(user=user)))
 
     def test_create_from_person04(self):
         "Not super-user."
@@ -935,7 +940,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.add_credentials(user.role, all='*')
 
         orga = Organisation.objects.create(user=user, name='Gaimos')
-        self.assertGET200(self._build_preply_from_person_url(orga))
+        self.assertGET200(self._build_preplies_from_person_url(orga))
 
     def test_create_from_person05(self):
         "Creation credentials are needed."
@@ -946,7 +951,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.add_credentials(user.role, all='*')
 
         orga = Organisation.objects.create(user=user, name='Gaimos')
-        self.assertGET403(self._build_preply_from_person_url(orga))
+        self.assertGET403(self._build_preplies_from_person_url(orga))
 
     def test_create_from_person06(self):
         "LINK credentials are needed."
@@ -957,7 +962,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.add_credentials(user.role, all='!LINK')
 
         orga = Organisation.objects.create(user=user, name='Gaimos')
-        self.assertGET403(self._build_preply_from_person_url(orga))
+        self.assertGET403(self._build_preplies_from_person_url(orga))
 
     def test_editview01(self):
         user = self.login_as_root_and_get()

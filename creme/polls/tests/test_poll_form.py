@@ -146,7 +146,8 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(_('Replies'), self.get_brick_title(replies_node))
         self.assertBrickHeaderHasNoButton(
             self.get_brick_header_buttons(replies_node),
-            reverse('polls__create_reply_from_pform', args=(pform.id,)),
+            # reverse('polls__create_reply_from_pform', args=(pform.id,)),
+            reverse('polls__create_replies_from_pform', args=(pform.id,)),
         )
 
         hat_node = self.get_brick_node(tree, brick=Brick.GENERIC_HAT_BRICK_ID)
