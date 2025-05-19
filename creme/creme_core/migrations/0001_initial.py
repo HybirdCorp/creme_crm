@@ -1363,7 +1363,7 @@ class Migration(migrations.Migration):
                     ),
                     ('title', models.CharField(unique=True, max_length=100, verbose_name='Title')),
                     ('minutes', models.TextField(verbose_name='Minutes', blank=True)),
-                    ('place', models.CharField(max_length=100, verbose_name='Place')),
+                    ('place', models.CharField(max_length=100, verbose_name='Place', blank=True)),
                     ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
                     ('end', models.DateTimeField(null=True, verbose_name='End', blank=True)),
                     (
