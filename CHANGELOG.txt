@@ -188,6 +188,8 @@
                 - creme.utils.JSON.clean is deprecated; Use _.cleanJSON() instead.
                 - creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText() instead.
         # In 'creme_core.models' :
+            - The class 'django.db.models.Model' is contributed to add a method 'get_m2m_values()'
+              which manages cached lists of instances linked by the 'ManyToManyFields'.
             - The model 'CremeUser' :
                 - gets a new field 'uuid'.
                 - gets a new method 'has_perm_or_die()' which raises exceptions with friendly error messages.
@@ -378,6 +380,9 @@
                     - has_perm_to_admin() & has_perm_to_admin_or_die()
                  - The method 'has_perms()' return <True> if you pass an empty argument, for consistency
                    (you did probably not use this case).
+            - In 'CustomFieldMultiEnum' :
+                - The attribute '_enumvalues' has been removed.
+                - The method 'get_enumvalues()' now returns a list, not a QuerySet anymore.
             - In 'UserRole', the arguments of the following methods have changed (2 strings => 1 positional ContentType instance):
                 - can_create()
                 - can_export()

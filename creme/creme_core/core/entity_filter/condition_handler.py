@@ -437,7 +437,9 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             field_value = (
                 None
                 if base_instance is None else
-                [*getattr(base_instance, last_field.attname).values_list('pk', flat=True)] or None
+                # NB: see remark about Snapshot in get_m2m_values()'s docstring
+                # [*getattr(base_instance, last_field.attname).values_list('pk', flat=True)]or None
+                [o.pk for o in base_instance.get_m2m_values(last_field.attname)] or None
             )
 
             # TODO: move this test in operator code...
