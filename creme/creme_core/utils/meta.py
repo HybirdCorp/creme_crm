@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2024 Hybird
+# Copyright (c) 2009-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -168,10 +168,16 @@ class FieldInfo:
             if isinstance(result, list):
                 result = [getattr(elt, attname) for elt in result]
             else:
-                result = getattr(result, attname)
-
-                if subfield.many_to_many:
-                    result = [*result.all()]
+                # NB: old code which does not need the 'get_m2m_values' hook
+                # result = getattr(result, attname)
+                # if subfield.many_to_many:
+                #     result = [*result.all()]
+                # NB: see remark about Snapshot in get_m2m_values()'s docstring
+                result = (
+                    result.get_m2m_values(subfield.attname)
+                    if subfield.many_to_many
+                    else getattr(result, attname)
+                )
 
         return result
 
