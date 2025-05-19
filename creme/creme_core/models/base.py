@@ -25,12 +25,104 @@ from django.core.validators import EMPTY_VALUES
 from django.db import models
 from django.db.models import FileField
 from django.db.transaction import atomic
+from django.dispatch import receiver
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from .file_ref import FileRef
 
 logger = logging.getLogger(__name__)
+
+
+# Contribute -------------------------------------------------------------------
+_M2M_CACHE_NAME = '_creme_m2m_values_cache'
+
+
+# TODO: accept field instance?
+# TODO: add a size limit?
+def _get_m2m_values(self: models.Model, field_name: str) -> list[models.Model]:
+    """Get the instances related to a ManyToManyField as a list.
+    The important thing is that the list is kept in a cache:
+        - Only the first call will perform a query
+          (hint: you can avoid it with 'prefetch_related()).
+        - The cache is cleared if the field is modified
+          (see the signal handler '_update_m2m_cache()' below).
+
+    NB: using 'get_m2m_values' allows a code to work with an instance built by
+        'Snapshot.get_initial_instance()'.
+
+    @param field_name: Name of a ManyToManyField.
+    @return: List of instances linked by the M2M.
+    """
+    field = type(self)._meta.get_field(field_name)
+    if not field.many_to_many:
+        raise TypeError(f'"{field_name}" is not a ManyToManyField')
+
+    cache = getattr(self, _M2M_CACHE_NAME, None)
+    if cache is None:
+        cache = {}
+        setattr(self, _M2M_CACHE_NAME, cache)
+
+    values = cache.get(field_name)
+    if values is None:
+        values = [*getattr(self, field_name).all()]
+        cache[field_name] = values
+    # TODO: keep the cache up-to-date instead? (see signal handler too)
+    #   else:
+    #     from django.utils.functional import partition
+    #     field_obj = type(self)._meta.get_field(field_name)
+    #     rel_model = field_obj.related_model
+    #     pks, instances = partition(
+    #         lambda value: isinstance(value, rel_model), values,
+    #     )
+    #     if pks:
+    #         values = [*instances, *rel_model.objects.filter(pk__in=pks)]
+    #         # todo: empty ordering?
+    #         # toto: separated function (+ several fields, unicode...)
+    #         ordering = rel_model._meta.ordering[0]
+    #         values.sort(key=lambda o: getattr(o, ordering))
+    #         cache[field_name] = values
+
+    return values
+
+
+# That's patching time baby!
+models.Model.get_m2m_values = _get_m2m_values
+
+
+@receiver(models.signals.m2m_changed, dispatch_uid='creme_core-update_m2m_cache')
+def _update_m2m_cache(sender, instance, action, pk_set, **kwargs):
+    if action == 'post_add':
+        setattr(instance, _M2M_CACHE_NAME, None)
+        # TODO: keep the cache up to date instead?
+        #   cache = getattr(instance, _M2M_CACHE_NAME, None)
+        #   if cache is not None:
+        #       values = cache.get(field_name)
+        #       if values is not None:
+        #           values.extend(pk_set)
+    elif action == 'post_remove':
+        setattr(instance, _M2M_CACHE_NAME, None)
+        # TODO: keep the cache up to date instead?
+        #   cache = getattr(instance, _M2M_CACHE_NAME, None)
+        #   if cache is not None:
+        #       values = cache.get(field_name)
+        #       if values is not None:
+        #           cache[field_name] = [
+        #               # todo: manage simple PKs (added just before)
+        #               value for value in values if value.pk not in pk_set
+        #           ]
+    elif action == 'post_clear':
+        cache = getattr(instance, _M2M_CACHE_NAME, None)
+        if cache is not None:
+            for field in type(instance)._meta.many_to_many:
+                if sender is field.remote_field.through:
+                    cache[field.attname].clear()
+                    break
+            else:
+                logger.critical('ManyToManyField not found: %s', sender)
+
+
+# Hooking [end] ----------------------------------------------------------------
 
 
 class CremeModel(models.Model):

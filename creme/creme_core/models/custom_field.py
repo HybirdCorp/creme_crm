@@ -452,7 +452,7 @@ class CustomFieldMultiEnum(CustomFieldValue):
 
     verbose_name = _('Multiple choice list')
 
-    _enumvalues = None
+    # _enumvalues = None
 
     class Meta:
         app_label = 'creme_core'
@@ -480,11 +480,13 @@ class CustomFieldMultiEnum(CustomFieldValue):
         formfield.user = user
         formfield.custom_field = custom_field
 
-    def get_enumvalues(self):
-        if self._enumvalues is None:
-            self._enumvalues = self.value.all()
-
-        return self._enumvalues
+    # def get_enumvalues(self):
+    #     if self._enumvalues is None:
+    #         self._enumvalues = self.value.all()
+    #
+    #     return self._enumvalues
+    def get_enumvalues(self) -> list[CustomFieldValue]:
+        return self.get_m2m_values('value')
 
     def _set_formfield_value(self, field):
         field.initial = self.value.all().values_list('id', flat=True)
