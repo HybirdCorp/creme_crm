@@ -519,7 +519,7 @@ else:
 
     class FakeActivity(CremeEntity):
         title = models.CharField(_('Title'), max_length=100, unique=True)
-        place = models.CharField(_('Place'), max_length=100)
+        place = models.CharField(_('Place'), max_length=100, blank=True)
         minutes = models.TextField(_('Minutes'), blank=True)
 
         start = models.DateTimeField(_('Start'), blank=True, null=True)
