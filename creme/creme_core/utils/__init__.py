@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2024 Hybird
+# Copyright (c) 2009-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -98,12 +98,13 @@ def replace_related_object(old_instance, new_instance):
             rel_object.save()
 
     for rel_objects in (
-            f
-            for f in meta.get_fields(include_hidden=True)
-            if f.many_to_many and f.auto_created
+        f
+        for f in meta.get_fields(include_hidden=True)
+        if f.many_to_many and f.auto_created
     ):
         field_name = rel_objects.field.name
 
+        # TODO: use old_instance.get_m2m_values(...)?
         for rel_object in getattr(old_instance, rel_objects.get_accessor_name()).all():
             m2m_mngr = getattr(rel_object, field_name)
             m2m_mngr.add(new_instance)
