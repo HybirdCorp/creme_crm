@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,7 +52,18 @@ class CremeModel(models.Model):
 
     @staticmethod
     def _delete_stored_file(field_value):
-        FileRef.objects.create(filedata=str(field_value))
+        max_length = FileRef._meta.get_field('filedata').max_length
+        path = str(field_value)
+        if len(path) > max_length:
+            logger.critical(
+                'Error while deleting a CremeModel instance; '
+                'the FileRef cannot be created because the path "%s" is longer '
+                'than %s. The file will not be cleaned by the cleaner Job, you '
+                'have to remove it manually (to free disk space).',
+                path, max_length,
+            )
+        else:
+            FileRef.objects.create(filedata=path)
 
     def _delete_stored_files(self):
         for field in chain(self._meta.fields, self._meta.many_to_many):
