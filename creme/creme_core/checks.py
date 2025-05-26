@@ -82,10 +82,10 @@ def check_entity_ordering(**kwargs):
 
         if not ordering or (len(ordering) == 1 and 'id' in ordering[0]):
             errors.append(Error(
-                f'"{model}" should have a Meta.ordering different from "id" '
-                f'like all CremeEntities',
+                f'<{model.__name__}> should have a Meta.ordering '
+                f'different from "id" like all CremeEntities',
                 hint='Change the "ordering" attribute in the Meta class of your model.',
-                obj='creme.creme_core',
+                obj=model._meta.app_label,
                 id='creme.E005',
             ))
 
@@ -132,3 +132,33 @@ def check_swapped_urls(**kwargs):
                 ))
 
     return errors
+
+
+@register(CoreTags.models)
+def check_file_field_maxlength(**kwargs):
+    from django.db.models import FileField
+
+    from .models import CremeModel, FileRef
+
+    warnings = []
+    max_length = FileRef._meta.get_field('filedata').max_length
+
+    for model in apps.get_models():
+        if not issubclass(model, CremeModel):
+            continue
+
+        for field in model._meta.get_fields():
+            if not isinstance(field, FileField):
+                continue
+
+            if field.max_length > max_length:
+                warnings.append(Warning(
+                    f'The model <{model.__name__}> contains a FileField "{field.name}" '
+                    f'with a max_length which is greater than {max_length}. '
+                    f'So it is possible that the automatic creation of FileRef '
+                    f'(when you delete an instance of <{model.__name__}>) fails.',
+                    obj=model._meta.app_label,
+                    id='creme.E010',
+                ))
+
+    return warnings
