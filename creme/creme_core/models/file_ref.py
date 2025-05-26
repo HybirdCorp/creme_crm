@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2024  Hybird
+#    Copyright (C) 2016-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ from .fields import CremeUserForeignKey
 
 
 class FileRef(models.Model):  # NB: not a CremeModel, because it's used by CremeModel.delete()
-    filedata = models.FileField(verbose_name=_('Path'), max_length=200)
+    filedata = models.FileField(verbose_name=_('Path'), max_length=500)
 
     # True/user-friendly name of the file
     # (in 'filedata' there is the path uniqueness constraint).

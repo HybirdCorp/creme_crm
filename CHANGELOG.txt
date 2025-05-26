@@ -188,8 +188,12 @@
             - The model 'CremeUser' :
                 - gets a new field 'uuid'.
                 - gets a new method 'has_perm_or_die()' which raises exceptions with friendly error messages.
-            - The model 'FileRef' gets a new optional field "description";
-              it's used by the new view which displays all FileRefs (so feel free to fill it).
+            - The model 'FileRef' :
+                - gets a new optional field "description"; it's used by the new view
+                  which displays all FileRefs (so feel free to fill it).
+                - the field 'filedata' has now a max_length equal 500 (it was 200 previously).
+                  As the previous value was smaller than 'documents.Document.filedata.max_length',
+                  it could cause issue when deleting a Document with a long name.
         # Apps :
             * Persons :
                 - The model 'Address' gets new semantic fields (like ZipCodeField) which allow to
