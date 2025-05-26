@@ -1,5 +1,6 @@
 from datetime import timedelta
-from os.path import exists
+from math import ceil
+from os import path as os_path
 
 from django.db.transaction import atomic
 from django.utils.translation import gettext as _
@@ -71,7 +72,7 @@ class FileRefTestCase(base.CremeTestCase):
 
         temp_files_cleaner_type.execute(job)
         self.assertStillExists(temp_file)
-        self.assertTrue(exists(temp_file.filedata.path))
+        self.assertTrue(os_path.exists(temp_file.filedata.path))
 
     def test_job02(self):
         "File is old enough to be deleted."
@@ -88,7 +89,7 @@ class FileRefTestCase(base.CremeTestCase):
 
         temp_files_cleaner_type.execute(job)
         self.assertDoesNotExist(file_ref)
-        self.assertFalse(exists(full_path))
+        self.assertFalse(os_path.exists(full_path))
 
     def test_job03(self):
         "File is too young to be deleted."
@@ -144,7 +145,7 @@ class FileRefTestCase(base.CremeTestCase):
         self.assertTrue(file_ref.temporary)
         self.assertIsNone(file_ref.user)
         self.assertEqual(full_path, file_ref.filedata.path)
-        self.assertTrue(exists(full_path))
+        self.assertTrue(os_path.exists(full_path))
         self.assertEqual(
             _('Deletion of «{}»').format(doc),
             file_ref.description,
@@ -184,7 +185,7 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
         self.assertTrue(file_ref.temporary)
         self.assertIsNone(file_ref.user)
         self.assertEqual(full_path, file_ref.filedata.path)
-        self.assertTrue(exists(full_path))
+        self.assertTrue(os_path.exists(full_path))
 
     def test_delete_model_with_file02(self):
         user = self.create_user()
@@ -211,6 +212,41 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
 
         doc = self.get_object_or_fail(FakeDocument, id=doc.id)
         self.assertEqual(full_path, doc.filedata.path)
-        self.assertTrue(exists(full_path))
+        self.assertTrue(os_path.exists(full_path))
 
         self.assertFalse(FileRef.objects.exclude(id__in=existing_ids))
+
+    def test_delete_model_with_file__path_too_long(self):
+        user = self.create_user()
+        old_count = FileRef.objects.count()
+
+        max_length = FileRef._meta.get_field('filedata').max_length
+        pattern = '_very'
+        pattern_count = ceil(max_length / len(pattern))
+        path = os_path.join(
+            'creme_core-tests', 'models',
+            f'a_file_with_a{pattern * pattern_count}_long_name',
+        )
+
+        folder = FakeFolder.objects.create(user=user, title='X-files')
+        doc = FakeDocument.objects.create(
+            user=user, title='Roswell.txt', linked_folder=folder,
+            # filedata=path,
+        )
+
+        # NB: too long for the current field, so we assign it in a volatile way
+        #     in order the length is not checked
+        doc.filedata = path
+
+        with self.assertLogs(level='CRITICAL') as log_cm:
+            with atomic():
+                doc.delete()
+
+        self.assertDoesNotExist(doc)
+        self.assertEqual(old_count, FileRef.objects.count())
+
+        message = self.get_alone_element(log_cm.output)
+        self.assertIn(
+            'Error while deleting an instance of <FakeDocument>; ',
+            message,
+        )
