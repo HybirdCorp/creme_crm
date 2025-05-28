@@ -43,6 +43,7 @@ from creme.creme_core.models import (
     Sandbox,
     SearchConfigItem,
     SettingValue,
+    Workflow,
 )
 from creme.creme_core.models.creme_property import CremePropertyTypeProxy
 from creme.creme_core.utils.collections import OrderedSet
@@ -72,6 +73,7 @@ class BasePopulator:
         #     subject_models=[Contact, Document],
         # ),
     ]
+    WORKFLOWS: list[Workflow] = []
     JOBS: list[Job] = []
     SANDBOXES: list[Sandbox] = []
     CUSTOM_FORMS: list[CustomFormDescriptor] = []
@@ -151,7 +153,26 @@ class BasePopulator:
         pass
 
     def _populate_workflows(self) -> None:
-        pass
+        for workflow in self.WORKFLOWS:
+            if not isinstance(workflow, Workflow):
+                raise TypeError(f'{workflow} is not a Workflow')
+
+            if workflow.pk is not None:
+                raise ValueError(f'{workflow} is already saved in DB')
+
+        workflows = deepcopy(self.WORKFLOWS)
+
+        for workflow in workflows:
+            if (
+                not workflow.is_custom
+                and not Workflow.objects.filter(uuid=workflow.uuid).exists()
+            ):
+                workflow.save()
+
+        if not self.already_populated:
+            for workflow in workflows:
+                if workflow.is_custom:
+                    workflow.save()
 
     def _populate_entity_filters(self) -> None:
         pass

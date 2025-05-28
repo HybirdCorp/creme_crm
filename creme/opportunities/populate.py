@@ -71,10 +71,121 @@ from .models import Origin, SalesPhase
 
 logger = logging.getLogger(__name__)
 
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
+Product = products.get_product_model()
+Service = products.get_service_model()
+
+Opportunity = get_opportunity_model()
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities', 'products', 'billing']
 
+    WORKFLOWS = [
+        # The target of an Opportunity becomes a prospect of the emitter.
+        # NB: we create 2 Workflows with RelationAddingTrigger & 1 Actions
+        #     (& not 2 Actions as the "Customer" Workflow which is below) because
+        #     the Relation could be created without editing the Opportunity.
+        Workflow(
+            uuid='b8d03709-4abd-490c-aa9f-8a2414f92b97',
+            title=_('The target Organisation becomes a prospect'),
+            content_type=Opportunity,
+            is_custom=False,
+            trigger=RelationAddingTrigger(
+                subject_model=Opportunity,
+                rtype=constants.REL_SUB_TARGETS,
+                object_model=Organisation,
+            ),
+            actions=[
+                RelationAddingAction(
+                    # NB: the target of the Opportunity
+                    subject_source=ObjectEntitySource(model=Organisation),
+                    rtype=REL_SUB_PROSPECT,
+                    # NB: the emitter of the Opportunity
+                    object_source=FirstRelatedEntitySource(
+                        subject_source=SubjectEntitySource(model=Opportunity),
+                        rtype=constants.REL_OBJ_EMIT_ORGA,
+                        object_model=Organisation,
+                    ),
+                )
+            ],
+        ),
+        Workflow(
+            uuid='04ae1335-6e5d-4856-9be6-9f59846b06d1',
+            title=_('The target Contact becomes a prospect'),
+            content_type=Opportunity,
+            is_custom=False,
+            trigger=RelationAddingTrigger(
+                subject_model=Opportunity,
+                rtype=constants.REL_SUB_TARGETS,
+                object_model=Contact,
+            ),
+            actions=[
+                RelationAddingAction(
+                    subject_source=ObjectEntitySource(model=Contact),
+                    rtype=REL_SUB_PROSPECT,
+                    object_source=FirstRelatedEntitySource(
+                        subject_source=SubjectEntitySource(model=Opportunity),
+                        rtype=constants.REL_OBJ_EMIT_ORGA,
+                        object_model=Organisation,
+                    ),
+                )
+            ],
+        ),
+
+        # The target of a won Opportunity becomes a customer of the emitter
+        Workflow(
+            uuid='06809c48-fbd8-4d99-b79a-4350122f092b',
+            title=_('The target of a won Opportunity becomes a customer'),
+            content_type=Opportunity,
+            is_custom=False,
+            trigger=EntityEditionTrigger(model=Opportunity),
+            conditions=WorkflowConditions().build(
+                source=EditedEntitySource(model=Opportunity),
+                conditions=[
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=Opportunity,
+                        operator=operators.EqualsOperator,
+                        field_name='sales_phase__won',
+                        values=[True],
+                    ),
+                ],
+            ).do(),
+            actions=[
+                # Target can be an Organisation or a Contact
+                RelationAddingAction(
+                    # NB: the target of the Opportunity
+                    subject_source=FirstRelatedEntitySource(
+                        subject_source=EditedEntitySource(model=Opportunity),
+                        rtype=constants.REL_SUB_TARGETS,
+                        object_model=Organisation,  # <===
+                    ),
+                    rtype=REL_SUB_CUSTOMER_SUPPLIER,
+                    # NB: the emitter of the Opportunity
+                    object_source=FirstRelatedEntitySource(
+                        subject_source=EditedEntitySource(model=Opportunity),
+                        rtype=constants.REL_OBJ_EMIT_ORGA,
+                        object_model=Organisation,
+                    ),
+                ),
+                RelationAddingAction(
+                    subject_source=FirstRelatedEntitySource(
+                        subject_source=EditedEntitySource(model=Opportunity),
+                        rtype=constants.REL_SUB_TARGETS,
+                        object_model=Contact,  # <===
+                    ),
+                    rtype=REL_SUB_CUSTOMER_SUPPLIER,
+                    object_source=FirstRelatedEntitySource(
+                        subject_source=EditedEntitySource(model=Opportunity),
+                        rtype=constants.REL_OBJ_EMIT_ORGA,
+                        object_model=Organisation,
+                    ),
+                ),
+            ],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.OPPORTUNITY_CREATION_CFORM,
         custom_forms.OPPORTUNITY_EDITION_CFORM,
@@ -158,13 +269,13 @@ class Populator(BasePopulator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
+        self.Contact      = Contact
+        self.Organisation = Organisation
 
-        self.Product = products.get_product_model()
-        self.Service = products.get_service_model()
+        self.Product = Product
+        self.Service = Service
 
-        self.Opportunity = get_opportunity_model()
+        self.Opportunity = Opportunity
 
     def _already_populated(self):
         return RelationType.objects.filter(pk=constants.REL_SUB_TARGETS).exists()
@@ -307,102 +418,6 @@ class Populator(BasePopulator):
                     [Opportunity],
                 ),
             )
-
-    def _populate_workflows(self):
-        # NB: the target of an Opportunity becomes a prospect of the emitter.
-        # NB: we create 2 Workflows with RelationAddingTrigger & 1 Actions
-        #     (& not 2 Actions as the "Customer" Workflow which is below) because
-        #     the relation could be created without editing the Opportunity.
-        for target_model, title, uid in (
-            (
-                self.Organisation,
-                _('The target Organisation becomes a prospect'),
-                'b8d03709-4abd-490c-aa9f-8a2414f92b97',
-            ), (
-                self.Contact,
-                _('The target Contact becomes a prospect'),
-                '04ae1335-6e5d-4856-9be6-9f59846b06d1',
-            ),
-        ):
-            Workflow.objects.get_or_create(
-                uuid=uid,
-                defaults={
-                    'title': title,
-                    'content_type': self.Opportunity,
-                    'is_custom': False,
-                    'trigger': RelationAddingTrigger(
-                        subject_model=self.Opportunity,
-                        rtype=constants.REL_SUB_TARGETS,
-                        object_model=target_model,
-                    ),
-                    'actions': [
-                        RelationAddingAction(
-                            # NB: the target of the Opportunity
-                            subject_source=ObjectEntitySource(model=target_model),
-                            rtype=REL_SUB_PROSPECT,
-                            # NB: the emitter of the Opportunity
-                            object_source=FirstRelatedEntitySource(
-                                subject_source=SubjectEntitySource(model=self.Opportunity),
-                                rtype=constants.REL_OBJ_EMIT_ORGA,
-                                object_model=self.Organisation,
-                            ),
-                        )
-                    ],
-                }
-            )
-
-        # NB: the target of a won Opportunity becomes a customer of the emitter
-        Workflow.objects.get_or_create(
-            uuid='06809c48-fbd8-4d99-b79a-4350122f092b',
-            defaults={
-                'title': _('The target of a won Opportunity becomes a customer'),
-                'content_type': self.Opportunity,
-                'is_custom': False,
-                'trigger': EntityEditionTrigger(model=self.Opportunity),
-                'conditions': WorkflowConditions().build(
-                    source=EditedEntitySource(model=self.Opportunity),
-                    conditions=[
-                        condition_handler.RegularFieldConditionHandler.build_condition(
-                            model=self.Opportunity,
-                            operator=operators.EqualsOperator,
-                            field_name='sales_phase__won',
-                            values=[True],
-                        ),
-                    ],
-                ).do(),
-                'actions': [
-                    # Target can be an Organisation or a Contact
-                    RelationAddingAction(
-                        # NB: the target of the Opportunity
-                        subject_source=FirstRelatedEntitySource(
-                            subject_source=EditedEntitySource(model=self.Opportunity),
-                            rtype=constants.REL_SUB_TARGETS,
-                            object_model=self.Organisation,  # <===
-                        ),
-                        rtype=REL_SUB_CUSTOMER_SUPPLIER,
-                        # NB: the emitter of the Opportunity
-                        object_source=FirstRelatedEntitySource(
-                            subject_source=EditedEntitySource(model=self.Opportunity),
-                            rtype=constants.REL_OBJ_EMIT_ORGA,
-                            object_model=self.Organisation,
-                        ),
-                    ),
-                    RelationAddingAction(
-                        subject_source=FirstRelatedEntitySource(
-                            subject_source=EditedEntitySource(model=self.Opportunity),
-                            rtype=constants.REL_SUB_TARGETS,
-                            object_model=self.Contact,  # <===
-                        ),
-                        rtype=REL_SUB_CUSTOMER_SUPPLIER,
-                        object_source=FirstRelatedEntitySource(
-                            subject_source=EditedEntitySource(model=self.Opportunity),
-                            rtype=constants.REL_OBJ_EMIT_ORGA,
-                            object_model=self.Organisation,
-                        ),
-                    ),
-                ],
-            },
-        )
 
     def _populate_entity_filters(self):
         create_efilter = partial(

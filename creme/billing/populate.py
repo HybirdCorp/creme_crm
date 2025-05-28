@@ -74,10 +74,77 @@ from .models import (
 
 logger = logging.getLogger(__name__)
 
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
+CreditNote = billing.get_credit_note_model()
+Invoice = billing.get_invoice_model()
+Quote = billing.get_quote_model()
+SalesOrder = billing.get_sales_order_model()
+TemplateBase = billing.get_template_base_model()
+
+ProductLine = billing.get_product_line_model()
+ServiceLine = billing.get_service_line_model()
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
 
+    WORKFLOWS = [
+        # NB:
+        #  - The target of a Quote becomes a prospect of the emitter
+        #  - The target of an Invoice becomes a supplier of the emitter
+        Workflow(
+            uuid=uid,
+            title=title,
+            content_type=billing_model,
+            is_custom=False,
+            trigger=RelationAddingTrigger(
+                subject_model=billing_model,
+                rtype=constants.REL_SUB_BILL_RECEIVED,
+                object_model=target_model,
+            ),
+            actions=[
+                RelationAddingAction(
+                    # NB: the target of the billing instance
+                    subject_source=ObjectEntitySource(model=target_model),
+                    rtype=rtype_id,
+                    # NB: the emitter of the billing instance
+                    object_source=FirstRelatedEntitySource(
+                        subject_source=SubjectEntitySource(model=billing_model),
+                        rtype=constants.REL_SUB_BILL_ISSUED,
+                        object_model=Organisation,
+                    ),
+                )
+            ],
+        ) for uid, billing_model, target_model, title, rtype_id in (
+            (
+                'a6a8f398-4967-49f8-8d8f-4aece55329fa',
+                Quote,
+                Organisation,
+                _('The target Organisation becomes a prospect'),
+                REL_SUB_PROSPECT,
+            ), (
+                '81a52347-4988-4a11-81dc-55eca701447e',
+                Quote,
+                Contact,
+                _('The target Contact becomes a prospect'),
+                REL_SUB_PROSPECT,
+            ), (
+                '3cc968ec-23c2-4f70-9609-1894d91ff300',
+                Invoice,
+                Organisation,
+                _('The target Organisation becomes a customer'),
+                REL_SUB_CUSTOMER_SUPPLIER,
+            ), (
+                '457f762d-0bd7-41de-8215-14585e3002ba',
+                Invoice,
+                Contact,
+                _('The target Contact becomes a customer'),
+                REL_SUB_CUSTOMER_SUPPLIER,
+            ),
+        )
+    ]
     CUSTOM_FORMS = [
         custom_forms.INVOICE_CREATION_CFORM,
         custom_forms.INVOICE_EDITION_CFORM,
@@ -242,17 +309,17 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
+        self.Contact      = Contact
+        self.Organisation = Organisation
 
-        self.CreditNote   = billing.get_credit_note_model()
-        self.Invoice      = billing.get_invoice_model()
-        self.Quote        = billing.get_quote_model()
-        self.SalesOrder   = billing.get_sales_order_model()
-        self.TemplateBase = billing.get_template_base_model()
+        self.CreditNote   = CreditNote
+        self.Invoice      = Invoice
+        self.Quote        = Quote
+        self.SalesOrder   = SalesOrder
+        self.TemplateBase = TemplateBase
 
-        self.ProductLine = billing.get_product_line_model()
-        self.ServiceLine = billing.get_service_line_model()
+        self.ProductLine = ProductLine
+        self.ServiceLine = ServiceLine
 
     def _already_populated(self):
         return RelationType.objects.filter(
@@ -415,65 +482,6 @@ class Populator(BasePopulator):
             RelationType.objects.get(
                 pk=REL_SUB_ACTIVITY_SUBJECT,
             ).add_subject_ctypes(self.Invoice, self.Quote, self.SalesOrder)
-
-    # TODO: complete
-    def _populate_workflows(self):
-        # NB:
-        #  - The target of a Quote becomes a prospect of the emitter
-        #  - The target of an Invoice becomes a supplier of the emitter
-        for uid, billing_model, target_model, title, rtype_id in (
-            (
-                'a6a8f398-4967-49f8-8d8f-4aece55329fa',
-                self.Quote,
-                self.Organisation,
-                _('The target Organisation becomes a prospect'),
-                REL_SUB_PROSPECT,
-            ), (
-                '81a52347-4988-4a11-81dc-55eca701447e',
-                self.Quote,
-                self.Contact,
-                _('The target Contact becomes a prospect'),
-                REL_SUB_PROSPECT,
-            ), (
-                '3cc968ec-23c2-4f70-9609-1894d91ff300',
-                self.Invoice,
-                self.Organisation,
-                _('The target Organisation becomes a customer'),
-                REL_SUB_CUSTOMER_SUPPLIER,
-            ), (
-                '457f762d-0bd7-41de-8215-14585e3002ba',
-                self.Invoice,
-                self.Contact,
-                _('The target Contact becomes a customer'),
-                REL_SUB_CUSTOMER_SUPPLIER,
-            ),
-        ):
-            Workflow.objects.get_or_create(
-                uuid=uid,
-                defaults={
-                    'title': title,
-                    'content_type': billing_model,
-                    'is_custom': False,
-                    'trigger': RelationAddingTrigger(
-                        subject_model=billing_model,
-                        rtype=constants.REL_SUB_BILL_RECEIVED,
-                        object_model=target_model,
-                    ),
-                    'actions': [
-                        RelationAddingAction(
-                            # NB: the target of the billing instance
-                            subject_source=ObjectEntitySource(model=target_model),
-                            rtype=rtype_id,
-                            # NB: the emitter of the billing instance
-                            object_source=FirstRelatedEntitySource(
-                                subject_source=SubjectEntitySource(model=billing_model),
-                                rtype=constants.REL_SUB_BILL_ISSUED,
-                                object_model=self.Organisation,
-                            ),
-                        )
-                    ],
-                }
-            )
 
     def _populate_entity_filters(self):
         Invoice = self.Invoice
