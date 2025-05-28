@@ -24,9 +24,9 @@
 
 import base64
 
-from cryptography.fernet import Fernet, InvalidToken
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+# from cryptography.fernet import Fernet, InvalidToken
+# from cryptography.hazmat.primitives import hashes
+# from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from django.conf import settings
 from django.utils.encoding import force_bytes
 
@@ -41,6 +41,14 @@ class SymmetricEncrypter:
         pass
 
     def __init__(self, salt, secret=None):
+        # NB: we load cryptography lazily because there are import issue (double import)
+        #     in some environments (wsgi mode?).
+        #     > ImportError: PyO3 modules do not yet support subinterpreters,
+        #       see https://github.com/PyO3/pyo3/issues/576
+        from cryptography.fernet import Fernet
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
         if secret is None:
             secret = settings.SECRET_KEY
 
@@ -60,6 +68,8 @@ class SymmetricEncrypter:
         return self.fernet.encrypt(data)
 
     def decrypt(self, encrypted: bytes) -> bytes:
+        from cryptography.fernet import InvalidToken
+
         try:
             return self.fernet.decrypt(encrypted)
         except InvalidToken as e:
