@@ -1,3 +1,14 @@
+== Version 2.6.9 ==
+
+  Users side :
+  ------------
+    # An loading issue (with the lib 'cryptography'), which caused crash at
+      start-up in some environments, has been fixed.
+    # The 'populate' scripts could failed on menu configuration in some cases.
+    # There was issue when a FileRef is creating when a CremeModel is deleted:
+      the path could be too long to be stored by the FileRef, which caused an error.
+
+
 == Version 2.6.8 ==
 
   Users side :

@@ -252,6 +252,7 @@ class Populator(BasePopulator):
         menu_container = MenuConfigItem.objects.get_or_create(
             entry_id=ContainerEntry.id,
             entry_data={'label': _('Management')},
+            role=None, superuser=False,
             defaults={'order': 50},
         )[0]
 
