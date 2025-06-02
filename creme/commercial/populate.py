@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -268,7 +268,7 @@ class Populator(BasePopulator):
                 'periodicity': date_period_registry.get_period('days', 1),
                 'status':      Job.STATUS_OK,
                 # The CommercialApproach field for Activities' CustomForms is not
-                # in the default configuration, so a enabled job would be annoying.
+                # in the default configuration, so an enabled job would be annoying.
                 'enabled': False,
             },
         )
@@ -278,6 +278,7 @@ class Populator(BasePopulator):
             menu_container = MenuConfigItem.objects.get_or_create(
                 entry_id=ContainerEntry.id,
                 entry_data={'label': _('Commercial')},
+                role=None, superuser=False,
                 defaults={'order': 30},
             )[0]
 
