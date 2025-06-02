@@ -1,5 +1,16 @@
 == Version 2.6.10 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The method 'creme_core.utils.CremeDiscoverRunner.setup_databases()' has been updated to prevent running
+          the 'creme_populate' command on the default test database when the test suite is launched in
+          parallel mode. This change is done to prevent cache leaking when the test processes are forked.
+          This is a backport from Creme '2.7'.
+
+
 == Version 2.6.9 ==
 
   Users side :

@@ -167,7 +167,8 @@ class CremeDiscoverRunner(DiscoverRunner):
 
     def setup_databases(self, **kwargs):
         ret = super().setup_databases(**kwargs)
-        if ret:
+        if ret and not self.parallel > 1:
+            # Do not populate the default test DB if tests are run in parallel with other DBs.
             creme_test_populate()
 
         return ret
