@@ -26,6 +26,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import EmailField, ForeignKey
+from django.db.transaction import atomic
 from django.template import Context, Template
 from django.template.loader import get_template
 from django.utils.html import format_html
@@ -602,21 +603,22 @@ class EmailSendingAction(WorkflowAction):
         })
 
         if entity_to_link:
-            e_email = EntityEmail.objects.create(
-                user=user or ctxt_entity.user,
-                description=gettext('Created by a workflow'),
-                sender=settings.EMAIL_SENDER,
-                recipient=recipient,
-                subject=self._subject,
-                body=body,
-                body_html=body_html,
-            )
-            Relation.objects.create(
-                user=e_email.user,
-                subject_entity=e_email,
-                type_id=REL_SUB_MAIL_RECEIVED,
-                object_entity=entity_to_link,
-            )
+            with atomic():
+                e_email = EntityEmail.objects.create(
+                    user=user or ctxt_entity.user,
+                    description=gettext('Created by a workflow'),
+                    sender=settings.EMAIL_SENDER,
+                    recipient=recipient,
+                    subject=self._subject,
+                    body=body,
+                    body_html=body_html,
+                )
+                Relation.objects.create(
+                    user=e_email.user,
+                    subject_entity=e_email,
+                    type_id=REL_SUB_MAIL_RECEIVED,
+                    object_entity=entity_to_link,
+                )
         else:
             WorkflowEmail.objects.create(
                 sender=settings.EMAIL_SENDER,
@@ -739,35 +741,36 @@ class TemplateSendingAction(WorkflowAction):
         body = Template(e_template.body).render(ctxt)
         body_html = Template(e_template.body_html).render(ctxt)
 
-        if concerned_entity:
-            e_email = EntityEmail.objects.create(
-                user=user or e_template.user,
-                description=gettext('Created by a workflow'),
-                sender=settings.EMAIL_SENDER,
-                recipient=recipient,
-                subject=e_template.subject,
-                body=body,
-                body_html=body_html,
-                signature=e_template.signature,
-            )
-            e_email.attachments.set(e_template.attachments.all())
+        with atomic():
+            if concerned_entity:
+                e_email = EntityEmail.objects.create(
+                    user=user or e_template.user,
+                    description=gettext('Created by a workflow'),
+                    sender=settings.EMAIL_SENDER,
+                    recipient=recipient,
+                    subject=e_template.subject,
+                    body=body,
+                    body_html=body_html,
+                    signature=e_template.signature,
+                )
+                e_email.attachments.set(e_template.attachments.all())
 
-            Relation.objects.create(
-                user=e_email.user,
-                subject_entity=e_email,
-                type_id=REL_SUB_MAIL_RECEIVED,
-                object_entity=concerned_entity,
-            )
-        else:
-            wf_email = WorkflowEmail.objects.create(
-                sender=settings.EMAIL_SENDER,
-                recipient=recipient,
-                subject=e_template.subject,
-                body=body,
-                body_html=body_html,
-                signature=e_template.signature,
-            )
-            wf_email.attachments.set(e_template.attachments.all())
+                Relation.objects.create(
+                    user=e_email.user,
+                    subject_entity=e_email,
+                    type_id=REL_SUB_MAIL_RECEIVED,
+                    object_entity=concerned_entity,
+                )
+            else:
+                wf_email = WorkflowEmail.objects.create(
+                    sender=settings.EMAIL_SENDER,
+                    recipient=recipient,
+                    subject=e_template.subject,
+                    body=body,
+                    body_html=body_html,
+                    signature=e_template.signature,
+                )
+                wf_email.attachments.set(e_template.attachments.all())
 
     def to_dict(self):
         d = super().to_dict()

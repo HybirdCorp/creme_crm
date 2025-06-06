@@ -11,8 +11,12 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
+from creme.creme_core import workflows
 from creme.creme_core.bricks import JobErrorsBrick, MassImportJobErrorsBrick
 from creme.creme_core.constants import UUID_CHANNEL_JOBS
+from creme.creme_core.core.entity_filter import condition_handler
+from creme.creme_core.core.entity_filter.operators import EndsWithOperator
+from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.creme_jobs import batch_process_type, mass_import_type
 from creme.creme_core.models import (
     CremeProperty,
@@ -35,6 +39,7 @@ from creme.creme_core.models import (
     Notification,
     Relation,
     RelationType,
+    Workflow,
 )
 from creme.creme_core.notification import MassImportDoneContent
 from creme.creme_core.utils import update_model_instance
@@ -469,13 +474,13 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.login_as_root()
         self.assertGET404(self._build_import_url(FakeEmailCampaign))
 
-    def test_mass_import01(self):
+    def test_csv_import01(self):
         return self._test_import01(self._build_csv_doc)
 
-    def test_mass_import02(self):
+    def test_csv_import02(self):
         return self._test_import02(self._build_csv_doc)
 
-    def test_mass_import03(self):
+    def test_csv_import03(self):
         return self._test_import03(self._build_csv_doc)
 
     def test_xls_import01(self):
@@ -496,7 +501,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
     def test_xlsx_import03(self):
         return self._test_import03(self._build_xlsx_doc)
 
-    def test_mass_import04(self):
+    def test_csv__other_separator(self):
         "Other separator."
         user = self.login_as_root_and_get()
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
@@ -543,6 +548,67 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         results = self._get_job_results(job)
         self.assertEqual(2, len(results))
         self._assertNoResultError(results)
+
+    def test_workflow(self):
+        user = self.login_as_root_and_get()
+        ptype = CremePropertyType.objects.create(text='Is cool')
+
+        source = workflows.CreatedEntitySource(model=FakeContact)
+        Workflow.objects.create(
+            title='WF for Contact',
+            content_type=FakeContact,
+            trigger=workflows.EntityCreationTrigger(model=FakeContact),
+            conditions=WorkflowConditions().add(
+                source=source,
+                conditions=[
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=FakeContact,
+                        operator=EndsWithOperator, field_name='email', values=['@acme.org'],
+                    ),
+                ],
+            ),
+            actions=[workflows.PropertyAddingAction(entity_source=source, ptype=ptype)],
+        )
+
+        lines = [
+            # 'First name', 'Last name', 'Email
+            ('Unchô',      'Kan-u', 'kanu@acme.org'),
+            ('Gentoku',    'Ryûbi', ''),
+        ]
+        doc = self._build_csv_doc(lines, user=user)
+        url = self._build_import_url(FakeContact)
+        self.assertNoFormError(self.client.post(
+            url, data={'step': 0, 'document': doc.id},
+        ))
+
+        response2 = self.client.post(
+            url,
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'email_colselect': 3,
+            },
+        )
+        self.assertNoFormError(response2)
+
+        job = self._execute_job(response2)
+        results = self._get_job_results(job)
+        self.assertEqual(2, len(results))
+        self._assertNoResultError(results)
+
+        def get_contact(line):
+            return self.get_object_or_fail(FakeContact, first_name=line[0], last_name=line[1])
+
+        line1 = lines[0]
+        contact1 = get_contact(line1)
+        self.assertEqual(line1[2], contact1.email)
+        self.assertHasProperty(entity=contact1, ptype=ptype)
+
+        contact2 = get_contact(lines[1])
+        self.assertFalse(contact2.email)
+        self.assertHasNoProperty(entity=contact2, ptype=ptype)
 
     def test_duplicated_relations(self):
         "Same Relation in fixed & dynamic fields at creation."

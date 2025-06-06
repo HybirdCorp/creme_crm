@@ -18,8 +18,7 @@
 
 from django.utils.deprecation import MiddlewareMixin
 
-from ..core.workflow import WorkflowEventQueue
-from ..models import Workflow
+from ..core.workflow import WorkflowEngine
 
 
 class WorkflowMiddleware(MiddlewareMixin):
@@ -40,23 +39,6 @@ class WorkflowMiddleware(MiddlewareMixin):
     "generations" (instead of just one currently).
     """
     def process_response(self, request, response):
-        # TODO: manage errors (log them with a specific model?)
-        #       + transactions
-        events = WorkflowEventQueue.get_current().pickup()
-        if events:
-            workflows = Workflow.objects.filter(enabled=True)
-            user = request.user
-
-            for event in events:
-                for workflow in workflows:
-                    trigger = workflow.trigger
-                    ctxt = trigger.activate(event)
-                    if ctxt and workflow.conditions.accept(
-                        user=user, context=ctxt,
-                        detect_change=trigger.conditions_detect_change,
-                        use_or=trigger.conditions_use_or,
-                    ):
-                        for action in workflow.actions:
-                            action.execute(context=ctxt, user=user)
+        WorkflowEngine().run(user=request.user)
 
         return response

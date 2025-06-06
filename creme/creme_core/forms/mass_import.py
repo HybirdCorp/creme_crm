@@ -44,6 +44,7 @@ from creme.documents import get_document_model
 
 from ..backends import import_backend_registry
 from ..core.field_tags import FieldTag
+from ..core.workflow import WorkflowEngine
 from ..gui.mass_import import import_form_registry
 from ..models import (
     CremeEntity,
@@ -1377,6 +1378,7 @@ class ImportForm(CremeModelForm):
             for i in range(MassImportJobResult.objects.filter(job=job).count()):
                 next(lines)
 
+            wf_engine = WorkflowEngine()
             append_error = self.append_error
             key_fields = frozenset(get_cleaned('key_fields'))
 
@@ -1473,6 +1475,7 @@ class ImportForm(CremeModelForm):
                     job_result.messages = self.import_errors
                     job_result.save()
 
+                wf_engine.run(user=None)
                 self.import_errors.clear()
 
 

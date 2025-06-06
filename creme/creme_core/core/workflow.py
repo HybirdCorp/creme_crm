@@ -16,8 +16,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# The Workflow engine allows users to configure some actions (like Relationship
+# creation or email sending) which are made automatically in some conditions
+# E.g: IF an instance of 'StuffEntity' is created, AND IF its field "status" is
+#      <Very important>, THEN an email is sent to the owner of the new instance.
 from __future__ import annotations
 
+import logging
 import re
 from typing import TYPE_CHECKING, Iterable, Iterator
 
@@ -49,10 +54,7 @@ if TYPE_CHECKING:
     from creme.creme_core.models import CremeUser
 
 
-# The Workflow engine allows users to configure some actions (like Relationship
-# creation or email sending) which are made automatically in some conditions
-# E.g: IF an instance of 'StuffEntity' is created, AND IF its field "status" is
-#      <Very important>, THEN an email is sent to the owner of the new instance.
+logger = logging.getLogger(__name__)
 
 
 class WorkflowBrokenData(Exception):
@@ -918,3 +920,38 @@ class WorkflowRegistry:
 
 
 workflow_registry = WorkflowRegistry()
+
+
+# Engine -----------------------------------------------------------------------
+# TODO: unit test
+class WorkflowEngine:
+    def __init__(self):
+        from ..models import Workflow
+
+        self._queue = WorkflowEventQueue.get_current()
+        self._workflows = Workflow.objects.filter(enabled=True)
+
+    def run(self, user: CremeUser | None) -> None:
+        events = self._queue.pickup()
+        if events:
+            workflows = self._workflows
+
+            for event in events:
+                for workflow in workflows:
+                    trigger = workflow.trigger
+                    ctxt = trigger.activate(event)
+                    if ctxt and workflow.conditions.accept(
+                        user=user, context=ctxt,
+                        detect_change=trigger.conditions_detect_change,
+                        use_or=trigger.conditions_use_or,
+                    ):
+                        for action in workflow.actions:
+                            logger.debug(
+                                'WorkflowEngine: execute the action: %s (workflow id=%s)',
+                                action, workflow.id,
+                            )
+
+                            try:
+                                action.execute(context=ctxt, user=user)
+                            except Exception:
+                                logger.exception('Error in the Workflow engine')

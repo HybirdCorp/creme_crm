@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@ from django.db.transaction import atomic
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.core.workflow import WorkflowEngine
 from creme.creme_core.creme_jobs.base import JobType
 
 from . import get_rgenerator_model
@@ -44,6 +45,8 @@ class _GenerateDocsType(JobType):
         )
 
     def _execute(self, job):
+        wf_engine = WorkflowEngine()
+
         # TODO: test is_working VS delete it (see next_wakeup() && job refreshing too)
         for generator in self._get_generators(now()):
             last = generator.last_generation
@@ -61,6 +64,8 @@ class _GenerateDocsType(JobType):
 
                     generator.last_generation = next_generation
                     generator.save()
+
+                    wf_engine.run(user=None)
 
     # TODO: with docs generate the last time ?? (but stats will be cleaned at
     #       next run, even if nothing is generated...)
