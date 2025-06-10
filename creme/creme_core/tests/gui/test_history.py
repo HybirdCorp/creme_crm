@@ -11,7 +11,6 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from creme.creme_core.bricks import HistoryBrick
-from creme.creme_core.global_info import clear_global_info
 from creme.creme_core.gui.history import (
     HistoryLineExplainer,
     HistoryRegistry,
@@ -873,7 +872,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
         # Old & new value ---
-        clear_global_info()  # Current line is stored in global cache
+        self.clear_global_info()  # Current line is stored in global cache
 
         value_str2 = 'We fight angels'
         save_cvalues(cfield1, [nerv], value_str2)
@@ -948,7 +947,7 @@ class HistoryRenderTestCase(CremeTestCase):
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         CustomFieldValue.save_values_for_entities(cfield, [nerv], 'Future proof')
 
-        clear_global_info()  # Current line is stored in global cache
+        self.clear_global_info()  # Current line is stored in global cache
         cfield_id = cfield.id
         cfield.delete()
 
@@ -1006,7 +1005,7 @@ class HistoryRenderTestCase(CremeTestCase):
         save_cvalues = CustomFieldValue.save_values_for_entities
         save_cvalues(cfield1, [nerv], choice1.id)
 
-        clear_global_info()
+        self.clear_global_info()
         save_cvalues(cfield2, [nerv], choice2.id)
 
         hlines = [*self.get_hlines(entity=nerv, number=2)]
