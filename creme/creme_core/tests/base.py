@@ -112,8 +112,12 @@ class _CremeTestCase:
         )
         cls.request_factory = RequestFactory()
 
-    def setUp(self):
+    @classmethod
+    def clear_global_info(cls):
         clear_global_info()
+
+    def setUp(self):
+        self.clear_global_info()
 
     USER_PASSWORD = 'test'
     USERS_DATA = [

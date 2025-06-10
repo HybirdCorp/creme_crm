@@ -8,7 +8,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import now
 
-from creme.creme_core.global_info import clear_global_info
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -441,7 +440,7 @@ about this fantastic animation studio."""
         )
 
         # ---
-        clear_global_info()  # Current line is stored in global cache
+        self.clear_global_info()  # Current line is stored in global cache
         img = self.refresh(img)
         img.categories.set([cat1])
 
@@ -471,7 +470,7 @@ about this fantastic animation studio."""
         )
 
         # ---
-        clear_global_info()  # Current line is stored in global cache
+        self.clear_global_info()  # Current line is stored in global cache
         img = self.refresh(img)
         img.categories.remove(cat)
 
@@ -548,7 +547,7 @@ about this fantastic animation studio."""
         img = FakeImage.objects.create(user=user, name=old_name)
         old_count = HistoryLine.objects.count()
 
-        clear_global_info()  # Current line is stored in global cache
+        self.clear_global_info()  # Current line is stored in global cache
         img = self.refresh(img)
 
         new_name = 'Grumpy Hayao'
@@ -595,7 +594,7 @@ about this fantastic animation studio."""
         )
 
         # Old & new values ---
-        clear_global_info()  # Current line is stored in global cache
+        self.clear_global_info()  # Current line is stored in global cache
         value2 = 'ABCD12345'
         CustomFieldValue.save_values_for_entities(cfield, [gainax], value2)
         self.assertEqual(old_count + 2, HistoryLine.objects.count())
@@ -622,7 +621,7 @@ about this fantastic animation studio."""
         )
         old_count = HistoryLine.objects.count()
 
-        clear_global_info()  # Current line is stored in global cache
+        self.clear_global_info()  # Current line is stored in global cache
 
         value1 = 'ABCD123'
         CustomFieldValue.save_values_for_entities(cfield1, [gainax], value1)
@@ -659,7 +658,7 @@ about this fantastic animation studio."""
         CustomFieldValue.save_values_for_entities(cfield, [gainax], old_value)
         old_count = HistoryLine.objects.count()
 
-        clear_global_info()  # Current line is stored in global cache
+        self.clear_global_info()  # Current line is stored in global cache
 
         CustomFieldValue.save_values_for_entities(cfield, [gainax], '')
         self.assertEqual(old_count + 1, HistoryLine.objects.count())
@@ -702,7 +701,7 @@ about this fantastic animation studio."""
         self.assertListEqual([[cfield.id, choice2.id]], hline1.modifications)
 
         # Old & new values ---
-        clear_global_info()  # Current line is stored in global cache
+        self.clear_global_info()  # Current line is stored in global cache
         CustomFieldValue.save_values_for_entities(cfield, [gainax], choice3.id)
         self.assertEqual(old_count + 2, HistoryLine.objects.count())
 
@@ -746,7 +745,7 @@ about this fantastic animation studio."""
         )
 
         # Remove values ---
-        clear_global_info()  # Current line is stored in global cache
+        self.clear_global_info()  # Current line is stored in global cache
         CustomFieldValue.save_values_for_entities(
             cfield, [gainax], [choice2.id],  # Choice1 removed
         )
@@ -760,7 +759,7 @@ about this fantastic animation studio."""
         )
 
         # Add & remove at the same time ----
-        clear_global_info()  # Current line is stored in global cache
+        self.clear_global_info()  # Current line is stored in global cache
         CustomFieldValue.save_values_for_entities(
             cfield, [gainax], [choice1.id],  # Choice1 added, choice2 removed
         )

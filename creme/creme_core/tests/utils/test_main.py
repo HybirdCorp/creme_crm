@@ -13,7 +13,6 @@ from django.utils.translation import gettext, gettext_lazy, ngettext
 from django.utils.translation import override as override_language
 from PIL.Image import open as open_img
 
-from creme.creme_core.global_info import clear_global_info
 # from creme.creme_core.models import FakeCivility
 from creme.creme_core.models import FakeContact, FakeOrganisation
 # from creme.creme_core.utils import create_if_needed
@@ -806,7 +805,7 @@ class CurrencyFormatTestCase(CremeTestCase):
 
         sv.value = False
         sv.save()
-        clear_global_info()
+        self.clear_global_info()
         result5 = currency(5, currency_or_id=my_currency)
         self.assertIn('5', result5)
         self.assertIn(my_currency.international_symbol, result5)
