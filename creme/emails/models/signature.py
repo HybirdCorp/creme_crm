@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,11 @@ class EmailSignature(CremeModel):  # TODO: MinionModel?
     body = models.TextField(_('Body'))
     images = ImageEntityManyToManyField(
         verbose_name=_('Images'), blank=True,
-        help_text=_('Images embedded in emails (but not as attached).'),
+        help_text=_(
+            'Images embedded in emails (but not as attached).\n'
+            'Hint: try to keep your images light (less than 2MB).\n'
+            'Hint: try to keep your images less than 500px wide to get a good render on mobile.'
+        ),
     )
 
     creation_label = pgettext_lazy('emails', 'Create a signature')

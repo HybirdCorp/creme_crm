@@ -1,5 +1,13 @@
 == Version 2.6.10 Work in progress (not released -- this is a draft) ==
 
+  TODO: compile .po (emails)
+
+  Users side :
+  ------------
+    # Apps :
+        * Emails :
+            - The help text for signatures' images has been improved.
+
   Developers side :
   -----------------
 
