@@ -12,9 +12,9 @@
  {% if not relation_types_all_disabled %}
   {% with creation_perm=user|has_perm_to_create:objects_ctype link_perm=user|has_perm_to_link:object %}
    {% with create_linked_perm=creation_perm|and_op:link_perm %}
-    {% brick_header_action id='add'  url='emails__create_email'|url:object.id               label=_('Send a new related email')       enabled=create_linked_perm %}
-    {% brick_header_action id='add'  url='emails__create_email_from_template'|url:object.id label=_('Send a email (with a template)') enabled=create_linked_perm %}
-    {% brick_header_action id='link' url='emails__link_emails'|url:object.id                label=_('Link to emails')                 enabled=link_perm %}
+    {% brick_header_action id='add'  url='emails__create_email'|url:object.id               label=_('Send a new related email')        enabled=create_linked_perm %}
+    {% brick_header_action id='add'  url='emails__create_email_from_template'|url:object.id label=_('Send an email (with a template)') enabled=create_linked_perm %}
+    {% brick_header_action id='link' url='emails__link_emails'|url:object.id                label=_('Link to emails')                  enabled=link_perm %}
    {% endwith %}
   {% endwith %}
  {% endif %}
