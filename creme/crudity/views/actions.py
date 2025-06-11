@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from django.http import Http404, HttpResponse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.exceptions import BadRequestError
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.shortcuts import get_bulk_or_404
@@ -83,7 +84,9 @@ class ActionsRefreshing(RegistryMixin, generic.CheckedView):
     response_class = CremeJsonResponse
 
     def refresh(self, user) -> list[CrudityBackend]:
-        return self.crudity_registry.fetch(user)
+        # TODO: test workflow
+        with atomic(), run_workflow_engine(user=user):
+            return self.crudity_registry.fetch(user)
 
     def post(self, request, *args, **kwargs):
         return self.response_class(
@@ -149,7 +152,8 @@ class ActionsValidation(RegistryMixin, ActionsMixin, generic.CheckedView):
 
             backend = self.get_backend(action)
 
-            with atomic():
+            # TODO: test workflow
+            with atomic(), run_workflow_engine(user=request.user):
                 is_created = backend.create(action)
 
                 if is_created:

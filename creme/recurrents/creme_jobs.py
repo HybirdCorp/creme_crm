@@ -45,7 +45,7 @@ class _GenerateDocsType(JobType):
         )
 
     def _execute(self, job):
-        wf_engine = WorkflowEngine()
+        wf_engine = WorkflowEngine.get_current()
 
         # TODO: test is_working VS delete it (see next_wakeup() && job refreshing too)
         for generator in self._get_generators(now()):
@@ -57,15 +57,13 @@ class _GenerateDocsType(JobType):
             )
 
             if next_generation <= now():
-                with atomic():
+                with atomic(), wf_engine.run(user=None):
                     template = generator.template.get_real_entity()
 
                     template.create_entity()
 
                     generator.last_generation = next_generation
                     generator.save()
-
-                    wf_engine.run(user=None)
 
     # TODO: with docs generate the last time ?? (but stats will be cleaned at
     #       next run, even if nothing is generated...)

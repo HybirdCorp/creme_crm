@@ -39,6 +39,7 @@ from .base import (
 
 # class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
 class VcfImportTestCase(DocumentsTestCaseMixin, CremeTestCase):
+    IMPORT_URL = reverse('vcfs__import')
     image_data = (
         '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODw'
         'wQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoI'
@@ -88,12 +89,6 @@ class VcfImportTestCase(DocumentsTestCaseMixin, CremeTestCase):
         'FlBHDOEkJmm5kLnIc4xyOgHHQAe1FFc2K6AzT8PWEdjpNrGI9rLGODyV9vw6VY1G2a'
         '4jXYRuU9D3oorqS0sFtB2nxSQwbJcZzwM9BRRRTGf//Z'
     )
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        cls.IMPORT_URL = reverse('vcfs__import')
 
     def _post_step0(self, user, content):
         tmpfile = NamedTemporaryFile()

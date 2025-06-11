@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.models import CremeEntity, Relation, SettingValue
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views import generic
@@ -159,7 +160,8 @@ class UnsuccessfulPhoneCallCreation(generic.base.EntityRelatedMixin, generic.Che
         user = request.user
         self._pre_creation(user=user, entity=entity)
 
-        with atomic():
+        # TODO: unit test workflow
+        with atomic(), run_workflow_engine(user=request.user):
             activity = self._build_activity(user)
             activity.save()
             self._post_creation(user=user, activity=activity)

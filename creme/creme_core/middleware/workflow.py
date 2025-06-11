@@ -16,11 +16,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.utils.deprecation import MiddlewareMixin
 
 from ..core.workflow import WorkflowEngine
 
+logger = logging.getLogger(__name__)
 
+
+# TODO: rework doc (move to engine)
 class WorkflowMiddleware(MiddlewareMixin):
     """This Middleware runs the Workflow engine.
 
@@ -39,6 +44,12 @@ class WorkflowMiddleware(MiddlewareMixin):
     "generations" (instead of just one currently).
     """
     def process_response(self, request, response):
-        WorkflowEngine().run(user=request.user)
+        events = WorkflowEngine.get_current()._queue.pickup()
+        if events:
+            logger.critical(
+                'Some workflow events have not been managed the view "%s": %s '
+                'Hint: use creme.creme_core.core.workflow.run_workflow_engine()',
+                request.path, events,
+            )
 
         return response

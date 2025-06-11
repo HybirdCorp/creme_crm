@@ -26,7 +26,7 @@ import logging
 import re
 from typing import TYPE_CHECKING, Iterable, Iterator
 
-from django.db.models import signals
+from django.db.models import QuerySet, signals
 from django.dispatch import receiver
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
@@ -83,7 +83,7 @@ class _EntityEvent(WorkflowEvent):
         return isinstance(other, type(self)) and self._entity.id == other._entity.id
 
     def __repr__(self):
-        return f'{type(self).__name__}(entity={self._entity})'
+        return f'{type(self).__name__}(entity={self._entity!r})'
 
     @property
     def entity(self) -> CremeEntity:
@@ -141,10 +141,16 @@ class WorkflowEventQueue:
     (i.e. apply WorkflowActions) the events later (i.e. when the response is built),
     with a middleware (see 'creme_core.middleware.workflow.WorkflowMiddleware').
     """
-    cache_key = 'creme_core-workflows'
+    # cache_key = 'creme_core-workflows'
 
     def __init__(self):
         self._events: list[WorkflowEvent] = []
+
+    def __bool__(self):
+        return bool(self._events)
+
+    def __len__(self):
+        return len(self._events)
 
     def append(self, event: WorkflowEvent) -> WorkflowEventQueue:
         """Append a new event:
@@ -157,46 +163,29 @@ class WorkflowEventQueue:
 
         return self
 
-    @classmethod
-    def get_current(cls) -> WorkflowEventQueue:
-        """Get the instance of queue corresponding to the current HTTP request.
-        The instance is stored in the request cache (so we are sure to get a
-        unique instance of queue for the request).
-        """
-        cache = get_per_request_cache()
-        cache_key = cls.cache_key
-        queue = cache.get(cache_key)
-        if queue is None:
-            queue = cache[cache_key] = cls()
+    # @classmethod
+    # def get_current(cls) -> WorkflowEventQueue:
+    #     """Get the instance of queue corresponding to the current HTTP request.
+    #     The instance is stored in the request cache (so we are sure to get a
+    #     unique instance of queue for the request).
+    #     """
+    #     cache = get_per_request_cache()
+    #     cache_key = cls.cache_key
+    #     queue = cache.get(cache_key)
+    #     if queue is None:
+    #         queue = cache[cache_key] = cls()
+    #
+    #     return queue
 
-        return queue
-
-    def pickup(self) -> list[WorkflowEvent]:
+    # TODO: doc
+    def pickup(self, start=0) -> list[WorkflowEvent]:
         """Retrieve all contained events as a list & empty the queue.
         Useful to treat events & avoid recursion issues.
         """
         events = self._events
-        self._events = []
+        self._events, picked = events[:start], events[start:]
 
-        return events
-
-
-# NB: post_save (not pre_save) => no event is pushed if an error happens during the save
-@receiver(signals.post_save, dispatch_uid='creme_core-push_workflow_event')
-def _push_event(sender, instance, created, **kwargs):
-    """Fills the event queue."""
-    if issubclass(sender, CremeEntity):
-        WorkflowEventQueue.get_current().append(
-            EntityCreated(entity=instance) if created else EntityEdited(entity=instance)
-        )
-    elif issubclass(sender, Relation):
-        # TODO: should we only record the main side of the relationship as optimization?
-        # NB: we check the pk to avoid duplicated event caused by double save()
-        #     (reciprocal FKs)
-        if created:
-            WorkflowEventQueue.get_current().append(RelationAdded(relation=instance))
-    elif issubclass(sender, CremeProperty):
-        WorkflowEventQueue.get_current().append(PropertyAdded(creme_property=instance))
+        return picked
 
 
 # Triggers ---------------------------------------------------------------------
@@ -280,9 +269,7 @@ class BrokenTrigger(WorkflowTrigger):
 
     @property
     def description(self):
-        return format_html(
-            '<p class="errorlist">{message}</p>', message=self.message,
-        )
+        return format_html('<p class="errorlist">{message}</p>', message=self.message)
 
 
 # Sources ----------------------------------------------------------------------
@@ -670,14 +657,12 @@ class BrokenAction(WorkflowAction):
     def message(self):
         return self._message
 
-    def execute(self, context):
+    def execute(self, *args, **kwargs):
         # TODO: log?
         pass
 
     def render(self, user):
-        return format_html(
-            '<p class="errorlist">{message}</p>', message=self.message,
-        )
+        return format_html('<p class="errorlist">{message}</p>', message=self.message)
 
 
 # Registry ---------------------------------------------------------------------
@@ -922,39 +907,128 @@ workflow_registry = WorkflowRegistry()
 
 # Engine -----------------------------------------------------------------------
 class WorkflowEngine:
-    def __init__(self):
-        from ..models import Workflow
+    """Class which runs the configured Workflows.
 
-        self._queue = WorkflowEventQueue.get_current()
-        self._workflows = Workflow.objects.filter(enabled=True)
+    It's designed as a singleton per request (see the method 'get_get_current()'),
+    which owns the instance of WorkflowEventQueue used for the current request.
 
-    def run(self, user: CremeUser | None) -> None:
-        events = self._queue.pickup()
-        if events:
-            workflows = self._workflows
+    The best is to run the engine jointly with an 'atomic()' block which contains
+    all your DB changes, in order to:
+     - avoiding events which correspond to roll-backed DB changes.
+     - leaving some DB changes not managed by the engine.
 
-            for event in events:
-                for workflow in workflows:
-                    trigger = workflow.trigger
-                    ctxt = trigger.activate(event)
-                    if ctxt and workflow.conditions.accept(
-                        user=user, context=ctxt,
-                        detect_change=trigger.conditions_detect_change,
-                        use_or=trigger.conditions_use_or,
-                    ):
-                        for action in workflow.actions:
-                            logger.debug(
-                                'WorkflowEngine: execute the action: %s (workflow id=%s)',
-                                action, workflow.id,
-                            )
+     Example:
+         class MyView(...):
+            def post(self, request, *args, **kwargs):
+                [...]
+                engine = WorkflowEngine.get_current():
 
-                            try:
-                                action.execute(context=ctxt, user=user)
-                            except Exception:
-                                logger.exception('Error in the Workflow engine')
+                for entity in entities:
+                    with atomic(), engine.run(user=request.user):
+                        # here you modify 'entity', create Relations CremeProperties etc...
 
-            # NB: we ensure the queue is empty, so the engine ca be safely run
-            #     several times (e.g. in mass import job, each time a CSV line
-            #     has been managed), i.e. the events emitted by the actions are
-            #     ignored (& so they won't trigger the engine during the next call)
-            self._queue.pickup()  # TODO: self._queue.clear()?
+                return HttpResponse()
+    """
+    # TODO: <ContextDecorator>?
+    class _WorkflowEngineContextmanager:
+        """Internal Context manager class."""
+        def __init__(self, engine: WorkflowEngine, user: CremeUser | None):
+            self._engine = engine
+            self._user = user
+            self._start_index = len(engine._queue)
+
+        def __enter__(self):
+            pass
+
+        def __exit__(self, exc_type, exc_value, tb):
+            engine = self._engine
+            events = engine._queue.pickup(start=self._start_index)
+
+            if exc_type is None and events:
+                workflows = engine._workflows
+
+                for event in events:
+                    for workflow in workflows:
+                        trigger = workflow.trigger
+                        ctxt = trigger.activate(event)
+                        if ctxt and workflow.conditions.accept(
+                            user=self._user, context=ctxt,
+                            detect_change=trigger.conditions_detect_change,
+                            use_or=trigger.conditions_use_or,
+                        ):
+                            for action in workflow.actions:
+                                logger.debug(
+                                    'WorkflowEngine: execute the action: %s (workflow id=%s)',
+                                    action, workflow.id,
+                                )
+
+                                try:
+                                    action.execute(context=ctxt, user=self._user)
+                                except Exception:
+                                    logger.exception('Error in the Workflow engine')
+
+                # NB: we ensure all the events emitted by the actions are dropped
+                #     So they won't trigger the engine during a potential other call
+                #     And so the engine ca be safely run several times
+                #     (e.g. in mass import job, each time a CSV line has been managed).
+                engine._queue.pickup(start=self._start_index)
+
+    cache_key = 'creme_core-workflow_engine'
+
+    _queue: WorkflowEventQueue
+    _workflows: QuerySet  # QuerySet[Workflow]
+
+    @classmethod
+    def get_current(cls) -> WorkflowEngine:
+        """Get the instance of engine corresponding to the current HTTP request.
+        The instance is stored in the request cache (so we are sure to get a
+        unique instance of engine for the request).
+        """
+        cache = get_per_request_cache()
+        cache_key = cls.cache_key
+        wf = cache.get(cache_key)
+        if wf is None:
+            from ..models import Workflow
+
+            wf = cache[cache_key] = cls()
+            wf._queue = WorkflowEventQueue()
+            wf._workflows = Workflow.objects.filter(enabled=True)
+
+        return wf
+
+    def append_event(self, event: WorkflowEvent) -> WorkflowEngine:
+        """Append a new event to the queue.
+        See WorkflowEventQueue.append().
+        @return Self to chain calls.
+        """
+        self._queue.append(event)
+        return self
+
+    def run(self, user: CremeUser | None) -> _WorkflowEngineContextmanager:
+        """Create a context manager which manages all events spawned dring its lifetime."""
+        return self._WorkflowEngineContextmanager(self, user)
+
+
+def run_workflow_engine(user: CremeUser | None) -> WorkflowEngine._WorkflowEngineContextmanager:
+    """Helper function to use the context manager which run the Workflow engine."""
+    return WorkflowEngine.get_current().run(user=user)
+
+
+# Signal handler ---------------------------------------------------------------
+
+# NB: post_save (not pre_save) => no event is pushed if an error happens during the save
+@receiver(signals.post_save, dispatch_uid='creme_core-push_workflow_event')
+def _push_event(sender, instance, created, **kwargs):
+    """Fills the event queue."""
+    if issubclass(sender, CremeEntity):
+        WorkflowEngine.get_current().append_event(
+            EntityCreated(entity=instance) if created else EntityEdited(entity=instance)
+        )
+    elif issubclass(sender, Relation):
+        # TODO: should we only record the main side of the relationship as optimization?
+        # NB: we check the pk to avoid duplicated event caused by double save()
+        #     (reciprocal FKs)
+        if created:
+            WorkflowEngine.get_current().append_event(RelationAdded(relation=instance))
+    elif issubclass(sender, CremeProperty):
+        WorkflowEngine.get_current().append_event(PropertyAdded(creme_property=instance))

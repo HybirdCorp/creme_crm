@@ -311,14 +311,19 @@ class RelationAddingTrigger(WorkflowTrigger):
     def _activate(self, event: RelationAdded):
         rel = event.relation
 
+        # TODO: unit test new code + fix other triggers !!!!!!
         if (
             rel.type_id == self._rtype_id
-            and isinstance(rel.subject_entity, self._subject_model)
-            and isinstance(rel.object_entity, self._object_model)
+            # and isinstance(rel.subject_entity, self._subject_model)
+            and rel.subject_entity.entity_type.model_class() == self._subject_model
+            # and isinstance(rel.object_entity, self._object_model)
+            and rel.object_entity.entity_type.model_class() == self._object_model
         ):
             return {
                 SubjectEntitySource.type_id: rel.subject_entity,
-                ObjectEntitySource.type_id: rel.object_entity,
+                # SubjectEntitySource.type_id: rel.subject_entity.get_real_entity(),  TODO?
+                # ObjectEntitySource.type_id: rel.object_entity,
+                ObjectEntitySource.type_id: rel.object_entity.get_real_entity(),
             }
 
         return None

@@ -155,68 +155,85 @@ class WorkflowEventsTestCase(CremeTestCase):
         )
         self.assertNotEqual(evt, EntityCreated(entity=entity1))
 
-    def test_queue(self):
+
+class WorkflowEventQueueTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        user = cls.get_root_user()
+        cls.entity1 = FakeOrganisation.objects.create(user=user, name='Acme')
+        cls.entity2 = FakeContact.objects.create(
+            user=user, first_name='Bugs', last_name='Bunny',
+        )
+
+    def test_basic(self):
         queue = WorkflowEventQueue()
+        self.assertFalse(queue)
+        self.assertEqual(0, len(queue))
         self.assertListEqual([], queue.pickup())
 
         # ---
-        user = self.get_root_user()
-        entity1 = FakeOrganisation.objects.create(user=user, name='Acme')
-        entity2 = FakeContact.objects.create(user=user, first_name='Bugs', last_name='Bunny')
-
-        queue.append(EntityCreated(entity=entity1)).append(EntityEdited(entity=entity2))
+        queue.append(EntityCreated(entity=self.entity1)).append(EntityEdited(entity=self.entity2))
+        self.assertTrue(queue)
+        self.assertEqual(2, len(queue))
         self.assertListEqual(
-            [EntityCreated(entity=entity1), EntityEdited(entity=entity2)],
+            [EntityCreated(entity=self.entity1), EntityEdited(entity=self.entity2)],
             queue.pickup(),
         )
-
         self.assertListEqual([], queue.pickup())
 
+        # # ---
+        # global_queue = WorkflowEventQueue.get_current()
+        # self.assertIsInstance(global_queue, WorkflowEventQueue)
+        # self.assertIs(global_queue, WorkflowEventQueue.get_current())
+
+    def test_slice(self):
+        queue = WorkflowEventQueue()
+        self.assertListEqual([], queue.pickup(start=1))
+
         # ---
-        global_queue = WorkflowEventQueue.get_current()
-        self.assertIsInstance(global_queue, WorkflowEventQueue)
-        self.assertIs(global_queue, WorkflowEventQueue.get_current())
-
-    def test_queue__duplicate(self):
-        queue = WorkflowEventQueue()
-
-        user = self.get_root_user()
-        entity1 = FakeOrganisation.objects.create(user=user, name='Acme')
-        entity2 = FakeContact.objects.create(user=user, first_name='Bugs', last_name='Bunny')
-
-        queue.append(
-            EntityCreated(entity=entity1)
-        ).append(
-            EntityEdited(entity=entity2)
-        ).append(
-            EntityCreated(entity=entity1)  # Should not be appended
+        queue.append(EntityCreated(entity=self.entity1)).append(EntityEdited(entity=self.entity2))
+        self.assertListEqual(
+            [EntityEdited(entity=self.entity2)], queue.pickup(start=1),
         )
         self.assertListEqual(
-            [EntityCreated(entity=entity1), EntityEdited(entity=entity2)],
+            [EntityCreated(entity=self.entity1)], queue.pickup(start=0),
+        )
+        self.assertListEqual([], queue.pickup())
+
+    def test_duplicate(self):
+        queue = WorkflowEventQueue().append(
+            EntityCreated(entity=self.entity1)
+        ).append(
+            EntityEdited(entity=self.entity2)
+        ).append(
+            EntityCreated(entity=self.entity1)  # Should not be appended
+        )
+        self.assertListEqual(
+            [EntityCreated(entity=self.entity1), EntityEdited(entity=self.entity2)],
             queue.pickup(),
         )
 
-    def test_queue__inhibited(self):
-        queue = WorkflowEventQueue()
-
-        user = self.get_root_user()
-        entity1 = FakeOrganisation.objects.create(user=user, name='Acme')
-        entity2 = FakeContact.objects.create(user=user, first_name='Bugs', last_name='Bunny')
-
-        queue.append(
-            EntityCreated(entity=entity1)
+    def test_inhibited(self):
+        queue = WorkflowEventQueue().append(
+            EntityCreated(entity=self.entity1)
         ).append(
-            EntityEdited(entity=entity2)
+            EntityEdited(entity=self.entity2)
         ).append(
-            EntityEdited(entity=entity1)  # Should not be appended
+            EntityEdited(entity=self.entity1)  # Should not be appended
         )
         self.assertListEqual(
-            [EntityCreated(entity=entity1), EntityEdited(entity=entity2)],
+            [EntityCreated(entity=self.entity1), EntityEdited(entity=self.entity2)],
             queue.pickup(),
         )
 
-    def test_signal_handler__entity_created(self):
-        queue = WorkflowEventQueue.get_current()
+
+# signal handler
+class PushEventTestCase(CremeTestCase):
+    def test_entity_created(self):
+        # queue = WorkflowEventQueue.get_current()
+        queue = WorkflowEngine.get_current()._queue  # TODO: meh
         queue.pickup()
 
         orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='Acme')
@@ -226,8 +243,9 @@ class WorkflowEventsTestCase(CremeTestCase):
         self.assertIsInstance(event, EntityCreated)
         self.assertEqual(orga, event.entity)
 
-    def test_signal_handler__entity_created__error(self):
-        queue = WorkflowEventQueue.get_current()
+    def test_entity_created__error(self):
+        # queue = WorkflowEventQueue.get_current()
+        queue = WorkflowEngine.get_current()._queue  # TODO: meh
         queue.pickup()
 
         with self.assertRaises(IntegrityError):
@@ -237,8 +255,9 @@ class WorkflowEventsTestCase(CremeTestCase):
             )
         self.assertFalse(queue.pickup())
 
-    def test_signal_handler__entity_edited(self):
-        queue = WorkflowEventQueue.get_current()
+    def test_entity_edited(self):
+        # queue = WorkflowEventQueue.get_current()
+        queue = WorkflowEngine.get_current()._queue  # TODO: meh
 
         orga = self.refresh(
             FakeOrganisation.objects.create(user=self.get_root_user(), name='Acme')
@@ -253,8 +272,9 @@ class WorkflowEventsTestCase(CremeTestCase):
         self.assertIsInstance(event, EntityEdited)
         self.assertEqual(orga, event.entity)
 
-    def test_signal_handler__property_added(self):
-        queue = WorkflowEventQueue.get_current()
+    def test_property_added(self):
+        # queue = WorkflowEventQueue.get_current()
+        queue = WorkflowEngine.get_current()._queue  # TODO: meh
 
         user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Acme')
@@ -269,8 +289,9 @@ class WorkflowEventsTestCase(CremeTestCase):
         self.assertIsInstance(event, PropertyAdded)
         self.assertEqual(prop, event.creme_property)
 
-    def test_signal_handler__relation_added(self):
-        queue = WorkflowEventQueue.get_current()
+    def test_relation_added(self):
+        # queue = WorkflowEventQueue.get_current()
+        queue = WorkflowEngine.get_current()._queue  # TODO: meh
 
         user = self.get_root_user()
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -770,7 +791,7 @@ class WorkflowEngineTestCase(CremeTestCase):
             ('test-subject_bought', 'is bought by'),
             ('test-object_bought',  'buys'),
         )[0]
-        orga1 = FakeOrganisation.objects.create(user=user2)
+        orga1 = FakeOrganisation.objects.create(user=user2, name='Acme')
 
         Workflow.objects.create(
             title='Created Organisations are cool',
@@ -785,14 +806,18 @@ class WorkflowEngineTestCase(CremeTestCase):
             ],
         )
 
-        orga2 = FakeOrganisation.objects.create(user=user2, name='NERV')
-        WorkflowEngine().run(user=user1)
+        wf = WorkflowEngine.get_current()
+        self.assertIsInstance(wf, WorkflowEngine)
+
+        with wf.run(user=user1):
+            orga2 = FakeOrganisation.objects.create(user=user2, name='NERV')
 
         rel = self.assertHaveRelation(subject=orga2, type=rtype, object=orga1)
         self.assertEqual(user1, rel.user)
 
         # Ensure the queue is empty
-        self.assertFalse(WorkflowEventQueue.get_current().pickup())
+        # self.assertFalse(WorkflowEventQueue.get_current().pickup())
+        # self.assertFalse(wf._queue.pickup())  # Meh  # TODO: remaining events as in middleware?
 
     def test_disabled(self):
         user = self.get_root_user()
@@ -811,8 +836,8 @@ class WorkflowEngineTestCase(CremeTestCase):
             ],
         )
 
-        orga = FakeOrganisation.objects.create(user=user, name='NERV')
-        WorkflowEngine().run(user=user)
+        with WorkflowEngine.get_current().run(user=user):
+            orga = FakeOrganisation.objects.create(user=user, name='NERV')
         self.assertHasNoProperty(entity=orga, ptype=ptype)
 
     def test_conditions__creation(self):
@@ -835,10 +860,11 @@ class WorkflowEngineTestCase(CremeTestCase):
         )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        orga1 = create_orga(name='NERV')
-        orga2 = create_orga(name='Seele Corp')
 
-        WorkflowEngine().run(user=None)
+        with WorkflowEngine.get_current().run(user=None):
+            orga1 = create_orga(name='NERV')
+            orga2 = create_orga(name='Seele Corp')
+
         self.assertHasNoProperty(entity=orga1, ptype=ptype)
         self.assertHasProperty(entity=orga2, ptype=ptype)
 
@@ -875,9 +901,10 @@ class WorkflowEngineTestCase(CremeTestCase):
             orga.save()
 
         self.clear_global_info()  # Empty the queue to allow edition events
-        edit_orga(orga=orga1, name=f'{orga1.name}{suffix}', description='Build mechas')
-        edit_orga(orga=orga2, name=orga2.name, description='Be evil')
-        WorkflowEngine().run(user=None)
+
+        with WorkflowEngine.get_current().run(user=None):
+            edit_orga(orga=orga1, name=f'{orga1.name}{suffix}', description='Build mechas')
+            edit_orga(orga=orga2, name=orga2.name, description='Be evil')
 
         self.assertHasProperty(entity=orga1, ptype=ptype)
         self.assertHasNoProperty(entity=orga2, ptype=ptype)  # No change => no action
@@ -912,12 +939,52 @@ class WorkflowEngineTestCase(CremeTestCase):
         orga = self.refresh(model.objects.create(user=user, name='NERV'))
         self.clear_global_info()  # Empty the queue to allow edition events
 
-        orga.name = f'{orga.name}{name_suffix}'
-        orga.email = 'nerv@contact.jp'
-        orga.save()
+        with WorkflowEngine.get_current().run(user=None):
+            orga.name = f'{orga.name}{name_suffix}'
+            orga.email = 'nerv@contact.jp'
+            orga.save()
 
-        WorkflowEngine().run(user=None)
         self.assertHasProperty(entity=orga, ptype=ptype)
+
+    def test_nested_contexts(self):
+        user = self.get_root_user()
+
+        ptype = CremePropertyType.objects.create(text='Is cool')
+        source = CreatedEntitySource(model=FakeOrganisation)
+        suffix = ' Corp'
+        Workflow.objects.create(
+            title='Created Corporations are cool',
+            content_type=FakeOrganisation,
+            trigger=EntityCreationTrigger(model=FakeOrganisation),
+            conditions=WorkflowConditions().add(
+                source=source,
+                conditions=[condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator=EndsWithOperator, field_name='name', values=[suffix],
+                )],
+            ),
+            actions=[PropertyAddingAction(entity_source=source, ptype=ptype)],
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+
+        self.clear_global_info()  # Empty the queue to test is length
+        engine = WorkflowEngine.get_current()
+
+        # with WorkflowEngine.get_current().run(user=None):
+        with engine.run(user=None):
+            orga1 = create_orga(name=f'NERV{suffix}')
+
+            with WorkflowEngine.get_current().run(user=None):
+                orga2 = create_orga(name=f'Seele{suffix}')
+                self.assertEqual(2, len(engine._queue))  # Meh
+
+            self.assertHasNoProperty(entity=orga1, ptype=ptype)
+            self.assertHasProperty(entity=orga2, ptype=ptype)
+            self.assertEqual(1, len(engine._queue))  # Meh
+
+        self.assertHasProperty(entity=orga1, ptype=ptype)
+        self.assertEqual(0, len(engine._queue))  # Meh
 
 
 class WorkflowEngineRollbackTestCase(CremeTransactionTestCase):
@@ -944,7 +1011,7 @@ class WorkflowEngineRollbackTestCase(CremeTransactionTestCase):
         create_orga = partial(FakeOrganisation.objects.create, user=user)
 
         try:
-            with atomic():
+            with atomic(), WorkflowEngine.get_current().run(user=None):
                 create_orga(name='NERV')
                 create_orga(name='Seele Corp')
                 raise ValueError('Rollback now!!')
@@ -954,9 +1021,6 @@ class WorkflowEngineRollbackTestCase(CremeTransactionTestCase):
             self.fail('??')
 
         self.assertEqual(orga_count, FakeOrganisation.objects.count())
-        # TODO: assert no event in the queue?
-
-        WorkflowEngine().run(user=None)
         self.assertFalse(CremeProperty.objects.filter(type=ptype))
 
     def test_edition(self):
@@ -996,8 +1060,10 @@ class WorkflowEngineRollbackTestCase(CremeTransactionTestCase):
 
         self.clear_global_info()  # Empty the queue to allow edition events
 
+        engine = WorkflowEngine.get_current()
+
         try:
-            with atomic():
+            with atomic(), engine.run(user=None):
                 edit_orga(orga=orga1, name=f'{orga1.name}{suffix}', description='Build mechas')
                 edit_orga(orga=orga2, name=orga2.name, description='Be evil')
                 raise ValueError('Rollback now!!')
@@ -1006,8 +1072,7 @@ class WorkflowEngineRollbackTestCase(CremeTransactionTestCase):
         else:
             self.fail('??')
 
-        # TODO: assert no event in the queue?
-        WorkflowEngine().run(user=None)
+        self.assertEqual(0, len(engine._queue))  # Meh
 
         orga1 = self.refresh(orga1)
         self.assertEqual(name1, orga1.name)

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,6 +44,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme import documents, persons
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.forms import (
     LAYOUT_DUAL_FIRST,
     LAYOUT_DUAL_SECOND,
@@ -872,21 +873,22 @@ class VcfImportForm(CremeModelForm):
             )
             image.save()
 
-    @atomic
     def save(self, *args, **kwargs):
         contact = self.instance
-        self._save_image()
-        super().save(*args, **kwargs)
-        self._save_customfields(contact, self._contact_cfields)
 
-        contact_addr = self.contact_address
-        if contact_addr is not None:
-            contact_addr.owner = contact
-            contact_addr.save()
+        with atomic(), run_workflow_engine(user=self.user):
+            self._save_image()
+            super().save(*args, **kwargs)
+            self._save_customfields(contact, self._contact_cfields)
 
-            contact.billing_address = contact_addr
-            contact.save()
+            contact_addr = self.contact_address
+            if contact_addr is not None:
+                contact_addr.owner = contact
+                contact_addr.save()
 
-        self._create_orga(contact)
+                contact.billing_address = contact_addr
+                contact.save()
+
+            self._create_orga(contact)
 
         return contact

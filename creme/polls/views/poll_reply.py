@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2024  Hybird
+#    Copyright (C) 2012-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,6 +34,7 @@ from creme.creme_core.auth.decorators import (
     login_required,
     permission_required,
 )
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.http import is_ajax
 from creme.creme_core.templatetags.creme_widgets import (
     get_icon_by_name,
@@ -117,23 +118,24 @@ def edit_line_wizard(request, preply_id, line_id):
         )
 
         if form.is_valid():
-            form.save()
+            with run_workflow_engine(user=user):
+                form.save()
 
-            # Optimize 'next_question_to_answer' & cie
-            PollReplyLine.populate_conditions([
-                node for node in tree if not node.is_section
-            ])
+                # Optimize 'next_question_to_answer' & cie
+                PollReplyLine.populate_conditions([
+                    node for node in tree if not node.is_section
+                ])
 
-            _clear_dependant_answers(tree, line_node)
+                _clear_dependant_answers(tree, line_node)
 
-            if not tree.next_question_to_answer:
-                is_complete = True
-                url = preply.get_absolute_url()
-            else:
-                is_complete = False
-                url = reverse('polls__fill_reply', args=(preply_id,))
+                if not tree.next_question_to_answer:
+                    is_complete = True
+                    url = preply.get_absolute_url()
+                else:
+                    is_complete = False
+                    url = reverse('polls__fill_reply', args=(preply_id,))
 
-            update_model_instance(preply, is_complete=is_complete)
+                update_model_instance(preply, is_complete=is_complete)
 
             return HttpResponseRedirect(url)
     else:
@@ -187,15 +189,16 @@ def fill(request, preply_id):
         )
 
         if form.is_valid():
-            form.save()
+            with run_workflow_engine(user=user):
+                form.save()
 
-            next_line = tree.next_question_to_answer
+                next_line = tree.next_question_to_answer
 
-            if not next_line:
-                preply.is_complete = True
-                preply.save()
+                if not next_line:
+                    preply.is_complete = True
+                    preply.save()
 
-                return redirect(preply)
+                    return redirect(preply)
 
             previous_answer = _format_previous_answered_question(
                 preply_id, line_node, NodeStyle(),
@@ -386,7 +389,7 @@ class PollReplyCleaning(generic.base.EntityRelatedMixin, generic.CheckedView):
         return get_from_POST_or_404(self.request.POST, self.preply_id_arg)
 
     def post(self, request, *args, **kwargs):
-        with atomic():
+        with atomic(), run_workflow_engine(user=request.user):
             preply = self.get_related_entity()
             self.clean(preply)
 

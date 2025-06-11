@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from django.utils.translation import pgettext
 
 from creme.creme_core.auth import build_link_perm
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.forms import validators
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.gui.listview import CreationButton
@@ -252,10 +253,11 @@ class OrganisationUnmanage(generic.base.EntityRelatedMixin, generic.CheckedView)
     def get_related_entity_id(self):
         return get_from_POST_or_404(self.request.POST, self.organisation_id_arg, cast=int)
 
-    def post(self, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         orga = self.get_related_entity()
 
-        with atomic():
+        # TODO: test workflow
+        with atomic(), run_workflow_engine(user=request.user):
             self.update(orga)
 
         return HttpResponse()

@@ -27,6 +27,7 @@ from django.utils.translation import gettext as _
 
 from creme import billing
 from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.http import is_ajax
 from creme.creme_core.models import Relation, RelationType, SettingValue, Vat
 from creme.creme_core.views.generic import base
@@ -81,11 +82,13 @@ class CurrentQuoteSetting(base.CheckedView):
 
         relations = Relation.objects.filter(**kwargs)
 
-        if action == 'set_current':
-            if not relations:
-                Relation.objects.safe_create(**kwargs, user=user)
-        else:  # action == 'unset_current':
-            relations.delete()
+        # TODO: unit test workflow
+        with atomic(), run_workflow_engine(user=user):
+            if action == 'set_current':
+                if not relations:
+                    Relation.objects.safe_create(**kwargs, user=user)
+            else:  # action == 'unset_current':
+                relations.delete()
 
         if is_ajax(request):
             return HttpResponse()
@@ -122,7 +125,7 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_link_or_die(entity)
 
-    @atomic
+    # @atomic
     def post(self, request, *args, **kwargs):
         klass = self.get_ctype().model_class()
 
@@ -142,51 +145,53 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
 
         opp = self.get_related_entity()
 
-        b_document = klass.objects.create(
-            user=user,
-            issuing_date=now(),
-            status_id=1,
-            currency=opp.currency,
-            source=opp.emitter,
-            target=opp.target,
-        )
+        # TODO: unit test workflow
+        with atomic(), run_workflow_engine(user=user):
+            b_document = klass.objects.create(
+                user=user,
+                issuing_date=now(),
+                status_id=1,
+                currency=opp.currency,
+                source=opp.emitter,
+                target=opp.target,
+            )
 
-        create_relation = partial(
-            Relation.objects.create, subject_entity=b_document, user=user,
-        )
-        create_relation(type=rtype, object_entity=opp)
+            create_relation = partial(
+                Relation.objects.create, subject_entity=b_document, user=user,
+            )
+            create_relation(type=rtype, object_entity=opp)
 
-        # b_document.generate_number()  # Need the relationship with emitter organisation
-        b_document.generate_number_in_create = True
-        b_document.name = self.generated_name.format(document=b_document, opportunity=opp)
-        b_document.save()
+            # b_document.generate_number()  # Need the relationship with emitter organisation
+            b_document.generate_number_in_create = True
+            b_document.name = self.generated_name.format(document=b_document, opportunity=opp)
+            b_document.save()
 
-        relations = Relation.objects.filter(
-            subject_entity=opp.id,
-            type__in=[
-                constants.REL_OBJ_LINKED_PRODUCT,
-                constants.REL_OBJ_LINKED_SERVICE,
-            ],
-        ).prefetch_related('real_object')
+            relations = Relation.objects.filter(
+                subject_entity=opp.id,
+                type__in=[
+                    constants.REL_OBJ_LINKED_PRODUCT,
+                    constants.REL_OBJ_LINKED_SERVICE,
+                ],
+            ).prefetch_related('real_object')
 
-        if relations:
-            vat_value = Vat.objects.default()
-            Product = get_product_model()
+            if relations:
+                vat_value = Vat.objects.default()
+                Product = get_product_model()
 
-            for relation in relations:
-                item = relation.real_object
-                line_klass = ProductLine if isinstance(item, Product) else ServiceLine
-                line_klass.objects.create(
-                    related_item=item,
-                    related_document=b_document,
-                    unit_price=item.unit_price,
-                    unit=item.unit,
-                    vat_value=vat_value,
-                )
+                for relation in relations:
+                    item = relation.real_object
+                    line_klass = ProductLine if isinstance(item, Product) else ServiceLine
+                    line_klass.objects.create(
+                        related_item=item,
+                        related_document=b_document,
+                        unit_price=item.unit_price,
+                        unit=item.unit,
+                        vat_value=vat_value,
+                    )
 
-        if set_as_current:
-            # TODO: what if RelationType disabled?
-            create_relation(type_id=constants.REL_SUB_CURRENT_DOC, object_entity=opp)
+            if set_as_current:
+                # TODO: what if RelationType disabled?
+                create_relation(type_id=constants.REL_SUB_CURRENT_DOC, object_entity=opp)
 
         # if workflow_action:
         #     workflow_action(opp.emitter, opp.target, user)

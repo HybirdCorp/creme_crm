@@ -1,5 +1,8 @@
 from django.db.models import Q
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 
+from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.views import generic
 
 from ..tests import fake_forms, fake_models
@@ -62,6 +65,16 @@ class FakeOrganisationDetail(generic.EntityDetail):
     model = fake_models.FakeOrganisation
     # template_name = 'creme_core/tests/view-fake-organisation.html'  TODO ?
     pk_url_kwarg = 'orga_id'
+
+
+@login_required
+def workflow_not_called(request, orga_id):
+    orga = get_object_or_404(fake_models.FakeOrganisation, id=orga_id)
+
+    orga.description = 'Engine not called'
+    orga.save()
+
+    return HttpResponse()
 
 
 class FakeOrganisationsList(generic.EntitiesList):

@@ -101,7 +101,7 @@ class _BatchProcessType(JobType):
         )
         actions = [*self._get_actions(model, job_data)]
         create_result = partial(EntityJobResult.objects.create, job=job)
-        wf_engine = WorkflowEngine()
+        wf_engine = WorkflowEngine.get_current()
 
         for entities_page in paginator.pages():
             for entity in entities_page.object_list:
@@ -110,7 +110,7 @@ class _BatchProcessType(JobType):
 
                 changed = False
 
-                with atomic():
+                with atomic(), wf_engine.run(user=None):
                     try:
                         final_entity = model.objects.select_for_update().get(id=entity.id)
                     except model.DoesNotExist:
@@ -131,7 +131,6 @@ class _BatchProcessType(JobType):
                         else:
                             final_entity.save()
                             create_result(real_entity=final_entity)
-                            wf_engine.run(user=None)
 
     def progress(self, job):
         count = EntityJobResult.objects.filter(job=job).count()

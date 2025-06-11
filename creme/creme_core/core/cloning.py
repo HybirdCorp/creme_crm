@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024 Hybird
+#    Copyright (C) 2024-2025 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,7 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, CremeUser
 
 from . import copying
+from .workflow import run_workflow_engine
 
 
 class EntityCloner:
@@ -72,7 +73,6 @@ class EntityCloner:
 
         return save
 
-    @atomic
     def perform(self, *, user: CremeUser, entity: CremeEntity) -> CremeEntity:
         """Performs the cloning.
 
@@ -82,10 +82,12 @@ class EntityCloner:
         """
         clone = self._build_instance(user=user, source=entity)
 
-        self._pre_save(user=user, source=entity, target=clone)
-        clone.save()
-        if self._post_save(user=user, source=entity, target=clone):
+        # TODO: unit test workflow
+        with atomic(), run_workflow_engine(user=user):
+            self._pre_save(user=user, source=entity, target=clone)
             clone.save()
+            if self._post_save(user=user, source=entity, target=clone):
+                clone.save()
 
         return clone
 

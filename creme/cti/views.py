@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,6 +31,7 @@ import creme.activities.constants as act_constants
 from creme import activities, persons
 from creme.activities.models import ActivitySubType, Calendar, Status
 from creme.creme_core.auth import build_creation_perm as cperm
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.shortcuts import get_bulk_or_404
@@ -139,28 +140,31 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
         entity = self.get_related_entity()
 
         pcall = self.build_phonecall()
-        pcall.save()
 
-        # If the entity is a contact with related user, should add the phone call to his calendar
-        if isinstance(entity, Contact) and entity.is_user:
-            users.append(entity.is_user)
+        with atomic(), run_workflow_engine(user=user):
+            pcall.save()
 
-        pcall.calendars.add(*Calendar.objects.get_default_calendars(users).values())
+            # If the entity is a contact with related user, should add the
+            # phone call to his calendar
+            if isinstance(entity, Contact) and entity.is_user:
+                users.append(entity.is_user)
 
-        # TODO: link credentials
-        caller_rtype = act_constants.REL_SUB_PART_2_ACTIVITY
-        entity_rtype = (
-            act_constants.REL_SUB_PART_2_ACTIVITY
-            if isinstance(entity, Contact) else
-            act_constants.REL_SUB_LINKED_2_ACTIVITY
-        )
-        rtypes_map = get_bulk_or_404(RelationType, id_list=[caller_rtype, entity_rtype])
+            pcall.calendars.add(*Calendar.objects.get_default_calendars(users).values())
 
-        create_rel = partial(Relation.objects.create, object_entity=pcall, user=user)
+            # TODO: link credentials
+            caller_rtype = act_constants.REL_SUB_PART_2_ACTIVITY
+            entity_rtype = (
+                act_constants.REL_SUB_PART_2_ACTIVITY
+                if isinstance(entity, Contact) else
+                act_constants.REL_SUB_LINKED_2_ACTIVITY
+            )
+            rtypes_map = get_bulk_or_404(RelationType, id_list=[caller_rtype, entity_rtype])
 
-        if entity.pk != user_contact.pk:
-            create_rel(subject_entity=user_contact, type=rtypes_map[caller_rtype])
-        create_rel(subject_entity=entity, type=rtypes_map[entity_rtype])
+            create_rel = partial(Relation.objects.create, object_entity=pcall, user=user)
+
+            if entity.pk != user_contact.pk:
+                create_rel(subject_entity=user_contact, type=rtypes_map[caller_rtype])
+            create_rel(subject_entity=entity, type=rtypes_map[entity_rtype])
 
         return pcall
 
@@ -173,7 +177,6 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
     def get_title_format_data(self):
         return {'entity': self.get_related_entity()}
 
-    @atomic
     def post(self, *args, **kwargs):
         return redirect(self.create_related_phonecall())
 
@@ -186,7 +189,6 @@ class AsCallerPhoneCallCreation(PhoneCallCreation):
     def get_related_entity_id(self):
         return get_from_POST_or_404(self.request.POST, self.entity_id_arg)
 
-    @atomic
     def post(self, request, *args, **kwargs):
         pcall = self.create_related_phonecall()
 

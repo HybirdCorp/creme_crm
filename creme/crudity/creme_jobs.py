@@ -18,6 +18,7 @@
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.transaction import atomic
 from django.utils.functional import lazy
 from django.utils.translation import gettext, ngettext
 
@@ -58,18 +59,19 @@ class _CruditySynchronizeType(JobType):
 
             user = CremeUser.objects.get_admin()
 
-        count = len(self.crudity_registry.fetch(user))
-        JobResult.objects.create(
-            job=job,
-            messages=[
-                ngettext(
-                    'There is {count} change',
-                    'There are {count} changes',
-                    count,
-                ).format(count=count),
-            ],
-        )
-        WorkflowEngine().run(user=None)  # TODO: unit test
+        # TODO: unit test
+        with atomic(), WorkflowEngine.get_current().run(user=None):
+            count = len(self.crudity_registry.fetch(user))
+            JobResult.objects.create(
+                job=job,
+                messages=[
+                    ngettext(
+                        'There is {count} change',
+                        'There are {count} changes',
+                        count,
+                    ).format(count=count),
+                ],
+            )
 
     def get_config_form_class(self, job):
         from .forms import CruditySynchronizeJobForm

@@ -1378,7 +1378,7 @@ class ImportForm(CremeModelForm):
             for i in range(MassImportJobResult.objects.filter(job=job).count()):
                 next(lines)
 
-            wf_engine = WorkflowEngine()
+            wf_engine = WorkflowEngine.get_current()
             append_error = self.append_error
             key_fields = frozenset(get_cleaned('key_fields'))
 
@@ -1389,7 +1389,7 @@ class ImportForm(CremeModelForm):
                 job_result = MassImportJobResult(job=job, line=line)
 
                 try:
-                    with atomic():
+                    with atomic(), wf_engine.run(user=None):
                         instance = model_class()
 
                         # 'True' means: object has been updated, not created from scratch
@@ -1475,7 +1475,6 @@ class ImportForm(CremeModelForm):
                     job_result.messages = self.import_errors
                     job_result.save()
 
-                wf_engine.run(user=None)
                 self.import_errors.clear()
 
 

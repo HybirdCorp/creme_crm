@@ -33,6 +33,7 @@ from creme.creme_core.auth.decorators import (
     permission_required,
 )
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.content_type import get_ctype_or_404
 from creme.creme_core.views import generic
@@ -251,8 +252,10 @@ def multi_save_lines(request, document_id):
             context={'errors': errors}, status=409,
         )
 
-    # Save all formsets now that we have not detected any errors
-    for formset in formset_to_save:
-        formset.save()
+    # TODO: unit test workflow
+    with run_workflow_engine(user=user):
+        # Save all formsets now that we have not detected any errors
+        for formset in formset_to_save:
+            formset.save()
 
     return HttpResponse()

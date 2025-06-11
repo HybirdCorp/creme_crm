@@ -35,14 +35,14 @@ class _EntityEmailsSendType(JobType):
     periodic = JobType.PSEUDO_PERIODIC
 
     def _execute(self, job):
-        wf_engine = WorkflowEngine()
+        wf_engine = WorkflowEngine.get_current()
         Status = EntityEmail.Status
 
         for email in EntityEmail.objects.exclude(is_deleted=True).filter(
             status__in=[Status.NOT_SENT, Status.SENDING_ERROR],
         ):
-            email.send()
-            wf_engine.run(user=None)
+            with wf_engine.run(user=None):  # TODO: atomic?
+                email.send()
 
     # We have to implement it because it is a PSEUDO_PERIODIC JobType
     def next_wakeup(self, job, now_value):

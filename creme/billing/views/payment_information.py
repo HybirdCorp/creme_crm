@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.views import generic
 from creme.persons import get_organisation_model
@@ -108,7 +109,6 @@ class PaymentInformationAsDefault(generic.base.EntityRelatedMixin, generic.Check
             pk=self.kwargs[self.payment_info_id_url_kwarg],
         )
 
-    @atomic
     def post(self, request, *args, **kwargs):
         pi = self.get_payment_information()
         billing_doc = self.get_related_entity()
@@ -128,6 +128,9 @@ class PaymentInformationAsDefault(generic.base.EntityRelatedMixin, generic.Check
             raise ConflictError('The related organisation does not match.')
 
         billing_doc.payment_info = pi
-        billing_doc.save()
+
+        # TODO: test workflow
+        with atomic(), run_workflow_engine(user=user):
+            billing_doc.save()
 
         return HttpResponse()

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -67,6 +67,7 @@ from ..core.exceptions import (
     SpecificProtectedError,
 )
 from ..core.paginator import FlowPaginator
+from ..core.workflow import run_workflow_engine
 from ..creme_jobs import trash_cleaner_type
 from ..forms import CremeEntityForm
 from ..forms.listview import ListViewSearchForm
@@ -1188,6 +1189,7 @@ class TrashCleaning(generic.base.TitleMixin, generic.CheckedView):
                 raise ConflictError(self.conflict_msg)
 
         try:
+            # TODO: workflow?
             with atomic():
                 job = Job.objects.create(type_id=self.job_type.id, user=user)
                 cmd_model.objects.create(user=user, job=job)
@@ -1247,10 +1249,12 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
 
         user.has_perm_to_delete_or_die(entity)
 
-    @atomic
     def post(self, request, *args, **kwargs):
         entity = self.get_related_entity()
-        entity.restore()
+
+        # TODO: test workflow
+        with atomic(), run_workflow_engine(user=request.user):
+            entity.restore()
 
         return HttpResponse() if is_ajax(request) else redirect(entity)
 
@@ -1417,7 +1421,8 @@ class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
         user = request.user
         errors = defaultdict(list)
 
-        with atomic():
+        # TODO: test workflow
+        with atomic(), run_workflow_engine(user=user):
             entities = [*CremeEntity.objects.select_for_update().filter(pk__in=entity_ids)]
 
             len_diff = len(entity_ids) - len(entities)
@@ -1526,7 +1531,8 @@ class EntityDeletion(EntityDeletionMixin,
         user = request.user
         deletor.check_permissions(entity=entity, user=user)
 
-        with atomic():
+        # TODO: test workflow
+        with atomic(), run_workflow_engine(user=user):
             self.delete_entity(entity=entity, user=user, deletor=deletor)
 
 
@@ -1585,27 +1591,27 @@ class SuperusersRestriction(base.CheckedView):
             id=self.get_entity_id(),
         )
 
-    @atomic
     def post(self, request, *args, **kwargs):
         set_sandbox = self.get_enable_sandbox()
         entity = self.get_entity()
 
-        if set_sandbox:
-            if entity.sandbox_id:
-                raise ConflictError('This entity is already in a sandbox.')
+        with atomic(), run_workflow_engine(user=request.user):
+            if set_sandbox:
+                if entity.sandbox_id:
+                    raise ConflictError('This entity is already in a sandbox.')
 
-            entity.sandbox = Sandbox.objects.get(uuid=self.sandbox_uuid)
-            entity.save()
-        else:
-            sandbox = entity.sandbox
+                entity.sandbox = Sandbox.objects.get(uuid=self.sandbox_uuid)
+                entity.save()
+            else:
+                sandbox = entity.sandbox
 
-            if not sandbox or str(sandbox.uuid) != self.sandbox_uuid:
-                raise ConflictError(
-                    'This entity is not in the "Restricted to superusers" sandbox.'
-                )
+                if not sandbox or str(sandbox.uuid) != self.sandbox_uuid:
+                    raise ConflictError(
+                        'This entity is not in the "Restricted to superusers" sandbox.'
+                    )
 
-            entity.sandbox = None
-            entity.save()
+                entity.sandbox = None
+                entity.save()
 
         return HttpResponse()
 

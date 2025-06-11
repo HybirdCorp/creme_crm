@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from django.utils.translation import gettext as _
 from creme.billing.models import Base
 from creme.creme_core.core import copying
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.models import CremeUser
 
 
@@ -106,17 +107,17 @@ class Converter:
 
         return save
 
-    @atomic
     def perform(self) -> Base:
         """Performs the conversion."""
         converted = self._build_instance()
         user = self._user
         source = self._source
 
-        self._pre_save(user=user, source=source, target=converted)
-        converted.save()
-        if self._post_save(user=user, source=source, target=converted):
+        with atomic(), run_workflow_engine(user=user):
+            self._pre_save(user=user, source=source, target=converted)
             converted.save()
+            if self._post_save(user=user, source=source, target=converted):
+                converted.save()
 
         return converted
 
