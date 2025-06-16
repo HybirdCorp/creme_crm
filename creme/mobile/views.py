@@ -43,6 +43,7 @@ from creme import persons
 from creme.activities import get_activity_model
 from creme.activities.models import ActivitySubType, Calendar, Status
 from creme.creme_core.auth.decorators import login_required
+from creme.creme_core.core.cloning import entity_cloner_registry
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, EntityCredentials, Relation
 from creme.creme_core.utils import get_from_GET_or_404, get_from_POST_or_404
@@ -727,7 +728,12 @@ def phonecall_workflow_postponed(request):
     postponed.start = make_aware(dt_combine(tomorrow, time(hour=0,  minute=0)))
     postponed.end   = make_aware(dt_combine(tomorrow, time(hour=23, minute=59)))
 
-    postponed.clone()
+    # postponed.clone()
+    cloner = entity_cloner_registry.get(model=type(postponed))
+    # TODO: test
+    if cloner is None:
+        raise ConflictError(_('This model does not use the generic clone view.'))
+    cloner.perform(user=request.user, entity=postponed)
 
     return ''
 
