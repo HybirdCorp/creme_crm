@@ -4,9 +4,9 @@ from random import randint
 from django.urls import reverse
 from django.utils.timezone import now
 
-from creme.activities import get_activity_model
+from creme import activities, persons
+# from creme.activities.constants import FLOATING
 from creme.activities.constants import (
-    FLOATING,
     REL_SUB_PART_2_ACTIVITY,
     UUID_SUBTYPE_MEETING_NETWORK,
     UUID_SUBTYPE_PHONECALL_OUTGOING,
@@ -14,11 +14,10 @@ from creme.activities.constants import (
 from creme.activities.models import ActivitySubType
 from creme.creme_core.models import Relation
 from creme.creme_core.tests.base import CremeTestCase
-from creme.persons import get_contact_model, get_organisation_model
 
-Contact = get_contact_model()
-Organisation = get_organisation_model()
-Activity = get_activity_model()
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+Activity = activities.get_activity_model()
 
 
 class MobileBaseTestCase(CremeTestCase):
@@ -37,7 +36,8 @@ class MobileBaseTestCase(CremeTestCase):
             type_id=sub_type.type_id,
             sub_type=sub_type,
             status=status,
-            floating_type=FLOATING,
+            # floating_type=FLOATING,
+            floating_type=Activity.FloatingType.FLOATING,
         )
 
         Relation.objects.create(
