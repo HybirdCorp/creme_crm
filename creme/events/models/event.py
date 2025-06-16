@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2010-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.transaction import atomic
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -138,6 +139,7 @@ class AbstractEvent(CremeEntity):
             'visitors_count':    get_count(constants.REL_OBJ_CAME_EVENT, 0),
         }
 
+    @atomic
     def set_invitation_status(self, contact, status, user):
         relations = Relation.objects
 
@@ -195,6 +197,7 @@ class AbstractEvent(CremeEntity):
                         object_entity=self.id,
                     ).delete()
 
+    @atomic
     def set_presence_status(self, contact, status, user):
         relations = Relation.objects
 
