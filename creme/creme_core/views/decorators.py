@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2022  Hybird
+#    Copyright (C) 2013-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,6 +42,15 @@ def _check_required_model_fields(model, *field_names):
 
 
 def require_model_fields(model, *field_names):
+    """Decorates a view which needs some model fields to be visible (see FieldsConfig).
+    An error 409 is raised if a field is hidden.
+
+    Example:
+
+        @require_model_fields(Contact, 'email')
+        def my_view(request, ...):
+            ...
+    """
     def _decorator(view):
         @wraps(view)
         def _aux(*args, **kwargs):
@@ -55,6 +64,21 @@ def require_model_fields(model, *field_names):
 
 
 def jsonify(func):
+    """Helps writing views which return JSON.
+    The wrapped view just has to return encodable data.
+
+    Example:
+
+        @jsonify
+        def get_entities_data(request, ...):
+            ...
+            return [
+                {'name': instance1.name, 'status': instance1.status.name},
+                {'name': instance2.name, 'status': instance2.status.name},
+                ...
+            ]
+    """
+    @wraps(func)
     def _aux(*args, **kwargs):
         status = 200
 
