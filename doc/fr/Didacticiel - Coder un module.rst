@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 07-04-2025 pour la version 2.7 de Creme
+:Version: 17-06-2025 pour la version 2.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1891,18 +1891,13 @@ indiquer les champs utilisés de base dans notre formulaire personnalisé : ::
 
     [...]
 
-    from creme.creme_core.models import CustomFormConfigItem
-
     from . import custom_forms
 
 
     class Populator(BasePopulator):
-        [...]
+        CUSTOM_FORMS = [custom_forms.BEAVER_CREATION_CFORM]
 
-        def _populate_custom_forms(self):
-            CustomFormConfigItem.objects.create_if_needed(
-                descriptor=custom_forms.BEAVER_CREATION_CFORM,
-            )
+        [...]
 
 
 Déclarons ensuite notre descripteur de formulaire ; dans notre fichier
@@ -2260,16 +2255,15 @@ Maintenant nous créons le canal dans ``beavers/populate.py`` : ::
     [...]
 
     class Populator(BasePopulator):
-        [...]
-
-        def _populate_notification_channels(self):
-            NotificationChannel.objects.get_or_create(
+        NOTIFICATION_CHANNELS = [
+            NotificationChannel(
                 uuid=constants.UUID_CHANNEL_BEAVERS,
-                defaults={
-                    'type_id': BeaversChannelType.id,
-                    'default_outputs': [OUTPUT_WEB],
-                },
-            )
+                type=BeaversChannelType,
+                default_outputs=[OUTPUT_WEB],
+            ),
+        ]
+
+        [...]
 
 
 Nous pouvons maintenant dans notre code envoyer des notifications de cette
@@ -3308,12 +3302,11 @@ de ``SettingValue`` associée, en lui donnant donc sa valeur par défaut : ::
 
 
     class Populator(BasePopulator):
-        [...]
+        SETTING_VALUES = [
+            SettingValue(key=setting_keys.beaver_key, value=True),
+        ]
 
-        def _populate_setting_values(self):
-            SettingValue.objects.get_or_create(
-                key_id=beaver_key.id, defaults={'value': True},
-            )
+        [...]
 
 
 Il faut maintenant exposer la clé à Creme. Dans votre ``my_project/beavers/apps.py`` : ::
@@ -3575,8 +3568,6 @@ périodicité utilisée par ce type de job ; la valeur peut être :
 Comme nous avons créé un job périodique, il nous faut créer l'instance de ``Job``
 dans notre ``beavers/populate.py`` : ::
 
-    from django.conf import settings
-
     from creme.creme_core.management.commands.creme_populate import BasePopulator
     from creme.creme_core.models import Job
     from creme.creme_core.utils.date_period import date_period_registry
@@ -3586,18 +3577,15 @@ dans notre ``beavers/populate.py`` : ::
     [...]
 
     class Populator(BasePopulator):
-        [...]
+        JOBS = [
+            Job(
+                type=beavers_health_type,
+                # ATTENTION: nous devons définir une période
+                periodicity=date_period_registry.get_period('days', 1),
+            ),
+        ]
 
-        def _populate_jobs(self):
-            Job.objects.get_or_create(
-                type_id=beavers_health_type.id,
-                defaults={
-                    'language':    settings.LANGUAGE_CODE,
-                    # ATTENTION: nous devons définir une période
-                    'periodicity': date_period_registry.get_period('days', 1),
-                    'status':      Job.STATUS_OK,
-               },
-            )
+        [...]
 
 **Gestion des erreurs** : il est très probable que vos jobs puissent rencontrer
 des soucis ; dans notre exemple le service Web distant pourrait être indisponible.
