@@ -927,6 +927,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             self.client.get(url),
             text=_('This role has no button configuration.'),
             status_code=409,
+            html=True,
         )
 
         # GET ---
@@ -1003,6 +1004,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             self.client.get(url),
             text=_('Superusers have no button configuration.'),
             status_code=409,
+            html=True,
         )
 
         # GET ---

@@ -526,7 +526,7 @@
                 - The function 'core.importers.load_ct()' has been removed.
                 - In the class 'function_fields.TemplateBaseVerboseStatusField',
                   the attribute "_cache" has been replaced by "_statuses_per_model".
-                - The views to configurate buttons (& their URL patterns & names) have been heavily reworked.
+                - The views to configure buttons (& their URL patterns & names) have been heavily reworked.
 
 
 == Version 2.6 ==
@@ -3229,7 +3229,7 @@
     # A field "description" has been added to CremeEntity. Data has been migrated for entities classes which already had this field, of course.
     # The credentials system has been improved :
         - The credentials can now be configured to forbid some actions.
-          Eg: if you want a user to see all kinds of entities excepted one, you are not obliged to create all-minus-one credentials lines ; you can just allow all of types of entities & forbid this one.
+          E.g. if you want a user to see all kinds of entities excepted one, you are not obliged to create all-minus-one credentials lines ; you can just allow all of types of entities & forbid this one.
         - The credentials can now use an EntityFilter.
             - These filters can check: regular-fields (not date ones), custom-field (not date ones), relationships, properties.
             - These filters can be specific to a type on entities ; when there is no specific type

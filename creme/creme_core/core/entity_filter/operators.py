@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -126,7 +126,7 @@ class ConditionOperator:
 
     # Boolean ;  <True> means that the operand given by the user should not be
     # validated because sub-part of a valid input must be accepted.
-    #   Eg: we want to search in the values of an EmailField with a string
+    #   E.g. we want to search in the values of an EmailField with a string
     #       which is not a complete (& so, valid) email address.
     accept_subpart: bool = True
 
@@ -146,7 +146,7 @@ class ConditionOperator:
         (e.g. corresponding to a field of an instance) and a value from a list
         of N values, one result at least is True.
 
-        Eg: for an "EQUAL" operator:
+        E.g. for an "EQUAL" operator:
          >> accept(field_value=2, values=[1, 2]) would return <True>.
          >> accept(field_value=2, values=[1, 3]) would return <False>.
         """

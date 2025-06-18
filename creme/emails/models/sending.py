@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -79,10 +79,10 @@ class EmailSendingConfigItem(CremeModel):
         help_text=_('Name displayed to users when selecting a configuration'),
         unique=True,
     )
-    host = models.CharField(_('Server URL'), max_length=100, help_text=_('Eg: smtp.mydomain.org'))
+    host = models.CharField(_('Server URL'), max_length=100, help_text=_('E.g. smtp.mydomain.org'))
     username = models.CharField(
         # max_length=254 to be compliant with RFCs 3696 and 5321
-        _('Username'), max_length=254, blank=True, help_text=_('Eg: me@mydomain.org'),
+        _('Username'), max_length=254, blank=True, help_text=_('E.g. me@mydomain.org'),
     )
     encoded_password = models.CharField(
         ('Password'), max_length=128, editable=False,

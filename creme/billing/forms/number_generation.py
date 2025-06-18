@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.forms.base import CremeModelForm
 from creme.creme_core.forms.fields import ReadonlyMessageField
@@ -83,7 +84,8 @@ class NumberGeneratorItemEditionForm(CremeModelForm):
 
 class RegularNumberGeneratorItemEditionForm(NumberGeneratorItemEditionForm):
     format = forms.CharField(
-        label=_('Pattern'),
+        # Translators: the pattern is a format string used to build a number
+        label=pgettext_lazy('billing-number-generator', 'Pattern'),
         help_text=_(
             'These variables are available:\n'
             ' - {counter} is a number which is automatically incremented when a '

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2024  Hybird
+#    Copyright (C) 2017-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -192,7 +192,7 @@ def do_render(parser, token):
 
     B. Mandatory arguments (notice that the arguments must be pass with keyword-notation):
         - cell: an EntityCell instance.
-          Eg: it could be generated with {% cell_4_regularfield ... %}
+          E.g. it could be generated with {% cell_4_regularfield ... %}
         - instance: an instance of a model.
         - user: an instance of auth.get_user_model().
 

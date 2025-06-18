@@ -1038,7 +1038,7 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
         url = self._build_edit_action_url(wf, 1)
         context1 = self.assertGET200(url).context
         self.assertEqual(
-            _('Edit the action «{}»').format(_('Adding a relationship')),
+            _('Edit the action «{action}»').format(action=_('Adding a relationship')),
             context1.get('title'),
         )
 

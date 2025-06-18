@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2024  Hybird
+#    Copyright (C) 2016-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from ..utils.date_period import HoursPeriod, date_period_registry
 from ..utils.dates import dt_from_ISO8601, dt_to_ISO8601, round_hour
@@ -88,8 +89,12 @@ class Job(models.Model):
     STATUS_OK    = 20
 
     type_id = models.CharField(_('Type of job'), max_length=48, editable=False)
-    user = core_fields.CremeUserForeignKey(verbose_name=_('User'), null=True, editable=False)
-    enabled = models.BooleanField(_('Enabled'), default=True, editable=False)
+    user = core_fields.CremeUserForeignKey(
+        verbose_name=_('User'), null=True, editable=False,
+    )
+    enabled = models.BooleanField(
+        pgettext_lazy('creme_core-job', 'Enabled'), default=True, editable=False,
+    )
     language = models.CharField(_('Language'), max_length=10, editable=False)
     # created = CreationDateTimeField(_('Creation date'))
 

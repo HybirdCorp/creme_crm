@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP (JavaScript only)
-# Copyright (C) 2024 Hybird
+# Copyright (C) 2025 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -d djangojs -l fr -i "static/creme_core/js/tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-18 16:39+0200\n"
+"POT-Creation-Date: 2025-06-18 20:16+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -43,12 +43,6 @@ msgstr "Enlever la colonne '%s'"
 #, javascript-format
 msgid "%s result(s) on %s"
 msgstr "%s résultat(s) sur %s"
-
-msgid "Select the export format"
-msgstr "Sélectionnez le format d'export"
-
-msgid "Export"
-msgstr "Export"
 
 msgid "Calendar"
 msgstr "Calendrier"
@@ -90,6 +84,15 @@ msgid_plural "Select no more than %d rows"
 msgstr[0] "Ne sélectionnez pas plus de %d ligne"
 msgstr[1] "Ne sélectionnez pas plus de %d lignes"
 
+msgid "Loading…"
+msgstr "Chargement…"
+
+msgid "Select the export format"
+msgstr "Sélectionnez le format d'export"
+
+msgid "Export"
+msgstr "Export"
+
 #, javascript-format
 msgid "%d entity has been deleted."
 msgid_plural "%d entities have been deleted."
@@ -108,6 +111,9 @@ msgstr "Veuillez sélectionner au moins une fiche."
 msgid "Please select 2 entities."
 msgstr "Veuillez sélectionner 2 fiches."
 
+msgid "Close"
+msgstr "Fermer"
+
 msgid "Please select only one entity."
 msgstr "Veuillez sélectionner une seule fiche."
 
@@ -117,9 +123,6 @@ msgstr "Valider la sélection"
 msgid "Cancel"
 msgstr "Annuler"
 
-msgid "Close"
-msgstr "Fermer"
-
 msgid "Are you sure?"
 msgstr "Êtes-vous sûr ?"
 
@@ -128,9 +131,6 @@ msgstr "Voulez-vous vraiment cloner cette fiche ?"
 
 msgid "Chose the type of entity to create"
 msgstr "Choisir le type de fiche à créer"
-
-msgid "Loading…"
-msgstr "Chargement…"
 
 #, javascript-format
 msgid "%d minute ago"

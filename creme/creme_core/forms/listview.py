@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2024  Hybird
+#    Copyright (C) 2019-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -64,10 +64,10 @@ class TextLVSWidget(ListViewSearchWidget):
 
 class IntegerLVSWidget(TextLVSWidget):
     tooltip = _('''You can use these operators: <, <=, >, >=
-Eg: < 100
+E.g. < 100
 
 You can combine several expressions with the separator «;»
-Eg: > -100 ; <= 2000
+E.g. > -100 ; <= 2000
 ''')
 
     def __init__(self, **kwargs):
@@ -77,28 +77,28 @@ Eg: > -100 ; <= 2000
 
 class PositiveIntegerLVSWidget(IntegerLVSWidget):
     tooltip = _('''You can use these operators: <, <=, >, >=
-Eg: < 100
+E.g. < 100
 
 You can combine several expressions with the separator «;»
-Eg: > 100 ; <= 2000
+E.g. > 100 ; <= 2000
 ''')
 
 
 class DecimalLVSWidget(IntegerLVSWidget):
     tooltip = _('''You can use these operators: <, <=, >, >=
-Eg: < 100
+E.g. < 100
 
 You can combine several expressions with the separator «;»
-Eg: > 10 ; <= 10.5
+E.g. > 10 ; <= 10.5
 ''')
 
 
 class FloatLVSWidget(IntegerLVSWidget):
     tooltip = _('''You must use these operators: <, <=, >, >=
-Eg: < 100
+E.g. < 100
 
 You can combine several expressions with the separator «;»
-Eg: > 10 ; <= 10.5
+E.g. > 10 ; <= 10.5
 ''')
 
 
@@ -359,11 +359,11 @@ class BaseIntegerField(ListViewSearchField):
     """ Base class for list-view search-fields which filter with 'operations'.
     Here 'operation' means a string containing an operator and a value.
 
-    Eg: "< 12"
+    E.g. "< 12"
     """
     widget = IntegerLVSWidget
 
-    OPERATIONS_SEPARATOR = ';'  # Separates operations. Eg: >100 ; <= 200
+    OPERATIONS_SEPARATOR = ';'  # Separates operations. E.g. >100 ; <= 200
     OPERATION_RE = compile_re(r'^(.*?)(\-?[0-9]+)$')  # Regex for one operation.
     # Available operators
     #  Key: operation string in the user input.

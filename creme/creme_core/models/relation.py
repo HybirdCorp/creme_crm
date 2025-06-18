@@ -302,10 +302,10 @@ class RelationType(CremeModel):
     following information :
       - The <predicate>, a string which describes the relation between the
         "subject" & the "object".
-        Eg: "employs", "is a customer of"
+        E.g. "employs", "is a customer of"
       - List of ContentTypes which are allowed for the subjects & for the objects
         (attributes <subject_ctypes> & <object_ctypes>).
-        Eg: the type "employs" accepts Organisations as subject, but not Invoice.
+        E.g. the type "employs" accepts Organisations as subject, but not Invoice.
       - List of CremePropertyTypes which are mandatory for the subjects & for the objects
         (attributes <subject_properties> & <object_properties>).
 
@@ -456,12 +456,12 @@ class Relation(CremeModel):
     The first instance is called "object", the second one "object".
 
     A relation has a type (see RelationType).
-     Eg: a Contact & an Organisation could be linked by a RelationType with
+     E.g. a Contact & an Organisation could be linked by a RelationType with
          <predicate="is employed by">
 
     Each instance of Relation has a symmetrical instance, which has the
     symmetrical RelationType.
-     Eg: considering the previous example, we got a Relation instance between
+     E.g. considering the previous example, we got a Relation instance between
          our Contact & an Organisation with a RelationType which could be like
          <predicate="employs">
     """

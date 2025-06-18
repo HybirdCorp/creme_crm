@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from django.utils.html import escape
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.workflow import (
@@ -189,10 +190,12 @@ class FixedUserRecipientTestCase(_EmailsTestCase):
 
         self.assertEqual(
             '{}<span class="warninglist">{}</span>'.format(
-                _('To:'),
-                _(
-                    'The user «{username}» is disabled (no email will be sent)'
-                ).format(username=user2.username),
+                escape(_('To:')),
+                escape(
+                    _(
+                        'The user «{username}» is disabled (no email will be sent)'
+                    ).format(username=user2.username)
+                ),
             ),
             recipient.render(user=user1),
         )
@@ -216,7 +219,8 @@ class FixedUserRecipientTestCase(_EmailsTestCase):
 
         self.assertEqual(
             '{}<p class="errorlist">{}</p>'.format(
-                _('To: a fixed user'), _('The user does not exist anymore'),
+                escape(_('To: a fixed user')),
+                escape(_('The user does not exist anymore')),
             ),
             recipient.render(user=self.get_root_user()),
         )
@@ -677,11 +681,11 @@ class ActionRecipientsRegistryTestCase(_EmailsTestCase):
                 'The recipient «{name}» is broken (original error: {error})'
             ).format(
                 name=_('User field'),
-                error=('The field «{field}» is invalid in model «{model}»').format(
+                error=_('The field «{field}» is invalid in model «{model}»').format(
                     field=field_name, model=_('Contact'),
                 ),
             ),
-            recipient.message
+            recipient.message,
         )
 
     def test_global_registry(self):

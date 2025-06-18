@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2024  Hybird
+#    Copyright (C) 2018-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,7 @@ class UIAction:
         - url_name: String to 'reverse()' the URL to use (see @url).
         - label: String displayed to the user for this UIAction.
           Should be translatable (i.e. you should use something like 'gettext_lazy()').
-        - icon: Name of the icon used in the UI with our Icon system. Eg: "edit".
+        - icon: Name of the icon used in the UI with our Icon system. E.g. "edit".
         - help_text: Should be translatable (like 'label').
         - is_default: Boolean. True means the UIAction should be the one the user see first.
         - is_visible: Boolean. If False, the user should not see this action.

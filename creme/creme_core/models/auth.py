@@ -317,7 +317,7 @@ class UserRole(models.Model):
                      should be related to the UserRole instance.
         @param queryset: A Queryset on a child class of CremeEntity.
         @param perm: A combination of values in (EntityCredentials.{VIEW, CHANGE} etc...).
-               Eg: 'EntityCredentials.DELETE'
+               E.g. 'EntityCredentials.DELETE'
                    'EntityCredentials.VIEW | EntityCredentials.CHANGE'
         @return: A new (filtered) queryset on the same model.
         """
@@ -632,7 +632,7 @@ class SetCredentials(models.Model):
         @param user: A <django.contrib.auth.get_user_model()> instance (e.g. CremeUser).
         @param queryset: A Queryset on a child class of CremeEntity.
         @param perm: A combination of values in EntityCredentials.{VIEW, CHANGE, ...}.
-               Eg: 'EntityCredentials.DELETE'
+               E.g. 'EntityCredentials.DELETE'
                    'EntityCredentials.VIEW | EntityCredentials.CHANGE'
         @return: A new queryset on the same model.
         """

@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2018-2022 Hybird
+# Copyright (c) 2018-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ class Swappable:
      a swappable model, & you want your vanilla view to be defined only if the
      model is the vanilla one.
 
-     Eg: we want to wrap
+     E.g. we want to wrap
         re_path(
             r'^my_stuff/(?P<id>\d+)/edit[/]?$',
             my_app.views.my_stuff.StuffEdition.as_view(),

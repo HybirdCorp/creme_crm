@@ -766,7 +766,7 @@ msgid ""
 "been found (notice that deleted contact are ignored)."
 msgstr ""
 "L'appel téléphonique ne peut pas être créé car aucun autre participant à "
-"part vous n'a été trouvé (notez ques les contacts dans la corbeille sont "
+"part vous n'a été trouvé (notez que les contacts dans la corbeille sont "
 "ignorés)."
 
 #, python-brace-format

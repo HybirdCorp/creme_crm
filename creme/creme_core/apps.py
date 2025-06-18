@@ -73,7 +73,7 @@ logger = logging.getLogger(__name__)
 # Hooking of AppConfig ------------------
 
 AppConfig.creme_app = False
-AppConfig.extended_app = None  # If you extend an app by swapping its models. Eg: 'persons'
+AppConfig.extended_app = None  # If you extend an app by swapping its models. E.g. 'persons'
 AppConfig._extending_app_configs = None
 
 
@@ -178,7 +178,7 @@ class CremeAppConfig(AppConfig):
 
     # Names of the apps on which this app depends ;
     # an error is raised if the dependencies are not installed.
-    # Eg: ['creme.persons']
+    # E.g. ['creme.persons']
     dependencies: Sequence[str] = ()
 
     CRED_NONE    = 0b00
