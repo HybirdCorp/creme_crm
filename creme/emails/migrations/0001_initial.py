@@ -47,7 +47,11 @@ class Migration(migrations.Migration):
                     ImageEntityManyToManyField(
                         to=settings.DOCUMENTS_DOCUMENT_MODEL,
                         verbose_name='Images', blank=True,
-                        help_text='Images embedded in emails (but not as attached).',
+                        help_text=(
+                            'Images embedded in emails (but not as attached).\n'
+                            'Hint: try to keep your images light (less than 2MB).\n'
+                            'Hint: try to keep your images less than 500px wide to get a good render on mobile.'
+                        ),
                     ),
                 ),
                 (

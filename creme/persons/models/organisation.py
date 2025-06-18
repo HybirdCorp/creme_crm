@@ -97,8 +97,10 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
 
     eori = models.CharField(
         _('EORI number'), max_length=17, blank=True,
-        help_text=_('Economic Operators Registration and Identification number.'
-                    'Required for customs clearance in the EU.'),
+        help_text=_(
+            'Economic Operators Registration and Identification number. '
+            'Required for customs clearance in the EU.'
+        ),
     ).set_tags(optional=True)
 
     tvaintra = models.CharField(
