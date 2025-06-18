@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -92,7 +92,7 @@ class _SettingKey:
         @param id: Unique String. Use something like "my_app-key_name".
         @param description: Used in the configuration GUI ;
                use a gettext_lazy() instance ('' is OK if hidden==True).
-        @param app_label: Eg: "creme_core".
+        @param app_label: E.g. "creme_core".
         @param see: _SettingKey.STRING, _SettingKey.INT ...
         @param hidden: If True, it can not be seen in the configuration GUI.
         @param blank: If True, the value is not required in the configuration GUI.

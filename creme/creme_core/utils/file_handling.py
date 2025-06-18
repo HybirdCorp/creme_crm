@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2024 Hybird
+# Copyright (c) 2016-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -104,7 +104,7 @@ class FileCreator:
         @param dir_path: Path of the directory where to create the files (string).
                The path must be valid on the current system.
                The directory is created (if it does not exist) by create().
-        @param name: Base name of the future files. Eg: "foobar.txt"
+        @param name: Base name of the future files. E.g. "foobar.txt"
         @param generators: iterable of FileNameSuffixGenerator instances.
         @param max_trials: number of file names trials before aborting.
                It's useful to avoid infinite (or very long) loops.

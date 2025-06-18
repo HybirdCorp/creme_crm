@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2024  Hybird
+#    Copyright (C) 2018-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -190,7 +190,7 @@ class QSEnumerator(Enumerator):
 class EnumerableRegistry:
     """Registry which manages the choices available for (enumerable) model fields.
 
-    Eg: will be used to propose available choices for filter-conditions
+    E.g. will be used to propose available choices for filter-conditions
         related to a ForeignKey.
 
     The registry has a default behaviour for enumerable fields (it gets all the

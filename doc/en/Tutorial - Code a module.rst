@@ -2725,7 +2725,7 @@ it's particularly true with the tricky following manipulations).
    environment identical to your production environment.
 
 #. Modify, in the table "django_content_type" the line corresponding to the
-   model. Eg: the line app_label="tickets"/model="ticket" should now contain
+   model. E.g. the line app_label="tickets"/model="ticket" should now contain
    app_label="my_tickets" (model="ticket" does not change if you kept
    ``Ticket`` like recommended).
 
@@ -3342,12 +3342,12 @@ Th job system manages tasks :
  - which take a long time to be completed ; a progress bar is displayed, and
    the user can change the page (or even quit its browser) without stopping the
    job. The job is correctly resumed even if the server crashes (power outage etc…).
-   Eg: Creme uses these features to import CSV/XLS.
+   E.g. Creme uses these features to import CSV/XLS.
  - which have to be run periodically (or at least at a given date) without user
    trigger them. It replaces favourably a command associated to CRON rules,
    because the administrator has nothing specific to do (when it
    installs/uninstalls an app for example).
-   Eg: Creme uses these features to sent the email campaigns.
+   E.g. Creme uses these features to sent the email campaigns.
 
 Let's write the outline of a Job which performing a daily task which fetch the
 health of a beaver, for example by reading a file created by another software
@@ -3405,7 +3405,7 @@ can be :
  - ``JobType.PERIODIC`` : only one instance of ``Job`` can have this type ;
    it should be created in ``populate.py`` (see after) and will be deleted when
    uninstalling the corresponding app. The job is run periodically.
-   Eg: consulting an inbox, if a file is present through FTP…
+   E.g. consulting an inbox, if a file is present through FTP…
  - ``JobType.PSEUDO_PERIODIC`` : as in the previous case, there is only one
    instance of ``Job`` ; it is run depending on the data stored in the DB and
    which define the next run. For example, if a job have to send emails

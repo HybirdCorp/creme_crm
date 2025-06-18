@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-04 17:25+0200\n"
+"POT-Creation-Date: 2025-06-19 09:32+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -266,7 +266,7 @@ msgid "A staff user cannot convert."
 msgstr "Un super administrateur ne peut pas convertir."
 
 msgid "This entity cannot be converted because it is deleted."
-msgstr "Cette fiche ne peut pas ête convertie car elle est supprimée."
+msgstr "Cette fiche ne peut pas être convertie car elle est supprimée."
 
 msgid "This entity has already a number"
 msgstr "Cette fiche a déjà un numéro"
@@ -494,6 +494,8 @@ msgstr ""
 msgid "You cannot compute totals in update mode."
 msgstr "Vous ne pouvez pas calculer les totaux en mode mise-à-jour."
 
+#. Translators: the pattern is a format string used to build a number
+msgctxt "billing-number-generator"
 msgid "Pattern"
 msgstr "Motif"
 
@@ -516,7 +518,7 @@ msgstr ""
 " - {code} utilise le champ «code» de la Société émettrice."
 
 msgid "Reset the counter"
-msgstr "Réinitiliser le compteur"
+msgstr "Réinitialiser le compteur"
 
 #, python-brace-format
 msgid "When the counter («{counter}» in the pattern) should be reset?"
@@ -534,7 +536,7 @@ msgid ""
 msgstr ""
 "La valeur courante du compteur (elle sera utilisée pour générer le PROCHAIN "
 "numéro).\n"
-"Astuce : modifiez cette valeur seulment si vous savez ce que vous faîtes ; "
+"Astuce : modifiez cette valeur seulement si vous savez ce que vous faîtes ; "
 "cela peut être utile après avoir importé des fiches depuis un fichier CSV/"
 "XLS qui contient les numéros, afin de garder une numérotation cohérente."
 
@@ -1349,7 +1351,7 @@ msgid "No Organisation configured for number generation"
 msgstr "Pas de Société configurée pour générer des numéros"
 
 msgid ""
-"Here you can configurate the generation of the numbers (see the field "
+"Here you can configure the generation of the numbers (see the field "
 "«Number» of Invoice/Quote/…)."
 msgstr ""
 "Ici vous pouvez configurer la génération des numéros (voir le champ «Numéro» "

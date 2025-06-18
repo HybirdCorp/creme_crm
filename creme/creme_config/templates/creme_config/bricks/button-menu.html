@@ -21,7 +21,7 @@
             <div class="buttonmenu-config-supergroup-title">{% translate 'Base configuration' %}</div>
             <div class="buttonmenu-config-supergroup-help">{% translate 'Used when no role configuration is available for a user' %}</div>
             <div class="buttonmenu-config-supergroup-action">
-                {% brick_action id='add' url='creme_config__add_base_buttons'|url display='both' label=_('Configurate the buttons for a new type of entity') enabled=admin_perm %}
+                {% brick_action id='add' url='creme_config__add_base_buttons'|url display='both' label=_('Configure the buttons for a new type of entity') enabled=admin_perm %}
                 {% if not all_roles_configured %}
                  {% brick_action id='add' url='creme_config__clone_base_buttons'|url label=_('Clone the base configuration for a role') icon='clone' display='both' enabled=admin_perm %}
                 {% endif %}
@@ -62,7 +62,7 @@
             <div class="buttonmenu-config-supergroup-title">{% translate 'Configuration for superusers' %}</div>
 {#            <div class="buttonmenu-config-supergroup-help"></div> #}
             <div class="buttonmenu-config-supergroup-action">
-                {% brick_action id='add' url='creme_config__add_superuser_buttons'|url display='both' label=_('Configurate the buttons for a new type of entity') enabled=admin_perm %}
+                {% brick_action id='add' url='creme_config__add_superuser_buttons'|url display='both' label=_('Configure the buttons for a new type of entity') enabled=admin_perm %}
                 {% brick_action id='delete' url=delete_url __role='superuser' label=_('Delete the whole configuration for superusers') display='both' confirm=_('Are you sure you want to delete the whole configuration for superusers?') enabled=admin_perm %}
                 {% if not all_roles_configured %}
                  {% brick_action id='add' url='creme_config__clone_superuser_buttons'|url label=_("Clone this configuration for another role") icon='clone' display='both' enabled=admin_perm %}
@@ -106,7 +106,7 @@
             <div class="buttonmenu-config-supergroup-title">{% blocktranslate with role=role %}Configuration for role «{{role}}»{% endblocktranslate %}</div>
 {#            <div class="buttonmenu-config-supergroup-help"></div> #}
             <div class="buttonmenu-config-supergroup-action">
-                {% brick_action id='add' url='creme_config__add_role_buttons'|url:role.id display='both' label=_('Configurate the buttons for a new type of entity') enabled=admin_perm %}
+                {% brick_action id='add' url='creme_config__add_role_buttons'|url:role.id display='both' label=_('Configure the buttons for a new type of entity') enabled=admin_perm %}
                 {% brick_action id='delete' url=delete_url __role=role.id label=_('Delete the whole configuration for this role') display='both' confirm=_('Are you sure you want to delete the whole configuration this role?') enabled=admin_perm %}
                 {% if not all_roles_configured %}
                  {% brick_action id='add' url='creme_config__clone_role_buttons'|url:role.id label=_("Clone this configuration for another role") icon='clone' display='both' enabled=admin_perm %}

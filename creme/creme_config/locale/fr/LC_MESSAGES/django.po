@@ -962,14 +962,14 @@ msgid "Cannot create"
 msgstr "Création interdite"
 
 msgid "Trigger"
-msgstr "Déclenchment"
+msgstr "Déclenchement"
 
 msgid "Which kind of event will trigger the Workflow?"
 msgstr "Quel type d'évènement va déclencher le Workflow ?"
 
 #, python-brace-format
 msgid "Conditions on «{source}»"
-msgstr "Conditions de «%(source)s»"
+msgstr "Conditions de «{source}»"
 
 msgid "Type of action"
 msgstr "Type d'action"
@@ -1163,7 +1163,7 @@ msgstr ""
 "Utilisée quand aucune configuration de rôle n'est disponible pour un "
 "utilisateur"
 
-msgid "Configurate the buttons for a new type of entity"
+msgid "Configure the buttons for a new type of entity"
 msgstr "Configurer les boutons pour un nouveau type de fiche"
 
 msgid "Clone the base configuration for a role"
@@ -2070,10 +2070,6 @@ msgstr "Supprimer cet utilisateur"
 msgid "No user found"
 msgstr "Aucun utilisateur trouvé"
 
-#, python-brace-format
-msgid "{count} Configurables types of resource"
-msgstr "{count} Types de ressource configurables"
-
 msgid "Configurable types of resource"
 msgstr "Types de ressource configurés"
 
@@ -2093,8 +2089,8 @@ msgstr "Pas de condition"
 #, python-format
 msgid "%(counter)s Action"
 msgid_plural "%(counter)s Actions"
-msgstr[0] "%(count)s Action"
-msgstr[1] "%(count)s Actions"
+msgstr[0] "%(counter)s Action"
+msgstr[1] "%(counter)s Actions"
 
 msgid "Add an action"
 msgstr "Ajouter une action"
@@ -2940,7 +2936,7 @@ msgid "This action does not exist anymore"
 msgstr "Cette action n'existe plus"
 
 msgid "This action is invalid (refresh your page)"
-msgstr "Cette action est invalide (rafraichissez vitre page)"
+msgstr "Cette action est invalide (rafraîchissez votre page)"
 
 msgid "Edit the instance's settings"
 msgstr "Modifier la configuration de l'instance"

@@ -130,7 +130,7 @@ class FilterConditionHandler:
     @property
     def applicable_on_entity_base(self) -> bool:
         """Can this handler be applied on CremeEntity (QuerySet or simple instance)?
-        Eg: if the handler reads a model-field specific to a child class, it
+        E.g. if the handler reads a model-field specific to a child class, it
             won't be applicable to CremeEntity.
         """
         return False

@@ -108,9 +108,9 @@ class CallbackMixin:
 class PermissionsMixin:
     """Mixin that helps checking the global permission of a view.
     The needed permissions are stored in the attribute <permissions>, an could be:
-      - a string. Eg:
+      - a string. E.g.
           permissions = 'my_app'
-      - a sequence of strings. Eg:
+      - a sequence of strings. E.g.
           permissions = ['my_app1', 'my_app2.can_admin']
       - an empty value (like '', the default value) means no permission is checked.
     """

@@ -294,7 +294,7 @@ class ModelFieldEnumerator:
                ("model", "field" & "depth"), and returns a boolean
                ('True' means 'the field is accepted').
         @param kwargs: Keywords can be a true field attribute name, or a Creme tag.
-               Eg: ModelFieldEnumerator(Contact).filter(editable=True, viewable=True)
+               E.g. ModelFieldEnumerator(Contact).filter(editable=True, viewable=True)
         """
         self._ffilters.append(_FilterModelFieldQuery(function, **kwargs))
         return self
@@ -325,7 +325,7 @@ class ModelFieldEnumerator:
                 *(sort_key(vname) for vname in fk_vnames),
                 sort_key(terminal_vname),
             )
-            # A classical django choice. Eg: ('user__email', '[Owner user] - Email address')
+            # A classical django choice. E.g. ('user__email', '[Owner user] - Email address')
             choice = (
                 '__'.join(field.name for field in fields_info),
                 ' - '.join(chain((f'[{vname}]' for vname in fk_vnames), [terminal_vname]))

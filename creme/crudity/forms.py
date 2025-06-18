@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2021  Hybird
+#    Copyright (C) 2016-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ class CruditySynchronizeJobForm(JobForm):
         label=_('Default owner user'),
         empty_label=None, queryset=None,
         help_text=_(
-            'Eg: user owning emails/folder/documents '
+            'E.g. user owning emails/folder/documents '
             'created during the emails synchronization.'
         ),
     )

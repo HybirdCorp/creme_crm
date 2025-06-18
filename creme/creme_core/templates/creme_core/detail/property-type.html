@@ -27,7 +27,7 @@
 
 {% block title %}
     {% translate 'Property type' %} : {{object|capfirst}}
-    {% if not object.enabled %}<span class="bar-deleted-indicator">[{% translate 'Disabled' %}]</span>{% endif %}
+    {% if not object.enabled %}<span class="bar-deleted-indicator">[{% translate 'Disabled' context 'creme_core-property_type' %}]</span>{% endif %}
 {% endblock %}
 
 {# BEWARE : NOT IN A BRICK. Actions that needs a brick reload will not work (page redirections are fine) #}

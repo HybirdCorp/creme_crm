@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -140,7 +140,7 @@ class EntityCredentials:
         @param queryset: A Queryset on a CremeEntity inheriting model
                (better if not yet retrieved).
         @param perm: A combination of values in (VIEW, CHANGE, DELETE, LINK, UNLINK)
-               Eg: 'DELETE', 'VIEW | CHANGE'
+               E.g. 'DELETE', 'VIEW | CHANGE'
         @return: A new Queryset on the same model, more selective (not retrieved).
         """
         from creme.creme_core.models import CremeEntity

@@ -541,14 +541,14 @@ msgstr "Nom affiché aux utilisateurs lorsqu'ils choisissent une configuration"
 msgid "Server URL"
 msgstr "URL du serveur"
 
-msgid "Eg: smtp.mydomain.org"
+msgid "E.g. smtp.mydomain.org"
 msgstr "Ex: smtp.mon_domaine.org"
 
 # Already in creme_core
 msgid "Username"
 msgstr ""
 
-msgid "Eg: me@mydomain.org"
+msgid "E.g. me@mydomain.org"
 msgstr "Ex: moi@mon_domaine.org"
 
 msgid "Port"
@@ -714,7 +714,7 @@ msgstr ""
 "Attention : si *Aucun utilisateur par défaut* est sélectionné, les e-mails "
 "sans adresse relative à un utilisateur seront juste jetés."
 
-msgid "Eg: pop.mydomain.org"
+msgid "E.g. pop.mydomain.org"
 msgstr "Ex: pop.mon_domaine.org"
 
 msgid "Use SSL"
@@ -1241,7 +1241,7 @@ msgid "The campaign «%(campaign)s» has been sent"
 msgstr "La campagne «%(campaign)s» a été envoyée"
 
 msgid "An emailing campaign has been sent"
-msgstr "Une campagne d'emails a été envoyée"
+msgstr "Une campagne d'e-mails a été envoyée"
 
 msgid "Synchronization of incoming emails with Creme"
 msgstr "Synchronisation des e-mails externes dans Creme"

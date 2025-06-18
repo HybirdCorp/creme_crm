@@ -151,14 +151,14 @@ class Migration(migrations.Migration):
                 (
                     'host', models.CharField(
                         verbose_name='Server URL', max_length=100,
-                        help_text='Eg: smtp.mydomain.org',
+                        help_text='E.g. smtp.mydomain.org',
                     )
                 ),
                 (
                     'username',
                     models.CharField(
                         verbose_name='Username', max_length=254, blank=True,
-                        help_text='Eg: me@mydomain.org',
+                        help_text='E.g. me@mydomain.org',
                     )
                 ),
                 ('encoded_password',
@@ -578,14 +578,14 @@ class Migration(migrations.Migration):
                     'host',
                     models.CharField(
                         verbose_name='Server URL', max_length=100,
-                        help_text='Eg: pop.mydomain.org',
+                        help_text='E.g. pop.mydomain.org',
                     )
                 ),
                 (
                     'username',
                     models.CharField(
                         verbose_name='Username',
-                        help_text='Eg: me@mydomain.org', max_length=254,
+                        help_text='E.g. me@mydomain.org', max_length=254,
                     )
                 ),
                 (

@@ -163,7 +163,7 @@ class TransformIntoUserButton(Button):
         "A Contact is automatically created when you create a user; with "
         "this button you can create the user linked to an existing Contact "
         "(you don't have to merge the existing Contact with the one created by "
-        "the user creation form.\n"
+        "the user creation form).\n"
         "Only superusers can use this button.\n"
         "App: Accounts and Contacts"
     )

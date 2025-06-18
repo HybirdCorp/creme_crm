@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -266,7 +266,7 @@ def do_icon(parser, token):
 def do_render_icon(parser, token):
     """Render an Icon with additional CSS classes.
 
-    Eg:
+    E.g.
       {% widget_icon name='add' class='A' as my_icon %}
       {% widget_render_icon my_icon class='B' %} {# Outputs <img class="A B" ...> #}
     """
@@ -309,7 +309,7 @@ def widget_hyperlink(instance, label=None):
     @param label: String used as label of the link; by default the label used is
            'instance.__str__()'.
 
-    Eg:
+    E.g.
        {% widget_hyperlink my_instance %}
        {% widget_hyperlink my_instance 'My favorite instance' %}
     """
@@ -333,7 +333,7 @@ def widget_ctype_hyperlink(ctype, user):
     @param label: String used as label of the link; by default the label used is
            'instance.__str__()'.
 
-    Eg:
+    E.g.
        {% widget_hyperlink my_instance %}
        {% widget_hyperlink my_instance 'My favorite instance' %}
     """
@@ -365,7 +365,7 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None,
     @param target: Used to build the HTML attribute <target="...">.
            So the value should be in: "_self", "_blank", "_parent", "_top".
 
-    Eg:
+    E.g.
       {% widget_entity_hyperlink my_entity user %}
       {% widget_entity_hyperlink my_entity user ignore_deleted=True %}
       {% widget_entity_hyperlink my_entity user label='An interesting entity' %}

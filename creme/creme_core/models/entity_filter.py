@@ -417,7 +417,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     @property
     def applicable_on_entity_base(self) -> bool:
         """Can this filter be applied on CremeEntity (QuerySet or simple instance)?
-        Eg: if a condition reads a model-field specific to a child class, the
+        E.g. if a condition reads a model-field specific to a child class, the
             filter won't be applicable to CremeEntity.
         """
         return all(c.handler.applicable_on_entity_base for c in self.get_conditions())

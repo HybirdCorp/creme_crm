@@ -1,13 +1,13 @@
 # FR LOCALISATION OF 'TICKETS' APP
-# Copyright (C) 2024 Hybird
+# Copyright (C) 2025 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i tests.py --no-location
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Tickets 2.6\n"
+"Project-Id-Version: Creme Tickets 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-14 18:10+0200\n"
+"POT-Creation-Date: 2025-06-18 20:16+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -210,11 +210,11 @@ msgstr "Vue de patron de ticket"
 msgid "The relationship type «%(predicate)s» is disabled"
 msgstr "Le type de relation «%(predicate)s» est désactivé"
 
-msgid "You are not allowed to link this entity"
-msgstr "Vous n'avez pas la permission de relier cette fiche"
+#~ msgid "You are not allowed to link this entity"
+#~ msgstr "Vous n'avez pas la permission de relier cette fiche"
 
-msgid "You are not allowed to access to the app «Tickets»"
-msgstr "Vous n'avez pas accès à l'application «Tickets»"
+#~ msgid "You are not allowed to access to the app «Tickets»"
+#~ msgstr "Vous n'avez pas accès à l'application «Tickets»"
 
 #~ msgid "Is linked to a ticket"
 #~ msgstr "Est lié à un ticket"
