@@ -20,9 +20,10 @@ from __future__ import annotations
 
 import logging
 import warnings
+from collections.abc import Callable, Iterator
 from functools import partial
 from json import loads as json_load
-from typing import Any, Callable, Iterator
+from typing import Any
 
 from django import forms
 from django.db.models import Model, TextField

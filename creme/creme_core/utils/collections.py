@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2022 Hybird
+# Copyright (c) 2009-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,18 +25,17 @@
 from __future__ import annotations
 
 # from collections import OrderedDict
-from collections.abc import MutableSet
-from sys import maxsize
-from typing import (
+from collections.abc import (
     Callable,
-    Generic,
     ItemsView,
     Iterable,
     Iterator,
     KeysView,
-    TypeVar,
+    MutableSet,
     ValuesView,
 )
+from sys import maxsize
+from typing import Generic, TypeVar
 
 T = TypeVar('T')
 

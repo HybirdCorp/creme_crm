@@ -26,10 +26,10 @@ from __future__ import annotations
 import logging
 import os
 import sys
+from collections.abc import Iterable
 from datetime import date, datetime
 from os.path import exists, join, splitext
 from random import randint
-from typing import Iterable
 
 from ..utils.secure_filename import secure_filename
 

@@ -21,8 +21,8 @@ from __future__ import annotations
 import json
 import logging
 from collections import defaultdict
+from collections.abc import Iterable, Sequence
 # from itertools import islice
-from typing import Iterable, Sequence
 from urllib.parse import urlencode
 
 from django.conf import settings

@@ -20,12 +20,13 @@ from __future__ import annotations
 
 import itertools
 from collections import defaultdict
+from collections.abc import Collection, Iterable, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import timedelta
 from functools import partial
 from json import loads as json_load
-from typing import Any, Collection, Iterable, Sequence
+from typing import Any
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType

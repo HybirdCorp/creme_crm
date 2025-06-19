@@ -19,8 +19,9 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Any, Iterator
+from typing import Any
 
 from django.core.exceptions import ValidationError
 from django.db.models import Field, ForeignKey, signals

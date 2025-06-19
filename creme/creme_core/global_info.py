@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2023 Hybird
+# Copyright (c) 2009-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,9 +25,10 @@
 # See  middleware.global_info.GlobalInfoMiddleware
 
 from collections import defaultdict
+from collections.abc import Hashable
 from functools import wraps
 from threading import current_thread
-from typing import DefaultDict, Hashable
+from typing import DefaultDict
 
 _globals: DefaultDict = defaultdict(dict)
 

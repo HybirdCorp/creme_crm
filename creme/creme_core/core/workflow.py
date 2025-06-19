@@ -25,7 +25,8 @@ from __future__ import annotations
 import enum
 import logging
 import re
-from typing import TYPE_CHECKING, Iterable, Iterator
+from collections.abc import Iterable, Iterator
+from typing import TYPE_CHECKING
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, QuerySet, signals

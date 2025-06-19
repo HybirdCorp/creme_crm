@@ -19,15 +19,9 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable, Iterator, Sequence
 from functools import partial
-from typing import (
-    TYPE_CHECKING,
-    Iterable,
-    Iterator,
-    Literal,
-    Sequence,
-    TypedDict,
-)
+from typing import TYPE_CHECKING, Literal, TypedDict
 from uuid import UUID, uuid4
 
 from django.conf import settings

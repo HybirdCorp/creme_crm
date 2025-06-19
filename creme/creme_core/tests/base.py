@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 import warnings
+from collections.abc import Iterable
 from contextlib import ContextDecorator
 from datetime import date, datetime, timedelta, timezone
 from functools import reduce
@@ -9,7 +10,6 @@ from json import dumps as json_dump
 from operator import or_
 from os.path import basename
 from tempfile import NamedTemporaryFile
-from typing import Iterable
 from unittest import skipIf
 from unittest.util import safe_repr
 from uuid import UUID

@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from typing import Iterable
+from collections.abc import Iterable
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError

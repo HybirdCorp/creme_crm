@@ -1110,7 +1110,7 @@ class ButtonMenuBrick(Brick):
         items = core_models.ButtonMenuItem.objects.order_by('order')
 
         base_default_buttons, base_ctypes_buttons = self._build_buttons_info(
-            (item for item in items if not item.superuser and not item.role_id)
+            item for item in items if not item.superuser and not item.role_id
         )
 
         if superusers_items := [item for item in items if item.superuser]:
@@ -1133,7 +1133,7 @@ class ButtonMenuBrick(Brick):
                 key=lambda r: sort_key(str(r)),
             ):
                 default_buttons, ctypes_buttons = self._build_buttons_info(
-                    (item for item in items if item.role_id == role.id)
+                    item for item in items if item.role_id == role.id
                 )
                 roles_buttons.append({
                     'role': role,

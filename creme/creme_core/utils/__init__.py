@@ -28,7 +28,7 @@ import logging
 import sys
 import traceback
 # import warnings
-from typing import Iterable
+from collections.abc import Iterable
 
 from django.http import Http404
 from django.utils.safestring import mark_safe

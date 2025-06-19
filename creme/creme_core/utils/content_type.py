@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2024 Hybird
+# Copyright (c) 2009-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 
 from __future__ import annotations
 
-from typing import Container, Iterable, Iterator
+from collections.abc import Container, Iterable, Iterator
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model

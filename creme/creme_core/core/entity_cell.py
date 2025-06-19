@@ -21,7 +21,8 @@ from __future__ import annotations
 import logging
 import warnings
 from collections import defaultdict
-from typing import DefaultDict, Iterable, Sequence
+from collections.abc import Iterable, Sequence
+from typing import DefaultDict
 
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist

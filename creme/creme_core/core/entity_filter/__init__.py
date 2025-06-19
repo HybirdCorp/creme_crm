@@ -21,7 +21,8 @@ from __future__ import annotations
 import logging
 import warnings
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Iterator
+from collections.abc import Iterator
+from typing import TYPE_CHECKING
 
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
