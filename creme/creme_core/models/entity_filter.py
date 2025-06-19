@@ -20,10 +20,11 @@ from __future__ import annotations
 
 import logging
 # import warnings
+from collections.abc import Iterable, Iterator
 from copy import deepcopy
 from itertools import zip_longest
 from re import compile as compile_re
-from typing import TYPE_CHECKING, Iterable, Iterator, Literal, Type
+from typing import TYPE_CHECKING, Literal, Type
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType

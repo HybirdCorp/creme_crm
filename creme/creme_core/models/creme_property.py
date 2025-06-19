@@ -20,8 +20,8 @@ from __future__ import annotations
 
 import logging
 import warnings
+from collections.abc import Iterable, Iterator
 from copy import deepcopy
-from typing import Iterable, Iterator
 from uuid import uuid4
 
 from django.contrib.contenttypes.models import ContentType

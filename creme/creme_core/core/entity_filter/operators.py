@@ -19,9 +19,9 @@
 from __future__ import annotations
 
 import operator
+from collections.abc import Collection
 from datetime import date
 from functools import partial
-from typing import Collection
 
 from django.core.exceptions import ValidationError
 from django.db import models

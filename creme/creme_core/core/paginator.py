@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2024 Hybird
+# Copyright (c) 2016-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,11 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections.abc import Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from datetime import date, datetime
 from decimal import Decimal
 from functools import lru_cache
 from math import ceil
-from typing import Iterable, Iterator
 
 from django.core.exceptions import ValidationError
 from django.core.paginator import InvalidPage

@@ -20,9 +20,10 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
+from collections.abc import Iterable, Iterator
 from copy import deepcopy
 from itertools import chain
-from typing import TYPE_CHECKING, Iterable, Iterator
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from django.core.exceptions import ValidationError

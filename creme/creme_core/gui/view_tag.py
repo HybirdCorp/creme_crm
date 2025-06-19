@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2023  Hybird
+#    Copyright (C) 2023-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator
 from enum import Enum, auto
-from typing import Iterable, Iterator
 
 
 class ViewTag(Enum):

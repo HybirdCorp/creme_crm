@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Iterable
+from collections.abc import Iterable
 from uuid import uuid4
 
 from django.db import models

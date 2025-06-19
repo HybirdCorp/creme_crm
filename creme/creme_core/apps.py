@@ -17,8 +17,9 @@
 ################################################################################
 
 import logging
+from collections.abc import Sequence
 from sys import argv
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 from django.apps import AppConfig, apps
 from django.conf import settings

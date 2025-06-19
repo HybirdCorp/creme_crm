@@ -20,12 +20,12 @@ from __future__ import annotations
 
 import logging
 # import warnings
+from collections.abc import Container, Iterable, Iterator, Sequence
 from datetime import date, datetime, time
 from decimal import Decimal
 from functools import partial
 from json import JSONEncoder
 from json import loads as json_load
-from typing import Container, Iterable, Iterator, Sequence
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType

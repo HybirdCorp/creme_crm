@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2024 Hybird
+# Copyright (c) 2016-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
 # SOFTWARE.
 ################################################################################
 
-from typing import Callable
+from collections.abc import Callable
 
 from django.db.models import Model
 from django.utils.translation import gettext
@@ -41,7 +41,7 @@ def assign_2_charfield(instance: Model,
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by

@@ -19,8 +19,8 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable
 from functools import partial
-from typing import Iterable
 
 from django.db import models
 from django.db.transaction import atomic

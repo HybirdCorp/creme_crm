@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2022 Hybird
+# Copyright (c) 2016-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,10 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Iterable, Iterator, Sequence
 from fnmatch import fnmatch
 from functools import lru_cache
-from typing import Any, DefaultDict, Iterable, Iterator, Sequence
+from typing import Any, DefaultDict
 
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import ForeignKey, Model

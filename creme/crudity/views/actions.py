@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import Iterator
+from collections.abc import Iterator
 
 from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic

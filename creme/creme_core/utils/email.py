@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2022-2024 Hybird
+# Copyright (c) 2022-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,9 +27,10 @@ import imaplib
 import logging
 import poplib
 import socket
+from collections.abc import Iterator
 from email import message_from_bytes, policy
 from email.message import EmailMessage
-from typing import Iterator, Union
+from typing import Union
 
 from django.utils.translation import gettext
 

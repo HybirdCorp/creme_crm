@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import OrderedDict
+from collections.abc import Iterable
 from datetime import date
 from typing import TYPE_CHECKING
 from uuid import UUID
@@ -88,7 +89,7 @@ from creme.creme_core.utils.meta import FieldInfo
 from .. import constants
 
 if TYPE_CHECKING:
-    from typing import Any, Dict, Iterable, List, Set, Union
+    from typing import Any, Dict, List, Set, Union
 
     ValidatedData = Dict[Model, Set[str]]
     DeserializedInstance = Dict[str, Any]

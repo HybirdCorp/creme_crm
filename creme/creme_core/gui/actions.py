@@ -19,7 +19,8 @@
 from __future__ import annotations
 
 import warnings
-from typing import Iterator, Type
+from collections.abc import Iterator
+from typing import Type
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.base import Model

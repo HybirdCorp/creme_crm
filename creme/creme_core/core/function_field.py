@@ -19,7 +19,8 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Iterable, Iterator
+from collections.abc import Iterable, Iterator
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.db.models import Model

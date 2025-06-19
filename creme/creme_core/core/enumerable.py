@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Iterable, Iterator, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 
 from django.db.models import CharField, Field, Model
 from django.db.models.query_utils import Q

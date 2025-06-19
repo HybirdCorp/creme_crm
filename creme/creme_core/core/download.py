@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2024  Hybird
+#    Copyright (C) 2016-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
+from collections.abc import Callable, Iterable
 from os.path import basename
 from typing import TYPE_CHECKING
 
@@ -31,7 +32,7 @@ from ..models import CremeEntity, FieldsConfig, FileRef
 from ..utils.collections import ClassKeyedMap
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, DefaultDict, Iterable
+    from typing import Any, DefaultDict
 
     # Any is user ; PermissionDenied can be raised
     PermissionChecker = Callable[[Any, Model], None]

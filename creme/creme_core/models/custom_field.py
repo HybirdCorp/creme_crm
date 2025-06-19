@@ -19,7 +19,8 @@
 from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
-from typing import Any, DefaultDict, Iterable, Sequence
+from collections.abc import Iterable, Sequence
+from typing import Any, DefaultDict
 from uuid import uuid4
 
 from django import forms

@@ -20,8 +20,9 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
+from collections.abc import Iterable, Iterator
 from copy import deepcopy
-from typing import Any, DefaultDict, Iterable, Iterator
+from typing import Any, DefaultDict
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured

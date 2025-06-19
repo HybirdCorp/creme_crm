@@ -19,8 +19,8 @@
 from __future__ import annotations
 
 from collections import OrderedDict
+from collections.abc import Sequence
 from functools import partial
-from typing import Sequence
 
 from django.apps import apps
 from django.conf import settings

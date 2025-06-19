@@ -19,10 +19,10 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Sequence
 from copy import deepcopy
 from importlib import import_module
 from traceback import format_exception
-from typing import Sequence
 
 from django.apps import apps
 from django.conf import settings

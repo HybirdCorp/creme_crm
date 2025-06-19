@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -89,7 +89,7 @@ class ReassignedLineCloner(EntityCloner):
 
 
 class LinesCopier(copying.PostSaveCopier):
-    line_cloner_classes: dict[type['Line'], type[ReassignedLineCloner]] = {}
+    line_cloner_classes: dict[type[Line], type[ReassignedLineCloner]] = {}
     default_line_cloner_class = ReassignedLineCloner
 
     def copy_to(self, target):

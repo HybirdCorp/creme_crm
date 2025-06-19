@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2017-2020 Hybird
+# Copyright (c) 2017-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,8 +24,8 @@
 
 import sys
 import traceback
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable
 
 
 def log_exceptions(printer: Callable[[str], None], limit: int = 10):

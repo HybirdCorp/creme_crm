@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Iterable, Sequence
+from collections.abc import Iterable, Sequence
 from urllib.parse import urlencode
 
 from django.conf import settings
