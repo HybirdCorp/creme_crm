@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -154,7 +154,7 @@ class TransformIntoUserButton(Button):
         "A Contact is automatically created when you create a user; with "
         "this button you can create the user linked to an existing Contact "
         "(you don't have to merge the existing Contact with the one created by "
-        "the user creation form.\n"
+        "the user creation form).\n"
         "Only superusers can use this button.\n"
         "App: Accounts and Contacts"
     )

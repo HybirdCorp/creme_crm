@@ -1,6 +1,6 @@
 == Version 2.6.10 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .po (emails)
+  TODO: compile .po (persons, emails)
 
   Users side :
   ------------
