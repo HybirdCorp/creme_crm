@@ -17,7 +17,7 @@ else:
     from django.utils.translation import gettext_lazy as _
     from django.utils.translation import pgettext_lazy
 
-    from ..constants import DEFAULT_CURRENCY_PK
+    # from ..constants import DEFAULT_CURRENCY_PK
     from ..core.entity_filter import EF_REGULAR
     from ..models import (
         CremeEntity,
@@ -30,6 +30,7 @@ else:
         deletion,
     )
     from ..models import fields as core_fields
+    from ..models.currency import get_default_currency_pk
 
     __all__ = (
         'FakeFolderCategory', 'FakeFolder',
@@ -615,7 +616,9 @@ else:
         ).set_tags(optional=True)
         currency = models.ForeignKey(
             Currency, verbose_name=_('Currency'), related_name='+',
-            default=DEFAULT_CURRENCY_PK, on_delete=models.PROTECT,
+            # default=DEFAULT_CURRENCY_PK,
+            default=get_default_currency_pk,
+            on_delete=models.PROTECT,
         )
 
         periodicity = core_fields.DatePeriodField(

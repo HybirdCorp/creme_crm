@@ -11,7 +11,7 @@ from parameterized import parameterized
 
 from creme import products
 from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
-from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+# from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
@@ -213,6 +213,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         # ---
         name = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
+        currency = Currency.objects.all()[0]
         self.assertNoFormError(self.client.post(
             url,
             follow=True,
@@ -223,7 +224,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'expected_closing_date': self.formfield_value_date(2010, 9, 20),
                 'closing_date':          self.formfield_value_date(2010, 10, 11),
                 'first_action_date':     self.formfield_value_date(2010, 7, 13),
-                'currency':              DEFAULT_CURRENCY_PK,
+                # 'currency':              DEFAULT_CURRENCY_PK,
+                'currency':              currency.id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
@@ -258,6 +260,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         name = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
+        currency = Currency.objects.all()[0]
         response = self.assertPOST200(
             self.ADD_URL,
             follow=True,
@@ -268,7 +271,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'expected_closing_date': self.formfield_value_date(2010, 9, 20),
                 'closing_date':          self.formfield_value_date(2010, 10, 11),
                 'first_action_date':     self.formfield_value_date(2010, 7, 13),
-                'currency':              DEFAULT_CURRENCY_PK,
+                # 'currency':              DEFAULT_CURRENCY_PK,
+                'currency':              currency.id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
@@ -306,9 +310,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             data={
                 'user':         user.pk,
                 'name':         'My opportunity',
-                'sales_phase':  SalesPhase.objects.all()[0].id,
+                'sales_phase':  SalesPhase.objects.first().id,
                 'closing_date': self.formfield_value_date(2011, 3, 14),
-                'currency':     DEFAULT_CURRENCY_PK,
+                # 'currency':     DEFAULT_CURRENCY_PK,
+                'currency':     Currency.objects.first().id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
@@ -373,6 +378,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         # POST ---
         phase = SalesPhase.objects.all()[0]
+        currency = Currency.objects.all()[0]
         name = f'Opportunity linked to {target}'
         self.assertNoFormError(self.client.post(
             url,
@@ -382,7 +388,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':         name,
                 'sales_phase':  phase.id,
                 'closing_date': self.formfield_value_date(2011, 3, 12),
-                'currency':     DEFAULT_CURRENCY_PK,
+                # 'currency':     DEFAULT_CURRENCY_PK,
+                'currency':     currency.id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
@@ -405,7 +412,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':         f'Opportunity Two linked to {target}',
                 'sales_phase':  phase.id,
                 'closing_date': self.formfield_value_date(2011, 3, 12),
-                'currency':     DEFAULT_CURRENCY_PK,
+                # 'currency':     DEFAULT_CURRENCY_PK,
+                'currency':     currency.id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
@@ -419,35 +427,36 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         target, emitter = self._create_target_n_emitter(user=user)
         url = self._build_addrelated_url(target, popup=True)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(
             _('New opportunity targeting «{entity}»').format(entity=target),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(Opportunity.save_label, context.get('submit_label'))
 
         get_initial = context['form'].initial.get
         self.assertIsInstance(get_initial('sales_phase'), SalesPhase)
 
-        # ---
+        # POST ---
         phase = SalesPhase.objects.all()[0]
+        currency = Currency.objects.all()[0]
         name = f'Opportunity linked to {target}'
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 'user':         user.pk,
                 'name':         name,
                 'sales_phase':  phase.id,
                 'closing_date': self.formfield_value_date(2011, 3, 12),
-                'currency':     DEFAULT_CURRENCY_PK,
+                # 'currency':     DEFAULT_CURRENCY_PK,
+                'currency':     currency.id,
 
                 self.EMITTER_KEY: emitter.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase, opportunity.sales_phase)
@@ -498,8 +507,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertGET200(url)
 
         phase = SalesPhase.objects.all()[0]
+        currency = Currency.objects.all()[0]
         name = f'Opportunity linked to {target}'
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             follow=True,
             data={
@@ -507,13 +517,13 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':         name,
                 'sales_phase':  phase.id,
                 'closing_date': self.formfield_value_date(2011, 3, 12),
-                'currency':     DEFAULT_CURRENCY_PK,
+                # 'currency':     DEFAULT_CURRENCY_PK,
+                'currency':     currency.id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase, opportunity.sales_phase)
@@ -522,7 +532,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
         self.assertHaveRelation(target,  type=REL_SUB_PROSPECT,            object=emitter)
 
-        response = self.client.post(
+        # ---
+        self.assertNoFormError(self.client.post(
             url,
             follow=True,
             data={
@@ -530,13 +541,13 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':         f'Opportunity 2 linked to {target}',
                 'sales_phase':  phase.id,
                 'closing_date': self.formfield_value_date(2011, 3, 12),
-                'currency':     DEFAULT_CURRENCY_PK,
+                # 'currency':     DEFAULT_CURRENCY_PK,
+                'currency':     currency.id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
         self.assertHaveRelation(subject=target, type=REL_SUB_PROSPECT, object=emitter)
 
     @skipIfCustomContact
@@ -548,6 +559,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertGET200(url)
 
         phase = SalesPhase.objects.all()[0]
+        currency = Currency.objects.all()[0]
         name = f'Opportunity linked to {target}'
         response = self.client.post(
             url,
@@ -557,7 +569,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'sales_phase':  phase.id,
                 'closing_date': self.formfield_value_date(2011, 3, 12),
                 'target':       self.formfield_value_generic_entity(target),
-                'currency':     DEFAULT_CURRENCY_PK,
+                # 'currency':     DEFAULT_CURRENCY_PK,
+                'currency':     currency.id,
 
                 self.EMITTER_KEY: emitter.id,
             },

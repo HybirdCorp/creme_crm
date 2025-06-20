@@ -27,11 +27,19 @@ MODELBRICK_ID = 'model'
 # Money money money ---
 DEFAULT_VAT = Decimal(getattr(settings, 'DEFAULT_VAT', '20.0'))  # TODO: depends on country...
 
-DEFAULT_CURRENCY_PK = 1
+# DEFAULT_CURRENCY_PK = 1
 # DISPLAY_CURRENCY_LOCAL_SYMBOL = 'creme_core-display_currency_local_symbol'
 
 
 def __getattr__(name):
+    if name == 'DEFAULT_CURRENCY_PK':
+        warnings.warn(
+            '"DEFAULT_CURRENCY_PK" is deprecated; '
+            'use Currency.objects.default().id instead.',
+            DeprecationWarning,
+        )
+        return 1
+
     if name == 'DISPLAY_CURRENCY_LOCAL_SYMBOL':
         warnings.warn(
             '"DISPLAY_CURRENCY_LOCAL_SYMBOL" is deprecated; '

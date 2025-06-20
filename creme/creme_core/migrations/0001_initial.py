@@ -8,6 +8,7 @@ from django.utils.timezone import now, zoneinfo
 
 import creme.creme_core.models.deletion as creme_deletion
 import creme.creme_core.models.fields as core_fields
+from creme.creme_core.models.currency import get_default_currency_pk
 
 
 class Migration(migrations.Migration):
@@ -1818,7 +1819,9 @@ class Migration(migrations.Migration):
                         'currency',
                         models.ForeignKey(
                             verbose_name='Currency', to='creme_core.Currency',
-                            related_name='+', on_delete=models.PROTECT, default=1,
+                            related_name='+', on_delete=models.PROTECT,
+                            # default=1,
+                            default=get_default_currency_pk,
                         )
                     ),
                     ('periodicity', core_fields.DatePeriodField(null=True, verbose_name='Periodicity of the generation', blank=True)),

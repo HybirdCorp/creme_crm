@@ -31,13 +31,14 @@ from django.db.transaction import atomic
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+# from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import (
     CREME_REPLACE_NULL,
     CremeEntity,
     Currency,
     Relation,
 )
+from creme.creme_core.models.currency import get_default_currency_pk
 from creme.creme_core.models.fields import MoneyField
 
 from ..constants import (
@@ -87,7 +88,9 @@ class Base(CremeEntity):
 
     currency = models.ForeignKey(
         Currency, verbose_name=_('Currency'), related_name='+',
-        default=DEFAULT_CURRENCY_PK, on_delete=models.PROTECT,
+        # default=DEFAULT_CURRENCY_PK,
+        default=get_default_currency_pk,
+        on_delete=models.PROTECT,
     )
 
     comment = models.TextField(_('Comment'), blank=True).set_tags(optional=True)

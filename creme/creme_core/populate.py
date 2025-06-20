@@ -115,6 +115,21 @@ class Populator(BasePopulator):
             default_outputs=[OUTPUT_EMAIL],
         ),
     ]
+    CURRENCIES = [
+        Currency(
+            uuid='5777ec02-5b60-4276-9923-c833ba32df22',
+            name=_('Euro'),
+            local_symbol=_('€'),
+            international_symbol=_('EUR'),
+            # 'is_custom': False,
+        ),
+        Currency(
+            uuid='97d30dd5-fd4d-4579-9a15-ddda78443bdd',
+            name=_('United States dollar'),
+            local_symbol=_('$'),
+            international_symbol=_('USD'),
+        ),
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -141,7 +156,7 @@ class Populator(BasePopulator):
         self._populate_root()
         super()._first_populate()
         self._populate_roles()
-        self._populate_optional_currencies()
+        # self._populate_optional_currencies()
         self._populate_languages()
         self._populate_vats()
 
@@ -201,25 +216,27 @@ class Populator(BasePopulator):
             )
 
     def _populate_currencies(self):
-        Currency.objects.get_or_create(
-            id=constants.DEFAULT_CURRENCY_PK,
-            defaults={
-                'name': _('Euro'),
-                'local_symbol': _('€'),
-                'international_symbol': _('EUR'),
-                'is_custom': False,
-            },
-        )
+        # Currency.objects.get_or_create(
+        #     id=constants.DEFAULT_CURRENCY_PK,
+        #     defaults={
+        #         'name': _('Euro'),
+        #         'local_symbol': _('€'),
+        #         'international_symbol': _('EUR'),
+        #         'is_custom': False,
+        #         # 'is_default': True,  # Not useful
+        #     },
+        # )
+        self._save_minions(self.CURRENCIES)
 
-    def _populate_optional_currencies(self):
-        Currency.objects.get_or_create(
-            id=2,
-            defaults={
-                'name': _('United States dollar'),
-                'local_symbol': _('$'),
-                'international_symbol': _('USD'),
-            },
-        )
+    # def _populate_optional_currencies(self):
+    #     Currency.objects.get_or_create(
+    #         id=2,
+    #         defaults={
+    #             'name': _('United States dollar'),
+    #             'local_symbol': _('$'),
+    #             'international_symbol': _('USD'),
+    #         },
+    #     )
 
     def _populate_languages(self):
         Language.objects.bulk_create([
