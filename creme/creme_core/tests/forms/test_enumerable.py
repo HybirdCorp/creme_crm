@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.test.utils import override_settings
+from django.forms.models import ModelForm
+from django.test.utils import isolate_apps, override_settings
 from django.urls.base import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
@@ -440,6 +441,60 @@ class EnumerableModelChoiceFieldTestCase(CremeTestCase):
 
         expected = [
             EnumerableChoice('', '---------').as_dict(),
+            EnumerableChoice(farming.pk, str(farming)).as_dict(),
+            EnumerableChoice(industry.pk, str(industry)).as_dict(),
+            EnumerableChoice(software.pk, str(software)).as_dict(),
+        ]
+
+        self.assertListEqual(expected, [c.as_dict() for c in field.choices])
+
+    @isolate_apps("creme.creme_core.tests.forms")
+    def test_callable_default(self):
+        farming, industry, software = FakeSector.objects.order_by('pk')
+
+        def get_default_sector():
+            try:
+                FakeSector.objects.get(title='default')
+            except FakeSector.DoesNotExist:
+                pass
+
+        from django.db import models
+
+        class FakeEnumerableModel(models.Model):
+            sector = models.ForeignKey(
+                FakeSector, verbose_name=_('Line of business'),
+                blank=True, null=True,
+                on_delete=models.SET_NULL,
+                default=get_default_sector,
+            )
+
+        class FakeEnumerableForm(ModelForm):
+            class Meta:
+                model = FakeEnumerableModel
+                fields = ('sector',)
+
+        form = FakeEnumerableForm()
+        field = form.fields['sector']
+
+        self.assertTrue(isinstance(field, EnumerableModelChoiceField))
+        self.assertTrue(field.show_hidden_initial)
+        self.assertEqual(field.initial, get_default_sector)
+        self.assertIsInstance(field.widget, EnumerableSelect)
+
+        expected = [
+            EnumerableChoice('', '---------').as_dict(),
+            EnumerableChoice(farming.pk, str(farming)).as_dict(),
+            EnumerableChoice(industry.pk, str(industry)).as_dict(),
+            EnumerableChoice(software.pk, str(software)).as_dict(),
+        ]
+
+        self.assertListEqual(expected, [c.as_dict() for c in field.choices])
+
+        default = FakeSector.objects.create(title='default')
+
+        expected = [
+            EnumerableChoice('', '---------').as_dict(),
+            EnumerableChoice(default.pk, str(default), selected=True).as_dict(),
             EnumerableChoice(farming.pk, str(farming)).as_dict(),
             EnumerableChoice(industry.pk, str(industry)).as_dict(),
             EnumerableChoice(software.pk, str(software)).as_dict(),
