@@ -208,6 +208,7 @@ class Populator(BasePopulator):
                 'local_symbol': _('€'),
                 'international_symbol': _('EUR'),
                 'is_custom': False,
+                # 'is_default': True,  # Not useful
             },
         )
 
