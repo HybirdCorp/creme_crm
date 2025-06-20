@@ -162,7 +162,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             number_f.help_text,
         )
         # self.assertEqual(default_status.id, form.initial.get('status'))
-        self.assertEqual(default_status.id, status_f.initial)
+        self.assertEqual(default_status.id, status_f.get_bound_field(form, 'status').initial)
 
         # ---
         terms = SettlementTerms.objects.all()[0]
@@ -192,7 +192,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         response1 = self.assertGET200(reverse('billing__create_quote'))
         # self.assertEqual(status.id, response1.context['form'].initial.get('status'))
-        self.assertEqual(status.id, response1.context['form'].fields['status'].initial)
+        form = response1.context['form']
+        self.assertEqual(status.id, form.fields['status'].get_bound_field(form, 'status').initial)
 
         # ---
         source, target1 = self.create_orgas(user=user)
@@ -321,7 +322,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             },
             form.initial,
         )
-        self.assertEqual(default_status.id, status_f.initial)
+        self.assertEqual(default_status.id, status_f.get_bound_field(form, 'status').initial)
 
         # ---
         name = 'Quote#1'
@@ -368,7 +369,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             reverse('billing__create_related_quote', args=(target.id,)),
         )
         # self.assertEqual(status.id, response.context['form'].initial.get('status'))
-        self.assertEqual(status.id, self.get_form_or_fail(response).fields['status'].initial)
+        form = self.get_form_or_fail(response)
+        self.assertEqual(status.id, form.fields['status'].get_bound_field(form, 'status').initial)
 
     def test_create_related__creation_credentials(self):
         "Creation creds are needed."
