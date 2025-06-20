@@ -626,7 +626,11 @@ class CremeCoreConfig(CremeAppConfig):
         register_model = config_registry.register_model
         register_model(models.Language, 'language')
         register_model(models.Currency, 'currency')
-        register_model(models.Vat,      'vat_value')
+        register_model(models.Vat,      'vat_value').edition(
+            # TODO: should we provide a customised error message?
+            #       (e.g. which instances are blocking edition)
+            enable_func=lambda instance, user: not instance.is_referenced
+        )
 
         if settings.TESTS_ON:
             from .tests import fake_bricks, fake_models
