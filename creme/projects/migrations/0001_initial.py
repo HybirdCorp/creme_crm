@@ -6,6 +6,7 @@ from django.db.models.deletion import CASCADE, PROTECT
 
 import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CREME_REPLACE
+from creme.creme_core.models.currency import get_default_currency_pk
 
 
 class Migration(migrations.Migration):
@@ -70,7 +71,9 @@ class Migration(migrations.Migration):
                 (
                     'currency',
                     models.ForeignKey(
-                        related_name='+', on_delete=PROTECT, default=1,
+                        related_name='+', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_currency_pk,
                         verbose_name='Currency', to='creme_core.Currency',
                     )
                 ),

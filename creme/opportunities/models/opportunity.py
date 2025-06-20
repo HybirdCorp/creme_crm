@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,8 +29,9 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 import creme.creme_core.models as core_models
-from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+# from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import fields as core_fields
+from creme.creme_core.models.currency import get_default_currency_pk
 
 # from creme.persons import get_organisation_model
 # from creme.persons.workflow import transform_target_into_prospect
@@ -93,7 +94,9 @@ class AbstractOpportunity(core_models.CremeEntity):
     ).set_tags(optional=True)
     currency = models.ForeignKey(
         core_models.Currency, verbose_name=_('Currency'),
-        default=DEFAULT_CURRENCY_PK, on_delete=models.PROTECT,
+        # default=DEFAULT_CURRENCY_PK,
+        default=get_default_currency_pk,
+        on_delete=models.PROTECT,
     )
 
     sales_phase = models.ForeignKey(

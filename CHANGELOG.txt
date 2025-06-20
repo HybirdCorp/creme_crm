@@ -42,6 +42,8 @@
         - EntityFilters are now grouped by owner in list-views, like HeaderFilters.
     # The deletion views have now a better display for the dependencies issues.
       Example: entities are displayed as HTML links.
+    # The Currencies have now a "Is default?" field to chose the Currency
+      which is pre-selected in forms (Invoices, Quotes, Opportunities...).
     # NotificationBox : The elapsed time from message creation is now updated each minute.
     # Apps :
         * Activities :
@@ -135,8 +137,11 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
-            - The constant 'DISPLAY_CURRENCY_LOCAL_SYMBOL' is deprecated;
-              use 'creme_core.setting_keys.currency_symbol_key.id' instead.
+            - In 'creme_core.constants' :
+                - The constant 'DEFAULT_CURRENCY_PK' is deprecated;
+                  use 'Currency.objects.default().id' instead.
+                - The constant 'DISPLAY_CURRENCY_LOCAL_SYMBOL' is deprecated;
+                  use 'creme_core.setting_keys.currency_symbol_key.id' instead.
             - The method 'creme_core.core.entity_cell.EntityCellCustomField.build()' with integer "value" is deprecated;
               pass a string (ID ou UUID) instead.
             - In 'creme_core.models' :
@@ -410,6 +415,7 @@
                 - can_export()
             - The field 'fields.DatePeriodField' does not accept strings as value anymore ;
               but you can now initialize it with a dictionary (e.g. {'type': 'days', 'value': 1}).
+        # The method 'creme_core.populate.Populator._populate_optional_currencies()' has been removed.
         # The classes inheriting 'creme_core.utils.date_range.DateRange' should implement the new method 'accept()'.
         # In 'creme_core.views' :
             - The class-view 'entity.EntityRestoration' now just checks the deletion credentials & the attribute "is_deleted".

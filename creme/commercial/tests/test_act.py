@@ -11,10 +11,11 @@ from creme.activities.constants import (
 )
 from creme.activities.models import ActivitySubType
 from creme.activities.tests.base import skipIfCustomActivity
-from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+# from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import (
+    Currency,
     EntityFilter,
     FakeOrganisation,
     Relation,
@@ -279,19 +280,19 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         name = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 'user':        user.id,
                 'name':        name,
                 'sales_phase': phase.id,
-                'currency':    DEFAULT_CURRENCY_PK,
+                # 'currency':    DEFAULT_CURRENCY_PK,
+                'currency':    Currency.objects.default().pk,
 
                 'cform_extra-opportunities_target': self.formfield_value_generic_entity(target),
                 'cform_extra-opportunities_emitter': emitter.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         opp = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase,   opp.sales_phase)

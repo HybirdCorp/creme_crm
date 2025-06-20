@@ -4,7 +4,8 @@ from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+# from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+from creme.creme_core.models import Currency
 from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 from creme.documents import get_document_model
 from creme.opportunities.models import SalesPhase
@@ -23,7 +24,7 @@ from .base import (
 
 
 @skipIfCustomOpportunity
-class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin):
+class MassImportTestCase(MassImportBaseTestCaseMixin, OpportunitiesBaseTestCase):
     lvimport_data = {
         'step': 1,
         # 'document': doc.id,
@@ -46,7 +47,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         # 'target_persons_contact_create':         True,
 
         'currency_colselect': 0,
-        'currency_defval':    DEFAULT_CURRENCY_PK,
+        # 'currency_defval':    DEFAULT_CURRENCY_PK,
 
         'reference_colselect':              0,
         'chance_to_win_colselect':          0,
@@ -109,6 +110,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
             },
         ))
 
+        currency = Currency.objects.all()[0]
         response = self.client.post(
             url, follow=True,
             data={
@@ -125,6 +127,8 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
                 'sales_phase_subfield': 'name',
                 'sales_phase_create': True,
                 'sales_phase_defval': sp5.pk,
+
+                'currency_defval': currency.id,
 
                 'target_persons_organisation_colselect': 5,
                 'target_persons_organisation_create': True,
@@ -145,6 +149,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         self.assertEqual(2000, opp1.made_sales)
         self.assertEqual(1,    SalesPhase.objects.filter(name=sp1.name).count())
         self.assertEqual(sp1,  opp1.sales_phase)
+        self.assertEqual(currency, opp1.currency)
         self.assertFalse(opp1.reference)
         self.assertIsNone(opp1.origin)
         self.assertEqual(emitter1, opp1.emitter)
@@ -206,6 +211,8 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
                 'sales_phase_subfield': 'name',
                 'sales_phase_create': '',  # <=======
                 # sales_phase_defval=[...],  # <=======
+
+                'currency_defval': Currency.objects.first().id,
 
                 'target_persons_organisation_colselect': 5,
                 'target_persons_organisation_create': True,
@@ -307,6 +314,8 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
                 'sales_phase_subfield': 'name',
                 'sales_phase_create': True,
 
+                'currency_defval': Currency.objects.first().id,
+
                 'target_persons_organisation_colselect': 5,
                 'target_persons_organisation_create': '',  # <===
                 'target_persons_contact_colselect': 6,
@@ -361,6 +370,8 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
             'sales_phase_subfield': 'name',
             'sales_phase_create': True,
 
+            'currency_defval': Currency.objects.first().id,
+
             'target_persons_organisation_colselect': 4,
             # 'target_persons_organisation_create': True,
             'target_persons_contact_colselect': 0,
@@ -385,15 +396,13 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         # ---
         role.admin_4_apps = ['opportunities']
         role.save()
-        response2 = self.client.post(url, follow=True, data=data)
-        self.assertNoFormError(response2)
+        self.assertNoFormError(self.client.post(url, follow=True, data=data))
 
         # ---
         role.creatable_ctypes.add(ContentType.objects.get_for_model(Organisation))
-        response3 = self.client.post(
+        self.assertNoFormError(self.client.post(
             url, follow=True, data={**data, 'target_persons_organisation_create': True},
-        )
-        self.assertNoFormError(response3)
+        ))
 
     @skipIfCustomOrganisation
     def test_mass_import06(self):
@@ -439,6 +448,8 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
                 'sales_phase_colselect': 5,
                 'sales_phase_subfield': 'name',
+
+                'currency_defval': Currency.objects.first().id,
 
                 'target_persons_organisation_colselect': 4,
                 'target_persons_organisation_create': True,

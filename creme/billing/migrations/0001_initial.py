@@ -9,6 +9,7 @@ import creme.creme_core.models.fields as core_fields
 from creme.billing.models import other_models
 from creme.billing.models.fields import BillingDiscountField
 from creme.creme_core.models import CREME_REPLACE, CREME_REPLACE_NULL
+from creme.creme_core.models.currency import get_default_currency_pk
 from creme.creme_core.models.vat import get_default_vat_pk
 
 
@@ -198,7 +199,9 @@ class Migration(migrations.Migration):
                     'currency',
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
-                        related_name='+', on_delete=PROTECT, default=1,
+                        related_name='+', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_currency_pk,
                     )
                 ),
                 (
@@ -332,7 +335,9 @@ class Migration(migrations.Migration):
                     'currency',
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
-                        related_name='+', on_delete=PROTECT, default=1,
+                        related_name='+', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_currency_pk,
                     )
                 ),
                 (
@@ -472,7 +477,9 @@ class Migration(migrations.Migration):
                     'currency',
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
-                        related_name='+', on_delete=PROTECT, default=1,
+                        related_name='+', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_currency_pk,
                     )
                 ),
                 (
@@ -605,7 +612,9 @@ class Migration(migrations.Migration):
                     'currency',
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
-                        related_name='+', on_delete=PROTECT, default=1,
+                        related_name='+', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_currency_pk,
                     )
                 ),
                 (
@@ -725,7 +734,9 @@ class Migration(migrations.Migration):
                     'currency',
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
-                        related_name='+', on_delete=PROTECT, default=1,
+                        related_name='+', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_currency_pk,
                     )
                 ),
                 (

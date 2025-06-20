@@ -7,8 +7,13 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme import persons
-from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-from creme.creme_core.models import FieldsConfig, Relation, RelationType
+# from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+from creme.creme_core.models import (
+    Currency,
+    FieldsConfig,
+    Relation,
+    RelationType,
+)
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.profiling import CaptureQueriesContext
@@ -818,36 +823,35 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         url = self._build_related_opp_url(event, casca)
-        response = self.assertGET200(url)
-        context = response.context
+        context1 = self.assertGET200(url).context
         self.assertEqual(
             _('Create an opportunity related to «{contact}»').format(contact=casca),
-            context.get('title'),
+            context1.get('title'),
         )
-        self.assertEqual(Opportunity.save_label, context.get('submit_label'))
+        self.assertEqual(Opportunity.save_label, context1.get('submit_label'))
 
         with self.assertNoException():
-            # target_f = context['form'].fields['target']
-            target_f = context['form'].fields['cform_extra-opportunities_target']
+            target_f = context1['form'].fields['cform_extra-opportunities_target']
 
         self.assertTrue(target_f.help_text)
 
+        # POST ---
         emitter = Organisation.objects.create(user=user, name='My society', is_managed=True)
 
         phase = SalesPhase.objects.all()[0]
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url, follow=True,
             data={
                 'user':        user.id,
                 'name':        name,
                 'sales_phase': phase.id,
-                'currency':    DEFAULT_CURRENCY_PK,
+                # 'currency':    DEFAULT_CURRENCY_PK,
+                'currency':    Currency.objects.default().id,
 
                 'cform_extra-opportunities_target': self.formfield_value_generic_entity(casca),
                 'cform_extra-opportunities_emitter': emitter.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         opp = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase, opp.sales_phase)
@@ -878,39 +882,42 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         url = self._build_related_opp_url(event, casca)
-        response = self.assertGET200(url)
+        context1 = self.assertGET200(url).context
 
         with self.assertNoException():
-            target_f = response.context['form'].fields['cform_extra-opportunities_target']
-
+            target_f = context1['form'].fields['cform_extra-opportunities_target']
         self.assertFalse(target_f.help_text)
 
+        # ---
         name = 'Opp01'
         data = {
             'user':        user.pk,
             'name':        name,
             'sales_phase': SalesPhase.objects.all()[0].id,
-            'currency':    DEFAULT_CURRENCY_PK,
+            # 'currency':    DEFAULT_CURRENCY_PK,
+            'currency': Currency.objects.default().id,
 
             'cform_extra-opportunities_target': rhino.id,
             'cform_extra-opportunities_emitter': emitter.id,
         }
 
-        response = self.assertPOST200(url, follow=True, data=data)
+        response2 = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            self.get_form_or_fail(response),
+            self.get_form_or_fail(response2),
             field='cform_extra-opportunities_target',
             errors=_(
                 'Select a valid choice. That choice is not one of the available choices.'
             ),
         )
 
+        # ---
         data['cform_extra-opportunities_target'] = hawks.id
-        response = self.client.post(url, follow=True, data=data)
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, follow=True, data=data))
 
         opp = self.get_object_or_fail(Opportunity, name=name)
-        self.assertHaveRelation(subject=opp, type=constants.REL_SUB_GEN_BY_EVENT, object=event)
+        self.assertHaveRelation(
+            subject=opp, type=constants.REL_SUB_GEN_BY_EVENT, object=event,
+        )
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -930,21 +937,21 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         emitter = Organisation.objects.create(user=user, name='My society', is_managed=True)
-
         name = 'Opp01'
-        response = self.client.post(
-            self._build_related_opp_url(event, casca), follow=True,
+        self.assertNoFormError(self.client.post(
+            self._build_related_opp_url(event, casca),
+            follow=True,
             data={
                 'user':        user.id,
                 'name':        name,
                 'sales_phase': SalesPhase.objects.first().id,
-                'currency':    DEFAULT_CURRENCY_PK,
+                # 'currency':    DEFAULT_CURRENCY_PK,
+                'currency': Currency.objects.default().id,
 
                 'cform_extra-opportunities_target': self.formfield_value_generic_entity(casca),
                 'cform_extra-opportunities_emitter': emitter.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         opp = self.get_object_or_fail(Opportunity, name=name)
         self.assertFalse(opp.description)

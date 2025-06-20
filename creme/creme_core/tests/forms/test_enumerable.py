@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
 from parameterized import parameterized
 
-from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+# from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.enumerable import EmptyEnumerator
 from creme.creme_core.forms.enumerable import (
     DEFAULT_LIMIT,
@@ -474,11 +474,14 @@ class EnumerableModelChoiceFieldTestCase(CremeTestCase):
         )
 
         self.assertIsNone(field1.empty_label)
-        self.assertEqual(DEFAULT_CURRENCY_PK, field1.initial)
+        # self.assertEqual(DEFAULT_CURRENCY_PK, field1.initial)
+        default_pk = Currency.objects.default().id
+        self.assertEqual(default_pk, field1.initial)
         self.assertIsNone(field1.user)
 
         # ---
-        other_currency = Currency.objects.exclude(id=DEFAULT_CURRENCY_PK)[0]
+        # other_currency = Currency.objects.exclude(id=DEFAULT_CURRENCY_PK)[0]
+        other_currency = Currency.objects.exclude(id=default_pk)[0]
         field2 = EnumerableModelChoiceField(
             FakeInvoice, 'currency', empty_label='No value…', initial=other_currency.pk,
         )

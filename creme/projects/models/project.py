@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,17 +26,18 @@ from django.utils.timezone import localtime, now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-from creme.creme_core.models import CREME_REPLACE, CremeEntity, Currency
+# from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+from creme.creme_core import models as core_models
+from creme.creme_core.models.currency import get_default_currency_pk
 
 from .projectstatus import ProjectStatus
 
 
-class AbstractProject(CremeEntity):
+class AbstractProject(core_models.CremeEntity):
     name = models.CharField(_('Name of the project'), max_length=100)
 
     status = models.ForeignKey(
-        ProjectStatus, verbose_name=_('Status'), on_delete=CREME_REPLACE,
+        ProjectStatus, verbose_name=_('Status'), on_delete=core_models.CREME_REPLACE,
     )
 
     start_date = models.DateTimeField(
@@ -50,13 +51,15 @@ class AbstractProject(CremeEntity):
     ).set_tags(optional=True)
 
     currency = models.ForeignKey(
-        Currency, verbose_name=_('Currency'), related_name='+',
-        default=DEFAULT_CURRENCY_PK, on_delete=models.PROTECT,
+        core_models.Currency, verbose_name=_('Currency'), related_name='+',
+        # default=DEFAULT_CURRENCY_PK,
+        default=get_default_currency_pk,
+        on_delete=models.PROTECT,
     )
 
     tasks_list = None
 
-    allowed_related = CremeEntity.allowed_related | {'tasks_set'}
+    allowed_related = core_models.CremeEntity.allowed_related | {'tasks_set'}
 
     creation_label = _('Create a project')
     save_label     = _('Save the project')
