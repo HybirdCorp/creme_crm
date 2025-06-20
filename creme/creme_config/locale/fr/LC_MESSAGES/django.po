@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CONFIG' APP
-# Copyright (C) 2024 Hybird
+# Copyright (C) 2025 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-09 10:52+0200\n"
+"POT-Creation-Date: 2025-06-20 13:39+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2476,6 +2476,9 @@ msgstr "Créer une configuration de champs pour «{model}»"
 msgid "New value: {model}"
 msgstr "Nouvelle valeur : {model}"
 
+msgid "Edition is disabled for this instance."
+msgstr "La modification est désactivée pour cette instance."
+
 msgid ""
 "The deleted value can be replaced in existing entities by another value. If "
 "a field cannot be empty, you must chose a replacing value."
@@ -2488,6 +2491,9 @@ msgstr ""
 msgid "A deletion process for an instance of «{model}» already exists."
 msgstr ""
 "Il y a déjà un processus de suppression pour une instance de «{model}»."
+
+msgid "Deletion is disabled for this instance."
+msgstr "La suppression est désactivée pour cette instance."
 
 msgid "Error. Please contact your administrator."
 msgstr "Erreur. Veuillez contacter votre administrateur."
