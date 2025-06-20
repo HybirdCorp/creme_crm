@@ -18,9 +18,11 @@
 
 import logging
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.transaction import atomic
 from django.utils.formats import number_format
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..constants import DEFAULT_VAT
@@ -55,6 +57,21 @@ class Vat(MinionModel):
         verbose_name = _('VAT')
         verbose_name_plural = _('VAT')
         ordering = ('value',)
+
+    # TODO: True uniqueness for the field 'value'
+    #       => need a data migration (beware to filters & workflow conditions)
+    def clean(self):
+        qs = type(self).objects.filter(value=self.value)
+        if self.id:
+            qs = qs.exclude(id=self.id)
+
+        if qs.exists():
+            raise ValidationError({
+                'value': ValidationError(
+                    gettext('There is already a VAT with this value.'),
+                    # code='TODO',
+                ),
+            })
 
     @atomic
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):

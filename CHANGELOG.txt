@@ -58,6 +58,7 @@
             - In the relation types configuration, you can now edit the "minimal display" value for standard types.
             - A view which displays all "FileRefs" (temporary files) has been added; it's only available for staff users.
             - A VAT cannot be edited if it's already referenced by an instance (classically a billing Line).
+              The VAT value is also unique now (but this is not retroactive yet).
         * Persons :
             - A new optional field has been added to 'Organisation': "code".
               You can use it to distinguish you managed organisations when you get several ones.

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-19 09:19+0200\n"
+"POT-Creation-Date: 2025-06-20 14:43+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2867,6 +2867,9 @@ msgstr "Par défaut ?"
 
 msgid "Create a VAT value"
 msgstr "Créer une valeur de TVA"
+
+msgid "There is already a VAT with this value."
+msgstr "Il y a déjà une TVA avec cette valeur."
 
 msgid "Title"
 msgstr "Titre"

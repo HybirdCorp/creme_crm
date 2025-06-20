@@ -1,6 +1,8 @@
 from decimal import Decimal
 from functools import partial
 
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
 
 from creme.creme_core.models import Vat
@@ -90,3 +92,28 @@ class VatTestCase(CremeTestCase):
         vat2.delete()
 
         self.assertTrue(self.refresh(vat1).is_default)
+
+    def test_clean(self):
+        value = Decimal('5.0')
+        vat1 = Vat(value=value)
+        with self.assertNoException():
+            vat1.clean()
+        vat1.save()
+
+        vat2 = Vat(value=value, is_default=True)
+        with self.assertRaises(ValidationError) as cm:
+            vat2.clean()
+        self.assertValidationError(
+            cm.exception,
+            messages={'value': _('There is already a VAT with this value.')},
+            # codes='...',
+        )
+
+        vat2.value = Decimal('5.5')
+        with self.assertNoException():
+            vat2.clean()
+        vat2.save()
+
+        vat1.is_default = True  # Edit with the same "value" => no error
+        with self.assertNoException():
+            vat1.clean()
