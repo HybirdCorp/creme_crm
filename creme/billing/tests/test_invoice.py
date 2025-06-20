@@ -547,7 +547,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             {self.TARGET_KEY: target},
             form.initial,
         )
-        self.assertEqual(1, status_f.initial)
+        self.assertEqual(1, status_f.get_bound_field(form, 'status').initial)
 
         # ---
         name = 'Invoice#1'
