@@ -23,7 +23,7 @@ from itertools import chain
 from django.core.exceptions import ValidationError
 from django.core.validators import EMPTY_VALUES
 from django.db import models
-from django.db.models import FileField
+from django.db.models import FileField, Model
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.utils.translation import gettext
@@ -35,12 +35,13 @@ logger = logging.getLogger(__name__)
 
 
 # Contribute -------------------------------------------------------------------
+# get_m2m_values() ---
 _M2M_CACHE_NAME = '_creme_m2m_values_cache'
 
 
 # TODO: accept field instance?
 # TODO: add a size limit?
-def _get_m2m_values(self: models.Model, field_name: str) -> list[models.Model]:
+def _get_m2m_values(self: Model, field_name: str) -> list[Model]:
     """Get the instances related to a ManyToManyField as a list.
     The important thing is that the list is kept in a cache:
         - Only the first call will perform a query
@@ -87,7 +88,8 @@ def _get_m2m_values(self: models.Model, field_name: str) -> list[models.Model]:
 
 
 # That's patching time baby!
-models.Model.get_m2m_values = _get_m2m_values
+assert not hasattr(Model, 'get_m2m_values')
+Model.get_m2m_values = _get_m2m_values
 
 
 @receiver(models.signals.m2m_changed, dispatch_uid='creme_core-update_m2m_cache')
@@ -122,10 +124,36 @@ def _update_m2m_cache(sender, instance, action, pk_set, **kwargs):
                 logger.critical('ManyToManyField not found: %s', sender)
 
 
-# Hooking [end] ----------------------------------------------------------------
+# is_referenced ---
+
+# TODO: another method ("populate_is_referenced"?) to group queries for several instances
+def _is_referenced(self: Model) -> bool:
+    """Is this instance referenced by a ForeignKey or A ManyToManyField?"""
+    # TODO: store a (limited) list of referencing instance in order
+    #       to build message error indicating which instances are concerned.
+    meta = self._meta
+
+    for rel_objects in (f for f in meta.get_fields() if f.one_to_many):
+        if getattr(self, rel_objects.get_accessor_name()).exists():
+            return True
+
+    for rel_objects in (
+        f for f in meta.get_fields(include_hidden=True) if f.many_to_many
+    ):
+        if getattr(self, rel_objects.get_accessor_name()).exists():
+            return True
+
+    return False
 
 
-class CremeModel(models.Model):
+# That's patching time baby!
+assert not hasattr(Model, 'is_referenced')
+Model.is_referenced = property(_is_referenced)
+
+# Contribute [end] ----------------------------------------------------------------
+
+
+class CremeModel(Model):
     creation_label = _('Create')
     save_label     = _('Save')
     # TODO: do a complete refactor for _CremeModel.selection_label

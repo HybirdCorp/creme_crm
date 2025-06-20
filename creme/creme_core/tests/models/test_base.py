@@ -1,6 +1,11 @@
 from django.core.exceptions import FieldDoesNotExist
 
-from creme.creme_core.models import FakeContact, FakeCountry, Language
+from creme.creme_core.models import (
+    FakeContact,
+    FakeCountry,
+    FakeSector,
+    Language,
+)
 
 from ..base import CremeTestCase
 
@@ -90,3 +95,28 @@ class GetM2MValuesTestCase(CremeTestCase):
 
         with self.assertRaises(TypeError):
             al.get_m2m_values('first_name')  # NOQA
+
+
+class IsReferencedTestCase(CremeTestCase):
+    def test_FK(self):
+        sector1, sector2 = FakeSector.objects.all()[:2]
+        FakeContact.objects.create(
+            user=self.get_root_user(), first_name='Alphonse', last_name='Elric',
+            sector=sector2,
+        )
+
+        self.assertIs(sector1.is_referenced, False)
+        self.assertIs(sector2.is_referenced, True)
+
+    def test_M2M(self):
+        create_language = Language.objects.create
+        l1 = create_language(name='English')
+        l2 = create_language(name='French')
+
+        al = FakeContact.objects.create(
+            user=self.get_root_user(), first_name='Alphonse', last_name='Elric',
+        )
+        al.languages.add(l2)
+
+        self.assertIs(l1.is_referenced, False)
+        self.assertIs(l2.is_referenced, True)
