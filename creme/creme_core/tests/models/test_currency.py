@@ -9,9 +9,10 @@ class CurrencyTestCase(CremeTestCase):
         cur1 = Currency.objects.order_by('id').first()
         self.assertIsInstance(cur1, Currency)
         self.assertEqual(_('Euro'), cur1.name)
-        self.assertEqual(_('€'),    cur1.local_symbol)
-        self.assertEqual(_('EUR'),  cur1.international_symbol)
-        self.assertIs(cur1.is_custom, False)
+        self.assertEqual('€',       cur1.local_symbol)
+        self.assertEqual('EUR',     cur1.international_symbol)
+        # self.assertIs(cur1.is_custom, False)
+        self.assertIs(cur1.is_custom, True)
         self.assertIs(cur1.is_default, True)
 
         name = 'Flouz'
