@@ -212,7 +212,9 @@ _I2R_NUMERAL_MAP = [
 # Thx to: http://www.daniweb.com/software-development/python/code/216865/roman-numerals-python
 def int_2_roman(i: int) -> str:
     "Convert an integer to its roman representation (string)."
-    assert i < 4000
+    if i >= 4000:
+        logger.critical('int_2_roman() should not be used with values >= 4000')
+        return '?'
 
     result = []
 

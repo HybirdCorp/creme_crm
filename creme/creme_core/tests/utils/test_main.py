@@ -195,8 +195,12 @@ class MiscTestCase(CremeTestCase):
             ],
             [int_2_roman(i) for i in range(1, 21)],
         )
-        self.assertEqual('MM',      int_2_roman(2000))
-        self.assertEqual('MCMXCIX', int_2_roman(1999))
+        self.assertEqual('MM',        int_2_roman(2000))
+        self.assertEqual('MCMXCIX',   int_2_roman(1999))
+        self.assertEqual('MMMCMXCIX', int_2_roman(3999))
+
+        with self.assertLogs(level='CRITICAL'):
+            self.assertEqual('?', int_2_roman(4000))
 
     def test_ellipsis(self):
         self.assertEqual('123456789', ellipsis('123456789', 9))
