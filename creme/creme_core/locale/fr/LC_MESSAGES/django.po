@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-20 14:43+0200\n"
+"POT-Creation-Date: 2025-06-23 14:03+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2294,6 +2294,9 @@ msgstr "Symbole local"
 msgid "International symbol"
 msgstr "Symbole international"
 
+msgid "Is default?"
+msgstr "Par défaut ?"
+
 msgid "Create a currency"
 msgstr "Créer une devise"
 
@@ -2862,9 +2865,6 @@ msgstr "{custom_model} [supprimé]"
 msgid "VAT"
 msgstr "TVA"
 
-msgid "Is default?"
-msgstr "Par défaut ?"
-
 msgid "Create a VAT value"
 msgstr "Créer une valeur de TVA"
 
@@ -2929,29 +2929,50 @@ msgstr ""
 "La fonctionnalité de rappel est utilisée par les Alertes & ToDos (de l'app "
 "Assistants) par exemple."
 
+msgid "Euro"
+msgstr "Euro"
+
+msgid "United States dollar"
+msgstr "Dollar américain"
+
+msgid "Pound sterling"
+msgstr "Livre sterling"
+
+msgid "Japanese yen"
+msgstr "Yen"
+
+msgid "Chinese yuan"
+msgstr "Yuan"
+
+msgid "South Korean won"
+msgstr "Won sud-coréen"
+
+msgid "Dinar"
+msgstr "Dinar algérien"
+
+msgid "Brazilian real"
+msgstr "Réal brésilien"
+
+msgid "Indian rupee"
+msgstr "Roupie indienne"
+
+msgid "Australian dollar"
+msgstr "Dollar australien"
+
+msgid "Swiss franc"
+msgstr "Franc suisse"
+
+msgid "CHF"
+msgstr "fr."
+
+msgid "Canadian dollar"
+msgstr "Dollar canadien"
+
 msgid "replaceMe@byYourAddress.com"
 msgstr "remplacezMoi@parVotreAdresse.fr"
 
 msgid "Regular user"
 msgstr "Utilisateur normal"
-
-msgid "Euro"
-msgstr "Euro"
-
-msgid "€"
-msgstr "€"
-
-msgid "EUR"
-msgstr "EUR"
-
-msgid "United States dollar"
-msgstr "Dollar américain"
-
-msgid "$"
-msgstr "$"
-
-msgid "USD"
-msgstr "USD"
 
 msgid "English"
 msgstr "Anglais"
