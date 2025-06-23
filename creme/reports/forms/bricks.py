@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -154,9 +154,9 @@ class GraphInstanceBrickForm(CremeModelForm):
     fetcher = GraphFetcherField(
         label=_('Volatile column'),
         help_text=_(
-            'When the graph is displayed on the detail-view of an entity, '
+            'When the chart is displayed on the detail-view of an entity, '
             'only the entities linked to this entity by the following link '
-            'are used to compute the graph.\n'
+            'are used to compute the chart.\n'
             'Notice: if you chose «No volatile column», the block will display '
             'the same data on Home & on detail-views (it could be useful to get '
             'a recall on general data anyway).',
@@ -164,7 +164,10 @@ class GraphInstanceBrickForm(CremeModelForm):
     )
 
     error_messages = {
-        'duplicated': _('The instance block for «{graph}» with these parameters already exists!'),
+        'duplicated': _(
+            # 'The instance block for «{graph}» with these parameters already exists!'
+            'The instance block for «{chart}» with these parameters already exists!'
+        ),
     }
 
     class Meta(CremeModelForm.Meta):
@@ -187,7 +190,8 @@ class GraphInstanceBrickForm(CremeModelForm):
         ):
             if extra_items == dict(ibci.extra_data_items):
                 raise ValidationError(
-                    self.error_messages['duplicated'].format(graph=graph),
+                    # self.error_messages['duplicated'].format(graph=graph),
+                    self.error_messages['duplicated'].format(chart=graph),
                     code='duplicated',
                 )
 

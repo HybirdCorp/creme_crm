@@ -2272,9 +2272,9 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
             (
                 'fetcher',
                 _(
-                    'The instance block for «{graph}» with these parameters'
+                    'The instance block for «{chart}» with these parameters'
                     ' already exists!'
-                ).format(graph=graph),
+                ).format(chart=graph),
             ),
         )
 

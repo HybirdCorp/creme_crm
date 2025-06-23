@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,7 @@ ReportGraph = reports.get_rgraph_model()
 class GraphCreation(generic.AddingInstanceToEntityPopup):
     model = ReportGraph
     form_class = ReportGraphForm
-    title = _('Create a graph for «{entity}»')
+    title = _('Create a chart for «{entity}»')
     entity_id_url_kwarg = 'report_id'
     entity_classes = reports.get_report_model()
 
@@ -64,7 +64,7 @@ class GraphEdition(generic.RelatedToEntityEditionPopup):
     form_class = ReportGraphForm
     permissions = 'reports'
     pk_url_kwarg = 'graph_id'
-    title = _('Edit a graph for «{entity}»')
+    title = _('Edit a chart for «{entity}»')
 
 
 class GraphFetchSettingsBase(base.CheckedView):

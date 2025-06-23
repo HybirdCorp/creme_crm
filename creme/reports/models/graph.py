@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,8 +24,8 @@ from typing import TYPE_CHECKING
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
+# from django.utils.translation import pgettext_lazy
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem
@@ -50,7 +50,8 @@ class AbstractReportGraph(CremeEntity):
     Aggregator = constants.OrdinateAggregator
 
     name = models.CharField(
-        pgettext_lazy('reports-graphs', 'Name of the graph'), max_length=100,
+        # pgettext_lazy('reports-graphs', 'Name of the graph'), max_length=100,
+        _('Name of the chart'), max_length=100,
     )
 
     linked_report = models.ForeignKey(
@@ -79,8 +80,10 @@ class AbstractReportGraph(CremeEntity):
     chart = models.CharField(_('Chart type'), max_length=100, null=True)
     asc   = models.BooleanField('ASC order', default=True, editable=False)  # TODO: not viewable ?
 
-    creation_label = _("Create a report's graph")
-    save_label     = pgettext_lazy('reports-graphs', 'Save the graph')
+    # creation_label = _("Create a report's graph")
+    creation_label = _("Create a report chart")
+    # save_label     = pgettext_lazy('reports-graphs', 'Save the graph')
+    save_label     = _('Save the chart')
 
     abscissa_constraints = abscissa_constraints
     ordinate_constraints = ordinate_constraints
@@ -90,8 +93,10 @@ class AbstractReportGraph(CremeEntity):
     class Meta:
         abstract = True
         app_label = 'reports'
-        verbose_name = _("Report's graph")
-        verbose_name_plural = _("Reports' graphs")
+        # verbose_name = _("Report's graph")
+        verbose_name = _('Report chart')
+        # verbose_name_plural = _("Reports' graphs")
+        verbose_name_plural = _('Report charts')
         ordering = ['name']
 
     def __str__(self):

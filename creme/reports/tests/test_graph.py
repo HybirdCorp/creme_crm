@@ -120,7 +120,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         url = self._build_add_graph_url(report)
         context = self.assertGET200(url).context
         self.assertEqual(
-            _('Create a graph for «{entity}»').format(entity=report),
+            _('Create a chart for «{entity}»').format(entity=report),
             context.get('title'),
         )
         self.assertEqual(ReportGraph.save_label, context.get('submit_label'))
@@ -793,7 +793,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         context = response.context
         self.assertEqual(
-            _('Edit a graph for «{entity}»').format(entity=report),
+            _('Edit a chart for «{entity}»').format(entity=report),
             context.get('title'),
         )
 

@@ -23,11 +23,11 @@
     <div class="brick-graph-header clearfix">
         <div class="graph-controls" data-fetch-settings-url="{{settings_update_url}}">
             <div class="graph-control graph-controls-type">
-                <span class="graph-control-name">{% translate 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
-                <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the type of visualisation for this graph' %}">
-                    {% for chart in charts %}
+                <span class="graph-control-name">{% translate 'Type of chart' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
+                <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the type of visualisation for this chart' %}">
+                  {% for chart in charts %}{# TODO: "chart_types" #}
                     <option value="{{chart.name}}" {% if chart.name == graph.chart %}selected{% endif %}>{{chart.label}}</option>
-                    {% endfor %}
+                  {% endfor %}
                 </select>
             </div>
             <div class="graph-control graph-controls-sort">
@@ -63,7 +63,7 @@
         </div>
     </div>
     {% endif %}
-    <div class="brick-d3-empty is-empty">{% translate 'No values or graph is not applicable here' %}</div>
+    <div class="brick-d3-empty is-empty">{% translate 'No values (or chart is not applicable here)' %}</div>
     {% endif %}
 {% endblock %}
 

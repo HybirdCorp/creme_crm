@@ -5,12 +5,11 @@
 {% block brick_extra_class %}{{block.super}} reports-graphs-brick{% endblock %}
 
 {% block brick_header_title %}
-{% translate 'Graphs' context 'reports-graphs' as empty_label %}
-    {% brick_header_title title=_('{count} Graph') plural=_('{count} Graphs') empty=empty_label icon='graph' %}
+    {% brick_header_title title=_('{count} Chart') plural=_('{count} Charts') empty=_('Charts') icon='graph' %}
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% brick_header_action id='add' url='reports__create_graph'|url:object.id label=_('Create a new graph') enabled=user|has_perm_to_change:object.report %}
+    {% brick_header_action id='add' url='reports__create_graph'|url:object.id label=_('Create a new chart') enabled=user|has_perm_to_change:object.report %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -37,7 +36,7 @@
         </td>
         <td {% brick_table_data_status action %}>
 {#            {% brick_table_action id='delete' url='creme_core__delete_entity'|url:graph.id label=_('Delete this graph') enabled=user|has_perm_to_delete:graph %} #}
-            {% brick_table_delete_entity_action entity=graph user=user label=_('Delete this graph') %}
+            {% brick_table_delete_entity_action entity=graph user=user label=_('Delete this chart') %}
         </td>
     </tr>
     <tr class="graph-row-title">
@@ -55,9 +54,9 @@
                 {% if row.data %}
                 <div class="graph-controls" data-fetch-settings-url="{{row.settings_update_url}}">
                     <div class="graph-control graph-controls-type">
-                        <span class="graph-control-name">{% translate 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
-                        <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the type of visualisation for this graph' %}">
-                          {% for chart in charts %}
+                        <span class="graph-control-name">{% translate 'Chart' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
+                        <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the type of visualisation for this chart' %}">
+                          {% for chart in charts %}{# TODO: "chart_types" #}
                             <option value="{{chart.name}}" {% if chart.name == graph.chart %}selected{% endif %}>{{chart.label}}</option>
                           {% endfor %}
                         </select>
@@ -86,7 +85,7 @@
                     {% endif  %}
                     {% endwith %}
                     <div class="graph-action">
-                        {% brick_table_action id='add' url='reports__create_instance_brick'|url:graph.id label=_('Create a block for this graph') display='text' enabled=admin_perm %}
+                        {% brick_table_action id='add' url='reports__create_instance_brick'|url:graph.id label=_('Create a block for this chart') display='text' enabled=admin_perm %}
                     </div>
                 </div>
             </div>
@@ -97,7 +96,7 @@
              {% elif row.error %}
              <div class="brick-d3-empty brick-error">{{row.error}}</div>
             {% else %}
-             <div class="brick-d3-empty">{% translate 'No values or graph is not applicable here' %}</div>
+             <div class="brick-d3-empty">{% translate 'No values (or chart is not applicable here)' %}</div>
             {% endif %}
         </td>
     </tr>
@@ -107,7 +106,7 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% translate 'No graphs registered for the moment' %}
+    {% translate 'No chart for the moment' %}
 {% endblock %}
 
 {% block brick_script %}

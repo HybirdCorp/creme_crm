@@ -197,7 +197,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         brick_node2 = self.get_brick_node(tree, brick=ReportGraphChartListBrick)
         self.assertEqual(
-            pgettext('reports-graphs', 'Graphs'), self.get_brick_title(brick_node2),
+            # pgettext('reports-graphs', 'Graphs'), self.get_brick_title(brick_node2),
+            _('Charts'), self.get_brick_title(brick_node2),
         )
 
     def test_createview01(self):
