@@ -1,6 +1,6 @@
 {% load i18n creme_widgets %}
 <li chained-name="graph" class="ui-creme-chainedselect-item">
-    {% translate 'Graph' context 'reports-graphs' %}:
+    {% translate 'Chart:' %}
     <select auto="False" widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect" style="width:12em;">
     {% for name, chart in report_charts %} 
         <option value="{{name}}" {% if rgraph.chart == name %}selected{% endif %}>{{chart.label}}</option>
@@ -8,7 +8,7 @@
     </select>
 </li>
 <li chained-name="sort" class="ui-creme-chainedselect-item">
-    {% translate 'Sorting' %}:
+    {% translate 'Sorting:' %}
     <select auto="False" widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect" style="width:8em;">
         <option value="ASC"{% if rgraph.asc %} selected{% endif %}>{% translate 'Ascending' %}</option>
         <option value="DESC"{% if not rgraph.asc %} selected{% endif %}>{% translate 'Descending' %}</option>

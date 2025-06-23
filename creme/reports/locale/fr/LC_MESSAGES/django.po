@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'REPORTS' APP
-# Copyright (C) 2024 Hybird
+# Copyright (C) 2025 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Reports 2.6\n"
+"Project-Id-Version: Creme Reports 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-14 18:06+0200\n"
+"POT-Creation-Date: 2025-06-23 18:30+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -73,30 +73,30 @@ msgstr ""
 "Les colonnes correspondent aux champs, champs personnalisés, relations…\n"
 "App : Rapports"
 
-msgid "Report's graphs"
+msgid "Report charts"
 msgstr "Graphiques de rapport"
 
 msgid ""
-"Adds & edits some graphs related to a report.\n"
-"A graph displays visually computed values, like the number of Invoices "
+"Adds & edits some charts related to a report.\n"
+"A chart displays visually computed values, like the number of Invoices "
 "created per month for example.\n"
 "App: Reports"
 msgstr ""
-"Ajoute & modifie des graphes liés à un rapport.\n"
-"Un graphe affiche visuellement des valeurs calculées, comme le nombre de "
+"Ajoute & modifie des graphiques liés à un rapport.\n"
+"Un graphique affiche visuellement des valeurs calculées, comme le nombre de "
 "Factures créées par mois par exemple.\n"
 "App : Rapports"
 
 #, python-brace-format
 msgid ""
-"This block displays the graph «{graph}», contained by the report "
+"This block displays the chart «{chart}», contained by the report "
 "«{report}».\n"
 "App: Reports"
 msgstr ""
-"Ce bloc affiche le graphe «{graph}», contenu par le rapport «{report}».\n"
+"Ce bloc affiche le graphique «{chart}», contenu par le rapport «{report}».\n"
 "App : Rapports"
 
-msgid "Report's graph"
+msgid "Report chart"
 msgstr "Graphique de rapport"
 
 msgid "Blocks"
@@ -259,9 +259,9 @@ msgid "Volatile column"
 msgstr "Colonne volatile"
 
 msgid ""
-"When the graph is displayed on the detail-view of an entity, only the "
+"When the chart is displayed on the detail-view of an entity, only the "
 "entities linked to this entity by the following link are used to compute the "
-"graph.\n"
+"chart.\n"
 "Notice: if you chose «No volatile column», the block will display the same "
 "data on Home & on detail-views (it could be useful to get a recall on "
 "general data anyway)."
@@ -274,8 +274,8 @@ msgstr ""
 "être utile en tant que rappel des données générales)."
 
 #, python-brace-format
-msgid "The instance block for «{graph}» with these parameters already exists!"
-msgstr "Le bloc d'instance pour «{graph}» avec ces paramètres existe déjà !"
+msgid "The instance block for «{chart}» with these parameters already exists!"
+msgstr "Le bloc d'instance pour «{chart}» avec ces paramètres existe déjà !"
 
 msgid ""
 "Filter field can only be updated when reports target the same type of "
@@ -382,8 +382,7 @@ msgstr "Aucun"
 msgid "Invalid volatile link; please contact your administrator."
 msgstr "Lien volatile invalide ; veuillez contacter votre administrateur."
 
-msgctxt "reports-graphs"
-msgid "Name of the graph"
+msgid "Name of the chart"
 msgstr "Nom du graphique"
 
 msgid "X axis (grouping)"
@@ -401,15 +400,11 @@ msgstr "Axe Y (type)"
 msgid "Y axis (field)"
 msgstr "Axe Y (champ)"
 
-msgid "Create a report's graph"
+msgid "Create a report chart"
 msgstr "Créer un graphique de rapport"
 
-msgctxt "reports-graphs"
-msgid "Save the graph"
+msgid "Save the chart"
 msgstr "Enregistrer le graphique"
-
-msgid "Reports' graphs"
-msgstr "Graphiques de rapport"
 
 msgid "Name of the report"
 msgstr "Nom du rapport"
@@ -530,7 +525,7 @@ msgstr ""
 msgid "{count} types of entity"
 msgstr ""
 
-msgid "No brick for this graph"
+msgid "No brick for this chart"
 msgstr "Pas de bloc pour ce graphique"
 
 msgctxt "reports-preview"
@@ -549,32 +544,30 @@ msgstr "Aperçu ({count} lignes)"
 msgid "Preview of the {count} first lines"
 msgstr "Aperçu des {count} premières lignes"
 
-msgctxt "reports-graphs"
-msgid "Graphs"
-msgstr "Graphiques"
-
 #, python-brace-format
-msgid "{count} Graph"
+msgid "{count} Chart"
 msgstr "{count} Graphique"
 
 #, python-brace-format
-msgid "{count} Graphs"
+msgid "{count} Charts"
 msgstr "{count} Graphiques"
 
-msgid "Create a new graph"
-msgstr "Créer un nouveau graphique"
+msgid "Charts"
+msgstr "Graphique"
+
+msgid "Create a new chart"
+msgstr "Créer un graphique de rapport"
 
 msgid "Actions"
 msgstr "Actions"
 
-msgid "Delete this graph"
+msgid "Delete this chart"
 msgstr "Supprimer ce graphique"
 
-msgctxt "reports-graphs"
-msgid "Graph"
+msgid "Chart"
 msgstr "Graphique"
 
-msgid "Select the type of visualisation for this graph"
+msgid "Select the type of visualisation for this chart"
 msgstr "Sélectionner le type de visualisation du graphique"
 
 msgid "Sorting"
@@ -595,14 +588,14 @@ msgid_plural "%(count)s configured blocks"
 msgstr[0] "%(count)s bloc configuré"
 msgstr[1] "%(count)s blocs configurés"
 
-msgid "Create a block for this graph"
+msgid "Create a block for this chart"
 msgstr "Créer un bloc pour ce graphique"
 
-msgid "No values or graph is not applicable here"
-msgstr "Aucune valeur ou le graphique n'est pas utilisable ici"
+msgid "No values (or chart is not applicable here)"
+msgstr "Aucune valeur (ou le graphique n'est pas utilisable ici)"
 
-msgid "No graphs registered for the moment"
-msgstr "Aucun graphique enregistré pour le moment"
+msgid "No chart for the moment"
+msgstr "Aucun graphique pour le moment"
 
 msgid "Reload"
 msgstr "Recharger"
@@ -613,6 +606,9 @@ msgstr ""
 
 msgid "Scale"
 msgstr "Zoom"
+
+msgid "Type of chart"
+msgstr "Type de graphique"
 
 msgid "Download CSV"
 msgstr "Télécharger CSV"
@@ -671,12 +667,18 @@ msgstr "Aperçu du rapport : «%(title)s»"
 msgid "Download as file"
 msgstr "Télécharger en tant que fichier"
 
+msgid "Chart:"
+msgstr "Graphique :"
+
+msgid "Sorting:"
+msgstr "Tri :"
+
 msgid "Regenerate"
 msgstr "Générer à nouveau"
 
 #, python-format
-msgid "Graph related to the report «%(report)s»"
-msgstr "Graphe lié au rapport «%(report)s»"
+msgid "Chart related to the report «%(report)s»"
+msgstr "Graphque lié au rapport «%(report)s»"
 
 #, python-brace-format
 msgid "Create an instance block for «{entity}»"
@@ -710,12 +712,12 @@ msgid "Fix your date filter"
 msgstr "Corrigez votre filtre temporel"
 
 #, python-brace-format
-msgid "Create a graph for «{entity}»"
+msgid "Create a chart for «{entity}»"
 msgstr "Créer un graphique pour «{entity}»"
 
 #, python-brace-format
-msgid "Edit a graph for «{entity}»"
-msgstr "Modifier un graphique pour «{entity}»"
+msgid "Edit a chart for «{entity}»"
+msgstr "Modifier un graphgfique pour «{entity}»"
 
 #, python-brace-format
 msgid "Link of the column «{object}»"
@@ -770,41 +772,17 @@ msgstr "Modifier les colonnes de «{object}»"
 #~ msgid "No field is usable for aggregation"
 #~ msgstr "Aucun n'est utilisable pour une agrégation"
 
-#~ msgid "You must make a count because no field is usable for aggregation"
-#~ msgstr ""
-#~ "Vous devez effectuer un comptage parce qu'aucun champ n'est utilisable "
-#~ "pour une agrégation"
-
-#~ msgid "This field is required if you choose a field to aggregate."
-#~ msgstr "Ce champ est obligatoire si vous choisissez un champ à aggréger."
-
 #~ msgid "Grouping"
 #~ msgstr "Groupage"
 
 #~ msgid "Days"
 #~ msgstr "Jours"
 
-#~ msgid "You have to specify a day range if you use 'by X days'"
-#~ msgstr ""
-#~ "Vous devez spécifier une échelle de jours si vous utilisez 'par X jours'"
-
-#~ msgid "(No block currently)"
-#~ msgstr "(Pas de bloc actuellement)"
-
 #~ msgid "Download «%(object)s»"
 #~ msgstr "Télécharger «%(object)s»"
 
 #~ msgid "Save the block"
 #~ msgstr "Enregistrer le bloc"
-
-#~ msgid "Portal of reports"
-#~ msgstr "Portail des rapports"
-
-#~ msgid "All reports"
-#~ msgstr "Liste des rapports"
-
-#~ msgid "Reports portal"
-#~ msgstr "Portail Rapports"
 
 #~ msgid "Can't edit"
 #~ msgstr "Modification interdite"
@@ -814,9 +792,6 @@ msgstr "Modifier les colonnes de «{object}»"
 
 #~ msgid "Column down"
 #~ msgstr "Descendre la colonne"
-
-#~ msgid "Go to %(graph)s's file"
-#~ msgstr "Aller sur la fiche de %(graph)s"
 
 #~ msgid "Reduce"
 #~ msgstr "Réduire"
@@ -829,12 +804,6 @@ msgstr "Modifier les colonnes de «{object}»"
 
 #~ msgid "Preview of the {count} first line"
 #~ msgstr "Aperçu des {count} premières lignes"
-
-#~ msgid "Add new graph"
-#~ msgstr "Ajouter un nouveau graphique"
-
-#~ msgid "Add a graph for «%s»"
-#~ msgstr "Ajouter un graphique pour «%s»"
 
 #~ msgid "Abscissa informations"
 #~ msgstr "Informations sur les abscisses"
@@ -856,9 +825,6 @@ msgstr "Modifier les colonnes de «{object}»"
 
 #~ msgid "Generate"
 #~ msgstr "Générer"
-
-#~ msgid "Related graph"
-#~ msgstr "Graphique relatif"
 
 #~ msgid "Download '%(object)s' as CSV file"
 #~ msgstr "Télécharger '%(object)s' sous forme de fichier CSV"

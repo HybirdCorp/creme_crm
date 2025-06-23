@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
                         to='creme_core.CremeEntity', on_delete=CASCADE,
                     )
                 ),
-                ('name', models.CharField(max_length=100, verbose_name='Name of the graph')),
+                ('name', models.CharField(max_length=100, verbose_name='Name of the chart')),
                 (
                     'abscissa_cell_value',
                     models.CharField(verbose_name='X axis (field)', max_length=100, editable=False)
@@ -133,8 +133,8 @@ class Migration(migrations.Migration):
             options={
                 'swappable': 'REPORTS_GRAPH_MODEL',
                 'ordering': ['name'],
-                'verbose_name': "Report's graph",
-                'verbose_name_plural': "Reports' graphs",
+                'verbose_name': 'Report chart',
+                'verbose_name_plural': 'Report charts',
             },
             bases=('creme_core.cremeentity',),
         ),
