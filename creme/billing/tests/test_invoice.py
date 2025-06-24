@@ -509,11 +509,13 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         with self.assertNoException():
             form = context['form']
+            status_f = form.fields['status']
 
         self.assertDictEqual(
             {'status': 1, self.TARGET_KEY: target},
             form.initial,
         )
+        self.assertEqual(1, status_f.get_bound_field(form, 'status').initial)
 
         # ---
         name = 'Invoice#1'
