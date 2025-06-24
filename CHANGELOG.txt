@@ -9,7 +9,7 @@
           the 'creme_populate' command on the default test database when the test suite is launched in
           parallel mode. This change is done to prevent cache leaking when the test processes are forked.
           This is a backport from Creme '2.7'.
-
+        # Fix EnumerableModelChoiceField handling of callable model field default (ModelField._get_default is a PROPERTY and should not be called)
 
 == Version 2.5.21 ==
 
