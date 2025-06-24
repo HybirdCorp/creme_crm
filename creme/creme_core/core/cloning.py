@@ -100,8 +100,10 @@ class EntityClonerRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
+    _cloner_classes: dict[type[CremeEntity], type[EntityCloner]]
+
     def __init__(self):
-        self._cloner_classes: dict[type[CremeEntity], type[EntityCloner]] = {}
+        self._cloner_classes = {}
 
     # TODO: 'def clone(instance):' ?
 

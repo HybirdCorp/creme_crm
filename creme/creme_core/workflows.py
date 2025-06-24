@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Literal
 from uuid import UUID
 
 from django.core.exceptions import FieldDoesNotExist, ValidationError
@@ -74,7 +75,9 @@ class _EntityTrigger(WorkflowTrigger):
     def source_class(self):
         raise NotImplementedError
 
-    def _activate(self, event: _EntityEvent):
+    def _activate(self, event):
+        assert isinstance(event, _EntityEvent)
+
         # NB: we avoid isinstance() & call get_real_entity() because some code
         #     could use raw entities to be faster, and so we get a simple
         #     <CremeEntity> object (not sure this case happens in vanilla code) .
@@ -151,6 +154,10 @@ class PropertyAddingTrigger(WorkflowTrigger):
     verbose_name = _('A property has been added')
     event_class = PropertyAdded
 
+    _entity_model: type[CremeEntity]
+    _ptype_uuid: UUID
+    _ptype = CremePropertyType | None | Literal[False]
+
     def __init__(self, *,
                  entity_model: type[CremeEntity],
                  ptype: str | CremePropertyType,
@@ -180,7 +187,9 @@ class PropertyAddingTrigger(WorkflowTrigger):
             f')'
         )
 
-    def _activate(self, event: PropertyAdded):
+    def _activate(self, event):
+        assert isinstance(event, PropertyAdded)
+
         prop = event.creme_property
 
         if (
@@ -214,7 +223,7 @@ class PropertyAddingTrigger(WorkflowTrigger):
             )
 
     @property
-    def entity_model(self):
+    def entity_model(self) -> type[CremeEntity]:
         return self._entity_model
 
     # TODO: factorise
@@ -244,6 +253,7 @@ class PropertyAddingTrigger(WorkflowTrigger):
     @classmethod
     def from_dict(cls, data) -> PropertyAddingTrigger:
         return cls(
+            # TODO: check is an entity model?
             entity_model=model_from_key(data['entity_model']),
             ptype=data['ptype'],
         )
@@ -263,6 +273,11 @@ class RelationAddingTrigger(WorkflowTrigger):
     type_id = 'creme_core-relation_adding'
     verbose_name = _('A relationship has been added')
     event_class = RelationAdded
+
+    _subject_model: type[CremeEntity]
+    _object_model: type[CremeEntity]
+    _rtype_id: str
+    _rtype = RelationType | None
 
     def __init__(self, *,
                  subject_model: type[CremeEntity],
@@ -297,7 +312,9 @@ class RelationAddingTrigger(WorkflowTrigger):
             f')'
         )
 
-    def _activate(self, event: RelationAdded):
+    def _activate(self, event):
+        assert isinstance(event, RelationAdded)
+
         rel = event.relation
 
         # NB: we avoid isinstance() & call get_real_entity() because some code
@@ -336,7 +353,7 @@ class RelationAddingTrigger(WorkflowTrigger):
             )
 
     @property
-    def object_model(self):
+    def object_model(self) -> type[CremeEntity]:
         return self._object_model
 
     # TODO: factorise
@@ -354,7 +371,7 @@ class RelationAddingTrigger(WorkflowTrigger):
         return rtype
 
     @property
-    def subject_model(self):
+    def subject_model(self) -> type[CremeEntity]:
         return self._subject_model
 
     @classmethod

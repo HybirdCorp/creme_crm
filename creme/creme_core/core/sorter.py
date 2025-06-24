@@ -447,8 +447,10 @@ class QuerySorter:
             return None, Order()
 
         ofield = OrderedField(ordering[0])
+        cell = EntityCellRegularField.build(model, ofield.field_name)
+        assert cell is not None
 
-        return EntityCellRegularField.build(model, ofield.field_name).key, ofield.order
+        return cell.key, ofield.order
 
     # TODO: what about unique_together ??
     # TODO: move to utils.meta ?

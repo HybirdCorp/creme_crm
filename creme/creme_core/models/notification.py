@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 import uuid
 from collections.abc import Iterable, Iterator, Sequence
+from typing import Literal
 
 from django.conf import settings
 from django.db import IntegrityError, models
@@ -94,7 +95,7 @@ class NotificationChannel(models.Model):
     creation_label = _('Create a channel')
     save_label     = _('Save the channel')
 
-    _channel_type = False
+    _channel_type: NotificationChannelType | None | Literal[False] = False
 
     class Meta:
         app_label = 'creme_core'

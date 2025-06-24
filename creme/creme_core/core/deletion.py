@@ -282,8 +282,10 @@ class EntityDeletorRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
+    _deletor_classes: dict[type[CremeEntity], type[EntityDeletor]]
+
     def __init__(self):
-        self._deletor_classes: dict[type[CremeEntity], type[EntityDeletor]] = {}
+        self._deletor_classes = {}
 
     def get(self, model: type[CremeEntity]) -> EntityDeletor | None:
         """Hint: if None is returned, you should not delete the instances of
