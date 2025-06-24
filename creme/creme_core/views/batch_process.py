@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,7 @@ from ..core.exceptions import BadRequestError
 from ..forms.batch_process import BatchProcessForm
 from ..http import CremeJsonResponse
 from ..models import Job
+from ..utils import worklow
 from ..utils.content_type import get_ctype_or_404
 from . import generic
 from .utils import build_cancel_path
@@ -70,6 +71,8 @@ def batch_process(request, ct_id):
             'form':          bp_form,
             'submit_label':  _('Run'),
             'cancel_url':    cancel_url,
+            # TODO: unit test
+            'help_message': worklow.form_help_message(model=ct.model_class()),
         },
     )
 
