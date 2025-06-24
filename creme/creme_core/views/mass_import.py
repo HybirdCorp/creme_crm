@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ from ..forms.mass_import import (
 from ..gui.mass_import import import_form_registry
 from ..models import Job, MassImportJobResult
 from ..models.utils import model_verbose_name_plural
-from ..utils import get_from_POST_or_404
+from ..utils import get_from_POST_or_404, worklow
 from ..utils.content_type import get_ctype_or_404
 from .utils import build_cancel_path
 
@@ -64,6 +64,7 @@ def mass_import(request, ct_id):
     user.has_perm_to_create_or_die(model)
 
     submit_label = _('Save the entities')
+    help_message = ''
 
     if request.method == 'POST':
         POST = request.POST
@@ -84,6 +85,9 @@ def mass_import(request, ct_id):
                         'has_header': cleaned_data['has_header'],
                     },
                 )
+
+                # TODO: unit test
+                help_message = worklow.form_help_message(model)
             else:
                 submit_label = _('Import this file')
         else:
@@ -123,6 +127,7 @@ def mass_import(request, ct_id):
             ),
             'cancel_url': cancel_url,
             'submit_label': submit_label,
+            'help_message': help_message,
         },
     )
 
