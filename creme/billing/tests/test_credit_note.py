@@ -1028,12 +1028,12 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             plural_title='{count} Received credit notes',
         )
         self.assertListEqual(
-            [_('Name'), _('Expiration date'), _('Status'), _('Total without VAT')],
+            [_('Name'), _('Expiration date'), _('Status'), _('Total without VAT'), _('Action')],
             self.get_brick_table_column_titles(brick_node2),
         )
         rows = self.get_brick_table_rows(brick_node2)
         table_cells = self.get_alone_element(rows).findall('.//td')
-        self.assertEqual(4, len(table_cells))
+        self.assertEqual(5, len(table_cells))
         self.assertInstanceLink(table_cells[0], entity=credit_note)
 
     def test_build(self):  # DEPRECATED

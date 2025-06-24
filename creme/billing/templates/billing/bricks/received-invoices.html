@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_perms creme_widgets %}
-{% load format_amount is_field_hidden not_op url from creme_core_tags %}
+{% load i18n creme_bricks creme_cells creme_perms creme_widgets %}
+{% load format_amount inner_edition_uri is_field_hidden listify not_op url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} billing-received-invoices-brick{% endblock %}
 
@@ -25,6 +25,8 @@
 
     {% brick_table_column_for_field ctype=objects_ctype field='status' title=_('Status') %}
     {% brick_table_column_for_field ctype=objects_ctype field='total_no_vat' data_type='money' %}{# TODO: data-type in model-field #}
+
+    {% brick_table_column title=_('Action') status='action' %}
 {% endblock %}
 
 {% block brick_table_rows %}
@@ -45,6 +47,15 @@
          <td>{{HIDDEN_VALUE}}</td>
          <td data-type="money">{{HIDDEN_VALUE}}</td>
         {% endif %}
+        <td {% brick_table_data_status action %}>
+            {% cell_4_regularfield model=invoice field="name" as name_cell %}
+            {% cell_4_regularfield model=invoice field="number" as number_cell %}
+            {% cell_4_regularfield model=invoice field="expiration_date" as exp_date_cell %}
+            {% cell_4_regularfield model=invoice field="status" as status_cell %}
+            {% listify name_cell number_cell exp_date_cell status_cell as cells %}
+            {% inner_edition_uri instance=invoice cells=cells as edition_uri %}
+            {% brick_table_action id='edit' url=edition_uri comeback=True label=_('Edit this invoice') enabled=user|has_perm_to_change:invoice %}
+        </td>
     </tr>
   {% endfor %}
  {% endwith %}

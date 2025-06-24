@@ -1167,12 +1167,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             title='{count} Received quote', plural_title='{count} Received quotes',
         )
         self.assertListEqual(
-            [_('Name'), _('Expiration date'), _('Status'), _('Total without VAT')],
+            [_('Name'), _('Expiration date'), _('Status'), _('Total without VAT'), _('Action')],
             self.get_brick_table_column_titles(brick_node2),
         )
         rows = self.get_brick_table_rows(brick_node2)
         table_cells = self.get_alone_element(rows).findall('.//td')
-        self.assertEqual(4, len(table_cells))
+        self.assertEqual(5, len(table_cells))
         self.assertInstanceLink(table_cells[0], entity=quote)
         self.assertEqual(
             date_format(quote.expiration_date, 'DATE_FORMAT'),
@@ -1206,12 +1206,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             brick=ReceivedQuotesBrick,
         )
         self.assertListEqual(
-            [_('Name'), _('Status'), _('Total without VAT')],
+            [_('Name'), _('Status'), _('Total without VAT'), _('Action')],
             self.get_brick_table_column_titles(brick_node),
         )
         rows = self.get_brick_table_rows(brick_node)
         row = self.get_alone_element(rows)
-        self.assertEqual(3, len(row.findall('.//td')))
+        self.assertEqual(4, len(row.findall('.//td')))
 
     @override_settings(HIDDEN_VALUE='?')
     def test_brick03(self):
@@ -1237,8 +1237,9 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         row = self.get_alone_element(rows)
 
         table_cells = row.findall('.//td')
-        self.assertEqual(4, len(table_cells))
+        self.assertEqual(5, len(table_cells))
         self.assertEqual('?', table_cells[0].text)
         self.assertEqual('?', table_cells[1].text)
         self.assertEqual('?', table_cells[2].text)
         self.assertEqual('?', table_cells[3].text)
+        self.assertEqual('—', table_cells[4].text)

@@ -321,7 +321,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
                 _('Sales phase'),
                 _('Estimated sales'),
                 _('Made sales'),
-                _('Action'),
+                _('Actions'),
             ],
             self.get_brick_table_column_titles(brick_node),
         )
@@ -330,7 +330,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         self.assertEqual(2, len(rows))
 
         table_cells1 = rows[0].findall('.//td')
-        self.assertEqual(5, len(table_cells1))
+        self.assertEqual(6, len(table_cells1))
         # TODO: test content
 
     def test_targeting02(self):
@@ -356,13 +356,13 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
                 _('Sales phase'),
                 # _('Estimated sales'),
                 _('Made sales'),
-                _('Action'),
+                _('Actions'),
             ],
             self.get_brick_table_column_titles(brick_node),
         )
 
         rows = self.get_brick_table_rows(brick_node)
-        self.assertEqual(4, len(rows[0].findall('.//td')))
+        self.assertEqual(5, len(rows[0].findall('.//td')))
         # TODO: test content
 
     def test_targeting03(self):
@@ -388,10 +388,10 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
                 _('Sales phase'),
                 _('Estimated sales'),
                 # _('Made sales'),
-                _('Action'),
+                _('Actions'),
             ],
             self.get_brick_table_column_titles(brick_node),
         )
 
         rows = self.get_brick_table_rows(brick_node)
-        self.assertEqual(4, len(rows[0].findall('.//td')))
+        self.assertEqual(5, len(rows[0].findall('.//td')))

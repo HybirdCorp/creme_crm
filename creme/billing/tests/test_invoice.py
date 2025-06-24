@@ -1789,12 +1789,15 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             plural_title='{count} Received invoices',
         )
         self.assertListEqual(
-            [_('Name'), _('Number'), _('Expiration date'), _('Status'), _('Total without VAT')],
+            [
+                _('Name'), _('Number'), _('Expiration date'), _('Status'),
+                _('Total without VAT'), _('Action'),
+            ],
             self.get_brick_table_column_titles(brick_node2),
         )
         rows = self.get_brick_table_rows(brick_node2)
         table_cells = self.get_alone_element(rows).findall('.//td')
-        self.assertEqual(5, len(table_cells))
+        self.assertEqual(6, len(table_cells))
         self.assertInstanceLink(table_cells[0], entity=invoice)
         self.assertEqual(invoice.number, table_cells[1].text)
         self.assertEqual(
@@ -1846,12 +1849,12 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             brick=bricks.ReceivedInvoicesBrick,
         )
         self.assertListEqual(
-            [_('Name'), _('Number'), _('Status'), _('Total without VAT')],
+            [_('Name'), _('Number'), _('Status'), _('Total without VAT'), _('Action')],
             self.get_brick_table_column_titles(brick_node),
         )
         rows = self.get_brick_table_rows(brick_node)
         row = self.get_alone_element(rows)
-        self.assertEqual(4, len(row.findall('.//td')))
+        self.assertEqual(5, len(row.findall('.//td')))
 
     @override_settings(HIDDEN_VALUE='?')
     def test_brick03(self):
@@ -1875,12 +1878,13 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         rows = self.get_brick_table_rows(brick_node)
         table_cells = self.get_alone_element(rows).findall('.//td')
-        self.assertEqual(5, len(table_cells))
+        self.assertEqual(6, len(table_cells))
         self.assertEqual('?', table_cells[0].text)
         self.assertEqual('?', table_cells[1].text)
         self.assertEqual('?', table_cells[2].text)
         self.assertEqual('?', table_cells[3].text)
         self.assertEqual('?', table_cells[4].text)
+        self.assertIsNone(table_cells[5].text)
 
 
 @skipIfCustomOrganisation
