@@ -957,9 +957,8 @@ class CremeUser(AbstractBaseUser):
     )
 
     last_name = models.CharField(_('Last name'), max_length=100, blank=True)
-    first_name = models.CharField(
-        _('First name'), max_length=100, blank=True,
-    )  # .set_tags(viewable=False)  # NB: blank=True for teams
+    # NB: blank=True for teams
+    first_name = models.CharField(_('First name'), max_length=100, blank=True)
     email = models.EmailField(_('Email address'), blank=True)
 
     displayed_name = models.CharField(
@@ -971,27 +970,18 @@ class CremeUser(AbstractBaseUser):
         ),
     )
 
-    date_joined = models.DateTimeField(
-        _('Date joined'), default=now,
-    )
-
-    is_active = models.BooleanField(
-        _('Active?'), default=True,
-    )
+    date_joined = models.DateTimeField(_('Date joined'), default=now)
+    is_active = models.BooleanField(_('Active?'), default=True)
 
     is_staff = models.BooleanField(
         _('Is staff?'), default=False
     ).set_tags(viewable=False)
-    is_superuser = models.BooleanField(
-        _('Is a superuser?'), default=False,
-    )
+    is_superuser = models.BooleanField(_('Is a superuser?'), default=False)
     role = models.ForeignKey(
         UserRole, verbose_name=_('Role'), null=True, on_delete=models.PROTECT,
     )
 
-    is_team = models.BooleanField(
-        verbose_name=_('Is a team?'), default=False,
-    )
+    is_team = models.BooleanField(verbose_name=_('Is a team?'), default=False)
     teammates_set = models.ManyToManyField(
         'self', verbose_name=_('Teammates'), symmetrical=False, related_name='teams_set',
     ).set_tags(viewable=False)
@@ -999,9 +989,9 @@ class CremeUser(AbstractBaseUser):
     time_zone = models.CharField(
         _('Time zone'), max_length=50, default=settings.TIME_ZONE,
         # TODO: (note from Python's doc)
-        #   These values are not designed to be exposed to end-users; for user facing elements,
-        #   applications should use something like CLDR (the Unicode Common Locale Data Repository)
-        #   to get more user-friendly strings
+        #   These values are not designed to be exposed to end-users; for user
+        #   facing elements, applications should use something like CLDR (the
+        #   Unicode Common Locale Data Repository) to get more user-friendly strings
         choices=[(tz, tz) for tz in zoneinfo.available_timezones()],
     ).set_tags(viewable=False)
     theme = models.CharField(
