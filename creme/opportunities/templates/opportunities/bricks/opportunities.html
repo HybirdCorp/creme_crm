@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_ctype creme_perms creme_widgets %}
-{% load and_op format_amount get_hidden_fields url from creme_core_tags %}
+{% load i18n creme_bricks creme_cells creme_ctype creme_perms creme_widgets %}
+{% load and_op format_amount get_hidden_fields inner_edition_uri listify url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} opportunities-opportunities-brick{% endblock %}
 
@@ -35,7 +35,7 @@
      {% brick_table_column_for_field ctype=objects_ctype field='made_sales' data_type='money' %}
     {% endif %}
 
-    {% brick_table_column title=_('Action') status='action' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
 {% endblock %}
 
 {% block brick_table_rows %}
@@ -69,6 +69,15 @@
          <td>{{HIDDEN_VALUE}}</td>
          <td>{{HIDDEN_VALUE}}</td>
         {% endif %}
+         <td {% brick_table_data_status action %}>
+           {% cell_4_regularfield model=opportunity field="name" as name_cell %}
+           {% cell_4_regularfield model=opportunity field="sales_phase" as phase_cell %}
+           {% cell_4_regularfield model=opportunity field="estimated_sales" as est_sales_cell %}
+           {% cell_4_regularfield model=opportunity field="made_sales" as made_sales_cell %}
+           {% listify name_cell phase_cell est_sales_cell made_sales_cell as cells %}
+           {% inner_edition_uri instance=opportunity cells=cells as edition_uri %}
+           {% brick_table_action id='edit' url=edition_uri comeback=True label=_('Edit this opportunity') enabled=user|has_perm_to_change:opportunity %}
+         </td>
         <td {% brick_table_data_status action %}>
           {% with opp_unlink_perm=user|has_perm_to_unlink:opportunity %}
             {% brick_table_action id='delete' url=delete_multi_url __ids=opportunity.id enabled=unlink_perm|and_op:opp_unlink_perm %}

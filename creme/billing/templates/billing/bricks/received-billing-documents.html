@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_perms creme_widgets %}
-{% load format_amount is_field_hidden not_op from creme_core_tags %}
+{% load i18n creme_bricks creme_cells creme_perms creme_widgets %}
+{% load format_amount inner_edition_uri is_field_hidden listify not_op from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} billing-received-brick{% endblock %}
 
@@ -18,6 +18,8 @@
 
     {% brick_table_column_for_field ctype=objects_ctype field='status' title=_('Status') %}
     {% brick_table_column_for_field ctype=objects_ctype field='total_no_vat' data_type='money' %}
+
+    {% brick_table_column title=_('Action') status='action' %}
 {% endblock %}
 
 {% block brick_table_rows %}
@@ -30,11 +32,20 @@
          {% if display_expiration %}<td data-type="date">{{billing_document.expiration_date|default:'—'}}</td>{% endif %}
          <td>{{billing_document.status}}</td>
          <td data-type="money">{{billing_document.total_no_vat|format_amount:billing_document.currency}}</td>
+         <td {% brick_table_data_status action %}>
+           {% cell_4_regularfield model=billing_document field="name" as name_cell %}
+           {% cell_4_regularfield model=billing_document field="expiration_date" as exp_date_cell %}
+           {% cell_4_regularfield model=billing_document field="status" as status_cell %}
+           {% listify name_cell exp_date_cell status_cell as cells %}
+           {% inner_edition_uri instance=billing_document cells=cells as edition_uri %}
+           {% brick_table_action id='edit' url=edition_uri comeback=True label=_('Edit this entity') enabled=user|has_perm_to_change:billing_document %}
+         </td>
         {% else %}
 {#         {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{HIDDEN_VALUE}}</td>{% endif %} #}
          {% if display_expiration %}<td data-type="date">{{HIDDEN_VALUE}}</td>{% endif %}
          <td>{{HIDDEN_VALUE}}</td>
          <td data-type="money">{{HIDDEN_VALUE}}</td>
+        <td>—</td>
         {% endif %}
     </tr>
   {% endfor %}
