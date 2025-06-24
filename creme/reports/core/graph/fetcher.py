@@ -176,10 +176,12 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
     type_id = constants.RGF_FK
     choices_group_name = _('Fields')
 
+    _field: Field | None
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         model = self.graph.model
-        self._field: Field | None = None
+        self._field = None
         self.verbose_name = '??'
 
         field_name = self.value
@@ -261,10 +263,12 @@ class RelationLinkedGraphFetcher(GraphFetcher):
     type_id = constants.RGF_RELATION
     choices_group_name = _('Relationships')
 
+    _rtype: RelationType | None
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.verbose_name = '??'
-        self._rtype: RelationType | None = None
+        self._rtype = None
         rtype_id = self.value
 
         if not rtype_id:

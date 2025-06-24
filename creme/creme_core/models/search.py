@@ -244,9 +244,11 @@ class SearchConfigItem(CremeModel):
             for field_parts in enumerator:
                 # TODO: constructor for FieldInfo from fields sequence
                 #       (to avoid useless '__' join then split)
-                yield EntityCellRegularField.build(
+                cell = EntityCellRegularField.build(
                     model, '__'.join(field.name for field in field_parts),
                 )
+                assert cell is not None
+                yield cell
         else:
             assert self._cells is not None
 

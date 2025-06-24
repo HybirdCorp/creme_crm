@@ -290,9 +290,12 @@ class PreFetcher:
     Accumulate calls to order(), & then build the pre-fetched cache with
     proceed().
     """
+    _orders: DefaultDict[type[Model], set]
+    _prefetched: dict[type[Model], dict[Any, Model]] | None
+
     def __init__(self):
         self._orders = defaultdict(set)
-        self._prefetched: dict[type[Model], dict[Any, Model]] | None = None
+        self._prefetched = None
 
     def get(self, model: type[Model], pk) -> Model | None:
         prefetched = self._prefetched

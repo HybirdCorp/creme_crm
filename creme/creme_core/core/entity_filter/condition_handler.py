@@ -848,6 +848,10 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
 
 
 class BaseCustomFieldConditionHandler(FilterConditionHandler):
+    _custom_field_uuid: UUID
+    _custom_field: CustomField | None
+    _related_name: str
+
     # def __init__(self, *, model=None, custom_field, related_name=None):
     def __init__(self, *,
                  efilter_type,

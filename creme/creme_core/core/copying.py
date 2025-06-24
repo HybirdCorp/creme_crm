@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024 Hybird
+#    Copyright (C) 2024-2025 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -74,7 +74,7 @@ class PostSaveCopier(Copier):
 
 class FieldsCopierMixin(Copier):
     # Name of the fields to NOT copy from the source
-    exclude = set()
+    exclude: set[str] = set()
 
     def accept(self, field: Field) -> bool:
         return field.get_tag(FieldTag.CLONABLE) and field.name not in self.exclude
@@ -163,7 +163,7 @@ class StrongPropertiesCopier(PropertiesCopier):
 class RelationsCopier(PostSaveCopier):
     """Specialized copier for Relations."""
     # IDs of RelationType with <is_internal=True> which must be copied anyway.
-    allowed_internal_rtype_ids = []
+    allowed_internal_rtype_ids: list[str] = []
 
     def _relations_qs(self):
         query = Q(type__is_internal=False, type__is_copiable=True)

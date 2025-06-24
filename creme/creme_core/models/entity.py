@@ -94,7 +94,7 @@ class CremeEntity(CremeModel):
     # NB: the field "is_internal" oh these RelationType should be <True>,
     #     because not internal types are always deleted.
     # BEWARE: the types must take the instance as relationships' SUBJECT (i.e. not OBJECT).
-    _DELETABLE_INTERNAL_RTYPE_IDS: tuple[str] = ()
+    _DELETABLE_INTERNAL_RTYPE_IDS: tuple[str, ...] = ()
 
     _real_entity: CremeEntity | Literal[True] | None = None
 

@@ -202,7 +202,8 @@ class FieldEnumerableChoiceSet(EnumerableChoiceSet):
                  registry: enumerable.EnumerableRegistry | None = None,
                  enumerator: enumerable.Enumerator | None = None,
                  limit: int | None = None,
-                 url: str | None = None):
+                 url: str | None = None,
+                 ):
         self.field = field
 
         if enumerator is None:
@@ -211,10 +212,7 @@ class FieldEnumerableChoiceSet(EnumerableChoiceSet):
 
         super().__init__(
             enumerator,
-            user=user,
-            empty_label=empty_label,
-            limit=limit,
-            url=url
+            user=user, empty_label=empty_label, limit=limit, url=url,
         )
 
     def get_field_enumerator(self, registry, field):
