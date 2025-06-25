@@ -32,6 +32,14 @@ LANGUAGE_CODE = 'en'
 # system time zone.
 TIME_ZONE = 'Europe/London'
 
+# Domain on which the Creme instance is hosted.
+# It's used by some code to build URLs (e.g. to put some <a> to your domain in
+# emails body).
+# NB1: it should match the settings 'ALLOWED_HOSTS'.
+# NB2: it MUST NOT end with a slash.
+# NB3: it's called "domain" but it MUST include the protocol (e.g. http).
+SITE_DOMAIN = 'http://mydomain'
+
 # The list of apps is stored by INSTALLED_APPS ;
 # you can see their descriptions in /path_to_creme/creme/settings.py
 # Notice that the descriptions give also the dependencies.
