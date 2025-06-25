@@ -328,6 +328,11 @@ class _ModelConfig:
         """Verbose name of the related name."""
         return self.model._meta.verbose_name
 
+    @property
+    def verbose_name_plural(self) -> str:
+        """Plural Verbose name of the related name."""
+        return self.model._meta.verbose_name_plural
+
 
 # TODO: __slots__ ???
 class _AppConfigRegistry:
