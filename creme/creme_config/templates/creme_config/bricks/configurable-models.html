@@ -9,18 +9,18 @@
 
 {% block brick_content %}
 <table class="brick-table-content">
-{% if app_config %}
+  {% if app_config %}
     <tbody>
-    {% for model_conf in app_config %}
+      {% for model_conf in app_config %}
         <tr>
-            <td><a href="{% url 'creme_config__model_portal' app_name model_conf.model_name %}">{{model_conf.verbose_name}}</a><td>
+            <td><a href="{% url 'creme_config__model_portal' app_name model_conf.model_name %}">{{model_conf.verbose_name_plural}}</a><td>
         </tr>
-    {% endfor %}
+      {% endfor %}
     </tbody>
-{% else %}
+  {% else %}
     <thead>
         <tr><th>{% translate 'No type requires configuration' %}</th></tr>
     </thead>
-{% endif %}
+  {% endif %}
 </table>
 {% endblock %}

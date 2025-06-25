@@ -334,7 +334,7 @@ class AppPortal(AppRegistryMixin, generic.BricksView):
         sort_key = collator.sort_key
 
         model_configs.sort(
-            key=lambda model_conf: sort_key(str(model_conf.verbose_name)),
+            key=lambda model_conf: sort_key(str(model_conf.verbose_name_plural)),
         )
 
         return model_configs

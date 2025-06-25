@@ -69,6 +69,8 @@ class RegistryTestCase(CremeTestCase):
         model_config = self.get_alone_element(app_registry.models())
         self.assertEqual(FakeCivility, model_config.model)
         self.assertEqual(model_name,   model_config.model_name)
+        self.assertEqual('Test civility',   model_config.verbose_name)
+        self.assertEqual('Test civilities', model_config.verbose_name_plural)
 
         brick = model_config.get_brick()
         self.assertIsInstance(brick, GenericModelBrick)
