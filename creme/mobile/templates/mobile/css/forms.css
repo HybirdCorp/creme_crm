@@ -36,9 +36,11 @@ html.ios .form-title {
 .form-field .form-input {
   display: block;
 
+/*
   -webkit-appearance: none;
      -moz-appearance: none;
-          appearance: none;
+*/
+  appearance: none;
 
   padding: 2px;
   width: 100%;

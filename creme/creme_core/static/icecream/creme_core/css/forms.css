@@ -347,9 +347,11 @@ ul.multi-select {
 }
 
 .select-wrapper select {
+/*
     -webkit-appearance: none;
        -moz-appearance: none;
-            appearance: none;
+*/
+    appearance: none;
 
     width: 255px;
     height: 23px;
