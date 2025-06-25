@@ -2,8 +2,6 @@ recursive-include creme *.blend
 recursive-include creme *.css
 recursive-include creme *.csv
 recursive-include creme *.cur
-recursive-include creme *.eot
-recursive-include creme *.eot?#iefix
 recursive-include creme *.gif
 recursive-include creme *.htm
 recursive-include creme *.html
