@@ -162,3 +162,36 @@ def check_file_field_maxlength(**kwargs):
                 ))
 
     return warnings
+
+
+# TODO: deploy check instead?
+#       https://docs.djangoproject.com/en/5.2/ref/django-admin/#cmdoption-check-deploy
+@register(Tags.settings)
+def check_site_domain(**kwargs):
+    warnings = []
+    domain = settings.SITE_DOMAIN
+
+    if domain == 'http://mydomain':
+        warnings.append(Warning(
+            'The settings SITE_DOMAIN must be defined (you left the example value).',
+            obj='settings.py',
+            id='creme.E011',
+        ))
+    else:
+        prefixes = ('http://', 'https://')
+        if not domain.startswith(prefixes):
+            warnings.append(Warning(
+                f'The settings SITE_DOMAIN must start with {prefixes}.',
+                obj='settings.py',
+                id='creme.E011',
+            ))
+
+        # ---
+        if domain.endswith('/'):
+            warnings.append(Warning(
+                'The settings SITE_DOMAIN must NOT end with "/".',
+                obj='settings.py',
+                id='creme.E011',
+            ))
+
+    return warnings

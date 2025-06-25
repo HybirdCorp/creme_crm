@@ -16,6 +16,7 @@
           the UUID fields may have to be manually converted if you use MariaDB (see the upgrade notes above).
         - The URL fields assume "https" by default ; set the setting 'FORMS_URLFIELD_ASSUME_HTTPS' if you prefer "http"
           (this setting will be removed with Django 6.0 -- & so Creme 2.9 or something like that).
+    # A warning is now displayed if the settings 'SITE_DOMAIN' is not correctly defined.
     # A new mandatory app has been added: "Custom entities".
       It allows users to create their own types of entity without coding.
         - You can create up to 20 types.
