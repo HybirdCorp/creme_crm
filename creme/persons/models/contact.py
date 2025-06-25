@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -54,16 +54,19 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     # NB: same max_length than CremeUser.first_name
     first_name = models.CharField(_('First name'), max_length=100, blank=True)
 
-    skype    = models.CharField('Skype', max_length=100, blank=True).set_tags(optional=True)
-    phone    = core_fields.PhoneField(
+    # NB: the historical name "skype" has been kept to avoid a hard data-migration
+    #     (HeaderFilter, EntityFilter, Reports etc...)
+    skype = models.CharField(
+        _('Videoconference'), max_length=100, blank=True,
+    ).set_tags(optional=True)
+    phone = core_fields.PhoneField(
         _('Phone'), max_length=100, blank=True,
     ).set_tags(optional=True)
-    mobile   = core_fields.PhoneField(
+    mobile = core_fields.PhoneField(
         _('Mobile'), max_length=100, blank=True
     ).set_tags(optional=True)
     fax      = models.CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)
     email    = models.EmailField(_('Email address'), blank=True).set_tags(optional=True)
-    # url_site = models.URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)
     url_site = core_fields.CremeURLField(
         _('Web Site'), max_length=500, blank=True,
     ).set_tags(optional=True)
