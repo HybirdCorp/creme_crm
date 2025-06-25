@@ -757,15 +757,21 @@ class CremeCoreConfig(CremeAppConfig):
             elif self.get_tag(FieldTag.ENUMERABLE):
                 required = kwargs.pop('required', False)
 
-                return config_fields.CreatorEnumerableModelChoiceField(
-                    model=self.model,
-                    field_name=self.name,
-                    # required=not self.blank,
-                    required=not self.blank or required,
-                    label=self.verbose_name,
-                    help_text=self.help_text,
-                    **kwargs
-                )
+                try:
+                    return config_fields.CreatorEnumerableModelChoiceField(
+                        model=self.model,
+                        field_name=self.name,
+                        # required=not self.blank,
+                        required=not self.blank or required,
+                        label=self.verbose_name,
+                        help_text=self.help_text,
+                        # Remove the fallback enumerator here to raise the exception
+                        empty_enumerator=None,
+                        **kwargs
+                    )
+                except ValueError as e:
+                    logger.warning(e)
+                    return original_fk_formfield(self, **kwargs)
 
             return original_fk_formfield(
                 self, **{'form_class': NotEnumerableFKFallbackField, **kwargs}

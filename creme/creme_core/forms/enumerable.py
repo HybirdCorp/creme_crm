@@ -31,6 +31,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from ..core import enumerable
+from ..core.enumerable import EmptyEnumerator
 
 logger = logging.getLogger(__name__)
 
@@ -203,28 +204,32 @@ class FieldEnumerableChoiceSet(EnumerableChoiceSet):
                  enumerator: enumerable.Enumerator | None = None,
                  limit: int | None = None,
                  url: str | None = None,
+                 empty_enumerator: enumerable.Enumerator | None = None
                  ):
         self.field = field
 
         if enumerator is None:
             registry = registry or self.enumerable_registry
-            enumerator = self.get_field_enumerator(registry, field)
+            enumerator = self.get_field_enumerator(registry, field, empty_enumerator)
 
         super().__init__(
             enumerator,
             user=user, empty_label=empty_label, limit=limit, url=url,
         )
 
-    def get_field_enumerator(self, registry, field):
+    def get_field_enumerator(self, registry, field, empty_enumerator):
         try:
             return registry.enumerator_by_field(field)
-        except ValueError:
-            logger.debug(
-                'Unable to find an enumerator for the field "%s" '
-                "(ignore this if it's at startup)", field
-            )
-            # TODO : field.related_model.all() ?
-            return enumerable.EmptyEnumerator(field)
+        except ValueError as e:
+            if empty_enumerator is not None:
+                logger.debug(
+                    'Unable to find an enumerator for the field "%s" uses %s as fallback',
+                    field, empty_enumerator
+                )
+
+                return empty_enumerator(field)
+
+            raise e
 
     @property
     def url(self):
@@ -419,7 +424,7 @@ class EnumerableModelChoiceField(EnumerableChoiceField):
     widget: type[EnumerableSelect] = EnumerableSelect
 
     def __init__(self, model: type[Model], field_name: str, *, user=None, initial=None,
-                 limit=None, **kwargs):
+                 limit=None, empty_enumerator=EmptyEnumerator, **kwargs):
         field = model._meta.get_field(field_name)
 
         # Handles the model field default value. See ForeignKey.formfield implementation.
@@ -432,6 +437,7 @@ class EnumerableModelChoiceField(EnumerableChoiceField):
             field=field,
             user=user,
             limit=limit,
+            empty_enumerator=empty_enumerator,
         )
 
         super().__init__(enum, initial=initial, **kwargs)

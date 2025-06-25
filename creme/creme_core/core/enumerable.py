@@ -139,7 +139,7 @@ class QSEnumerator(Enumerator):
 
         if not search_fields:
             raise ValueError(
-                f'This field has no search fields : the model {field.model} of {field} do not'
+                f'This field has no search fields : the model {field.model} of {field} do not '
                 'have _search_fields attribute or visible CharField'
             )
 
@@ -244,17 +244,21 @@ class EnumerableRegistry:
         return res
 
     @staticmethod
-    def _check_is_entity(model: type[Model]) -> None:
+    def _check_model(field: Field) -> None:
         # TODO: and registered as an entity ??
-        if not issubclass(model, CremeEntity):
+        if not issubclass(field.model, CremeEntity):
             raise ValueError(
-                f'This model is not a CremeEntity: {model.__module__}.{model.__name__}'
+                f'Cannot create a fallback enumerator for the field "{field}". '
+                f'"{field.model.__module__}.{field.model.__name__}" is not a CremeEntity.'
             )
 
     @staticmethod
     def _check_viewable(field: Field) -> None:
         if not field.get_tag(FieldTag.VIEWABLE):
-            raise ValueError(f'This field is not viewable: {field}')
+            raise ValueError(
+                f'Cannot create a fallback enumerator for the field "{field}" '
+                'which is not viewable.'
+            )
 
     @staticmethod
     def _check_field(field: Field) -> None:
@@ -277,10 +281,10 @@ class EnumerableRegistry:
             or self._enums_4_models.get(field.remote_field.model)
         )
 
-        # Use QSEnumerator as default ONLY for a VIEWABLE CremeEntity field
+        # Use QSEnumerator as default ONLY for a CremeEntity viewable field
         if enumerator_cls is None:
             self._check_viewable(field)
-            self._check_is_entity(field.model)
+            self._check_model(field)
             enumerator_cls = QSEnumerator
 
             # TODO: this is a hack because we cannot currently register 'EntityEnumerator'

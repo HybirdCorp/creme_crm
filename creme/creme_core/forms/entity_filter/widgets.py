@@ -38,6 +38,7 @@ from creme.creme_core.core.entity_filter import (
     entity_filter_registries,
     operators,
 )
+from creme.creme_core.core.enumerable import EmptyEnumerator
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.enumerators import CustomFieldEnumerator
 from creme.creme_core.models import CremeEntity, CustomField
@@ -121,6 +122,7 @@ class FieldEnumerableSelect(EnumerableSelectMultiple):
             enumerable=FieldEnumerableChoiceSet(
                 field=field,
                 empty_label=None,
+                empty_enumerator=EmptyEnumerator,
             ),
             attrs=attrs,
         )

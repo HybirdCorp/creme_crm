@@ -46,8 +46,20 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
 
         self.assertEqual(expected, enumerable.limit)
 
-    def test_empty_enumerator(self):
-        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('first_name'))
+    def test_missing_enumerator(self):
+        with self.assertRaises(ValueError) as err:
+            FieldEnumerableChoiceSet(FakeContact._meta.get_field('first_name'))
+
+        self.assertEqual(
+            str(err.exception),
+            'This field is not enumerable: creme_core.FakeContact.first_name'
+        )
+
+    def test_missing_enumerator__empty_default(self):
+        enumerable = FieldEnumerableChoiceSet(
+            FakeContact._meta.get_field('first_name'),
+            empty_enumerator=EmptyEnumerator
+        )
         self.assertIsInstance(enumerable.enumerator, EmptyEnumerator)
 
         choices, more = enumerable.choices()
@@ -522,12 +534,13 @@ class EnumerableModelChoiceFieldTestCase(CremeTestCase):
                 default=get_default_sector,
             )
 
+        # Declare the sector related model BEFORE declaring the form
+        enumerable_registry.register_related_model(FakeSector, QSEnumerator)
+
         class FakeEnumerableForm(ModelForm):
             class Meta:
                 model = FakeEnumerableModel
                 fields = ('sector',)
-
-        enumerable_registry.register_related_model(FakeSector, QSEnumerator)
 
         form = FakeEnumerableForm()
         field = form.fields['sector']

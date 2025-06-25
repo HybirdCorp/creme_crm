@@ -313,7 +313,8 @@ class EnumerableTestCase(CremeTestCase):
             registry.enumerator_by_fieldname(model=FakeTodo, field_name='categories')
 
         self.assertEqual(
-            'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeTodo',
+            'Cannot create a fallback enumerator for the field "creme_core.FakeTodo.categories". '
+            '"creme.creme_core.tests.fake_models.FakeTodo" is not a CremeEntity.',
             str(error_ctxt1.exception),
         )
 
@@ -324,7 +325,8 @@ class EnumerableTestCase(CremeTestCase):
             registry.enumerator_by_field(field)
 
         self.assertEqual(
-            'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeTodo',
+            'Cannot create a fallback enumerator for the field "creme_core.FakeTodo.categories". '
+            '"creme.creme_core.tests.fake_models.FakeTodo" is not a CremeEntity.',
             str(error_ctxt2.exception),
         )
 
@@ -376,7 +378,8 @@ class EnumerableTestCase(CremeTestCase):
             registry.enumerator_by_field(field)
 
         self.assertEqual(
-            'This field is not viewable: creme_core.FakeTodo.entity',
+            'Cannot create a fallback enumerator for the field '
+            '"creme_core.FakeTodo.entity" which is not viewable.',
             str(error.exception),
         )
 

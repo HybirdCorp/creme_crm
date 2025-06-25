@@ -829,7 +829,7 @@ else:
             FakeIngredientGroup,  related_name='ingredients',
             null=True, blank=True,
             on_delete=models.SET_DEFAULT, default=None
-        )
+        ).set_tags(viewable=False)
 
         def __str__(self):
             return self.name
