@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-19 09:41+0200\n"
+"POT-Creation-Date: 2025-06-25 10:58+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -409,6 +409,9 @@ msgstr "Nom"
 
 msgid "First name"
 msgstr "Prénom"
+
+msgid "Videoconference"
+msgstr "Visioconférence"
 
 msgid "Phone"
 msgstr "Téléphone"

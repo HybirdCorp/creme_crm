@@ -71,6 +71,7 @@
             - A new optional field has been added to 'Organisation': "eori".
               This field stores the Economic Operators Registration and Identification number required for custom clearance
               regarding import and export in/out of the EU.
+            - The Contact field "Skype" is now named "Videoconference".
         * Documents :
             - A new field, automatically filled, has been added to Document: "file_size".
         * Activities :
