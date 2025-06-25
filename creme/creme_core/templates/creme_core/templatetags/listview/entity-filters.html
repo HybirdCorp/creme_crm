@@ -30,9 +30,9 @@
     </div>
  {% with ctype=model|ctype_for_instance %}
   {% if selected != None %}
-    <a data-action="popover">
+    <a data-action="popover" data-title="{% blocktranslate with efilter=selected %}Conditions of «{{efilter}}»{% endblocktranslate %}">
         {% widget_icon name='info' label=_('Information on the current filter') size='listview-filter-action' %}
-        {% include 'creme_core/frags/entity-filter-summary.html' with efilter=selected user=user %}
+        <script type="text/html">{% include 'creme_core/frags/entity-filter-summary.html' with efilter=selected user=user %}</script>
     </a>
   {% endif %}
   {% if show_buttons %}
