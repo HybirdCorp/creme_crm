@@ -169,7 +169,7 @@ To run the development server, you just have to run this command:
 ```
 You can then go to http://localhost:8000 & log in with root/root.
 
-For a production deployment (Apache, Nginx...), you should read https://docs.djangoproject.com/en/3.2/howto/deployment/
+For a production deployment (Apache, Nginx...), you should read https://docs.djangoproject.com/en/5.2/howto/deployment/
 
 In order to get a completely functional instance, the job manager must be launched
 (some features need it: sending emails campaign, CSV import...).

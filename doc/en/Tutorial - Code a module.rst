@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 17/06/2025 for Creme 2.7
+:Version: 25/06/2025 for Creme 2.7
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3617,7 +3617,7 @@ by Django ; but some Creme users will probably search here, so it could be
 useful.
 
 Date and number formats can be customised. You'll find the different keys in the
-`official documentation <https://docs.djangoproject.com/en/5.0/ref/settings/#date-format>`_
+`official documentation <https://docs.djangoproject.com/en/5.2/ref/settings/#date-format>`_
 de Django.
 
 **Remark** : notice that the formats used in forms (``DATE_INPUT_FORMATS``,

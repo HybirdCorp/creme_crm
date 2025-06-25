@@ -211,7 +211,7 @@ SECRET_KEY = ''
 
 # A list of strings representing the host/domain names that this Django site can serve.
 # You should set this list for security purposes.
-# See: https://docs.djangoproject.com/en/4.1/ref/settings/#allowed-hosts
+# See: https://docs.djangoproject.com/en/5.2/ref/settings/#allowed-hosts
 # BEWARE: this default will match anything ; set a narrower value in your own settings
 #         or provide your own validation (with in a middleware for example).
 ALLOWED_HOSTS = ['*']
@@ -527,14 +527,14 @@ EXPORT_BACKENDS = [
 EMAIL_SENDER = 'sender@domain.org'
 
 # Following values are from Django :
-#  See https://docs.djangoproject.com/en/3.1/ref/settings/#email-host
+#  See https://docs.djangoproject.com/en/5.2/ref/settings/#email-host
 #  or the file "django/conf/global_settings.py"
 #  for a complete documentation.
 #  BEWARE: the Django's names for secure parameters may be misleading.
 #    EMAIL_USE_TLS is for startTLS (often with port 587) ; for communication
 #    with TLS use EMAIL_USE_SSL. See :
-#     - https://docs.djangoproject.com/fr/3.1/ref/settings/#email-use-tls
-#     - https://docs.djangoproject.com/fr/3.1/ref/settings/#email-use-ssl
+#     - https://docs.djangoproject.com/fr/5.2/ref/settings/#email-use-tls
+#     - https://docs.djangoproject.com/fr/5.2/ref/settings/#email-use-ssl
 EMAIL_HOST = 'localhost'
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
