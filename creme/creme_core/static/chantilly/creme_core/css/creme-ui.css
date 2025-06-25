@@ -107,9 +107,11 @@ ul.ui-creme-widget.is-readonly li {
 /*----------------------------------*/
 .ui-creme-entityselector > input {
     display: none;
+/*
     -webkit-appearance: none;
        -moz-appearance: none;
-            appearance: none;
+*/
+    appearance: none;
     width: 0;
     height: 0;
     border: 0 !important;
