@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-list.html' %}
-{% load i18n creme_widgets creme_bricks %}
+{% load i18n creme_widgets creme_bricks creme_entity_filter %}
 {% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-entityfilters-brick{% endblock %}
@@ -27,7 +27,8 @@
                 <ul>
                   {% for efilter in ctw.all_users_filters %}
                     <li data-efilter-id="{{efilter.id}}">
-                        {% if efilter.view_perm %}{% widget_hyperlink efilter %}{% else %}{{efilter}}{% endif %}
+{#                        {% if efilter.view_perm %}{% widget_hyperlink efilter %}{% else %}{{efilter}}{% endif %} #}
+                        {% widget_hyperlink efilter disabled=efilter|efilter_view_forbidden:user %}
                         {% brick_action id='edit' url=efilter.edition_url enabled=efilter.edition_perm %}
                         {% brick_action id='delete' url=efilter.get_delete_absolute_url enabled=efilter.deletion_perm %}
                     </li>
@@ -35,13 +36,14 @@
                 </ul>
             </div>
           {% endif %}
-          {% for user, efilters in ctw.owned_filters %}
+          {% for owner, efilters in ctw.owned_filters %}
             <div class="entityfilter-config-owned">
-                <span class="entityfilter-config-user-title">{% blocktranslate %}Filters belonging to {{user}}{% endblocktranslate %}</span>
+                <span class="entityfilter-config-user-title">{% blocktranslate %}Filters belonging to {{owner}}{% endblocktranslate %}</span>
                 <ul>
                   {% for efilter in efilters %}
                     <li data-efilter-id="{{efilter.id}}">
-                        {% if efilter.view_perm %}{% widget_hyperlink efilter %}{% else %}{{efilter}}{% endif %}{% if efilter.is_private %}&nbsp;<span class="entityfilter-config-private">{% translate '(private)' %}</span>{% endif %}
+{#                        {% if efilter.view_perm %}{% widget_hyperlink efilter %}{% else %}{{efilter}}{% endif %}{% if efilter.is_private %}&nbsp;<span class="entityfilter-config-private">{% translate '(private)' %}</span>{% endif %} #}
+                         {% widget_hyperlink efilter disabled=efilter|efilter_view_forbidden:user %}{% if efilter.is_private %}&nbsp;<span class="entityfilter-config-private">{% translate '(private)' %}</span>{% endif %}
                         {% brick_action id='edit' url=efilter.edition_url enabled=efilter.edition_perm %}
                         {% brick_action id='delete' url=efilter.get_delete_absolute_url enabled=efilter.deletion_perm %}
                     </li>

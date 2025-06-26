@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-24 16:55+0200\n"
+"POT-Creation-Date: 2025-06-27 15:55+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2460,8 +2460,11 @@ msgstr ""
 "Seuls les super-utilisateurs peuvent modifier/supprimer ce filtre (pas de "
 "propriétaire)"
 
-msgid "You are not allowed to view/edit/delete this filter"
-msgstr "Vous n'avez pas la permission de voir/modifier/supprimer ce filtre"
+msgid ""
+"You are not allowed to view/edit/delete this filter (you are not the owner)"
+msgstr ""
+"Vous n'avez pas la permission de voir/modifier/supprimer ce filtre (il ne "
+"vous appartient pas)"
 
 msgid "A condition can not reference its own filter."
 msgstr "Une condition ne peut pas référencer son propre filtre."
@@ -3732,6 +3735,9 @@ msgstr "Recherche"
 msgid "More"
 msgstr "Plus"
 
+msgid "Details on the filter"
+msgstr "Détails sur le filtre"
+
 #, python-format
 msgid "%(title)s: step %(current_step)s of %(step_count)s"
 msgstr "%(title)s : étape %(current_step)s sur %(step_count)s"
@@ -4007,6 +4013,10 @@ msgstr "Mes filtres"
 #, python-format
 msgid "Filters of %(user)s"
 msgstr "Filtres de %(user)s"
+
+#, python-format
+msgid "Conditions of «%(efilter)s»"
+msgstr "Conditions de «%(efilter)s»"
 
 msgid "Information on the current filter"
 msgstr "Informations sur le filtre courant"

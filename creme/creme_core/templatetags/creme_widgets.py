@@ -297,27 +297,48 @@ class IconRendererNode(TemplateNode):
 # WIDGET ICON [END] ------------------------------------------------------------
 
 # TODO: "target" argument?
-# TODO: "enabled" argument (e.g. entity filters configuration)
 @register.simple_tag
-def widget_hyperlink(instance, label=None):
+def widget_hyperlink(instance, label=None, disabled: bool | str = False):
     """ Prints a <a> tag referencing the page of a model instance.
     @param instance: Instance of DjangoModel which has a method 'get_absolute_url()'
            BEWARE: it must not be a CremeEntity instance, or an auxiliary instance,
            because the permissions are not checked.
     @param label: String used as label of the link; by default the label used is
            'instance.__str__()'.
+    @param disabled: Indicates if the link should be a simple label.
+           - False (default value) or empty string => the link is enabled.
+           - True => simple label.
+           - Not empty string => a simple label with the string used as tooltip
+             to indicate the reason of the disabling.
 
     E.g.
        {% widget_hyperlink my_instance %}
        {% widget_hyperlink my_instance 'My favorite instance' %}
+       {% widget_hyperlink my_instance disabled='You must be a superuser' %}
     """
+    txt = label or str(instance)
+
+    if disabled:
+        return format_html(
+            '<span class="disabled-link">{label}</span>',
+            label=txt,
+        ) if isinstance(disabled, bool) else format_html(
+            '<span class="disabled-link" title="{title}">{label}</span>',
+            label=txt, title=disabled,
+        )
+
     try:
         return format_html(
             '<a href="{url}">{label}</a>',
             url=instance.get_absolute_url(),
-            label=instance if label is None else label,
+            label=txt,
         )
     except AttributeError:
+        logger.warning(
+            'Tag {%% widget_hyperlink %%} use with an instance with no absolute url: %s',
+            instance,
+        )
+
         # NB: we do not use label; the template-tag just prints a string in this case.
         return escape(instance)
 
@@ -381,7 +402,7 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None,
                 if entity.is_deleted and not ignore_deleted else
                 ''
             ),
-            label=entity if label is None else label,
+            label=label or entity,
         )
 
     return settings.HIDDEN_VALUE
