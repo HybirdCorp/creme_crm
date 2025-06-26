@@ -16,8 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import annotations
-
 import operator
 from collections.abc import Collection
 from datetime import date

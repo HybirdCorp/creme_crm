@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2017-2024 Hybird
+# Copyright (c) 2017-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,6 @@
 # SOFTWARE.
 #
 ################################################################################
-
-from __future__ import annotations
 
 from django.utils.translation import gettext as _
 

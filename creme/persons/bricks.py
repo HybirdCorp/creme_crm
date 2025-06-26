@@ -16,8 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import annotations
-
 from collections import OrderedDict
 from collections.abc import Sequence
 from functools import partial

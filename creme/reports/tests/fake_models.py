@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from django.conf import settings
 
 from creme.creme_core.models.base import MinionModel

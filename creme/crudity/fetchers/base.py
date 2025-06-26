@@ -16,8 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import annotations
-
 from collections import defaultdict
 from collections.abc import Iterable
 from typing import DefaultDict

@@ -22,8 +22,6 @@
 #
 ################################################################################
 
-from __future__ import annotations
-
 from collections.abc import Callable, Iterable, Iterator
 from typing import Literal, TypeVar
 

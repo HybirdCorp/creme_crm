@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2019-2022 Hybird
+# Copyright (c) 2019-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 ################################################################################
-
-from __future__ import annotations
 
 
 def smart_split(s: str) -> list[str]:
