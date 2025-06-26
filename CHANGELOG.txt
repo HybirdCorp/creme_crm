@@ -4,6 +4,7 @@
 
   Users side :
   ------------
+    # A crash in the job scheduler (command "creme_job_manager") has been fixed.
     # Apps :
         * Emails :
             - The help text for signatures' images has been improved.
