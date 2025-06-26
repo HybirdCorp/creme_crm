@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2024  Hybird
+#    Copyright (C) 2016-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -63,18 +63,6 @@ class JobScheduler:
     the manager runs them regularly (see settings.PSEUDO_PERIOD) in order to
     reduce the aftermath of a redis/... connection problem.
     """
-    def __init__(self) -> None:
-        self._max_user_jobs = settings.MAX_USER_JOBS
-        self._queue = get_queue()
-        self._procs: dict[int, Popen] = {}  # keys are Job IDs
-
-        # Heap, which elements are (wakeup_date, job_instance)
-        #   => closer wakeup in the first element.
-        self._system_jobs: list[tuple[datetime, int, Job]] = []  # "int" is Job ID
-
-        self._system_jobs_starts: dict[int, datetime] = {}  # "int" is Job ID
-        self._users_jobs: Deque[Job] = deque()
-        self._running_userjob_ids: set[int] = set()
 
     class _DeferredJob:
         """
@@ -102,6 +90,20 @@ class JobScheduler:
         @property
         def reaches_trials_limit(self) -> bool:
             return self.trials >= 100
+
+    def __init__(self) -> None:
+        self._max_user_jobs = settings.MAX_USER_JOBS
+        self._queue = get_queue()
+        self._procs: dict[int, Popen] = {}  # keys are Job IDs
+
+        # Heap, which elements are (wakeup_date, job_instance)
+        #   => closer wakeup in the first element.
+        # NB: "int" is Job ID
+        self._system_jobs: list[tuple[datetime, int, Job | JobScheduler._DeferredJob]] = []
+
+        self._system_jobs_starts: dict[int, datetime] = {}  # "int" is Job ID
+        self._users_jobs: Deque[Job] = deque()
+        self._running_userjob_ids: set[int] = set()
 
     def _retrieve_jobs(self) -> None:
         # now_value = now()
@@ -267,6 +269,9 @@ class JobScheduler:
 
         # Retrieve/remove the job from the heap
         for i, (__, ___, old_job) in enumerate(system_jobs):
+            if isinstance(old_job, self._DeferredJob):
+                continue  # Not a real system job, it's a user job we are waiting for
+
             if old_job.id == job_id:
                 job = old_job
                 del system_jobs[i]
