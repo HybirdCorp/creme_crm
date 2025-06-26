@@ -181,7 +181,10 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertTupleEqual(
             OK, EntityFilter(entity_type=FakeContact, user=other).can_edit(root),
         )
-        KO = (False, _('You are not allowed to view/edit/delete this filter'))
+        KO = (
+            False,
+            _('You are not allowed to view/edit/delete this filter (you are not the owner)'),
+        )
         self.assertTupleEqual(
             KO, EntityFilter(entity_type=FakeContact, user=other, is_private=True).can_edit(root),
         )

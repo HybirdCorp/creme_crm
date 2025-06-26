@@ -19,18 +19,19 @@ from ..fake_models import FakeContact, FakeOrganisation, FakeSector, FakeTicket
 
 
 class CremeWidgetsTagsTestCase(CremeTestCase):
-    def test_widget_hyperlink01(self):
+    def test_widget_hyperlink__not_url(self):
         "No method get_absolute_url()."
         s = FakeSector(title='<i>Yello</i>')
 
-        with self.assertNoException():
-            render = Template(
-                r'{% load creme_widgets %}{% widget_hyperlink object %}'
-            ).render(Context({'object': s}))
+        with self.assertLogs(level='WARNING'):
+            with self.assertNoException():
+                render = Template(
+                    r'{% load creme_widgets %}{% widget_hyperlink object %}'
+                ).render(Context({'object': s}))
 
-        self.assertEqual('&lt;i&gt;Yello&lt;/i&gt;', render)
+        self.assertHTMLEqual('&lt;i&gt;Yello&lt;/i&gt;', render)
 
-    def test_widget_hyperlink02(self):
+    def test_widget_hyperlink__url_ok(self):
         "The method get_absolute_url() exists()."
         s = FakeSector(title='Yello<br>')
         s.get_absolute_url = lambda: '/creme_core/sectors'
@@ -39,8 +40,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render1 = Template(
                 r'{% load creme_widgets %}{% widget_hyperlink object %}'
             ).render(Context({'object': s}))
-
-        self.assertEqual(
+        self.assertHTMLEqual(
             '<a href="/creme_core/sectors">Yello&lt;br&gt;</a>',
             render1,
         )
@@ -50,10 +50,43 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render2 = Template(
                 r'{% load creme_widgets %}{% widget_hyperlink object label=label %}'
             ).render(Context({'object': s, 'label': 'My favorite <i>one</i>'}))
-
-        self.assertEqual(
+        self.assertHTMLEqual(
             '<a href="/creme_core/sectors">My favorite &lt;i&gt;one&lt;/i&gt;</a>',
             render2,
+        )
+
+    def test_widget_hyperlink__disabled(self):
+        s = FakeSector(title='Yellow')
+        s.get_absolute_url = lambda: '/creme_core/sectors'
+        ctxt = Context({'object': s})
+
+        # disabled == False -----
+        with self.assertNoException():
+            render1 = Template(
+                r'{% load creme_widgets %}{% widget_hyperlink object disabled=False %}'
+            ).render(ctxt)
+        self.assertHTMLEqual(
+            '<a href="/creme_core/sectors">Yellow</a>', render1,
+        )
+
+        # disabled == True -----
+        with self.assertNoException():
+            render2 = Template(
+                r'{% load creme_widgets %}{% widget_hyperlink object disabled=True %}'
+            ).render(ctxt)
+        self.assertHTMLEqual(
+            '<span class="disabled-link">Yellow</span>', render2,
+        )
+
+        # disabled == 'a message' -----
+        with self.assertNoException():
+            render3 = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_hyperlink object label="Details" disabled="You cannot view that" %}'
+            ).render(ctxt)
+        self.assertHTMLEqual(
+            '<span class="disabled-link" title="You cannot view that">Details</span>',
+            render3,
         )
 
     def test_widget_ctype_hyperlink01(self):
