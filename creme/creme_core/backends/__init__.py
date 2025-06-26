@@ -18,8 +18,6 @@
 
 # TODO: move to 'core/' ??
 
-from __future__ import annotations
-
 from collections.abc import Iterable, Iterator
 from typing import Generic, TypeVar
 

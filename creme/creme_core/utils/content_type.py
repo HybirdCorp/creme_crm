@@ -22,8 +22,6 @@
 #
 ################################################################################
 
-from __future__ import annotations
-
 from collections.abc import Container, Iterable, Iterator
 
 from django.contrib.contenttypes.models import ContentType

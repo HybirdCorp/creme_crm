@@ -19,8 +19,6 @@
 # TODO: improve operators code and remove lots of hard-coded stuffs here
 #       (& in widgets)
 
-from __future__ import annotations
-
 from datetime import date
 from functools import partial
 

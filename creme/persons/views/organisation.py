@@ -16,8 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import annotations
-
 from django import forms
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic

@@ -16,8 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import annotations
-
 import logging
 from calendar import monthrange
 from collections import OrderedDict
