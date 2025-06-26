@@ -8,6 +8,7 @@ REL_OBJ_LINKED_2_ACTIVITY = 'activities-object_linked_2_activity'
 REL_SUB_ACTIVITY_SUBJECT = 'activities-subject_activity_subject'
 REL_OBJ_ACTIVITY_SUBJECT = 'activities-object_activity_subject'
 
+# TODO: participates IN...
 REL_SUB_PART_2_ACTIVITY = 'activities-subject_participates_to_activity'
 REL_OBJ_PART_2_ACTIVITY = 'activities-object_participates_to_activity'
 

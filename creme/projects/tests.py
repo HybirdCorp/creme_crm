@@ -1047,7 +1047,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             self.get_form_or_fail(response),
             field=None,
             errors=_(
-                '{participant} already participates to the activity '
+                '{participant} already participates in the activity '
                 '«{activity}» between {start} and {end}.'
             ).format(
                 participant=worker,
@@ -1307,7 +1307,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_edit_resource01(self):
-        "Related contact participates to activities."
+        "Related contact participates in activities."
         user = self.login_as_root_and_get()
         other_user = self.create_user()
 
@@ -1371,7 +1371,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_edit_resource02(self):
-        "Related contact participates to activities: old resource continues to participate."
+        "Related contact participates in activities: old resource continues to participate."
         user = self.login_as_root_and_get()
         other_user = self.create_user()
 
