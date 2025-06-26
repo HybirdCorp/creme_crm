@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2024  Hybird
+#    Copyright (C) 2016-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -266,6 +266,9 @@ class JobScheduler:
 
         # Retrieve/remove the job from the heap
         for i, (__, ___, old_job) in enumerate(system_jobs):
+            if isinstance(old_job, self._DeferredJob):
+                continue  # Not a real system job, it's a user job we are waiting for
+
             if old_job.id == job_id:
                 job = old_job
                 del system_jobs[i]

@@ -1,5 +1,9 @@
 == Version 2.5.22 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # A crash in the job scheduler (command "creme_job_manager") has been fixed.
+
   Developers side :
   -----------------
 
