@@ -1,10 +1,15 @@
-{% load i18n %}{% load get_efilter_conditions from creme_core_tags %}
+{% load i18n creme_entity_filter creme_widgets %}{% load get_efilter_conditions from creme_core_tags %}
 {% get_efilter_conditions efilter=efilter user=user as vconds %}
-{% if vconds|length > 1 %}
+<div class="efilter-summary">
+  {% if vconds|length > 1 %}
     <span>{% if efilter.use_or %}{% translate 'Any condition is met:' %}{% else %}{% translate 'All these conditions are met:' %}{% endif %}</span>
     <ul>
         {% for vcond in vconds %}<li>{{vcond}}</li>{% endfor %}
     </ul>
-{% else %}
+  {% else %}
     <span>{{vconds.0}}</span>
-{% endif %}
+  {% endif %}
+  {% if efilter.registry.detail_url_name %}
+   {% widget_hyperlink efilter label=_('Details on the filter') disabled=efilter|efilter_view_forbidden:user %}
+  {% endif %}
+</div>

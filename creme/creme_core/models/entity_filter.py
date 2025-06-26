@@ -460,7 +460,13 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         elif user.id in self.user.teammates:  # TODO: move in a User method ??
             return True, 'OK'
 
-        return False, gettext('You are not allowed to view/edit/delete this filter')
+        return (
+            False,
+            gettext(
+                'You are not allowed to view/edit/delete this filter '
+                '(you are not the owner)'
+            )
+        )
 
     # def can_view(self, user: CremeUser, content_type=_NOT_PASSED) -> tuple[bool, str]:
     def can_view(self, user: CremeUser) -> tuple[bool, str]:

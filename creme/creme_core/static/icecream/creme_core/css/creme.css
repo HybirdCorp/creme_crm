@@ -416,6 +416,21 @@ ul.limited-list .more-elements {
     font-size: 11px;
 }
 
+span.disabled-link {
+    cursor: help;
+    color: #666;
+}
+
+div.efilter-summary {
+    display: flex;
+    flex-direction: column;
+}
+
+div.efilter-summary a:last-child,
+div.efilter-summary span.disabled-link:last-child {
+    padding-top: 10px;
+}
+
 /* Title bar */
 
 .global-buttons + .hat-bar-container {
