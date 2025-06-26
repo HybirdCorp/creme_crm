@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2024 Hybird
+#    Copyright (C) 2019-2025 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
+from ..core.workflow import WorkflowEngine
 from ..models import DeletionCommand, FieldsConfig, JobResult
 from ..signals import pre_replace_and_delete
 from ..utils.translation import smart_model_verbose_name
@@ -39,10 +40,10 @@ class _DeletorType(JobType):
     def _execute(self, job):
         dcom_mngr = DeletionCommand.objects
         dcom = dcom_mngr.get(job=job)
-        instance_2_del = dcom.content_type \
-                             .model_class() \
-                             ._default_manager \
-                             .get(pk=dcom.pk_to_delete)
+        instance_2_del = (
+            dcom.content_type.model_class()._default_manager.get(pk=dcom.pk_to_delete)
+        )
+        wf_engine = WorkflowEngine.get_current()
 
         # TODO: is_deleted field ?
         # TODO: regroup by same CType & update several fields at once when its possible
@@ -67,7 +68,7 @@ class _DeletorType(JobType):
                 #       - get a HistoryLine for entities.
                 # NB2: as in edition view, we perform a select_for_update() to avoid
                 #      overriding other fields (if there are concurrent accesses)
-                with atomic():
+                with atomic(), wf_engine.run(user=None):
                     related_instance = rel_mngr.select_for_update().filter(pk=pk).first()
                     if related_instance is not None:
                         if model_field.many_to_many:
