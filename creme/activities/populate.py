@@ -381,7 +381,7 @@ class Populator(BasePopulator):
         create_rtype(
             (
                 constants.REL_SUB_PART_2_ACTIVITY,
-                _('participates to the activity'),
+                _('participates in the activity'),
                 [Contact],
             ), (
                 constants.REL_OBJ_PART_2_ACTIVITY,

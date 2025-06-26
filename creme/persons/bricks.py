@@ -773,7 +773,7 @@ if apps.is_installed('creme.activities'):
                 'Expected Activities are related to:\n'
                 '- The Organisations with a relationship «is subject of the activity» or '
                 '«related to the activity»\n'
-                '- The managers & employees with a relationship «participates to the activity» '
+                '- The managers & employees with a relationship «participates in the activity» '
                 '(plus the above ones)\n'
                 'App: Accounts and Contacts'
             ).format(software=settings.SOFTWARE_LABEL),
