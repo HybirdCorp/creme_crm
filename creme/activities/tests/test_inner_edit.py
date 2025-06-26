@@ -130,7 +130,7 @@ class ActivityRangeFieldTestCase(CremeTestCase):
 
 @skipIfCustomActivity
 class ActivityInnerEditionTestCase(_ActivitiesTestCase):
-    def test_inner_edit_start_n_end(self):
+    def test_start_n_end(self):
         user = self.login_as_root_and_get()
         activity = self._create_meeting(user=user, busy=True)
 
@@ -204,7 +204,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         'is_all_day',
         'busy',
     ])
-    def test_inner_edit_start_floating(self, field_name):
+    def test_start_floating(self, field_name):
         user = self.login_as_root_and_get()
         activity = self._create_meeting(user=user)
 
@@ -236,7 +236,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertFalse(activity.is_all_day)
         self.assertFalse(activity.busy)
 
-    def test_inner_edit_start_all_day(self):
+    def test_start_all_day(self):
         user = self.login_as_root_and_get()
         activity = self._create_meeting(user=user)
 
@@ -263,7 +263,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(hour=0,  minute=0),  activity.start)
         self.assertEqual(create_dt(hour=23, minute=59), activity.end)
 
-    def test_inner_edit_start_busy(self):
+    def test_start_busy(self):
         user = self.login_as_root_and_get()
         activity = self._create_meeting(user=user)
 
@@ -292,7 +292,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(hour=8),  activity.start)
         self.assertEqual(create_dt(hour=12), activity.end)
 
-    def test_inner_edit_start_floating_time(self):
+    def test_start_floating_time(self):
         user = self.login_as_root_and_get()
         activity = self._create_meeting(user=user)
 
@@ -329,7 +329,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(day=14, hour=0,  minute=0),  activity.start)
         self.assertEqual(create_dt(day=15, hour=23, minute=59), activity.end)
 
-    def test_inner_edit_start_only_end_time(self):
+    def test_start_only_end_time(self):
         user = self.login_as_root_and_get()
         activity = self._create_meeting(user=user)
 
@@ -360,7 +360,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertFalse(activity.is_all_day)
         self.assertFalse(activity.busy)
 
-    def test_inner_edit_start_computed_end(self):
+    def test_start_computed_end(self):
         user = self.login_as_root_and_get()
         activity = self._create_meeting(user=user)
 
@@ -391,7 +391,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertFalse(activity.is_all_day)
         self.assertFalse(activity.busy)
 
-    def test_inner_edit_start_computed_end_all_day01(self):
+    def test_start_computed_end_all_day01(self):
         user = self.login_as_root_and_get()
 
         atype = ActivityType.objects.create(
@@ -433,7 +433,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertTrue(activity.is_all_day)
         self.assertEqual(Activity.FloatingType.NARROW, activity.floating_type)
 
-    def test_inner_edit_start_computed_end_all_day02(self):
+    def test_start_computed_end_all_day02(self):
         "Duration is not a round number of days."
         user = self.login_as_root_and_get()
 
@@ -480,7 +480,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         )
         self.assertTrue(activity.is_all_day)
 
-    def test_inner_edit_start_computed_end_floating_time(self):
+    def test_start_computed_end_floating_time(self):
         user = self.login_as_root_and_get()
 
         atype = ActivityType.objects.create(
@@ -519,7 +519,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertFalse(activity.is_all_day)
         self.assertEqual(Activity.FloatingType.FLOATING_TIME, activity.floating_type)
 
-    def test_inner_edit_start_collision(self):
+    def test_start_collision(self):
         user = self.login_as_root_and_get()
 
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK)
