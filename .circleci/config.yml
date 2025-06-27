@@ -31,7 +31,7 @@ commands:
     steps:
       - run: sudo apt update
       # Weasyprint => pango & libharfbuzz
-      - run: sudo apt install -y python3-dev pkg-config libcairo-dev libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0
+      - run: sudo apt install -y python3-dev pkg-config libcairo-dev libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 latexmk texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-extra texlive-lang-french
 
   install-py-dev-env:
     steps:
