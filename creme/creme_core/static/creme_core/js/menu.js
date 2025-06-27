@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,35 @@
 
 creme.menu = {};
 
+creme.menu.MenuActionBuilders = creme.action.DefaultActionBuilderRegistry.sub({
+    _init_: function(menu) {
+        this._menu = menu;
+        this._super_(creme.action.DefaultActionBuilderRegistry, '_init_');
+    },
+
+    _defaultDialogOptions: function(url, title) {
+        var width = $(window).innerWidth();
+
+        return {
+            resizable: true,
+            draggable: true,
+            width: width * 0.8,
+            maxWidth: width,
+            url: url,
+            title: title
+        };
+    },
+
+    _build_form: function(url, options, data) {
+        options = $.extend(this._defaultDialogOptions(url.template(data)), options || {});
+        return new creme.dialog.FormDialogAction(options);
+    },
+
+    _build_update: function(url, options, data) {
+        return this._postQueryAction(url, options, data);
+    }
+});
+
 creme.menu.MenuController = creme.component.Component.sub({
     isBound: function() {
         return Object.isNone(this._element) === false;
@@ -37,10 +66,12 @@ creme.menu.MenuController = creme.component.Component.sub({
         }
 
         this._element = element;
+        this._actionBuilders = new creme.menu.MenuActionBuilders(this);
 
         this._initMenuItems(element);
         this._initQuickFormItems(element);
         this._initAnyFormItems(element);
+        this._setupActionLinks(element);
 
         return this;
     },
@@ -49,6 +80,28 @@ creme.menu.MenuController = creme.component.Component.sub({
         // Hide the current open menu (since the quick-forms are triggered in the menu)
         $('.ui-creme-navigation-activated', this._element).removeClass('ui-creme-navigation-activated');
         return this;
+    },
+
+    trigger: function(event, data) {
+        if (this.isBound()) {
+            this._element.trigger('menu-' + event, [this].concat(data || []));
+        }
+    },
+
+    _setupActionLinks: function(element) {
+        var self = this;
+
+        this.trigger('setup-menu-actions', [this._actionBuilders]);
+
+        var links = this._actionLinks = $('[data-action]', element).map(function() {
+            return self._initMenuAction($(this));
+        });
+
+        return links;
+    },
+
+    _initMenuAction: function(element) {
+        return new creme.action.ActionLink().builders(this._actionBuilders).bind(element);
     },
 
     _initMenuItems: function(element) {
