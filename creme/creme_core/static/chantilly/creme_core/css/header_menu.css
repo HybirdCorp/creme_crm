@@ -183,6 +183,20 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
     text-transform: uppercase;
 }
 
+.ui-creme-navigation .ui-creme-navigation-action-entry {
+    display: inline-flex;
+}
+
+.ui-creme-navigation-action-entry img {
+    margin-right: 5px;
+    align-self: center;
+    filter: brightness(10);
+}
+
+.ui-creme-navigation-action-entry img:hover {
+    opacity: unset !important; 
+}
+
 .ui-creme-navigation li.ui-creme-navigation-activated,
 .ui-creme-navigation li:hover {
     cursor: default;
