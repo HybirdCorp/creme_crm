@@ -66,22 +66,13 @@ class MyJobsEntry(menu.FixedURLEntry):
     url_name = 'creme_core__my_jobs'
 
 
-class LogoutEntry(menu.FixedURLEntry):
+class LogoutEntry(menu.UpdateActionEntry):
+    """Menu entry rendering as a POST action link for logout."""
     id = 'creme_core-logout'
     label = _('Log out')
     url_name = 'creme_logout'
-
-    def render(self, context):
-        return format_html(
-            '<form id="logout-form" method="post" action="{url}">'
-            # see django.template.backends.utils.csrf_input()
-            ' <input type="hidden" name="csrfmiddlewaretoken" value="{token}">'
-            ' <button type="submit">{label}</button>'
-            '</form>',
-            url=self.url,
-            label=self.render_label(context),
-            token=context.get('csrf_token'),
-        )
+    follow_redirect = True
+    single_instance = True
 
 
 class TrashEntry(menu.FixedURLEntry):

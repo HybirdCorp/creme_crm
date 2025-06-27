@@ -21,12 +21,20 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from collections.abc import Iterable, Iterator, Sequence
+from functools import partial
 
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.template.loader import get_template
 from django.urls import reverse_lazy as reverse
 from django.utils.html import format_html, mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+
+from creme.creme_core.gui.icons import (
+    BaseIcon,
+    get_icon_by_name,
+    get_icon_size_px,
+)
 
 from .. import auth
 from ..forms import menu as menu_forms
@@ -237,6 +245,125 @@ class ListviewEntry(FixedURLEntry):
             )
 
         return get_url()
+
+
+class ActionEntry(MenuEntry):
+    template_name = 'creme_core/menu/action.html'
+
+    form_class = menu_forms.ActionEntryForm
+
+    action: str = 'redirect'
+    url_name: str = ''
+
+    icon_name: str = None
+    icon_title: str = None
+    classes: Sequence[str] = ()
+    description: str = ''
+
+    @property
+    def url(self) -> str:
+        url_name = self.url_name
+        if url_name:
+            return reverse(url_name)
+
+        raise ValueError(f'{self} has an empty URL name.')
+
+    def render(self, context):
+        ctx = self.get_context(context)
+        return self.get_template(ctx).render(ctx)
+
+    def _get_prop(self, name, context):
+        prop = getattr(self, f'get_{name}', None)
+        return prop(context) if callable(prop) else getattr(self, name, None)
+
+    def get_url(self, context):
+        return self.url
+
+    def get_template(self, context):
+        return get_template(self._get_prop('template_name', context))
+
+    def get_context(self, context):
+        label = self.render_label(context)
+        user = context['user']
+
+        try:
+            self.check_permissions(user)
+            is_allowed = True
+            permission_error = ''
+        except PermissionDenied as e:
+            is_allowed = False
+            permission_error = str(e)
+
+        ctx = {
+            'label': label,
+            'request': context,
+            'user': user,
+            'is_allowed': is_allowed,
+            'permission_error': permission_error,
+        }
+
+        ctx['action'] = self.get_action_context(ctx)
+        return ctx
+
+    def get_action_context(self, context):
+        prop = partial(self._get_prop, context=context)
+
+        return {
+            'id': self.action,
+            'url': prop('url'),
+            'icon_name': self.icon_name,
+            'icon_title': self.icon_title or self.label,
+            'icon': self.get_action_icon(context),
+            'classes': prop('classes'),
+            'description': prop('description') or prop('label'),
+            'props': self.get_action_props(context),
+        }
+
+    def get_action_icon(self, context) -> BaseIcon:
+        if not self.icon_name:
+            return
+
+        theme = context['user'].theme_info[0]
+        return get_icon_by_name(
+            name=self.icon_name, label=self.icon_title or self.label, theme=theme,
+            size_px=get_icon_size_px(theme=theme, size='header-menu'),
+        )
+
+    def get_action_props(self, context):
+        return {
+            "data": self.get_action_data(context),
+            "options": self.get_action_options(context),
+        }
+
+    def get_action_data(self, context):
+        return {}
+
+    def get_action_options(self, context):
+        return {}
+
+
+class UpdateActionEntry(ActionEntry):
+    action = 'update'
+
+    redirect_url: str = ''
+    follow_redirect: bool = False
+    confirm_message: str = None
+
+    def get_redirect_url(self, context):
+        return self.redirect_url
+
+    def get_confirm_message(self, context):
+        return self.confirm_message
+
+    def get_action_options(self, context):
+        confirm_message = self.get_confirm_message(context)
+        redirect_url = self.get_redirect_url(context)
+
+        return {
+            "followRedirect": self.follow_redirect,
+            "redirectOnSuccess": False if not self.redirect_url else str(redirect_url),
+            "confirm": False if not confirm_message else str(confirm_message)
+        }
 
 
 class CustomURLEntry(MenuEntry):
