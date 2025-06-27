@@ -34,7 +34,7 @@ from ..base import CremeTestCase
 from ..forms.base import FieldTestCase
 
 
-@override_settings(FORM_ENUMERABLE_LIMIT=100)
+@override_settings(FORM_ENUMERABLE_LIMIT=100, ENUMERABLE_REGISTRATION_ERROR=False)
 class FieldEnumerableChoiceSetTestCase(CremeTestCase):
     maxDiff = None
 
@@ -53,13 +53,34 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('first_name'))
         self.assertIsInstance(enumerable.enumerator, EmptyEnumerator)
 
-        choices, more = enumerable.choices()
+        with self.assertLogs(level='ERROR') as logs:
+            choices, more = enumerable.choices()
+
+        self.assertEqual(logs.output, [
+            'ERROR:'
+            'creme.creme_core.core.enumerable:'
+            'No enumerator has been found for the field "creme_core.FakeContact.first_name". '
+            'Please register the field or its related model in apps config '
+            '(see register_enumerable())'
+        ])
+
         self.assertFalse(more)
         self.assertEqual([], list(choices))
 
         groups, more = enumerable.groups()
         self.assertFalse(more)
         self.assertEqual([], list(groups))
+
+        with override_settings(ENUMERABLE_REGISTRATION_ERROR=True):
+            with self.assertRaises(NotImplementedError) as err:
+                enumerable.choices()
+
+        self.assertEqual(
+            str(err.exception),
+            'No enumerator has been found for the field "creme_core.FakeContact.first_name". '
+            'HINT: Register the field or its related model in apps config '
+            '(see register_enumerable())'
+        )
 
     def test_default_url(self):
         field = FakeContact._meta.get_field('user')
