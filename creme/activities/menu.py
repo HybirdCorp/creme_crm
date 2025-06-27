@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021  Hybird
+#    Copyright (C) 2021-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -70,11 +70,29 @@ class PhoneCallCreationEntry(_ActivitiesURLEntry):
         return reverse('activities__create_activity', args=('phonecall',))
 
 
-class MeetingCreationEntry(_ActivitiesURLEntry):
+# class MeetingCreationEntry(_ActivitiesURLEntry):
+#     id = 'activities-create_meeting'
+#     label = _('Create a meeting')
+#     permissions = creation_perm
+
+#     @property
+#     def url(self):
+#         return reverse('activities__create_activity', args=('meeting',))
+
+
+class MeetingCreationEntry(menu.ActionEntry):
     id = 'activities-create_meeting'
     label = _('Create a meeting')
     permissions = creation_perm
 
-    @property
-    def url(self):
-        return reverse('activities__create_activity', args=('meeting',))
+    action_id = 'form'
+    action_icon_name = 'calendar'
+
+    def get_action_url(self, context):
+        return reverse('activities__create_activity_popup') + '?start=${start}'
+
+    def get_action_data(self, context):
+        from django.utils.timezone import now
+        return {
+            "start": now().isoformat(),
+        }

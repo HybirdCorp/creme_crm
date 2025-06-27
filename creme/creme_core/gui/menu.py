@@ -23,10 +23,17 @@ from collections import defaultdict
 from collections.abc import Iterable, Iterator, Sequence
 
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.template.loader import get_template
 from django.urls import reverse_lazy as reverse
 from django.utils.html import format_html, mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+
+from creme.creme_core.gui.icons import (
+    BaseIcon,
+    get_icon_by_name,
+    get_icon_size_px,
+)
 
 from ..auth import build_creation_perm as cperm
 from ..forms import menu as menu_forms
@@ -253,6 +260,81 @@ class ListviewEntry(FixedURLEntry):
             )
 
         return get_url()
+
+
+class ActionEntry(MenuEntry):
+    template_name = 'creme_core/menu/action.html'
+
+    form_class = menu_forms.ActionEntryForm
+
+    action_id: str = 'redirect'
+    action_url: str = ''
+
+    action_icon_name: str = None
+    action_icon_title: str = None
+    action_classes: Sequence[str] = ()
+    action_description: str = ''
+
+    class _ActionEntryContext(dict):
+        def __init__(self, entry: MenuEntry, request: dict):
+            self.entry = entry
+            self.request = request
+
+        def __getitem__(self, key):
+            try:
+                return super().__getitem__(key)
+            except KeyError:
+                try:
+                    prop = getattr(self.entry, f'get_action_{key}')
+                    prop = self[key] = prop(self)
+                except AttributeError:
+                    prop = self[key] = getattr(self.entry, f'action_{key}', None)
+
+                return prop
+
+    def render(self, context):
+        ctx = self.get_context(context)
+        return self.get_template(ctx).render(ctx)
+
+    def get_template(self, context):
+        return get_template(self.template_name)
+
+    def get_context(self, context):
+        label = self.render_label(context)
+        user = context['user']
+
+        try:
+            self.check_permissions(user)
+            is_allowed = True
+            permission_error = ''
+        except PermissionDenied as e:
+            is_allowed = False
+            permission_error = str(e)
+
+        return {
+            'label': label,
+            'request': context,
+            'user': user,
+            'is_allowed': is_allowed,
+            'permission_error': permission_error,
+            'action': self.get_action_context(context),
+        }
+
+    def get_action_context(self, context):
+        return self._ActionEntryContext(self, context)
+
+    def get_action_icon(self, context) -> BaseIcon:
+        theme = context.request['user'].theme_info[0]
+        return get_icon_by_name(
+            name=self.action_icon_name, label=self.action_icon_title or self.label, theme=theme,
+            size_px=get_icon_size_px(theme=theme, size='header-menu'),
+        )
+
+    def get_action_props(self, context):
+        return {
+            "data": context['data'] or {},
+            "options": context['options'] or {}
+        }
 
 
 class CustomURLEntry(MenuEntry):
