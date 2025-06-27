@@ -14,7 +14,6 @@ from django.utils.translation import ngettext
 
 from creme.creme_core.forms.menu import MenuEntryForm
 from creme.creme_core.gui import quick_forms
-# from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.menu import (
     ContainerEntry,
     CreationEntry,
@@ -53,13 +52,17 @@ from creme.creme_core.models import (
     LastViewedEntity,
     MenuConfigItem,
 )
+from creme.creme_core.templatetags.creme_core_tags import jsondata
 
 from .. import fake_forms
 from ..base import CremeTestCase
 from ..fake_menu import FakeContactCreationEntry, FakeContactsEntry
 
 
+# from creme.creme_core.gui.last_viewed import LastViewedItem
 class MenuTestCase(CremeTestCase):
+    maxDiff = None
+
     def _build_context(self, user=None):
         user = user or self.get_root_user()
 
@@ -704,9 +707,31 @@ class MenuTestCase(CremeTestCase):
         self.assertTrue(LogoutEntry.single_instance)
 
         entry = LogoutEntry()
+        url = reverse('creme_logout')
+        label = _('Log out')
+
         self.assertEqual('creme_core-logout', entry.id)
-        self.assertEqual(_('Log out'), entry.label)
-        self.assertEqual(reverse('creme_logout'), entry.url)
+        self.assertEqual(label, entry.label)
+        self.assertEqual(url, entry.url)
+
+        props = {
+            "data": {},
+            "options": {
+                "followRedirect": True,
+                "redirectOnSuccess": False,
+                "confirm": False,
+            }
+        }
+
+        self.assertHTMLEqual(
+            f"""
+            <a class="ui-creme-navigation-action-entry" data-action="update" href="{url}" title="{label}">
+                {label}
+                {jsondata(props)}
+            </a>
+            """,  # noqa
+            entry.render(self._build_context())
+        )
 
     @override_settings(SOFTWARE_LABEL='Creme')
     def test_creme_entry(self):
