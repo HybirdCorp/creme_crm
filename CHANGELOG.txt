@@ -1,5 +1,14 @@
 == Version 2.6.11 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The EmptyEnumerator fallback now either raises an exception (ENUMERABLE_REGISTRATION_ERROR=True) or logs an error.
+          This change is done to prevent issues with empty select when an enumerator is not correctly configured.
+
+
 == Version 2.6.10 ==
 
   Users side :
