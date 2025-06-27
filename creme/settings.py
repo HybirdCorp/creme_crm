@@ -757,6 +757,11 @@ URLIZE_TARGET_BLANK = False
 REPOSITORY = 'https://github.com/HybirdCorp/creme_crm'
 SCM = 'git'  # Other possible values: 'hg'
 
+# When a foreignkey field or its related model are not registered in the
+# EnumerableRegistry, an exception will be raised if this flag is enabled, and an error
+# log if not (default = False)
+ENUMERABLE_REGISTRATION_ERROR = False
+
 # GUI [END]#####################################################################
 
 # MEDIA GENERATOR & THEME SETTINGS #############################################
