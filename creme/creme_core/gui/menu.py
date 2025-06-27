@@ -255,6 +255,15 @@ class ListviewEntry(FixedURLEntry):
         return get_url()
 
 
+class ActionEntry(FixedURLEntry):
+    help_text = ''
+    options = None
+    data = None
+
+    def render(self, context):
+        return f'<a data-action="{self.action}" href="{self.url}"></a>'
+
+
 class CustomURLEntry(MenuEntry):
     """Entry display <a> tag with title & URL stored in its data."""
     id = 'creme_core-custom_url'

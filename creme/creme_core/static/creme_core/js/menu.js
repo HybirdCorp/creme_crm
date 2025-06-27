@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,13 @@
 
 creme.menu = {};
 
+creme.menu.MenuActionBuilders = creme.action.DefaultActionBuilderRegistry.sub({
+    _init_: function(menu) {
+        this._menu = menu;
+        this._super_(creme.action.DefaultActionBuilderRegistry, '_init_');
+    }
+});
+
 creme.menu.MenuController = creme.component.Component.sub({
     isBound: function() {
         return Object.isNone(this._element) === false;
@@ -37,10 +44,12 @@ creme.menu.MenuController = creme.component.Component.sub({
         }
 
         this._element = element;
+        this._actionBuilders = new creme.menu.MenuActionBuilders(this);
 
         this._initMenuItems(element);
         this._initQuickFormItems(element);
         this._initAnyFormItems(element);
+        this._setupActionLinks(element);
 
         return this;
     },
@@ -49,6 +58,18 @@ creme.menu.MenuController = creme.component.Component.sub({
         // Hide the current open menu (since the quick-forms are triggered in the menu)
         $('.ui-creme-navigation-activated', this._element).removeClass('ui-creme-navigation-activated');
         return this;
+    },
+
+    _setupActionLinks: function(element) {
+        var self = this;
+
+        this.trigger('setup-menu-actions', [this._actionBuilders]);
+
+        var links = this._actionLinks = $('[data-action]', element).map(function() {
+            return self._initializeActionButton($(this));
+        });
+
+        return links;
     },
 
     _initMenuItems: function(element) {
