@@ -86,8 +86,11 @@ virtual env, in order to keep the old one working).
      - creme.billing :
        If you want PDF export, you can use :
        - xhtml2pdf (default)
-       - weasyprint (easy to install on Linux ; harder on Windows)
-       - you can also use the binary "latexmk" with "lualatex" (Ubuntu packages 'latexmk' and 'texlive-latex-base').
+       - weasyprint (easy to install on Linux; harder on Windows)
+       - you can also use the binary "latexmk" with "lualatex";
+         For example on Ubuntu you'll need these packages:
+         - minimum: latexmk texlive-latex-base
+         - for french templates: texlive-latex-recommended texlive-latex-extra texlive-fonts-extra texlive-lang-french
 
 Installation with 'pip':
  - You should probably use "virtualenv".

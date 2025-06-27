@@ -105,8 +105,8 @@
                 - When a button is disabled, the reason is displayed as tool-tip.
                 - The constraints for properties & relationships are better respected.
             - In the list-views for Product/Service lines, lines related to deleted Invoice/Quote/... are excluded.
-            - Replaced PDFLaTeX with latexmk and LuaTeX as the LaTex compiler for billing templates. This change requires
-              the additional Ubuntu package 'latexmk' to be installed.
+            - Replaced PDFLaTeX with latexmk and LuaTeX as the LaTex compiler for billing templates.
+              This change requires the additional system package 'latexmk' to be installed; see README for a better packages list.
         * Opportunities :
             - You can now create unsuccessful phone calls from an Opportunity's detail-view :
                 - A button has been added (not enabled in default installations).
