@@ -18,14 +18,18 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Iterable, Iterator
 
+from django.conf import settings
 from django.db.models import CharField, Field, Model
 from django.db.models.query_utils import Q
 
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.collections import ClassKeyedMap
+
+logger = logging.getLogger(__name__)
 
 
 class Enumerator:
@@ -116,6 +120,21 @@ class EmptyEnumerator(Enumerator):
     """Class which can enumerate nothing. Used as a placeholder if the enumerator
     cannot be found in the registry"""
     def choices(self, *args, **kwargs):
+        # To keep compatibility with previous versions, calling an EmptyEnumerator will
+        # not raise but just create a log and a broken select.
+        if settings.ENUMERABLE_REGISTRATION_ERROR:
+            raise NotImplementedError(
+                f'No enumerator has been found for the field "{self.field}". '
+                'HINT: Register the field or its related model in apps config '
+                '(see register_enumerable())'
+            )
+
+        logger.error(
+            'No enumerator has been found for the field "%s". '
+            'Please register the field or its related model in apps config '
+            '(see register_enumerable())', self.field
+        )
+
         return ()
 
     def to_python(self, user, values):
