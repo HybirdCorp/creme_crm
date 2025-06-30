@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #    Copyright (C) 2025 Patrick Baus <patrick.baus@quantum-electronic-devices.de>
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -50,21 +50,24 @@ class LatexExporter(ContextMixin, base.BillingExporter):
 
     def generate_pdf(self, *, content, dir_path, basename):
         latex_file_path = path.join(dir_path, f'{basename}.tex')
+        log_file_path   = path.join(dir_path, f'{basename}.main.log')
 
-        # NB: we precise the encoding or it oddly crashes on some systems...
+        # NB: we specify the encoding, or it oddly crashes on some systems...
         with open(latex_file_path, 'w', encoding='utf-8') as f:
             f.write(smart_str(content))
 
         # NB: return code seems always 1 even when there is no error...
-        subprocess.call(
-            [
-                'latexmk',
-                '-lualatex',
-                '-quiet',
-                '-cd',
-                latex_file_path,
-            ]
-        )
+        with open(log_file_path, 'wb') as log_file:
+            subprocess.call(
+                [
+                    'latexmk',
+                    '-lualatex',
+                    '-cd',  # TODO: <f'-output-directory={dir_path}'> ?
+                    latex_file_path,
+                ],
+                stdout=log_file,
+                stderr=subprocess.STDOUT,
+            )
 
         pdf_basename = f'{basename}.pdf'
         temp_pdf_file_path = path.join(dir_path, pdf_basename)
@@ -73,9 +76,18 @@ class LatexExporter(ContextMixin, base.BillingExporter):
             logger.critical(
                 'It seems the PDF generation has failed. '
                 'The temporary directory has not been removed, '
-                'so you can inspect the *.log file in "%s"',
-                dir_path,
+                # 'so you can inspect the *.log file in "%s"',
+                'so you can inspect the log file "%s"',
+                # dir_path,
+                log_file.name,
             )
+            if settings.TESTS_ON:
+                print('latexmk errors ##########')
+                with open(log_file_path, 'r') as log_file:
+                    for line in log_file.readlines():
+                        print(line)
+                print('latexmk errors [end] ##########')
+
             # TODO: use a better exception class ?
             raise ConflictError(_(
                 'The generation of the PDF file has failed; '
