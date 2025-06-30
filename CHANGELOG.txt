@@ -139,6 +139,8 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
+            - The settings 'ENUMERABLE_REGISTRATION_ERROR' is deprecated ;
+              it will be removed in Creme 2.8 & a exception will always be raised.
             - In 'creme_core.constants' :
                 - The constant 'DEFAULT_CURRENCY_PK' is deprecated;
                   use 'Currency.objects.default().id' instead.
@@ -340,6 +342,7 @@
                 * Emails :
                     - The function 'utils.get_mime_image()' has been removed.
                     - In the constructor of 'utils.SignatureRenderer' the argument "domain" is now required.
+        # The settings 'ENUMERABLE_REGISTRATION_ERROR' is now <True> by default.
         # The deletion of CremeEntities has been reworked in order to allow the customisation without having to write your own view.
             - If your model could be deleted in Creme 2.6 with the generic deletion view (i.e. you did not define your own view)
               you must now register your model in the new registry for deletion. In you "apps.py" :
