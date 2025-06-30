@@ -12,6 +12,8 @@ BASE_DIR = Path(__file__).resolve().parent
 # LANGUAGE_CODE = 'fr'
 TIME_ZONE = 'Europe/Paris'
 
+SITE_DOMAIN = 'http://localhost'
+
 INSTALLED_APPS.extend([
     'django_extensions',
 
