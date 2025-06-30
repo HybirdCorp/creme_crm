@@ -757,10 +757,13 @@ URLIZE_TARGET_BLANK = False
 REPOSITORY = 'https://github.com/HybirdCorp/creme_crm'
 SCM = 'git'  # Other possible values: 'hg'
 
-# When a foreignkey field or its related model are not registered in the
-# EnumerableRegistry, an exception will be raised if this flag is enabled, and an error
-# log if not (default = False)
-ENUMERABLE_REGISTRATION_ERROR = False
+# DEPRECATED: ths settings will be removed in Creme 2.8
+# When a foreignkey field (or its related model) is not registered in the
+# EnumerableRegistry & a model form uses it without defining a specific form-field:
+#  - an exception is raised if this flag set to True
+#  - an error message is logged if this flag set to False
+# ENUMERABLE_REGISTRATION_ERROR = False  in Creme 2.5/2.6
+ENUMERABLE_REGISTRATION_ERROR = True
 
 # GUI [END]#####################################################################
 
