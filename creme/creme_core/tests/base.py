@@ -352,7 +352,12 @@ class _CremeTestCase:
         response = self.client.get(*args, **kwargs)
         code = response.status_code
         if expected_status != code:
-            error_msg = response.context.get('exception') if response.context else None
+            context = response.context
+            if context:
+                error_msg = context.get('exception') or context.get('error_message')
+            else:
+                error_msg = None
+
             if error_msg:
                 self.fail(
                     f'Expected status was <{expected_status}>. '
