@@ -695,17 +695,26 @@ class BaseTestCaseTestCase(CremeTestCase):
         )
 
     def test_assertGET(self):
-        self.login_as_root()
+        self.login_as_standard()
 
-        url = reverse('creme_core__view_fake_contact', args=(self.UNUSED_PK,))
-        with self.assertRaises(self.failureException) as cm:
-            self.assertGET(200, url)
-
+        url404 = reverse('creme_core__view_fake_contact', args=(self.UNUSED_PK,))
+        with self.assertRaises(self.failureException) as cm404:
+            self.assertGET(200, url404)
         self.assertStartsWith(
-            str(cm.exception),
+            str(cm404.exception),
             'Expected status was <200>. Got status <404>. Content is ',
         )
 
+        # -----------------------
+        url403 = reverse('creme_core__create_fake_contact')
+        with self.assertRaises(self.failureException) as cm403:
+            self.assertGET(200, url403)
+        self.assertStartsWith(
+            str(cm403.exception),
+            'Expected status was <200>. Got status <403>. Content is ',
+        )
+
+        # -----------------------
         with self.assertNoException():
             self.assertGET(200, reverse('creme_core__home'))
 
