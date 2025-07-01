@@ -1,3 +1,24 @@
+== Version 2.6.10 ==
+
+  Users side :
+  ------------
+    # A crash in the job scheduler (command "creme_job_manager") has been fixed.
+    # Apps :
+        * Emails :
+            - The help text for signatures' images has been improved.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The method 'creme_core.utils.CremeDiscoverRunner.setup_databases()' has been updated to prevent running
+          the 'creme_populate' command on the default test database when the test suite is launched in
+          parallel mode. This change is done to prevent cache leaking when the test processes are forked.
+          This is a backport from Creme '2.7'.
+        # The class 'EnumerableModelChoiceField' now handles correctly callable objects for model-field default value.
+
+
 == Version 2.6.9 ==
 
   Users side :

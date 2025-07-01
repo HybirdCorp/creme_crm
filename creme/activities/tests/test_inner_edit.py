@@ -581,7 +581,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
             response1.context['form'],
             field=f'override-{field_name}',
             errors=_(
-                '{participant} already participates to the activity '
+                '{participant} already participates in the activity '
                 '«{activity}» between {start} and {end}.'
             ).format(
                 participant=contact,

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -134,7 +134,7 @@ class GenericEdition(ModelConfMixin, generic.CremeModelEditionPopup):
         editor = self.get_model_conf().editor
 
         if not editor.enable_func(instance=self.object, user=self.request.user):
-            raise ConflictError('This model has been disabled for edition.')
+            raise ConflictError(gettext('Edition is disabled for this instance.'))
 
         if editor.url_name is not None:
             raise ConflictError('This model does not use this edition view.')
@@ -242,7 +242,7 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
         deletor = self.get_model_conf().deletor
 
         if not deletor.enable_func(instance=self.object, user=self.request.user):
-            raise ConflictError('This model has been disabled for deletion.')
+            raise ConflictError(gettext('Deletion is disabled for this instance.'))
 
         if deletor.url_name is not None:
             raise ConflictError('This model does not use this deletion view.')

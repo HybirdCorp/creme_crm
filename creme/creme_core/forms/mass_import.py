@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1649,6 +1649,10 @@ def extractorfield_factory(modelfield, header_dict, choices, **kwargs):
     #         formfield.empty_label = None
     #         formfield.choices = options  # we force the refreshing of widget's choices
 
+    # With the fix for the EnumerableChoiceField default, the initial can be a callable and should
+    # be evaluated in the boundfield. We need to do the same here.
+    default_value = formfield.initial() if callable(formfield.initial) else formfield.initial
+
     return RegularFieldExtractorField(
         choices=choices,
         modelfield=modelfield,
@@ -1656,7 +1660,7 @@ def extractorfield_factory(modelfield, header_dict, choices, **kwargs):
         label=modelfield.verbose_name,
         initial={
             'selected_column': selected_column,
-            'default_value':   formfield.initial,
+            'default_value': default_value,
         },
         **kwargs,
     )

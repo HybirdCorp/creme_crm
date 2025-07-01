@@ -267,8 +267,8 @@ class _ModelConfig:
                None means "creme_config__edit_instance" will be used.
         @param enable_func: Function which takes 2 arguments (an instance of the
                configured model & the user doing the request) & return a boolean
-               (False means the user cannot edit existing instances of the model).
-               <None> means the instance can always be edited.
+               (False means the user cannot edit this instance).
+               <None> means instances can always be edited.
         @return: The ModelConfig instance.
         """
         editor = self.editor
@@ -294,8 +294,8 @@ class _ModelConfig:
                None means "creme_config__delete_instance" will be used.
         @param enable_func: Function which takes 2 arguments (an instance of the
                configured model & the user doing the request) & return a boolean
-               (False means the user cannot delete existing instances of the model).
-               <None> means the instance can always be deleted.
+               (False means the user cannot delete this instance).
+               <None> means instances can always be deleted.
         @return: The ModelConfig instance.
         """
         deletor = self.deletor

@@ -1910,7 +1910,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             response.context['form'],
             field=None,
             errors=_(
-                '{participant} already participates to the activity '
+                '{participant} already participates in the activity '
                 '«{activity}» between {start} and {end}.'
             ).format(
                 participant=contact,

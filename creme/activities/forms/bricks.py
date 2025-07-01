@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2024  Hybird
+#    Copyright (C) 2012-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,7 @@ Contact = get_contact_model()
 
 class ParticipantsAddingForm(CremeForm):
     my_participation = act_fields.UserParticipationField(
-        label=_('Do I participate to this activity?'), empty_label=None,
+        label=_('Do I participate in this activity?'), empty_label=None,
     )
     participating_users = act_fields.ParticipatingUsersField(
         label=_('Other participating users'), required=False,
