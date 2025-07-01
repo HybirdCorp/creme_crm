@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from creme.creme_config.bricks import CustomEntitiesBrick
+from creme.creme_config.views.custom_entity import CustomEntityTypeDeletion
 from creme.creme_core.bricks import PropertiesBrick
 from creme.creme_core.buttons import Restrict2SuperusersButton
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -24,6 +25,7 @@ from creme.creme_core.models import (
     SearchConfigItem,
 )
 from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_models import FakeReport
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 
@@ -217,7 +219,7 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             html=True,
         )
 
-    # NB: MenuConfigItem are tested in 'custom_entities'
+    # NB: MenuConfigItems are tested in the app 'custom_entities'
     def test_deletion__no_related_entity(self):
         self.login_as_standard(admin_4_apps=['creme_core'])
 
@@ -379,6 +381,107 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertFalse(count_lines(entity1.entity_type))
         self.assertEqual(1, count_lines(entity2.entity_type))
+
+    def test_deletion__referenced_ctype(self):
+        user = self.login_as_root_and_get()
+
+        ce_type = self._enable_type(id=1, name='Building')
+        self.assertFalse(ce_type.deleted)
+
+        report = FakeReport.objects.create(
+            user=user, name='Report on buildings', ctype=ce_type.entity_model,
+        )
+        response = self.assertPOST409(
+            reverse('creme_config__delete_custom_entity_type'),
+            data={'id': ce_type.id},
+        )
+
+        msg = response.context.get('error_message')
+        self.assertIsInstance(msg, str)
+        # self.maxDiff = None
+        self.assertHTMLEqual(
+            '<span>{message}</span>'
+            '<ul>'
+            ' <li><a href="{url}" target="_blank">{label}</a></li>'
+            '</ul>'.format(
+                message=_(
+                    'This custom type cannot be deleted because of its links '
+                    'with some entities:'
+                ),
+                url=report.get_absolute_url(),
+                label=report.name,
+            ),
+            msg,
+        )
+
+        ce_type = self.assertStillExists(ce_type)
+        self.assertTrue(ce_type.enabled)
+        self.assertFalse(ce_type.deleted)
+
+    def test_deletion__dependencies_to_html__deleted_entity(self):
+        user = self.get_root_user()
+        report = FakeReport.objects.create(
+            user=user, name='Report on Contacts', ctype=FakeContact,
+            is_deleted=True,
+        )
+        self.assertHTMLEqual(
+            '<ul>'
+            ' <li><a class="is_deleted" href="{url}" target="_blank">{label}</a></li>'
+            '</ul>'.format(
+                url=report.get_absolute_url(),
+                label=report.name,
+            ),
+            CustomEntityTypeDeletion.dependencies_to_html(
+                entities=[report], user=user,
+            ),
+        )
+
+    def test_deletion__dependencies_to_html__not_viewable_entity(self):
+        user = self.create_user(role=self.create_role())
+
+        report = FakeReport.objects.create(
+            user=user, name='Report on Contacts', ctype=FakeContact,
+        )
+        self.assertFalse(user.has_perm_to_view(report))
+        self.assertHTMLEqual(
+            '<ul><li>{}</li></ul>'.format(
+                ngettext(
+                    '{count} not viewable entity',
+                    '{count} not viewable entities',
+                    1
+                ).format(count=1),
+            ),
+            CustomEntityTypeDeletion.dependencies_to_html(
+                entities=[report], user=user,
+            ),
+        )
+
+    def test_deletion__dependencies_to_html__limit_reached(self):
+        user = self.get_root_user()
+        self.assertEqual(3, CustomEntityTypeDeletion.dependencies_limit)
+
+        create_report = partial(FakeReport.objects.create, user=user, ctype=FakeContact)
+        report1 = create_report(name='Report on Contacts #1')
+        report2 = create_report(name='Report on Contacts #2')
+        report3 = create_report(name='Report on Contacts #3')
+        report4 = create_report(name='Report on Contacts #4')
+
+        # self.maxDiff = None
+        self.assertHTMLEqual(
+            '<ul>'
+            ' <li><a href="{url1}" target="_blank">{label1}</a></li>'
+            ' <li><a href="{url2}" target="_blank">{label2}</a></li>'
+            ' <li><a href="{url3}" target="_blank">{label3}</a></li>'
+            ' <li>…</li>'  # <==
+            '</ul>'.format(
+                url1=report1.get_absolute_url(), label1=report1.name,
+                url2=report2.get_absolute_url(), label2=report2.name,
+                url3=report3.get_absolute_url(), label3=report3.name,
+            ),
+            CustomEntityTypeDeletion.dependencies_to_html(
+                entities=[report1, report2, report3, report4], user=user,
+            ),
+        )
 
     def test_restore(self):
         self.login_as_standard(admin_4_apps=['creme_core'])
