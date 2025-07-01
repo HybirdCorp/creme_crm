@@ -198,12 +198,12 @@ custom_entity_patterns = [
     ),
     re_path(
         r'^delete[/]?$',
-        custom_entity.CustomEntityDeletion.as_view(),
+        custom_entity.CustomEntityTypeDeletion.as_view(),
         name='creme_config__delete_custom_entity_type',
     ),
     re_path(
         r'^restore[/]?$',
-        custom_entity.CustomEntityRestoration.as_view(),
+        custom_entity.CustomEntityTypeRestoration.as_view(),
         name='creme_config__restore_custom_entity_type',
     ),
 ]
