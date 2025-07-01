@@ -1,7 +1,5 @@
 == Version 2.6.10 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .po (creme_config, persons, activities, emails)
-
   Users side :
   ------------
     # A crash in the job scheduler (command "creme_job_manager") has been fixed.
