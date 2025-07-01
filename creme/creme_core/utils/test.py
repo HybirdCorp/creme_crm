@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -190,7 +190,8 @@ class CremeDiscoverRunner(DiscoverRunner):
 
     def setup_databases(self, **kwargs):
         ret = super().setup_databases(**kwargs)
-        if ret:
+        if ret and not self.parallel > 1:
+            # Do not populate the default test DB if tests are run in parallel with other DBs.
             creme_test_populate()
 
         return ret

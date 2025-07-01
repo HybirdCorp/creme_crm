@@ -1,13 +1,19 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.test.utils import override_settings
+from django.db import models
+from django.forms.models import ModelForm
+from django.test.utils import isolate_apps, override_settings
 from django.urls.base import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
 from parameterized import parameterized
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-from creme.creme_core.core.enumerable import EmptyEnumerator
+from creme.creme_core.core.enumerable import (
+    EmptyEnumerator,
+    QSEnumerator,
+    enumerable_registry,
+)
 from creme.creme_core.forms.enumerable import (
     DEFAULT_LIMIT,
     NO_LIMIT,
@@ -136,7 +142,7 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
 
     def test_choices__selected(self):
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'))
-        farming, industry, software = FakeSector.objects.order_by('pk')
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
         sector_A = FakeSector.objects.create(title='Sector A')
         sector_B = FakeSector.objects.create(title='Sector B')
         sector_C = FakeSector.objects.create(title='Sector C')
@@ -157,7 +163,7 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
     def test_choices__selected__outside_limit(self):
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=3)
 
-        farming, industry, software = FakeSector.objects.order_by('pk')
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
 
         FakeSector.objects.create(title='Sector A')
         FakeSector.objects.create(title='Sector B')
@@ -305,7 +311,7 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
     def test_to_python(self):
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=3)
 
-        farming, industry, software = FakeSector.objects.order_by('pk')
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
 
         FakeSector.objects.create(title='Sector A')
         FakeSector.objects.create(title='Sector B')
@@ -328,7 +334,7 @@ class EnumerableSelectTestCase(CremeTestCase):
     maxDiff = None
 
     def test_render_no_url(self):
-        farming, industry, software = FakeSector.objects.order_by('pk')
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
         sector_A = FakeSector.objects.create(title='Sector A')
         sector_B = FakeSector.objects.create(title='Sector B')
         sector_C = FakeSector.objects.create(title='Sector C')
@@ -354,7 +360,7 @@ class EnumerableSelectTestCase(CremeTestCase):
         )
 
     def test_render_url(self):
-        farming, industry, software = FakeSector.objects.order_by('pk')
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
 
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'))
         widget = EnumerableSelect(enumerable)
@@ -378,7 +384,7 @@ class EnumerableSelectTestCase(CremeTestCase):
         )
 
     def test_render__more(self):
-        farming, industry, software = FakeSector.objects.order_by('pk')
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
         sector_A = FakeSector.objects.create(title='Sector A')
         FakeSector.objects.create(title='Sector B')
         FakeSector.objects.create(title='Sector C')
@@ -406,7 +412,7 @@ class EnumerableSelectTestCase(CremeTestCase):
         )
 
     def test_render__more_custom_attrs(self):
-        farming, industry, software = FakeSector.objects.order_by('pk')
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
 
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=2)
         widget = EnumerableSelect(enumerable, attrs={
@@ -434,8 +440,10 @@ class EnumerableSelectTestCase(CremeTestCase):
 
 @override_settings(FORM_ENUMERABLE_LIMIT=100)
 class EnumerableModelChoiceFieldTestCase(FieldTestCase):
+    maxDiff = None
+
     def test_default(self):
-        farming, industry, software = FakeSector.objects.order_by('pk')
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
         field = EnumerableModelChoiceField(FakeContact, 'sector')
 
         self.assertEqual('---------', field.empty_label)
@@ -455,7 +463,7 @@ class EnumerableModelChoiceFieldTestCase(FieldTestCase):
         self.assertListEqual(expected, [c.as_dict() for c in field.choices])
 
     def test_initial(self):
-        farming, industry, software = FakeSector.objects.order_by('pk')
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
         field = EnumerableModelChoiceField(
             FakeContact, 'sector', empty_label='No value...', initial=industry.pk
         )
@@ -476,23 +484,89 @@ class EnumerableModelChoiceFieldTestCase(FieldTestCase):
         self.assertListEqual(expected, [c.as_dict() for c in field.choices])
 
     def test_initial_from_model_default(self):
-        field1 = EnumerableModelChoiceField(
+        class FakeInvoiceForm(ModelForm):
+            class Meta:
+                model = FakeInvoice
+                fields = ('currency',)
+
+        form = FakeInvoiceForm()
+        field = EnumerableModelChoiceField(
             FakeInvoice, 'currency', empty_label='No value…',
         )
+        boundfield = field.get_bound_field(form, 'currency')
 
-        self.assertIsNone(field1.empty_label)
-        self.assertEqual(DEFAULT_CURRENCY_PK, field1.initial)
-        self.assertIsNone(field1.user)
+        self.assertIsNone(field.empty_label)
+        self.assertIsNone(field.user)
+        self.assertEqual(FakeInvoice._meta.get_field('currency')._get_default, field.initial)
+        self.assertEqual(DEFAULT_CURRENCY_PK, boundfield.initial)
 
-        # ---
         other_currency = Currency.objects.exclude(id=DEFAULT_CURRENCY_PK)[0]
-        field2 = EnumerableModelChoiceField(
+        field = EnumerableModelChoiceField(
             FakeInvoice, 'currency', empty_label='No value…', initial=other_currency.pk,
         )
+        boundfield = field.get_bound_field(form, 'currency')
 
-        self.assertIsNone(field2.empty_label)
-        self.assertEqual(other_currency.pk, field2.initial)
-        self.assertIsNone(field2.user)
+        self.assertIsNone(field.empty_label)
+        self.assertIsNone(field.user)
+        self.assertEqual(other_currency.pk, field.initial)
+        self.assertEqual(other_currency.pk, boundfield.initial)
+
+    # Feature of django test tools that allows to declare some models inside a test.
+    # see (https://docs.djangoproject.com/en/5.2/topics/testing/tools/#isolating-apps)
+    @isolate_apps("creme.creme_core.tests.forms")
+    def test_initial_from_model_default__callable(self):
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
+
+        def get_default_sector():
+            return FakeSector.objects.filter(title='default').first()
+
+        class FakeEnumerableModel(models.Model):
+            sector = models.ForeignKey(
+                FakeSector, verbose_name=_('Line of business'),
+                null=True, blank=True,
+                on_delete=models.SET_NULL,
+                default=get_default_sector,
+            )
+
+        class FakeEnumerableForm(ModelForm):
+            class Meta:
+                model = FakeEnumerableModel
+                fields = ('sector',)
+
+        enumerable_registry.register_related_model(FakeSector, QSEnumerator)
+
+        form = FakeEnumerableForm()
+        field = form.fields['sector']
+        boundfield = field.get_bound_field(form, 'sector')
+
+        self.assertTrue(isinstance(field, EnumerableModelChoiceField))
+        self.assertTrue(field.show_hidden_initial)
+        self.assertEqual(field.initial, get_default_sector)
+        self.assertListEqual([
+            EnumerableChoice('', field.empty_label).as_dict(),
+            EnumerableChoice(farming.pk, str(farming)).as_dict(),
+            EnumerableChoice(industry.pk, str(industry)).as_dict(),
+            EnumerableChoice(software.pk, str(software)).as_dict(),
+        ], [c.as_dict() for c in field.choices])
+
+        self.assertIsInstance(field.widget, EnumerableSelect)
+        self.assertEqual(boundfield.initial, None)
+
+        default = FakeSector.objects.create(title='default')
+
+        form = FakeEnumerableForm()
+        field = form.fields['sector']
+        boundfield = field.get_bound_field(form, 'sector')
+
+        self.assertListEqual([
+            EnumerableChoice('', field.empty_label).as_dict(),
+            EnumerableChoice(farming.pk, str(farming)).as_dict(),
+            EnumerableChoice(industry.pk, str(industry)).as_dict(),
+            EnumerableChoice(software.pk, str(software)).as_dict(),
+            EnumerableChoice(default.pk, str(default)).as_dict(),
+        ], [c.as_dict() for c in field.choices])
+
+        self.assertEqual(boundfield.initial, default)
 
     def test_clean_value(self):
         farming = FakeSector.objects.order_by('pk').first()
@@ -503,7 +577,7 @@ class EnumerableModelChoiceFieldTestCase(FieldTestCase):
 
     @override_settings(FORM_ENUMERABLE_LIMIT=2)
     def test_clean_value__outside_limit(self):
-        farming, industry, software = FakeSector.objects.order_by('pk')
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
         field = EnumerableModelChoiceField(FakeContact, 'sector', required=False)
 
         expected = [
