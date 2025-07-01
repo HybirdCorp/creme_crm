@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-20 13:39+0200\n"
+"POT-Creation-Date: 2025-07-02 12:00+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1432,8 +1432,8 @@ msgid "Filters belonging to all users"
 msgstr "Filtres de tous les utilisateurs"
 
 #, python-format
-msgid "Filters belonging to %(user)s"
-msgstr "Filtres appartenant à %(user)s"
+msgid "Filters belonging to %(owner)s"
+msgstr "Filtres appartenant à %(owner)s"
 
 msgid "(private)"
 msgstr "(privé)"
@@ -2681,6 +2681,13 @@ msgstr ""
 "Ce type personnalisé ne peut pas être modifié car il est sur le point d'être "
 "supprimé."
 
+# Already in creme_core
+#, python-brace-format
+msgid "{count} not viewable entity"
+msgid_plural "{count} not viewable entities"
+msgstr[0] ""
+msgstr[1] ""
+
 #, python-brace-format
 msgid "This custom type cannot be deleted because {count} entity uses it."
 msgid_plural ""
@@ -2690,6 +2697,12 @@ msgstr[0] ""
 msgstr[1] ""
 "Ce type personnalisé ne peut pas être supprimé car {count} fiches "
 "l'utilisent."
+
+msgid ""
+"This custom type cannot be deleted because of its links with some entities:"
+msgstr ""
+"Ce type personnalisé ne peut pas être supprimé à cause de ses liens avec des "
+"fiches :"
 
 #, python-brace-format
 msgid "New custom field for «{model}»"

@@ -15,18 +15,22 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from collections.abc import Sequence
 
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
+from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 from creme.creme_core import creme_jobs, models
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import CustomEntityType
+from creme.creme_core.models import CremeEntity, CremeUser, CustomEntityType
 from creme.creme_core.utils import get_from_POST_or_404
 
 from .. import bricks
@@ -186,6 +190,60 @@ def delete_customtype_jobs(sender: CustomEntityType, entity_ctype: ContentType, 
 
 class CustomEntityTypeDeletion(base.ConfigDeletion):
     ce_type_id_arg = 'id'
+    dependencies_limit = 3
+
+    # TODO: factorise with CremeDeletionMixin.dependencies_to_html()
+    @classmethod
+    def dependencies_to_html(cls, *,
+                             entities: Sequence[CremeEntity],
+                             user: CremeUser,
+                             ) -> str:
+        def deps_generator():
+            not_viewable_count = 0
+            can_view = user.has_perm_to_view
+
+            def entity_as_link(entity):
+                return format_html(
+                    '<a href="{url}" target="_blank"{deleted}>{label}</a>',
+                    url=entity.get_absolute_url(),
+                    deleted=(
+                        mark_safe(' class="is_deleted"')
+                        if entity.is_deleted else
+                        ''
+                    ),
+                    label=entity,
+                )
+
+            # TODO: sort entities alphabetically?
+            # TODO: priority to entity not deleted?
+            for entity in entities:
+                if can_view(entity):
+                    yield entity_as_link(entity)
+                else:
+                    not_viewable_count += 1
+
+            if not_viewable_count:
+                yield ngettext(
+                    '{count} not viewable entity',
+                    '{count} not viewable entities',
+                    not_viewable_count
+                ).format(count=not_viewable_count)
+
+        limit = cls.dependencies_limit
+
+        # NB: we produce tuples for 'format_html_join()'
+        def limited_items():
+            for idx, item in enumerate(deps_generator()):
+                if idx >= limit:
+                    yield ('…',)
+                    break
+
+                yield (item,)
+
+        return format_html(
+            '<ul>{}</ul>',  # TODO: <class="...">?
+            format_html_join('', '<li>{}</li>', limited_items())
+        )
 
     @atomic
     def perform_deletion(self, request):
@@ -204,6 +262,39 @@ class CustomEntityTypeDeletion(base.ConfigDeletion):
                     count
                 ).format(count=count)
             )
+
+        # TODO: way to register models (non blocking entity models, blocking models)?
+        # We cannot be sure we can delete entities in signal handler (e.g. internal
+        # relationships could block the deletion). So, in this first version we
+        # raise an error if an entity is referencing teh ContentType.
+        content_type = ContentType.objects.get_for_model(model)
+        # NB: 'creme_registry.iter_entity_models()' does not return all entity
+        #     models, but is it OK?
+        for entity_model in apps.get_models():
+            if not issubclass(entity_model, CremeEntity):
+                continue
+
+            for field in entity_model._meta.fields:
+                fname = field.name
+
+                # Not entity with this type should exist, we avoid queries
+                if fname == 'entity_type':
+                    continue
+
+                if field.is_relation and field.related_model == ContentType:
+                    dependencies = entity_model.objects.filter(**{fname: content_type})[:100]
+                    if dependencies:
+                        raise ConflictError(
+                            '<span>{message}</span>{dependencies}'.format(
+                                message=gettext(
+                                    'This custom type cannot be deleted because of its links '
+                                    'with some entities:'
+                                ),
+                                dependencies=self.dependencies_to_html(
+                                    entities=dependencies, user=request.user,
+                                ),
+                            )
+                        )
 
         if ce_type.deleted:
             ce_type.deleted = False
