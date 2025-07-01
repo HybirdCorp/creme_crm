@@ -39,12 +39,19 @@ class CustomEntityTypeManager(models.Manager):
         return types
 
     def all_types(self) -> Iterator[CustomEntityType]:
+        """Get all existing type of custom entities.
+        Notice that it totally  ignores the values of the fields 'enabled' & 'deleted'.
+        """
         yield from self._cached_types().values()
 
     def get_for_id(self, id: int) -> CustomEntityType | None:
+        """Get an instance of CustomEntityType by its ID in database."""
         return self._cached_types().get(id)
 
     def get_for_model(self, model: type[models.Model]) -> CustomEntityType | None:
+        """Get the instance of CustomEntityType corresponding to a model
+        <None> is returned if the model does not correspond a custom type.
+        """
         for id, custom_model in CustomEntityType.custom_classes.items():
             if custom_model == model:
                 return self.get_for_id(id)
@@ -53,14 +60,35 @@ class CustomEntityTypeManager(models.Manager):
 
 
 class CustomEntityType(models.Model):
+    """A CustomEntityType is related to a model inheriting CremeEntity, and it
+    can be configured by the administrators in order this type corresponds to
+    the meaning they want.
+    Once a type is enabled, the related model:
+      - gets menu entries to its creation view & its list-view.
+      - can have HeaderFilters & EntityFilters to customise the list-view as a
+        regular CremeEntity model.
+      - can have bricks & buttons to customise the detail-view as a
+        regular CremeEntity model.
+      - etc...
+    """
+    # We cannot rely on the model's _meta.verbose_name & _meta.verbose_name_plural
+    # because they are hard coded in the class definition. We must store them in DB.
     name        = models.CharField(_('Name'), max_length=50)
     plural_name = models.CharField(_('Name (plural)'), max_length=50)
 
+    # If enabled == True, the type is used (i.e. it is visible by users as a real entity type)
+    # When an administrator want to disable a type, we first mark it as <deleted==true>.
+    # So the type is not available to create new instances, & existing instances
+    # can be calmly deleted. And when all instances have been removed, the type
+    # can be safely marked as <enabled==False> again.
+    # TODO: should we use a PositiveSmallIntegerField with 3 values
+    #       (ENABLED/SOON_DISABLED/DISABLED)??
     enabled = models.BooleanField(default=False, editable=False)
     deleted = models.BooleanField(default=False, editable=False)
 
     objects = CustomEntityTypeManager()
 
+    # TODO: model fields for that?
     creation_label = _('Create a type of entity')
     save_label = _('Save the type of entity')
 
@@ -82,4 +110,5 @@ class CustomEntityType(models.Model):
 
     @property
     def entity_model(self) -> type[CremeEntity]:
+        """Get the model corresponding to this instance."""
         return self.custom_classes[self.id]
