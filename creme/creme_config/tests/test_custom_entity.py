@@ -23,10 +23,12 @@ from creme.creme_core.models import (
     HistoryLine,
     RelationType,
     SearchConfigItem,
+    Workflow,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_models import FakeReport
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.workflows import EntityCreationTrigger
 
 
 class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
@@ -270,8 +272,19 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         get_sci = SearchConfigItem.objects.create_if_needed
-        other_sci  = get_sci(model=FakeContact,          fields=['first_name'])
-        custom_sci = get_sci(model=ce_type.entity_model, fields=['name'])
+        other_sci  = get_sci(model=FakeContact, fields=['first_name'])
+        custom_sci = get_sci(model=model,       fields=['name'])
+
+        custom_wf = Workflow.objects.create(
+            title='Custom type WF',
+            content_type=model,
+            trigger=EntityCreationTrigger(model=model),
+        )
+        contact_wf = Workflow.objects.create(
+            title='Contact WF',
+            content_type=FakeContact,
+            trigger=EntityCreationTrigger(model=FakeContact),
+        )
 
         url = reverse('creme_config__delete_custom_entity_type')
         data = {'id': ce_type.id}
@@ -322,6 +335,9 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertDoesNotExist(custom_sci)
         self.assertStillExists(other_sci)
+
+        self.assertDoesNotExist(custom_wf)
+        self.assertStillExists(contact_wf)
 
         # POST (invalid) ---
         self.assertPOST404(url, data=data)
