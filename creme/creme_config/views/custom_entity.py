@@ -145,6 +145,13 @@ def delete_customtype_cfields(sender: CustomEntityType, entity_ctype: ContentTyp
 
 
 @receiver(
+    disable_custom_entity_type, dispatch_uid='creme_config-delete_customtype_workflows',
+)
+def delete_customtype_workflows(sender: CustomEntityType, entity_ctype: ContentType, **kwargs):
+    models.Workflow.objects.filter(content_type=entity_ctype).delete()
+
+
+@receiver(
     disable_custom_entity_type, dispatch_uid='creme_config-delete_customtype_buttons',
 )
 def delete_customtype_buttons(sender: CustomEntityType, entity_ctype: ContentType, **kwargs):
