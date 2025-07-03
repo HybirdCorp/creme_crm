@@ -601,7 +601,7 @@ QUnit.parameterize('creme.ActivityCalendar.timezoneOffset', [
     equal(now, expected.toISOString(true));
 });
 
-QUnit.parameterize('creme.ActivityCalendar.showTimezoneInfo (week view', [
+QUnit.parameterize('creme.ActivityCalendar.showTimezoneInfo (week view)', [
     [0, 'UTC+00:00'],
     [120, 'UTC+02:00'],
     [-120, 'UTC-02:00']
