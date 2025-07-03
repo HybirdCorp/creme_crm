@@ -137,8 +137,8 @@ var FULLCALENDAR_SETTINGS = {
 
     businessHours: {
         daysOfWeek: [ 1, 2, 3, 4, 5, 6 ], // Monday - Saturday
-        startTime: '8:00', // a start time
-        endTime: '18:00' // an end time
+        startTime: '08:00:00', // a start time
+        endTime: '18:00:00' // an end time
     },
 
     /* slots */
