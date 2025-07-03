@@ -146,6 +146,7 @@
         - https://docs.djangoproject.com/en/5.2/releases/5.1/
         - https://docs.djangoproject.com/en/5.2/releases/5.2/
     - The version of 'underscorejs' is now '1.13.7'.
+    - The version of 'fullcalendar' is now '6.1.18'.
 
     Non breaking changes :
     ----------------------
