@@ -1262,14 +1262,17 @@ class BricksConfigFieldTestCase(_ConfigFieldTestCase):
         )
 
     def test_clean_duplicates(self):
-        class Brick:
+        class TestBrick:
             def __init__(self, verbose_name):
                 self.verbose_name = verbose_name
 
         error_fmt = _('The following block should be displayed only once: «%(block)s»')
         self.assertFormfieldError(
             field=BricksConfigField(
-                choices=[(1, Brick('a')), (2, Brick('b')), (3, Brick('c')), (4, Brick('d'))],
+                choices=[
+                    (1, TestBrick('a')), (2, TestBrick('b')),
+                    (3, TestBrick('c')), (4, TestBrick('d')),
+                ],
             ),
             value=json_dump({'top': [1, 2], 'left': [2, 3], 'bottom': [3, 4]}),
             messages=[error_fmt % {'block': 'b'}, error_fmt % {'block': 'c'}],
