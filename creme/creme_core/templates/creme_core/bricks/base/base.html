@@ -1,7 +1,8 @@
 {% load creme_bricks %}{% load jsonify from creme_core_tags %}
 {% block brick_before %}{% endblock %}
 <div class="brick {% block brick_extra_class %}{% endblock %} is-loading-border ui-creme-widget widget-auto {% if state %}{% brick_state_classes state %}{% endif %}" widget="brick"
-     id="brick-{{brick_id}}" data-brick-id="{{brick_id}}"
+{#     id="brick-{{brick_id}}" data-brick-id="{{brick_id}}" #}
+     id="{{html_id}}" data-brick-id="{{brick_id}}"
      data-brick-deps="{{dependencies|jsonify}}"
      {% if reloading_info is not None %}data-brick-reloading-info="{{reloading_info|jsonify}}"{% endif %}
      {% if read_only %}data-brick-readonly="true"{% endif %}
