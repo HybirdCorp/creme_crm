@@ -11,6 +11,7 @@ from django.views.static import serve
 
 from creme.creme_core.apps import creme_app_configs
 from creme.creme_core.views.exceptions import permission_denied
+from creme.creme_core.views.static import serve_immutable
 
 logger = logging.getLogger(__name__)
 handler403 = permission_denied
@@ -62,7 +63,8 @@ urlpatterns = [
     #     the files in the directory 'media/static/' (and so the following line is never used).
     re_path(
         rf'^{__prepare_static_url()}(?P<path>.*)$',
-        serve,
+        # serve,
+        serve_immutable,
         {'document_root': settings.STATIC_ROOT},
     ),
 ]
