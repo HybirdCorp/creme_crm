@@ -104,6 +104,14 @@
     color: hsla(199, 9%, 50%, 1); /* see .brick-tiles .brick-tile-name */
 }
 
+.persons-addresses-brick .address-map a.brick-action {
+    visibility: hidden;
+}
+
+.persons-addresses-brick .address-map:hover a.brick-action {
+    visibility: visible;
+}
+
 .persons-addresses-brick .address {
     font-size: 13px;
 }

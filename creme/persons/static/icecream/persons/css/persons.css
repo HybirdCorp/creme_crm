@@ -105,8 +105,15 @@
     position: relative;
     top: -1px;
 
-    color: #777;
     color: #444;
+}
+
+.persons-addresses-brick .address-map a.brick-action {
+    visibility: hidden;
+}
+
+.persons-addresses-brick .address-map:hover a.brick-action {
+    visibility: visible;
 }
 
 .persons-addresses-brick .address {
