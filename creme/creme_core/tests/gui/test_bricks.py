@@ -199,8 +199,11 @@ class BrickRegistryTestCase(CremeTestCase):
             verbose_name = 'Testing purpose'
 
             def detailview_display(self, context):
-                return f'<table id="{self.id}"><thead><tr>' \
-                       f'{self.config_item.entity}</tr></thead></table>'
+                return (
+                    f'<table id="{self.html_id}">'
+                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
+                    f'</table>'
+                )
 
         class FoobarInstanceBrick1(_FoobarInstanceBrick):
             id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_1')
@@ -258,8 +261,11 @@ class BrickRegistryTestCase(CremeTestCase):
             verbose_name = 'Testing purpose'
 
             def detailview_display(self, context):
-                return f'<table id="{self.id}"><thead><tr>' \
-                       f'{self.config_item.entity}</tr></thead></table>'
+                return (
+                    f'<table id="{self.html_id}">'
+                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
+                    f'</table>'
+                )
 
         class FoobarInstanceBrick2(FoobarInstanceBrick1):
             verbose_name = 'Testing purpose #2'
@@ -283,8 +289,11 @@ class BrickRegistryTestCase(CremeTestCase):
             verbose_name = 'Testing purpose'
 
             def detailview_display(self, context):
-                return f'<table id="{self.id}"><thead><tr>' \
-                       f'{self.config_item.entity}</tr></thead></table>'
+                return (
+                    f'<table id="{self.html_id}">'
+                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
+                    f'</table>'
+                )
 
         brick_registry = BrickRegistry()
 
@@ -303,7 +312,7 @@ class BrickRegistryTestCase(CremeTestCase):
             verbose_name = 'Testing purpose'
 
             def detailview_display(self, context):
-                return f'<table id="{self.id}"><thead><tr></tr></thead></table>'
+                return f'<table id="{self.html_id}"><thead><tr></tr></thead></table>'
 
         brick_registry = BrickRegistry()
 
@@ -326,8 +335,11 @@ class BrickRegistryTestCase(CremeTestCase):
             dependencies = (FakeOrganisation, )
 
             def detailview_display(self, context):
-                return f'<table id="{self.id}"><thead><tr>' \
-                       f'{self.config_item.entity}</tr></thead></table>'
+                return (
+                    f'<table id="{self.html_id}">'
+                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
+                    f'</table>'
+                )
 
         ibci = InstanceBrickConfigItem.objects.create(
             entity=casca,
@@ -372,7 +384,7 @@ class BrickRegistryTestCase(CremeTestCase):
             verbose_name = 'Testing purpose'
 
             def home_display(self, context):
-                return f'<table id="{self.id}"></table>'
+                return f'<table id="{self.html_id}"></table>'
 
         class FakeContactBrick(EntityBrick):
             verbose_name = 'Fake Contact block'
@@ -387,31 +399,43 @@ class BrickRegistryTestCase(CremeTestCase):
             id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_1')
 
             def detailview_display(self, context):
-                return f'<table id="{self.id}"><thead><tr>' \
-                       f'{self.config_item.entity}</tr></thead></table>'
+                return (
+                    f'<table id="{self.html_id}">'
+                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
+                    f'</table>'
+                )
 
         class FoobarInstanceBrick2(_FoobarInstanceBrick):
             id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_2')
             target_ctypes = (FakeContact, FakeOrganisation)  # <-- OK !!
 
             def detailview_display(self, context):
-                return f'<table id="{self.id}"><thead><tr>' \
-                       f'{self.config_item.entity}</tr></thead></table>'
+                return (
+                    f'<table id="{self.html_id}">'
+                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
+                    f'</table>'
+                )
 
         class FoobarInstanceBrick3(_FoobarInstanceBrick):
             id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_3')
             target_ctypes = (FakeOrganisation, FakeImage)  # <-- KO !!
 
             def detailview_display(self, context):
-                return f'<table id="{self.id}"><thead><tr>' \
-                       f'{self.config_item.entity}</tr></thead></table>'
+                return (
+                    f'<table id="{self.html_id}"><thead><tr>'
+                    f'{self.config_item.entity}</tr></thead>'
+                    f'</table>'
+                )
 
         class FoobarInstanceBrick4(_FoobarInstanceBrick):
             id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_4')
 
             def home_display(self, context):  # <====== not detailview_display()
-                return f'<table id="{self.id}"><thead><tr>' \
-                       f'{self.config_item.entity}</tr></thead></table>'
+                return (
+                    f'<table id="{self.html_id}">'
+                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
+                    f'</table>'
+                )
 
         create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
         ibci1 = create_ibci(
@@ -728,7 +752,7 @@ class BrickRegistryTestCase(CremeTestCase):
             # NB: only home_display() method
             # def detailview_display(self, context): [...]
             def home_display(self, context):
-                return f'<table id="{self.id}"></table>'
+                return f'<table id="{self.html_id}"></table>'
 
         class FoobarBrick2(Brick):
             id = Brick.generate_id(
@@ -738,7 +762,7 @@ class BrickRegistryTestCase(CremeTestCase):
             configurable = False  # <----
 
             def home_display(self, context):
-                return f'<table id="{self.id}"></table>'
+                return f'<table id="{self.html_id}"></table>'
 
         class FoobarBrick3(Brick):
             id = Brick.generate_id(
@@ -747,7 +771,7 @@ class BrickRegistryTestCase(CremeTestCase):
             verbose_name = 'Testing purpose'
 
             def detailview_display(self, context):
-                return f'<table id="{self.id}"></table>'
+                return f'<table id="{self.html_id}"></table>'
             # def home_display(self, context): [...]
 
         brick_registry = BrickRegistry()
@@ -1062,8 +1086,11 @@ class BrickRegistryTestCase(CremeTestCase):
             template_name = 'persons/bricks/itdoesnotexist.html'
 
             def detailview_display(self, context):
-                return f'<table id="brick-{self.id}"><thead><tr>' \
-                       f'{self.config_item.entity}</tr></thead></table>'  # useless :)
+                return (
+                    f'<table id="brick-{self.html_id}">'
+                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
+                    f'</table>'
+                )  # useless :)
 
         ibci = InstanceBrickConfigItem.objects.create(
             entity=casca,
@@ -1109,8 +1136,11 @@ class BrickRegistryTestCase(CremeTestCase):
             template_name = 'persons/templatetags/block_thatdoesnotexist.html'
 
             def detailview_display(self, context):
-                return f'<table id="brick-{self.id}"><thead><tr>' \
-                       f'{self.config_item.entity}</tr></thead></table>'  # Useless :)
+                return (
+                    f'<table id="brick-{self.html_id}">'
+                    f'<thead><tr>{self.config_item.entity}</tr></thead>'
+                    f'</table>'
+                )  # Useless :)
 
         class ContactBrick(BaseBrick):
             pass
@@ -1424,6 +1454,14 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             ordered_instances,
             [c for c in page.object_list if c.id in ids],
         )
+
+    def test_html_id(self):
+        class MyBrick(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_core', 'test_html_id')
+
+        brick = MyBrick()
+        self.assertEqual('regular-creme_core-test_html_id',       brick.id)
+        self.assertEqual('brick-regular-creme_core-test_html_id', brick.html_id)
 
     # def test_has_perms(self):
     def test_check_permissions(self):

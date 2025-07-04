@@ -212,6 +212,10 @@ class Brick:
     def _generate_hat_id(cls, app_name: str, name: str) -> str:
         return f'{cls.GENERIC_HAT_BRICK_ID}-{app_name}-{name}'
 
+    @property
+    def html_id(self):
+        return f'brick-{self.id}'
+
     def _render(self, template_context) -> str:
         return get_template(self.template_name).render(template_context)
 
@@ -239,6 +243,7 @@ class Brick:
                                 brick_context: _BrickContext,
                                 **extra_kwargs) -> dict:
         context['brick_id'] = brick_id
+        context['html_id'] = self.html_id
         context['verbose_name'] = self.verbose_name
         context['description'] = self.description
         context['state'] = BrickManager.get(context).get_state(self.id, context['user'])
