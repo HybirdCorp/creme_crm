@@ -199,7 +199,13 @@ def _take_snapshot(sender, instance, **kwargs):
 
 
 @receiver(signals.m2m_changed, dispatch_uid='creme_core-snapshot_m2m_cache')
-def _snapshot_m2m_cache(sender, instance, **kwargs):
+def _snapshot_m2m_cache(sender, instance, action, reverse, **kwargs):
+    if reverse:  # Not cache for the reverse side.
+        return
+
+    if not action.startswith('pre_'):  # Avoids useless computing
+        return
+
     initial_values = getattr(instance, Snapshot.HIDDEN_ATTR_NAME, None)
     if initial_values is not None:
         from ..models.base import _M2M_CACHE_NAME
