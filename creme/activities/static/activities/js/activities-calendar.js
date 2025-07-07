@@ -702,9 +702,13 @@ creme.ActivityCalendar = creme.component.Component.sub({
     },
 
     _eventTimeSlotCount: function(event, calendar) {
-        var eventDuration = this.toMoment(event.end, calendar).diff(this.toMoment(event.start, calendar));
-        var slotDuration = moment.duration(calendar.getOption('slotDuration')).asMilliseconds();
-        return event.end && Math.round(eventDuration / slotDuration);
+        if (event.end) {
+            var start = this.toMoment(event.start, calendar);
+            var end = this.toMoment(event.end, calendar);
+            var eventDuration = start ? end.diff(start) : 0;
+            var slotDuration = moment.duration(calendar.getOption('slotDuration')).asMilliseconds();
+            return Math.round(eventDuration / slotDuration);
+        }
     },
 
     _renderWeekEventContent: function(calendar, info, createElement) {
