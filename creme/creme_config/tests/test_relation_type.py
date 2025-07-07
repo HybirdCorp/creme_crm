@@ -1,16 +1,26 @@
+from functools import partial
+
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    condition_handler,
+    operators,
+)
 from creme.creme_core.models import (
     CremePropertyType,
+    EntityFilter,
     FakeContact,
     FakeOrganisation,
+    Relation,
     RelationType,
     SemiFixedRelationType,
 )
 from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.utils.translation import smart_model_verbose_name
 
 
 class _RelationTypeBaseTestCase(CremeTestCase):
@@ -507,7 +517,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
 
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
-            ('test-subfoo', 'object_predicate'),
+            ('test-objfoo', 'object_predicate'),
             is_custom=False,
         )[0]
         self.assertGET405(self.DEL_URL, data={'id': rt.id})
@@ -517,7 +527,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
 
         rt, srt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
-            ('test-subfoo', 'object_predicate'),
+            ('test-objfoo', 'object_predicate'),
             is_custom=True,
         )
         self.assertPOST200(self.DEL_URL, data={'id': rt.id})
@@ -529,12 +539,162 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
 
         rt, srt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
-            ('test-subfoo', 'object_predicate'),
+            ('test-objfoo', 'object_predicate'),
             is_custom=True,
         )
         self.assertPOST403(self.DEL_URL, data={'id': rt.id})
         self.assertStillExists(rt)
         self.assertStillExists(srt)
+
+    def test_delete__used_by_relationships(self):
+        user = self.login_as_root_and_get()
+
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-subfoo', 'object_predicate'),
+            is_custom=True,
+        )[0]
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        orga1 = create_orga(name='Subject inc.')
+        orga2 = create_orga(name='Object corp.')
+
+        rel = Relation.objects.create(
+            user=user, subject_entity=orga1, object_entity=orga2, type=rt,
+        )
+
+        response = self.assertPOST409(
+            self.DEL_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest', data={'id': rt.id},
+        )
+        self.assertStillExists(rt)
+        self.assertStillExists(rel)
+        self.assertEqual(
+            _(
+                'The relationship type can not be deleted because of its '
+                'dependencies: {dependencies}'
+            ).format(
+                dependencies=_('{count} {model}').format(
+                    count=2,
+                    model=smart_model_verbose_name(model=Relation, count=2)
+                )
+            ),
+            response.content.decode(),
+        )
+
+    def test_delete__used_by_efilter(self):
+        self.login_as_root()
+
+        rtype1 = RelationType.objects.smart_update_or_create(
+            ('test-subject_foo', 'subject_predicate'),
+            ('test-object_foo', 'object_predicate'),
+            is_custom=True,
+        )[0]
+        rtype2 = RelationType.objects.smart_update_or_create(
+            ('test-subject_bar', 'subject_predicate'),
+            ('test-object_bar', 'object_predicate'),
+            is_custom=True,
+        )[0]
+
+        build_cond = partial(
+            condition_handler.RelationConditionHandler.build_condition,
+            model=FakeContact,
+        )
+        efilter1 = EntityFilter.objects.smart_update_or_create(
+            'creme_core-tests_views_rtype1',
+            name='Related', model=FakeContact,
+            is_custom=True,
+            conditions=[build_cond(rtype=rtype1, has=True)],
+        )
+        efilter2 = EntityFilter.objects.create(
+            id='creme_core-tests_views_rtype2',
+            name='Not related',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions(
+            [build_cond(rtype=rtype1, has=False, filter_type=EF_CREDENTIALS)],
+            check_cycles=False, check_privacy=False,
+        )
+        EntityFilter.objects.smart_update_or_create(
+            'creme_core-tests_views_rtype3',
+            name='Related but different', model=FakeContact,
+            is_custom=True,
+            conditions=[build_cond(rtype=rtype2, has=True)],
+        )
+
+        response = self.assertPOST409(
+            self.DEL_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest', data={'id': rtype1.id},
+        )
+        self.assertStillExists(rtype1)
+
+        efilter1 = self.assertStillExists(efilter1)
+        self.assertEqual(1, efilter1.conditions.count())
+
+        self.assertHTMLEqual(
+            _(
+                'The relationship type cannot be deleted because it is used in '
+                'filter conditions: {filters}'
+            ).format(
+                filters=(
+                    f'<ul class="limited-list">'
+                    f'<li>{efilter2.name} *{_("Credentials filter")}*</li>'
+                    f'<li>'
+                    f'<a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1.name}</a>'
+                    f'</li>'
+                    f'</ul>'
+                ),
+            ),
+            response.content.decode(),
+        )
+
+    def test_delete__used_by_efilter__subfilter(self):
+        self.login_as_root()
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_foo', 'subject_predicate'),
+            ('test-object_foo', 'object_predicate'),
+            is_custom=True,
+        )[0]
+        sub_filter = EntityFilter.objects.smart_update_or_create(
+            'creme_core-tests_views_rtype_sub',
+            name='Corps', model=FakeOrganisation,
+            is_custom=True,
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator=operators.EndsWithOperator,
+                    field_name='name',
+                    values=[' Corp'],
+                ),
+            ],
+        )
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'creme_core-tests_views_rtype',
+            name='Related to corps', model=FakeContact,
+            is_custom=True,
+            conditions=[
+                condition_handler.RelationSubFilterConditionHandler.build_condition(
+                    model=FakeContact, rtype=rtype, subfilter=sub_filter,
+                ),
+            ],
+        )
+        response = self.assertPOST409(
+            self.DEL_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest', data={'id': rtype.id},
+        )
+        self.assertStillExists(rtype)
+
+        efilter = self.assertStillExists(efilter)
+        self.assertEqual(1, efilter.conditions.count())
+        self.assertHTMLEqual(
+            _(
+                'The relationship type cannot be deleted because it is used in '
+                'filter conditions: {filters}'
+            ).format(
+                filters=(
+                    f'<a href="{efilter.get_absolute_url()}" target="_blank">{efilter.name}</a>'
+                ),
+            ),
+            response.content.decode(),
+        )
 
 
 # class SemiFixedRelationTypeTestCase(CremeTestCase):

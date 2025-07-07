@@ -41,8 +41,19 @@
           (it was the behaviour in previous versions).
         - They can now be cloned.
         - EntityFilters are now grouped by owner in list-views, like HeaderFilters.
-    # The deletion views have now a better display for the dependencies issues.
-      Example: entities are displayed as HTML links.
+    # The deletion views have been improved :
+        - The dependencies issues have now a better display.
+          Example: entities are displayed as HTML links.
+        - A Property type cannot be deleted if it is used by :
+            - A property (i.e. one entity is tagged at least).
+            - A RelationType (as a constraint).
+            - A condition of Filter.
+        - A Relationship type cannot be deleted if it is used by :
+            - A Relationship (i.e. 2 entities are linked at least).
+            - A condition of Filter.
+        - A CustomField cannot be deleted if it is used by :
+            - A condition of Filter.
+            - A condition of Workflow.
     # The Currencies have now a "Is default?" field to chose the Currency
       which is pre-selected in forms (Invoices, Quotes, Opportunities...).
     # NotificationBox : The elapsed time from message creation is now updated each minute.
@@ -405,6 +416,8 @@
                 - The field "extra_data" is now tagged as <clonable=False>;
                   use the new cloning system to clone precisely what you want.
                 - The method 'get_clone_absolute_url()' is not static anymore.
+            - The model-field 'CremeProperty.type' is now <on_delete=models.PROTECT>.
+            - The model-field 'Relation.type' is now <on_delete=models.PROTECT>.
             - The method 'BrickDetailviewLocationManager.create_if_needed()' now takes its arguments as keywords only.
             - In 'CremeUser' :
                  - The first argument of the following methods is now positional only :

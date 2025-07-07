@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,19 +17,26 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import ProtectedError
 from django.shortcuts import get_object_or_404, render
+from django.utils.html import format_html
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 from creme.creme_core import utils
+from creme.creme_core.core.entity_filter import condition_handler
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
     CustomField,
     CustomFieldEnumValue,
     DeletionCommand,
+    EntityFilter,
     Job,
+    Workflow,
 )
+from creme.creme_core.utils.html import render_limited_list
+from creme.creme_core.utils.translation import verbose_instances_groups
 from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import (
     BricksReloading,
@@ -84,6 +91,7 @@ class CustomFieldEdition(base.ConfigModelEdition):
 
 class CustomFieldDeletion(base.ConfigDeletion):
     id_arg = 'id'
+    dependencies_limit = 3
 
     def perform_deletion(self, request):
         cfield = get_object_or_404(
@@ -104,7 +112,74 @@ class CustomFieldDeletion(base.ConfigDeletion):
                     ).format(count=times_used)
                 )
 
-            cfield.delete()
+            # ---
+            # TODO: factorise with creme_core.views.creme_property.PropertyTypeDeletion
+            cond_type_ids = (
+                condition_handler.CustomFieldConditionHandler.type_id,
+                condition_handler.DateCustomFieldConditionHandler.type_id,
+            )
+            efilters = EntityFilter.objects.filter(
+                conditions__type__in=cond_type_ids,
+                conditions__name=cfield.uuid,
+            )
+            if efilters:
+                def efilter_to_link(efilter):
+                    url = efilter.get_absolute_url()
+
+                    return format_html(
+                        '<a href="{url}" target="_blank">{label}</a>',
+                        url=url, label=efilter,
+                    ) if url else f'{efilter.name} *{efilter.registry.verbose_name}*'
+
+                raise ConflictError(
+                    _(
+                        'The custom field cannot be deleted because it is used '
+                        'in filter conditions: {filters}'
+                    ).format(
+                        filters=render_limited_list(
+                            items=efilters,
+                            limit=self.dependencies_limit,
+                            render_item=efilter_to_link,
+                        ),
+                    )
+                )
+
+            # ---
+            cfield_uuid = str(cfield.uuid)
+            workflows = [
+                workflow
+                for workflow in Workflow.objects.all()
+                # TODO: add an API for '_conditions_per_source'
+                for source_conditions in workflow.conditions._conditions_per_source
+                for condition in source_conditions['conditions']
+                if condition.type in cond_type_ids and condition.name == cfield_uuid
+            ]
+            if workflows:
+                raise ConflictError(
+                    gettext(
+                        'The custom field cannot be deleted because it is used by '
+                        'conditions of Workflow: {workflows}'
+                    ).format(
+                        # TODO: add a detail view for workflows, then render a link?
+                        workflows=', '.join(f'«{wf}»' for wf in workflows),
+                    )
+                )
+
+            # ---
+            try:
+                cfield.delete()
+            except ProtectedError as e:
+                # TODO: unit test (need a new fake model)
+                # TODO: factorise
+                raise ConflictError(
+                    _(
+                        'The custom field cannot be deleted because of its '
+                        'dependencies: {dependencies}'
+                    ).format(dependencies=render_limited_list(
+                        items=[*verbose_instances_groups(e.args[1])],
+                        limit=self.dependencies_limit,
+                    ))
+                ) from e
         else:
             cfield.is_deleted = True
             cfield.save()

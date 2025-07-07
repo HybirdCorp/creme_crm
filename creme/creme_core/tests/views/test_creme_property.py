@@ -5,14 +5,21 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.bricks import PropertiesBrick
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    condition_handler,
+)
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
+    EntityFilter,
     FakeContact,
     FakeOrganisation,
+    RelationType,
     history,
 )
+from creme.creme_core.utils.translation import smart_model_verbose_name
 from creme.creme_core.views.creme_property import (
     PropertyTypeInfoBrick,
     TaggedMiscEntitiesBrick,
@@ -364,23 +371,213 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(history.TYPE_PROP_DEL, hline.type)
         self.assertListEqual([ptype1.id], hline.modifications)
 
-    def test_delete_type01(self):
-        self.login_as_root()
-        ptype = CremePropertyType.objects.create(text='is beautiful', is_custom=False)
-        self.assertPOST404(ptype.get_delete_absolute_url())
-
-    def test_delete_type02(self):
+    def test_delete_type(self):
         self.login_as_standard(admin_4_apps=['creme_core'])
         ptype = CremePropertyType.objects.create(text='is beautiful', is_custom=True)
         response = self.assertPOST200(ptype.get_delete_absolute_url(), follow=True)
         self.assertDoesNotExist(ptype)
         self.assertRedirects(response, CremePropertyType.get_lv_absolute_url())
 
-    def test_delete_type03(self):
+    def test_delete_type__not_custom(self):
+        self.login_as_root()
+        ptype = CremePropertyType.objects.create(text='is beautiful', is_custom=False)
+        self.assertPOST404(ptype.get_delete_absolute_url())
+
+    def test_delete_type__not_admin(self):
         "Not allowed to admin <creme_core>."
         self.login_as_standard()
         ptype = CremePropertyType.objects.create(text='is beautiful', is_custom=True)
         self.assertPOST403(ptype.get_delete_absolute_url(), follow=True)
+
+    def test_delete_type__used_by_property(self):
+        user = self.login_as_root_and_get()
+        ptype = CremePropertyType.objects.create(text='is beautiful', is_custom=True)
+        contact = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
+        prop = CremeProperty.objects.create(creme_entity=contact, type=ptype)
+
+        response = self.assertPOST409(
+            ptype.get_delete_absolute_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertStillExists(ptype)
+        self.assertStillExists(prop)
+        self.assertStillExists(contact)
+        self.assertHTMLEqual(
+            '<span>{message}</span><ul><li>{dep}</li></ul>'.format(
+                message=_(
+                    'This deletion cannot be performed because of the links '
+                    'with some entities (& other elements):'
+                ),
+                dep=_('{count} {model}').format(
+                    count=1,
+                    model=smart_model_verbose_name(model=CremeProperty, count=1),
+                ),
+            ),
+            response.content.decode(),
+        )
+
+    def test_delete_type__used_by_rtype(self):
+        self.login_as_root()
+
+        ptype = CremePropertyType.objects.create(text='is a fighter', is_custom=True)
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_foobar', 'has killed', [FakeContact], [ptype]),
+            ('test-object_foobar',  'has been killed by'),
+        )[0]
+
+        response = self.assertPOST409(
+            ptype.get_delete_absolute_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertStillExists(ptype)
+
+        rtype = self.assertStillExists(rtype)
+        self.assertListEqual([ptype], [*rtype.subject_properties.all()])
+
+        self.assertEqual(
+            _(
+                '«{instance}» can not be deleted because it is used as '
+                'relationships type constraint in: {rtypes}'
+            ).format(instance=ptype.text, rtypes=f'«{rtype.predicate}»'),
+            response.content.decode(),
+        )
+
+    def test_delete_type__used_by_rtype__forbidden(self):
+        self.login_as_root()
+
+        ptype = CremePropertyType.objects.create(text='is pacifist', is_custom=True)
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_foobar', 'has killed', [FakeContact], [], [ptype]),
+            ('test-object_foobar',  'has been killed by'),
+        )[0]
+
+        response = self.assertPOST409(
+            ptype.get_delete_absolute_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertStillExists(ptype)
+
+        rtype = self.assertStillExists(rtype)
+        self.assertListEqual([ptype], [*rtype.subject_forbidden_properties.all()])
+        self.assertEqual(
+            _(
+                '«{instance}» can not be deleted because it is used as '
+                'relationships type constraint in: {rtypes}'
+            ).format(instance=ptype.text, rtypes=f'«{rtype.predicate}»'),
+            response.content.decode(),
+        )
+
+    def test_delete_type__used_by_efilter(self):
+        self.login_as_root()
+
+        create_ptype = partial(CremePropertyType.objects.create, is_custom=True)
+        ptype1 = create_ptype(text='is a fighter')
+        ptype2 = create_ptype(text='knows kung-fu')
+
+        build_cond = partial(
+            condition_handler.PropertyConditionHandler.build_condition,
+            model=FakeContact,
+        )
+        efilter1 = EntityFilter.objects.smart_update_or_create(
+            'creme_core-tests_views_ptype1',
+            name='Fighters', model=FakeContact,
+            is_custom=True,
+            conditions=[build_cond(ptype=ptype1, has=True)],
+        )
+        efilter2 = EntityFilter.objects.create(
+            id='creme_core-tests_views_ptype2',
+            name='Not fighters',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions(
+            [build_cond(ptype=ptype1, has=False, filter_type=EF_CREDENTIALS)],
+            check_cycles=False, check_privacy=False,
+        )
+        EntityFilter.objects.smart_update_or_create(
+            'creme_core-tests_views_ptype3',
+            name='Martialistes', model=FakeContact,
+            is_custom=True,
+            conditions=[build_cond(ptype=ptype2, has=True)],
+        )
+
+        response = self.assertPOST409(
+            ptype1.get_delete_absolute_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertStillExists(ptype1)
+
+        efilter1 = self.assertStillExists(efilter1)
+        self.assertEqual(1, efilter1.conditions.count())
+
+        self.assertHTMLEqual(
+            _(
+                '«{instance}» can not be deleted because it is used in '
+                'filter conditions: {filters}'
+            ).format(
+                instance=ptype1.text,
+                filters=(
+                    f'<ul class="limited-list">'
+                    f'<li>'
+                    f'<a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1.name}</a>'
+                    f'</li>'
+                    f'<li>{efilter2.name} *{_("Credentials filter")}*</li>'
+                    f'</ul>'
+                ),
+            ),
+            response.content.decode(),
+        )
+
+    # TODO: when conditions o property type are managed
+    # def test_delete_type__used_by_workflow(self):
+    #     self.login_as_root()
+    #
+    #     create_ptype = partial(CremePropertyType.objects.create, is_custom=True)
+    #     ptype1 = create_ptype(text='is a fighter')
+    #     ptype2 = create_ptype(text='knows kung-fu')
+    #
+    #     model = FakeContact
+    #     trigger = workflows.EntityCreationTrigger(model=model)
+    #     source = workflows.CreatedEntitySource(model=model)
+    #     build_cond = partial(
+    #         condition_handler.PropertyConditionHandler.build_condition,
+    #         model=model,
+    #     )
+    #     wf1 = Workflow.objects.create(
+    #         title='Flow #1',
+    #         content_type=model,
+    #         trigger=trigger,
+    #         conditions=WorkflowConditions().add(
+    #             source=source, conditions=[build_cond(ptype=ptype1, has=True)],
+    #         ),
+    #         # actions=[],
+    #     )
+    #     Workflow.objects.create(
+    #         title='Flow on other ptype',
+    #         content_type=model,
+    #         trigger=trigger,
+    #         conditions=WorkflowConditions().add(
+    #             source=source, conditions=[build_cond(ptype=ptype2, has=True)],
+    #         ),
+    #         # actions=[],
+    #     )
+    #     wf3 = Workflow.objects.create(
+    #         title='Flow #3',
+    #         content_type=model,
+    #         trigger=trigger,
+    #         conditions=WorkflowConditions().add(
+    #             source=source, conditions=[build_cond(ptype=ptype1, has=False)],
+    #         ),
+    #         # actions=[],
+    #     )
+    #
+    #     response = self.assertPOST409(
+    #         ptype1.get_delete_absolute_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+    #     )
+    #     self.assertStillExists(ptype1)
+    #
+    #     self.assertEqual(
+    #         _(
+    #             '«{instance}» can not be deleted because it is used by '
+    #             'conditions of Workflow in: {workflows}'
+    #         ).format(instance=ptype1.text, workflows=f'«{wf1.title}», «{wf3.title}»'),
+    #         response.content.decode(),
+    #     )
 
     def test_add_properties_bulk01(self):
         user = self.login_as_root_and_get()

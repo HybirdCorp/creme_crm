@@ -2136,7 +2136,16 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_relations05(self):
         "RelationType is deleted."
-        loves = self._aux_test_relations()
+        # loves = self._aux_test_relations()
+        create_rtype = RelationType.objects.smart_update_or_create
+        loves, loved = create_rtype(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by'),
+        )
+        hates = create_rtype(
+            ('test-subject_hate', 'Is hating'),
+            ('test-object_hate',  'Is hated by'),
+        )[0]
 
         # We want a condition with the same name as the one for loves
         subfilter = EntityFilter.objects.create(
@@ -2150,8 +2159,10 @@ class EntityFiltersTestCase(CremeTestCase):
             pk='test-filter01', name='Filter 01', model=FakeContact, is_custom=True,
             conditions=[
                 build(rtype=loves,      has=True, entity=self.contacts['rei']),
-                build(rtype=self.loved, has=True, ct=self.contact_ct),
-                build(rtype=self.hates, has=True),
+                # build(rtype=self.loved, has=True, ct=self.contact_ct),
+                build(rtype=loved, has=True, ct=self.contact_ct),
+                # build(rtype=self.hates, has=True),
+                build(rtype=hates, has=True),
                 SubFilterConditionHandler.build_condition(subfilter),  # <= should not be deleted
             ],
         )
@@ -2160,7 +2171,8 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertCountEqual(
             [
                 (SubFilterConditionHandler.type_id, str(subfilter.id)),
-                (RelationConditionHandler.type_id,  str(self.hates.id)),
+                # (RelationConditionHandler.type_id,  str(self.hates.id)),
+                (RelationConditionHandler.type_id,  str(hates.id)),
             ],
             efilter.conditions.values_list('type', 'name'),
         )
@@ -2284,7 +2296,17 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_relations_subfilter04(self):
         "RelationType is deleted."
-        loves = self._aux_test_relations()
+        # loves = self._aux_test_relations()
+        create_rtype = RelationType.objects.smart_update_or_create
+        loves = create_rtype(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by'),
+        )[0]
+        hates = create_rtype(
+            ('test-subject_hate', 'Is hating'),
+            ('test-object_hate',  'Is hated by'),
+        )[0]
+
         build_4_field = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
 
         sub_efilter01 = EntityFilter.objects.smart_update_or_create(
@@ -2312,12 +2334,14 @@ class EntityFiltersTestCase(CremeTestCase):
         build = partial(RelationSubFilterConditionHandler.build_condition, model=FakeContact)
         efilter.set_conditions([
             build(rtype=loves,      has=True, subfilter=sub_efilter01),
-            build(rtype=self.hates, has=True, subfilter=sub_efilter02),
+            # build(rtype=self.hates, has=True, subfilter=sub_efilter02),
+            build(rtype=hates, has=True, subfilter=sub_efilter02),
         ])
 
         loves.delete()
         self.assertListEqual(
-            [self.hates.id],
+            # [self.hates.id],
+            [hates.id],
             [cond.name for cond in efilter.conditions.all()]
         )
 
