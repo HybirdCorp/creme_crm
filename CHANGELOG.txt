@@ -1,5 +1,9 @@
 == Version 2.6.11 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Filtering with the field 'role' of a user was broken.
+
   Developers side :
   -----------------
 

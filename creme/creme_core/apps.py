@@ -503,6 +503,7 @@ class CremeCoreConfig(CremeAppConfig):
         from django.contrib.auth import get_user_model
 
         from . import enumerators, models
+        from .core.enumerable import QSEnumerator
 
         # TODO: improve the registry to write this
         #       (see 'core.enumerable._EnumerableRegistry._enumerator()') :
@@ -511,22 +512,28 @@ class CremeCoreConfig(CremeAppConfig):
         #     enumerators.EntityEnumerator,
         # )
         enumerable_registry.register_related_model(
-            get_user_model(),
-            enumerators.UserEnumerator,
+            model=get_user_model(),
+            enumerator_class=enumerators.UserEnumerator,
         ).register_related_model(
-            models.EntityFilter,
-            enumerators.EntityFilterEnumerator,
+            model=models.UserRole,
+            enumerator_class=QSEnumerator,
         ).register_related_model(
-            models.Vat, enumerators.VatEnumerator,
+            model=models.EntityFilter,
+            enumerator_class=enumerators.EntityFilterEnumerator,
+        ).register_related_model(
+            model=models.Vat,
+            enumerator_class=enumerators.VatEnumerator,
         ).register_field_type(
-            models.fields.EntityCTypeForeignKey,
-            enumerators.EntityCTypeForeignKeyEnumerator,
+            field_class=models.fields.EntityCTypeForeignKey,
+            enumerator_class=enumerators.EntityCTypeForeignKeyEnumerator,
         ).register_field(
-            models.HeaderFilter, 'user',
-            enumerators.UserEnumerator
+            model=models.HeaderFilter,
+            field_name='user',
+            enumerator_class=enumerators.UserEnumerator,
         ).register_field(
-            models.EntityFilter, 'user',
-            enumerators.UserEnumerator
+            model=models.EntityFilter,
+            field_name='user',
+            enumerator_class=enumerators.UserEnumerator,
         )
 
         # TODO: register_related_model(models.HeaderFilter, ...) ?
