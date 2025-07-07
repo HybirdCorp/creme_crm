@@ -20,6 +20,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.backends.base import SessionBase
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
+from django.db.models import Model
 from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
 from django.test import RequestFactory, TestCase, TransactionTestCase
@@ -327,7 +328,7 @@ class _CremeTestCase:
         if delta > timedelta(seconds=seconds):
             self.fail(f'<{dt1}> & <{dt2}> are not almost equal: delta is <{delta}>')
 
-    def assertDoesNotExist(self, instance):
+    def assertDoesNotExist(self, instance: Model) -> None:
         model = instance.__class__
 
         try:
@@ -337,7 +338,7 @@ class _CremeTestCase:
 
         self.fail('Your object still exists.')
 
-    def assertStillExists(self, instance):
+    def assertStillExists(self, instance: Model) -> Model:
         model = instance.__class__
 
         pk = instance.pk

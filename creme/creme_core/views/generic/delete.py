@@ -19,13 +19,16 @@
 from collections import Counter
 from collections.abc import Sequence
 
+from django.db.models import ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.http import is_ajax
 from creme.creme_core.models import (
     CremeEntity,
@@ -34,6 +37,7 @@ from creme.creme_core.models import (
     Relation,
 )
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.utils.translation import smart_model_verbose_name
 
 from .base import CheckedView
 
@@ -102,9 +106,11 @@ class CremeDeletionMixin:
                         count
                     ).format(count=count, predicate=predicate)
 
-                for dep in dependencies:
-                    if not isinstance(dep, CremeEntity | Relation):
-                        yield str(dep)
+                counter = Counter(
+                    type(dep)
+                    for dep in dependencies
+                    if not isinstance(dep, CremeEntity | Relation)
+                )
             else:
                 if not_viewable_count:
                     yield ngettext(
@@ -113,9 +119,18 @@ class CremeDeletionMixin:
                         not_viewable_count
                     ).format(count=not_viewable_count)
 
-                for dep in dependencies:
-                    if not isinstance(dep, CremeEntity):
-                        yield str(dep)
+                counter = Counter(
+                    type(dep) for dep in dependencies if not isinstance(dep, CremeEntity)
+                )
+
+            if counter:
+                fmt = _('{count} {model}').format
+
+                for model, count in counter.items():
+                    yield fmt(
+                        count=count,
+                        model=smart_model_verbose_name(model=model, count=count),
+                    )
 
         limit = self.dependencies_limit
 
@@ -181,4 +196,19 @@ class CremeModelDeletion(CremeDeletion):
 
     def perform_deletion(self, request):
         self.object = self.get_object()
-        self.object.delete()
+
+        try:
+            self.object.delete()
+        except ProtectedError as e:
+            raise ConflictError(
+                format_html(
+                    '<span>{message}</span>{dependencies}',
+                    message=_(
+                        'This deletion cannot be performed because of the links '
+                        'with some entities (& other elements):'
+                    ),
+                    dependencies=self.dependencies_to_html(
+                        instance=self.object, dependencies=e.args[1], user=request.user,
+                    ),
+                )
+            ) from e

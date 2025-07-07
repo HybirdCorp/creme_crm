@@ -29,6 +29,7 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.utils.translation import smart_model_verbose_name
 
 
 @override_settings(ENTITIES_DELETION_ALLOWED=True)
@@ -153,23 +154,34 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         sector1, sector2, sector3 = FakeSector.objects.all()[:3]
         self.assertHTMLEqual(
-            f'<ul><li>{sector1}</li><li>{sector2}</li></ul>',
+            # f'<ul><li>{sector1}</li><li>{sector2}</li></ul>',
+            '<ul><li>{}</li></ul>'.format(
+                _('{count} {model}').format(
+                    count=2,
+                    model=smart_model_verbose_name(model=FakeSector, count=2),
+                )
+            ),
             to_html(instance=entity1, dependencies=[sector1, sector2], user=user),
         )
 
         self.assertHTMLEqual(
             '<ul>'
             ' <li>{error}</li>'
-            ' <li>{label1}</li>'
-            ' <li>{label2}</li>'
+            # ' <li>{label1}</li>'
+            # ' <li>{label2}</li>'
+            ' <li>{misc}</li>'
             '</ul>'.format(
-                label1=str(sector2),
-                label2=str(sector3),
+                # label1=str(sector2),
+                # label2=str(sector3),
                 error=ngettext(
                     '{count} not viewable entity',
                     '{count} not viewable entities',
                     1
                 ).format(count=1),
+                misc=_('{count} {model}').format(
+                    count=2,
+                    model=smart_model_verbose_name(model=FakeSector, count=2),
+                ),
             ),
             to_html(instance=sector1, dependencies=[sector2, sector3, entity3], user=user),
         )

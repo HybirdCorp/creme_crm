@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from django.forms.utils import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeForm, CremeModelForm
-from creme.creme_core.models import CremePropertyType, Mutex
+from creme.creme_core.models import CremeProperty, CremePropertyType, Mutex
 from creme.creme_core.utils import replace_related_object
 
 from ..models import MarketSegment
@@ -115,6 +115,7 @@ class SegmentReplacementForm(CremeForm):
                 if replacing_segment.property_type is not None:
                     replace_related_object(ptype_2_delete, replacing_segment.property_type)
 
+                CremeProperty.objects.filter(type=ptype_2_delete).delete()
                 ptype_2_delete.delete()
         finally:
             mutex.release()

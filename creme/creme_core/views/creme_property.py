@@ -23,19 +23,29 @@ from django.db.transaction import atomic
 from django.http import Http404
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 # TODO: move them to creme_core ?
 import creme.creme_config.forms.creme_property_type as ptype_forms
 
 from ..auth import EntityCredentials
+from ..core.entity_filter.condition_handler import PropertyConditionHandler
+from ..core.exceptions import ConflictError
 from ..core.paginator import FlowPaginator
 from ..forms import creme_property as prop_forms
 from ..gui.bricks import Brick, ForbiddenBrick, QuerysetBrick
-from ..models import CremeEntity, CremeProperty, CremePropertyType
+from ..models import (
+    CremeEntity,
+    CremeProperty,
+    CremePropertyType,
+    EntityFilter,
+)
 from ..models.utils import model_verbose_name_plural
 from ..utils import get_from_POST_or_404
 from ..utils.content_type import entity_ctypes
+from ..utils.html import render_limited_list
 from . import generic
 from .bricks import BricksReloading
 from .generic.base import EntityCTypeRelatedMixin
@@ -196,6 +206,82 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
     permissions = 'creme_core.can_admin'
 
     ptype_id_url_kwarg = 'ptype_id'
+
+    # TODO: do we need a "weak reference" (M2M, id/uuid stored in JSON...) system?
+    # TODO: split in several methods?
+    def check_instance_permissions(self, instance, user):
+        rtypes = [
+            *instance.relationtype_subjects_set.all(),
+            *instance.relationtype_forbidden_set.all(),
+        ]
+        if rtypes:
+            raise ConflictError(
+                gettext(
+                    '«{instance}» can not be deleted because it is used as '
+                    'relationships type constraint in: {rtypes}'
+                ).format(
+                    instance=instance,
+                    # TODO: add a detail view for relation type, then render a link
+                    rtypes=', '.join(f'«{rtype.predicate}»' for rtype in rtypes),
+                )
+            )
+
+        # ---
+        efilters = EntityFilter.objects.filter(
+            conditions__type=PropertyConditionHandler.type_id,
+            conditions__name=instance.uuid,
+        )
+        if efilters:
+            def efilter_to_link(efilter):
+                url = efilter.get_absolute_url()
+
+                return format_html(
+                    '<a href="{url}" target="_blank">{label}</a>',
+                    url=url, label=efilter,
+                ) if url else f'{efilter.name} *{efilter.registry.verbose_name}*'
+
+            raise ConflictError(
+                _(
+                    '«{instance}» can not be deleted because it is used in '
+                    'filter conditions: {filters}'
+                ).format(
+                    instance=instance,
+                    filters=render_limited_list(
+                        items=efilters,
+                        limit=self.dependencies_limit,
+                        render_item=efilter_to_link,
+                    ),
+                )
+            )
+
+        # ---
+        # TODO: uncomment when conditions on properties are managed by Workflow
+        # ptype_uuid = str(instance.uuid)
+        # workflows = [
+        #     workflow
+        #     for workflow in Workflow.objects.all()
+        #     # todo: add an API for '_conditions_per_source'
+        #     for source_conditions in workflow.conditions._conditions_per_source
+        #     for condition in source_conditions['conditions']
+        #     if condition.type == PropertyConditionHandler.type_id
+        #     and condition.name == ptype_uuid
+        # ]
+        # if workflows:
+        #     raise ConflictError(
+        #         gettext(
+        #             '«{instance}» can not be deleted because it is used by '
+        #             'conditions of Workflow in: {workflows}'
+        #         ).format(
+        #             instance=instance,
+        #             # todo: add a detail view for workflows, then render a link?
+        #             workflows=', '.join(f'«{wf}»' for wf in workflows),
+        #         )
+        #     )
+
+        # NB: we currently do not check HeaderFilters/CustomBrickConfigItems/
+        #     RelationBrickItems; they are just for UI (& not business logic) so,
+        #     it's probably OK that they do not block the deletion.
+        #     It could change in the future of course depending on feedbacks.
 
     def get_query_kwargs(self):
         return {

@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'POLLS' APP
-# Copyright (C) 2024 Hybird
+# Copyright (C) 2025 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Polls 2.6\n"
+"Project-Id-Version: Creme Polls 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-17 17:53+0200\n"
+"POT-Creation-Date: 2025-07-10 17:38+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -323,20 +323,17 @@ msgstr "Section"
 msgid "Sections"
 msgstr "Sections"
 
-msgid "There is at least one question in this section."
-msgstr "Il y a au moins une question dans cette section."
-
 msgid "Create a question"
 msgstr "Créer une question"
 
 msgid "Save the question"
 msgstr "Enregistrer la question"
 
-msgid "There is at least one other question which depends on this question."
-msgstr "Il y a au moins une autre question qui dépend de celle-ci."
-
 msgid "This question is already disabled."
 msgstr "Cette question est déjà désactivée."
+
+msgid "There is at least one other question which depends on this question."
+msgstr "Il y a au moins une autre question qui dépend de celle-ci."
 
 msgid "Save the condition"
 msgstr "Enregistrer la condition"
@@ -560,6 +557,9 @@ msgstr "Modification de réponse"
 
 msgid "Save the modification"
 msgstr "Enregistrer la modification"
+
+#~ msgid "There is at least one question in this section."
+#~ msgstr "Il y a au moins une question dans cette section."
 
 #~ msgid "All questions have been answered."
 #~ msgstr "Les questions ont déjà toute une réponse."

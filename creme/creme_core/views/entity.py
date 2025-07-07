@@ -1373,7 +1373,8 @@ class EntityDeletionMixin(generic.CremeDeletionMixin):
             ) from e
         except ProtectedError as e:
             raise ConflictError(
-                '<span>{message}</span>{dependencies}'.format(
+                format_html(
+                    '<span>{message}</span>{dependencies}',
                     message=gettext(
                         'This entity can not be deleted because of its links '
                         'with other entities:'
@@ -1554,11 +1555,11 @@ class RelatedToEntityDeletion(generic.base.ContentTypeRelatedMixin,
     def get_success_url(self):
         return self.object.get_related_entity().get_absolute_url()
 
-    def perform_deletion(self, request):
-        try:
-            super().perform_deletion(request)
-        except ProtectedError as e:
-            raise PermissionDenied(e.args[0]) from e
+    # def perform_deletion(self, request):
+    #     try:
+    #         super().perform_deletion(request)
+    #     except ProtectedError as e:
+    #         raise PermissionDenied(e.args[0]) from e
 
 
 class SuperusersRestriction(base.CheckedView):

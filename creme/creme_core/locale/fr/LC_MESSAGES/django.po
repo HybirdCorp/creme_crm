@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-27 15:55+0200\n"
+"POT-Creation-Date: 2025-07-10 16:59+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -746,10 +746,6 @@ msgstr[1] "{count} fiches ont été modifiées avec succès."
 
 msgid "Replace & delete"
 msgstr "Remplacer & supprimer"
-
-#, python-brace-format
-msgid "{count} {model}"
-msgstr "{count} {model}"
 
 #, python-brace-format
 msgid ""
@@ -4103,6 +4099,10 @@ msgid "Do you really want to send this entity to the trash?"
 msgstr "Voulez-vous vraiment envoyer cette fiche dans la corbeille ?"
 
 #, python-brace-format
+msgid "{count} {model}"
+msgstr "{count} {model}"
+
+#, python-brace-format
 msgid "{number} day"
 msgid_plural "{number} days"
 msgstr[0] "{number} jour"
@@ -4307,6 +4307,22 @@ msgid "New properties for «{entity}»"
 msgstr "Nouvelles propriétés pour «{entity}»"
 
 #, python-brace-format
+msgid ""
+"«{instance}» can not be deleted because it is used as relationships type "
+"constraint in: {rtypes}"
+msgstr ""
+"«{instance}» ne peut être supprimé car c'est utilisé comme contrainte de "
+"type de relation par : {rtypes}"
+
+#, python-brace-format
+msgid ""
+"«{instance}» can not be deleted because it is used in filter conditions: "
+"{filters}"
+msgstr ""
+"«{instance}» ne peut être supprimé car c'est utilisé dans des conditions de "
+"filtre : {filters}"
+
+#, python-brace-format
 msgid "The field \"{model}.{field}\" is hidden."
 msgstr "Le champ \"{model}.{field}\" est caché."
 
@@ -4434,10 +4450,6 @@ msgstr ""
 msgid "Save the modified filter"
 msgstr "Enregistrer le filtre modifié"
 
-msgid "This filter can not be deleted because of its links with some entities:"
-msgstr ""
-"Ce filtre ne peut être supprimé à cause de ses liens avec certaines fiches :"
-
 msgid "It seems you logged out."
 msgstr "Vous semblez vous être déconnecté(e)."
 
@@ -4460,6 +4472,13 @@ msgid "{count} relationship «{predicate}»"
 msgid_plural "{count} relationships «{predicate}»"
 msgstr[0] "{count} relation «{predicate}»"
 msgstr[1] "{count} relations «{predicate}»"
+
+msgid ""
+"This deletion cannot be performed because of the links with some entities (& "
+"other elements):"
+msgstr ""
+"La suppression ne peut être effectuée à cause des liens avec certaines fiches "
+"(& autres éléments) :"
 
 #, python-brace-format
 msgid "Edit «{object}»"

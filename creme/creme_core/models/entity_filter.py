@@ -1018,6 +1018,10 @@ class EntityFilterCondition(models.Model):
         return changed
 
 
+# TODO: rework now that the deletion views for RelationType/CremePropertyType/CustomFields
+#       abort if a Condition is referencing them.
+#        => just display error in filter configuration
+#        => move checking system out of the view to be available everywhere + be extensible?
 # TODO: manage also deletion of:
 #  - instance linked with FK (Sector, Priority...).
 #  - instance of CremeEntity used by Relation handlers.

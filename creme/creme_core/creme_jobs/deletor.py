@@ -16,8 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import Counter
-
 from django.db.models import F, ProtectedError
 from django.db.transaction import atomic
 from django.utils.translation import gettext
@@ -27,7 +25,7 @@ from django.utils.translation import ngettext
 from ..core.workflow import WorkflowEngine
 from ..models import DeletionCommand, FieldsConfig, JobResult
 from ..signals import pre_replace_and_delete
-from ..utils.translation import smart_model_verbose_name
+from ..utils.translation import verbose_instances_groups
 from .base import JobProgress, JobType
 
 
@@ -82,23 +80,15 @@ class _DeletorType(JobType):
         try:
             instance_2_del.delete()
         except ProtectedError as e:
-            counter = Counter(type(obj) for obj in e.args[1])
-            fmt = gettext('{count} {model}').format
-
             JobResult.objects.create(
                 job=job,
                 messages=[
                     gettext('«{instance}» can not be deleted because of its '
                             'dependencies: {dependencies}').format(
                         instance=instance_2_del,
-                        dependencies=', '.join(
-                            fmt(
-                                count=count,
-                                model=smart_model_verbose_name(model=model, count=count),
-                            ) for model, count in counter.items()
-                        ),
+                        dependencies=', '.join(verbose_instances_groups(e.args[1])),
                     ),
-                ]
+                ],
             )
 
     def progress(self, job):

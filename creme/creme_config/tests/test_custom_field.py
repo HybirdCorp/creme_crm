@@ -1,3 +1,4 @@
+from datetime import date
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
@@ -7,6 +8,13 @@ from django.utils.translation import ngettext
 
 from creme.creme_config import bricks
 from creme.creme_config.constants import BRICK_STATE_HIDE_DELETED_CFIELDS
+from creme.creme_core import workflows
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    condition_handler,
+    operators,
+)
+from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.models import (
     BrickState,
@@ -16,9 +24,11 @@ from creme.creme_core.models import (
     CustomFieldEnumValue,
     CustomFieldMultiEnum,
     DeletionCommand,
+    EntityFilter,
     FakeContact,
     FakeOrganisation,
     Job,
+    Workflow,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -428,7 +438,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             status_code=409,
         )
 
-    def test_delete01(self):
+    def test_delete(self):
         user = self.login_as_standard(admin_4_apps=('creme_core',))
 
         create_cf = partial(CustomField.objects.create, content_type=FakeContact)
@@ -471,7 +481,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertStillExists(enum3)
 
-    def test_delete02(self):
+    def test_delete__used_by_entities(self):
         "Try to delete definitely, but related value."
         user = self.login_as_standard(admin_4_apps=('creme_core',))
 
@@ -508,7 +518,210 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(eval11)
         self.assertStillExists(enum1)
 
-    def test_delete03(self):
+    def test_delete__used_by_efilter(self):
+        self.login_as_root()
+
+        create_cf = partial(
+            CustomField.objects.create,
+            content_type=FakeContact, field_type=CustomField.INT, is_deleted=True,
+        )
+        cfield1 = create_cf(name='HP')
+        cfield2 = create_cf(name='MP')
+
+        build_cond = condition_handler.CustomFieldConditionHandler.build_condition
+        efilter1 = EntityFilter.objects.smart_update_or_create(
+            'creme_config-tests_views_cfield1',
+            name='Tanks', model=FakeContact,
+            is_custom=True,
+            conditions=[
+                build_cond(custom_field=cfield1, operator=operators.GTE, values=[1000]),
+            ],
+        )
+        efilter2 = EntityFilter.objects.create(
+            id='creme_config-tests_views_cfield2',
+            name='Mid',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions(
+            [
+                build_cond(
+                    custom_field=cfield1, operator=operators.GTE, values=[160],
+                    filter_type=EF_CREDENTIALS,
+                ),
+            ],
+            check_cycles=False, check_privacy=False,
+        )
+        EntityFilter.objects.smart_update_or_create(
+            'creme_config-tests_views_cfield3',
+            name='Magician', model=FakeContact,
+            is_custom=True,
+            conditions=[
+                build_cond(custom_field=cfield2, operator=operators.GTE, values=[1000]),
+            ],
+        )
+
+        response = self.assertPOST409(
+            reverse('creme_config__delete_custom_field'),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            data={'id': cfield1.id},
+        )
+        self.assertHTMLEqual(
+            _(
+                'The custom field cannot be deleted because it is used in '
+                'filter conditions: {filters}'
+            ).format(
+                filters=(
+                    f'<ul class="limited-list">'
+                    f'<li>{efilter2.name} *{_("Credentials filter")}*</li>'
+                    f'<li>'
+                    f'<a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1.name}</a>'
+                    f'</li>'
+                    f'</ul>'
+                ),
+            ),
+            response.content.decode(),
+        )
+        self.assertStillExists(cfield1)
+        self.assertStillExists(efilter1)
+
+    def test_delete__used_by_efilter__date(self):
+        self.login_as_root()
+
+        cfield = CustomField.objects.create(
+            name='First fight', content_type=FakeContact,
+            field_type=CustomField.DATE, is_deleted=True,
+        )
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'creme_config-tests_views_cfield',
+            name='Summer!', model=FakeContact,
+            is_custom=True,
+            conditions=[
+                condition_handler.DateCustomFieldConditionHandler.build_condition(
+                    custom_field=cfield, start=date(year=2025, month=6, day=21),
+                ),
+            ],
+        )
+        response = self.assertPOST409(
+            reverse('creme_config__delete_custom_field'),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            data={'id': cfield.id},
+        )
+        self.assertHTMLEqual(
+            _(
+                'The custom field cannot be deleted because it is used in '
+                'filter conditions: {filters}'
+            ).format(
+                filters=(
+                    f'<a href="{efilter.get_absolute_url()}" target="_blank">'
+                    f'{efilter.name}'
+                    f'</a>'
+                ),
+            ),
+            response.content.decode(),
+        )
+
+    def test_delete__used_by_workflow(self):
+        self.login_as_root()
+
+        create_cf = partial(
+            CustomField.objects.create,
+            content_type=FakeContact, field_type=CustomField.INT, is_deleted=True,
+        )
+        cfield1 = create_cf(name='HP')
+        cfield2 = create_cf(name='MP')
+
+        build_cond = condition_handler.CustomFieldConditionHandler.build_condition
+        model = FakeContact
+        trigger = workflows.EntityCreationTrigger(model=model)
+        source = workflows.CreatedEntitySource(model=model)
+        wf1 = Workflow.objects.create(
+            title='Flow #1',
+            content_type=model,
+            trigger=trigger,
+            conditions=WorkflowConditions().add(
+                source=source,
+                conditions=[
+                    build_cond(custom_field=cfield1, operator=operators.GTE, values=[1000]),
+                ],
+            ),
+            # actions=[],
+        )
+        Workflow.objects.create(
+            title='Flow on other cfield',
+            content_type=model,
+            trigger=trigger,
+            conditions=WorkflowConditions().add(
+                source=source,
+                conditions=[
+                    build_cond(custom_field=cfield2, operator=operators.GTE, values=[1000]),
+                ],
+            ),
+            # actions=[],
+        )
+        wf3 = Workflow.objects.create(
+            title='Flow #3',
+            content_type=model,
+            trigger=trigger,
+            conditions=WorkflowConditions().add(
+                source=source,
+                conditions=[
+                    build_cond(custom_field=cfield1, operator=operators.GTE, values=[1500]),
+                ],
+            ),
+            # actions=[],
+        )
+
+        response = self.assertPOST409(
+            reverse('creme_config__delete_custom_field'),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            data={'id': cfield1.id},
+        )
+        self.assertHTMLEqual(
+            _(
+                'The custom field cannot be deleted because it is used by '
+                'conditions of Workflow: {workflows}'
+            ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+            response.content.decode(),
+        )
+        self.assertStillExists(cfield1)
+        self.assertStillExists(wf1)
+
+    def test_delete__used_by_workflow__date(self):
+        self.login_as_root()
+
+        model = FakeContact
+        cfield = CustomField.objects.create(
+            name='First fight', content_type=model,
+            field_type=CustomField.DATE, is_deleted=True,
+        )
+        wf = Workflow.objects.create(
+            title='My Flow',
+            content_type=model,
+            trigger=workflows.EntityCreationTrigger(model=model),
+            conditions=WorkflowConditions().add(
+                source=workflows.CreatedEntitySource(model=model),
+                conditions=[
+                    condition_handler.DateCustomFieldConditionHandler.build_condition(
+                        custom_field=cfield, start=date(year=2025, month=6, day=21),
+                    ),
+                ],
+            ),
+            # actions=[],
+        )
+        response = self.assertPOST409(
+            reverse('creme_config__delete_custom_field'),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            data={'id': cfield.id},
+        )
+        self.assertHTMLEqual(
+            _(
+                'The custom field cannot be deleted because it is used by '
+                'conditions of Workflow: {workflows}'
+            ).format(workflows=f'«{wf.title}»'),
+            response.content.decode(),
+        )
+
+    def test_delete__no_app_perms(self):
         "Not allowed."
         self.login_as_standard()  # admin_4_apps=('creme_core',)
 

@@ -22,9 +22,13 @@
 ################################################################################
 
 import warnings
+from collections import Counter
+from collections.abc import Iterable
+from typing import Iterator
 
 from django.conf import settings
 from django.db.models import Model
+from django.utils.translation import gettext
 
 from creme.creme_core.models import utils
 
@@ -60,7 +64,8 @@ else:
 ################################################################################
 
 
-def smart_model_verbose_name(model: type[Model], count: int):
+def smart_model_verbose_name(model: type[Model], count: int) -> str:
+    """Get the verbose name or the plural verbose name of a model depending on a count."""
     return (
         utils.model_verbose_name_plural(model)
         if plural(count) else
@@ -76,3 +81,24 @@ def get_model_verbose_name(model, count):
     )
 
     return smart_model_verbose_name(model=model, count=count)
+
+
+def verbose_instances_groups(instances: Iterable[Model]) -> Iterator[str]:
+    """Generates labels describing groups of instances.
+
+    Example:
+        >> for label in verbose_instances_groups([my_contact1, my_organisation, my_contact2]):
+        >>     print(label)
+        "2 Contacts"
+        "1 Organisation"
+    """
+    counter = Counter(type(instance) for instance in instances)
+
+    if counter:
+        fmt = gettext('{count} {model}').format
+
+        for model, count in counter.items():
+            yield fmt(
+                count=count,
+                model=smart_model_verbose_name(model=model, count=count),
+            )

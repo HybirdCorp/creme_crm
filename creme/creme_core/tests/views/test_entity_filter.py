@@ -2155,8 +2155,8 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
             ' </li>'
             '</ul>'.format(
                 message=_(
-                    'This filter can not be deleted because of its links with '
-                    'some entities:'
+                    'This deletion cannot be performed because of the links '
+                    'with some entities (& other elements):'
                 ),
                 report_id=report.id,
                 label=str(report),

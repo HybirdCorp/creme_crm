@@ -11,6 +11,7 @@ from parameterized import parameterized
 
 from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.utils.translation import smart_model_verbose_name
 
 from ..bricks import PollFormLinesBrick, PollRepliesBrick
 from ..core import PollLineType
@@ -425,7 +426,8 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
             [True], [node.has_line for node in SectionTree(pform) if node.is_section],
         )
 
-        self.assertEqual(403, self.delete_section(section).status_code)
+        # self.assertEqual(403, self.delete_section(section).status_code)
+        self.assertEqual(409, self.delete_section(section).status_code)
         self.assertStillExists(line)
         self.assertStillExists(section)
 
@@ -470,14 +472,27 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
         response = self.delete_section(section, ajax=True)
-        self.assertEqual(403, response.status_code)
+        # self.assertEqual(403, response.status_code)
+        self.assertEqual(409, response.status_code)
         self.assertStillExists(section)
         self.assertStillExists(sub_section1)
         self.assertStillExists(sub_section2)
         self.assertStillExists(line)
-        self.assertEqual(
-            _('There is at least one question in this section.'),
-            # smart_str(response.content),
+        # self.assertEqual(
+        #     _('There is at least one question in this section.'),
+        #     smart_str(response.content),
+        # )
+        self.assertHTMLEqual(
+            '<span>{message}</span><ul><li>{dependencies}</li></ul>'.format(
+                message=_(
+                    'This deletion cannot be performed because of the links '
+                    'with some entities (& other elements):'
+                ),
+                dependencies=_('{count} {model}').format(
+                    count=1,
+                    model=smart_model_verbose_name(model=PollFormSection, count=1),
+                )
+            ),
             response.text,
         )
 
@@ -2016,7 +2031,8 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
         response = self.delete_line(line2)
-        self.assertEqual(403, response.status_code)
+        # self.assertEqual(403, response.status_code)
+        self.assertEqual(409, response.status_code)
         self.assertStillExists(line2)
         self.assertStillExists(cond)
 
@@ -2061,12 +2077,25 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
         response = self.delete_line(line2, ajax=True)
-        self.assertEqual(403, response.status_code)
+        # self.assertEqual(403, response.status_code)
+        self.assertEqual(409, response.status_code)
         self.assertStillExists(line2)
         self.assertStillExists(cond)
-        self.assertEqual(
-            _('There is at least one other question which depends on this question.'),
-            # smart_str(response.content),
+        # self.assertEqual(
+        #     _('There is at least one other question which depends on this question.'),
+        #     smart_str(response.content),
+        # )
+        self.assertHTMLEqual(
+            '<span>{message}</span><ul><li>{dependencies}</li></ul>'.format(
+                message=_(
+                    'This deletion cannot be performed because of the links '
+                    'with some entities (& other elements):'
+                ),
+                dependencies=_('{count} {model}').format(
+                    count=1,
+                    model=smart_model_verbose_name(model=PollFormLine, count=1),
+                )
+            ),
             response.text,
         )
 

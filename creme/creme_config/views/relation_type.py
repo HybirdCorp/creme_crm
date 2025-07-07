@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,15 +16,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Q
+from django.db.models import ProtectedError, Q
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models import RelationType, SemiFixedRelationType
+from creme.creme_core.core.entity_filter import condition_handler
+from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.models import (
+    EntityFilter,
+    RelationType,
+    SemiFixedRelationType,
+)
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.utils.html import render_limited_list
+from creme.creme_core.utils.translation import verbose_instances_groups
 from creme.creme_core.views import generic
 
 from .. import bricks
@@ -116,6 +125,7 @@ class RelationTypeEnabling(generic.CheckedView):
 
 class RelationTypeDeletion(base.ConfigDeletion):
     id_arg = 'id'
+    dependencies_limit = 3
 
     def perform_deletion(self, request):
         relation_type = get_object_or_404(
@@ -126,7 +136,56 @@ class RelationTypeDeletion(base.ConfigDeletion):
         if not relation_type.is_custom:
             raise Http404("Can't delete a standard RelationType")
 
-        relation_type.delete()
+        # ---
+        # TODO: factorise with creme_core.views.creme_property.PropertyTypeDeletion
+        efilters = EntityFilter.objects.filter(
+            conditions__type__in=(
+                condition_handler.RelationConditionHandler.type_id,
+                condition_handler.RelationSubFilterConditionHandler.type_id,
+            ),
+            conditions__name=relation_type.id,
+        )
+        if efilters:
+            def efilter_to_link(efilter):
+                url = efilter.get_absolute_url()
+
+                return format_html(
+                    '<a href="{url}" target="_blank">{label}</a>',
+                    url=url, label=efilter,
+                ) if url else f'{efilter.name} *{efilter.registry.verbose_name}*'
+
+            raise ConflictError(
+                _(
+                    'The relationship type cannot be deleted because it is used '
+                    'in filter conditions: {filters}'
+                ).format(
+                    filters=render_limited_list(
+                        items=efilters,
+                        limit=self.dependencies_limit,
+                        render_item=efilter_to_link,
+                    ),
+                )
+            )
+
+        # ---
+        # TODO: check Workflows when conditions on Relation are managed
+
+        # ---
+        try:
+            relation_type.delete()
+        except ProtectedError as e:
+            # TODO: factorise with CremeModelDeletion
+            # TODO: the count for Relation is x2 (symmetrical relations are
+            #       collected too of course) => fix that?
+            raise ConflictError(
+                _(
+                    'The relationship type can not be deleted because of its '
+                    'dependencies: {dependencies}'
+                ).format(dependencies=render_limited_list(
+                    items=[*verbose_instances_groups(e.args[1])],
+                    limit=self.dependencies_limit,
+                ))
+            ) from e
 
 
 class SemiFixedRelationTypeDeletion(base.ConfigDeletion):

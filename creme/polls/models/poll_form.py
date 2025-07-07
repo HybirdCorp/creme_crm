@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2024  Hybird
+#    Copyright (C) 2012-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -203,7 +203,8 @@ class PollFormSection(CremeModel):
                     break
 
                 raise models.ProtectedError(
-                    gettext('There is at least one question in this section.'),
+                    # gettext('There is at least one question in this section.'),
+                    'There is at least one question in this section.',
                     [self],
                 )
 
@@ -262,9 +263,10 @@ class PollFormLine(CremeModel, _PollLine):
     def delete(self, *args, **kwargs):
         if not self.disabled and PollFormLineCondition.objects.filter(source=self).exists():
             raise models.ProtectedError(
-                gettext(
-                    'There is at least one other question which depends on this question.'
-                ),
+                # gettext(
+                #     'There is at least one other question which depends on this question.'
+                # ),
+                'There is at least one other question which depends on this question.',
                 [self],
             )
 

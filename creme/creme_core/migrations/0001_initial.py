@@ -381,7 +381,8 @@ class Migration(migrations.Migration):
                     'type',
                     models.ForeignKey(
                         verbose_name='Type of property',
-                        to='creme_core.CremePropertyType', on_delete=models.CASCADE,
+                        # to='creme_core.CremePropertyType', on_delete=models.CASCADE,
+                        to='creme_core.CremePropertyType', on_delete=models.PROTECT,
                     )
                 ),
             ],
@@ -1000,7 +1001,8 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ('symmetric_relation', models.ForeignKey(to='creme_core.Relation', null=True, on_delete=models.CASCADE)),
-                ('type', models.ForeignKey(to='creme_core.RelationType', on_delete=models.CASCADE)),
+                # ('type', models.ForeignKey(to='creme_core.RelationType', on_delete=models.CASCADE)),
+                ('type', models.ForeignKey(to='creme_core.RelationType', on_delete=models.PROTECT)),
                 ('user', core_fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
             ],
             options={

@@ -48,7 +48,7 @@
     </div>
     {% endif %}
 
-    <div class='bar-action'>
+    <div class='bar-action'>{# TODO: disable button if related entities + tooltip. Share stats with PropertyTypeInfoBrick #}
     {% brick_bar_button action='creme_core-hatmenubar-update-redirect' label=_('Delete') url=object.get_delete_absolute_url icon='delete' confirm=_('Do you really want to delete this property type?') enabled=admin_perm __redirect=object.get_lv_absolute_url %}
     </div>
     {% endwith %}
