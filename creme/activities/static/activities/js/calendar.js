@@ -19,8 +19,15 @@
 (function($) {
 "use strict";
 
-function momentFormatter(format, dayFormat) {
-    format = format || 'h[h]mm';
+function isStartOfDay(value) {
+    return value.toArray().slice(3, 6).join('') === '000';
+}
+
+function eventMomentFormatter(options) {
+    options = options || {};
+    var timeFormat = options.time || 'H[h]mm';
+    var dayFormat = options.datetime || timeFormat;
+    var dateFormat = options.date || 'D/MM';  // TODO
 
     return function(info) {
         var locale = info.localeCodes[0];
@@ -28,24 +35,44 @@ function momentFormatter(format, dayFormat) {
         var end = info.end ? convertToMoment(info.end, info.timeZone, locale) : null;
         var output;
 
-        if (end !== null) {
-            var rangeFormat = format;
-
-            if (dayFormat) {
-                if (start.format('MMD') !== end.format('MMD')) {
-                    rangeFormat = dayFormat;
-                }
-            }
-
+        if (end === null) {
+            // Without end, it can be either an allDay event (starts at 0h00) or monthview event.
+            // fullcalendar does not give any clue...
+            output = isStartOfDay(start) ? start.format(dateFormat) : start.format(timeFormat);
+        } else if (start.isSame(end, 'day')) {
             output = [
-                start.format(rangeFormat),
-                end.format(rangeFormat)
+                start.format(timeFormat),
+                end.format(timeFormat)
             ].join(info.defaultSeparator);
+        } else if (isStartOfDay(start) && isStartOfDay(end)) {
+            var days = end ? end.diff(start, 'days') : 0;
+
+            // if both start & end are at 00:00:00 there is a good chance that is an allDay event.
+            if (days > 1) {
+                output = [
+                    start.format(dateFormat),
+                    end.clone().add(-1, 'day').format(dateFormat)
+                ].join(info.defaultSeparator);
+            } else {
+                output = start.format(dateFormat);
+            }
         } else {
-            output = start.format(format);
+            output = [
+                start.format(dayFormat),
+                end.format(dayFormat)
+            ].join(info.defaultSeparator);
         }
 
         return output;
+    };
+}
+
+function slotMomentFormatter(format) {
+    return function(info) {
+        var locale = info.localeCodes[0];
+        var start = convertToMoment(info.start, info.timeZone, locale);
+
+        return start.format(format);
     };
 }
 
@@ -69,7 +96,11 @@ var FULLCALENDAR_SETTINGS = {
         noEventsContent: gettext("No event to display")
     }],
     locale: 'fr',
-    eventTimeFormat: momentFormatter('H[h]mm', 'D/MM h[h]mm'),
+    eventTimeFormat: eventMomentFormatter({
+        time: 'H[h]mm',
+        datetime: 'D/MM H[h]mm',
+        date: 'D/MM'
+    }),
 
     headerToolbar: {
         left:   'title',
@@ -113,7 +144,7 @@ var FULLCALENDAR_SETTINGS = {
     /* slots */
     allDaySlot: true,
     allDayContent: gettext("All day"),
-    slotLabelFormat: momentFormatter("H[h]mm"),
+    slotLabelFormat: slotMomentFormatter("H[h]mm"),
     slotLabelInterval: '01:00:00',
     slotDuration: '00:15:00',
     defaultRangeSeparator: ' − ',
@@ -717,12 +748,14 @@ creme.ActivityCalendar = creme.component.Component.sub({
 
     _renderMonthEventContent: function(calendar, info, createElement) {
         var event = info.event;
+        var view = info.view;
         var typeTag = event.extendedProps.type || '';
         var dotColor = info.borderColor || info.backgroundColor;
         var text = info.timeText;
         var start = this._toMoment(event.start);
         var end = this._toMoment(event.end);
         var isMultiDay = end && start.format('MMD') !== end.format('MMD');
+        var formatter = FullCalendar.Internal.createFormatter(calendar.getOption('eventTimeFormat'));
 
         if (event.allDay || isMultiDay) {
             return createElement('div', {className: 'fc-event-main-frame'},
@@ -730,6 +763,8 @@ creme.ActivityCalendar = creme.component.Component.sub({
                 typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
             );
         } else {
+            text = view.dateEnv.format(event.start, formatter);
+
             return createElement('div', {className: 'fc-event-empty-frame'},
                 createElement('div', {className: 'fc-daygrid-event-dot', style: {borderColor: dotColor}}),
                 text && (createElement("div", { className: "fc-event-time" }, text)),
@@ -854,6 +889,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
         });
         calendar.on('eventDrop', function(info) {
             self._onCalendarEventUpdate(calendar, info);
+            self._postRenderCalendarEvent(calendar, info);
         });
     },
 

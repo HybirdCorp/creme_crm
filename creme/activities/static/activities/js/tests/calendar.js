@@ -941,7 +941,8 @@ QUnit.test('creme.ActivityCalendar.show', function(assert) {
 
 QUnit.test('creme.ActivityCalendar.eventDrop (ok)', function(assert) {
     var controller = this.createDefaultCalendar({
-        selectedSourceIds: ['1', '2', '10', '11', '20']
+        selectedSourceIds: ['1', '2', '10', '11', '20'],
+        initialDate: '2023-03-20'
     }).on('event-update', this.mockListener('event-update'));
     var fakeRevert = new FunctionFaker();
     var revertCb = fakeRevert.wrap();
@@ -992,7 +993,8 @@ QUnit.test('creme.ActivityCalendar.eventDrop (ok)', function(assert) {
 
 QUnit.test('creme.ActivityCalendar.eventDrop (ok, from AllDay)', function(assert) {
     var controller = this.createDefaultCalendar({
-        selectedSourceIds: ['1', '2', '10', '11', '20']
+        selectedSourceIds: ['1', '2', '10', '11', '20'],
+        initialDate: '2023-03-20'
     }).on('event-update', this.mockListener('event-update'));
     var fakeRevert = new FunctionFaker();
     var revertCb = fakeRevert.wrap();
@@ -1044,7 +1046,8 @@ QUnit.test('creme.ActivityCalendar.eventDrop (ok, from AllDay)', function(assert
 QUnit.test('creme.ActivityCalendar.eventDrop (fail)', function(assert) {
     var controller = this.createDefaultCalendar({
         eventUpdateUrl: 'mock/calendar/event/update/400',
-        selectedSourceIds: ['1', '2', '10', '11', '20']
+        selectedSourceIds: ['1', '2', '10', '11', '20'],
+        initialDate: '2023-03-20'
     });
     var fakeRevert = new FunctionFaker();
     var revertCb = fakeRevert.wrap();
@@ -1291,6 +1294,71 @@ QUnit.parameterize('creme.ActivityCalendar.allowEventOverlaps (function)', [
     ], fakeOverlap.calls().map(function(args) {
         return _.pick(args[0], 'stillRange'/*, 'movingRange', 'activityCalendar' */);
     }));
+});
+
+QUnit.test('creme.ActivityCalendar.settings (eventTimeFormat)', function(assert) {
+    var controller = this.createDefaultCalendar();
+    var format = controller.fullCalendar().getOption('eventTimeFormat');
+
+    equal(format({
+        start: moment.utc('2025-07-10T08:00:00Z'),
+        end: moment.utc('2025-07-10T09:15:30Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '8h00 to 9h15');
+
+    equal(format({
+        start: moment.utc('2025-07-10T08:00:00Z'),
+        end: moment.utc('2025-07-11T09:15:30Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '10/07 8h00 to 11/07 9h15');
+
+    equal(format({
+        start: moment.utc('2025-07-10T00:00:00Z'),
+        end: moment.utc('2025-07-11T00:00:00Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '10/07');
+
+    equal(format({
+        start: moment.utc('2025-07-10T00:00:00Z'),
+        end: moment.utc('2025-07-11T00:00:01Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '10/07 0h00 to 11/07 0h00');
+
+    equal(format({
+        start: moment.utc('2025-07-10T00:00:00Z'),
+        end: moment.utc('2025-07-12T00:00:00Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '10/07 to 11/07');
+});
+
+QUnit.test('creme.ActivityCalendar.settings (slotLabelFormat)', function(assert) {
+    var controller = this.createDefaultCalendar();
+    var format = controller.fullCalendar().getOption('slotLabelFormat');
+
+    equal(format({
+        start: moment.utc('2025-07-10T08:00:00Z'),
+        end: moment.utc('2025-07-10T09:15:30Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '8h00');
+
+    equal(format({
+        start: moment.utc('1970-01-01T08:30:00Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '8h30');
 });
 
 }(jQuery));
