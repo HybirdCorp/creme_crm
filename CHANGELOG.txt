@@ -15,6 +15,7 @@
         # The EmptyEnumerator fallback now either raises an exception (ENUMERABLE_REGISTRATION_ERROR=True) or logs an error.
           This change is done to prevent issues with empty select when an enumerator is not correctly configured.
         # Fix an issue when an event 'end' is null during drag-n-drop (allday events).
+        # Fix calendar eventTimeFormat & slotLabelFormat issues : 24h rendered as 12h, wrong datetime or date ranges.
 
 
 == Version 2.6.10 ==

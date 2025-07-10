@@ -410,7 +410,8 @@ QUnit.module("creme.ActivityCalendar", new QUnitMixin(QUnitEventMixin,
                 id: options.id,
                 start: options.start,
                 end: options.end,
-                allDay: options.allDay
+                allDay: options.allDay,
+                extendedProps: event.extendedProps || {}
             },
             jsEvent: $.Event('mouseup'),
             revert: options.revert,
@@ -432,7 +433,8 @@ QUnit.module("creme.ActivityCalendar", new QUnitMixin(QUnitEventMixin,
                 id: options.id,
                 start: options.start,
                 end: options.end,
-                allDay: options.allDay
+                allDay: options.allDay,
+                extendedProps: event.extendedProps || {}
             },
             jsEvent: $.Event('mouseup'),
             revert: options.revert,
@@ -1251,6 +1253,8 @@ QUnit.test('creme.ActivityCalendar.eventDrop (ok)', function(assert) {
     var fakeRevert = new FunctionFaker();
     var revertCb = fakeRevert.wrap();
 
+    controller.goToDate('2023-03-20');
+
     this.resetMockBackendCalls();
 
     controller.visibleCalendarIds(['10']);
@@ -1305,6 +1309,8 @@ QUnit.test('creme.ActivityCalendar.eventDrop (fail)', function(assert) {
     var view = controller.fullCalendar().view;
     var fakeRevert = new FunctionFaker();
     var revertCb = fakeRevert.wrap();
+
+    controller.goToDate('2023-03-20');
 
     this.resetMockBackendCalls();
 
@@ -1388,6 +1394,8 @@ QUnit.test('creme.ActivityCalendar.resize (ok)', function(assert) {
     var fakeRevert = new FunctionFaker();
     var revertCb = fakeRevert.wrap();
 
+    controller.goToDate('2023-03-20');
+
     this.resetMockBackendCalls();
 
     controller.visibleCalendarIds(['10']);
@@ -1441,6 +1449,8 @@ QUnit.test('creme.ActivityCalendar.resize (fail)', function(assert) {
     var fakeRevert = new FunctionFaker();
     var revertCb = fakeRevert.wrap();
 
+    controller.goToDate('2023-03-20');
+
     this.resetMockBackendCalls();
 
     controller.visibleCalendarIds(['10']);
@@ -1493,6 +1503,7 @@ QUnit.test('creme.ActivityCalendar.external (ok, allDay)', function(assert) {
     var element = controller.element();
 
     controller.visibleCalendarIds(['10']);
+    controller.goToDate('2023-03-20');
 
     this.resetMockBackendCalls();
 
@@ -1538,6 +1549,7 @@ QUnit.test('creme.ActivityCalendar.external (fail, allDay)', function(assert) {
     var element = controller.element();
 
     controller.visibleCalendarIds(['10']);
+    controller.goToDate('2023-03-20');
 
     this.resetMockBackendCalls();
 
@@ -1591,6 +1603,7 @@ QUnit.test('creme.ActivityCalendar.external (ok, none remains, allDay)', functio
     var element = controller.element();
 
     controller.visibleCalendarIds(['10']);
+    controller.goToDate('2023-03-20');
 
     this.resetMockBackendCalls();
 
@@ -1786,4 +1799,70 @@ QUnit.test('creme.ActivityCalendar.external (ok, none remains, hour)', function(
     equal(0, element.find('.floating-event').length);
 });
 */
+
+QUnit.test('creme.ActivityCalendar.settings (eventTimeFormat)', function(assert) {
+    var controller = this.createDefaultCalendar();
+    var format = controller.fullCalendar().getOption('eventTimeFormat');
+
+    equal(format({
+        start: moment.utc('2025-07-10T08:00:00Z'),
+        end: moment.utc('2025-07-10T09:15:30Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '8h00 to 9h15');
+
+    equal(format({
+        start: moment.utc('2025-07-10T08:00:00Z'),
+        end: moment.utc('2025-07-11T09:15:30Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '10/07 8h00 to 11/07 9h15');
+
+    equal(format({
+        start: moment.utc('2025-07-10T00:00:00Z'),
+        end: moment.utc('2025-07-11T00:00:00Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '10/07');
+
+    equal(format({
+        start: moment.utc('2025-07-10T00:00:00Z'),
+        end: moment.utc('2025-07-11T00:00:01Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '10/07 0h00 to 11/07 0h00');
+
+    equal(format({
+        start: moment.utc('2025-07-10T00:00:00Z'),
+        end: moment.utc('2025-07-12T00:00:00Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '10/07 to 11/07');
+});
+
+QUnit.test('creme.ActivityCalendar.settings (slotLabelFormat)', function(assert) {
+    var controller = this.createDefaultCalendar();
+    var format = controller.fullCalendar().getOption('slotLabelFormat');
+
+    equal(format({
+        start: moment.utc('2025-07-10T08:00:00Z'),
+        end: moment.utc('2025-07-10T09:15:30Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '8h00');
+
+    equal(format({
+        start: moment.utc('1970-01-01T08:30:00Z'),
+        defaultSeparator: ' to ',
+        timeZone: 'UTC',
+        localeCodes: ['fr']
+    }), '8h30');
+});
+
 }(jQuery));
