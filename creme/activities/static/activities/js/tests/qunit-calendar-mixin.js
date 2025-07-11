@@ -120,7 +120,7 @@ window.QUnitCalendarMixin = {
             return a.id > b.id ? 1 : (a.id < b.id) ? -1 : 0;
         }
 
-        deepEqual(
+        this.assert.deepEqual(
             expected.sort(sorted),
             controller.fullCalendarEvents().map(function(event) {
                 return {

@@ -23,7 +23,7 @@ QUnit.test('parametrize (empty)', function(assert) {
         QUnit.parametrize('mytest', [], callable);
     });
 
-    deepEqual(faker.calls(), []);
+    assert.deepEqual(faker.calls(), []);
 });
 
 QUnit.test('parametrizee (simple)', function(assert) {
@@ -32,7 +32,7 @@ QUnit.test('parametrizee (simple)', function(assert) {
         QUnit.parametrize('mytest', ['a', 12], callable);
     });
 
-    deepEqual(faker.calls().map(function(c) { return c[0]; }), [
+    assert.deepEqual(faker.calls().map(function(c) { return c[0]; }), [
         'mytest-a',
         'mytest-12'
     ]);
@@ -45,7 +45,7 @@ QUnit.test('parametrize (simple, array)', function(assert) {
         QUnit.parametrize('mytest', [['a', 'b'], [12, 13]], callable);
     });
 
-    deepEqual(faker.calls().map(function(c) { return c[0]; }), [
+    assert.deepEqual(faker.calls().map(function(c) { return c[0]; }), [
         'mytest-1',
         'mytest-2'
     ]);
@@ -61,7 +61,7 @@ QUnit.test('parametrize (simple, dict)', function(assert) {
         }, callable);
     });
 
-    deepEqual(faker.calls().map(function(c) { return c[0]; }), [
+    assert.deepEqual(faker.calls().map(function(c) { return c[0]; }), [
         'mytest-paramsA',
         'mytest-paramsB'
     ]);
@@ -74,7 +74,7 @@ QUnit.test('parametrize (combine)', function(assert) {
         QUnit.parametrize('mytest', ['a', 'b'], [17.5, 8], [['x', 'y'], ['a', 'b'], []], callable);
     });
 
-    deepEqual(faker.calls().map(function(c) { return c[0]; }), [
+    assert.deepEqual(faker.calls().map(function(c) { return c[0]; }), [
         'mytest-a-17.5-1',
         'mytest-a-17.5-2',
         'mytest-a-17.5-3',
@@ -107,8 +107,8 @@ QUnit.test('parametrize (skip)', function(assert) {
         });
     });
 
-    deepEqual(test_faker.calls(), []);
-    deepEqual(skip_faker.calls().map(function(c) { return c[0]; }), [
+    assert.deepEqual(test_faker.calls(), []);
+    assert.deepEqual(skip_faker.calls().map(function(c) { return c[0]; }), [
         'myskiptest-paramsA',
         'myskiptest-paramsB'
     ]);
@@ -118,8 +118,8 @@ QUnit.parametrize('parametrize (real, dict)', {
     usecase_A: ['a', 'string', 'usecase_A'],
     usecase_B: [12, 'number', 'usecase_B']
 }, function(data, expected, usecaseName, assert) {
-    equal(assert.test.testName, 'parametrize (real, dict)-${name}'.template({name: usecaseName}));
-    equal(typeof data, expected);
+    assert.equal(assert.test.testName, 'parametrize (real, dict)-${name}'.template({name: usecaseName}));
+    assert.equal(typeof data, expected);
 });
 
 QUnit.parametrize('parametrize (real, combine)', [
@@ -127,10 +127,10 @@ QUnit.parametrize('parametrize (real, combine)', [
 ], [
     ['a', true], ['b', true], ['c', true]
 ], function(arg1, arg2, arg3, assert) {
-    ok(assert.test.testName.startsWith('parametrize (real, combine)-${0}-'.template(arguments)));
-    equal(typeof arg1, 'number');
-    equal(typeof arg2, 'string');
-    equal(arg3, true);
+    assert.ok(assert.test.testName.startsWith('parametrize (real, combine)-${0}-'.template(arguments)));
+    assert.equal(typeof arg1, 'number');
+    assert.equal(typeof arg2, 'string');
+    assert.equal(arg3, true);
 });
 
 QUnit.parametrize('parametrizeIf', [
@@ -146,7 +146,7 @@ QUnit.parametrize('parametrizeIf', [
         QUnit.parametrizeIf(condition, 'myskiptest', ['a', 'b'], callable);
     });
 
-    deepEqual(faker.calls().map(function(c) { return c[0]; }), expected);
+    assert.deepEqual(faker.calls().map(function(c) { return c[0]; }), expected);
 });
 
 }(jQuery));

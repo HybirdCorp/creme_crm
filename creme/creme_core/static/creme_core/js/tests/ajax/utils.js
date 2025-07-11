@@ -13,14 +13,14 @@ QUnit.module("creme.ajax.utils.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMix
     },
 
     assertUrlSearchData: function(expected, data) {
-        equal(expected.search, data.search);
-        deepEqual(expected.searchData, data.searchData);
+        this.assert.equal(expected.search, data.search);
+        this.assert.deepEqual(expected.searchData, data.searchData);
     }
 }));
 
 /*
 QUnit.test('creme.ajax.parseUrl (no data)', function(assert) {
-    deepEqual({
+    assert.deepEqual({
         href: 'http://joe:pwd@admin.com:8080/this/is/a/test#hash',
         protocol: 'http:',
         username: 'joe',
@@ -34,7 +34,7 @@ QUnit.test('creme.ajax.parseUrl (no data)', function(assert) {
         hash: '#hash'
     }, creme.ajax.parseUrl('http://joe:pwd@admin.com:8080/this/is/a/test#hash'));
 
-    deepEqual({
+    assert.deepEqual({
         href: 'http://admin.com/this/is/a/test/?#hash',
         protocol: 'http:',
         username: '',
@@ -48,7 +48,7 @@ QUnit.test('creme.ajax.parseUrl (no data)', function(assert) {
         hash: '#hash'
     }, creme.ajax.parseUrl('http://admin.com/this/is/a/test/?#hash'));
 
-    deepEqual({
+    assert.deepEqual({
         href: 'http://admin.com:8080/this/is/a/test?',
         protocol: 'http:',
         username: '',
@@ -102,13 +102,13 @@ QUnit.test('creme.ajax.parseUrl (encoded)', function(assert) {
 */
 /*
 QUnit.test('creme.ajax.param', function(assert) {
-    equal('a=12&b=1&b=2&d=', creme.ajax.param({a: 12, b: [1, 2], c: [], d: ''}));
+    assert.equal('a=12&b=1&b=2&d=', creme.ajax.param({a: 12, b: [1, 2], c: [], d: ''}));
 });
 */
 
 /*
 QUnit.test('creme.ajax.URL (properties)', function(assert) {
-    deepEqual({
+    assert.deepEqual({
         href: 'http://joe:pwd@admin.com:8080/this/is/a/test#hash',
         protocol: 'http:',
         username: 'joe',
@@ -122,7 +122,7 @@ QUnit.test('creme.ajax.URL (properties)', function(assert) {
         hash: '#hash'
     }, new creme.ajax.URL('http://joe:pwd@admin.com:8080/this/is/a/test#hash').properties());
 
-    deepEqual({
+    assert.deepEqual({
         href: 'http://admin.com/this/is/a/test/?#hash',
         protocol: 'http:',
         username: '',
@@ -136,7 +136,7 @@ QUnit.test('creme.ajax.URL (properties)', function(assert) {
         hash: '#hash'
     }, new creme.ajax.URL('http://admin.com/this/is/a/test/?#hash').properties());
 
-    deepEqual({
+    assert.deepEqual({
         href: 'http://admin.com:8080/this/is/a/test?',
         protocol: 'http:',
         username: '',
@@ -154,55 +154,55 @@ QUnit.test('creme.ajax.URL (properties)', function(assert) {
 QUnit.test('creme.ajax.URL (property)', function(assert) {
     var url = new creme.ajax.URL('http://joe:pwd@admin.com:8080/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash');
 
-    equal('http://joe:pwd@admin.com:8080/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
+    assert.equal('http://joe:pwd@admin.com:8080/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
 
     url.protocol('https:');
-    equal('https://joe:pwd@admin.com:8080/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
+    assert.equal('https://joe:pwd@admin.com:8080/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
 
     url.username('other');
-    equal('https://other:pwd@admin.com:8080/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
+    assert.equal('https://other:pwd@admin.com:8080/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
 
     url.password('password');
-    equal('https://other:password@admin.com:8080/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
+    assert.equal('https://other:password@admin.com:8080/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
 
     url.host('other.admin.com:8085');
-    equal('https://other:password@other.admin.com:8085/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
+    assert.equal('https://other:password@other.admin.com:8085/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
 
     url.hostname('yetanother.admin.com');
-    equal('https://other:password@yetanother.admin.com:8085/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
+    assert.equal('https://other:password@yetanother.admin.com:8085/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
 
     url.port('8090');
-    equal('https://other:password@yetanother.admin.com:8090/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
+    assert.equal('https://other:password@yetanother.admin.com:8090/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
 
     url.pathname('/this/is/another/test');
-    equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
+    assert.equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?a=1&a=2&b=true&c=a&d=&d=#hash', url.href());
 
     url.hash('#hackish');
-    equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?a=1&a=2&b=true&c=a&d=&d=#hackish', url.href());
+    assert.equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?a=1&a=2&b=true&c=a&d=&d=#hackish', url.href());
 
     url.search('a=8&b=false&d=');
-    equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?a=8&b=false&d=#hackish', url.href());
+    assert.equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?a=8&b=false&d=#hackish', url.href());
 
     url.search(new URLSearchParams({x: 8, y: -5}));
-    equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?x=8&y=-5#hackish', url.href());
+    assert.equal('https://other:password@yetanother.admin.com:8090/this/is/another/test?x=8&y=-5#hackish', url.href());
 });
 
 QUnit.test('creme.ajax.URL (searchData)', function(assert) {
-    deepEqual({
+    assert.deepEqual({
         a: '1',
         b: '2',
         c: 'true',
         d: ''
     }, new creme.ajax.URL('/this/is/a/test?a=1&b=2&c=true&d=').searchData());
 
-    deepEqual({
+    assert.deepEqual({
         a: ['1', '2', 'true'],
         b: '2',
         c: ['a', 'b'],
         d: ['', '']
     }, new creme.ajax.URL('/this/is/a/test?a=1&a=2&a=true&b=2&c=a&c=b&d=&d=').searchData());
 
-    deepEqual({
+    assert.deepEqual({
         'a[one]': '1',
         'a[two]': '2',
         'a[three]': '3',
@@ -216,30 +216,30 @@ QUnit.test('creme.ajax.URL (searchData, setter)', function(assert) {
 
     url.searchData({x: 1, y: -1, z: 0});
 
-    equal('http://admin.com:8080/this/is/a/test?x=1&y=-1&z=0', url.href());
-    equal('?x=1&y=-1&z=0', url.search());
-    deepEqual({x: '1', y: '-1', z: '0'}, url.searchData());
+    assert.equal('http://admin.com:8080/this/is/a/test?x=1&y=-1&z=0', url.href());
+    assert.equal('?x=1&y=-1&z=0', url.search());
+    assert.deepEqual({x: '1', y: '-1', z: '0'}, url.searchData());
 
     url.searchData({'a[one]': '1', b: 'b=1,2,3', 'c[]': ['1', '2', '3']});
 
-    equal('http://admin.com:8080/this/is/a/test?a%5Bone%5D=1&b=b%3D1%2C2%2C3&c%5B%5D=1&c%5B%5D=2&c%5B%5D=3', url.href());
-    equal('?a%5Bone%5D=1&b=b%3D1%2C2%2C3&c%5B%5D=1&c%5B%5D=2&c%5B%5D=3', url.search());
-    deepEqual({'a[one]': '1', b: 'b=1,2,3', 'c[]': ['1', '2', '3']}, url.searchData());
+    assert.equal('http://admin.com:8080/this/is/a/test?a%5Bone%5D=1&b=b%3D1%2C2%2C3&c%5B%5D=1&c%5B%5D=2&c%5B%5D=3', url.href());
+    assert.equal('?a%5Bone%5D=1&b=b%3D1%2C2%2C3&c%5B%5D=1&c%5B%5D=2&c%5B%5D=3', url.search());
+    assert.deepEqual({'a[one]': '1', b: 'b=1,2,3', 'c[]': ['1', '2', '3']}, url.searchData());
 
     url.searchData(new URLSearchParams({x: 8, y: -5, z: 30, a: 'b'}));
 
-    equal('http://admin.com:8080/this/is/a/test?x=8&y=-5&z=30&a=b', url.href());
-    equal('?x=8&y=-5&z=30&a=b', url.search());
-    deepEqual({x: '8', y: '-5', z: '30', a: 'b'}, url.searchData());
+    assert.equal('http://admin.com:8080/this/is/a/test?x=8&y=-5&z=30&a=b', url.href());
+    assert.equal('?x=8&y=-5&z=30&a=b', url.search());
+    assert.deepEqual({x: '8', y: '-5', z: '30', a: 'b'}, url.searchData());
 
     url.searchData('a=4&c=8');
-    deepEqual({a: '4', c: '8'}, url.searchData());
+    assert.deepEqual({a: '4', c: '8'}, url.searchData());
 });
 
 QUnit.test('creme.ajax.URL (searchParams)', function(assert) {
     var url = new creme.ajax.URL('http://admin.com:8080/this/is/a/test?a=1&b=2&c=true&d=');
 
-    equal(new URLSearchParams({
+    assert.equal(new URLSearchParams({
         a: '1',
         b: '2',
         c: 'true',
@@ -248,19 +248,19 @@ QUnit.test('creme.ajax.URL (searchParams)', function(assert) {
 
     url.searchParams(new URLSearchParams({x: 8, y: -5, z: 30, a: 'b'}));
 
-    equal('http://admin.com:8080/this/is/a/test?x=8&y=-5&z=30&a=b', url.href());
-    equal('?x=8&y=-5&z=30&a=b', url.search());
-    deepEqual({x: '8', y: '-5', z: '30', a: 'b'}, url.searchData());
+    assert.equal('http://admin.com:8080/this/is/a/test?x=8&y=-5&z=30&a=b', url.href());
+    assert.equal('?x=8&y=-5&z=30&a=b', url.search());
+    assert.deepEqual({x: '8', y: '-5', z: '30', a: 'b'}, url.searchData());
 
     url.searchParams({x: 1, y: -1, z: 0});
 
-    equal('http://admin.com:8080/this/is/a/test?x=1&y=-1&z=0', url.href());
+    assert.equal('http://admin.com:8080/this/is/a/test?x=1&y=-1&z=0', url.href());
 });
 
 QUnit.test('creme.ajax.URL (updateSearchData)', function(assert) {
     var url = new creme.ajax.URL('http://admin.com:8080/this/is/a/test?a=1&b=2&c=true&d=');
 
-    deepEqual({
+    assert.deepEqual({
         a: '1',
         b: '2',
         c: 'true',
@@ -269,22 +269,22 @@ QUnit.test('creme.ajax.URL (updateSearchData)', function(assert) {
 
     url.updateSearchData({b: '5', e: ['a', 'b']});
 
-    deepEqual({
+    assert.deepEqual({
         a: '1',
         b: '5',
         c: 'true',
         d: '',
         e: ['a', 'b']
     }, url.searchData());
-    equal('http://admin.com:8080/this/is/a/test?a=1&b=5&c=true&d=&e=a&e=b', url.href());
+    assert.equal('http://admin.com:8080/this/is/a/test?a=1&b=5&c=true&d=&e=a&e=b', url.href());
 
     url.updateSearchData(new URLSearchParams({x: 8, y: -5, a: '33'}));
-    equal('http://admin.com:8080/this/is/a/test?a=33&b=5&c=true&d=&e=a&e=b&x=8&y=-5', url.href());
+    assert.equal('http://admin.com:8080/this/is/a/test?a=33&b=5&c=true&d=&e=a&e=b&x=8&y=-5', url.href());
 });
 */
 QUnit.test('creme.ajax.cookieAttr', function(assert) {
-    equal(null, creme.ajax.cookieAttr('A'));
-    equal(null, creme.ajax.cookieAttr());
+    assert.equal(null, creme.ajax.cookieAttr('A'));
+    assert.equal(null, creme.ajax.cookieAttr());
 
     // javascript API allows to set ONE cookie at a time
     document.cookie = 'test-A=12';
@@ -292,11 +292,11 @@ QUnit.test('creme.ajax.cookieAttr', function(assert) {
     document.cookie = 'test-C=aaaa';
     document.cookie = 'test-D=%5B1%2C2%2C3%5D';
 
-    equal('12', creme.ajax.cookieAttr('test-A'));
-    equal('5', creme.ajax.cookieAttr('test-B'));
-    equal('aaaa', creme.ajax.cookieAttr('test-C'));
-    equal('[1,2,3]', creme.ajax.cookieAttr('test-D'));
-    equal(null, creme.ajax.cookieAttr('unknown'));
+    assert.equal('12', creme.ajax.cookieAttr('test-A'));
+    assert.equal('5', creme.ajax.cookieAttr('test-B'));
+    assert.equal('aaaa', creme.ajax.cookieAttr('test-C'));
+    assert.equal('[1,2,3]', creme.ajax.cookieAttr('test-D'));
+    assert.equal(null, creme.ajax.cookieAttr('unknown'));
 
     // reset cookies
     document.cookie = 'test-A=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
@@ -304,22 +304,22 @@ QUnit.test('creme.ajax.cookieAttr', function(assert) {
     document.cookie = 'test-C=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
     document.cookie = 'test-D=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
-    equal(null, creme.ajax.cookieAttr('test-A'));
-    equal(null, creme.ajax.cookieAttr('test-B'));
-    equal(null, creme.ajax.cookieAttr('test-C'));
-    equal(null, creme.ajax.cookieAttr('test-D'));
+    assert.equal(null, creme.ajax.cookieAttr('test-A'));
+    assert.equal(null, creme.ajax.cookieAttr('test-B'));
+    assert.equal(null, creme.ajax.cookieAttr('test-C'));
+    assert.equal(null, creme.ajax.cookieAttr('test-D'));
 });
 
 QUnit.test('creme.ajax.cookieCSRF', function(assert) {
     var csrftoken = creme.ajax.cookieAttr('csrftoken');
-    equal(csrftoken, creme.ajax.cookieCSRF());
+    assert.equal(csrftoken, creme.ajax.cookieCSRF());
 
     try {
         document.cookie = 'csrftoken=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        equal(null, creme.ajax.cookieCSRF());
+        assert.equal(null, creme.ajax.cookieCSRF());
 
         document.cookie = 'csrftoken=z56ZnN90D1eeah7roE5';
-        equal("z56ZnN90D1eeah7roE5", creme.ajax.cookieCSRF());
+        assert.equal("z56ZnN90D1eeah7roE5", creme.ajax.cookieCSRF());
     } finally {
         if (csrftoken) {
             document.cookie = 'csrftoken=' + csrftoken;
@@ -328,6 +328,7 @@ QUnit.test('creme.ajax.cookieCSRF', function(assert) {
         }
     }
 });
+
 QUnit.parameterize('creme.ajax.jqueryAjaxSend (options)', [
     ['', {}, {}, {
         url: '',
@@ -373,16 +374,16 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (options)', [
         }, options));
     });
 
-    equal(ajaxFaker.count(), 1);
+    assert.equal(ajaxFaker.count(), 1);
 
     var ajaxCall = ajaxFaker.calls()[0][0];
 
-    equal(ajaxCall.async, expected.async);
-    equal(ajaxCall.url, expected.url);
-    deepEqual(ajaxCall.data, expected.data);
-    equal(ajaxCall.dataType, expected.dataType);
-    equal(ajaxCall.type, expected.type);
-    deepEqual(ajaxCall.headers, expected.headers);
+    assert.equal(ajaxCall.async, expected.async);
+    assert.equal(ajaxCall.url, expected.url);
+    assert.deepEqual(ajaxCall.data, expected.data);
+    assert.equal(ajaxCall.dataType, expected.dataType);
+    assert.equal(ajaxCall.type, expected.type);
+    assert.deepEqual(ajaxCall.headers, expected.headers);
 });
 
 QUnit.parameterize('creme.ajax.jqueryAjaxSend (form data)', [
@@ -390,8 +391,8 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (form data)', [
         function() {
             return new FormData();
         }, {},
-        function(data) {
-            deepEqual(Array.from(data.keys()), []);
+        function(data, assert) {
+            assert.deepEqual(Array.from(data.keys()), []);
         }
     ],
     [
@@ -403,9 +404,9 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (form data)', [
             formdata.append('b', 6);
             return formdata;
         }, {},
-        function(data) {
-            deepEqual(data.getAll('a'), ['12']);
-            deepEqual(data.getAll('b'), ['4', '5', '6']);
+        function(data, assert) {
+            assert.deepEqual(data.getAll('a'), ['12']);
+            assert.deepEqual(data.getAll('b'), ['4', '5', '6']);
         }
     ],
     [
@@ -423,11 +424,11 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (form data)', [
                 d: new Set([7, 8, 9])
             }
         },
-        function(data) {
-            deepEqual(data.getAll('a'), ['12']);
-            deepEqual(data.getAll('b'), ['1', '2', '3']);
-            deepEqual(data.getAll('c'), ['test']);
-            deepEqual(data.getAll('d'), ['7', '8', '9']);
+        function(data, assert) {
+            assert.deepEqual(data.getAll('a'), ['12']);
+            assert.deepEqual(data.getAll('b'), ['1', '2', '3']);
+            assert.deepEqual(data.getAll('c'), ['test']);
+            assert.deepEqual(data.getAll('d'), ['7', '8', '9']);
         }
     ]
 ], function(createData, options, assertExpected, assert) {
@@ -443,16 +444,16 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (form data)', [
         }, options));
     });
 
-    equal(ajaxFaker.count(), 1);
+    assert.equal(ajaxFaker.count(), 1);
 
     var ajaxCall = ajaxFaker.calls()[0][0];
 
-    equal(ajaxCall.async, true);
-    equal(ajaxCall.url, 'mock/a');
-    deepEqual(ajaxCall.headers, {});
-    equal(ajaxCall.type, 'POST');
+    assert.equal(ajaxCall.async, true);
+    assert.equal(ajaxCall.url, 'mock/a');
+    assert.deepEqual(ajaxCall.headers, {});
+    assert.equal(ajaxCall.type, 'POST');
 
-    assertExpected(ajaxCall.data);
+    assertExpected(ajaxCall.data, assert);
 });
 
 QUnit.parameterize('creme.ajax.jqueryAjaxSend (headers)', [
@@ -486,11 +487,11 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (headers)', [
         }, options || {}));
     });
 
-    equal(ajaxFaker.count(), 1);
+    assert.equal(ajaxFaker.count(), 1);
 
     var ajaxCall = ajaxFaker.calls()[0][0];
 
-    deepEqual(ajaxCall.headers, expected.headers);
+    assert.deepEqual(ajaxCall.headers, expected.headers);
 });
 
 
@@ -525,16 +526,16 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (error callback)', [
 
     // retrieve internal callbacks from the $.ajax call
     var ajaxCall = ajaxFaker.calls()[0][0];
-    ok(Object.isFunc(ajaxCall.success));
-    ok(Object.isFunc(ajaxCall.error));
+    assert.ok(Object.isFunc(ajaxCall.success));
+    assert.ok(Object.isFunc(ajaxCall.error));
 
     // now call internal error callback
     ajaxCall.error(xhr, textStatus);
 
-    equal(successCb.count(), 0);
-    equal(errorCb.count(), 1);
+    assert.equal(successCb.count(), 0);
+    assert.equal(errorCb.count(), 1);
 
-    deepEqual(errorCb.calls(), [
+    assert.deepEqual(errorCb.calls(), [
         [
             expected.responseText, {
                 type: "request",
@@ -564,16 +565,16 @@ QUnit.test('creme.ajax.jqueryAjaxSend (success callback)', function(assert) {
 
     // retrieve internal callbacks from the $.ajax call
     var ajaxCall = ajaxFaker.calls()[0][0];
-    ok(Object.isFunc(ajaxCall.success));
-    ok(Object.isFunc(ajaxCall.error));
+    assert.ok(Object.isFunc(ajaxCall.success));
+    assert.ok(Object.isFunc(ajaxCall.error));
 
     // now call internal error callback
     ajaxCall.success({a: 12}, 'success', {status: 200, responseText: 'Ok'});
 
-    equal(successCb.count(), 1);
-    equal(errorCb.count(), 0);
+    assert.equal(successCb.count(), 1);
+    assert.equal(errorCb.count(), 0);
 
-    deepEqual(successCb.calls(), [
+    assert.deepEqual(successCb.calls(), [
         [{a: 12}, 'success', {status: 200, responseText: 'Ok'}]
     ]);
 });
@@ -591,8 +592,8 @@ QUnit.test('creme.ajax.jqueryAjaxSend (no callback)', function(assert) {
 
     // retrieve internal callbacks from the $.ajax call
     var ajaxCall = ajaxFaker.calls()[0][0];
-    ok(Object.isFunc(ajaxCall.success));
-    ok(Object.isFunc(ajaxCall.error));
+    assert.ok(Object.isFunc(ajaxCall.success));
+    assert.ok(Object.isFunc(ajaxCall.error));
 
     // now call internal error callback
     ajaxCall.error({status: 400, responseText: "Wrong call!"}, 'error');
@@ -617,15 +618,15 @@ QUnit.test('creme.ajax.jqueryAjaxSend (legacy callbacks)', function(assert) {
 
     // retrieve internal callbacks from the $.ajax call
     var ajaxCall = ajaxFaker.calls()[0][0];
-    ok(Object.isFunc(ajaxCall.success));
-    ok(Object.isFunc(ajaxCall.error));
+    assert.ok(Object.isFunc(ajaxCall.success));
+    assert.ok(Object.isFunc(ajaxCall.error));
 
     // now call internal error callback
     ajaxCall.error({status: 400, responseText: "Wrong call!", statusText: 'error'}, 'error');
     ajaxCall.error({status: 0, responseText: "JSON error"}, 'parseerror');
     ajaxCall.success('Ok', 'success', {status: 200, responseText: "Ok"});
 
-    deepEqual(errorCb.calls(), [
+    assert.deepEqual(errorCb.calls(), [
         ['Wrong call!', {
             type: 'request',
             status: 400,
@@ -640,7 +641,7 @@ QUnit.test('creme.ajax.jqueryAjaxSend (legacy callbacks)', function(assert) {
         }]
     ]);
 
-    deepEqual(successCb.calls(), [
+    assert.deepEqual(successCb.calls(), [
         ['Ok', 'success', {status: 200, responseText: 'Ok'}]
     ]);
 });
@@ -682,8 +683,8 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (progress)', [
     xhr.dispatchEvent(new ProgressEvent('progress', state));
     xhr.upload.dispatchEvent(new ProgressEvent('progress', state));
 
-    equal(progressCb.count(), 1);
-    equal(uploadCb.count(), 1);
+    assert.equal(progressCb.count(), 1);
+    assert.equal(uploadCb.count(), 1);
 
     function _progressEventData(args) {
         var event = args[0];
@@ -696,8 +697,8 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (progress)', [
         };
     };
 
-    deepEqual(progressCb.calls().map(_progressEventData), [expected]);
-    deepEqual(uploadCb.calls().map(_progressEventData), [expected]);
+    assert.deepEqual(progressCb.calls().map(_progressEventData), [expected]);
+    assert.deepEqual(uploadCb.calls().map(_progressEventData), [expected]);
 });
 
 }(jQuery));

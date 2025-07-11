@@ -6,19 +6,19 @@ QUnit.module("creme.sketch.utils", new QUnitMixin());
 
 QUnit.test('creme.svgTransform', function(assert) {
     var transform = creme.svgTransform();
-    equal('', transform.toString());
+    assert.equal('', transform.toString());
 
     transform.translate(5, 10);
-    equal('translate(5,10)', transform.toString());
+    assert.equal('translate(5,10)', transform.toString());
 
     transform.scale(1.5, 1.5);
-    equal('translate(5,10) scale(1.5,1.5)', transform.toString());
+    assert.equal('translate(5,10) scale(1.5,1.5)', transform.toString());
 
     transform.rotate(45);
-    equal('translate(5,10) scale(1.5,1.5) rotate(45)', transform.toString());
+    assert.equal('translate(5,10) scale(1.5,1.5) rotate(45)', transform.toString());
 
     transform.scale(undefined, 12);
-    equal('translate(5,10) scale(1.5,1.5) rotate(45) scale(0,12)', transform.toString());
+    assert.equal('translate(5,10) scale(1.5,1.5) rotate(45) scale(0,12)', transform.toString());
 });
 
 QUnit.parametrize('creme.svgBounds', [
@@ -55,14 +55,14 @@ QUnit.parametrize('creme.svgBounds', [
         {top: 5, left: 5, width: 20 - 10, height: 25 - 10}
     ]
 ], function(args, expected, assert) {
-    deepEqual(expected, creme.svgBounds.apply(null, args));
+    assert.deepEqual(expected, creme.svgBounds.apply(null, args));
 });
 
 QUnit.test('creme.svgBounds (self)', function(assert) {
     var bounds = {width: 300, height: 200};
 
     bounds = creme.svgBounds(bounds, 5);
-    deepEqual({
+    assert.deepEqual({
         top: 5,
         left: 5,
         width: 300 - (5 * 2),
@@ -70,7 +70,7 @@ QUnit.test('creme.svgBounds (self)', function(assert) {
     }, bounds);
 
     bounds = creme.svgBounds(bounds, {left: 30});
-    deepEqual({
+    assert.deepEqual({
         top: 5,
         left: 5 + 30,
         width: 300 - (5 * 2) - 30,
@@ -78,7 +78,7 @@ QUnit.test('creme.svgBounds (self)', function(assert) {
     }, bounds);
 
     bounds = creme.svgBounds(bounds, {bottom: 8});
-    deepEqual({
+    assert.deepEqual({
         top: 5,
         left: 5 + 30,
         width: 300 - (5 * 2) - 30,
@@ -90,7 +90,7 @@ QUnit.test('creme.svgAsXml', function(assert) {
     var element = $('<div style="width: 300px; height: 200px;">').appendTo(this.qunitFixture());
     var svg = d3.select(element.get()[0]).append("svg");
 
-    equal(
+    assert.equal(
         creme.svgAsXml(svg.node()),
         '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="auto" height="auto">\n' +
         '\n' +
@@ -104,7 +104,7 @@ QUnit.test('creme.svgAsXml', function(assert) {
            .attr('height', 20)
            .attr('fill', 'red');
 
-    equal(
+    assert.equal(
         creme.svgAsXml(svg.node()),
         '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="auto" height="auto">\n' +
             $(svg.node()).html() + '\n' +
@@ -114,14 +114,14 @@ QUnit.test('creme.svgAsXml', function(assert) {
     svg.attr('width', 200)
        .attr('height', 300);
 
-    equal(
+    assert.equal(
         creme.svgAsXml(svg.node()),
         '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="300">\n' +
             $(svg.node()).html() + '\n' +
         '</svg>'
     );
 
-    equal(
+    assert.equal(
         creme.svgAsXml(svg.node(), {width: 125, height: 333}),
         '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="125" height="333">\n' +
             $(svg.node()).html() + '\n' +
@@ -141,7 +141,7 @@ QUnit.test('creme.svgAsBlob', function(assert) {
            .attr('height', 20)
            .attr('fill', 'red');
 
-    stop(1);
+    var done = assert.async();
 
     var expected = new Blob([
         '<?xml version="1.0" standalone="no"?>',
@@ -150,8 +150,8 @@ QUnit.test('creme.svgAsBlob', function(assert) {
 
     setTimeout(function() {
         creme.svgAsBlob(function(blob) {
-            deepEqual(blob, expected);
-            start();
+            assert.deepEqual(blob, expected);
+            done();
         }, svg.node());
     });
 });
@@ -168,12 +168,12 @@ QUnit.test('creme.svgAsBlob (png)', function(assert) {
            .attr('height', 20)
            .attr('fill', 'red');
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
         creme.svgAsBlob(function(blob) {
-            equal(blob.type, 'image/png');
-            start();
+            assert.equal(blob.type, 'image/png');
+            done();
         }, svg.node(), {encoderType: 'image/png'});
     });
 });
@@ -188,7 +188,7 @@ QUnit.parametrize('creme.svgCSSRulesAsText', [
         }
     }, '.bar { font-size: 12px; }\n.bar rect { fill: #1255ff; z-index: 12; }']
 ], function(rules, expected, assert) {
-    equal(creme.svgRulesAsCSS(rules), expected);
+    assert.equal(creme.svgRulesAsCSS(rules), expected);
 });
 
 QUnit.parametrize('creme.svgCSSRulesAsText (invalid)', [
@@ -205,7 +205,7 @@ QUnit.parametrize('creme.svgBoundsRadius', [
     [{width: 10, height: 20}, 5],
     [{width: 24, height: 20}, 10]
 ], function(bounds, expected, assert) {
-    equal(creme.svgBoundsRadius(bounds), expected);
+    assert.equal(creme.svgBoundsRadius(bounds), expected);
 });
 
 QUnit.parametrize('creme.d3FontSize', [
@@ -224,8 +224,8 @@ QUnit.parametrize('creme.d3FontSize', [
 
     var selection = svg.selectAll('text');
 
-    equal(selection.size(), data.length);
-    deepEqual(expected, creme.d3FontSize(selection));
+    assert.equal(selection.size(), data.length);
+    assert.deepEqual(expected, creme.d3FontSize(selection));
 });
 
 QUnit.parametrize('creme.d3PreventResizeObserverLoop', [
@@ -259,16 +259,16 @@ QUnit.parametrize('creme.d3PreventResizeObserverLoop', [
     try {
         trigger([{target: target}], observer);
     } catch (e) {
-        ok(callbackFailure);
+        assert.ok(callbackFailure);
     }
 
-    window.requestAnimationFrame(function() {
-        equal(observe.calls().length, expected.observe, 'ResizeObserver.observe');
-        equal(unobserve.calls().length, expected.unobserve, 'ResizeObserver.unobserve');
-        start();
-    });
+    var done = assert.async();
 
-    stop(1);
+    window.requestAnimationFrame(function() {
+        assert.equal(observe.calls().length, expected.observe, 'ResizeObserver.observe');
+        assert.equal(unobserve.calls().length, expected.unobserve, 'ResizeObserver.unobserve');
+        done();
+    });
 });
 
 QUnit.parametrize('creme.d3NumericDataInfo', [
@@ -276,10 +276,10 @@ QUnit.parametrize('creme.d3NumericDataInfo', [
     [[0, 10, 2, 3], {min: 0, max: 10, integer: true, gap: 10, average: 3.75}],
     [[-53, 10, 2, 3], {min: -53, max: 10, integer: true, gap: 63, average: -9.5}],
     [[-53, 10.75, 10.749, 3], {min: -53, max: 10.75, integer: false, gap: 63.75, average: -7.13}]
-], function(data, expected) {
+], function(data, expected, assert) {
     var info = creme.d3NumericDataInfo(data);
 
-    deepEqual({
+    assert.deepEqual({
         min: info.min,
         max: info.max,
         integer: info.integer,
@@ -306,10 +306,10 @@ QUnit.parametrize('creme.d3NumericFormat', [
     [[237.87, 43.5, 7.75, 104.85], ['237.87', '43.5', '7.75', '104.85']],
     [[237.87, 10043.5, 7.75, 104.85], ['238', '10.0k', '7.75', '105']],
     [[10502370.87, 65510043.5, 7.75, 10400.85], ['10.5M', '65.5M', '7.75', '10.4k']]
-], function(data, expected) {
+], function(data, expected, assert) {
     var info = creme.d3NumericDataInfo(data);
     var format = creme.d3NumericFormat(info);
-    deepEqual(data.map(format), expected);
+    assert.deepEqual(data.map(format), expected);
 });
 
 QUnit.parametrize('creme.d3NumericAxisFormat', [
@@ -322,9 +322,9 @@ QUnit.parametrize('creme.d3NumericAxisFormat', [
     [[30.78, 5.5, 2.75, 1], ['30.78', '5.50', '2.75', '1.00']],
     [[237.87, 43.5, 7.75, 104.85], ['240', '44', '7.8', '100']],
     [[237.87, 10043.5, 7.75, 104.85], ['240', '10k', '7.8', '100']]
-], function(data, expected) {
+], function(data, expected, assert) {
     var format = creme.d3NumericAxisFormat(creme.d3NumericDataInfo(data));
-    deepEqual(data.map(format), expected);
+    assert.deepEqual(data.map(format), expected);
 });
 
 }(jQuery));

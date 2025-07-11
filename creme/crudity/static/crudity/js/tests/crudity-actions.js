@@ -44,17 +44,17 @@ QUnit.test('creme.crudity.brick.crudity-validate (empty selector)', function(ass
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     brick.action('crudity-validate', 'mock/crudity/validate').start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
 
     this.assertOpenedAlertDialog(gettext('Nothing is selected.'));
     this.closeDialog();
 
-    deepEqual([], this.mockBackendCalls());
+    assert.deepEqual([], this.mockBackendCalls());
 });
 
 QUnit.test('creme.emails.brick.crudity-validate (fail)', function(assert) {
@@ -64,18 +64,18 @@ QUnit.test('creme.emails.brick.crudity-validate (fail)', function(assert) {
     this.assertBrickTableItems([], selections.selected());
 
     this.toggleBrickTableRows(brick, [0, 1]);
-    equal(2, selections.selected().length);
+    assert.equal(2, selections.selected().length);
 
     brick.action('crudity-validate', 'mock/crudity/validate/fail').start();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {ids: ['1', '2']}]
     ], this.mockBackendUrlCalls('mock/crudity/validate/fail'));
 
     this.assertOpenedDialog(gettext('Bad Request'));
     this.closeDialog();
 
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.emails.brick.crudity-validate', function(assert) {
@@ -85,18 +85,18 @@ QUnit.test('creme.emails.brick.crudity-validate', function(assert) {
     this.assertBrickTableItems([], selections.selected());
 
     this.toggleBrickTableRows(brick, [0, 1]);
-    equal(2, selections.selected().length);
+    assert.equal(2, selections.selected().length);
 
     brick.action('crudity-validate', 'mock/crudity/validate').start();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {ids: ['1', '2']}]
     ], this.mockBackendUrlCalls('mock/crudity/validate'));
 
     this.assertOpenedDialog(gettext('Process done'));
     this.closeDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["crudity-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -111,7 +111,7 @@ QUnit.test('creme.emails.brick.crudity-validate-row', function(assert) {
         id: '157'
     }).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {ids: ['157']}]
     ], this.mockBackendUrlCalls('mock/crudity/validate'));
 
@@ -119,7 +119,7 @@ QUnit.test('creme.emails.brick.crudity-validate-row', function(assert) {
     this.assertOpenedDialog(gettext('Process done'));
     this.closeDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["crudity-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -134,7 +134,7 @@ QUnit.test('creme.emails.brick.crudity-validate-row (fail)', function(assert) {
         id: '157'
     }).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {ids: ['157']}]
     ], this.mockBackendUrlCalls('mock/crudity/validate/fail'));
 
@@ -142,7 +142,7 @@ QUnit.test('creme.emails.brick.crudity-validate-row (fail)', function(assert) {
     this.assertOpenedDialog(gettext('Bad Request'));
     this.closeDialog();
 
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.crudity.brick.crudity-delete (empty selector)', function(assert) {
@@ -151,17 +151,17 @@ QUnit.test('creme.crudity.brick.crudity-delete (empty selector)', function(asser
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     brick.action('crudity-delete', 'mock/crudity/delete').start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
 
     this.assertOpenedAlertDialog(gettext('Nothing is selected.'));
     this.closeDialog();
 
-    deepEqual([], this.mockBackendCalls());
+    assert.deepEqual([], this.mockBackendCalls());
 });
 
 QUnit.test('creme.emails.brick.crudity-delete (fail)', function(assert) {
@@ -170,22 +170,22 @@ QUnit.test('creme.emails.brick.crudity-delete (fail)', function(assert) {
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     this.toggleBrickTableRows(brick, [0, 1]);
-    equal(2, selections.selected().length);
+    assert.equal(2, selections.selected().length);
 
     brick.action('crudity-delete', 'mock/crudity/delete/fail').start();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {ids: ['1', '2']}]
     ], this.mockBackendUrlCalls('mock/crudity/delete/fail'));
 
     this.assertOpenedDialog(gettext('Bad Request'));
     this.closeDialog();
 
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.emails.brick.crudity-delete', function(assert) {
@@ -194,22 +194,22 @@ QUnit.test('creme.emails.brick.crudity-delete', function(assert) {
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     this.toggleBrickTableRows(brick, [0, 1]);
-    equal(2, selections.selected().length);
+    assert.equal(2, selections.selected().length);
 
     brick.action('crudity-delete', 'mock/crudity/delete').start();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {ids: ['1', '2']}]
     ], this.mockBackendUrlCalls('mock/crudity/delete'));
 
     this.assertOpenedDialog(gettext('Process done'));
     this.closeDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["crudity-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -223,12 +223,12 @@ QUnit.test('creme.crudity.RefreshSyncStatusAction (fail)', function(assert) {
 
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {}]
     ], this.mockBackendUrlCalls('mock/crudity/waiting/sync/fail'));
 
-    deepEqual([['fail', 'Unable to sync actions']], this.mockListenerCalls('action-fail'));
-    deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['fail', 'Unable to sync actions']], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
 });
 
 QUnit.test('creme.crudity.RefreshSyncStatusAction (fail, warning)', function(assert) {
@@ -238,19 +238,19 @@ QUnit.test('creme.crudity.RefreshSyncStatusAction (fail, warning)', function(ass
           .onDone(this.mockListener('action-done'))
           .start();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {}]
     ], this.mockBackendUrlCalls('mock/crudity/waiting/sync/fail'));
 
     this.assertOpenedAlertDialog('Unable to sync actions');
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
 
     this.closeDialog();
 
-    deepEqual([['fail', 'Unable to sync actions']], this.mockListenerCalls('action-fail'));
-    deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['fail', 'Unable to sync actions']], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
 });
 
 QUnit.test('creme.crudity.RefreshSyncStatusAction (done, no deps)', function(assert) {
@@ -260,18 +260,18 @@ QUnit.test('creme.crudity.RefreshSyncStatusAction (done, no deps)', function(ass
           .onDone(this.mockListener('action-done'))
           .start();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {}]
     ], this.mockBackendUrlCalls('mock/crudity/waiting/sync'));
 
     this.assertClosedDialog();
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([[
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([[
         'done', ['a', 'b']
     ]], this.mockListenerCalls('action-done'));
 
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.crudity.RefreshSyncStatusAction (done, with deps)', function(assert) {
@@ -302,18 +302,18 @@ QUnit.test('creme.crudity.RefreshSyncStatusAction (done, with deps)', function(a
           .onDone(this.mockListener('action-done'))
           .start();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {}]
     ], this.mockBackendUrlCalls('mock/crudity/waiting/sync'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["brick-A", "brick-B"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.assertClosedDialog();
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([[
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([[
         'done', ['a', 'b']
     ]], this.mockListenerCalls('action-done'));
 });
@@ -322,11 +322,11 @@ QUnit.test('creme.crudity.CrudityHatController (bind)', function(assert) {
     var controller = new creme.crudity.CrudityHatController();
     var element = $('<div>');
 
-    equal(false, controller.isBound());
+    assert.equal(false, controller.isBound());
 
     controller.bind(element);
 
-    equal(true, controller.isBound());
+    assert.equal(true, controller.isBound());
 
     this.assertRaises(function() {
         controller.bind(element);
@@ -342,15 +342,15 @@ QUnit.test('creme.crudity.CrudityHatController (refresh)', function(assert) {
     controller.bind(element);
     controller.refresh(200);
 
-    deepEqual([], mockBackendUrlCalls('mock/crudity/waiting/sync'));
+    assert.deepEqual([], mockBackendUrlCalls('mock/crudity/waiting/sync'));
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
-        start();
-        deepEqual([
+        assert.deepEqual([
             ['POST', {}]
         ], mockBackendUrlCalls('mock/crudity/waiting/sync'));
+        done();
     }, 300);
 });
 
@@ -363,23 +363,23 @@ QUnit.test('creme.crudity.CrudityHatController (refresh, canceled)', function(as
     controller.bind(element);
     controller.refresh(300);
 
-    deepEqual([], mockBackendUrlCalls('mock/crudity/waiting/sync'));
+    assert.deepEqual([], mockBackendUrlCalls('mock/crudity/waiting/sync'));
 
     controller.refresh(300);
 
-    stop(2);
+    var done = assert.async(2);
 
     setTimeout(function() {
-        start();
-        deepEqual([], mockBackendUrlCalls('mock/crudity/waiting/sync'));
+        assert.deepEqual([], mockBackendUrlCalls('mock/crudity/waiting/sync'));
         controller.refresh(300);
+        done();
     }, 100);
 
     setTimeout(function() {
-        start();
-        deepEqual([
+        assert.deepEqual([
             ['POST', {}]
         ], mockBackendUrlCalls('mock/crudity/waiting/sync'));
+        done();
     }, 500);
 });
 

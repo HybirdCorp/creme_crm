@@ -15,8 +15,8 @@ QUnit.test('creme.bricks.Brick.menu (bind/unbind)', function(assert) {
 
     brick.bind(element);
 
-    equal(true, brick.isBound());
-    equal(true, brick.menu().isBound());
+    assert.equal(true, brick.isBound());
+    assert.equal(true, brick.menu().isBound());
 
     this.assertRaises(function() {
         brick.menu().bind(element);
@@ -24,8 +24,8 @@ QUnit.test('creme.bricks.Brick.menu (bind/unbind)', function(assert) {
 
     brick.unbind();
 
-    equal(false, brick.isBound());
-    equal(false, brick.menu().isBound());
+    assert.equal(false, brick.isBound());
+    assert.equal(false, brick.menu().isBound());
 
     this.assertRaises(function() {
         brick.menu().unbind();
@@ -35,17 +35,17 @@ QUnit.test('creme.bricks.Brick.menu (bind/unbind)', function(assert) {
 QUnit.test('creme.bricks.Brick.menu (toggle, not bound)', function(assert) {
     var brick = new creme.bricks.Brick();
 
-    equal(false, brick.isBound());
-    equal(false, brick.menu().isOpened());
-    equal(false, brick.menu().isBound());
-    equal(true, brick.menu().isDisabled());
-    equal(0, brick._actionLinks.length);
+    assert.equal(false, brick.isBound());
+    assert.equal(false, brick.menu().isOpened());
+    assert.equal(false, brick.menu().isBound());
+    assert.equal(true, brick.menu().isDisabled());
+    assert.equal(0, brick._actionLinks.length);
 
     brick.menu().open();
-    equal(false, brick.menu().isOpened());
+    assert.equal(false, brick.menu().isOpened());
 
     brick.menu().toggle();
-    equal(false, brick.menu().isOpened());
+    assert.equal(false, brick.menu().isOpened());
 });
 
 QUnit.test('creme.bricks.Brick.menu (toggle, empty)', function(assert) {
@@ -58,21 +58,21 @@ QUnit.test('creme.bricks.Brick.menu (toggle, empty)', function(assert) {
         + '</div>');
 
     brick.bind(element);
-    equal(true, brick.isBound());
+    assert.equal(true, brick.isBound());
 
-    equal(false, brick.menu().isOpened());
-    equal(true, brick.menu().isDisabled());
-    equal(true, element.find('.brick-header-menu').is('.is-disabled'));
-    equal(0, brick._actionLinks.length);
+    assert.equal(false, brick.menu().isOpened());
+    assert.equal(true, brick.menu().isDisabled());
+    assert.equal(true, element.find('.brick-header-menu').is('.is-disabled'));
+    assert.equal(0, brick._actionLinks.length);
 
     brick.menu().open();
-    equal(false, brick.menu().isOpened());
+    assert.equal(false, brick.menu().isOpened());
 
     brick.menu().toggle();
-    equal(false, brick.menu().isOpened());
+    assert.equal(false, brick.menu().isOpened());
 
     brick.toggleMenu();
-    equal(false, brick.menu().isOpened());
+    assert.equal(false, brick.menu().isOpened());
 });
 
 QUnit.test('creme.bricks.Brick.menu (toggle)', function(assert) {
@@ -89,28 +89,28 @@ QUnit.test('creme.bricks.Brick.menu (toggle)', function(assert) {
         + '</div>');
 
     brick.bind(element);
-    equal(true, brick.isBound());
+    assert.equal(true, brick.isBound());
 
-    equal(false, brick.menu().isOpened());
-    equal(false, brick.menu().isDisabled());
-    equal(false, element.find('.brick-header-menu').is('.is-disabled'));
-    equal(1, brick._actionLinks.length);
+    assert.equal(false, brick.menu().isOpened());
+    assert.equal(false, brick.menu().isDisabled());
+    assert.equal(false, element.find('.brick-header-menu').is('.is-disabled'));
+    assert.equal(1, brick._actionLinks.length);
 
     brick.menu().open();
-    equal(true, brick.menu().isOpened());
-    equal('<div class="brick-menu-buttons"><a data-action="collapse"></a></div>', brick.menu()._dialog.content().html());
+    assert.equal(true, brick.menu().isOpened());
+    assert.equal('<div class="brick-menu-buttons"><a data-action="collapse"></a></div>', brick.menu()._dialog.content().html());
 
     brick.menu().toggle();
-    equal(false, brick.menu().isOpened());
+    assert.equal(false, brick.menu().isOpened());
 
     brick.menu().toggle();
-    equal(true, brick.menu().isOpened());
+    assert.equal(true, brick.menu().isOpened());
 
     brick.toggleMenu();
-    equal(false, brick.menu().isOpened());
+    assert.equal(false, brick.menu().isOpened());
 
     brick.toggleMenu();
-    equal(true, brick.menu().isOpened());
+    assert.equal(true, brick.menu().isOpened());
 });
 
 QUnit.test('creme.bricks.Brick.menu (toggle click)', function(assert) {
@@ -127,20 +127,20 @@ QUnit.test('creme.bricks.Brick.menu (toggle click)', function(assert) {
         + '</div>');
 
     brick.bind(element);
-    equal(true, brick.isBound());
+    assert.equal(true, brick.isBound());
 
-    equal(false, brick.menu().isOpened());
-    equal(false, brick.menu().isDisabled());
-    equal(false, element.find('.brick-header-menu').is('.is-disabled'));
-    equal(1, brick._actionLinks.length);
+    assert.equal(false, brick.menu().isOpened());
+    assert.equal(false, brick.menu().isDisabled());
+    assert.equal(false, element.find('.brick-header-menu').is('.is-disabled'));
+    assert.equal(1, brick._actionLinks.length);
 
-    equal(false, brick.menu().isOpened());
-
-    element.find('.brick-header-menu').trigger('click');
-    equal(true, brick.menu().isOpened());
+    assert.equal(false, brick.menu().isOpened());
 
     element.find('.brick-header-menu').trigger('click');
-    equal(false, brick.menu().isOpened());
+    assert.equal(true, brick.menu().isOpened());
+
+    element.find('.brick-header-menu').trigger('click');
+    assert.equal(false, brick.menu().isOpened());
 });
 
 }(jQuery));

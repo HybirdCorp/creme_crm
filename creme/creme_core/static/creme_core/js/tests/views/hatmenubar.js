@@ -48,7 +48,7 @@ QUnit.test('creme.detailview.hatmenubar (empty)', function(assert) {
     var widget = creme.widget.create(element);
     var builder = widget.delegate._builder;
 
-    deepEqual([['hatmenubar-setup-actions', [builder]]], this.mockListenerJQueryCalls('hatmenubar-setup-actions'));
+    assert.deepEqual([['hatmenubar-setup-actions', [builder]]], this.mockListenerJQueryCalls('hatmenubar-setup-actions'));
 });
 
 QUnit.test('creme.detailview.hatmenubar (no action)', function(assert) {
@@ -59,7 +59,7 @@ QUnit.test('creme.detailview.hatmenubar (no action)', function(assert) {
     this.assertActive(widget.element);
     this.assertReady(widget.element);
 
-    deepEqual([], widget.delegate._actionlinks);
+    assert.deepEqual([], widget.delegate._actionlinks);
 });
 
 QUnit.test('creme.detailview.hatmenubar (view)', function(assert) {
@@ -81,7 +81,7 @@ QUnit.test('creme.detailview.hatmenubar (view)', function(assert) {
 
     this.assertOpenedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/show', 'GET', {}]
     ], this.mockBackendUrlCalls());
 
@@ -111,11 +111,11 @@ QUnit.test('creme.detailview.hatmenubar (confirm update)', function(assert) {
 
     this.assertOpenedConfirmDialog(gettext('Are you sure?'));
 
-    deepEqual([], this.mockBackendUrlCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls());
 
     this.acceptConfirmDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/update', 'POST', {next: 'mock/next'}]
     ], this.mockBackendUrlCalls());
 
@@ -139,17 +139,17 @@ QUnit.test('creme.detailview.hatmenubar (form)', function(assert) {
 
     $(widget.element).find('a.menu_button').trigger('click');
 
-    deepEqual([['mock/form', 'GET', {}]], this.mockBackendUrlCalls());
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([['mock/form', 'GET', {}]], this.mockBackendUrlCalls());
+    assert.deepEqual([], this.mockRedirectCalls());
 
     this.assertOpenedDialog();
     this.submitFormDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/form', 'GET', {}],
         ['mock/form', 'POST', {}]
     ], this.mockBackendUrlCalls());
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockRedirectCalls());
 
     this.assertClosedDialog();
 });
@@ -168,17 +168,17 @@ QUnit.test('creme.detailview.hatmenubar (form redirect)', function(assert) {
 
     $(widget.element).find('a.menu_button').trigger('click');
 
-    deepEqual([['mock/form', 'GET', {}]], this.mockBackendUrlCalls());
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([['mock/form', 'GET', {}]], this.mockBackendUrlCalls());
+    assert.deepEqual([], this.mockRedirectCalls());
 
     this.assertOpenedDialog();
     this.submitFormDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/form', 'GET', {}],
         ['mock/form', 'POST', {}]
     ], this.mockBackendUrlCalls());
-    deepEqual(['/mock/redirected'], this.mockRedirectCalls());
+    assert.deepEqual(['/mock/redirected'], this.mockRedirectCalls());
 
     this.assertClosedDialog();
 });
@@ -202,33 +202,33 @@ QUnit.test('creme.detailview.hatmenubar (update-redirect)', function(assert) {
     this.assertActive(widget.element);
     this.assertReady(widget.element);
 
-    deepEqual(1, widget.delegate._actionlinks.length);
+    assert.deepEqual(1, widget.delegate._actionlinks.length);
 
     var link = widget.delegate._actionlinks[0];
-    equal(true, link.isBound());
-    equal(false, link.isDisabled());
+    assert.equal(true, link.isBound());
+    assert.equal(false, link.isDisabled());
 
     $(widget.element).find('a.menu_button').trigger('click');
 
     this.assertOpenedDialog();
-    deepEqual([], this.mockBackendUrlCalls('mock/delete'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/delete'));
+    assert.deepEqual([], this.mockRedirectCalls());
 
     this.acceptConfirmDialog();
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/delete'));
-    deepEqual(['/mock/delete/redirect'], this.mockRedirectCalls());
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/delete'));
+    assert.deepEqual(['/mock/delete/redirect'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.detailview.hatmenubar (action registry)', function(assert) {
     var widget = this.createHatMenuBar();
     var registry = widget.delegate._builder;
 
-    ok(Object.isSubClassOf(registry, creme.component.FactoryRegistry));
+    assert.ok(Object.isSubClassOf(registry, creme.component.FactoryRegistry));
 
-    ok(registry.has('creme_core-hatmenubar-view'));
-    ok(registry.has('creme_core-hatmenubar-update'));
-    ok(registry.has('creme_core-hatmenubar-form'));
-    ok(registry.has('creme_core-hatmenubar-update-redirect'));
+    assert.ok(registry.has('creme_core-hatmenubar-view'));
+    assert.ok(registry.has('creme_core-hatmenubar-update'));
+    assert.ok(registry.has('creme_core-hatmenubar-form'));
+    assert.ok(registry.has('creme_core-hatmenubar-update-redirect'));
 });
 
 }(jQuery));

@@ -144,8 +144,8 @@
             var widget = creme.widget.create(element);
             var brick = widget.brick();
 
-            equal(true, brick.isBound());
-            equal(false, brick.isLoading());
+            this.assert.equal(true, brick.isBound());
+            this.assert.equal(false, brick.isLoading());
 
             return widget;
         },
@@ -189,8 +189,8 @@
             var widget = creme.widget.create(element);
             var brick = widget.brick();
 
-            equal(true, brick.isBound());
-            equal(false, brick.isLoading());
+            this.assert.equal(true, brick.isBound());
+            this.assert.equal(false, brick.isLoading());
 
             return widget;
         },
@@ -218,7 +218,7 @@
         },
 
         assertBrickTableItems: function(expected, items) {
-            deepEqual(expected, items.map(this._brickTableItemInfo));
+            this.assert.deepEqual(expected, items.map(this._brickTableItemInfo));
         },
 
         toggleBrickTableRows: function(brick, ids) {

@@ -2,28 +2,30 @@
 
 QUnit.module("creme.model.CheckListRenderer.js", new QUnitMixin({
     assertOptions: function(element, expected) {
+        var assert = this.assert;
         var options = $('option', element);
 
-        equal(options.length, expected.length, 'option count');
+        assert.equal(options.length, expected.length, 'option count');
 
         options.each(function(index) {
-            equal($(this).attr('value'), expected[index].value, 'option %d value'.format(index));
-            equal($(this).html(), expected[index].label, 'option %d label'.format(index));
+            assert.equal($(this).attr('value'), expected[index].value, 'option %d value'.format(index));
+            assert.equal($(this).html(), expected[index].label, 'option %d label'.format(index));
 
             if (expected.group) {
-                equal($(this).parent().is('optgroup'), true, 'option %d has group'.format(index));
-                equal($(this).parent().attr('label'), expected.group, 'option %d group label'.format(index));
+                assert.equal($(this).parent().is('optgroup'), true, 'option %d has group'.format(index));
+                assert.equal($(this).parent().attr('label'), expected.group, 'option %d group label'.format(index));
             }
         });
     },
 
     assertOptionGroups: function(element, expected) {
+        var assert = this.assert;
         var groups = $('optgroup', element);
 
-        equal(groups.length, expected.length, 'optgroup count');
+        assert.equal(groups.length, expected.length, 'optgroup count');
 
         groups.each(function(index) {
-            equal($(this).attr('label'), expected[index], 'optgroup %d'.format(index));
+            assert.equal($(this).attr('label'), expected[index], 'optgroup %d'.format(index));
         });
     }
 }));
@@ -38,20 +40,20 @@ QUnit.test('creme.model.CheckListRenderer.constructor', function(assert) {
 
     renderer.redraw();
 
-    equal('li', renderer.itemTag());
-    equal(false, renderer.disabled());
-    equal(model, renderer.model());
-    equal(element, renderer.target());
+    assert.equal('li', renderer.itemTag());
+    assert.equal(false, renderer.disabled());
+    assert.equal(model, renderer.model());
+    assert.equal(element, renderer.target());
 
     renderer =  new creme.model.CheckListRenderer({
         itemtag: 'div',
         disabled: true
     });
 
-    equal('div', renderer.itemTag());
-    equal(true, renderer.disabled());
-    equal(undefined, renderer.model());
-    equal(undefined, renderer.target());
+    assert.equal('div', renderer.itemTag());
+    assert.equal(true, renderer.disabled());
+    assert.equal(undefined, renderer.model());
+    assert.equal(undefined, renderer.target());
 });
 
 QUnit.test('creme.model.CheckListRenderer.render', function(assert) {
@@ -212,7 +214,7 @@ QUnit.test('creme.model.CheckListRenderer.update', function(assert) {
                 '</div>' +
            '</li>' +
        '</ul>', element);
-    equal(false, element.find('input').is(':checked'));
+    assert.equal(false, element.find('input').is(':checked'));
 
     model.set({value: '2', label: 'b', visible: true, selected: true, help: 'help !', tags: ['tag1']}, 0);
 
@@ -226,7 +228,7 @@ QUnit.test('creme.model.CheckListRenderer.update', function(assert) {
                 '</div>' +
             '</li>' +
         '</ul>', element);
-    equal(true, element.find('input').is(':checked'));
+    assert.equal(true, element.find('input').is(':checked'));
 });
 
 QUnit.test('creme.model.CheckListRenderer.remove', function(assert) {
@@ -277,7 +279,7 @@ QUnit.test('creme.model.CheckListRenderer.remove', function(assert) {
 QUnit.test('creme.model.CheckListRenderer.parse', function(assert) {
     var renderer = new creme.model.CheckListRenderer();
 
-    deepEqual([
+    assert.deepEqual([
         {value: '1', label: 'a', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
         {value: '2', label: 'b', help: undefined, disabled: false, selected: true,  visible: true, readonly: false, tags: ['tag1']},
         {value: '3', label: 'c', help: undefined, disabled: true,  selected: false, visible: true, readonly: false, tags: ['tag2']},
@@ -343,11 +345,11 @@ QUnit.test('creme.model.CheckGroupListRenderer.constructor', function(assert) {
 
     renderer.redraw();
 
-    equal('li', renderer.itemTag());
-    equal('ul', renderer.groupTag());
-    equal(false, renderer.disabled());
-    equal(model, renderer.model());
-    equal(element, renderer.target());
+    assert.equal('li', renderer.itemTag());
+    assert.equal('ul', renderer.groupTag());
+    assert.equal(false, renderer.disabled());
+    assert.equal(model, renderer.model());
+    assert.equal(element, renderer.target());
 
     renderer =  new creme.model.CheckGroupListRenderer({
         itemtag: 'div',
@@ -355,11 +357,11 @@ QUnit.test('creme.model.CheckGroupListRenderer.constructor', function(assert) {
         disabled: true
     });
 
-    equal('div', renderer.itemTag());
-    equal('span', renderer.groupTag());
-    equal(true, renderer.disabled());
-    equal(undefined, renderer.model());
-    equal(undefined, renderer.target());
+    assert.equal('div', renderer.itemTag());
+    assert.equal('span', renderer.groupTag());
+    assert.equal(true, renderer.disabled());
+    assert.equal(undefined, renderer.model());
+    assert.equal(undefined, renderer.target());
 });
 
 QUnit.test('creme.model.CheckGroupListRenderer.render', function(assert) {
@@ -462,7 +464,7 @@ QUnit.test('creme.model.CheckGroupListRenderer.update', function(assert) {
                 '</div>' +
            '</li>' +
        '</ul>', element);
-    equal(false, element.find('input').is(':checked'));
+    assert.equal(false, element.find('input').is(':checked'));
 
     model.set({value: '2', label: 'b', visible: true, selected: true, help: 'help !', tags: ['tag1']}, 0);
 
@@ -476,7 +478,7 @@ QUnit.test('creme.model.CheckGroupListRenderer.update', function(assert) {
                 '</div>' +
             '</li>' +
         '</ul>', element);
-    equal(true, element.find('input').is(':checked'));
+    assert.equal(true, element.find('input').is(':checked'));
 });
 
 QUnit.test('creme.model.CheckGroupListRenderer.update (group)', function(assert) {
@@ -501,7 +503,7 @@ QUnit.test('creme.model.CheckGroupListRenderer.update (group)', function(assert)
                 '</div>' +
            '</li>' +
        '</ul>', element);
-    equal(false, element.find('input').is(':checked'));
+    assert.equal(false, element.find('input').is(':checked'));
 
     model.set({group: 'group1', value: '2', label: 'b', visible: true, selected: true, help: 'help !', tags: ['tag1']}, 0);
 
@@ -518,7 +520,7 @@ QUnit.test('creme.model.CheckGroupListRenderer.update (group)', function(assert)
                 '</li>' +
             '</ul>' +
         '</ul>', element);
-    equal(true, element.find('input').is(':checked'));
+    assert.equal(true, element.find('input').is(':checked'));
 });
 
 QUnit.test('creme.model.CheckGroupListRenderer.remove', function(assert) {
@@ -629,7 +631,7 @@ QUnit.test('creme.model.CheckGroupListRenderer.remove (empty group)', function(a
 QUnit.test('creme.model.CheckGroupListRenderer.parse', function(assert) {
     var renderer = new creme.model.CheckGroupListRenderer();
 
-    deepEqual([
+    assert.deepEqual([
         {group: undefined, value: '1', label: 'a', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
         {group: undefined, value: '2', label: 'b', help: undefined, disabled: false, selected: true,  visible: true, readonly: false, tags: ['tag1']},
         {group: 'group1', value: '3', label: 'c', help: undefined, disabled: true,  selected: false, visible: true, readonly: false, tags: ['tag2']},

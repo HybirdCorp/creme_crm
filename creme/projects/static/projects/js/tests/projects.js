@@ -22,7 +22,7 @@ QUnit.test('creme.projects.listview.actions (projects-close, cancel)', function(
 
     var builder = registry.get('projects-close');
 
-    ok(Object.isFunc(builder));
+    assert.ok(Object.isFunc(builder));
     var action = builder('mock/projects/12/close');
 
     action.start();
@@ -30,8 +30,8 @@ QUnit.test('creme.projects.listview.actions (projects-close, cancel)', function(
     this.assertOpenedConfirmDialog(gettext('Do you really want to close this project?'));
     this.closeDialog();
 
-    deepEqual([], this.mockBackendUrlCalls('mock/projects/12/close'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/projects/12/close'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 QUnit.test('creme.projects.listview.actions (projects-close, ok)', function(assert) {
@@ -40,7 +40,7 @@ QUnit.test('creme.projects.listview.actions (projects-close, ok)', function(asse
 
     var builder = registry.get('projects-close');
 
-    ok(Object.isFunc(builder));
+    assert.ok(Object.isFunc(builder));
     var action = builder('mock/projects/12/close');
 
     action.start();
@@ -51,8 +51,8 @@ QUnit.test('creme.projects.listview.actions (projects-close, ok)', function(asse
 
     this.assertClosedDialog();
 
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/projects/12/close'));
-    deepEqual([
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/projects/12/close'));
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -72,7 +72,7 @@ QUnit.test('creme.projects.listview.actions (projects-close, fail)', function(as
 
     var builder = registry.get('projects-close');
 
-    ok(Object.isFunc(builder));
+    assert.ok(Object.isFunc(builder));
     var action = builder('mock/projects/12/close/fail');
 
     action.start();
@@ -84,8 +84,8 @@ QUnit.test('creme.projects.listview.actions (projects-close, fail)', function(as
     this.assertOpenedAlertDialog('Unable to close project');
     this.closeDialog();
 
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/projects/12/close/fail'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/projects/12/close/fail'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 }(jQuery));

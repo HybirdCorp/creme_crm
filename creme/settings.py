@@ -1045,7 +1045,7 @@ TEST_CREME_LIB_JS = [
     'testlib.js',
 
     # Content
-    'creme_core/js/tests/qunit/qunit-1.23.1.js',
+    'creme_core/js/tests/qunit/qunit-2.24.1.js',
     'creme_core/js/tests/qunit/qunit-parametrize.js',
     'creme_core/js/tests/qunit/qunit-mixin.js',
     'creme_core/js/tests/component/qunit-event-mixin.js',
@@ -1062,6 +1062,7 @@ TEST_CREME_CORE_JS = [
     'testcore.js',
 
     'creme_core/js/tests/jquery/toggle-attr.js',
+    'creme_core/js/tests/underscore/json.js',
     'creme_core/js/tests/underscore/object.js',
 
     # Content
@@ -1106,6 +1107,8 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/faker.js',
     'creme_core/js/tests/browser.js',
     'creme_core/js/tests/parametrize.js',
+    'creme_core/js/tests/math.js',
+    'creme_core/js/tests/url.js',
 
     'creme_core/js/tests/widgets/base.js',
     'creme_core/js/tests/widgets/widget.js',
@@ -1125,6 +1128,7 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/widgets/selectinput.js',
     'creme_core/js/tests/widgets/ordered.js',
     'creme_core/js/tests/widgets/daterangeselector.js',
+    'creme_core/js/tests/widgets/autosizedarea.js',
 
     'creme_core/js/tests/form/forms.js',
     'creme_core/js/tests/form/select2.js',
@@ -1150,6 +1154,7 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/views/utils.js',
     'creme_core/js/tests/views/notification.js',
     'creme_core/js/tests/views/import.js',
+    'creme_core/js/tests/views/merge.js',
 ]
 
 TEST_CREME_OPT_JS = [
@@ -1158,6 +1163,7 @@ TEST_CREME_OPT_JS = [
     ('creme.activities',    'activities/js/tests/activities-listview.js'),
     ('creme.activities',    'activities/js/tests/calendar.js'),
     ('creme.activities',    'activities/js/tests/activities-calendar.js'),
+    ('creme.activities',    'activities/js/tests/calendar-bricks.js'),
     ('creme.billing',       'billing/js/tests/billing.js'),
     ('creme.billing',       'billing/js/tests/billing-actions.js'),
     ('creme.billing',       'billing/js/tests/billing-listview.js'),
@@ -1177,6 +1183,7 @@ TEST_CREME_OPT_JS = [
     ('creme.sketch',        'sketch/js/tests/demo.js'),
     ('creme.sketch',        'sketch/js/tests/invert.js'),
     ('creme.sketch',        'sketch/js/tests/color.js'),
+    ('creme.sketch',        'sketch/js/tests/d3-radial-axis.js'),
     ('creme.crudity',       'crudity/js/tests/crudity-actions.js'),
     ('creme.cti',           'cti/js/tests/cti-actions.js'),
     ('creme.emails',        'emails/js/tests/emails-actions.js'),

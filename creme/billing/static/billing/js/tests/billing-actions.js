@@ -95,9 +95,9 @@ QUnit.module("creme.billing.brick.actions", new QUnitMixin(QUnitEventMixin,
 QUnit.test('creme.billing.brick (available actions)', function(assert) {
     var brick = this.createBillingBrick().brick();
 
-    equal(true, Object.isSubClassOf(brick.action('billing-line-addonfly'), creme.component.Action));
-    equal(true, Object.isSubClassOf(brick.action('billing-line-saveall'), creme.component.Action));
-    equal(true, Object.isSubClassOf(brick.action('billing-line-clearonfly'), creme.component.Action));
+    assert.equal(true, Object.isSubClassOf(brick.action('billing-line-addonfly'), creme.component.Action));
+    assert.equal(true, Object.isSubClassOf(brick.action('billing-line-saveall'), creme.component.Action));
+    assert.equal(true, Object.isSubClassOf(brick.action('billing-line-clearonfly'), creme.component.Action));
 });
 
 QUnit.test('creme.billing.brick (billing-line-saveall, invalid input)', function(assert) {
@@ -107,16 +107,16 @@ QUnit.test('creme.billing.brick (billing-line-saveall, invalid input)', function
         ]
     }).brick();
 
-    ok(creme.billing.formsHaveErrors());
+    assert.ok(creme.billing.formsHaveErrors());
 
     brick.action('billing-line-saveall', 'mock/billing/saveall').on(this.brickActionListeners).start();
 
     this.assertOpenedAlertDialog(gettext('There are some errors in your lines.'));
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/billing/saveall'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/billing/saveall'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.billing.brick (billing-line-saveall, invalid response)', function(assert) {
@@ -129,12 +129,12 @@ QUnit.test('creme.billing.brick (billing-line-saveall, invalid response)', funct
     brick.element().find('#product_line_formset-0-quantity').val('5').trigger('change');
     brick.element().find('#product_line_formset-0-product').val('Product #1').trigger('change');
 
-    equal(false, creme.billing.formsHaveErrors());
-    equal(1, creme.billing.modifiedBLineForms().length);
+    assert.equal(false, creme.billing.formsHaveErrors());
+    assert.equal(1, creme.billing.modifiedBLineForms().length);
 
     brick.action('billing-line-saveall', 'mock/billing/saveall/fail').on(this.brickActionListeners).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             '86': JSON.stringify({'product_line_formset-0-quantity': '5', 'product_line_formset-0-product': 'Product #1'})
          }]
@@ -143,8 +143,8 @@ QUnit.test('creme.billing.brick (billing-line-saveall, invalid response)', funct
     this.assertOpenedAlertDialog('Unable to save lines');
     this.closeDialog();
 
-    deepEqual([['fail', 'Unable to save lines']], this.mockListenerCalls('action-fail'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([['fail', 'Unable to save lines']], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.billing.brick (billing-line-saveall, no changes)', function(assert) {
@@ -154,17 +154,17 @@ QUnit.test('creme.billing.brick (billing-line-saveall, no changes)', function(as
         ]
     }).brick();
 
-    equal(false, creme.billing.formsHaveErrors());
-    equal(0, creme.billing.modifiedBLineForms().length);
+    assert.equal(false, creme.billing.formsHaveErrors());
+    assert.equal(0, creme.billing.modifiedBLineForms().length);
 
     brick.action('billing-line-saveall', 'mock/billing/saveall').on(this.brickActionListeners).start();
 
-    deepEqual([], this.mockBackendUrlCalls('mock/billing/saveall'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/billing/saveall'));
 
     this.assertClosedDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.billing.brick (billing-line-saveall, ok)', function(assert) {
@@ -177,11 +177,11 @@ QUnit.test('creme.billing.brick (billing-line-saveall, ok)', function(assert) {
     brick.element().find('#product_line_formset-0-quantity').val('5').trigger('change');
     brick.element().find('#product_line_formset-0-product').val('Product #1').trigger('change');
 
-    equal(false, creme.billing.formsHaveErrors());
+    assert.equal(false, creme.billing.formsHaveErrors());
 
     brick.action('billing-line-saveall', 'mock/billing/saveall').on(this.brickActionListeners).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             '86': JSON.stringify({'product_line_formset-0-quantity': '5', 'product_line_formset-0-product': 'Product #1'})
          }]
@@ -189,8 +189,8 @@ QUnit.test('creme.billing.brick (billing-line-saveall, ok)', function(assert) {
 
     this.assertClosedDialog();
 
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual([
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -212,15 +212,15 @@ QUnit.test('creme.billing.brick (billing-line-addonfly)', function(assert) {
 
     var addonflyLink = brick.element().find('[data-action="billing-line-addonfly"]');
 
-    equal(false, creme.billing.formsHaveErrors());
-    equal(1, brick.element().find('.hidden-form').length);
-    equal(false, addonflyLink.is('.forbidden'));
+    assert.equal(false, creme.billing.formsHaveErrors());
+    assert.equal(1, brick.element().find('.hidden-form').length);
+    assert.equal(false, addonflyLink.is('.forbidden'));
 
     addonflyLink.trigger('click');
 
-    equal(true, creme.billing.formsHaveErrors());
-    equal(0, brick.element().find('.hidden-form').length);
-    equal(true, addonflyLink.is('.forbidden'));
+    assert.equal(true, creme.billing.formsHaveErrors());
+    assert.equal(0, brick.element().find('.hidden-form').length);
+    assert.equal(true, addonflyLink.is('.forbidden'));
 });
 
 QUnit.test('creme.billing.brick (billing-line-addonfly, forbidden)', function(assert) {
@@ -240,15 +240,15 @@ QUnit.test('creme.billing.brick (billing-line-addonfly, forbidden)', function(as
 
     var addonflyLink = brick.element().find('[data-action="billing-line-addonfly"]');
 
-    equal(false, creme.billing.formsHaveErrors());
-    equal(1, brick.element().find('.hidden-form').length);
-    equal(true, addonflyLink.is('.forbidden'));
+    assert.equal(false, creme.billing.formsHaveErrors());
+    assert.equal(1, brick.element().find('.hidden-form').length);
+    assert.equal(true, addonflyLink.is('.forbidden'));
 
     addonflyLink.trigger('click');
 
-    equal(false, creme.billing.formsHaveErrors());
-    equal(1, brick.element().find('.hidden-form').length);
-    equal(true, addonflyLink.is('.forbidden'));
+    assert.equal(false, creme.billing.formsHaveErrors());
+    assert.equal(1, brick.element().find('.hidden-form').length);
+    assert.equal(true, addonflyLink.is('.forbidden'));
 });
 
 QUnit.test('creme.billing.brick (billing-line-clearonfly)', function(assert) {
@@ -273,21 +273,21 @@ QUnit.test('creme.billing.brick (billing-line-clearonfly)', function(assert) {
     var addonflyLink = brick.element().find('[data-action="billing-line-addonfly"]');
     var clearonflyLink = brick.element().find('[data-action="billing-line-clearonfly"]');
 
-    equal(false, creme.billing.formsHaveErrors());
-    equal(1, brick.element().find('.hidden-form').length);
-    equal(false, addonflyLink.is('.forbidden'));
+    assert.equal(false, creme.billing.formsHaveErrors());
+    assert.equal(1, brick.element().find('.hidden-form').length);
+    assert.equal(false, addonflyLink.is('.forbidden'));
 
     addonflyLink.trigger('click');
 
-    equal(true, creme.billing.formsHaveErrors());
-    equal(0, brick.element().find('.hidden-form').length);
-    equal(true, addonflyLink.is('.forbidden'));
+    assert.equal(true, creme.billing.formsHaveErrors());
+    assert.equal(0, brick.element().find('.hidden-form').length);
+    assert.equal(true, addonflyLink.is('.forbidden'));
 
     clearonflyLink.trigger('click');
 
-    equal(false, creme.billing.formsHaveErrors());
-    equal(1, brick.element().find('.hidden-form').length);
-    equal(false, addonflyLink.is('.forbidden'));
+    assert.equal(false, creme.billing.formsHaveErrors());
+    assert.equal(1, brick.element().find('.hidden-form').length);
+    assert.equal(false, addonflyLink.is('.forbidden'));
 });
 
 QUnit.test('creme.billing.AddDocumentAction', function(assert) {
@@ -304,25 +304,25 @@ QUnit.test('creme.billing.AddDocumentAction', function(assert) {
 
     action.start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.submitFormDialog();
 
     this.assertClosedDialog();
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {}]
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -352,25 +352,25 @@ QUnit.test('creme.billing.AddDocumentAction (deps)', function(assert) {
 
     action.start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.submitFormDialog();
 
     this.assertClosedDialog();
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {}]
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test", "brick-for-test-B"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -389,24 +389,24 @@ QUnit.test('creme.billing.AddDocumentAction (cancel)', function(assert) {
 
     action.start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.closeDialog();
     this.assertClosedDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document', function(assert) {
@@ -444,24 +444,24 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document', function(
 
     $(widget.element).find('a.menu_button').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.submitFormDialog();
 
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {}]
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test", "my_app-test2", "my_app-related_modelA"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -490,24 +490,24 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document (with redir
     $(widget.element).find('a.menu_button').trigger('click');
 
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"redirection": "true"}]
     ], this.mockBackendUrlCalls(creationURL));
 
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
 
     this.submitFormDialog();
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"redirection": "true"}],
         ['POST', {
             "URI-SEARCH": {"redirection": "true"}
         }]
     ], this.mockBackendUrlCalls(creationURL));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
-    deepEqual([quoteURL], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([quoteURL], this.mockRedirectCalls());
 });
 
 }(jQuery));

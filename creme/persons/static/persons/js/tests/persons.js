@@ -53,14 +53,14 @@ QUnit.test('creme.persons.copyAddressInputs', function(assert) {
     form_left.find('[name="left-area"]').val('This is a test');
     form_right.find('[name="right-text"]').val('This is another test');
 
-    deepEqual({
+    assert.deepEqual({
         'left-select': ['2'],
         'left-text': [''],
         'left-area': ['This is a test'],
         'other-text': ['Left side']
     }, creme.ajax.serializeFormAsDict(form_left));
 
-    deepEqual({
+    assert.deepEqual({
         'right-select': ['1'],
         'right-text': ['This is another test'],
         'right-area': [''],
@@ -69,14 +69,14 @@ QUnit.test('creme.persons.copyAddressInputs', function(assert) {
 
     creme.persons.copyAddressInputs('left', 'right', form_left, form_right);
 
-    deepEqual({
+    assert.deepEqual({
         'left-select': ['2'],
         'left-text': [''],
         'left-area': ['This is a test'],
         'other-text': ['Left side']
     }, creme.ajax.serializeFormAsDict(form_left));
 
-    deepEqual({
+    assert.deepEqual({
         'right-select': ['2'],
         'right-text': [''],
         'right-area': ['This is a test'],
@@ -85,14 +85,14 @@ QUnit.test('creme.persons.copyAddressInputs', function(assert) {
 
     creme.persons.copyAddressInputs('other', 'right', form_left, form_right);
 
-    deepEqual({
+    assert.deepEqual({
         'left-select': ['2'],
         'left-text': [''],
         'left-area': ['This is a test'],
         'other-text': ['Left side']
     }, creme.ajax.serializeFormAsDict(form_left));
 
-    deepEqual({
+    assert.deepEqual({
         'right-select': ['2'],
         'right-text': ['Left side'],
         'right-area': ['This is a test'],
@@ -101,14 +101,14 @@ QUnit.test('creme.persons.copyAddressInputs', function(assert) {
 
     creme.persons.copyAddressInputs('other', 'left', form_right, form_left);
 
-    deepEqual({
+    assert.deepEqual({
         'left-select': ['2'],
         'left-text': ['Right side'],
         'left-area': ['This is a test'],
         'other-text': ['Left side']
     }, creme.ajax.serializeFormAsDict(form_left));
 
-    deepEqual({
+    assert.deepEqual({
         'right-select': ['2'],
         'right-text': ['Left side'],
         'right-area': ['This is a test'],
@@ -128,7 +128,7 @@ QUnit.test('creme.persons.copyAddressInputs (self copy)', function(assert) {
         ]
     })).appendTo(this.qunitFixture());
 
-    deepEqual({
+    assert.deepEqual({
         'left-select': ['1'],
         'left-text': ['This is a text'],
         'left-area': ['This is an area'],
@@ -138,7 +138,7 @@ QUnit.test('creme.persons.copyAddressInputs (self copy)', function(assert) {
 
     creme.persons.copyAddressInputs('left', 'other', form_left);
 
-    deepEqual({
+    assert.deepEqual({
         'left-select': ['1'],
         'left-text': ['This is a text'],
         'left-area': ['This is an area'],
