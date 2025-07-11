@@ -156,8 +156,8 @@ QUnit.module("creme.geolocation.neighborhood-brick", new QUnitMixin(QUnitEventMi
         var widget = creme.widget.create(element);
         var brick = widget.brick();
 
-        equal(true, brick.isBound());
-        equal(false, brick.isLoading());
+        this.assert.equal(true, brick.isBound());
+        this.assert.equal(false, brick.isLoading());
 
         return widget;
     },
@@ -181,39 +181,39 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (defaults)', [
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = self.controller;
 
-        deepEqual(canvas.get(), controller.canvas().get());
-        deepEqual(filter.get(), controller.filterSelector().get());
-        deepEqual(origin.get(), controller.originSelector().get());
+        assert.deepEqual(canvas.get(), controller.canvas().get());
+        assert.deepEqual(filter.get(), controller.filterSelector().get());
+        assert.deepEqual(origin.get(), controller.originSelector().get());
 
-        deepEqual(counter.get(), controller.counterItem().get());
+        assert.deepEqual(counter.get(), controller.counterItem().get());
 
-        equal(undefined, controller.neighboursUrl());
-        equal(null, controller.origin());
-        deepEqual([], controller.neighbours());
+        assert.equal(undefined, controller.neighboursUrl());
+        assert.equal(null, controller.origin());
+        assert.deepEqual([], controller.neighbours());
 
-        deepEqual(canvas.get(), controller.mapController().element().get());
+        assert.deepEqual(canvas.get(), controller.mapController().element().get());
 
-        equal(true, controller.mapController().isBound());
-        equal(true, controller.mapController().isEnabled());
-        equal(true, controller.mapController().isMapEnabled());
-        equal(true, controller.mapController().isGeocoderEnabled());
+        assert.equal(true, controller.mapController().isBound());
+        assert.equal(true, controller.mapController().isEnabled());
+        assert.equal(true, controller.mapController().isMapEnabled());
+        assert.equal(true, controller.mapController().isGeocoderEnabled());
 
         // google maps specific
         if (mapController instanceof creme.geolocation.GoogleMapController) {
-            equal(true, controller.mapController().isAPIReady());
-            equal(undefined, controller.mapController().options().apiKey);
+            assert.equal(true, controller.mapController().isAPIReady());
+            assert.equal(undefined, controller.mapController().options().apiKey);
         }
 
+        var done = assert.async();
+
         setTimeout(function() {
-            equal(null, brick.element().find('.brick-geoaddress-filter').val());
-            equal(gettext('None of'), brick.element().find('.brick-geoaddress-counter').text());
-            equal(0, controller.mapController().markers().length);
-            equal(0, controller.mapController().shapes().length);
+            assert.equal(null, brick.element().find('.brick-geoaddress-filter').val());
+            assert.equal(gettext('None of'), brick.element().find('.brick-geoaddress-counter').text());
+            assert.equal(0, controller.mapController().markers().length);
+            assert.equal(0, controller.mapController().shapes().length);
 
-            start();
+            done();
         }, 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
@@ -233,25 +233,25 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (no origin, no filt
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
 
-        equal('mock/neighbours', controller.neighboursUrl());
+        assert.equal('mock/neighbours', controller.neighboursUrl());
+
+        var done = assert.async();
 
         setTimeout(function() {
-            deepEqual([], this.mockBackendUrlCalls());
+            assert.deepEqual([], this.mockBackendUrlCalls());
 
-            equal(null, controller.filterSelector().val());
-            equal('', controller.originSelector().val());
+            assert.equal(null, controller.filterSelector().val());
+            assert.equal('', controller.originSelector().val());
 
-            equal(null, controller.origin());
-            deepEqual([], controller.neighbours());
+            assert.equal(null, controller.origin());
+            assert.deepEqual([], controller.neighbours());
 
-            equal(gettext('None of'), brick.element().find('.brick-geoaddress-counter').text());
-            equal(0, controller.mapController().markers().length);
-            equal(0, controller.mapController().shapes().length);
+            assert.equal(gettext('None of'), brick.element().find('.brick-geoaddress-counter').text());
+            assert.equal(0, controller.mapController().markers().length);
+            assert.equal(0, controller.mapController().shapes().length);
 
-            start();
+            done();
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
@@ -278,34 +278,33 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (no filter)', [
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
 
-        equal('mock/neighbours', controller.neighboursUrl());
+        assert.equal('mock/neighbours', controller.neighboursUrl());
+        var done = assert.async();
 
         setTimeout(function() {
-            deepEqual([
+            assert.deepEqual([
                 ['mock/neighbours', 'GET', {
                     address_id: 'Address_A',
                     filter_id: null
                 }]
             ], this.mockBackendUrlCalls());
 
-            equal(null, controller.filterSelector().val());
-            equal('Address_A', controller.originSelector().val());
+            assert.equal(null, controller.filterSelector().val());
+            assert.equal('Address_A', controller.originSelector().val());
 
-            deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
-            deepEqual([
+            assert.deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
+            assert.deepEqual([
                 new creme.geolocation.Location(addresses['Address_C']),
                 new creme.geolocation.Location(addresses['Address_D'])
             ], controller.neighbours());
 
-            equal(ngettext('%0$d of', '%0$d of', 2).format(2),
+            assert.equal(ngettext('%0$d of', '%0$d of', 2).format(2),
                   brick.element().find('.brick-geoaddress-counter').text());
-            equal(3, controller.mapController().markers().length);
-            equal(1, controller.mapController().shapes().length);
+            assert.equal(3, controller.mapController().markers().length);
+            assert.equal(1, controller.mapController().shapes().length);
 
-            start();
+            done();
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
@@ -338,35 +337,36 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (filter)', [
 
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
+        var done = assert.async();
 
-        equal('mock/neighbours', controller.neighboursUrl());
+        assert.equal('mock/neighbours', controller.neighboursUrl());
 
         setTimeout(function() {
-            deepEqual([
+            assert.deepEqual([
                 ['mock/neighbours', 'GET', {
                     address_id: 'Address_A',
                     filter_id: 'A1'
                 }]
             ], this.mockBackendUrlCalls());
 
-            equal('A1', controller.filterSelector().val());
-            equal('Address_A', controller.originSelector().val());
+            assert.equal('A1', controller.filterSelector().val());
+            assert.equal('Address_A', controller.originSelector().val());
 
-            deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
-            deepEqual([
+            assert.deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
+            assert.deepEqual([
                 new creme.geolocation.Location(addresses['Address_C']),
                 new creme.geolocation.Location(addresses['Address_D'])
             ], controller.neighbours());
 
-            equal(ngettext('%0$d of', '%0$d of', 2).format(2),
+            assert.equal(ngettext('%0$d of', '%0$d of', 2).format(2),
                   brick.element().find('.brick-geoaddress-counter').text());
-            equal(3, controller.mapController().markers().length);
-            equal(1, controller.mapController().shapes().length);
+            assert.equal(3, controller.mapController().markers().length);
+            assert.equal(1, controller.mapController().shapes().length);
 
             brick.element().find('.brick-geoaddress-filter').val('empty').trigger('change');
 
             setTimeout(function() {
-                deepEqual([
+                assert.deepEqual([
                     ['mock/neighbours', 'GET', {
                         address_id: 'Address_A',
                         filter_id: 'A1'
@@ -377,18 +377,16 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (filter)', [
                     }]
                 ], this.mockBackendUrlCalls());
 
-                deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
-                deepEqual([], controller.neighbours());
+                assert.deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
+                assert.deepEqual([], controller.neighbours());
 
-                equal(gettext('None of'), brick.element().find('.brick-geoaddress-counter').text());
-                equal(1, controller.mapController().markers().length);
-                equal(1, controller.mapController().shapes().length);
+                assert.equal(gettext('None of'), brick.element().find('.brick-geoaddress-counter').text());
+                assert.equal(1, controller.mapController().markers().length);
+                assert.equal(1, controller.mapController().shapes().length);
 
-                start();
+                done();
             }.bind(this), 0);
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
@@ -421,11 +419,12 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (origin change)', [
 
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
+        var done = assert.async();
 
-        equal('mock/neighbours', controller.neighboursUrl());
+        assert.equal('mock/neighbours', controller.neighboursUrl());
 
         setTimeout(function() {
-            deepEqual([
+            assert.deepEqual([
                 ['mock/neighbours', 'GET', {
                     address_id: 'Address_A',
                     filter_id: 'A1'
@@ -442,7 +441,7 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (origin change)', [
             brick.element().find('.brick-geoaddress-origin').val('Address_B').trigger('change');
 
             setTimeout(function() {
-                deepEqual([
+                assert.deepEqual([
                     ['mock/neighbours', 'GET', {
                         address_id: 'Address_A',
                         filter_id: 'A1'
@@ -453,18 +452,18 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (origin change)', [
                     }]
                 ], this.mockBackendUrlCalls());
 
-                equal('A1', controller.filterSelector().val());
-                equal('Address_B', controller.originSelector().val());
+                assert.equal('A1', controller.filterSelector().val());
+                assert.equal('Address_B', controller.originSelector().val());
 
-                deepEqual(new creme.geolocation.Location(addresses['Address_B']), controller.origin());
-                deepEqual([
+                assert.deepEqual(new creme.geolocation.Location(addresses['Address_B']), controller.origin());
+                assert.deepEqual([
                     new creme.geolocation.Location(addresses['Address_C'])
                 ], controller.neighbours());
 
-                equal(ngettext('%0$d of', '%0$d of', 1).format(1),
+                assert.equal(ngettext('%0$d of', '%0$d of', 1).format(1),
                       brick.element().find('.brick-geoaddress-counter').text());
-                equal(2, controller.mapController().markers().length);
-                equal(1, controller.mapController().shapes().length);
+                assert.equal(2, controller.mapController().markers().length);
+                assert.equal(1, controller.mapController().shapes().length);
 
                 this.assertCircleShape(controller.mapController().shapes()[0], {
                     visible: true,
@@ -472,12 +471,9 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (origin change)', [
                     position: {lat: 43.0, lng: 5.5},
                     id: 'NeighbourhoodCircle'
                 });
-
-                start();
+                done();
             }.bind(this), 0);
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
@@ -509,32 +505,33 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (origin move)', [
 
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
+        var done = assert.async();
 
-        equal('mock/neighbours', controller.neighboursUrl());
+        assert.equal('mock/neighbours', controller.neighboursUrl());
 
         setTimeout(function() {
-            deepEqual([
+            assert.deepEqual([
                 ['mock/neighbours', 'GET', {
                     address_id: 'Address_A',
                     filter_id: 'A1'
                 }]
             ], this.mockBackendUrlCalls());
 
-            equal('A1', controller.filterSelector().val());
-            equal('Address_A', controller.originSelector().val());
+            assert.equal('A1', controller.filterSelector().val());
+            assert.equal('Address_A', controller.originSelector().val());
 
-            deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
-            deepEqual([
+            assert.deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
+            assert.deepEqual([
                 new creme.geolocation.Location(addresses['Address_C']),
                 new creme.geolocation.Location(addresses['Address_D'])
             ], controller.neighbours());
 
-            equal(ngettext('%0$d of', '%0$d of', 2).format(2),
+            assert.equal(ngettext('%0$d of', '%0$d of', 2).format(2),
                   brick.element().find('.brick-geoaddress-counter').text());
-            equal(3, controller.mapController().markers().length);
-            equal(1, controller.mapController().shapes().length);
+            assert.equal(3, controller.mapController().markers().length);
+            assert.equal(1, controller.mapController().shapes().length);
 
-            equal(true, brick.element().is('.geolocation-brick'));
+            assert.equal(true, brick.element().is('.geolocation-brick'));
 
             // Update the origin Address_A & trigger the save event
             $.extend(addresses['Address_A'], {
@@ -547,7 +544,7 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (origin move)', [
             this.fakeBrickLocationSave(controller, newAddress_A);
 
             setTimeout(function() {
-                deepEqual([
+                assert.deepEqual([
                     ['mock/neighbours', 'GET', {
                         address_id: 'Address_A',
                         filter_id: 'A1'
@@ -559,25 +556,23 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (origin move)', [
                     }]
                 ], this.mockBackendUrlCalls());
 
-                equal('A1', controller.filterSelector().val());
-                equal('Address_A', controller.originSelector().val());
+                assert.equal('A1', controller.filterSelector().val());
+                assert.equal('Address_A', controller.originSelector().val());
 
-                deepEqual(newAddress_A, controller.origin());
-                deepEqual([
+                assert.deepEqual(newAddress_A, controller.origin());
+                assert.deepEqual([
                     new creme.geolocation.Location(addresses['Address_C']),
                     new creme.geolocation.Location(addresses['Address_D'])
                 ], controller.neighbours());
 
-                equal(ngettext('%0$d of', '%0$d of', 2).format(2),
+                assert.equal(ngettext('%0$d of', '%0$d of', 2).format(2),
                       brick.element().find('.brick-geoaddress-counter').text());
-                equal(3, controller.mapController().markers().length);
-                equal(1, controller.mapController().shapes().length);
+                assert.equal(3, controller.mapController().markers().length);
+                assert.equal(1, controller.mapController().shapes().length);
 
-                start();
+                done();
             }.bind(this), 0);
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
@@ -609,27 +604,28 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (neighbour move)', 
 
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
+        var done = assert.async();
 
-        equal('mock/neighbours', controller.neighboursUrl());
+        assert.equal('mock/neighbours', controller.neighboursUrl());
 
         setTimeout(function() {
-            equal('A1', controller.filterSelector().val());
-            equal('Address_A', controller.originSelector().val());
+            assert.equal('A1', controller.filterSelector().val());
+            assert.equal('Address_A', controller.originSelector().val());
 
-            deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
-            deepEqual([
+            assert.deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
+            assert.deepEqual([
                 new creme.geolocation.Location(addresses['Address_C']),
                 new creme.geolocation.Location(addresses['Address_D'])
             ], controller.neighbours());
 
-            equal(ngettext('%0$d of', '%0$d of', 2).format(2),
+            assert.equal(ngettext('%0$d of', '%0$d of', 2).format(2),
                   brick.element().find('.brick-geoaddress-counter').text());
-            equal(3, controller.mapController().markers().length);
-            equal(1, controller.mapController().shapes().length);
+            assert.equal(3, controller.mapController().markers().length);
+            assert.equal(1, controller.mapController().shapes().length);
 
-            equal(true, brick.element().is('.geolocation-brick'));
+            assert.equal(true, brick.element().is('.geolocation-brick'));
 
-            deepEqual([
+            assert.deepEqual([
                 ['mock/neighbours', 'GET', {
                     address_id: 'Address_A',
                     filter_id: 'A1'
@@ -647,7 +643,7 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (neighbour move)', 
             this.fakeBrickLocationSave(controller, newAddress_C);
 
             setTimeout(function() {
-                deepEqual([
+                assert.deepEqual([
                     ['mock/neighbours', 'GET', {
                         address_id: 'Address_A',
                         filter_id: 'A1'
@@ -659,25 +655,23 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (neighbour move)', 
                     }]
                 ], this.mockBackendUrlCalls());
 
-                equal('A1', controller.filterSelector().val());
-                equal('Address_A', controller.originSelector().val());
+                assert.equal('A1', controller.filterSelector().val());
+                assert.equal('Address_A', controller.originSelector().val());
 
-                deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
-                deepEqual([
+                assert.deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
+                assert.deepEqual([
                     newAddress_C,
                     new creme.geolocation.Location(addresses['Address_D'])
                 ], controller.neighbours());
 
-                equal(ngettext('%0$d of', '%0$d of', 2).format(2),
+                assert.equal(ngettext('%0$d of', '%0$d of', 2).format(2),
                       brick.element().find('.brick-geoaddress-counter').text());
-                equal(3, controller.mapController().markers().length);
-                equal(1, controller.mapController().shapes().length);
+                assert.equal(3, controller.mapController().markers().length);
+                assert.equal(1, controller.mapController().shapes().length);
 
-                start();
+                done();
             }.bind(this), 0);
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
@@ -709,26 +703,27 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (click neighbour, r
 
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
+        var done = assert.async();
 
         controller.mapController().on('marker-click', this.mockListener('marker-click'));
 
-        equal('mock/neighbours', controller.neighboursUrl());
+        assert.equal('mock/neighbours', controller.neighboursUrl());
 
         setTimeout(function() {
-            deepEqual([
+            assert.deepEqual([
                 ['mock/neighbours', 'GET', {
                     address_id: 'Address_A',
                     filter_id: 'A1'
                 }]
             ], this.mockBackendUrlCalls());
-            deepEqual([], this.mockRedirectCalls());
-            deepEqual([], this.mockListenerCalls('marker-click'));
+            assert.deepEqual([], this.mockRedirectCalls());
+            assert.deepEqual([], this.mockListenerCalls('marker-click'));
 
-            equal('A1', controller.filterSelector().val());
-            equal('Address_A', controller.originSelector().val());
+            assert.equal('A1', controller.filterSelector().val());
+            assert.equal('Address_A', controller.originSelector().val());
 
-            deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
-            deepEqual([
+            assert.deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
+            assert.deepEqual([
                 new creme.geolocation.Location(addresses['Address_C']),
                 new creme.geolocation.Location(addresses['Address_D'])
             ], controller.neighbours());
@@ -736,10 +731,10 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (click neighbour, r
             this.triggerMarkerClick(controller.mapController().getMarker('Address_C'));
 
             setTimeout(function() {
-                deepEqual([
+                assert.deepEqual([
                     'mock/address/Address_C'
                 ], this.mockRedirectCalls());
-                deepEqual([
+                assert.deepEqual([
                     ['marker-click', {
                         id: 'Address_C',
                         extraData: {}
@@ -748,11 +743,9 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (click neighbour, r
                     return [e[0], e[1]];
                 }));
 
-                start();
+                done();
             }.bind(this), 0);
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
@@ -784,26 +777,27 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (google, click orig
 
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
+        var done = assert.async();
 
         controller.mapController().on('marker-click', this.mockListener('marker-click'));
 
-        equal('mock/neighbours', controller.neighboursUrl());
+        assert.equal('mock/neighbours', controller.neighboursUrl());
 
         setTimeout(function() {
-            deepEqual([
+            assert.deepEqual([
                 ['mock/neighbours', 'GET', {
                     address_id: 'Address_A',
                     filter_id: 'A1'
                 }]
             ], this.mockBackendUrlCalls());
-            deepEqual([], this.mockRedirectCalls());
-            deepEqual([], this.mockListenerCalls('marker-click'));
+            assert.deepEqual([], this.mockRedirectCalls());
+            assert.deepEqual([], this.mockListenerCalls('marker-click'));
 
-            equal('A1', controller.filterSelector().val());
-            equal('Address_A', controller.originSelector().val());
+            assert.equal('A1', controller.filterSelector().val());
+            assert.equal('Address_A', controller.originSelector().val());
 
-            deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
-            deepEqual([
+            assert.deepEqual(new creme.geolocation.Location(addresses['Address_A']), controller.origin());
+            assert.deepEqual([
                 new creme.geolocation.Location(addresses['Address_C']),
                 new creme.geolocation.Location(addresses['Address_D'])
             ], controller.neighbours());
@@ -811,8 +805,8 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (google, click orig
             this.triggerMarkerClick(controller.mapController().getMarker('Address_A'));
 
             setTimeout(function() {
-                deepEqual([], this.mockRedirectCalls());
-                deepEqual([
+                assert.deepEqual([], this.mockRedirectCalls());
+                assert.deepEqual([
                     ['marker-click', {
                         id: 'Address_A',
                         extraData: {}
@@ -821,11 +815,9 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (google, click orig
                     return [e[0], e[1]];
                 }));
 
-                start();
+                done();
             }.bind(this), 0);
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
@@ -844,31 +836,31 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (google, collapse s
     var canvas = brick.element().find('.brick-geoaddress-canvas');
 
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
+        var done = assert.async();
+
         setTimeout(function() {
             this.autoResizeFaker.reset();
             this.adjustMapToShapeFaker.reset();
 
-            equal(0, this.autoResizeFaker.count());
-            equal(0, this.adjustMapToShapeFaker.count());
+            assert.equal(0, this.autoResizeFaker.count());
+            assert.equal(0, this.adjustMapToShapeFaker.count());
 
             brick.setState({
                 collapsed: true
             });
 
-            equal(0, this.autoResizeFaker.count());
-            equal(0, this.adjustMapToShapeFaker.count());
+            assert.equal(0, this.autoResizeFaker.count());
+            assert.equal(0, this.adjustMapToShapeFaker.count());
 
             brick.setState({
                 collapsed: false
             });
 
-            equal(1, this.autoResizeFaker.count());
-            equal(1, this.adjustMapToShapeFaker.count());
+            assert.equal(1, this.autoResizeFaker.count());
+            assert.equal(1, this.adjustMapToShapeFaker.count());
 
-            start();
+            done();
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {

@@ -7,25 +7,25 @@ QUnit.module("creme.D3Chart", new QUnitMixin(QUnitSketchMixin));
 QUnit.test('creme.D3Chart', function(assert) {
     var chart = new creme.D3Chart();
 
-    equal(undefined, chart.model());
-    equal(undefined, chart.sketch());
-    equal(false, chart.hasCanvas());
-    deepEqual({drawOnResize: true}, chart.props());
-    deepEqual({}, chart.exportProps());
-    equal("g { font: 10px sans-serif; }", chart.exportStyle());
+    assert.equal(undefined, chart.model());
+    assert.equal(undefined, chart.sketch());
+    assert.equal(false, chart.hasCanvas());
+    assert.deepEqual({drawOnResize: true}, chart.props());
+    assert.deepEqual({}, chart.exportProps());
+    assert.equal("g { font: 10px sans-serif; }", chart.exportStyle());
 });
 
 QUnit.test('creme.D3Chart.sketch', function(assert) {
     var sketch = new creme.D3Sketch();
     var chart = new creme.D3Chart();
 
-    equal(undefined, chart.sketch());
-    equal(false, chart.hasCanvas());
+    assert.equal(undefined, chart.sketch());
+    assert.equal(false, chart.hasCanvas());
 
     chart.sketch(sketch);
 
-    deepEqual(sketch, chart.sketch());
-    equal(true, chart.hasCanvas());
+    assert.deepEqual(sketch, chart.sketch());
+    assert.equal(true, chart.hasCanvas());
 });
 
 QUnit.test('creme.D3Chart.sketch (replace)', function(assert) {
@@ -34,18 +34,18 @@ QUnit.test('creme.D3Chart.sketch (replace)', function(assert) {
 
     chart.sketch(sketch);
 
-    deepEqual(sketch, chart.sketch());
-    equal(true, chart.hasCanvas());
+    assert.deepEqual(sketch, chart.sketch());
+    assert.equal(true, chart.hasCanvas());
 
     var sketch2 = new creme.D3Sketch();
     chart.sketch(sketch2);
 
-    deepEqual(sketch2, chart.sketch());
-    equal(true, chart.hasCanvas());
+    assert.deepEqual(sketch2, chart.sketch());
+    assert.equal(true, chart.hasCanvas());
 });
 
 QUnit.parametrize('creme.D3Chart.sketch (invalid)', [
-    null, [], new creme.D3Chart(), 'invalid', {}
+    [null], [[]], new creme.D3Chart(), 'invalid', {}
 ], function(sketch, assert) {
     var chart = new creme.D3Chart();
 
@@ -53,7 +53,7 @@ QUnit.parametrize('creme.D3Chart.sketch (invalid)', [
         chart.sketch(sketch);
     }, Error, 'Error: ${sketch} is not a creme.D3Sketch'.template({sketch: sketch}));
 
-    equal(false, chart.hasCanvas());
+    assert.equal(false, chart.hasCanvas());
 });
 
 QUnit.parametrize('creme.D3Chart.model', [
@@ -65,12 +65,12 @@ QUnit.parametrize('creme.D3Chart.model', [
 
     chart.model(model);
 
-    ok(chart.model() instanceof creme.model.Array);
-    deepEqual(expected, chart.model().all());
+    assert.ok(chart.model() instanceof creme.model.Array);
+    assert.deepEqual(expected, chart.model().all());
 });
 
 QUnit.parametrize('creme.D3Chart.model (invalid)', [
-    null, [], new creme.D3Chart(), 'invalid', {}
+    [null], new creme.D3Chart(), 'invalid', {}
 ], function(model, assert) {
     var chart = new creme.D3Chart();
 
@@ -78,7 +78,7 @@ QUnit.parametrize('creme.D3Chart.model (invalid)', [
         chart.model(model);
     }, Error, 'Error: ${model} is not a valid data model'.template({model: model}));
 
-    equal(undefined, chart.model());
+    assert.equal(undefined, chart.model());
 });
 
 QUnit.test('creme.D3Chart.sketch (replace)', function(assert) {
@@ -88,11 +88,11 @@ QUnit.test('creme.D3Chart.sketch (replace)', function(assert) {
 
     chart.model(model);
 
-    deepEqual(model, chart.model());
+    assert.deepEqual(model, chart.model());
 
     chart.model(model2);
 
-    deepEqual(model2, chart.model());
+    assert.deepEqual(model2, chart.model());
 });
 
 QUnit.test('creme.D3Chart.draw (no sketch)', function(assert) {
@@ -126,11 +126,11 @@ QUnit.test('creme.D3Chart.draw (empty)', function(assert) {
     var sketch = new creme.D3Sketch().bind($('<div>'));
     var chart = new FakeD3Chart().sketch(sketch);
 
-    equal(0, sketch.svg().select('rect').size());
+    assert.equal(0, sketch.svg().select('rect').size());
 
     chart.draw();
 
-    equal(0, sketch.svg().select('rect').size());
+    assert.equal(0, sketch.svg().select('rect').size());
 });
 
 QUnit.test('creme.D3Chart.draw (array)', function(assert) {
@@ -163,12 +163,12 @@ QUnit.parametrize('creme.D3Chart.props.drawOnResize', [
 
     element.css({width: 12, height: 12}).trigger('resize');
 
+    var done = assert.async();
+
     setTimeout(function() {
         this.equalHtml(expected, sketch.svg().node());
-        start();
+        done();
     }.bind(this), 300);
-
-    stop(1);
 });
 
 QUnit.test('creme.D3Chart.saveAs', function(assert) {
@@ -187,13 +187,13 @@ QUnit.test('creme.D3Chart.saveAs', function(assert) {
 
     chart.model([{color: 'red'}, {color: 'blue'}]);
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
         withFakeMethod({instance: FileSaver, method: 'saveAs'}, function(faker) {
             chart.saveAs(function() {
-                deepEqual(faker.calls(), [[expectedBlob, 'my-test.svg']]);
-                start();
+                assert.deepEqual(faker.calls(), [[expectedBlob, 'my-test.svg']]);
+                done();
             }, 'my-test.svg', {width: 300, height: 200});
         });
     });
@@ -210,14 +210,14 @@ QUnit.test('creme.D3Chart.asImage', function(assert) {
 
     chart.model([{color: 'red'}, {color: 'blue'}]);
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
         chart.asImage(function(image) {
-            equal(image.width, 300);
-            equal(image.height, 200);
-            equal(image.src, expectedURI);
-            start();
+            assert.equal(image.width, 300);
+            assert.equal(image.height, 200);
+            assert.equal(image.src, expectedURI);
+            done();
         }, {width: 300, height: 200});
     });
 });
@@ -228,12 +228,12 @@ QUnit.test('creme.D3Chart.model (append)', function(assert) {
 
     chart.draw();
 
-    deepEqual(['red'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
+    assert.deepEqual(['red'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
 
     chart.model().append({color: 'blue'});
 
-    deepEqual([{color: 'red'}, {color: 'blue'}], chart.model().all());
-    deepEqual(['red', 'blue'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
+    assert.deepEqual([{color: 'red'}, {color: 'blue'}], chart.model().all());
+    assert.deepEqual(['red', 'blue'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
 });
 
 QUnit.test('creme.D3Chart.model (reset)', function(assert) {
@@ -242,16 +242,16 @@ QUnit.test('creme.D3Chart.model (reset)', function(assert) {
 
     chart.draw();
 
-    deepEqual(['red'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
+    assert.deepEqual(['red'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
 
     chart.model().reset([{color: 'rgb(0, 128, 64)'}]);
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
-        deepEqual([{color: 'rgb(0, 128, 64)'}], chart.model().all());
-        deepEqual(['rgb(0, 128, 64)'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
-        start();
+        assert.deepEqual([{color: 'rgb(0, 128, 64)'}], chart.model().all());
+        assert.deepEqual(['rgb(0, 128, 64)'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
+        done();
     }.bind(this), 50);
 });
 
@@ -261,16 +261,16 @@ QUnit.test('creme.D3Chart.model (update)', function(assert) {
 
     chart.draw();
 
-    deepEqual(['red'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
+    assert.deepEqual(['red'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
 
     chart.model().set({color: 'rgb(64, 128, 64)'}, 0);
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
-        deepEqual([{color: 'rgb(64, 128, 64)'}], chart.model().all());
-        deepEqual(['rgb(64, 128, 64)'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
-        start();
+        assert.deepEqual([{color: 'rgb(64, 128, 64)'}], chart.model().all());
+        assert.deepEqual(['rgb(64, 128, 64)'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
+        done();
     }.bind(this), 50);
 });
 
@@ -280,12 +280,12 @@ QUnit.test('creme.D3Chart.model (remove)', function(assert) {
 
     chart.draw();
 
-    deepEqual(['red'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
+    assert.deepEqual(['red'], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
 
     chart.model().pop(0);
 
-    deepEqual([], chart.model().all());
-    deepEqual([], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
+    assert.deepEqual([], chart.model().all());
+    assert.deepEqual([], this.mapD3Attr('fill', sketch.svg().selectAll('rect')));
 });
 
 }(jQuery));

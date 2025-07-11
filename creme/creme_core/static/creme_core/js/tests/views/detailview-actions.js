@@ -46,7 +46,7 @@ QUnit.module("creme.detailview.brick.actions", new QUnitMixin(QUnitEventMixin,
 QUnit.test('creme.detailview.brick.detailview-merge (empty selector)', function(assert) {
     var brick = this.createHatBarBrick().brick();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     brick.action('creme_core-detailview-merge', 'mock/merge', {}, {
@@ -54,14 +54,14 @@ QUnit.test('creme.detailview.brick.detailview-merge (empty selector)', function(
         selection_url: '/mock/merge/selection'
     }).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
     var dialog = this.assertOpenedDialog();
     var list = dialog.find('.ui-creme-listview').list_view('instance');
 
-    deepEqual([], list.selectedRows());
+    assert.deepEqual([], list.selectedRows());
 
     this.validateListViewSelectionDialog(dialog);
 
@@ -74,7 +74,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (empty selector)', function(
 
     this.closeDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/merge/selection', 'GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls());
 });
@@ -82,7 +82,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (empty selector)', function(
 QUnit.test('creme.detailview.brick.detailview-merge (multiple selections)', function(assert) {
     var brick = this.createHatBarBrick().brick();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     brick.action('creme_core-detailview-merge', '/mock/merge', {}, {
@@ -90,7 +90,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (multiple selections)', func
         selection_url: '/mock/merge/selection'
     }).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
@@ -99,8 +99,8 @@ QUnit.test('creme.detailview.brick.detailview-merge (multiple selections)', func
 
     this.setListviewSelection(list, ['2', '3']);
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['2', '3'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['2', '3'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
 
@@ -113,7 +113,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (multiple selections)', func
 
     this.closeDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/merge/selection', 'GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls());
 });
@@ -121,7 +121,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (multiple selections)', func
 QUnit.test('creme.detailview.brick.detailview-merge (single selection)', function(assert) {
     var brick = this.createHatBarBrick().brick();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     brick.action('creme_core-detailview-merge', '/mock/merge', {}, {
@@ -129,7 +129,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (single selection)', functio
         selection_url: '/mock/merge/selection'
     }).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
@@ -138,13 +138,13 @@ QUnit.test('creme.detailview.brick.detailview-merge (single selection)', functio
 
     this.setListviewSelection(list, ['2']);
 
-    equal(1, list.selectedRowsCount());
-    deepEqual(['2'], list.selectedRows());
+    assert.equal(1, list.selectedRowsCount());
+    assert.deepEqual(['2'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         '/mock/merge?id1=157&id2=2'
     ], this.mockRedirectCalls());
 });
@@ -152,7 +152,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (single selection)', functio
 QUnit.test('creme.detailview.brick.detailview-merge (cancel)', function(assert) {
     var brick = this.createHatBarBrick().brick();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     brick.action('creme_core-detailview-merge', 'mock/merge', {}, {
@@ -160,7 +160,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (cancel)', function(assert) 
         selection_url: '/mock/merge/selection'
     }).on('cancel', this.mockListener('cancel')).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
@@ -168,14 +168,14 @@ QUnit.test('creme.detailview.brick.detailview-merge (cancel)', function(assert) 
     this.findDialogButtonsByLabel(gettext('Cancel'), dialog).trigger('click');
     this.assertClosedDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('cancel'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([['cancel']], this.mockListenerCalls('cancel'));
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.detailview.brick.detailview-merge (fail)', function(assert) {
     var brick = this.createHatBarBrick().brick();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     brick.action('creme_core-detailview-merge', 'mock/merge/fail', {}, {
@@ -183,18 +183,18 @@ QUnit.test('creme.detailview.brick.detailview-merge (fail)', function(assert) {
         selection_url: '/mock/merge/selection/fail'
     }).on('cancel', this.mockListener('cancel')).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/merge/selection/fail'));
 
     var dialog = this.assertOpenedDialog();
-    equal(0, dialog.find('.ui-creme.listview').length);
+    assert.equal(0, dialog.find('.ui-creme.listview').length);
 
     this.closeDialog();
     this.assertClosedDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('cancel'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([['cancel']], this.mockListenerCalls('cancel'));
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.detailview.brick.detailview-clone', function(assert) {
@@ -203,8 +203,8 @@ QUnit.test('creme.detailview.brick.detailview-clone', function(assert) {
     brick.action('creme_core-detailview-clone', 'mock/clone').start();
     this.assertClosedDialog();
 
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/clone'));
-    deepEqual(['mock/clone-redir'], this.mockRedirectCalls());
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/clone'));
+    assert.deepEqual(['mock/clone-redir'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.detailview.brick.detailview-delete', function(assert) {
@@ -213,8 +213,8 @@ QUnit.test('creme.detailview.brick.detailview-delete', function(assert) {
     brick.action('creme_core-detailview-delete', 'mock/delete').start();
     this.assertClosedDialog();
 
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/delete'));
-    deepEqual(['mock/trash'], this.mockRedirectCalls());
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/delete'));
+    assert.deepEqual(['mock/trash'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.detailview.brick.detailview-restore', function(assert) {
@@ -223,8 +223,8 @@ QUnit.test('creme.detailview.brick.detailview-restore', function(assert) {
     brick.action('creme_core-detailview-restore', 'mock/restore').start();
     this.assertClosedDialog();
 
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/restore'));
-    deepEqual(['mock/restore-redir'], this.mockRedirectCalls());
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/restore'));
+    assert.deepEqual(['mock/restore-redir'], this.mockRedirectCalls());
 });
 
 }(jQuery));

@@ -7,166 +7,166 @@ QUnit.module("creme.billing", new QUnitMixin(QUnitEventMixin,
 }));
 
 QUnit.test('creme.billing.checkPositiveDecimal', function(assert) {
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("")));
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("text")));
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("true")));
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("false")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("text")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("true")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("false")));
 
-    equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("0")));
-    equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("1")));
-    equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("123")));
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-0")));
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-123")));
+    assert.equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("0")));
+    assert.equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("1")));
+    assert.equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("123")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-0")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-123")));
 
-    equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("0.0")));
-    equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("0.1")));
-    equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("0.12")));
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("0.123")));
-    equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("123.4")));
-    equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("123.45")));
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("123.456")));
+    assert.equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("0.0")));
+    assert.equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("0.1")));
+    assert.equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("0.12")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("0.123")));
+    assert.equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("123.4")));
+    assert.equal(true, creme.billing.checkPositiveDecimal($('<input type="text">').val("123.45")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("123.456")));
 
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-0.0")));
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-0.1")));
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-0.12")));
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-0.123")));
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-123.4")));
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-123.45")));
-    equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-123.456")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-0.0")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-0.1")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-0.12")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-0.123")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-123.4")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-123.45")));
+    assert.equal(false, creme.billing.checkPositiveDecimal($('<input type="text">').val("-123.456")));
 });
 
 QUnit.test('creme.billing.checkPositiveInteger', function(assert) {
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("text")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("true")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("false")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("text")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("true")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("false")));
 
-    equal(true, creme.billing.checkPositiveInteger($('<input type="text">').val("0")));
-    equal(true, creme.billing.checkPositiveInteger($('<input type="text">').val("1")));
-    equal(true, creme.billing.checkPositiveInteger($('<input type="text">').val("123")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-0")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-123")));
+    assert.equal(true, creme.billing.checkPositiveInteger($('<input type="text">').val("0")));
+    assert.equal(true, creme.billing.checkPositiveInteger($('<input type="text">').val("1")));
+    assert.equal(true, creme.billing.checkPositiveInteger($('<input type="text">').val("123")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-0")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-123")));
 
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("0.0")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("0.1")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("0.12")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("0.123")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("123.4")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("123.45")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("123.456")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("0.0")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("0.1")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("0.12")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("0.123")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("123.4")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("123.45")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("123.456")));
 
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-0.0")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-0.1")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-0.12")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-0.123")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-123.4")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-123.45")));
-    equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-123.456")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-0.0")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-0.1")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-0.12")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-0.123")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-123.4")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-123.45")));
+    assert.equal(false, creme.billing.checkPositiveInteger($('<input type="text">').val("-123.456")));
 });
 
 QUnit.test('creme.billing.checkDecimal', function(assert) {
-    equal(false, creme.billing.checkDecimal($('<input type="text">').val("")));
-    equal(false, creme.billing.checkDecimal($('<input type="text">').val("text")));
-    equal(false, creme.billing.checkDecimal($('<input type="text">').val("true")));
-    equal(false, creme.billing.checkDecimal($('<input type="text">').val("false")));
+    assert.equal(false, creme.billing.checkDecimal($('<input type="text">').val("")));
+    assert.equal(false, creme.billing.checkDecimal($('<input type="text">').val("text")));
+    assert.equal(false, creme.billing.checkDecimal($('<input type="text">').val("true")));
+    assert.equal(false, creme.billing.checkDecimal($('<input type="text">').val("false")));
 
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("0")));
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("1")));
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("123")));
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("-0")));
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("-123")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("0")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("1")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("123")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("-0")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("-123")));
 
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("0.0")));
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("0.1")));
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("0.12")));
-    equal(false, creme.billing.checkDecimal($('<input type="text">').val("0.123")));
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("123.4")));
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("123.45")));
-    equal(false, creme.billing.checkDecimal($('<input type="text">').val("123.456")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("0.0")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("0.1")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("0.12")));
+    assert.equal(false, creme.billing.checkDecimal($('<input type="text">').val("0.123")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("123.4")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("123.45")));
+    assert.equal(false, creme.billing.checkDecimal($('<input type="text">').val("123.456")));
 
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("-0.0")));
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("-0.1")));
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("-0.12")));
-    equal(false, creme.billing.checkDecimal($('<input type="text">').val("-0.123")));
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("-123.4")));
-    equal(true, creme.billing.checkDecimal($('<input type="text">').val("-123.45")));
-    equal(false, creme.billing.checkDecimal($('<input type="text">').val("-123.456")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("-0.0")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("-0.1")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("-0.12")));
+    assert.equal(false, creme.billing.checkDecimal($('<input type="text">').val("-0.123")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("-123.4")));
+    assert.equal(true, creme.billing.checkDecimal($('<input type="text">').val("-123.45")));
+    assert.equal(false, creme.billing.checkDecimal($('<input type="text">').val("-123.456")));
 });
 
 QUnit.test('creme.billing.checkPercent', function(assert) {
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("text")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("true")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("false")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("text")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("true")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("false")));
 
-    equal(true, creme.billing.checkPercent($('<input type="text">').val("0")));
-    equal(true, creme.billing.checkPercent($('<input type="text">').val("1")));
-    equal(true, creme.billing.checkPercent($('<input type="text">').val("100")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("123")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("-0")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("-123")));
+    assert.equal(true, creme.billing.checkPercent($('<input type="text">').val("0")));
+    assert.equal(true, creme.billing.checkPercent($('<input type="text">').val("1")));
+    assert.equal(true, creme.billing.checkPercent($('<input type="text">').val("100")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("123")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("-0")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("-123")));
 
-    equal(true, creme.billing.checkPercent($('<input type="text">').val("0.0")));
-    equal(true, creme.billing.checkPercent($('<input type="text">').val("0.1")));
-    equal(true, creme.billing.checkPercent($('<input type="text">').val("0.12")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("0.123")));
+    assert.equal(true, creme.billing.checkPercent($('<input type="text">').val("0.0")));
+    assert.equal(true, creme.billing.checkPercent($('<input type="text">').val("0.1")));
+    assert.equal(true, creme.billing.checkPercent($('<input type="text">').val("0.12")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("0.123")));
 
-    equal(true, creme.billing.checkPercent($('<input type="text">').val("100.0")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("100.01")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("100.1")));
+    assert.equal(true, creme.billing.checkPercent($('<input type="text">').val("100.0")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("100.01")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("100.1")));
 
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("123.4")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("123.45")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("123.456")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("123.4")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("123.45")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("123.456")));
 
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("-0.0")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("-0.1")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("-0.12")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("-0.123")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("-123.4")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("-123.45")));
-    equal(false, creme.billing.checkPercent($('<input type="text">').val("-123.456")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("-0.0")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("-0.1")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("-0.12")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("-0.123")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("-123.4")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("-123.45")));
+    assert.equal(false, creme.billing.checkPercent($('<input type="text">').val("-123.456")));
 });
 
 QUnit.test('creme.billing.checkValue', function(assert) {
-    equal(false, creme.billing.checkValue($('<input type="text">').val("")));
-    equal(true, creme.billing.checkValue($('<input type="text">').val("text")));
-    equal(true, creme.billing.checkValue($('<input type="text">').val("true")));
-    equal(true, creme.billing.checkValue($('<input type="text">').val("false"))); // WTF ?
+    assert.equal(false, creme.billing.checkValue($('<input type="text">').val("")));
+    assert.equal(true, creme.billing.checkValue($('<input type="text">').val("text")));
+    assert.equal(true, creme.billing.checkValue($('<input type="text">').val("true")));
+    assert.equal(true, creme.billing.checkValue($('<input type="text">').val("false"))); // WTF ?
 
-    equal(true, creme.billing.checkValue($('<input type="text">').val("0"))); // WTF ?
-    equal(true, creme.billing.checkValue($('<input type="text">').val("1")));
-    equal(true, creme.billing.checkValue($('<input type="text">').val("123")));
-    equal(true, creme.billing.checkValue($('<input type="text">').val("-0")));
-    equal(true, creme.billing.checkValue($('<input type="text">').val("-123")));
+    assert.equal(true, creme.billing.checkValue($('<input type="text">').val("0"))); // WTF ?
+    assert.equal(true, creme.billing.checkValue($('<input type="text">').val("1")));
+    assert.equal(true, creme.billing.checkValue($('<input type="text">').val("123")));
+    assert.equal(true, creme.billing.checkValue($('<input type="text">').val("-0")));
+    assert.equal(true, creme.billing.checkValue($('<input type="text">').val("-123")));
 });
 
 QUnit.test('creme.billing.validateInput', function(assert) {
-    equal(true, creme.billing.validateInput($('<input type="text" />')));
-    equal(true, creme.billing.validateInput($('<input validator="unknown" />')));
+    assert.equal(true, creme.billing.validateInput($('<input type="text" />')));
+    assert.equal(true, creme.billing.validateInput($('<input validator="unknown" />')));
 
-    equal(false, creme.billing.validateInput($('<input validator="PositiveDecimal" />')));
-    equal(false, creme.billing.validateInput($('<input validator="PositiveDecimal" value="-1.5" />')));
-    equal(true, creme.billing.validateInput($('<input validator="PositiveDecimal" value="1.5" />')));
-    equal(true, creme.billing.validateInput($('<input validator="PositiveDecimal" value="0" />')));
+    assert.equal(false, creme.billing.validateInput($('<input validator="PositiveDecimal" />')));
+    assert.equal(false, creme.billing.validateInput($('<input validator="PositiveDecimal" value="-1.5" />')));
+    assert.equal(true, creme.billing.validateInput($('<input validator="PositiveDecimal" value="1.5" />')));
+    assert.equal(true, creme.billing.validateInput($('<input validator="PositiveDecimal" value="0" />')));
 
-    equal(false, creme.billing.validateInput($('<input validator="Decimal" />')));
-    equal(true, creme.billing.validateInput($('<input validator="Decimal" value="-1.5" />')));
-    equal(true, creme.billing.validateInput($('<input validator="Decimal" value="1.5" />')));
-    equal(true, creme.billing.validateInput($('<input validator="Decimal" value="0" />')));
+    assert.equal(false, creme.billing.validateInput($('<input validator="Decimal" />')));
+    assert.equal(true, creme.billing.validateInput($('<input validator="Decimal" value="-1.5" />')));
+    assert.equal(true, creme.billing.validateInput($('<input validator="Decimal" value="1.5" />')));
+    assert.equal(true, creme.billing.validateInput($('<input validator="Decimal" value="0" />')));
 
-    equal(false, creme.billing.validateInput($('<input validator="Percent" />')));
-    equal(false, creme.billing.validateInput($('<input validator="Percent" value="-1.5" />')));
-    equal(true, creme.billing.validateInput($('<input validator="Percent" value="1.5" />')));
-    equal(true, creme.billing.validateInput($('<input validator="Percent" value="0" />')));
-    equal(true, creme.billing.validateInput($('<input validator="Percent" value="100" />')));
-    equal(false, creme.billing.validateInput($('<input validator="Percent" value="100.5" />')));
+    assert.equal(false, creme.billing.validateInput($('<input validator="Percent" />')));
+    assert.equal(false, creme.billing.validateInput($('<input validator="Percent" value="-1.5" />')));
+    assert.equal(true, creme.billing.validateInput($('<input validator="Percent" value="1.5" />')));
+    assert.equal(true, creme.billing.validateInput($('<input validator="Percent" value="0" />')));
+    assert.equal(true, creme.billing.validateInput($('<input validator="Percent" value="100" />')));
+    assert.equal(false, creme.billing.validateInput($('<input validator="Percent" value="100.5" />')));
 
-    equal(false, creme.billing.validateInput($('<input validator="Value" />')));
-    equal(true, creme.billing.validateInput($('<input validator="Value" value="-1.5" />')));
-    equal(true, creme.billing.validateInput($('<input validator="Value" value="text" />')));
-    equal(true, creme.billing.validateInput($('<input validator="Value" value="false" />')));
-    equal(true, creme.billing.validateInput($('<input validator="Value" value="100" />')));
+    assert.equal(false, creme.billing.validateInput($('<input validator="Value" />')));
+    assert.equal(true, creme.billing.validateInput($('<input validator="Value" value="-1.5" />')));
+    assert.equal(true, creme.billing.validateInput($('<input validator="Value" value="text" />')));
+    assert.equal(true, creme.billing.validateInput($('<input validator="Value" value="false" />')));
+    assert.equal(true, creme.billing.validateInput($('<input validator="Value" value="100" />')));
 });
 
 QUnit.test('creme.billing.markDelete', function(assert) {
@@ -181,29 +181,29 @@ QUnit.test('creme.billing.markDelete', function(assert) {
         '</form>'
     ).appendTo(this.qunitFixture());
 
-    equal($('#line_content_line-0').is('.bline-deletion-mark'), false);
-    equal($('#id_form-0-DELETE').prop('checked'), false);
+    assert.equal($('#line_content_line-0').is('.bline-deletion-mark'), false);
+    assert.equal($('#id_form-0-DELETE').prop('checked'), false);
 
-    equal($('#line_content_line-1').is('.bline-deletion-mark'), true);
-    equal($('#id_form-1-DELETE').prop('checked'), true);
-
-    creme.billing.markDelete('form-0', 'line-0');
-    creme.billing.markDelete('form-1', 'line-1');
-
-    equal($('#line_content_line-0').is('.bline-deletion-mark'), true);
-    equal($('#id_form-0-DELETE').prop('checked'), true);
-
-    equal($('#line_content_line-1').is('.bline-deletion-mark'), false);
-    equal($('#id_form-1-DELETE').prop('checked'), false);
+    assert.equal($('#line_content_line-1').is('.bline-deletion-mark'), true);
+    assert.equal($('#id_form-1-DELETE').prop('checked'), true);
 
     creme.billing.markDelete('form-0', 'line-0');
     creme.billing.markDelete('form-1', 'line-1');
 
-    equal($('#line_content_line-0').is('.bline-deletion-mark'), false);
-    equal($('#id_form-0-DELETE').prop('checked'), false);
+    assert.equal($('#line_content_line-0').is('.bline-deletion-mark'), true);
+    assert.equal($('#id_form-0-DELETE').prop('checked'), true);
 
-    equal($('#line_content_line-1').is('.bline-deletion-mark'), true);
-    equal($('#id_form-1-DELETE').prop('checked'), true);
+    assert.equal($('#line_content_line-1').is('.bline-deletion-mark'), false);
+    assert.equal($('#id_form-1-DELETE').prop('checked'), false);
+
+    creme.billing.markDelete('form-0', 'line-0');
+    creme.billing.markDelete('form-1', 'line-1');
+
+    assert.equal($('#line_content_line-0').is('.bline-deletion-mark'), false);
+    assert.equal($('#id_form-0-DELETE').prop('checked'), false);
+
+    assert.equal($('#line_content_line-1').is('.bline-deletion-mark'), true);
+    assert.equal($('#id_form-1-DELETE').prop('checked'), true);
 });
 
 QUnit.parametrize('creme.billing.checkDiscount', [
@@ -244,7 +244,7 @@ QUnit.parametrize('creme.billing.checkDiscount', [
     element.find('input[name="form-0-unit_price"]').val(initial.unitPrice);
     element.find('input[name="form-0-quantity"]').val(initial.quantity);
 
-    equal(creme.billing.checkDiscount(element.find('[name="form-0-discount"]')), expected);
+    assert.equal(creme.billing.checkDiscount(element.find('[name="form-0-discount"]')), expected);
 });
 
 QUnit.parametrize('creme.billing.restoreValue', [
@@ -257,13 +257,13 @@ QUnit.parametrize('creme.billing.restoreValue', [
     input = $(input);
     input.on('change', this.mockListener('change'));
 
-    deepEqual(creme.billing.serializeInput(input), expected);
-    equal(this.mockListenerCalls('change').length, 0);
+    assert.deepEqual(creme.billing.serializeInput(input), expected);
+    assert.equal(this.mockListenerCalls('change').length, 0);
 
     creme.billing.restoreValue(input);
 
-    deepEqual(creme.billing.serializeInput(input), restored);
-    equal(this.mockListenerCalls('change').length, 1);
+    assert.deepEqual(creme.billing.serializeInput(input), restored);
+    assert.equal(this.mockListenerCalls('change').length, 1);
 });
 
 QUnit.test('creme.billing.restoreInitialValues', function(assert) {
@@ -300,51 +300,51 @@ QUnit.test('creme.billing.restoreInitialValues', function(assert) {
         '</form>'
     ).appendTo(this.qunitFixture());
 
-    equal(element.find('[name="form-0-DELETE"]').prop('checked'), false);
-    equal(element.find('[name="form-0-enabled"]').prop('checked'), false);
-    equal(element.find('[name="form-0-unit_price"]').val(), '5.12');
-    equal(element.find('[name="form-0-quantity"]').val(), '18');
+    assert.equal(element.find('[name="form-0-DELETE"]').prop('checked'), false);
+    assert.equal(element.find('[name="form-0-enabled"]').prop('checked'), false);
+    assert.equal(element.find('[name="form-0-unit_price"]').val(), '5.12');
+    assert.equal(element.find('[name="form-0-quantity"]').val(), '18');
 
-    equal(element.find('[name="form-1-DELETE"]').prop('checked'), true);
-    equal(element.find('[name="form-1-enabled"]').prop('checked'), true);
-    equal(element.find('[name="form-1-unit_price"]').val(), '5.12');
-    equal(element.find('[name="form-1-quantity"]').val(), '18');
+    assert.equal(element.find('[name="form-1-DELETE"]').prop('checked'), true);
+    assert.equal(element.find('[name="form-1-enabled"]').prop('checked'), true);
+    assert.equal(element.find('[name="form-1-unit_price"]').val(), '5.12');
+    assert.equal(element.find('[name="form-1-quantity"]').val(), '18');
 
     creme.billing.restoreInitialValues('line-0', 'form-0');
 
     this.assertOpenedDialog(gettext('Do you really want to restore initial values of this line?'));
     this.acceptConfirmDialog();
 
-    equal(element.find('[name="form-0-DELETE"]').prop('checked'), false);
-    equal(element.find('[name="form-0-enabled"]').prop('checked'), true);
-    equal(element.find('[name="form-0-unit_price"]').val(), '12.5');
-    equal(element.find('[name="form-0-quantity"]').val(), '5');
+    assert.equal(element.find('[name="form-0-DELETE"]').prop('checked'), false);
+    assert.equal(element.find('[name="form-0-enabled"]').prop('checked'), true);
+    assert.equal(element.find('[name="form-0-unit_price"]').val(), '12.5');
+    assert.equal(element.find('[name="form-0-quantity"]').val(), '5');
 
-    equal(element.find('[name="form-1-DELETE"]').prop('checked'), true);
-    equal(element.find('[name="form-1-enabled"]').prop('checked'), true);
-    equal(element.find('[name="form-1-unit_price"]').val(), '5.12');
-    equal(element.find('[name="form-1-quantity"]').val(), '18');
+    assert.equal(element.find('[name="form-1-DELETE"]').prop('checked'), true);
+    assert.equal(element.find('[name="form-1-enabled"]').prop('checked'), true);
+    assert.equal(element.find('[name="form-1-unit_price"]').val(), '5.12');
+    assert.equal(element.find('[name="form-1-quantity"]').val(), '18');
 
-    equal(element.find('#line_content_line-1').is('.block_header_line_dark'), false);
-    equal(element.find('#line_content_line-1').is('.bline-deletion-mark'), true);
+    assert.equal(element.find('#line_content_line-1').is('.block_header_line_dark'), false);
+    assert.equal(element.find('#line_content_line-1').is('.bline-deletion-mark'), true);
 
     creme.billing.restoreInitialValues('line-1', 'form-1');
 
     this.assertOpenedDialog(gettext('Do you really want to restore initial values of this line?'));
     this.acceptConfirmDialog();
 
-    equal(element.find('[name="form-0-DELETE"]').prop('checked'), false);
-    equal(element.find('[name="form-0-enabled"]').prop('checked'), true);
-    equal(element.find('[name="form-0-unit_price"]').val(), '12.5');
-    equal(element.find('[name="form-0-quantity"]').val(), '5');
+    assert.equal(element.find('[name="form-0-DELETE"]').prop('checked'), false);
+    assert.equal(element.find('[name="form-0-enabled"]').prop('checked'), true);
+    assert.equal(element.find('[name="form-0-unit_price"]').val(), '12.5');
+    assert.equal(element.find('[name="form-0-quantity"]').val(), '5');
 
-    equal(element.find('[name="form-1-DELETE"]').prop('checked'), false);
-    equal(element.find('[name="form-1-enabled"]').prop('checked'), false);
-    equal(element.find('[name="form-1-unit_price"]').val(), '2.5');
-    equal(element.find('[name="form-1-quantity"]').val(), '7');
+    assert.equal(element.find('[name="form-1-DELETE"]').prop('checked'), false);
+    assert.equal(element.find('[name="form-1-enabled"]').prop('checked'), false);
+    assert.equal(element.find('[name="form-1-unit_price"]').val(), '2.5');
+    assert.equal(element.find('[name="form-1-quantity"]').val(), '7');
 
-    equal(element.find('#line_content_line-1').is('.block_header_line_dark'), true);
-    equal(element.find('#line_content_line-1').is('.bline-deletion-mark'), false);
+    assert.equal(element.find('#line_content_line-1').is('.block_header_line_dark'), true);
+    assert.equal(element.find('#line_content_line-1').is('.bline-deletion-mark'), false);
 });
 
 QUnit.parametrize('creme.billing.serializeInput', [
@@ -355,7 +355,7 @@ QUnit.parametrize('creme.billing.serializeInput', [
     ['<input name="a" type="checkbox" checked="checked" value="12"/>', {key: 'a', value: '12'}],
     ['<input name="a" type="checkbox" checked="checked" value="12" initial="3"/>', {key: 'a', value: '12'}]
 ], function(input, expected, assert) {
-    deepEqual(creme.billing.serializeInput($(input)), expected);
+    assert.deepEqual(creme.billing.serializeInput($(input)), expected);
 });
 
 QUnit.parametrize('creme.billing.initBoundedFields', [
@@ -418,10 +418,10 @@ QUnit.parametrize('creme.billing.initBoundedFields', [
         }
     };
 
-    equal('12,53 €', formatAmount(12.531));
-    equal('###', formatAmount(null));
+    assert.equal('12,53 €', formatAmount(12.531));
+    assert.equal('###', formatAmount(null));
 
-    deepEqual({
+    assert.deepEqual({
         totalNoTax: element.find('.bline-total-no-tax').text(),
         totalDiscounted: element.find('.bline-total-discounted').text(),
         total: element.find('.bline-total').text()
@@ -438,7 +438,7 @@ QUnit.parametrize('creme.billing.initBoundedFields', [
         input.val(changes[name]).trigger('change');
     }
 
-    deepEqual({
+    assert.deepEqual({
         totalNoTax: element.find('.bline-total-no-tax').text(),
         totalDiscounted: element.find('.bline-total-discounted').text(),
         total: element.find('.bline-total').text()
@@ -449,7 +449,7 @@ QUnit.parametrize('creme.billing.initBoundedFields', [
     });
 });
 
-QUnit.test('creme.billing.initializeForm (initial)', function() {
+QUnit.test('creme.billing.initializeForm (initial)', function(assert) {
     var element = $(
         '<form>' +
             '<div class="bline-form">' +
@@ -486,11 +486,11 @@ QUnit.test('creme.billing.initializeForm (initial)', function() {
 
     creme.billing.initializeForm(element);
 
-    equal('30.00', element.find('[name="form-0-quantity"]').attr('initial'));
-    equal('15.45', element.find('[name="form-0-unit_price"]').attr('initial'));
-    equal('1', element.find('[name="form-0-discount_unit"]').attr('initial'));
-    equal('2', element.find('[name="form-0-discount"]').attr('initial'));
-    equal('6', element.find('[name="form-0-vat_value"]').attr('initial'));
+    assert.equal('30.00', element.find('[name="form-0-quantity"]').attr('initial'));
+    assert.equal('15.45', element.find('[name="form-0-unit_price"]').attr('initial'));
+    assert.equal('1', element.find('[name="form-0-discount_unit"]').attr('initial'));
+    assert.equal('2', element.find('[name="form-0-discount"]').attr('initial'));
+    assert.equal('6', element.find('[name="form-0-vat_value"]').attr('initial'));
 });
 
 }(jQuery));

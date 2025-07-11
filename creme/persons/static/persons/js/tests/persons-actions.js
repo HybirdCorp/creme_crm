@@ -40,9 +40,9 @@ QUnit.test('creme.persons.BecomeAction (no orga)', function(assert) {
 
     this.assertClosedDialog();
 
-    deepEqual([], this.mockBackendUrlCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls());
 
-    deepEqual({
+    assert.deepEqual({
         'action-start': [['start']],
         'action-cancel': [['cancel']]
     }, this.mockListenerCalls());
@@ -60,11 +60,11 @@ QUnit.test('creme.persons.BecomeAction (single orga)', function(assert) {
 
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/add', 'POST', {entities: '8', predicate_id: 'rtype.12', subject_id: '79'}]
     ], this.mockBackendUrlCalls());
 
-    deepEqual({
+    assert.deepEqual({
         'action-start': [['start']],
         'action-done': [['done']]
     }, this.mockListenerCalls());
@@ -81,11 +81,11 @@ QUnit.test('creme.persons.BecomeAction (single orga, default url)', function(ass
 
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/add/default', 'POST', {entities: '8', predicate_id: 'rtype.12', subject_id: '79'}]
     ], this.mockBackendUrlCalls());
 
-    deepEqual({
+    assert.deepEqual({
         'action-start': [['start']],
         'action-done': [['done']]
     }, this.mockListenerCalls());
@@ -102,16 +102,16 @@ QUnit.test('creme.persons.BecomeAction (single orga, failed)', function(assert) 
     action.start();
 
     this.assertOpenedDialog();
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/add/fail', 'POST', {entities: '8', predicate_id: 'rtype.12', subject_id: '79'}]
     ], this.mockBackendUrlCalls());
-    deepEqual({
+    assert.deepEqual({
         'action-start': [['start']]
     }, this.mockListenerCalls());
 
     this.closeDialog();
 
-    deepEqual({
+    assert.deepEqual({
         'action-start': [['start']],
         'action-fail': [['fail', 'Unable to add relation']]
     }, this.mockListenerCalls());
@@ -132,15 +132,15 @@ QUnit.test('creme.persons.BecomeAction (multi orga, canceled)', function(assert)
     var dialog = this.assertOpenedDialog();
 
     this.assertDialogTitle(gettext('Organisation'));
-    ok(dialog.html().indexOf(gettext('Select the concerned organisation.')) !== -1);
-    deepEqual({
+    assert.ok(dialog.html().indexOf(gettext('Select the concerned organisation.')) !== -1);
+    assert.deepEqual({
         'action-start': [['start']]
     }, this.mockListenerCalls());
 
     this.closeDialog();
 
-    deepEqual([], this.mockBackendUrlCalls());
-    deepEqual({
+    assert.deepEqual([], this.mockBackendUrlCalls());
+    assert.deepEqual({
         'action-start': [['start']],
         'action-cancel': [['cancel']]
     }, this.mockListenerCalls());
@@ -161,9 +161,9 @@ QUnit.test('creme.persons.BecomeAction (multi orga, failed)', function(assert) {
     var dialog = this.assertOpenedDialog();
 
     this.assertDialogTitle(gettext('Organisation'));
-    ok(dialog.html().indexOf(gettext('Select the concerned organisation.')) !== -1);
-    equal('8', dialog.find('select').val());
-    deepEqual({
+    assert.ok(dialog.html().indexOf(gettext('Select the concerned organisation.')) !== -1);
+    assert.equal('8', dialog.find('select').val());
+    assert.deepEqual({
         'action-start': [['start']]
     }, this.mockListenerCalls());
 
@@ -171,19 +171,19 @@ QUnit.test('creme.persons.BecomeAction (multi orga, failed)', function(assert) {
     this.acceptConfirmDialog();
 
     this.assertOpenedDialog();
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/add/fail', 'POST', {entities: '9', predicate_id: 'rtype.12', subject_id: '79'}]
     ], this.mockBackendUrlCalls());
-    deepEqual({
+    assert.deepEqual({
         'action-start': [['start']]
     }, this.mockListenerCalls());
 
     this.closeDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/add/fail', 'POST', {entities: '9', predicate_id: 'rtype.12', subject_id: '79'}]
     ], this.mockBackendUrlCalls());
-    deepEqual({
+    assert.deepEqual({
         'action-start': [['start']],
         'action-fail': [['fail', 'Unable to add relation']]
     }, this.mockListenerCalls());
@@ -204,9 +204,9 @@ QUnit.test('creme.persons.BecomeAction (multi orga, ok)', function(assert) {
     var dialog = this.assertOpenedDialog();
 
     this.assertDialogTitle(gettext('Organisation'));
-    ok(dialog.html().indexOf(gettext('Select the concerned organisation.')) !== -1);
-    equal('8', dialog.find('select').val());
-    deepEqual({
+    assert.ok(dialog.html().indexOf(gettext('Select the concerned organisation.')) !== -1);
+    assert.equal('8', dialog.find('select').val());
+    assert.deepEqual({
         'action-start': [['start']]
     }, this.mockListenerCalls());
 
@@ -214,14 +214,14 @@ QUnit.test('creme.persons.BecomeAction (multi orga, ok)', function(assert) {
     this.acceptConfirmDialog();
 
     this.assertClosedDialog();
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/add', 'POST', {entities: '9', predicate_id: 'rtype.12', subject_id: '79'}]
     ], this.mockBackendUrlCalls());
-    deepEqual({
+    assert.deepEqual({
         'action-start': [['start']],
         'action-done': [['done']]
     }, this.mockListenerCalls());
-    deepEqual([], this.mockReloadCalls());
+    assert.deepEqual([], this.mockReloadCalls());
 });
 
 QUnit.test('persons-hatmenubar-become', function(assert) {
@@ -246,12 +246,12 @@ QUnit.test('persons-hatmenubar-become', function(assert) {
     this.assertReady(widget.element);
 
 /* TODO: (genglert) fix this part?
-    deepEqual(1, widget.delegate._actionlinks.length);
+    assert.deepEqual(1, widget.delegate._actionlinks.length);
 
     var link = widget.delegate._actionlinks[0];
 
-    equal(true, link.isBound());
-    equal(false, link.isDisabled());
+    assert.equal(true, link.isBound());
+    assert.equal(false, link.isDisabled());
 */
 
     $(widget.element).find('a.menu_button').trigger('click');
@@ -259,14 +259,14 @@ QUnit.test('persons-hatmenubar-become', function(assert) {
     var dialog = this.assertOpenedDialog();
 
     this.assertDialogTitle(gettext('Organisation'));
-    ok(dialog.html().indexOf(gettext('Select the concerned organisation.')) !== -1);
-    equal('8', dialog.find('select').val());
+    assert.ok(dialog.html().indexOf(gettext('Select the concerned organisation.')) !== -1);
+    assert.equal('8', dialog.find('select').val());
 
     dialog.find('select').val('9');
     this.acceptConfirmDialog();
 
     this.assertClosedDialog();
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/add', 'POST', {entities: '9', predicate_id: 'rtype.1', subject_id: '74'}],
         ['mock/brick/all/reload', 'GET', {'brick_id': ['creme_core-test'], 'extra_data': '{}'}]
     ], this.mockBackendUrlCalls());

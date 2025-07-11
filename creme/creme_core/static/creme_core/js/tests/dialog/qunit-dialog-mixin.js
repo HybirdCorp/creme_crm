@@ -32,25 +32,25 @@
         },
 
         assertClosedPopover: function() {
-            equal(0, $('body > .popover').length, 'is popover not opened');
+            this.assert.equal(0, $('body > .popover').length, 'is popover not opened');
         },
 
         assertOpenedPopover: function() {
             var dialogs = $('body > .popover');
-            equal(1, dialogs.length, 'is popover opened');
+            this.assert.equal(1, dialogs.length, 'is popover opened');
             return dialogs;
         },
 
         assertPopoverTitle: function(title) {
-            equal(title, $('body > .popover .popover-title:not(.hidden)').text(), 'dialog title');
+            this.assert.equal(title, $('body > .popover .popover-title:not(.hidden)').text(), 'dialog title');
         },
 
         assertClosedDialog: function() {
-            equal(0, $('.ui-dialog').length, 'is dialog not opened');
+            this.assert.equal(0, $('.ui-dialog').length, 'is dialog not opened');
         },
 
         assertDialogTitle: function(title) {
-            equal(title, $('.ui-dialog .ui-dialog-title').text(), 'dialog title');
+            this.assert.equal(title, $('.ui-dialog .ui-dialog-title').text(), 'dialog title');
         },
 
         assertDialogTitleHtml: function(html) {
@@ -62,7 +62,7 @@
 
             var dialogs = $('.ui-dialog');
 
-            equal(count, dialogs.length, '%d dialog(s) have to be opened'.format(count));
+            this.assert.equal(count, dialogs.length, '%d dialog(s) have to be opened'.format(count));
 
             return dialogs.sort(function(a, b) {
                 var za = parseInt($(a).css('z-index')),
@@ -78,10 +78,10 @@
         assertOpenedDialog: function(message) {
             var dialogs = $('.ui-dialog');
 
-            equal(1, dialogs.length, 'is dialog opened');
+            this.assert.equal(1, dialogs.length, 'is dialog opened');
 
             if (message !== undefined) {
-                equal(message, $('.ui-dialog p').text(), 'dialog message');
+                this.assert.equal(message, $('.ui-dialog p').text(), 'dialog message');
             }
 
             return dialogs;
@@ -90,10 +90,10 @@
         assertOpenedConfirmDialog: function(message) {
             var dialogs = $('.ui-dialog');
 
-            equal(1, dialogs.length, 'is dialog opened');
+            this.assert.equal(1, dialogs.length, 'is dialog opened');
 
             if (message !== undefined) {
-                equal(message, $('.ui-dialog h4').text(), 'confirm dialog message');
+                this.assert.equal(message, $('.ui-dialog h4').text(), 'confirm dialog message');
             }
 
             return dialogs;
@@ -102,14 +102,14 @@
         assertOpenedAlertDialog: function(message, header) {
             var dialogs = $('.ui-dialog .ui-creme-dialog-warn');
 
-            equal(1, dialogs.length, 'is alert dialog opened');
+            this.assert.equal(1, dialogs.length, 'is alert dialog opened');
 
             if (message !== undefined) {
-                equal(message, $('.ui-dialog .ui-creme-dialog-warn .message').text(), 'alert dialog message');
+                this.assert.equal(message, $('.ui-dialog .ui-creme-dialog-warn .message').text(), 'alert dialog message');
             }
 
             if (header !== undefined) {
-                equal(header,  $('.ui-dialog .ui-creme-dialog-warn .header').text(), 'alert dialog header');
+                this.assert.equal(header,  $('.ui-dialog .ui-creme-dialog-warn .header').text(), 'alert dialog header');
             }
 
             return dialogs;
@@ -125,26 +125,26 @@
                 return (a_zindex > b_zindex) ? 1 : ((b_zindex > a_zindex) ? -1 : 0);
             }).reverse();
 
-            equal(true, dialogs.length > 0);
+            this.assert.equal(true, dialogs.length > 0);
             $(dialogs[0]).dialog('close');
         },
 
         closeDialog: function() {
-            equal(1, $('.ui-dialog').length, 'single form dialog allowed');
+            this.assert.equal(1, $('.ui-dialog').length, 'single form dialog allowed');
             $('.ui-dialog-content').dialog('close');
         },
 
         closePopover: function() {
             var dialogs = $('body > .popover');
-            equal(1, dialogs.length, 'single popover at once allowed');
+            this.assert.equal(1, dialogs.length, 'single popover at once allowed');
             dialogs.trigger('modal-close');
         },
 
         submitFormDialog: function(data) {
             data = data || {};
 
-            equal(1, $('.ui-dialog').length, 'single form dialog allowed');
-            equal(1, $('.ui-dialog button[name="send"]').length, 'single form submit button allowed');
+            this.assert.equal(1, $('.ui-dialog').length, 'single form dialog allowed');
+            this.assert.equal(1, $('.ui-dialog button[name="send"]').length, 'single form submit button allowed');
 
             for (var key in data) {
                 $('.ui-dialog form [name="' + key + '"]').val(data[key]);
@@ -157,8 +157,8 @@
         },
 
         acceptConfirmDialog: function() {
-            equal(1, $('.ui-dialog').length, 'single confirm dialog allowed');
-            equal(1, $('.ui-dialog button[name="ok"]').length, 'single confirm ok button allowed');
+            this.assert.equal(1, $('.ui-dialog').length, 'single confirm dialog allowed');
+            this.assert.equal(1, $('.ui-dialog button[name="ok"]').length, 'single confirm ok button allowed');
 
             $('.ui-dialog button[name="ok"]').trigger('click');
         },
@@ -198,9 +198,9 @@
 
             var overlay = $('.ui-creme-overlay', element);
 
-            equal(overlay.length, expected.active ? 1 : 0, 'has overlay');
-            equal(overlay.attr('status'), expected.status, 'overlay status:' + expected.status);
-            equal(overlay.hasClass('overlay-active'), expected.active, 'overlay isactive');
+            this.assert.equal(overlay.length, expected.active ? 1 : 0, 'has overlay');
+            this.assert.equal(overlay.attr('status'), expected.status, 'overlay status:' + expected.status);
+            this.assert.equal(overlay.hasClass('overlay-active'), expected.active, 'overlay isactive');
         }
     };
 

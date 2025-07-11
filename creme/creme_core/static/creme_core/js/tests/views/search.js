@@ -121,7 +121,7 @@ QUnit.module("creme.search.js", new QUnitMixin(QUnitEventMixin,
     }
 }));
 
-QUnit.test('creme.search.SearchBox', function() {
+QUnit.test('creme.search.SearchBox', function(assert) {
     var search;
 
     this.assertRaises(function() {
@@ -139,13 +139,13 @@ QUnit.test('creme.search.SearchBox', function() {
         advancedSearchUrl: 'mock/advancedsearch'
     });
 
-    equal('mock/search', search.searchUrl);
-    equal('mock/advancedsearch', search.advancedSearchUrl);
-    equal(false, search.isLoading());
-    equal(false, search.isBound());
+    assert.equal('mock/search', search.searchUrl);
+    assert.equal('mock/advancedsearch', search.advancedSearchUrl);
+    assert.equal(false, search.isLoading());
+    assert.equal(false, search.isBound());
 });
 
-QUnit.test('creme.search.SearchBox.bind', function() {
+QUnit.test('creme.search.SearchBox.bind', function(assert) {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
         searchUrl: 'mock/search',
@@ -153,50 +153,50 @@ QUnit.test('creme.search.SearchBox.bind', function() {
     });
 
     search.bind(element);
-    equal(false, search.isLoading());
-    equal(false, search.isOpened());
-    equal(true, search.isBound());
+    assert.equal(false, search.isLoading());
+    assert.equal(false, search.isOpened());
+    assert.equal(true, search.isBound());
 
-    equal(1, search._resultsRoot.length);
-    equal(1, search._input.length);
-    equal(1, search._icon.length);
-    equal(1, search._allResultsGroup.length);
-    equal(1, search._allResultsLink.length);
+    assert.equal(1, search._resultsRoot.length);
+    assert.equal(1, search._input.length);
+    assert.equal(1, search._icon.length);
+    assert.equal(1, search._allResultsGroup.length);
+    assert.equal(1, search._allResultsLink.length);
 
     this.assertRaises(function() {
         search.bind(element);
     }, Error, 'Error: SearchBox is already bound');
 });
 
-QUnit.test('creme.search.SearchBox.search (focus => open popover)', function() {
+QUnit.test('creme.search.SearchBox.search (focus => open popover)', function(assert) {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
         searchUrl: 'mock/search',
         advancedSearchUrl: 'mock/advancedsearch'
     }).bind(element);
 
-    equal(true, search.isBound());
+    assert.equal(true, search.isBound());
 
-    equal(false, search.isOpened());
-    equal(0, element.find('.inline-search-results.showing').length);
-    equal(0, $('.glasspane').length);
+    assert.equal(false, search.isOpened());
+    assert.equal(0, element.find('.inline-search-results.showing').length);
+    assert.equal(0, $('.glasspane').length);
 
     element.find('input[type="text"]').trigger('focus');
     element.find('input[type="text"]').trigger('focus');
     element.find('input[type="text"]').trigger('focus');
     element.find('input[type="text"]').trigger('focus');
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
-        equal(true, search.isOpened());
-        equal(1, element.find('.inline-search-results.showing').length);
-        equal(1, $('.glasspane').length);
-        start();
+        assert.equal(true, search.isOpened());
+        assert.equal(1, element.find('.inline-search-results.showing').length);
+        assert.equal(1, $('.glasspane').length);
+        done();
     }, 150);
 });
 
-QUnit.test('creme.search.SearchBox.search (click outside => close popover)', function() {
+QUnit.test('creme.search.SearchBox.search (click outside => close popover)', function(assert) {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
         debounceDelay: 0,
@@ -205,20 +205,20 @@ QUnit.test('creme.search.SearchBox.search (click outside => close popover)', fun
         advancedSearchUrl: 'mock/advancedsearch'
     }).bind(element);
 
-    equal(true, search.isBound());
+    assert.equal(true, search.isBound());
 
     element.find('input[type="text"]').trigger('focus');
 
-    equal(true, search.isOpened());
-    equal(1, $('.glasspane').length);
+    assert.equal(true, search.isOpened());
+    assert.equal(1, $('.glasspane').length);
 
     $('.glasspane').trigger('click');
 
-    equal(false, search.isOpened());
-    equal(0, $('.glasspane').length);
+    assert.equal(false, search.isOpened());
+    assert.equal(0, $('.glasspane').length);
 });
 
-QUnit.test('creme.search.SearchBox.search (length < default min length)', function() {
+QUnit.test('creme.search.SearchBox.search (length < default min length)', function(assert) {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
         debounceDelay: 0,
@@ -226,34 +226,34 @@ QUnit.test('creme.search.SearchBox.search (length < default min length)', functi
         advancedSearchUrl: 'mock/advancedsearch'
     }).bind(element);
 
-    equal(3, search.minSearchLength);
+    assert.equal(3, search.minSearchLength);
 
-    deepEqual([], this.mockBackendUrlCalls('mock/search'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/search'));
 
     var input = search._input;
 
     input.val('ab').trigger('input');
-    deepEqual([], this.mockBackendUrlCalls('mock/search'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/search'));
 
     input.val('abc').trigger('input');
-    deepEqual([
+    assert.deepEqual([
         ['GET', {value: 'abc'}]
     ], this.mockBackendUrlCalls('mock/search'));
 
     input.val('abcd').trigger('input');
-    deepEqual([
+    assert.deepEqual([
         ['GET', {value: 'abc'}],
         ['GET', {value: 'abcd'}]
     ], this.mockBackendUrlCalls('mock/search'));
 
     input.val('a').trigger('input');
-    deepEqual([
+    assert.deepEqual([
         ['GET', {value: 'abc'}],
         ['GET', {value: 'abcd'}]
     ], this.mockBackendUrlCalls('mock/search'));
 });
 
-QUnit.test('creme.search.SearchBox.search (length < min length)', function() {
+QUnit.test('creme.search.SearchBox.search (length < min length)', function(assert) {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
         debounceDelay: 0,
@@ -264,18 +264,18 @@ QUnit.test('creme.search.SearchBox.search (length < min length)', function() {
 
     var input = search._input;
 
-    equal(7, search.minSearchLength);
+    assert.equal(7, search.minSearchLength);
 
     input.val('abcdef').trigger('input');
-    deepEqual([], this.mockBackendUrlCalls('mock/search'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/search'));
 
     input.val('abcdefg').trigger('input');
-    deepEqual([
+    assert.deepEqual([
         ['GET', {value: 'abcdefg'}]
     ], this.mockBackendUrlCalls('mock/search'));
 });
 
-QUnit.test('creme.search.SearchBox.search (no result)', function() {
+QUnit.test('creme.search.SearchBox.search (no result)', function(assert) {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
         debounceDelay: 0,
@@ -285,28 +285,28 @@ QUnit.test('creme.search.SearchBox.search (no result)', function() {
 
     var input = search._input;
 
-    deepEqual([], this.mockBackendUrlCalls('mock/search'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/search'));
 
-    equal(gettext('Advanced search'), element.find('.search-result a').text());
-    equal(1, element.find('.search-results-group').length);
-    equal(1, element.find('.all-search-results').length);
-    equal(0, element.find('.best-results-group').length);
-    equal(0, element.find('.search-results-group:not(.all-search-results):not(.best-results-group)').length);
+    assert.equal(gettext('Advanced search'), element.find('.search-result a').text());
+    assert.equal(1, element.find('.search-results-group').length);
+    assert.equal(1, element.find('.all-search-results').length);
+    assert.equal(0, element.find('.best-results-group').length);
+    assert.equal(0, element.find('.search-results-group:not(.all-search-results):not(.best-results-group)').length);
 
     input.val('abc').trigger('input');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {value: 'abc'}]
     ], this.mockBackendUrlCalls('mock/search'));
 
-    equal(gettext('No result'), element.find('.search-result a').text());
-    equal(1, element.find('.search-results-group').length);
-    equal(1, element.find('.all-search-results').length);
-    equal(0, element.find('.best-results-group').length);
-    equal(0, element.find('.search-results-group:not(.all-search-results):not(.best-results-group)').length);
+    assert.equal(gettext('No result'), element.find('.search-result a').text());
+    assert.equal(1, element.find('.search-results-group').length);
+    assert.equal(1, element.find('.all-search-results').length);
+    assert.equal(0, element.find('.best-results-group').length);
+    assert.equal(0, element.find('.search-results-group:not(.all-search-results):not(.best-results-group)').length);
 });
 
-QUnit.test('creme.search.SearchBox.search (failure)', function() {
+QUnit.test('creme.search.SearchBox.search (failure)', function(assert) {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
         debounceDelay: 0,
@@ -318,18 +318,18 @@ QUnit.test('creme.search.SearchBox.search (failure)', function() {
 
     input.val('failure').trigger('input');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {value: 'failure'}]
     ], this.mockBackendUrlCalls('mock/search'));
 
-    equal(gettext('Advanced search'), element.find('.search-result a').text());
-    equal(1, element.find('.search-results-group').length);
-    equal(1, element.find('.all-search-results').length);
-    equal(0, element.find('.best-results-group').length);
-    equal(0, element.find('.search-results-group:not(.all-search-results):not(.best-results-group)').length);
+    assert.equal(gettext('Advanced search'), element.find('.search-result a').text());
+    assert.equal(1, element.find('.search-results-group').length);
+    assert.equal(1, element.find('.all-search-results').length);
+    assert.equal(0, element.find('.best-results-group').length);
+    assert.equal(0, element.find('.search-results-group:not(.all-search-results):not(.best-results-group)').length);
 });
 
-QUnit.test('creme.search.SearchBox.search (1 result)', function() {
+QUnit.test('creme.search.SearchBox.search (1 result)', function(assert) {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
         debounceDelay: 0,
@@ -339,7 +339,7 @@ QUnit.test('creme.search.SearchBox.search (1 result)', function() {
 
     search._input.val('single').trigger('input');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {value: 'single'}]
     ], this.mockBackendUrlCalls('mock/search'));
 
@@ -347,18 +347,18 @@ QUnit.test('creme.search.SearchBox.search (1 result)', function() {
     var best_group = element.find('.best-results-group');
     var others_group = element.find('.search-results-group:not(.all-search-results):not(.best-results-group)');
 
-    equal(1, all_group.length);
-    equal(0, best_group.length);
-    equal(1, others_group.length);
+    assert.equal(1, all_group.length);
+    assert.equal(0, best_group.length);
+    assert.equal(1, others_group.length);
 
-    equal(gettext('All results (%s)').format(1), all_group.find('.search-result a').text());
+    assert.equal(gettext('All results (%s)').format(1), all_group.find('.search-result a').text());
 
-    equal(gettext('Contacts'), others_group.find('.search-results-group-title').text());
-    equal(1, others_group.find('.search-result a').length);
-    equal(gettext('Contact A'), $(others_group.find('.search-result a').get(0)).text());
+    assert.equal(gettext('Contacts'), others_group.find('.search-results-group-title').text());
+    assert.equal(1, others_group.find('.search-result a').length);
+    assert.equal(gettext('Contact A'), $(others_group.find('.search-result a').get(0)).text());
 });
 
-QUnit.test('creme.search.SearchBox.search (1 result group + best result)', function() {
+QUnit.test('creme.search.SearchBox.search (1 result group + best result)', function(assert) {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
         debounceDelay: 0,
@@ -368,7 +368,7 @@ QUnit.test('creme.search.SearchBox.search (1 result group + best result)', funct
 
     search._input.val('group+best').trigger('input');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {value: 'group+best'}]
     ], this.mockBackendUrlCalls('mock/search'));
 
@@ -376,29 +376,29 @@ QUnit.test('creme.search.SearchBox.search (1 result group + best result)', funct
     var best_group = element.find('.best-results-group');
     var others_group = element.find('.search-results-group:not(.all-search-results):not(.best-results-group)');
 
-    equal(1, all_group.length);
-    equal(1, best_group.length);
-    equal(1, others_group.length);
+    assert.equal(1, all_group.length);
+    assert.equal(1, best_group.length);
+    assert.equal(1, others_group.length);
 
-    equal(gettext('All results (%s)').format(2), all_group.find('.search-result a').text());
+    assert.equal(gettext('All results (%s)').format(2), all_group.find('.search-result a').text());
 
-    equal(gettext('Best result'), best_group.find('.search-results-group-title').text());
-    equal(1, best_group.find('.search-result a').length);
-    equal(gettext('Contact A'), best_group.find('.search-result a').text());
+    assert.equal(gettext('Best result'), best_group.find('.search-results-group-title').text());
+    assert.equal(1, best_group.find('.search-result a').length);
+    assert.equal(gettext('Contact A'), best_group.find('.search-result a').text());
 
-    equal(gettext('Contacts'), others_group.find('.search-results-group-title').text());
-    equal(2, others_group.find('.search-result a').length);
+    assert.equal(gettext('Contacts'), others_group.find('.search-results-group-title').text());
+    assert.equal(2, others_group.find('.search-result a').length);
 
     var contactA = $(others_group.find('.search-result a').get(0));
-    equal(gettext('Contact A'), contactA.text());
-    equal(contactA.hasClass('is_deleted'), false);
+    assert.equal(gettext('Contact A'), contactA.text());
+    assert.equal(contactA.hasClass('is_deleted'), false);
 
     var contactB = $(others_group.find('.search-result a').get(1));
-    equal(gettext('Contact B'), contactB.text());
-    equal(contactB.hasClass('is_deleted'), true);
+    assert.equal(gettext('Contact B'), contactB.text());
+    assert.equal(contactB.hasClass('is_deleted'), true);
 });
 
-QUnit.test('creme.search.SearchBox.search (N result groups + best result)', function() {
+QUnit.test('creme.search.SearchBox.search (N result groups + best result)', function(assert) {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
         debounceDelay: 0,
@@ -408,7 +408,7 @@ QUnit.test('creme.search.SearchBox.search (N result groups + best result)', func
 
     search._input.val('n-group+best').trigger('input');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {value: 'n-group+best'}]
     ], this.mockBackendUrlCalls('mock/search'));
 
@@ -416,32 +416,32 @@ QUnit.test('creme.search.SearchBox.search (N result groups + best result)', func
     var best_group = element.find('.best-results-group');
     var others_group = element.find('.search-results-group:not(.all-search-results):not(.best-results-group)');
 
-    equal(1, all_group.length);
-    equal(1, best_group.length);
-    equal(2, others_group.length);
+    assert.equal(1, all_group.length);
+    assert.equal(1, best_group.length);
+    assert.equal(2, others_group.length);
 
-    equal(gettext('All results (%s)').format(5), all_group.find('.search-result a').text());
+    assert.equal(gettext('All results (%s)').format(5), all_group.find('.search-result a').text());
 
-    equal(gettext('Best result'), best_group.find('.search-results-group-title').text());
-    equal(1, best_group.find('.search-result a').length);
-    equal(gettext('Contact A'), best_group.find('.search-result a').text());
+    assert.equal(gettext('Best result'), best_group.find('.search-results-group-title').text());
+    assert.equal(1, best_group.find('.search-result a').length);
+    assert.equal(gettext('Contact A'), best_group.find('.search-result a').text());
 
     var contacts_group = $(others_group.get(0));
     var orgas_group = $(others_group.get(1));
 
-    equal(gettext('Contacts'), contacts_group.find('.search-results-group-title').text());
-    equal(2, contacts_group.find('.search-result a').length);
-    equal(gettext('Contact A'), $(contacts_group.find('.search-result a').get(0)).text());
-    equal(gettext('Contact B'), $(contacts_group.find('.search-result a').get(1)).text());
+    assert.equal(gettext('Contacts'), contacts_group.find('.search-results-group-title').text());
+    assert.equal(2, contacts_group.find('.search-result a').length);
+    assert.equal(gettext('Contact A'), $(contacts_group.find('.search-result a').get(0)).text());
+    assert.equal(gettext('Contact B'), $(contacts_group.find('.search-result a').get(1)).text());
 
-    equal(gettext('Organizations'), orgas_group.find('.search-results-group-title').text());
-    equal(3, orgas_group.find('.search-result a').length);
-    equal(gettext('Organization A'), $(orgas_group.find('.search-result a').get(0)).text());
-    equal(gettext('Organization B'), $(orgas_group.find('.search-result a').get(1)).text());
-    equal(gettext('Organization C'), $(orgas_group.find('.search-result a').get(2)).text());
+    assert.equal(gettext('Organizations'), orgas_group.find('.search-results-group-title').text());
+    assert.equal(3, orgas_group.find('.search-result a').length);
+    assert.equal(gettext('Organization A'), $(orgas_group.find('.search-result a').get(0)).text());
+    assert.equal(gettext('Organization B'), $(orgas_group.find('.search-result a').get(1)).text());
+    assert.equal(gettext('Organization C'), $(orgas_group.find('.search-result a').get(2)).text());
 });
 
-QUnit.test('creme.search.SearchBox.search (multiple queries, cancel old ones)', function() {
+QUnit.test('creme.search.SearchBox.search (multiple queries, cancel old ones)', function(assert) {
     var self = this;
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
@@ -464,14 +464,14 @@ QUnit.test('creme.search.SearchBox.search (multiple queries, cancel old ones)', 
     var best_group = element.find('.best-results-group');
     var others_group = element.find('.search-results-group:not(.all-search-results):not(.best-results-group)');
 
-    equal(1, all_group.length);
-    equal(0, best_group.length);
-    equal(0, others_group.length);
+    assert.equal(1, all_group.length);
+    assert.equal(0, best_group.length);
+    assert.equal(0, others_group.length);
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
-        deepEqual([
+        assert.deepEqual([
             ['GET', {value: 'n-group+best'}],
             ['GET', {value: 'group+best'}],
             ['GET', {value: 'group+best'}]
@@ -481,15 +481,15 @@ QUnit.test('creme.search.SearchBox.search (multiple queries, cancel old ones)', 
         best_group = element.find('.best-results-group');
         others_group = element.find('.search-results-group:not(.all-search-results):not(.best-results-group)');
 
-        equal(1, all_group.length);
-        equal(1, best_group.length);
-        equal(1, others_group.length);
+        assert.equal(1, all_group.length);
+        assert.equal(1, best_group.length);
+        assert.equal(1, others_group.length);
 
-        start();
+        done();
     }, 400);
 });
 
-QUnit.test('creme.search.SearchBox.keys (enter)', function() {
+QUnit.test('creme.search.SearchBox.keys (enter)', function(assert) {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
         debounceDelay: 0,
@@ -499,19 +499,19 @@ QUnit.test('creme.search.SearchBox.keys (enter)', function() {
 
     search._input.val('single').trigger('input');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {value: 'single'}]
     ], this.mockBackendUrlCalls('mock/search'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockRedirectCalls());
 
     search._input.trigger($.Event("keydown", {keyCode: 13}));
 
-    deepEqual([
+    assert.deepEqual([
         '/mock/contact/1'
     ], this.mockRedirectCalls());
 });
 
-QUnit.test('creme.search.SearchBox.keys (up/down)', function() {
+QUnit.test('creme.search.SearchBox.keys (up/down)', function(assert) {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
         debounceDelay: 0,
@@ -521,7 +521,7 @@ QUnit.test('creme.search.SearchBox.keys (up/down)', function() {
 
     search._input.val('group+best').trigger('input');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {value: 'group+best'}]
     ], this.mockBackendUrlCalls('mock/search'));
 
@@ -529,38 +529,38 @@ QUnit.test('creme.search.SearchBox.keys (up/down)', function() {
     var best_group = element.find('.best-results-group');
     var others_group = element.find('.search-results-group:not(.all-search-results):not(.best-results-group)');
 
-    equal(1, all_group.length);
-    equal(1, best_group.length);
-    equal(1, others_group.length);
+    assert.equal(1, all_group.length);
+    assert.equal(1, best_group.length);
+    assert.equal(1, others_group.length);
 
     var best_item = best_group.find('.search-result');
     var a_item = $(others_group.find('.search-result').get(0));
     var b_item = $(others_group.find('.search-result').get(1));
 
-    equal(true, best_item.is('.search-result-selected'));
-    equal(false, a_item.is('.search-result-selected'));
-    equal(false, b_item.is('.search-result-selected'));
+    assert.equal(true, best_item.is('.search-result-selected'));
+    assert.equal(false, a_item.is('.search-result-selected'));
+    assert.equal(false, b_item.is('.search-result-selected'));
 
     // key down
     search._input.trigger($.Event("keydown", {keyCode: 40}));
-    equal(false, best_item.is('.search-result-selected'));
-    equal(true, a_item.is('.search-result-selected'));
-    equal(false, b_item.is('.search-result-selected'));
+    assert.equal(false, best_item.is('.search-result-selected'));
+    assert.equal(true, a_item.is('.search-result-selected'));
+    assert.equal(false, b_item.is('.search-result-selected'));
 
     // key down
     search._input.trigger($.Event("keydown", {keyCode: 40}));
-    equal(false, best_item.is('.search-result-selected'));
-    equal(false, a_item.is('.search-result-selected'));
-    equal(true, b_item.is('.search-result-selected'));
+    assert.equal(false, best_item.is('.search-result-selected'));
+    assert.equal(false, a_item.is('.search-result-selected'));
+    assert.equal(true, b_item.is('.search-result-selected'));
 
     // key up
     search._input.trigger($.Event("keydown", {keyCode: 38}));
-    equal(false, best_item.is('.search-result-selected'));
-    equal(true, a_item.is('.search-result-selected'));
-    equal(false, b_item.is('.search-result-selected'));
+    assert.equal(false, best_item.is('.search-result-selected'));
+    assert.equal(true, a_item.is('.search-result-selected'));
+    assert.equal(false, b_item.is('.search-result-selected'));
 });
 
-QUnit.test('creme.search.SearchBox.keys (escape => close popover)', function() {
+QUnit.test('creme.search.SearchBox.keys (escape => close popover)', function(assert) {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
         debounceDelay: 0,
@@ -569,19 +569,19 @@ QUnit.test('creme.search.SearchBox.keys (escape => close popover)', function() {
         advancedSearchUrl: 'mock/advancedsearch'
     }).bind(element);
 
-    equal(true, search.isBound());
+    assert.equal(true, search.isBound());
 
     element.find('input[type="text"]').trigger('focus');
 
-    equal(true, search.isOpened());
-    equal(1, element.find('.inline-search-results.showing').length);
-    equal(1, $('.glasspane').length);
+    assert.equal(true, search.isOpened());
+    assert.equal(1, element.find('.inline-search-results.showing').length);
+    assert.equal(1, $('.glasspane').length);
 
     element.find('input[type="text"]').trigger($.Event("keydown", {keyCode: 27}));
 
-    equal(false, search.isOpened());
-    equal(0, element.find('.inline-search-results.showing').length);
-    equal(0, $('.glasspane').length);
+    assert.equal(false, search.isOpened());
+    assert.equal(0, element.find('.inline-search-results.showing').length);
+    assert.equal(0, $('.glasspane').length);
 });
 
 QUnit.parameterize('creme.search.SearchBox.search (debounce)', [
@@ -634,18 +634,18 @@ QUnit.parameterize('creme.search.SearchBox.search (debounce)', [
         search._input.val('sing').trigger('input');
     }, params.secondTypingDelay);
 
-    stop(2);
+    var done = assert.async(2);
 
     // Before first debounce
     setTimeout(function() {
-        deepEqual(expected.calls.firstTyping, faker.calls());
-        start();
+        assert.deepEqual(expected.calls.firstTyping, faker.calls());
+        done();
     }, params.debounceDelay + 50);
 
     // Before second debounce
     setTimeout(function() {
-        deepEqual(expected.calls.secondTyping, faker.calls());
-        start();
+        assert.deepEqual(expected.calls.secondTyping, faker.calls());
+        done();
     }, params.secondTypingDelay + params.debounceDelay + 50);
 });
 
@@ -750,28 +750,28 @@ QUnit.parameterize('creme.search.SearchBox.search (async)', [
         search._input.val('sing').trigger('input');
     }, params.secondTypingDelay);
 
-    stop(3);
+    var done = assert.async(3);
 
     // Before first fetch response
     setTimeout(function() {
         console.log('before first debounce', params.debounceDelay - 50);
-        deepEqual(expected.queries.beforeFirstFetch, this.mockBackendUrlCalls('mock/search'));
-        start();
+        assert.deepEqual(expected.queries.beforeFirstFetch, this.mockBackendUrlCalls('mock/search'));
+        done();
     }.bind(this), params.debounceDelay - 50);
 
     // After first fetch response : debounce + backend
     setTimeout(function() {
         console.log('after first fetch max delay', params.debounceDelay + params.backendDelay + 100);
-        deepEqual(expected.queries.afterFirstFetch, this.mockBackendUrlCalls('mock/search'));
-        start();
+        assert.deepEqual(expected.queries.afterFirstFetch, this.mockBackendUrlCalls('mock/search'));
+        done();
     }.bind(this), params.debounceDelay + params.backendDelay + 50);
 
     // After second fetch response : second input + debounce + backend
     var secondFetchDelay = params.secondTypingDelay + params.debounceDelay + params.backendDelay + 50;
     setTimeout(function() {
         console.log('after second fetch max delay', secondFetchDelay);
-        deepEqual(expected.queries.afterSecondFetch, this.mockBackendUrlCalls('mock/search'));
-        start();
+        assert.deepEqual(expected.queries.afterSecondFetch, this.mockBackendUrlCalls('mock/search'));
+        done();
     }.bind(this), secondFetchDelay);
 });
 

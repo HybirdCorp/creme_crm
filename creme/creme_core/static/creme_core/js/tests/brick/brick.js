@@ -5,37 +5,37 @@ QUnit.module("creme.bricks", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUn
 QUnit.test('creme.bricks.Brick (empty)', function(assert) {
     var brick = new creme.bricks.Brick();
 
-    deepEqual({
+    assert.deepEqual({
         overlayDelay: 200,
         deferredStateSaveDelay: 1000
     }, brick._options);
 
-    deepEqual({}, brick.state());
-    ok(brick._overlay.is(creme.dialog.Overlay), 'overlay');
-    ok(brick._pager.is(creme.list.Pager), 'pager');
-    ok(brick._table.is(creme.bricks.BrickTable), 'table');
-    equal(undefined, brick._id);
-    equal(undefined, brick._stateSaveURL, 'stateSaveURL');
+    assert.deepEqual({}, brick.state());
+    assert.ok(brick._overlay.is(creme.dialog.Overlay), 'overlay');
+    assert.ok(brick._pager.is(creme.list.Pager), 'pager');
+    assert.ok(brick._table.is(creme.bricks.BrickTable), 'table');
+    assert.equal(undefined, brick._id);
+    assert.equal(undefined, brick._stateSaveURL, 'stateSaveURL');
 
-    equal(false, brick.isBound());
-    equal(false, brick.isLoading());
-    equal(false, brick.readOnly());
+    assert.equal(false, brick.isBound());
+    assert.equal(false, brick.isLoading());
+    assert.equal(false, brick.readOnly());
 });
 
 QUnit.test('creme.bricks.Brick.bind', function(assert) {
     var brick = new creme.bricks.Brick();
     var element = $('<div id="brick-creme_core-01" data-brick-id="creme_core-01"></div>');
 
-    equal(false, brick.isBound());
+    assert.equal(false, brick.isBound());
 
     brick.bind(element);
 
-    equal(true, brick.isBound());
-    equal('brick-creme_core-01', brick._id);
-    equal('brick-creme_core-01', brick.id());
-    equal('creme_core-01', brick.type_id());
-    equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
-    deepEqual({
+    assert.equal(true, brick.isBound());
+    assert.equal('brick-creme_core-01', brick._id);
+    assert.equal('brick-creme_core-01', brick.id());
+    assert.equal('creme_core-01', brick.type_id());
+    assert.equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
+    assert.deepEqual({
         collapsed: false,
         reduced: false
     }, brick.state());
@@ -45,15 +45,15 @@ QUnit.test('creme.bricks.Brick.bind (no id)', function(assert) {
     var brick = new creme.bricks.Brick();
     var element = $('<div></div>');
 
-    equal(false, brick.isBound());
+    assert.equal(false, brick.isBound());
 
     brick.bind(element);
 
-    equal(true, brick.isBound());
-    equal(undefined, brick._id);
-    equal(undefined, brick.id());
-    equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
-    deepEqual({
+    assert.equal(true, brick.isBound());
+    assert.equal(undefined, brick._id);
+    assert.equal(undefined, brick.id());
+    assert.equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
+    assert.deepEqual({
         collapsed: false,
         reduced: false
     }, brick.state());
@@ -65,13 +65,13 @@ QUnit.test('creme.bricks.Brick.bind (no state url)', function(assert) {
 
     this.setBrickStateUrl(null);
 
-    equal(false, brick.isBound());
+    assert.equal(false, brick.isBound());
 
     brick.bind(element);
 
-    equal(true, brick.isBound());
-    equal('', brick._stateSaveURL, 'stateSaveURL');
-    deepEqual({
+    assert.equal(true, brick.isBound());
+    assert.equal('', brick._stateSaveURL, 'stateSaveURL');
+    assert.deepEqual({
         collapsed: false,
         reduced: false
     }, brick.state());
@@ -83,25 +83,25 @@ QUnit.test('creme.bricks.Brick.bind (initial collapse/reduced state)', function(
     var both = $('<div class="is-collapsed is-content-reduced"></div>');
 
     var brick = new creme.bricks.Brick().bind(collapsed);
-    equal(true, brick.isBound());
-    equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
-    deepEqual({
+    assert.equal(true, brick.isBound());
+    assert.equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
+    assert.deepEqual({
         collapsed: true,
         reduced: false
     }, brick.state());
 
     brick = new creme.bricks.Brick().bind(reduced);
-    equal(true, brick.isBound());
-    equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
-    deepEqual({
+    assert.equal(true, brick.isBound());
+    assert.equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
+    assert.deepEqual({
         collapsed: false,
         reduced: true
     }, brick.state());
 
     brick = new creme.bricks.Brick().bind(both);
-    equal(true, brick.isBound());
-    equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
-    deepEqual({
+    assert.equal(true, brick.isBound());
+    assert.equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
+    assert.deepEqual({
         collapsed: true,
         reduced: true
     }, brick.state());
@@ -112,11 +112,11 @@ QUnit.test('creme.bricks.Brick.bind (already bound)', function(assert) {
     var brick = new creme.bricks.Brick();
     var element = $('<div id="brick_01"></div>');
 
-    equal(false, brick.isBound());
+    assert.equal(false, brick.isBound());
 
     brick.bind(element);
 
-    equal(true, brick.isBound());
+    assert.equal(true, brick.isBound());
 
     this.assertRaises(function() {
         brick.bind(element);
@@ -135,40 +135,40 @@ QUnit.test('creme.bricks.Brick.bind (events)', function(assert) {
            .on('brick-bind', this.mockListener('brick-bind'))
            .on('brick-setup-actions', this.mockListener('brick-setup-actions'));
 
-    deepEqual([], this.mockListenerCalls('before-bind'));
-    deepEqual([], this.mockListenerCalls('bind'));
+    assert.deepEqual([], this.mockListenerCalls('before-bind'));
+    assert.deepEqual([], this.mockListenerCalls('bind'));
 
-    deepEqual([], this.mockListenerJQueryCalls('brick-before-bind'));
-    deepEqual([], this.mockListenerJQueryCalls('brick-bind'));
+    assert.deepEqual([], this.mockListenerJQueryCalls('brick-before-bind'));
+    assert.deepEqual([], this.mockListenerJQueryCalls('brick-bind'));
 
     brick.bind(element);
 
-    deepEqual([['before-bind', element]], this.mockListenerCalls('before-bind'));
-    deepEqual([['bind', element]], this.mockListenerCalls('bind'));
-    deepEqual([['setup-actions', brick._actionBuilders]], this.mockListenerCalls('setup-actions'));
+    assert.deepEqual([['before-bind', element]], this.mockListenerCalls('before-bind'));
+    assert.deepEqual([['bind', element]], this.mockListenerCalls('bind'));
+    assert.deepEqual([['setup-actions', brick._actionBuilders]], this.mockListenerCalls('setup-actions'));
 
-    deepEqual([['brick-before-bind', [brick, element]]], this.mockListenerJQueryCalls('brick-before-bind'));
-    deepEqual([['brick-bind', [brick, element]]], this.mockListenerJQueryCalls('brick-bind'));
-    deepEqual([['brick-setup-actions', [brick, brick._actionBuilders]]], this.mockListenerJQueryCalls('brick-setup-actions'));
+    assert.deepEqual([['brick-before-bind', [brick, element]]], this.mockListenerJQueryCalls('brick-before-bind'));
+    assert.deepEqual([['brick-bind', [brick, element]]], this.mockListenerJQueryCalls('brick-bind'));
+    assert.deepEqual([['brick-setup-actions', [brick, brick._actionBuilders]]], this.mockListenerJQueryCalls('brick-setup-actions'));
 });
 
 QUnit.test('creme.bricks.Brick.unbind', function(assert) {
     var brick = new creme.bricks.Brick();
     var element = $('<div id="brick_01"></div>');
 
-    equal(false, brick.isBound());
+    assert.equal(false, brick.isBound());
 
     brick.bind(element);
-    equal(true, brick.isBound());
+    assert.equal(true, brick.isBound());
 
     brick.unbind();
-    equal(false, brick.isBound());
+    assert.equal(false, brick.isBound());
 });
 
 QUnit.test('creme.bricks.Brick.unbind (not bound)', function(assert) {
     var brick = new creme.bricks.Brick();
 
-    equal(false, brick.isBound());
+    assert.equal(false, brick.isBound());
 
     this.assertRaises(function() {
         brick.unbind();
@@ -188,19 +188,19 @@ QUnit.test('creme.bricks.Brick.unbind (events)', function(assert) {
 
     brick.bind(element);
 
-    deepEqual([], this.mockListenerCalls('before-unbind'));
-    deepEqual([], this.mockListenerCalls('unbind'));
+    assert.deepEqual([], this.mockListenerCalls('before-unbind'));
+    assert.deepEqual([], this.mockListenerCalls('unbind'));
 
-    deepEqual([], this.mockListenerJQueryCalls('brick-before-unbind'));
-    deepEqual([], this.mockListenerJQueryCalls('brick-unbind'));
+    assert.deepEqual([], this.mockListenerJQueryCalls('brick-before-unbind'));
+    assert.deepEqual([], this.mockListenerJQueryCalls('brick-unbind'));
 
     brick.unbind();
 
-    deepEqual([['before-unbind', element]], this.mockListenerCalls('before-unbind'));
-    deepEqual([['unbind', element]], this.mockListenerCalls('unbind'));
+    assert.deepEqual([['before-unbind', element]], this.mockListenerCalls('before-unbind'));
+    assert.deepEqual([['unbind', element]], this.mockListenerCalls('unbind'));
 
-    deepEqual([['brick-before-unbind', [brick, element]]], this.mockListenerJQueryCalls('brick-before-unbind'));
-    deepEqual([['brick-unbind', [brick, element]]], this.mockListenerJQueryCalls('brick-unbind'));
+    assert.deepEqual([['brick-before-unbind', [brick, element]]], this.mockListenerJQueryCalls('brick-before-unbind'));
+    assert.deepEqual([['brick-unbind', [brick, element]]], this.mockListenerJQueryCalls('brick-unbind'));
 });
 
 QUnit.test('creme.bricks.Brick.trigger', function(assert) {
@@ -211,25 +211,25 @@ QUnit.test('creme.bricks.Brick.trigger', function(assert) {
     element.on('brick-testit', this.mockListener('brick-testit'));
 
     brick.trigger('testit', [12, 'b']);
-    deepEqual([['testit', 12, 'b']], this.mockListenerCalls('testit'));
-    deepEqual([], this.mockListenerJQueryCalls('brick-testit'));
+    assert.deepEqual([['testit', 12, 'b']], this.mockListenerCalls('testit'));
+    assert.deepEqual([], this.mockListenerJQueryCalls('brick-testit'));
 
     brick.bind(element);
 
     brick.trigger('testit', [73, 'ab']);
-    deepEqual([
+    assert.deepEqual([
         ['testit', 12, 'b'],
         ['testit', 73, 'ab']
     ], this.mockListenerCalls('testit'));
-    deepEqual([['brick-testit', [brick, 73, 'ab']]], this.mockListenerJQueryCalls('brick-testit'));
+    assert.deepEqual([['brick-testit', [brick, 73, 'ab']]], this.mockListenerJQueryCalls('brick-testit'));
 
     brick.trigger('testit');
-    deepEqual([
+    assert.deepEqual([
         ['testit', 12, 'b'],
         ['testit', 73, 'ab'],
         ['testit']
     ], this.mockListenerCalls('testit'));
-    deepEqual([
+    assert.deepEqual([
         ['brick-testit', [brick, 73, 'ab']],
         ['brick-testit', [brick]]
     ], this.mockListenerJQueryCalls('brick-testit'));
@@ -238,30 +238,30 @@ QUnit.test('creme.bricks.Brick.trigger', function(assert) {
 QUnit.test('creme.bricks.Brick.isLoading', function(assert) {
     var Brick = creme.bricks.Brick;
 
-    equal(false, new Brick().readOnly());
-    equal(false, new Brick().bind($('<div></div>')).isLoading());
-    equal(true, new Brick().bind($('<div class="is-loading"></div>')).isLoading());
+    assert.equal(false, new Brick().readOnly());
+    assert.equal(false, new Brick().bind($('<div></div>')).isLoading());
+    assert.equal(true, new Brick().bind($('<div class="is-loading"></div>')).isLoading());
 });
 
 QUnit.test('creme.bricks.Brick.readOnly', function(assert) {
     var Brick = creme.bricks.Brick;
 
-    equal(false, new Brick().readOnly());
-    equal(false, new Brick().bind($('<div></div>')).readOnly());
-    equal(false, new Brick().bind($('<div data-brick-readonly></div>')).readOnly());
-    equal(false, new Brick().bind($('<div data-brick-readonly="boo"></div>')).readOnly());
-    equal(false, new Brick().bind($('<div data-brick-readonly="false"></div>')).readOnly());
-    equal(true, new Brick().bind($('<div data-brick-readonly="true"></div>')).readOnly());
+    assert.equal(false, new Brick().readOnly());
+    assert.equal(false, new Brick().bind($('<div></div>')).readOnly());
+    assert.equal(false, new Brick().bind($('<div data-brick-readonly></div>')).readOnly());
+    assert.equal(false, new Brick().bind($('<div data-brick-readonly="boo"></div>')).readOnly());
+    assert.equal(false, new Brick().bind($('<div data-brick-readonly="false"></div>')).readOnly());
+    assert.equal(true, new Brick().bind($('<div data-brick-readonly="true"></div>')).readOnly());
 });
 
 QUnit.test('creme.bricks.Brick.dependencies', function(assert) {
     var Brick = creme.bricks.Brick;
 
-    deepEqual([], new Brick().dependencies().keys());
-    deepEqual([], new Brick().bind($('<div></div>')).dependencies().keys());
-    deepEqual([], new Brick().bind($('<div data-brick-deps></div>')).dependencies().keys());
-    deepEqual([], new Brick().bind($('<div data-brick-deps="not json"></div>')).dependencies().keys());
-    deepEqual(['a', 'b', 'c'],
+    assert.deepEqual([], new Brick().dependencies().keys());
+    assert.deepEqual([], new Brick().bind($('<div></div>')).dependencies().keys());
+    assert.deepEqual([], new Brick().bind($('<div data-brick-deps></div>')).dependencies().keys());
+    assert.deepEqual([], new Brick().bind($('<div data-brick-deps="not json"></div>')).dependencies().keys());
+    assert.deepEqual(['a', 'b', 'c'],
               new Brick().bind($('<div data-brick-deps="[&quot;a&quot;,&quot;b&quot;,&quot;c&quot;]"></div>'))
                          .dependencies().keys());
 });
@@ -269,24 +269,24 @@ QUnit.test('creme.bricks.Brick.dependencies', function(assert) {
 QUnit.test('creme.bricks.Brick.reloadingInfo', function(assert) {
     var Brick = creme.bricks.Brick;
 
-    deepEqual({}, new Brick().reloadingInfo());
-    deepEqual({}, new Brick().bind($('<div></div>')).reloadingInfo());
-    deepEqual({}, new Brick().bind($('<div data-brick-reloading-info></div>')).reloadingInfo());
-    deepEqual({}, new Brick().bind($('<div data-brick-reloading-info="not json"></div>')).reloadingInfo());
-    deepEqual({a: 12}, new Brick().bind($('<div data-brick-reloading-info="{&quot;a&quot;:12}"></div>')).reloadingInfo());
+    assert.deepEqual({}, new Brick().reloadingInfo());
+    assert.deepEqual({}, new Brick().bind($('<div></div>')).reloadingInfo());
+    assert.deepEqual({}, new Brick().bind($('<div data-brick-reloading-info></div>')).reloadingInfo());
+    assert.deepEqual({}, new Brick().bind($('<div data-brick-reloading-info="not json"></div>')).reloadingInfo());
+    assert.deepEqual({a: 12}, new Brick().bind($('<div data-brick-reloading-info="{&quot;a&quot;:12}"></div>')).reloadingInfo());
 });
 
 QUnit.test('creme.bricks.Brick.title', function(assert) {
     var Brick = creme.bricks.Brick;
 
-    equal(undefined, new Brick().title());
-    equal(undefined, new Brick().bind($('<div>' +
+    assert.equal(undefined, new Brick().title());
+    assert.equal(undefined, new Brick().bind($('<div>' +
             '<div class="brick-header">' +
                 '<div class="brick-title">This is a title</div>' +
             '</div>' +
         '</div>')).title());
 
-    equal('This is a alt title', new Brick().bind($('<div>' +
+    assert.equal('This is a alt title', new Brick().bind($('<div>' +
             '<div class="brick-header">' +
                 '<div class="brick-title" title="This is a alt title">This is a title</div>' +
             '</div>' +
@@ -305,24 +305,24 @@ QUnit.test('creme.bricks.Brick.setState', function(assert) {
     var state_both = { collapsed: true, reduced: true };
 
     brick.bind(element);
-    deepEqual(state_none, brick.state());
-    equal(false, element.is('.is-collapsed'));
-    equal(false, element.is('.is-content-reduced'));
+    assert.deepEqual(state_none, brick.state());
+    assert.equal(false, element.is('.is-collapsed'));
+    assert.equal(false, element.is('.is-content-reduced'));
 
     brick.setState(state_collapsed);
-    deepEqual(state_collapsed, brick.state());
-    equal(true, element.is('.is-collapsed'));
-    equal(false, element.is('.is-content-reduced'));
+    assert.deepEqual(state_collapsed, brick.state());
+    assert.equal(true, element.is('.is-collapsed'));
+    assert.equal(false, element.is('.is-content-reduced'));
 
     brick.setState(state_reduced);
-    deepEqual(state_reduced, brick.state());
-    equal(false, element.is('.is-collapsed'));
-    equal(true, element.is('.is-content-reduced'));
+    assert.deepEqual(state_reduced, brick.state());
+    assert.equal(false, element.is('.is-collapsed'));
+    assert.equal(true, element.is('.is-content-reduced'));
 
     brick.setState(state_both);
-    deepEqual(state_both, brick.state());
-    equal(true, element.is('.is-collapsed'));
-    equal(true, element.is('.is-content-reduced'));
+    assert.deepEqual(state_both, brick.state());
+    assert.equal(true, element.is('.is-collapsed'));
+    assert.equal(true, element.is('.is-content-reduced'));
 });
 
 QUnit.test('creme.bricks.Brick.toggleState', function(assert) {
@@ -337,35 +337,35 @@ QUnit.test('creme.bricks.Brick.toggleState', function(assert) {
     var state_both = { collapsed: true, reduced: true };
 
     brick.bind(element);
-    deepEqual(state_none, brick.state());
-    equal(false, element.is('.is-collapsed'));
-    equal(false, element.is('.is-content-reduced'));
+    assert.deepEqual(state_none, brick.state());
+    assert.equal(false, element.is('.is-collapsed'));
+    assert.equal(false, element.is('.is-content-reduced'));
 
     brick.toggleState('collapsed');
-    deepEqual(state_collapsed, brick.state());
-    equal(true, element.is('.is-collapsed'));
-    equal(false, element.is('.is-content-reduced'));
+    assert.deepEqual(state_collapsed, brick.state());
+    assert.equal(true, element.is('.is-collapsed'));
+    assert.equal(false, element.is('.is-content-reduced'));
 
     brick.toggleState('collapsed');
-    deepEqual(state_none, brick.state());
-    equal(false, element.is('.is-collapsed'));
-    equal(false, element.is('.is-content-reduced'));
+    assert.deepEqual(state_none, brick.state());
+    assert.equal(false, element.is('.is-collapsed'));
+    assert.equal(false, element.is('.is-content-reduced'));
 
     brick.toggleState('reduced');
-    deepEqual(state_reduced, brick.state());
-    equal(false, element.is('.is-collapsed'));
-    equal(true, element.is('.is-content-reduced'));
+    assert.deepEqual(state_reduced, brick.state());
+    assert.equal(false, element.is('.is-collapsed'));
+    assert.equal(true, element.is('.is-content-reduced'));
 
     brick.toggleState('reduced');
-    deepEqual(state_none, brick.state());
-    equal(false, element.is('.is-collapsed'));
-    equal(false, element.is('.is-content-reduced'));
+    assert.deepEqual(state_none, brick.state());
+    assert.equal(false, element.is('.is-collapsed'));
+    assert.equal(false, element.is('.is-content-reduced'));
 
     brick.toggleState('reduced');
     brick.toggleState('collapsed');
-    deepEqual(state_both, brick.state());
-    equal(true, element.is('.is-collapsed'));
-    equal(true, element.is('.is-content-reduced'));
+    assert.deepEqual(state_both, brick.state());
+    assert.equal(true, element.is('.is-collapsed'));
+    assert.equal(true, element.is('.is-content-reduced'));
 });
 
 QUnit.test('creme.bricks.Brick.saveState', function(assert) {
@@ -374,19 +374,19 @@ QUnit.test('creme.bricks.Brick.saveState', function(assert) {
                 });
     var element = $('<div></div>');
 
-    equal(false, brick.isBound());
-    equal(undefined, brick._stateSaveURL, 'stateSaveURL');
+    assert.equal(false, brick.isBound());
+    assert.equal(undefined, brick._stateSaveURL, 'stateSaveURL');
 
     brick.saveState();
-    equal(0, this.backend.counts.POST);
+    assert.equal(0, this.backend.counts.POST);
 
     brick.bind(element);
-    equal(true, brick.isBound());
-    equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
-    equal(0, this.backend.counts.POST);
+    assert.equal(true, brick.isBound());
+    assert.equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
+    assert.equal(0, this.backend.counts.POST);
 
     brick.saveState();
-    equal(1, this.backend.counts.POST);
+    assert.equal(1, this.backend.counts.POST);
 });
 
 QUnit.test('creme.bricks.Brick.saveState (no save stateURL)', function(assert) {
@@ -398,12 +398,12 @@ QUnit.test('creme.bricks.Brick.saveState (no save stateURL)', function(assert) {
     this.setBrickStateUrl(null);
 
     brick.bind(element);
-    equal(true, brick.isBound());
-    equal("", brick._stateSaveURL, 'stateSaveURL');
-    equal(0, this.backend.counts.POST);
+    assert.equal(true, brick.isBound());
+    assert.equal("", brick._stateSaveURL, 'stateSaveURL');
+    assert.equal(0, this.backend.counts.POST);
 
     brick.saveState();
-    equal(0, this.backend.counts.POST);
+    assert.equal(0, this.backend.counts.POST);
 });
 
 
@@ -413,25 +413,25 @@ QUnit.test('creme.bricks.Brick.deferredSaveState', function(assert) {
                 });
     var element = $('<div></div>');
 
-    equal(false, brick.isBound());
-    equal(undefined, brick._stateSaveURL, 'stateSaveURL');
+    assert.equal(false, brick.isBound());
+    assert.equal(undefined, brick._stateSaveURL, 'stateSaveURL');
 
     brick.saveState();
-    equal(0, this.backend.counts.POST);
+    assert.equal(0, this.backend.counts.POST);
 
     brick.bind(element);
-    equal(true, brick.isBound());
-    equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
-    equal(0, this.backend.counts.POST);
+    assert.equal(true, brick.isBound());
+    assert.equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
+    assert.equal(0, this.backend.counts.POST);
 
     brick.toggleState('collapsed');
-    equal(0, this.backend.counts.POST);
+    assert.equal(0, this.backend.counts.POST);
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
-        equal(1, this.backend.counts.POST);
-        start();
+        assert.equal(1, this.backend.counts.POST);
+        done();
     }.bind(this), 200);
 });
 
@@ -443,36 +443,36 @@ QUnit.test('creme.bricks.Brick.setLoadingState', function(assert) {
     element.on('brick-loading-complete', this.mockListener('loading-complete'));
 
     brick.setLoadingState(true, 'Loading test...');
-    equal(false, brick.isBound());
-    equal(false, brick.isLoading());
-    equal(undefined, brick._defaultLoadingMessage);
-    deepEqual([], this.mockListenerCalls('loading-start'));
-    deepEqual([], this.mockListenerCalls('loading-complete'));
+    assert.equal(false, brick.isBound());
+    assert.equal(false, brick.isLoading());
+    assert.equal(undefined, brick._defaultLoadingMessage);
+    assert.deepEqual([], this.mockListenerCalls('loading-start'));
+    assert.deepEqual([], this.mockListenerCalls('loading-complete'));
 
     brick.bind(element);
     brick.setLoadingState(true, 'Loading test...');
-    equal(true, brick.isBound());
-    equal(true, brick.isLoading());
-    equal('Loading test...', $('.brick-loading-indicator-title', element).html());
-    deepEqual([['brick-loading-start']], this.mockListenerJQueryCalls('loading-start'));
-    deepEqual([], this.mockListenerCalls('loading-complete'));
+    assert.equal(true, brick.isBound());
+    assert.equal(true, brick.isLoading());
+    assert.equal('Loading test...', $('.brick-loading-indicator-title', element).html());
+    assert.deepEqual([['brick-loading-start']], this.mockListenerJQueryCalls('loading-start'));
+    assert.deepEqual([], this.mockListenerCalls('loading-complete'));
 
     brick.setLoadingState(true, 'Loading test...'); // twice, state not changed
-    equal(true, brick.isLoading());
-    deepEqual([['brick-loading-start']], this.mockListenerJQueryCalls('loading-start'));
-    deepEqual([], this.mockListenerCalls('loading-complete'));
+    assert.equal(true, brick.isLoading());
+    assert.deepEqual([['brick-loading-start']], this.mockListenerJQueryCalls('loading-start'));
+    assert.deepEqual([], this.mockListenerCalls('loading-complete'));
 
     brick.setLoadingState(false);
-    equal(false, brick.isLoading());
-    equal('', $('.brick-loading-indicator-title', element).html());
-    deepEqual([['brick-loading-start']], this.mockListenerJQueryCalls('loading-start'));
-    deepEqual([['brick-loading-complete']], this.mockListenerJQueryCalls('loading-complete'));
+    assert.equal(false, brick.isLoading());
+    assert.equal('', $('.brick-loading-indicator-title', element).html());
+    assert.deepEqual([['brick-loading-start']], this.mockListenerJQueryCalls('loading-start'));
+    assert.deepEqual([['brick-loading-complete']], this.mockListenerJQueryCalls('loading-complete'));
 
     brick.setLoadingState(false); // twice, state not changed
-    equal(false, brick.isLoading());
-    equal('', $('.brick-loading-indicator-title', element).html());
-    deepEqual([['brick-loading-start']], this.mockListenerJQueryCalls('loading-start'));
-    deepEqual([['brick-loading-complete']], this.mockListenerJQueryCalls('loading-complete'));
+    assert.equal(false, brick.isLoading());
+    assert.equal('', $('.brick-loading-indicator-title', element).html());
+    assert.deepEqual([['brick-loading-start']], this.mockListenerJQueryCalls('loading-start'));
+    assert.deepEqual([['brick-loading-complete']], this.mockListenerJQueryCalls('loading-complete'));
 });
 
 QUnit.test('creme.bricks.Brick.setLoadingState (default message)', function(assert) {
@@ -481,21 +481,21 @@ QUnit.test('creme.bricks.Brick.setLoadingState (default message)', function(asse
 
     brick.bind(element);
     brick.setLoadingState(true);
-    equal(true, brick.isBound());
-    equal(true, brick.isLoading());
-    equal('Default loading...', $('.brick-loading-indicator-title', element).html());
+    assert.equal(true, brick.isBound());
+    assert.equal(true, brick.isLoading());
+    assert.equal('Default loading...', $('.brick-loading-indicator-title', element).html());
 
     brick.setLoadingState(false);
-    equal(false, brick.isLoading());
-    equal('Default loading...', $('.brick-loading-indicator-title', element).html());
+    assert.equal(false, brick.isLoading());
+    assert.equal('Default loading...', $('.brick-loading-indicator-title', element).html());
 
     brick.setLoadingState(true, 'Loading test...'); // twice, state not changed
-    equal(true, brick.isLoading());
-    equal('Loading test...', $('.brick-loading-indicator-title', element).html());
+    assert.equal(true, brick.isLoading());
+    assert.equal('Loading test...', $('.brick-loading-indicator-title', element).html());
 
     brick.setLoadingState(false);
-    equal(false, brick.isLoading());
-    equal('Default loading...', $('.brick-loading-indicator-title', element).html());
+    assert.equal(false, brick.isLoading());
+    assert.equal('Default loading...', $('.brick-loading-indicator-title', element).html());
 });
 
 QUnit.test('creme.bricks.Brick.setDownloadStatus', function(assert) {
@@ -503,19 +503,19 @@ QUnit.test('creme.bricks.Brick.setDownloadStatus', function(assert) {
     var element = $('<div><div class="brick-header"></div></div>');
 
     brick.setDownloadStatus(10);
-    equal(undefined, element.find('.brick-header').attr('data-loading-progress'));
+    assert.equal(undefined, element.find('.brick-header').attr('data-loading-progress'));
 
     brick.bind(element);
-    equal(undefined, element.find('.brick-header').attr('data-loading-progress'));
+    assert.equal(undefined, element.find('.brick-header').attr('data-loading-progress'));
 
     brick.setDownloadStatus(0);
-    equal(0, element.find('.brick-header').attr('data-loading-progress'));
+    assert.equal(0, element.find('.brick-header').attr('data-loading-progress'));
 
     brick.setDownloadStatus(50);
-    equal(50, element.find('.brick-header').attr('data-loading-progress'));
+    assert.equal(50, element.find('.brick-header').attr('data-loading-progress'));
 
     brick.setDownloadStatus(100);
-    equal(100, element.find('.brick-header').attr('data-loading-progress'));
+    assert.equal(100, element.find('.brick-header').attr('data-loading-progress'));
 });
 
 QUnit.test('creme.bricks.Brick.setSelectionState (no title data)', function(assert) {
@@ -528,22 +528,22 @@ QUnit.test('creme.bricks.Brick.setSelectionState (no title data)', function(asse
 
     brick.setSelectionState(0, 10);
 
-    equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
     brick.bind(element);
 
-    equal(true, brick.isBound());
-    equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(true, brick.isBound());
+    assert.equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
     brick.setSelectionState(0, 10);
-    equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
     brick.setSelectionState(5, 10);
-    equal(true, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(true, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('', element.find('.brick-selection-title').text());
 });
 
 QUnit.test('creme.bricks.Brick.setSelectionState (no plural data)', function(assert) {
@@ -556,22 +556,22 @@ QUnit.test('creme.bricks.Brick.setSelectionState (no plural data)', function(ass
 
     brick.setSelectionState(0, 10);
 
-    equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
     brick.bind(element);
 
-    equal(true, brick.isBound());
-    equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(true, brick.isBound());
+    assert.equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
     brick.setSelectionState(0, 10);
-    equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
     brick.setSelectionState(5, 10);
-    equal(true, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('5 entry', element.find('.brick-selection-title').text());
+    assert.equal(true, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('5 entry', element.find('.brick-selection-title').text());
 });
 
 QUnit.test('creme.bricks.Brick.setSelectionState (plural data)', function(assert) {
@@ -584,40 +584,40 @@ QUnit.test('creme.bricks.Brick.setSelectionState (plural data)', function(assert
 
     brick.setSelectionState(0, 10);
 
-    equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
     brick.bind(element);
 
-    equal(true, brick.isBound());
-    equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(true, brick.isBound());
+    assert.equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
     brick.setSelectionState(0, 10);
-    equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
     brick.setSelectionState();
-    equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
     brick.setSelectionState(-10, -5);
-    equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
     brick.setSelectionState(5, 10);
-    equal(true, element.find('.brick-selection-indicator').is('.has-selection'));
-    equal('5 entries on 10', element.find('.brick-selection-title').text());
+    assert.equal(true, element.find('.brick-selection-indicator').is('.has-selection'));
+    assert.equal('5 entries on 10', element.find('.brick-selection-title').text());
 });
 
 QUnit.test('creme.bricks.Brick.redirect', function(assert) {
     var brick = new creme.bricks.Brick();
 
     brick.redirect('mock/redirected');
-    deepEqual(['mock/redirected'], this.mockRedirectCalls());
+    assert.deepEqual(['mock/redirected'], this.mockRedirectCalls());
 
     brick.redirect('${location}/redirected');
-    deepEqual(['mock/redirected',
+    assert.deepEqual(['mock/redirected',
                window.location.href.replace(/.*?:\/\/[^\/]*/g, '') + '/redirected'], this.mockRedirectCalls());
 });
 
@@ -626,7 +626,7 @@ QUnit.test('creme.bricks.Brick.refresh (widget not ready)', function(assert) {
     var element = $('<div class="brick ui-creme-widget" widget="brick"></div>').appendTo(this.qunitFixture());
 
     brick.refresh();
-    deepEqual([], this.mockBackendCalls());
+    assert.deepEqual([], this.mockBackendCalls());
 
     brick.bind(element);
     brick.refresh({}, {
@@ -635,10 +635,10 @@ QUnit.test('creme.bricks.Brick.refresh (widget not ready)', function(assert) {
         'fail': this.mockListener('refresh-error')
     });
 
-    deepEqual([], this.mockBackendCalls());
-    deepEqual([], this.mockListenerCalls('refresh-done'));
-    deepEqual([], this.mockListenerCalls('refresh-cancel'));
-    deepEqual([['fail', 'Missing or invalid source brick']], this.mockListenerCalls('refresh-error'));
+    assert.deepEqual([], this.mockBackendCalls());
+    assert.deepEqual([], this.mockListenerCalls('refresh-done'));
+    assert.deepEqual([], this.mockListenerCalls('refresh-cancel'));
+    assert.deepEqual([['fail', 'Missing or invalid source brick']], this.mockListenerCalls('refresh-error'));
 });
 
 QUnit.test('creme.bricks.Brick.refresh (no reload url)', function(assert) {
@@ -650,9 +650,9 @@ QUnit.test('creme.bricks.Brick.refresh (no reload url)', function(assert) {
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
-    equal(true, brick.isBound());
-    equal('brick-creme_core-test', brick.id());
-    equal('creme_core-test', brick.type_id());
+    assert.equal(true, brick.isBound());
+    assert.equal('brick-creme_core-test', brick.id());
+    assert.equal('creme_core-test', brick.type_id());
 
     brick.refresh({}, {
         'done': this.mockListener('refresh-done'),
@@ -660,10 +660,10 @@ QUnit.test('creme.bricks.Brick.refresh (no reload url)', function(assert) {
         'fail': this.mockListener('refresh-error')
     });
 
-    deepEqual([], this.mockBackendCalls());
-    deepEqual([], this.mockListenerCalls('refresh-done'));
-    deepEqual([], this.mockListenerCalls('refresh-cancel'));
-    deepEqual([
+    assert.deepEqual([], this.mockBackendCalls());
+    assert.deepEqual([], this.mockListenerCalls('refresh-done'));
+    assert.deepEqual([], this.mockListenerCalls('refresh-cancel'));
+    assert.deepEqual([
         ['fail', Error('Unable to send request with empty url'),
             new creme.ajax.AjaxResponse(400, 'Unable to send request with empty url')
         ]
@@ -679,8 +679,8 @@ QUnit.test('creme.bricks.Brick.refresh (empty reload url)', function(assert) {
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
-    equal(true, brick.isBound());
-    equal('brick-creme_core-test', brick.id());
+    assert.equal(true, brick.isBound());
+    assert.equal('brick-creme_core-test', brick.id());
 
     brick.refresh({}, {
         'done': this.mockListener('refresh-done'),
@@ -688,10 +688,10 @@ QUnit.test('creme.bricks.Brick.refresh (empty reload url)', function(assert) {
         'fail': this.mockListener('refresh-error')
     });
 
-    deepEqual([], this.mockBackendCalls());
-    deepEqual([], this.mockListenerCalls('refresh-done'));
-    deepEqual([], this.mockListenerCalls('refresh-cancel'));
-    deepEqual([
+    assert.deepEqual([], this.mockBackendCalls());
+    assert.deepEqual([], this.mockListenerCalls('refresh-done'));
+    assert.deepEqual([], this.mockListenerCalls('refresh-cancel'));
+    assert.deepEqual([
         ['fail', Error('Unable to send request with empty url'),
             new creme.ajax.AjaxResponse(400, 'Unable to send request with empty url')
         ]
@@ -703,8 +703,8 @@ QUnit.test('creme.bricks.Brick.refresh (no id)', function(assert) {
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
-    equal(true, brick.isBound());
-    equal(undefined, brick.id());
+    assert.equal(true, brick.isBound());
+    assert.equal(undefined, brick.id());
 
     brick.refresh({}, {
         'done': this.mockListener('refresh-done'),
@@ -712,10 +712,10 @@ QUnit.test('creme.bricks.Brick.refresh (no id)', function(assert) {
         'fail': this.mockListener('refresh-error')
     });
 
-    deepEqual([], this.mockBackendCalls());
-    deepEqual([], this.mockListenerCalls('refresh-done'));
-    deepEqual([], this.mockListenerCalls('refresh-cancel'));
-    deepEqual([['fail', 'Missing or invalid source brick']], this.mockListenerCalls('refresh-error'));
+    assert.deepEqual([], this.mockBackendCalls());
+    assert.deepEqual([], this.mockListenerCalls('refresh-done'));
+    assert.deepEqual([], this.mockListenerCalls('refresh-cancel'));
+    assert.deepEqual([['fail', 'Missing or invalid source brick']], this.mockListenerCalls('refresh-error'));
 });
 
 QUnit.test('creme.bricks.Brick.refresh (no data-brick-id)', function(assert) {
@@ -725,9 +725,9 @@ QUnit.test('creme.bricks.Brick.refresh (no data-brick-id)', function(assert) {
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
-    equal(true, brick.isBound());
-    equal('brick-creme_core-test', brick.id());
-    equal(undefined, brick.type_id());
+    assert.equal(true, brick.isBound());
+    assert.equal('brick-creme_core-test', brick.id());
+    assert.equal(undefined, brick.type_id());
 
     brick.refresh({}, {
         'done': this.mockListener('refresh-done'),
@@ -735,10 +735,10 @@ QUnit.test('creme.bricks.Brick.refresh (no data-brick-id)', function(assert) {
         'fail': this.mockListener('refresh-error')
     });
 
-    deepEqual([], this.mockBackendCalls());
-    deepEqual([], this.mockListenerCalls('refresh-done'));
-    deepEqual([], this.mockListenerCalls('refresh-cancel'));
-    deepEqual([['fail', 'Missing or invalid source brick']], this.mockListenerCalls('refresh-error'));
+    assert.deepEqual([], this.mockBackendCalls());
+    assert.deepEqual([], this.mockListenerCalls('refresh-done'));
+    assert.deepEqual([], this.mockListenerCalls('refresh-cancel'));
+    assert.deepEqual([['fail', 'Missing or invalid source brick']], this.mockListenerCalls('refresh-error'));
 });
 
 QUnit.test('creme.bricks.Brick.refresh', function(assert) {
@@ -749,13 +749,13 @@ QUnit.test('creme.bricks.Brick.refresh', function(assert) {
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
-    equal(true, brick.isBound());
-//    equal('brick-for-test', brick.id());
-    equal('brick-creme_core-test', brick.id());
-    equal('creme_core-test', brick.type_id());
+    assert.equal(true, brick.isBound());
+//    assert.equal('brick-for-test', brick.id());
+    assert.equal('brick-creme_core-test', brick.id());
+    assert.equal('creme_core-test', brick.type_id());
 
     brick.refresh();
-    deepEqual([
+    assert.deepEqual([
 //        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
@@ -769,12 +769,12 @@ QUnit.test('creme.bricks.Brick.refresh (from pager)', function(assert) {
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
-    equal(true, brick.isBound());
-    equal('brick-creme_core-test', brick.id());
-    equal('creme_core-test', brick.type_id());
+    assert.equal(true, brick.isBound());
+    assert.equal('brick-creme_core-test', brick.id());
+    assert.equal('creme_core-test', brick.type_id());
 
     brick._pager.refresh(2);
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test"], "creme_core-test_page": 2, "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -791,24 +791,24 @@ QUnit.test('creme.bricks.Brick.refresh (no deps)', function(assert) {
     this.setBrickReloadContent('brick-A', htmlA);
     this.setBrickReloadContent('brick-B', htmlB);
 
-    equal(true, brickA.isBound());
-    equal('brick-A', brickA.id());
-    deepEqual([], brickA.dependencies().keys());
+    assert.equal(true, brickA.isBound());
+    assert.equal('brick-A', brickA.id());
+    assert.deepEqual([], brickA.dependencies().keys());
 
-    equal(true, brickB.isBound());
-    equal('brick-B', brickB.id());
-    deepEqual([], brickB.dependencies().keys());
+    assert.equal(true, brickB.isBound());
+    assert.equal('brick-B', brickB.id());
+    assert.deepEqual([], brickB.dependencies().keys());
 
     brickA.refresh();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["A"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
     brickB.refresh();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["B"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -824,24 +824,24 @@ QUnit.test('creme.bricks.Brick.refresh (no deps intersection)', function(assert)
     this.setBrickReloadContent('brick-A', htmlA);
     this.setBrickReloadContent('brick-B', htmlB);
 
-    equal(true, brickA.isBound());
-    equal('brick-A', brickA.id());
-    deepEqual(['dep1'], brickA.dependencies().keys());
+    assert.equal(true, brickA.isBound());
+    assert.equal('brick-A', brickA.id());
+    assert.deepEqual(['dep1'], brickA.dependencies().keys());
 
-    equal(true, brickB.isBound());
-    equal('brick-B', brickB.id());
-    deepEqual(['dep2'], brickB.dependencies().keys());
+    assert.equal(true, brickB.isBound());
+    assert.equal('brick-B', brickB.id());
+    assert.deepEqual(['dep2'], brickB.dependencies().keys());
 
     brickA.refresh();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["A"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
     brickB.refresh();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["B"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -857,28 +857,28 @@ QUnit.test('creme.bricks.Brick.refresh (single intersection)', function(assert) 
     this.setBrickReloadContent('brick-A', htmlA);
     this.setBrickReloadContent('brick-B', htmlB);
 
-    equal(true, brickA.isBound());
-    equal('brick-A', brickA.id());
-    deepEqual(['dep1', 'dep3'], brickA.dependencies().keys());
+    assert.equal(true, brickA.isBound());
+    assert.equal('brick-A', brickA.id());
+    assert.deepEqual(['dep1', 'dep3'], brickA.dependencies().keys());
 
-    equal(true, brickB.isBound());
-    equal('brick-B', brickB.id());
-    deepEqual(['dep1', 'dep2'], brickB.dependencies().keys());
+    assert.equal(true, brickB.isBound());
+    assert.equal('brick-B', brickB.id());
+    assert.deepEqual(['dep1', 'dep2'], brickB.dependencies().keys());
 
     brickA.refresh();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["A", "B"], "extra_data": "{}"}]    // refresh A and B (=> "dep1" dependency)
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
 
     brickB = $('#brick-B').creme().widget().brick();
-    equal(true, brickB.isBound());
+    assert.equal(true, brickB.isBound());
 
     brickB.refresh();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["A", "B"], "extra_data": "{}"}]    // refresh B and A (=> "dep1" dependency)
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -898,46 +898,46 @@ QUnit.test('creme.bricks.Brick.refresh (wildcard deps)', function(assert) {
     this.setBrickReloadContent('brick-B', htmlB);
     this.setBrickReloadContent('brick-C', htmlC);
 
-    equal(true, brickA.isBound());
-    equal('brick-A', brickA.id());
-    equal('A', brickA.type_id());
-    deepEqual(['dep1'], brickA.dependencies().keys());
+    assert.equal(true, brickA.isBound());
+    assert.equal('brick-A', brickA.id());
+    assert.equal('A', brickA.type_id());
+    assert.deepEqual(['dep1'], brickA.dependencies().keys());
 
-    equal(true, brickB.isBound());
-    equal('brick-B', brickB.id());
-    equal('B', brickB.type_id());
-    deepEqual([], brickB.dependencies().keys());
-    equal(true, brickB.dependencies().isWildcard());
+    assert.equal(true, brickB.isBound());
+    assert.equal('brick-B', brickB.id());
+    assert.equal('B', brickB.type_id());
+    assert.deepEqual([], brickB.dependencies().keys());
+    assert.equal(true, brickB.dependencies().isWildcard());
 
-    equal(true, brickC.isBound());
-    equal('brick-C', brickC.id());
-    deepEqual(['dep2'], brickC.dependencies().keys());
+    assert.equal(true, brickC.isBound());
+    assert.equal('brick-C', brickC.id());
+    assert.deepEqual(['dep2'], brickC.dependencies().keys());
 
     brickA.refresh();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["A", "B"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
 
     brickB = $('#brick-B').creme().widget().brick();
-    equal(true, brickB.isBound());
+    assert.equal(true, brickB.isBound());
 
     brickB.refresh();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["A", "B", "C"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
 
     brickC = $('#brick-C').creme().widget().brick();
-    equal(true, brickC.isBound());
+    assert.equal(true, brickC.isBound());
 
     brickC.refresh();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["B", "C"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });

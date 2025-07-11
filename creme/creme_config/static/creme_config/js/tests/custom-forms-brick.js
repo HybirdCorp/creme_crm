@@ -124,8 +124,8 @@ QUnit.module("creme.FormGroupsController", new QUnitMixin(QUnitEventMixin,
         var widget = creme.widget.create(element);
         var brick = widget.brick();
 
-        equal(true, brick.isBound());
-        equal(false, brick.isLoading());
+        this.assert.equal(true, brick.isBound());
+        this.assert.equal(false, brick.isLoading());
 
         return widget;
     }
@@ -143,9 +143,9 @@ QUnit.test('creme.FormGroupsController (bind)', function(assert) {
         expandUrl: 'mock/group/expand'
     });
 
-    equal(controller.isBound(), false);
+    assert.equal(controller.isBound(), false);
     controller.bind(brick);
-    equal(controller.isBound(), true);
+    assert.equal(controller.isBound(), true);
 
     this.assertRaises(function() {
         controller.bind(brick);
@@ -184,14 +184,14 @@ QUnit.test('creme.FormGroupsController (items)', function(assert) {
     });
 
     controller.bind(brick);
-    equal(controller.isBound(), true);
+    assert.equal(controller.isBound(), true);
 
     var ctypeElements = controller.ctypes();
-    equal(ctypeElements.length, 2);
+    assert.equal(ctypeElements.length, 2);
 
-    equal(controller.ctype(ctypeIdA).length, 1);
-    equal(controller.ctype(ctypeIdB).length, 1);
-    equal(controller.ctype('unknown').length, 0);
+    assert.equal(controller.ctype(ctypeIdA).length, 1);
+    assert.equal(controller.ctype(ctypeIdB).length, 1);
+    assert.equal(controller.ctype('unknown').length, 0);
 });
 
 QUnit.test('creme.FormGroupsController (toggle content type)', function(assert) {
@@ -216,26 +216,26 @@ QUnit.test('creme.FormGroupsController (toggle content type)', function(assert) 
 
     controller.bind(brick);
 
-    equal(controller.ctype(ctypeIdA).is('.customform-config-collapsed'), true);
-    equal(controller.ctype(ctypeIdB).is('.customform-config-collapsed'), false);
+    assert.equal(controller.ctype(ctypeIdA).is('.customform-config-collapsed'), true);
+    assert.equal(controller.ctype(ctypeIdB).is('.customform-config-collapsed'), false);
 
-    deepEqual([], this.mockBackendUrlCalls('mock/group/expand'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/group/expand'));
 
     controller.ctype(ctypeIdA).find('.customform-config-show-details').trigger('click');
 
-    equal(controller.ctype(ctypeIdA).is('.customform-config-collapsed'), false);
-    equal(controller.ctype(ctypeIdB).is('.customform-config-collapsed'), true);
+    assert.equal(controller.ctype(ctypeIdA).is('.customform-config-collapsed'), false);
+    assert.equal(controller.ctype(ctypeIdB).is('.customform-config-collapsed'), true);
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {action: 'show', ct_id: ctypeIdA}]
     ], this.mockBackendUrlCalls('mock/group/expand'));
 
     controller.ctype(ctypeIdA).find('.customform-config-hide-details').trigger('click');
 
-    equal(controller.ctype(ctypeIdA).is('.customform-config-collapsed'), true);
-    equal(controller.ctype(ctypeIdB).is('.customform-config-collapsed'), true);
+    assert.equal(controller.ctype(ctypeIdA).is('.customform-config-collapsed'), true);
+    assert.equal(controller.ctype(ctypeIdB).is('.customform-config-collapsed'), true);
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {action: 'show', ct_id: ctypeIdA}],
         ['POST', {action: 'hide', ct_id: ctypeIdA}]
     ], this.mockBackendUrlCalls('mock/group/expand'));
@@ -257,12 +257,12 @@ QUnit.test('creme.FormGroupsController (toggle custom form item)', function(asse
     });
 
     controller.bind(brick);
-    deepEqual([], this.mockBackendUrlCalls('mock/group/expand'));
-    equal(controller.ctype(ctypeId).find('.customform-config-item').is('.customform-config-collapsed'), true);
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/group/expand'));
+    assert.equal(controller.ctype(ctypeId).find('.customform-config-item').is('.customform-config-collapsed'), true);
 
     controller.ctype(ctypeId).find('.toggle-icon-expand').trigger('click');
-    equal(controller.ctype(ctypeId).find('.customform-config-item').is('.customform-config-collapsed'), false);
-    deepEqual([
+    assert.equal(controller.ctype(ctypeId).find('.customform-config-item').is('.customform-config-collapsed'), false);
+    assert.deepEqual([
         ['POST', {action: 'show', item_id: itemId}]
     ], this.mockBackendUrlCalls('mock/group/expand'));
 });
@@ -299,10 +299,10 @@ QUnit.test('creme.FormGroupsController (reorder groups)', function(assert) {
     });
 
     controller.bind(brick);
-    equal(controller.isBound(), true);
-    equal(controller.ctypes().length, 2);
+    assert.equal(controller.isBound(), true);
+    assert.equal(controller.ctypes().length, 2);
 
-    deepEqual([], this.mockBackendCalls());
+    assert.deepEqual([], this.mockBackendCalls());
 
     var groups = controller.ctype(ctypeIdA).find('.customform-config-blocks');
     var group = groups.find('[data-reorderable-form-group-url="mock/group/reorder/0"]');
@@ -311,7 +311,7 @@ QUnit.test('creme.FormGroupsController (reorder groups)', function(assert) {
         item: group
     });
 
-    deepEqual([
+    assert.deepEqual([
         [
             'mock/group/reorder/0', 'POST',
             {target: group.index()},
@@ -362,10 +362,10 @@ QUnit.test('creme.FormGroupsController (reorder groups, failure)', function(asse
     });
 
     controller.bind(brick);
-    equal(controller.isBound(), true);
-    equal(controller.ctypes().length, 2);
+    assert.equal(controller.isBound(), true);
+    assert.equal(controller.ctypes().length, 2);
 
-    deepEqual([], this.mockBackendCalls());
+    assert.deepEqual([], this.mockBackendCalls());
 
     var groups = controller.ctype(ctypeIdA).find('.customform-config-blocks');
     var group = groups.find('[data-reorderable-form-group-url="mock/group/reorder/0/fail"]');
@@ -374,7 +374,7 @@ QUnit.test('creme.FormGroupsController (reorder groups, failure)', function(asse
         item: group
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/group/reorder/0/fail', 'POST', {target: group.index()}, {delay: 0, enableUriSearch: false, sync: true}],
         [
             'mock/brick/all/reload', 'GET',
@@ -404,13 +404,13 @@ QUnit.test('creme.FormGroupsController (toggle item)', function(assert) {
     controller.bind(brick);
 
     var item = controller.ctype(ctypeIdA).find('.customform-config-item').first();
-    equal(item.is('.customform-config-collapsed'), true);
+    assert.equal(item.is('.customform-config-collapsed'), true);
 
     item.find('.toggle-icon-expand').trigger('click');
-    equal(item.is('.customform-config-collapsed'), false);
+    assert.equal(item.is('.customform-config-collapsed'), false);
 
     item.find('.toggle-icon-collapse').trigger('click');
-    equal(item.is('.customform-config-collapsed'), true);
+    assert.equal(item.is('.customform-config-collapsed'), true);
 });
 
 }(jQuery));

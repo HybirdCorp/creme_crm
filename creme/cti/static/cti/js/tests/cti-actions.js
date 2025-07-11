@@ -39,8 +39,8 @@ QUnit.test('creme.cti.PhoneCallAction (call failed)', function(assert) {
     this.assertOpenedAlertDialog(gettext("Unable to start the phone call. Please check your CTI configuration."));
     this.closeDialog();
 
-    deepEqual([['fail']], this.mockListenerCalls('action-fail'));
-    deepEqual([
+    assert.deepEqual([['fail']], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([
         ['GET', {n_tel: '007'}]
     ], this.mockBackendUrlCalls('mock/cti/call/fail'));
 });
@@ -60,11 +60,11 @@ QUnit.test('creme.cti.PhoneCallAction (save failed)', function(assert) {
     this.assertOpenedAlertDialog(gettext("Failed to save the phone call."));
     this.closeDialog();
 
-    deepEqual([['fail']], this.mockListenerCalls('action-fail'));
-    deepEqual([
+    assert.deepEqual([['fail']], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([
         ['GET', {n_tel: '007'}]
     ], this.mockBackendUrlCalls('mock/cti/call'));
-    deepEqual([
+    assert.deepEqual([
         ['POST', {entity_id: 12}]
     ], this.mockBackendUrlCalls('mock/call/save/fail'));
 });
@@ -84,11 +84,11 @@ QUnit.test('creme.cti.PhoneCallAction (ok)', function(assert) {
     this.assertOpenedDialog(gettext("Call saved"));
     this.closeDialog();
 
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual([
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([
         ['GET', {n_tel: '007'}]
     ], this.mockBackendUrlCalls('mock/cti/call'));
-    deepEqual([
+    assert.deepEqual([
         ['POST', {entity_id: 12}]
     ], this.mockBackendUrlCalls('mock/call/save'));
 });
@@ -99,12 +99,12 @@ QUnit.test('creme.cti.phoneCall', function(assert) {
     this.assertOpenedDialog(gettext("Call saved"));
     this.closeDialog();
 
-    ok(action.isStatusDone());
+    assert.ok(action.isStatusDone());
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {n_tel: '007'}]
     ], this.mockBackendUrlCalls('mock/cti/call'));
-    deepEqual([
+    assert.deepEqual([
         ['POST', {entity_id: 12}]
     ], this.mockBackendUrlCalls('mock/call/save'));
 });

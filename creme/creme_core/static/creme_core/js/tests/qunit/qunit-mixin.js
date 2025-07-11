@@ -100,6 +100,12 @@
     window.QUnitBaseMixin = {
         beforeEach: function(env) {
             // console.log(env.test.testName);
+            Object.defineProperty(this, 'assert', {
+                value: env.test.assert,
+                configurable: false,
+                writable: false
+            });
+
             this.__qunitDOMCleanupCheckError = 'ignore';
             this.__qunitBodyElementTags = listChildrenTags($('body'));
             this.qunitFixture().attr('style', 'position: absolute;top: -10000px;left: -10000px;width: 1000px;height: 1000px;');
@@ -120,7 +126,7 @@
                 });
 
                 if (this.qunitDOMCleanupCheck() === 'error') {
-                    deepEqual(tags.sort(), this.__qunitBodyElementTags.sort(), message);
+                    this.assert.deepEqual(tags.sort(), this.__qunitBodyElementTags.sort(), message);
                 } else {
                     console.warn(message);
                 }
@@ -166,14 +172,15 @@
 
         assertRaises: function(block, expected, message) {
             expected = expected || Error;
+            var assert = this.assert;
 
-            QUnit.assert.raises(
+            assert.raises(
                 block,
                 function(error) {
-                    ok(error instanceof expected, 'error is ' + expected);
+                    assert.ok(error instanceof expected, 'error is ' + expected);
 
                     if (message !== undefined) {
-                        equal(message, '' + error, 'expected message');
+                        assert.equal(message, '' + error, 'expected message');
                     }
 
                     block.__raised = error;
@@ -201,7 +208,7 @@
                     block.bind(this)(script);
                     success = true;
                 } finally {
-                    ok(success, 'XSS test as failed. See logs for stacktrace.');
+                    this.assert.ok(success, 'XSS test as failed. See logs for stacktrace.');
                 }
 
                 // Trigger events for some XSS issues
@@ -210,11 +217,11 @@
         },
 
         equalHtml: function(expected, element, message) {
-            QUnit.assert.equal($('<div>').append(expected).html(), $(element).html(), message);
+            this.assert.equal($('<div>').append(expected).html(), $(element).html(), message);
         },
 
         equalOuterHtml: function(expected, element, message) {
-            QUnit.assert.equal($('<div>').append(expected).html(), $('<div>').append($(element).clone()).html(), message);
+            this.assert.equal($('<div>').append(expected).html(), $('<div>').append($(element).clone()).html(), message);
         },
 
         fakeMethod: function(options) {

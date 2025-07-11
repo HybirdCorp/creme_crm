@@ -21,7 +21,7 @@ QUnit.test('creme.billing.listview.actions (billing-number, ok)', function(asser
 
     var builder = registry.get('billing-number');
 
-    ok(Object.isFunc(builder));
+    assert.ok(Object.isFunc(builder));
     var action = builder('mock/invoice/12/number', {
         confirm: 'Are you sure?'
     });
@@ -33,8 +33,8 @@ QUnit.test('creme.billing.listview.actions (billing-number, ok)', function(asser
 
     this.assertClosedDialog();
 
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/12/number'));
-    deepEqual([
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/12/number'));
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -55,7 +55,7 @@ QUnit.test('creme.billing.listview.actions (billing-number, fail)', function(ass
 
     var builder = registry.get('billing-number');
 
-    ok(Object.isFunc(builder));
+    assert.ok(Object.isFunc(builder));
     var action = builder('mock/invoice/12/number/fail', {
         confirm: 'Are you sure?'
     });
@@ -68,8 +68,8 @@ QUnit.test('creme.billing.listview.actions (billing-number, fail)', function(ass
     this.assertOpenedAlertDialog('Unable to generate invoice number');
     this.closeDialog();
 
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/12/number/fail'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/12/number/fail'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 }(jQuery));

@@ -88,27 +88,27 @@ QUnit.module("creme.NotificationBox", new QUnitMixin(QUnitEventMixin,
     }
 }));
 
-QUnit.test('creme.NotificationBox', function() {
+QUnit.test('creme.NotificationBox', function(assert) {
     var element = $(this.createNotificationBoxHtml()).appendTo(this.qunitFixture());
 
-    equal(element.is('.is-active'), false);
+    assert.equal(element.is('.is-active'), false);
 
     var box = new creme.notification.NotificationBox(element, {
         refreshUrl: 'mock/notifs/refresh',
         discardUrl: 'mock/notifs/discard'
     }).stopFetch();
 
-    equal(element.is('.is-active'), true);
-    deepEqual(box._element, element);
-    deepEqual(box._refreshUrl, 'mock/notifs/refresh');
-    deepEqual(box._discardUrl, 'mock/notifs/discard');
-    deepEqual(box.initialData(), {
+    assert.equal(element.is('.is-active'), true);
+    assert.deepEqual(box._element, element);
+    assert.deepEqual(box._refreshUrl, 'mock/notifs/refresh');
+    assert.deepEqual(box._discardUrl, 'mock/notifs/discard');
+    assert.deepEqual(box.initialData(), {
         count: 0,
         notifications: []
     });
 });
 
-QUnit.test('creme.NotificationBox (invalid urls)', function() {
+QUnit.test('creme.NotificationBox (invalid urls)', function(assert) {
     var element = $(this.createNotificationBoxHtml({
         initialData: this.defaultNotificationData()
     })).appendTo(this.qunitFixture());
@@ -130,7 +130,7 @@ QUnit.test('creme.NotificationBox (invalid urls)', function() {
     });
 });
 
-QUnit.test('creme.NotificationBox (already active)', function() {
+QUnit.test('creme.NotificationBox (already active)', function(assert) {
     var element = $(this.createNotificationBoxHtml({
         initialData: this.defaultNotificationData()
     })).appendTo(this.qunitFixture());
@@ -145,7 +145,7 @@ QUnit.test('creme.NotificationBox (already active)', function() {
     }, Error, 'Error: NotificationBox is already active');
 });
 
-QUnit.test('creme.NotificationBox (initialData)', function() {
+QUnit.test('creme.NotificationBox (initialData)', function(assert) {
     var element = $(this.createNotificationBoxHtml({
         initialData: this.defaultNotificationData()
     })).appendTo(this.qunitFixture());
@@ -156,12 +156,12 @@ QUnit.test('creme.NotificationBox (initialData)', function() {
             discardUrl: 'mock/notids/all'
         }).stopFetch();
 
-        deepEqual(box.initialData(), this.defaultNotificationData());
+        assert.deepEqual(box.initialData(), this.defaultNotificationData());
 
         var counter = element.find('.notification-box-count');
 
-        equal(counter.text(), '3');
-        equal(counter.is('.is-empty'), false);
+        assert.equal(counter.text(), '3');
+        assert.equal(counter.is('.is-empty'), false);
 
         this.equalHtml((
             '<li class="notification-item notification-item-level1" data-id="1" data-created="${timestampA}">' +
@@ -200,7 +200,7 @@ QUnit.test('creme.NotificationBox (initialData)', function() {
     });
 });
 
-QUnit.test('creme.NotificationBox (fetch)', function() {
+QUnit.test('creme.NotificationBox (fetch)', function(assert) {
     var element = $(this.createNotificationBoxHtml()).appendTo(this.qunitFixture());
     var box = new creme.notification.NotificationBox(element, {
         refreshDelay: 150,
@@ -208,39 +208,39 @@ QUnit.test('creme.NotificationBox (fetch)', function() {
         discardUrl: 'mock/notifs/discard'
     });
 
-    stop(2);
+    var done = assert.async(2);
 
     setTimeout(function() {
         box.stopFetch();
 
         var counter = element.find('.notification-box-count');
 
-        equal(counter.text(), '3');
-        equal(counter.is('.is-empty'), false);
+        assert.equal(counter.text(), '3');
+        assert.equal(counter.is('.is-empty'), false);
 
-        deepEqual([], this.mockBackendUrlCalls('mock/notifs/discard'));
-        deepEqual([
+        assert.deepEqual([], this.mockBackendUrlCalls('mock/notifs/discard'));
+        assert.deepEqual([
             ['GET', {}],
             ['GET', {}]
         ], this.mockBackendUrlCalls('mock/notifs/refresh'));
 
-        start();
+        done();
     }.bind(this), 350);
 
     setTimeout(function() {
-        deepEqual([], this.mockBackendUrlCalls('mock/notifs/discard'));
+        assert.deepEqual([], this.mockBackendUrlCalls('mock/notifs/discard'));
 
         // no changes, the job is already stopped
-        deepEqual([
+        assert.deepEqual([
             ['GET', {}],
             ['GET', {}]
         ], this.mockBackendUrlCalls('mock/notifs/refresh'));
 
-        start();
+        done();
     }.bind(this), 350);
 });
 
-QUnit.test('creme.NotificationBox (fetch, update deltas)', function() {
+QUnit.test('creme.NotificationBox (fetch, update deltas)', function(assert) {
     var element = $(this.createNotificationBoxHtml({
         initialData: this.defaultNotificationData()
     })).appendTo(this.qunitFixture());
@@ -253,27 +253,27 @@ QUnit.test('creme.NotificationBox (fetch, update deltas)', function() {
     var faker = new FunctionFaker();
     box._updateDeltas = faker.wrap();
 
-    equal(0, faker.calls());
+    assert.equal(0, faker.calls());
     box.startFetch();
 
-    equal(0, faker.calls().length);
+    assert.equal(0, faker.calls().length);
 
-    stop(2);
+    var done = assert.async(2);
 
     setTimeout(function() {
-        equal(2, faker.calls().length);
+        assert.equal(2, faker.calls().length);
         box.stopFetch();
-        start();
+        done();
     }, 350);
 
     setTimeout(function() {
         // no changes, the job is already stopped
-        equal(2, faker.calls().length);
-        start();
+        assert.equal(2, faker.calls().length);
+        done();
     }, 450);
 });
 
-QUnit.test('creme.NotificationBox (fetch, error)', function() {
+QUnit.test('creme.NotificationBox (fetch, error)', function(assert) {
     var element = $(this.createNotificationBoxHtml({
         initialData: this.defaultNotificationData()
     })).appendTo(this.qunitFixture());
@@ -284,28 +284,28 @@ QUnit.test('creme.NotificationBox (fetch, error)', function() {
         discardUrl: 'mock/notifs/discard'
     });
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
         var counter = element.find('.notification-box-count');
 
-        equal(counter.text(), '3');
-        equal(counter.is('.is-empty'), false);
+        assert.equal(counter.text(), '3');
+        assert.equal(counter.is('.is-empty'), false);
 
         var errors = element.find('.notification-error');
-        equal(errors.is('.is-empty'), false);
-        equal(errors.text(), gettext('An error happened when retrieving notifications (%s)').format(''));
+        assert.equal(errors.is('.is-empty'), false);
+        assert.equal(errors.text(), gettext('An error happened when retrieving notifications (%s)').format(''));
 
-        deepEqual([
+        assert.deepEqual([
             ['GET', {}]
         ], this.mockBackendUrlCalls('mock/notifs/refresh/fail'));
 
         box.stopFetch();
-        start();
+        done();
     }.bind(this), 200);
 });
 
-QUnit.test('creme.NotificationBox (discard)', function() {
+QUnit.test('creme.NotificationBox (discard)', function(assert) {
     var element = $(this.createNotificationBoxHtml({
         initialData: this.defaultNotificationData()
     })).appendTo(this.qunitFixture());
@@ -317,41 +317,41 @@ QUnit.test('creme.NotificationBox (discard)', function() {
 
     var counter = element.find('.notification-box-count');
 
-    equal(counter.text(), '3');
-    equal(counter.is('.is-empty'), false);
-    equal(element.find('.notification-item .discard-notification').length, 3);
-    deepEqual([], this.mockBackendUrlCalls('mock/notifs/discard'));
+    assert.equal(counter.text(), '3');
+    assert.equal(counter.is('.is-empty'), false);
+    assert.equal(element.find('.notification-item .discard-notification').length, 3);
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/notifs/discard'));
 
     element.find('[data-id="2"] .discard-notification').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {id: 2}]
     ], this.mockBackendUrlCalls('mock/notifs/discard'));
 
-    equal(element.find('.notification-item .discard-notification').length, 2);
+    assert.equal(element.find('.notification-item .discard-notification').length, 2);
 
     counter = element.find('.notification-box-count');
-    equal(counter.text(), '2');
-    equal(counter.is('.is-empty'), false);
+    assert.equal(counter.text(), '2');
+    assert.equal(counter.is('.is-empty'), false);
 
     element.find('.discard-notification').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {id: 2}],
         ['POST', {id: 1}],
         ['POST', {id: 3}]
     ], this.mockBackendUrlCalls('mock/notifs/discard'));
 
-    equal(element.find('.notification-item .discard-notification').length, 0);
+    assert.equal(element.find('.notification-item .discard-notification').length, 0);
 
     counter = element.find('.notification-box-count');
-    equal(counter.text(), '0');
-    equal(counter.is('.is-empty'), true);
+    assert.equal(counter.text(), '0');
+    assert.equal(counter.is('.is-empty'), true);
 
     box.stopFetch();
 });
 
-QUnit.test('creme.NotificationBox (fetch, document.hidden)', function() {
+QUnit.test('creme.NotificationBox (fetch, document.hidden)', function(assert) {
     var element = $(this.createNotificationBoxHtml({
         initialData: this.defaultNotificationData()
     })).appendTo(this.qunitFixture());
@@ -367,18 +367,18 @@ QUnit.test('creme.NotificationBox (fetch, document.hidden)', function() {
     });
 
     hiddenFaker.with(function() {
-        equal(document.hidden, true);
-        equal(box.isFetchActive(), true);
-        equal(box.isPaused(), true);
+        assert.equal(document.hidden, true);
+        assert.equal(box.isFetchActive(), true);
+        assert.equal(box.isPaused(), true);
 
         // when doc is hidden, the fetch is automatically stopped even without
         // any event
         box._fetchItems();
 
-        deepEqual([], this.mockBackendUrlCalls('mock/notifs/refresh'));
+        assert.deepEqual([], this.mockBackendUrlCalls('mock/notifs/refresh'));
     }.bind(this));
 
-    equal(document.hidden, false);
+    assert.equal(document.hidden, false);
     box.stopFetch();
 });
 

@@ -171,53 +171,57 @@
         },
 
         assertDSelectAt: function(widget, name, value, dependencies, url, choices) {
-            equal(widget.selector(name).length, 1);
+            this.assert.equal(widget.selector(name).length, 1);
             this.assertDSelect(widget.selector(name), value, dependencies, url, choices);
         },
 
         assertDSelect: function(select, value, dependencies, url, choices) {
-            equal(Object.isEmpty(select), false);
+            var assert = this.assert;
+
+            assert.equal(Object.isEmpty(select), false);
 
             if (Object.isEmpty(select)) {
                 return;
             }
 
-            equal(select.creme().isActive(), true);
-            equal(select.creme().widget().cleanedval(), value);
-            deepEqual(select.creme().widget().dependencies(), dependencies);
-            equal(select.creme().widget().url(), url);
-            deepEqual(select.creme().widget().choices(), choices);
+            assert.equal(select.creme().isActive(), true);
+            assert.equal(select.creme().widget().cleanedval(), value);
+            assert.deepEqual(select.creme().widget().dependencies(), dependencies);
+            assert.equal(select.creme().widget().url(), url);
+            assert.deepEqual(select.creme().widget().choices(), choices);
         },
 
         assertEntitySelect: function(select, value, dependencies, url) {
-            equal(Object.isEmpty(select), false);
+            var assert = this.assert;
+
+            assert.equal(Object.isEmpty(select), false);
 
             if (Object.isEmpty(select)) {
                 return;
             }
 
-            equal(select.creme().isActive(), true);
-            equal(select.creme().widget().cleanedval(), value);
-            deepEqual(select.creme().widget().dependencies(), dependencies);
-            equal(select.creme().widget().popupURL(), url);
+            assert.equal(select.creme().isActive(), true);
+            assert.equal(select.creme().widget().cleanedval(), value);
+            assert.deepEqual(select.creme().widget().dependencies(), dependencies);
+            assert.equal(select.creme().widget().popupURL(), url);
         },
 
         assertActive: function(element) {
-            equal(element.hasClass('widget-active'), true, 'is widget active');
+            this.assert.equal(element.hasClass('widget-active'), true, 'is widget active');
         },
 
         assertNotActive: function(element) {
-            equal(element.hasClass('widget-active'), false, 'is widget not active');
+            this.assert.equal(element.hasClass('widget-active'), false, 'is widget not active');
         },
 
         assertReady: function(element) {
             this.assertActive(element);
-            equal(element.hasClass('widget-ready'), true, 'is widget ready');
+            this.assert.equal(element.hasClass('widget-ready'), true, 'is widget ready');
         },
 
         assertNotReady: function(element) {
             this.assertActive(element);
-            equal(element.hasClass('widget-ready'), false, 'is widget not ready');
+            this.assert.equal(element.hasClass('widget-ready'), false, 'is widget not ready');
         }
     };
 

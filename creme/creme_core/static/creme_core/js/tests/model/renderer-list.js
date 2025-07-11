@@ -2,12 +2,13 @@
 
 QUnit.module("creme.model.ListRenderer", new QUnitMixin({
     assertItems: function(element, expected) {
+        var assert = this.assert;
         var items = $('li', element);
 
-        equal(items.length, expected.length);
+        assert.equal(items.length, expected.length);
 
         items.each(function(index) {
-            equal($(this).html(), expected[index]);
+            assert.equal($(this).html(), expected[index]);
         });
     }
 }));
@@ -17,13 +18,13 @@ QUnit.test('creme.model.ListRenderer.constructor', function(assert) {
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer(element, model);
 
-    equal(model, renderer.model());
-    equal(element, renderer.target());
+    assert.equal(model, renderer.model());
+    assert.equal(element, renderer.target());
 
     renderer = new creme.model.ListRenderer();
 
-    equal(undefined, renderer.model());
-    equal(undefined, renderer.target());
+    assert.equal(undefined, renderer.model());
+    assert.equal(undefined, renderer.target());
 });
 
 QUnit.test('creme.model.ListRenderer (empty model)', function(assert) {
@@ -31,11 +32,11 @@ QUnit.test('creme.model.ListRenderer (empty model)', function(assert) {
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer(element, model);
 
-    equal($('li', element).length, 0);
+    assert.equal($('li', element).length, 0);
 
     renderer.redraw();
 
-    equal($('li', element).length, 0);
+    assert.equal($('li', element).length, 0);
 });
 
 QUnit.test('creme.model.ListRenderer (filled model)', function(assert) {
@@ -109,7 +110,7 @@ QUnit.test('creme.model.ListRenderer (switch model)', function(assert) {
     var renderer = new creme.model.ListRenderer(element, model);
 
     renderer.redraw();
-    equal($('option', element).length, 0);
+    assert.equal($('option', element).length, 0);
 
     model.append(['a', 'b']);
     this.assertItems(element, ['a', 'b']);

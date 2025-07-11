@@ -110,8 +110,8 @@ QUnit.module("creme.geolocation.addresses-brick", new QUnitMixin(QUnitEventMixin
         var widget = creme.widget.create(element);
         var brick = widget.brick();
 
-        equal(true, brick.isBound());
-        equal(false, brick.isLoading());
+        this.assert.equal(true, brick.isBound());
+        this.assert.equal(false, brick.isLoading());
 
         return widget;
     }
@@ -130,40 +130,38 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (defaults)', [
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = self.controller;
 
-        deepEqual(canvas.get(), controller.canvas().get());
-        deepEqual(filter.get(), controller.filterSelector().get());
-        deepEqual(counter.get(), controller.counterItem().get());
-        equal(undefined, controller.addressesUrl());
-        deepEqual([], controller.addresses());
+        assert.deepEqual(canvas.get(), controller.canvas().get());
+        assert.deepEqual(filter.get(), controller.filterSelector().get());
+        assert.deepEqual(counter.get(), controller.counterItem().get());
+        assert.equal(undefined, controller.addressesUrl());
+        assert.deepEqual([], controller.addresses());
 
-        deepEqual(canvas.get(), controller.mapController().element().get());
-        equal(true, controller.mapController().isBound());
-        equal(true, controller.mapController().isEnabled());
-        equal(true, controller.mapController().isMapEnabled());
-        equal(true, controller.mapController().isGeocoderEnabled());
+        assert.deepEqual(canvas.get(), controller.mapController().element().get());
+        assert.equal(true, controller.mapController().isBound());
+        assert.equal(true, controller.mapController().isEnabled());
+        assert.equal(true, controller.mapController().isMapEnabled());
+        assert.equal(true, controller.mapController().isGeocoderEnabled());
 
         /* google maps specific */
         if (mapController instanceof creme.geolocation.GoogleMapController) {
-            equal(true, controller.mapController().isAPIReady());
-            equal(undefined, controller.mapController().options().apiKey);
+            assert.equal(true, controller.mapController().isAPIReady());
+            assert.equal(undefined, controller.mapController().options().apiKey);
         }
 
+        var done = assert.async();
+
         setTimeout(function() {
-            equal(null, brick.element().find('.brick-geoaddress-filter').val());
-            equal(gettext('No address from'), brick.element().find('.brick-geoaddress-counter').text());
-            equal(0, controller.mapController().markers().length);
+            assert.equal(null, brick.element().find('.brick-geoaddress-filter').val());
+            assert.equal(gettext('No address from'), brick.element().find('.brick-geoaddress-counter').text());
+            assert.equal(0, controller.mapController().markers().length);
 
-            start();
+            done();
         }, 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.AddressesBrick(brick, {
         mapController: mapController
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.AddressesBrick (load addresses, no filter)', [
@@ -175,28 +173,25 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (load addresses, no fi
 
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
+        var done = assert.async();
 
-        equal('mock/addresses', controller.addressesUrl());
+        assert.equal('mock/addresses', controller.addressesUrl());
 
         setTimeout(function() {
-            deepEqual([], this.mockBackendUrlCalls('mock/addresses'));
+            assert.deepEqual([], this.mockBackendUrlCalls('mock/addresses'));
 
-            equal(null, brick.element().find('.brick-geoaddress-filter').val());
-            equal(gettext('No address from'), brick.element().find('.brick-geoaddress-counter').text());
-            equal(0, controller.mapController().markers().length);
+            assert.equal(null, brick.element().find('.brick-geoaddress-filter').val());
+            assert.equal(gettext('No address from'), brick.element().find('.brick-geoaddress-counter').text());
+            assert.equal(0, controller.mapController().markers().length);
 
-            start();
+            done();
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.AddressesBrick(brick, {
         mapController: mapController,
         addressesUrl: 'mock/addresses'
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.AddressesBrick (load addresses)', [
@@ -225,39 +220,36 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (load addresses)', [
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
 
-        equal('mock/addresses', controller.addressesUrl());
+        assert.equal('mock/addresses', controller.addressesUrl());
+        var done = assert.async();
 
         setTimeout(function() {
-            deepEqual([
+            assert.deepEqual([
                 ['mock/addresses', 'GET', {id: 'A1'}]
             ], this.mockBackendUrlCalls());
 
-            equal('A1', brick.element().find('.brick-geoaddress-filter').val());
-            equal(
+            assert.equal('A1', brick.element().find('.brick-geoaddress-filter').val());
+            assert.equal(
                 ngettext('%0$d address from', '%0$d addresses from', 3).format(3),
                 brick.element().find('.brick-geoaddress-counter').text()
             );
-            equal(3, controller.mapController().markers().length);
+            assert.equal(3, controller.mapController().markers().length);
 
-            deepEqual([
+            assert.deepEqual([
                 new creme.geolocation.Location(addresses[0]),
                 new creme.geolocation.Location(addresses[1]),
                 new creme.geolocation.Location(addresses[2]),
                 new creme.geolocation.Location(addresses[3])
             ], controller.addresses());
 
-            start();
+            done();
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.AddressesBrick(brick, {
         mapController: mapController,
         addressesUrl: 'mock/addresses'
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.AddressesBrick (load addresses, fail)', [
@@ -286,17 +278,17 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (load addresses, fail)
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
 
-        equal('A1', filter.val());
-        equal('mock/addresses/fail', controller.addressesUrl());
+        assert.equal('A1', filter.val());
+        assert.equal('mock/addresses/fail', controller.addressesUrl());
 
         setTimeout(function() {
-            deepEqual([
+            assert.deepEqual([
                 ['mock/addresses/fail', 'GET', {id: 'A1'}]
             ], this.mockBackendUrlCalls());
 
-            equal('A1', filter.val());
-            equal(gettext('No address from'), brick.element().find('.brick-geoaddress-counter').text());
-            equal(0, controller.mapController().markers().length);
+            assert.equal('A1', filter.val());
+            assert.equal(gettext('No address from'), brick.element().find('.brick-geoaddress-counter').text());
+            assert.equal(0, controller.mapController().markers().length);
         }.bind(this), 0);
     });
 
@@ -304,8 +296,6 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (load addresses, fail)
         mapController: mapController,
         addressesUrl: 'mock/addresses/fail'
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.AddressesBrick (google, click, redirect)', [
@@ -335,29 +325,36 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (google, click, redire
 
         controller.mapController().on('marker-click', this.mockListener('marker-click'));
 
-        equal('mock/addresses', controller.addressesUrl());
+        assert.equal('mock/addresses', controller.addressesUrl());
+        var done = assert.async();
 
         setTimeout(function() {
-            deepEqual([
+            assert.deepEqual([
                 ['mock/addresses', 'GET', {id: 'A1'}]
             ], this.mockBackendUrlCalls());
-            deepEqual([], this.mockRedirectCalls());
-            deepEqual([], this.mockListenerCalls('marker-click'));
+            assert.deepEqual([], this.mockRedirectCalls());
+            assert.deepEqual([], this.mockListenerCalls('marker-click'));
 
-            equal('A1', brick.element().find('.brick-geoaddress-filter').val());
-            equal(
+            assert.equal('A1', brick.element().find('.brick-geoaddress-filter').val());
+            assert.equal(
                 ngettext('%0$d address from', '%0$d addresses from', 3).format(3),
                 brick.element().find('.brick-geoaddress-counter').text()
             );
-            equal(3, controller.mapController().markers().length);
+            assert.equal(3, controller.mapController().markers().length);
+
+            /* google maps specific */
+            if (mapController instanceof creme.geolocation.GoogleMapController) {
+                assert.equal(true, controller.mapController().isAPIReady());
+                assert.equal(undefined, controller.mapController().options().apiKey);
+            }
 
             this.triggerMarkerClick(controller.mapController().getMarker('Address_C'));
 
             setTimeout(function() {
-                deepEqual([
+                assert.deepEqual([
                     'mock/address/Address_C'
                 ], this.mockRedirectCalls());
-                deepEqual([
+                assert.deepEqual([
                     ['marker-click', {
                         id: 'Address_C',
                         extraData: {}
@@ -366,19 +363,15 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (google, click, redire
                     return [e[0], e[1]];
                 }));
 
-                start();
+                done();
             }.bind(this), 0);
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.AddressesBrick(brick, {
         mapController: mapController,
         addressesUrl: 'mock/addresses'
     });
-
-    stop(1);
 });
 
 
@@ -409,31 +402,33 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (update filter)', [
         var controller = this.controller;
         var mapController = controller.mapController();
 
-        equal('A1', filter.val());
-        equal('mock/addresses', controller.addressesUrl());
+        assert.equal('A1', filter.val());
+        assert.equal('mock/addresses', controller.addressesUrl());
+
+        var done = assert.async();
 
         setTimeout(function() {
-            deepEqual([
+            assert.deepEqual([
                 ['mock/addresses', 'GET', {id: 'A1'}]
             ], this.mockBackendUrlCalls());
 
-            equal(
+            assert.equal(
                 ngettext('%0$d address from', '%0$d addresses from', 3).format(3),
                 brick.element().find('.brick-geoaddress-counter').text()
              );
-            equal(3, mapController.markers().length);
+            assert.equal(3, mapController.markers().length);
 
             filter.val('B1').trigger('change');
 
             setTimeout(function() {
-                deepEqual([
+                assert.deepEqual([
                     ['mock/addresses', 'GET', {id: 'A1'}],
                     ['mock/addresses', 'GET', {id: 'B1'}]
                 ], this.mockBackendUrlCalls());
 
-                equal('B1', filter.val());
-                equal(gettext('%0$d address from').format(1), brick.element().find('.brick-geoaddress-counter').text());
-                equal(1, mapController.markers({visible: true}).length);
+                assert.equal('B1', filter.val());
+                assert.equal(gettext('%0$d address from').format(1), brick.element().find('.brick-geoaddress-counter').text());
+                assert.equal(1, mapController.markers({visible: true}).length);
 
                 this.assertMarkerProperties(mapController.getMarkerProperties('Address_C'), {
                     position: {lat: 42, lng: 5},
@@ -443,20 +438,15 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (update filter)', [
                     extraData: {}
                 });
 
-                start();
+                done();
             }.bind(this), 0);
-
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.AddressesBrick(brick, {
         mapController: new creme.geolocation.GoogleMapController(),
         addressesUrl: 'mock/addresses'
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.AddressesBrick (update filter, fail)', [
@@ -485,49 +475,46 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (update filter, fail)'
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = this.controller;
         var mapController = controller.mapController();
+        var done = assert.async();
 
-        equal('A1', filter.val());
-        equal('mock/addresses', controller.addressesUrl());
+        assert.equal('A1', filter.val());
+        assert.equal('mock/addresses', controller.addressesUrl());
 
         setTimeout(function() {
-            deepEqual([
+            assert.deepEqual([
                 ['mock/addresses', 'GET', {id: 'A1'}]
             ], this.mockBackendUrlCalls());
 
-            equal(
+            assert.equal(
                 ngettext('%0$d address from', '%0$d addresses from', 3).format(3),
                 brick.element().find('.brick-geoaddress-counter').text()
              );
-            equal(3, mapController.markers().length);
+            assert.equal(3, mapController.markers().length);
 
             controller.addressesUrl('mock/addresses/fail');
 
             filter.val('B1').trigger('change');
 
             setTimeout(function() {
-                deepEqual([
+                assert.deepEqual([
                     ['mock/addresses', 'GET', {id: 'A1'}],
                     ['mock/addresses/fail', 'GET', {id: 'B1'}]
                 ], this.mockBackendUrlCalls());
 
-                equal(null, filter.val());
-                equal(gettext('No address from'), brick.element().find('.brick-geoaddress-counter').text());
-                equal(0, mapController.markers({visible: true}).length);
+                assert.equal(null, filter.val());
+                assert.equal(gettext('No address from'), brick.element().find('.brick-geoaddress-counter').text());
+                assert.equal(0, mapController.markers({visible: true}).length);
 
-                start();
+                done();
             }.bind(this), 0);
 
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.AddressesBrick(brick, {
         mapController: mapController,
         addressesUrl: 'mock/addresses'
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.AddressesBrick (collapse state)', [
@@ -538,31 +525,31 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (collapse state)', [
     var canvas = brick.element().find('.brick-geoaddress-canvas');
 
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
+        var done = assert.async();
+
         setTimeout(function() {
             this.autoResizeFaker.reset();
             this.adjustMapFaker.reset();
 
-            equal(0, this.autoResizeFaker.count());
-            equal(0, this.adjustMapFaker.count());
+            assert.equal(0, this.autoResizeFaker.count());
+            assert.equal(0, this.adjustMapFaker.count());
 
             brick.setState({
                 collapsed: true
             });
 
-            equal(0, this.autoResizeFaker.count());
-            equal(0, this.adjustMapFaker.count());
+            assert.equal(0, this.autoResizeFaker.count());
+            assert.equal(0, this.adjustMapFaker.count());
 
             brick.setState({
                 collapsed: false
             });
 
-            equal(1, this.autoResizeFaker.count());
-            equal(1, this.adjustMapFaker.count());
+            assert.equal(1, this.autoResizeFaker.count());
+            assert.equal(1, this.adjustMapFaker.count());
 
-            start();
+            done();
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.AddressesBrick(brick, {
@@ -581,8 +568,6 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (collapse state)', [
         method: 'adjustMap',
         follow: true
     });
-
-    stop(1);
 });
 
 }(jQuery, QUnit));

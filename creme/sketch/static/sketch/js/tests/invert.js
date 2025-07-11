@@ -10,11 +10,11 @@ QUnit.test('creme.d3BisectScale (linear)', function(assert) {
 
     var bisect = creme.d3BisectScale(function(d) { return d.x; }).scale(scale);
 
-    equal(0, bisect(data, 0));
-    equal(0, bisect(data, 100));
-    equal(1, bisect(data, 300));
-    equal(2, bisect(data, 500));
-    equal(3, bisect(data, 1000));
+    assert.equal(0, bisect(data, 0));
+    assert.equal(0, bisect(data, 100));
+    assert.equal(1, bisect(data, 300));
+    assert.equal(2, bisect(data, 500));
+    assert.equal(3, bisect(data, 1000));
 });
 
 QUnit.test('creme.d3BisectScale (ordinal)', function(assert) {
@@ -25,11 +25,11 @@ QUnit.test('creme.d3BisectScale (ordinal)', function(assert) {
 
     var bisect = creme.d3BisectScale(function(d) { return d.x; }).scale(scale);
 
-    equal('A', bisect(data, 0));
-    equal('A', bisect(data, 100));
-    equal('B', bisect(data, 300));
-    equal('C', bisect(data, 500));
-    equal('D', bisect(data, 1000));
+    assert.equal('A', bisect(data, 0));
+    assert.equal('A', bisect(data, 100));
+    assert.equal('B', bisect(data, 300));
+    assert.equal('C', bisect(data, 500));
+    assert.equal('D', bisect(data, 1000));
 });
 
 }(jQuery));

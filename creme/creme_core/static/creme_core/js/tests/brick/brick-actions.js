@@ -49,25 +49,25 @@ QUnit.test('creme.bricks.Brick.action (toggle collapse)', function(assert) {
                     deferredStateSaveDelay: 0
                 });
 
-    equal(false, brick.isBound());
+    assert.equal(false, brick.isBound());
 
     brick.action('collapse').on(this.brickActionListeners).start();
-    equal(false, element.is('.is-collapsed'));
-    deepEqual([['cancel', 'brick is not bound', brick]], this.mockListenerCalls('action-cancel'));
+    assert.equal(false, element.is('.is-collapsed'));
+    assert.deepEqual([['cancel', 'brick is not bound', brick]], this.mockListenerCalls('action-cancel'));
 
     this.resetMockListenerCalls();
 
     brick.bind(element);
-    equal(true, brick.isBound());
-    equal(false, element.is('.is-collapsed'));
+    assert.equal(true, brick.isBound());
+    assert.equal(false, element.is('.is-collapsed'));
 
     brick.action('collapse').on(this.brickActionListeners).start();
-    equal(true, element.is('.is-collapsed'));
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.equal(true, element.is('.is-collapsed'));
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
 
     brick.action('collapse').on(this.brickActionListeners).start();
-    equal(false, element.is('.is-collapsed'));
-    deepEqual([['done'], ['done']], this.mockListenerCalls('action-done'));
+    assert.equal(false, element.is('.is-collapsed'));
+    assert.deepEqual([['done'], ['done']], this.mockListenerCalls('action-done'));
 });
 
 QUnit.test('creme.bricks.Brick.action (toggle content-reduced)', function(assert) {
@@ -78,25 +78,25 @@ QUnit.test('creme.bricks.Brick.action (toggle content-reduced)', function(assert
                     deferredStateSaveDelay: 0
                 });
 
-    equal(false, brick.isBound());
+    assert.equal(false, brick.isBound());
 
     brick.action('reduce-content').on(this.brickActionListeners).start();
-    equal(false, element.is('.is-content-reduced'));
-    deepEqual([['cancel', 'brick is not bound', brick]], this.mockListenerCalls('action-cancel'));
+    assert.equal(false, element.is('.is-content-reduced'));
+    assert.deepEqual([['cancel', 'brick is not bound', brick]], this.mockListenerCalls('action-cancel'));
 
     this.resetMockListenerCalls();
 
     brick.bind(element);
-    equal(true, brick.isBound());
-    equal(false, element.is('.is-content-reduced'));
+    assert.equal(true, brick.isBound());
+    assert.equal(false, element.is('.is-content-reduced'));
 
     brick.action('reduce-content').on(this.brickActionListeners).start();
-    equal(true, element.is('.is-content-reduced'));
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.equal(true, element.is('.is-content-reduced'));
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
 
     brick.action('reduce-content').on(this.brickActionListeners).start();
-    equal(false, element.is('.is-content-reduced'));
-    deepEqual([['done'], ['done']], this.mockListenerCalls('action-done'));
+    assert.equal(false, element.is('.is-content-reduced'));
+    assert.deepEqual([['done'], ['done']], this.mockListenerCalls('action-done'));
 });
 
 QUnit.test('creme.bricks.Brick.action (form, canceled)', function(assert) {
@@ -106,46 +106,46 @@ QUnit.test('creme.bricks.Brick.action (form, canceled)', function(assert) {
 
     brick.action('form').on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.closeDialog();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));  // closing popup cancels the action.
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));  // closing popup cancels the action.
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (form, submit)', function(assert) {
     var brick = this.createBrickWidget().brick();
 
-    equal(true, brick.isBound());
-    equal(false, brick.isLoading());
+    assert.equal(true, brick.isBound());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     brick.action('form', 'mock/form').on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.submitFormDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual([['done', {content: '', data: '', type: 'text/html'}, 'text/html']], this.mockFormSubmitCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([['done', {content: '', data: '', type: 'text/html'}, 'text/html']], this.mockFormSubmitCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (form, comeback)', function(assert) {
     var brick = this.createBrickWidget().brick();
 
-    equal(true, brick.isBound());
-    equal(false, brick.isLoading());
+    assert.equal(true, brick.isBound());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     var location = window.location.href.replace(/.*?:\/\/[^\/]*/g, '');
@@ -153,7 +153,7 @@ QUnit.test('creme.bricks.Brick.action (form, comeback)', function(assert) {
          .on(this.brickActionListeners)
          .start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {callback_url: location}]
     ], this.mockBackendUrlCalls('mock/form'));
 });
@@ -161,68 +161,68 @@ QUnit.test('creme.bricks.Brick.action (form, comeback)', function(assert) {
 QUnit.test('creme.bricks.Brick.action (form, submit, redirect)', function(assert) {
     var brick = this.createBrickWidget().brick();
 
-    equal(true, brick.isBound());
-    equal(false, brick.isLoading());
+    assert.equal(true, brick.isBound());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     brick.action('form', 'mock/form/redirect').on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.submitFormDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual([['done', {content: 'mock/redirect', data: 'mock/redirect', type: 'text/plain'}, 'text/plain']],
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([['done', {content: 'mock/redirect', data: 'mock/redirect', type: 'text/plain'}, 'text/plain']],
               this.mockFormSubmitCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
-    deepEqual(['mock/redirect'], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual(['mock/redirect'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (form-refresh, canceled)', function(assert) {
     var brick = this.createBrickWidget().brick();
 
-    equal(true, brick.isBound());
-    equal(false, brick.isLoading());
+    assert.equal(true, brick.isBound());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     brick.action('form-refresh').on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.closeDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));  // closing popup cancels the action.
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));  // closing popup cancels the action.
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (form-refresh, submit)', function(assert) {
     var brick = this.createBrickWidget({id: 'for-test'}).brick();
-    equal('brick-for-test', brick.id());
-    equal('for-test', brick.type_id());
+    assert.equal('brick-for-test', brick.id());
+    assert.equal('for-test', brick.type_id());
 
     this.assertClosedDialog();
 
     brick.action('form-refresh', 'mock/form').on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.submitFormDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual([
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([
             ['done', {content: '', data: '', type: 'text/html'}, 'text/html']
         ], this.mockFormSubmitCalls('action-done'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["for-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -231,12 +231,12 @@ QUnit.test('creme.bricks.Brick.action (refresh)', function(assert) {
     var brick = this.createBrickWidget({id: 'creme_core-testA'}).brick();
 
     brick.action('refresh').on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
 
-    deepEqual([['done']],
+    assert.deepEqual([['done']],
               this.mockListenerCalls('action-done').map(function(e) { return e.slice(0, 1); }));
 
-    deepEqual([[
+    assert.deepEqual([[
         'mock/brick/all/reload', 'GET',
          {"brick_id": ["creme_core-testA"], "extra_data": "{}"},
          {dataType: "json", delay: 0,  enableUriSearch: false, sync: true}
@@ -254,13 +254,13 @@ QUnit.test('creme.bricks.Brick.action (refresh, progress)', function(assert) {
     brick.on('brick-loading-progress', this.mockListener('loading-progress'));
 
     brick.action('refresh').on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
 
-    deepEqual([
+    assert.deepEqual([
         ['done']
     ], this.mockListenerCalls('action-done').map(function(e) { return e.slice(0, 1); }));
 
-    deepEqual([
+    assert.deepEqual([
         ['brick-loading-progress', 20],
         ['brick-loading-progress', 20],
         ['brick-loading-progress', 40],
@@ -268,7 +268,7 @@ QUnit.test('creme.bricks.Brick.action (refresh, progress)', function(assert) {
         ['brick-loading-progress', 90]
     ], this.mockListenerCalls('loading-progress'));
 
-    deepEqual([[
+    assert.deepEqual([[
           'mock/brick/all/reload', 'GET',
            {"brick_id": ["creme_core-testA"], "extra_data": "{}"},
            {dataType: "json", delay: 0,  enableUriSearch: false, sync: true}
@@ -286,18 +286,18 @@ QUnit.test('creme.bricks.Brick.action (add, submit)', function(assert) {
 
     brick.action('add', 'mock/form').on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.submitFormDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual([['done', {content: '', data: '', type: 'text/html'}, 'text/html']],
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([['done', {content: '', data: '', type: 'text/html'}, 'text/html']],
               this.mockFormSubmitCalls('action-done'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -309,18 +309,18 @@ QUnit.test('creme.bricks.Brick.action (edit, submit)', function(assert) {
 
     brick.action('edit', 'mock/form').on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.submitFormDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual([['done', {content: '', data: '', type: 'text/html'}, 'text/html']],
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([['done', {content: '', data: '', type: 'text/html'}, 'text/html']],
               this.mockFormSubmitCalls('action-done'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -332,18 +332,18 @@ QUnit.test('creme.bricks.Brick.action (link, submit)', function(assert) {
 
     brick.action('link', 'mock/form').on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.submitFormDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual([['done', {content: '', data: '', type: 'text/html'}, 'text/html']],
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([['done', {content: '', data: '', type: 'text/html'}, 'text/html']],
               this.mockFormSubmitCalls('action-done'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -354,18 +354,20 @@ QUnit.test('creme.bricks.Brick.action (delete, not confirmed)', function(assert)
     this.assertClosedDialog();
 
     brick.action('delete', 'mock/brick/delete').on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
+
+    assert.equal(false, brick.isLoading());
+
     this.assertOpenedConfirmDialog(gettext("Are you sure?"));
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/delete'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/delete'));
 
     this.closeDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/delete'));
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/delete'));
 });
 
 QUnit.test('creme.bricks.Brick.action (delete, confirmed)', function(assert) {
@@ -374,18 +376,18 @@ QUnit.test('creme.bricks.Brick.action (delete, confirmed)', function(assert) {
     this.assertClosedDialog();
 
     brick.action('delete', 'mock/brick/delete').on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/delete'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/delete'));
 
     this.acceptConfirmDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual([['done', '']], this.mockListenerCalls('action-done'));
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/delete'));
-    deepEqual([
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([['done', '']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/delete'));
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -396,10 +398,10 @@ QUnit.test('creme.bricks.Brick.action (delete, confirmed, failed)', function(ass
     this.assertClosedDialog();
 
     brick.action('delete', 'mock/brick/delete/fail').on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/delete/fail'));
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/delete/fail'));
 
     // confirm dialog
     this.assertOpenedDialog();
@@ -409,11 +411,11 @@ QUnit.test('creme.bricks.Brick.action (delete, confirmed, failed)', function(ass
     this.assertOpenedAlertDialog();
     this.closeDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual([['fail', '']],
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([['fail', '']],
               this.mockListenerCalls('action-fail').map(function(d) { return d.slice(0, 2); }));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/delete/fail'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/delete/fail'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (delete, with custom confirmation)', function(assert) {
@@ -435,11 +437,12 @@ QUnit.test('creme.bricks.Brick.action (update)', function(assert) {
     this.assertClosedDialog();
 
     brick.action('update', 'mock/brick/update').on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
-    deepEqual([['done', '']], this.mockListenerCalls('action-done'));
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual([
+
+    assert.deepEqual([['done', '']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -450,16 +453,16 @@ QUnit.test('creme.bricks.Brick.action (update, failed)', function(assert) {
     this.assertClosedDialog();
 
     brick.action('update', 'mock/error').on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
 
     // warning dialog
     this.assertOpenedAlertDialog(gettext('HTTP - Error 500'));
     this.closeDialog();
 
-    deepEqual([['fail', 'HTTP - Error 500']],
+    assert.deepEqual([['fail', 'HTTP - Error 500']],
               this.mockListenerCalls('action-fail').map(function(d) { return d.slice(0, 2); }));
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/error'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/error'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (update, with confirmation, not confirmed)', function(assert) {
@@ -471,16 +474,16 @@ QUnit.test('creme.bricks.Brick.action (update, with confirmation, not confirmed)
 
     this.assertOpenedConfirmDialog(gettext('Are you sure?'));
 
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
 
     this.closeDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
 });
 
 QUnit.test('creme.bricks.Brick.action (update, with confirmation, confirmed)', function(assert) {
@@ -492,15 +495,15 @@ QUnit.test('creme.bricks.Brick.action (update, with confirmation, confirmed)', f
 
     this.assertOpenedConfirmDialog(gettext('Are you sure?'));
 
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
 
     this.acceptConfirmDialog();
 
-    deepEqual([['done', '']], this.mockListenerCalls('action-done'));
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual([
+    assert.deepEqual([['done', '']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -516,15 +519,15 @@ QUnit.test('creme.bricks.Brick.action (update, with custom confirmation, confirm
 
     this.assertOpenedConfirmDialog('Are you really sure ?');
 
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
 
     this.acceptConfirmDialog();
 
-    deepEqual([['done', '']], this.mockListenerCalls('action-done'));
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual([
+    assert.deepEqual([['done', '']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -538,25 +541,25 @@ QUnit.test('creme.bricks.Brick.action (update, with message on success)', functi
         'update', 'mock/brick/update', {messageOnSuccess: 'Action done !'}
         ).on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
 
     this.assertOpenedDialog('Action done !');
 
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.closeDialog();
 
-    deepEqual([['done', '']], this.mockListenerCalls('action-done'));
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual([
+    assert.deepEqual([['done', '']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (update, message + reload on success)', function(assert) {
-    var current_url = window.location.href;
+    var currentUrl = window.location.href;
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -566,23 +569,23 @@ QUnit.test('creme.bricks.Brick.action (update, message + reload on success)', fu
         reloadOnSuccess: true
     }).on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
 
     this.assertOpenedDialog('Action done !');
 
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual([], this.mockReloadCalls());
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([], this.mockReloadCalls());
 
     this.closeDialog();
 
-    deepEqual([['done', '']], this.mockListenerCalls('action-done'));
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual([current_url], this.mockReloadCalls());
+    assert.deepEqual([['done', '']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([currentUrl], this.mockReloadCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (update, message + reload on fail)', function(assert) {
-    var current_url = window.location.href;
+    var currentUrl = window.location.href;
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -593,16 +596,16 @@ QUnit.test('creme.bricks.Brick.action (update, message + reload on fail)', funct
 
     this.assertOpenedAlertDialog();
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/error'));
-    deepEqual([], this.mockReloadCalls());
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/error'));
+    assert.deepEqual([], this.mockReloadCalls());
 
     this.closeDialog();
 
-    deepEqual([['fail', 'HTTP - Error 500']],
+    assert.deepEqual([['fail', 'HTTP - Error 500']],
               this.mockListenerCalls('action-fail').map(function(d) { return d.slice(0, 2); }));
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/error'));
-    deepEqual([current_url], this.mockReloadCalls());
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/error'));
+    assert.deepEqual([currentUrl], this.mockReloadCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (update-redirect)', function(assert) {
@@ -613,11 +616,11 @@ QUnit.test('creme.bricks.Brick.action (update-redirect)', function(assert) {
     brick.action('update-redirect', 'mock/brick/update', {}, {next: 'mock/next'})
          .on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
-    deepEqual([['done', 'mock/next']], this.mockListenerCalls('action-done'));
-    deepEqual([['POST', {next: 'mock/next'}]], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual(['mock/next'], this.mockRedirectCalls());
+    assert.deepEqual([['done', 'mock/next']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['POST', {next: 'mock/next'}]], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual(['mock/next'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (update-redirect, no redirection)', function(assert) {
@@ -628,11 +631,11 @@ QUnit.test('creme.bricks.Brick.action (update-redirect, no redirection)', functi
     brick.action('update-redirect', 'mock/brick/update')
          .on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
-    deepEqual([['done', '']], this.mockListenerCalls('action-done'));
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual([''], this.mockRedirectCalls());
+    assert.deepEqual([['done', '']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([''], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (update-redirect, failed)', function(assert) {
@@ -643,18 +646,18 @@ QUnit.test('creme.bricks.Brick.action (update-redirect, failed)', function(asser
     brick.action('update-redirect', 'mock/brick/update/fail', {}, {next: 'mock/next'})
          .on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
 
     // warning dialog
     this.assertOpenedAlertDialog();
     this.closeDialog();
 
-    deepEqual(
+    assert.deepEqual(
         [['fail', '']],
         this.mockListenerCalls('action-fail').map(function(d) { return d.slice(0, 2); })
     );
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/update/fail'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/update/fail'));
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (update-redirect, with confirmation, not confirmed)', function(assert) {
@@ -665,18 +668,18 @@ QUnit.test('creme.bricks.Brick.action (update-redirect, with confirmation, not c
     brick.action('update-redirect', 'mock/brick/update', {confirm: true}, {next: 'mock/next'})
          .on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([], this.mockRedirectCalls());
 
     this.closeDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (update-redirect, with confirmation, confirmed)', function(assert) {
@@ -687,17 +690,17 @@ QUnit.test('creme.bricks.Brick.action (update-redirect, with confirmation, confi
     brick.action(
         'update-redirect', 'mock/brick/update', {confirm: true}, {next: 'mock/next'}
         ).on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual([], this.mockRedirectCalls());
 
     this.acceptConfirmDialog();
 
-    deepEqual([['done', 'mock/next']], this.mockListenerCalls('action-done'));
-    deepEqual([['POST', {next: 'mock/next'}]], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual(['mock/next'], this.mockRedirectCalls());
+    assert.deepEqual([['done', 'mock/next']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['POST', {next: 'mock/next'}]], this.mockBackendUrlCalls('mock/brick/update'));
+    assert.deepEqual(['mock/next'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (redirect)', function(assert) {
@@ -706,9 +709,9 @@ QUnit.test('creme.bricks.Brick.action (redirect)', function(assert) {
     this.assertClosedDialog();
 
     brick.action('redirect', 'mock/redirect').on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual(['mock/redirect'], this.mockRedirectCalls());
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual(['mock/redirect'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (redirect, comeback)', function(assert) {
@@ -723,9 +726,9 @@ QUnit.test('creme.bricks.Brick.action (redirect, comeback)', function(assert) {
       id: 157
   }).on(this.brickActionListeners).start();
 
-  equal(false, brick.isLoading());
-  deepEqual([['done']], this.mockListenerCalls('action-done'));
-  deepEqual(['/mock/redirect?id=157&callback_url=' + encodeURIComponent(location)], this.mockRedirectCalls());
+  assert.equal(false, brick.isLoading());
+  assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+  assert.deepEqual(['/mock/redirect?id=157&callback_url=' + encodeURIComponent(location)], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (redirect template)', function(assert) {
@@ -738,9 +741,9 @@ QUnit.test('creme.bricks.Brick.action (redirect template)', function(assert) {
         id: 157
     }).on(this.brickActionListeners).start();
 
-    equal(false, brick.isLoading());
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual(['mock/redirect/157?source=' + location], this.mockRedirectCalls());
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual(['mock/redirect/157?source=' + location], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (view)', function(assert) {
@@ -749,15 +752,15 @@ QUnit.test('creme.bricks.Brick.action (view)', function(assert) {
     this.assertClosedDialog();
 
     brick.action('view', 'mock/view').on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/view'));
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/view'));
 
     this.assertOpenedDialog();
     this.closeDialog();
 
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/view'));
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/view'));
 });
 
 QUnit.test('creme.bricks.Brick.action (view, failed)', function(assert) {
@@ -766,15 +769,15 @@ QUnit.test('creme.bricks.Brick.action (view, failed)', function(assert) {
     this.assertClosedDialog();
 
     brick.action('view', 'mock/view/fail').on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/view/fail'));
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/view/fail'));
 
     this.assertOpenedDialog();
     this.closeDialog();
 
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/view/fail'));
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/view/fail'));
 });
 
 QUnit.test('creme.bricks.Brick.action (add relationships, no selection)', function(assert) {
@@ -788,33 +791,33 @@ QUnit.test('creme.bricks.Brick.action (add relationships, no selection)', functi
         selector_url: 'mock/relation/selector'
     }).on(this.brickActionListeners).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').list_view();
 
-    deepEqual([], list.selectedRows());
+    assert.deepEqual([], list.selectedRows());
 
     this.validateListViewSelectionDialog();
 
     this.assertOpenedAlertDialog(gettext('Please select at least one entity.'));
     this.assertOpenedListViewDialog();
 
-    deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
 
     this.closeTopDialog();
     this.assertOpenedListViewDialog();
 
-    deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
 
     this.closeDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls());
 
-    deepEqual({
+    assert.deepEqual({
         'action-start': [['start']],
         'action-cancel': [['cancel']]
     }, this.mockListenerCalls());
@@ -830,14 +833,14 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, multiple selec
         selection: 'single'
     }).on(this.brickActionListeners).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').list_view();
 
     this.setListviewSelection(list, ['2', '3']);
-    deepEqual(['2', '3'], list.selectedRows());
+    assert.deepEqual(['2', '3'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
 
@@ -849,13 +852,13 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, multiple selec
 
     this.closeDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls());
 
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockRedirectCalls());
 
-    deepEqual({
+    assert.deepEqual({
         'action-start': [['start']],
         'action-cancel': [['cancel']]
     }, this.mockListenerCalls());
@@ -870,26 +873,26 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single)', function(ass
         selector_url: 'mock/relation/selector'
     }).on(this.brickActionListeners).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').list_view();
 
     this.setListviewSelection(list, ['2']);
-    deepEqual(['2'], list.selectedRows());
+    assert.deepEqual(['2'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}],
         ['mock/relation/add', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockRedirectCalls());
 
-    deepEqual({
+    assert.deepEqual({
         'action-start': [['start']],
         'action-done': [['done']]
     }, this.mockListenerCalls());
@@ -910,7 +913,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, q_filter)', function(a
         q_filter: q_filter
     }).on(this.brickActionListeners).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET',
          {subject_id: '74',
           rtype_id: rtype_id,
@@ -931,26 +934,26 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, fail)', functi
         selector_url: 'mock/relation/selector'
     }).on(this.brickActionListeners).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').list_view();
 
     this.setListviewSelection(list, ['2']);
-    deepEqual(['2'], list.selectedRows());
+    assert.deepEqual(['2'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}],
         ['mock/relation/add/fail', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockRedirectCalls());
 
-    deepEqual(['fail'],
+    assert.deepEqual(['fail'],
              this.mockListenerCalls('action-fail').map(function(d) { return d[0]; }));
 });
 
@@ -965,26 +968,26 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload)', func
         reloadOnSuccess: true
     }).on(this.brickActionListeners).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').list_view();
 
     this.setListviewSelection(list, ['2']);
-    deepEqual(['2'], list.selectedRows());
+    assert.deepEqual(['2'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}],
         ['mock/relation/add', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
-    deepEqual([current_url], this.mockReloadCalls());
+    assert.deepEqual([current_url], this.mockReloadCalls());
 
-    deepEqual({
+    assert.deepEqual({
         'action-start': [['start']],
         'action-done': [['done']]
     }, this.mockListenerCalls());
@@ -1001,25 +1004,25 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload, fail)'
         reloadOnSuccess: true
     }).on(this.brickActionListeners).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').list_view();
 
     this.setListviewSelection(list, ['2']);
-    deepEqual(['2'], list.selectedRows());
+    assert.deepEqual(['2'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}],
         ['mock/relation/add/fail', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
-    deepEqual([], this.mockRedirectCalls());
-    deepEqual(['fail'], this.mockListenerCalls('action-fail').map(function(d) { return d[0]; }));
+    assert.deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual(['fail'], this.mockListenerCalls('action-fail').map(function(d) { return d[0]; }));
 });
 
 QUnit.test('creme.bricks.Brick.action (add relationships, multiple)', function(assert) {
@@ -1032,7 +1035,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, multiple)', function(a
         multiple: true
     }).on(this.brickActionListeners).start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'multiple'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
@@ -1040,18 +1043,18 @@ QUnit.test('creme.bricks.Brick.action (add relationships, multiple)', function(a
 
     this.setListviewSelection(list, ['2', '3']);
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['2', '3'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['2', '3'], list.selectedRows());
 
     this.validateListViewSelectionDialog();
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'multiple'}],
         ['mock/relation/add', 'POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
-    deepEqual({
+    assert.deepEqual({
         'action-start': [['start']],
         'action-done': [['done']]
     }, this.mockListenerCalls());
@@ -1063,18 +1066,18 @@ QUnit.test('creme.bricks.Brick.action (unknown)', function(assert) {
     );
     var brick = new creme.bricks.Brick();
 
-    equal(false, brick.isBound());
+    assert.equal(false, brick.isBound());
 
     brick.action('unknown-action').on(this.brickActionListeners).start();
-    deepEqual([['cancel', 'brick is not bound', brick]], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([['cancel', 'brick is not bound', brick]], this.mockListenerCalls('action-cancel'));
 
     this.resetMockListenerCalls();
 
     brick.bind(element);
-    equal(true, brick.isBound());
+    assert.equal(true, brick.isBound());
 
     brick.action('unknown-action').on(this.brickActionListeners).start();
-    deepEqual([['fail', 'no such action "unknown-action"', brick]], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([['fail', 'no such action "unknown-action"', brick]], this.mockListenerCalls('action-fail'));
 });
 
 QUnit.test('creme.bricks.Brick.action (loading)', function(assert) {
@@ -1086,11 +1089,11 @@ QUnit.test('creme.bricks.Brick.action (loading)', function(assert) {
     brick.bind(element);
     brick.setLoadingState(true, 'Loading test...');
 
-    equal(true, brick.isBound());
-    equal(true, brick.isLoading());
+    assert.equal(true, brick.isBound());
+    assert.equal(true, brick.isLoading());
 
     brick.action('collapse').on(this.brickActionListeners).start();
-    deepEqual([['cancel', 'brick is in loading state', brick]], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([['cancel', 'brick is in loading state', brick]], this.mockListenerCalls('action-cancel'));
 });
 
 QUnit.test('creme.bricks.Brick.action (link, no data)', function(assert) {
@@ -1104,20 +1107,20 @@ QUnit.test('creme.bricks.Brick.action (link, no data)', function(assert) {
                     deferredStateSaveDelay: 0
                 }).bind(element);
 
-    equal(true, brick.isBound());
-    equal(false, element.is('.is-collapsed'));
-    equal(1, brick._actionLinks.length);
+    assert.equal(true, brick.isBound());
+    assert.equal(false, element.is('.is-collapsed'));
+    assert.equal(1, brick._actionLinks.length);
 
     brick._actionLinks[0].on(this.brickActionLinkListeners);
 
     collapse.trigger('click');
-    equal(true, element.is('.is-collapsed'));
-    deepEqual([['action-link-done', []]],
+    assert.equal(true, element.is('.is-collapsed'));
+    assert.deepEqual([['action-link-done', []]],
               this.mockListenerCalls('action-link-done').map(function(d) { return d.slice(0, 2); }));
 
     collapse.trigger('click');
-    equal(false, element.is('.is-collapsed'));
-    deepEqual([['action-link-done', []], ['action-link-done', []]],
+    assert.equal(false, element.is('.is-collapsed'));
+    assert.deepEqual([['action-link-done', []], ['action-link-done', []]],
               this.mockListenerCalls('action-link-done').map(function(d) { return d.slice(0, 2); }));
 });
 
@@ -1130,18 +1133,18 @@ QUnit.test('creme.bricks.Brick.action (link, unknown)', function(assert) {
                     deferredStateSaveDelay: 0
                 }).bind(element);
 
-    equal(true, brick.isBound());
-    equal(false, element.is('.is-collapsed'));
-    equal(1, brick._actionLinks.length);
+    assert.equal(true, brick.isBound());
+    assert.equal(false, element.is('.is-collapsed'));
+    assert.equal(1, brick._actionLinks.length);
 
     var actionlink = brick._actionLinks[0];
-    equal(true, actionlink.isBound());
-    equal(true, actionlink.isDisabled());
+    assert.equal(true, actionlink.isBound());
+    assert.equal(true, actionlink.isDisabled());
 
     actionlink.on(this.brickActionLinkListeners);
     a.trigger('click');
 
-    deepEqual({}, this.mockListenerCalls());
+    assert.deepEqual({}, this.mockListenerCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (link, loading state)', function(assert) {
@@ -1156,23 +1159,23 @@ QUnit.test('creme.bricks.Brick.action (link, loading state)', function(assert) {
 
     brick.setLoadingState(true, 'Loading test...');
 
-    equal(true, brick.isBound());
-    equal(true, brick.isLoading());
-    equal(false, element.is('.is-collapsed'));
-    equal(1, brick._actionLinks.length);
+    assert.equal(true, brick.isBound());
+    assert.equal(true, brick.isLoading());
+    assert.equal(false, element.is('.is-collapsed'));
+    assert.equal(1, brick._actionLinks.length);
 
     brick._actionLinks[0].on(this.brickActionLinkListeners);
 
     collapse.trigger('click');
 
-    equal(false, element.is('.is-collapsed'));
-    deepEqual({}, this.mockListenerCalls()); // call in this case !
+    assert.equal(false, element.is('.is-collapsed'));
+    assert.deepEqual({}, this.mockListenerCalls()); // call in this case !
 
     brick.setLoadingState(false);
     collapse.trigger('click');
 
-    equal(true, element.is('.is-collapsed'));
-    deepEqual([['action-link-done', []]],
+    assert.equal(true, element.is('.is-collapsed'));
+    assert.deepEqual([['action-link-done', []]],
               this.mockListenerCalls('action-link-done').map(function(d) { return d.slice(0, 2); }));
 });
 
@@ -1183,9 +1186,9 @@ QUnit.test('creme.bricks.Brick.action (link, async)', function(assert) {
     var action = $('<a data-action="form" class="is-async-action" href="mock/brick/update"></a>').appendTo(element);
 
     var brick = new creme.bricks.Brick().bind(element);
-    equal(true, brick.isBound());
-    equal(false, brick.isLoading());
-    equal(1, brick._actionLinks.length);
+    assert.equal(true, brick.isBound());
+    assert.equal(false, brick.isLoading());
+    assert.equal(1, brick._actionLinks.length);
     this.assertClosedDialog();
 
     brick._actionLinks[0].on(this.brickActionLinkListeners)
@@ -1193,19 +1196,19 @@ QUnit.test('creme.bricks.Brick.action (link, async)', function(assert) {
 
     action.trigger('click');
 
-    equal(true, brick.isLoading());
+    assert.equal(true, brick.isLoading());
     this.assertOpenedDialog();
-    deepEqual([['action-link-start', "mock/brick/update", {}, {}]],
+    assert.deepEqual([['action-link-start', "mock/brick/update", {}, {}]],
               this.mockListenerCalls('action-link-start').map(function(d) { return d.slice(0, 4); }));
-    deepEqual([], this.mockListenerCalls('action-link-complete'));
+    assert.deepEqual([], this.mockListenerCalls('action-link-complete'));
 
     this.closeDialog();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
-    deepEqual([['action-link-start', "mock/brick/update", {}, {}]],
+    assert.deepEqual([['action-link-start', "mock/brick/update", {}, {}]],
               this.mockListenerCalls('action-link-start').map(function(d) { return d.slice(0, 4); }));
-    deepEqual([['action-link-cancel', []]],
+    assert.deepEqual([['action-link-cancel', []]],
               this.mockListenerCalls('action-link-complete').map(function(d) { return d.slice(0, 2); }));
 });
 
@@ -1221,9 +1224,9 @@ QUnit.test('creme.bricks.Brick.action (popover)', function(assert) {
 
     var brick = new creme.bricks.Brick().bind(element);
 
-    equal(true, brick.isBound());
-    equal(false, brick.isLoading());
-    equal(1, brick._actionLinks.length);
+    assert.equal(true, brick.isBound());
+    assert.equal(false, brick.isLoading());
+    assert.equal(1, brick._actionLinks.length);
 
     brick._actionLinks[0].on(this.brickActionLinkListeners);
 
@@ -1231,7 +1234,7 @@ QUnit.test('creme.bricks.Brick.action (popover)', function(assert) {
 
     var popover = this.assertOpenedPopover();
     this.assertPopoverTitle('Filter A Details');
-    equal(popover.find('.popover-content').html(), '<h3>Filter by "A"</h3>');
+    assert.equal(popover.find('.popover-content').html(), '<h3>Filter by "A"</h3>');
 });
 
 QUnit.test('creme.bricks.Brick.registry', function(assert) {
@@ -1241,27 +1244,27 @@ QUnit.test('creme.bricks.Brick.registry', function(assert) {
     var brick = new creme.bricks.Brick().bind(element);
     var registry = brick.getActionBuilders();
 
-    ok(Object.isSubClassOf(registry, creme.component.FactoryRegistry));
+    assert.ok(Object.isSubClassOf(registry, creme.component.FactoryRegistry));
 
-    ok(registry.has('view'));
-    ok(registry.has('redirect'));
+    assert.ok(registry.has('view'));
+    assert.ok(registry.has('redirect'));
 
-    ok(registry.has('refresh'));
-    ok(registry.has('collapse'));
-    ok(registry.has('reduce_content'));
+    assert.ok(registry.has('refresh'));
+    assert.ok(registry.has('collapse'));
+    assert.ok(registry.has('reduce_content'));
 
-    ok(registry.has('form'));
-    ok(registry.has('form_refresh'));
+    assert.ok(registry.has('form'));
+    assert.ok(registry.has('form_refresh'));
 
-    ok(registry.has('add'));
-    ok(registry.has('edit'));
-    ok(registry.has('link'));
-    ok(registry.has('delete'));
-    ok(registry.has('update'));
-    ok(registry.has('update_redirect'));
-    ok(registry.has('popover'));
+    assert.ok(registry.has('add'));
+    assert.ok(registry.has('edit'));
+    assert.ok(registry.has('link'));
+    assert.ok(registry.has('delete'));
+    assert.ok(registry.has('update'));
+    assert.ok(registry.has('update_redirect'));
+    assert.ok(registry.has('popover'));
 
-    ok(registry.has('add_relationships'));
+    assert.ok(registry.has('add_relationships'));
 });
 
 }(jQuery));

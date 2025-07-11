@@ -58,16 +58,16 @@ QUnit.test('creme.widget.DateTimePicker.create (empty)', function(assert) {
     var element = $(this.createDateTimePickerHtml());
 
     var widget = creme.widget.create(element);
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
 
-    equal(element.is('[disabled]'), false);
-    equal(element.is('[readonly]'), false);
+    assert.equal(element.is('[disabled]'), false);
+    assert.equal(element.is('[readonly]'), false);
 
-    equal('', element.find('input[type="hidden"]').val());
-    equal('', widget.val());
+    assert.equal('', element.find('input[type="hidden"]').val());
+    assert.equal('', widget.val());
 
-    equal(widget.delegate._disabled, false);
+    assert.equal(widget.delegate._disabled, false);
 });
 
 QUnit.test('creme.widget.DateTimePicker.create (disabled)', function(assert) {
@@ -76,18 +76,18 @@ QUnit.test('creme.widget.DateTimePicker.create (disabled)', function(assert) {
     }));
 
     var widget = creme.widget.create(element);
-    equal(element.hasClass('widget-ready'), true);
-    equal(element.find('input').prop('disabled'), true);
-    equal(widget.delegate._disabled, true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.find('input').prop('disabled'), true);
+    assert.equal(widget.delegate._disabled, true);
 
     element = $(this.createDateTimePickerHtml());
     widget = creme.widget.create(element, {
         disabled: true
     });
 
-    equal(element.hasClass('widget-ready'), true);
-    equal(element.find('input').prop('disabled'), true);
-    equal(widget.delegate._disabled, true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.find('input').prop('disabled'), true);
+    assert.equal(widget.delegate._disabled, true);
 });
 
 QUnit.test('creme.widget.DateTimePicker.create (readonly)', function(assert) {
@@ -96,20 +96,20 @@ QUnit.test('creme.widget.DateTimePicker.create (readonly)', function(assert) {
     }));
 
     var widget = creme.widget.create(element);
-    equal(element.hasClass('widget-ready'), true);
-    equal(element.is('.is-readonly'), true);
-    equal(element.find('input').prop('readonly'), true);
-    equal(widget.delegate._readonly, true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.is('.is-readonly'), true);
+    assert.equal(element.find('input').prop('readonly'), true);
+    assert.equal(widget.delegate._readonly, true);
 
     element = $(this.createDateTimePickerHtml());
     widget = creme.widget.create(element, {
         readonly: true
     });
 
-    equal(element.hasClass('widget-ready'), true);
-    equal(element.is('.is-readonly'), true);
-    equal(element.find('input').prop('readonly'), true);
-    equal(widget.delegate._readonly, true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.is('.is-readonly'), true);
+    assert.equal(element.find('input').prop('readonly'), true);
+    assert.equal(widget.delegate._readonly, true);
 });
 
 QUnit.test('creme.widget.DateTimePicker.val (initial)', function(assert) {
@@ -118,13 +118,13 @@ QUnit.test('creme.widget.DateTimePicker.val (initial)', function(assert) {
     }));
 
     var widget = creme.widget.create(element);
-    equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
 
-    equal('28-02-2021 18:15:38', element.find('input[type="hidden"]').val());
-    equal('28-02-2021 18:15:38', widget.val());
-    equal('28-02-2021', element.find('.date input').val());
-    equal('18', element.find('.hour input').val());
-    equal('15', element.find('.minute input').val());
+    assert.equal('28-02-2021 18:15:38', element.find('input[type="hidden"]').val());
+    assert.equal('28-02-2021 18:15:38', widget.val());
+    assert.equal('28-02-2021', element.find('.date input').val());
+    assert.equal('18', element.find('.hour input').val());
+    assert.equal('15', element.find('.minute input').val());
 });
 
 QUnit.parametrize('creme.widget.DateTimePicker.val (from element)', [
@@ -137,10 +137,10 @@ QUnit.parametrize('creme.widget.DateTimePicker.val (from element)', [
 
     element.find('input[type="hidden"]').val(value).trigger('change');
 
-    equal(widget.val(), value);
-    equal(element.find('.date input').val(), expected.date);
-    equal(element.find('.hour input').val(), expected.hour);
-    equal(element.find('.minute input').val(), expected.minute);
+    assert.equal(widget.val(), value);
+    assert.equal(element.find('.date input').val(), expected.date);
+    assert.equal(element.find('.hour input').val(), expected.hour);
+    assert.equal(element.find('.minute input').val(), expected.minute);
 });
 
 
@@ -154,10 +154,10 @@ QUnit.parametrize('creme.widget.DateTimePicker.val (from widget)', [
 
     widget.val(value);
 
-    equal(element.find('input[type="hidden"]').val(), value);
-    equal(element.find('.date input').val(), expected.date);
-    equal(element.find('.hour input').val(), expected.hour);
-    equal(element.find('.minute input').val(), expected.minute);
+    assert.equal(element.find('input[type="hidden"]').val(), value);
+    assert.equal(element.find('.date input').val(), expected.date);
+    assert.equal(element.find('.hour input').val(), expected.hour);
+    assert.equal(element.find('.minute input').val(), expected.minute);
 });
 
 QUnit.parameterize('creme.widget.DatePicker.create (initial)', [
@@ -169,15 +169,15 @@ QUnit.parameterize('creme.widget.DatePicker.create (initial)', [
     var element = $(this.createDatePickerHtml(options)).appendTo(this.qunitFixture());
     var widget = creme.widget.create(element);
 
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
-    equal(element.hasClass('hasDatepicker'), true);  // jquery datepicker is enabled
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.hasClass('hasDatepicker'), true);  // jquery datepicker is enabled
 
-    equal(element.is('[disabled]'), false);
-    equal(element.is('[readonly]'), false);
+    assert.equal(element.is('[disabled]'), false);
+    assert.equal(element.is('[readonly]'), false);
 
-    equal(expected, element.val());
-    equal(expected, widget.val());
+    assert.equal(expected, element.val());
+    assert.equal(expected, widget.val());
 });
 
 QUnit.parameterize('creme.widget.DatePicker.create (disabled, readonly)', [
@@ -188,12 +188,12 @@ QUnit.parameterize('creme.widget.DatePicker.create (disabled, readonly)', [
     var element = $(this.createDatePickerHtml(options)).appendTo(this.qunitFixture());
     creme.widget.create(element);
 
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
-    equal(element.hasClass('hasDatepicker'), true);  // jquery datepicker is enabled
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.hasClass('hasDatepicker'), true);  // jquery datepicker is enabled
 
-    equal(element.is('[disabled]'), options.disabled || options.readonly);
-    equal(element.is('[readonly]'), options.readonly);
+    assert.equal(element.is('[disabled]'), options.disabled || options.readonly);
+    assert.equal(element.is('[readonly]'), options.readonly);
 });
 
 QUnit.test('creme.widget.DatePicker.val (today)', function(assert) {
@@ -202,25 +202,25 @@ QUnit.test('creme.widget.DatePicker.val (today)', function(assert) {
     })).appendTo(this.qunitFixture());
     var widget = creme.widget.create(element);
 
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
 
-    equal('12-02-2024', element.val());
-    equal('12-02-2024', widget.val());
+    assert.equal('12-02-2024', element.val());
+    assert.equal('12-02-2024', widget.val());
 
     widget.val('13-03-2023');
 
-    equal('13-03-2023', element.val());
-    equal('13-03-2023', widget.val());
+    assert.equal('13-03-2023', element.val());
+    assert.equal('13-03-2023', widget.val());
 
-    equal(1, $('[name="today"]').length);
+    assert.equal(1, $('[name="today"]').length);
 
     $('[name="today"]').trigger('click');
 
     var today = moment().format('DD-MM-YYYY');
 
-    equal(today, element.val());
-    equal(today, widget.val());
+    assert.equal(today, element.val());
+    assert.equal(today, widget.val());
 });
 
 QUnit.parameterize('creme.widget.YearPicker.create', [
@@ -240,14 +240,14 @@ QUnit.parameterize('creme.widget.YearPicker.create', [
     })).appendTo(this.qunitFixture());
     var widget = creme.widget.create(element);
 
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
 
-    equal(element.is('[disabled]'), options.disabled || false);
-    equal(element.is('[readonly]'), options.readonly || false);
+    assert.equal(element.is('[disabled]'), options.disabled || false);
+    assert.equal(element.is('[readonly]'), options.readonly || false);
 
-    equal(options.value, element.val());
-    equal(options.value, widget.val());
+    assert.equal(options.value, element.val());
+    assert.equal(options.value, widget.val());
 });
 
 QUnit.test('creme.widget.YearPicker.val (current year)', function(assert) {
@@ -256,20 +256,20 @@ QUnit.test('creme.widget.YearPicker.val (current year)', function(assert) {
     ).appendTo(this.qunitFixture());
     var widget = creme.widget.create(element);
 
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
 
     widget.val('2024');
 
-    equal('2024', element.val());
-    equal('2024', widget.val());
+    assert.equal('2024', element.val());
+    assert.equal('2024', widget.val());
 
-    equal(1, $('[name="current-year"]').length);
+    assert.equal(1, $('[name="current-year"]').length);
 
     $('[name="current-year"]').trigger('click');
 
-    equal(String(new Date().getFullYear()), element.val());
-    equal(String(new Date().getFullYear()), widget.val());
+    assert.equal(String(new Date().getFullYear()), element.val());
+    assert.equal(String(new Date().getFullYear()), widget.val());
 });
 
 }(jQuery));
