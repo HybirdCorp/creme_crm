@@ -18,7 +18,7 @@
 
 import itertools
 from collections import defaultdict
-from collections.abc import Collection, Iterable, Sequence
+from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import timedelta
@@ -42,7 +42,13 @@ from ..auth.entity_credentials import EntityCredentials
 from ..core import validators
 from ..core.entity_filter import EF_REGULAR
 from ..gui import quick_forms
-from ..models import CremeEntity, EntityFilter, Relation, RelationType
+from ..models import (
+    CremeEntity,
+    CremeUser,
+    EntityFilter,
+    Relation,
+    RelationType,
+)
 from ..utils.collections import OrderedSet
 from ..utils.content_type import ctype_choices, entity_ctypes
 from ..utils.date_period import DatePeriod, date_period_registry
@@ -103,7 +109,7 @@ class JSONField(fields.CharField):
     }
     value_type: type | None = None  # Overload this: type of the value returned by the field.
 
-    def __init__(self, *, user=None, **kwargs):
+    def __init__(self, *, user: CremeUser | None = None, **kwargs):
         super().__init__(**kwargs)
         self._user = user
         self.widget.from_python = self.from_python
@@ -114,11 +120,11 @@ class JSONField(fields.CharField):
         return obj
 
     @property
-    def user(self):
+    def user(self) -> CremeUser | None:
         return self._user
 
     @user.setter
-    def user(self, user):
+    def user(self, user: CremeUser | None) -> None:
         self._user = user
 
     def _build_empty_value(self):
@@ -220,7 +226,8 @@ class JSONField(fields.CharField):
 
         return self._value_from_unjsonfied(data)
 
-    def _clean_ctype(self, ctype_id) -> ContentType | None:
+    def _clean_ctype(self, ctype_id: int) -> ContentType | None:
+        # TODO: validate integer (avoid putting strings in the ContentType's cache?)?
         if not ctype_id:
             if self.required:
                 raise ValidationError(
@@ -240,8 +247,15 @@ class JSONField(fields.CharField):
 
         return ctype
 
-    def _clean_entity(self, ctype, entity_pk) -> CremeEntity | None:
-        "@param ctype: ContentType instance or PK."
+    def _clean_entity(self,
+                      ctype: ContentType | int,
+                      entity_pk: int | str,
+                      ) -> CremeEntity | None:
+        """Clean a CremeEntity from its model & its PK.
+        @param ctype: ContentType instance, or ContentType's PK.
+        @param entity_pk: ID of CremeEntity instance.
+        @raise: ValidationError.
+        """
         if not isinstance(ctype, ContentType):
             # try:
             #     ctype = ContentType.objects.get_for_id(ctype)
@@ -287,7 +301,7 @@ class JSONField(fields.CharField):
 
         return entity
 
-    def _entity_queryset(self, model, qfilter=None):
+    def _entity_queryset(self, model: type[CremeEntity], qfilter: Q | None = None) -> QuerySet:
         query = model.objects.all()
 
         if qfilter is not None:
@@ -295,7 +309,12 @@ class JSONField(fields.CharField):
 
         return query
 
-    def _clean_entity_from_model(self, model, entity_pk, qfilter=None):
+    def _clean_entity_from_model(self,
+                                 model: type[CremeEntity],
+                                 entity_pk: int,
+                                 qfilter: Q | None = None,
+                                 ) -> CremeEntity:
+        """@raise: ValidationError"""
         entity = self._entity_queryset(model, qfilter).filter(pk=entity_pk).first()
         if entity is None:
             if qfilter:
@@ -346,7 +365,7 @@ class EntityCredsJSONField(JSONField):
     ]
 
     def __init__(self, *,
-                 credentials=EntityCredentials.LINK,
+                 credentials: int = EntityCredentials.LINK,
                  quickforms_registry=None,
                  **kwargs):
         """Constructor.
@@ -396,8 +415,11 @@ class GenericEntityField(EntityCredsJSONField):
     widget: type[widgets.TextInput] = core_widgets.CTEntitySelector
     value_type: type = dict
 
-    # def __init__(self, *, models=(), autocomplete=False, creator=True, user=None, **kwargs):
-    def __init__(self, *, models=(), autocomplete=True, creator=True, user=None, **kwargs):
+    def __init__(self, *,
+                 models: Iterable[type[CremeEntity]] = (),
+                 # autocomplete=False, creator=True, user=None,
+                 autocomplete=True, creator=True, user=None,
+                 **kwargs):
         super().__init__(**kwargs)
         self.creator = creator
         self.autocomplete = autocomplete
@@ -405,12 +427,12 @@ class GenericEntityField(EntityCredsJSONField):
         self.allowed_models = models
 
     @property
-    def allowed_models(self):
+    def allowed_models(self) -> list[type[CremeEntity]]:
         return self._allowed_models
 
     @allowed_models.setter
-    def allowed_models(self, allowed):
-        """@param allowed: An iterable of models (i.e. classes inheriting django.db.Model)."""
+    def allowed_models(self, allowed: Iterable[type[CremeEntity]]) -> None:
+        """@param allowed: An iterable of entity models."""
         self._allowed_models = [*allowed]
         self._update_widget_choices()
 
@@ -847,11 +869,11 @@ class CreatorEntityField(EntityCredsJSONField):
     value_type: type = int
 
     def __init__(self, *,
-                 model=None,
-                 q_filter=None,
+                 model: type[CremeEntity] | None = None,
+                 q_filter: dict | Q | Callable | None = None,
                  create_action_url='',
-                 create_action_label=None,
-                 user=None,
+                 create_action_label=None,  # TODO: empty string instead?
+                 user: CremeUser | None = None,
                  force_creation=False,
                  **kwargs):
         super().__init__(**kwargs)
@@ -864,30 +886,31 @@ class CreatorEntityField(EntityCredsJSONField):
         self.user = user
 
     @property
-    def force_creation(self):
+    def force_creation(self) -> bool:
         return self._force_creation
 
     @force_creation.setter
-    def force_creation(self, force_creation):
+    def force_creation(self, force_creation: bool) -> None:
         self._force_creation = force_creation
         self._update_creation_info()
 
     @property
-    def model(self):
+    def model(self) -> type[CremeEntity] | None:
         return self._model
 
     @model.setter
-    def model(self, model=None):
+    # def model(self, model=None):
+    def model(self, model: type[CremeEntity] | None):
         self._model = model
         self.widget.model = model
         self._update_creation_info()
 
     @property
-    def q_filter(self):
+    def q_filter(self) -> dict | Q | Callable:
         return self._q_filter
 
     @q_filter.setter
-    def q_filter(self, q_filter):
+    def q_filter(self, q_filter: dict | Q | Callable | None) -> None:
         """
         @param q_filter: Allows to filter the selection. Same meaning than Model.limit_choices_to ;
                so it can be dictionary (e.g. {'user__is_staff': False}),
@@ -899,7 +922,7 @@ class CreatorEntityField(EntityCredsJSONField):
         self._update_creation_info()
 
     @property
-    def q_filter_query(self):
+    def q_filter_query(self) -> Q | None:
         q_filter = self._q_filter
         q = None
 
@@ -919,15 +942,15 @@ class CreatorEntityField(EntityCredsJSONField):
         return q
 
     @property
-    def create_action_label(self):
+    def create_action_label(self) -> str | None:
         return self._create_action_label
 
     @create_action_label.setter
-    def create_action_label(self, label):
+    def create_action_label(self, label: str | None) -> None:
         self._create_action_label = self.widget.creation_label = label
 
     @property
-    def create_action_url(self):
+    def create_action_url(self) -> str:
         if self._create_action_url:
             return self._create_action_url
 
@@ -942,7 +965,7 @@ class CreatorEntityField(EntityCredsJSONField):
         return ''
 
     @create_action_url.setter
-    def create_action_url(self, url):
+    def create_action_url(self, url: str) -> None:
         self._create_action_url = url
 
         self._update_creation_info()
@@ -1059,7 +1082,7 @@ class FilteredEntityTypeField(JSONField):
     value_type = dict
 
     def __init__(self, *,
-                 ctypes=entity_ctypes,
+                 ctypes: Callable | Sequence[int | ContentType] = entity_ctypes,
                  filter_types=(EF_REGULAR,),
                  empty_label=None,
                  **kwargs):
@@ -1083,7 +1106,7 @@ class FilteredEntityTypeField(JSONField):
                 return ct
 
     @property
-    def ctypes(self):
+    def ctypes(self) -> list[ContentType]:
         get_ct = ContentType.objects.get_for_id
         return [
             ct_or_ctid if isinstance(ct_or_ctid, ContentType) else get_ct(ct_or_ctid)
@@ -1091,7 +1114,7 @@ class FilteredEntityTypeField(JSONField):
         ]
 
     @ctypes.setter
-    def ctypes(self, ctypes):
+    def ctypes(self, ctypes: Callable | Sequence[int | ContentType]) -> None:
         "See constructor."
         if not callable(ctypes):
             ctypes_list = [*ctypes]  # We copy the sequence to avoid external modifications
@@ -1103,7 +1126,7 @@ class FilteredEntityTypeField(JSONField):
         self.widget.content_types = CallableChoiceIterator(self._get_choices)
 
     @property
-    def filter_types(self):
+    def filter_types(self) -> Iterator[str]:
         yield from self._filter_types
 
     @filter_types.setter
@@ -1352,30 +1375,30 @@ class ListEditionField(fields.Field):
     """
     widget = core_widgets.ListEditionWidget
 
-    def __init__(self, *, content=(), only_delete=False, **kwargs):
+    def __init__(self, *, content: Sequence[str] = (), only_delete=False, **kwargs):
         """Constructor.
         @param content: Sequence of strings
         @param only_delete: Can only delete elements, not edit them.
         """
         super().__init__(**kwargs)
-        self.content = content
+        self.content = content  # TODO: get an Iterable & build a list?
         self.only_delete = only_delete
 
     @property
-    def content(self):
+    def content(self) -> Sequence[str]:
         return self._content
 
     @content.setter
-    def content(self, content):
+    def content(self, content: Sequence[str]):
         self._content = content
         self.widget.content = content
 
     @property
-    def only_delete(self):
+    def only_delete(self) -> bool:
         return self._only_delete
 
     @only_delete.setter
-    def only_delete(self, only_delete):
+    def only_delete(self, only_delete: bool) -> None:
         self._only_delete = only_delete
         self.widget.only_delete = only_delete
 
@@ -1718,7 +1741,7 @@ class ChoiceOrCharField(fields.MultiValueField):
         'invalid_other': _('Enter a value for "Other" choice.'),
     }
 
-    def __init__(self, *, choices=(), **kwargs):
+    def __init__(self, *, choices: Iterable[tuple] = (), **kwargs):
         """@param choices Sequence of tuples (id, value).
                   BEWARE: "id" should not be a null value (like '', 0, etc...).
         """
@@ -1731,11 +1754,11 @@ class ChoiceOrCharField(fields.MultiValueField):
         self.choices = choices
 
     @property
-    def choices(self):
+    def choices(self) -> list[tuple]:
         return self._choices
 
     @choices.setter
-    def choices(self, value):
+    def choices(self, value) -> None:
         """See ChoiceField._set_choices()."""
         self._choices = self.choice_field.choices = self.widget.choices = [
             (0, _('Other')),
@@ -1779,7 +1802,9 @@ class CTypeChoiceField(fields.Field):
     }
 
     # TODO: ctypes_or_models ??
-    def __init__(self, *, ctypes=(), empty_label='---------',
+    def __init__(self, *,
+                 ctypes: Iterable[ContentType] | Callable = (),
+                 empty_label='---------',
                  required=True, widget=None, label=None, initial=None,
                  help_text='',
                  to_field_name=None, limit_choices_to=None,  # TODO: manage ?
@@ -1799,11 +1824,11 @@ class CTypeChoiceField(fields.Field):
         return result
 
     @property
-    def ctypes(self):
+    def ctypes(self) -> list[ContentType]:
         return self._ctypes()
 
     @ctypes.setter
-    def ctypes(self, ctypes):
+    def ctypes(self, ctypes: Iterable[ContentType] | Callable) -> None:
         if not callable(ctypes):
             ctypes_list = [*ctypes]
 
@@ -1888,6 +1913,7 @@ class EntityCTypeChoiceField(CTypeChoiceField):
     """Version of CTypeChoiceField where all ContentTypes correspond to classes
     inheriting CremeEntity.
     """
+    # TODO <def __init__(self, *, ctypes=entity_ctypes, **kwargs):> ??
     def __init__(self, *, ctypes=None, **kwargs):
         ctypes = ctypes or entity_ctypes
         super().__init__(ctypes=ctypes, **kwargs)
@@ -1895,6 +1921,7 @@ class EntityCTypeChoiceField(CTypeChoiceField):
 
 class MultiEntityCTypeChoiceField(MultiCTypeChoiceField):
     """Multiple version of EntityCTypeChoiceField."""
+    # TODO: see above
     def __init__(self, *, ctypes=None, **kwargs):
         ctypes = ctypes or entity_ctypes
         super().__init__(ctypes=ctypes, **kwargs)
