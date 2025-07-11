@@ -37,6 +37,7 @@ from creme.creme_core.forms.widgets import (
     ChainedInput,
     DynamicInput,
     PolymorphicInput,
+    PrettySelect,
 )
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.fields import MoneyField
@@ -192,6 +193,7 @@ class AbscissaWidget(ChainedInput):
                     f'true'
                 ),
                 'dependencies': cell_data_name,
+                'autocomplete': True,  # TODO: to get a pretty <select>
             },
             avoid_empty=True,
         )
@@ -480,7 +482,11 @@ class OrdinateWidget(ChainedInput):
         self.add_dselect(
             aggr_data_name,
             options=self.build_aggr_choices(cells_per_aggr_category),
-            attrs=field_attrs,
+            # attrs=field_attrs,
+            attrs={
+                **field_attrs,
+                'autocomplete': True,  # TODO: to get a pretty <select>
+            },
             avoid_empty=True,
         )
         self.add_dselect(
@@ -495,6 +501,7 @@ class OrdinateWidget(ChainedInput):
                     f'true'
                 ),
                 'dependencies': aggr_data_name,
+                'autocomplete': True,  # TODO: to get a pretty <select>
             },
         )
 
@@ -664,7 +671,11 @@ class OrdinateField(JSONField):
 # ------------------------------------------------------------------------------
 # NB: not <CremeEntityForm> to avoid Relationships & CremeProperties
 class ReportGraphForm(CremeModelForm):
-    chart = forms.ChoiceField(label=_('Chart type'), choices=report_chart_registry.choices())
+    chart = forms.ChoiceField(
+        label=_('Chart type'),
+        choices=report_chart_registry.choices(),
+        widget=PrettySelect,
+    )
     abscissa = AbscissaField(label=_('X axis'))
     ordinate = OrdinateField(label=_('Y axis'))
 

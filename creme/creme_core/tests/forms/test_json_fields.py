@@ -510,13 +510,18 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_autocomplete_property(self):
         field = GenericEntityField()
-        self.assertFalse(field.autocomplete)
-
-        field = GenericEntityField(autocomplete=True)
+        # self.assertFalse(field.autocomplete)
         self.assertTrue(field.autocomplete)
 
-        field.autocomplete = False
+        # field = GenericEntityField(autocomplete=True)
+        # self.assertTrue(field.autocomplete)
+        field = GenericEntityField(autocomplete=False)
         self.assertFalse(field.autocomplete)
+
+        # field.autocomplete = False
+        # self.assertFalse(field.autocomplete)
+        field.autocomplete = True
+        self.assertTrue(field.autocomplete)
 
     def test_clean_with_permission01(self):
         "Perm checking OK."
