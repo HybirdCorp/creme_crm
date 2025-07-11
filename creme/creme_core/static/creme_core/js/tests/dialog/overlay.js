@@ -11,10 +11,10 @@ QUnit.module("creme.overlay.js", new QUnitMixin(QUnitEventMixin,
 QUnit.test('creme.dialog.Overlay', function(assert) {
     var overlay = new creme.dialog.Overlay();
 
-    equal(false, overlay.visible());
-    equal(false, overlay.isBound());
-    equal(undefined, overlay.state());
-    equal(undefined, overlay.target());
+    assert.equal(false, overlay.visible());
+    assert.equal(false, overlay.isBound());
+    assert.equal(undefined, overlay.state());
+    assert.equal(undefined, overlay.target());
 
     this.equalHtml('', overlay.content());
 });
@@ -24,9 +24,9 @@ QUnit.test('creme.dialog.Overlay.bind', function(assert) {
 
     overlay.bind(this.qunitFixture());
 
-    equal(false, overlay.visible());
-    equal(true, overlay.isBound());
-    deepEqual(this.qunitFixture(), overlay.target());
+    assert.equal(false, overlay.visible());
+    assert.equal(true, overlay.isBound());
+    assert.deepEqual(this.qunitFixture(), overlay.target());
 
     this.assertRaises(function() {
         overlay.bind($('<div>'));
@@ -38,15 +38,15 @@ QUnit.test('creme.dialog.Overlay.unbind', function(assert) {
 
     overlay.bind(this.qunitFixture());
 
-    equal(false, overlay.visible());
-    equal(true, overlay.isBound());
-    deepEqual(this.qunitFixture(), overlay.target());
+    assert.equal(false, overlay.visible());
+    assert.equal(true, overlay.isBound());
+    assert.deepEqual(this.qunitFixture(), overlay.target());
 
     overlay.unbind();
 
-    equal(false, overlay.visible());
-    equal(false, overlay.isBound());
-    equal(undefined, overlay.target());
+    assert.equal(false, overlay.visible());
+    assert.equal(false, overlay.isBound());
+    assert.equal(undefined, overlay.target());
 
     this.assertRaises(function() {
         overlay.unbind();
@@ -58,18 +58,18 @@ QUnit.test('creme.dialog.Overlay (visible)', function(assert) {
 
     overlay.bind(this.qunitFixture());
 
-    equal(false, overlay.visible());
-    equal(0, this.qunitFixture().find('.ui-creme-overlay').length);
+    assert.equal(false, overlay.visible());
+    assert.equal(0, this.qunitFixture().find('.ui-creme-overlay').length);
 
     overlay.update(true);
 
-    equal(true, overlay.visible());
-    equal(1, this.qunitFixture().find('.ui-creme-overlay').length);
+    assert.equal(true, overlay.visible());
+    assert.equal(1, this.qunitFixture().find('.ui-creme-overlay').length);
 
     overlay.update(false);
 
-    equal(false, overlay.visible());
-    equal(0, this.qunitFixture().find('.ui-creme-overlay').length);
+    assert.equal(false, overlay.visible());
+    assert.equal(0, this.qunitFixture().find('.ui-creme-overlay').length);
 });
 
 QUnit.test('creme.dialog.Overlay (add|remove|toggleClasses)', function(assert) {
@@ -77,24 +77,24 @@ QUnit.test('creme.dialog.Overlay (add|remove|toggleClasses)', function(assert) {
 
     overlay.bind(this.qunitFixture()).update(true);
 
-    equal(true, overlay.visible());
+    assert.equal(true, overlay.visible());
 
     var overlayTag = this.qunitFixture().find('.ui-creme-overlay');
 
     overlay.addClass('style-A');
-    equal(true, overlayTag.is('.style-A'));
-    equal(false, overlayTag.is('.style-B'));
+    assert.equal(true, overlayTag.is('.style-A'));
+    assert.equal(false, overlayTag.is('.style-B'));
 
     overlay.toggleClass('style-A');
-    equal(false, overlayTag.is('.style-A'));
-    equal(false, overlayTag.is('.style-B'));
+    assert.equal(false, overlayTag.is('.style-A'));
+    assert.equal(false, overlayTag.is('.style-B'));
 
     overlay.toggleClass('style-A style-B');
-    equal(true, overlayTag.is('.style-A'));
-    equal(true, overlayTag.is('.style-B'));
+    assert.equal(true, overlayTag.is('.style-A'));
+    assert.equal(true, overlayTag.is('.style-B'));
 
     overlay.removeClass('style-A');
-    equal(false, overlayTag.is('.style-A'));
-    equal(true, overlayTag.is('.style-B'));
+    assert.equal(false, overlayTag.is('.style-A'));
+    assert.equal(true, overlayTag.is('.style-B'));
 });
 }(jQuery));

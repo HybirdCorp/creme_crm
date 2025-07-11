@@ -21,8 +21,8 @@ QUnit.test('creme.emails.ResendEMailsAction (no selection)', function(assert) {
         url: 'mock/emails/resend'
     }).on(this.listviewActionListeners);
 
-    equal(0, list.selectedRowsCount());
-    deepEqual([], list.selectedRows());
+    assert.equal(0, list.selectedRowsCount());
+    assert.deepEqual([], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -31,8 +31,8 @@ QUnit.test('creme.emails.ResendEMailsAction (no selection)', function(assert) {
     this.assertOpenedAlertDialog(gettext("Please select at least one email."));
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.emails.ResendEMailsAction (not confirmed)', function(assert) {
@@ -43,8 +43,8 @@ QUnit.test('creme.emails.ResendEMailsAction (not confirmed)', function(assert) {
 
     this.setListviewSelection(list, ['2', '3']);
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['2', '3'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -52,15 +52,15 @@ QUnit.test('creme.emails.ResendEMailsAction (not confirmed)', function(assert) {
 
     this.assertOpenedDialog();
 
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/emails/resend'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/emails/resend'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 QUnit.test('creme.emails.ResendEMailsAction (error)', function(assert) {
@@ -71,8 +71,8 @@ QUnit.test('creme.emails.ResendEMailsAction (error)', function(assert) {
 
     this.setListviewSelection(list, ['1', '2']);
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['1', '2'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['1', '2'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -80,27 +80,27 @@ QUnit.test('creme.emails.ResendEMailsAction (error)', function(assert) {
 
     this.assertOpenedDialog();
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([], this.mockBackendUrlCalls('mock/emails/resend'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/emails/resend'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.acceptConfirmDialog();
 
     this.assertOpenedAlertDialog(undefined, gettext('Bad Request'));
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([
         ['POST', {ids: '1,2'}]
     ], this.mockBackendUrlCalls('mock/emails/resend/fail'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
 
-    deepEqual([['fail']], this.mockListenerCalls('action-fail'));
-    deepEqual([
+    assert.deepEqual([['fail']], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([
         ['POST', {ids: '1,2'}]
     ], this.mockBackendUrlCalls('mock/emails/resend/fail'));
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             sort_key: ['regular_field-name'],
             sort_order: ['ASC'],
@@ -121,8 +121,8 @@ QUnit.test('creme.emails.ResendEMailsAction (ok)', function(assert) {
 
     this.setListviewSelection(list, ['1', '2', '3']);
 
-    equal(3, list.selectedRowsCount());
-    deepEqual(['1', '2', '3'], list.selectedRows());
+    assert.equal(3, list.selectedRowsCount());
+    assert.deepEqual(['1', '2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -131,11 +131,11 @@ QUnit.test('creme.emails.ResendEMailsAction (ok)', function(assert) {
     this.assertOpenedDialog();
     this.acceptConfirmDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {ids: '1,2,3'}]
     ], this.mockBackendUrlCalls('mock/emails/resend'));
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual([
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([
         ['POST', {
             sort_key: ['regular_field-name'],
             sort_order: ['ASC'],

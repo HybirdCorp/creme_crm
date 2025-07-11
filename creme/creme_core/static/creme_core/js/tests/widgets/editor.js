@@ -29,12 +29,12 @@ QUnit.test('creme.widget.Editor.create', function(assert) {
     var faker = this.withTinymceLoaderFaker(function() {
         var widget = creme.widget.create(element);
 
-        equal(element.hasClass('widget-active'), true);
-        equal(element.hasClass('widget-ready'), true);
-        equal(widget.editor() instanceof tinymce.Editor, true);
+        assert.equal(element.hasClass('widget-active'), true);
+        assert.equal(element.hasClass('widget-ready'), true);
+        assert.equal(widget.editor() instanceof tinymce.Editor, true);
     });
 
-    deepEqual(faker.calls().map(function(c) { return c[0]; }), [
+    assert.deepEqual(faker.calls().map(function(c) { return c[0]; }), [
         "spellchecker",
         "pagebreak",
         "style",

@@ -151,11 +151,11 @@ QUnit.test('creme.menu.MenuController (bind)', function(assert) {
     var element = $(this.createRegularMenuHtml());
     var controller = new creme.menu.MenuController();
 
-    equal(false, controller.isBound());
+    assert.equal(false, controller.isBound());
 
     controller.bind(element);
 
-    equal(true, controller.isBound());
+    assert.equal(true, controller.isBound());
     this.assertRaises(function() {
         controller.bind(element);
     }, Error, 'Error: MenuController is already bound');
@@ -165,47 +165,47 @@ QUnit.test('creme.menu.MenuController (main menu, hover)', function(assert) {
     var element = $(this.createRegularMenuHtml());
     var controller = new creme.menu.MenuController().bind(element);
 
-    equal(true, controller.isBound());
+    assert.equal(true, controller.isBound());
 
     var menuA = element.find('li.ui-creme-navigation-item-A');
     var menuB = element.find('li.ui-creme-navigation-item-B');
 
-    equal(false, menuA.is('.ui-creme-navigation-activated'));
-    equal(false, menuB.is('.ui-creme-navigation-activated'));
+    assert.equal(false, menuA.is('.ui-creme-navigation-activated'));
+    assert.equal(false, menuB.is('.ui-creme-navigation-activated'));
 
     menuA.trigger('mouseenter');
 
-    equal(true, menuA.is('.ui-creme-navigation-activated'));
-    equal(false, menuB.is('.ui-creme-navigation-activated'));
+    assert.equal(true, menuA.is('.ui-creme-navigation-activated'));
+    assert.equal(false, menuB.is('.ui-creme-navigation-activated'));
 
     menuA.trigger('mouseleave');
     menuB.trigger('mouseenter');
 
-    equal(false, menuA.is('.ui-creme-navigation-activated'));
-    equal(true, menuB.is('.ui-creme-navigation-activated'));
+    assert.equal(false, menuA.is('.ui-creme-navigation-activated'));
+    assert.equal(true, menuB.is('.ui-creme-navigation-activated'));
 });
 
 QUnit.test('creme.menu.MenuController (main menu, click)', function(assert) {
     var element = $(this.createRegularMenuHtml());
     var controller = new creme.menu.MenuController().bind(element);
 
-    equal(true, controller.isBound());
+    assert.equal(true, controller.isBound());
 
     var menuA = element.find('.ui-creme-navigation-item-A');
     var menuB = element.find('.ui-creme-navigation-item-B');
 
-    equal(false, menuA.is('li.ui-creme-navigation-activated'));
-    equal(false, menuB.is('li.ui-creme-navigation-activated'));
+    assert.equal(false, menuA.is('li.ui-creme-navigation-activated'));
+    assert.equal(false, menuB.is('li.ui-creme-navigation-activated'));
 
     menuA.trigger('click');
 
-    equal(true, menuA.is('.ui-creme-navigation-activated'));
-    equal(false, menuB.is('.ui-creme-navigation-activated'));
+    assert.equal(true, menuA.is('.ui-creme-navigation-activated'));
+    assert.equal(false, menuB.is('.ui-creme-navigation-activated'));
 
     menuB.trigger('click');
 
-    equal(false, menuA.is('.ui-creme-navigation-activated'));
-    equal(true, menuB.is('.ui-creme-navigation-activated'));
+    assert.equal(false, menuA.is('.ui-creme-navigation-activated'));
+    assert.equal(true, menuB.is('.ui-creme-navigation-activated'));
 });
 
 QUnit.test('creme.menu.MenuController (submenu quickform)', function(assert) {
@@ -213,15 +213,15 @@ QUnit.test('creme.menu.MenuController (submenu quickform)', function(assert) {
     var controller = new creme.menu.MenuController().bind(element);
     var quickA = element.find('.ui-creme-navigation-item-quickA a');
 
-    equal(true, controller.isBound());
+    assert.equal(true, controller.isBound());
 
     this.assertClosedDialog();
-    deepEqual([], this.mockBackendUrlCalls('mock/A/quickform'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/A/quickform'));
 
     quickA.trigger('click');
 
     this.assertOpenedDialog();
-    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/A/quickform'));
+    assert.deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/A/quickform'));
 });
 
 QUnit.test('creme.menu.MenuController (quickform, close opened submenu)', function(assert) {
@@ -231,19 +231,19 @@ QUnit.test('creme.menu.MenuController (quickform, close opened submenu)', functi
     var menuA = element.find('.ui-creme-navigation-item-A');
     var quickA = element.find('.ui-creme-navigation-item-quickA a');
 
-    equal(true, controller.isBound());
-    equal(false, menuA.is('li.ui-creme-navigation-activated'));
+    assert.equal(true, controller.isBound());
+    assert.equal(false, menuA.is('li.ui-creme-navigation-activated'));
 
     menuA.trigger('mouseenter');
 
-    equal(true, menuA.is('li.ui-creme-navigation-activated'));
+    assert.equal(true, menuA.is('li.ui-creme-navigation-activated'));
 
     this.assertClosedDialog();
 
     quickA.trigger('click');
 
     this.assertOpenedDialog();
-    equal(false, menuA.is('li.ui-creme-navigation-activated'));
+    assert.equal(false, menuA.is('li.ui-creme-navigation-activated'));
 });
 
 QUnit.test('creme.menu.MenuController (quickform, close opened dialog)', function(assert) {
@@ -253,21 +253,21 @@ QUnit.test('creme.menu.MenuController (quickform, close opened dialog)', functio
     var quickA = element.find('.ui-creme-navigation-item-quickA a');
     var quickB = element.find('.ui-creme-navigation-item-quickB a');
 
-    equal(true, controller.isBound());
+    assert.equal(true, controller.isBound());
 
     quickA.trigger('click');
 
     var dialog = this.assertOpenedDialog();
-    equal('mock/A/quickform/', dialog.find('form').attr('action'));
+    assert.equal('mock/A/quickform/', dialog.find('form').attr('action'));
 
-    deepEqual([['mock/A/quickform', 'GET', {}]], this.mockBackendUrlCalls());
+    assert.deepEqual([['mock/A/quickform', 'GET', {}]], this.mockBackendUrlCalls());
 
     quickB.trigger('click');
 
     dialog = this.assertOpenedDialog();
-    equal('mock/B/quickform/', dialog.find('form').attr('action'));
+    assert.equal('mock/B/quickform/', dialog.find('form').attr('action'));
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/A/quickform', 'GET', {}],
         ['mock/B/quickform', 'GET', {}]
     ], this.mockBackendUrlCalls());
@@ -279,7 +279,7 @@ QUnit.test('creme.menu.MenuController (submenu anyform, empty)', function(assert
 
     var anyA = element.find('.ui-creme-navigation-item-anyA a');
 
-    equal(true, controller.isBound());
+    assert.equal(true, controller.isBound());
 
     anyA.trigger('click');
 
@@ -293,12 +293,12 @@ QUnit.test('creme.menu.MenuController (submenu anyform)', function(assert) {
 
     var anyB = element.find('.ui-creme-navigation-item-anyB a');
 
-    equal(true, controller.isBound());
+    assert.equal(true, controller.isBound());
 
     anyB.trigger('click');
 
     var dialog = this.assertOpenedDialog();
-    deepEqual([], this.mockBackendUrlCalls());   // rendered in js
+    assert.deepEqual([], this.mockBackendUrlCalls());   // rendered in js
 
     this.equalHtml(
          '<div class="create-all-form">' +
@@ -332,17 +332,17 @@ QUnit.test('creme.menu.MenuController (submenu anyform, close opened submenu)', 
     var menuA = element.find('.ui-creme-navigation-item-A');
     var anyA = element.find('.ui-creme-navigation-item-anyA a');
 
-    equal(true, controller.isBound());
-    equal(false, menuA.is('li.ui-creme-navigation-activated'));
+    assert.equal(true, controller.isBound());
+    assert.equal(false, menuA.is('li.ui-creme-navigation-activated'));
 
     menuA.trigger('mouseenter');
 
-    equal(true, menuA.is('li.ui-creme-navigation-activated'));
+    assert.equal(true, menuA.is('li.ui-creme-navigation-activated'));
 
     anyA.trigger('click');
 
     this.assertOpenedDialog();
-    equal(false, menuA.is('li.ui-creme-navigation-activated'));
+    assert.equal(false, menuA.is('li.ui-creme-navigation-activated'));
 });
 
 QUnit.test('creme.menu.MenuController (submenu anyform, close opened dialog)', function(assert) {
@@ -352,7 +352,7 @@ QUnit.test('creme.menu.MenuController (submenu anyform, close opened dialog)', f
     var anyA = element.find('.ui-creme-navigation-item-anyA a');
     var anyB = element.find('.ui-creme-navigation-item-anyB a');
 
-    equal(true, controller.isBound());
+    assert.equal(true, controller.isBound());
 
     anyA.trigger('click');
 

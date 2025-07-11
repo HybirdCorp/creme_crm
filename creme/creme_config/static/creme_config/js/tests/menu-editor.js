@@ -132,8 +132,8 @@ QUnit.module("creme.MenuEditor", new QUnitMixin(QUnitEventMixin,
         var widget = creme.widget.create(element);
         var brick = widget.brick();
 
-        equal(true, brick.isBound());
-        equal(false, brick.isLoading());
+        this.assert.equal(true, brick.isBound());
+        this.assert.equal(false, brick.isLoading());
 
         return widget;
     }
@@ -189,9 +189,9 @@ QUnit.test('creme.MenuEditor (empty initial, empty regular entries)', function(a
         regularChoicesSelector: '.menu-edit-regular-choices'
     });
 
-    deepEqual(editor.value(), []);
-    deepEqual(editor.entries(), []);
-    equal(element.find('.new-regular-entries').length, 0);
+    assert.deepEqual(editor.value(), []);
+    assert.deepEqual(editor.entries(), []);
+    assert.equal(element.find('.new-regular-entries').length, 0);
 });
 
 
@@ -209,10 +209,10 @@ QUnit.test('creme.MenuEditor (empty initial, regular entries)', function(assert)
         regularChoicesSelector: '.menu-edit-regular-choices'
     });
 
-    deepEqual(editor.value(), []);
-    deepEqual(editor.entries(), []);
-    equal(element.find('.menu-edit-entry').length, 0);
-    equal(element.find('.new-regular-entries').length, 1);
+    assert.deepEqual(editor.value(), []);
+    assert.deepEqual(editor.entries(), []);
+    assert.equal(element.find('.menu-edit-entry').length, 0);
+    assert.equal(element.find('.new-regular-entries').length, 1);
 });
 
 QUnit.test('creme.MenuEditor (initial)', function(assert) {
@@ -228,18 +228,18 @@ QUnit.test('creme.MenuEditor (initial)', function(assert) {
         regularChoicesSelector: '.menu-edit-regular-choices'
     });
 
-    deepEqual(editor.value(), [
+    assert.deepEqual(editor.value(), [
         {id: "item-a"},
         {id: "item-b"}
     ]);
-    deepEqual(editor.entries(), [
+    assert.deepEqual(editor.entries(), [
         {id: "item-a"},
         {id: "item-b"}
     ]);
 
-    equal(element.find('.menu-edit-entry').length, 2);
-    deepEqual(element.find('.menu-edit-entry-item-a').data('value'), {id: "item-a"});
-    deepEqual(element.find('.menu-edit-entry-item-b').data('value'), {id: "item-b"});
+    assert.equal(element.find('.menu-edit-entry').length, 2);
+    assert.deepEqual(element.find('.menu-edit-entry-item-a').data('value'), {id: "item-a"});
+    assert.deepEqual(element.find('.menu-edit-entry-item-b').data('value'), {id: "item-b"});
 });
 
 QUnit.test('creme.MenuEditor (add regular entry, cancel)', function(assert) {
@@ -256,16 +256,16 @@ QUnit.test('creme.MenuEditor (add regular entry, cancel)', function(assert) {
         regularChoicesSelector: '.menu-edit-regular-choices'
     });
 
-    deepEqual(editor.value(), []);
-    deepEqual(0, element.find('.menu-edit-entry').length);
+    assert.deepEqual(editor.value(), []);
+    assert.deepEqual(0, element.find('.menu-edit-entry').length);
 
     element.find('.new-regular-entries').trigger('click');
 
     var dialog = this.assertOpenedDialog();
 
     var select = dialog.find('.menu-edit-regular-entries select[name="entry_type"]');
-    deepEqual(select.val(), []);
-    deepEqual([
+    assert.deepEqual(select.val(), []);
+    assert.deepEqual([
         {text: 'Item A', value: 'item-a'},
         {text: 'Item B', value: 'item-b'},
         {text: 'Item C', value: 'item-c'}
@@ -274,7 +274,7 @@ QUnit.test('creme.MenuEditor (add regular entry, cancel)', function(assert) {
     }).get());
 
     this.closeDialog();
-    equal(0, element.find('.menu-edit-entry').length);
+    assert.equal(0, element.find('.menu-edit-entry').length);
 });
 
 QUnit.test('creme.MenuEditor (add regular entry, submit)', function(assert) {
@@ -291,16 +291,16 @@ QUnit.test('creme.MenuEditor (add regular entry, submit)', function(assert) {
         regularChoicesSelector: '.menu-edit-regular-choices'
     });
 
-    deepEqual(editor.value(), []);
-    deepEqual(0, element.find('.menu-edit-entry').length);
+    assert.deepEqual(editor.value(), []);
+    assert.deepEqual(0, element.find('.menu-edit-entry').length);
 
     element.find('.new-regular-entries').trigger('click');
 
     var dialog = this.assertOpenedDialog();
 
     var select = dialog.find('.menu-edit-regular-entries select[name="entry_type"]');
-    deepEqual(select.val(), []);
-    deepEqual([
+    assert.deepEqual(select.val(), []);
+    assert.deepEqual([
         {text: 'Item A', value: 'item-a'},
         {text: 'Item B', value: 'item-b'},
         {text: 'Item C', value: 'item-c'}
@@ -312,9 +312,9 @@ QUnit.test('creme.MenuEditor (add regular entry, submit)', function(assert) {
 
     this.submitFormDialog();
 
-    deepEqual(editor.value(), [{id: 'item-a'}, {id: 'item-c'}]);
-    equal(2, element.find('.menu-edit-entry').length);
-    deepEqual([
+    assert.deepEqual(editor.value(), [{id: 'item-a'}, {id: 'item-c'}]);
+    assert.equal(2, element.find('.menu-edit-entry').length);
+    assert.deepEqual([
         {
             classes: 'menu-edit-entry menu-edit-entry-item-a',
             value: {id: "item-a"},
@@ -334,7 +334,7 @@ QUnit.test('creme.MenuEditor (add regular entry, submit)', function(assert) {
     }).get());
 });
 
-QUnit.test('creme.MenuEditor (add regular entry, initial)', function(initial, assert) {
+QUnit.test('creme.MenuEditor (add regular entry, initial)', function(assert) {
     var element = $(this.createMenuEditorWidgetHtml({
         initial: [
             {label: 'Item A', value: {id: 'item-a'}},
@@ -352,9 +352,9 @@ QUnit.test('creme.MenuEditor (add regular entry, initial)', function(initial, as
         regularChoicesSelector: '.menu-edit-regular-choices'
     });
 
-    deepEqual(editor.value(), [{id: 'item-a'}, {id: 'item-c'}]);
-    deepEqual(2, element.find('.menu-edit-entry').length);
-    deepEqual([
+    assert.deepEqual(editor.value(), [{id: 'item-a'}, {id: 'item-c'}]);
+    assert.deepEqual(2, element.find('.menu-edit-entry').length);
+    assert.deepEqual([
         {
             classes: 'menu-edit-entry menu-edit-entry-item-a',
             value: {id: "item-a"},
@@ -378,8 +378,8 @@ QUnit.test('creme.MenuEditor (add regular entry, initial)', function(initial, as
     var dialog = this.assertOpenedDialog();
 
     var select = dialog.find('.menu-edit-regular-entries select[name="entry_type"]');
-    deepEqual(select.val(), []);
-    deepEqual([
+    assert.deepEqual(select.val(), []);
+    assert.deepEqual([
         {text: 'Item B', value: 'item-b'}
     ], select.find('option').map(function() {
         return {text: $(this).text(), value: $(this).attr('value')};
@@ -389,9 +389,9 @@ QUnit.test('creme.MenuEditor (add regular entry, initial)', function(initial, as
 
     this.submitFormDialog();
 
-    deepEqual(editor.value(), [{id: 'item-a'}, {id: 'item-c'}, {id: 'item-b'}]);
-    equal(3, element.find('.menu-edit-entry').length);
-    deepEqual([
+    assert.deepEqual(editor.value(), [{id: 'item-a'}, {id: 'item-c'}, {id: 'item-b'}]);
+    assert.equal(3, element.find('.menu-edit-entry').length);
+    assert.deepEqual([
         {
             classes: 'menu-edit-entry menu-edit-entry-item-a',
             value: {id: "item-a"},
@@ -416,7 +416,7 @@ QUnit.test('creme.MenuEditor (add regular entry, initial)', function(initial, as
     }).get());
 });
 
-QUnit.test('creme.MenuEditor (add regular entry, all used)', function(initial, assert) {
+QUnit.test('creme.MenuEditor (add regular entry, all used)', function(assert) {
     var element = $(this.createMenuEditorWidgetHtml({
         initial: [
             {label: 'Item A', value: {id: 'item-a'}},
@@ -433,14 +433,14 @@ QUnit.test('creme.MenuEditor (add regular entry, all used)', function(initial, a
         regularChoicesSelector: '.menu-edit-regular-choices'
     });
 
-    deepEqual(editor.value(), [{id: 'item-a'}, {id: 'item-b'}]);
+    assert.deepEqual(editor.value(), [{id: 'item-a'}, {id: 'item-b'}]);
 
     element.find('.new-regular-entries').trigger('click');
 
     this.assertOpenedDialog(gettext('All menu entries are already used.'));
 });
 
-QUnit.test('creme.MenuEditor (remove regular entry)', function(initial, assert) {
+QUnit.test('creme.MenuEditor (remove regular entry)', function(assert) {
     var element = $(this.createMenuEditorWidgetHtml({
         initial: [
             {label: 'Item A', value: {id: 'item-a'}},
@@ -458,14 +458,14 @@ QUnit.test('creme.MenuEditor (remove regular entry)', function(initial, assert) 
         regularChoicesSelector: '.menu-edit-regular-choices'
     });
 
-    deepEqual(editor.value(), [{id: 'item-a'}, {id: 'item-b'}]);
+    assert.deepEqual(editor.value(), [{id: 'item-a'}, {id: 'item-b'}]);
 
     element.find('.menu-edit-entry-item-b button').trigger('click');
 
-    deepEqual(editor.value(), [{id: 'item-a'}]);
+    assert.deepEqual(editor.value(), [{id: 'item-a'}]);
 });
 
-QUnit.test('creme.MenuEditor (add special entry)', function(initial, assert) {
+QUnit.test('creme.MenuEditor (add special entry)', function(assert) {
     var element = $(this.createMenuEditorWidgetHtml({
         initial: [
             {label: 'Item A', value: {id: 'item-a'}}
@@ -484,7 +484,7 @@ QUnit.test('creme.MenuEditor (add special entry)', function(initial, assert) {
         regularChoicesSelector: '.menu-edit-regular-choices'
     });
 
-    deepEqual(editor.value(), [{id: 'item-a'}]);
+    assert.deepEqual(editor.value(), [{id: 'item-a'}]);
 
     element.find('.new-extra-entry').trigger('click');
 
@@ -495,7 +495,7 @@ QUnit.test('creme.MenuEditor (add special entry)', function(initial, assert) {
 
     this.submitFormDialog();
 
-    deepEqual(editor.value(), [{id: 'item-a'}, {id: 'item-custom'}]);
+    assert.deepEqual(editor.value(), [{id: 'item-a'}, {id: 'item-custom'}]);
 });
 
 }(jQuery));

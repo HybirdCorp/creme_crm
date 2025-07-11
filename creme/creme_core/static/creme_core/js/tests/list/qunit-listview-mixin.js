@@ -446,7 +446,7 @@
             });
 
             var button = this.findDialogButtonsByLabel(gettext("Validate the selection"), dialog);
-            equal(1, button.length, 'is validation button exists');
+            this.assert.equal(1, button.length, 'is validation button exists');
             button.trigger('click');
         },
 
@@ -455,7 +455,7 @@
                 return $(this).find('[widget="ui-creme-listview"]').length > 0;
             });
 
-            equal(1, dialog.length, 'is listview dialog opened');
+            this.assert.equal(1, dialog.length, 'is listview dialog opened');
             return dialog;
         }
     };

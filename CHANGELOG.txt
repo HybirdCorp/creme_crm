@@ -146,6 +146,9 @@
         - https://docs.djangoproject.com/en/5.2/releases/5.1/
         - https://docs.djangoproject.com/en/5.2/releases/5.2/
     - The version of 'underscorejs' is now '1.13.7'.
+    - The version of 'QUnit' is now '2.24.1'.
+      If you have implemented some javascript unit tests, you should probably read the upgrade guide to QUnit 2.x :
+       - https://qunitjs.com/upgrade-guide-2.x/
 
     Non breaking changes :
     ----------------------

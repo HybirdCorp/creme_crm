@@ -15,12 +15,12 @@ QUnit.test('creme.widget.AutoSizedTextArea.create (default)', function(assert) {
 
     var widget = creme.widget.create(element);
 
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
-    equal(widget.layout()._min, 2);
-    equal(widget.layout()._max, undefined);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(widget.layout()._min, 2);
+    assert.equal(widget.layout()._max, undefined);
 
-    equal(element.attr('rows'), String(2));
+    assert.equal(element.attr('rows'), String(2));
 });
 
 QUnit.test('creme.widget.AutoSizedTextArea.create (default min)', function(assert) {
@@ -30,17 +30,17 @@ QUnit.test('creme.widget.AutoSizedTextArea.create (default min)', function(asser
 
     var widget = creme.widget.create(element);
 
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
-    equal(widget.layout()._min, 3);
-    equal(widget.layout()._max, undefined);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(widget.layout()._min, 3);
+    assert.equal(widget.layout()._max, undefined);
 
 //    if (BrowserVersion.isFirefox()) {
-//        equal(element.attr('rows'), String(3 - 1));
+//        assert.equal(element.attr('rows'), String(3 - 1));
 //    } else {
-//        equal(element.attr('rows'), String(3));
+//        assert.equal(element.attr('rows'), String(3));
 //    }
-    equal(element.attr('rows'), String(3));
+    assert.equal(element.attr('rows'), String(3));
 });
 
 QUnit.test('creme.widget.AutoSizedTextArea.create (min/max)', function(assert) {
@@ -50,17 +50,17 @@ QUnit.test('creme.widget.AutoSizedTextArea.create (min/max)', function(assert) {
 
     var widget = creme.widget.create(element);
 
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
-    equal(widget.layout()._min, 2);
-    equal(widget.layout()._max, 5);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(widget.layout()._min, 2);
+    assert.equal(widget.layout()._max, 5);
 
 //    if (BrowserVersion.isFirefox()) {
-//        equal(element.attr('rows'), String(3));
+//        assert.equal(element.attr('rows'), String(3));
 //    } else {
-//        equal(element.attr('rows'), String(2));
+//        assert.equal(element.attr('rows'), String(2));
 //    }
-    equal(element.attr('rows'), String(2));
+    assert.equal(element.attr('rows'), String(2));
 });
 
 }(jQuery));

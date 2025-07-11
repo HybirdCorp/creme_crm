@@ -29,35 +29,35 @@ QUnit.module("creme.form.DropDown", new QUnitMixin(QUnitDialogMixin, {
     }
 }));
 
-QUnit.test('creme.form.DropDown (empty)', function() {
+QUnit.test('creme.form.DropDown (empty)', function(assert) {
     var element = this.createSelect();
     var dropdown = new creme.form.DropDown(element);
 
-    equal(true, element.is('.ui-dropdown-hidden'));
-    equal(1, $('.ui-dropdown-selection').length);
-    equal(element, dropdown.element());
+    assert.equal(true, element.is('.ui-dropdown-hidden'));
+    assert.equal(1, $('.ui-dropdown-selection').length);
+    assert.equal(element, dropdown.element());
 });
 
-QUnit.test('creme.form.DropDown (dropdown-alt)', function() {
+QUnit.test('creme.form.DropDown (dropdown-alt)', function(assert) {
     var element = this.createSelect().attr('data-dropdown-alt', 'This is a dropdown');
     var dropdown = new creme.form.DropDown(element);
 
-    equal(true, element.is('.ui-dropdown-hidden'));
-    equal('This is a dropdown', $('.ui-dropdown-selection').attr('title'));
-    equal(element, dropdown.element());
+    assert.equal(true, element.is('.ui-dropdown-hidden'));
+    assert.equal('This is a dropdown', $('.ui-dropdown-selection').attr('title'));
+    assert.equal(element, dropdown.element());
 });
 
-QUnit.test('creme.form.DropDown (title)', function() {
+QUnit.test('creme.form.DropDown (title)', function(assert) {
     var element = this.createSelect().attr('data-dropdown-alt', 'This is a dropdown');
     var dropdown = new creme.form.DropDown(element, {
         title: 'Another title !'
     });
 
-    equal('Another title !', $('.ui-dropdown-selection').attr('title'));
-    equal(element, dropdown.element());
+    assert.equal('Another title !', $('.ui-dropdown-selection').attr('title'));
+    assert.equal(element, dropdown.element());
 });
 
-QUnit.test('creme.form.DropDown (auto)', function() {
+QUnit.test('creme.form.DropDown (auto)', function(assert) {
     var element = this.createSelect([
         {value: 5, label: 'E', selected: true},
         {value: 1, label: 'A'}
@@ -69,17 +69,17 @@ QUnit.test('creme.form.DropDown (auto)', function() {
 
     var selection = $('.ui-dropdown-selection');
 
-    equal(dropdown.val(), '5');
-    equal('This is a dropdown', selection.attr('title'));
-    equal('E', selection.text());
+    assert.equal(dropdown.val(), '5');
+    assert.equal('This is a dropdown', selection.attr('title'));
+    assert.equal('E', selection.text());
 
     this.assertClosedPopover();
 
     dropdown.select();
 
     // < 3 options : No popover
-    equal(dropdown.val(), '1');
-    equal('A', selection.text());
+    assert.equal(dropdown.val(), '1');
+    assert.equal('A', selection.text());
     this.assertClosedPopover();
 
     element.append('<option value="8">C</option>');
@@ -87,23 +87,23 @@ QUnit.test('creme.form.DropDown (auto)', function() {
     dropdown.select();
 
     // 3 options : Popover !
-    equal(dropdown.val(), '1');
-    equal('A', selection.text());
+    assert.equal(dropdown.val(), '1');
+    assert.equal('A', selection.text());
 
     var popover = this.assertOpenedPopover();
 
     // Note : selected item is not ins the popover list
-    equal(2, popover.find('.popover-list-item').length);
+    assert.equal(2, popover.find('.popover-list-item').length);
 
     // Select item C
     popover.find('.popover-list-item[data-value="8"]').trigger('click');
 
-    equal(dropdown.val(), '8');
-    equal('C', selection.text());
+    assert.equal(dropdown.val(), '8');
+    assert.equal('C', selection.text());
     this.assertClosedPopover();
 });
 
-QUnit.test('creme.form.DropDown (toggle)', function() {
+QUnit.test('creme.form.DropDown (toggle)', function(assert) {
     var element = this.createSelect([
         {value: 5, label: 'E', selected: true},
         {value: 1, label: 'A'},
@@ -116,30 +116,30 @@ QUnit.test('creme.form.DropDown (toggle)', function() {
 
     var selection = $('.ui-dropdown-selection');
 
-    equal(dropdown.val(), '5');
-    equal('E', selection.text());
+    assert.equal(dropdown.val(), '5');
+    assert.equal('E', selection.text());
 
     dropdown.select();
 
-    equal(dropdown.val(), '1');
-    equal('A', selection.text());
+    assert.equal(dropdown.val(), '1');
+    assert.equal('A', selection.text());
     this.assertClosedPopover();
 
     dropdown.select();
 
-    equal(dropdown.val(), '8');
-    equal('C', selection.text());
+    assert.equal(dropdown.val(), '8');
+    assert.equal('C', selection.text());
     this.assertClosedPopover();
 
     // Loop on first selection
     dropdown.select();
 
-    equal(dropdown.val(), '5');
-    equal('E', selection.text());
+    assert.equal(dropdown.val(), '5');
+    assert.equal('E', selection.text());
     this.assertClosedPopover();
 });
 
-QUnit.test('creme.form.DropDown (popover)', function() {
+QUnit.test('creme.form.DropDown (popover)', function(assert) {
     var element = this.createSelect([
         {value: 5, label: 'E', selected: true},
         {value: 1, label: 'A'}
@@ -151,16 +151,16 @@ QUnit.test('creme.form.DropDown (popover)', function() {
 
     var selection = $('.ui-dropdown-selection');
 
-    equal(dropdown.val(), '5');
-    equal('E', selection.text());
+    assert.equal(dropdown.val(), '5');
+    assert.equal('E', selection.text());
 
     dropdown.select();
 
     var popover = this.assertOpenedPopover();
     popover.find('.popover-list-item').trigger('click');
 
-    equal(dropdown.val(), '1');
-    equal('A', selection.text());
+    assert.equal(dropdown.val(), '1');
+    assert.equal('A', selection.text());
     this.assertClosedPopover();
 
     dropdown.select();
@@ -168,11 +168,11 @@ QUnit.test('creme.form.DropDown (popover)', function() {
     popover = this.assertOpenedPopover();
     popover.find('.popover-list-item').trigger('click');
 
-    equal(dropdown.val(), '5');
-    equal('E', selection.text());
+    assert.equal(dropdown.val(), '5');
+    assert.equal('E', selection.text());
 });
 
-QUnit.test('creme.form.DropDown (jquery plugin)', function() {
+QUnit.test('creme.form.DropDown (jquery plugin)', function(assert) {
     var element = this.createSelect([
         {value: 5, label: 'E', selected: true},
         {value: 1, label: 'A'},
@@ -184,24 +184,24 @@ QUnit.test('creme.form.DropDown (jquery plugin)', function() {
         title: 'This is a dropdown'
     });
 
-    equal(element.dropdown('prop', 'mode'), 'toggle');
-    equal(element.dropdown('instance'), dropdown);
+    assert.equal(element.dropdown('prop', 'mode'), 'toggle');
+    assert.equal(element.dropdown('instance'), dropdown);
 
     var selection = $('.ui-dropdown-selection');
 
-    equal('5', element.val());
-    equal('E', selection.text());
-    equal('This is a dropdown', selection.attr('title'));
+    assert.equal('5', element.val());
+    assert.equal('E', selection.text());
+    assert.equal('This is a dropdown', selection.attr('title'));
 
     element.dropdown('next');
 
-    equal('1', element.val());
-    equal('A', selection.text());
+    assert.equal('1', element.val());
+    assert.equal('A', selection.text());
 
     selection.trigger('click');
 
-    equal('8', element.val());
-    equal('C', selection.text());
+    assert.equal('8', element.val());
+    assert.equal('C', selection.text());
 });
 
 }(jQuery));

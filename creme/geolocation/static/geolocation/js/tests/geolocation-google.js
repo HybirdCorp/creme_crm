@@ -13,23 +13,23 @@ QUnit.module("creme.geolocation.google", new QUnitMixin(QUnitEventMixin,
 QUnit.test('creme.geolocation.GoogleMapController (init, defaults)', function(assert) {
     var controller = new creme.geolocation.GoogleMapController();
 
-    equal(12, controller.options().defaultZoomValue);
-    equal(48, controller.options().defaultLat);
-    equal(2, controller.options().defaultLn);
-    equal(4, controller.options().defaultLargeZoom);
-    equal(undefined, controller.options().apiKey);
-    equal('3.exp', controller.options().apiVersion);
+    assert.equal(12, controller.options().defaultZoomValue);
+    assert.equal(48, controller.options().defaultLat);
+    assert.equal(2, controller.options().defaultLn);
+    assert.equal(4, controller.options().defaultLargeZoom);
+    assert.equal(undefined, controller.options().apiKey);
+    assert.equal('3.exp', controller.options().apiVersion);
 
-    equal(true, controller.isGeocoderAllowed());
+    assert.equal(true, controller.isGeocoderAllowed());
 
-    equal(false, controller.isBound());
-    equal(false, controller.isEnabled());
+    assert.equal(false, controller.isBound());
+    assert.equal(false, controller.isEnabled());
 
-    equal(false, controller.isMapEnabled());
-    equal(creme.geolocation.isGoogleAPIReady(), controller.isAPIReady());
-    equal(false, controller.isGeocoderEnabled());
+    assert.equal(false, controller.isMapEnabled());
+    assert.equal(creme.geolocation.isGoogleAPIReady(), controller.isAPIReady());
+    assert.equal(false, controller.isGeocoderEnabled());
 
-    equal(undefined, controller.map());
+    assert.equal(undefined, controller.map());
 });
 
 QUnit.test('creme.geolocation.GoogleMapController (init)', function(assert) {
@@ -43,51 +43,50 @@ QUnit.test('creme.geolocation.GoogleMapController (init)', function(assert) {
         apiVersion: '3'
     });
 
-    equal(20, controller.options().defaultZoomValue);
-    equal(47, controller.options().defaultLat);
-    equal(4, controller.options().defaultLn);
-    equal(5, controller.options().defaultLargeZoom);
-    equal('mockit!', controller.options().apiKey);
-    equal('3', controller.options().apiVersion);
-    equal(false, controller.options().allowGeocoder);
+    assert.equal(20, controller.options().defaultZoomValue);
+    assert.equal(47, controller.options().defaultLat);
+    assert.equal(4, controller.options().defaultLn);
+    assert.equal(5, controller.options().defaultLargeZoom);
+    assert.equal('mockit!', controller.options().apiKey);
+    assert.equal('3', controller.options().apiVersion);
+    assert.equal(false, controller.options().allowGeocoder);
 
-    equal(false, controller.isBound());
-    equal(false, controller.isEnabled());
-    equal(false, controller.isGeocoderAllowed());
+    assert.equal(false, controller.isBound());
+    assert.equal(false, controller.isEnabled());
+    assert.equal(false, controller.isGeocoderAllowed());
 
-    equal(false, controller.isMapEnabled());
-    equal(creme.geolocation.isGoogleAPIReady(), controller.isAPIReady());
-    equal(false, controller.isGeocoderEnabled());
+    assert.equal(false, controller.isMapEnabled());
+    assert.equal(creme.geolocation.isGoogleAPIReady(), controller.isAPIReady());
+    assert.equal(false, controller.isGeocoderEnabled());
 
-    equal(undefined, controller.map());
+    assert.equal(undefined, controller.map());
 });
 
 QUnit.test('creme.geolocation.GoogleMapController.bind', function(assert) {
     var controller = new creme.geolocation.GoogleMapController();
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
+    var done = assert.async();
 
     controller.on('status-enabled', function() {
-        equal(true, controller.isBound());
-        equal(true, controller.isEnabled());
+        assert.equal(true, controller.isBound());
+        assert.equal(true, controller.isEnabled());
 
-        equal(true, controller.isMapEnabled());
-        equal(true, controller.isAPIReady());
-        equal(true, controller.isGeocoderEnabled());
-        start();
+        assert.equal(true, controller.isMapEnabled());
+        assert.equal(true, controller.isAPIReady());
+        assert.equal(true, controller.isGeocoderEnabled());
+        done();
     });
 
     controller.bind(element);
 
-    equal(true, controller.isBound());
-    equal(false, controller.isEnabled());
+    assert.equal(true, controller.isBound());
+    assert.equal(false, controller.isEnabled());
 
-    equal(false, controller.isMapEnabled());
-    equal(creme.geolocation.isGoogleAPIReady(), controller.isAPIReady());
-    equal(false, controller.isGeocoderEnabled());
+    assert.equal(false, controller.isMapEnabled());
+    assert.equal(creme.geolocation.isGoogleAPIReady(), controller.isAPIReady());
+    assert.equal(false, controller.isGeocoderEnabled());
 
-    equal(undefined, controller.map());
-
-    stop(1);
+    assert.equal(undefined, controller.map());
 });
 
 QUnit.test('creme.geolocation.GoogleMapController.bind (already bound)', function(assert) {
@@ -104,22 +103,21 @@ QUnit.test('creme.geolocation.GoogleMapController.bind (already bound)', functio
 QUnit.test('creme.geolocation.GoogleMapController.unbind', function(assert) {
     var controller = new creme.geolocation.GoogleMapController();
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
+    var done = assert.async();
 
     controller.on('status-enabled', function() {
         controller.unbind();
-        equal(false, controller.isBound());
-        equal(false, controller.isEnabled());
+        assert.equal(false, controller.isBound());
+        assert.equal(false, controller.isEnabled());
 
-        equal(false, controller.isMapEnabled());
-        equal(true, controller.isAPIReady());
+        assert.equal(false, controller.isMapEnabled());
+        assert.equal(true, controller.isAPIReady());
 
-        equal(undefined, controller.map());
-
-        start();
+        assert.equal(undefined, controller.map());
+        done();
     });
 
     controller.bind(element);
-    stop(1);
 });
 
 QUnit.test('creme.geolocation.GoogleMapController.unbind (not bound)', function(assert) {
@@ -143,7 +141,7 @@ QUnit.test('creme.geolocation.GoogleMapController.enableMap (already enabled)', 
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(true, controller.isMapEnabled());
+        assert.equal(true, controller.isMapEnabled());
 
         this.assertRaises(function() {
             controller.enableMap();
@@ -167,9 +165,11 @@ QUnit.test('creme.geolocation.GoogleMapController.searchQuery (partial)', functi
         controller._geocoder = self.mockGeocoder;
 
         var query = controller._searchLocationQuery('marseille');
+        var done = assert.async();
+
         query.on(listeners)
              .onComplete(function() {
-                 deepEqual([
+                 assert.deepEqual([
                      ['done', {lat: 42, lng: 12}, creme.geolocation.LocationStatus.PARTIAL, {
                          geometry: {location: {lat: 42, lng: 12}},
                          address_components: [],
@@ -177,11 +177,10 @@ QUnit.test('creme.geolocation.GoogleMapController.searchQuery (partial)', functi
                      }]
                  ], self.mockListenerCalls('search-done'));
 
-                 start();
+                 done();
              });
 
         query.start();
-        stop(1);
     });
 });
 
@@ -202,9 +201,11 @@ QUnit.test('creme.geolocation.GoogleMapController.searchQuery (partial, multiple
 
         // single match but partial => PARTIAL
         var query = controller._searchLocationQuery('marseille');
+        var done = assert.async();
+
         query.on(listeners)
              .onComplete(function() {
-                 deepEqual([
+                 assert.deepEqual([
                      ['done', {lat: 42, lng: 12}, creme.geolocation.LocationStatus.PARTIAL, {
                          geometry: {location: {lat: 42, lng: 12}},
                          address_components: [],
@@ -212,18 +213,19 @@ QUnit.test('creme.geolocation.GoogleMapController.searchQuery (partial, multiple
                      }]
                  ], self.mockListenerCalls('search-done'));
 
-                 start();
+                 done();
              })
              .start();
 
-        stop(1);
         self.resetMockListenerCalls();
+
+        var done2 = assert.async();
 
         // multiple matches => PARTIAL
         query = controller._searchLocationQuery('marseille 13015');
         query.on(listeners)
              .onComplete(function() {
-                 deepEqual([
+                 assert.deepEqual([
                      ['done', {lat: 42, lng: 12}, creme.geolocation.LocationStatus.PARTIAL, {
                          geometry: {location: {lat: 42, lng: 12}},
                          address_components: [],
@@ -231,11 +233,9 @@ QUnit.test('creme.geolocation.GoogleMapController.searchQuery (partial, multiple
                      }]
                  ], self.mockListenerCalls('search-done'));
 
-                 start();
+                 done2();
              })
              .start();
-
-        stop(1);
     });
 });
 
@@ -256,9 +256,11 @@ QUnit.test('creme.geolocation.GoogleMapController.searchQuery (complete)', funct
 
         // single complete match => COMPLETE
         var query = controller._searchLocationQuery('319 Rue Saint-Pierre, 13005 Marseille');
+        var done = assert.async();
+
         query.on(listeners)
              .onComplete(function() {
-                 deepEqual([
+                 assert.deepEqual([
                      ['done', {lat: 43.291628, lng: 5.4030217}, creme.geolocation.LocationStatus.COMPLETE, {
                          geometry: {
                              location: {lat: 43.291628, lng: 5.4030217}
@@ -268,11 +270,9 @@ QUnit.test('creme.geolocation.GoogleMapController.searchQuery (complete)', funct
                      }]
                  ], self.mockListenerCalls('search-done'));
 
-                 start();
+                 done();
              })
              .start();
-
-        stop(1);
     });
 });
 
@@ -287,6 +287,7 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (add marker)', fu
 
     this.runTestOnGeomapReady(controller, element, function() {
         controller._geocoder = self.mockGeocoder;
+        var done = assert.async();
 
         // single complete match => COMPLETE
         controller.markLocation({
@@ -304,9 +305,9 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (add marker)', fu
             }
         }, {
             done: function(event, position, status, data) {
-                deepEqual({lat: 43.291628, lng: 5.4030217}, position);
-                deepEqual(creme.geolocation.LocationStatus.COMPLETE, status);
-                deepEqual({
+                assert.deepEqual({lat: 43.291628, lng: 5.4030217}, position);
+                assert.deepEqual(creme.geolocation.LocationStatus.COMPLETE, status);
+                assert.deepEqual({
                     geometry: {
                         location: {lat: 43.291628, lng: 5.4030217}
                     },
@@ -315,19 +316,19 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (add marker)', fu
                 }, data);
 
                 var marker = controller.getMarker('Address_A');
-                equal(false, Object.isNone(marker), 'marker exists');
-                equal(true, marker.getVisible(), 'marker is visible');
+                assert.equal(false, Object.isNone(marker), 'marker exists');
+                assert.equal(true, marker.getVisible(), 'marker is visible');
 
-                equal('fulbert\n319 Rue Saint-Pierre, 13005 Marseille\n(Address A)', marker.getTitle());
-                deepEqual(new google.maps.LatLng({lat: 43.291628, lng: 5.4030217}), marker.getPosition());
-                deepEqual({
+                assert.equal('fulbert\n319 Rue Saint-Pierre, 13005 Marseille\n(Address A)', marker.getTitle());
+                assert.deepEqual(new google.maps.LatLng({lat: 43.291628, lng: 5.4030217}), marker.getPosition());
+                assert.deepEqual({
                     id: 'Address_A',
                     extraData: {
                         content: 'some custom data'
                     }
                 }, marker.__extra);
 
-                deepEqual([
+                assert.deepEqual([
                     ['marker-move', marker, {
                         id: 'Address_A',
                         title: 'fulbert\n319 Rue Saint-Pierre, 13005 Marseille\n(Address A)',
@@ -354,11 +355,9 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (add marker)', fu
                     }]
                 ], self.mockListenerCalls('search-done'));
 
-                start();
+                done();
             }
         });
-
-        stop(1);
     });
 });
 
@@ -383,15 +382,17 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (update marker)',
         });
 
         var marker = controller.getMarker('Address_A');
-        equal(false, Object.isNone(marker));
-        equal(true, marker.getVisible());
-        equal(1, controller.markers().length);
-        deepEqual({
+        assert.equal(false, Object.isNone(marker));
+        assert.equal(true, marker.getVisible());
+        assert.equal(1, controller.markers().length);
+        assert.deepEqual({
             id: 'Address_A',
             extraData: {
                 content: 'Marseille'
             }
         }, marker.__extra);
+
+        var done = assert.async();
 
         // single complete match => COMPLETE
         controller.markLocation({
@@ -405,9 +406,9 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (update marker)',
             }
         }, {
             done: function(event, position, status, data) {
-                deepEqual({lat: 43.291628, lng: 5.4030217}, position);
-                deepEqual(creme.geolocation.LocationStatus.COMPLETE, status);
-                deepEqual({
+                assert.deepEqual({lat: 43.291628, lng: 5.4030217}, position);
+                assert.deepEqual(creme.geolocation.LocationStatus.COMPLETE, status);
+                assert.deepEqual({
                     geometry: {
                         location: {lat: 43.291628, lng: 5.4030217}
                     },
@@ -416,20 +417,20 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (update marker)',
                 }, data);
 
                 var marker = controller.getMarker('Address_A');
-                equal(false, Object.isNone(marker));
-                equal(true, marker.getVisible());
-                equal(1, controller.markers().length);
+                assert.equal(false, Object.isNone(marker));
+                assert.equal(true, marker.getVisible());
+                assert.equal(1, controller.markers().length);
 
-                equal('fulbert\n319 Rue Saint-Pierre, 13005 Marseille', marker.getTitle());
-                deepEqual(new google.maps.LatLng({lat: 43.291628, lng: 5.4030217}), marker.getPosition());
-                deepEqual({
+                assert.equal('fulbert\n319 Rue Saint-Pierre, 13005 Marseille', marker.getTitle());
+                assert.deepEqual(new google.maps.LatLng({lat: 43.291628, lng: 5.4030217}), marker.getPosition());
+                assert.deepEqual({
                     id: 'Address_A',
                     extraData: {
                         content: 'Marseille'
                     }
                 }, marker.__extra);
 
-                deepEqual([
+                assert.deepEqual([
                     ['marker-move', marker, {
                         id: 'Address_A',
                         title: 'fulbert\n319 Rue Saint-Pierre, 13005 Marseille',
@@ -455,11 +456,9 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (update marker)',
                     }]
                 ], self.mockListenerCalls('search-done'));
 
-                start();
+                done();
              }
         });
-
-        stop(1);
     });
 });
 
@@ -484,15 +483,17 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (address has prev
         });
 
         var marker = controller.getMarker('Address_A');
-        equal(false, Object.isNone(marker));
-        equal(true, marker.getVisible());
-        equal(1, controller.markers().length);
-        deepEqual({
+        assert.equal(false, Object.isNone(marker));
+        assert.equal(true, marker.getVisible());
+        assert.equal(1, controller.markers().length);
+        assert.deepEqual({
             id: 'Address_A',
             extraData: {
                 content: 'Marseille'
             }
         }, marker.__extra);
+
+        var done = assert.async();
 
         // single complete match => COMPLETE
         controller.markLocation({
@@ -506,9 +507,9 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (address has prev
             }
         }, {
             done: function(event, position, status, data) {
-                deepEqual({lat: 43.291628, lng: 5.4030217}, position);
-                deepEqual(creme.geolocation.LocationStatus.COMPLETE, status);
-                deepEqual({
+                assert.deepEqual({lat: 43.291628, lng: 5.4030217}, position);
+                assert.deepEqual(creme.geolocation.LocationStatus.COMPLETE, status);
+                assert.deepEqual({
                     geometry: {
                         location: {lat: 43.291628, lng: 5.4030217}
                     },
@@ -517,20 +518,20 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (address has prev
                 }, data);
 
                 var marker = controller.getMarker('Address_A');
-                equal(false, Object.isNone(marker));
-                equal(true, marker.getVisible());
-                equal(1, controller.markers().length);
+                assert.equal(false, Object.isNone(marker));
+                assert.equal(true, marker.getVisible());
+                assert.equal(1, controller.markers().length);
 
-                equal('fulbert\n319 Rue Saint-Pierre, 13005 Marseille', marker.getTitle());
-                deepEqual(new google.maps.LatLng({lat: 43.291628, lng: 5.4030217}), marker.getPosition());
-                deepEqual({
+                assert.equal('fulbert\n319 Rue Saint-Pierre, 13005 Marseille', marker.getTitle());
+                assert.deepEqual(new google.maps.LatLng({lat: 43.291628, lng: 5.4030217}), marker.getPosition());
+                assert.deepEqual({
                     id: 'Address_A',
                     extraData: {
                         content: 'Marseille'
                     }
                 }, marker.__extra);
 
-                deepEqual([
+                assert.deepEqual([
                     ['marker-move', marker, {
                         id: 'Address_A',
                         title: 'fulbert\n319 Rue Saint-Pierre, 13005 Marseille',
@@ -556,11 +557,9 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (address has prev
                     }]
                 ], self.mockListenerCalls('search-done'));
 
-                start();
+                done();
              }
         });
-
-        stop(1);
     });
 });
 
@@ -569,6 +568,8 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (no api key)', fu
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
+        var done = assert.async();
+
         // single complete match => COMPLETE
         controller.markLocation({
             location: {
@@ -579,14 +580,12 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (no api key)', fu
             }
         }, {
             fail: function(event, message) {
-                equal(gettext("No matching location"), message);
-                equal(0, controller.markers().length);
+                assert.equal(gettext("No matching location"), message);
+                assert.equal(0, controller.markers().length);
 
-                start();
+                done();
             }
         });
-
-        stop(1);
     });
 });
 
@@ -597,8 +596,8 @@ QUnit.test('creme.geolocation.GoogleMapController.addMarker', function(assert) {
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, controller.hasMarker('A'));
-        equal(undefined, controller.getMarker('A'));
+        assert.equal(false, controller.hasMarker('A'));
+        assert.equal(undefined, controller.getMarker('A'));
 
         controller.addMarker('A', {
             icon: 'circle',
@@ -607,20 +606,20 @@ QUnit.test('creme.geolocation.GoogleMapController.addMarker', function(assert) {
         });
 
         var marker = controller.getMarker('A');
-        equal(true, controller.hasMarker('A'));
-        equal(false, Object.isNone(marker));
-        equal(1, controller.markers().length);
-        equal(0, controller.markers({visible: false}).length);
-        deepEqual(['A'], controller.markerIds());
-        deepEqual([], controller.markerIds({visible: false}));
+        assert.equal(true, controller.hasMarker('A'));
+        assert.equal(false, Object.isNone(marker));
+        assert.equal(1, controller.markers().length);
+        assert.equal(0, controller.markers({visible: false}).length);
+        assert.deepEqual(['A'], controller.markerIds());
+        assert.deepEqual([], controller.markerIds({visible: false}));
 
-        deepEqual({
+        assert.deepEqual({
             path: google.maps.SymbolPath.CIRCLE,
             scale: 5
         }, marker.getIcon());
-        equal(true, marker.getVisible());
-        deepEqual(new google.maps.LatLng({lat: 43, lng: 5}), marker.getPosition());
-        deepEqual({
+        assert.equal(true, marker.getVisible());
+        assert.deepEqual(new google.maps.LatLng({lat: 43, lng: 5}), marker.getPosition());
+        assert.deepEqual({
             id: 'A',
             extraData: {address: 'Marseille'}
         }, marker.__extra);
@@ -635,8 +634,8 @@ QUnit.test('creme.geolocation.GoogleMapController.addMarker (already exists)', f
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, controller.hasMarker('A'));
-        equal(undefined, controller.getMarker('A'));
+        assert.equal(false, controller.hasMarker('A'));
+        assert.equal(undefined, controller.getMarker('A'));
 
         controller.addMarker('A', {
             position: {lat: 43, lng: 5},
@@ -644,8 +643,8 @@ QUnit.test('creme.geolocation.GoogleMapController.addMarker (already exists)', f
         });
 
         var marker = controller.getMarker('A');
-        equal(true, controller.hasMarker('A'));
-        equal(false, Object.isNone(marker));
+        assert.equal(true, controller.hasMarker('A'));
+        assert.equal(false, Object.isNone(marker));
 
         self.assertRaises(function() {
             controller.addMarker('A', {
@@ -692,8 +691,8 @@ QUnit.test('creme.geolocation.GoogleMapController.removeMarker', function(assert
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, controller.hasMarker('A'));
-        equal(undefined, controller.getMarker('A'));
+        assert.equal(false, controller.hasMarker('A'));
+        assert.equal(undefined, controller.getMarker('A'));
 
         controller.addMarker('A', {
             icon: 'default',
@@ -702,13 +701,13 @@ QUnit.test('creme.geolocation.GoogleMapController.removeMarker', function(assert
         });
 
         var marker = controller.getMarker('A');
-        equal(true, controller.hasMarker('A'));
-        equal(false, Object.isNone(marker));
+        assert.equal(true, controller.hasMarker('A'));
+        assert.equal(false, Object.isNone(marker));
 
         controller.removeMarker('A');
 
-        equal(false, controller.hasMarker('A'));
-        equal(undefined, controller.getMarker('A'));
+        assert.equal(false, controller.hasMarker('A'));
+        assert.equal(undefined, controller.getMarker('A'));
     });
 });
 
@@ -720,8 +719,8 @@ QUnit.test('creme.geolocation.GoogleMapController.removeMarker (not exists)', fu
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, controller.hasMarker('A'));
-        equal(undefined, controller.getMarker('A'));
+        assert.equal(false, controller.hasMarker('A'));
+        assert.equal(undefined, controller.getMarker('A'));
 
         self.assertRaises(function() {
             controller.removeMarker(undefined);
@@ -748,10 +747,10 @@ QUnit.test('creme.geolocation.GoogleMapController.updateMarker', function(assert
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(true, controller.isEnabled());
+        assert.equal(true, controller.isEnabled());
 
-        equal(false, controller.hasMarker('A'));
-        equal(undefined, controller.getMarker('A'));
+        assert.equal(false, controller.hasMarker('A'));
+        assert.equal(undefined, controller.getMarker('A'));
 
         controller.addMarker('A', {
             icon: 'default',
@@ -760,9 +759,9 @@ QUnit.test('creme.geolocation.GoogleMapController.updateMarker', function(assert
         });
 
         var marker = controller.getMarker('A');
-        equal(true, controller.hasMarker('A'));
-        equal(false, Object.isNone(marker));
-        equal(null, marker.getIcon());
+        assert.equal(true, controller.hasMarker('A'));
+        assert.equal(false, Object.isNone(marker));
+        assert.equal(null, marker.getIcon());
 
         controller.updateMarker('A', {
             icon: creme_media_url('geolocation/images/marker-icon.png'),
@@ -771,15 +770,15 @@ QUnit.test('creme.geolocation.GoogleMapController.updateMarker', function(assert
         });
 
         marker = controller.getMarker('A');
-        equal(true, controller.hasMarker('A'));
-        equal(false, Object.isNone(marker));
-        equal(true, marker.getVisible());
-        deepEqual(new google.maps.LatLng({lat: 42, lng: 5.5}), marker.getPosition());
-        deepEqual({
+        assert.equal(true, controller.hasMarker('A'));
+        assert.equal(false, Object.isNone(marker));
+        assert.equal(true, marker.getVisible());
+        assert.deepEqual(new google.maps.LatLng({lat: 42, lng: 5.5}), marker.getPosition());
+        assert.deepEqual({
             id: 'A',
             extraData: {address: 'Marseille 13006'}
         }, marker.__extra);
-        deepEqual({
+        assert.deepEqual({
             url: creme_media_url('geolocation/images/marker-icon.png'),
             size: new google.maps.Size(25, 41),
             origin: new google.maps.Point(0, 0),
@@ -791,13 +790,13 @@ QUnit.test('creme.geolocation.GoogleMapController.updateMarker', function(assert
         });
 
         marker = controller.getMarker('A');
-        equal(true, marker.getVisible());
-        deepEqual(new google.maps.LatLng({lat: 42, lng: 5.5}), marker.getPosition());
-        deepEqual({
+        assert.equal(true, marker.getVisible());
+        assert.deepEqual(new google.maps.LatLng({lat: 42, lng: 5.5}), marker.getPosition());
+        assert.deepEqual({
             id: 'A',
             extraData: {address: 'Marseille 13006'}
         }, marker.__extra);
-        deepEqual({
+        assert.deepEqual({
             path: google.maps.SymbolPath.CIRCLE,
             scale: 5
         }, marker.getIcon());
@@ -807,13 +806,13 @@ QUnit.test('creme.geolocation.GoogleMapController.updateMarker', function(assert
         });
 
         marker = controller.getMarker('A');
-        equal(true, marker.getVisible());
-        deepEqual(new google.maps.LatLng({lat: 42, lng: 5.5}), marker.getPosition());
-        deepEqual({
+        assert.equal(true, marker.getVisible());
+        assert.deepEqual(new google.maps.LatLng({lat: 42, lng: 5.5}), marker.getPosition());
+        assert.deepEqual({
             id: 'A',
             extraData: {address: 'Marseille 13006'}
         }, marker.__extra);
-        deepEqual(null, marker.getIcon());
+        assert.deepEqual(null, marker.getIcon());
     });
 });
 
@@ -825,10 +824,10 @@ QUnit.test('creme.geolocation.GoogleMapController.updateMarker (not exists)', fu
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(true, controller.isEnabled());
+        assert.equal(true, controller.isEnabled());
 
-        equal(false, controller.hasMarker('A'));
-        equal(undefined, controller.getMarker('A'));
+        assert.equal(false, controller.hasMarker('A'));
+        assert.equal(undefined, controller.getMarker('A'));
 
         self.assertRaises(function() {
             controller.updateMarker(undefined);
@@ -855,8 +854,8 @@ QUnit.test('creme.geolocation.GoogleMapController.toggleMarker', function(assert
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, controller.hasMarker('A'));
-        equal(undefined, controller.getMarker('A'));
+        assert.equal(false, controller.hasMarker('A'));
+        assert.equal(undefined, controller.getMarker('A'));
 
         controller.addMarker('A', {
             icon: 'default',
@@ -865,32 +864,32 @@ QUnit.test('creme.geolocation.GoogleMapController.toggleMarker', function(assert
         });
 
         var marker = controller.getMarker('A');
-        equal(true, controller.hasMarker('A'));
-        equal(false, Object.isNone(marker));
-        equal(true, marker.getVisible());
-        equal(1, controller.markers().length);
-        equal(0, controller.markers({visible: false}).length);
+        assert.equal(true, controller.hasMarker('A'));
+        assert.equal(false, Object.isNone(marker));
+        assert.equal(true, marker.getVisible());
+        assert.equal(1, controller.markers().length);
+        assert.equal(0, controller.markers({visible: false}).length);
 
         controller.toggleMarker('A');
 
         marker = controller.getMarker('A');
-        equal(false, marker.getVisible());
-        equal(1, controller.markers().length);
-        equal(1, controller.markers({visible: false}).length);
+        assert.equal(false, marker.getVisible());
+        assert.equal(1, controller.markers().length);
+        assert.equal(1, controller.markers({visible: false}).length);
 
         controller.toggleMarker('A');
 
         marker = controller.getMarker('A');
-        equal(true, marker.getVisible());
-        equal(1, controller.markers().length);
-        equal(0, controller.markers({visible: false}).length);
+        assert.equal(true, marker.getVisible());
+        assert.equal(1, controller.markers().length);
+        assert.equal(0, controller.markers({visible: false}).length);
 
         controller.toggleMarker('A', true);
 
         marker = controller.getMarker('A');
-        equal(true, marker.getVisible());
-        equal(1, controller.markers().length);
-        equal(0, controller.markers({visible: false}).length);
+        assert.equal(true, marker.getVisible());
+        assert.equal(1, controller.markers().length);
+        assert.equal(0, controller.markers({visible: false}).length);
     });
 });
 
@@ -901,8 +900,8 @@ QUnit.test('creme.geolocation.GoogleMapController.toggleAllMarkers', function(as
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, controller.hasMarker('A'));
-        equal(undefined, controller.getMarker('A'));
+        assert.equal(false, controller.hasMarker('A'));
+        assert.equal(undefined, controller.getMarker('A'));
 
         controller.addMarker('A', {
             icon: 'default',
@@ -916,38 +915,38 @@ QUnit.test('creme.geolocation.GoogleMapController.toggleAllMarkers', function(as
             extraData: {address: 'Marseille 13006'}
         });
 
-        equal(2, controller.markers().length);
-        equal(0, controller.markers({visible: false}).length);
-        deepEqual(['A', 'B'], controller.markerIds());
-        deepEqual([], controller.markerIds({visible: false}));
+        assert.equal(2, controller.markers().length);
+        assert.equal(0, controller.markers({visible: false}).length);
+        assert.deepEqual(['A', 'B'], controller.markerIds());
+        assert.deepEqual([], controller.markerIds({visible: false}));
 
         controller.toggleAllMarkers();
 
-        equal(2, controller.markers().length);
-        equal(2, controller.markers({visible: false}).length);
-        deepEqual(['A', 'B'], controller.markerIds());
-        deepEqual(['A', 'B'], controller.markerIds({visible: false}));
+        assert.equal(2, controller.markers().length);
+        assert.equal(2, controller.markers({visible: false}).length);
+        assert.deepEqual(['A', 'B'], controller.markerIds());
+        assert.deepEqual(['A', 'B'], controller.markerIds({visible: false}));
 
         controller.toggleAllMarkers();
 
-        equal(2, controller.markers().length);
-        equal(0, controller.markers({visible: false}).length);
-        deepEqual(['A', 'B'], controller.markerIds());
-        deepEqual([], controller.markerIds({visible: false}));
+        assert.equal(2, controller.markers().length);
+        assert.equal(0, controller.markers({visible: false}).length);
+        assert.deepEqual(['A', 'B'], controller.markerIds());
+        assert.deepEqual([], controller.markerIds({visible: false}));
 
         controller.toggleAllMarkers(true);
 
-        equal(2, controller.markers().length);
-        equal(0, controller.markers({visible: false}).length);
-        deepEqual(['A', 'B'], controller.markerIds());
-        deepEqual([], controller.markerIds({visible: false}));
+        assert.equal(2, controller.markers().length);
+        assert.equal(0, controller.markers({visible: false}).length);
+        assert.deepEqual(['A', 'B'], controller.markerIds());
+        assert.deepEqual([], controller.markerIds({visible: false}));
 
         controller.toggleAllMarkers(false);
 
-        equal(2, controller.markers().length);
-        equal(2, controller.markers({visible: false}).length);
-        deepEqual(['A', 'B'], controller.markerIds());
-        deepEqual(['A', 'B'], controller.markerIds({visible: false}));
+        assert.equal(2, controller.markers().length);
+        assert.equal(2, controller.markers({visible: false}).length);
+        assert.deepEqual(['A', 'B'], controller.markerIds());
+        assert.deepEqual(['A', 'B'], controller.markerIds({visible: false}));
     });
 });
 
@@ -958,8 +957,8 @@ QUnit.test('creme.geolocation.GoogleMapController.replaceMarkers', function(asse
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, controller.hasMarker('A'));
-        equal(undefined, controller.getMarker('A'));
+        assert.equal(false, controller.hasMarker('A'));
+        assert.equal(undefined, controller.getMarker('A'));
 
         controller.addMarker('A', {
             icon: 'default',
@@ -967,7 +966,7 @@ QUnit.test('creme.geolocation.GoogleMapController.replaceMarkers', function(asse
             extraData: {address: 'Marseille'}
         });
 
-        equal(true, controller.hasMarker('A'));
+        assert.equal(true, controller.hasMarker('A'));
 
         this.assertGoogleMarker(controller.getMarker('A'), {
             position: {lat: 42, lng: 5.5},
@@ -993,10 +992,10 @@ QUnit.test('creme.geolocation.GoogleMapController.replaceMarkers', function(asse
             visible: false
         }]);
 
-        equal(2, controller.markers().length);
-        equal(1, controller.markers({visible: false}).length);
-        deepEqual(['A', 'B'], controller.markerIds());
-        deepEqual(['B'], controller.markerIds({visible: false}));
+        assert.equal(2, controller.markers().length);
+        assert.equal(1, controller.markers({visible: false}).length);
+        assert.deepEqual(['A', 'B'], controller.markerIds());
+        assert.deepEqual(['B'], controller.markerIds({visible: false}));
 
         this.assertGoogleMarker(controller.getMarker('A'), {
             position: {lat: 42, lng: 5.5},
@@ -1028,10 +1027,10 @@ QUnit.test('creme.geolocation.GoogleMapController.replaceMarkers', function(asse
             }
         }]);
 
-        equal(1, controller.markers().length);
-        equal(0, controller.markers({visible: false}).length);
-        deepEqual(['C'], controller.markerIds());
-        deepEqual([], controller.markerIds({visible: false}));
+        assert.equal(1, controller.markers().length);
+        assert.equal(0, controller.markers({visible: false}).length);
+        assert.deepEqual(['C'], controller.markerIds());
+        assert.deepEqual([], controller.markerIds({visible: false}));
 
         this.assertGoogleMarker(controller.getMarker('C'), {
             id: 'C',
@@ -1045,10 +1044,10 @@ QUnit.test('creme.geolocation.GoogleMapController.replaceMarkers', function(asse
 
         controller.replaceMarkers([]);
 
-        equal(0, controller.markers().length);
-        equal(0, controller.markers({visible: false}).length);
-        deepEqual([], controller.markerIds());
-        deepEqual([], controller.markerIds({visible: false}));
+        assert.equal(0, controller.markers().length);
+        assert.equal(0, controller.markers({visible: false}).length);
+        assert.deepEqual([], controller.markerIds());
+        assert.deepEqual([], controller.markerIds({visible: false}));
     });
 });
 
@@ -1061,10 +1060,10 @@ QUnit.test('creme.geolocation.GoogleMapController (marker-click)', function(asse
     controller.on('marker-click', this.mockListener('marker-click'));
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(true, controller.isEnabled());
+        assert.equal(true, controller.isEnabled());
 
-        equal(false, controller.hasMarker('A'));
-        equal(undefined, controller.getMarker('A'));
+        assert.equal(false, controller.hasMarker('A'));
+        assert.equal(undefined, controller.getMarker('A'));
 
         var marker = controller.addMarker('A', {
             icon: 'default',
@@ -1072,11 +1071,11 @@ QUnit.test('creme.geolocation.GoogleMapController (marker-click)', function(asse
             extraData: {address: 'Marseille'}
         });
 
-        deepEqual([], this.mockListenerCalls('marker-click'));
+        assert.deepEqual([], this.mockListenerCalls('marker-click'));
 
         google.maps.event.trigger(marker, 'click');
 
-        deepEqual([
+        assert.deepEqual([
             ['marker-click', {id: 'A', extraData: {address: 'Marseille'}}]
         ], this.mockListenerCalls('marker-click').map(function(e) {
             return [e[0], e[1]];
@@ -1094,10 +1093,10 @@ QUnit.test('creme.geolocation.GoogleMapController (drag-n-drop)', function(asser
     controller.on('marker-dragstop', this.mockListener('marker-dragstop'));
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(true, controller.isEnabled());
+        assert.equal(true, controller.isEnabled());
 
-        equal(false, controller.hasMarker('A'));
-        equal(undefined, controller.getMarker('A'));
+        assert.equal(false, controller.hasMarker('A'));
+        assert.equal(undefined, controller.getMarker('A'));
 
         var marker = controller.addMarker('A', {
             draggable: true,
@@ -1106,12 +1105,12 @@ QUnit.test('creme.geolocation.GoogleMapController (drag-n-drop)', function(asser
             extraData: {address: 'Marseille'}
         });
 
-        deepEqual([], this.mockListenerCalls('marker-dragstart'));
-        deepEqual([], this.mockListenerCalls('marker-dragstop'));
+        assert.deepEqual([], this.mockListenerCalls('marker-dragstart'));
+        assert.deepEqual([], this.mockListenerCalls('marker-dragstop'));
 
         google.maps.event.trigger(marker, 'dragstart');
 
-        deepEqual([
+        assert.deepEqual([
             ['marker-dragstart', {
                 id: 'A',
                 extraData: {address: 'Marseille'},
@@ -1120,12 +1119,12 @@ QUnit.test('creme.geolocation.GoogleMapController (drag-n-drop)', function(asser
         ], this.mockListenerCalls('marker-dragstart').map(function(e) {
             return [e[0], e[1]];
         }));
-        deepEqual([], this.mockListenerCalls('marker-dragstop'));
+        assert.deepEqual([], this.mockListenerCalls('marker-dragstop'));
 
         marker.setPosition({lat: 42, lng: 5.5});
         google.maps.event.trigger(marker, 'dragend');
 
-        deepEqual([
+        assert.deepEqual([
             ['marker-dragstart', {
                 id: 'A',
                 extraData: {address: 'Marseille'},
@@ -1134,7 +1133,7 @@ QUnit.test('creme.geolocation.GoogleMapController (drag-n-drop)', function(asser
         ], this.mockListenerCalls('marker-dragstart').map(function(e) {
             return [e[0], e[1]];
         }));
-        deepEqual([
+        assert.deepEqual([
             ['marker-dragstop', {
                 id: 'A',
                 extraData: {address: 'Marseille'},
@@ -1154,12 +1153,12 @@ QUnit.test('creme.geolocation.GoogleMapController.addShape (circle)', function(a
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, controller.hasShape('A'));
-        equal(undefined, controller.getShape('A'));
-        equal(0, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
-        equal(0, controller.shapeIds().length);
-        equal(0, controller.shapeIds({visible: false}).length);
+        assert.equal(false, controller.hasShape('A'));
+        assert.equal(undefined, controller.getShape('A'));
+        assert.equal(0, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
+        assert.equal(0, controller.shapeIds().length);
+        assert.equal(0, controller.shapeIds({visible: false}).length);
 
 
         var shape = controller.addShape('A', {
@@ -1171,22 +1170,22 @@ QUnit.test('creme.geolocation.GoogleMapController.addShape (circle)', function(a
             }
         });
 
-        equal(false, Object.isNone(shape));
-        equal(true, shape.getVisible());
-        equal(5, shape.getRadius());
-        deepEqual(new google.maps.LatLng({lat: 43, lng: 5}), shape.getCenter());
-        deepEqual({
+        assert.equal(false, Object.isNone(shape));
+        assert.equal(true, shape.getVisible());
+        assert.equal(5, shape.getRadius());
+        assert.deepEqual(new google.maps.LatLng({lat: 43, lng: 5}), shape.getCenter());
+        assert.deepEqual({
             id: 'A',
             extraData: {
                 url: 'mock/shape'
             }
         }, shape.__extra);
 
-        equal(1, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
+        assert.equal(1, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
 
-        deepEqual(['A'], controller.shapeIds());
-        deepEqual([], controller.shapeIds({visible: false}));
+        assert.deepEqual(['A'], controller.shapeIds());
+        assert.deepEqual([], controller.shapeIds({visible: false}));
     });
 });
 
@@ -1197,12 +1196,12 @@ QUnit.test('creme.geolocation.GoogleMapController.addShape (unknown type)', func
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, controller.hasShape('A'));
-        equal(undefined, controller.getShape('A'));
-        equal(0, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
-        equal(0, controller.shapeIds().length);
-        equal(0, controller.shapeIds({visible: false}).length);
+        assert.equal(false, controller.hasShape('A'));
+        assert.equal(undefined, controller.getShape('A'));
+        assert.equal(0, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
+        assert.equal(0, controller.shapeIds().length);
+        assert.equal(0, controller.shapeIds({visible: false}).length);
 
         this.assertRaises(function() {
             controller.addShape('A', {
@@ -1212,10 +1211,10 @@ QUnit.test('creme.geolocation.GoogleMapController.addShape (unknown type)', func
             });
         }, Error, 'Error: Shape has unknown type "cloud"');
 
-        equal(false, controller.hasShape('A'));
-        equal(undefined, controller.getShape('A'));
-        equal(0, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
+        assert.equal(false, controller.hasShape('A'));
+        assert.equal(undefined, controller.getShape('A'));
+        assert.equal(0, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
     });
 });
 
@@ -1226,12 +1225,12 @@ QUnit.test('creme.geolocation.GoogleMapController.addShape (empty id)', function
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, controller.hasShape('A'));
-        equal(undefined, controller.getShape('A'));
-        equal(0, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
-        equal(0, controller.shapeIds().length);
-        equal(0, controller.shapeIds({visible: false}).length);
+        assert.equal(false, controller.hasShape('A'));
+        assert.equal(undefined, controller.getShape('A'));
+        assert.equal(0, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
+        assert.equal(0, controller.shapeIds().length);
+        assert.equal(0, controller.shapeIds({visible: false}).length);
 
         this.assertRaises(function() {
             controller.addShape(undefined, {
@@ -1251,10 +1250,10 @@ QUnit.test('creme.geolocation.GoogleMapController.addShape (empty id)', function
             });
         }, Error, 'Error: Shape id cannot be empty');
 
-        equal(false, controller.hasShape('A'));
-        equal(undefined, controller.getShape('A'));
-        equal(0, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
+        assert.equal(false, controller.hasShape('A'));
+        assert.equal(undefined, controller.getShape('A'));
+        assert.equal(0, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
     });
 });
 
@@ -1266,10 +1265,10 @@ QUnit.test('creme.geolocation.GoogleMapController.addShape (already exists)', fu
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, controller.hasShape('A'));
-        equal(undefined, controller.getShape('A'));
-        equal(0, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
+        assert.equal(false, controller.hasShape('A'));
+        assert.equal(undefined, controller.getShape('A'));
+        assert.equal(0, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
 
         var shape = controller.addShape('A', {
             position: {lat: 43, lng: 5},
@@ -1277,16 +1276,16 @@ QUnit.test('creme.geolocation.GoogleMapController.addShape (already exists)', fu
             shape: 'circle'
         });
 
-        equal(false, Object.isNone(shape));
-        equal(true, shape.getVisible());
-        equal(5, shape.getRadius());
-        deepEqual(new google.maps.LatLng({lat: 43, lng: 5}), shape.getCenter());
+        assert.equal(false, Object.isNone(shape));
+        assert.equal(true, shape.getVisible());
+        assert.equal(5, shape.getRadius());
+        assert.deepEqual(new google.maps.LatLng({lat: 43, lng: 5}), shape.getCenter());
 
-        equal(1, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
+        assert.equal(1, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
 
-        deepEqual(['A'], controller.shapeIds());
-        deepEqual([], controller.shapeIds({visible: false}));
+        assert.deepEqual(['A'], controller.shapeIds());
+        assert.deepEqual([], controller.shapeIds({visible: false}));
 
         this.assertRaises(function() {
             controller.addShape('A', {
@@ -1311,13 +1310,13 @@ QUnit.test('creme.geolocation.GoogleMapController.updateShape', function(assert)
             shape: 'circle'
         });
 
-        equal(false, Object.isNone(shape));
-        equal(true, shape.getVisible());
-        equal(5, shape.getRadius());
-        deepEqual(new google.maps.LatLng({lat: 43, lng: 5}), shape.getCenter());
+        assert.equal(false, Object.isNone(shape));
+        assert.equal(true, shape.getVisible());
+        assert.equal(5, shape.getRadius());
+        assert.deepEqual(new google.maps.LatLng({lat: 43, lng: 5}), shape.getCenter());
 
-        equal(1, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
+        assert.equal(1, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
 
         controller.updateShape('A', {
             position: {lat: 43.5, lng: 5.53},
@@ -1328,15 +1327,15 @@ QUnit.test('creme.geolocation.GoogleMapController.updateShape', function(assert)
         });
 
         shape = controller.getShape('A');
-        equal(true, shape.getVisible());
-        equal(2, shape.getRadius());
-        deepEqual(new google.maps.LatLng({lat: 43.5, lng: 5.53}), shape.getCenter());
-        deepEqual({
+        assert.equal(true, shape.getVisible());
+        assert.equal(2, shape.getRadius());
+        assert.deepEqual(new google.maps.LatLng({lat: 43.5, lng: 5.53}), shape.getCenter());
+        assert.deepEqual({
             address: 'Marseille'
         }, shape.__extra.extraData);
 
-        equal(1, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
+        assert.equal(1, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
     });
 });
 
@@ -1387,24 +1386,24 @@ QUnit.test('creme.geolocation.GoogleMapController.removeShape', function(assert)
             shape: 'circle'
         });
 
-        equal(false, Object.isNone(shape));
-        equal(true, shape.getVisible());
-        equal(5, shape.getRadius());
-        deepEqual(new google.maps.LatLng({lat: 43, lng: 5}), shape.getCenter());
+        assert.equal(false, Object.isNone(shape));
+        assert.equal(true, shape.getVisible());
+        assert.equal(5, shape.getRadius());
+        assert.deepEqual(new google.maps.LatLng({lat: 43, lng: 5}), shape.getCenter());
 
-        equal(1, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
-        deepEqual(['A'], controller.shapeIds());
-        deepEqual([], controller.shapeIds({visible: false}));
+        assert.equal(1, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
+        assert.deepEqual(['A'], controller.shapeIds());
+        assert.deepEqual([], controller.shapeIds({visible: false}));
 
         controller.removeShape('A');
 
-        equal(undefined, controller.getShape('A'));
+        assert.equal(undefined, controller.getShape('A'));
 
-        equal(0, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
-        deepEqual([], controller.shapeIds());
-        deepEqual([], controller.shapeIds({visible: false}));
+        assert.equal(0, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
+        assert.deepEqual([], controller.shapeIds());
+        assert.deepEqual([], controller.shapeIds({visible: false}));
     });
 });
 
@@ -1446,7 +1445,7 @@ QUnit.test('creme.geolocation.GoogleMapController.adjustMap (no marker)', functi
         controller.adjustMap();
 
         // no markers, centers on defaults
-        deepEqual(
+        assert.deepEqual(
             new google.maps.LatLng(controller.options().defaultLat, controller.options().defaultLng),
             controller.map().getCenter()
         );
@@ -1467,8 +1466,8 @@ QUnit.test('creme.geolocation.GoogleMapController.adjustMap (single marker)', fu
         controller.adjustMap();
 
         // 1 marker, center map on it
-        deepEqual(marker.getPosition(), controller.map().getCenter());
-        equal(controller.options().defaultZoomValue, controller.map().getZoom());
+        assert.deepEqual(marker.getPosition(), controller.map().getCenter());
+        assert.equal(controller.options().defaultZoomValue, controller.map().getZoom());
     });
 });
 
@@ -1497,26 +1496,26 @@ QUnit.test('creme.geolocation.GoogleMapController.adjustMap (multiple markers)',
         bounds.extend(markerC.getPosition());
 
         // 3 visible markers, center map on them
-        deepEqual(bounds.getCenter(), controller.map().getCenter());
+        assert.deepEqual(bounds.getCenter(), controller.map().getCenter());
 
         // 1 visible marker, center map on it
         controller.toggleMarker('A', false);
         controller.toggleMarker('B', false);
 
-        deepEqual(markerC.getPosition(), controller.map().getCenter());
+        assert.deepEqual(markerC.getPosition(), controller.map().getCenter());
 
         controller.toggleMarker('A', true);
         controller.toggleMarker('B', false);
         controller.toggleMarker('C', false);
 
-        deepEqual(markerA.getPosition(), controller.map().getCenter());
+        assert.deepEqual(markerA.getPosition(), controller.map().getCenter());
 
         // no visible marker, center on default
         controller.toggleMarker('A', false);
 
-        equal(0, controller.markers({visible: true}).length);
+        assert.equal(0, controller.markers({visible: true}).length);
 
-        deepEqual(
+        assert.deepEqual(
             new google.maps.LatLng(controller.options().defaultLat, controller.options().defaultLng),
             controller.map().getCenter()
         );
@@ -1542,7 +1541,7 @@ QUnit.test('creme.geolocation.GoogleMapController.adjustMapToShape', function(as
         controller.adjustMapToShape('A');
 
         // center map on shape
-        deepEqual(shape.getCenter(), controller.map().getCenter());
+        assert.deepEqual(shape.getCenter(), controller.map().getCenter());
     });
 });
 
@@ -1556,7 +1555,7 @@ QUnit.test('creme.geolocation.GoogleMapController.adjustMapToShape (not exists)'
         controller.adjustMapToShape('A');
 
         // no shape, remains on map defaults
-        deepEqual(
+        assert.deepEqual(
             new google.maps.LatLng(controller.options().defaultLat, controller.options().defaultLng),
             controller.map().getCenter()
         );

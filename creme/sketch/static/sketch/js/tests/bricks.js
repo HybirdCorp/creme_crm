@@ -22,14 +22,14 @@ QUnit.test('creme.D3ChartBrickController', function(assert) {
     var chart = new FakeD3Chart();
     var controller = new creme.D3ChartBrickController({chart: chart});
 
-    equal(true, controller.sketch() instanceof creme.D3Sketch);
-    equal(false, controller.sketch().isBound());
+    assert.equal(true, controller.sketch() instanceof creme.D3Sketch);
+    assert.equal(false, controller.sketch().isBound());
 
-    equal(true, controller.model() instanceof creme.model.Array);
-    deepEqual([], controller.model().all());
+    assert.equal(true, controller.model() instanceof creme.model.Array);
+    assert.deepEqual([], controller.model().all());
 
-    equal(false, controller.isBound());
-    deepEqual(chart, controller.chart());
+    assert.equal(false, controller.isBound());
+    assert.deepEqual(chart, controller.chart());
 });
 
 QUnit.parametrize('creme.D3ChartBrickController (missing chart)', [
@@ -53,12 +53,12 @@ QUnit.test('creme.D3ChartBrickController.bind (no data)', function(assert) {
     var chart = new FakeD3Chart();
     var controller = new creme.D3ChartBrickController({chart: chart});
 
-    equal(false, controller.isBound());
+    assert.equal(false, controller.isBound());
 
     controller.bind(brick);
 
-    equal(true, controller.isBound());
-    deepEqual([], controller.model().all());
+    assert.equal(true, controller.isBound());
+    assert.deepEqual([], controller.model().all());
 
     this.assertRaises(function() {
         controller.bind(brick);
@@ -78,13 +78,13 @@ QUnit.parametrize('creme.D3ChartBrickController.bind', [
     var chart = new FakeD3Chart();
     var controller = new creme.D3ChartBrickController({chart: chart});
 
-    equal(false, controller.isBound());
+    assert.equal(false, controller.isBound());
 
     controller.bind(brick);
 
-    equal(true, controller.isBound());
-    deepEqual(expectedData, controller.model().all());
-    deepEqual(expectedProps, controller.chart().props());
+    assert.equal(true, controller.isBound());
+    assert.deepEqual(expectedData, controller.model().all());
+    assert.deepEqual(expectedProps, controller.chart().props());
 });
 
 QUnit.parametrize('creme.D3ChartBrickController.registerActions (invalid)', [
@@ -103,13 +103,13 @@ QUnit.test('creme.D3ChartBrickController.registerActions', function(assert) {
     var chart = new FakeD3Chart();
     var controller = new creme.D3ChartBrickController({chart: chart});
 
-    equal(false, brick.getActionBuilders().builders().indexOf('sketch-download') !== -1);
-    equal(false, brick.getActionBuilders().builders().indexOf('sketch-popover') !== -1);
+    assert.equal(false, brick.getActionBuilders().builders().indexOf('sketch-download') !== -1);
+    assert.equal(false, brick.getActionBuilders().builders().indexOf('sketch-popover') !== -1);
 
     controller.registerActions(brick);
 
-    equal(true, brick.getActionBuilders().builders().indexOf('sketch-download') !== -1);
-    equal(true, brick.getActionBuilders().builders().indexOf('sketch-popover') !== -1);
+    assert.equal(true, brick.getActionBuilders().builders().indexOf('sketch-download') !== -1);
+    assert.equal(true, brick.getActionBuilders().builders().indexOf('sketch-popover') !== -1);
 });
 
 QUnit.test('creme.D3ChartBrickDownloadAction', function(assert) {
@@ -133,15 +133,15 @@ QUnit.test('creme.D3ChartBrickDownloadAction', function(assert) {
 
         download.start(options);
 
-        equal(faker.count(), 1);
-        deepEqual(faker.calls()[0].slice(1), ['my-sketch.svg', options]);
+        assert.equal(faker.count(), 1);
+        assert.deepEqual(faker.calls()[0].slice(1), ['my-sketch.svg', options]);
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['start', {filename: 'my-sketch.svg', width: 150, height: 200}]
     ], this.mockListenerCalls('action-start'));
 
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
 });
 
 QUnit.test('creme.D3ChartBrickPopoverAction', function(assert) {
@@ -166,17 +166,17 @@ QUnit.test('creme.D3ChartBrickPopoverAction', function(assert) {
     }, function(faker) {
         var options = {width: 150, height: 200};
 
-        deepEqual([], this.mockListenerCalls('action-done'), '');
+        assert.deepEqual([], this.mockListenerCalls('action-done'), '');
 
         action.start(options);
 
-        equal(faker.count(), 1, 'asImage called once');
-        deepEqual(faker.calls()[0].slice(1), [{width: 150, height: 200}]);
+        assert.equal(faker.count(), 1, 'asImage called once');
+        assert.deepEqual(faker.calls()[0].slice(1), [{width: 150, height: 200}]);
 
         this.assertOpenedPopover();
         this.closePopover();
 
-        deepEqual([['done']], this.mockListenerCalls('action-done'));
+        assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
     });
 
     this.resetMockListenerCalls('action-done');
@@ -190,17 +190,17 @@ QUnit.test('creme.D3ChartBrickPopoverAction', function(assert) {
     }, function(faker) {
         var options = {width: 150, height: 200};
 
-        deepEqual([], this.mockListenerCalls('action-done'), '');
+        assert.deepEqual([], this.mockListenerCalls('action-done'), '');
 
         action.start(options);
 
-        equal(faker.count(), 1, 'asImage called once');
-        deepEqual(faker.calls()[0].slice(1), [{width: 150, height: 200}]);
+        assert.equal(faker.count(), 1, 'asImage called once');
+        assert.deepEqual(faker.calls()[0].slice(1), [{width: 150, height: 200}]);
 
         // No image, No popover
         this.assertClosedPopover();
 
-        deepEqual([['done']], this.mockListenerCalls('action-done'));
+        assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
     });
 });
 
@@ -224,19 +224,19 @@ QUnit.parametrize('creme.setupD3ChartBrick', [
     var controller = creme.setupD3ChartBrick(element, {chart: chart});
     var brick = creme.widget.create(element).brick();
 
-    equal(true, brick.isBound());
-    equal(false, brick.isLoading());
+    assert.equal(true, brick.isBound());
+    assert.equal(false, brick.isLoading());
 
     // chart & controller are bound
-    equal(true, controller.isBound());
+    assert.equal(true, controller.isBound());
 
     // chart has been set up
-    deepEqual(expectedProps, chart.props());
-    deepEqual(expectedData, chart.model().all());
+    assert.deepEqual(expectedProps, chart.props());
+    assert.deepEqual(expectedData, chart.model().all());
 
     // actions are registered
-    equal(true, brick.getActionBuilders().builders().indexOf('sketch-download') !== -1);
-    equal(true, brick.getActionBuilders().builders().indexOf('sketch-popover') !== -1);
+    assert.equal(true, brick.getActionBuilders().builders().indexOf('sketch-download') !== -1);
+    assert.equal(true, brick.getActionBuilders().builders().indexOf('sketch-popover') !== -1);
 });
 
 QUnit.test('creme.setupD3ChartBrick (links)', function(assert) {
@@ -253,8 +253,8 @@ QUnit.test('creme.setupD3ChartBrick (links)', function(assert) {
     var brick = creme.widget.create(element).brick();
 
     // actions are registered
-    equal(true, brick.getActionBuilders().builders().indexOf('sketch-download') !== -1);
-    equal(true, brick.getActionBuilders().builders().indexOf('sketch-popover') !== -1);
+    assert.equal(true, brick.getActionBuilders().builders().indexOf('sketch-download') !== -1);
+    assert.equal(true, brick.getActionBuilders().builders().indexOf('sketch-popover') !== -1);
 
     // try sketch-download
     this.withFakeMethod({
@@ -268,8 +268,8 @@ QUnit.test('creme.setupD3ChartBrick (links)', function(assert) {
 
         brick.element().find('.download').trigger('click');
 
-        equal(faker.count(), 1);
-        deepEqual(faker.calls()[0].slice(1), ['my-sketch.svg', options]);
+        assert.equal(faker.count(), 1);
+        assert.deepEqual(faker.calls()[0].slice(1), ['my-sketch.svg', options]);
     });
 
     // try sketch-popover
@@ -282,8 +282,8 @@ QUnit.test('creme.setupD3ChartBrick (links)', function(assert) {
     }, function(faker) {
         brick.element().find('.popover').trigger('click');
 
-        equal(faker.count(), 1, 'asImage called once');
-        deepEqual(faker.calls()[0].slice(1), [{width: 150, height: 200}]);
+        assert.equal(faker.count(), 1, 'asImage called once');
+        assert.deepEqual(faker.calls()[0].slice(1), [{width: 150, height: 200}]);
 
         this.assertOpenedPopover();
         this.closePopover();

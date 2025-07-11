@@ -74,7 +74,7 @@ QUnit.module("creme.widgets.toggle.js", new QUnitMixin(QUnitEventMixin,
     },
 
     assertIsCollapsed: function(element, state) {
-        equal(element.hasClass('toggle-collapsed'), state, state ? 'toggle is collapsed' : 'toggle is expanded');
+        this.assert.equal(element.hasClass('toggle-collapsed'), state, state ? 'toggle is collapsed' : 'toggle is expanded');
     }
 }));
 
@@ -150,7 +150,7 @@ QUnit.test('creme.widget.Toggle.expandAll (no trigger)', function(assert) {
     this.assertReady(element);
 
     this.assertIsCollapsed(element, true);
-    deepEqual(widget.triggers().get(), []);
+    assert.deepEqual(widget.triggers().get(), []);
 
     widget.expandAll();
 
@@ -167,7 +167,7 @@ QUnit.test('creme.widget.Toggle.expandAll (self trigger)', function(assert) {
     this.assertReady(element);
 
     this.assertIsCollapsed(element, true);
-    equal(widget.triggers().length, 1);
+    assert.equal(widget.triggers().length, 1);
 
     widget.expandAll();
 
@@ -204,7 +204,7 @@ QUnit.test('creme.widget.Toggle.expandAll (trigger)', function(assert) {
     var widget = creme.widget.create(element);
     this.assertReady(element);
 
-    equal(widget.triggers().length, 3);
+    assert.equal(widget.triggers().length, 3);
 
     this.assertIsCollapsed(element.find('#target-a'), true);
     this.assertIsCollapsed(element.find('#target-b'), false);
@@ -252,7 +252,7 @@ QUnit.test('creme.widget.Toggle.toggle (click)', function(assert) {
     });
     this.assertReady(element);
 
-    equal(widget.triggers().length, 3);
+    assert.equal(widget.triggers().length, 3);
 
     this.assertIsCollapsed(element.find('#target-a'), true);
     this.assertIsCollapsed(element.find('#target-b'), false);
@@ -297,7 +297,7 @@ QUnit.test('creme.widget.Toggle.toggle (outside)', function(assert) {
     });
     this.assertReady(element);
 
-    equal(widget.triggers().length, 1);
+    assert.equal(widget.triggers().length, 1);
 
     // trigger is already collapsed -> forced to target
     this.assertIsCollapsed(target, true);
@@ -350,13 +350,13 @@ QUnit.test('creme.widget.Toggle.expand (subtoggle, recursive)', function(assert)
     var widget = creme.widget.create(element);
     var sub_widget = creme.widget.create(sub_element);
 
-    equal(widget.is_opened(), false);
-    equal(sub_widget.is_opened(), false);
+    assert.equal(widget.is_opened(), false);
+    assert.equal(sub_widget.is_opened(), false);
 
     widget.expand({recursive: true});
 
-    equal(widget.is_opened(), true);
-    equal(sub_widget.is_opened(), true);
+    assert.equal(widget.is_opened(), true);
+    assert.equal(sub_widget.is_opened(), true);
 });
 
 QUnit.test('creme.widget.Toggle.collapse', function(assert) {
@@ -364,17 +364,17 @@ QUnit.test('creme.widget.Toggle.collapse', function(assert) {
     var widget = creme.widget.create(element);
     this.assertReady(element);
 
-    equal(widget.is_opened(), true);
+    assert.equal(widget.is_opened(), true);
     this.assertToggleIsCollapsed(element);
 
     widget.collapse();
 
-    equal(widget.is_opened(), false);
+    assert.equal(widget.is_opened(), false);
     this.assertIsCollapsed(element);
 
     widget.collapse();
 
-    equal(widget.is_opened(), false);
+    assert.equal(widget.is_opened(), false);
     this.assertIsCollapsed(element);
 });
 
@@ -387,13 +387,13 @@ QUnit.test('creme.widget.Toggle.collapse (subtoggle, not recursive)', function(a
     var widget = creme.widget.create(element);
     var sub_widget = creme.widget.create(sub_element);
 
-    equal(widget.is_opened(), true);
-    equal(sub_widget.is_opened(), true);
+    assert.equal(widget.is_opened(), true);
+    assert.equal(sub_widget.is_opened(), true);
 
     widget.collapse();
 
-    equal(widget.is_opened(), false);
-    equal(sub_widget.is_opened(), true);
+    assert.equal(widget.is_opened(), false);
+    assert.equal(sub_widget.is_opened(), true);
 });
 
 QUnit.test('creme.widget.Toggle.collapse (subtoggle, recursive)', function(assert) {
@@ -405,13 +405,13 @@ QUnit.test('creme.widget.Toggle.collapse (subtoggle, recursive)', function(asser
     var widget = creme.widget.create(element);
     var sub_widget = creme.widget.create(sub_element);
 
-    equal(widget.is_opened(), true);
-    equal(sub_widget.is_opened(), true);
+    assert.equal(widget.is_opened(), true);
+    assert.equal(sub_widget.is_opened(), true);
 
     widget.collapse({recursive: true});
 
-    equal(widget.is_opened(), false);
-    equal(sub_widget.is_opened(), false);
+    assert.equal(widget.is_opened(), false);
+    assert.equal(sub_widget.is_opened(), false);
 });
 
 QUnit.test('creme.widget.Toggle.toggle (single target)', function(assert) {
@@ -423,19 +423,19 @@ QUnit.test('creme.widget.Toggle.toggle (single target)', function(assert) {
 
     this.assertIsCollapsed(element);
     this.assertIsCollapsed(target);
-    equal(target.attr('rowspan'), 5);
+    assert.equal(target.attr('rowspan'), 5);
 
     widget.toggle(true);
 
     this.assertToggleIsCollapsed(element);
     this.assertToggleIsCollapsed(target);
-    equal(target.attr('rowspan'), 1);
+    assert.equal(target.attr('rowspan'), 1);
 
     widget.toggle(false);
 
     this.assertIsCollapsed(element);
     this.assertIsCollapsed(target);
-    equal(target.attr('rowspan'), 5);
+    assert.equal(target.attr('rowspan'), 5);
 });
 
 QUnit.test('creme.widget.Toggle.toggle (multiple targets)', function(assert) {
@@ -449,24 +449,24 @@ QUnit.test('creme.widget.Toggle.toggle (multiple targets)', function(assert) {
     this.assertIsCollapsed(element);
     this.assertIsCollapsed(target1);
     this.assertIsCollapsed(target2);
-    equal(target1.attr('rowspan'), 5);
-    equal(target2.attr('rowspan'), 4);
+    assert.equal(target1.attr('rowspan'), 5);
+    assert.equal(target2.attr('rowspan'), 4);
 
     widget.toggle(true);
 
     this.assertToggleIsCollapsed(element);
     this.assertToggleIsCollapsed(target1);
     this.assertToggleIsCollapsed(target2);
-    equal(target1.attr('rowspan'), 1);
-    equal(target2.attr('rowspan'), 8);
+    assert.equal(target1.attr('rowspan'), 1);
+    assert.equal(target2.attr('rowspan'), 8);
 
     widget.toggle(false);
 
     this.assertIsCollapsed(element);
     this.assertIsCollapsed(target1);
     this.assertIsCollapsed(target2);
-    equal(target1.attr('rowspan'), 5);
-    equal(target2.attr('rowspan'), 4);
+    assert.equal(target1.attr('rowspan'), 5);
+    assert.equal(target2.attr('rowspan'), 4);
 });
 
 QUnit.test('creme.widget.Toggle.toggle (attributes)', function(assert) {
@@ -481,34 +481,34 @@ QUnit.test('creme.widget.Toggle.toggle (attributes)', function(assert) {
 
     this.assertReady(element);
 
-    equal(target1.attr('rowspan'), 5);
-    equal(target1.attr('name'), 'close');
+    assert.equal(target1.attr('rowspan'), 5);
+    assert.equal(target1.attr('name'), 'close');
 
-    equal(target2.attr('rowspan'), 4);
-    equal(target2.attr('name'), undefined);
+    assert.equal(target2.attr('rowspan'), 4);
+    assert.equal(target2.attr('name'), undefined);
 
     widget.toggle(true);
 
-    equal(target1.attr('rowspan'), 1);
-    equal(target1.attr('name'), 'open');
+    assert.equal(target1.attr('rowspan'), 1);
+    assert.equal(target1.attr('name'), 'open');
 
-    equal(target2.attr('rowspan'), 8);
-    equal(target2.attr('name'), undefined);
+    assert.equal(target2.attr('rowspan'), 8);
+    assert.equal(target2.attr('name'), undefined);
 
     widget.toggle(false);
 
-    equal(target1.attr('rowspan'), 5);
-    equal(target1.attr('name'), 'close');
+    assert.equal(target1.attr('rowspan'), 5);
+    assert.equal(target1.attr('name'), 'close');
 
-    equal(target2.attr('rowspan'), 4);
-    equal(target2.attr('name'), undefined);
+    assert.equal(target2.attr('rowspan'), 4);
+    assert.equal(target2.attr('name'), undefined);
 });
 
 QUnit.test('creme.widget.Toggle.toggle (callback)', function(assert) {
     var self = this;
 
-    equal(self.mock_collapsed, undefined);
-    equal(self.mock_options, undefined);
+    assert.equal(self.mock_collapsed, undefined);
+    assert.equal(self.mock_options, undefined);
 
     var element = mock_toggle_create().addClass('toggle-collapsed');
     var widget = creme.widget.create(element, {
@@ -518,31 +518,31 @@ QUnit.test('creme.widget.Toggle.toggle (callback)', function(assert) {
          }
     });
 
-    equal(self.mock_collapsed, undefined);
-    equal(self.mock_options, undefined);
+    assert.equal(self.mock_collapsed, undefined);
+    assert.equal(self.mock_options, undefined);
 
     widget.expand();
-    equal(self.mock_collapsed, false);
-    deepEqual(self.mock_options, {});
+    assert.equal(self.mock_collapsed, false);
+    assert.deepEqual(self.mock_options, {});
 
     widget.collapse({recursive: true});
-    equal(self.mock_collapsed, true);
-    deepEqual(self.mock_options, {recursive: true});
+    assert.equal(self.mock_collapsed, true);
+    assert.deepEqual(self.mock_options, {recursive: true});
 });
 
 QUnit.test('creme.widget.Toggle.toggle (callback script)', function(assert) {
-    equal(window.LAST_CREME_WIDGET_TOGGLE_STATE, undefined);
+    assert.equal(window.LAST_CREME_WIDGET_TOGGLE_STATE, undefined);
 
     var element = mock_toggle_create({'ontoggle': 'window.LAST_CREME_WIDGET_TOGGLE_STATE = !collapsed;'}).addClass('toggle-collapsed');
     var widget = creme.widget.create(element);
 
-    equal(window.LAST_CREME_WIDGET_TOGGLE_STATE, undefined);
+    assert.equal(window.LAST_CREME_WIDGET_TOGGLE_STATE, undefined);
 
     widget.expand();
-    equal(window.LAST_CREME_WIDGET_TOGGLE_STATE, true);
+    assert.equal(window.LAST_CREME_WIDGET_TOGGLE_STATE, true);
 
     widget.collapse();
-    equal(window.LAST_CREME_WIDGET_TOGGLE_STATE, false);
+    assert.equal(window.LAST_CREME_WIDGET_TOGGLE_STATE, false);
 
     delete window['LAST_CREME_WIDGET_TOGGLE_STATE'];
 });
@@ -555,13 +555,13 @@ QUnit.test('creme.widget.Toggle.trigger (single target, click)', function(assert
     creme.widget.create(element);
 
     this.assertReady(element);
-    equal(target.attr('rowspan'), 4);
+    assert.equal(target.attr('rowspan'), 4);
 
     trigger.trigger('click');
-    equal(target.attr('rowspan'), 8);
+    assert.equal(target.attr('rowspan'), 8);
 
     trigger.trigger('click');
-    equal(target.attr('rowspan'), 4);
+    assert.equal(target.attr('rowspan'), 4);
 });
 
 QUnit.test('creme.widget.Toggle.trigger (single target, over)', function(assert) {
@@ -572,19 +572,19 @@ QUnit.test('creme.widget.Toggle.trigger (single target, over)', function(assert)
     creme.widget.create(element);
 
     this.assertReady(element);
-    equal(target.attr('rowspan'), 4);
+    assert.equal(target.attr('rowspan'), 4);
 
     trigger.trigger('click');
-    equal(target.attr('rowspan'), 4);
+    assert.equal(target.attr('rowspan'), 4);
 
     trigger.trigger('over');
-    equal(target.attr('rowspan'), 8);
+    assert.equal(target.attr('rowspan'), 8);
 
     trigger.trigger('click');
-    equal(target.attr('rowspan'), 8);
+    assert.equal(target.attr('rowspan'), 8);
 
     trigger.trigger('over');
-    equal(target.attr('rowspan'), 4);
+    assert.equal(target.attr('rowspan'), 4);
 });
 
 QUnit.test('creme.widget.Toggle.trigger (multiple targets)', function(assert) {
@@ -599,27 +599,27 @@ QUnit.test('creme.widget.Toggle.trigger (multiple targets)', function(assert) {
 
     this.assertReady(element);
 
-    equal(target1.attr('rowspan'), 5);
-    equal(target1.attr('name'), 'close');
+    assert.equal(target1.attr('rowspan'), 5);
+    assert.equal(target1.attr('name'), 'close');
 
-    equal(target2.attr('rowspan'), 4);
-    equal(target2.attr('name'), undefined);
-
-    trigger.trigger('click');
-
-    equal(target1.attr('rowspan'), 1);
-    equal(target1.attr('name'), 'open');
-
-    equal(target2.attr('rowspan'), 8);
-    equal(target2.attr('name'), undefined);
+    assert.equal(target2.attr('rowspan'), 4);
+    assert.equal(target2.attr('name'), undefined);
 
     trigger.trigger('click');
 
-    equal(target1.attr('rowspan'), 5);
-    equal(target1.attr('name'), 'close');
+    assert.equal(target1.attr('rowspan'), 1);
+    assert.equal(target1.attr('name'), 'open');
 
-    equal(target2.attr('rowspan'), 4);
-    equal(target2.attr('name'), undefined);
+    assert.equal(target2.attr('rowspan'), 8);
+    assert.equal(target2.attr('name'), undefined);
+
+    trigger.trigger('click');
+
+    assert.equal(target1.attr('rowspan'), 5);
+    assert.equal(target1.attr('name'), 'close');
+
+    assert.equal(target2.attr('rowspan'), 4);
+    assert.equal(target2.attr('name'), undefined);
 });
 */
 }(jQuery));

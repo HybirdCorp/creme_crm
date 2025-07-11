@@ -7,29 +7,29 @@ QUnit.module("creme.geolocation", new QUnitMixin(QUnitEventMixin,
                                                  QUnitGeolocationMixin, {
 }));
 
-QUnit.test('creme.geolocation.Location (defaults)', function() {
+QUnit.test('creme.geolocation.Location (defaults)', function(assert) {
     var location = new creme.geolocation.Location();
-    equal(undefined, location.id());
-    equal('', location.content());
-    equal('', location.title());
-    equal(undefined, location.owner());
-    equal(undefined, location.url());
+    assert.equal(undefined, location.id());
+    assert.equal('', location.content());
+    assert.equal('', location.title());
+    assert.equal(undefined, location.owner());
+    assert.equal(undefined, location.url());
 
-    equal(false, location.visible());
-    equal(null, location.position());
-    equal(false, location.hasPosition());
+    assert.equal(false, location.visible());
+    assert.equal(null, location.position());
+    assert.equal(false, location.hasPosition());
 
-    equal(creme.geolocation.LocationStatus.UNDEFINED, location.status());
-    equal(false, location.isComplete());
-    equal(false, location.isPartial());
-    equal(false, location.isManual());
+    assert.equal(creme.geolocation.LocationStatus.UNDEFINED, location.status());
+    assert.equal(false, location.isComplete());
+    assert.equal(false, location.isPartial());
+    assert.equal(false, location.isManual());
 
-    equal(gettext("Not localized"), location.statusLabel());
-    equal('', location.positionLabel());
-    equal('', location.markerLabel());
+    assert.equal(gettext("Not localized"), location.statusLabel());
+    assert.equal('', location.positionLabel());
+    assert.equal('', location.markerLabel());
 });
 
-QUnit.test('creme.geolocation.Location (getters)', function() {
+QUnit.test('creme.geolocation.Location (getters)', function(assert) {
     var location = new creme.geolocation.Location({
         id: 'A',
         content: '319 Rue Saint-Pierre, 13005 Marseille',
@@ -41,27 +41,27 @@ QUnit.test('creme.geolocation.Location (getters)', function() {
         position: {lat: 43.45581, lng: 5.544}
     });
 
-    equal('A', location.id());
-    equal('319 Rue Saint-Pierre, 13005 Marseille', location.content());
-    equal('Address A', location.title());
-    equal('joe', location.owner());
-    equal('mock/address/Address_A', location.url());
+    assert.equal('A', location.id());
+    assert.equal('319 Rue Saint-Pierre, 13005 Marseille', location.content());
+    assert.equal('Address A', location.title());
+    assert.equal('joe', location.owner());
+    assert.equal('mock/address/Address_A', location.url());
 
-    equal(true, location.visible());
-    deepEqual({lat: 43.45581, lng: 5.544}, location.position());
-    equal(true, location.hasPosition());
+    assert.equal(true, location.visible());
+    assert.deepEqual({lat: 43.45581, lng: 5.544}, location.position());
+    assert.equal(true, location.hasPosition());
 
-    equal(creme.geolocation.LocationStatus.PARTIAL, location.status());
-    equal(false, location.isComplete());
-    equal(true, location.isPartial());
-    equal(false, location.isManual());
+    assert.equal(creme.geolocation.LocationStatus.PARTIAL, location.status());
+    assert.equal(false, location.isComplete());
+    assert.equal(true, location.isPartial());
+    assert.equal(false, location.isManual());
 
-    equal(gettext("Partially matching location"), location.statusLabel());
-    equal('43.455810, 5.544000', location.positionLabel());
-    equal('joe\n319 Rue Saint-Pierre, 13005 Marseille\n(Address A)', location.markerLabel());
+    assert.equal(gettext("Partially matching location"), location.statusLabel());
+    assert.equal('43.455810, 5.544000', location.positionLabel());
+    assert.equal('joe\n319 Rue Saint-Pierre, 13005 Marseille\n(Address A)', location.markerLabel());
 });
 
-QUnit.test('creme.geolocation.Location (copy)', function() {
+QUnit.test('creme.geolocation.Location (copy)', function(assert) {
     var location = new creme.geolocation.Location({
         id: 'A',
         content: '319 Rue Saint-Pierre, 13005 Marseille',
@@ -74,23 +74,23 @@ QUnit.test('creme.geolocation.Location (copy)', function() {
 
     var copy = new creme.geolocation.Location(location);
 
-    deepEqual(copy, location);
+    assert.deepEqual(copy, location);
 });
 
-QUnit.test('creme.geolocation.Location (position)', function() {
+QUnit.test('creme.geolocation.Location (position)', function(assert) {
     var location = new creme.geolocation.Location({
         position: {lat: 43, lng: 5}
     });
 
-    equal(true, location.hasPosition());
-    deepEqual({lat: 43, lng: 5}, location.position());
+    assert.equal(true, location.hasPosition());
+    assert.deepEqual({lat: 43, lng: 5}, location.position());
 
     location = new creme.geolocation.Location({
         latitude: 42, longitude: 6
     });
 
-    equal(true, location.hasPosition());
-    deepEqual({lat: 42, lng: 6}, location.position());
+    assert.equal(true, location.hasPosition());
+    assert.deepEqual({lat: 42, lng: 6}, location.position());
 
     location = new creme.geolocation.Location({
         latitude: 42,
@@ -98,49 +98,49 @@ QUnit.test('creme.geolocation.Location (position)', function() {
         position: {lat: 43, lng: 5}
     });
 
-    equal(true, location.hasPosition());
-    deepEqual({lat: 42, lng: 6}, location.position());
+    assert.equal(true, location.hasPosition());
+    assert.deepEqual({lat: 42, lng: 6}, location.position());
 });
 
-QUnit.test('creme.geolocation.Location (status)', function() {
+QUnit.test('creme.geolocation.Location (status)', function(assert) {
     var location = new creme.geolocation.Location({
         status: creme.geolocation.LocationStatus.COMPLETE
     });
 
-    equal(creme.geolocation.LocationStatus.COMPLETE, location.status());
-    equal(true, location.isComplete());
-    equal(false, location.isPartial());
-    equal(false, location.isManual());
-    equal('', location.statusLabel());
+    assert.equal(creme.geolocation.LocationStatus.COMPLETE, location.status());
+    assert.equal(true, location.isComplete());
+    assert.equal(false, location.isPartial());
+    assert.equal(false, location.isManual());
+    assert.equal('', location.statusLabel());
 
     location = new creme.geolocation.Location({
         status: creme.geolocation.LocationStatus.PARTIAL
     });
 
-    equal(creme.geolocation.LocationStatus.PARTIAL, location.status());
-    equal(false, location.isComplete());
-    equal(true, location.isPartial());
-    equal(false, location.isManual());
-    equal(gettext("Partially matching location"), location.statusLabel());
+    assert.equal(creme.geolocation.LocationStatus.PARTIAL, location.status());
+    assert.equal(false, location.isComplete());
+    assert.equal(true, location.isPartial());
+    assert.equal(false, location.isManual());
+    assert.equal(gettext("Partially matching location"), location.statusLabel());
 
     location.status(creme.geolocation.LocationStatus.MANUAL);
 
-    equal(creme.geolocation.LocationStatus.MANUAL, location.status());
-    equal(false, location.isComplete());
-    equal(false, location.isPartial());
-    equal(true, location.isManual());
-    equal(gettext("Manual location"), location.statusLabel());
+    assert.equal(creme.geolocation.LocationStatus.MANUAL, location.status());
+    assert.equal(false, location.isComplete());
+    assert.equal(false, location.isPartial());
+    assert.equal(true, location.isManual());
+    assert.equal(gettext("Manual location"), location.statusLabel());
 });
 
 QUnit.test('creme.geolocation.GeoMapController (base class)', function(assert) {
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
     var controller = new creme.geolocation.GeoMapController();
 
-    equal(controller.element(), undefined);
-    equal(controller.isBound(), false);
-    equal(controller.isGeocoderAllowed(), true);
-    equal(controller.isMapEnabled(), false);
-    equal(controller.isGeocoderEnabled(), false);
+    assert.equal(controller.element(), undefined);
+    assert.equal(controller.isBound(), false);
+    assert.equal(controller.isGeocoderAllowed(), true);
+    assert.equal(controller.isMapEnabled(), false);
+    assert.equal(controller.isGeocoderEnabled(), false);
 
     this.assertRaises(function() {
         controller.bind(element);
@@ -154,12 +154,12 @@ QUnit.test('creme.geolocation.GeoMapController (base class)', function(assert) {
         controller.addMarker('a', {});
     }, Error, "Error: Not implemented");
 
-    equal(controller.hasMarker('a'), false);
-    deepEqual(controller, controller.removeMarker('a'));
-    deepEqual(controller, controller.removeAllMarkers());
-    deepEqual(controller, controller.updateMarker('a', {}));
-    deepEqual(controller, controller.toggleMarker('a', {}));
-    deepEqual(controller, controller.toggleAllMarkers('a', {}));
+    assert.equal(controller.hasMarker('a'), false);
+    assert.deepEqual(controller, controller.removeMarker('a'));
+    assert.deepEqual(controller, controller.removeAllMarkers());
+    assert.deepEqual(controller, controller.updateMarker('a', {}));
+    assert.deepEqual(controller, controller.toggleMarker('a', {}));
+    assert.deepEqual(controller, controller.toggleAllMarkers('a', {}));
 
     this.assertRaises(function() {
         controller.getMarker('a');
@@ -169,8 +169,8 @@ QUnit.test('creme.geolocation.GeoMapController (base class)', function(assert) {
         controller.getMarkerProperties('a');
     }, Error, "Error: Not implemented");
 
-    deepEqual(controller.markers(), []);
-    deepEqual(controller.markerIds(), []);
+    assert.deepEqual(controller.markers(), []);
+    assert.deepEqual(controller.markerIds(), []);
 
     this.assertRaises(function() {
         controller.addShape('a', {});
@@ -180,15 +180,15 @@ QUnit.test('creme.geolocation.GeoMapController (base class)', function(assert) {
         controller.getShape('a');
     }, Error, "Error: Not implemented");
 
-    equal(controller.hasShape('a'), false);
-    deepEqual(controller, controller.removeShape('a'));
-    deepEqual(controller, controller.removeAllShapes());
-    deepEqual(controller, controller.updateShape('a', {}));
+    assert.equal(controller.hasShape('a'), false);
+    assert.deepEqual(controller, controller.removeShape('a'));
+    assert.deepEqual(controller, controller.removeAllShapes());
+    assert.deepEqual(controller, controller.updateShape('a', {}));
 
-    deepEqual(controller.shapes(), []);
-    deepEqual(controller.shapeIds(), []);
+    assert.deepEqual(controller.shapes(), []);
+    assert.deepEqual(controller.shapeIds(), []);
 
-    deepEqual(controller, controller.autoResize());
+    assert.deepEqual(controller, controller.autoResize());
 
     this.assertRaises(function() {
         controller.adjustMap('a');
@@ -208,8 +208,8 @@ QUnit.parameterize('creme.geolocation.GeoMapController (events)', [
     this.runTestOnGeomapReady(controller, element, function() {
         controller.trigger('any', {a: 12});
 
-        deepEqual(this.mockListenerCalls('any'), []);
-        deepEqual(this.mockListenerJQueryCalls('geomap-any'), []);
+        assert.deepEqual(this.mockListenerCalls('any'), []);
+        assert.deepEqual(this.mockListenerJQueryCalls('geomap-any'), []);
 
         var listener = this.mockListener('any');
         element.on('geomap-any', this.mockListener('geomap-any'));
@@ -217,8 +217,8 @@ QUnit.parameterize('creme.geolocation.GeoMapController (events)', [
 
         controller.trigger('any', {a: 12});
 
-        deepEqual(this.mockListenerCalls('any'), [['any', {a: 12}]]);
-        deepEqual(this.mockListenerJQueryCalls('geomap-any'), [
+        assert.deepEqual(this.mockListenerCalls('any'), [['any', {a: 12}]]);
+        assert.deepEqual(this.mockListenerJQueryCalls('geomap-any'), [
             ['geomap-any', [controller, {a: 12}]]
         ]);
 
@@ -226,8 +226,8 @@ QUnit.parameterize('creme.geolocation.GeoMapController (events)', [
 
         controller.trigger('any', {b: 7});
 
-        deepEqual(this.mockListenerCalls('any'), [['any', {a: 12}]]);
-        deepEqual(this.mockListenerJQueryCalls('geomap-any'), [
+        assert.deepEqual(this.mockListenerCalls('any'), [['any', {a: 12}]]);
+        assert.deepEqual(this.mockListenerJQueryCalls('geomap-any'), [
             ['geomap-any', [controller, {a: 12}]],
             ['geomap-any', [controller, {b: 7}]]
         ]);
@@ -236,7 +236,7 @@ QUnit.parameterize('creme.geolocation.GeoMapController (events)', [
         controller.trigger('any', {c: 8});
         controller.trigger('any', {d: 9});
 
-        deepEqual(this.mockListenerCalls('any'), [
+        assert.deepEqual(this.mockListenerCalls('any'), [
             ['any', {a: 12}],
             ['any', {c: 8}]
         ]);
@@ -254,12 +254,12 @@ QUnit.parametrize('creme.geolocation.GeoMapController.enableGeocoder (not allowe
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(false, controller.isGeocoderAllowed());
-        equal(false, controller.isGeocoderEnabled());
+        assert.equal(false, controller.isGeocoderAllowed());
+        assert.equal(false, controller.isGeocoderEnabled());
 
         controller.enableGeocoder();
 
-        equal(false, controller.isGeocoderEnabled());
+        assert.equal(false, controller.isGeocoderEnabled());
     });
 });
 
@@ -270,8 +270,8 @@ QUnit.parametrize('creme.geolocation.GeoMapController.enableGeocoder (already en
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(true, controller.isGeocoderAllowed());
-        equal(true, controller.isGeocoderEnabled());
+        assert.equal(true, controller.isGeocoderAllowed());
+        assert.equal(true, controller.isGeocoderEnabled());
 
         // do nothing
         controller.enableGeocoder();
