@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2024  Hybird
+#    Copyright (C) 2012-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 from itertools import repeat
 
 from django import forms
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.utils.translation import gettext
@@ -29,6 +29,7 @@ from django.utils.translation import pgettext_lazy
 import creme.creme_core.forms.base as core_forms
 import creme.creme_core.forms.fields as core_fields
 from creme import persons, polls
+from creme.creme_config.forms.fields import CreatorEnumerableModelChoiceField
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.gui.bulk_update import FieldOverrider
 from creme.creme_core.models import FieldsConfig
@@ -41,9 +42,10 @@ PollReply    = polls.get_pollreply_model()
 
 
 class PollRepliesCreationForm(core_forms.CremeForm):
-    user = forms.ModelChoiceField(
-        label=_('User'), queryset=get_user_model().objects.filter(is_staff=False),
-    )
+    # user = forms.ModelChoiceField(
+    #     label=_('User'), queryset=get_user_model().objects.filter(is_staff=False),
+    # )
+    user = CreatorEnumerableModelChoiceField(model=PollReply, field_name='user')
     name = forms.CharField(label=_('Name'))
     campaign = core_fields.CreatorEntityField(
         label=pgettext_lazy('polls', 'Related campaign'),

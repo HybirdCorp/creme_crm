@@ -640,13 +640,14 @@ class EntitySelector(widgets.Widget):
 class CTEntitySelector(ChainedInput):
     # template_name = ... TODO in order to override from apps ?
 
-    def __init__(
-            self,
-            content_types=(),
-            attrs=None,
-            multiple=False,
-            autocomplete=False,
-            creator=False):
+    def __init__(self,
+                 content_types=(),
+                 attrs=None,
+                 multiple=False,
+                 # autocomplete=False,
+                 autocomplete=True,
+                 creator=False,
+                 ):
         super().__init__(attrs=attrs)
         self.content_types = content_types
         self.multiple = multiple
@@ -660,9 +661,7 @@ class CTEntitySelector(ChainedInput):
 
         self.add_dselect(
             'ctype',
-            options=self.content_types,
-            attrs=field_attrs,
-            avoid_empty=True,
+            options=self.content_types, attrs=field_attrs, avoid_empty=True,
         )
 
         multiple = self.multiple
@@ -677,15 +676,13 @@ class CTEntitySelector(ChainedInput):
         if not self.is_required and not multiple:
             clear_label = _('Clear')
             actions.add_action(
-                'reset', clear_label,
-                icon='delete',
-                title=clear_label, action='reset', value='',
+                name='reset', label=clear_label,
+                icon='delete', title=clear_label, action='reset', value='',
             )
 
         if self.creator:
             actions.add_action(
-                name='create', label=_('Add'),
-                icon='add',
+                name='create', label=_('Add'), icon='add',
                 popupUrl='${ctype.create}', popupTitle='${ctype.create_label}',
             )
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from django.utils.translation import gettext_lazy as _
 from creme import persons
 from creme.creme_core.forms import CremeEntityForm, GenericEntityField
 from creme.creme_core.forms.validators import validate_linkable_entity
+from creme.creme_core.forms.widgets import PrettySelect
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 
 from .. import get_opportunity_model
@@ -41,12 +42,12 @@ class OppTargetSubCell(OpportunitySubCell):
     verbose_name = _('Target organisation / contact')
 
     def formfield(self, instance, user, **kwargs):
-        field = GenericEntityField(
-            label=self.verbose_name,
-            models=[Organisation, Contact],
-            user=user,
+        field = GenericEntityField(**{
+            'label': self.verbose_name,
+            'models': [Organisation, Contact],
+            'user': user,
             **kwargs
-        )
+        })
 
         if instance.pk:
             field.initial = instance.target
@@ -62,12 +63,13 @@ class OppEmitterSubCell(OpportunitySubCell):
     verbose_name = _('Concerned organisation')
 
     def formfield(self, instance, user, **kwargs):
-        field = ModelChoiceField(
-            label=self.verbose_name,
-            queryset=Organisation.objects.filter_managed_by_creme(),
-            empty_label=None,
-            ** kwargs
-        )
+        field = ModelChoiceField(**{
+            'label': self.verbose_name,
+            'queryset': Organisation.objects.filter_managed_by_creme(),
+            'empty_label': None,
+            'widget': PrettySelect,
+            **kwargs
+        })
 
         # NB: should not be used
         if instance.pk:

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,8 +29,8 @@ from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms as core_forms
 from creme import billing, products
+from creme.creme_core.forms import widgets as core_widgets
 from creme.creme_core.forms.fields import MultiCreatorEntityField
-from creme.creme_core.forms.widgets import CremeTextarea
 from creme.creme_core.models import Relation, Vat
 from creme.products.forms.fields import SubCategoryField
 
@@ -56,9 +56,11 @@ class _LineMultipleAddForm(core_forms.CremeForm):
         decimal_places=2,
         help_text=_('Percentage applied on the unit price'),
     )
+    # TODO: use CreatorEnumerableModelChoiceField?
     vat = forms.ModelChoiceField(
         label=_('Vat'), queryset=Vat.objects.all(), empty_label=None,
         initial=Vat.objects.default,
+        widget=core_widgets.PrettySelect,
     )
 
     def _get_line_class(self):
@@ -130,11 +132,12 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
 
 # NB: model (i.e. _meta.model) is set later, because this class is only used as base class
 class LineEditionForm(core_forms.CremeModelForm):
-    # TODO: we want to disable CreatorChoiceField;
-    #       should we disable globally this feature with Vat model ??
+    # NB: we disable CreatorEnumerableModelChoiceField
+    #     TODO: should we disable globally this feature with Vat model?
     vat_value = forms.ModelChoiceField(
         label=_('Vat'), queryset=Vat.objects.all(), empty_label=None,
         initial=Vat.objects.default,
+        widget=core_widgets.PrettySelect,
     )
 
     class Meta:
@@ -151,7 +154,7 @@ class LineEditionForm(core_forms.CremeModelForm):
             ),
             'unit': forms.TextInput(attrs={'class': 'line-unit'}),
             'discount': forms.TextInput(attrs={'class': 'line-quantity_discount bound'}),
-            'comment': CremeTextarea(attrs={'class': 'line-comment', 'rows': 2}),
+            'comment': core_widgets.CremeTextarea(attrs={'class': 'line-comment', 'rows': 2}),
         }
 
     # TODO: related_document=None ??

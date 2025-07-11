@@ -229,6 +229,9 @@
                 - creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText() instead.
         # A new module 'creme_core.core.snapshot' has been added to get the changes which occurred on a model since its loading ;
           it's already used by the history system & the new workflow engine.
+        # In 'creme_core.forms' :
+            - In the class 'fields.GenericEntityField', the attribute "autocomplete" is now <True> by default.
+            - In the class 'widgets.CTEntitySelector', the attribute "autocomplete" is now <True> by default.
         # In 'creme_core.models' :
             - The class 'django.db.models.Model' is contributed to add a method 'get_m2m_values()'
               which manages cached lists of instances linked by the 'ManyToManyFields'.

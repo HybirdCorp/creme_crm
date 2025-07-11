@@ -396,7 +396,8 @@ class GenericEntityField(EntityCredsJSONField):
     widget: type[widgets.TextInput] = core_widgets.CTEntitySelector
     value_type: type = dict
 
-    def __init__(self, *, models=(), autocomplete=False, creator=True, user=None, **kwargs):
+    # def __init__(self, *, models=(), autocomplete=False, creator=True, user=None, **kwargs):
+    def __init__(self, *, models=(), autocomplete=True, creator=True, user=None, **kwargs):
         super().__init__(**kwargs)
         self.creator = creator
         self.autocomplete = autocomplete
