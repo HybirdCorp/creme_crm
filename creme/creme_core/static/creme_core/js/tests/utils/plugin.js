@@ -55,28 +55,28 @@ QUnit.test('creme.utils.newJQueryPlugin (constructor, default)', function(assert
             '<span data-id="c"></span>' +
         '</div>');
 
-    equal(elements.find('span').length, 3);
-    deepEqual([], elements.find('span').map(function() {
+    assert.equal(elements.find('span').length, 3);
+    assert.deepEqual([], elements.find('span').map(function() {
         return $(this).data('-testplugin');
     }).get());
 
     var instances = elements.find('span').testplugin({a: 12, b: 'test'});
-    equal(instances.length, 3);
-    deepEqual(instances, elements.find('span').map(function() {
+    assert.equal(instances.length, 3);
+    assert.deepEqual(instances, elements.find('span').map(function() {
         return $(this).data('-testplugin');
     }).get());
 
-    deepEqual({a: 12, b: 'test', id: 'a'}, instances[0].options);
+    assert.deepEqual({a: 12, b: 'test', id: 'a'}, instances[0].options);
     this.equalOuterHtml('<span data-id="a"></span>', instances[0].element);
-    equal(instances[0], elements.find('span[data-id="a"]').testplugin());
+    assert.equal(instances[0], elements.find('span[data-id="a"]').testplugin());
 
-    deepEqual({a: 12, b: 'test', id: 'b'}, instances[1].options);
+    assert.deepEqual({a: 12, b: 'test', id: 'b'}, instances[1].options);
     this.equalOuterHtml('<span data-id="b"></span>', instances[1].element);
-    deepEqual(instances[1], elements.find('span[data-id="b"]').testplugin());
+    assert.deepEqual(instances[1], elements.find('span[data-id="b"]').testplugin());
 
-    deepEqual({a: 12, b: 'test', id: 'c'}, instances[2].options);
+    assert.deepEqual({a: 12, b: 'test', id: 'c'}, instances[2].options);
     this.equalOuterHtml('<span data-id="c"></span>', instances[2].element);
-    deepEqual(instances[2], elements.find('span[data-id="c"]').testplugin());
+    assert.deepEqual(instances[2], elements.find('span[data-id="c"]').testplugin());
 });
 
 QUnit.test('creme.utils.newJQueryPlugin (destroy, default)', function(assert) {
@@ -94,20 +94,20 @@ QUnit.test('creme.utils.newJQueryPlugin (destroy, default)', function(assert) {
         '</div>');
 
     var instances = elements.find('span').testplugin({a: 12, b: 'test'});
-    equal(instances.length, 3);
-    deepEqual(instances, elements.find('span').map(function() {
+    assert.equal(instances.length, 3);
+    assert.deepEqual(instances, elements.find('span').map(function() {
         return $(this).data('-testplugin');
     }).get());
 
     elements.find('span[data-id="b"]').testplugin('destroy');
 
-    deepEqual([instances[0], instances[2]], elements.find('span').map(function() {
+    assert.deepEqual([instances[0], instances[2]], elements.find('span').map(function() {
         return $(this).data('-testplugin');
     }).get());
 
     elements.find('span').testplugin('destroy');
 
-    deepEqual([], elements.find('span').map(function() {
+    assert.deepEqual([], elements.find('span').map(function() {
         return $(this).data('-testplugin');
     }).get());
 });
@@ -153,9 +153,9 @@ QUnit.test('creme.utils.newJQueryPlugin (destroy, fail)', function(assert) {
         '</div>');
 
     var instances = elements.find('span').testplugin({a: 12, b: 'test'});
-    equal(instances.length, 3);
+    assert.equal(instances.length, 3);
 
-    deepEqual(instances, elements.find('span').map(function() {
+    assert.deepEqual(instances, elements.find('span').map(function() {
         return $(this).data('-testplugin');
     }).get());
 
@@ -163,7 +163,7 @@ QUnit.test('creme.utils.newJQueryPlugin (destroy, fail)', function(assert) {
         elements.find('span').testplugin('destroy');
     }, Error, 'Error: Destroy failure !');
 
-    deepEqual(instances, elements.find('span').map(function() {
+    assert.deepEqual(instances, elements.find('span').map(function() {
         return $(this).data('-testplugin');
     }).get());
 });
@@ -188,22 +188,22 @@ QUnit.test('creme.utils.newJQueryPlugin (destroy, custom)', function(assert) {
     elements.on('destroy-testplugin', this.mockListener('destroy'));
 
     var instances = elements.find('span').testplugin({a: 12, b: 'test'});
-    equal(instances.length, 3);
+    assert.equal(instances.length, 3);
 
-    deepEqual([], this.mockListenerJQueryCalls('destroy'));
-    deepEqual(instances, elements.find('span').map(function() {
+    assert.deepEqual([], this.mockListenerJQueryCalls('destroy'));
+    assert.deepEqual(instances, elements.find('span').map(function() {
         return $(this).data('-testplugin');
     }).get());
 
     elements.find('span').testplugin('destroy');
 
-    deepEqual([
+    assert.deepEqual([
         ['destroy-testplugin', ['a']],
         ['destroy-testplugin', ['b']],
         ['destroy-testplugin', ['c']]
     ], this.mockListenerJQueryCalls('destroy'));
 
-    deepEqual([], elements.find('span').map(function() {
+    assert.deepEqual([], elements.find('span').map(function() {
         return $(this).data('-testplugin');
     }).get());
 });
@@ -222,10 +222,10 @@ QUnit.test('creme.utils.newJQueryPlugin (already initialized)', function(assert)
             '<span data-id="c"></span>' +
         '</div>');
 
-    equal(elements.find('span').length, 3);
+    assert.equal(elements.find('span').length, 3);
 
     var instances = elements.find('span').testplugin({a: 12, b: 'test'});
-    equal(instances.length, 3);
+    assert.equal(instances.length, 3);
 
     this.assertRaises(function() {
         elements.find('span').testplugin({a: 12, b: 'test'});
@@ -283,10 +283,10 @@ QUnit.test('creme.utils.test_plugin (instance)', function(assert) {
             '<span data-id="c"></span>' +
         '</div>');
 
-    equal(elements.find('span').testplugin('instance').length, 0);
+    assert.equal(elements.find('span').testplugin('instance').length, 0);
 
     elements.find('[data-id="a"]').testplugin({a: 12, b: 'test'});
-    equal(elements.find('span').testplugin('instance').length, 1);
+    assert.equal(elements.find('span').testplugin('instance').length, 1);
 });
 
 QUnit.test('creme.utils.test_plugin (props, no property)', function(assert) {
@@ -303,10 +303,10 @@ QUnit.test('creme.utils.test_plugin (props, no property)', function(assert) {
             '<span data-id="c"></span>' +
         '</div>');
 
-    deepEqual([], elements.find('span').testplugin('props'));
+    assert.deepEqual([], elements.find('span').testplugin('props'));
 
     elements.find('span').testplugin({a: 12, b: 'test'});
-    deepEqual([{}, {}, {}], elements.find('span').testplugin('props'));
+    assert.deepEqual([{}, {}, {}], elements.find('span').testplugin('props'));
 });
 
 QUnit.test('creme.utils.test_plugin (props)', function(assert) {
@@ -324,10 +324,10 @@ QUnit.test('creme.utils.test_plugin (props)', function(assert) {
             '<span data-id="c"></span>' +
         '</div>');
 
-    deepEqual([], elements.find('span').testplugin('props'));
+    assert.deepEqual([], elements.find('span').testplugin('props'));
 
     elements.find('span').testplugin({count: 12, b: 'test'});
-    deepEqual([
+    assert.deepEqual([
         {count: 12, isReady: true, id: 'a'},
         {count: 12, isReady: true, id: 'b'},
         {count: 12, isReady: true, id: 'c'}
@@ -351,7 +351,7 @@ QUnit.test('creme.utils.test_plugin (property setter)', function(assert) {
 
     elements.find('span').testplugin();
 
-    deepEqual([
+    assert.deepEqual([
         {count: 0, id: 'a'},
         {count: 0, id: 'b'},
         {count: 0, id: 'c'}
@@ -359,7 +359,7 @@ QUnit.test('creme.utils.test_plugin (property setter)', function(assert) {
 
     elements.find('span').testplugin('prop', 'count', 754);
 
-    deepEqual([
+    assert.deepEqual([
         {count: 754, id: 'a'},
         {count: 754, id: 'b'},
         {count: 754, id: 'c'}
@@ -381,36 +381,36 @@ QUnit.test('creme.utils.test_plugin (property getter)', function(assert) {
             '<span data-id="c"></span>' +
         '</div>');
 
-    deepEqual([], elements.find('span').testplugin('prop', 'count'));
-    deepEqual([], elements.find('span').testplugin('prop', 'isReady'));
-    deepEqual([], elements.find('span').testplugin('prop', 'data'));
+    assert.deepEqual([], elements.find('span').testplugin('prop', 'count'));
+    assert.deepEqual([], elements.find('span').testplugin('prop', 'isReady'));
+    assert.deepEqual([], elements.find('span').testplugin('prop', 'data'));
 
-    equal(undefined, elements.find('span[data-id="a"]').testplugin('prop', 'count'));
-    equal(undefined, elements.find('span[data-id="a"]').testplugin('prop', 'isReady'));
-    equal(undefined, elements.find('span[data-id="a"]').testplugin('prop', 'data'));
+    assert.equal(undefined, elements.find('span[data-id="a"]').testplugin('prop', 'count'));
+    assert.equal(undefined, elements.find('span[data-id="a"]').testplugin('prop', 'isReady'));
+    assert.equal(undefined, elements.find('span[data-id="a"]').testplugin('prop', 'data'));
 
     elements.find('span').testplugin();
 
-    deepEqual([0, 0, 0], elements.find('span').testplugin('prop', 'count'));
-    deepEqual([true, true, true], elements.find('span').testplugin('prop', 'isReady'));
-    deepEqual([[], [], []], elements.find('span').testplugin('prop', 'data'));
+    assert.deepEqual([0, 0, 0], elements.find('span').testplugin('prop', 'count'));
+    assert.deepEqual([true, true, true], elements.find('span').testplugin('prop', 'isReady'));
+    assert.deepEqual([[], [], []], elements.find('span').testplugin('prop', 'data'));
 
-    equal(0, elements.find('span[data-id="a"]').testplugin('prop', 'count'));
-    equal(true, elements.find('span[data-id="a"]').testplugin('prop', 'isReady'));
-    deepEqual([], elements.find('span[data-id="a"]').testplugin('prop', 'data'));
+    assert.equal(0, elements.find('span[data-id="a"]').testplugin('prop', 'count'));
+    assert.equal(true, elements.find('span[data-id="a"]').testplugin('prop', 'isReady'));
+    assert.deepEqual([], elements.find('span[data-id="a"]').testplugin('prop', 'data'));
 
     elements.find('span').testplugin('prop', 'count', 754);
     elements.find('span').testplugin('prop', 'data', [12, 13, 14]);
 
-    deepEqual([754, 754, 754], elements.find('span').testplugin('prop', 'count'));
-    deepEqual([true, true, true], elements.find('span').testplugin('prop', 'isReady'));
-    deepEqual([
+    assert.deepEqual([754, 754, 754], elements.find('span').testplugin('prop', 'count'));
+    assert.deepEqual([true, true, true], elements.find('span').testplugin('prop', 'isReady'));
+    assert.deepEqual([
         [12, 13, 14], [12, 13, 14], [12, 13, 14]
     ], elements.find('span').testplugin('prop', 'data'));
 
-    equal(754, elements.find('span[data-id="a"]').testplugin('prop', 'count'));
-    equal(true, elements.find('span[data-id="a"]').testplugin('prop', 'isReady'));
-    deepEqual([12, 13, 14], elements.find('span[data-id="a"]').testplugin('prop', 'data'));
+    assert.equal(754, elements.find('span[data-id="a"]').testplugin('prop', 'count'));
+    assert.equal(true, elements.find('span[data-id="a"]').testplugin('prop', 'isReady'));
+    assert.deepEqual([12, 13, 14], elements.find('span[data-id="a"]').testplugin('prop', 'data'));
 });
 
 QUnit.test('creme.utils.test_plugin (invalid property)', function(assert) {
@@ -455,13 +455,13 @@ QUnit.test('creme.utils.test_plugin (method)', function(assert) {
         '</div>');
 
     elements.find('span').testplugin();
-    deepEqual([22, 22, 22], elements.find('span').testplugin('add', 5, 17));
-    deepEqual(22, elements.find('span[data-id="a"]').testplugin('add', 5, 17));
-    equal(undefined, elements.find('span.unknown').testplugin('add', 5, 17));
+    assert.deepEqual([22, 22, 22], elements.find('span').testplugin('add', 5, 17));
+    assert.deepEqual(22, elements.find('span[data-id="a"]').testplugin('add', 5, 17));
+    assert.equal(undefined, elements.find('span.unknown').testplugin('add', 5, 17));
 
-    deepEqual([16, 16, 16], elements.find('span').testplugin('mult', 2, 8));
-    deepEqual(16, elements.find('span[data-id="a"]').testplugin('mult', 2, 8));
-    equal(undefined, elements.find('span.unknown').testplugin('mult', 2, 8));
+    assert.deepEqual([16, 16, 16], elements.find('span').testplugin('mult', 2, 8));
+    assert.deepEqual(16, elements.find('span[data-id="a"]').testplugin('mult', 2, 8));
+    assert.equal(undefined, elements.find('span.unknown').testplugin('mult', 2, 8));
 });
 
 QUnit.test('creme.utils.test_plugin (invalid method)', function(assert) {

@@ -124,20 +124,22 @@ QUnit.module("creme.geolocation.persons-brick", new QUnitMixin(QUnitEventMixin,
         var widget = creme.widget.create(element);
         var brick = widget.brick();
 
-        equal(true, brick.isBound());
-        equal(false, brick.isLoading());
+        this.assert.equal(true, brick.isBound());
+        this.assert.equal(false, brick.isLoading());
 
         return widget;
     },
 
     assertAddressItem: function(item, expected) {
-        equal(1, item.length);
-        equal(expected.id, item.attr('data-addressid'));
-        equal(expected.selected, item.find('input[type="checkbox"]').is(':checked'));
-        equal(expected.selected, item.is('.is-mark-visible'));
-        equal(expected.statusLabel, item.find('.brick-geoaddress-status').text());
-        equal(expected.isComplete, item.find('.brick-geoaddress-action').is('.brick-geoaddress-iscomplete'), 'is address complete');
-        equal(expected.positionLabel, item.find('.brick-geoaddress-position').text());
+        var assert = this.assert;
+
+        assert.equal(1, item.length);
+        assert.equal(expected.id, item.attr('data-addressid'));
+        assert.equal(expected.selected, item.find('input[type="checkbox"]').is(':checked'));
+        assert.equal(expected.selected, item.is('.is-mark-visible'));
+        assert.equal(expected.statusLabel, item.find('.brick-geoaddress-status').text());
+        assert.equal(expected.isComplete, item.find('.brick-geoaddress-action').is('.brick-geoaddress-iscomplete'), 'is address complete');
+        assert.equal(expected.positionLabel, item.find('.brick-geoaddress-position').text());
     }
 }));
 
@@ -152,29 +154,27 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (defaults)', [
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = self.controller;
 
-        deepEqual([], controller.addresses());
-        equal(undefined, controller.locationUrl());
-        deepEqual(canvas.get(), controller.canvas().get());
-        deepEqual(canvas.get(), controller.mapController().element().get());
-        equal(0, controller.addressItems().length);
+        assert.deepEqual([], controller.addresses());
+        assert.equal(undefined, controller.locationUrl());
+        assert.deepEqual(canvas.get(), controller.canvas().get());
+        assert.deepEqual(canvas.get(), controller.mapController().element().get());
+        assert.equal(0, controller.addressItems().length);
 
-        equal(true, controller.mapController().isBound());
-        equal(true, controller.mapController().isEnabled());
-        equal(true, controller.mapController().isMapEnabled());
-        equal(true, controller.mapController().isGeocoderEnabled());
+        assert.equal(true, controller.mapController().isBound());
+        assert.equal(true, controller.mapController().isEnabled());
+        assert.equal(true, controller.mapController().isMapEnabled());
+        assert.equal(true, controller.mapController().isGeocoderEnabled());
 
         // google maps specific
         if (mapController instanceof creme.geolocation.GoogleMapController) {
-            equal(true, controller.mapController().isAPIReady());
-            equal(undefined, controller.mapController().options().apiKey);
+            assert.equal(true, controller.mapController().isAPIReady());
+            assert.equal(undefined, controller.mapController().options().apiKey);
         }
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
         mapController: mapController
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.PersonsBrick (no geocoder)', [
@@ -192,29 +192,27 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (no geocoder)', [
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = self.controller;
 
-        deepEqual([], controller.addresses());
-        equal(undefined, controller.locationUrl());
-        deepEqual(canvas.get(), controller.canvas().get());
-        deepEqual(canvas.get(), controller.mapController().element().get());
-        equal(0, controller.addressItems().length);
+        assert.deepEqual([], controller.addresses());
+        assert.equal(undefined, controller.locationUrl());
+        assert.deepEqual(canvas.get(), controller.canvas().get());
+        assert.deepEqual(canvas.get(), controller.mapController().element().get());
+        assert.equal(0, controller.addressItems().length);
 
-        equal(true, controller.mapController().isBound());
-        equal(true, controller.mapController().isEnabled());
-        equal(true, controller.mapController().isMapEnabled());
-        equal(false, controller.mapController().isGeocoderEnabled());
+        assert.equal(true, controller.mapController().isBound());
+        assert.equal(true, controller.mapController().isEnabled());
+        assert.equal(true, controller.mapController().isMapEnabled());
+        assert.equal(false, controller.mapController().isGeocoderEnabled());
 
         // google maps specific
         if (mapController instanceof creme.geolocation.GoogleMapController) {
-            equal(true, controller.mapController().isAPIReady());
-            equal(undefined, controller.mapController().options().apiKey);
+            assert.equal(true, controller.mapController().isAPIReady());
+            assert.equal(undefined, controller.mapController().options().apiKey);
         }
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
         mapController: mapController
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.PersonsBrick (no id addresses)', [
@@ -272,21 +270,19 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (addresses)', [
         var controller = self.controller;
         var mapController = controller.mapController();
 
-        deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
+        assert.deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
 
-        deepEqual(canvas.get(), controller.canvas().get());
-        deepEqual(canvas.get(), mapController.element().get());
-        equal(4, controller.addressItems().length);
+        assert.deepEqual(canvas.get(), controller.canvas().get());
+        assert.deepEqual(canvas.get(), mapController.element().get());
+        assert.equal(4, controller.addressItems().length);
 
-        equal(true, mapController.isMapEnabled());
+        assert.equal(true, mapController.isMapEnabled());
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
         mapController: mapController,
         addresses: addresses
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.PersonsBrick (addressItem)', [
@@ -307,11 +303,11 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (addressItem)', [
 
         mapController._geocoder = geocoder;
 
-        deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
-        equal(4, controller.addressItems().length);
+        assert.deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
+        assert.equal(4, controller.addressItems().length);
 
         // unknown item returns empty query
-        equal(0, controller.addressItem('Unknown').length);
+        assert.equal(0, controller.addressItem('Unknown').length);
 
         self.assertAddressItem(controller.addressItem('Address_A'), {
             id: 'Address_A',
@@ -347,8 +343,6 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (addressItem)', [
         mapController: mapController,
         addresses: addresses
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.PersonsBrick (markers)', [
@@ -369,11 +363,13 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (markers)', [
 
         mapController._geocoder = geocoder;
 
-        deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
-        equal(4, controller.addressItems().length);
+        assert.deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
+        assert.equal(4, controller.addressItems().length);
+
+        var done = assert.async();
 
         setTimeout(function() {
-            equal(3, mapController.markers().length);
+            assert.equal(3, mapController.markers().length);
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
                 position: {lat: 43.291628, lng: 5.403022},
                 id: 'Address_A',
@@ -396,17 +392,13 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (markers)', [
                 extraData: {}
             });
 
-            start();
+            done();
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
         mapController: mapController
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.PersonsBrick (toggle mark)', [
@@ -427,11 +419,13 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (toggle mark)', [
 
         mapController._geocoder = geocoder;
 
-        deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
-        equal(4, controller.addressItems().length);
+        assert.deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
+        assert.equal(4, controller.addressItems().length);
+
+        var done = assert.async();
 
         setTimeout(function() {
-            equal(3, mapController.markers().length);
+            assert.equal(3, mapController.markers().length);
 
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
                 position: {lat: 43.291628, lng: 5.403022},
@@ -450,7 +444,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (toggle mark)', [
 
             controller.addressItem('Address_A').find('input[type="checkbox"]').trigger('click');
 
-            equal(3, mapController.markers().length);
+            assert.equal(3, mapController.markers().length);
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
                 position: {lat: 43.291628, lng: 5.403022},
                 id: 'Address_A',
@@ -468,7 +462,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (toggle mark)', [
 
             controller.addressItem('Address_A').find('input[type="checkbox"]').trigger('click');
 
-            equal(3, mapController.markers().length);
+            assert.equal(3, mapController.markers().length);
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
                 position: {lat: 43.291628, lng: 5.403022},
                 id: 'Address_A',
@@ -484,17 +478,13 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (toggle mark)', [
                 positionLabel: '43.291628, 5.403022'
             });
 
-            start();
+            done();
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
         mapController: new creme.geolocation.GoogleMapController()
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.PersonsBrick (add mark)', [
@@ -515,17 +505,19 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (add mark)', [
 
         mapController._geocoder = geocoder;
 
-        deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
-        equal(4, controller.addressItems().length);
+        assert.deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
+        assert.equal(4, controller.addressItems().length);
+
+        var done = assert.async();
 
         setTimeout(function() {
-            equal(3, mapController.markers().length);
-            equal(undefined, mapController.getMarker('Address_D'));
+            assert.equal(3, mapController.markers().length);
+            assert.equal(undefined, mapController.getMarker('Address_D'));
 
             controller.addressItem('Address_D').find('input[type="checkbox"]').trigger('click');
 
             setTimeout(function() {
-                equal(4, mapController.markers().length);
+                assert.equal(4, mapController.markers().length);
                 this.assertAddressItem(controller.addressItem('Address_D'), {
                     id: 'Address_D',
                     selected: true,
@@ -541,7 +533,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (add mark)', [
                     extraData: {}
                 });
 
-                deepEqual([
+                assert.deepEqual([
                     ['POST', {
                         id: 'Address_D',
                         latitude:  42,
@@ -568,19 +560,15 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (add mark)', [
                     extraData: {}
                 });
 
-                start();
+                done();
             }.bind(this), 100);
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
         mapController: mapController,
         locationUrl: '/mock/location/update'
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, save)', [
@@ -600,11 +588,11 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, save)', [
 
         setTimeout(function() {
             var marker = mapController.getMarker('Address_A');
-            equal(false, Object.isNone(marker));
+            assert.equal(false, Object.isNone(marker));
 
             this.triggerMarkerDragNDrop(marker, {lat: 42, lng: 5.5});
 
-            deepEqual([
+            assert.deepEqual([
                 ['POST', {
                     id: 'Address_A',
                     latitude:  42,
@@ -628,7 +616,6 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, save)', [
                 visible: true,
                 extraData: {}
             });
-
         }.bind(this), 0);
     });
 
@@ -636,8 +623,6 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, save)', [
         mapController: mapController,
         locationUrl: '/mock/location/update'
     });
-
-    stop(1);
 });
 
 QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, save failed)', [
@@ -657,11 +642,11 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, save failed)
 
         setTimeout(function() {
             var marker = mapController.getMarker('Address_A');
-            equal(false, Object.isNone(marker));
+            assert.equal(false, Object.isNone(marker));
 
             this.triggerMarkerDragNDrop(marker, {lat: 42, lng: 5.5});
 
-            deepEqual([
+            assert.deepEqual([
                 ['POST', {
                     id: 'Address_A',
                     latitude:  42,
@@ -704,14 +689,15 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, no url)', [
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = self.controller;
         var mapController = controller.mapController();
+        var done = assert.async();
 
         setTimeout(function() {
             var marker = mapController.getMarker('Address_A');
-            equal(false, Object.isNone(marker));
+            assert.equal(false, Object.isNone(marker));
 
             this.triggerMarkerDragNDrop(marker, {lat: 42, lng: 5.5});
 
-            deepEqual([], this.mockBackendUrlCalls());
+            assert.deepEqual([], this.mockBackendUrlCalls());
 
             // Rollback to previous position
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
@@ -722,10 +708,8 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, no url)', [
                 extraData: {}
             });
 
-            start();
+            done();
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
@@ -753,6 +737,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, no geolocation)'
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = self.controller;
         var mapController = controller.mapController();
+        var done = assert.async();
 
         setTimeout(function() {
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_C'), {
@@ -764,7 +749,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, no geolocation)'
             });
 
             controller.addressItem('Address_C').find('.brick-geoaddress-reset').trigger('click');
-            deepEqual([], this.mockBackendUrlCalls());
+            assert.deepEqual([], this.mockBackendUrlCalls());
 
             this.assertAddressItem(controller.addressItem('Address_C'), {
                 id: 'Address_C',
@@ -775,10 +760,10 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, no geolocation)'
             });
 
             var address = controller.address('Address_C');
-            deepEqual({lat: 42, lng: 5}, address.position());
-            equal(false, address.isComplete());
-            equal(true, address.visible());
-            equal(creme.geolocation.LocationStatus.MANUAL, address.status());
+            assert.deepEqual({lat: 42, lng: 5}, address.position());
+            assert.equal(false, address.isComplete());
+            assert.equal(true, address.visible());
+            assert.equal(creme.geolocation.LocationStatus.MANUAL, address.status());
 
             // Rollback to previous position
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_C'), {
@@ -789,10 +774,8 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, no geolocation)'
                 extraData: {}
             });
 
-            start();
+            done();
         }.bind(this), 50);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
@@ -820,6 +803,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not found)', [
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = self.controller;
         var mapController = controller.mapController();
+        var done = assert.async();
 
         mapController._geocoder = geocoder;
 
@@ -835,8 +819,8 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not found)', [
             controller.addressItem('Address_B').find('.brick-geoaddress-reset').trigger('click');
 
             setTimeout(function() {
-                deepEqual([], this.mockBackendUrlCalls('mock/location/update'));
-                deepEqual([], this.mockListenerJQueryCalls('location-save'));
+                assert.deepEqual([], this.mockBackendUrlCalls('mock/location/update'));
+                assert.deepEqual([], this.mockListenerJQueryCalls('location-save'));
 
                 this.assertMarkerProperties(mapController.getMarkerProperties('Address_B'), {
                     position: {lat: 43, lng: 5.5},
@@ -855,16 +839,14 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not found)', [
                 });
 
                 var address = controller.address('Address_B');
-                deepEqual({lat: 43, lng: 5.5}, address.position());
-                equal(false, address.isComplete());
-                equal(true, address.visible());
-                equal(creme.geolocation.LocationStatus.UNDEFINED, address.status());
+                assert.deepEqual({lat: 43, lng: 5.5}, address.position());
+                assert.equal(false, address.isComplete());
+                assert.equal(true, address.visible());
+                assert.equal(creme.geolocation.LocationStatus.UNDEFINED, address.status());
 
-                start();
+                done();
             }.bind(this), 50);
         }.bind(this), 50);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
@@ -892,6 +874,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not visible)', [
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = self.controller;
         var mapController = controller.mapController();
+        var done = assert.async();
 
         mapController._geocoder = geocoder;
 
@@ -918,8 +901,8 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not visible)', [
             controller.addressItem('Address_B').find('.brick-geoaddress-reset').trigger('click');
 
             setTimeout(function() {
-                deepEqual([], this.mockBackendUrlCalls('mock/location/update'));
-                deepEqual([], this.mockListenerJQueryCalls('location-save'));
+                assert.deepEqual([], this.mockBackendUrlCalls('mock/location/update'));
+                assert.deepEqual([], this.mockListenerJQueryCalls('location-save'));
 
                 this.assertMarkerProperties(mapController.getMarkerProperties('Address_B'), {
                     position: {lat: 43, lng: 5.5},
@@ -937,11 +920,9 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not visible)', [
                     positionLabel: '43.000000, 5.500000'
                 });
 
-                start();
+                done();
             }.bind(this), 50);
         }.bind(this), 50);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
@@ -969,6 +950,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, improve accuracy
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = self.controller;
         var mapController = controller.mapController();
+        var done = assert.async();
 
         mapController._geocoder = geocoder;
 
@@ -984,7 +966,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, improve accuracy
             controller.addressItem('Address_C').find('.brick-geoaddress-reset').trigger('click');
 
             setTimeout(function() {
-                deepEqual([
+                assert.deepEqual([
                     ['POST', {
                         id: 'Address_C',
                         latitude:  43.178801,
@@ -993,7 +975,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, improve accuracy
                         status:    creme.geolocation.LocationStatus.COMPLETE
                     }]
                 ], this.mockBackendUrlCalls('mock/location/update'));
-                deepEqual([
+                assert.deepEqual([
                     ['brick-geoaddress-location-save', [brick, controller.address('Address_C')]]
                 ], this.mockListenerJQueryCalls('location-save'));
 
@@ -1014,16 +996,14 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, improve accuracy
                 });
 
                 var address = controller.address('Address_C');
-                deepEqual({lat: 43.178801, lng: 4.5048807}, address.position());
-                equal(creme.geolocation.LocationStatus.COMPLETE, address.status());
-                equal(true, address.isComplete());
-                equal(true, address.visible());
+                assert.deepEqual({lat: 43.178801, lng: 4.5048807}, address.position());
+                assert.equal(creme.geolocation.LocationStatus.COMPLETE, address.status());
+                assert.equal(true, address.isComplete());
+                assert.equal(true, address.visible());
 
-                start();
+                done();
             }.bind(this), 50);
         }.bind(this), 50);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {
@@ -1045,31 +1025,31 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (collapse state)', [
     var canvas = brick.element().find('.brick-geoaddress-canvas');
 
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
+        var done = assert.async();
+
         setTimeout(function() {
             this.autoResizeFaker.reset();
             this.adjustMapFaker.reset();
 
-            equal(0, this.autoResizeFaker.count());
-            equal(0, this.adjustMapFaker.count());
+            assert.equal(0, this.autoResizeFaker.count());
+            assert.equal(0, this.adjustMapFaker.count());
 
             brick.setState({
                 collapsed: true
             });
 
-            equal(0, this.autoResizeFaker.count());
-            equal(0, this.adjustMapFaker.count());
+            assert.equal(0, this.autoResizeFaker.count());
+            assert.equal(0, this.adjustMapFaker.count());
 
             brick.setState({
                 collapsed: false
             });
 
-            equal(1, this.autoResizeFaker.count());
-            equal(1, this.adjustMapFaker.count());
+            assert.equal(1, this.autoResizeFaker.count());
+            assert.equal(1, this.adjustMapFaker.count());
 
-            start();
+            done();
         }.bind(this), 0);
-
-        stop(1);
     });
 
     this.controller = new creme.geolocation.PersonsBrick(brick, {

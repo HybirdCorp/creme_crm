@@ -90,85 +90,85 @@ QUnit.test('creme.component (inherits Object)', function(assert) {
     var Klass = creme.component.extend();
     var obj = new Klass();
 
-    deepEqual(Klass.__super__, Object.prototype);
+    assert.deepEqual(Klass.__super__, Object.prototype);
 
-    equal(Object.isFunc(obj._init_), false);
-    equal(Object.isFunc(Klass.sub), true);
+    assert.equal(Object.isFunc(obj._init_), false);
+    assert.equal(Object.isFunc(Klass.sub), true);
 
-    equal(Object.isSubClassOf(obj, Object), true, 'is Object');
-    equal(Object.isSubClassOf(obj, Klass), true, 'is klass');
-    equal(Object.isSubClassOf(obj, creme.component.Component), false);
-    equal(Object.isSubClassOf(obj, MockComponentA), false);
-    equal(Object.isSubClassOf(obj, MockComponentAB), false);
+    assert.equal(Object.isSubClassOf(obj, Object), true, 'is Object');
+    assert.equal(Object.isSubClassOf(obj, Klass), true, 'is klass');
+    assert.equal(Object.isSubClassOf(obj, creme.component.Component), false);
+    assert.equal(Object.isSubClassOf(obj, MockComponentA), false);
+    assert.equal(Object.isSubClassOf(obj, MockComponentAB), false);
 });
 
 QUnit.test('creme.component (inherits Component)', function(assert) {
     var obj = new creme.component.Component();
 
-    deepEqual(creme.component.Component.__super__, Object.prototype);
+    assert.deepEqual(creme.component.Component.__super__, Object.prototype);
 
-    equal(Object.isFunc(obj._init_), true);
-    equal(Object.isFunc(creme.component.Component.sub), true);
+    assert.equal(Object.isFunc(obj._init_), true);
+    assert.equal(Object.isFunc(creme.component.Component.sub), true);
 
-    equal(obj.is(Object), true, 'is Object');
-    equal(obj.is(creme.component.Component), true, 'is Component');
-    equal(obj.is(MockComponentA), false);
-    equal(obj.is(MockComponentAB), false);
+    assert.equal(obj.is(Object), true, 'is Object');
+    assert.equal(obj.is(creme.component.Component), true, 'is Component');
+    assert.equal(obj.is(MockComponentA), false);
+    assert.equal(obj.is(MockComponentAB), false);
 });
 
 QUnit.test('creme.component (MockA)', function(assert) {
     var a = new MockComponentA(12);
 
-    deepEqual(MockComponentA.__super__, creme.component.Component.prototype);
-    equal(a.get(), 12);
-    equal(a.add(485), 12 + 485);
-    equal(a.add(), 12);
+    assert.deepEqual(MockComponentA.__super__, creme.component.Component.prototype);
+    assert.equal(a.get(), 12);
+    assert.equal(a.add(485), 12 + 485);
+    assert.equal(a.add(), 12);
 
-    equal(Object.isFunc(MockComponentA.sub), true);
+    assert.equal(Object.isFunc(MockComponentA.sub), true);
 
-    equal(a.is(Object), true, 'is Object');
-    equal(a.is(creme.component.Component), true, 'is Component');
-    equal(a.is(MockComponentA), true, 'is MockComponentA');
-    equal(a.is(MockComponentAB), false, 'not MockComponentAB');
-    equal(a.is(MockComponentAC), false, 'not MockComponentAC');
+    assert.equal(a.is(Object), true, 'is Object');
+    assert.equal(a.is(creme.component.Component), true, 'is Component');
+    assert.equal(a.is(MockComponentA), true, 'is MockComponentA');
+    assert.equal(a.is(MockComponentAB), false, 'not MockComponentAB');
+    assert.equal(a.is(MockComponentAC), false, 'not MockComponentAC');
 });
 
 QUnit.test('creme.component (MockAB)', function(assert) {
     var ab = new MockComponentAB(12, 8);
 
-    deepEqual(MockComponentAB.__super__, MockComponentA.prototype);
-    deepEqual(MockComponentAB.__super__.constructor.__super__, creme.component.Component.prototype);
+    assert.deepEqual(MockComponentAB.__super__, MockComponentA.prototype);
+    assert.deepEqual(MockComponentAB.__super__.constructor.__super__, creme.component.Component.prototype);
 
-    deepEqual(ab.get(), [12, 8]);
-    equal(ab.add(485), 8 * (12 + 485));
-    equal(ab.add(), 8 * 12);
+    assert.deepEqual(ab.get(), [12, 8]);
+    assert.equal(ab.add(485), 8 * (12 + 485));
+    assert.equal(ab.add(), 8 * 12);
 
-    equal(Object.isFunc(MockComponentAB.sub), true);
+    assert.equal(Object.isFunc(MockComponentAB.sub), true);
 
-    equal(ab.is(Object), true);
-    equal(ab.is(creme.component.Component), true);
-    equal(ab.is(MockComponentA), true);
-    equal(ab.is(MockComponentAB), true);
-    equal(ab.is(MockComponentAC), false);
+    assert.equal(ab.is(Object), true);
+    assert.equal(ab.is(creme.component.Component), true);
+    assert.equal(ab.is(MockComponentA), true);
+    assert.equal(ab.is(MockComponentAB), true);
+    assert.equal(ab.is(MockComponentAC), false);
 });
 
 QUnit.test('creme.component (MockAC)', function(assert) {
     var ac = new MockComponentAC(12, 8);
 
-    deepEqual(MockComponentAC.__super__, MockComponentA.prototype);
-    deepEqual(MockComponentAC.__super__.constructor.__super__, creme.component.Component.prototype);
+    assert.deepEqual(MockComponentAC.__super__, MockComponentA.prototype);
+    assert.deepEqual(MockComponentAC.__super__.constructor.__super__, creme.component.Component.prototype);
 
-    deepEqual(ac.get(), [12, 8]);
-    equal(ac.add(485), 8 + (12 + 485));
-    equal(ac.add(), 8 + 12);
+    assert.deepEqual(ac.get(), [12, 8]);
+    assert.equal(ac.add(485), 8 + (12 + 485));
+    assert.equal(ac.add(), 8 + 12);
 
-    equal(Object.isFunc(MockComponentAC.sub), true);
+    assert.equal(Object.isFunc(MockComponentAC.sub), true);
 
-    equal(ac.is(Object), true);
-    equal(ac.is(creme.component.Component), true);
-    equal(ac.is(MockComponentA), true);
-    equal(ac.is(MockComponentAB), false);
-    equal(ac.is(MockComponentAC), true);
+    assert.equal(ac.is(Object), true);
+    assert.equal(ac.is(creme.component.Component), true);
+    assert.equal(ac.is(MockComponentA), true);
+    assert.equal(ac.is(MockComponentAB), false);
+    assert.equal(ac.is(MockComponentAC), true);
 });
 
 QUnit.test('creme.component (no _init_)', function(assert) {
@@ -176,19 +176,19 @@ QUnit.test('creme.component (no _init_)', function(assert) {
 
     var a = new MockDefaultInit(12);
 
-    deepEqual(MockDefaultInit.__super__, MockComponentA.prototype);
-    equal(a.get(), 12);
-    equal(a.add(485), 12 + 485);
-    equal(a.add(), 12);
+    assert.deepEqual(MockDefaultInit.__super__, MockComponentA.prototype);
+    assert.equal(a.get(), 12);
+    assert.equal(a.add(485), 12 + 485);
+    assert.equal(a.add(), 12);
 
-    equal(Object.isFunc(MockDefaultInit.sub), true);
+    assert.equal(Object.isFunc(MockDefaultInit.sub), true);
 
-    equal(a.is(Object), true, 'is Object');
-    equal(a.is(creme.component.Component), true, 'is Component');
-    equal(a.is(MockComponentA), true, 'is MockComponentA');
-    equal(a.is(MockDefaultInit), true, 'is MockDefaultInit');
-    equal(a.is(MockComponentAB), false, 'not MockComponentAB');
-    equal(a.is(MockComponentAC), false, 'not MockComponentAC');
+    assert.equal(a.is(Object), true, 'is Object');
+    assert.equal(a.is(creme.component.Component), true, 'is Component');
+    assert.equal(a.is(MockComponentA), true, 'is MockComponentA');
+    assert.equal(a.is(MockDefaultInit), true, 'is MockDefaultInit');
+    assert.equal(a.is(MockComponentAB), false, 'not MockComponentAB');
+    assert.equal(a.is(MockComponentAC), false, 'not MockComponentAC');
 });
 
 QUnit.test('creme.component (sub with mandatory arguments)', function(assert) {
@@ -215,12 +215,12 @@ QUnit.test('creme.component (sub with mandatory arguments)', function(assert) {
     });
 
     var mandatory_a = new MockMandatoryA(12);
-    equal(mandatory_a.a, 12);
-    equal(mandatory_a.is(Object), true, 'is Object');
-    equal(mandatory_a.is(creme.component.Component), true, 'is Component');
-    equal(mandatory_a.is(MockMandatoryBase), true, 'is MockMandatoryBase');
-    equal(mandatory_a.is(MockMandatoryA), true, 'is MockMandatoryA');
-    equal(mandatory_a.is(MockMandatoryMissing), false, 'not MockMandatoryMissing');
+    assert.equal(mandatory_a.a, 12);
+    assert.equal(mandatory_a.is(Object), true, 'is Object');
+    assert.equal(mandatory_a.is(creme.component.Component), true, 'is Component');
+    assert.equal(mandatory_a.is(MockMandatoryBase), true, 'is MockMandatoryBase');
+    assert.equal(mandatory_a.is(MockMandatoryA), true, 'is MockMandatoryA');
+    assert.equal(mandatory_a.is(MockMandatoryMissing), false, 'not MockMandatoryMissing');
 
     this.assertRaises(function() {
         return new MockMandatoryA();
@@ -252,11 +252,11 @@ QUnit.test('creme.component (inherit statics)', function(assert) {
         return 'AB';
     };
 
-    equal(12, MockStaticA.static_base());
-    equal('A', MockStaticA.static_name());
+    assert.equal(12, MockStaticA.static_base());
+    assert.equal('A', MockStaticA.static_name());
 
-    equal(12, MockStaticAB.static_base());
-    equal('AB', MockStaticAB.static_name());
+    assert.equal(12, MockStaticAB.static_base());
+    assert.equal('AB', MockStaticAB.static_name());
 });
 
 /* This test checks that an inherited collection is not shared between subclasses */
@@ -267,33 +267,33 @@ QUnit.test('creme.component (Collection)', function(assert) {
     var b = new MockCollectionB();
     var bc = new MockCollectionBC();
 
-    deepEqual(MockCollection.__super__, creme.component.Component.prototype);
+    assert.deepEqual(MockCollection.__super__, creme.component.Component.prototype);
 
-    deepEqual(MockCollectionA.__super__, MockCollection.prototype);
-    deepEqual(MockCollectionA.__super__.constructor.__super__, creme.component.Component.prototype);
+    assert.deepEqual(MockCollectionA.__super__, MockCollection.prototype);
+    assert.deepEqual(MockCollectionA.__super__.constructor.__super__, creme.component.Component.prototype);
 
-    deepEqual(MockCollectionB.__super__, MockCollection.prototype);
-    deepEqual(MockCollectionB.__super__.constructor.__super__, creme.component.Component.prototype);
+    assert.deepEqual(MockCollectionB.__super__, MockCollection.prototype);
+    assert.deepEqual(MockCollectionB.__super__.constructor.__super__, creme.component.Component.prototype);
 
-    deepEqual(MockCollectionBC.__super__, MockCollectionB.prototype);
-    deepEqual(MockCollectionBC.__super__.constructor.__super__, MockCollection.prototype);
-    deepEqual(MockCollectionBC.__super__.constructor.__super__.constructor.__super__, creme.component.Component.prototype);
+    assert.deepEqual(MockCollectionBC.__super__, MockCollectionB.prototype);
+    assert.deepEqual(MockCollectionBC.__super__.constructor.__super__, MockCollection.prototype);
+    assert.deepEqual(MockCollectionBC.__super__.constructor.__super__.constructor.__super__, creme.component.Component.prototype);
 
-    equal(collection.size(), 0);
-    equal(a.size(), 0);
-    equal(a2.size(), 0);
-    equal(b.size(), 0);
-    equal(bc.size(), 0);
+    assert.equal(collection.size(), 0);
+    assert.equal(a.size(), 0);
+    assert.equal(a2.size(), 0);
+    assert.equal(b.size(), 0);
+    assert.equal(bc.size(), 0);
 
     collection.set('a', 12);
 
-    equal(collection.size(), 1);
-    equal(a.size(), 0);
-    equal(a2.size(), 0);
-    equal(b.size(), 0);
-    equal(bc.size(), 0);
+    assert.equal(collection.size(), 1);
+    assert.equal(a.size(), 0);
+    assert.equal(a2.size(), 0);
+    assert.equal(b.size(), 0);
+    assert.equal(bc.size(), 0);
 
-    deepEqual(collection._data, {'a': 12});
+    assert.deepEqual(collection._data, {'a': 12});
 
     a.set('1', 134);
     a.set('2', 2);
@@ -301,44 +301,44 @@ QUnit.test('creme.component (Collection)', function(assert) {
     b.set('1', 445);
     bc.set('1', 875);
 
-    equal(collection.size(), 1);
-    equal(a.size(), 2);
-    equal(a2.size(), 0);
-    equal(b.size(), 1);
-    equal(bc.size(), 1);
+    assert.equal(collection.size(), 1);
+    assert.equal(a.size(), 2);
+    assert.equal(a2.size(), 0);
+    assert.equal(b.size(), 1);
+    assert.equal(bc.size(), 1);
 
-    deepEqual(collection._data, {'a': 12});
-    deepEqual(a._data, {'A_1': 134, 'A_2': 2});
-    deepEqual(b._data, {'B_1': 445});
-    deepEqual(bc._data, {'B_C_1': 875});
+    assert.deepEqual(collection._data, {'a': 12});
+    assert.deepEqual(a._data, {'A_1': 134, 'A_2': 2});
+    assert.deepEqual(b._data, {'B_1': 445});
+    assert.deepEqual(bc._data, {'B_C_1': 875});
 
     a.clear();
 
-    equal(collection.size(), 1);
-    equal(a.size(), 0);
-    equal(a2.size(), 0);
-    equal(b.size(), 1);
-    equal(bc.size(), 1);
+    assert.equal(collection.size(), 1);
+    assert.equal(a.size(), 0);
+    assert.equal(a2.size(), 0);
+    assert.equal(b.size(), 1);
+    assert.equal(bc.size(), 1);
 
-    deepEqual(collection._data, {'a': 12});
-    deepEqual(b._data, {'B_1': 445});
-    deepEqual(bc._data, {'B_C_1': 875});
+    assert.deepEqual(collection._data, {'a': 12});
+    assert.deepEqual(b._data, {'B_1': 445});
+    assert.deepEqual(bc._data, {'B_C_1': 875});
 });
 
 QUnit.test('creme.component._super_', function(assert) {
     var ab = new MockComponentAB(12, 8);
 
-    deepEqual(ab.get(), [12, 8]);
-    equal(ab.add(485), 8 * (12 + 485));
-    equal(ab.add(), 8 * 12);
+    assert.deepEqual(ab.get(), [12, 8]);
+    assert.equal(ab.add(485), 8 * (12 + 485));
+    assert.equal(ab.add(), 8 * 12);
 
-    equal(12, ab._super_(MockComponentA).get());
-    equal(12 + 485, ab._super_(MockComponentA).add(485));
-    equal(12, ab._super_(MockComponentA).add());
+    assert.equal(12, ab._super_(MockComponentA).get());
+    assert.equal(12 + 485, ab._super_(MockComponentA).add(485));
+    assert.equal(12, ab._super_(MockComponentA).add());
 
-    equal(12, ab._super_(MockComponentA, 'get'));
-    equal(12 + 485, ab._super_(MockComponentA, 'add', 485));
-    equal(12, ab._super_(MockComponentA, 'add'));
+    assert.equal(12, ab._super_(MockComponentA, 'get'));
+    assert.equal(12 + 485, ab._super_(MockComponentA, 'add', 485));
+    assert.equal(12, ab._super_(MockComponentA, 'add'));
 });
 
 }(jQuery));

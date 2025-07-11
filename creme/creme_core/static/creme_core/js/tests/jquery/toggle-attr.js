@@ -38,7 +38,7 @@ QUnit.parametrize('jQuery.toggleAttr', [
 
     elements.find('input').toggleAttr(name, enabled, value);
 
-    deepEqual(expected, {
+    assert.deepEqual(expected, {
         field_a: elements.find('#field-a').attr(name),
         field_b: elements.find('#field-b').attr(name)
     });
@@ -79,7 +79,7 @@ QUnit.parametrize('jQuery.toggleProp', [
 
     elements.find('input').toggleProp(name, enabled, value);
 
-    deepEqual(expected, {
+    assert.deepEqual(expected, {
         field_a: elements.find('#field-a').prop(name),
         field_b: elements.find('#field-b').prop(name)
     });

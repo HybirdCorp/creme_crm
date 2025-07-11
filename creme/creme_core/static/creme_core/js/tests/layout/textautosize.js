@@ -5,27 +5,27 @@ QUnit.module("creme.layout.autosize", new QUnitMixin(QUnitEventMixin, {
 
 QUnit.test('creme.layout.TextAreaAutoSize (default)', function(assert) {
     var layout = new creme.layout.TextAreaAutoSize();
-    equal(layout._min, 2);
-    equal(layout._max, undefined);
+    assert.equal(layout._min, 2);
+    assert.equal(layout._max, undefined);
 });
 
 QUnit.test('creme.layout.TextAreaAutoSize (options)', function(assert) {
     var layout = new creme.layout.TextAreaAutoSize({
         min: 5, max: 20
     });
-    equal(layout._min, 5);
-    equal(layout._max, 20);
+    assert.equal(layout._min, 5);
+    assert.equal(layout._max, 20);
 });
 
 QUnit.test('creme.layout.TextAreaAutoSize (bind)', function(assert) {
     var layout = new creme.layout.TextAreaAutoSize();
     var element = $('<textarea></textarea>');
 
-    equal(layout._delegate, undefined);
+    assert.equal(layout._delegate, undefined);
 
     layout.bind(element);
 
-    deepEqual(layout._delegate, element);
+    assert.deepEqual(layout._delegate, element);
 
     this.assertRaises(function() {
         layout.bind(element);
@@ -37,10 +37,10 @@ QUnit.test('creme.layout.TextAreaAutoSize (unbind)', function(assert) {
     var element = $('<textarea></textarea>');
 
     layout.bind(element);
-    deepEqual(layout._delegate, element);
+    assert.deepEqual(layout._delegate, element);
 
     layout.unbind();
-    equal(layout._delegate, undefined);
+    assert.equal(layout._delegate, undefined);
 
     this.assertRaises(function() {
         layout.unbind();
@@ -60,14 +60,14 @@ QUnit.parametrize('creme.layout.TextAreaAutoSize (initial state)', [
     layout.bind(element);
 
 //    if (QUnit.browsers.isFirefox()) {
-//        equal(layout._initial, expected.initial - 1);
-//        equal(element.attr('rows'), String(expected.rows - 1));
+//        assert.equal(layout._initial, expected.initial - 1);
+//        assert.equal(element.attr('rows'), String(expected.rows - 1));
 //    } else {
-//        equal(layout._initial, expected.initial);
-//        equal(element.attr('rows'), String(expected.rows));
+//        assert.equal(layout._initial, expected.initial);
+//        assert.equal(element.attr('rows'), String(expected.rows));
 //    }
-    equal(layout._initial, expected.initial);
-    equal(element.attr('rows'), String(expected.rows));
+    assert.equal(layout._initial, expected.initial);
+    assert.equal(element.attr('rows'), String(expected.rows));
 });
 
 QUnit.parametrize('creme.layout.TextAreaAutoSize (change)', [
@@ -82,11 +82,11 @@ QUnit.parametrize('creme.layout.TextAreaAutoSize (change)', [
     element.trigger($.Event(event, eventData));
 
 //    if (QUnit.browsers.isFirefox()) {
-//        equal(element.attr('rows'), String(expected.rows - 1));
+//        assert.equal(element.attr('rows'), String(expected.rows - 1));
 //    } else {
-//        equal(element.attr('rows'), String(expected.rows));
+//        assert.equal(element.attr('rows'), String(expected.rows));
 //    }
-    equal(element.attr('rows'), String(expected.rows));
+    assert.equal(element.attr('rows'), String(expected.rows));
 });
 
 }(jQuery));

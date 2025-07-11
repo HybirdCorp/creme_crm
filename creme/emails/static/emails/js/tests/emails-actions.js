@@ -73,17 +73,17 @@ QUnit.test('creme.emails.brick.emailsync-accept-multi (empty selector)', functio
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     brick.action('emailsync-accept-multi', 'mock/emails/sync/accept').start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
 
     this.assertOpenedAlertDialog(gettext('No email is selected.'));
     this.closeDialog();
 
-    deepEqual([], this.mockBackendCalls());
+    assert.deepEqual([], this.mockBackendCalls());
 });
 
 QUnit.test('creme.emails.brick.emailsync-accept-multi', function(assert) {
@@ -95,26 +95,26 @@ QUnit.test('creme.emails.brick.emailsync-accept-multi', function(assert) {
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     this.toggleBrickTableRows(brick, ['1', '2']);
-    equal(2, selections.selected().length);
+    assert.equal(2, selections.selected().length);
 
     brick.action('emailsync-accept-multi', 'mock/emails/sync/accept').start();
 
     this.assertOpenedConfirmDialog();
     this.acceptConfirmDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual(
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/emails/sync/accept'),
         [
             ['POST', {ids: '2,3'}]
         ]
     );
 
-    deepEqual(
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
             ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
@@ -130,19 +130,19 @@ QUnit.test('creme.emails.brick.emailsync-accept-multi (error 400)', function(ass
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     this.toggleBrickTableRows(brick, ['1', '2']);
-    equal(2, selections.selected().length);
+    assert.equal(2, selections.selected().length);
 
     brick.action('emailsync-accept-multi', 'mock/emails/sync/accept/fail').start();
 
     this.assertOpenedConfirmDialog();
     this.acceptConfirmDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual(
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/emails/sync/accept/fail'),
         [
             ['POST', {ids: '2,3'}]
@@ -151,13 +151,13 @@ QUnit.test('creme.emails.brick.emailsync-accept-multi (error 400)', function(ass
 
     // TODO: improve this.assertOpenedDialog()?
     var dialogs = $('.ui-dialog');
-    equal(1, dialogs.length, 'is dialog opened');
-    equal(dialogs.first().find('span.header').text(), gettext('Bad Request'));
-    equal(dialogs.first().find('p.message').text(), gettext('Some errors occurred.'));
+    assert.equal(1, dialogs.length, 'is dialog opened');
+    assert.equal(dialogs.first().find('span.header').text(), gettext('Bad Request'));
+    assert.equal(dialogs.first().find('p.message').text(), gettext('Some errors occurred.'));
 
     this.closeDialog();
 
-    deepEqual(
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
             ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
@@ -173,19 +173,19 @@ QUnit.test('creme.emails.brick.emailsync-accept-multi (partial error)', function
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     this.toggleBrickTableRows(brick, ['1', '2']);
-    equal(2, selections.selected().length);
+    assert.equal(2, selections.selected().length);
 
     brick.action('emailsync-accept-multi', 'mock/emails/sync/accept/some_errors').start();
 
     this.assertOpenedConfirmDialog();
     this.acceptConfirmDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual(
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/emails/sync/accept/some_errors'),
         [
             ['POST', {ids: '2,3'}]
@@ -193,19 +193,19 @@ QUnit.test('creme.emails.brick.emailsync-accept-multi (partial error)', function
      );
 
     var dialogs = $('.ui-dialog');
-    equal(1, dialogs.length, 'is dialog opened');
+    assert.equal(1, dialogs.length, 'is dialog opened');
 
-    equal(
+    assert.equal(
         dialogs.first().find('span.header').text(),
         ngettext('%d email has been synchronised', '%d emails have been synchronised', 1).format(1)
         + ' - '
         + ngettext('%d email cannot be synchronised.', '%d emails cannot be synchronised.', 1).format(1)
     );
-    equal(dialogs.first().find('p.message').html(), '<ul><li>A conflict error happened.</li></ul>');
+    assert.equal(dialogs.first().find('p.message').html(), '<ul><li>A conflict error happened.</li></ul>');
 
     this.closeDialog();
 
-    deepEqual(
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
             ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
@@ -227,25 +227,25 @@ QUnit.test('creme.emails.brick.emailsync-accept-multi (link)', function(assert) 
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     this.toggleBrickTableRows(brick, ['1', '2']);
-    equal(2, selections.selected().length);
+    assert.equal(2, selections.selected().length);
 
     link.trigger('click');
     this.assertOpenedConfirmDialog();
     this.acceptConfirmDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual(
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/emails/sync/accept'),
         [
             ['POST', {ids: '2,3'}]
         ]
     );
 
-    deepEqual(
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
             ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
@@ -262,17 +262,17 @@ QUnit.test('creme.emails.brick.emailsync-delete-multi (empty selector)', functio
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     brick.action('emailsync-delete-multi', 'mock/emails/sync/delete').start();
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
 
     this.assertOpenedAlertDialog(gettext('No email is selected.'));
     this.closeDialog();
 
-    deepEqual([], this.mockBackendCalls());
+    assert.deepEqual([], this.mockBackendCalls());
 });
 
 QUnit.test('creme.emails.brick.emailsync-delete-multi', function(assert) {
@@ -284,26 +284,26 @@ QUnit.test('creme.emails.brick.emailsync-delete-multi', function(assert) {
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     this.toggleBrickTableRows(brick, ['1', '2']);
-    equal(2, selections.selected().length);
+    assert.equal(2, selections.selected().length);
 
     brick.action('emailsync-delete-multi', 'mock/emails/sync/delete').start();
 
     this.assertOpenedConfirmDialog();
     this.acceptConfirmDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual(
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/emails/sync/delete'),
         [
             ['POST', {ids: '2,3'}]
         ]
     );
 
-    deepEqual(
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
             ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
@@ -319,19 +319,19 @@ QUnit.test('creme.emails.brick.emailsync-delete-multi (error 400)', function(ass
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     this.toggleBrickTableRows(brick, ['1', '2']);
-    equal(2, selections.selected().length);
+    assert.equal(2, selections.selected().length);
 
     brick.action('emailsync-delete-multi', 'mock/emails/sync/delete/fail').start();
 
     this.assertOpenedConfirmDialog();
     this.acceptConfirmDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual(
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/emails/sync/delete/fail'),
         [
             ['POST', {ids: '2,3'}]
@@ -340,13 +340,13 @@ QUnit.test('creme.emails.brick.emailsync-delete-multi (error 400)', function(ass
 
     // TODO: improve this.assertOpenedDialog()?
     var dialogs = $('.ui-dialog');
-    equal(1, dialogs.length, 'is dialog opened');
-    equal(dialogs.first().find('span.header').text(), gettext('Bad Request'));
-    equal(dialogs.first().find('p.message').text(), gettext('Some errors occurred.'));
+    assert.equal(1, dialogs.length, 'is dialog opened');
+    assert.equal(dialogs.first().find('span.header').text(), gettext('Bad Request'));
+    assert.equal(dialogs.first().find('p.message').text(), gettext('Some errors occurred.'));
 
     this.closeDialog();
 
-    deepEqual(
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
             ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
@@ -362,19 +362,19 @@ QUnit.test('creme.emails.brick.emailsync-delete-multi (partial error)', function
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     this.toggleBrickTableRows(brick, ['1', '2']);
-    equal(2, selections.selected().length);
+    assert.equal(2, selections.selected().length);
 
     brick.action('emailsync-delete-multi', 'mock/emails/sync/delete/some_errors').start();
 
     this.assertOpenedConfirmDialog();
     this.acceptConfirmDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual(
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/emails/sync/delete/some_errors'),
         [
             ['POST', {ids: '2,3'}]
@@ -382,19 +382,19 @@ QUnit.test('creme.emails.brick.emailsync-delete-multi (partial error)', function
      );
 
     var dialogs = $('.ui-dialog');
-    equal(1, dialogs.length, 'is dialog opened');
+    assert.equal(1, dialogs.length, 'is dialog opened');
 
-    equal(
+    assert.equal(
         dialogs.first().find('span.header').text(),
         ngettext('%d email has been deleted', '%d emails have been deleted', 1).format(1)
         + ' - '
         + ngettext('%d email cannot be deleted.', '%d emails cannot be deleted.', 1).format(1)
     );
-    equal(dialogs.first().find('p.message').html(), '<ul><li>A conflict error happened.</li></ul>');
+    assert.equal(dialogs.first().find('p.message').html(), '<ul><li>A conflict error happened.</li></ul>');
 
     this.closeDialog();
 
-    deepEqual(
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
             ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
@@ -416,25 +416,25 @@ QUnit.test('creme.emails.brick.emailsync-delete-multi (link)', function(assert) 
 
     this.assertBrickTableItems([], selections.selected());
 
-    equal(false, brick.isLoading());
+    assert.equal(false, brick.isLoading());
     this.assertClosedDialog();
 
     this.toggleBrickTableRows(brick, ['1', '2']);
-    equal(2, selections.selected().length);
+    assert.equal(2, selections.selected().length);
 
     link.trigger('click');
     this.assertOpenedConfirmDialog();
     this.acceptConfirmDialog();
 
-    equal(false, brick.isLoading());
-    deepEqual(
+    assert.equal(false, brick.isLoading());
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/emails/sync/delete'),
         [
             ['POST', {ids: '2,3'}]
         ]
     );
 
-    deepEqual(
+    assert.deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
             ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
@@ -456,15 +456,15 @@ QUnit.test('creme.emails.brick.email-toggle-image', function(assert) {
     var element = brick.element();
     var link = $('a[data-action="email-toggle-images"]', element);
 
-    equal('/mock/emails/content', $('iframe', element).attr('src'));
+    assert.equal('/mock/emails/content', $('iframe', element).attr('src'));
 
     link.trigger('click');
 
-    equal('/mock/emails/content?external_img=on', $('iframe', element).attr('src'));
+    assert.equal('/mock/emails/content?external_img=on', $('iframe', element).attr('src'));
 
     link.trigger('click');
 
-    equal('/mock/emails/content', $('iframe', element).attr('src'));
+    assert.equal('/mock/emails/content', $('iframe', element).attr('src'));
 });
 
 QUnit.test('creme.emails.LinkEMailToAction', function(assert) {
@@ -483,20 +483,20 @@ QUnit.test('creme.emails.LinkEMailToAction', function(assert) {
 
     action.start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {rtype: ['rtype.1', 'rtype.5', 'rtype.78'], ids: '12'}]
     ], this.mockBackendUrlCalls('mock/emails/linkto'));
 
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.submitFormDialog();
 
     this.assertClosedDialog();
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {rtype: ['rtype.1', 'rtype.5', 'rtype.78'], ids: '12'}],
         ['POST', {
             rtype: ['rtype.1', 'rtype.5', 'rtype.78'],
@@ -504,7 +504,7 @@ QUnit.test('creme.emails.LinkEMailToAction', function(assert) {
         }]
     ], this.mockBackendUrlCalls('mock/emails/linkto'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -525,24 +525,24 @@ QUnit.test('creme.emails.LinkEMailToAction (cancel)', function(assert) {
 
     action.start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {rtype: ['rtype.1', 'rtype.5', 'rtype.78'], ids: '12'}]
     ], this.mockBackendUrlCalls('mock/emails/linkto'));
 
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.closeDialog();
     this.assertClosedDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {rtype: ['rtype.1', 'rtype.5', 'rtype.78'], ids: '12'}]
     ], this.mockBackendUrlCalls('mock/emails/linkto'));
 
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.emails.hatmenubar.emails-hatmenubar-linkto', function(assert) {
@@ -565,19 +565,19 @@ QUnit.test('creme.emails.hatmenubar.emails-hatmenubar-linkto', function(assert) 
 
     $(widget.element).find('a.menu_button').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {rtype: ['rtype.1', 'rtype.5', 'rtype.78'], ids: '12'}]
     ], this.mockBackendUrlCalls('mock/emails/linkto'));
 
     this.assertOpenedDialog();
-    deepEqual([], this.mockListenerCalls('action-done'));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.submitFormDialog();
 
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {rtype: ['rtype.1', 'rtype.5', 'rtype.78'], ids: '12'}],
         ['POST', {
             rtype: ['rtype.1', 'rtype.5', 'rtype.78'],
@@ -585,7 +585,7 @@ QUnit.test('creme.emails.hatmenubar.emails-hatmenubar-linkto', function(assert) 
         }]
     ], this.mockBackendUrlCalls('mock/emails/linkto'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });

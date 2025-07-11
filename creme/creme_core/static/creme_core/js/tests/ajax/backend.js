@@ -16,7 +16,7 @@ QUnit.parametrize('creme.ajax.Backend (options)', [
     [{any: 'value'}, {dataType: 'html', sync: false, debug: false, any: 'value', traditional: true}]
 ], function(options, expected, assert) {
     var backend = new creme.ajax.Backend(options);
-    deepEqual(backend.options, expected);
+    assert.deepEqual(backend.options, expected);
 });
 
 QUnit.parametrize('creme.ajax.Backend.get', [
@@ -43,15 +43,15 @@ QUnit.parametrize('creme.ajax.Backend.get', [
 
     // retrieve internal callbacks from the $.ajax call
     var ajaxCall = ajaxFaker.calls()[0][0];
-    ok(Object.isFunc(ajaxCall.success));
-    ok(Object.isFunc(ajaxCall.error));
+    assert.ok(Object.isFunc(ajaxCall.success));
+    assert.ok(Object.isFunc(ajaxCall.error));
 
-    equal(ajaxCall.async, expected.async);
-    equal(ajaxCall.type, expected.type);
-    equal(ajaxCall.url, expected.url);
-    equal(ajaxCall.dataType, expected.dataType);
+    assert.equal(ajaxCall.async, expected.async);
+    assert.equal(ajaxCall.type, expected.type);
+    assert.equal(ajaxCall.url, expected.url);
+    assert.equal(ajaxCall.dataType, expected.dataType);
 
-    deepEqual(ajaxCall.data, expected.data);
+    assert.deepEqual(ajaxCall.data, expected.data);
 });
 
 QUnit.parametrize('creme.ajax.Backend.post', [
@@ -78,15 +78,15 @@ QUnit.parametrize('creme.ajax.Backend.post', [
 
     // retrieve internal callbacks from the $.ajax call
     var ajaxCall = ajaxFaker.calls()[0][0];
-    ok(Object.isFunc(ajaxCall.success));
-    ok(Object.isFunc(ajaxCall.error));
+    assert.ok(Object.isFunc(ajaxCall.success));
+    assert.ok(Object.isFunc(ajaxCall.error));
 
-    equal(ajaxCall.async, expected.async);
-    equal(ajaxCall.type, expected.type);
-    equal(ajaxCall.url, expected.url);
-    equal(ajaxCall.dataType, expected.dataType);
+    assert.equal(ajaxCall.async, expected.async);
+    assert.equal(ajaxCall.type, expected.type);
+    assert.equal(ajaxCall.url, expected.url);
+    assert.equal(ajaxCall.dataType, expected.dataType);
 
-    deepEqual(ajaxCall.data, expected.data);
+    assert.deepEqual(ajaxCall.data, expected.data);
 });
 
 QUnit.parametrize('creme.ajax.Backend.submit', [
@@ -173,14 +173,14 @@ QUnit.parametrize('creme.ajax.Backend.submit', [
 
     // retrieve internal callbacks from the $.ajax call
     var ajaxCall = ajaxFaker.calls()[0][0];
-    ok(Object.isFunc(ajaxCall.success));
-    ok(Object.isFunc(ajaxCall.error));
+    assert.ok(Object.isFunc(ajaxCall.success));
+    assert.ok(Object.isFunc(ajaxCall.error));
 
-    equal(ajaxCall.url, expected.url);
+    assert.equal(ajaxCall.url, expected.url);
 
-    equal(ajaxCall.traditional, expected.traditional);
-    deepEqual(ajaxCall.data || new FormData(), _.toFormData(expected.data));
-    deepEqual(ajaxCall.headers, expected.headers);
+    assert.equal(ajaxCall.traditional, expected.traditional);
+    assert.deepEqual(ajaxCall.data || new FormData(), _.toFormData(expected.data));
+    assert.deepEqual(ajaxCall.headers, expected.headers);
 });
 
 QUnit.parametrize('creme.ajax.Backend (debug)', [
@@ -210,8 +210,8 @@ QUnit.parametrize('creme.ajax.Backend (debug)', [
         });
     });
 
-    equal(ajaxFaker.count(), 3);
-    equal(logFaker.count(), expected);
+    assert.equal(ajaxFaker.count(), 3);
+    assert.equal(logFaker.count(), expected);
 });
 
 QUnit.test('creme.ajax.Backend.query', function(assert) {
@@ -225,14 +225,14 @@ QUnit.test('creme.ajax.Backend.query', function(assert) {
             sync: true
         }).url('mock/a');
 
-        deepEqual(query.backend(), backend);
-        equal(query.url(), 'mock/a');
-        deepEqual(query.data(), {});
+        assert.deepEqual(query.backend(), backend);
+        assert.equal(query.url(), 'mock/a');
+        assert.deepEqual(query.data(), {});
 
-        equal(ajaxFaker.count(), 0);
+        assert.equal(ajaxFaker.count(), 0);
 
         query.get();
-        equal(ajaxFaker.count(), 1);
+        assert.equal(ajaxFaker.count(), 1);
     });
 });
 

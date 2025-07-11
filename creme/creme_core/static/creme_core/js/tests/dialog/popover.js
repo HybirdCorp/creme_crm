@@ -5,8 +5,8 @@ var RED_DOT_5x5_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQV
 QUnit.module("creme.popover.js", new QUnitMixin(QUnitEventMixin,
                                                 QUnitDialogMixin, {
     assertPopoverDirection: function(popover, direction) {
-        ok(popover._dialog.is('.popover.' + direction), 'popover direction is ' + direction);
-        equal(direction, popover.direction());
+        this.assert.ok(popover._dialog.is('.popover.' + direction), 'popover direction is ' + direction);
+        this.assert.equal(direction, popover.direction());
     }
 }));
 
@@ -17,17 +17,17 @@ QUnit.test('creme.dialog.Popover (open)', function(assert) {
     popover.on('opened', this.mockListener('opened'));
     popover.on('closed', this.mockListener('closed'));
 
-    equal(false, popover.isOpened());
-    equal(undefined, popover.anchor());
-    deepEqual([], this.mockListenerCalls('opened'));
-    deepEqual([], this.mockListenerCalls('closed'));
+    assert.equal(false, popover.isOpened());
+    assert.equal(undefined, popover.anchor());
+    assert.deepEqual([], this.mockListenerCalls('opened'));
+    assert.deepEqual([], this.mockListenerCalls('closed'));
 
     popover.open(anchor);
 
-    equal(true, popover.isOpened());
+    assert.equal(true, popover.isOpened());
     this.equalOuterHtml('<div id="qunit-fixture-popover"></div>', popover.anchor());
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([], this.mockListenerCalls('closed'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([], this.mockListenerCalls('closed'));
 
     var other = $('<span/>');
 
@@ -43,24 +43,24 @@ QUnit.test('creme.dialog.Popover (toggle)', function(assert) {
     popover.on('opened', this.mockListener('opened'));
     popover.on('closed', this.mockListener('closed'));
 
-    equal(false, popover.isOpened());
-    deepEqual([], this.mockListenerCalls('opened'));
-    deepEqual([], this.mockListenerCalls('closed'));
+    assert.equal(false, popover.isOpened());
+    assert.deepEqual([], this.mockListenerCalls('opened'));
+    assert.deepEqual([], this.mockListenerCalls('closed'));
 
     popover.toggle(anchor);
-    equal(true, popover.isOpened());
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([], this.mockListenerCalls('closed'));
+    assert.equal(true, popover.isOpened());
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([], this.mockListenerCalls('closed'));
 
     popover.toggle(anchor);
-    equal(false, popover.isOpened());
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([['closed']], this.mockListenerCalls('closed'));
+    assert.equal(false, popover.isOpened());
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([['closed']], this.mockListenerCalls('closed'));
 
     popover.toggle(anchor);
-    equal(true, popover.isOpened());
-    deepEqual([['opened'], ['opened']], this.mockListenerCalls('opened'));
-    deepEqual([['closed']], this.mockListenerCalls('closed'));
+    assert.equal(true, popover.isOpened());
+    assert.deepEqual([['opened'], ['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([['closed']], this.mockListenerCalls('closed'));
 });
 
 QUnit.test('creme.dialog.Popover (title)', function(assert) {
@@ -138,18 +138,18 @@ QUnit.test('creme.dialog.Popover (addClass + direction)', function(assert) {
     popover.open(anchor);
 
     this.assertPopoverDirection(popover, 'bottom');
-    ok(popover._dialog.is('.special-popover'));
+    assert.ok(popover._dialog.is('.special-popover'));
 
     popover.close();
     popover.open(anchor, {direction: 'top'});
 
     this.assertPopoverDirection(popover, 'top');
-    ok(popover._dialog.is('.special-popover'));
+    assert.ok(popover._dialog.is('.special-popover'));
 
     popover.direction('right');
 
     this.assertPopoverDirection(popover, 'right');
-    ok(popover._dialog.is('.special-popover'));
+    assert.ok(popover._dialog.is('.special-popover'));
 });
 
 QUnit.test('creme.dialog.Popover (remove/toggleClass)', function(assert) {
@@ -159,16 +159,16 @@ QUnit.test('creme.dialog.Popover (remove/toggleClass)', function(assert) {
     popover.addClass('special-popover');
     popover.open(anchor);
 
-    ok(popover._dialog.is('.special-popover'));
+    assert.ok(popover._dialog.is('.special-popover'));
 
     popover.removeClass('special-popover');
-    equal(false, popover._dialog.is('.special-popover'));
+    assert.equal(false, popover._dialog.is('.special-popover'));
 
     popover.toggleClass('special-popover', true);
-    ok(popover._dialog.is('.special-popover'));
+    assert.ok(popover._dialog.is('.special-popover'));
 
     popover.toggleClass('special-popover', false);
-    equal(false, popover._dialog.is('.special-popover'));
+    assert.equal(false, popover._dialog.is('.special-popover'));
 });
 
 QUnit.test('creme.dialog.Popover (fill)', function(assert) {
@@ -220,27 +220,27 @@ QUnit.test('creme.dialog.Popover (on/one/off events)', function(assert) {
 
     popover.open(anchor);
 
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([], this.mockListenerCalls('closed'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([], this.mockListenerCalls('closed'));
 
     popover.close();
 
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([['closed']], this.mockListenerCalls('closed'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([['closed']], this.mockListenerCalls('closed'));
 
     popover.open(anchor);
     popover.close();
 
-    deepEqual([['opened'], ['opened']], this.mockListenerCalls('opened'));
-    deepEqual([['closed']], this.mockListenerCalls('closed'));
+    assert.deepEqual([['opened'], ['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([['closed']], this.mockListenerCalls('closed'));
 
     popover.off('opened', opened_cb);
 
     popover.open(anchor);
     popover.close();
 
-    deepEqual([['opened'], ['opened']], this.mockListenerCalls('opened'));
-    deepEqual([['closed']], this.mockListenerCalls('closed'));
+    assert.deepEqual([['opened'], ['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([['closed']], this.mockListenerCalls('closed'));
 });
 
 QUnit.test('creme.dialog.Popover (closeIfOut)', function(assert) {
@@ -250,21 +250,21 @@ QUnit.test('creme.dialog.Popover (closeIfOut)', function(assert) {
     popover.on('opened', this.mockListener('opened'));
     popover.on('closed', this.mockListener('closed'));
 
-    ok(popover.options().closeIfOut);
+    assert.ok(popover.options().closeIfOut);
 
     popover.open(anchor);
-    equal(true, popover.isOpened());
+    assert.equal(true, popover.isOpened());
     this.equalOuterHtml('<div id="qunit-fixture-popover"></div>', popover.anchor());
 
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([], this.mockListenerCalls('closed'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([], this.mockListenerCalls('closed'));
 
     popover._glasspane.pane().trigger('mousedown');
-    equal(false, popover.isOpened());
-    equal(undefined, popover.anchor());
+    assert.equal(false, popover.isOpened());
+    assert.equal(undefined, popover.anchor());
 
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([['closed']], this.mockListenerCalls('closed'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([['closed']], this.mockListenerCalls('closed'));
 });
 
 QUnit.test('creme.dialog.Popover (closeIfOut, disabled)', function(assert) {
@@ -277,20 +277,20 @@ QUnit.test('creme.dialog.Popover (closeIfOut, disabled)', function(assert) {
     popover.on('opened', this.mockListener('opened'));
     popover.on('closed', this.mockListener('closed'));
 
-    equal(false, popover.options().closeIfOut);
+    assert.equal(false, popover.options().closeIfOut);
 
     popover.open(anchor);
-    equal(true, popover.isOpened());
+    assert.equal(true, popover.isOpened());
     this.equalOuterHtml('<div id="qunit-fixture-popover"></div>', popover.anchor());
 
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([], this.mockListenerCalls('closed'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([], this.mockListenerCalls('closed'));
 
     popover._glasspane.pane().trigger('mousedown');
-    equal(true, popover.isOpened());
+    assert.equal(true, popover.isOpened());
 
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([], this.mockListenerCalls('closed'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([], this.mockListenerCalls('closed'));
 });
 
 
@@ -303,28 +303,28 @@ QUnit.test('creme.dialog.Popover (scrollbackOnClose)', function(assert) {
         });
         var anchor = this.qunitFixture('popover');
 
-        equal(true, popover.options().scrollbackOnClose);
-        equal(Object.isNone(popover._scrollbackPosition), true);
-        deepEqual(faker.calls(), []);
+        assert.equal(true, popover.options().scrollbackOnClose);
+        assert.equal(Object.isNone(popover._scrollbackPosition), true);
+        assert.deepEqual(faker.calls(), []);
 
         popover.open(anchor);
 
-        equal(789, popover._scrollbackPosition);
-        deepEqual(faker.calls(), [
+        assert.equal(789, popover._scrollbackPosition);
+        assert.deepEqual(faker.calls(), [
             []
         ]);
 
         creme.utils.scrollBack(50);
 
-        deepEqual(faker.calls(), [
+        assert.deepEqual(faker.calls(), [
             [],
             [50]
         ]);
 
         popover.close();
 
-        equal(Object.isNone(popover._scrollbackPosition), true);
-        deepEqual(faker.calls(), [
+        assert.equal(Object.isNone(popover._scrollbackPosition), true);
+        assert.deepEqual(faker.calls(), [
             [],
             [50],
             [789, 'slow']
@@ -340,19 +340,19 @@ QUnit.test('creme.dialog.Popover (scrollbackOnClose, disabled)', function(assert
         var popover = new creme.dialog.Popover();
         var anchor = this.qunitFixture('popover');
 
-        equal(false, popover.options().scrollbackOnClose);
-        equal(Object.isNone(popover._scrollbackPosition), true);
-        deepEqual(faker.calls(), []);
+        assert.equal(false, popover.options().scrollbackOnClose);
+        assert.equal(Object.isNone(popover._scrollbackPosition), true);
+        assert.deepEqual(faker.calls(), []);
 
         popover.open(anchor);
 
-        equal(Object.isNone(popover._scrollbackPosition), true);
-        deepEqual(faker.calls(), []);
+        assert.equal(Object.isNone(popover._scrollbackPosition), true);
+        assert.deepEqual(faker.calls(), []);
 
         popover.close();
 
         // close always call creme.utils.scrollBack
-        deepEqual(faker.calls(), [
+        assert.deepEqual(faker.calls(), [
             [undefined, 'slow']
         ]);
     });
@@ -366,19 +366,19 @@ QUnit.test('creme.dialog.Popover (trigger modal close)', function(assert) {
     popover.on('opened', this.mockListener('opened'));
     popover.on('closed', this.mockListener('closed'));
 
-    ok(popover.options().closeIfOut);
+    assert.ok(popover.options().closeIfOut);
 
     popover.open(anchor);
-    equal(true, popover.isOpened());
+    assert.equal(true, popover.isOpened());
 
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([], this.mockListenerCalls('closed'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([], this.mockListenerCalls('closed'));
 
     $('.popover').trigger('modal-close');
-    equal(false, popover.isOpened());
+    assert.equal(false, popover.isOpened());
 
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([['closed']], this.mockListenerCalls('closed'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([['closed']], this.mockListenerCalls('closed'));
 });
 
 QUnit.test('creme.dialog.Popover (modal)', function(assert) {
@@ -393,26 +393,26 @@ QUnit.test('creme.dialog.Popover (modal)', function(assert) {
 
     var anchor = this.qunitFixture('popover');
 
-    ok(popover.options().modal);
-    ok(popover2.options().modal);
+    assert.ok(popover.options().modal);
+    assert.ok(popover2.options().modal);
 
     popover.open(anchor);
-    equal(true, popover.isOpened());
-    equal(false, popover2.isOpened());
+    assert.equal(true, popover.isOpened());
+    assert.equal(false, popover2.isOpened());
 
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([], this.mockListenerCalls('opened2'));
-    deepEqual([], this.mockListenerCalls('closed'));
-    deepEqual([], this.mockListenerCalls('closed2'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([], this.mockListenerCalls('opened2'));
+    assert.deepEqual([], this.mockListenerCalls('closed'));
+    assert.deepEqual([], this.mockListenerCalls('closed2'));
 
     popover2.open(anchor);
-    equal(false, popover.isOpened());
-    equal(true, popover2.isOpened());
+    assert.equal(false, popover.isOpened());
+    assert.equal(true, popover2.isOpened());
 
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([['opened']], this.mockListenerCalls('opened2'));
-    deepEqual([['closed']], this.mockListenerCalls('closed'));
-    deepEqual([], this.mockListenerCalls('closed2'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened2'));
+    assert.deepEqual([['closed']], this.mockListenerCalls('closed'));
+    assert.deepEqual([], this.mockListenerCalls('closed2'));
 });
 
 
@@ -429,22 +429,22 @@ QUnit.test('creme.dialog.Popover (not modal)', function(assert) {
     var anchor = this.qunitFixture('popover');
 
     popover.open(anchor);
-    equal(true, popover.isOpened());
-    equal(false, popover2.isOpened());
+    assert.equal(true, popover.isOpened());
+    assert.equal(false, popover2.isOpened());
 
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([], this.mockListenerCalls('opened2'));
-    deepEqual([], this.mockListenerCalls('closed'));
-    deepEqual([], this.mockListenerCalls('closed2'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([], this.mockListenerCalls('opened2'));
+    assert.deepEqual([], this.mockListenerCalls('closed'));
+    assert.deepEqual([], this.mockListenerCalls('closed2'));
 
     popover2.open(anchor);
-    equal(true, popover.isOpened());
-    equal(true, popover2.isOpened());
+    assert.equal(true, popover.isOpened());
+    assert.equal(true, popover2.isOpened());
 
-    deepEqual([['opened']], this.mockListenerCalls('opened'));
-    deepEqual([['opened']], this.mockListenerCalls('opened2'));
-    deepEqual([], this.mockListenerCalls('closed'));
-    deepEqual([], this.mockListenerCalls('closed2'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened'));
+    assert.deepEqual([['opened']], this.mockListenerCalls('opened2'));
+    assert.deepEqual([], this.mockListenerCalls('closed'));
+    assert.deepEqual([], this.mockListenerCalls('closed2'));
 });
 
 QUnit.test('creme.dialog.Popover (close with arguments)', function(assert) {
@@ -454,11 +454,11 @@ QUnit.test('creme.dialog.Popover (close with arguments)', function(assert) {
     popover.on('closed', this.mockListener('closed'));
 
     popover.open(anchor);
-    equal(true, popover.isOpened());
-    deepEqual([], this.mockListenerCalls('closed'));
+    assert.equal(true, popover.isOpened());
+    assert.deepEqual([], this.mockListenerCalls('closed'));
 
     popover.close('a', 12, {});
-    deepEqual([['closed', 'a', 12, {}]], this.mockListenerCalls('closed'));
+    assert.deepEqual([['closed', 'a', 12, {}]], this.mockListenerCalls('closed'));
 });
 
 QUnit.test('creme.dialog.Popover (open/close cycles)', function(assert) {
@@ -468,9 +468,9 @@ QUnit.test('creme.dialog.Popover (open/close cycles)', function(assert) {
     popover.on('opened', this.mockListener('opened'));
     popover.on('closed', this.mockListener('closed'));
 
-    equal(false, popover.isOpened());
-    deepEqual([], this.mockListenerCalls('opened'));
-    deepEqual([], this.mockListenerCalls('closed'));
+    assert.equal(false, popover.isOpened());
+    assert.deepEqual([], this.mockListenerCalls('opened'));
+    assert.deepEqual([], this.mockListenerCalls('closed'));
 
     popover.open(anchor).close();
 
@@ -486,10 +486,10 @@ QUnit.test('creme.dialog.Popover (open/close cycles)', function(assert) {
     popover.open(anchor);
     $('.popover').trigger('modal-close');
 
-    equal(false, popover.isOpened());
-    deepEqual([['opened'], ['opened'], ['opened'], ['opened'], ['opened']],
+    assert.equal(false, popover.isOpened());
+    assert.deepEqual([['opened'], ['opened'], ['opened'], ['opened'], ['opened']],
               this.mockListenerCalls('opened'));
-    deepEqual([['closed'], ['closed'], ['closed'], ['closed'], ['closed']],
+    assert.deepEqual([['closed'], ['closed'], ['closed'], ['closed'], ['closed']],
               this.mockListenerCalls('closed'));
 });
 
@@ -497,14 +497,14 @@ QUnit.test('creme.dialog.ImagePopover (src)', function(assert) {
     var self = this;
     var popover = new creme.dialog.ImagePopover();
 
-    equal(false, popover.options().title);
-    equal(true, popover._dialog.is('.popover-picture'));
+    assert.equal(false, popover.options().title);
+    assert.equal(true, popover._dialog.is('.popover-picture'));
 
     popover.fillImage('data:image/png;base64, ' + RED_DOT_5x5_BASE64);
 
     this.equalHtml('<div class="picture-wait">&nbsp;</div>', popover.content());
 
-    stop(1);
+    var done = assert.async();
 
     // deferred loading
     setTimeout(function() {
@@ -513,15 +513,15 @@ QUnit.test('creme.dialog.ImagePopover (src)', function(assert) {
         popover.open();
         self.assertPopoverDirection(popover, 'center-window');
 
-        start();
+        done();
     }, 200);
 });
 
 QUnit.test('creme.dialog.ImagePopover (img)', function(assert) {
     var popover = new creme.dialog.ImagePopover();
 
-    equal(false, popover.options().title);
-    equal(true, popover._dialog.is('.popover-picture'));
+    assert.equal(false, popover.options().title);
+    assert.equal(true, popover._dialog.is('.popover-picture'));
 
     popover.fillImage($('<img src="nowhere" />'));
 
@@ -536,9 +536,9 @@ QUnit.test('creme.dialog.ImagePopover (title)', function(assert) {
         title: 'Picture #1'
     });
 
-    equal('Picture #1', popover.options().title);
+    assert.equal('Picture #1', popover.options().title);
     this.equalHtml('Picture #1', popover.title());
-    equal(true, popover._dialog.is('.popover-picture'));
+    assert.equal(true, popover._dialog.is('.popover-picture'));
 
     popover.fillImage($('<img src="nowhere" />'));
 
@@ -555,18 +555,18 @@ QUnit.test('creme.dialog.ImagePopover (close on click)', function(assert) {
     popover.fillImage($('<img src="nowhere" />'));
 
     popover.open(anchor);
-    equal(true, popover.isOpened());
+    assert.equal(true, popover.isOpened());
 
     // close on click on glasspane
     popover._glasspane.pane().trigger('mousedown');
-    equal(false, popover.isOpened());
+    assert.equal(false, popover.isOpened());
 
     popover.open(anchor);
-    equal(true, popover.isOpened());
+    assert.equal(true, popover.isOpened());
 
     // close on click on image
     popover.content().trigger('click');
-    equal(false, popover.isOpened());
+    assert.equal(false, popover.isOpened());
 });
 
 QUnit.test('creme.dialog.ImagePopover (close on click, disabled)', function(assert) {
@@ -578,18 +578,18 @@ QUnit.test('creme.dialog.ImagePopover (close on click, disabled)', function(asse
     popover.fillImage($('<img src="nowhere" />'));
 
     popover.open(anchor);
-    equal(true, popover.isOpened());
+    assert.equal(true, popover.isOpened());
 
     // close on click on glasspane
     popover._glasspane.pane().trigger('mousedown');
-    equal(false, popover.isOpened());
+    assert.equal(false, popover.isOpened());
 
     popover.open(anchor);
-    equal(true, popover.isOpened());
+    assert.equal(true, popover.isOpened());
 
     // nothing done
     popover.content().trigger('click');
-    equal(true, popover.isOpened());
+    assert.equal(true, popover.isOpened());
 });
 
 QUnit.test('creme.dialog.PopoverAction.fromTarget', function(assert) {

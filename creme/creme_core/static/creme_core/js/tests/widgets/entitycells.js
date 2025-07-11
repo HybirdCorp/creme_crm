@@ -151,31 +151,31 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (bind)', function(assert) {
         samples: [{'regular_field-email': 'abc@unknown.com'}]
     });
 
-    equal(false, widget.isBound());
-    equal(undefined, widget.store);
-    equal(undefined, widget.div);
+    assert.equal(false, widget.isBound());
+    assert.equal(undefined, widget.store);
+    assert.equal(undefined, widget.div);
 
-    deepEqual({}, widget.column_titles);
-    deepEqual([], widget.columns);
-    deepEqual({}, widget.underlays);
+    assert.deepEqual({}, widget.column_titles);
+    assert.deepEqual([], widget.columns);
+    assert.deepEqual({}, widget.underlays);
 
     widget.bind(element);
 
-    equal(true, widget.isBound());
+    assert.equal(true, widget.isBound());
 
-    equal('', widget.store.val());
-    equal(false, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
-    equal(false, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
-    equal(false, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
+    assert.equal('', widget.store.val());
+    assert.equal(false, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
+    assert.equal(false, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
+    assert.equal(false, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
 
-    deepEqual({
+    assert.deepEqual({
         "regular_field-email": "Email",
         "regular_field-firstname": "First name",
         "regular_field-lastname": "Last name"
     }, widget.column_titles);
-    deepEqual([], widget.columns);
+    assert.deepEqual([], widget.columns);
 
-    deepEqual({}, widget.underlays);
+    assert.deepEqual({}, widget.underlays);
 });
 
 QUnit.test('creme.entity_cell.EntityCellsWidget (already bound)', function(assert) {
@@ -185,10 +185,10 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (already bound)', function(asser
 
     var widget = new creme.entity_cell.EntityCellsWidget().bind(element);
 
-    equal(true, widget.isBound());
-    deepEqual({}, widget.column_titles);
-    deepEqual([], widget.columns);
-    deepEqual({}, widget.underlays);
+    assert.equal(true, widget.isBound());
+    assert.deepEqual({}, widget.column_titles);
+    assert.deepEqual([], widget.columns);
+    assert.deepEqual({}, widget.underlays);
 
     this.assertRaises(function() {
         widget.bind(element);
@@ -202,10 +202,10 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (empty)', function(assert) {
 
     var widget = new creme.entity_cell.EntityCellsWidget().bind(element);
 
-    equal(true, widget.isBound());
-    deepEqual({}, widget.column_titles);
-    deepEqual([], widget.columns);
-    deepEqual({}, widget.underlays);
+    assert.equal(true, widget.isBound());
+    assert.deepEqual({}, widget.column_titles);
+    assert.deepEqual([], widget.columns);
+    assert.deepEqual({}, widget.underlays);
 });
 
 QUnit.test('creme.entity_cell.EntityCellsWidget (regular, no selection)', function(assert) {
@@ -222,19 +222,19 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (regular, no selection)', functi
         samples: [{'regular_field-email': 'abc@unknown.com'}]
     }).bind(element);
 
-    equal('', widget.store.val());
-    equal(false, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
-    equal(false, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
-    equal(false, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
+    assert.equal('', widget.store.val());
+    assert.equal(false, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
+    assert.equal(false, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
+    assert.equal(false, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
 
-    deepEqual({
+    assert.deepEqual({
         "regular_field-email": "Email",
         "regular_field-firstname": "First name",
         "regular_field-lastname": "Last name"
     }, widget.column_titles);
-    deepEqual([], widget.columns);
+    assert.deepEqual([], widget.columns);
 
-    deepEqual({}, widget.underlays);
+    assert.deepEqual({}, widget.underlays);
 });
 
 QUnit.test('creme.entity_cell.EntityCellsWidget (regular, ordering)', function(assert) {
@@ -252,23 +252,23 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (regular, ordering)', function(a
         samples: [{'regular_field-email': 'abc@unknown.com'}]
     }).bind(element);
 
-    equal('regular_field-firstname,regular_field-email,regular_field-lastname', widget.store.val());
-    equal(true, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
-    equal(true, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
-    equal(true, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
+    assert.equal('regular_field-firstname,regular_field-email,regular_field-lastname', widget.store.val());
+    assert.equal(true, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
+    assert.equal(true, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
+    assert.equal(true, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
 
-    deepEqual({
+    assert.deepEqual({
         "regular_field-email": "Email",
         "regular_field-firstname": "First name",
         "regular_field-lastname": "Last name"
     }, widget.column_titles);
-    deepEqual([
+    assert.deepEqual([
         "regular_field-firstname",
         "regular_field-email",
         "regular_field-lastname"
     ], widget.columns);
 
-    deepEqual({}, widget.underlays);
+    assert.deepEqual({}, widget.underlays);
 });
 
 QUnit.parametrize('creme.entity_cell.EntityCellsWidget (regular, filtered)', [
@@ -313,16 +313,16 @@ QUnit.parametrize('creme.entity_cell.EntityCellsWidget (regular, filtered)', [
     var widget = new creme.entity_cell.EntityCellsWidget().bind(element); ;
     var filter = element.find('.field_selector_filter[data-type="fields"]');
 
-    deepEqual({
+    assert.deepEqual({
         "regular_field-email": "Email / Courrier Électronique",
         "regular_field-firstname": "First Name / Prénom",
         "regular_field-lastname": "Last Name"
     }, widget.column_titles);
 
-    equal(1, filter.length);
-    equal('', filter.val());
+    assert.equal(1, filter.length);
+    assert.equal('', filter.val());
 
-    deepEqual({
+    assert.deepEqual({
         'regular_field-email': {opacity: 1.0, visible: true},
         'regular_field-firstname': {opacity: 1.0, visible: true},
         'regular_field-lastname': {opacity: 1.0, visible: true}
@@ -330,13 +330,13 @@ QUnit.parametrize('creme.entity_cell.EntityCellsWidget (regular, filtered)', [
 
     filter.val(term).trigger('propertychange');
 
-    stop(1);
+    var done = assert.async();
 
     // waiting for animation end
     setTimeout(function() {
         var state = this.itemsDisplayStatus(element);
-        deepEqual(expected, state);
-        start();
+        assert.deepEqual(expected, state);
+        done();
     }.bind(this), 500);
 });
 
@@ -355,36 +355,36 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (regular)', function(assert) {
         samples: [{'regular_field-email': 'abc@unknown.com'}]
     }).bind(element);
 
-    equal('regular_field-email,regular_field-lastname', widget.store.val());
-    equal(true, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
-    equal(false, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
-    equal(true, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
+    assert.equal('regular_field-email,regular_field-lastname', widget.store.val());
+    assert.equal(true, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
+    assert.equal(false, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
+    assert.equal(true, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
 
-    deepEqual({
+    assert.deepEqual({
         "regular_field-email": "Email",
         "regular_field-firstname": "First name",
         "regular_field-lastname": "Last name"
     }, widget.column_titles);
-    deepEqual([
+    assert.deepEqual([
         "regular_field-email",
         "regular_field-lastname"
     ], widget.columns);
 
-    deepEqual({}, widget.underlays);
+    assert.deepEqual({}, widget.underlays);
 
     // unselect 'email'
     element.find('.selector_list .selector[data-column="regular_field-email"] > label').trigger('click');
 
-    equal('regular_field-lastname', widget.store.val());
-    deepEqual([
+    assert.equal('regular_field-lastname', widget.store.val());
+    assert.deepEqual([
         "regular_field-lastname"
     ], widget.columns);
 
     // select 'firstname'
     element.find('.selector_list .selector[data-column="regular_field-firstname"] > label').trigger('click');
 
-    equal('regular_field-lastname,regular_field-firstname', widget.store.val());
-    deepEqual([
+    assert.equal('regular_field-lastname,regular_field-firstname', widget.store.val());
+    assert.deepEqual([
         "regular_field-lastname",
         "regular_field-firstname"
     ], widget.columns);
@@ -417,15 +417,15 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (regular, open underlay)', funct
         ]
     }).bind(element);
 
-    equal('regular_field-email,regular_field-billing_address__name', widget.store.val());
-    equal(true, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
-    equal(false, element.find('.selector[data-column="regular_field-billing_address"] > input').is(':checked'));
-    equal(true, element.find('.selector[data-column="regular_field-billing_address__name"] > input').is(':checked'));
-    equal(false, element.find('.selector[data-column="regular_field-billing_address__country"] > input').is(':checked'));
-    equal(false, element.find('.selector[data-column="regular_field-billing_address__city"] > input').is(':checked'));
-    equal(false, element.find('.selector[data-column="regular_field-phone"] > input').is(':checked'));
+    assert.equal('regular_field-email,regular_field-billing_address__name', widget.store.val());
+    assert.equal(true, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
+    assert.equal(false, element.find('.selector[data-column="regular_field-billing_address"] > input').is(':checked'));
+    assert.equal(true, element.find('.selector[data-column="regular_field-billing_address__name"] > input').is(':checked'));
+    assert.equal(false, element.find('.selector[data-column="regular_field-billing_address__country"] > input').is(':checked'));
+    assert.equal(false, element.find('.selector[data-column="regular_field-billing_address__city"] > input').is(':checked'));
+    assert.equal(false, element.find('.selector[data-column="regular_field-phone"] > input').is(':checked'));
 
-    deepEqual({
+    assert.deepEqual({
         "regular_field-billing_address": "Toggle underlays",
         "regular_field-billing_address__city": "Toggle underlays — City",
         "regular_field-billing_address__country": "Toggle underlays — Country",
@@ -433,21 +433,21 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (regular, open underlay)', funct
         "regular_field-email": "Email",
         "regular_field-phone": "Phone"
     }, widget.column_titles);
-    deepEqual([
+    assert.deepEqual([
         'regular_field-email',
         'regular_field-billing_address__name'
     ], widget.columns);
 
 
     // underlay is closed
-    equal(0, element.find('.selector_list > .underlay[data-column="regular_field-billing_address"]').length);
-    deepEqual({}, widget.underlays);
+    assert.equal(0, element.find('.selector_list > .underlay[data-column="regular_field-billing_address"]').length);
+    assert.deepEqual({}, widget.underlays);
 
     // open underlay
     element.find('.selector_list > .selector[data-column="regular_field-billing_address"] .sub_selector_toggle').trigger('click');
 
     // new underlay added to cache
-    equal(1, element.find('.selector_list > .underlay[data-column="regular_field-billing_address"]').length, 'underlay shown');
+    assert.equal(1, element.find('.selector_list > .underlay[data-column="regular_field-billing_address"]').length, 'underlay shown');
     this.equalOuterHtml(element.find('.selector_list .underlay[data-column="regular_field-billing_address"]'),
                         widget.underlays['regular_field-billing_address']);
 });
@@ -469,22 +469,22 @@ QUnit.test('creme.entity_cell.EntityCellsWidget.select (custom)', function(asser
 
     var widget = new creme.entity_cell.EntityCellsWidget().bind(element);
 
-    equal('regular_field-email,regular_field-lastname,custom_field-field_a', widget.store.val());
+    assert.equal('regular_field-email,regular_field-lastname,custom_field-field_a', widget.store.val());
 
-    equal(true, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
-    equal(false, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
-    equal(true, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
-    equal(true, element.find('.selector[data-column="custom_field-field_a"] > input').is(':checked'));
-    equal(false, element.find('.selector[data-column="custom_field-field_b"] > input').is(':checked'));
+    assert.equal(true, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
+    assert.equal(false, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
+    assert.equal(true, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
+    assert.equal(true, element.find('.selector[data-column="custom_field-field_a"] > input').is(':checked'));
+    assert.equal(false, element.find('.selector[data-column="custom_field-field_b"] > input').is(':checked'));
 
-    deepEqual({
+    assert.deepEqual({
         "regular_field-email": "Email",
         "regular_field-firstname": "First name",
         "regular_field-lastname": "Last name",
         "custom_field-field_a": 'Field A',
         "custom_field-field_b": 'Field B'
     }, widget.column_titles);
-    deepEqual([
+    assert.deepEqual([
         'regular_field-email',
         'regular_field-lastname',
         'custom_field-field_a'
@@ -507,20 +507,20 @@ QUnit.test('creme.entity_cell.EntityCellsWidget.select (computed)', function(ass
 
     var widget = new creme.entity_cell.EntityCellsWidget().bind(element);
 
-    equal('regular_field-email,regular_field-lastname,function_field-get_pretty_properties', widget.store.val());
+    assert.equal('regular_field-email,regular_field-lastname,function_field-get_pretty_properties', widget.store.val());
 
-    equal(true, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
-    equal(false, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
-    equal(true, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
-    equal(true, element.find('.selector[data-column="function_field-get_pretty_properties"] > input').is(':checked'));
+    assert.equal(true, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
+    assert.equal(false, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
+    assert.equal(true, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
+    assert.equal(true, element.find('.selector[data-column="function_field-get_pretty_properties"] > input').is(':checked'));
 
-    deepEqual({
+    assert.deepEqual({
         "regular_field-email": "Email",
         "regular_field-firstname": "First name",
         "regular_field-lastname": "Last name",
         "function_field-get_pretty_properties": 'Properties'
     }, widget.column_titles);
-    deepEqual([
+    assert.deepEqual([
         'regular_field-email',
         'regular_field-lastname',
         'function_field-get_pretty_properties'
@@ -543,20 +543,20 @@ QUnit.test('creme.entity_cell.EntityCellsWidget.select (relations)', function(as
 
     var widget = new creme.entity_cell.EntityCellsWidget().bind(element);
 
-    equal('regular_field-email,regular_field-lastname,relation-persons-object_competitor', widget.store.val());
+    assert.equal('regular_field-email,regular_field-lastname,relation-persons-object_competitor', widget.store.val());
 
-    equal(true, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
-    equal(false, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
-    equal(true, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
-    equal(true, element.find('.selector[data-column="relation-persons-object_competitor"] > input').is(':checked'));
+    assert.equal(true, element.find('.selector[data-column="regular_field-email"] > input').is(':checked'));
+    assert.equal(false, element.find('.selector[data-column="regular_field-firstname"] > input').is(':checked'));
+    assert.equal(true, element.find('.selector[data-column="regular_field-lastname"] > input').is(':checked'));
+    assert.equal(true, element.find('.selector[data-column="relation-persons-object_competitor"] > input').is(':checked'));
 
-    deepEqual({
+    assert.deepEqual({
         "regular_field-email": "Email",
         "regular_field-firstname": "First name",
         "regular_field-lastname": "Last name",
         "relation-persons-object_competitor": 'Has for competitor'
     }, widget.column_titles);
-    deepEqual([
+    assert.deepEqual([
         'regular_field-email',
         'regular_field-lastname',
         'relation-persons-object_competitor'
@@ -617,7 +617,7 @@ QUnit.parametrize('creme.entity_cell.EntityCellsWidget (relation, filtered)', [
     var filter_result = element.find('.relationship_selectors .filter_result');
     var relationships = element.find('.relationship_selectors');
 
-    deepEqual({
+    assert.deepEqual({
         "regular_field-email": "Email",
         "relation-persons-object_competitor": 'Has for competitor / Est compétiteur de',
         "relation-persons-subject_subsidiary": 'Is subsidiary / Est subordonné à',
@@ -625,13 +625,13 @@ QUnit.parametrize('creme.entity_cell.EntityCellsWidget (relation, filtered)', [
         "relation-persons-big": 'Is big / Énorme'
     }, widget.column_titles);
 
-    equal(1, filter.length);
-    equal(1, filter_result.length);
+    assert.equal(1, filter.length);
+    assert.equal(1, filter_result.length);
 
-    equal('', filter.val());
-    equal('', filter_result.text());
+    assert.equal('', filter.val());
+    assert.equal('', filter_result.text());
 
-    deepEqual({
+    assert.deepEqual({
         'relation-persons-object_competitor': {opacity: 1.0, visible: true},
         'relation-persons-subject_subsidiary': {opacity: 1.0, visible: true},
         'relation-persons-small': {opacity: 1.0, visible: true},
@@ -640,13 +640,13 @@ QUnit.parametrize('creme.entity_cell.EntityCellsWidget (relation, filtered)', [
 
     filter.val(term).trigger('propertychange');
 
-    equal(expected.summary, filter_result.text());
-    deepEqual(expected.items, this.itemsDisplayStatus(relationships));
+    assert.equal(expected.summary, filter_result.text());
+    assert.deepEqual(expected.items, this.itemsDisplayStatus(relationships));
 
     filter.val('').trigger('propertychange');
 
-    equal('', filter_result.text());
-    deepEqual({
+    assert.equal('', filter_result.text());
+    assert.deepEqual({
         'relation-persons-object_competitor': {opacity: 1.0, visible: true},
         'relation-persons-subject_subsidiary': {opacity: 1.0, visible: true},
         'relation-persons-small': {opacity: 1.0, visible: true},
@@ -678,10 +678,10 @@ QUnit.test('creme.entity_cell.EntityCellsWidget.preview (remove all columns)', f
         samples: [{'regular_field-email': 'abc@unknown.com'}]
     }).bind(element);
 
-    equal('regular_field-email,regular_field-lastname,regular_field-billing_address__name', widget.store.val());
-    equal(gettext('Preview and order of the %s columns').format(3), element.find('.preview_title').text());
+    assert.equal('regular_field-email,regular_field-lastname,regular_field-billing_address__name', widget.store.val());
+    assert.equal(gettext('Preview and order of the %s columns').format(3), element.find('.preview_title').text());
 
-    deepEqual({
+    assert.deepEqual({
         "regular_field-email": "Email",
         "regular_field-firstname": "First name",
         "regular_field-lastname": "Last name",
@@ -690,20 +690,20 @@ QUnit.test('creme.entity_cell.EntityCellsWidget.preview (remove all columns)', f
         "regular_field-billing_address__country": "Toggle underlays — Country",
         "regular_field-billing_address__name": "Toggle underlays — Address"
     }, widget.column_titles);
-    deepEqual([
+    assert.deepEqual([
         "regular_field-email",
         "regular_field-lastname",
         'regular_field-billing_address__name'
     ], widget.columns);
 
-    deepEqual({}, widget.underlays);
+    assert.deepEqual({}, widget.underlays);
 
     element.find('.remove_all_columns').trigger('click');
 
-    equal('', widget.store.val());
-    equal(gettext('Preview'), element.find('.preview_title').text());
+    assert.equal('', widget.store.val());
+    assert.equal(gettext('Preview'), element.find('.preview_title').text());
 
-    deepEqual([], widget.columns);
+    assert.deepEqual([], widget.columns);
 });
 
 QUnit.test('creme.entity_cell.EntityCellsWidget.preview (remove column)', function(assert) {
@@ -729,10 +729,10 @@ QUnit.test('creme.entity_cell.EntityCellsWidget.preview (remove column)', functi
         samples: [{'regular_field-email': 'abc@unknown.com'}]
     }).bind(element);
 
-    equal('regular_field-email,regular_field-lastname,regular_field-billing_address__name', widget.store.val());
-    equal(gettext('Preview and order of the %s columns').format(3), element.find('.preview_title').text());
+    assert.equal('regular_field-email,regular_field-lastname,regular_field-billing_address__name', widget.store.val());
+    assert.equal(gettext('Preview and order of the %s columns').format(3), element.find('.preview_title').text());
 
-    deepEqual({
+    assert.deepEqual({
         "regular_field-email": "Email",
         "regular_field-firstname": "First name",
         "regular_field-lastname": "Last name",
@@ -741,30 +741,30 @@ QUnit.test('creme.entity_cell.EntityCellsWidget.preview (remove column)', functi
         "regular_field-billing_address__country": "Toggle underlays — Country",
         "regular_field-billing_address__name": "Toggle underlays — Address"
     }, widget.column_titles);
-    deepEqual([
+    assert.deepEqual([
         "regular_field-email",
         "regular_field-lastname",
         'regular_field-billing_address__name'
     ], widget.columns);
 
-    deepEqual({}, widget.underlays);
+    assert.deepEqual({}, widget.underlays);
 
     // unselect 'email' column
     element.find('.preview th[data-column="regular_field-email"] .preview_column_toggle').trigger('click');
 
-    equal('regular_field-lastname,regular_field-billing_address__name', widget.store.val());
-    equal(gettext('Preview and order of the %s columns').format(2), element.find('.preview_title').text());
+    assert.equal('regular_field-lastname,regular_field-billing_address__name', widget.store.val());
+    assert.equal(gettext('Preview and order of the %s columns').format(2), element.find('.preview_title').text());
 
-    deepEqual([
+    assert.deepEqual([
         "regular_field-lastname",
         'regular_field-billing_address__name'
     ], widget.columns);
 
     // unselect 'billing address name' column
     element.find('.preview th[data-column="regular_field-billing_address__name"] .preview_column_toggle').trigger('click');
-    equal(gettext('Preview of the column'), element.find('.preview_title').text());
+    assert.equal(gettext('Preview of the column'), element.find('.preview_title').text());
 
-    deepEqual([
+    assert.deepEqual([
         "regular_field-lastname"
     ], widget.columns);
 });

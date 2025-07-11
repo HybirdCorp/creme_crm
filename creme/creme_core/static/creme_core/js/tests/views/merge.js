@@ -50,13 +50,13 @@ QUnit.test('initializeMergeForm (buttons)', function(assert) {
         }]
     })).appendTo(this.qunitFixture());
 
-    equal(0, element.find('.merge-field-button').length);
+    assert.equal(0, element.find('.merge-field-button').length);
 
     creme.initializeMergeForm(element);
 
-    equal(4, element.find('.merge-field-button').length);
+    assert.equal(4, element.find('.merge-field-button').length);
 
-    deepEqual([
+    assert.deepEqual([
         {from: 'id_field_a_1', to: 'id_field_a_merged'},
         {from: 'id_field_a_2', to: 'id_field_a_merged'},
         {from: 'id_field_b_1', to: 'id_field_b_merged'},
@@ -77,16 +77,16 @@ QUnit.test('initializeMergeForm (copy)', function(assert) {
 
     var merged = element.find('#id_field_a_merged');
 
-    equal(merged.val(), '');
+    assert.equal(merged.val(), '');
 
     var leftButton = element.find('.merge-right-arrow').parents('button:first');
     var rightButton = element.find('.merge-left-arrow').parents('button:first');
 
     leftButton.trigger('click');
-    equal(merged.val(), 'left');
+    assert.equal(merged.val(), 'left');
 
     rightButton.trigger('click');
-    equal(merged.val(), 'right');
+    assert.equal(merged.val(), 'right');
 });
 
 QUnit.test('initializeMergeForm (copy, checkbox)', function(assert) {
@@ -112,18 +112,18 @@ QUnit.test('initializeMergeForm (copy, checkbox)', function(assert) {
     var first = element.find('#id_field_a_1');
     var second = element.find('#id_field_a_2');
 
-    equal(merged.prop('checked'), false);
-    equal(first.prop('checked'), true);
-    equal(second.prop('checked'), false);
+    assert.equal(merged.prop('checked'), false);
+    assert.equal(first.prop('checked'), true);
+    assert.equal(second.prop('checked'), false);
 
     var leftButton = element.find('.merge-right-arrow').parents('button:first');
     var rightButton = element.find('.merge-left-arrow').parents('button:first');
 
     leftButton.trigger('click');
-    equal(merged.prop('checked'), true);
+    assert.equal(merged.prop('checked'), true);
 
     rightButton.trigger('click');
-    equal(merged.prop('checked'), false);
+    assert.equal(merged.prop('checked'), false);
 });
 
 
@@ -157,16 +157,16 @@ QUnit.test('initializeMergeForm (copy, widget)', function(assert) {
     first.creme().widget().val('19');
     second.creme().widget().val('87');
 
-    equal(merged.creme().widget().val(), '');
+    assert.equal(merged.creme().widget().val(), '');
 
     var leftButton = element.find('.merge-right-arrow').parents('button:first');
     var rightButton = element.find('.merge-left-arrow').parents('button:first');
 
     leftButton.trigger('click');
-    equal(merged.creme().widget().val(), '19');
+    assert.equal(merged.creme().widget().val(), '19');
 
     rightButton.trigger('click');
-    equal(merged.creme().widget().val(), '87');
+    assert.equal(merged.creme().widget().val(), '87');
 });
 
 

@@ -43,7 +43,7 @@ QUnit.module("creme.widget.OrderedSelectList", new QUnitMixin(QUnitEventMixin,
             };
         }).get();
 
-        deepEqual(data, (expected || []).map(function(item) {
+        this.assert.deepEqual(data, (expected || []).map(function(item) {
             return {
                 order: item.order,
                 title: item.title,
@@ -68,11 +68,11 @@ QUnit.test('creme.widget.OrderedListSelect.create (empty)', function(assert) {
     }));
 
     var widget = creme.widget.create(element);
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
 
-    deepEqual([], widget.selected());
-    deepEqual([], widget.choices());
+    assert.deepEqual([], widget.selected());
+    assert.deepEqual([], widget.choices());
 
     this.assertAvailableChoices(element, []);
     this.assertEnabledChoices(element, []);
@@ -90,9 +90,9 @@ QUnit.test('creme.widget.OrderedListSelect.create', function(assert) {
 
     var widget = creme.widget.create(element);
 
-    deepEqual(['past', 'memo'], JSON.parse($('input', element).val()));
-    deepEqual(['past', 'memo'], widget.selected());
-    deepEqual([
+    assert.deepEqual(['past', 'memo'], JSON.parse($('input', element).val()));
+    assert.deepEqual(['past', 'memo'], widget.selected());
+    assert.deepEqual([
         {value: 'memo', initialOrder: 0, label: 'Memo'},
         {value: 'past', initialOrder: 1, help: 'past ?', label: 'Past'},
         {value: 'next', initialOrder: 2, label: 'Next', disabled: true}
@@ -120,14 +120,14 @@ QUnit.test('creme.widget.OrderedListSelect.select (dblclick)', function(assert) 
 
     var widget = creme.widget.create(element);
 
-    deepEqual(['memo'], widget.selected());
+    assert.deepEqual(['memo'], widget.selected());
     this.assertEnabledChoices(element, [
         {order: 0, id: 'memo'}
     ]);
 
     element.find('.ordered-widget-available-choices [data-choice-id="next"]').trigger('dblclick');
 
-    deepEqual(['memo', 'next'], widget.selected());
+    assert.deepEqual(['memo', 'next'], widget.selected());
     this.assertEnabledChoices(element, [
         {order: 0, id: 'memo'},
         {order: 2, id: 'next'}
@@ -135,7 +135,7 @@ QUnit.test('creme.widget.OrderedListSelect.select (dblclick)', function(assert) 
 
     element.find('.ordered-widget-available-choices [data-choice-id="past"]').trigger('dblclick');
 
-    deepEqual(['memo', 'next', 'past'], widget.selected());
+    assert.deepEqual(['memo', 'next', 'past'], widget.selected());
     this.assertEnabledChoices(element, [
         {order: 0, id: 'memo'},
         {order: 2, id: 'next'},
@@ -155,7 +155,7 @@ QUnit.test('creme.widget.OrderedListSelect.deselect (click)', function(assert) {
 
     var widget = creme.widget.create(element);
 
-    deepEqual(['memo', 'next'], widget.selected());
+    assert.deepEqual(['memo', 'next'], widget.selected());
     this.assertEnabledChoices(element, [
         {order: 0, id: 'memo'},
         {order: 2, id: 'next'}
@@ -163,7 +163,7 @@ QUnit.test('creme.widget.OrderedListSelect.deselect (click)', function(assert) {
 
     element.find('.ordered-widget-enabled-choices [data-choice-id="next"] button').trigger('click');
 
-    deepEqual(['memo'], widget.selected());
+    assert.deepEqual(['memo'], widget.selected());
     this.assertEnabledChoices(element, [
         {order: 0, id: 'memo'}
     ]);
@@ -175,7 +175,7 @@ QUnit.test('creme.widget.OrderedListSelect.deselect (click)', function(assert) {
 
     element.find('.ordered-widget-enabled-choices [data-choice-id="memo"] button').trigger('click');
 
-    deepEqual([], widget.selected());
+    assert.deepEqual([], widget.selected());
     this.assertEnabledChoices(element, []);
     this.assertAvailableChoices(element, [
         {order: 0, id: 'memo'},
