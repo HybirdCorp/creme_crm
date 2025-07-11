@@ -29,11 +29,11 @@ QUnit.module("FunctionFaker", new QUnitMixin());
 QUnit.test('FunctionFaker', function(assert) {
     var faker = new FunctionFaker();
 
-    equal(faker._instance, undefined);
-    equal(faker._property, undefined);
-    equal(Object.isFunc(faker._origin), true);
-    equal(faker._follow, false);
-    equal(faker.result, undefined);
+    assert.equal(faker._instance, undefined);
+    assert.equal(faker._property, undefined);
+    assert.equal(Object.isFunc(faker._origin), true);
+    assert.equal(faker._follow, false);
+    assert.equal(faker.result, undefined);
 });
 
 QUnit.test('FunctionFaker (errors)', function(assert) {
@@ -72,27 +72,27 @@ QUnit.test('FunctionFaker.wrap (property)', function(assert) {
         instance: instance, method: 'func', result: 'Fake!'
     });
 
-    equal(faker._instance, instance);
-    equal(faker._property, 'func');
-    equal(faker._origin, MockA.prototype.func);
-    equal(faker._follow, false);
-    equal(faker.result, 'Fake!');
+    assert.equal(faker._instance, instance);
+    assert.equal(faker._property, 'func');
+    assert.equal(faker._origin, MockA.prototype.func);
+    assert.equal(faker._follow, false);
+    assert.equal(faker.result, 'Fake!');
 
-    equal(instance.func('arg1', 'arg2'), 'MockA!');
-    equal(instance.real, 1);
+    assert.equal(instance.func('arg1', 'arg2'), 'MockA!');
+    assert.equal(instance.real, 1);
 
-    deepEqual(faker.calls(), []);
-    equal(faker.called(), false);
-    equal(faker.count(), 0);
+    assert.deepEqual(faker.calls(), []);
+    assert.equal(faker.called(), false);
+    assert.equal(faker.count(), 0);
 
     faker.wrap();
 
-    equal(instance.func('arg1', 'arg2'), 'Fake!');
-    equal(instance.real, 1);
+    assert.equal(instance.func('arg1', 'arg2'), 'Fake!');
+    assert.equal(instance.real, 1);
 
-    deepEqual(faker.calls(), [['arg1', 'arg2']]);
-    equal(faker.called(), true);
-    equal(faker.count(), 1);
+    assert.deepEqual(faker.calls(), [['arg1', 'arg2']]);
+    assert.equal(faker.called(), true);
+    assert.equal(faker.count(), 1);
 });
 
 QUnit.test('FunctionFaker.wrap (function)', function(assert) {
@@ -100,27 +100,27 @@ QUnit.test('FunctionFaker.wrap (function)', function(assert) {
 
     var faker = new FunctionFaker(func);
 
-    equal(func(12, 5), 12 + 5);
+    assert.equal(func(12, 5), 12 + 5);
 
-    equal(faker._instance, null);
-    equal(faker._property, null);
-    equal(faker._origin, func);
-    equal(faker._follow, false);
-    equal(faker.result, undefined);
+    assert.equal(faker._instance, null);
+    assert.equal(faker._property, null);
+    assert.equal(faker._origin, func);
+    assert.equal(faker._follow, false);
+    assert.equal(faker.result, undefined);
 
-    deepEqual(faker.calls(), []);
-    equal(faker.called(), false);
-    equal(faker.count(), 0);
+    assert.deepEqual(faker.calls(), []);
+    assert.equal(faker.called(), false);
+    assert.equal(faker.count(), 0);
 
     var wrapper = faker.wrap();
 
-    equal(wrapper(12, 5), undefined);
-    deepEqual(faker.calls(), [[12, 5]]);
-    equal(faker.called(), true);
-    equal(faker.count(), 1);
+    assert.equal(wrapper(12, 5), undefined);
+    assert.deepEqual(faker.calls(), [[12, 5]]);
+    assert.equal(faker.called(), true);
+    assert.equal(faker.count(), 1);
 
     faker.result = 'Fake!';
-    equal(wrapper(12, 5), 'Fake!');
+    assert.equal(wrapper(12, 5), 'Fake!');
 });
 
 QUnit.test('FunctionFaker.wrap (method)', function(assert) {
@@ -129,23 +129,23 @@ QUnit.test('FunctionFaker.wrap (method)', function(assert) {
         instance: instance, method: instance.func, result: 'Fake!'
     });
 
-    equal(instance.func('arg1', 'arg2'), 'MockA!');
-    equal(instance.real, 1);
+    assert.equal(instance.func('arg1', 'arg2'), 'MockA!');
+    assert.equal(instance.real, 1);
 
-    deepEqual(faker.calls(), []);
-    equal(faker.called(), false);
-    equal(faker.count(), 0);
+    assert.deepEqual(faker.calls(), []);
+    assert.equal(faker.called(), false);
+    assert.equal(faker.count(), 0);
 
     // returns wrapper for replacement. If the property name is not specified
     // this must be done explicitly
     instance.func = faker.wrap();
 
-    equal(instance.func('arg1', 'arg2'), 'Fake!');
-    equal(instance.real, 1);
+    assert.equal(instance.func('arg1', 'arg2'), 'Fake!');
+    assert.equal(instance.real, 1);
 
-    deepEqual(faker.calls(), [['arg1', 'arg2']]);
-    equal(faker.called(), true);
-    equal(faker.count(), 1);
+    assert.deepEqual(faker.calls(), [['arg1', 'arg2']]);
+    assert.equal(faker.called(), true);
+    assert.equal(faker.count(), 1);
 });
 
 QUnit.test('FunctionFaker.wrap (bound function)', function(assert) {
@@ -159,22 +159,22 @@ QUnit.test('FunctionFaker.wrap (bound function)', function(assert) {
         instance: instance, method: other, result: 'Fake!'
     });
 
-    equal(other.bind(instance)('arg1', 'arg2'), 'Other!');
-    equal(instance.real, 1);
+    assert.equal(other.bind(instance)('arg1', 'arg2'), 'Other!');
+    assert.equal(instance.real, 1);
 
-    deepEqual(faker.calls(), []);
-    equal(faker.called(), false);
-    equal(faker.count(), 0);
+    assert.deepEqual(faker.calls(), []);
+    assert.equal(faker.called(), false);
+    assert.equal(faker.count(), 0);
 
     var fake_other = faker.wrap();
 
-    equal(fake_other('arg1', 'arg2'), 'Fake!');
-    equal(instance.real, 1);
+    assert.equal(fake_other('arg1', 'arg2'), 'Fake!');
+    assert.equal(instance.real, 1);
 
-    deepEqual(faker.calls(), [['arg1', 'arg2']]);
-    deepEqual(faker.calls(function(args) { return args.length; }), [2]);
-    equal(faker.called(), true);
-    equal(faker.count(), 1);
+    assert.deepEqual(faker.calls(), [['arg1', 'arg2']]);
+    assert.deepEqual(faker.calls(function(args) { return args.length; }), [2]);
+    assert.equal(faker.called(), true);
+    assert.equal(faker.count(), 1);
 });
 
 QUnit.parametrize('FunctionFaker.wrap (follow)', [
@@ -188,23 +188,23 @@ QUnit.parametrize('FunctionFaker.wrap (follow)', [
         instance: instance, method: 'func', result: 'Fake!', follow: true
     });
 
-    equal(instance.func('arg1', 'arg2'), 'MockA!');
-    equal(instance.real, 1);
+    assert.equal(instance.func('arg1', 'arg2'), 'MockA!');
+    assert.equal(instance.real, 1);
 
-    deepEqual(faker.calls(), []);
-    equal(faker.called(), false);
-    equal(faker.count(), 0);
+    assert.deepEqual(faker.calls(), []);
+    assert.equal(faker.called(), false);
+    assert.equal(faker.count(), 0);
 
     faker.wrap();
 
     // When "follow" is enabled, both faked result & callable are ignored and the original
     // method is called.
-    equal(instance.func('arg1', 'arg2'), 'MockA!');
-    equal(instance.real, 2);
+    assert.equal(instance.func('arg1', 'arg2'), 'MockA!');
+    assert.equal(instance.real, 2);
 
-    deepEqual(faker.calls(), [['arg1', 'arg2']]);
-    equal(faker.called(), true);
-    equal(faker.count(), 1);
+    assert.deepEqual(faker.calls(), [['arg1', 'arg2']]);
+    assert.equal(faker.called(), true);
+    assert.equal(faker.count(), 1);
 });
 
 QUnit.test('FunctionFaker.wrap (callable)', function(assert) {
@@ -217,22 +217,22 @@ QUnit.test('FunctionFaker.wrap (callable)', function(assert) {
         instance: instance, method: 'func', result: 'Fake!', callable: _callable
     });
 
-    equal(instance.func('arg1', 'arg2'), 'MockA!');
-    equal(instance.real, 1);
+    assert.equal(instance.func('arg1', 'arg2'), 'MockA!');
+    assert.equal(instance.real, 1);
 
-    deepEqual(faker.calls(), []);
-    equal(faker.called(), false);
-    equal(faker.count(), 0);
+    assert.deepEqual(faker.calls(), []);
+    assert.equal(faker.called(), false);
+    assert.equal(faker.count(), 0);
 
     faker.wrap();
 
     // faker.result is ignored if faker.callable exists
-    equal(instance.func('arg1', 'arg2'), 'FakeCallable!');
-    equal(instance.real, 1);
+    assert.equal(instance.func('arg1', 'arg2'), 'FakeCallable!');
+    assert.equal(instance.real, 1);
 
-    deepEqual(faker.calls(), [['arg1', 'arg2']]);
-    equal(faker.called(), true);
-    equal(faker.count(), 1);
+    assert.deepEqual(faker.calls(), [['arg1', 'arg2']]);
+    assert.equal(faker.called(), true);
+    assert.equal(faker.count(), 1);
 });
 
 QUnit.test('FunctionFaker.unwrap', function(assert) {
@@ -243,21 +243,21 @@ QUnit.test('FunctionFaker.unwrap', function(assert) {
 
     faker.wrap();
 
-    equal(instance.func('arg1', 'arg2'), 'Fake!');
-    equal(instance.real, 0);
+    assert.equal(instance.func('arg1', 'arg2'), 'Fake!');
+    assert.equal(instance.real, 0);
 
-    deepEqual(faker.calls(), [['arg1', 'arg2']]);
-    equal(faker.called(), true);
-    equal(faker.count(), 1);
+    assert.deepEqual(faker.calls(), [['arg1', 'arg2']]);
+    assert.equal(faker.called(), true);
+    assert.equal(faker.count(), 1);
 
     faker.unwrap();
 
-    equal(instance.func('arg1', 'arg2'), 'MockA!');
-    equal(instance.real, 1);
+    assert.equal(instance.func('arg1', 'arg2'), 'MockA!');
+    assert.equal(instance.real, 1);
 
-    deepEqual(faker.calls(), [['arg1', 'arg2']]);
-    equal(faker.called(), true);
-    equal(faker.count(), 1);
+    assert.deepEqual(faker.calls(), [['arg1', 'arg2']]);
+    assert.equal(faker.called(), true);
+    assert.equal(faker.count(), 1);
 });
 
 QUnit.test('FunctionFaker.reset', function(assert) {
@@ -268,18 +268,18 @@ QUnit.test('FunctionFaker.reset', function(assert) {
 
     faker.wrap();
 
-    equal(instance.func('arg1', 'arg2'), 'Fake!');
-    equal(instance.real, 0);
+    assert.equal(instance.func('arg1', 'arg2'), 'Fake!');
+    assert.equal(instance.real, 0);
 
-    deepEqual(faker.calls(), [['arg1', 'arg2']]);
-    equal(faker.called(), true);
-    equal(faker.count(), 1);
+    assert.deepEqual(faker.calls(), [['arg1', 'arg2']]);
+    assert.equal(faker.called(), true);
+    assert.equal(faker.count(), 1);
 
     faker.reset();
 
-    deepEqual(faker.calls(), []);
-    equal(faker.called(), false);
-    equal(faker.count(), 0);
+    assert.deepEqual(faker.calls(), []);
+    assert.equal(faker.called(), false);
+    assert.equal(faker.count(), 0);
 });
 
 QUnit.test('FunctionFaker.with', function(assert) {
@@ -289,32 +289,32 @@ QUnit.test('FunctionFaker.with', function(assert) {
     });
 
     faker.with(function(faker, wrapper) {
-        equal(instance.func('arg1', 'arg2'), 'Fake!');
-        equal(instance.real, 0);
+        assert.equal(instance.func('arg1', 'arg2'), 'Fake!');
+        assert.equal(instance.real, 0);
 
-        deepEqual(faker.calls(), [['arg1', 'arg2']]);
-        equal(faker.called(), true);
-        equal(faker.count(), 1);
+        assert.deepEqual(faker.calls(), [['arg1', 'arg2']]);
+        assert.equal(faker.called(), true);
+        assert.equal(faker.count(), 1);
 
         wrapper('arg3', 'arg4');
 
-        deepEqual(faker.calls(), [
+        assert.deepEqual(faker.calls(), [
             ['arg1', 'arg2'],
             ['arg3', 'arg4']
         ]);
-        equal(faker.called(), true);
-        equal(faker.count(), 2);
+        assert.equal(faker.called(), true);
+        assert.equal(faker.count(), 2);
     });
 
-    equal(instance.func('arg1', 'arg2'), 'MockA!');
-    equal(instance.real, 1);
+    assert.equal(instance.func('arg1', 'arg2'), 'MockA!');
+    assert.equal(instance.real, 1);
 
-    deepEqual(faker.calls(), [
+    assert.deepEqual(faker.calls(), [
         ['arg1', 'arg2'],
         ['arg3', 'arg4']
     ]);
-    equal(faker.called(), true);
-    equal(faker.count(), 2);
+    assert.equal(faker.called(), true);
+    assert.equal(faker.count(), 2);
 });
 
 QUnit.test('FunctionFaker.with (path)', function(assert) {
@@ -324,30 +324,30 @@ QUnit.test('FunctionFaker.with (path)', function(assert) {
     });
 
     faker.with(function(faker, wrapper) {
-        equal(instance.data.func('arg1', 'arg2'), 'Fake!');
+        assert.equal(instance.data.func('arg1', 'arg2'), 'Fake!');
 
-        deepEqual(faker.calls(), [['arg1', 'arg2']]);
-        equal(faker.called(), true);
-        equal(faker.count(), 1);
+        assert.deepEqual(faker.calls(), [['arg1', 'arg2']]);
+        assert.equal(faker.called(), true);
+        assert.equal(faker.count(), 1);
 
         wrapper('arg3', 'arg4');
 
-        deepEqual(faker.calls(), [
+        assert.deepEqual(faker.calls(), [
             ['arg1', 'arg2'],
             ['arg3', 'arg4']
         ]);
-        equal(faker.called(), true);
-        equal(faker.count(), 2);
+        assert.equal(faker.called(), true);
+        assert.equal(faker.count(), 2);
     });
 
-    equal(instance.data.func('arg1', 'arg2'), 'MockA.data.func');
+    assert.equal(instance.data.func('arg1', 'arg2'), 'MockA.data.func');
 
-    deepEqual(faker.calls(), [
+    assert.deepEqual(faker.calls(), [
         ['arg1', 'arg2'],
         ['arg3', 'arg4']
     ]);
-    equal(faker.called(), true);
-    equal(faker.count(), 2);
+    assert.equal(faker.called(), true);
+    assert.equal(faker.count(), 2);
 });
 
 QUnit.test('FunctionFaker.with (static path)', function(assert) {
@@ -359,31 +359,31 @@ QUnit.test('FunctionFaker.with (static path)', function(assert) {
     var dump = JSON.stringify({a: 12, b: 'B'});
 
     faker.with(function(faker, wrapper) {
-        equal(JSON.stringify({a: 12, b: 'B'}), 'Fake!');
+        assert.equal(JSON.stringify({a: 12, b: 'B'}), 'Fake!');
 
-        deepEqual(faker.calls(), [[{a: 12, b: 'B'}]]);
-        equal(faker.called(), true);
-        equal(faker.count(), 1);
+        assert.deepEqual(faker.calls(), [[{a: 12, b: 'B'}]]);
+        assert.equal(faker.called(), true);
+        assert.equal(faker.count(), 1);
 
         wrapper({c: 5, d: 'D'});
 
-        deepEqual(faker.calls(), [
+        assert.deepEqual(faker.calls(), [
             [{a: 12, b: 'B'}],
             [{c: 5, d: 'D'}]
         ]);
-        equal(faker.called(), true);
-        equal(faker.count(), 2);
+        assert.equal(faker.called(), true);
+        assert.equal(faker.count(), 2);
     });
 
-    equal(JSON.stringify, origin);
-    equal(JSON.stringify({a: 12, b: 'B'}), dump);
+    assert.equal(JSON.stringify, origin);
+    assert.equal(JSON.stringify({a: 12, b: 'B'}), dump);
 
-    deepEqual(faker.calls(), [
+    assert.deepEqual(faker.calls(), [
         [{a: 12, b: 'B'}],
         [{c: 5, d: 'D'}]
     ]);
-    equal(faker.called(), true);
-    equal(faker.count(), 2);
+    assert.equal(faker.called(), true);
+    assert.equal(faker.count(), 2);
 });
 
 
@@ -412,16 +412,16 @@ QUnit.test('PropertyFaker (replace)', function(assert) {
         props: {a: 'fake!', b: 'faketoo!'}
     });
 
-    equal(data.a, 12);
-    equal(data.b, 'test');
+    assert.equal(data.a, 12);
+    assert.equal(data.b, 'test');
 
     faker.with(function() {
-        equal(data.a, 'fake!');
-        equal(data.b, 'faketoo!');
+        assert.equal(data.a, 'fake!');
+        assert.equal(data.b, 'faketoo!');
     });
 
-    equal(data.a, 12);
-    equal(data.b, 'test');
+    assert.equal(data.a, 12);
+    assert.equal(data.b, 'test');
 });
 
 QUnit.test('PropertyFaker (add)', function(assert) {
@@ -435,21 +435,21 @@ QUnit.test('PropertyFaker (add)', function(assert) {
         props: {a: 'fake!', b: 'faketoo!', c: 'new!'}
     });
 
-    equal(data.a, 12);
-    equal(data.b, 'test');
-    equal(data.c, undefined);
-    ok(!('c' in data));
+    assert.equal(data.a, 12);
+    assert.equal(data.b, 'test');
+    assert.equal(data.c, undefined);
+    assert.ok(!('c' in data));
 
     faker.with(function() {
-        equal(data.a, 'fake!');
-        equal(data.b, 'faketoo!');
-        equal(data.c, 'new!');
+        assert.equal(data.a, 'fake!');
+        assert.equal(data.b, 'faketoo!');
+        assert.equal(data.c, 'new!');
     });
 
-    equal(data.a, 12);
-    equal(data.b, 'test');
-    equal(data.c, undefined);
-    ok(!('c' in data));
+    assert.equal(data.a, 12);
+    assert.equal(data.b, 'test');
+    assert.equal(data.c, undefined);
+    assert.ok(!('c' in data));
 });
 
 QUnit.parametrize('DateFaker (invalid date)', [
@@ -472,24 +472,24 @@ QUnit.parametrize('DateFaker.with', [
     var origin = window.Date;
     var faker = new DateFaker(value);
 
-    equal(faker.frozen, expected);
-    equal(origin, window.Date);
+    assert.equal(faker.frozen, expected);
+    assert.equal(origin, window.Date);
 
     faker.with(function(datefaker) {
-        deepEqual(faker, datefaker);
-        equal(expected, new Date().toISOString());
-        equal(expected, Date.now().toISOString());
+        assert.deepEqual(faker, datefaker);
+        assert.equal(expected, new Date().toISOString());
+        assert.equal(expected, Date.now().toISOString());
 
         // constructor should works as usual
-        equal('2020-12-31T00:08:30.000Z', new Date('2020-12-31T00:08:30+00:00').toISOString());
-        equal(new Date('2020-12-31T00:08:30').toISOString(), new Date(2020, 11, 31, 0, 8, 30, 0).toISOString());
+        assert.equal('2020-12-31T00:08:30.000Z', new Date('2020-12-31T00:08:30+00:00').toISOString());
+        assert.equal(new Date('2020-12-31T00:08:30').toISOString(), new Date(2020, 11, 31, 0, 8, 30, 0).toISOString());
 
         // same for the static methods
-        equal(1609373310000, Date.UTC(2020, 11, 31, 0, 8, 30, 0));
-        equal(1609373310000, Date.parse('2020-12-31T00:08:30+00:00'));
+        assert.equal(1609373310000, Date.UTC(2020, 11, 31, 0, 8, 30, 0));
+        assert.equal(1609373310000, Date.parse('2020-12-31T00:08:30+00:00'));
     });
 
-    equal(origin, window.Date);
+    assert.equal(origin, window.Date);
 });
 
 }(jQuery));

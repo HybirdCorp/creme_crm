@@ -25,76 +25,76 @@ QUnit.module("creme.utils.ConverterRegistry", new QUnitMixin({
 QUnit.test('creme.utils.ConverterRegistry.register', function(assert) {
     var converters = new creme.utils.ConverterRegistry();
 
-    equal(false, converters.available('string', 'int'));
-    equal(false, converters.available('string', 'float'));
+    assert.equal(false, converters.available('string', 'int'));
+    assert.equal(false, converters.available('string', 'float'));
 
     converters.register('string', 'int', this.str2int);
 
-    equal(true, converters.available('string', 'int'));
-    equal(false, converters.available('string', 'float'));
+    assert.equal(true, converters.available('string', 'int'));
+    assert.equal(false, converters.available('string', 'float'));
 
     converters.register('string', 'float', this.str2float);
 
-    equal(true, converters.available('string', 'int'));
-    equal(true, converters.available('string', 'float'));
+    assert.equal(true, converters.available('string', 'int'));
+    assert.equal(true, converters.available('string', 'float'));
 });
 
 QUnit.test('creme.utils.ConverterRegistry.register (from array)', function(assert) {
     var converters = new creme.utils.ConverterRegistry();
 
-    equal(false, converters.available('string', 'int'));
-    equal(false, converters.available('string', 'float'));
-    equal(false, converters.available('text', 'int'));
-    equal(false, converters.available('text', 'float'));
+    assert.equal(false, converters.available('string', 'int'));
+    assert.equal(false, converters.available('string', 'float'));
+    assert.equal(false, converters.available('text', 'int'));
+    assert.equal(false, converters.available('text', 'float'));
 
     converters.register(['text', 'string'], 'int', this.str2int);
 
-    equal(true, converters.available('string', 'int'));
-    equal(false, converters.available('string', 'float'));
-    equal(true, converters.available('text', 'int'));
-    equal(false, converters.available('text', 'float'));
+    assert.equal(true, converters.available('string', 'int'));
+    assert.equal(false, converters.available('string', 'float'));
+    assert.equal(true, converters.available('text', 'int'));
+    assert.equal(false, converters.available('text', 'float'));
 
     converters.register(['text', 'string'], 'float', this.str2float);
 
-    equal(true, converters.available('string', 'int'));
-    equal(true, converters.available('string', 'float'));
-    equal(true, converters.available('text', 'int'));
-    equal(true, converters.available('text', 'float'));
+    assert.equal(true, converters.available('string', 'int'));
+    assert.equal(true, converters.available('string', 'float'));
+    assert.equal(true, converters.available('text', 'int'));
+    assert.equal(true, converters.available('text', 'float'));
 });
 
 
 QUnit.test('creme.utils.ConverterRegistry.register (target dict)', function(assert) {
     var converters = new creme.utils.ConverterRegistry();
 
-    equal(false, converters.available('string', 'int'));
-    equal(false, converters.available('string', 'float'));
+    assert.equal(false, converters.available('string', 'int'));
+    assert.equal(false, converters.available('string', 'float'));
 
     converters.register('string', {
         int: this.str2int,
         float: this.str2float
     });
 
-    equal(converters.converter('string', 'int'), this.str2int);
-    equal(converters.converter('string', 'float'), this.str2float);
+    assert.equal(converters.converter('string', 'int'), this.str2int);
+    assert.equal(converters.converter('string', 'float'), this.str2float);
 });
 
 QUnit.test('creme.utils.ConverterRegistry.register (from list, target dict)', function(assert) {
     var converters = new creme.utils.ConverterRegistry();
 
-    equal(false, converters.available('string', 'int'));
-    equal(false, converters.available('string', 'float'));
-    equal(false, converters.available('text', 'int'));
-    equal(false, converters.available('text', 'float'));
+    assert.equal(false, converters.available('string', 'int'));
+    assert.equal(false, converters.available('string', 'float'));
+    assert.equal(false, converters.available('text', 'int'));
+    assert.equal(false, converters.available('text', 'float'));
 
     converters.register(['text', 'string'], {
         int: this.str2int,
         float: this.str2float
     });
 
-    equal(converters.converter('string', 'int'), this.str2int);
-    equal(converters.converter('string', 'float'), this.str2float);
-    equal(converters.converter('text', 'int'), this.str2int);
-    equal(converters.converter('text', 'float'), this.str2float);
+    assert.equal(converters.converter('string', 'int'), this.str2int);
+    assert.equal(converters.converter('string', 'float'), this.str2float);
+    assert.equal(converters.converter('text', 'int'), this.str2int);
+    assert.equal(converters.converter('text', 'float'), this.str2float);
 });
 
 QUnit.test('creme.utils.ConverterRegistry.register (not a function)', function(assert) {
@@ -123,24 +123,24 @@ QUnit.test('creme.utils.ConverterRegistry.unregister', function(assert) {
         float: this.str2float
     });
 
-    equal(converters.converter('string', 'int'), this.str2int);
-    equal(converters.converter('string', 'float'), this.str2float);
+    assert.equal(converters.converter('string', 'int'), this.str2int);
+    assert.equal(converters.converter('string', 'float'), this.str2float);
 
     converters.unregister('string', 'int');
 
-    equal(false, converters.available('string', 'int'));
-    equal(true, converters.available('string', 'float'));
+    assert.equal(false, converters.available('string', 'int'));
+    assert.equal(true, converters.available('string', 'float'));
 
     converters.unregister('string', 'float');
 
-    equal(false, converters.available('string', 'int'));
-    equal(false, converters.available('string', 'float'));
+    assert.equal(false, converters.available('string', 'int'));
+    assert.equal(false, converters.available('string', 'float'));
 });
 
 QUnit.test('creme.utils.ConverterRegistry.unregister (fail)', function(assert) {
     var converters = new creme.utils.ConverterRegistry();
 
-    equal(false, converters.available('string', 'int'));
+    assert.equal(false, converters.available('string', 'int'));
 
     this.assertRaises(function() {
         converters.unregister('string', 'int');
@@ -153,17 +153,17 @@ QUnit.test('creme.utils.ConverterRegistry.convert', function(assert) {
     converters.register('string', 'int', this.str2int);
     converters.register('string', 'float', this.str2float);
 
-    equal(converters.convert('12', {from: 'string', to: 'int'}), 12);
-    equal(converters.convert('12.65', {from: 'string', to: 'int'}), 12);
+    assert.equal(converters.convert('12', {from: 'string', to: 'int'}), 12);
+    assert.equal(converters.convert('12.65', {from: 'string', to: 'int'}), 12);
 
-    equal(converters.convert('12', {from: 'string', to: 'float'}), 12.0);
-    equal(converters.convert('12.65', {from: 'string', to: 'float'}), 12.65);
+    assert.equal(converters.convert('12', {from: 'string', to: 'float'}), 12.0);
+    assert.equal(converters.convert('12.65', {from: 'string', to: 'float'}), 12.65);
 });
 
 QUnit.test('creme.utils.ConverterRegistry.convert (not found)', function(assert) {
     var converters = new creme.utils.ConverterRegistry();
 
-    equal(false, converters.available('string', 'int'));
+    assert.equal(false, converters.available('string', 'int'));
 
     this.assertRaises(function() {
         converters.converter('string', 'int');
@@ -187,19 +187,19 @@ QUnit.test('creme.utils.ConverterRegistry.convert (fail)', function(assert) {
 QUnit.test('creme.utils.ConverterRegistry.convert (same)', function(assert) {
     var converters = new creme.utils.ConverterRegistry();
 
-    equal(true, converters.available('int', 'int'));
-    equal(converters.convert(15446, {from: 'int', to: 'int'}), 15446);
+    assert.equal(true, converters.available('int', 'int'));
+    assert.equal(converters.convert(15446, {from: 'int', to: 'int'}), 15446);
 });
 
 QUnit.test('creme.utils.ConverterRegistry.convert (default)', function(assert) {
     var converters = new creme.utils.ConverterRegistry();
 
-    equal(false, converters.available('string', 'int'));
-    equal(converters.convert('15446', {from: 'string', to: 'int', defaults: 10}), 10);
+    assert.equal(false, converters.available('string', 'int'));
+    assert.equal(converters.convert('15446', {from: 'string', to: 'int', defaults: 10}), 10);
 
     converters.register('string', 'int', this.str2int);
-    equal(converters.convert('15446', {from: 'string', to: 'int', defaults: 10}), 15446);
-    equal(converters.convert({}, {from: 'string', to: 'int', defaults: 10}), 10);
+    assert.equal(converters.convert('15446', {from: 'string', to: 'int', defaults: 10}), 15446);
+    assert.equal(converters.convert({}, {from: 'string', to: 'int', defaults: 10}), 10);
 });
 
 QUnit.parameterize('creme.utils.converters (string-number)', [
@@ -218,7 +218,7 @@ QUnit.parameterize('creme.utils.converters (string-number)', [
 ], function(options, value, expected, assert) {
     var converters = creme.utils.converters();
 
-    equal(expected, converters.convert(value, options));
+    assert.equal(expected, converters.convert(value, options));
 });
 
 QUnit.parameterize('creme.utils.converters (string-number, fail)', [
@@ -235,7 +235,7 @@ QUnit.parameterize('creme.utils.converters (string-number, fail)', [
         converters.convert('nan', options);
     }, Error, 'Error: ${expected}'.template({expected: expected}));
 
-    equal(0, converters.convert('nan', $.extend({}, options, {defaults: 0})));
+    assert.equal(0, converters.convert('nan', $.extend({}, options, {defaults: 0})));
 });
 
 QUnit.parameterize('creme.utils.converters (string-datetime)', [
@@ -258,10 +258,10 @@ QUnit.parameterize('creme.utils.converters (string-datetime)', [
     var converters = creme.utils.converters();
     var result = converters.convert(value, options);
 
-    ok(result instanceof moment, result);
-    ok(result.isValid());
-    ok(expected.isValid());
-    equal(expected.format(), result.format());
+    assert.ok(result instanceof moment, result);
+    assert.ok(result.isValid());
+    assert.ok(expected.isValid());
+    assert.equal(expected.format(), result.format());
 });
 
 QUnit.parameterize('creme.utils.converters (string-datetime, fail)', [
@@ -306,7 +306,7 @@ QUnit.parameterize('creme.utils.converters (datetime-string)', [
     var converters = creme.utils.converters();
     var result = converters.convert(value, options);
 
-    equal(result, expected);
+    assert.equal(result, expected);
 });
 
 QUnit.parameterize('creme.utils.converters (string-datetime, fail)', [
@@ -331,7 +331,7 @@ QUnit.parameterize('creme.utils.converters (string-json)', [
     var converters = creme.utils.converters();
     var result = converters.convert(value, options);
 
-    deepEqual(result, expected);
+    assert.deepEqual(result, expected);
 });
 
 QUnit.parametrize('creme.utils.converters (string-json, fail)', [
@@ -354,7 +354,7 @@ QUnit.parameterize('creme.utils.converters (json-string)', [
     var converters = creme.utils.converters();
     var result = converters.convert(value, options);
 
-    deepEqual(result, expected);
+    assert.deepEqual(result, expected);
 });
 
 }(jQuery));

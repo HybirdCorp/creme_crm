@@ -170,34 +170,34 @@ QUnit.test('creme.dialog.FormDialog (default validator)', function(assert) {
     var options = {validator: 'default'};
     var dialog = new creme.dialog.FormDialog(options);
 
-    ok(Object.isFunc(dialog.validator()));
+    assert.ok(Object.isFunc(dialog.validator()));
 
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('', 'text/html'), 'text/html'));
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div></div>', 'text/html'), 'text/html'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('', 'text/html'), 'text/html'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('<div></div>', 'text/html'), 'text/html'));
 
-    equal(false, dialog._validate(new creme.dialog.FrameContentData('<div><form></form></div>', 'text/html'), 'text/html'));
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('"<div><form></form></div>"', 'text/json'), 'text/json'));
+    assert.equal(false, dialog._validate(new creme.dialog.FrameContentData('<div><form></form></div>', 'text/html'), 'text/html'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('"<div><form></form></div>"', 'text/json'), 'text/json'));
 });
 
 QUnit.test('creme.dialog.FormDialog (compatible validator)', function(assert) {
     var options = {validator: 'innerpopup'};
     var dialog = new creme.dialog.FormDialog(options);
 
-    ok(Object.isFunc(dialog.validator()));
+    assert.ok(Object.isFunc(dialog.validator()));
 
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('', 'text/html'), 'text/html'));
-    equal(false, dialog._validate(new creme.dialog.FrameContentData('<div></div>', 'text/html'), 'text/html'));
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div class="in-popup"></div>', 'text/html'), 'text/html'));
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div class="in-popup" closing="true"></div>', 'text/html'), 'text/html'));
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div class="in-popup" reload="/" closing="true"></div>', 'text/html'), 'text/html'));
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div closing="true" class="in-popup"></div>', 'text/html'), 'text/html'));
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div  closing="true"  reload="/"   class="in-popup"></div>', 'text/html'), 'text/html'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('', 'text/html'), 'text/html'));
+    assert.equal(false, dialog._validate(new creme.dialog.FrameContentData('<div></div>', 'text/html'), 'text/html'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('<div class="in-popup"></div>', 'text/html'), 'text/html'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('<div class="in-popup" closing="true"></div>', 'text/html'), 'text/html'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('<div class="in-popup" reload="/" closing="true"></div>', 'text/html'), 'text/html'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('<div closing="true" class="in-popup"></div>', 'text/html'), 'text/html'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('<div  closing="true"  reload="/"   class="in-popup"></div>', 'text/html'), 'text/html'));
 
-    equal(false, dialog._validate(new creme.dialog.FrameContentData('<div><form></form></div>', 'text/html'), 'text/html'));
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div class="in-popup" closing="true"><form></form></div>', 'text/html'), 'text/html'), 'closing+form');
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div closing="true" class="in-popup"><form></form></div>', 'text/html'), 'text/html'));
+    assert.equal(false, dialog._validate(new creme.dialog.FrameContentData('<div><form></form></div>', 'text/html'), 'text/html'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('<div class="in-popup" closing="true"><form></form></div>', 'text/html'), 'text/html'), 'closing+form');
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('<div closing="true" class="in-popup"><form></form></div>', 'text/html'), 'text/html'));
 
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('"<div><form></form></div>"', 'text/json'), 'text/json'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('"<div><form></form></div>"', 'text/json'), 'text/json'));
 });
 
 QUnit.test('creme.dialog.FormDialog (custom validator)', function(assert) {
@@ -207,11 +207,11 @@ QUnit.test('creme.dialog.FormDialog (custom validator)', function(assert) {
     var options = {validator: validateAll};
     var dialog = new creme.dialog.FormDialog(options);
 
-    ok(Object.isFunc(dialog.validator()));
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('', 'text/html'), 'text/html'));
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div></div>', 'text/html'), 'text/html'));
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div><form></form></div>', 'text/html'), 'text/html'));
-    equal(true, dialog._validate(new creme.dialog.FrameContentData('"<div><form></form></div>"', 'text/html'), 'text/json'));
+    assert.ok(Object.isFunc(dialog.validator()));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('', 'text/html'), 'text/html'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('<div></div>', 'text/html'), 'text/html'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('<div><form></form></div>', 'text/html'), 'text/html'));
+    assert.equal(true, dialog._validate(new creme.dialog.FrameContentData('"<div><form></form></div>"', 'text/html'), 'text/json'));
 });
 
 QUnit.test('creme.dialog.FormDialog (invalid validator)', function(assert) {
@@ -223,7 +223,7 @@ QUnit.test('creme.dialog.FormDialog (invalid validator)', function(assert) {
 
     var dialog = new creme.dialog.FormDialog();
 
-    ok(Object.isFunc(dialog.validator()));
+    assert.ok(Object.isFunc(dialog.validator()));
 
     this.assertRaises(function() {
         dialog.validator('string');
@@ -239,13 +239,13 @@ QUnit.test('creme.dialog.FormDialog (default button, empty form)', function(asse
     dialog.on('frame-activated', this.mockListener('frame-activated'));
 
     dialog.open();
-    deepEqual([], this.mockListenerCalls('frame-activated')); // nothing to activate
+    assert.deepEqual([], this.mockListenerCalls('frame-activated')); // nothing to activate
 
-    equal(1, dialog.buttons().find('button').length);
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(1, dialog.buttons().find('button').length);
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.close();
-    deepEqual([], this.mockListenerCalls('frame-activated'));
+    assert.deepEqual([], this.mockListenerCalls('frame-activated'));
 });
 
 QUnit.test('creme.dialog.FormDialog (default button, unnamed submit input)', function(assert) {
@@ -253,9 +253,9 @@ QUnit.test('creme.dialog.FormDialog (default button, unnamed submit input)', fun
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.close();
 });
@@ -265,12 +265,12 @@ QUnit.test('creme.dialog.FormDialog (default button, unnamed submit input + clic
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.button('cancel').trigger('click');
-    equal(false, dialog.isOpened());
+    assert.equal(false, dialog.isOpened());
 });
 
 QUnit.test('creme.dialog.FormDialog (default button, unnamed submit button)', function(assert) {
@@ -278,9 +278,9 @@ QUnit.test('creme.dialog.FormDialog (default button, unnamed submit button)', fu
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.close();
 });
@@ -290,13 +290,13 @@ QUnit.test('creme.dialog.FormDialog (default button, multiple unnamed submit)', 
 
     dialog.open();
 
-    equal(5, dialog.buttons().find('button').length);
+    assert.equal(5, dialog.buttons().find('button').length);
 
-    equal(gettext('A'), dialog.button('send').text());
-    equal(gettext('B'), dialog.button('send-1').text());
-    equal(gettext('Button A'), dialog.button('send-2').text());
-    equal(gettext('Button B'), dialog.button('send-3').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(gettext('A'), dialog.button('send').text());
+    assert.equal(gettext('B'), dialog.button('send-1').text());
+    assert.equal(gettext('Button A'), dialog.button('send-2').text());
+    assert.equal(gettext('Button B'), dialog.button('send-3').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.close();
 });
@@ -306,14 +306,14 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons)', function(a
 
     dialog.open();
 
-    equal(6, dialog.buttons().find('button').length);
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(6, dialog.buttons().find('button').length);
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
-    equal('Button A', dialog.button('send').text());
-    equal('Button B', dialog.button('send-1').text());   // unamed button with value "bbb"
-    equal('Button C', dialog.button('send-c').text());   // input named "button-c"
-    equal('Button D', dialog.button('button-d').text()); // button named "button-d"
-    equal('Button E', dialog.button('button-e').text()); // button named "button-e" with value "eee"
+    assert.equal('Button A', dialog.button('send').text());
+    assert.equal('Button B', dialog.button('send-1').text());   // unamed button with value "bbb"
+    assert.equal('Button C', dialog.button('send-c').text());   // input named "button-c"
+    assert.equal('Button D', dialog.button('button-d').text()); // button named "button-d"
+    assert.equal('Button E', dialog.button('button-e').text()); // button named "button-e" with value "eee"
 
     dialog.close();
 });
@@ -323,13 +323,13 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons, duplicates)'
 
     dialog.open();
 
-    equal(5, dialog.buttons().find('button').length);
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(5, dialog.buttons().find('button').length);
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
-    equal('A', dialog.button('send').text());
-    equal('A', dialog.button('send-1').text());
-    equal(gettext('Save'), dialog.button('button').text());
-    equal('Duplicate', dialog.button('button-1').text());
+    assert.equal('A', dialog.button('send').text());
+    assert.equal('A', dialog.button('send-1').text());
+    assert.equal(gettext('Save'), dialog.button('button').text());
+    assert.equal('Duplicate', dialog.button('button-1').text());
 
     dialog.close();
 });
@@ -340,22 +340,22 @@ QUnit.test('creme.dialogs.FormDialog (scrollbackOnClose, cancel)', function(asse
 
         var dialog = new creme.dialog.FormDialog({url: 'mock/submit/button', backend: this.backend});
 
-        equal(true, dialog.options.scrollbackOnClose);
+        assert.equal(true, dialog.options.scrollbackOnClose);
 
         dialog.open();
 
-        equal(2, dialog.buttons().find('button').length);
-        equal(gettext('Save'), dialog.button('send').text());
-        equal(gettext('Cancel'), dialog.button('cancel').text());
+        assert.equal(2, dialog.buttons().find('button').length);
+        assert.equal(gettext('Save'), dialog.button('send').text());
+        assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
-        deepEqual(faker.calls(), [
+        assert.deepEqual(faker.calls(), [
             []
         ]);
-        equal(789, dialog._scrollbackPosition);
+        assert.equal(789, dialog._scrollbackPosition);
 
         dialog.button('cancel').trigger('click');
 
-        deepEqual(faker.calls(), [
+        assert.deepEqual(faker.calls(), [
             [],
             [789, 'slow']
         ]);
@@ -369,27 +369,27 @@ QUnit.test('creme.dialogs.FormDialog (scrollbackOnClose, submit)', function(asse
         var dialog = new creme.dialog.FormDialog({url: 'mock/submit/json', backend: this.backend});
         dialog.onFormSuccess(this.mockListener('form-success'));
 
-        equal(true, dialog.options.scrollbackOnClose);
+        assert.equal(true, dialog.options.scrollbackOnClose);
 
         dialog.open();
 
-        equal(2, dialog.buttons().find('button').length);
-        equal(gettext('Save'), dialog.button('send').text());
-        equal(gettext('Cancel'), dialog.button('cancel').text());
+        assert.equal(2, dialog.buttons().find('button').length);
+        assert.equal(gettext('Save'), dialog.button('send').text());
+        assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
-        deepEqual(faker.calls(), [
+        assert.deepEqual(faker.calls(), [
             []
         ]);
-        equal(789, dialog._scrollbackPosition);
+        assert.equal(789, dialog._scrollbackPosition);
 
         dialog.form().find('[name="responseType"]').val('empty');
 
-        equal(false, dialog.button('send').is('[disabled]'));
+        assert.equal(false, dialog.button('send').is('[disabled]'));
 
         dialog.button('send').trigger('click');
-        equal(false, dialog.isOpened());
+        assert.equal(false, dialog.isOpened());
 
-        deepEqual(faker.calls(), [
+        assert.deepEqual(faker.calls(), [
             [],
             [789, 'slow']
         ]);
@@ -401,22 +401,22 @@ QUnit.test('creme.dialog.FormDialog (submit)', function(assert) {
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
-    deepEqual([
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 
     dialog.submit();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             firstname: ['John'],
@@ -429,33 +429,33 @@ QUnit.test('creme.dialog.FormDialog (submit)', function(assert) {
 QUnit.test('creme.dialog.FormDialog (submit, widget)', function(assert) {
     var dialog = new creme.dialog.FormDialog({url: 'mock/submit/widget', backend: this.backend});
 
-    equal(0, $('.select2.select2-container').length);
+    assert.equal(0, $('.select2.select2-container').length);
 
     dialog.onFormSuccess(this.mockListener('form-success'));
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
     dialog.form().find('[name="checkin"]').val('true');
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="checkin"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="checkin"]').is(':invalid'));
 
     // checkin combobox is enabled and should have created a chosen droplist
-    equal(1, $('.select2.select2-container').length);
+    assert.equal(1, $('.select2.select2-container').length);
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/widget'));
 
     dialog.submit();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             firstname: ['John'],
@@ -464,7 +464,7 @@ QUnit.test('creme.dialog.FormDialog (submit, widget)', function(assert) {
         }]
     ], this.mockBackendUrlCalls('mock/submit/widget'));
 
-    deepEqual([
+    assert.deepEqual([
         ['form-success', {content: '', data: '', type: 'text/html'}, 'text/html']
     ], this.mockFormSubmitCalls('form-success'));
 });
@@ -474,30 +474,30 @@ QUnit.test('creme.dialog.FormDialog (submit, invalid response)', function(assert
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
-    ok(dialog.button('send').is(':not([disabled])'));
-    ok(dialog.button('cancel').is(':not([disabled])'));
+    assert.ok(dialog.button('send').is(':not([disabled])'));
+    assert.ok(dialog.button('cancel').is(':not([disabled])'));
 
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
-    deepEqual([
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/fail'));
 
     dialog.submit();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/fail'));
 
-    ok(dialog.button('send').is('[disabled]'));
-    ok(dialog.button('cancel').is(':not([disabled])'));
+    assert.ok(dialog.button('send').is('[disabled]'));
+    assert.ok(dialog.button('cancel').is(':not([disabled])'));
 });
 
 QUnit.test('creme.dialog.FormDialog (submit lastname required)', function(assert) {
@@ -505,31 +505,31 @@ QUnit.test('creme.dialog.FormDialog (submit lastname required)', function(assert
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.form().find('[name="firstname"]').val('John');
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
 
-    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+    assert.equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 
     dialog.submit();
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
 
-    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
-    equal(true, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+    assert.equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.equal(true, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 });
@@ -539,31 +539,31 @@ QUnit.test('creme.dialog.FormDialog (submit all required)', function(assert) {
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.form().find('[name="firstname"]').val('John');
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
 
-    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+    assert.equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/required'));
 
     dialog.submit();
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
 
-    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
-    equal(true, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+    assert.equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.equal(true, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/required'));
 
@@ -572,13 +572,13 @@ QUnit.test('creme.dialog.FormDialog (submit all required)', function(assert) {
 
     dialog.submit();
 
-    equal(true, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(true, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+    assert.equal(true, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(true, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
 
-    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+    assert.equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/required'));
 });
@@ -588,27 +588,27 @@ QUnit.test('creme.dialog.FormDialog (submit + form[novalidate])', function(asser
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.form().attr('novalidate', 'novalidate');
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
-    deepEqual([
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 
     dialog.submit();
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
 
-    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+    assert.equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             firstname: [''],
@@ -626,25 +626,25 @@ QUnit.test('creme.dialog.FormDialog (submit + dialog noValidate)', function(asse
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
-    deepEqual([
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 
     dialog.submit();
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
 
-    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+    assert.equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             firstname: [''],
@@ -661,30 +661,30 @@ QUnit.test('creme.dialog.FormDialog (submit + button[data-no-validate])', functi
 
     dialog.open();
 
-    equal(3, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
-    equal('Previous', dialog.button('previous').text());
+    assert.equal(3, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal('Previous', dialog.button('previous').text());
 
-    equal(true, dialog.content().find('button[name="previous"]').is('[data-no-validate]'));
+    assert.equal(true, dialog.content().find('button[name="previous"]').is('[data-no-validate]'));
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
-    deepEqual([
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/wizard'));
 
     // dialog forbid submit with invalid HTML5 form
     dialog.submit();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/wizard'));
 
     // previous button has 'data-no-validate' attribute and allows submit
     dialog.button('previous').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             firstname: [''],
@@ -706,20 +706,20 @@ QUnit.test('creme.dialog.FormDialog (submit + extra data)', function(assert) {
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 
     dialog.submit();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             firstname: ['John'],
@@ -738,7 +738,7 @@ QUnit.test('creme.dialog.FormDialog (submit + extra data)', function(assert) {
         lastname: 'Toe'
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             firstname: ['John'],
@@ -761,22 +761,22 @@ QUnit.test('creme.dialog.FormDialog (click + submit)', function(assert) {
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
-    deepEqual([
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 
     dialog.button('send').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             firstname: ['John'],
@@ -791,26 +791,26 @@ QUnit.test('creme.dialog.FormDialog (submitOnKey + submit)', function(assert) {
         backend: this.backend
     });
 
-    equal(13, dialog.submitKey());
+    assert.equal(13, dialog.submitKey());
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
-    deepEqual([
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 
     dialog.content().trigger($.Event("keypress", {keyCode: 13}));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             firstname: ['John'],
@@ -826,36 +826,36 @@ QUnit.test('creme.dialog.FormDialog (no submitOnKey)', function(assert) {
         submitOnKey: false
     });
 
-    equal(false, dialog.submitKey());
+    assert.equal(false, dialog.submitKey());
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
-    deepEqual([
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 
     // no submitkey
     dialog.content().trigger($.Event("keypress", {keyCode: 13}));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 
     dialog.submitKey(13);
 
-    equal(13, dialog.submitKey());
+    assert.equal(13, dialog.submitKey());
     dialog.content().trigger($.Event("keypress", {keyCode: 13}));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             firstname: ['John'],
@@ -869,17 +869,17 @@ QUnit.test('creme.dialog.FormDialog (prevent multiple submit click)', function(a
 
     dialog.open();
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(2, dialog.buttons().find('button').length);
+    assert.equal(gettext('Save'), dialog.button('send').text());
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
 
-    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
-    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
-    equal(false, dialog.button('send').is('.ui-state-disabled'));
-    deepEqual([
+    assert.equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    assert.equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    assert.equal(false, dialog.button('send').is('.ui-state-disabled'));
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 
@@ -889,7 +889,7 @@ QUnit.test('creme.dialog.FormDialog (prevent multiple submit click)', function(a
     dialog.button('send').trigger('click');
     dialog.button('send').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             firstname: ['John'],
@@ -903,20 +903,20 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons click)', func
 
     dialog.open();
 
-    equal(6, dialog.buttons().find('button').length);
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(6, dialog.buttons().find('button').length);
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
-    equal('Button A', dialog.button('send').text());
-    equal('Button B', dialog.button('send-1').text());   // unamed button with value "bbb"
-    equal('Button C', dialog.button('send-c').text());   // input named "button-c"
-    equal('Button D', dialog.button('button-d').text()); // button named "button-d"
-    equal('Button E', dialog.button('button-e').text()); // button named "button-e" with value "eee"
+    assert.equal('Button A', dialog.button('send').text());
+    assert.equal('Button B', dialog.button('send-1').text());   // unamed button with value "bbb"
+    assert.equal('Button C', dialog.button('send-c').text());   // input named "button-c"
+    assert.equal('Button D', dialog.button('button-d').text()); // button named "button-d"
+    assert.equal('Button E', dialog.button('button-e').text()); // button named "button-e" with value "eee"
 
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
     dialog.button('send').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {firstname: ['John'], lastname: ['Doe']}]
     ], this.mockBackendUrlCalls('mock/submit/multi'));
@@ -928,7 +928,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons click)', func
     dialog.form().find('[name="lastname"]').val('Doe');
     dialog.button('send-1').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {firstname: ['John'], lastname: ['Doe']}]
     ], this.mockBackendUrlCalls('mock/submit/multi'));
@@ -940,7 +940,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons click)', func
     dialog.form().find('[name="lastname"]').val('Doe');
     dialog.button('send-c').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {firstname: ['John'], lastname: ['Doe']}]
     ], this.mockBackendUrlCalls('mock/submit/multi'));
@@ -952,7 +952,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons click)', func
     dialog.form().find('[name="lastname"]').val('Doe');
     dialog.button('button-d').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {firstname: ['John'], lastname: ['Doe'], 'button-d': ['']}]
     ], this.mockBackendUrlCalls('mock/submit/multi'));
@@ -964,7 +964,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons click)', func
     dialog.form().find('[name="lastname"]').val('Doe');
     dialog.button('button-e').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {firstname: ['John'], lastname: ['Doe'], 'button-e': ['eee']}]
     ], this.mockBackendUrlCalls('mock/submit/multi'));
@@ -979,19 +979,19 @@ QUnit.test('creme.dialog.FormDialog (multiple submit duplicates input/buttons cl
 
     dialog.open();
 
-    equal(5, dialog.buttons().find('button').length);
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+    assert.equal(5, dialog.buttons().find('button').length);
+    assert.equal(gettext('Cancel'), dialog.button('cancel').text());
 
-    equal('A', dialog.button('send').text());
-    equal('A', dialog.button('send-1').text());
-    equal(gettext('Save'), dialog.button('button').text());
-    equal('Duplicate', dialog.button('button-1').text());
+    assert.equal('A', dialog.button('send').text());
+    assert.equal('A', dialog.button('send-1').text());
+    assert.equal(gettext('Save'), dialog.button('button').text());
+    assert.equal('Duplicate', dialog.button('button-1').text());
 
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
     dialog.button('send').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {firstname: ['John'], lastname: ['Doe']}]
     ], this.mockBackendUrlCalls('mock/submit/multi/duplicates'));
@@ -1003,7 +1003,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit duplicates input/buttons cl
     dialog.form().find('[name="lastname"]').val('Doe');
     dialog.button('send-1').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {firstname: ['John'], lastname: ['Doe']}]
     ], this.mockBackendUrlCalls('mock/submit/multi/duplicates'));
@@ -1015,7 +1015,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit duplicates input/buttons cl
     dialog.form().find('[name="lastname"]').val('Doe');
     dialog.button('button').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {firstname: ['John'], lastname: ['Doe'], button: ['A']}]
     ], this.mockBackendUrlCalls('mock/submit/multi/duplicates'));
@@ -1027,7 +1027,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit duplicates input/buttons cl
     dialog.form().find('[name="lastname"]').val('Doe');
     dialog.button('button-1').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {firstname: ['John'], lastname: ['Doe'], button: ['A']}]
     ], this.mockBackendUrlCalls('mock/submit/multi/duplicates'));
@@ -1046,7 +1046,7 @@ QUnit.test('creme.dialog.FormDialog (<json>JSON</json> response)', function(asse
         responseData: JSON.stringify({value: 1, added: [1, 'John Doe']})
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             responseType: ['jsontag'],
@@ -1054,7 +1054,7 @@ QUnit.test('creme.dialog.FormDialog (<json>JSON</json> response)', function(asse
         }]
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
-    deepEqual([
+    assert.deepEqual([
         ['form-success', {
             content: JSON.stringify({value: 1, added: [1, 'John Doe']}),
             data: {value: 1, added: [1, 'John Doe']},
@@ -1072,14 +1072,14 @@ QUnit.test('creme.dialog.FormDialog (<pre>JSON</pre> response)', function(assert
     dialog.form().find('[name="responseType"]').val('pre');
     dialog.submit();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             responseType: ['pre']
         }]
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
-    deepEqual([
+    assert.deepEqual([
         ['form-success', {
             content: JSON.stringify({value: 2, added: [5, 'John Pre']}),
             data: {value: 2, added: [5, 'John Pre']},
@@ -1098,7 +1098,7 @@ QUnit.test('creme.dialog.FormDialog (<pre></pre> response)', function(assert) {
         responseData: '<pre></pre>'
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             responseType: [''],
@@ -1106,7 +1106,7 @@ QUnit.test('creme.dialog.FormDialog (<pre></pre> response)', function(assert) {
         }]
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
-    deepEqual([
+    assert.deepEqual([
         ['form-success', {
             content: '',
             data: '',
@@ -1125,7 +1125,7 @@ QUnit.test('creme.dialog.FormDialog (<pre>url</pre> response)', function(assert)
         responseData: '<pre>/mock/redirect</pre>'
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             responseType: [''],
@@ -1133,7 +1133,7 @@ QUnit.test('creme.dialog.FormDialog (<pre>url</pre> response)', function(assert)
         }]
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
-    deepEqual([
+    assert.deepEqual([
         ['form-success', {
             content: '/mock/redirect',
             data: '/mock/redirect',
@@ -1152,7 +1152,7 @@ QUnit.test('creme.dialog.FormDialog (JSON response)', function(assert) {
         responseData: JSON.stringify({value: 3, added: [-8, 'John NoTag']})
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             responseType: [''],
@@ -1160,7 +1160,7 @@ QUnit.test('creme.dialog.FormDialog (JSON response)', function(assert) {
         }]
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
-    deepEqual([
+    assert.deepEqual([
         ['form-success', {
             content: JSON.stringify({value: 3, added: [-8, 'John NoTag']}),
             data: {value: 3, added: [-8, 'John NoTag']},
@@ -1178,14 +1178,14 @@ QUnit.test('creme.dialog.FormDialog (invalid JSON response)', function(assert) {
     dialog.form().find('[name="responseType"]').val('invalid');
     dialog.submit();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             responseType: ['invalid']
         }]
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
-    deepEqual([
+    assert.deepEqual([
         ['form-success', {
             content: '<json>{"value":1, added:[1, "John Doe"}</json>',
             data: '<json>{"value":1, added:[1, "John Doe"}</json>',
@@ -1203,14 +1203,14 @@ QUnit.test('creme.dialog.FormDialog (empty response)', function(assert) {
     dialog.form().find('[name="responseType"]').val('empty');
     dialog.submit();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             responseType: ['empty']
         }]
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
-    deepEqual([
+    assert.deepEqual([
         ['form-success', {content: '', data: '', type: 'text/html'}, 'text/html']
     ], this.mockFormSubmitCalls('form-success'));
 });
@@ -1231,7 +1231,7 @@ QUnit.parametrize('creme.dialogs.form (reloadOnSuccess)', ['empty', 'innerpopup'
 
     dialog.submit();
 
-    equal(this.mockReloadCalls().length, expected.reloadCount);
+    assert.equal(this.mockReloadCalls().length, expected.reloadCount);
 });
 
 QUnit.parametrize('creme.dialogs.form (redirectOnSuccess, empty response)', ['empty', 'innerpopup'], [
@@ -1251,7 +1251,7 @@ QUnit.parametrize('creme.dialogs.form (redirectOnSuccess, empty response)', ['em
 
     dialog.submit();
 
-    equal(this.mockRedirectCalls().length, expected.redirectCount);
+    assert.equal(this.mockRedirectCalls().length, expected.redirectCount);
 });
 
 QUnit.parametrize('creme.dialogs.form (redirectOnSuccess, response)', [
@@ -1275,7 +1275,7 @@ QUnit.parametrize('creme.dialogs.form (redirectOnSuccess, response)', [
         responseData: responseData
     });
 
-    equal(this.mockRedirectCalls().length, expected.redirectCount);
+    assert.equal(this.mockRedirectCalls().length, expected.redirectCount);
 });
 
 }(jQuery));

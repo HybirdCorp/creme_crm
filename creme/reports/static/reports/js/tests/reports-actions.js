@@ -100,20 +100,20 @@ QUnit.test('creme.reports.hatbar.actions (reports-export, ok)', function(assert)
         classes: ['brick-hat-bar']
     }).brick();
 
-    equal(0, $('#ui-datepicker-div').length);
+    assert.equal(0, $('#ui-datepicker-div').length);
 
     brick.action('reports-export', 'mock/reports/filterform').start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/reports/filterform'));
 
     var dialog = this.assertOpenedDialog();
-    equal(1, $('#ui-datepicker-div').length);
+    assert.equal(1, $('#ui-datepicker-div').length);
 
-    equal(2, dialog.find('.ui-dialog-buttonset button').length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
+    assert.equal(2, dialog.find('.ui-dialog-buttonset button').length);
+    assert.equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
+    assert.equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
 
     dialog.find('[name="doc_type"]').val('csv');
     dialog.find('[name="date_field"]').val('');
@@ -130,7 +130,7 @@ QUnit.test('creme.reports.hatbar.actions (reports-export, ok)', function(assert)
         date_filter_2: ''
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {
             doc_type: ['csv'],
@@ -141,23 +141,23 @@ QUnit.test('creme.reports.hatbar.actions (reports-export, ok)', function(assert)
         }]
     ], this.mockBackendUrlCalls('mock/reports/filterform'));
 
-    deepEqual([downloadUrl], this.mockRedirectCalls());
+    assert.deepEqual([downloadUrl], this.mockRedirectCalls());
 });
 
 
 QUnit.test('creme.reports.PreviewController (create)', function(assert) {
     var controller = new creme.reports.PreviewController();
 
-    equal(controller._downloadUrl, '');
-    equal(controller._redirectUrl, '');
+    assert.equal(controller._downloadUrl, '');
+    assert.equal(controller._redirectUrl, '');
 
     controller = new creme.reports.PreviewController({
         downloadUrl: 'mock/reports/download',
         previewUrl: 'mock/reports/preview'
     });
 
-    equal(controller._downloadUrl, 'mock/reports/download');
-    equal(controller._redirectUrl, 'mock/reports/preview');
+    assert.equal(controller._downloadUrl, 'mock/reports/download');
+    assert.equal(controller._redirectUrl, 'mock/reports/preview');
 });
 
 QUnit.test('creme.reports.PreviewController (bind)', function(assert) {
@@ -166,10 +166,10 @@ QUnit.test('creme.reports.PreviewController (bind)', function(assert) {
 
     creme.widget.ready(element);
 
-    equal(controller.isBound(), false);
+    assert.equal(controller.isBound(), false);
 
     controller.bind(element);
-    equal(controller.isBound(), true);
+    assert.equal(controller.isBound(), true);
 
     this.assertRaises(function() {
         controller.bind(element);
@@ -187,10 +187,10 @@ QUnit.test('creme.reports.PreviewController (unbind)', function(assert) {
     }, Error, 'Error: creme.reports.PreviewController is not bound.');
 
     controller.bind(element);
-    equal(controller.isBound(), true);
+    assert.equal(controller.isBound(), true);
 
     controller.unbind();
-    equal(controller.isBound(), false);
+    assert.equal(controller.isBound(), false);
 });
 
 QUnit.test('creme.reports.PreviewController (preview or download)', function(assert) {
@@ -224,11 +224,11 @@ QUnit.test('creme.reports.PreviewController (preview or download)', function(ass
 
     element.find('button[name="download"]').trigger('click');
 
-    deepEqual([downloadUrl], this.mockRedirectCalls());
+    assert.deepEqual([downloadUrl], this.mockRedirectCalls());
 
     element.find('button[name="generate"]').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         downloadUrl,
         previewUrl
     ], this.mockRedirectCalls());

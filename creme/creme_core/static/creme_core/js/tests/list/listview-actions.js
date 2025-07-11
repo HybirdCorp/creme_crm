@@ -56,7 +56,7 @@ QUnit.module("creme.listview.actions", new QUnitMixin(QUnitEventMixin,
             };
         };
 
-        deepEqual(expected, popoverLinks.map(linkInfo).get());
+        this.assert.deepEqual(expected, popoverLinks.map(linkInfo).get());
     }
 }));
 
@@ -66,8 +66,8 @@ QUnit.test('creme.listview.DeleteSelectedAction (no selection)', function(assert
         url: 'mock/entity/delete'
     }).on(this.listviewActionListeners);
 
-    equal(0, list.selectedRowsCount());
-    deepEqual([], list.selectedRows());
+    assert.equal(0, list.selectedRowsCount());
+    assert.deepEqual([], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -75,15 +75,15 @@ QUnit.test('creme.listview.DeleteSelectedAction (no selection)', function(assert
 
     this.assertOpenedAlertDialog(gettext("Please select at least one entity."));
 
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 QUnit.test('creme.listview.DeleteSelectedAction (not confirmed)', function(assert) {
@@ -94,8 +94,8 @@ QUnit.test('creme.listview.DeleteSelectedAction (not confirmed)', function(asser
 
     list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['2', '3'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -103,15 +103,15 @@ QUnit.test('creme.listview.DeleteSelectedAction (not confirmed)', function(asser
 
     this.assertOpenedDialog();
 
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 QUnit.test('creme.listview.DeleteSelectedAction (error)', function(assert) {
@@ -122,8 +122,8 @@ QUnit.test('creme.listview.DeleteSelectedAction (error)', function(assert) {
 
     list.element().find('#selected_rows').val('1,2');
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['1', '2'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['1', '2'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -131,27 +131,27 @@ QUnit.test('creme.listview.DeleteSelectedAction (error)', function(assert) {
 
     this.assertOpenedDialog();
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.acceptConfirmDialog();
 
     this.assertOpenedAlertDialog(undefined, gettext('Bad Request'));
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([
         ['POST', {ids: '1,2'}]
     ], this.mockBackendUrlCalls('mock/entity/delete/fail'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
 
-    deepEqual([['fail']], this.mockListenerCalls('action-fail'));
-    deepEqual([
+    assert.deepEqual([['fail']], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([
         ['POST', {ids: '1,2'}]
     ], this.mockBackendUrlCalls('mock/entity/delete/fail'));
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             sort_key: ['regular_field-name'],
             sort_order: ['ASC'],
@@ -172,8 +172,8 @@ QUnit.test('creme.listview.DeleteSelectedAction (not allowed)', function(assert)
 
     list.element().find('#selected_rows').val('1,2');
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['1', '2'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['1', '2'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -181,28 +181,28 @@ QUnit.test('creme.listview.DeleteSelectedAction (not allowed)', function(assert)
 
     this.assertOpenedDialog();
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([], this.mockBackendUrlCalls('mock/entity/delete/nothing'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/entity/delete/nothing'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.acceptConfirmDialog();
 
     var header = ngettext(' %d entity cannot be deleted.', ' %d entities cannot be deleted.', 2).format(2);
     this.assertOpenedAlertDialog(undefined, header);
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([
         ['POST', {ids: '1,2'}]
     ], this.mockBackendUrlCalls('mock/entity/delete/nothing'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
 
-    deepEqual([['fail']], this.mockListenerCalls('action-fail'));
-    deepEqual([
+    assert.deepEqual([['fail']], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([
         ['POST', {ids: '1,2'}]
     ], this.mockBackendUrlCalls('mock/entity/delete/nothing'));
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             sort_key: ['regular_field-name'],
             sort_order: ['ASC'],
@@ -223,8 +223,8 @@ QUnit.test('creme.listview.DeleteSelectedAction (partially allowed)', function(a
 
     list.element().find('#selected_rows').val('1,2,3');
 
-    equal(3, list.selectedRowsCount());
-    deepEqual(['1', '2', '3'], list.selectedRows());
+    assert.equal(3, list.selectedRowsCount());
+    assert.deepEqual(['1', '2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -236,20 +236,20 @@ QUnit.test('creme.listview.DeleteSelectedAction (partially allowed)', function(a
     var header = ngettext('%d entity has been deleted.', '%d entities have been deleted.', 1).format(1) +
                  ngettext(' %d entity cannot be deleted.', ' %d entities cannot be deleted.', 2).format(2);
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([
         ['POST', {ids: '1,2,3'}]
     ], this.mockBackendUrlCalls('mock/entity/delete/firstonly'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.assertOpenedAlertDialog(undefined, header);
     this.closeDialog();
 
-    deepEqual([['fail']], this.mockListenerCalls('action-fail'));
-    deepEqual([
+    assert.deepEqual([['fail']], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([
         ['POST', {ids: '1,2,3'}]
     ], this.mockBackendUrlCalls('mock/entity/delete/firstonly'));
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             sort_key: ['regular_field-name'],
             sort_order: ['ASC'],
@@ -270,8 +270,8 @@ QUnit.test('creme.listview.DeleteSelectedAction (ok)', function(assert) {
 
     list.element().find('#selected_rows').val('1,2,3');
 
-    equal(3, list.selectedRowsCount());
-    deepEqual(['1', '2', '3'], list.selectedRows());
+    assert.equal(3, list.selectedRowsCount());
+    assert.deepEqual(['1', '2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -280,11 +280,11 @@ QUnit.test('creme.listview.DeleteSelectedAction (ok)', function(assert) {
     this.assertOpenedDialog();
     this.acceptConfirmDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {ids: '1,2,3'}]
     ], this.mockBackendUrlCalls('mock/entity/delete'));
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual([
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([
         ['POST', {
             sort_key: ['regular_field-name'],
             sort_order: ['ASC'],
@@ -303,8 +303,8 @@ QUnit.test('creme.listview.AddToSelectedAction (no selection)', function(assert)
         url: 'mock/entity/addto'
     }).on(this.listviewActionListeners);
 
-    equal(0, list.selectedRowsCount());
-    deepEqual([], list.selectedRows());
+    assert.equal(0, list.selectedRowsCount());
+    assert.deepEqual([], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -313,9 +313,9 @@ QUnit.test('creme.listview.AddToSelectedAction (no selection)', function(assert)
     this.assertOpenedAlertDialog(gettext("Please select at least one entity."));
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/entity/addto'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/entity/addto'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 QUnit.test('creme.listview.AddToSelectedAction (cancel)', function(assert) {
@@ -326,8 +326,8 @@ QUnit.test('creme.listview.AddToSelectedAction (cancel)', function(assert) {
 
     list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['2', '3'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -335,19 +335,19 @@ QUnit.test('creme.listview.AddToSelectedAction (cancel)', function(assert) {
 
     this.assertOpenedDialog();
 
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([
         ['GET', {ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([
         ['GET', {ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 QUnit.test('creme.listview.AddToSelectedAction (submit fail + cancel)', function(assert) {
@@ -358,29 +358,29 @@ QUnit.test('creme.listview.AddToSelectedAction (submit fail + cancel)', function
 
     list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['2', '3'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
     action.start();
 
     this.assertOpenedDialog();
-    deepEqual([
+    assert.deepEqual([
         ['GET', {ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.assertOpenedDialog();
-    deepEqual([
+    assert.deepEqual([
         ['GET', {ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 QUnit.test('creme.listview.AddToSelectedAction (ok)', function(assert) {
@@ -391,8 +391,8 @@ QUnit.test('creme.listview.AddToSelectedAction (ok)', function(assert) {
 
     list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['2', '3'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -400,10 +400,10 @@ QUnit.test('creme.listview.AddToSelectedAction (ok)', function(assert) {
 
     this.assertOpenedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.submitFormDialog({
         addto: 'ok'
@@ -411,12 +411,12 @@ QUnit.test('creme.listview.AddToSelectedAction (ok)', function(assert) {
 
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {ids: ['2', '3']}],
         ['POST', {addto: ["ok"], ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual([
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([
         ['POST', {
             sort_key: ['regular_field-name'],
             sort_order: ['ASC'],
@@ -435,8 +435,8 @@ QUnit.test('creme.listview.EditSelectedAction (no selection)', function(assert) 
         url: 'mock/entity/edit'
     }).on(this.listviewActionListeners);
 
-    equal(0, list.selectedRowsCount());
-    deepEqual([], list.selectedRows());
+    assert.equal(0, list.selectedRowsCount());
+    assert.deepEqual([], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -445,9 +445,9 @@ QUnit.test('creme.listview.EditSelectedAction (no selection)', function(assert) 
     this.assertOpenedAlertDialog(gettext("Please select at least one entity."));
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/entity/edit'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/entity/edit'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 QUnit.test('creme.listview.EditSelectedAction (cancel)', function(assert) {
@@ -458,8 +458,8 @@ QUnit.test('creme.listview.EditSelectedAction (cancel)', function(assert) {
 
     list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['2', '3'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -467,18 +467,18 @@ QUnit.test('creme.listview.EditSelectedAction (cancel)', function(assert) {
 
     this.assertOpenedDialog();
 
-    equal($('.ui-dialog .help-sign').length, 1);
-    equal($('.ui-dialog .help-sign').text(), '2 entities are selected');
+    assert.equal($('.ui-dialog .help-sign').length, 1);
+    assert.equal($('.ui-dialog .help-sign').text(), '2 entities are selected');
 
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close)', function(assert) {
@@ -489,8 +489,8 @@ QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close
 
     list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['2', '3'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -498,9 +498,9 @@ QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close
 
     this.assertOpenedDialog();
 
-    equal($('.ui-dialog .help-sign').text(), '2 entities are selected');
-    deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.equal($('.ui-dialog .help-sign').text(), '2 entities are selected');
+    assert.deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.submitFormDialog({
         field_value: ''
@@ -508,8 +508,8 @@ QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close
 
     this.assertOpenedDialog();
 
-    equal($('.ui-dialog .help-sign').text(), '2 entities are selected');
-    deepEqual([
+    assert.equal($('.ui-dialog .help-sign').text(), '2 entities are selected');
+    assert.deepEqual([
         ['GET', {
             entities: '2.3'
         }],
@@ -519,12 +519,12 @@ QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close
             field_value: ['']
         }]
     ], this.mockBackendUrlCalls('mock/entity/edit'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
@@ -535,8 +535,8 @@ QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
 
     list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['2', '3'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -544,9 +544,9 @@ QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
 
     this.assertOpenedDialog();
 
-    equal($('.ui-dialog .help-sign').text(), '2 entities are selected');
-    deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.equal($('.ui-dialog .help-sign').text(), '2 entities are selected');
+    assert.deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.submitFormDialog({
         field_value: 'ok'
@@ -554,14 +554,14 @@ QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
 
     // The dialog is still open to show the summary
     this.assertOpenedDialog();
-    equal($('.ui-dialog .ui-creme-dialog-frame').text(), '2 entitie(s) have been updated !');
-    deepEqual([], this.mockListenerCalls('action-done'));
+    assert.equal($('.ui-dialog .ui-creme-dialog-frame').text(), '2 entitie(s) have been updated !');
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
 
     this.closeDialog();
 
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/entity/edit', 'GET', {
             entities: '2.3'
         }],
@@ -591,8 +591,8 @@ QUnit.test('creme.listview.EditSelectedAction (field change)', function(assert) 
 
     list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['2', '3'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -600,15 +600,15 @@ QUnit.test('creme.listview.EditSelectedAction (field change)', function(assert) 
 
     var dialog = this.assertOpenedDialog();
 
-    deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
-    equal(dialog.find('[name="_bulk_fieldname"]').length, 1);
+    assert.equal(dialog.find('[name="_bulk_fieldname"]').length, 1);
     dialog.find('[name="_bulk_fieldname"]').val('mock/entity/edit/field-b').trigger('change');
 
     this.assertOpenedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/entity/edit', 'GET', {
             entities: '2.3'
         }],
@@ -623,13 +623,13 @@ QUnit.test('creme.listview.EditSelectedAction (field change)', function(assert) 
 
     // The dialog is still open to show the summary
     this.assertOpenedDialog();
-    equal($('.ui-dialog .ui-creme-dialog-frame').text(), '2 entitie(s) have been updated !');
-    deepEqual([], this.mockListenerCalls('action-done'));
+    assert.equal($('.ui-dialog .ui-creme-dialog-frame').text(), '2 entitie(s) have been updated !');
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
 
     this.closeDialog();
 
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual([
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([
         ['mock/entity/edit', 'GET', {
             entities: '2.3'
         }],
@@ -660,8 +660,8 @@ QUnit.test('creme.listview.MergeSelectedAction (no selection)', function(assert)
         url: '/mock/entity/merge'
     }).on(this.listviewActionListeners);
 
-    equal(0, list.selectedRowsCount());
-    deepEqual([], list.selectedRows());
+    assert.equal(0, list.selectedRowsCount());
+    assert.deepEqual([], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -670,8 +670,8 @@ QUnit.test('creme.listview.MergeSelectedAction (no selection)', function(assert)
     this.assertOpenedAlertDialog(gettext("Please select 2 entities."));
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.listview.MergeSelectedAction (invalid selection)', function(assert) {
@@ -682,8 +682,8 @@ QUnit.test('creme.listview.MergeSelectedAction (invalid selection)', function(as
 
     list.element().find('#selected_rows').val('2');
 
-    equal(1, list.selectedRowsCount());
-    deepEqual(['2'], list.selectedRows());
+    assert.equal(1, list.selectedRowsCount());
+    assert.deepEqual(['2'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -693,15 +693,15 @@ QUnit.test('creme.listview.MergeSelectedAction (invalid selection)', function(as
     this.assertOpenedAlertDialog(gettext("Please select 2 entities."));
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockRedirectCalls());
 
     this.resetMockListenerCalls();
 
     list.element().find('#selected_rows').val('1,2,3');
 
-    equal(3, list.selectedRowsCount());
-    deepEqual(['1', '2', '3'], list.selectedRows());
+    assert.equal(3, list.selectedRowsCount());
+    assert.deepEqual(['1', '2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -711,8 +711,8 @@ QUnit.test('creme.listview.MergeSelectedAction (invalid selection)', function(as
     this.assertOpenedAlertDialog(gettext("Please select 2 entities."));
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.listview.MergeSelectedAction (ok)', function(assert) {
@@ -723,8 +723,8 @@ QUnit.test('creme.listview.MergeSelectedAction (ok)', function(assert) {
 
     list.element().find('#selected_rows').val('2,3');
 
-    equal(2, list.selectedRowsCount());
-    deepEqual(['2', '3'], list.selectedRows());
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['2', '3'], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -732,7 +732,7 @@ QUnit.test('creme.listview.MergeSelectedAction (ok)', function(assert) {
 
     this.assertClosedDialog();
 
-    deepEqual(['/mock/entity/merge?id1=2&id2=3'], this.mockRedirectCalls());
+    assert.deepEqual(['/mock/entity/merge?id1=2&id2=3'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.listview.ExportAction (no formats)', function(assert) {
@@ -746,7 +746,7 @@ QUnit.test('creme.listview.ExportAction (no formats)', function(assert) {
 
     var dialog = this.assertOpenedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         {value: '', name: 'No backend found'}
     ], dialog.find('select option').map(function() {
         return {name: $(this).text(), value: $(this).attr('value')};
@@ -754,11 +754,11 @@ QUnit.test('creme.listview.ExportAction (no formats)', function(assert) {
 
     this.closeDialog();
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
 
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.listview.ExportAction (cancel)', function(assert) {
@@ -775,7 +775,7 @@ QUnit.test('creme.listview.ExportAction (cancel)', function(assert) {
 
     var dialog = this.assertOpenedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         {value: 'csv', name: 'CSV File format'}
     ], dialog.find('select option').map(function() {
         return {name: $(this).text(), value: $(this).attr('value')};
@@ -785,11 +785,11 @@ QUnit.test('creme.listview.ExportAction (cancel)', function(assert) {
 
     this.assertClosedDialog();
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockListenerCalls('action-done'));
 
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.listview.ExportAction (ok)', function(assert) {
@@ -806,7 +806,7 @@ QUnit.test('creme.listview.ExportAction (ok)', function(assert) {
 
     var dialog = this.assertOpenedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         {value: 'csv', name: 'CSV File format'}
     ], dialog.find('select option').map(function() {
         return {name: $(this).text(), value: $(this).attr('value')};
@@ -816,33 +816,33 @@ QUnit.test('creme.listview.ExportAction (ok)', function(assert) {
 
     this.assertClosedDialog();
 
-    deepEqual([], this.mockListenerCalls('action-fail'));
-    deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([], this.mockListenerCalls('action-fail'));
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
 
-    deepEqual(['/mock/entity/export?type=csv'], this.mockRedirectCalls());
+    assert.deepEqual(['/mock/entity/export?type=csv'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.listview.actionregistry', function(assert) {
     var list = this.createListView().controller();
     var registry = list.actionBuilders();
 
-    ok(Object.isSubClassOf(registry, creme.component.FactoryRegistry));
+    assert.ok(Object.isSubClassOf(registry, creme.component.FactoryRegistry));
 
-    ok(registry.has('update'));
-    ok(registry.has('delete'));
-    ok(registry.has('clone'));
-    ok(registry.has('form'));
-    ok(registry.has('redirect'));
-    ok(registry.has('popover'));
+    assert.ok(registry.has('update'));
+    assert.ok(registry.has('delete'));
+    assert.ok(registry.has('clone'));
+    assert.ok(registry.has('form'));
+    assert.ok(registry.has('redirect'));
+    assert.ok(registry.has('popover'));
 
-    ok(registry.has('submit-lv-state'));
-    ok(registry.has('reset-lv-search'));
-    ok(registry.has('edit-selection'));
-    ok(registry.has('delete-selection'));
-    ok(registry.has('addto-selection'));
-    ok(registry.has('merge-selection'));
-    ok(registry.has('export-as'));
+    assert.ok(registry.has('submit-lv-state'));
+    assert.ok(registry.has('reset-lv-search'));
+    assert.ok(registry.has('edit-selection'));
+    assert.ok(registry.has('delete-selection'));
+    assert.ok(registry.has('addto-selection'));
+    assert.ok(registry.has('merge-selection'));
+    assert.ok(registry.has('export-as'));
 });
 
 QUnit.test('creme.listview.row-action (update)', function(assert) {
@@ -859,11 +859,11 @@ QUnit.test('creme.listview.row-action (update)', function(assert) {
     this.assertClosedPopover();
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {a: 12}]
     ], this.mockBackendUrlCalls('mock/entity/update'));
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -893,8 +893,8 @@ QUnit.test('creme.listview.row-action (delete, canceled)', function(assert) {
     this.assertOpenedConfirmDialog(gettext('Are you sure?'));
     this.closeDialog();
 
-    deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 QUnit.test('creme.listview.row-action (delete)', function(assert) {
@@ -913,11 +913,11 @@ QUnit.test('creme.listview.row-action (delete)', function(assert) {
     this.assertOpenedConfirmDialog(gettext('Are you sure?'));
     this.acceptConfirmDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {id: 12}]
     ], this.mockBackendUrlCalls('mock/entity/delete'));
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -947,8 +947,8 @@ QUnit.test('creme.listview.row-action (clone, canceled)', function(assert) {
     this.assertOpenedConfirmDialog(gettext('Do you really want to clone this entity?'));
     this.closeDialog();
 
-    deepEqual([], this.mockBackendUrlCalls('mock/entity/clone'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/entity/clone'));
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.listview.row-action (clone)', function(assert) {
@@ -967,10 +967,10 @@ QUnit.test('creme.listview.row-action (clone)', function(assert) {
     this.assertOpenedConfirmDialog(gettext('Do you really want to clone this entity?'));
     this.acceptConfirmDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {id: 12}]
     ], this.mockBackendUrlCalls('mock/entity/clone'));
-    deepEqual(['mock/entity/clone/redirection'], this.mockRedirectCalls());
+    assert.deepEqual(['mock/entity/clone/redirection'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.listview.row-action (form)', function(assert) {
@@ -986,7 +986,7 @@ QUnit.test('creme.listview.row-action (form)', function(assert) {
 
     this.assertClosedPopover();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/entity/edit'));
 
@@ -995,7 +995,7 @@ QUnit.test('creme.listview.row-action (form)', function(assert) {
 
     this.submitFormDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/entity/edit', 'GET', {}],
         ['mock/entity/edit', 'POST', {
             _bulk_fieldname: ['mock/entity/edit/field-a'],
@@ -1027,7 +1027,7 @@ QUnit.test('creme.listview.row-action (redirect)', function(assert) {
 
     this.assertClosedPopover();
 
-    deepEqual([
+    assert.deepEqual([
         (_.toRelativeURL(window.location.href).fullPath() + '?redirect#hatbar')
     ], this.mockRedirectCalls());
 });
@@ -1037,11 +1037,11 @@ QUnit.test('creme.listview.header-actions (no selection)', function(assert) {
     var list = widget.controller();
     var rows = widget.element.find('table').first().find('tr.selectable');
 
-    equal(5, rows.length);
+    assert.equal(5, rows.length);
 
     // open without selection
-    equal(0, list.selectedRowsCount());
-    deepEqual([], list.selectedRows());
+    assert.equal(0, list.selectedRowsCount());
+    assert.deepEqual([], list.selectedRows());
 
     $('.header-actions-trigger', widget.element).trigger('click');
 
@@ -1059,13 +1059,13 @@ QUnit.test('creme.listview.header-actions (open menu, 1 selection)', function(as
     var list = widget.controller();
     var rows = widget.element.find('table').first().find('tr.selectable');
 
-    equal(5, rows.length);
+    assert.equal(5, rows.length);
 
     $(rows[0]).trigger('click');
 
     // open without selection
-    equal(1, list.selectedRowsCount());
-    deepEqual(['1'], list.selectedRows());
+    assert.equal(1, list.selectedRowsCount());
+    assert.deepEqual(['1'], list.selectedRows());
 
     $('.header-actions-trigger', widget.element).trigger('click');
 
@@ -1083,13 +1083,13 @@ QUnit.test('creme.listview.header-actions (open menu, 2 selections)', function(a
     var list = widget.controller();
     var rows = widget.element.find('table').first().find('tr.selectable');
 
-    equal(5, rows.length);
+    assert.equal(5, rows.length);
 
     $(rows[0]).trigger('click');
     $(rows[2]).trigger('click');
 
     // open without selection
-    deepEqual(['1', '3'], list.selectedRows());
+    assert.deepEqual(['1', '3'], list.selectedRows());
 
     $('.header-actions-trigger', widget.element).trigger('click');
 
@@ -1107,12 +1107,12 @@ QUnit.test('creme.listview.header-actions (open menu, all selections)', function
     var list = widget.controller();
     var rows = widget.element.find('table').first().find('tr.selectable');
 
-    equal(5, rows.length);
+    assert.equal(5, rows.length);
 
     rows.trigger('click');
 
     // open without selection
-    equal(5, list.selectedRowsCount());
+    assert.equal(5, list.selectedRowsCount());
 
     $('.header-actions-trigger', widget.element).trigger('click');
 
@@ -1133,7 +1133,7 @@ QUnit.test('creme.listview.header-actions (open menu, click)', function(assert) 
     $(rows[0]).trigger('click');
     $(rows[2]).trigger('click');
 
-    equal(2, list.selectedRowsCount());
+    assert.equal(2, list.selectedRowsCount());
 
     $('.header-actions-trigger', widget.element).trigger('click');
     var popover = this.assertOpenedPopover();
@@ -1142,7 +1142,7 @@ QUnit.test('creme.listview.header-actions (open menu, click)', function(assert) 
     this.assertClosedPopover();
 
     this.assertClosedDialog();
-    deepEqual(['/mock/entity/merge?id1=1&id2=3'], this.mockRedirectCalls());
+    assert.deepEqual(['/mock/entity/merge?id1=1&id2=3'], this.mockRedirectCalls());
 
     $('.header-actions-trigger', widget.element).trigger('click');
     popover = this.assertOpenedPopover();
@@ -1160,7 +1160,7 @@ QUnit.test('creme.listview.header-actions (open menu, click)', function(assert) 
     this.assertClosedPopover();
 
     this.assertOpenedDialog();
-    deepEqual([
+    assert.deepEqual([
         ['GET', {ids: ['1', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
     this.closeDialog();

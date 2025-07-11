@@ -47,22 +47,22 @@ QUnit.test('creme.listview.core', function(assert) {
     })).appendTo(this.qunitFixture());
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), false);
-    equal(listview.count(), 0);
-    equal(listview.pager().isBound(), false);
-    equal(listview.header().isBound(), false);
+    assert.equal(listview.isStandalone(), false);
+    assert.equal(listview.count(), 0);
+    assert.equal(listview.pager().isBound(), false);
+    assert.equal(listview.header().isBound(), false);
 
-    equal('mock/listview/reload', element.list_view('prop', 'reloadUrl'));
+    assert.equal('mock/listview/reload', element.list_view('prop', 'reloadUrl'));
 
     listview.controller().reloadUrl('mock/listview/reload/alt');
 
-    equal('mock/listview/reload/alt', element.list_view('prop', 'reloadUrl'));
-    equal('mock/listview/reload/alt', listview.controller().reloadUrl());
+    assert.equal('mock/listview/reload/alt', element.list_view('prop', 'reloadUrl'));
+    assert.equal('mock/listview/reload/alt', listview.controller().reloadUrl());
 
     element.list_view('prop', 'reloadUrl', 'mock/listview/reload/alt/2');
 
-    equal('mock/listview/reload/alt/2', element.list_view('prop', 'reloadUrl'));
-    equal('mock/listview/reload/alt/2', listview.controller().reloadUrl());
+    assert.equal('mock/listview/reload/alt/2', element.list_view('prop', 'reloadUrl'));
+    assert.equal('mock/listview/reload/alt/2', listview.controller().reloadUrl());
 });
 
 QUnit.test('creme.listview.core (standalone)', function(assert) {
@@ -72,17 +72,17 @@ QUnit.test('creme.listview.core (standalone)', function(assert) {
     })).appendTo(this.qunitFixture());
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(listview.pager().isBound(), false);
-    equal(listview.header().isBound(), false);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(listview.pager().isBound(), false);
+    assert.equal(listview.header().isBound(), false);
 
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
-    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.equal(listview.controller().reloadUrl(), 'mock/listview/reload');
 
     listview.controller().reload();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -112,17 +112,17 @@ QUnit.test('creme.listview.core (dialog)', function(assert) {
 //    var listview = dialog.content().find('.ui-creme-listview:first').creme().widget();
     var listview = dialog.content().find('.ui-creme-listview').first().creme().widget();
 
-    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+    assert.equal(listview.controller().reloadUrl(), 'mock/listview/reload');
 
-    equal(listview.isStandalone(), false);
-    equal(listview.count(), 0);
-    equal(listview.pager().isBound(), false);
-    equal(listview.header().isBound(), false);
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.equal(listview.isStandalone(), false);
+    assert.equal(listview.count(), 0);
+    assert.equal(listview.pager().isBound(), false);
+    assert.equal(listview.header().isBound(), false);
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     listview.controller().reload();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -138,16 +138,16 @@ QUnit.test('creme.listview.core (dialog)', function(assert) {
 //    listview = dialog.content().find('.ui-creme-listview:first').creme().widget();
     listview = dialog.content().find('.ui-creme-listview').first().creme().widget();
 
-    equal(listview.controller().reloadUrl(), 'mock/listview/reload?custom=4451');
+    assert.equal(listview.controller().reloadUrl(), 'mock/listview/reload?custom=4451');
 
-    equal(listview.isStandalone(), false);
-    equal(listview.count(), 0);
-    equal(listview.pager().isBound(), false);
-    equal(listview.header().isBound(), false);
+    assert.equal(listview.isStandalone(), false);
+    assert.equal(listview.count(), 0);
+    assert.equal(listview.pager().isBound(), false);
+    assert.equal(listview.header().isBound(), false);
 
     listview.controller().reload();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -178,26 +178,26 @@ QUnit.test('creme.listview.core (not empty)', function(assert) {
     var element = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.qunitFixture());
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), false);
-    equal(listview.count(), 3);
-    equal(listview.pager().isBound(), true);
-    equal(listview.header().isBound(), true);
+    assert.equal(listview.isStandalone(), false);
+    assert.equal(listview.count(), 3);
+    assert.equal(listview.pager().isBound(), true);
+    assert.equal(listview.header().isBound(), true);
 
     var controller = listview.controller();
-    equal(controller.isLoading(), false);
-    equal(controller.hasSelectedRows(), false);
+    assert.equal(controller.isLoading(), false);
+    assert.equal(controller.hasSelectedRows(), false);
 });
 
 QUnit.test('creme.listview.core (jquery methods)', function(assert) {
     var element = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.qunitFixture());
     creme.widget.create(element);
 
-    equal(0, element.list_view('selectedRowsCount'));
-    deepEqual([], element.list_view('selectedRows'));
-    equal('mock/listview/reload', element.list_view('prop', 'reloadUrl'));
-    equal(false, element.list_view('prop', 'isLoading'));
-    equal(true, Object.isSubClassOf(element.list_view('actionBuilders'), creme.component.FactoryRegistry));
-    equal(true, Object.isSubClassOf(element.list_view('columnFilterBuilders'), creme.component.FactoryRegistry));
+    assert.equal(0, element.list_view('selectedRowsCount'));
+    assert.deepEqual([], element.list_view('selectedRows'));
+    assert.equal('mock/listview/reload', element.list_view('prop', 'reloadUrl'));
+    assert.equal(false, element.list_view('prop', 'isLoading'));
+    assert.equal(true, Object.isSubClassOf(element.list_view('actionBuilders'), creme.component.FactoryRegistry));
+    assert.equal(true, Object.isSubClassOf(element.list_view('columnFilterBuilders'), creme.component.FactoryRegistry));
 
     this.assertRaises(function() {
         element.list_view('unknown');
@@ -219,16 +219,16 @@ QUnit.test('creme.listview.core (prop, selectionMode)', function(assert) {
     var listview = creme.widget.create(element);
     var controller = listview.controller();
 
-    equal('multiple', controller.selectionMode());
-    equal('multiple', element.list_view('prop', 'selectionMode'));
+    assert.equal('multiple', controller.selectionMode());
+    assert.equal('multiple', element.list_view('prop', 'selectionMode'));
 
     controller.selectionMode('single');
-    equal('single', controller.selectionMode());
-    equal('single', element.list_view('prop', 'selectionMode'));
+    assert.equal('single', controller.selectionMode());
+    assert.equal('single', element.list_view('prop', 'selectionMode'));
 
     element.list_view('prop', 'selectionMode', 'none');
-    equal('none', controller.selectionMode());
-    equal('none', element.list_view('prop', 'selectionMode'));
+    assert.equal('none', controller.selectionMode());
+    assert.equal('none', element.list_view('prop', 'selectionMode'));
 });
 
 QUnit.test('creme.listview.core (select)', function(assert) {
@@ -239,45 +239,45 @@ QUnit.test('creme.listview.core (select)', function(assert) {
     var controller = listview.controller();
     var lines = table.find('tr.lv-row');
 
-    equal(listview.isStandalone(), false);
-    equal(listview.count(), 3);
+    assert.equal(listview.isStandalone(), false);
+    assert.equal(listview.count(), 3);
 
-    equal(true, controller.isSelectionEnabled());
-    equal(false, controller.isSingleSelectionMode());
-    equal(true, controller.isMultipleSelectionMode());
+    assert.equal(true, controller.isSelectionEnabled());
+    assert.equal(false, controller.isSingleSelectionMode());
+    assert.equal(true, controller.isMultipleSelectionMode());
 
-    deepEqual(controller.selectedRows(), []);
-    equal(controller.isLoading(), false);
-    equal(controller.hasSelectedRows(), false);
+    assert.deepEqual(controller.selectedRows(), []);
+    assert.equal(controller.isLoading(), false);
+    assert.equal(controller.hasSelectedRows(), false);
 
-    equal(false, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    equal(false, $(lines[2]).is('.selected'));
+    assert.equal(false, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.equal(false, $(lines[2]).is('.selected'));
 
     $(lines[0]).trigger('click');
     $(lines[1]).trigger('click');
 
-    equal(true, $(lines[0]).is('.selected'));
-    equal(true, $(lines[1]).is('.selected'));
-    equal(false, $(lines[2]).is('.selected'));
-    deepEqual(controller.selectedRows(), ['1', '2']);
-    equal(controller.hasSelectedRows(), true);
+    assert.equal(true, $(lines[0]).is('.selected'));
+    assert.equal(true, $(lines[1]).is('.selected'));
+    assert.equal(false, $(lines[2]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), ['1', '2']);
+    assert.equal(controller.hasSelectedRows(), true);
 
     $(lines[2]).trigger('click');
 
-    equal(true, $(lines[0]).is('.selected'));
-    equal(true, $(lines[1]).is('.selected'));
-    equal(true, $(lines[2]).is('.selected'));
-    deepEqual(controller.selectedRows(), ['1', '2', '3']);
-    equal(controller.hasSelectedRows(), true);
+    assert.equal(true, $(lines[0]).is('.selected'));
+    assert.equal(true, $(lines[1]).is('.selected'));
+    assert.equal(true, $(lines[2]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), ['1', '2', '3']);
+    assert.equal(controller.hasSelectedRows(), true);
 
     $(lines[1]).trigger('click');
 
-    equal(true, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    equal(true, $(lines[2]).is('.selected'));
-    deepEqual(controller.selectedRows(), ['1', '3']);
-    equal(controller.hasSelectedRows(), true);
+    assert.equal(true, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.equal(true, $(lines[2]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), ['1', '3']);
+    assert.equal(controller.hasSelectedRows(), true);
 });
 
 QUnit.test('creme.listview.core (select, link)', function(assert) {
@@ -297,45 +297,45 @@ QUnit.test('creme.listview.core (select, link)', function(assert) {
     var controller = listview.controller();
     var lines = table.find('tr.lv-row');
 
-    equal(listview.isStandalone(), false);
-    equal(listview.count(), 2);
-    deepEqual(controller.selectedRows(), []);
-    equal(controller.hasSelectedRows(), false);
+    assert.equal(listview.isStandalone(), false);
+    assert.equal(listview.count(), 2);
+    assert.deepEqual(controller.selectedRows(), []);
+    assert.equal(controller.hasSelectedRows(), false);
 
     $(lines[0]).trigger('click');
 
-    equal(true, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    deepEqual(controller.selectedRows(), ['1']);
-    equal(controller.hasSelectedRows(), true);
+    assert.equal(true, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), ['1']);
+    assert.equal(controller.hasSelectedRows(), true);
 
     $(lines[0]).find('a').trigger('click');
 
-    equal(true, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    deepEqual(controller.selectedRows(), ['1']);
-    equal(controller.hasSelectedRows(), true);
+    assert.equal(true, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), ['1']);
+    assert.equal(controller.hasSelectedRows(), true);
 
     $(lines[0]).find('.outside-link').trigger('click');
 
-    equal(false, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    deepEqual(controller.selectedRows(), []);
-    equal(controller.hasSelectedRows(), false);
+    assert.equal(false, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), []);
+    assert.equal(controller.hasSelectedRows(), false);
 
     $(lines[0]).find('.inside-link').trigger('click');
 
-    equal(false, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    deepEqual(controller.selectedRows(), []);
-    equal(controller.hasSelectedRows(), false);
+    assert.equal(false, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), []);
+    assert.equal(controller.hasSelectedRows(), false);
 
     controller._selections.toggle(lines);
 
-    equal(true, $(lines[0]).is('.selected'));
-    equal(true, $(lines[1]).is('.selected'));
-    deepEqual(controller.selectedRows(), ['1', '2']);
-    equal(controller.hasSelectedRows(), true);
+    assert.equal(true, $(lines[0]).is('.selected'));
+    assert.equal(true, $(lines[1]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), ['1', '2']);
+    assert.equal(controller.hasSelectedRows(), true);
 });
 
 QUnit.test('creme.listview.core (select, single)', function(assert) {
@@ -347,63 +347,63 @@ QUnit.test('creme.listview.core (select, single)', function(assert) {
     var controller = listview.controller();
     var lines = table.find('tr.lv-row');
 
-    equal(listview.isStandalone(), false);
-    equal(listview.count(), 3);
-    equal(table.find('tr.selectable').length, 3);
+    assert.equal(listview.isStandalone(), false);
+    assert.equal(listview.count(), 3);
+    assert.equal(table.find('tr.selectable').length, 3);
 
-    equal(true, controller.isSelectionEnabled());
-    equal(true, controller.isSingleSelectionMode());
-    equal(false, controller.isMultipleSelectionMode());
+    assert.equal(true, controller.isSelectionEnabled());
+    assert.equal(true, controller.isSingleSelectionMode());
+    assert.equal(false, controller.isMultipleSelectionMode());
 
-    deepEqual(controller.selectedRows(), []);
-    equal(controller.hasSelectedRows(), false);
+    assert.deepEqual(controller.selectedRows(), []);
+    assert.equal(controller.hasSelectedRows(), false);
 
-    equal(false, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    equal(false, $(lines[2]).is('.selected'));
+    assert.equal(false, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.equal(false, $(lines[2]).is('.selected'));
 
     $(lines[0]).trigger('click');
     $(lines[1]).trigger('click');
 
-    equal(false, $(lines[0]).is('.selected'));
-    equal(true, $(lines[1]).is('.selected'));
-    equal(false, $(lines[2]).is('.selected'));
-    deepEqual(controller.selectedRows(), ['2']);
-    equal(controller.hasSelectedRows(), true);
+    assert.equal(false, $(lines[0]).is('.selected'));
+    assert.equal(true, $(lines[1]).is('.selected'));
+    assert.equal(false, $(lines[2]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), ['2']);
+    assert.equal(controller.hasSelectedRows(), true);
 
     $(lines[2]).trigger('click');
 
-    equal(false, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    equal(true, $(lines[2]).is('.selected'));
-    deepEqual(controller.selectedRows(), ['3']);
-    equal(controller.hasSelectedRows(), true);
+    assert.equal(false, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.equal(true, $(lines[2]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), ['3']);
+    assert.equal(controller.hasSelectedRows(), true);
 
     $(lines[1]).trigger('click');
 
-    equal(false, $(lines[0]).is('.selected'));
-    equal(true, $(lines[1]).is('.selected'));
-    equal(false, $(lines[2]).is('.selected'));
-    deepEqual(controller.selectedRows(), ['2']);
-    equal(controller.hasSelectedRows(), true);
+    assert.equal(false, $(lines[0]).is('.selected'));
+    assert.equal(true, $(lines[1]).is('.selected'));
+    assert.equal(false, $(lines[2]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), ['2']);
+    assert.equal(controller.hasSelectedRows(), true);
 
     $(lines[1]).trigger('click');
 
-    equal(false, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    equal(false, $(lines[2]).is('.selected'));
-    deepEqual(controller.selectedRows(), []);
-    equal(controller.hasSelectedRows(), false);
+    assert.equal(false, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.equal(false, $(lines[2]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), []);
+    assert.equal(controller.hasSelectedRows(), false);
 
     this.assertRaises(function() {
         controller._selections.toggle(lines);
     }, Error, 'Error: Unable to toggle/select more than one row at once');
 
-    equal(false, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    equal(false, $(lines[2]).is('.selected'));
-    deepEqual(controller.selectedRows(), []);
-    equal(controller.hasSelectedRows(), false);
+    assert.equal(false, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.equal(false, $(lines[2]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), []);
+    assert.equal(controller.hasSelectedRows(), false);
 });
 
 QUnit.test('creme.listview.core (select, none)', function(assert) {
@@ -415,31 +415,31 @@ QUnit.test('creme.listview.core (select, none)', function(assert) {
     var controller = listview.controller();
     var lines = table.find('tr.lv-row');
 
-    equal(listview.isStandalone(), false);
-    equal(listview.count(), 3);
-    equal(lines.length, 3);
-    equal(table.find('tr.lv-row.selectable').length, 0);
+    assert.equal(listview.isStandalone(), false);
+    assert.equal(listview.count(), 3);
+    assert.equal(lines.length, 3);
+    assert.equal(table.find('tr.lv-row.selectable').length, 0);
 
-    equal(false, controller.isSelectionEnabled());
-    equal(false, controller.isSingleSelectionMode());
-    equal(false, controller.isMultipleSelectionMode());
+    assert.equal(false, controller.isSelectionEnabled());
+    assert.equal(false, controller.isSingleSelectionMode());
+    assert.equal(false, controller.isMultipleSelectionMode());
 
-    deepEqual(controller.selectedRows(), []);
-    equal(controller.hasSelectedRows(), false);
+    assert.deepEqual(controller.selectedRows(), []);
+    assert.equal(controller.hasSelectedRows(), false);
 
-    equal(false, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    equal(false, $(lines[2]).is('.selected'));
+    assert.equal(false, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.equal(false, $(lines[2]).is('.selected'));
 
     $(lines[0]).trigger('click');
     $(lines[1]).trigger('click');
 
-    equal(false, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    equal(false, $(lines[2]).is('.selected'));
+    assert.equal(false, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.equal(false, $(lines[2]).is('.selected'));
 
-    deepEqual(controller.selectedRows(), []);
-    equal(controller.hasSelectedRows(), false);
+    assert.deepEqual(controller.selectedRows(), []);
+    assert.equal(controller.hasSelectedRows(), false);
 });
 
 QUnit.test('creme.listview.core (select all)', function(assert) {
@@ -449,27 +449,27 @@ QUnit.test('creme.listview.core (select all)', function(assert) {
     var controller = listview.controller();
     var lines = table.find('tr.lv-row');
 
-    equal(listview.isStandalone(), false);
-    equal(listview.count(), 3);
-    deepEqual(controller.selectedRows(), []);
+    assert.equal(listview.isStandalone(), false);
+    assert.equal(listview.count(), 3);
+    assert.deepEqual(controller.selectedRows(), []);
 
-    equal(false, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    equal(false, $(lines[2]).is('.selected'));
-
-    table.find('[name="select_all"]').trigger('click');
-
-    equal(true, $(lines[0]).is('.selected'));
-    equal(true, $(lines[1]).is('.selected'));
-    equal(true, $(lines[2]).is('.selected'));
-    deepEqual(controller.selectedRows(), ['1', '2', '3']);
+    assert.equal(false, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.equal(false, $(lines[2]).is('.selected'));
 
     table.find('[name="select_all"]').trigger('click');
 
-    equal(false, $(lines[0]).is('.selected'));
-    equal(false, $(lines[1]).is('.selected'));
-    equal(false, $(lines[2]).is('.selected'));
-    deepEqual(controller.selectedRows(), []);
+    assert.equal(true, $(lines[0]).is('.selected'));
+    assert.equal(true, $(lines[1]).is('.selected'));
+    assert.equal(true, $(lines[2]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), ['1', '2', '3']);
+
+    table.find('[name="select_all"]').trigger('click');
+
+    assert.equal(false, $(lines[0]).is('.selected'));
+    assert.equal(false, $(lines[1]).is('.selected'));
+    assert.equal(false, $(lines[2]).is('.selected'));
+    assert.deepEqual(controller.selectedRows(), []);
 });
 
 QUnit.test('creme.listview.core (submitState)', function(assert) {
@@ -494,7 +494,7 @@ QUnit.test('creme.listview.core (submitState)', function(assert) {
 
     listview.controller().submitState({custom_a: 12}, listener);
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -508,12 +508,12 @@ QUnit.test('creme.listview.core (submitState)', function(assert) {
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 
-    deepEqual([
+    assert.deepEqual([
         ['done', html]
     ], this.mockListenerCalls('submit-done'));
-    deepEqual([], this.mockListenerCalls('submit-fail'));
-    deepEqual([], this.mockListenerCalls('submit-cancel'));
-    deepEqual([
+    assert.deepEqual([], this.mockListenerCalls('submit-fail'));
+    assert.deepEqual([], this.mockListenerCalls('submit-cancel'));
+    assert.deepEqual([
         ['done', html]
     ], this.mockListenerCalls('submit-complete'));
 
@@ -528,16 +528,16 @@ QUnit.test('creme.listview.core (submitState)', function(assert) {
         custom_a: 12
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['submit-state-start', nextUrl.href()]
     ], this.mockListenerCalls('submit-state-start'));
-    deepEqual([
+    assert.deepEqual([
         ['submit-state-done', nextUrl.href(), html]
     ], this.mockListenerCalls('submit-state-done'));
-    deepEqual([
+    assert.deepEqual([
         ['submit-state-complete', nextUrl.href(), html]
     ], this.mockListenerCalls('submit-state-complete'));
-    deepEqual([
+    assert.deepEqual([
         ['submit-state-progress', 20],
         ['submit-state-progress', 40],
         ['submit-state-progress', 50],
@@ -564,42 +564,42 @@ QUnit.test('creme.listview.core (submitState, already loading)', function(assert
 
     var controller = listview.controller();
 
-    equal(false, controller.isLoading());
+    assert.equal(false, controller.isLoading());
 
     controller.submitState({}, listener);
 
-    stop(2);
+    var done = assert.async(2);
 
     setTimeout(function() {
-        equal(true, controller.isLoading());
+        assert.equal(true, controller.isLoading());
 
-        deepEqual([], self.mockListenerCalls('submit-done'));
-        deepEqual([], self.mockListenerCalls('submit-fail'));
-        deepEqual([], self.mockListenerCalls('submit-cancel'));
-        deepEqual([], self.mockListenerCalls('submit-complete'));
+        assert.deepEqual([], self.mockListenerCalls('submit-done'));
+        assert.deepEqual([], self.mockListenerCalls('submit-fail'));
+        assert.deepEqual([], self.mockListenerCalls('submit-cancel'));
+        assert.deepEqual([], self.mockListenerCalls('submit-complete'));
 
         controller.submitState({}, listener);
         controller.submitState({}, listener);
         controller.submitState({}, listener);
 
-        start();
+        done();
     }, 200);
 
     setTimeout(function() {
-        equal(false, controller.isLoading());
+        assert.equal(false, controller.isLoading());
 
-        deepEqual([
+        assert.deepEqual([
             ['done', html]
         ], self.mockListenerCalls('submit-done'));
-        deepEqual([], self.mockListenerCalls('submit-fail'));
-        deepEqual([
+        assert.deepEqual([], self.mockListenerCalls('submit-fail'));
+        assert.deepEqual([
             ['cancel'], ['cancel'], ['cancel']
         ], self.mockListenerCalls('submit-cancel'));
-        deepEqual([
+        assert.deepEqual([
             ['cancel'], ['cancel'], ['cancel'], ['done', html]
         ], self.mockListenerCalls('submit-complete'));
 
-        start();
+        done();
     }, 600);
 });
 
@@ -619,17 +619,17 @@ QUnit.test('creme.listview.core (filter on <input> enter)', function(assert) {
     var columnSearch = table.find('.lv-search-header .lv-column input[type="text"]');
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(listview.pager().isBound(), false);
-    equal(listview.header().isBound(), false);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(listview.pager().isBound(), false);
+    assert.equal(listview.header().isBound(), false);
 
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
-    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.equal(listview.controller().reloadUrl(), 'mock/listview/reload');
 
     columnSearch.trigger($.Event('keydown', {keyCode: 13, which: 13}));
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -664,17 +664,17 @@ QUnit.test('creme.listview.core (filter on <select> change)', function(assert) {
     var columnSearch = table.find('.lv-search-header .lv-column select');
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(listview.pager().isBound(), false);
-    equal(listview.header().isBound(), false);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(listview.pager().isBound(), false);
+    assert.equal(listview.header().isBound(), false);
 
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
-    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.equal(listview.controller().reloadUrl(), 'mock/listview/reload');
 
     columnSearch.trigger('change');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -705,21 +705,21 @@ QUnit.test('creme.listview.core (unknown search widget)', function(assert) {
     var table = element.find('table').first();
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(listview.pager().isBound(), false);
-    equal(listview.header().isBound(), false);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(listview.pager().isBound(), false);
+    assert.equal(listview.header().isBound(), false);
 
     var columnSearch = table.find('.lv-search-header .lv-column input[type="text"]');
-    equal(columnSearch.is('[data-lv-search-widget="unknown"]'), true);
+    assert.equal(columnSearch.is('[data-lv-search-widget="unknown"]'), true);
 
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
-    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.equal(listview.controller().reloadUrl(), 'mock/listview/reload');
 
     columnSearch.trigger($.Event('keydown', {keyCode: 13, which: 13}));
 
     // Not bound, do nothing
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 
@@ -750,25 +750,25 @@ QUnit.parametrize('creme.listview.core (daterange search widget, keydown)', [
     var table = element.find('table').first();
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(listview.pager().isBound(), false);
-    equal(listview.header().isBound(), false);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(listview.pager().isBound(), false);
+    assert.equal(listview.header().isBound(), false);
 
     var columnSearch = table.find('.lv-search-header .lv-column .lv-search-daterange');
-    equal(columnSearch.is('[data-lv-search-widget="daterange"]'), true);
+    assert.equal(columnSearch.is('[data-lv-search-widget="daterange"]'), true);
 
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
-    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.equal(listview.controller().reloadUrl(), 'mock/listview/reload');
 
     var dateInput = columnSearch.find(daterange_input_id);
 
-    ok(dateInput.is('.hasDatepicker'));
+    assert.ok(dateInput.is('.hasDatepicker'));
 
     // enter key on date input
     dateInput.trigger($.Event('keydown', {keyCode: 13, which: 13}));
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -809,22 +809,22 @@ QUnit.test('creme.listview.core (daterange search widget, change)', function(ass
     var table = element.find('table').first();
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(listview.pager().isBound(), false);
-    equal(listview.header().isBound(), false);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(listview.pager().isBound(), false);
+    assert.equal(listview.header().isBound(), false);
 
     var columnSearch = table.find('.lv-search-header .lv-column .lv-search-daterange');
-    equal(columnSearch.is('[data-lv-search-widget="daterange"]'), true);
+    assert.equal(columnSearch.is('[data-lv-search-widget="daterange"]'), true);
 
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
-    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.equal(listview.controller().reloadUrl(), 'mock/listview/reload');
 
     // enter key on start date
     var start = columnSearch.find('#id_search-regular_field-start');
 
-    ok(start.is('.hasDatepicker'));
-    equal('dd-mm-yy', start.datepicker('option', 'dateFormat'));
+    assert.ok(start.is('.hasDatepicker'));
+    assert.equal('dd-mm-yy', start.datepicker('option', 'dateFormat'));
 
     // show picker and select date
     start.datepicker('show');
@@ -833,7 +833,7 @@ QUnit.test('creme.listview.core (daterange search widget, change)', function(ass
     // click on selected date => onSelect cb => change
     $('.ui-datepicker-current-day').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -876,16 +876,16 @@ QUnit.parametrize('creme.listview.core (daterange search widget, change, invalid
     var table = element.find('table').first();
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(listview.pager().isBound(), false);
-    equal(listview.header().isBound(), false);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(listview.pager().isBound(), false);
+    assert.equal(listview.header().isBound(), false);
 
     var columnSearch = table.find('.lv-search-header .lv-column .lv-search-daterange');
-    equal(columnSearch.is('[data-lv-search-widget="daterange"]'), true);
+    assert.equal(columnSearch.is('[data-lv-search-widget="daterange"]'), true);
 
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
-    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.equal(listview.controller().reloadUrl(), 'mock/listview/reload');
 
     var start = columnSearch.find('#id_search-regular_field-start');
     var end = columnSearch.find('#id_search-regular_field-end');
@@ -895,13 +895,13 @@ QUnit.parametrize('creme.listview.core (daterange search widget, change, invalid
     start.trigger($.Event('keydown', {keyCode: 13, which: 13}));
 
     // ignore the call
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     end.val(invalidValue);
     end.trigger($.Event('keydown', {keyCode: 13, which: 13}));
 
     // ignore the call
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 QUnit.test('creme.listview.core (custom search widget)', function(assert) {
@@ -933,20 +933,20 @@ QUnit.test('creme.listview.core (custom search widget)', function(assert) {
 
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(listview.pager().isBound(), false);
-    equal(listview.header().isBound(), false);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(listview.pager().isBound(), false);
+    assert.equal(listview.header().isBound(), false);
 
     var columnSearch = table.find('.lv-search-header .lv-column input[type="text"]');
-    equal(columnSearch.is('[data-custom-search="active"]'), true);
+    assert.equal(columnSearch.is('[data-custom-search="active"]'), true);
 
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
-    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.equal(listview.controller().reloadUrl(), 'mock/listview/reload');
 
     columnSearch.trigger($.Event('keydown', {keyCode: 13, which: 13}));
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -990,7 +990,7 @@ QUnit.test('creme.listview.core (resetSearchState)', function(assert) {
 
     listview.controller().resetSearchState(listener);
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -1005,12 +1005,12 @@ QUnit.test('creme.listview.core (resetSearchState)', function(assert) {
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 
-    deepEqual([
+    assert.deepEqual([
         ['done', html]
     ], this.mockListenerCalls('submit-done'));
-    deepEqual([], this.mockListenerCalls('submit-fail'));
-    deepEqual([], this.mockListenerCalls('submit-cancel'));
-    deepEqual([
+    assert.deepEqual([], this.mockListenerCalls('submit-fail'));
+    assert.deepEqual([], this.mockListenerCalls('submit-cancel'));
+    assert.deepEqual([
         ['done', html]
     ], this.mockListenerCalls('submit-complete'));
 
@@ -1025,13 +1025,13 @@ QUnit.test('creme.listview.core (resetSearchState)', function(assert) {
         rows: ['10']
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['submit-state-start', nextUrl.href()]
     ], this.mockListenerCalls('submit-state-start'));
-    deepEqual([
+    assert.deepEqual([
         ['submit-state-done', nextUrl.href(), html]
     ], this.mockListenerCalls('submit-state-done'));
-    deepEqual([
+    assert.deepEqual([
         ['submit-state-complete', nextUrl.href(), html]
     ], this.mockListenerCalls('submit-state-complete'));
 });
@@ -1046,12 +1046,12 @@ QUnit.test('creme.listview.core (toggle sort)', function(assert) {
     var column_name = table.find('.lv-columns-header .lv-column.sortable[data-column-key="regular_field-name"]');
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 3);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 3);
 
     column_name.find('button').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -1094,13 +1094,13 @@ QUnit.test('creme.listview.core (toggle sort, disabled)', function(assert) {
     var column_name = table.find('.lv-columns-header .lv-column.sortable[data-column-key="regular_field-name"]');
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 3);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 3);
 
-    equal(true, column_name.find('button').is(':disabled'));
+    assert.equal(true, column_name.find('button').is(':disabled'));
     column_name.find('button').trigger('click');
 
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
 QUnit.test('creme.listview.core (sort another column)', function(assert) {
@@ -1113,12 +1113,12 @@ QUnit.test('creme.listview.core (sort another column)', function(assert) {
     var column_phone = table.find('.lv-columns-header .lv-column.sortable[data-column-key="regular_field-phone"]');
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 3);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 3);
 
     column_phone.find('button').trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -1153,11 +1153,11 @@ QUnit.test('creme.listview.core (hatbar buttons, unknow action)', function(asser
     var listview = creme.widget.create(element);
     var button = element.find('.list-header-buttons a[data-action]');
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
 
-    equal(1, button.length);
-    equal(true, button.is('.is-disabled'));
+    assert.equal(1, button.length);
+    assert.equal(true, button.is('.is-disabled'));
 });
 
 QUnit.test('creme.listview.core (hatbar buttons, submit-lv-state)', function(assert) {
@@ -1179,15 +1179,15 @@ QUnit.test('creme.listview.core (hatbar buttons, submit-lv-state)', function(ass
     var listview = creme.widget.create(element);
     var button = element.find('.list-header-buttons a[data-action]');
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
 
-    equal(1, button.length);
-    equal(false, button.is('.is-disabled'));
+    assert.equal(1, button.length);
+    assert.equal(false, button.is('.is-disabled'));
 
     button.trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -1222,15 +1222,15 @@ QUnit.test('creme.listview.core (hatbar buttons, reset-lv-search)', function(ass
     var listview = creme.widget.create(element);
     var button = element.find('.list-header-buttons a[data-action]');
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
 
-    equal(1, button.length);
-    equal(false, button.is('.is-disabled'));
+    assert.equal(1, button.length);
+    assert.equal(false, button.is('.is-disabled'));
 
     button.trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -1265,13 +1265,13 @@ QUnit.test('creme.listview.core (hatbar controls, entityfilter, change)', functi
 
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(1, filter.length);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(1, filter.length);
 
     filter.val('filter-b').trigger('change');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -1307,24 +1307,24 @@ QUnit.test('creme.listview.core (hatbar controls, entityfilter, delete)', functi
     var listview = creme.widget.create(element);
     var link = element.find('.list-control-group.list-filters a[data-action="delete"]');
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(1, link.length);
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/filter/delete'));
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(1, link.length);
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/filter/delete'));
 
     link.trigger('click');
 
     this.assertOpenedConfirmDialog(gettext('Are you sure?'));
     this.acceptConfirmDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             id: 'filter-b'
         }]
     ], this.mockBackendUrlCalls('mock/listview/filter/delete'));
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -1360,15 +1360,15 @@ QUnit.test('creme.listview.core (hatbar controls, entityfilter, info)', function
     var listview = creme.widget.create(element);
     var link = element.find('.list-control-group.list-filters a[data-action="popover"]');
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(1, link.length);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(1, link.length);
 
     link.trigger('click');
 
     var popover = this.assertOpenedPopover();
     this.assertPopoverTitle('Filter A Details');
-    equal(popover.find('.popover-content').html(), '<h3>Filter by "A"</h3>');
+    assert.equal(popover.find('.popover-content').html(), '<h3>Filter by "A"</h3>');
 });
 
 QUnit.test('creme.listview.core (hatbar controls, view, change)', function(assert) {
@@ -1390,13 +1390,13 @@ QUnit.test('creme.listview.core (hatbar controls, view, change)', function(asser
 
     var listview = creme.widget.create(element);
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(1, selector.length);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(1, selector.length);
 
     selector.val('view-b').trigger('change');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -1432,24 +1432,24 @@ QUnit.test('creme.listview.core (hatbar controls, view, delete)', function(asser
     var listview = creme.widget.create(element);
     var link = element.find('.list-control-group.list-views a[data-action="delete"]');
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(1, link.length);
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/view/delete'));
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(1, link.length);
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/view/delete'));
 
     link.trigger('click');
 
     this.assertOpenedConfirmDialog(gettext('Are you sure?'));
     this.acceptConfirmDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             id: 'view-b'
         }]
     ], this.mockBackendUrlCalls('mock/listview/view/delete'));
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -1474,14 +1474,14 @@ QUnit.test('creme.listview.core (pagesize selector)', function(assert) {
     var listview = creme.widget.create(element);
     var selector = element.find('.list-pagesize-selector');
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 0);
-    equal(1, selector.length);
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 0);
+    assert.equal(1, selector.length);
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     selector.val('25').trigger('change');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -1506,15 +1506,15 @@ QUnit.test('creme.listview.core (page link)', function(assert) {
     var listview = creme.widget.create(element);
     var link = element.find('.link-a');
 
-    equal(listview.isStandalone(), true);
-    equal(listview.count(), 3);
+    assert.equal(listview.isStandalone(), true);
+    assert.equal(listview.count(), 3);
 
-    equal(1, link.length);
-    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    assert.equal(1, link.length);
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     link.trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
@@ -1540,7 +1540,7 @@ QUnit.test('creme.listview.core (serializeState)', function(assert) {
     var listview = creme.widget.create(element);
     var controller = listview.controller();
 
-    deepEqual({
+    assert.deepEqual({
         ct_id: ['67'],
         q_filter: ['{}'],
         selected_rows: [''],
@@ -1554,7 +1554,7 @@ QUnit.test('creme.listview.core (serializeState)', function(assert) {
     listview.controller().stateField('sort_order').val('DESC');
     listview.controller().stateField('rows').val('25');
 
-    deepEqual({
+    assert.deepEqual({
         ct_id: ['67'],
         q_filter: ['{}'],
         selected_rows: [''],

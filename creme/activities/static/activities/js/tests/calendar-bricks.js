@@ -80,8 +80,8 @@ QUnit.module("creme.ActivityCalendarBrickController", new QUnitMixin(QUnitEventM
         var widget = creme.widget.create(element);
         var brick = widget.brick();
 
-        equal(true, brick.isBound());
-        equal(false, brick.isLoading());
+        this.assert.equal(true, brick.isBound());
+        this.assert.equal(false, brick.isLoading());
 
         return widget;
     }
@@ -124,14 +124,14 @@ QUnit.test('creme.ActivityCalendarBrickController.setup (settings & sources)', f
         allowEventCreate: false
     });
 
-    deepEqual({
+    assert.deepEqual({
         allowEventCreate: false,
         fullCalendarOptions: {}
     }, controller.props());
 
     controller.bind(brick);
 
-    deepEqual({
+    assert.deepEqual({
         allowEventCreate: false,
         allowEventMove: false,
         allowEventOverlaps: true,
@@ -150,20 +150,20 @@ QUnit.test('creme.ActivityCalendarBrickController.setup (settings & sources)', f
         rendererDelay: 100
     }, controller.calendar().props());
 
-    deepEqual([1, 2, 10, 11], controller.calendar().selectedSourceIds());
+    assert.deepEqual([1, 2, 10, 11], controller.calendar().selectedSourceIds());
 });
 
 QUnit.test('creme.setupActivityCalendarBrick', function(assert) {
     var element = $(this.createCalendarBrickHtml()).appendTo(this.qunitFixture());
     var controller = creme.setupActivityCalendarBrick(element);
 
-    equal(controller.isBound(), false);
-    equal(controller.calendar(), undefined);
+    assert.equal(controller.isBound(), false);
+    assert.equal(controller.calendar(), undefined);
 
     var widget = creme.widget.create(element);
 
-    equal(controller.isBound(), true);
-    deepEqual(controller.brick(), widget.brick());
+    assert.equal(controller.isBound(), true);
+    assert.deepEqual(controller.brick(), widget.brick());
 });
 
 }(jQuery));

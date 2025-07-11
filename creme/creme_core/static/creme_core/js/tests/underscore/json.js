@@ -11,42 +11,42 @@ QUnit.module("underscore-json", new QUnitMixin(QUnitConsoleMixin, {
 }));
 
 QUnit.test('isJSON', function(assert) {
-    equal(_.isJSON(''), false);
-    equal(_.isJSON('null'), false);
-    equal(_.isJSON('[a, b]'), false);
-    equal(_.isJSON('{"a": 12, "b": [1, 2], "c": {"c1": 74, "c2": [8]'), false);
+    assert.equal(_.isJSON(''), false);
+    assert.equal(_.isJSON('null'), false);
+    assert.equal(_.isJSON('[a, b]'), false);
+    assert.equal(_.isJSON('{"a": 12, "b": [1, 2], "c": {"c1": 74, "c2": [8]'), false);
 
-    equal(_.isJSON('""'), true);
-    equal(_.isJSON('{"a": 12, "b": [1, 2], "c": {"c1": 74, "c2": [8]}}'), true);
+    assert.equal(_.isJSON('""'), true);
+    assert.equal(_.isJSON('{"a": 12, "b": [1, 2], "c": {"c1": 74, "c2": [8]}}'), true);
 });
 
 QUnit.test('cleanJSON', function(assert) {
-    equal(_.cleanJSON(''), undefined);
-    equal(_.cleanJSON('""'), '');
-    equal(_.cleanJSON('12'), 12);
+    assert.equal(_.cleanJSON(''), undefined);
+    assert.equal(_.cleanJSON('""'), '');
+    assert.equal(_.cleanJSON('12'), 12);
 
-    deepEqual(_.cleanJSON('{"a": 12}'), {"a": 12});
+    assert.deepEqual(_.cleanJSON('{"a": 12}'), {"a": 12});
 
-    deepEqual(_.cleanJSON('{"a": "2025-03-11"}', function(key, value, context) {
+    assert.deepEqual(_.cleanJSON('{"a": "2025-03-11"}', function(key, value, context) {
         return (key === 'a') ? new Date(value) : value;
     }), {a: new Date('2025-03-11')});
 
-    deepEqual(_.cleanJSON('{"a": 12345678901234567890}', function(key, value, context) {
+    assert.deepEqual(_.cleanJSON('{"a": 12345678901234567890}', function(key, value, context) {
         return (key === 'a') ? BigInt(context.source) : value;
     }), {a: BigInt('12345678901234567890')});
 });
 
-QUnit.test('readJSONScriptText (invalid)', function(text, assert) {
-    equal('', _.readJSONScriptText(''));
-    equal('', _.readJSONScriptText('#unknown'));
+QUnit.test('readJSONScriptText (invalid)', function(assert) {
+    assert.equal('', _.readJSONScriptText(''));
+    assert.equal('', _.readJSONScriptText('#unknown'));
 
     this.resetMockConsoleWarnCalls();
 
     // wrong element type
     var invalidTag = this.parseHTML('<div>This not a script</div>');
-    equal('', _.readJSONScriptText(invalidTag));
+    assert.equal('', _.readJSONScriptText(invalidTag));
 
-    deepEqual([
+    assert.deepEqual([
         ['This element is not a JSON script']
     ], this.mockConsoleWarnCalls().map(function(e) { return e.slice(0, 1); }));
 
@@ -54,53 +54,53 @@ QUnit.test('readJSONScriptText (invalid)', function(text, assert) {
 
     // wrong script type
     invalidTag = this.parseHTML('<script type="application/csv">{}</script>');
-    equal('', _.readJSONScriptText(invalidTag));
+    assert.equal('', _.readJSONScriptText(invalidTag));
 
-    deepEqual([
+    assert.deepEqual([
         ['This element is not a JSON script']
     ], this.mockConsoleWarnCalls().map(function(e) { return e.slice(0, 1); }));
 
     this.resetMockConsoleWarnCalls();
 
-    equal('<!-- ->', _.readJSONScriptText(this.parseHTML('<script type="text/json"><!-- -></script>')));
-    deepEqual([
+    assert.equal('<!-- ->', _.readJSONScriptText(this.parseHTML('<script type="text/json"><!-- -></script>')));
+    assert.deepEqual([
         ['Please use html comment <!-- --> within JSON <script> tag to prevent some browsers to interpret it as javascript']
     ], this.mockConsoleWarnCalls());
 
     this.resetMockConsoleWarnCalls();
 
-    equal('<!--', _.readJSONScriptText(this.parseHTML('<script type="text/json"><!--</script>')));
-    deepEqual([
+    assert.equal('<!--', _.readJSONScriptText(this.parseHTML('<script type="text/json"><!--</script>')));
+    assert.deepEqual([
         ['Please use html comment <!-- --> within JSON <script> tag to prevent some browsers to interpret it as javascript']
     ], this.mockConsoleWarnCalls());
 
     this.resetMockConsoleWarnCalls();
 
-    equal('-->', _.readJSONScriptText(this.parseHTML('<script type="text/json">--></script>')));
-    deepEqual([
+    assert.equal('-->', _.readJSONScriptText(this.parseHTML('<script type="text/json">--></script>')));
+    assert.deepEqual([
         ['Please use html comment <!-- --> within JSON <script> tag to prevent some browsers to interpret it as javascript']
     ], this.mockConsoleWarnCalls());
 
     this.resetMockConsoleWarnCalls();
 
-    equal('{}', _.readJSONScriptText(this.parseHTML('<script type="text/json">{}</script>')));
-    deepEqual([
+    assert.equal('{}', _.readJSONScriptText(this.parseHTML('<script type="text/json">{}</script>')));
+    assert.deepEqual([
         ['Please use html comment <!-- --> within JSON <script> tag to prevent some browsers to interpret it as javascript']
     ], this.mockConsoleWarnCalls());
 });
 
 QUnit.test('readJSONScriptText (ignore linebreaks)', function(assert) {
-    equal('', _.readJSONScriptText(this.parseHTML('<script type="text/json"></script>')));
-    equal('', _.readJSONScriptText(this.parseHTML('<script type="text/json"><!-- --></script>')));
-    equal('', _.readJSONScriptText(this.parseHTML('<script type="text/json"><!-- -->\n</script>')));
+    assert.equal('', _.readJSONScriptText(this.parseHTML('<script type="text/json"></script>')));
+    assert.equal('', _.readJSONScriptText(this.parseHTML('<script type="text/json"><!-- --></script>')));
+    assert.equal('', _.readJSONScriptText(this.parseHTML('<script type="text/json"><!-- -->\n</script>')));
 
-    equal('<!-- ->', _.readJSONScriptText(this.parseHTML('<script type="text/json"><!-- -></script>')));
+    assert.equal('<!-- ->', _.readJSONScriptText(this.parseHTML('<script type="text/json"><!-- -></script>')));
 
-    equal('{}', _.readJSONScriptText(this.parseHTML('<script type="text/json"><!-- {} --></script>')));
-    equal('{}', _.readJSONScriptText(this.parseHTML('<script type="text/json">\n<!-- {} -->\n\n</script>')));
+    assert.equal('{}', _.readJSONScriptText(this.parseHTML('<script type="text/json"><!-- {} --></script>')));
+    assert.equal('{}', _.readJSONScriptText(this.parseHTML('<script type="text/json">\n<!-- {} -->\n\n</script>')));
 
-    equal('{}', _.readJSONScriptText(this.parseHTML('<script type="application/json"><!-- {} --></script>')));
-    equal('{}', _.readJSONScriptText(this.parseHTML('<script type="application/json">\n<!-- {} -->\n\n</script>')));
+    assert.equal('{}', _.readJSONScriptText(this.parseHTML('<script type="application/json"><!-- {} --></script>')));
+    assert.equal('{}', _.readJSONScriptText(this.parseHTML('<script type="application/json">\n<!-- {} -->\n\n</script>')));
 });
 
 QUnit.test('readJSONScriptText (escaping)', function(assert) {
@@ -110,8 +110,8 @@ QUnit.test('readJSONScriptText (escaping)', function(assert) {
 
     this.qunitFixture().append(script);
 
-    equal('{"a": 12, "b": "-->alert();<script/>"}', _.readJSONScriptText(script));
-    equal('{"a": 12, "b": "-->alert();<script/>"}', _.readJSONScriptText('#mydata'));
+    assert.equal('{"a": 12, "b": "-->alert();<script/>"}', _.readJSONScriptText(script));
+    assert.equal('{"a": 12, "b": "-->alert();<script/>"}', _.readJSONScriptText('#mydata'));
 });
 
 QUnit.parameterize('cleanJSONScript', [
@@ -128,11 +128,11 @@ QUnit.parameterize('cleanJSONScript', [
 
     this.qunitFixture().append(script);
 
-    deepEqual(expected, _.cleanJSONScript(script, function(key, value, context) {
+    assert.deepEqual(expected, _.cleanJSONScript(script, function(key, value, context) {
         return (key === 'today') ? new Date(value) : value;
     }));
 
-    deepEqual(expected, _.cleanJSONScript('#mydata', function(key, value, context) {
+    assert.deepEqual(expected, _.cleanJSONScript('#mydata', function(key, value, context) {
         return (key === 'today') ? new Date(value) : value;
     }));
 });

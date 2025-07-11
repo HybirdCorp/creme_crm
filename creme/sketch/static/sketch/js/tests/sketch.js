@@ -5,31 +5,31 @@ QUnit.module("creme.D3Sketch", new QUnitMixin(QUnitEventMixin));
 QUnit.test('creme.D3Sketch', function(assert) {
     var sketch = new creme.D3Sketch();
 
-    equal(false, sketch.isBound());
+    assert.equal(false, sketch.isBound());
 
-    equal(undefined, sketch.svg());
-    equal(undefined, sketch.element());
+    assert.equal(undefined, sketch.svg());
+    assert.equal(undefined, sketch.element());
 
-    deepEqual({width: 0, height: 0}, sketch.size());
-    deepEqual({width: 0, height: 0}, sketch.containerSize());
+    assert.deepEqual({width: 0, height: 0}, sketch.size());
+    assert.deepEqual({width: 0, height: 0}, sketch.containerSize());
 
-    deepEqual(0, sketch.width());
-    deepEqual(0, sketch.height());
+    assert.deepEqual(0, sketch.width());
+    assert.deepEqual(0, sketch.height());
 });
 
 QUnit.test('creme.D3Sketch.bind', function(assert) {
     var element = $('<div style="width: 300px; height: 200px;">');
     var sketch = new creme.D3Sketch().bind(element);
 
-    equal(true, sketch.isBound());
-    equal(element, sketch.element());
-    ok(sketch.svg() !== undefined);
+    assert.equal(true, sketch.isBound());
+    assert.equal(element, sketch.element());
+    assert.ok(sketch.svg() !== undefined);
 
-    deepEqual({width: 300, height: 200}, sketch.size());
-    deepEqual({width: 300, height: 200}, sketch.containerSize());
+    assert.deepEqual({width: 300, height: 200}, sketch.size());
+    assert.deepEqual({width: 300, height: 200}, sketch.containerSize());
 
-    deepEqual(300, sketch.width());
-    deepEqual(200, sketch.height());
+    assert.deepEqual(300, sketch.width());
+    assert.deepEqual(200, sketch.height());
 
     this.assertRaises(function() {
         sketch.bind(element);
@@ -62,40 +62,40 @@ QUnit.test('creme.D3Sketch.unbind', function(assert) {
 
     sketch.bind(element);
 
-    equal(true, sketch.isBound());
-    equal(element, sketch.element());
-    ok(sketch.svg() !== undefined);
+    assert.equal(true, sketch.isBound());
+    assert.equal(element, sketch.element());
+    assert.ok(sketch.svg() !== undefined);
 
     sketch.unbind();
 
-    equal(undefined, sketch.svg());
-    equal(undefined, sketch.element());
+    assert.equal(undefined, sketch.svg());
+    assert.equal(undefined, sketch.element());
 
-    deepEqual({width: 0, height: 0}, sketch.size());
-    deepEqual({width: 0, height: 0}, sketch.containerSize());
+    assert.deepEqual({width: 0, height: 0}, sketch.size());
+    assert.deepEqual({width: 0, height: 0}, sketch.containerSize());
 
-    deepEqual(0, sketch.width());
-    deepEqual(0, sketch.height());
+    assert.deepEqual(0, sketch.width());
+    assert.deepEqual(0, sketch.height());
 });
 
 QUnit.test('creme.D3Sketch.resize', function(assert) {
     var element = $('<div style="width: 300px; height: 200px;">').appendTo(this.qunitFixture());
     var sketch = new creme.D3Sketch();
 
-    equal(false, sketch.isBound());
-    deepEqual({width: 0, height: 0}, sketch.size());
+    assert.equal(false, sketch.isBound());
+    assert.deepEqual({width: 0, height: 0}, sketch.size());
 
     // If not bound, the resize() do nothing.
     element.get(0).style.width = '150px';
-    deepEqual({width: 0, height: 0}, sketch.size());
+    assert.deepEqual({width: 0, height: 0}, sketch.size());
 
     sketch.bind(element);
 
-    equal(true, sketch.isBound());
-    deepEqual({width: 150, height: 200}, sketch.size());
+    assert.equal(true, sketch.isBound());
+    assert.deepEqual({width: 150, height: 200}, sketch.size());
 
     element.get(0).style.width = '250px';
-    deepEqual({width: 250, height: 200}, sketch.size());
+    assert.deepEqual({width: 250, height: 200}, sketch.size());
 });
 
 QUnit.test('creme.D3Sketch.resize (events)', function(assert) {
@@ -107,22 +107,22 @@ QUnit.test('creme.D3Sketch.resize (events)', function(assert) {
     element.on('sketch-resize', this.mockListener('sketch-resize'));
     sketch.on('resize', this.mockListener('resize'));
 
-    deepEqual([], this.mockListenerJQueryCalls('sketch-resize'));
-    deepEqual([], this.mockListenerCalls('resize'));
+    assert.deepEqual([], this.mockListenerJQueryCalls('sketch-resize'));
+    assert.deepEqual([], this.mockListenerCalls('resize'));
 
     element.get(0).style.width = '150px';
 
+    var done = assert.async();
+
     setTimeout(function() {
-        deepEqual([
+        assert.deepEqual([
             ['sketch-resize', [{width: 150, height: 200}]]
         ], this.mockListenerJQueryCalls('sketch-resize'));
-        deepEqual([
+        assert.deepEqual([
             ['resize', {width: 150, height: 200}]
         ], this.mockListenerCalls('resize'));
-        start();
+        done();
     }.bind(this), 50);
-
-    stop(1);
 });
 
 QUnit.test('creme.D3Sketch.resize (ignore)', function(assert) {
@@ -134,33 +134,33 @@ QUnit.test('creme.D3Sketch.resize (ignore)', function(assert) {
     element.on('sketch-resize', this.mockListener('sketch-resize'));
     sketch.on('resize', this.mockListener('resize'));
 
-    deepEqual([], this.mockListenerJQueryCalls('sketch-resize'));
-    deepEqual([], this.mockListenerCalls('resize'));
+    assert.deepEqual([], this.mockListenerJQueryCalls('sketch-resize'));
+    assert.deepEqual([], this.mockListenerCalls('resize'));
 
     element.get(0).style.width = '150px';
 
-    setTimeout(function() {
-        deepEqual([], this.mockListenerJQueryCalls('sketch-resize'));
-        deepEqual([], this.mockListenerCalls('resize'));
-        deepEqual({width: 150, height: 200}, sketch.size());
-        start();
-    }.bind(this), 50);
+    var done = assert.async();
 
-    stop(1);
+    setTimeout(function() {
+        assert.deepEqual([], this.mockListenerJQueryCalls('sketch-resize'));
+        assert.deepEqual([], this.mockListenerCalls('resize'));
+        assert.deepEqual({width: 150, height: 200}, sketch.size());
+        done();
+    }.bind(this), 50);
 });
 
 QUnit.test('creme.D3Sketch.clear', function(assert) {
     var element = $('<div style="width: 300px; height: 200px;">').appendTo(this.qunitFixture());
     var sketch = new creme.D3Sketch();
 
-    equal(false, sketch.isBound());
+    assert.equal(false, sketch.isBound());
 
     this.assertRaises(function() {
         sketch.clear();
     }, Error, 'Error: D3Sketch is not bound');
 
     sketch.bind(element);
-    equal(true, sketch.isBound());
+    assert.equal(true, sketch.isBound());
 
     sketch.svg().append('rect')
                 .attr('x', 10)
@@ -170,7 +170,7 @@ QUnit.test('creme.D3Sketch.clear', function(assert) {
                 .attr('fill', 'red');
 
     sketch.clear();
-    equal('', sketch.svg().html());
+    assert.equal('', sketch.svg().html());
 });
 
 QUnit.test('creme.D3Sketch.saveAs', function(assert) {
@@ -178,7 +178,7 @@ QUnit.test('creme.D3Sketch.saveAs', function(assert) {
     var element = $('<div style="width: 300px; height: 200px;">').appendTo(this.qunitFixture());
     var sketch = new creme.D3Sketch();
 
-    equal(false, sketch.isBound());
+    assert.equal(false, sketch.isBound());
 
     this.assertRaises(function() {
         sketch.saveAs('my-test.svg');
@@ -197,14 +197,14 @@ QUnit.test('creme.D3Sketch.saveAs', function(assert) {
                     .attr('height', 20)
                     .attr('fill', 'red');
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
         creme.svgAsBlob(function(expected) {
             withFakeMethod({instance: FileSaver, method: 'saveAs'}, function(faker) {
                 sketch.saveAs(function() {
-                    deepEqual(faker.calls(), [[expected, 'my-test.svg']]);
-                    start();
+                    assert.deepEqual(faker.calls(), [[expected, 'my-test.svg']]);
+                    done();
                 }, 'my-test.svg');
             });
         }, sketch.svg().node(), sketch.size());
@@ -217,7 +217,7 @@ QUnit.test('creme.D3Sketch.saveAs (png)', function(assert) {
     var sketch = new creme.D3Sketch();
     var noop = function() {};
 
-    equal(false, sketch.isBound());
+    assert.equal(false, sketch.isBound());
 
     this.assertRaises(function() {
         sketch.saveAs(noop, 'my-test.png', {encoderType: 'image/png'});
@@ -236,13 +236,13 @@ QUnit.test('creme.D3Sketch.saveAs (png)', function(assert) {
                     .attr('height', 20)
                     .attr('fill', 'red');
 
-    stop(1);
+    var done = assert.async();
 
     creme.svgAsBlob(function(expected) {
         withFakeMethod({instance: FileSaver, method: 'saveAs'}, function(faker) {
             sketch.saveAs(function() {
-                deepEqual(faker.calls(), [[expected, 'my-test.png']]);
-                start();
+                assert.deepEqual(faker.calls(), [[expected, 'my-test.png']]);
+                done();
             }, 'my-test.png', {encoderType: 'image/png'});
         });
     }, sketch.svg().node(), {width: 300, height: 200, encoderType: 'image/png'});
@@ -252,7 +252,7 @@ QUnit.test('creme.D3Sketch.asImage', function(assert) {
     var element = $('<div style="width: 300px; height: 200px;">').appendTo(this.qunitFixture());
     var sketch = new creme.D3Sketch();
 
-    equal(false, sketch.isBound());
+    assert.equal(false, sketch.isBound());
 
     this.assertRaises(function() {
         sketch.asImage('my-test.svg');
@@ -275,11 +275,11 @@ QUnit.test('creme.D3Sketch.asImage', function(assert) {
         sketch.svg().node(), {width: 300, height: 200, encoderType: 'image/png'}
     );
 
-    stop(1);
+    var done = assert.async();
 
     sketch.asImage(function(image) {
-        equal(image.src, expectedURI);
-        start();
+        assert.equal(image.src, expectedURI);
+        done();
     }, {encoderType: 'image/png'});
 });
 
@@ -287,7 +287,7 @@ QUnit.test('creme.D3Sketch.asImage (custom size)', function(assert) {
     var element = $('<div style="width: 300px; height: 200px;">').appendTo(this.qunitFixture());
     var sketch = new creme.D3Sketch();
 
-    equal(false, sketch.isBound());
+    assert.equal(false, sketch.isBound());
 
     this.assertRaises(function() {
         sketch.asImage('my-test.svg');
@@ -305,11 +305,11 @@ QUnit.test('creme.D3Sketch.asImage (custom size)', function(assert) {
         sketch.svg().node(), {width: 450, height: 218, encoderType: 'image/png'}
     );
 
-    stop(1);
+    var done = assert.async();
 
     sketch.asImage(function(image) {
-        equal(image.src, expectedURI);
-        start();
+        assert.equal(image.src, expectedURI);
+        done();
     }, {width: 450, height: 218, encoderType: 'image/png'});
 });
 

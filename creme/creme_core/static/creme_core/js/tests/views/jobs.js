@@ -72,12 +72,13 @@ QUnit.module("creme.jobs.js", new QUnitMixin(QUnitAjaxMixin,
 
     assertJobItemState: function(controller, jobId, expected) {
         expected = expected || {};
+        var assert = this.assert;
         var job = controller.jobItems(jobId);
 
-        equal(job.length, 1);
-        equal(job.find('.job-progress-bar-label').text(), expected.label, 'invalid job label');
-        equal(job.find('.job-progress-percentage-value').text(), expected.percentage, 'invalid job progress');
-        equal(job.data('job-status'), expected.status, 'invalid job-status');
+        assert.equal(job.length, 1);
+        assert.equal(job.find('.job-progress-bar-label').text(), expected.label, 'invalid job label');
+        assert.equal(job.find('.job-progress-percentage-value').text(), expected.percentage, 'invalid job progress');
+        assert.equal(job.data('job-status'), expected.status, 'invalid job-status');
     },
 
     createJobsBrick: function(options) {
@@ -112,21 +113,21 @@ QUnit.test('creme.JobsMonitor (default)', function(assert) {
     var element = $(this.jobsListHtml());
     var controller = new creme.jobs.JobsMonitor(element, {url: 'mock/jobs'});
 
-    deepEqual(element, controller.element());
-    equal('mock/jobs', controller.url());
-    equal(5000, controller.fetchDelay());
+    assert.deepEqual(element, controller.element());
+    assert.equal('mock/jobs', controller.url());
+    assert.equal(5000, controller.fetchDelay());
 });
 
 QUnit.test('creme.JobsMonitor (properties)', function(assert) {
     var element = $(this.jobsListHtml());
     var controller = new creme.jobs.JobsMonitor(element, {url: 'mock/jobs'});
 
-    deepEqual(element, controller.element());
-    equal('mock/jobs', controller.url());
-    equal(5000, controller.fetchDelay());
+    assert.deepEqual(element, controller.element());
+    assert.equal('mock/jobs', controller.url());
+    assert.equal(5000, controller.fetchDelay());
 
     controller.fetchDelay(0);
-    equal(0, controller.fetchDelay());
+    assert.equal(0, controller.fetchDelay());
 });
 
 QUnit.test('creme.JobsMonitor (fetch http error)', function(assert) {
@@ -141,19 +142,19 @@ QUnit.test('creme.JobsMonitor (fetch http error)', function(assert) {
     controller.fetchDelay(0);
     controller.on('finished', this.mockListener('jobs-finished'));
 
-    equal(element.find('.global-error').is('.hidden'), true);
-    equal(element.find('.global-error').text(), '');
+    assert.equal(element.find('.global-error').is('.hidden'), true);
+    assert.equal(element.find('.global-error').text(), '');
 
     controller.fetch();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/jobs/fail', 'GET', {id: ['job-a', 'job-b']}]
     ], this.mockBackendUrlCalls());
 
-    deepEqual([], this.mockListenerCalls('jobs-finished'));
+    assert.deepEqual([], this.mockListenerCalls('jobs-finished'));
 
-    equal(element.find('.global-error').is('.hidden'), false);
-    equal(element.find('.global-error').text(), gettext('HTTP server error'));
+    assert.equal(element.find('.global-error').is('.hidden'), false);
+    assert.equal(element.find('.global-error').text(), gettext('HTTP server error'));
 });
 
 QUnit.test('creme.JobsMonitor (fetch invalid data)', function(assert) {
@@ -168,19 +169,19 @@ QUnit.test('creme.JobsMonitor (fetch invalid data)', function(assert) {
     controller.fetchDelay(0);
     controller.on('finished', this.mockListener('jobs-finished'));
 
-    equal(element.find('.global-error').is('.hidden'), true);
-    equal(element.find('.global-error').text(), '');
+    assert.equal(element.find('.global-error').is('.hidden'), true);
+    assert.equal(element.find('.global-error').text(), '');
 
     controller.fetch();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/jobs/invalid', 'GET', {id: ['job-a', 'job-b']}]
     ], this.mockBackendUrlCalls());
 
-    deepEqual([], this.mockListenerCalls('jobs-finished'));
+    assert.deepEqual([], this.mockListenerCalls('jobs-finished'));
 
-    equal(element.find('.global-error').is('.hidden'), false);
-    equal(element.find('.global-error').text(), 'Invalid job data');
+    assert.equal(element.find('.global-error').is('.hidden'), false);
+    assert.equal(element.find('.global-error').text(), 'Invalid job data');
 });
 
 QUnit.test('creme.JobsMonitor (fetch steps)', function(assert) {
@@ -206,9 +207,9 @@ QUnit.test('creme.JobsMonitor (fetch steps)', function(assert) {
 
     controller.on('finished', this.mockListener('jobs-finished'));
 
-    equal(element.find('.global-error').is('.hidden'), true);
-    equal(element.find('.global-error').text(), '');
-    deepEqual([], this.mockBackendUrlCalls());
+    assert.equal(element.find('.global-error').is('.hidden'), true);
+    assert.equal(element.find('.global-error').text(), '');
+    assert.deepEqual([], this.mockBackendUrlCalls());
 
     this.assertJobItemState(controller, 'job-a', {label: 'Job A', percentage: '0', status: 1});
     this.assertJobItemState(controller, 'job-b', {label: 'Job B', percentage: '10', status: 1});
@@ -220,35 +221,35 @@ QUnit.test('creme.JobsMonitor (fetch steps)', function(assert) {
 
         this.assertJobItemState(controller, 'job-a', {label: 'Job A', percentage: '50', status: 1});
         this.assertJobItemState(controller, 'job-b', {label: 'Job B', percentage: '30', status: 1});
-        deepEqual([], this.mockListenerCalls('jobs-finished'));
-        equal(retry_faker.count(), 1);
+        assert.deepEqual([], this.mockListenerCalls('jobs-finished'));
+        assert.equal(retry_faker.count(), 1);
 
         controller.fetch();
 
-        equal(controller.jobItems('job-a').text(), gettext('Completed successfully'));
-        equal(controller.jobItems('job-a').attr('data-job-status'), 20);
+        assert.equal(controller.jobItems('job-a').text(), gettext('Completed successfully'));
+        assert.equal(controller.jobItems('job-a').attr('data-job-status'), 20);
         this.assertJobItemState(controller, 'job-b', {label: 'Job B', percentage: '72', status: 1});
 
-        deepEqual([], this.mockListenerCalls('jobs-finished'));
-        equal(retry_faker.count(), 2);
+        assert.deepEqual([], this.mockListenerCalls('jobs-finished'));
+        assert.equal(retry_faker.count(), 2);
 
         controller.fetch();
 
-        equal(controller.jobItems('job-a').text(), gettext('Completed successfully'));
-        equal(controller.jobItems('job-a').attr('data-job-status'), 20);
-        equal(controller.jobItems('job-b').text(), gettext('Completed successfully'));
-        equal(controller.jobItems('job-a').attr('data-job-status'), 20);
+        assert.equal(controller.jobItems('job-a').text(), gettext('Completed successfully'));
+        assert.equal(controller.jobItems('job-a').attr('data-job-status'), 20);
+        assert.equal(controller.jobItems('job-b').text(), gettext('Completed successfully'));
+        assert.equal(controller.jobItems('job-a').attr('data-job-status'), 20);
 
-        deepEqual([['finished']], this.mockListenerCalls('jobs-finished'));
-        equal(retry_faker.count(), 2);  // <= the retry is not needed here !
+        assert.deepEqual([['finished']], this.mockListenerCalls('jobs-finished'));
+        assert.equal(retry_faker.count(), 2);  // <= the retry is not needed here !
 
-        deepEqual([
+        assert.deepEqual([
             ['mock/jobs', 'GET', {id: ['job-a', 'job-b']}],
             ['mock/jobs', 'GET', {id: ['job-a', 'job-b']}],
             ['mock/jobs', 'GET', {id: ['job-a', 'job-b']}]
         ], this.mockBackendUrlCalls());
 
-        equal(element.find('.global-error').is('.hidden'), true);
+        assert.equal(element.find('.global-error').is('.hidden'), true);
     });
 });
 
@@ -267,16 +268,16 @@ QUnit.test('creme.JobsMonitor (retry defers fetch)', function(assert) {
         this.withFakeMethod({instance: window, method: 'clearTimeout'}, function(cleartimeout_faker) {
             controller._retry(200);
 
-            equal(timeout_faker.count(), 1);
-            equal(cleartimeout_faker.count(), 0);
-            equal(controller._deferred, 14565227);
+            assert.equal(timeout_faker.count(), 1);
+            assert.equal(cleartimeout_faker.count(), 0);
+            assert.equal(controller._deferred, 14565227);
 
             timeout_faker.result = 7895227;
             controller._retry(200);
 
-            equal(timeout_faker.count(), 2);
-            equal(cleartimeout_faker.count(), 1);
-            equal(controller._deferred, 7895227);
+            assert.equal(timeout_faker.count(), 2);
+            assert.equal(cleartimeout_faker.count(), 1);
+            assert.equal(controller._deferred, 7895227);
         });
     });
 });
@@ -307,12 +308,12 @@ QUnit.test('creme.JobsMonitor (start, no retry)', function(assert) {
 
             controller.fetch();
 
-            equal(timeout_faker.count(), 0);
-            equal(cleartimeout_faker.count(), 1);
-            equal(controller._deferred, null);
+            assert.equal(timeout_faker.count(), 0);
+            assert.equal(cleartimeout_faker.count(), 1);
+            assert.equal(controller._deferred, null);
 
-            deepEqual([['finished']], this.mockListenerCalls('jobs-finished'));
-            deepEqual([
+            assert.deepEqual([['finished']], this.mockListenerCalls('jobs-finished'));
+            assert.deepEqual([
                 ['mock/jobs', 'GET', {id: ['job-a', 'job-b']}]
             ], this.mockBackendUrlCalls());
         });
@@ -356,17 +357,17 @@ QUnit.test('creme.JobsMonitor (start, no retry)', function(assert) {
         this.withFakeMethod({instance: window, method: 'clearTimeout'}, function(cleartimeout_faker) {
             controller._deferred = 123457;
 
-            equal(timeout_faker.count(), 0);
-            equal(cleartimeout_faker.count(), 0);
+            assert.equal(timeout_faker.count(), 0);
+            assert.equal(cleartimeout_faker.count(), 0);
 
             controller.fetch();
 
-            equal(timeout_faker.count(), 4);
-            equal(cleartimeout_faker.count(), 1);
-            equal(controller._deferred, null);
+            assert.equal(timeout_faker.count(), 4);
+            assert.equal(cleartimeout_faker.count(), 1);
+            assert.equal(controller._deferred, null);
 
-            deepEqual([['finished']], this.mockListenerCalls('jobs-finished'));
-            deepEqual([
+            assert.deepEqual([['finished']], this.mockListenerCalls('jobs-finished'));
+            assert.deepEqual([
                 ['mock/jobs', 'GET', {id: ['job-a', 'job-b']}],
                 ['mock/jobs', 'GET', {id: ['job-a', 'job-b']}],
                 ['mock/jobs', 'GET', {id: ['job-a', 'job-b']}],
@@ -387,7 +388,7 @@ QUnit.test('creme.BrickJobsMonitor (setup)', function(assert) {
 
     var controller = new creme.jobs.BrickJobsMonitor(brick, {url: 'mock/jobs'});
 
-    equal(controller._brickId, brick.id());
+    assert.equal(controller._brickId, brick.id());
 
     controller.on('finished', this.mockListener('jobs-finished'));
 
@@ -398,8 +399,8 @@ QUnit.test('creme.BrickJobsMonitor (setup)', function(assert) {
 
     controller.fetch();
 
-    deepEqual([['finished']], this.mockListenerCalls('jobs-finished'));
-    deepEqual([
+    assert.deepEqual([['finished']], this.mockListenerCalls('jobs-finished'));
+    assert.deepEqual([
         ['mock/jobs', 'GET', {id: ['job-a', 'job-b']}]
     ], this.mockBackendUrlCalls());
 });
@@ -418,16 +419,16 @@ QUnit.test('creme.PopupJobsWaitingController (setup)', function(assert) {
         'job-b': {status: 20}
     }]);
 
-    deepEqual([], this.mockBackendUrlCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls());
 
     dialog.fill(content);
     dialog.open();
 
-    equal(dialog.button('cancel').text(), gettext('Close (process in background)'));
-    equal(dialog.button('cancel').is(':visible'), false);
-    equal(dialog.button('send').is(':visible'), true);
+    assert.equal(dialog.button('cancel').text(), gettext('Close (process in background)'));
+    assert.equal(dialog.button('cancel').is(':visible'), false);
+    assert.equal(dialog.button('send').is(':visible'), true);
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/jobs', 'GET', {id: ['job-a', 'job-b']}]
     ], this.mockBackendUrlCalls());
 

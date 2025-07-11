@@ -1,28 +1,30 @@
 (function($) {
 QUnit.module("creme.model.ChoiceRenderer.js", new QUnitMixin({
     assertOptions: function(element, expected) {
+        var assert = this.assert;
         var options = $('option', element);
 
-        equal(options.length, expected.length, 'option count');
+        assert.equal(options.length, expected.length, 'option count');
 
         options.each(function(index) {
-            equal($(this).attr('value'), expected[index].value, 'option %d value'.format(index));
-            equal($(this).html(), expected[index].label, 'option %d label'.format(index));
+            assert.equal($(this).attr('value'), expected[index].value, 'option %d value'.format(index));
+            assert.equal($(this).html(), expected[index].label, 'option %d label'.format(index));
 
             if (expected.group) {
-                equal($(this).parent().is('optgroup'), true, 'option %d has group'.format(index));
-                equal($(this).parent().attr('label'), expected.group, 'option %d group label'.format(index));
+                assert.equal($(this).parent().is('optgroup'), true, 'option %d has group'.format(index));
+                assert.equal($(this).parent().attr('label'), expected.group, 'option %d group label'.format(index));
             }
         });
     },
 
     assertOptionGroups: function(element, expected) {
+        var assert = this.assert;
         var groups = $('optgroup', element);
 
-        equal(groups.length, expected.length, 'optgroup count');
+        assert.equal(groups.length, expected.length, 'optgroup count');
 
         groups.each(function(index) {
-            equal($(this).attr('label'), expected[index], 'optgroup %d'.format(index));
+            assert.equal($(this).attr('label'), expected[index], 'optgroup %d'.format(index));
         });
     }
 }));
@@ -33,13 +35,13 @@ QUnit.test('creme.model.ChoiceRenderer.constructor', function(assert) {
     var renderer = new creme.model.ChoiceRenderer(element, model);
 
     renderer.redraw();
-    equal(model, renderer.model());
-    equal(element, renderer.target());
+    assert.equal(model, renderer.model());
+    assert.equal(element, renderer.target());
 
     renderer =  new creme.model.ChoiceRenderer();
 
-    equal(undefined, renderer.model());
-    equal(undefined, renderer.target());
+    assert.equal(undefined, renderer.model());
+    assert.equal(undefined, renderer.target());
 });
 
 QUnit.test('creme.model.ChoiceRenderer (empty model)', function(assert) {
@@ -48,7 +50,7 @@ QUnit.test('creme.model.ChoiceRenderer (empty model)', function(assert) {
     var renderer = new creme.model.ChoiceRenderer(element, model);
 
     renderer.redraw();
-    equal($('option', element).length, 0);
+    assert.equal($('option', element).length, 0);
 });
 
 QUnit.test('creme.model.ChoiceRenderer (filled model)', function(assert) {
@@ -203,7 +205,7 @@ QUnit.test('creme.model.ChoiceRenderer (switch model)', function(assert) {
     var renderer = new creme.model.ChoiceRenderer(element, model);
 
     renderer.redraw();
-    equal($('option', element).length, 0);
+    assert.equal($('option', element).length, 0);
 
     model.append([{value: 1, label: 'a'},
                   {value: 2, label: 'b'}]);
@@ -254,10 +256,10 @@ QUnit.test('creme.model.ChoiceRenderer (reset model)', function(assert) {
 });
 
 QUnit.test('creme.model.ChoiceRenderer (parse)', function(assert) {
-    deepEqual([], creme.model.ChoiceRenderer.parse($('<select></select>')));
-    deepEqual([], creme.model.ChoiceRenderer.parse($('<select><options></options></select>')));
+    assert.deepEqual([], creme.model.ChoiceRenderer.parse($('<select></select>')));
+    assert.deepEqual([], creme.model.ChoiceRenderer.parse($('<select><options></options></select>')));
 
-    deepEqual([{value: '1', label: 'a', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
+    assert.deepEqual([{value: '1', label: 'a', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
                {value: '2', label: 'b', help: 'B', disabled: false, selected: true, visible: true, readonly: false, tags: ['tag1']},
                {value: '3', label: 'c', help: undefined, disabled: true, selected: false, visible: true, readonly: false, tags: ['tag2']},
                {value: '4', label: 'd', help: undefined, disabled: false, selected: false, visible: true, readonly: true, tags: []}],
@@ -277,7 +279,7 @@ QUnit.test('creme.model.ChoiceRenderer.parse (no converter)', function(assert) {
                     '</options></select>');
     var options = creme.model.ChoiceRenderer.parse(element);
 
-    deepEqual(options, [{value: '[1, 2]', label: 'a', help: 'A', disabled: false, selected: true,  visible: true, readonly: false, tags: []},
+    assert.deepEqual(options, [{value: '[1, 2]', label: 'a', help: 'A', disabled: false, selected: true,  visible: true, readonly: false, tags: []},
                         {value: '[3, 4]', label: 'b', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
                         {value: '[5, 6]', label: 'c', help: 'C', disabled: false, selected: false, visible: true, readonly: false, tags: []}]);
 
@@ -288,14 +290,14 @@ QUnit.test('creme.model.ChoiceRenderer.parse (no converter)', function(assert) {
                 '</options></select>');
     options = creme.model.ChoiceRenderer.parse(element);
 
-    deepEqual(options, [{value: '[1, 2]', label: 'a', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
+    assert.deepEqual(options, [{value: '[1, 2]', label: 'a', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
                         {value: '[3, 4]', label: 'b', help: 'B', disabled: false, selected: true,  visible: true, readonly: false, tags: []},
                         {value: '[5, 6]', label: 'c', help: undefined, disabled: true,  selected: false, visible: true, readonly: false, tags: []}]);
 
     element.val("[1, 2]");
     options = creme.model.ChoiceRenderer.parse(element);
 
-    deepEqual(options, [{value: '[1, 2]', label: 'a', help: undefined, disabled: false, selected: true,  visible: true, readonly: false, tags: []},
+    assert.deepEqual(options, [{value: '[1, 2]', label: 'a', help: undefined, disabled: false, selected: true,  visible: true, readonly: false, tags: []},
                         {value: '[3, 4]', label: 'b', help: 'B', disabled: false, selected: false, visible: true, readonly: false, tags: []},
                         {value: '[5, 6]', label: 'c', help: undefined, disabled: true,  selected: false, visible: true, readonly: false, tags: []}]);
 });
@@ -308,7 +310,7 @@ QUnit.test('creme.model.ChoiceRenderer.parse (converter)', function(assert) {
         '</options></select>');
     var options = creme.model.ChoiceRenderer.parse(element, JSON.parse);
 
-    deepEqual(options, [{value: [1, 2], label: 'a', help: undefined, disabled: false, selected: true,  visible: true, readonly: false, tags: []},
+    assert.deepEqual(options, [{value: [1, 2], label: 'a', help: undefined, disabled: false, selected: true,  visible: true, readonly: false, tags: []},
                         {value: [3, 4], label: 'b', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
                         {value: [5, 6], label: 'c', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []}]);
 
@@ -319,31 +321,31 @@ QUnit.test('creme.model.ChoiceRenderer.parse (converter)', function(assert) {
                 '</options></select>');
     options = creme.model.ChoiceRenderer.parse(element, JSON.parse);
 
-    deepEqual(options, [{value: [1, 2], label: 'a', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
+    assert.deepEqual(options, [{value: [1, 2], label: 'a', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
                         {value: [3, 4], label: 'b', help: undefined, disabled: false, selected: true,  visible: true, readonly: false, tags: []},
                         {value: [5, 6], label: 'c', help: undefined, disabled: true, selected: false,  visible: true, readonly: false, tags: []}]);
 
     element.val("[1, 2]");
     options = creme.model.ChoiceRenderer.parse(element, JSON.parse);
 
-    deepEqual(options, [{value: [1, 2], label: 'a', help: undefined, disabled: false, selected: true,  visible: true, readonly: false, tags: []},
+    assert.deepEqual(options, [{value: [1, 2], label: 'a', help: undefined, disabled: false, selected: true,  visible: true, readonly: false, tags: []},
                         {value: [3, 4], label: 'b', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
                         {value: [5, 6], label: 'c', help: undefined, disabled: true,  selected: false, visible: true, readonly: false, tags: []}]);
 });
 
 QUnit.test('creme.model.ChoiceRenderer.choicesFromTuples ([])', function(assert) {
     var options = creme.model.ChoiceRenderer.choicesFromTuples();
-    deepEqual([], options);
+    assert.deepEqual([], options);
 
     options = creme.model.ChoiceRenderer.choicesFromTuples([]);
-    deepEqual([], options);
+    assert.deepEqual([], options);
 });
 
 QUnit.test('creme.model.ChoiceRenderer.choicesFromTuples ([value, label])', function(assert) {
     var data = [[[1, 2], 'a'], [[3, 4], 'b'], [[5, 6], 'c']];
     var options = creme.model.ChoiceRenderer.choicesFromTuples(data);
 
-    deepEqual(options, [{value: [1, 2], label: 'a', help: undefined, disabled: false, selected: false, visible: true},
+    assert.deepEqual(options, [{value: [1, 2], label: 'a', help: undefined, disabled: false, selected: false, visible: true},
                         {value: [3, 4], label: 'b', help: undefined, disabled: false, selected: false, visible: true},
                         {value: [5, 6], label: 'c', help: undefined, disabled: false, selected: false, visible: true}]);
 });
@@ -352,7 +354,7 @@ QUnit.test('creme.model.ChoiceRenderer.choicesFromTuples (value)', function(asse
     var data = ['a', 'b', 'c', null];
     var options = creme.model.ChoiceRenderer.choicesFromTuples(data);
 
-    deepEqual(options, [{value: 'a', label: 'a', help: undefined, disabled: false, selected: false, visible: true},
+    assert.deepEqual(options, [{value: 'a', label: 'a', help: undefined, disabled: false, selected: false, visible: true},
                         {value: 'b', label: 'b', help: undefined, disabled: false, selected: false, visible: true},
                         {value: 'c', label: 'c', help: undefined, disabled: false, selected: false, visible: true},
                         {value: null, label: 'null', help: undefined, disabled: false, selected: false, visible: true}]);
@@ -366,7 +368,7 @@ QUnit.test('creme.model.ChoiceRenderer.choicesFromTuples ({value: value, label:l
                 {value: null, label: 'empty'}];
     var options = creme.model.ChoiceRenderer.choicesFromTuples(data);
 
-    deepEqual(options, [{value: [1, 2], label: 'a', help: undefined, disabled: false, selected: false, visible: true},
+    assert.deepEqual(options, [{value: [1, 2], label: 'a', help: undefined, disabled: false, selected: false, visible: true},
                         {value: [3, 4], label: 'b', help: undefined, disabled: false, selected: false, visible: true},
                         {value: [5, 6], label: 'c', help: undefined, disabled: false, selected: false, visible: true},
                         {value: 7, label: '7', help: undefined, disabled: false, selected: false, visible: true},
@@ -773,7 +775,7 @@ QUnit.test('creme.model.ChoiceGroupRenderer (filled, model, update, other group,
 });
 
 QUnit.test('creme.model.ChoiceGroupRenderer (parse)', function(assert) {
-    deepEqual([{group: undefined, value: '1', label: 'a', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
+    assert.deepEqual([{group: undefined, value: '1', label: 'a', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
                {group: 'group1',  value: '2', label: 'b', help: undefined, disabled: false, selected: true,  visible: true, readonly: false, tags: ['tag1']},
                {group: 'group2',  value: '3', label: 'c', help: undefined, disabled: true,  selected: false, visible: true, readonly: false, tags: ['tag2']},
                {group: 'group2',  value: '4', label: 'd', help: undefined, disabled: false, selected: false, visible: true, readonly: false, tags: []},
@@ -795,17 +797,17 @@ QUnit.test('creme.model.ChoiceGroupRenderer (parse)', function(assert) {
 
 QUnit.test('creme.model.ChoiceGroupRenderer.choicesFromTuples ([])', function(assert) {
     var options = creme.model.ChoiceGroupRenderer.choicesFromTuples();
-    deepEqual([], options);
+    assert.deepEqual([], options);
 
     options = creme.model.ChoiceGroupRenderer.choicesFromTuples([]);
-    deepEqual([], options);
+    assert.deepEqual([], options);
 });
 
 QUnit.test('creme.model.ChoiceGroupRenderer.choicesFromTuples ([value, label])', function(assert) {
     var data = [[1, 'a'], [24, 'b'], [5, 'D'], [12.5, 'c']];
     var options = creme.model.ChoiceGroupRenderer.choicesFromTuples(data);
 
-    deepEqual(options, [{group: undefined, value: 1,    label: 'a', help: undefined, disabled: false, selected: false, visible: true},
+    assert.deepEqual(options, [{group: undefined, value: 1,    label: 'a', help: undefined, disabled: false, selected: false, visible: true},
                         {group: undefined, value: 24,   label: 'b', help: undefined, disabled: false, selected: false, visible: true},
                         {group: undefined, value: 5,    label: 'D', help: undefined, disabled: false, selected: false, visible: true},
                         {group: undefined, value: 12.5, label: 'c', help: undefined, disabled: false, selected: false, visible: true}]);
@@ -815,7 +817,7 @@ QUnit.test('creme.model.ChoiceGroupRenderer.choicesFromTuples ([value, label, gr
     var data = [[[1, 2], 'a'], [[3, 4], 'b', 'group1'], [[5, 6], 'c', 'group2'], [7, 'd', 'group1']];
     var options = creme.model.ChoiceGroupRenderer.choicesFromTuples(data);
 
-    deepEqual(options, [{group: undefined, value: [1, 2], label: 'a', help: undefined, disabled: false, selected: false, visible: true},
+    assert.deepEqual(options, [{group: undefined, value: [1, 2], label: 'a', help: undefined, disabled: false, selected: false, visible: true},
                         {group: 'group1',  value: [3, 4], label: 'b', help: undefined, disabled: false, selected: false, visible: true},
                         {group: 'group2',  value: [5, 6], label: 'c', help: undefined, disabled: false, selected: false, visible: true},
                         {group: 'group1',  value: 7,      label: 'd', help: undefined, disabled: false, selected: false, visible: true}]);
@@ -825,7 +827,7 @@ QUnit.test('creme.model.ChoiceGroupRenderer.choicesFromTuples (value)', function
     var data = ['a', 'b', 'c', null];
     var options = creme.model.ChoiceGroupRenderer.choicesFromTuples(data);
 
-    deepEqual(options, [{group: undefined, value: 'a', label: 'a', help: undefined, disabled: false, selected: false, visible: true},
+    assert.deepEqual(options, [{group: undefined, value: 'a', label: 'a', help: undefined, disabled: false, selected: false, visible: true},
                         {group: undefined, value: 'b', label: 'b', help: undefined, disabled: false, selected: false, visible: true},
                         {group: undefined, value: 'c', label: 'c', help: undefined, disabled: false, selected: false, visible: true},
                         {group: undefined, value: null, label: 'null', help: undefined, disabled: false, selected: false, visible: true}]);
@@ -842,7 +844,7 @@ QUnit.test('creme.model.ChoiceGroupRenderer.choicesFromTuples ({value: value, la
 
     var options = creme.model.ChoiceGroupRenderer.choicesFromTuples(data);
 
-    deepEqual(options, [{group: undefined, value: [1, 2], label: 'a',     help: undefined, disabled: false, selected: false, visible: true},
+    assert.deepEqual(options, [{group: undefined, value: [1, 2], label: 'a',     help: undefined, disabled: false, selected: false, visible: true},
                         {group: 'group1',  value: [3, 4], label: 'b',     help: undefined, disabled: false, selected: false, visible: true},
                         {group: 'group2',  value: [5, 6], label: 'c',     help: undefined, disabled: false, selected: false, visible: true},
                         {group: 'group1',  value: 7,      label: 'd',     help: undefined, disabled: false, selected: false, visible: true},

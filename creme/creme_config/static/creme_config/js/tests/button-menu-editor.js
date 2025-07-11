@@ -37,8 +37,8 @@ QUnit.test('creme.ButtonMenuEditor (empty)', function(assert) {
     var element = $(this.createButtonEditorHtml()).appendTo(this.qunitFixture());
     var controller = new creme.ButtonMenuEditor(element); /* eslint-disable-line */
 
-    equal(element.find('.widget-available .widget-container .menu_button').length, 0);
-    equal(element.find('.widget-selected .widget-container .menu_button').length, 0);
+    assert.equal(element.find('.widget-available .widget-container .menu_button').length, 0);
+    assert.equal(element.find('.widget-selected .widget-container .menu_button').length, 0);
 });
 
 QUnit.test('creme.ButtonMenuEditor (invalid data)', function(assert) {
@@ -51,8 +51,8 @@ QUnit.test('creme.ButtonMenuEditor (invalid data)', function(assert) {
         });
     }, Error);
 
-    equal(element.find('.widget-available .widget-container .menu_button').length, 0);
-    equal(element.find('.widget-selected .widget-container .menu_button').length, 0);
+    assert.equal(element.find('.widget-available .widget-container .menu_button').length, 0);
+    assert.equal(element.find('.widget-selected .widget-container .menu_button').length, 0);
 });
 
 QUnit.test('creme.ButtonMenuEditor (selected)', function(assert) {
@@ -68,8 +68,8 @@ QUnit.test('creme.ButtonMenuEditor (selected)', function(assert) {
         optionsId: 'buttons-widget-choices'
     });
 
-    equal(element.find('.widget-available .widget-container .menu_button').length, 1);
-    equal(element.find('.widget-selected .widget-container .menu_button').length, 1);
+    assert.equal(element.find('.widget-available .widget-container .menu_button').length, 1);
+    assert.equal(element.find('.widget-selected .widget-container .menu_button').length, 1);
 });
 
 // TODO : drag n drop test here

@@ -10,13 +10,13 @@ QUnit.test('creme.D3GraphRelationChart (empty)', function(assert) {
 
     chart.sketch(sketch);
 
-    deepEqual($.extend({drawOnResize: false}, chart.defaultProps), chart.props());
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.deepEqual($.extend({drawOnResize: false}, chart.defaultProps), chart.props());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
 });
 
 QUnit.test('creme.D3GraphRelationChart (asImage, empty)', function(assert) {
@@ -25,13 +25,13 @@ QUnit.test('creme.D3GraphRelationChart (asImage, empty)', function(assert) {
 
     chart.sketch(sketch);
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
         chart.asImage(function(image) {
-            equal(image.width, 300);
-            equal(image.height, 200);
-            start();
+            assert.equal(image.width, 300);
+            assert.equal(image.height, 200);
+            done();
         }, {width: 300, height: 200});
     });
 });
@@ -204,7 +204,7 @@ QUnit.parametrize('creme.D3GraphRelationChart (hierarchy)', [
     ]
 ], function(data, expected, assert) {
     var chart = new creme.D3GraphRelationChart();
-    deepEqual(chart.hierarchy(data), expected);
+    assert.deepEqual(chart.hierarchy(data), expected);
 });
 
 QUnit.parametrize('creme.D3GraphRelationChart (draw)', [
@@ -238,11 +238,11 @@ QUnit.parametrize('creme.D3GraphRelationChart (draw)', [
     chart.sketch(sketch);
     chart.model(data);
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
 
     this.assertD3Nodes(sketch.svg(), expected);
 });
