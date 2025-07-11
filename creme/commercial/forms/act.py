@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,11 @@
 from math import ceil
 
 from django import forms
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 import creme.creme_core.forms.base as core_forms
 import creme.creme_core.forms.fields as core_fields
@@ -84,17 +87,35 @@ class ObjectiveForm(core_forms.CremeModelForm):
 
 
 class ObjectivesFromPatternForm(core_forms.CremeForm):
-    pattern = forms.ModelChoiceField(
-        label=_('Pattern'), empty_label=None,
-        queryset=ActObjectivePattern.objects.all(),
+    # pattern = forms.ModelChoiceField(
+    #     label=_('Pattern'), empty_label=None,
+    #     queryset=ActObjectivePattern.objects.all(),
+    # )
+    pattern = core_fields.CreatorEntityField(
+        label=pgettext_lazy('commercial', 'Pattern'),
+        model=ActObjectivePattern,
     )
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.act = entity
 
-        self.fields['pattern'].queryset = ActObjectivePattern.objects.filter(
-            segment=entity.segment_id,
+        # self.fields['pattern'].queryset = ActObjectivePattern.objects.filter(
+        #     segment=entity.segment_id,
+        # )
+        pattern_f = self.fields['pattern']
+        pattern_f.q_filter = {'segment': entity.segment_id}
+        pattern_f.help_text = mark_safe(
+            gettext(
+                # Translators: "pattern" is a <a> with label "Objective pattern"
+                'Select a {pattern} and objectives will be automatically created.'
+            ).format(
+                pattern=format_html(
+                    '<a href="{url}" target="_blank">{label}</a>',
+                    url=ActObjectivePattern.get_lv_absolute_url(),
+                    label=ActObjectivePattern._meta.verbose_name,
+                ),
+            )
         )
 
     def save(self, *args, **kwargs):

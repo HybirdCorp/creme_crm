@@ -520,6 +520,7 @@
                 - In the brick classes 'ContactsBrick' & 'OrganisationsBrick',
                   the variable "field_hidden" is not injected anymore.
             * Commercial:
+                - The field 'forms.act.ObjectivesFromPatternForm.pattern' is now a 'CreatorEntityField'.
                 - The method 'views.strategy.BaseScoreSetting.update_stategy()' has been renamed "update_strategy".
             * Geolocation:
                 - _MapBrick.get_addresses_as_dict() is now an instance method, not a static one.
