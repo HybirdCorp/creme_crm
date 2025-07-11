@@ -2,7 +2,7 @@
 
 (function($) {
 
-QUnit.module("creme.D3Chart*", new QUnitMixin(QUnitSketchMixin));
+QUnit.module("creme.D3Chart (demo)", new QUnitMixin(QUnitSketchMixin));
 
 QUnit.parametrize('creme.D3Chart (demo, empty)', {
     barchart: new creme.D3BarChart(),
@@ -16,17 +16,17 @@ QUnit.parametrize('creme.D3Chart (demo, empty)', {
 
     chart.sketch(sketch);
 
-    deepEqual($.extend(
+    assert.deepEqual($.extend(
         {drawOnResize: true},
         chart.defaultProps
     ), chart.props());
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
 });
 
 QUnit.parametrize('creme.D3Chart (demo, asImage, empty)', {
@@ -41,13 +41,13 @@ QUnit.parametrize('creme.D3Chart (demo, asImage, empty)', {
 
     chart.sketch(sketch);
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
         chart.asImage(function(image) {
-            equal(image.width, 300);
-            equal(image.height, 200);
-            start();
+            assert.equal(image.width, 300);
+            assert.equal(image.height, 200);
+            done();
         }, {width: 300, height: 200});
     });
 });
@@ -64,16 +64,16 @@ QUnit.parametrize('creme.D3Chart (demo, visible)', {
 
     chart.sketch(sketch);
 
-    equal(true, chart.props().visible);
+    assert.equal(true, chart.props().visible);
 
     chart.draw();
 
-    equal(false, sketch.svg().select('.d3-chart').classed('not-visible'));
+    assert.equal(false, sketch.svg().select('.d3-chart').classed('not-visible'));
 
     chart.prop('visible', false);
     chart.draw();
 
-    equal(true, sketch.svg().select('.d3-chart').classed('not-visible'));
+    assert.equal(true, sketch.svg().select('.d3-chart').classed('not-visible'));
 });
 
 QUnit.parametrize('creme.D3Chart (demo, transition)', [
@@ -95,7 +95,7 @@ QUnit.parametrize('creme.D3Chart (demo, transition)', [
     chart.draw();
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
 });
 
 QUnit.parametrize('creme.D3BarChart (draw)', [
@@ -129,11 +129,11 @@ QUnit.parametrize('creme.D3BarChart (draw)', [
     chart.sketch(sketch);
     chart.model(data);
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
 
     this.assertD3Nodes(sketch.svg(), expected);
 });
@@ -145,19 +145,19 @@ QUnit.test('creme.D3BarChart (select)', function(assert) {
     chart.sketch(sketch);
     chart.model([{x: 'A', y: 0}, {x: 'B', y: 5}, {x: 'C', y: 38}, {x: 'D', y: 12}]);
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
-    deepEqual([], chart.selection().selected());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
+    assert.deepEqual([], chart.selection().selected());
     this.assertD3Nodes(sketch.svg(), {
         '.bar-chart .selected': 0
     });
 
     chart.selection().select(2);
 
-    deepEqual([{x: 'C', y: 38, selected: true}], chart.selection().selected());
+    assert.deepEqual([{x: 'C', y: 38, selected: true}], chart.selection().selected());
     this.assertD3Nodes(sketch.svg(), {
         '.bar-chart .selected': 1
     });
@@ -165,7 +165,7 @@ QUnit.test('creme.D3BarChart (select)', function(assert) {
     // toggles selection
     sketch.svg().select('.bar-chart .bars .bar rect').dispatch('click');
 
-    deepEqual([{x: 'A', y: 0, selected: true}], chart.selection().selected());
+    assert.deepEqual([{x: 'A', y: 0, selected: true}], chart.selection().selected());
 });
 
 QUnit.parametrize('creme.D3DonutChart (draw)', [
@@ -193,11 +193,11 @@ QUnit.parametrize('creme.D3DonutChart (draw)', [
     chart.sketch(sketch);
     chart.model(data);
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
 
     this.assertD3Nodes(sketch.svg(), expected);
 });
@@ -209,19 +209,19 @@ QUnit.test('creme.D3DonutChart (select)', function(assert) {
     chart.sketch(sketch);
     chart.model([{x: 'A', y: 1}, {x: 'B', y: 5}, {x: 'C', y: 38}, {x: 'D', y: 12}]);
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
-    deepEqual([], chart.selection().selected());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
+    assert.deepEqual([], chart.selection().selected());
     this.assertD3Nodes(sketch.svg(), {
         '.donut-chart .selected': 0
     });
 
     chart.selection().select(2);
 
-    deepEqual([{x: 'C', y: 38, selected: true}], chart.selection().selected());
+    assert.deepEqual([{x: 'C', y: 38, selected: true}], chart.selection().selected());
     this.assertD3Nodes(sketch.svg(), {
         '.donut-chart .selected': 1
     });
@@ -229,7 +229,7 @@ QUnit.test('creme.D3DonutChart (select)', function(assert) {
     // toggles selection
     sketch.svg().select('.donut-chart .slices .slice path').dispatch('click');
 
-    deepEqual([{x: 'A', y: 1, selected: true}], chart.selection().selected());
+    assert.deepEqual([{x: 'A', y: 1, selected: true}], chart.selection().selected());
 });
 
 QUnit.parametrize('creme.D3AreaChart (draw)', [
@@ -246,11 +246,11 @@ QUnit.parametrize('creme.D3AreaChart (draw)', [
     chart.sketch(sketch);
     chart.model(data);
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
 
     this.assertD3Nodes(sketch.svg(), expected);
 });
@@ -299,7 +299,7 @@ QUnit.parametrize('creme.D3GroupBarChart (hierarchy)', [
     ]
 ], function(input, expected, assert) {
     var chart = new creme.D3GroupBarChart();
-    deepEqual(chart.hierarchy(input, {groupId: function(d) { return d.g; }}), expected);
+    assert.deepEqual(chart.hierarchy(input, {groupId: function(d) { return d.g; }}), expected);
 });
 
 QUnit.parametrize('creme.D3GroupBarChart (draw)', [
@@ -339,11 +339,11 @@ QUnit.parametrize('creme.D3GroupBarChart (draw)', [
     chart.sketch(sketch);
     chart.model(data);
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
 
     this.assertD3Nodes(sketch.svg(), expected);
 });
@@ -360,19 +360,19 @@ QUnit.test('creme.D3GroupBarChart (select)', function(assert) {
         {x: 'A', y: 12, group: 'Group C'}
     ]);
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
-    deepEqual([], chart.selection().selected());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
+    assert.deepEqual([], chart.selection().selected());
     this.assertD3Nodes(sketch.svg(), {
         '.group-bar-chart .selected': 0
     });
 
     chart.selection().select(2);
 
-    deepEqual([{x: 'C', y: 5, group: 'Group B', selected: true}], chart.selection().selected());
+    assert.deepEqual([{x: 'C', y: 5, group: 'Group B', selected: true}], chart.selection().selected());
     this.assertD3Nodes(sketch.svg(), {
         '.group-bar-chart .selected': 1
     });
@@ -380,7 +380,7 @@ QUnit.test('creme.D3GroupBarChart (select)', function(assert) {
     // toggles selection
     sketch.svg().select('.group-bar-chart rect').dispatch('click');
 
-    deepEqual([{x: 'A', y: 0, group: 'Group A', selected: true}], chart.selection().selected());
+    assert.deepEqual([{x: 'A', y: 0, group: 'Group A', selected: true}], chart.selection().selected());
 });
 
 
@@ -430,7 +430,7 @@ QUnit.parametrize('creme.D3StackBarChart (hierarchy)', [
     ]
 ], function(input, expected, assert) {
     var chart = new creme.D3StackBarChart();
-    deepEqual(chart.hierarchy(input, {groupId: function(d) { return d.g; }}), expected);
+    assert.deepEqual(chart.hierarchy(input, {groupId: function(d) { return d.g; }}), expected);
 });
 
 QUnit.parametrize('creme.D3StackBarChart (draw)', [
@@ -470,11 +470,11 @@ QUnit.parametrize('creme.D3StackBarChart (draw)', [
     chart.sketch(sketch);
     chart.model(data);
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
 
     this.assertD3Nodes(sketch.svg(), expected);
 });
@@ -491,19 +491,19 @@ QUnit.test('creme.D3StackBarChart (select)', function(assert) {
         {x: 'A', y: 12, group: 'Group C'}
     ]);
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
-    deepEqual([], chart.selection().selected());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
+    assert.deepEqual([], chart.selection().selected());
     this.assertD3Nodes(sketch.svg(), {
         '.stack-bar-chart .selected': 0
     });
 
     chart.selection().select(2);
 
-    deepEqual([{x: 'C', y: 5, group: 'Group B', selected: true}], chart.selection().selected());
+    assert.deepEqual([{x: 'C', y: 5, group: 'Group B', selected: true}], chart.selection().selected());
     this.assertD3Nodes(sketch.svg(), {
         '.stack-bar-chart .selected': 1
     });
@@ -511,7 +511,7 @@ QUnit.test('creme.D3StackBarChart (select)', function(assert) {
     // toggles selection
     sketch.svg().select('.stack-bar-chart rect').dispatch('click');
 
-    deepEqual([{x: 'A', y: 0, group: 'Group A', selected: true}], chart.selection().selected());
+    assert.deepEqual([{x: 'A', y: 0, group: 'Group A', selected: true}], chart.selection().selected());
 });
 
 QUnit.parametrize('creme.D3LineChart (draw)', [
@@ -528,11 +528,11 @@ QUnit.parametrize('creme.D3LineChart (draw)', [
     chart.sketch(sketch);
     chart.model(data);
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
 
-    equal(1, sketch.svg().select('.d3-chart').size());
+    assert.equal(1, sketch.svg().select('.d3-chart').size());
 
     this.assertD3Nodes(sketch.svg(), expected);
 });
@@ -559,7 +559,7 @@ QUnit.parameterize('creme.D3LineChart (dot)', [
     chart.sketch(sketch);
     chart.model(data);
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
 
@@ -579,7 +579,7 @@ QUnit.test('creme.D3LineChart (dot-unit)', function(assert) {
     chart.sketch(sketch);
     chart.model(data);
 
-    equal(0, sketch.svg().select('.d3-chart').size());
+    assert.equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
 
@@ -621,18 +621,18 @@ QUnit.test('creme.D3LineChart (tooltip)', function(assert) {
 
     this.assertD3Nodes(sketch.svg(), {'.line-chart .line .dot': 4});
 
-    equal(0, $('.d3-sketch-tooltip.tip-n').length);
+    assert.equal(0, $('.d3-sketch-tooltip.tip-n').length);
 
     var dot = sketch.svg().selectAll('.dot').nodes()[2];
 
     dot.dispatchEvent(new MouseEvent('mouseenter'));
 
-    equal(1, $('.d3-sketch-tooltip.tip-n').length);
-    equal($('.d3-sketch-tooltip.tip-n').text(), '12');
+    assert.equal(1, $('.d3-sketch-tooltip.tip-n').length);
+    assert.equal($('.d3-sketch-tooltip.tip-n').text(), '12');
 
     dot.dispatchEvent(new MouseEvent('mouseleave'));
 
-    equal(0, $('.d3-sketch-tooltip.tip-n').length);
+    assert.equal(0, $('.d3-sketch-tooltip.tip-n').length);
 });
 
 }(jQuery));

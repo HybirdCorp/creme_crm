@@ -36,12 +36,12 @@ QUnit.test('creme.widget.SelectOrInputWidget.create', function(assert) {
     }));
 
     var widget = creme.widget.create(element);
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
 
-    equal('1', $('select', element).val());
-    equal('', $('input', element).val());
-    equal('1', widget.val());
+    assert.equal('1', $('select', element).val());
+    assert.equal('', $('input', element).val());
+    assert.equal('1', widget.val());
 });
 
 QUnit.test('creme.widget.SelectOrInputWidget.create (other)', function(assert) {
@@ -52,9 +52,9 @@ QUnit.test('creme.widget.SelectOrInputWidget.create (other)', function(assert) {
 
     var widget = creme.widget.create(element);
 
-    equal('0', $('select', element).val());
-    equal('17', $('input', element).val());
-    equal('17', widget.val());
+    assert.equal('0', $('select', element).val());
+    assert.equal('17', $('input', element).val());
+    assert.equal('17', widget.val());
 });
 
 QUnit.test('creme.widget.SelectOrInputWidget (input cache)', function(assert) {
@@ -67,13 +67,13 @@ QUnit.test('creme.widget.SelectOrInputWidget (input cache)', function(assert) {
 
     $('select', element).val('2').trigger('change');
 
-    equal('', $('input', element).val());
-    equal('2', widget.val());
+    assert.equal('', $('input', element).val());
+    assert.equal('2', widget.val());
 
     $('select', element).val('0').trigger('change');
 
-    equal('17', $('input', element).val());
-    equal('17', widget.val());
+    assert.equal('17', $('input', element).val());
+    assert.equal('17', widget.val());
 });
 
 QUnit.test('creme.widget.SelectOrInputWidget (input keyup)', function(assert) {
@@ -84,15 +84,15 @@ QUnit.test('creme.widget.SelectOrInputWidget (input keyup)', function(assert) {
 
     var widget = creme.widget.create(element);
 
-    equal('1', $('select', element).val());
-    equal('17', $('input', element).val());
-    equal('1', widget.val());
+    assert.equal('1', $('select', element).val());
+    assert.equal('17', $('input', element).val());
+    assert.equal('1', widget.val());
 
     $('input', element).val('73').trigger($.Event("keyup", {keyCode: 48})); /* 0 */
 
-    equal('0', $('select', element).val());
-    equal('73', $('input', element).val());
-    equal('73', widget.val());
+    assert.equal('0', $('select', element).val());
+    assert.equal('73', $('input', element).val());
+    assert.equal('73', widget.val());
 });
 
 }(jQuery));

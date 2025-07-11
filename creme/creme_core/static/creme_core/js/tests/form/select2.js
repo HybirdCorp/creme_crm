@@ -153,13 +153,13 @@ QUnit.parametrize('creme.form.Select2.localisation', [
     var select2 = new creme.form.Select2($('<select>'));
     var locale = select2.localisation(options);
 
-    equal(locale.noResults(), expected.noResults);
-    equal(locale.loadingMore(), expected.loadingMore);
-    equal(locale.errorLoading(), expected.errorLoading);
-    equal(locale.removeAllItems(), expected.removeAllItems);
-    equal(locale.removeItem(), expected.removeItem);
-    equal(locale.search(), expected.search);
-    equal(locale.labelPlaceholder(), expected.labelPlaceholder);
+    assert.equal(locale.noResults(), expected.noResults);
+    assert.equal(locale.loadingMore(), expected.loadingMore);
+    assert.equal(locale.errorLoading(), expected.errorLoading);
+    assert.equal(locale.removeAllItems(), expected.removeAllItems);
+    assert.equal(locale.removeItem(), expected.removeItem);
+    assert.equal(locale.search(), expected.search);
+    assert.equal(locale.labelPlaceholder(), expected.labelPlaceholder);
 });
 
 QUnit.parametrize('creme.form.Select2.localisation (inputTooLong)', [
@@ -169,7 +169,7 @@ QUnit.parametrize('creme.form.Select2.localisation (inputTooLong)', [
 ], function(options, args, expected, assert) {
     var select2 = new creme.form.Select2($('<select>'));
     var locale = select2.localisation(options);
-    equal(locale.inputTooLong(args), expected);
+    assert.equal(locale.inputTooLong(args), expected);
 });
 
 QUnit.parametrize('creme.form.Select2.localisation (inputTooShort)', [
@@ -179,7 +179,7 @@ QUnit.parametrize('creme.form.Select2.localisation (inputTooShort)', [
 ], function(options, args, expected, assert) {
     var select2 = new creme.form.Select2($('<select>'));
     var locale = select2.localisation(options);
-    equal(locale.inputTooShort(args), expected);
+    assert.equal(locale.inputTooShort(args), expected);
 });
 
 QUnit.parametrize('creme.form.Select2.localisation (maximumSelectedMsg)', [
@@ -189,18 +189,18 @@ QUnit.parametrize('creme.form.Select2.localisation (maximumSelectedMsg)', [
 ], function(options, args, expected, assert) {
     var select2 = new creme.form.Select2($('<select>'));
     var locale = select2.localisation(options);
-    equal(locale.maximumSelected(args), expected);
+    assert.equal(locale.maximumSelected(args), expected);
 });
 
 QUnit.test('creme.form.Select2 (empty)', function(assert) {
     var select = this.createSelect();
 
-    equal(false, select.is('.select2-hidden-accessible'));
+    assert.equal(false, select.is('.select2-hidden-accessible'));
 
     var select2 = new creme.form.Select2(select);
 
-    equal(true, select.is('.select2-hidden-accessible'));
-    equal(select, select2.element);
+    assert.equal(true, select.is('.select2-hidden-accessible'));
+    assert.equal(select, select2.element);
 });
 
 QUnit.test('creme.form.Select2 (single)', function(assert) {
@@ -211,12 +211,12 @@ QUnit.test('creme.form.Select2 (single)', function(assert) {
 
     var select2 = new creme.form.Select2(select);
 
-    deepEqual({
+    assert.deepEqual({
         multiple: false,
         sortable: false
     }, select2.options());
 
-    equal('E', select.next('.select2').find('.select2-selection__rendered').text());
+    assert.equal('E', select.next('.select2').find('.select2-selection__rendered').text());
 });
 
 QUnit.parameterize('creme.form.Select2 (single, allowClear)', [
@@ -262,14 +262,14 @@ QUnit.parameterize('creme.form.Select2 (single, allowClear)', [
         placeholder: params.placeholder
     });
 
-    deepEqual({
+    assert.deepEqual({
         multiple: false,
         sortable: false,
         placeholder: params.placeholder,
         allowClear: params.allowClear
     }, select2.options());
 
-    deepEqual(expected, select.find('option').map(function() {
+    assert.deepEqual(expected, select.find('option').map(function() {
         return {
             value: $(this).attr('value'),
             label: $(this).text()
@@ -296,7 +296,7 @@ QUnit.parametrize('creme.form.Select2 (single, group)', [
         selectionShowGroup: showGroup
     });
 
-    deepEqual({
+    assert.deepEqual({
         multiple: false,
         selectionShowGroup: showGroup,
         sortable: false
@@ -304,7 +304,7 @@ QUnit.parametrize('creme.form.Select2 (single, group)', [
 
     select.val(value).trigger('change');
 
-    equal(expected, select.next('.select2').find('.select2-selection__rendered').text());
+    assert.equal(expected, select.next('.select2').find('.select2-selection__rendered').text());
 });
 
 QUnit.test('creme.form.Select2 (multiple)', function(assert) {
@@ -318,17 +318,17 @@ QUnit.test('creme.form.Select2 (multiple)', function(assert) {
 
     var select2 = new creme.form.Select2(select, {multiple: true});
 
-    deepEqual({
+    assert.deepEqual({
         multiple: true,
         sortable: false
     }, select2.options());
 
-    equal(2, select.next('.select2').find('.select2-selection__choice').length);
-    equal(false, select.parent().is('.ui-sortable'), 'is NOT sortable'); // not sortable
+    assert.equal(2, select.next('.select2').find('.select2-selection__choice').length);
+    assert.equal(false, select.parent().is('.ui-sortable'), 'is NOT sortable'); // not sortable
 
-    equal(0, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(0, $('.select2-dropdown .select2-results__option').length);
     select.select2('open');
-    equal(2, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(2, $('.select2-dropdown .select2-results__option').length);
 });
 
 QUnit.test('creme.form.Select2 (multiple, sortable)', function(assert) {
@@ -342,17 +342,17 @@ QUnit.test('creme.form.Select2 (multiple, sortable)', function(assert) {
 
     var select2 = new creme.form.Select2(select, {multiple: true, sortable: true});
 
-    deepEqual({
+    assert.deepEqual({
         multiple: true,
         sortable: true
     }, select2.options());
 
-    equal(2, select.next('.select2').find('.select2-selection__choice').length);
-    equal(true, select.parent().is('.ui-sortable'), 'is sortable'); // sortable
+    assert.equal(2, select.next('.select2').find('.select2-selection__choice').length);
+    assert.equal(true, select.parent().is('.ui-sortable'), 'is sortable'); // sortable
 
-    equal(0, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(0, $('.select2-dropdown .select2-results__option').length);
     select.select2('open');
-    equal(2, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(2, $('.select2-dropdown .select2-results__option').length);
 });
 
 QUnit.parametrize('creme.form.Select2 (search + toggle create)', [
@@ -370,7 +370,7 @@ QUnit.parametrize('creme.form.Select2 (search + toggle create)', [
 
     var select2 = new creme.form.Select2(select);
 
-    deepEqual({
+    assert.deepEqual({
         createURL: url,
         multiple: false,
         sortable: false
@@ -381,13 +381,13 @@ QUnit.parametrize('creme.form.Select2 (search + toggle create)', [
     $('.select2-search__field').val(term).trigger('input');
 
     if (expected) {
-        equal(1, $('.select2-results__create-title').length);
-        equal(
+        assert.equal(1, $('.select2-results__create-title').length);
+        assert.equal(
             gettext('Create new item «%s»').format(term),
             $('.select2-results__create-title').text()
         );
     } else {
-        equal(0, $('.select2-results__create-title').length);
+        assert.equal(0, $('.select2-results__create-title').length);
     }
 });
 
@@ -401,7 +401,7 @@ QUnit.test('creme.form.Select2 (create popup, submit)', function(assert) {
         createURL: 'mock/create'
     });
 
-    deepEqual({
+    assert.deepEqual({
         createURL: 'mock/create',
         multiple: false,
         sortable: false
@@ -413,8 +413,8 @@ QUnit.test('creme.form.Select2 (create popup, submit)', function(assert) {
 
     $('.select2-search__field').val(term).trigger('input');
 
-    equal(1, $('.select2-results__create-title').length);
-    equal(
+    assert.equal(1, $('.select2-results__create-title').length);
+    assert.equal(
         gettext('Create new item «%s»').format(term),
         $('.select2-results__create-title').text()
     );
@@ -424,14 +424,14 @@ QUnit.test('creme.form.Select2 (create popup, submit)', function(assert) {
     $('.select2-results__create').trigger('click');
 
     var dialog = this.assertOpenedDialog();
-    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create'));
+    assert.deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create'));
 
-    equal(term, dialog.find('[name="title"]').val());
+    assert.equal(term, dialog.find('[name="title"]').val());
 
     // Submit the new item
     this.findDialogButtonsByLabel(gettext('Save'), dialog).trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {id: ['99'], title: [term]}]
     ], this.mockBackendUrlCalls('mock/create'));
@@ -439,7 +439,7 @@ QUnit.test('creme.form.Select2 (create popup, submit)', function(assert) {
     this.assertClosedDialog();
 
     // New item is added
-    deepEqual([
+    assert.deepEqual([
         {value: '5', label: 'Item E'},
         {value: '1', label: 'Item A'},
         {value: '99', label: term}
@@ -509,7 +509,7 @@ QUnit.parametrize('creme.form.Select2 (create popup, submit, group)', [
         createURL: 'mock/create/group'
     });
 
-    deepEqual({
+    assert.deepEqual({
         createURL: 'mock/create/group',
         multiple: false,
         sortable: false
@@ -521,8 +521,8 @@ QUnit.parametrize('creme.form.Select2 (create popup, submit, group)', [
 
     $('.select2-search__field').val(term).trigger('input');
 
-    equal(1, $('.select2-results__create-title').length);
-    equal(
+    assert.equal(1, $('.select2-results__create-title').length);
+    assert.equal(
         gettext('Create new item «%s»').format(term),
         $('.select2-results__create-title').text()
     );
@@ -532,7 +532,7 @@ QUnit.parametrize('creme.form.Select2 (create popup, submit, group)', [
     $('.select2-results__create').trigger('click');
 
     var dialog = this.assertOpenedDialog();
-    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create/group'));
+    assert.deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create/group'));
 
     dialog.find('[name="title"]').val(formData.title);
     dialog.find('[name="group"]').val(formData.group);
@@ -540,7 +540,7 @@ QUnit.parametrize('creme.form.Select2 (create popup, submit, group)', [
     // Submit the new item
     this.findDialogButtonsByLabel(gettext('Save'), dialog).trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {id: ['99'], title: [term], group: [formData.group || '']}]
     ], this.mockBackendUrlCalls('mock/create/group'));
@@ -548,7 +548,7 @@ QUnit.parametrize('creme.form.Select2 (create popup, submit, group)', [
     this.assertClosedDialog();
 
     // New item is added
-    deepEqual(expected, select.children().map(function() {
+    assert.deepEqual(expected, select.children().map(function() {
         if ($(this).is('option')) {
             return {
                 id: $(this).attr('value'),
@@ -578,7 +578,7 @@ QUnit.test('creme.form.Select2 (create popup, cancel)', function(assert) {
         createURL: 'mock/create'
     });
 
-    deepEqual({
+    assert.deepEqual({
         createURL: 'mock/create',
         multiple: false,
         sortable: false
@@ -588,8 +588,8 @@ QUnit.test('creme.form.Select2 (create popup, cancel)', function(assert) {
 
     $('.select2-search__field').val('Item C').trigger('input');
 
-    equal(1, $('.select2-results__create-title').length);
-    equal(
+    assert.equal(1, $('.select2-results__create-title').length);
+    assert.equal(
         gettext('Create new item «%s»').format('Item C'),
         $('.select2-results__create-title').text()
     );
@@ -599,8 +599,8 @@ QUnit.test('creme.form.Select2 (create popup, cancel)', function(assert) {
     $('.select2-results__create').trigger('click');
 
     var dialog = this.assertOpenedDialog();
-    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create'));
-    equal('Item C', dialog.find('[name="title"]').val());
+    assert.deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create'));
+    assert.equal('Item C', dialog.find('[name="title"]').val());
 
     // Cancel the creation
     this.findDialogButtonsByLabel(gettext('Cancel'), dialog).trigger('click');
@@ -608,8 +608,8 @@ QUnit.test('creme.form.Select2 (create popup, cancel)', function(assert) {
     this.assertClosedDialog();
 
     // Nothing changes
-    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create'));
-    deepEqual([
+    assert.deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create'));
+    assert.deepEqual([
         {value: '5', label: 'Item E'},
         {value: '1', label: 'Item A'}
     ], select.find('option').map(function() {
@@ -630,7 +630,7 @@ QUnit.test('creme.form.Select2 (create popup, submit, merge existing)', function
         createURL: 'mock/create'
     });
 
-    deepEqual({
+    assert.deepEqual({
         createURL: 'mock/create',
         multiple: false,
         sortable: false
@@ -644,15 +644,15 @@ QUnit.test('creme.form.Select2 (create popup, submit, merge existing)', function
     $('.select2-results__create').trigger('click');
 
     var dialog = this.assertOpenedDialog();
-    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create'));
+    assert.deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create'));
 
-    equal(term, dialog.find('[name="title"]').val());
+    assert.equal(term, dialog.find('[name="title"]').val());
     dialog.find('[name="id"]').val('5');
 
     // Submit the new item
     this.findDialogButtonsByLabel(gettext('Save'), dialog).trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {id: ['5'], title: [term]}]
     ], this.mockBackendUrlCalls('mock/create'));
@@ -660,7 +660,7 @@ QUnit.test('creme.form.Select2 (create popup, submit, merge existing)', function
     this.assertClosedDialog();
 
     // New item is added
-    deepEqual([
+    assert.deepEqual([
         {value: '1', label: 'Item A'},
         {value: '5', label: 'Item C'}
     ], select.find('option').map(function() {
@@ -682,22 +682,22 @@ QUnit.test('creme.form.Select2 (enum)', function(assert) {
         enumDebounce: 0
     });
 
-    deepEqual({
+    assert.deepEqual({
         multiple: false,
         sortable: false,
         enumURL: 'mock/enum',
         enumDebounce: 0
     }, select2.options());
 
-    equal(5, select.val());
+    assert.equal(5, select.val());
 
     select.select2('open');
 
-    deepEqual([['GET', {limit: 51}]], this.mockBackendUrlCalls('mock/enum'));
+    assert.deepEqual([['GET', {limit: 51}]], this.mockBackendUrlCalls('mock/enum'));
 
     // <select> state is still the same, loaded entries are only in the dropdown
-    equal(5, select.val());
-    deepEqual([
+    assert.equal(5, select.val());
+    assert.deepEqual([
         {value: '5', label: 'E'},
         {value: '8', label: 'A'}
     ], select.find('option').map(function() {
@@ -707,14 +707,14 @@ QUnit.test('creme.form.Select2 (enum)', function(assert) {
         };
     }).get());
 
-    equal(3, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(3, $('.select2-dropdown .select2-results__option').length);
 
     // select an item from the dropdown
     $('.select2-dropdown .select2-results__option:first').trigger('mouseup');
 
     // the item is selected and appended to the <select> if needed
-    equal(1, select.val());
-    deepEqual([
+    assert.equal(1, select.val());
+    assert.deepEqual([
         {value: '5', label: 'E'},
         {value: '8', label: 'A'},
         {value: '1', label: 'a'}
@@ -726,7 +726,7 @@ QUnit.test('creme.form.Select2 (enum)', function(assert) {
     }).get());
 
     // closed popup
-    equal(0, $('.select2-dropdown').length);
+    assert.equal(0, $('.select2-dropdown').length);
 });
 
 QUnit.test('creme.form.Select2 (enum, debounce)', function(assert) {
@@ -740,36 +740,36 @@ QUnit.test('creme.form.Select2 (enum, debounce)', function(assert) {
         enumDebounce: 100
     });
 
-    deepEqual({
+    assert.deepEqual({
         multiple: false,
         sortable: false,
         enumURL: 'mock/enum',
         enumDebounce: 100
     }, select2.options());
 
-    equal(5, select.val());
+    assert.equal(5, select.val());
 
-    deepEqual([], this.mockBackendUrlCalls('mock/enum'));
-    equal(0, $('.select2-dropdown .select2-results__option').length);
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/enum'));
+    assert.equal(0, $('.select2-dropdown .select2-results__option').length);
 
     select.select2('open');
 
-    stop(1);
+    var done = assert.async();
 
-    deepEqual([], this.mockBackendUrlCalls('mock/enum'));
-    equal(1, $('.select2-dropdown .select2-results__option').length);
-    equal(gettext('Searching…'), $('.select2-dropdown .select2-results__option').text());
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/enum'));
+    assert.equal(1, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(gettext('Searching…'), $('.select2-dropdown .select2-results__option').text());
 
     setTimeout(function() {
-        deepEqual([['GET', {limit: 51}]], this.mockBackendUrlCalls('mock/enum'));
+        assert.deepEqual([['GET', {limit: 51}]], this.mockBackendUrlCalls('mock/enum'));
 
-        deepEqual([
+        assert.deepEqual([
             'a', 'b', 'c'
         ], $('.select2-dropdown .select2-results__option').map(function() {
             return $(this).text();
         }).get().sort());
 
-        start();
+        done();
     }.bind(this), 200);
 });
 
@@ -784,25 +784,25 @@ QUnit.test('creme.form.Select2 (enum, pinned)', function(assert) {
         enumDebounce: 0
     });
 
-    deepEqual({
+    assert.deepEqual({
         multiple: false,
         sortable: false,
         enumURL: 'mock/enum',
         enumDebounce: 0
     }, select2.options());
 
-    equal(5, select.val());
+    assert.equal(5, select.val());
 
     select.select2('open');
 
-    deepEqual([['GET', {limit: 51}]], this.mockBackendUrlCalls('mock/enum'));
-    deepEqual([
+    assert.deepEqual([['GET', {limit: 51}]], this.mockBackendUrlCalls('mock/enum'));
+    assert.deepEqual([
         'Pinned', 'a', 'b', 'c'
     ], $('.select2-dropdown .select2-results__option').map(function() {
         return $(this).text();
     }).get().sort());
 
-    equal(1, $('.select2-dropdown .select2-results__option .select2-results__pin').length);
+    assert.equal(1, $('.select2-dropdown .select2-results__option .select2-results__pin').length);
 });
 
 QUnit.parametrize('creme.form.Select2 (enum + more)', [
@@ -831,8 +831,8 @@ QUnit.parametrize('creme.form.Select2 (enum + more)', [
 
     select.select2('open');
 
-    equal(Math.min(limit, responseData.length), $('.select2-dropdown .select2-results__option').length);
-    equal(expected, $('.select2-dropdown .select2-results__more').length > 0);
+    assert.equal(Math.min(limit, responseData.length), $('.select2-dropdown .select2-results__option').length);
+    assert.equal(expected, $('.select2-dropdown .select2-results__more').length > 0);
 });
 
 QUnit.test('creme.form.Select2 (enum + more + reload)', function(assert) {
@@ -864,24 +864,24 @@ QUnit.test('creme.form.Select2 (enum + more + reload)', function(assert) {
 
     select.select2('open');
 
-    equal(3, $('.select2-dropdown .select2-results__option').length);
-    equal(1, $('.select2-dropdown .select2-results__more').length);
+    assert.equal(3, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(1, $('.select2-dropdown .select2-results__more').length);
 
     $('.select2-dropdown .select2-results__more').trigger('click');
 
-    equal(6, $('.select2-dropdown .select2-results__option').length);
-    equal(1, $('.select2-dropdown .select2-results__more').length);
+    assert.equal(6, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(1, $('.select2-dropdown .select2-results__more').length);
 
     $('.select2-dropdown .select2-results__more').trigger('click');
 
-    equal(9, $('.select2-dropdown .select2-results__option').length);
-    equal(1, $('.select2-dropdown .select2-results__more').length);
+    assert.equal(9, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(1, $('.select2-dropdown .select2-results__more').length);
 
     $('.select2-dropdown .select2-results__more').trigger('click');
 
     // all options are now displayed
-    equal(11, $('.select2-dropdown .select2-results__option').length);
-    equal(0, $('.select2-dropdown .select2-results__more').length);
+    assert.equal(11, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(0, $('.select2-dropdown .select2-results__more').length);
 });
 
 QUnit.test('creme.form.Select2.refresh', function(assert) {
@@ -892,10 +892,10 @@ QUnit.test('creme.form.Select2.refresh', function(assert) {
 
     var select2 = new creme.form.Select2(select);
 
-    equal('E', select.next('.select2').find('.select2-selection__rendered').text());
+    assert.equal('E', select.next('.select2').find('.select2-selection__rendered').text());
 
     select.select2('open');
-    equal(2, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(2, $('.select2-dropdown .select2-results__option').length);
 
     select.select2('close');
 
@@ -905,11 +905,11 @@ QUnit.test('creme.form.Select2.refresh', function(assert) {
 
     select2.refresh();
 
-    equal('B', select.next('.select2').find('.select2-selection__rendered').text());
+    assert.equal('B', select.next('.select2').find('.select2-selection__rendered').text());
 
     select.select2('open');
 
-    deepEqual([
+    assert.deepEqual([
         {text: 'E', role: 'option', selected: false},
         {text: 'A', role: 'option', selected: false},
         {text: 'G', role: 'option', selected: false},
@@ -937,11 +937,11 @@ QUnit.test('creme.form.Select2.refresh (group)', function(assert) {
 
     var select2 = new creme.form.Select2(select);
 
-    equal('E', select.next('.select2').find('.select2-selection__rendered').text());
+    assert.equal('E', select.next('.select2').find('.select2-selection__rendered').text());
 
     select.select2('open');
 
-    deepEqual([
+    assert.deepEqual([
         {text: 'E', role: 'option', selected: true},
         {text: 'Group I', role: 'group', selected: false},
         {text: 'A', role: 'option', selected: false}
@@ -964,11 +964,11 @@ QUnit.test('creme.form.Select2.refresh (group)', function(assert) {
 
     select2.refresh();
 
-    equal('B', select.next('.select2').find('.select2-selection__rendered').text());
+    assert.equal('B', select.next('.select2').find('.select2-selection__rendered').text());
 
     select.select2('open');
 
-    deepEqual([
+    assert.deepEqual([
         {text: 'E', role: 'option', selected: false},
         {text: 'Group I', role: 'group', selected: false},
         {text: 'A', role: 'option', selected: false},
@@ -993,10 +993,10 @@ QUnit.test('creme.form.Select2.refresh (replace)', function(assert) {
 
     var select2 = new creme.form.Select2(select);
 
-    equal('E', select.next('.select2').find('.select2-selection__rendered').text());
+    assert.equal('E', select.next('.select2').find('.select2-selection__rendered').text());
 
     select.select2('open');
-    equal(2, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(2, $('.select2-dropdown .select2-results__option').length);
 
     select.select2('close');
 
@@ -1007,10 +1007,10 @@ QUnit.test('creme.form.Select2.refresh (replace)', function(assert) {
 
     select2.refresh();
 
-    equal('B', select.next('.select2').find('.select2-selection__rendered').text());
+    assert.equal('B', select.next('.select2').find('.select2-selection__rendered').text());
 
     select.select2('open');
-    equal(3, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(3, $('.select2-dropdown .select2-results__option').length);
 });
 
 QUnit.test('creme.form.Select2.destroy', function(assert) {
@@ -1021,15 +1021,15 @@ QUnit.test('creme.form.Select2.destroy', function(assert) {
 
     var select2 = new creme.form.Select2(select);
 
-    equal(true, select.is('.select2-hidden-accessible'));
-    equal(select, select2.element);
-    equal('E', select.next('.select2').find('.select2-selection__rendered').text());
+    assert.equal(true, select.is('.select2-hidden-accessible'));
+    assert.equal(select, select2.element);
+    assert.equal('E', select.next('.select2').find('.select2-selection__rendered').text());
 
     select2.destroy();
 
-    equal(false, select.is('.select2-hidden-accessible'));
-    equal(undefined, select2.element);
-    equal('', select.next('.select2').find('.select2-selection__rendered').text());
+    assert.equal(false, select.is('.select2-hidden-accessible'));
+    assert.equal(undefined, select2.element);
+    assert.equal('', select.next('.select2').find('.select2-selection__rendered').text());
 });
 
 QUnit.test('creme.form.Select2.destroy (sortable)', function(assert) {
@@ -1043,20 +1043,20 @@ QUnit.test('creme.form.Select2.destroy (sortable)', function(assert) {
 
     var select2 = new creme.form.Select2(select, {multiple: true, sortable: true});
 
-    equal(true, select.is('.select2-hidden-accessible'));
-    equal(select, select2.element);
-    equal(true, select.parent().is('.ui-sortable')); // sortable
+    assert.equal(true, select.is('.select2-hidden-accessible'));
+    assert.equal(select, select2.element);
+    assert.equal(true, select.parent().is('.ui-sortable')); // sortable
 
-    equal(0, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(0, $('.select2-dropdown .select2-results__option').length);
     select.select2('open');
-    equal(2, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(2, $('.select2-dropdown .select2-results__option').length);
 
     select2.destroy();
 
-    equal(false, select.is('.select2-hidden-accessible'));
-    equal(undefined, select2.element);
-    equal(0, $('.select2-dropdown .select2-results__option').length);
-    equal(false, select.parent().is('.ui-sortable')); // sortable
+    assert.equal(false, select.is('.select2-hidden-accessible'));
+    assert.equal(undefined, select2.element);
+    assert.equal(0, $('.select2-dropdown .select2-results__option').length);
+    assert.equal(false, select.parent().is('.ui-sortable')); // sortable
 });
 
 QUnit.test('creme.form.Select2.destroy (already deactivated)', function(assert) {
@@ -1066,15 +1066,15 @@ QUnit.test('creme.form.Select2.destroy (already deactivated)', function(assert) 
     ]).appendTo(this.qunitFixture('field'));
     var select2 = new creme.form.Select2(select);
 
-    equal(true, select.is('.select2-hidden-accessible'));
-    equal('E', select.next('.select2').find('.select2-selection__rendered').text());
+    assert.equal(true, select.is('.select2-hidden-accessible'));
+    assert.equal('E', select.next('.select2').find('.select2-selection__rendered').text());
 
     select2.destroy();
     select2.destroy();
     select2.destroy();
 
-    equal(false, select.is('.select2-hidden-accessible'));
-    equal('', select.next('.select2').find('.select2-selection__rendered').text());
+    assert.equal(false, select.is('.select2-hidden-accessible'));
+    assert.equal('', select.next('.select2').find('.select2-selection__rendered').text());
 });
 
 QUnit.parametrize('creme.Select2EnumerableAdapter (options)', [
@@ -1085,7 +1085,7 @@ QUnit.parametrize('creme.Select2EnumerableAdapter (options)', [
     var select = this.createSelect().appendTo(this.qunitFixture('field'));
     var adapter = new S2.EnumerableAdapter(select, new S2.Options(options));
 
-    deepEqual(expected, adapter.enumOptions);
+    assert.deepEqual(expected, adapter.enumOptions);
 });
 
 QUnit.parametrize('creme.Select2EnumerableAdapter (query)', [false, true], [
@@ -1163,16 +1163,16 @@ QUnit.parametrize('creme.Select2EnumerableAdapter (query)', [false, true], [
         }
     }));
 
-    deepEqual([], this.mockBackendUrlCalls(params.url));
-    deepEqual([], callback.calls());
+    assert.deepEqual([], this.mockBackendUrlCalls(params.url));
+    assert.deepEqual([], callback.calls());
 
     // ignore events triggered by the adapter
     this.withFakeMethod({instance: adapter, method: 'trigger'}, function(faker) {
         adapter.query(params, callback.wrap());
     });
 
-    deepEqual([['GET', expected.query]], this.mockBackendUrlCalls(params.url));
-    deepEqual(expected.callbackCalls, callback.calls());
+    assert.deepEqual([['GET', expected.query]], this.mockBackendUrlCalls(params.url));
+    assert.deepEqual(expected.callbackCalls, callback.calls());
 });
 
 QUnit.parametrize('creme.Select2EnumerableAdapter (query + groups)', [
@@ -1254,8 +1254,8 @@ QUnit.parametrize('creme.Select2EnumerableAdapter (query + groups)', [
         adapter.query({term: '', limit: 6}, callback.wrap());
     });
 
-    equal(1, callback.calls().length);
-    deepEqual(expected, callback.calls()[0][0]);
+    assert.equal(1, callback.calls().length);
+    assert.deepEqual(expected, callback.calls()[0][0]);
 });
 
 QUnit.parametrize('creme.Select2EnumerableAdapter (enumFetchOptions)', [
@@ -1362,7 +1362,7 @@ QUnit.parametrize('creme.Select2EnumerableAdapter (enumFetchOptions)', [
         }
     }));
 
-    deepEqual([], this.mockBackendUrlCalls(params.url));
+    assert.deepEqual([], this.mockBackendUrlCalls(params.url));
 
     this.setMockBackendGET({
         'mock/enum/only': function(url, data, options) {
@@ -1382,9 +1382,11 @@ QUnit.parametrize('creme.Select2EnumerableAdapter (enumFetchOptions)', [
         adapter.enumFetchOptions(params.select);
     });
 
+    var done = assert.async();
+
     setTimeout(function() {
-        deepEqual(expected.queries, this.mockBackendUrlCalls(params.url));
-        deepEqual(expected.triggerCalls, faker.calls().map(function(call) {
+        assert.deepEqual(expected.queries, this.mockBackendUrlCalls(params.url));
+        assert.deepEqual(expected.triggerCalls, faker.calls().map(function(call) {
             var event = call[0], params = call[1];
 
             return [
@@ -1400,10 +1402,8 @@ QUnit.parametrize('creme.Select2EnumerableAdapter (enumFetchOptions)', [
             ];
         }));
 
-        start();
+        done();
     }.bind(this), 50);
-
-    stop();
 });
 
 QUnit.parametrize('creme.form.Select2 (select, noEmpty)', [
@@ -1456,7 +1456,7 @@ QUnit.parametrize('creme.form.Select2 (select, noEmpty)', [
 
     var adapter = select2._instance.dataAdapter;
 
-    deepEqual([], this.mockBackendUrlCalls('mock/enum/only'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/enum/only'));
 
     this.setMockBackendGET({
         'mock/enum/only': function(url, data, options) {
@@ -1476,12 +1476,12 @@ QUnit.parametrize('creme.form.Select2 (select, noEmpty)', [
         select2.select(params.select, {append: params.append});
     });
 
-    setTimeout(function() {
-        deepEqual(expected, select.val());
-        start();
-    }, 50);
+    var done = assert.async();
 
-    stop();
+    setTimeout(function() {
+        assert.deepEqual(expected, select.val());
+        done();
+    }, 50);
 });
 
 }(jQuery));

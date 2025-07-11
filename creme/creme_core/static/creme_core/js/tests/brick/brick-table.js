@@ -15,8 +15,8 @@ QUnit.test('creme.bricks.Brick.table (bind/unbind)', function(assert) {
 
     brick.bind(element);
 
-    equal(true, brick.isBound());
-    equal(true, brick.table().isBound());
+    assert.equal(true, brick.isBound());
+    assert.equal(true, brick.table().isBound());
 
     this.assertRaises(function() {
         brick.table().bind(element);
@@ -24,8 +24,8 @@ QUnit.test('creme.bricks.Brick.table (bind/unbind)', function(assert) {
 
     brick.unbind();
 
-    equal(false, brick.isBound());
-    equal(false, brick.table().isBound());
+    assert.equal(false, brick.isBound());
+    assert.equal(false, brick.table().isBound());
 
     this.assertRaises(function() {
         brick.table().unbind();
@@ -45,10 +45,10 @@ QUnit.test('creme.bricks.Brick.table (empty)', function(assert) {
     var element = brick.element();
     var selections = brick.table().selections();
 
-    deepEqual([], selections.selectables());
-    deepEqual([], selections.selected());
+    assert.deepEqual([], selections.selectables());
+    assert.deepEqual([], selections.selected());
 
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal('', element.find('.brick-selection-title').text());
 });
 
 QUnit.test('creme.bricks.Brick.table (toggle selection)', function(assert) {
@@ -69,44 +69,44 @@ QUnit.test('creme.bricks.Brick.table (toggle selection)', function(assert) {
     var element = brick.element();
     var selections = brick.table().selections();
 
-    equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
-    deepEqual([
+    assert.deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="1"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
     ], selections.selectables().map(this._brickTableItemInfo));
 
-    deepEqual([], selections.selected());
+    assert.deepEqual([], selections.selected());
 
     $('tr[data-row-index="1"] td[data-selectable-selector-column]', element).trigger('click');
 
-    equal(true, $('tr[data-row-index="1"]').is('.is-selected'));
-    equal('1 entry on 3', element.find('.brick-selection-title').text());
+    assert.equal(true, $('tr[data-row-index="1"]').is('.is-selected'));
+    assert.equal('1 entry on 3', element.find('.brick-selection-title').text());
 
-    deepEqual([
+    assert.deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
     ], selections.selectables().map(this._brickTableItemInfo));
 
-    deepEqual([
+    assert.deepEqual([
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()}
     ], selections.selected().map(this._brickTableItemInfo));
 
     $('tr[data-row-index="1"] td[data-selectable-selector-column]', element).trigger('click');
 
-    equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
-    deepEqual([
+    assert.deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="1"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
     ], selections.selectables().map(this._brickTableItemInfo));
 
-    deepEqual([], selections.selected().map(this._brickTableItemInfo));
+    assert.deepEqual([], selections.selected().map(this._brickTableItemInfo));
 });
 
 QUnit.test('creme.bricks.Brick.table (toggle all)', function(assert) {
@@ -128,32 +128,32 @@ QUnit.test('creme.bricks.Brick.table (toggle all)', function(assert) {
     var element = brick.element();
     var selections = brick.table().selections();
 
-    equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="2"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="2"]').is('.is-selected'));
 
-    deepEqual([
+    assert.deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="1"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
     ], selections.selectables().map(this._brickTableItemInfo));
 
-    deepEqual([], selections.selected());
+    assert.deepEqual([], selections.selected());
 
     $('.row-selector-all', element).trigger('click');
 
-    equal(true, $('tr[data-row-index="0"]').is('.is-selected'));
-    equal(true, $('tr[data-row-index="1"]').is('.is-selected'));
-    equal(true, $('tr[data-row-index="2"]').is('.is-selected'));
-    equal('3 entries on 3', element.find('.brick-selection-title').text());
+    assert.equal(true, $('tr[data-row-index="0"]').is('.is-selected'));
+    assert.equal(true, $('tr[data-row-index="1"]').is('.is-selected'));
+    assert.equal(true, $('tr[data-row-index="2"]').is('.is-selected'));
+    assert.equal('3 entries on 3', element.find('.brick-selection-title').text());
 
-    deepEqual([
+    assert.deepEqual([
         {selected: true, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="2"]', element).get()}
     ], selections.selectables().map(this._brickTableItemInfo));
 
-    deepEqual([
+    assert.deepEqual([
         {selected: true, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="2"]', element).get()}
@@ -161,29 +161,29 @@ QUnit.test('creme.bricks.Brick.table (toggle all)', function(assert) {
 
     $('.row-selector-all', element).trigger('click');
 
-    equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="2"]').is('.is-selected'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="2"]').is('.is-selected'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
-    deepEqual([
+    assert.deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="1"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
     ], selections.selectables().map(this._brickTableItemInfo));
 
-    deepEqual([], selections.selected().map(this._brickTableItemInfo));
+    assert.deepEqual([], selections.selected().map(this._brickTableItemInfo));
 
     $('.row-selector-all', element).prop('checked', true).trigger('change');
-    equal('3 entries on 3', element.find('.brick-selection-title').text());
+    assert.equal('3 entries on 3', element.find('.brick-selection-title').text());
 
-    deepEqual([
+    assert.deepEqual([
         {selected: true, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="2"]', element).get()}
     ], selections.selectables().map(this._brickTableItemInfo));
 
-    deepEqual([
+    assert.deepEqual([
         {selected: true, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="2"]', element).get()}
@@ -209,30 +209,30 @@ QUnit.test('creme.bricks.Brick.table (toggle selection, loading)', function(asse
     var element = brick.element();
     var selections = brick.table().selections();
 
-    equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
-    deepEqual([
+    assert.deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="1"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
     ], selections.selectables().map(this._brickTableItemInfo));
 
-    deepEqual([], selections.selected());
+    assert.deepEqual([], selections.selected());
 
     brick.setLoadingState(true, 'Loading…');
 
     // selection is disabled on loading
     $('tr[data-row-index="1"] td[data-selectable-selector-column]', element).trigger('click');
 
-    equal('', element.find('.brick-selection-title').text());
-    deepEqual([], selections.selected());
+    assert.equal('', element.find('.brick-selection-title').text());
+    assert.deepEqual([], selections.selected());
 
     // toggle all is disabled on loading
     $('.row-selector-all', element).trigger('click');
 
-    equal('', element.find('.brick-selection-title').text());
-    deepEqual([], selections.selected());
+    assert.equal('', element.find('.brick-selection-title').text());
+    assert.deepEqual([], selections.selected());
 });
 
 QUnit.test('creme.bricks.Brick.table (toggle selection, controller)', function(assert) {
@@ -254,40 +254,40 @@ QUnit.test('creme.bricks.Brick.table (toggle selection, controller)', function(a
     var element = brick.element();
     var selections = brick.table().selections();
 
-    equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="2"]').is('.is-selected'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="2"]').is('.is-selected'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
-    deepEqual([
+    assert.deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="1"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
     ], selections.selectables().map(this._brickTableItemInfo));
 
-    deepEqual([], selections.selected().map(this._brickTableItemInfo));
+    assert.deepEqual([], selections.selected().map(this._brickTableItemInfo));
 
     selections.toggle(1, true);
     selections.toggle(2, true);
 
-    equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
-    equal(true, $('tr[data-row-index="1"]').is('.is-selected'));
-    equal(true, $('tr[data-row-index="2"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
+    assert.equal(true, $('tr[data-row-index="1"]').is('.is-selected'));
+    assert.equal(true, $('tr[data-row-index="2"]').is('.is-selected'));
 
-    equal('2 entries on 3', element.find('.brick-selection-title').text());
-    deepEqual([
+    assert.equal('2 entries on 3', element.find('.brick-selection-title').text());
+    assert.deepEqual([
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="2"]', element).get()}
     ], selections.selected().map(this._brickTableItemInfo));
 
     selections.toggleAll(false);
 
-    equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="2"]').is('.is-selected'));
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="2"]').is('.is-selected'));
+    assert.equal('', element.find('.brick-selection-title').text());
 
-    deepEqual([], selections.selected());
+    assert.deepEqual([], selections.selected());
 });
 
 
@@ -308,25 +308,25 @@ QUnit.test('creme.bricks.Brick.table (toggle selection, row-index > 10 issue)', 
     var element = brick.element();
     var selections = brick.table().selections();
 
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal('', element.find('.brick-selection-title').text());
 
-    deepEqual([], selections.selected().map(this._brickTableItemInfo));
+    assert.deepEqual([], selections.selected().map(this._brickTableItemInfo));
 
     selections.toggle(1, true);
     selections.toggle(5, true);
     selections.toggle(10, true);
     selections.toggle(12, true);
 
-    equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
-    equal(true, $('tr[data-row-index="1"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="4"]').is('.is-selected'));
-    equal(true, $('tr[data-row-index="5"]').is('.is-selected'));
-    equal(true, $('tr[data-row-index="10"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="11"]').is('.is-selected'));
-    equal(true, $('tr[data-row-index="12"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
+    assert.equal(true, $('tr[data-row-index="1"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="4"]').is('.is-selected'));
+    assert.equal(true, $('tr[data-row-index="5"]').is('.is-selected'));
+    assert.equal(true, $('tr[data-row-index="10"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="11"]').is('.is-selected'));
+    assert.equal(true, $('tr[data-row-index="12"]').is('.is-selected'));
 
-    equal('4 entries on 13', element.find('.brick-selection-title').text());
-    deepEqual([
+    assert.equal('4 entries on 13', element.find('.brick-selection-title').text());
+    assert.deepEqual([
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="5"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="10"]', element).get()},
@@ -335,17 +335,17 @@ QUnit.test('creme.bricks.Brick.table (toggle selection, row-index > 10 issue)', 
 
     selections.toggleAll(false);
 
-    equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="4"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="5"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="10"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="11"]').is('.is-selected'));
-    equal(false, $('tr[data-row-index="12"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="4"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="5"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="10"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="11"]').is('.is-selected'));
+    assert.equal(false, $('tr[data-row-index="12"]').is('.is-selected'));
 
-    equal('', element.find('.brick-selection-title').text());
+    assert.equal('', element.find('.brick-selection-title').text());
 
-    deepEqual([], selections.selected());
+    assert.deepEqual([], selections.selected());
 });
 
 QUnit.test('creme.bricks.Brick.table (not sortable)', function(assert) {
@@ -365,11 +365,11 @@ QUnit.test('creme.bricks.Brick.table (not sortable)', function(assert) {
     var brick = widget.brick();
     var element = brick.element();
 
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     $('th', element).trigger('click');
 
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.table (toggle sort)', function(assert) {
@@ -389,29 +389,29 @@ QUnit.test('creme.bricks.Brick.table (toggle sort)', function(assert) {
     var widget = this.createBrickTable(options);
     var brick = widget.brick();
     var brick_id = brick.id();
-    equal('brick-creme_core-test', brick_id);
-    equal('creme_core-test', brick.type_id());
+    assert.equal('brick-creme_core-test', brick_id);
+    assert.equal('creme_core-test', brick.type_id());
 
     this.setBrickReloadContent(brick_id, this.createBrickTableHtml(options));
 
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     brick = $('#' + brick_id).creme().widget().brick();
-    equal(true, brick.isBound());
+    assert.equal(true, brick.isBound());
 
     // use brick.element() each time because it changes on reload.
     $('th[data-sort-field="created"]', brick.element()).trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {'creme_core-test_order': '-created', brick_id: ['creme_core-test'], extra_data: '{}'}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     brick = $('#' + brick_id).creme().widget().brick();
-    equal(true, brick.isBound());
+    assert.equal(true, brick.isBound());
 
     $('th[data-sort-field="name"]', brick.element()).trigger('click');
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {'creme_core-test_order': '-created', brick_id: ['creme_core-test'], extra_data: '{}'}],
         ['GET', {'creme_core-test_order': 'name', brick_id: ['creme_core-test'], extra_data: '{}'}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
@@ -436,19 +436,19 @@ QUnit.test('creme.bricks.Brick.table (toggle sort, loading)', function(assert) {
 
     this.setBrickReloadContent('brick-for-test', this.createBrickTableHtml(options));
 
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     brick.setLoadingState(true, 'Loading…');
 
     // sorting is disabled on loading
     $('th[data-sort-field="created"]', brick.element()).trigger('click');
 
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     // sorting is disabled on loading
     $('th[data-sort-field="name"]', brick.element()).trigger('click');
 
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 }(jQuery));

@@ -12,8 +12,8 @@ QUnit.test('creme.activities.ExportAsICalAction (no selection)', function(assert
         url: 'mock/activities/export/ical'
     }).on(this.listviewActionListeners);
 
-    equal(0, list.selectedRowsCount());
-    deepEqual([], list.selectedRows());
+    assert.equal(0, list.selectedRowsCount());
+    assert.deepEqual([], list.selectedRows());
 
     this.assertClosedDialog();
 
@@ -22,8 +22,8 @@ QUnit.test('creme.activities.ExportAsICalAction (no selection)', function(assert
     this.assertOpenedAlertDialog(gettext("Please select at least a line in order to export."));
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.activities.ExportAsICalAction (ok)', function(assert) {
@@ -34,13 +34,13 @@ QUnit.test('creme.activities.ExportAsICalAction (ok)', function(assert) {
 
     this.setListviewSelection(list, ['1', '2', '3']);
 
-    equal(3, list.selectedRowsCount());
-    deepEqual(['1', '2', '3'], list.selectedRows());
+    assert.equal(3, list.selectedRowsCount());
+    assert.deepEqual(['1', '2', '3'], list.selectedRows());
 
     action.start();
 
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual(['/mock/activities/export/ical?id=1&id=2&id=3'], this.mockRedirectCalls());
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual(['/mock/activities/export/ical?id=1&id=2&id=3'], this.mockRedirectCalls());
 });
 
 }(jQuery));

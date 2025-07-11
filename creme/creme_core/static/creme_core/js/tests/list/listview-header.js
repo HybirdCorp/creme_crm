@@ -7,27 +7,27 @@ QUnit.test('creme.lv_widget.ListViewHeader.bind', function(assert) {
     var header = new creme.lv_widget.ListViewHeader();
     var table = list.find('table').first();
 
-    equal(false, header.isBound());
-    equal(false, header._isStandalone);
-    equal(undefined, header._list);
-    equal(undefined, header._floatAnchor);
-    equal(false, table.is('floated'));
-    equal(0, $('.floated-header-anchor').length);
+    assert.equal(false, header.isBound());
+    assert.equal(false, header._isStandalone);
+    assert.equal(undefined, header._list);
+    assert.equal(undefined, header._floatAnchor);
+    assert.equal(false, table.is('floated'));
+    assert.equal(0, $('.floated-header-anchor').length);
 
     header.bind(table);
 
-    equal(true, header.isBound());
-    equal(1, header._list.length);
-    equal(undefined, header._floatAnchor);
-    equal(false, table.is('floated'));
-    equal(0, $('.floated-header-anchor').length);
+    assert.equal(true, header.isBound());
+    assert.equal(1, header._list.length);
+    assert.equal(undefined, header._floatAnchor);
+    assert.equal(false, table.is('floated'));
+    assert.equal(0, $('.floated-header-anchor').length);
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader.bind (already bound)', function(assert) {
     var list = $(this.createListViewHtml()).appendTo(this.qunitFixture());
     var header = new creme.lv_widget.ListViewHeader().bind(list.find('table').first());
 
-    equal(true, header.isBound());
+    assert.equal(true, header.isBound());
     this.assertRaises(function() {
         header.bind(list);
     }, Error, 'Error: ListViewHeader is already bound');
@@ -46,17 +46,17 @@ QUnit.test('creme.lv_widget.ListViewHeader.bind (standalone)', function(assert) 
         });
         var table = list.find('table').first();
 
-        equal(true, header._isStandalone);
-        equal(35, header._headTop);
+        assert.equal(true, header._isStandalone);
+        assert.equal(35, header._headTop);
 
         header.bind(table);
 
-        equal(true, header.isBound());
-        equal(1, header._list.length);
-        equal(1, header._floatAnchor.length);
-        equal(1, $('.floated-header-anchor').length);
+        assert.equal(true, header.isBound());
+        assert.equal(1, header._list.length);
+        assert.equal(1, header._floatAnchor.length);
+        assert.equal(1, $('.floated-header-anchor').length);
 
-        equal(false, table.is('.floated'));
+        assert.equal(false, table.is('.floated'));
     } finally {
         list.detach();
     }
@@ -74,12 +74,12 @@ QUnit.test('creme.lv_widget.ListViewHeader.bind (standalone, already floating)',
 
     header.bind(table);
 
-    equal(true, header.isBound());
-    equal(1, header._list.length);
-    equal(1, header._floatAnchor.length);
-    equal(1, $('.floated-header-anchor').length);
+    assert.equal(true, header.isBound());
+    assert.equal(1, header._list.length);
+    assert.equal(1, header._floatAnchor.length);
+    assert.equal(1, $('.floated-header-anchor').length);
 
-    equal(true, table.is('.floated'));
+    assert.equal(true, table.is('.floated'));
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader (enter first row)', function(assert) {
@@ -91,23 +91,23 @@ QUnit.test('creme.lv_widget.ListViewHeader (enter first row)', function(assert) 
 
     var lines = $(list).find('tr.selectable:first-child');
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
-    equal(false, table.is('.first-row-hovered'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
+    assert.equal(false, table.is('.first-row-hovered'));
 
     $(lines[1]).trigger($.Event("mouseenter"));
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
-    equal(false, table.is('.first-row-hovered'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
+    assert.equal(false, table.is('.first-row-hovered'));
 
     $(lines[2]).trigger($.Event("mouseenter"));
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
-    equal(false, table.is('.first-row-hovered'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
+    assert.equal(false, table.is('.first-row-hovered'));
 
     $(lines[0]).trigger($.Event("mouseenter"));
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
-    equal(true, table.is('.first-row-hovered'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
+    assert.equal(true, table.is('.first-row-hovered'));
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader (enter first row, standalone)', function(assert) {
@@ -122,23 +122,23 @@ QUnit.test('creme.lv_widget.ListViewHeader (enter first row, standalone)', funct
 
     var lines = $(list).find('tr.selectable:first-child');
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
-    equal(false, table.is('.first-row-hovered'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
+    assert.equal(false, table.is('.first-row-hovered'));
 
     $(lines[1]).trigger($.Event("mouseenter"));
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
-    equal(false, table.is('.first-row-hovered'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
+    assert.equal(false, table.is('.first-row-hovered'));
 
     $(lines[2]).trigger($.Event("mouseenter"));
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
-    equal(false, table.is('.first-row-hovered'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
+    assert.equal(false, table.is('.first-row-hovered'));
 
     $(lines[0]).trigger($.Event("mouseenter"));
 
-    equal(true, $('.listview.floatThead-table').is('.first-row-hovered'));
-    equal(true, table.is('.first-row-hovered'));
+    assert.equal(true, $('.listview.floatThead-table').is('.first-row-hovered'));
+    assert.equal(true, table.is('.first-row-hovered'));
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader (leave first row)', function(assert) {
@@ -153,13 +153,13 @@ QUnit.test('creme.lv_widget.ListViewHeader (leave first row)', function(assert) 
 
     $(lines[0]).trigger($.Event("mouseenter"));
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
-    equal(true, table.is('.first-row-hovered'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
+    assert.equal(true, table.is('.first-row-hovered'));
 
     $(lines[0]).trigger($.Event("mouseleave"));
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
-    equal(false, table.is('.first-row-hovered'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
+    assert.equal(false, table.is('.first-row-hovered'));
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader (leave first row, standalone)', function(assert) {
@@ -176,13 +176,13 @@ QUnit.test('creme.lv_widget.ListViewHeader (leave first row, standalone)', funct
 
     $(lines[0]).trigger($.Event("mouseenter"));
 
-    equal(true, $('.listview.floatThead-table').is('.first-row-hovered'));
-    equal(true, table.is('.first-row-hovered'));
+    assert.equal(true, $('.listview.floatThead-table').is('.first-row-hovered'));
+    assert.equal(true, table.is('.first-row-hovered'));
 
     $(lines[0]).trigger($.Event("mouseleave"));
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
-    equal(false, table.is('.first-row-hovered'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
+    assert.equal(false, table.is('.first-row-hovered'));
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader (selection change)', function(assert) {
@@ -196,28 +196,28 @@ QUnit.test('creme.lv_widget.ListViewHeader (selection change)', function(assert)
 
     var lines = $(list).find('tr.selectable:first-child');
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
-    equal(false, table.is('.first-row-selected'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
+    assert.equal(false, table.is('.first-row-selected'));
 
     $(lines[1]).trigger('row-selection-changed', {selected: true});
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
-    equal(false, table.is('.first-row-selected'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
+    assert.equal(false, table.is('.first-row-selected'));
 
     $(lines[2]).trigger('row-selection-changed', {selected: true});
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
-    equal(false, table.is('.first-row-selected'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
+    assert.equal(false, table.is('.first-row-selected'));
 
     $(lines[0]).trigger('row-selection-changed', {selected: true});
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
-    equal(true, table.is('.first-row-selected'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
+    assert.equal(true, table.is('.first-row-selected'));
 
     $(lines[0]).trigger('row-selection-changed', {selected: false});
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
-    equal(false, table.is('.first-row-selected'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
+    assert.equal(false, table.is('.first-row-selected'));
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader (selection change, standalone)', function(assert) {
@@ -232,28 +232,28 @@ QUnit.test('creme.lv_widget.ListViewHeader (selection change, standalone)', func
 
     var lines = $(list).find('tr.selectable:first-child');
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
-    equal(false, table.is('.first-row-selected'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
+    assert.equal(false, table.is('.first-row-selected'));
 
     $(lines[1]).trigger('row-selection-changed', {selected: true});
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
-    equal(false, table.is('.first-row-selected'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
+    assert.equal(false, table.is('.first-row-selected'));
 
     $(lines[2]).trigger('row-selection-changed', {selected: true});
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
-    equal(false, table.is('.first-row-selected'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
+    assert.equal(false, table.is('.first-row-selected'));
 
     $(lines[0]).trigger('row-selection-changed', {selected: true});
 
-    equal(true, $('.listview.floatThead-table').is('.first-row-selected'));
-    equal(true, table.is('.first-row-selected'));
+    assert.equal(true, $('.listview.floatThead-table').is('.first-row-selected'));
+    assert.equal(true, table.is('.first-row-selected'));
 
     $(lines[0]).trigger('row-selection-changed', {selected: false});
 
-    equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
-    equal(false, table.is('.first-row-selected'));
+    assert.equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
+    assert.equal(false, table.is('.first-row-selected'));
 });
 
 }(jQuery));

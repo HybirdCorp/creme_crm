@@ -26,11 +26,11 @@ QUnit.test('creme.UserSettingController (change)', function(assert) {
 
     element.find('select').val('b').trigger('change');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {theme: 'b'}]
     ], this.mockBackendUrlCalls('mock/toggle'));
 
-    deepEqual([current_url], this.mockReloadCalls());
+    assert.deepEqual([current_url], this.mockReloadCalls());
 });
 
 QUnit.test('creme.UserSettingController (no url)', function(assert) {
@@ -43,8 +43,8 @@ QUnit.test('creme.UserSettingController (no url)', function(assert) {
 
     element.find('select').val('b').trigger('change');
 
-    deepEqual([], this.mockBackendUrlCalls('mock/toggle'));
-    deepEqual([], this.mockReloadCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/toggle'));
+    assert.deepEqual([], this.mockReloadCalls());
 });
 
 QUnit.test('creme.UserSettingController (invalid url)', function(assert) {
@@ -57,11 +57,11 @@ QUnit.test('creme.UserSettingController (invalid url)', function(assert) {
 
     element.find('select').val('b').trigger('change');
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {theme: 'b'}]
     ], this.mockBackendUrlCalls('mock/error'));
 
-    deepEqual([], this.mockReloadCalls());
+    assert.deepEqual([], this.mockReloadCalls());
 });
 
 }(jQuery));

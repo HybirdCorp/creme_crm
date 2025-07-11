@@ -185,25 +185,25 @@ QUnit.module("creme.ActivityCalendar", new QUnitMixin(QUnitEventMixin,
 QUnit.test('creme.ActivityCalendarController (empty)', function(assert) {
     var element = $(this.createUserCalendarHtml()).appendTo(this.qunitFixture());
 
-    equal(0, element.find('.calendar .fc-header').length);
+    assert.equal(0, element.find('.calendar .fc-header').length);
 
     var controller = creme.userActivityCalendar(element);
 
-    equal(1, element.find('.calendar .fc-header-toolbar').length, 'calendar header');
+    assert.equal(1, element.find('.calendar .fc-header-toolbar').length, 'calendar header');
 
     var calendar = controller.calendar();
 
-    equal('', calendar.owner());
-    equal('', calendar.eventUpdateUrl());
-    equal('', calendar.eventCreateUrl());
-    equal('', calendar.eventFetchUrl());
+    assert.equal('', calendar.owner());
+    assert.equal('', calendar.eventUpdateUrl());
+    assert.equal('', calendar.eventCreateUrl());
+    assert.equal('', calendar.eventFetchUrl());
 
-    equal('', controller.sourceSelectUrl());
-    deepEqual([], controller.selectedSourceIds());
-    ok(controller.fullCalendar() instanceof FullCalendar.Calendar);
-    equal(element, controller.element());
+    assert.equal('', controller.sourceSelectUrl());
+    assert.deepEqual([], controller.selectedSourceIds());
+    assert.ok(controller.fullCalendar() instanceof FullCalendar.Calendar);
+    assert.equal(element, controller.element());
 
-    deepEqual({
+    assert.deepEqual({
         allowEventMove: true,
         allowEventOverlaps: true,
         debounceDelay: 200,
@@ -229,17 +229,17 @@ QUnit.test('creme.ActivityCalendarController (options)', function(assert) {
 
     var calendar = controller.calendar();
 
-    equal('myuser', calendar.owner());
-    equal('mock/calendar/event/update', calendar.eventUpdateUrl());
-    equal('mock/calendar/event/create', calendar.eventCreateUrl());
-    equal('mock/calendar/events', calendar.eventFetchUrl());
+    assert.equal('myuser', calendar.owner());
+    assert.equal('mock/calendar/event/update', calendar.eventUpdateUrl());
+    assert.equal('mock/calendar/event/create', calendar.eventCreateUrl());
+    assert.equal('mock/calendar/events', calendar.eventFetchUrl());
 
-    equal('mock/calendar/select', controller.sourceSelectUrl());
-    deepEqual([], controller.selectedSourceIds());
-    ok(controller.fullCalendar() instanceof FullCalendar.Calendar);
-    equal(element, controller.element());
+    assert.equal('mock/calendar/select', controller.sourceSelectUrl());
+    assert.deepEqual([], controller.selectedSourceIds());
+    assert.ok(controller.fullCalendar() instanceof FullCalendar.Calendar);
+    assert.equal(element, controller.element());
 
-    deepEqual({
+    assert.deepEqual({
         allowEventMove: true,
         allowEventOverlaps: true,
         debounceDelay: 200,
@@ -263,7 +263,7 @@ QUnit.test('creme.ActivityCalendarController (options)', function(assert) {
 
     controller.prop('timezoneOffset', 60);
 
-    deepEqual({
+    assert.deepEqual({
         allowEventMove: true,
         allowEventOverlaps: true,
         debounceDelay: 300,
@@ -307,22 +307,22 @@ QUnit.parameterize('creme.ActivityCalendarController (initial)', [
 
     var view = controller.fullCalendar().view;
 
-    equal(view.type, expected.view);
-    equal(moment(view.activeStart).format('YYYY-MM-DD'), expected.start);
-    equal(moment(view.activeEnd).format('YYYY-MM-DD'), expected.end);
+    assert.equal(view.type, expected.view);
+    assert.equal(moment(view.activeStart).format('YYYY-MM-DD'), expected.start);
+    assert.equal(moment(view.activeEnd).format('YYYY-MM-DD'), expected.end);
 });
 
 QUnit.test('creme.ActivityCalendarController (no history)', function(assert) {
     var element = $(this.createDefaultUserCalendarHtml()).appendTo(this.qunitFixture());
     var controller = creme.userActivityCalendar(element);
 
-    equal(false, controller.keepState());
+    assert.equal(false, controller.keepState());
 
-    deepEqual([], this.mockHistoryChanges());
+    assert.deepEqual([], this.mockHistoryChanges());
 
     controller.goToDate('2023-03-20');
 
-    deepEqual([], this.mockHistoryChanges());
+    assert.deepEqual([], this.mockHistoryChanges());
 });
 
 QUnit.test('creme.ActivityCalendarController (history)', function(assert) {
@@ -332,19 +332,19 @@ QUnit.test('creme.ActivityCalendarController (history)', function(assert) {
         rendererDelay: 0
     });
 
-    equal(true, controller.keepState());
+    assert.equal(true, controller.keepState());
 
-    deepEqual([], this.mockHistoryChanges());
+    assert.deepEqual([], this.mockHistoryChanges());
 
     controller.goToDate('2023-03-20');
 
-    deepEqual([
+    assert.deepEqual([
         ['push', '#view=month&date=' + '2023-02-27', undefined]
     ], this.mockHistoryChanges());
 
     controller.goToDate('2023-02-27');
 
-    deepEqual([
+    assert.deepEqual([
         ['push', '#view=month&date=' + '2023-02-27', undefined],
         ['push', '#view=month&date=' + '2023-01-30', undefined]
     ], this.mockHistoryChanges());
@@ -352,7 +352,7 @@ QUnit.test('creme.ActivityCalendarController (history)', function(assert) {
     this.withFakeMethod({instance: controller, method: '_currentUrl'}, function(faker) {
         faker.result = '/mock#view=month&date=2023-01-30';
 
-        deepEqual(controller._loadStateFromUrl(), {
+        assert.deepEqual(controller._loadStateFromUrl(), {
             view: 'month',
             date: moment('2023-01-30')
         });
@@ -364,7 +364,7 @@ QUnit.test('creme.ActivityCalendarController (history)', function(assert) {
         controller.goToDate('2023-02-10');
         controller.goToDate('2023-02-15');
 
-        deepEqual([
+        assert.deepEqual([
             ['push', '#view=month&date=' + '2023-02-27', undefined],
             ['push', '#view=month&date=' + '2023-01-30', undefined]
         ], this.mockHistoryChanges());
@@ -379,14 +379,14 @@ QUnit.test('creme.ActivityCalendarController (hashchange)', function(assert) {
     });
     var view = controller.fullCalendar().view;
 
-    equal(view.type, 'month');
-    equal(moment(view.activeStart).format('YYYY-MM-DD'), '2023-02-27');
-    equal(moment(view.activeEnd).format('YYYY-MM-DD'), '2023-04-10');
+    assert.equal(view.type, 'month');
+    assert.equal(moment(view.activeStart).format('YYYY-MM-DD'), '2023-02-27');
+    assert.equal(moment(view.activeEnd).format('YYYY-MM-DD'), '2023-04-10');
 
     this.withFakeMethod({instance: controller, method: '_currentUrl'}, function(faker) {
         faker.result = '/mock#view=week&date=2023-01-30';
 
-        deepEqual(controller._loadStateFromUrl(), {
+        assert.deepEqual(controller._loadStateFromUrl(), {
             view: 'week',
             date: moment('2023-01-30')
         });
@@ -394,9 +394,9 @@ QUnit.test('creme.ActivityCalendarController (hashchange)', function(assert) {
         $(window).trigger('hashchange');
 
         view = controller.fullCalendar().view;
-        equal(view.type, 'week');
-        equal(moment(view.activeStart).format('YYYY-MM-DD'), '2023-01-30');
-        equal(moment(view.activeEnd).format('YYYY-MM-DD'), '2023-02-06');
+        assert.equal(view.type, 'week');
+        assert.equal(moment(view.activeStart).format('YYYY-MM-DD'), '2023-01-30');
+        assert.equal(moment(view.activeEnd).format('YYYY-MM-DD'), '2023-02-06');
     });
 });
 
@@ -408,9 +408,9 @@ QUnit.test('creme.ActivityCalendarController.setViewState', function(assert) {
     });
     var view = controller.fullCalendar().view;
 
-    equal(view.type, 'month');
-    equal(moment(view.activeStart).format('YYYY-MM-DD'), '2023-02-27');
-    equal(moment(view.activeEnd).format('YYYY-MM-DD'), '2023-04-10');
+    assert.equal(view.type, 'month');
+    assert.equal(moment(view.activeStart).format('YYYY-MM-DD'), '2023-02-27');
+    assert.equal(moment(view.activeEnd).format('YYYY-MM-DD'), '2023-04-10');
 
     controller.setViewState({
         view: 'week',
@@ -418,9 +418,9 @@ QUnit.test('creme.ActivityCalendarController.setViewState', function(assert) {
     });
 
     view = controller.fullCalendar().view;
-    equal(view.type, 'week');
-    equal(moment(view.activeStart).format('YYYY-MM-DD'), '2023-01-30');
-    equal(moment(view.activeEnd).format('YYYY-MM-DD'), '2023-02-06');
+    assert.equal(view.type, 'week');
+    assert.equal(moment(view.activeStart).format('YYYY-MM-DD'), '2023-01-30');
+    assert.equal(moment(view.activeEnd).format('YYYY-MM-DD'), '2023-02-06');
 });
 
 QUnit.test('creme.ActivityCalendarController.selectedSourceIds (selection)', function(assert) {
@@ -432,15 +432,15 @@ QUnit.test('creme.ActivityCalendarController.selectedSourceIds (selection)', fun
 
     this.resetMockBackendCalls();
 
-    deepEqual(['1', '2', '10', '11', '20'].sort(), controller.checkedSourceIds().sort());
-    deepEqual(['1', '2', '10', '11', '20'].sort(), controller.selectedSourceIds().sort());
-    deepEqual([], this.mockBackendUrlCalls());
+    assert.deepEqual(['1', '2', '10', '11', '20'].sort(), controller.checkedSourceIds().sort());
+    assert.deepEqual(['1', '2', '10', '11', '20'].sort(), controller.selectedSourceIds().sort());
+    assert.deepEqual([], this.mockBackendUrlCalls());
 
     // uncheck all => call update selection url
     element.find('.calendar-menu-item input').prop('checked', false).trigger('change');
 
-    deepEqual([], controller.selectedSourceIds().sort());
-    deepEqual([
+    assert.deepEqual([], controller.selectedSourceIds().sort());
+    assert.deepEqual([
         ['mock/calendar/select', 'POST', {
             remove: ['1', '2', '10', '11', '20']
         }]
@@ -451,8 +451,8 @@ QUnit.test('creme.ActivityCalendarController.selectedSourceIds (selection)', fun
 
     // check '10' => call update selection url
     element.find('.calendar-menu-item input[value="10"]').prop('checked', true).trigger('change');
-    deepEqual(['10'], controller.selectedSourceIds().sort());
-    deepEqual([
+    assert.deepEqual(['10'], controller.selectedSourceIds().sort());
+    assert.deepEqual([
         ['mock/calendar/select', 'POST', {add: ['10']}],
         [
             'mock/calendar/events', 'GET', {
@@ -482,8 +482,8 @@ QUnit.test('creme.ActivityCalendarController.selectedSourceIds (selection)', fun
 
     // check '1' => call update selection url
     element.find('.calendar-menu-item input[value="1"]').prop('checked', true).trigger('change');
-    deepEqual(['1', '10'].sort(), controller.selectedSourceIds().sort());
-    deepEqual([
+    assert.deepEqual(['1', '10'].sort(), controller.selectedSourceIds().sort());
+    assert.deepEqual([
         ['mock/calendar/select', 'POST', {add: ['1']}],
         [
             'mock/calendar/events', 'GET', {
@@ -550,7 +550,7 @@ QUnit.test('creme.ActivityCalendarController.create (ok)', function(assert) {
 
     this.assertOpenedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/calendar/events', 'GET', {
             calendar_id: ['1', '2', '10', '11', '20'],
             start: this.toISO8601(view.activeStart, true),
@@ -565,7 +565,7 @@ QUnit.test('creme.ActivityCalendarController.create (ok)', function(assert) {
 
     this.submitFormDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/calendar/events', 'GET', {
             calendar_id: ['1', '2', '10', '11', '20'],
             start: this.toISO8601(view.activeStart, true),
@@ -585,7 +585,7 @@ QUnit.test('creme.ActivityCalendarController.create (ok)', function(assert) {
         }]
     ], this.mockBackendUrlCalls());
 
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.ActivityCalendarController.create (redirect)', function(assert) {
@@ -605,7 +605,7 @@ QUnit.test('creme.ActivityCalendarController.create (redirect)', function(assert
 
     this.assertOpenedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/calendar/events', 'GET', {
             calendar_id: ['1', '2', '10', '11', '20'],
             start: this.toISO8601(view.activeStart, true),
@@ -620,7 +620,7 @@ QUnit.test('creme.ActivityCalendarController.create (redirect)', function(assert
 
     this.submitFormDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/calendar/events', 'GET', {
             calendar_id: ['1', '2', '10', '11', '20'],
             start: this.toISO8601(view.activeStart, true),
@@ -635,7 +635,7 @@ QUnit.test('creme.ActivityCalendarController.create (redirect)', function(assert
         /* redirected */
     ], this.mockBackendUrlCalls());
 
-    deepEqual(['mock/calendar/event'], this.mockRedirectCalls());
+    assert.deepEqual(['mock/calendar/event'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.ActivityCalendarController.filter (sidebar)', function(assert) {
@@ -647,56 +647,56 @@ QUnit.test('creme.ActivityCalendarController.filter (sidebar)', function(assert)
     var getval = function() { return $(this).val(); };
     var getlabel = function() { return $(this).text(); };
 
-    equal('', input.val());
-    deepEqual(
+    assert.equal('', input.val());
+    assert.deepEqual(
         ['1', '2', '10', '11', '20'].sort(),
         element.find('.calendar-menu-item:not(.hidden) input').map(getval).get().sort()
     );
-    deepEqual(
+    assert.deepEqual(
         ['Jon Snow', 'Ramsey Snow'],
         element.find('.calendar-menu-usergroup-label:not(.hidden)').map(getlabel).get().sort()
     );
 
     // Matches "Jon Snow" group only
     input.val('jon').trigger($.Event("keyup", {keyCode: 13}));
-    deepEqual(
+    assert.deepEqual(
         ['1', '2', '10', '11'].sort(),
         element.find('.calendar-menu-item:not(.hidden) input').map(getval).get().sort()
     );
-    deepEqual(
+    assert.deepEqual(
         ['Jon Snow'],
         element.find('.calendar-menu-usergroup-label:not(.hidden)').map(getlabel).get().sort()
     );
 
     // Matches both "Jon Snow" & "Ramsey Snow" groups
     input.val('Snow').trigger($.Event("keyup", {keyCode: 13}));
-    deepEqual(
+    assert.deepEqual(
         ['1', '2', '10', '11', '20'].sort(),
         element.find('.calendar-menu-item:not(.hidden) input').map(getval).get().sort()
     );
-    deepEqual(
+    assert.deepEqual(
         ['Jon Snow', 'Ramsey Snow'],
         element.find('.calendar-menu-usergroup-label:not(.hidden)').map(getlabel).get().sort()
     );
 
     // Matches "A Calendar #10"
     input.val('#10').trigger($.Event("keyup", {keyCode: 13}));
-    deepEqual(
+    assert.deepEqual(
         ['1', '2', '10'].sort(),
         element.find('.calendar-menu-item:not(.hidden) input').map(getval).get().sort()
     );
-    deepEqual(
+    assert.deepEqual(
         ['Jon Snow'],
         element.find('.calendar-menu-usergroup-label:not(.hidden)').map(getlabel).get().sort()
     );
 
      // Matches "B Calendar #20"
     input.val('#20').trigger($.Event("keyup", {keyCode: 13}));
-    deepEqual(
+    assert.deepEqual(
         ['1', '2', '20'].sort(),
         element.find('.calendar-menu-item:not(.hidden) input').map(getval).get().sort()
     );
-    deepEqual(
+    assert.deepEqual(
         ['Ramsey Snow'],
         element.find('.calendar-menu-usergroup-label:not(.hidden)').map(getlabel).get().sort()
     );
@@ -710,20 +710,20 @@ QUnit.test('creme.ActivityCalendarController.filter (floating events)', function
     var input = element.find('.floating-event-filter input');
     var getid = function() { return $(this).attr('data-id'); };
 
-    equal('', input.val());
-    deepEqual(
+    assert.equal('', input.val());
+    assert.deepEqual(
         ['51', '52', '53'].sort(),
         element.find('.floating-event:not(.hidden)').map(getid).get().sort()
     );
 
     input.val('call').trigger($.Event("keyup", {keyCode: 13}));
-    deepEqual(
+    assert.deepEqual(
         ['52'],
         element.find('.floating-event:not(.hidden)').map(getid).get()
     );
 
     input.val('event').trigger($.Event("keyup", {keyCode: 13}));
-    deepEqual(
+    assert.deepEqual(
         ['51', '53'].sort(),
         element.find('.floating-event:not(.hidden)').map(getid).get().sort()
     );
@@ -740,10 +740,10 @@ QUnit.test('creme.ActivityCalendarController.external (ok, allDay)', function(as
 
     this.resetMockBackendCalls();
 
-    deepEqual([], this.mockBackendUrlCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls());
 
-    equal(false, element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group'));
-    equal(3, element.find('.floating-event').length);
+    assert.equal(false, element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group'));
+    assert.equal(3, element.find('.floating-event').length);
 
     var dragSource = element.find('.floating-event[data-id="52"]');
     var dropDate = this.todayAt().add(1, 'days').utc();
@@ -754,7 +754,7 @@ QUnit.test('creme.ActivityCalendarController.external (ok, allDay)', function(as
         allDay: true
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/calendar/event/update', 'POST', {
             id: 52,
             allDay: true,
@@ -764,12 +764,12 @@ QUnit.test('creme.ActivityCalendarController.external (ok, allDay)', function(as
     ], this.mockBackendUrlCalls());
 
     // floating event has been removed from menu
-    equal(0, element.find('.floating-event[data-id="52"]').length);
-    equal(
+    assert.equal(0, element.find('.floating-event[data-id="52"]').length);
+    assert.equal(
         false,
         element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
     );
-    equal(2, element.find('.floating-event').length);
+    assert.equal(2, element.find('.floating-event').length);
 });
 
 QUnit.test('creme.ActivityCalendarController.external (fail, allDay)', function(assert) {
@@ -785,13 +785,13 @@ QUnit.test('creme.ActivityCalendarController.external (fail, allDay)', function(
 
     this.resetMockBackendCalls();
 
-    deepEqual([], this.mockBackendUrlCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls());
 
-    equal(
+    assert.equal(
         false,
         element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
     );
-    equal(3, element.find('.floating-event').length);
+    assert.equal(3, element.find('.floating-event').length);
 
     var dragSource = element.find('.floating-event[data-id="52"]');
     var dropDate = this.todayAt().add(1, 'days').utc();
@@ -805,7 +805,7 @@ QUnit.test('creme.ActivityCalendarController.external (fail, allDay)', function(
     this.assertOpenedDialog(gettext('Error, please reload the page.'));
     this.closeDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/calendar/event/update/400', 'POST', {
             id: 52,
             allDay: true,
@@ -815,12 +815,12 @@ QUnit.test('creme.ActivityCalendarController.external (fail, allDay)', function(
     ], this.mockBackendUrlCalls());
 
     // floating event remains in menu
-    equal(1, element.find('.floating-event[data-id="52"]').length);
-    equal(
+    assert.equal(1, element.find('.floating-event[data-id="52"]').length);
+    assert.equal(
         false,
         element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
     );
-    equal(3, element.find('.floating-event').length);
+    assert.equal(3, element.find('.floating-event').length);
 });
 
 QUnit.test('creme.ActivityCalendarController.external (ok, none remains, allDay)', function(assert) {
@@ -838,11 +838,11 @@ QUnit.test('creme.ActivityCalendarController.external (ok, none remains, allDay)
 
     this.resetMockBackendCalls();
 
-    equal(
+    assert.equal(
         false,
         element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
     );
-    equal(1, element.find('.floating-event').length);
+    assert.equal(1, element.find('.floating-event').length);
 
     var dragSource = element.find('.floating-event[data-id="51"]');
     var dropDate = this.todayAt().add(1, 'days').utc();
@@ -853,7 +853,7 @@ QUnit.test('creme.ActivityCalendarController.external (ok, none remains, allDay)
         allDay: true
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/calendar/event/update', 'POST', {
             id: 51,
             allDay: true,
@@ -863,12 +863,12 @@ QUnit.test('creme.ActivityCalendarController.external (ok, none remains, allDay)
     ], this.mockBackendUrlCalls());
 
     // floating event has been removed from menu
-    equal(0, element.find('.floating-event[data-id="51"]').length);
-    equal(
+    assert.equal(0, element.find('.floating-event[data-id="51"]').length);
+    assert.equal(
         true,
         element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
     );
-    equal(0, element.find('.floating-event').length);
+    assert.equal(0, element.find('.floating-event').length);
 });
 
 // SWITCHING TO 'week' DO NOT WORK WITH FULLCALENDAR 5.x
@@ -886,13 +886,13 @@ QUnit.test('creme.ActivityCalendarController.external (ok, hour)', function(asse
 
     this.resetMockBackendCalls();
 
-    deepEqual([], this.mockBackendUrlCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls());
 
-    equal(
+    assert.equal(
         false,
         element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
     );
-    equal(3, element.find('.floating-event').length);
+    assert.equal(3, element.find('.floating-event').length);
 
     var dragSource = element.find('.floating-event[data-id="52"]');
     var dropEventStart = this.todayAt({hours: 8}).add(1, 'days');
@@ -907,7 +907,7 @@ QUnit.test('creme.ActivityCalendarController.external (ok, hour)', function(asse
         revert: revertCb
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/calendar/event/update', 'POST', {
             id: 52,
             allDay: false,
@@ -917,14 +917,14 @@ QUnit.test('creme.ActivityCalendarController.external (ok, hour)', function(asse
     ], this.mockBackendUrlCalls());
 
     // floating event has been removed from menu
-    equal(0, element.find('.floating-event[data-id="52"]').length);
-    equal(
+    assert.equal(0, element.find('.floating-event[data-id="52"]').length);
+    assert.equal(
         false,
         element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
     );
-    equal(2, element.find('.floating-event').length);
+    assert.equal(2, element.find('.floating-event').length);
 
-    equal(0, fakeRevert.count());
+    assert.equal(0, fakeRevert.count());
 });
 
 QUnit.test('creme.ActivityCalendarController.external (fail, hour)', function(assert) {
@@ -943,13 +943,13 @@ QUnit.test('creme.ActivityCalendarController.external (fail, hour)', function(as
 
     this.resetMockBackendCalls();
 
-    deepEqual([], this.mockBackendUrlCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls());
 
-    equal(
+    assert.equal(
         false,
         element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
     );
-    equal(3, element.find('.floating-event').length);
+    assert.equal(3, element.find('.floating-event').length);
 
     var dragSource = element.find('.floating-event[data-id="52"]');
     var dropEventStart = this.todayAt({hours: 8}).add(1, 'days');
@@ -967,7 +967,7 @@ QUnit.test('creme.ActivityCalendarController.external (fail, hour)', function(as
     this.assertOpenedDialog(gettext('Error, please reload the page.'));
     this.closeDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/calendar/event/update/400', 'POST', {
             id: 52,
             allDay: false,
@@ -977,14 +977,14 @@ QUnit.test('creme.ActivityCalendarController.external (fail, hour)', function(as
     ], this.mockBackendUrlCalls());
 
     // floating event remains in menu
-    equal(1, element.find('.floating-event[data-id="52"]').length);
-    equal(
+    assert.equal(1, element.find('.floating-event[data-id="52"]').length);
+    assert.equal(
         false,
         element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
     );
-    equal(3, element.find('.floating-event').length);
+    assert.equal(3, element.find('.floating-event').length);
 
-    equal(1, fakeRevert.count());
+    assert.equal(1, fakeRevert.count());
 });
 
 QUnit.test('creme.ActivityCalendarController.external (ok, none remains, hour)', function(assert) {
@@ -1003,11 +1003,11 @@ QUnit.test('creme.ActivityCalendarController.external (ok, none remains, hour)',
 
     this.resetMockBackendCalls();
 
-    equal(
+    assert.equal(
         false,
         element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
     );
-    equal(1, element.find('.floating-event').length);
+    assert.equal(1, element.find('.floating-event').length);
 
     var dragSource = element.find('.floating-event[data-id="51"]');
     var dropEventStart = this.todayAt({hours: 8}).add(1, 'days');
@@ -1021,7 +1021,7 @@ QUnit.test('creme.ActivityCalendarController.external (ok, none remains, hour)',
         allDay: false
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['mock/calendar/event/update', 'POST', {
             id: 51,
             allDay: false,
@@ -1031,12 +1031,12 @@ QUnit.test('creme.ActivityCalendarController.external (ok, none remains, hour)',
     ], this.mockBackendUrlCalls());
 
     // floating event has been removed from menu
-    equal(0, element.find('.floating-event[data-id="51"]').length);
-    equal(
+    assert.equal(0, element.find('.floating-event[data-id="51"]').length);
+    assert.equal(
         true,
         element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
     );
-    equal(0, element.find('.floating-event').length);
+    assert.equal(0, element.find('.floating-event').length);
 });
 
 }(jQuery));

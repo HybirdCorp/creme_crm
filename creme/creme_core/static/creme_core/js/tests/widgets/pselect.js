@@ -35,15 +35,17 @@ QUnit.module("creme.widget.pselect.js", new QUnitMixin({
     },
 
     assertSelector: function(widget, type, value, query) {
-        equal(widget.selectorKey(), type, 'selector type');
-        equal(widget.val(), value, 'value');
+        var assert = this.assert;
+
+        assert.equal(widget.selectorKey(), type, 'selector type');
+        assert.equal(widget.val(), value, 'value');
 
         if (query !== undefined) {
-            ok(widget.selector() !== undefined, 'selector exists');
-            ok(widget.selector().element.is(query), 'selector match ' + query);
-            equal(widget.selector().val(), value, 'selector value');
+            assert.ok(widget.selector() !== undefined, 'selector exists');
+            assert.ok(widget.selector().element.is(query), 'selector match ' + query);
+            assert.equal(widget.selector().val(), value, 'selector value');
         } else {
-            equal(widget.selector(), undefined, 'empty selector');
+            assert.equal(widget.selector(), undefined, 'empty selector');
         }
     }
 }));
@@ -52,15 +54,15 @@ QUnit.test('creme.widgets.pselect.create (empty, no selector)', function(assert)
     var element = $(this.createPSelectHtml());
     var widget = creme.widget.create(element);
 
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
-    equal(widget.val(), null);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(widget.val(), null);
 
-    equal(widget.selectorModels().length, 0);
-    equal(widget.selectorModel('*'), undefined);
+    assert.equal(widget.selectorModels().length, 0);
+    assert.equal(widget.selectorModel('*'), undefined);
 
-    equal(widget.selectorKey(), '');
-    equal(widget.selector(), undefined);
+    assert.equal(widget.selectorKey(), '');
+    assert.equal(widget.selector(), undefined);
 });
 
 QUnit.test('creme.widgets.pselect.create (empty, single selector)', function(assert) {
@@ -72,16 +74,16 @@ QUnit.test('creme.widgets.pselect.create (empty, single selector)', function(ass
 
     var widget = creme.widget.create(element);
 
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
-    equal(widget.val(), null, 'value');
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(widget.val(), null, 'value');
 
-    equal(widget.selectorModels().length, 1, 'model count');
-    equal(widget.selectorModel('*'), undefined, '* model');
-    notEqual(widget.selectorModel('text'), undefined, 'text model');
+    assert.equal(widget.selectorModels().length, 1, 'model count');
+    assert.equal(widget.selectorModel('*'), undefined, '* model');
+    assert.notEqual(widget.selectorModel('text'), undefined, 'text model');
 
-    equal(widget.selectorKey(), '', 'key');
-    equal(widget.selector(), undefined, 'selector');
+    assert.equal(widget.selectorKey(), '', 'key');
+    assert.equal(widget.selector(), undefined, 'selector');
 });
 
 QUnit.test('creme.widgets.pselect.create (empty, default single selector)', function(assert) {
@@ -93,17 +95,17 @@ QUnit.test('creme.widgets.pselect.create (empty, default single selector)', func
 
     var widget = creme.widget.create(element);
 
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
-    equal(widget.val(), '', 'value');
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(widget.val(), '', 'value');
 
-    equal(widget.selectorModels().length, 1);
-    notEqual(widget.selectorModel('*'), undefined);
-    notEqual(widget.selectorModel('text'), undefined);
+    assert.equal(widget.selectorModels().length, 1);
+    assert.notEqual(widget.selectorModel('*'), undefined);
+    assert.notEqual(widget.selectorModel('text'), undefined);
 
-    equal(widget.selectorKey(), '');
-    equal(widget.selector().val(), '');
-    ok(widget.selector().element.is('input[type="text"].ui-creme-dinput'));
+    assert.equal(widget.selectorKey(), '');
+    assert.equal(widget.selector().val(), '');
+    assert.ok(widget.selector().element.is('input[type="text"].ui-creme-dinput'));
 });
 
 QUnit.test('creme.widgets.pselect.create (empty, multiple selector)', function(assert) {
@@ -122,23 +124,23 @@ QUnit.test('creme.widgets.pselect.create (empty, multiple selector)', function(a
 
     var widget = creme.widget.create(element);
 
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
-    equal(widget.val(), '');
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(widget.val(), '');
 
-    equal(widget.selectorModels().length, 3);
-    notEqual(widget.selectorModel('text'), undefined);
-    notEqual(widget.selectorModel('password'), undefined);
-    notEqual(widget.selectorModel('boolean'), undefined);
+    assert.equal(widget.selectorModels().length, 3);
+    assert.notEqual(widget.selectorModel('text'), undefined);
+    assert.notEqual(widget.selectorModel('password'), undefined);
+    assert.notEqual(widget.selectorModel('boolean'), undefined);
 
     // if unknown use default
-    notEqual(widget.selectorModel('double'), undefined);
-    notEqual(widget.selectorModel('int'), undefined);
-    notEqual(widget.selectorModel('float'), undefined);
+    assert.notEqual(widget.selectorModel('double'), undefined);
+    assert.notEqual(widget.selectorModel('int'), undefined);
+    assert.notEqual(widget.selectorModel('float'), undefined);
 
-    equal(widget.selectorKey(), '');
-    equal(widget.selector().val(), '');
-    ok(widget.selector().element.is('input[type="text"].ui-creme-dinput'));
+    assert.equal(widget.selectorKey(), '');
+    assert.equal(widget.selector().val(), '');
+    assert.ok(widget.selector().element.is('input[type="text"].ui-creme-dinput'));
 });
 
 QUnit.test('creme.widgets.pselect.create (empty, multiple selector, no default)', function(assert) {
@@ -157,21 +159,21 @@ QUnit.test('creme.widgets.pselect.create (empty, multiple selector, no default)'
 
     var widget = creme.widget.create(element);
 
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
-    equal(widget.val(), null);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
+    assert.equal(widget.val(), null);
 
-    equal(widget.selectorModels().length, 3);
-    notEqual(widget.selectorModel('text'), undefined);
-    notEqual(widget.selectorModel('password'), undefined);
-    notEqual(widget.selectorModel('boolean'), undefined);
+    assert.equal(widget.selectorModels().length, 3);
+    assert.notEqual(widget.selectorModel('text'), undefined);
+    assert.notEqual(widget.selectorModel('password'), undefined);
+    assert.notEqual(widget.selectorModel('boolean'), undefined);
 
-    equal(widget.selectorModel('double'), undefined);
-    equal(widget.selectorModel('int'), undefined);
-    equal(widget.selectorModel('float'), undefined);
+    assert.equal(widget.selectorModel('double'), undefined);
+    assert.equal(widget.selectorModel('int'), undefined);
+    assert.equal(widget.selectorModel('float'), undefined);
 
-    equal(widget.selectorKey(), '');
-    equal(widget.selector(), undefined);
+    assert.equal(widget.selectorKey(), '');
+    assert.equal(widget.selector(), undefined);
 });
 
 QUnit.test('creme.widgets.pselect.val (unknown key, default selector)', function(assert) {
@@ -248,7 +250,7 @@ QUnit.test('creme.widgets.pselect.reload (unknown type, default selector)', func
 
     var widget = creme.widget.create(element);
 
-    deepEqual(['operator'], widget.dependencies());
+    assert.deepEqual(['operator'], widget.dependencies());
     this.assertSelector(widget, '', '', '.ui-creme-dinput[type="text"]');
 
     widget.reload({operator: 'text'});
@@ -268,7 +270,7 @@ QUnit.test('creme.widgets.pselect.reload (any type, default selector, template)'
     }));
 
     var widget = creme.widget.create(element);
-    deepEqual(['operator'], widget.dependencies());
+    assert.deepEqual(['operator'], widget.dependencies());
     this.assertSelector(widget, '', '', '.ui-creme-dinput[type]');
 
     widget.reload({operator: 'text'});
@@ -291,24 +293,24 @@ QUnit.test('creme.widgets.pselect.reload (#61)', function(assert) {
         }
     })).appendTo(this.qunitFixture());
 
-    equal(0, this.qunitFixture().find('.delegate .ui-creme-dinput[type]').length);
+    assert.equal(0, this.qunitFixture().find('.delegate .ui-creme-dinput[type]').length);
 
     var widget = creme.widget.create(element);
-    deepEqual(['operator'], widget.dependencies());
+    assert.deepEqual(['operator'], widget.dependencies());
     this.assertSelector(widget, '', '', '.ui-creme-dinput[type]');
 
-    equal(1, this.qunitFixture().find('.delegate .ui-creme-dinput[type]').length);
+    assert.equal(1, this.qunitFixture().find('.delegate .ui-creme-dinput[type]').length);
 
     widget.reload({operator: 'text'});
     widget.val(12.5);
     this.assertSelector(widget, 'text', 12.5, '.ui-creme-dinput[type="text"]');
 
-    equal(1, this.qunitFixture().find('.delegate .ui-creme-dinput[type="text"]').length);
+    assert.equal(1, this.qunitFixture().find('.delegate .ui-creme-dinput[type="text"]').length);
 
     widget.reload({operator: 'boolean'});
     this.assertSelector(widget, 'boolean', '', '.ui-creme-dinput[type="boolean"]');
 
-    equal(1, this.qunitFixture().find('.delegate .ui-creme-dinput[type="boolean"]').length);
+    assert.equal(1, this.qunitFixture().find('.delegate .ui-creme-dinput[type="boolean"]').length);
 });
 
 QUnit.test('creme.widgets.pselect.reload (unknown type, single selector, no default)', function(assert) {
@@ -320,7 +322,7 @@ QUnit.test('creme.widgets.pselect.reload (unknown type, single selector, no defa
     }));
 
     var widget = creme.widget.create(element);
-    deepEqual(['operator'], widget.dependencies());
+    assert.deepEqual(['operator'], widget.dependencies());
     this.assertSelector(widget, '', null);
 
     widget.reload({operator: 'text'});

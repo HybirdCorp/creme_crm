@@ -13,7 +13,7 @@ QUnit.test('creme.d3Colorize', function(assert) {
                             .scale(scale)
                             .accessor(function(d, i) { return i; });
 
-    deepEqual(colorize(data), [
+    assert.deepEqual(colorize(data), [
         {text: 'A', textColor: 'white', color: '#000000', isDarkColor: true},
         {text: 'B', textColor: 'black', color: '#cccccc', isDarkColor: false},
         {text: 'C', textColor: 'black', color: '#ffffff', isDarkColor: false}
@@ -30,7 +30,7 @@ QUnit.test('creme.d3Colorize (default accessor)', function(assert) {
     var colorize = creme.d3Colorize()
                             .scale(scale);
 
-    deepEqual(colorize(data), [
+    assert.deepEqual(colorize(data), [
         {text: 'A', x: 2, textColor: 'black', color: '#ffffff', isDarkColor: false},
         {text: 'B', x: 1, textColor: 'black', color: '#cccccc', isDarkColor: false},
         {text: 'C', x: 0, textColor: 'white', color: '#000000', isDarkColor: true}
@@ -41,7 +41,7 @@ QUnit.test('creme.d3Colorize (default scale)', function(assert) {
     var data = [{text: 'A', x: 2}, {text: 'B', x: 1}, {text: 'C', x: 0}];
     var colorize = creme.d3Colorize();
 
-    deepEqual(colorize(data), [
+    assert.deepEqual(colorize(data), [
         {text: 'A', x: 2, textColor: 'white', color: 'black', isDarkColor: true},
         {text: 'B', x: 1, textColor: 'white', color: 'black', isDarkColor: true},
         {text: 'C', x: 0, textColor: 'white', color: 'black', isDarkColor: true}
@@ -61,7 +61,7 @@ QUnit.test('creme.d3Colorize (data.color)', function(assert) {
                             .scale(scale)
                             .textColor(textScale);
 
-    deepEqual(colorize(data), [
+    assert.deepEqual(colorize(data), [
         {text: 'A', x: 2, textColor: '#ff0000', color: '#aa0000', isDarkColor: true},
         {text: 'B', x: 1, textColor: '#00ff00', color: 'yellow', isDarkColor: false},
         {text: 'C', x: 0, textColor: '#0000ff', color: 'gray', isDarkColor: true}

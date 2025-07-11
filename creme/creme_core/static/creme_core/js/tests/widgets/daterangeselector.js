@@ -62,16 +62,16 @@ QUnit.test('creme.widget.DateRangeSelector.create (empty)', function(assert) {
     var element = $(this.createDateRangeSelectorHtml());
 
     var widget = creme.widget.create(element);
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
 
-    equal(element.is('[disabled]'), false);
-    equal(element.is('[readonly]'), false);
+    assert.equal(element.is('[disabled]'), false);
+    assert.equal(element.is('[readonly]'), false);
 
-    equal(element.find('.date-start').is('.hasDatepicker'), true);
-    equal(element.find('.date-end').is('.hasDatepicker'), true);
+    assert.equal(element.find('.date-start').is('.hasDatepicker'), true);
+    assert.equal(element.find('.date-end').is('.hasDatepicker'), true);
 
-    deepEqual({type: '', start: '', end: ''}, JSON.parse(widget.val()));
+    assert.deepEqual({type: '', start: '', end: ''}, JSON.parse(widget.val()));
 });
 
 
@@ -85,16 +85,16 @@ QUnit.parameterize('creme.widget.DateRangeSelector.create (initial)', [
     var element = $(this.createDateRangeSelectorHtml({value: value}));
 
     var widget = creme.widget.create(element);
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
 
-    equal(element.is('[disabled]'), false);
-    equal(element.is('[readonly]'), false);
+    assert.equal(element.is('[disabled]'), false);
+    assert.equal(element.is('[readonly]'), false);
 
-    equal(element.find('.date-start').is('.hasDatepicker'), true);
-    equal(element.find('.date-end').is('.hasDatepicker'), true);
+    assert.equal(element.find('.date-start').is('.hasDatepicker'), true);
+    assert.equal(element.find('.date-end').is('.hasDatepicker'), true);
 
-    deepEqual(expected, JSON.parse(widget.val()));
+    assert.deepEqual(expected, JSON.parse(widget.val()));
 });
 
 QUnit.parameterize('creme.widget.DateRangeSelector.create (format)', [
@@ -107,13 +107,13 @@ QUnit.parameterize('creme.widget.DateRangeSelector.create (format)', [
 
     var widget = creme.widget.create(element, options);
 
-    equal(element.find('.date-start').is('.hasDatepicker'), true);
-    equal(element.find('.date-end').is('.hasDatepicker'), true);
+    assert.equal(element.find('.date-start').is('.hasDatepicker'), true);
+    assert.equal(element.find('.date-end').is('.hasDatepicker'), true);
 
-    equal(element.find('.date-start').datepicker('option', 'dateFormat'), expectedFormat);
-    equal(element.find('.date-end').datepicker('option', 'dateFormat'), expectedFormat);
+    assert.equal(element.find('.date-start').datepicker('option', 'dateFormat'), expectedFormat);
+    assert.equal(element.find('.date-end').datepicker('option', 'dateFormat'), expectedFormat);
 
-    deepEqual(expected, JSON.parse(widget.val()));
+    assert.deepEqual(expected, JSON.parse(widget.val()));
 });
 
 QUnit.test('creme.widget.DateRangeSelector.rangeType (switch predefined)', function(assert) {
@@ -126,15 +126,15 @@ QUnit.test('creme.widget.DateRangeSelector.rangeType (switch predefined)', funct
     }));
     var widget = creme.widget.create(element);
 
-    equal(element.find('.daterange-inputs').is('.hidden'), false);
-    deepEqual({
+    assert.equal(element.find('.daterange-inputs').is('.hidden'), false);
+    assert.deepEqual({
         type: '', start: '12-05-2018', end: '08-04-2025'
     }, JSON.parse(widget.val()));
 
     element.find('.range-type').val('next_year').trigger('change');
 
-    equal(element.find('.daterange-inputs').is('.hidden'), true);
-    deepEqual({
+    assert.equal(element.find('.daterange-inputs').is('.hidden'), true);
+    assert.deepEqual({
         type: 'next_year', start: '', end: ''
     }, JSON.parse(widget.val()));
 });
@@ -149,15 +149,15 @@ QUnit.test('creme.widget.DateRangeSelector.rangeType (switch custom)', function(
     }));
     var widget = creme.widget.create(element);
 
-    equal(element.find('.daterange-inputs').is('.hidden'), true);
-    deepEqual({
+    assert.equal(element.find('.daterange-inputs').is('.hidden'), true);
+    assert.deepEqual({
         type: 'next_year', start: '', end: ''
     }, JSON.parse(widget.val()));
 
     element.find('.range-type').val('').trigger('change');
 
-    equal(element.find('.daterange-inputs').is('.hidden'), false);
-    deepEqual({
+    assert.equal(element.find('.daterange-inputs').is('.hidden'), false);
+    assert.deepEqual({
         type: '', start: '', end: ''
     }, JSON.parse(widget.val()));
 });
@@ -172,18 +172,18 @@ QUnit.test('creme.widget.DateRangeSelector.dateInput (predefined)', function(ass
     }));
     var widget = creme.widget.create(element);
 
-    equal(element.find('.daterange-inputs').is('.hidden'), true);
-    deepEqual({
+    assert.equal(element.find('.daterange-inputs').is('.hidden'), true);
+    assert.deepEqual({
         type: 'next_year', start: '', end: ''
     }, JSON.parse(widget.val()));
 
     widget.startDate().val('10-05-2016').trigger('change');
-    deepEqual({
+    assert.deepEqual({
         type: 'next_year', start: '10-05-2016', end: ''
     }, JSON.parse(widget.val()));
 
     widget.endDate().val('10-05-2016').trigger('change');
-    deepEqual({
+    assert.deepEqual({
         type: 'next_year', start: '10-05-2016', end: '10-05-2016'
     }, JSON.parse(widget.val()));
 });
@@ -198,18 +198,18 @@ QUnit.test('creme.widget.DateRangeSelector.dateInput (custom)', function(assert)
     }));
     var widget = creme.widget.create(element);
 
-    equal(element.find('.daterange-inputs').is('.hidden'), false);
-    deepEqual({
+    assert.equal(element.find('.daterange-inputs').is('.hidden'), false);
+    assert.deepEqual({
         type: '', start: '', end: ''
     }, JSON.parse(widget.val()));
 
     widget.startDate().val('10-05-2016').trigger('change');
-    deepEqual({
+    assert.deepEqual({
         type: '', start: '10-05-2016', end: ''
     }, JSON.parse(widget.val()));
 
     widget.endDate().val('10-05-2022').trigger('change');
-    deepEqual({
+    assert.deepEqual({
         type: '', start: '10-05-2016', end: '10-05-2022'
     }, JSON.parse(widget.val()));
 });
@@ -224,29 +224,29 @@ QUnit.test('creme.widget.DateRangeSelector.val', function(assert) {
     }));
     var widget = creme.widget.create(element);
 
-    equal(element.find('.daterange-inputs').is('.hidden'), true);
-    deepEqual({
+    assert.equal(element.find('.daterange-inputs').is('.hidden'), true);
+    assert.deepEqual({
         type: 'next_year', start: '', end: ''
     }, JSON.parse(widget.val()));
 
     widget.val({type: '', start: '05-12-2010'});
 
-    equal(element.find('.daterange-inputs').is('.hidden'), false);
-    deepEqual({
+    assert.equal(element.find('.daterange-inputs').is('.hidden'), false);
+    assert.deepEqual({
         type: '', start: '05-12-2010', end: ''
     }, JSON.parse(widget.val()));
 
     widget.val({type: 'previous_year', start: '05-08-2020'});
 
-    equal(element.find('.daterange-inputs').is('.hidden'), true);
-    deepEqual({
+    assert.equal(element.find('.daterange-inputs').is('.hidden'), true);
+    assert.deepEqual({
         type: 'previous_year', start: '', end: ''
     }, JSON.parse(widget.val()));
 
     widget.val(null);
 
-    equal(element.find('.daterange-inputs').is('.hidden'), false);
-    deepEqual({
+    assert.equal(element.find('.daterange-inputs').is('.hidden'), false);
+    assert.deepEqual({
         type: '', start: '', end: ''
     }, JSON.parse(widget.val()));
 });

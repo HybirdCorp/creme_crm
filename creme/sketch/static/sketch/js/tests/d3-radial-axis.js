@@ -10,17 +10,17 @@ QUnit.test('d3.axisRadial (default props)', function(assert) {
 
     var axis = d3.axisRadialInner(scale, 10);
 
-    equal(axis.radius(), 10);
-    equal(axis.tickSize(), 6);
-    equal(axis.tickSizeInner(), 6);
-    equal(axis.tickSizeOuter(), 6);
-    deepEqual(axis.ticks(), axis);
-    deepEqual(axis.tickArguments(), []);
-    equal(axis.tickValues(), null);
-    equal(axis.tickFormat(), null);
-    equal(axis.tickPadding(), 12);
-    equal(axis.offset(), window.devicePixelRatio > 1 ? 0 : 0.5);
-    equal(axis.outer(), false);
+    assert.equal(axis.radius(), 10);
+    assert.equal(axis.tickSize(), 6);
+    assert.equal(axis.tickSizeInner(), 6);
+    assert.equal(axis.tickSizeOuter(), 6);
+    assert.deepEqual(axis.ticks(), axis);
+    assert.deepEqual(axis.tickArguments(), []);
+    assert.equal(axis.tickValues(), null);
+    assert.equal(axis.tickFormat(), null);
+    assert.equal(axis.tickPadding(), 12);
+    assert.equal(axis.offset(), window.devicePixelRatio > 1 ? 0 : 0.5);
+    assert.equal(axis.outer(), false);
 });
 
 QUnit.test('d3.axisRadial (set props)', function(assert) {
@@ -45,32 +45,32 @@ QUnit.test('d3.axisRadial (set props)', function(assert) {
         .outer(true)
         .scale(scale2);
 
-    equal(axis.radius(), 20);
-    equal(axis.tickSize(), 20);
-    equal(axis.tickSizeInner(), 8);
-    equal(axis.tickSizeOuter(), 20);
-    deepEqual(axis.tickArguments(), ['s']);
-    deepEqual(axis.tickValues(), [1, 2, 3, 4, 5]);
-    equal(axis.tickFormat(), fmt);
-    equal(axis.tickPadding(), 25);
-    deepEqual(axis.scale(), scale2);
-    equal(axis.outer(), true);
+    assert.equal(axis.radius(), 20);
+    assert.equal(axis.tickSize(), 20);
+    assert.equal(axis.tickSizeInner(), 8);
+    assert.equal(axis.tickSizeOuter(), 20);
+    assert.deepEqual(axis.tickArguments(), ['s']);
+    assert.deepEqual(axis.tickValues(), [1, 2, 3, 4, 5]);
+    assert.equal(axis.tickFormat(), fmt);
+    assert.equal(axis.tickPadding(), 25);
+    assert.deepEqual(axis.scale(), scale2);
+    assert.equal(axis.outer(), true);
 
     axis.ticks(null)
         .outer(false)
         .tickSize(17);
 
-    deepEqual(axis.tickArguments(), [null]);
-    equal(axis.outer(), false);
-    equal(axis.tickSize(), 17);
-    equal(axis.tickSizeInner(), 17);
-    equal(axis.tickSizeOuter(), 17);
+    assert.deepEqual(axis.tickArguments(), [null]);
+    assert.equal(axis.outer(), false);
+    assert.equal(axis.tickSize(), 17);
+    assert.equal(axis.tickSizeInner(), 17);
+    assert.equal(axis.tickSizeOuter(), 17);
 
     axis.tickArguments(null)
         .offset(1);
 
-    deepEqual(axis.tickArguments(), []);
-    equal(axis.offset(), 1);
+    assert.deepEqual(axis.tickArguments(), []);
+    assert.equal(axis.offset(), 1);
 });
 
 QUnit.test('d3.axisRadialInner (linear scale)', function(assert) {
@@ -207,14 +207,14 @@ QUnit.parameterize('d3.axisRadial (ticks transition)', [
     axis.tickValues(ticksAfter);
     output.transition().duration(50).call(axis);
 
-    stop();
+    var done = assert.async();
 
     setTimeout(function() {
         this.assertD3Nodes(output, {
             '.tick text': ticksAfter.length,
             '.domain': 1
         });
-        start();
+        done();
     }.bind(this), 100);
 });
 

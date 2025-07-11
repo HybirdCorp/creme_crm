@@ -19,7 +19,7 @@ QUnit.module("creme.core.utils.js", new QUnitMixin(QUnitAjaxMixin,
         QUnit.mockInlineHtmlEvent = undefined;
     },
     assertMockInlineHtmlEventCalls: function(expected) {
-        deepEqual(expected, this._mockInlineHtmlEventCalls);
+        this.assert.deepEqual(expected, this._mockInlineHtmlEventCalls);
     },
     mockRedirectCalls: function() {
         return this._redirectCalls;
@@ -35,14 +35,14 @@ QUnit.test('creme.utils.showErrorNReload', function(assert) {
     creme.utils.showErrorNReload(150);
 
     this.assertOpenedAlertDialog(gettext('Error!') + gettext("The page will be reloaded!"));
-    deepEqual([], this.mockReloadCalls());
+    assert.deepEqual([], this.mockReloadCalls());
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
         self.assertClosedDialog();
-        deepEqual([current_url], self.mockReloadCalls());
-        start();
+        assert.deepEqual([current_url], self.mockReloadCalls());
+        done();
     }, 300);
 });
 
@@ -54,19 +54,19 @@ QUnit.test('creme.utils.showErrorNReload (close)', function(assert) {
     creme.utils.showErrorNReload();
 
     this.assertOpenedAlertDialog(gettext('Error!') + gettext("The page will be reloaded!"));
-    deepEqual([], this.mockReloadCalls());
+    assert.deepEqual([], this.mockReloadCalls());
 
     this.closeDialog();
-    deepEqual([current_url], this.mockReloadCalls());
+    assert.deepEqual([current_url], this.mockReloadCalls());
 });
 
 QUnit.test('creme.utils.reload', function(assert) {
     var current_url = window.location.href;
 
-    deepEqual([], this.mockReloadCalls());
+    assert.deepEqual([], this.mockReloadCalls());
 
     creme.utils.reload();
-    deepEqual([current_url], this.mockReloadCalls());
+    assert.deepEqual([current_url], this.mockReloadCalls());
 });
 
 QUnit.test('creme.utils.goTo', function(assert) {
@@ -80,7 +80,7 @@ QUnit.test('creme.utils.goTo', function(assert) {
     creme.utils.goTo('/test', 'a=1&b=2&b=3');
     creme.utils.goTo('/test?bar=0#id_node', 'foo=1&bar=2&bar=3');
 
-    deepEqual([
+    assert.deepEqual([
         '/test',
         '/test',
         '/test?foo=1',
@@ -99,16 +99,16 @@ QUnit.test('creme.utils.scrollBack', function(assert) {
         method: 'animate'
     }).with(function(faker) {
         creme.utils.scrollBack(null);
-        deepEqual(faker.calls(), []);
+        assert.deepEqual(faker.calls(), []);
 
         creme.utils.scrollBack(null, 20);
-        deepEqual(faker.calls(), []);
+        assert.deepEqual(faker.calls(), []);
 
-        equal(creme.utils.scrollBack(50));
-        deepEqual(faker.calls(), []);
+        assert.equal(creme.utils.scrollBack(50));
+        assert.deepEqual(faker.calls(), []);
 
-        equal(creme.utils.scrollBack(12, 200));
-        deepEqual(faker.calls(), [
+        assert.equal(creme.utils.scrollBack(12, 200));
+        assert.deepEqual(faker.calls(), [
             [{scrollTop: 12}, 200],
             [{scrollTop: 12}, 200]
         ]);
@@ -119,15 +119,15 @@ QUnit.test('creme.utils.clickOnce', function(assert) {
     var once = $('<a onclick="creme.utils.clickOnce(this, QUnit.mockInlineHtmlEvent, \'once call\', 12)"></a>');
     var normal = $('<a onclick="QUnit.mockInlineHtmlEvent(\'normal call\', 13)"></a>');
 
-    equal(false, once.is('.clickonce'));
-    equal(false, normal.is('.clickonce'));
+    assert.equal(false, once.is('.clickonce'));
+    assert.equal(false, normal.is('.clickonce'));
     this.assertMockInlineHtmlEventCalls([]);
 
     once.trigger('click');
     normal.trigger('click');
 
-    equal(true, once.is('.clickonce'));
-    equal(false, normal.is('.clickonce'));
+    assert.equal(true, once.is('.clickonce'));
+    assert.equal(false, normal.is('.clickonce'));
     this.assertMockInlineHtmlEventCalls([
         ['once call', 12],
         ['normal call', 13]
@@ -136,8 +136,8 @@ QUnit.test('creme.utils.clickOnce', function(assert) {
     once.trigger('click');
     normal.trigger('click');
 
-    equal(true, once.is('.clickonce'));
-    equal(false, normal.is('.clickonce'));
+    assert.equal(true, once.is('.clickonce'));
+    assert.equal(false, normal.is('.clickonce'));
     this.assertMockInlineHtmlEventCalls([
         ['once call', 12],
         ['normal call', 13],

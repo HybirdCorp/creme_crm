@@ -11,7 +11,7 @@ QUnit.parametrize('BrowserVersion.match (invalid op or version)', [
     ['other', '85.0.5.1404'],
     ['#85', '85.0.5.1404']
 ], function(pattern, version, assert) {
-    equal(BrowserVersion.match(pattern, version), false);
+    assert.equal(BrowserVersion.match(pattern, version), false);
 });
 
 QUnit.parametrize('BrowserVersion.match (==)', [
@@ -24,7 +24,7 @@ QUnit.parametrize('BrowserVersion.match (==)', [
     ['==85', '86.0.6.2404', false],
     ['==85', '84.0.6.2404', false]
 ], function(pattern, version, expected, assert) {
-    equal(BrowserVersion.match(pattern, version), expected);
+    assert.equal(BrowserVersion.match(pattern, version), expected);
 });
 
 QUnit.parametrize('BrowserVersion.match (>=)', [
@@ -33,7 +33,7 @@ QUnit.parametrize('BrowserVersion.match (>=)', [
     ['>=85', '86.0.6.2404', true],
     ['>=85', '84.0.6.2404', false]
 ], function(pattern, version, expected, assert) {
-    equal(BrowserVersion.match(pattern, version), expected);
+    assert.equal(BrowserVersion.match(pattern, version), expected);
 });
 
 QUnit.parametrize('BrowserVersion.match (<=)', [
@@ -42,7 +42,7 @@ QUnit.parametrize('BrowserVersion.match (<=)', [
     ['<=85', '86.0.6.2404', false],
     ['<=85', '84.0.6.2404', true]
 ], function(pattern, version, expected, assert) {
-    equal(BrowserVersion.match(pattern, version), expected);
+    assert.equal(BrowserVersion.match(pattern, version), expected);
 });
 
 QUnit.parametrize('BrowserVersion.match (<)', [
@@ -51,7 +51,7 @@ QUnit.parametrize('BrowserVersion.match (<)', [
     ['<85', '86.0.6.2404', false],
     ['<85', '84.0.6.2404', true]
 ], function(pattern, version, expected, assert) {
-    equal(BrowserVersion.match(pattern, version), expected);
+    assert.equal(BrowserVersion.match(pattern, version), expected);
 });
 
 QUnit.parametrize('BrowserVersion.match (>)', [
@@ -60,7 +60,7 @@ QUnit.parametrize('BrowserVersion.match (>)', [
     ['>85', '86.0.6.2404', true],
     ['>85', '84.0.6.2404', false]
 ], function(pattern, version, expected, assert) {
-    equal(BrowserVersion.match(pattern, version), expected);
+    assert.equal(BrowserVersion.match(pattern, version), expected);
 });
 
 QUnit.parametrize('BrowserVersion.isIE', [
@@ -75,7 +75,7 @@ QUnit.parametrize('BrowserVersion.isIE', [
     });
 
     faker.with(function() {
-        equal(BrowserVersion.isIE(pattern), expected);
+        assert.equal(BrowserVersion.isIE(pattern), expected);
     });
 });
 
@@ -104,7 +104,7 @@ QUnit.parametrize('BrowserVersion.isChrome', [
 
     nav_faker.with(function() {
         chrome_faker.with(function() {
-            equal(BrowserVersion.isChrome(pattern), expected);
+            assert.equal(BrowserVersion.isChrome(pattern), expected);
         });
     });
 });
@@ -118,7 +118,7 @@ QUnit.parametrize('BrowserVersion.isHeadless', [
     });
 
     faker.with(function() {
-        equal(BrowserVersion.isHeadless(), expected);
+        assert.equal(BrowserVersion.isHeadless(), expected);
     });
 });
 
@@ -139,7 +139,7 @@ QUnit.parametrize('BrowserVersion.isFirefox', [
 
     nav_faker.with(function() {
         style_faker.with(function() {
-            equal(BrowserVersion.isFirefox(pattern), expected);
+            assert.equal(BrowserVersion.isFirefox(pattern), expected);
         });
     });
 });

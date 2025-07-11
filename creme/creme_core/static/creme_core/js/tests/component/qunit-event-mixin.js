@@ -51,6 +51,7 @@
 
         bindTestOn: function(source, event, callback, args) {
             var self = this;
+            var done = self.assert.async();
 
             source.on(event, function() {
                 var success = false;
@@ -61,10 +62,10 @@
                         callback.apply(self, args);
                         success = true;
                     } finally {
-                        ok(success, 'async test on event "${event}" as failed. See logs for stacktrace.'.template({
+                        self.assert.ok(success, 'async test on event "${event}" as failed. See logs for stacktrace.'.template({
                             event: event
                         }));
-                        start();
+                        done();
                     }
                 }, 0);
             });

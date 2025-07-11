@@ -26,19 +26,19 @@ QUnit.parameterize('creme.widget.ImportField', [
     element.find('.csv_col_select').val(initial);
 
     creme.widget.create(element);
-    equal(element.hasClass('widget-active'), true);
-    equal(element.hasClass('widget-ready'), true);
+    assert.equal(element.hasClass('widget-active'), true);
+    assert.equal(element.hasClass('widget-ready'), true);
 
     // initial visible state : 0 => hidden, 1 => visible
-    equal(element.find('.csv_column_options').is(':not(.hidden)'), expected);
+    assert.equal(element.find('.csv_column_options').is(':not(.hidden)'), expected);
 
     // toggle state "not in csv" => not visible
     element.find('.csv_col_select').val('0').trigger('change');
-    equal(element.find('.csv_column_options.hidden').length, 1);
+    assert.equal(element.find('.csv_column_options.hidden').length, 1);
 
     // toggle state "Column 1" => visible
     element.find('.csv_col_select').val('1').trigger('change');
-    equal(element.find('.csv_column_options:not(.hidden)').length, 1);
+    assert.equal(element.find('.csv_column_options:not(.hidden)').length, 1);
 });
 
 }(jQuery));

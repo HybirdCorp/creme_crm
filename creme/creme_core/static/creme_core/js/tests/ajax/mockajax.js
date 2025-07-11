@@ -50,90 +50,90 @@ QUnit.test('MockAjaxBackend.get', function(assert) {
     var response = {};
     this.backend.get('mock/html', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                       function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
-    equal(response.responseText, 'this is a test');
+    assert.equal(response.responseText, 'this is a test');
 
     response = {};
     this.backend.get('mock/add', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                      function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
-    equal(response.responseText, MOCK_AJAX_FORM_CONTENT);
+    assert.equal(response.responseText, MOCK_AJAX_FORM_CONTENT);
 
     response = {};
     this.backend.get('mock/unknown', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                          function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
-    equal(response.responseText, undefined);
-    equal(response.message, '');
-    equal(response.status, 404);
+    assert.equal(response.responseText, undefined);
+    assert.equal(response.message, '');
+    assert.equal(response.status, 404);
 
     response = {};
     this.backend.get('mock/forbidden', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                            function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
-    equal(response.responseText, undefined);
-    equal(response.message, 'HTTP - Error 403');
-    equal(response.status, 403);
+    assert.equal(response.responseText, undefined);
+    assert.equal(response.message, 'HTTP - Error 403');
+    assert.equal(response.status, 403);
 
     response = {};
     this.backend.get('mock/error', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                        function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
-    equal(response.responseText, undefined);
-    equal(response.message, 'HTTP - Error 500');
-    equal(response.status, 500);
+    assert.equal(response.responseText, undefined);
+    assert.equal(response.message, 'HTTP - Error 500');
+    assert.equal(response.status, 500);
 });
 
-QUnit.test('MockAjaxBackend.get (200, async, not elapsed)', function() {
+QUnit.test('MockAjaxBackend.get (200, async, not elapsed)', function(assert) {
     var response = {};
     this.backend.get('mock/html', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                       function(responseText, xhr) { $.extend(response, xhr); });
-    deepEqual(response, {});
+    assert.deepEqual(response, {});
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
-        deepEqual(response, {});
-        start();
+        assert.deepEqual(response, {});
+        done();
     }, 200);
 });
 
-QUnit.test('MockAjaxBackend.get (200, async)', function() {
+QUnit.test('MockAjaxBackend.get (200, async)', function(assert) {
     var response = {};
     this.backend.get('mock/html', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                       function(responseText, xhr) { $.extend(response, xhr); });
-    deepEqual(response, {});
+    assert.deepEqual(response, {});
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
-        equal(response.responseText, 'this is a test');
-        start();
+        assert.equal(response.responseText, 'this is a test');
+        done();
     }, 700);
 });
 
-QUnit.test('MockAjaxBackend.get (200, async, delay)', function() {
+QUnit.test('MockAjaxBackend.get (200, async, delay)', function(assert) {
     var response = {};
     this.backend.get('mock/html', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                       function(responseText, xhr) { $.extend(response, xhr); }, {delay: 100});
-    deepEqual(response, {});
+    assert.deepEqual(response, {});
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
-        equal(response.responseText, 'this is a test');
-        start();
+        assert.equal(response.responseText, 'this is a test');
+        done();
     }, 200);
 });
 
-QUnit.test('MockAjaxBackend.get (404, async)', function() {
+QUnit.test('MockAjaxBackend.get (404, async)', function(assert) {
     var response = {};
     this.backend.get('mock/unknown', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                          function(responseText, xhr) { $.extend(response, xhr); });
-    deepEqual(response, {});
+    assert.deepEqual(response, {});
 
-    stop(1);
+    var done = assert.async();
 
     setTimeout(function() {
-        equal(response.responseText, undefined);
-        equal(response.message, '');
-        equal(response.status, 404);
-        start();
+        assert.equal(response.responseText, undefined);
+        assert.equal(response.message, '');
+        assert.equal(response.status, 404);
+        done();
     }, 600);
 });
 
@@ -142,13 +142,13 @@ QUnit.test('MockAjaxBackend.get (custom)', function(assert) {
     this.backend.get('mock/custom', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                         function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
 
-    equal(response.responseText, JSON.stringify({url: 'mock/custom', method: 'GET', data: {}}));
+    assert.equal(response.responseText, JSON.stringify({url: 'mock/custom', method: 'GET', data: {}}));
 
     this.backend.get('mock/custom', {a: 1, b: 'test'},
                                         function(responseText) { $.extend(response, {responseText: responseText}); },
                                         function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
 
-    equal(response.responseText, JSON.stringify({url: 'mock/custom', method: 'GET', data: {a: 1, b: 'test'}}));
+    assert.equal(response.responseText, JSON.stringify({url: 'mock/custom', method: 'GET', data: {a: 1, b: 'test'}}));
 });
 
 QUnit.test('MockAjaxBackend.get (json, dataType=text)', function(assert) {
@@ -158,10 +158,10 @@ QUnit.test('MockAjaxBackend.get (json, dataType=text)', function(assert) {
                      function(responseText, xhr) { $.extend(response, xhr); },
                      {sync: true});
 
-    equal(response.xhr.status, 200);
-    equal(response.responseText, JSON.stringify({a: 1, b: 'test'}));
-    equal('text/json', response.xhr.getResponseHeader('Content-Type'));
-    equal('text/json', response.xhr.getResponseHeader('content-type'));
+    assert.equal(response.xhr.status, 200);
+    assert.equal(response.responseText, JSON.stringify({a: 1, b: 'test'}));
+    assert.equal('text/json', response.xhr.getResponseHeader('Content-Type'));
+    assert.equal('text/json', response.xhr.getResponseHeader('content-type'));
 });
 
 QUnit.test('MockAjaxBackend.get (json, dataType=json)', function(assert) {
@@ -171,10 +171,10 @@ QUnit.test('MockAjaxBackend.get (json, dataType=json)', function(assert) {
                      function(responseText, xhr) { $.extend(response, {xhr: xhr}); },
                      {sync: true, dataType: 'json'});
 
-    equal(response.xhr.status, 200);
-    deepEqual(response.responseText, {a: 1, b: 'test'});
-    equal('text/json', response.xhr.getResponseHeader('Content-Type'));
-    equal('text/json', response.xhr.getResponseHeader('content-type'));
+    assert.equal(response.xhr.status, 200);
+    assert.deepEqual(response.responseText, {a: 1, b: 'test'});
+    assert.equal('text/json', response.xhr.getResponseHeader('Content-Type'));
+    assert.equal('text/json', response.xhr.getResponseHeader('content-type'));
 });
 
 QUnit.test('MockAjaxBackend.get (text, dataType=json)', function(assert) {
@@ -184,8 +184,8 @@ QUnit.test('MockAjaxBackend.get (text, dataType=json)', function(assert) {
                      function(responseText, xhr) { $.extend(response, {responseText: responseText, xhr: xhr}); },
                      {sync: true, dataType: 'json'});
 
-    equal(response.xhr.status, 500);
-    equal(true, response.responseText.indexOf('SyntaxError') !== -1);
+    assert.equal(response.xhr.status, 500);
+    assert.equal(true, response.responseText.indexOf('SyntaxError') !== -1);
 });
 
 
@@ -193,33 +193,33 @@ QUnit.test('MockAjaxBackend.post', function(assert) {
     var response = {};
     this.backend.post('mock/add', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                       function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
-    equal(response.responseText, MOCK_AJAX_FORM_CONTENT);
+    assert.equal(response.responseText, MOCK_AJAX_FORM_CONTENT);
 
     response = {};
     this.backend.post('mock/add/widget', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                              function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
-    equal(response.responseText, '<json>{"value":"","added":[1,"newitem"]}</json>');
+    assert.equal(response.responseText, '<json>{"value":"","added":[1,"newitem"]}</json>');
 
     response = {};
     this.backend.post('mock/unknown', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                           function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
-    equal(response.responseText, undefined);
-    equal(response.message, '');
-    equal(response.status, 404);
+    assert.equal(response.responseText, undefined);
+    assert.equal(response.message, '');
+    assert.equal(response.status, 404);
 
     response = {};
     this.backend.post('mock/forbidden', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                             function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
-    equal(response.responseText, undefined);
-    equal(response.message, 'HTTP - Error 403');
-    equal(response.status, 403);
+    assert.equal(response.responseText, undefined);
+    assert.equal(response.message, 'HTTP - Error 403');
+    assert.equal(response.status, 403);
 
     response = {};
     this.backend.post('mock/error', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                         function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
-    equal(response.responseText, undefined);
-    equal(response.message, 'HTTP - Error 500');
-    equal(response.status, 500);
+    assert.equal(response.responseText, undefined);
+    assert.equal(response.message, 'HTTP - Error 500');
+    assert.equal(response.status, 500);
 });
 
 QUnit.test('MockAjaxBackend.submit', function(assert) {
@@ -228,19 +228,19 @@ QUnit.test('MockAjaxBackend.submit', function(assert) {
     var response = {};
     this.backend.submit(form, function(responseText) { $.extend(response, {responseText: responseText}); },
                               function(responseText, xhr) { $.extend(response, xhr); }, {action: 'mock/add', sync: true});
-    equal(response.responseText, MOCK_AJAX_FORM_CONTENT);
+    assert.equal(response.responseText, MOCK_AJAX_FORM_CONTENT);
 
     response = {};
     this.backend.submit(form, function(responseText) { $.extend(response, {responseText: responseText}); },
                               function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
-    equal(response.responseText, MOCK_AJAX_FORM_CONTENT);
+    assert.equal(response.responseText, MOCK_AJAX_FORM_CONTENT);
 
     response = {};
     this.backend.submit(form, function(responseText) { $.extend(response, {responseText: responseText}); },
                               function(responseText, xhr) { $.extend(response, xhr); }, {action: 'mock/error', sync: true});
-    equal(response.responseText, undefined);
-    equal(response.message, 'HTTP - Error 500');
-    equal(response.status, 500);
+    assert.equal(response.responseText, undefined);
+    assert.equal(response.message, 'HTTP - Error 500');
+    assert.equal(response.status, 500);
 });
 
 QUnit.test('MockAjaxBackend.post (custom)', function(assert) {
@@ -248,13 +248,13 @@ QUnit.test('MockAjaxBackend.post (custom)', function(assert) {
     this.backend.post('mock/custom', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                          function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
 
-    equal(response.responseText, JSON.stringify({url: 'mock/custom', method: 'POST', data: {}}));
+    assert.equal(response.responseText, JSON.stringify({url: 'mock/custom', method: 'POST', data: {}}));
 
     this.backend.post('mock/custom', {a: 1, b: 'test'},
                                         function(responseText) { $.extend(response, {responseText: responseText}); },
                                         function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
 
-    equal(response.responseText, JSON.stringify({url: 'mock/custom', method: 'POST', data: {a: 1, b: 'test'}}));
+    assert.equal(response.responseText, JSON.stringify({url: 'mock/custom', method: 'POST', data: {a: 1, b: 'test'}}));
 });
 
 }(jQuery));

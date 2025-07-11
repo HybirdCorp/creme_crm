@@ -81,19 +81,21 @@ window.QUnitSketchMixin = {
         var widget = creme.widget.create(element);
         var brick = widget.brick();
 
-        equal(true, brick.isBound());
-        equal(false, brick.isLoading());
+        this.assert.equal(true, brick.isBound());
+        this.assert.equal(false, brick.isLoading());
 
         return widget;
     },
 
     assertD3Nodes: function(svg, expected) {
+        var assert = this.assert;
+
         Object.entries(expected).forEach(function(entry) {
             var selector = entry[0];
             var expected = entry[1];
 
             if (Object.isNumber(expected)) {
-                equal(
+                assert.equal(
                     svg.selectAll(selector).size(),
                     expected,
                     'SVG element "${selector}" count should be ${expected}'.template({selector: selector, expected: expected})
@@ -105,7 +107,7 @@ window.QUnitSketchMixin = {
                     svg.selectAll(selector).call(function(node) {
                         var val = Object.isFunc(node[attr]) ? node[attr].bind(node)() : node.attr(attr);
 
-                        equal(val, expected[attr], 'SVG element "${selector}"@${idx} attribute "${attr}" should be ${expected}'.template({
+                        assert.equal(val, expected[attr], 'SVG element "${selector}"@${idx} attribute "${attr}" should be ${expected}'.template({
                             selector: selector,
                             idx: idx,
                             attr: attr,

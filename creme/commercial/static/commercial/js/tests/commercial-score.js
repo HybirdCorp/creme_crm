@@ -38,7 +38,7 @@ QUnit.test('creme.commercial.setScore (failed)', function(assert) {
     this.assertOpenedAlertDialog("Unable to save score");
     this.closeDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             score:           '2.5',
             model_id:        12,
@@ -47,7 +47,7 @@ QUnit.test('creme.commercial.setScore (failed)', function(assert) {
         }]
     ], this.mockBackendUrlCalls('mock/score/fail'));
 
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.commercial.setScore (ok)', function(assert) {
@@ -58,7 +58,7 @@ QUnit.test('creme.commercial.setScore (ok)', function(assert) {
 
     this.assertClosedDialog();
 
-    deepEqual([
+    assert.deepEqual([
         ['POST', {
             score:           '2.5',
             model_id:        12,
@@ -67,7 +67,7 @@ QUnit.test('creme.commercial.setScore (ok)', function(assert) {
         }]
     ], this.mockBackendUrlCalls('mock/score'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {"brick_id": ["commercial-test_assets"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });

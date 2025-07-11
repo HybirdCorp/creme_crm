@@ -42,7 +42,7 @@ QUnit.module("creme.widgets.toggle.js", new QUnitMixin(QUnitEventMixin,
     },
 
     assertIsCollapsed: function(element, state) {
-        equal(element.hasClass('toggle-collapsed'), state, state ? 'toggle is collapsed' : 'toggle is expanded');
+        this.assert.equal(element.hasClass('toggle-collapsed'), state, state ? 'toggle is collapsed' : 'toggle is expanded');
     }
 }));
 
@@ -118,7 +118,7 @@ QUnit.test('creme.widget.Toggle.expandAll (no trigger)', function(assert) {
     this.assertReady(element);
 
     this.assertIsCollapsed(element, true);
-    deepEqual(widget.triggers().get(), []);
+    assert.deepEqual(widget.triggers().get(), []);
 
     widget.expandAll();
 
@@ -135,7 +135,7 @@ QUnit.test('creme.widget.Toggle.expandAll (self trigger)', function(assert) {
     this.assertReady(element);
 
     this.assertIsCollapsed(element, true);
-    equal(widget.triggers().length, 1);
+    assert.equal(widget.triggers().length, 1);
 
     widget.expandAll();
 
@@ -172,7 +172,7 @@ QUnit.test('creme.widget.Toggle.expandAll (trigger)', function(assert) {
     var widget = creme.widget.create(element);
     this.assertReady(element);
 
-    equal(widget.triggers().length, 3);
+    assert.equal(widget.triggers().length, 3);
 
     this.assertIsCollapsed(element.find('#target-a'), true);
     this.assertIsCollapsed(element.find('#target-b'), false);
@@ -220,7 +220,7 @@ QUnit.test('creme.widget.Toggle.toggle (click)', function(assert) {
     });
     this.assertReady(element);
 
-    equal(widget.triggers().length, 3);
+    assert.equal(widget.triggers().length, 3);
 
     this.assertIsCollapsed(element.find('#target-a'), true);
     this.assertIsCollapsed(element.find('#target-b'), false);
@@ -265,7 +265,7 @@ QUnit.test('creme.widget.Toggle.toggle (outside)', function(assert) {
     });
     this.assertReady(element);
 
-    equal(widget.triggers().length, 1);
+    assert.equal(widget.triggers().length, 1);
 
     // trigger is already collapsed -> forced to target
     this.assertIsCollapsed(target, true);

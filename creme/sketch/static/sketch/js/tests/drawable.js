@@ -6,7 +6,7 @@ QUnit.module("creme.D3Drawable", new QUnitMixin(QUnitSketchMixin));
 QUnit.test('creme.D3Drawable', function(assert) {
     var drawable = new creme.D3Drawable();
 
-    deepEqual(drawable.props(), {});
+    assert.deepEqual(drawable.props(), {});
 
     this.assertRaises(function() {
         drawable.draw({}, 0);
@@ -20,9 +20,9 @@ QUnit.test('creme.D3Drawable (props)', function(assert) {
         }
     });
 
-    deepEqual(new FakeDrawable().props(), {a: 12, b: 'text'});
-    deepEqual(new FakeDrawable({c: true, b: 8}).props(), {a: 12, b: 8, c: true});
-    deepEqual(new FakeDrawable().props({c: true, b: 8}).props(), {a: 12, b: 8, c: true});
+    assert.deepEqual(new FakeDrawable().props(), {a: 12, b: 'text'});
+    assert.deepEqual(new FakeDrawable({c: true, b: 8}).props(), {a: 12, b: 8, c: true});
+    assert.deepEqual(new FakeDrawable().props({c: true, b: 8}).props(), {a: 12, b: 8, c: true});
 });
 
 QUnit.test('creme.d3Drawable (props)', function(assert) {
@@ -31,24 +31,24 @@ QUnit.test('creme.d3Drawable (props)', function(assert) {
         props: ['a', 'b', 'c']
     });
 
-    deepEqual(drawable.props(), {a: 12, b: 'text'});
-    equal(drawable.prop('a'), 12);
-    equal(drawable.a(), 12);
-    equal(drawable.prop('b'), 'text');
-    equal(drawable.b(), 'text');
-    equal(drawable.prop('c'), undefined);
-    equal(drawable.c(), undefined);
+    assert.deepEqual(drawable.props(), {a: 12, b: 'text'});
+    assert.equal(drawable.prop('a'), 12);
+    assert.equal(drawable.a(), 12);
+    assert.equal(drawable.prop('b'), 'text');
+    assert.equal(drawable.b(), 'text');
+    assert.equal(drawable.prop('c'), undefined);
+    assert.equal(drawable.c(), undefined);
 
     drawable.prop('a', 8);
     drawable.prop('c', true);
 
-    deepEqual(drawable.props(), {a: 8, b: 'text', c: true});
-    equal(drawable.a(), 8);
-    equal(drawable.b(), 'text');
-    equal(drawable.c(), true);
+    assert.deepEqual(drawable.props(), {a: 8, b: 'text', c: true});
+    assert.equal(drawable.a(), 8);
+    assert.equal(drawable.b(), 'text');
+    assert.equal(drawable.c(), true);
 
     drawable.a(17.5).b('othertext');
-    deepEqual(drawable.props(), {a: 17.5, b: 'othertext', c: true});
+    assert.deepEqual(drawable.props(), {a: 17.5, b: 'othertext', c: true});
 });
 
 QUnit.test('creme.d3Drawable (methods)', function(assert) {
@@ -75,8 +75,8 @@ QUnit.test('creme.d3Drawable (methods)', function(assert) {
         methods: ['funcA', 'funcB']
     });
 
-    equal(true, Object.isFunc(drawable.funcA));
-    equal(true, Object.isFunc(drawable.funcB));
+    assert.equal(true, Object.isFunc(drawable.funcA));
+    assert.equal(true, Object.isFunc(drawable.funcB));
 
     var output = d3.select(document.createElement('g'));
 
@@ -183,7 +183,7 @@ QUnit.test('creme.d3Drawable (call, multiple selection)', function(assert) {
 
     this.assertD3Nodes(output, {'.fakeit': 0});
 
-    equal(output.selectAll('g').size(), 2);
+    assert.equal(output.selectAll('g').size(), 2);
     drawable(output.selectAll('g'));
 
     this.assertD3Nodes(output, {'.fakeit': 2});
@@ -384,19 +384,19 @@ QUnit.parametrize('creme.d3Tooltip', [
                            .html(function(d) { return '<h5>${text}</h5>'.template(d); })
                            .root(element.get(0));
 
-    equal(element.find('.d3-sketch-tooltip').length, 0);
+    assert.equal(element.find('.d3-sketch-tooltip').length, 0);
 
     tooltip.show.bind(target.node())({text: 'Tip a Toe !'});
 
     var container = element.find('.d3-sketch-tooltip');
 
-    equal(container.length, 1);
-    equal(container.html(), '<h5>Tip a Toe !</h5>');
-    equal(container.css('opacity'), 1);
-    equal(container.is('.tip-' + direction), true);
+    assert.equal(container.length, 1);
+    assert.equal(container.html(), '<h5>Tip a Toe !</h5>');
+    assert.equal(container.css('opacity'), 1);
+    assert.equal(container.is('.tip-' + direction), true);
 
     tooltip.hide();
-    equal(container.css('opacity'), 0);
+    assert.equal(container.css('opacity'), 0);
 });
 
 }(jQuery));

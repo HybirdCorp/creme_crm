@@ -21,8 +21,8 @@ QUnit.module("creme.reports.ReportD3Chart*BrickController", new QUnitMixin(QUnit
         var widget = creme.widget.create(element);
         var brick = widget.brick();
 
-        equal(true, brick.isBound());
-        equal(false, brick.isLoading());
+        this.assert.equal(true, brick.isBound());
+        this.assert.equal(false, brick.isLoading());
 
         return widget;
     },
@@ -83,8 +83,8 @@ QUnit.module("creme.reports.ReportD3Chart*BrickController", new QUnitMixin(QUnit
         var widget = creme.widget.create(element);
         var brick = widget.brick();
 
-        equal(true, brick.isBound());
-        equal(false, brick.isLoading());
+        this.assert.equal(true, brick.isBound());
+        this.assert.equal(false, brick.isLoading());
 
         return brick;
     },
@@ -139,7 +139,7 @@ QUnit.test('creme.ReportD3ChartBrickController (empty)', function(assert) {
     controller.registerActions(brick);
     controller.bind(brick);
 
-    equal(controller.swapper(), undefined);
+    assert.equal(controller.swapper(), undefined);
 });
 
 QUnit.test('creme.ReportD3ChartBrickController (missing chart)', function(assert) {
@@ -161,8 +161,8 @@ QUnit.test('creme.ReportD3ChartBrickController (missing chart)', function(assert
 
     var swapper = controller.swapper();
 
-    equal(swapper.sketch().isBound(), true);
-    equal(swapper.chart(), undefined);
+    assert.equal(swapper.sketch().isBound(), true);
+    assert.equal(swapper.chart(), undefined);
 });
 
 QUnit.test('creme.ReportD3ChartBrickController (swap chart)', function(assert) {
@@ -193,18 +193,18 @@ QUnit.test('creme.ReportD3ChartBrickController (swap chart)', function(assert) {
 
     var swapper = controller.swapper();
 
-    equal(swapper.sketch().isBound(), true);
-    equal(swapper.chart() instanceof creme.D3DonutChart, true, 'is creme.D3DonutChart');
+    assert.equal(swapper.sketch().isBound(), true);
+    assert.equal(swapper.chart() instanceof creme.D3DonutChart, true, 'is creme.D3DonutChart');
 
     var props = swapper.chart().props();
-    equal(props.band, 42);
+    assert.equal(props.band, 42);
 
     swapper.swapChart('bar');
-    equal(swapper.chart() instanceof creme.D3BarChart, true, 'is creme.D3BarChart');
+    assert.equal(swapper.chart() instanceof creme.D3BarChart, true, 'is creme.D3BarChart');
 
     props = swapper.chart().props();
-    equal(props.xAxisTitle, 'X Axis');
-    equal(props.yAxisTitle, 'Y Axis');
+    assert.equal(props.xAxisTitle, 'X Axis');
+    assert.equal(props.yAxisTitle, 'Y Axis');
 });
 
 QUnit.test('creme.ReportD3ChartBrickController (visibility)', function(assert) {
@@ -237,19 +237,19 @@ QUnit.test('creme.ReportD3ChartBrickController (visibility)', function(assert) {
     var chartSelect = brick.element().find('.graph-controls-type .graph-control-value');
 
     // At initial state, only the default pie chart is rendered
-    equal('pie', chartSelect.val());
-    equal(sketch.svg().selectAll('.d3-chart').size(), 1);
-    equal(sketch.svg().select('.d3-chart').attr('class'), 'donut-chart d3-chart');
+    assert.equal('pie', chartSelect.val());
+    assert.equal(sketch.svg().selectAll('.d3-chart').size(), 1);
+    assert.equal(sketch.svg().select('.d3-chart').attr('class'), 'donut-chart d3-chart');
 
     // Select the bar !
     chartSelect.val('bar').trigger('change');
 
     // Now both pie & bar charts are rendered but the first one is "not-visible"
-    equal(controller.swapper().chart() instanceof creme.D3BarChart, true, 'is creme.D3BarChart');
+    assert.equal(controller.swapper().chart() instanceof creme.D3BarChart, true, 'is creme.D3BarChart');
 
-    equal(sketch.svg().selectAll('.d3-chart').size(), 2);
-    equal(sketch.svg().select('.donut-chart').attr('class'), 'donut-chart d3-chart not-visible');
-    equal(sketch.svg().select('.bar-chart').attr('class'), 'bar-chart d3-chart');
+    assert.equal(sketch.svg().selectAll('.d3-chart').size(), 2);
+    assert.equal(sketch.svg().select('.donut-chart').attr('class'), 'donut-chart d3-chart not-visible');
+    assert.equal(sketch.svg().select('.bar-chart').attr('class'), 'bar-chart d3-chart');
 });
 
 QUnit.parametrize('creme.ReportD3ChartBrickController (selection)', [
@@ -278,13 +278,13 @@ QUnit.parametrize('creme.ReportD3ChartBrickController (selection)', [
 
     controller.swapper().draw();
 
-    equal(sketch.svg().select('.bars .bar').attr('class'), 'bar');
-    deepEqual([], this.mockRedirectCalls());
+    assert.equal(sketch.svg().select('.bars .bar').attr('class'), 'bar');
+    assert.deepEqual([], this.mockRedirectCalls());
 
     sketch.svg().select('.bars .bar rect').dispatch('click');
 
-    equal(sketch.svg().select('.bars .bar').attr('class'), 'bar selected');
-    deepEqual(expectedCalls, this.mockRedirectCalls());
+    assert.equal(sketch.svg().select('.bars .bar').attr('class'), 'bar selected');
+    assert.deepEqual(expectedCalls, this.mockRedirectCalls());
 });
 
 QUnit.parametrize('creme.ReportD3ChartBrickController (ordering)', [
@@ -313,7 +313,7 @@ QUnit.parametrize('creme.ReportD3ChartBrickController (ordering)', [
     // Select the bar !
     orderingSelect.val('DESC').trigger('change');
 
-    deepEqual(expected, controller.swapper().model().all());
+    assert.deepEqual(expected, controller.swapper().model().all());
 });
 
 QUnit.test('creme.ReportD3ChartBrickController (setup)', function(assert) {
@@ -331,18 +331,18 @@ QUnit.test('creme.ReportD3ChartBrickController (setup)', function(assert) {
         }
     });
 
-    equal(0, element.find('svg').length);
+    assert.equal(0, element.find('svg').length);
 
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
-    equal(true, brick.isBound());
-    equal(false, brick.isLoading());
+    assert.equal(true, brick.isBound());
+    assert.equal(false, brick.isLoading());
 
-    equal(1, element.find('svg').length);
+    assert.equal(1, element.find('svg').length);
     var svg = d3.select(element.find('svg').get(0));
 
-    equal(svg.select('.bars .bar').size(), 1);
+    assert.equal(svg.select('.bars .bar').size(), 1);
 });
 
 QUnit.test('creme.ReportD3ChartListBrickController (empty)', function(assert) {
@@ -352,7 +352,7 @@ QUnit.test('creme.ReportD3ChartListBrickController (empty)', function(assert) {
 
     controller.bind(brick);
 
-    deepEqual(controller.swappers(), {});
+    assert.deepEqual(controller.swappers(), {});
 });
 
 QUnit.test('creme.ReportD3ChartListBrickController (toggle)', function(assert) {
@@ -407,10 +407,10 @@ QUnit.test('creme.ReportD3ChartListBrickController (toggle)', function(assert) {
     var element = brick.element();
     var swappers = controller.swappers();
 
-    deepEqual(Object.keys(swappers), ['graph-a', 'graph-b']);
+    assert.deepEqual(Object.keys(swappers), ['graph-a', 'graph-b']);
 
     // All rows are collapsed on startup
-    deepEqual(element.find('.graph-row').map(function() {
+    assert.deepEqual(element.find('.graph-row').map(function() {
         return {
             id: $(this).data('graphId'),
             collapsed: $(this).is('.graph-row-collapsed')
@@ -421,34 +421,34 @@ QUnit.test('creme.ReportD3ChartListBrickController (toggle)', function(assert) {
     ]);
 
     // Swappers are built
-    equal(swappers['graph-a'].chart() instanceof creme.D3DonutChart, true);
+    assert.equal(swappers['graph-a'].chart() instanceof creme.D3DonutChart, true);
     var props = swappers['graph-a'].chart().props();
-    equal(props.band, 42);
+    assert.equal(props.band, 42);
 
-    equal(swappers['graph-b'].chart() instanceof creme.D3BarChart, true);
+    assert.equal(swappers['graph-b'].chart() instanceof creme.D3BarChart, true);
     props = swappers['graph-b'].chart().props();
-    equal(props.xAxisTitle, 'B Abscissas');
-    equal(props.yAxisTitle, 'B Ordinates');
+    assert.equal(props.xAxisTitle, 'B Abscissas');
+    assert.equal(props.yAxisTitle, 'B Ordinates');
 
     // Sketches are created but nothing visible
-    equal(2, element.find('svg').length, 'svg canvas count');
-    equal(0, element.find('svg .d3-chart').length);
+    assert.equal(2, element.find('svg').length, 'svg canvas count');
+    assert.equal(0, element.find('svg .d3-chart').length);
 
     // Now toggle first one
     element.find('.graph-accordion-title[data-graph-id="graph-b"]').trigger('click');
 
-    equal(element.find('.graph-row[data-graph-id="graph-a"]').is('.graph-row-collapsed'), true);
-    equal(element.find('.graph-row[data-graph-id="graph-b"]').is('.graph-row-collapsed'), false);
+    assert.equal(element.find('.graph-row[data-graph-id="graph-a"]').is('.graph-row-collapsed'), true);
+    assert.equal(element.find('.graph-row[data-graph-id="graph-b"]').is('.graph-row-collapsed'), false);
 
-    equal(1, element.find('svg .d3-chart').length);
+    assert.equal(1, element.find('svg .d3-chart').length);
 
     // Then the second one
     element.find('.graph-accordion-title[data-graph-id="graph-a"]').trigger('click');
 
-    equal(element.find('.graph-row[data-graph-id="graph-a"]').is('.graph-row-collapsed'), false);
-    equal(element.find('.graph-row[data-graph-id="graph-b"]').is('.graph-row-collapsed'), false);
+    assert.equal(element.find('.graph-row[data-graph-id="graph-a"]').is('.graph-row-collapsed'), false);
+    assert.equal(element.find('.graph-row[data-graph-id="graph-b"]').is('.graph-row-collapsed'), false);
 
-    equal(2, element.find('svg .d3-chart').length);
+    assert.equal(2, element.find('svg .d3-chart').length);
 });
 
 
@@ -501,9 +501,9 @@ QUnit.test('creme.ReportD3ChartListBrickController (empty sub-graph)', function(
     var element = brick.element();
     var swappers = controller.swappers();
 
-    deepEqual(Object.keys(swappers), ['graph-b']);
+    assert.deepEqual(Object.keys(swappers), ['graph-b']);
 
-    deepEqual(element.find('.graph-row').map(function() {
+    assert.deepEqual(element.find('.graph-row').map(function() {
         return {
             id: $(this).data('graphId'),
             collapsed: $(this).is('.graph-row-collapsed')
@@ -513,14 +513,14 @@ QUnit.test('creme.ReportD3ChartListBrickController (empty sub-graph)', function(
         {id: 'graph-b', collapsed: true}
     ]);
 
-    equal(swappers['graph-b'].chart() instanceof creme.D3BarChart, true);
+    assert.equal(swappers['graph-b'].chart() instanceof creme.D3BarChart, true);
     var props = swappers['graph-b'].chart().props();
-    equal(props.xAxisTitle, 'B Abscissas');
-    equal(props.yAxisTitle, 'B Ordinates');
+    assert.equal(props.xAxisTitle, 'B Abscissas');
+    assert.equal(props.yAxisTitle, 'B Ordinates');
 
     // Only one sketch is created but nothing visible
-    equal(1, element.find('svg').length, 'svg canvas count');
-    equal(0, element.find('svg .d3-chart').length);
+    assert.equal(1, element.find('svg').length, 'svg canvas count');
+    assert.equal(0, element.find('svg .d3-chart').length);
 });
 
 QUnit.test('creme.ReportD3ChartListBrickController (setup)', function(assert) {
@@ -556,15 +556,15 @@ QUnit.test('creme.ReportD3ChartListBrickController (setup)', function(assert) {
         }
     });
 
-    equal(0, element.find('svg').length);
+    assert.equal(0, element.find('svg').length);
 
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
-    equal(true, brick.isBound());
-    equal(false, brick.isLoading());
+    assert.equal(true, brick.isBound());
+    assert.equal(false, brick.isLoading());
 
-    equal(2, element.find('svg').length);
+    assert.equal(2, element.find('svg').length);
 });
 
 }(jQuery));

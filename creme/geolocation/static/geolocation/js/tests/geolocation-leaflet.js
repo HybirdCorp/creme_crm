@@ -13,27 +13,27 @@ QUnit.module("creme.geolocation.leaflet", new QUnitMixin(QUnitEventMixin,
 QUnit.test('creme.geolocation.LeafletMapController (init, defaults)', function(assert) {
     var controller = new creme.geolocation.LeafletMapController();
 
-    equal(12, controller.options().defaultZoomValue);
-    equal(48, controller.options().defaultLat);
-    equal(2, controller.options().defaultLn);
-    equal(4, controller.options().defaultLargeZoom);
-    equal(18, controller.options().maxZoom);
-    equal(1, controller.options().minZoom);
-    equal('https://nominatim.openstreetmap.org/search', controller.options().nominatimUrl);
-    equal('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', controller.options().tileMapUrl);
-    equal('&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    assert.equal(12, controller.options().defaultZoomValue);
+    assert.equal(48, controller.options().defaultLat);
+    assert.equal(2, controller.options().defaultLn);
+    assert.equal(4, controller.options().defaultLargeZoom);
+    assert.equal(18, controller.options().maxZoom);
+    assert.equal(1, controller.options().minZoom);
+    assert.equal('https://nominatim.openstreetmap.org/search', controller.options().nominatimUrl);
+    assert.equal('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', controller.options().tileMapUrl);
+    assert.equal('&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           controller.options().tileMapAttribution);
 
-    equal(true, controller.isGeocoderAllowed());
+    assert.equal(true, controller.isGeocoderAllowed());
 
-    equal(false, controller.isBound());
-    equal(false, controller.isEnabled());
+    assert.equal(false, controller.isBound());
+    assert.equal(false, controller.isEnabled());
 
-    equal(false, controller.isMapEnabled());
-    equal(false, controller.isGeocoderEnabled());
+    assert.equal(false, controller.isMapEnabled());
+    assert.equal(false, controller.isGeocoderEnabled());
 
-    equal(undefined, controller.map());
-    equal(undefined, controller.geocoder());
+    assert.equal(undefined, controller.map());
+    assert.equal(undefined, controller.geocoder());
 
     // not bound, no changes
     controller.adjustMapToShape('A');
@@ -52,49 +52,47 @@ QUnit.test('creme.geolocation.LeafletMapController (init)', function(assert) {
         apiVersion: '3'
     });
 
-    equal(20, controller.options().defaultZoomValue);
-    equal(47, controller.options().defaultLat);
-    equal(4, controller.options().defaultLn);
-    equal(5, controller.options().defaultLargeZoom);
-    equal(12, controller.options().maxZoom);
-    equal(1, controller.options().minZoom);
-    equal('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', controller.options().tileMapUrl);
-    equal('noone', controller.options().tileMapAttribution);
-    equal(false, controller.options().allowGeocoder);
+    assert.equal(20, controller.options().defaultZoomValue);
+    assert.equal(47, controller.options().defaultLat);
+    assert.equal(4, controller.options().defaultLn);
+    assert.equal(5, controller.options().defaultLargeZoom);
+    assert.equal(12, controller.options().maxZoom);
+    assert.equal(1, controller.options().minZoom);
+    assert.equal('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', controller.options().tileMapUrl);
+    assert.equal('noone', controller.options().tileMapAttribution);
+    assert.equal(false, controller.options().allowGeocoder);
 
-    equal(false, controller.isBound());
-    equal(false, controller.isEnabled());
-    equal(false, controller.isGeocoderAllowed());
+    assert.equal(false, controller.isBound());
+    assert.equal(false, controller.isEnabled());
+    assert.equal(false, controller.isGeocoderAllowed());
 
-    equal(false, controller.isMapEnabled());
-    equal(false, controller.isGeocoderEnabled());
+    assert.equal(false, controller.isMapEnabled());
+    assert.equal(false, controller.isGeocoderEnabled());
 
-    equal(undefined, controller.map());
-    equal(undefined, controller.geocoder());
+    assert.equal(undefined, controller.map());
+    assert.equal(undefined, controller.geocoder());
 });
 
 QUnit.test('creme.geolocation.LeafletMapController.bind', function(assert) {
     var controller = new creme.geolocation.LeafletMapController();
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
+    var done = assert.async();
 
     controller.on('status-enabled', function() {
-        equal(true, controller.isBound());
-        equal(true, controller.isEnabled());
+        assert.equal(true, controller.isBound());
+        assert.equal(true, controller.isEnabled());
 
-        equal(true, controller.isMapEnabled());
-        equal(true, controller.isGeocoderEnabled());
-        deepEqual(controller.geocoder(), new creme.geolocation.NominatimGeocoder({
+        assert.equal(true, controller.isMapEnabled());
+        assert.equal(true, controller.isGeocoderEnabled());
+        assert.deepEqual(controller.geocoder(), new creme.geolocation.NominatimGeocoder({
             url: controller.options().nominatimUrl
         }));
-
-        start();
+        done();
     });
 
     setTimeout(function() {
         controller.bind(element);
     }, 0);
-
-    stop(1);
 });
 
 QUnit.test('creme.geolocation.LeafletMapController.bind (already bound)', function(assert) {
@@ -111,30 +109,29 @@ QUnit.test('creme.geolocation.LeafletMapController.bind (already bound)', functi
 QUnit.test('creme.geolocation.LeafletMapController.unbind', function(assert) {
     var controller = new creme.geolocation.LeafletMapController();
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
+    var done = assert.async();
 
     controller.on('status-enabled', function() {
-        equal(true, controller.isBound());
-        equal(true, controller.isEnabled());
+        assert.equal(true, controller.isBound());
+        assert.equal(true, controller.isEnabled());
 
-        equal(true, controller.isMapEnabled());
-        equal(true, controller.isGeocoderEnabled());
+        assert.equal(true, controller.isMapEnabled());
+        assert.equal(true, controller.isGeocoderEnabled());
 
         controller.unbind();
 
-        equal(false, controller.isBound());
-        equal(false, controller.isEnabled());
+        assert.equal(false, controller.isBound());
+        assert.equal(false, controller.isEnabled());
 
-        equal(false, controller.isMapEnabled());
+        assert.equal(false, controller.isMapEnabled());
 
-        equal(undefined, controller.map());
-        start();
+        assert.equal(undefined, controller.map());
+        done();
     });
 
     setTimeout(function() {
         controller.bind(element);
     }, 0);
-
-    stop(1);
 });
 
 QUnit.test('creme.geolocation.LeafletMapController.unbind (not bound)', function(assert) {
@@ -185,6 +182,9 @@ QUnit.parameterize('creme.geolocation.LeafletMapController.markLocation', [
     });
     var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
 
+    assert.timeout(500);
+    var done = assert.async();
+
     controller.on('marker-move', this.mockListener('search-done'));
 
     this.runTestOnGeomapReady(controller, element, function() {
@@ -217,7 +217,7 @@ QUnit.parameterize('creme.geolocation.LeafletMapController.markLocation', [
                     shadowAnchor: [12, 41]
                 });
 
-                deepEqual([
+                assert.deepEqual([
                     ['marker-move', marker, {
                         id: 'Address_A',
                         title: expected.title,
@@ -243,14 +243,12 @@ QUnit.parameterize('creme.geolocation.LeafletMapController.markLocation', [
                     }]
                 ], self.mockListenerCalls('search-done'));
 
-                deepEqual(expectedIcon, marker.getIcon());
+                assert.deepEqual(expectedIcon, marker.getIcon());
 
-                start();
+                done();
             }
         });
     });
-
-    stop(1);
 });
 
 QUnit.test('creme.geolocation.LeafletMapController.updateMarker', function(assert) {
@@ -272,10 +270,10 @@ QUnit.test('creme.geolocation.LeafletMapController.updateMarker', function(asser
     });
 
     this.runTestOnGeomapReady(controller, element, function() {
-        equal(true, controller.isEnabled());
+        assert.equal(true, controller.isEnabled());
 
-        equal(false, controller.hasMarker('A'));
-        equal(undefined, controller.getMarker('A'));
+        assert.equal(false, controller.hasMarker('A'));
+        assert.equal(undefined, controller.getMarker('A'));
 
         controller.addMarker('A', {
             icon: 'default',
@@ -284,9 +282,9 @@ QUnit.test('creme.geolocation.LeafletMapController.updateMarker', function(asser
         });
 
         var marker = controller.getMarker('A');
-        equal(true, controller.hasMarker('A'));
-        equal(false, Object.isNone(marker));
-        deepEqual(defaultIcon, marker.getIcon());
+        assert.equal(true, controller.hasMarker('A'));
+        assert.equal(false, Object.isNone(marker));
+        assert.deepEqual(defaultIcon, marker.getIcon());
 
         controller.updateMarker('A', {
             icon: creme_media_url('geolocation/images/marker-icon.png'),
@@ -307,35 +305,35 @@ QUnit.test('creme.geolocation.LeafletMapController.updateMarker', function(asser
         });
 
         marker = controller.getMarker('A');
-        equal(true, controller.hasMarker('A'));
-        equal(false, Object.isNone(marker));
-        deepEqual({
+        assert.equal(true, controller.hasMarker('A'));
+        assert.equal(false, Object.isNone(marker));
+        assert.deepEqual({
             id: 'A',
             extraData: {address: 'Marseille 13006'}
         }, marker.__extra);
-        deepEqual(expectedIcon, marker.getIcon());
+        assert.deepEqual(expectedIcon, marker.getIcon());
 
         controller.updateMarker('A', {
             icon: 'circle'
         });
 
         marker = controller.getMarker('A');
-        deepEqual({
+        assert.deepEqual({
             id: 'A',
             extraData: {address: 'Marseille 13006'}
         }, marker.__extra);
-        deepEqual(leaflet.divIcon('◯'), marker.getIcon());
+        assert.deepEqual(leaflet.divIcon('◯'), marker.getIcon());
 
         controller.updateMarker('A', {
             icon: 'default'
         });
 
         marker = controller.getMarker('A');
-        deepEqual({
+        assert.deepEqual({
             id: 'A',
             extraData: {address: 'Marseille 13006'}
         }, marker.__extra);
-        deepEqual(defaultIcon, marker.getIcon());
+        assert.deepEqual(defaultIcon, marker.getIcon());
     });
 });
 
@@ -375,19 +373,19 @@ QUnit.test('creme.geolocation.LeafletMapController.removeShape', function(assert
             }
         });
 
-        equal(1, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
-        deepEqual(['A'], controller.shapeIds());
-        deepEqual([], controller.shapeIds({visible: false}));
+        assert.equal(1, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
+        assert.deepEqual(['A'], controller.shapeIds());
+        assert.deepEqual([], controller.shapeIds({visible: false}));
 
         controller.removeShape('A');
 
-        equal(undefined, controller.getShape('A'));
+        assert.equal(undefined, controller.getShape('A'));
 
-        equal(0, controller.shapes().length);
-        equal(0, controller.shapes({visible: false}).length);
-        deepEqual([], controller.shapeIds());
-        deepEqual([], controller.shapeIds({visible: false}));
+        assert.equal(0, controller.shapes().length);
+        assert.equal(0, controller.shapes({visible: false}).length);
+        assert.deepEqual([], controller.shapeIds());
+        assert.deepEqual([], controller.shapeIds({visible: false}));
     });
 });
 

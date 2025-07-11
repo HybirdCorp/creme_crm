@@ -191,14 +191,14 @@ window.QUnitGeolocationMixin = {
     },
 
     assertMarkerProperties: function(marker, expected) {
-        equal(false, Object.isNone(marker));
+        this.assert.equal(false, Object.isNone(marker));
 
         if (Object.isNone(marker) === false) {
-            equal(expected.visible, marker.visible, 'is marker visible');
-            equal(expected.title, marker.title, 'marker title');
-            equal(expected.id, marker.id);
-            deepEqual(expected.position, marker.position);
-            deepEqual(expected.extraData, marker.extraData || {});
+            this.assert.equal(expected.visible, marker.visible, 'is marker visible');
+            this.assert.equal(expected.title, marker.title, 'marker title');
+            this.assert.equal(expected.id, marker.id);
+            this.assert.deepEqual(expected.position, marker.position);
+            this.assert.deepEqual(expected.extraData, marker.extraData || {});
         }
     },
 
@@ -211,16 +211,16 @@ window.QUnitGeolocationMixin = {
     },
 
     assertLeafletCircleShape: function(shape, expected) {
-        equal(false, Object.isNone(shape));
+        this.assert.equal(false, Object.isNone(shape));
 
         if (Object.isNone(shape) === false) {
-            equal(expected.visible, $(shape.getElement()).is(':not(.leaflet-hidden)'), 'is shape visible');
-            equal(expected.radius, shape.getRadius());
-            deepEqual(expected.position, {
+            this.assert.equal(expected.visible, $(shape.getElement()).is(':not(.leaflet-hidden)'), 'is shape visible');
+            this.assert.equal(expected.radius, shape.getRadius());
+            this.assert.deepEqual(expected.position, {
                 lat: shape.getLatLng().lat,
                 lng: shape.getLatLng().lng
             });
-            deepEqual({
+            this.assert.deepEqual({
                 id: expected.id,
                 extraData: expected.extraData || {}
             }, shape.__extra);
@@ -228,13 +228,13 @@ window.QUnitGeolocationMixin = {
     },
 
     assertGoogleMarker: function(marker, expected) {
-        equal(false, Object.isNone(marker));
+        this.assert.equal(false, Object.isNone(marker));
 
         if (Object.isNone(marker) === false) {
-            equal(expected.visible, marker.getVisible(), 'is marker visible');
-            equal(expected.title, marker.getTitle(), 'marker title');
-            deepEqual(new google.maps.LatLng(expected.position), marker.getPosition());
-            deepEqual({
+            this.assert.equal(expected.visible, marker.getVisible(), 'is marker visible');
+            this.assert.equal(expected.title, marker.getTitle(), 'marker title');
+            this.assert.deepEqual(new google.maps.LatLng(expected.position), marker.getPosition());
+            this.assert.deepEqual({
                 id: expected.id,
                 extraData: expected.extraData || {}
             }, marker.__extra);
@@ -242,13 +242,13 @@ window.QUnitGeolocationMixin = {
     },
 
     assertGoogleCircleShape: function(shape, expected) {
-        equal(false, Object.isNone(shape));
+        this.assert.equal(false, Object.isNone(shape));
 
         if (Object.isNone(shape) === false) {
-            equal(expected.visible, shape.getVisible(), 'is shape visible');
-            equal(expected.radius, shape.getRadius(), 'shape radius');
-            deepEqual(new google.maps.LatLng(expected.position), shape.getCenter());
-            deepEqual({
+            this.assert.equal(expected.visible, shape.getVisible(), 'is shape visible');
+            this.assert.equal(expected.radius, shape.getRadius(), 'shape radius');
+            this.assert.deepEqual(new google.maps.LatLng(expected.position), shape.getCenter());
+            this.assert.deepEqual({
                 id: expected.id,
                 extraData: expected.extraData || {}
             }, shape.__extra);
@@ -257,13 +257,7 @@ window.QUnitGeolocationMixin = {
 
     runTestOnGeomapReady: function(controller, element, callback) {
         this.bindTestOn(controller, 'status-enabled', callback, [controller]);
-
-        setTimeout(function() {
-            controller.bind(element);
-            equal(true, controller.isBound());
-        }, 0);
-
-        stop(1);
+        controller.bind(element);
     }
 };
 

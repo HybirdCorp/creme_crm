@@ -70,28 +70,28 @@ QUnit.test('creme.reports.ExportReportAction (cancel)', function(assert) {
 
     action.start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/reports/filterform'));
 
     var dialog = this.assertOpenedDialog();
 
-    equal(2, dialog.find('.ui-dialog-buttonset button').length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
+    assert.equal(2, dialog.find('.ui-dialog-buttonset button').length);
+    assert.equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
+    assert.equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
 
     dialog.find('[name="doc_type"]').val('csv');
     dialog.find('[name="date_field"]').val('');
 
     this.closeDialog();
 
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/reports/filterform'));
 
-    deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.reports.ExportReportAction (csv, none)', function(assert) {
@@ -102,15 +102,15 @@ QUnit.test('creme.reports.ExportReportAction (csv, none)', function(assert) {
 
     action.start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/reports/filterform'));
 
     var dialog = this.assertOpenedDialog();
 
-    equal(2, dialog.find('.ui-dialog-buttonset button').length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
+    assert.equal(2, dialog.find('.ui-dialog-buttonset button').length);
+    assert.equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
+    assert.equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
 
     dialog.find('[name="doc_type"]').val('csv');
     dialog.find('[name="date_field"]').val('');
@@ -121,14 +121,14 @@ QUnit.test('creme.reports.ExportReportAction (csv, none)', function(assert) {
 
     var download_url = 'mock/reports/download?' + _.encodeURLSearch({doc_type: 'csv', date_field: '', date_filter_0: '', date_filter_2: ''});
 
-    deepEqual([['done', download_url]], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['done', download_url]], this.mockListenerCalls('action-done'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {doc_type: ['csv'], date_field: [''], date_filter_0: [''], date_filter_2: ['']}]
     ], this.mockBackendUrlCalls('mock/reports/filterform'));
 
-    deepEqual([download_url],
+    assert.deepEqual([download_url],
               this.mockRedirectCalls());
 });
 
@@ -140,15 +140,15 @@ QUnit.test('creme.reports.ExportReportAction (xls, created, previous_year)', fun
 
     action.start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/reports/filterform'));
 
     var dialog = this.assertOpenedDialog();
 
-    equal(2, dialog.find('.ui-dialog-buttonset button').length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
+    assert.equal(2, dialog.find('.ui-dialog-buttonset button').length);
+    assert.equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
+    assert.equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
 
     dialog.find('[name="doc_type"]').val('xls');
     dialog.find('[name="date_field"]').val('created').trigger('change');
@@ -160,14 +160,14 @@ QUnit.test('creme.reports.ExportReportAction (xls, created, previous_year)', fun
 
     var download_url = 'mock/reports/download?' + _.encodeURLSearch({doc_type: 'xls', date_field: 'created', date_filter_0: 'previous_year', date_filter_2: ''});
 
-    deepEqual([['done', download_url]], this.mockListenerCalls('action-done'));
+    assert.deepEqual([['done', download_url]], this.mockListenerCalls('action-done'));
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {doc_type: ['xls'], date_field: ['created'], date_filter_0: ['previous_year'], date_filter_2: ['']}]
     ], this.mockBackendUrlCalls('mock/reports/filterform'));
 
-    deepEqual([download_url],
+    assert.deepEqual([download_url],
               this.mockRedirectCalls());
 });
 
@@ -177,22 +177,22 @@ QUnit.test('creme.reports.listview.actions (reports-export, ok)', function(asser
 
     var builder = registry.get('reports-export');
 
-    ok(Object.isFunc(builder));
+    assert.ok(Object.isFunc(builder));
     var action = builder('mock/reports/filterform', {
         title: 'Export «Report #1»'
     });
 
     action.start();
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/reports/filterform'));
 
     var dialog = this.assertOpenedDialog();
 
-    equal(2, dialog.find('.ui-dialog-buttonset button').length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
+    assert.equal(2, dialog.find('.ui-dialog-buttonset button').length);
+    assert.equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
+    assert.equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
 
     dialog.find('[name="doc_type"]').val('csv');
     dialog.find('[name="date_field"]').val('');
@@ -205,12 +205,12 @@ QUnit.test('creme.reports.listview.actions (reports-export, ok)', function(asser
         doc_type: 'csv', date_field: '', date_filter_0: '', date_filter_2: ''
     });
 
-    deepEqual([
+    assert.deepEqual([
         ['GET', {}],
         ['POST', {doc_type: ['csv'], date_field: [''], date_filter_0: [''], date_filter_2: ['']}]
     ], this.mockBackendUrlCalls('mock/reports/filterform'));
 
-    deepEqual([download_url], this.mockRedirectCalls());
+    assert.deepEqual([download_url], this.mockRedirectCalls());
 });
 
 }(jQuery));

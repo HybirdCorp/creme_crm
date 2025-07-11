@@ -51,7 +51,7 @@ QUnit.module("creme.BricksConfigEditor", new QUnitMixin(QUnitEventMixin,
 
     assertBrickChoiceGroup: function(element, name, expected) {
         var choices = element.find('.widget-${name}-choices .widget-choice'.template({name: name}));
-        deepEqual(choices.map(function() {
+        this.assert.deepEqual(choices.map(function() {
             return {
                 value: $(this).attr('data-choice-id'),
                 description: $(this).attr('title'),
@@ -65,19 +65,19 @@ QUnit.test('creme.BricksConfigEditor (empty)', function(assert) {
     var element = $(this.createBrickEditorHtml()).appendTo(this.qunitFixture());
     var controller = new creme.BricksConfigEditor(element); /* eslint-disable-line */
 
-    equal(element.find('.widget-enabled-available-choices .widget-choice').length, 0);
+    assert.equal(element.find('.widget-enabled-available-choices .widget-choice').length, 0);
 
-    equal(element.find('.widget-enabled-top-choices .widget-choice').length, 0);
-    equal(element.find('.widget-enabled-left-choices .widget-choice').length, 0);
-    equal(element.find('.widget-enabled-right-choices .widget-choice').length, 0);
-    equal(element.find('.widget-enabled-bottom-choices .widget-choice').length, 0);
+    assert.equal(element.find('.widget-enabled-top-choices .widget-choice').length, 0);
+    assert.equal(element.find('.widget-enabled-left-choices .widget-choice').length, 0);
+    assert.equal(element.find('.widget-enabled-right-choices .widget-choice').length, 0);
+    assert.equal(element.find('.widget-enabled-bottom-choices .widget-choice').length, 0);
 });
 
 QUnit.test('creme.BricksConfigEditor (invalid data)', function(assert) {
     var element = $(this.createBrickEditorHtml()).appendTo(this.qunitFixture());
     this.qunitFixture().append($('<script type="application/json" id="brick-config-choices">invalid !</script>'));
 
-    equal($('#brick-config-choices').text(), 'invalid !');
+    assert.equal($('#brick-config-choices').text(), 'invalid !');
 
     this.assertRaises(function() {
         return new creme.BricksConfigEditor(element, {  /* eslint-disable-line */
@@ -85,12 +85,12 @@ QUnit.test('creme.BricksConfigEditor (invalid data)', function(assert) {
         });
     }, Error);
 
-    equal(element.find('.widget-enabled-available-choices .widget-choice').length, 0);
+    assert.equal(element.find('.widget-enabled-available-choices .widget-choice').length, 0);
 
-    equal(element.find('.widget-enabled-top-choices .widget-choice').length, 0);
-    equal(element.find('.widget-enabled-left-choices .widget-choice').length, 0);
-    equal(element.find('.widget-enabled-right-choices .widget-choice').length, 0);
-    equal(element.find('.widget-enabled-bottom-choices .widget-choice').length, 0);
+    assert.equal(element.find('.widget-enabled-top-choices .widget-choice').length, 0);
+    assert.equal(element.find('.widget-enabled-left-choices .widget-choice').length, 0);
+    assert.equal(element.find('.widget-enabled-right-choices .widget-choice').length, 0);
+    assert.equal(element.find('.widget-enabled-bottom-choices .widget-choice').length, 0);
 });
 
 QUnit.test('creme.BricksConfigEditor (initial data)', function(assert) {
@@ -140,7 +140,7 @@ QUnit.test('creme.BricksConfigEditor (initial data)', function(assert) {
         value: 'brick-e', name: 'Brick E', description: ''
     }]);
 
-    equal('', $('#test-id').val());
+    assert.equal('', $('#test-id').val());
 });
 
 QUnit.test('creme.BricksConfigEditor (initial data)', function(assert) {
@@ -190,7 +190,7 @@ QUnit.test('creme.BricksConfigEditor (initial data)', function(assert) {
         value: 'brick-e', name: 'Brick E', description: ''
     }]);
 
-    equal('', $('#test-id').val());
+    assert.equal('', $('#test-id').val());
 });
 
 QUnit.test('creme.BricksConfigEditor (on change)', function(assert) {
@@ -216,11 +216,11 @@ QUnit.test('creme.BricksConfigEditor (on change)', function(assert) {
         targetInput: $('#test-id')
     });
 
-    equal('', $('#test-id').val());
+    assert.equal('', $('#test-id').val());
 
     controller._onSort();
 
-    deepEqual({
+    assert.deepEqual({
         top: ['brick-d'],
         left: ['brick-a', 'brick-b'],
         right: ['brick-c'],
