@@ -33,6 +33,7 @@ from creme.persons.tests.base import (
     skipIfCustomAddress,
     skipIfCustomOrganisation,
 )
+from creme.products.tests.base import skipIfCustomProduct
 
 from ..actions import ExportInvoiceAction  # GenerateNumberAction
 from ..constants import (
@@ -1531,6 +1532,36 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertDoesNotExist(service_line)
         self.assertStillExists(source)
         self.assertStillExists(target)
+
+    @skipIfCustomProduct
+    def test_delete__linked_product(self):
+        user = self.login_as_root_and_get()
+
+        invoice = self.create_invoice_n_orgas(user=user, name='Nerv')[0]
+        product = self.create_product(user=user, name='EVA')
+        product_line = ProductLine.objects.create(
+            # on_the_fly_item='Flyyy product',
+            related_item=product,
+            user=user,
+            related_document=invoice,
+            unit_price=Decimal('1000.00'),
+            quantity=2,
+            discount=Decimal('10.00'),
+            discount_unit=Line.Discount.PERCENT,
+            vat_value=Vat.objects.default(),
+        )
+
+        url = invoice.get_delete_absolute_url()
+        self.assertPOST200(url, follow=True)
+
+        with self.assertNoException():
+            invoice = self.refresh(invoice)
+
+        self.assertIs(invoice.is_deleted, True)
+
+        self.assertPOST200(url, follow=True)
+        self.assertDoesNotExist(invoice)
+        self.assertDoesNotExist(product_line)
 
     def test_delete_status(self):
         user = self.login_as_root_and_get()
