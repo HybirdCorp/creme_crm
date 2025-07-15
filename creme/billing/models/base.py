@@ -145,6 +145,7 @@ class Base(CremeEntity):
     # emitter Organisation).
     # Notice that if the configuration allows the manual edition (i.e.
     # NumberGeneratorItem.is_edition_allowed == True) & a number is given by the
+    # NumberGeneratorItem.is_edition_allowed == True) & a number is given by the
     # user, no automatic number overrides the user's value.
     # NB: number is set in billing.signals.generate_number()
     generate_number_in_create = True
@@ -191,7 +192,8 @@ class Base(CremeEntity):
             relation._delete_without_transaction()
 
         for line in lines:
-            line._delete_without_transaction()
+            # line._delete_without_transaction()
+            line.delete()
 
     def clean(self):
         self._clean_source_n_target()
