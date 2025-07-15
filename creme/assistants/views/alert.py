@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -54,7 +54,10 @@ def validate(request, alert_id):
     )
 
     entity = alert.real_entity
-    request.user.has_perm_to_change_or_die(entity)
+
+    user = request.user
+    user.has_perm_to_access_or_die('assistants')
+    user.has_perm_to_change_or_die(entity)
 
     alert.is_validated = True
     alert.save()

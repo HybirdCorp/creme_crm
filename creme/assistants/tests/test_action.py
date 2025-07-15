@@ -22,39 +22,25 @@ from .base import AssistantsTestCase
 
 
 class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        cls.get_ct = ContentType.objects.get_for_model
-
     @staticmethod
     def _build_add_url(entity):
         return reverse('assistants__create_action', args=(entity.id,))
 
-    def _create_action(self, deadline, title='TITLE', descr='DESCRIPTION',
-                       reaction='REACTION', entity=None, user=None,
+    def _create_action(self, *, entity, user, deadline=None,
+                       title='TITLE', description='DESCRIPTION', reaction='REACTION',
                        ):
-        entity = entity or self.entity
-        user = user or self.user
-        response = self.client.post(
-            self._build_add_url(entity),
-            data={
-                'user':              user.pk,
-                'title':             title,
-                'description':       descr,
-                'expected_reaction': reaction,
-                'deadline':          self.formfield_value_date(deadline),
-            },
+        return Action.objects.create(
+            user=user, real_entity=entity,
+            title=title, description=description, expected_reaction=reaction,
+            deadline=deadline or now(),
         )
-        self.assertNoFormError(response)
-
-        return self.get_object_or_fail(Action, title=title, description=descr)
 
     def test_create(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
         self.assertFalse(Action.objects.exists())
 
-        entity = self.entity
+        entity = self.create_entity(user=user)
         context = self.assertGET200(self._build_add_url(entity)).context
         self.assertEqual(
             _('New action for «{entity}»').format(entity=entity),
@@ -65,16 +51,27 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
             context.get('submit_label'),
         )
 
+        # POST ---
         title = 'TITLE'
-        descr = 'DESCRIPTION'
+        description = 'DESCRIPTION'
         reaction = 'REACTION'
         deadline = date(2010, 12, 24)
-        action = self._create_action(deadline, title, descr, reaction)
+        self.assertNoFormError(self.client.post(
+            self._build_add_url(entity),
+            data={
+                'user':              user.pk,
+                'title':             title,
+                'description':       description,
+                'expected_reaction': reaction,
+                'deadline':          self.formfield_value_date(deadline),
+            },
+        ))
 
-        self.assertEqual(title,     action.title)
-        self.assertEqual(descr,     action.description)
-        self.assertEqual(reaction,  action.expected_reaction)
-        self.assertEqual(self.user, action.user)
+        action = self.get_object_or_fail(Action, title=title, description=description)
+        self.assertEqual(title,       action.title)
+        self.assertEqual(description, action.description)
+        self.assertEqual(reaction,    action.expected_reaction)
+        self.assertEqual(user,        action.user)
 
         self.assertEqual(entity.entity_type_id, action.entity_content_type_id)
         self.assertEqual(entity.id,             action.entity_id)
@@ -99,16 +96,39 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertTemplateUsed(response, 'assistants/bricks/actions-on-time.html')
         self.assertTemplateUsed(response, 'assistants/bricks/actions-not-on-time.html')
 
+    def test_create__no_app_perm(self):
+        user = self.login_as_standard()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity = self.create_entity(user=user)
+        response = self.assertGET403(
+            self._build_add_url(entity), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Assistants (Todos, Memos, …)')
+            ),
+            response.content.decode(),
+        )
+
     def test_edit(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity = self.create_entity(user=user)
         title = 'TITLE'
         descr = 'DESCRIPTION'
         reaction = 'REACTION'
-        action = self._create_action(date(2010, 12, 24), title, descr, reaction)
+        action = self._create_action(
+            entity=entity, user=user,
+            deadline=self.create_datetime(2010, 12, 24),
+            title=title, description=descr, reaction=reaction,
+        )
 
         url = action.get_edit_absolute_url()
         context = self.assertGET200(url).context
         self.assertEqual(
-            _('Action for «{entity}»').format(entity=self.entity),
+            _('Action for «{entity}»').format(entity=entity),
             context.get('title'),
         )
 
@@ -116,18 +136,17 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         title    += '_edited'
         descr    += '_edited'
         reaction += '_edited'
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
-                'user':              self.user.pk,
+                'user':              user.pk,
                 'title':             title,
                 'description':       descr,
                 'expected_reaction': reaction,
                 'deadline':          self.formfield_value_date(2011, 11, 25),
                 'deadline_time':     '17:37:00',
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         action = self.refresh(action)
         self.assertEqual(title,    action.title)
@@ -138,58 +157,105 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
             action.deadline,
         )
 
-    def test_delete_entity01(self):
-        action = self._create_action(date(2010, 12, 24), 'title', 'descr', 'reaction')
-        self.entity.delete()
+    def test_edit__no_app_perm(self):
+        user = self.login_as_standard()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity = self.create_entity(user=user)
+        action = self._create_action(
+            user=user, entity=entity, deadline=self.create_datetime(2025, 7, 15),
+        )
+        response = self.assertGET403(
+            action.get_edit_absolute_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Assistants (Todos, Memos, …)')
+            ),
+            response.content.decode(),
+        )
+
+    def test_delete_entity(self):
+        user = self.login_as_assistants_user()
+        entity = self.create_entity(user=user)
+        action = self._create_action(
+            entity=entity, user=user, title='title',
+            deadline=self.create_datetime(2010, 12, 24),
+        )
+
+        entity.delete()
         self.assertDoesNotExist(action)
 
-    def _aux_test_delete(self, ajax=False):
-        action = self._create_action(date(2010, 12, 24), 'title', 'descr', 'reaction')
-        ct = self.get_ct(Action)
+    def _aux_test_delete(self, action, ajax=False):
+        ct = ContentType.objects.get_for_model(Action)
         kwargs = {} if not ajax else {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
-        response = self.client.post(
+
+        return self.client.post(
             reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
             data={'id': action.id},
             **kwargs
         )
+
+    def test_delete(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity = self.create_entity(user=user)
+        action = self._create_action(user=user, entity=entity)
+        response = self._aux_test_delete(action=action)
         self.assertDoesNotExist(action)
+        self.assertRedirects(response, entity.get_absolute_url())
 
-        return response
-
-    def test_delete_action01(self):
-        response = self._aux_test_delete()
-        self.assertRedirects(response, self.entity.get_absolute_url())
-
-    def test_delete_action02(self):
-        "Ajax version."
-        response = self._aux_test_delete(ajax=True)
+    def test_delete__ajax(self):
+        user = self.login_as_root_and_get()
+        action = self._create_action(user=user, entity=self.create_entity(user=user))
+        response = self._aux_test_delete(action=action, ajax=True)
+        self.assertDoesNotExist(action)
         self.assertEqual(200, response.status_code)
 
+    def test_delete__no_app_perm(self):
+        user = self.login_as_standard()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        action = self._create_action(user=user, entity=self.create_entity(user=user))
+        response = self._aux_test_delete(action=action, ajax=True)
+        self.assertEqual(403, response.status_code)
+        self.assertStillExists(action)
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Assistants (Todos, Memos, …)')
+            ),
+            response.content.decode(),
+        )
+
     def test_brick(self):
-        entity1 = self.entity
-        entity2 = FakeOrganisation.objects.create(user=self.user, name='Acme')
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity1 = self.create_entity(user=user)
+        entity2 = FakeOrganisation.objects.create(user=user, name='Acme')
 
         now_value = now()
 
-        create_action = self._create_action
+        create_action = partial(Action.objects.create, user=user)
         action_ok1 = create_action(
-            entity=entity1, deadline=now_value + timedelta(days=1), title='Recall',
+            real_entity=entity1, deadline=now_value + timedelta(days=1), title='Recall',
         )
         action_ok2 = create_action(
-            entity=entity1, deadline=now_value + timedelta(days=2), title="It's important",
+            real_entity=entity1, deadline=now_value + timedelta(days=2), title="It's important",
         )
         action_ok3 = create_action(
-            entity=entity2, deadline=now_value + timedelta(days=2), title='Other',
+            real_entity=entity2, deadline=now_value + timedelta(days=2), title='Other',
         )
 
         action_ko1 = create_action(
-            entity=entity1, deadline=now_value - timedelta(days=1), title='Too late',
+            real_entity=entity1, deadline=now_value - timedelta(days=1), title='Too late',
         )
         action_ko2 = create_action(
-            entity=entity1, deadline=now_value - timedelta(days=2), title='Damned',
+            real_entity=entity1, deadline=now_value - timedelta(days=2), title='Damned',
         )
         action_ko3 = create_action(
-            entity=entity2, deadline=now_value - timedelta(days=2), title='Other old',
+            real_entity=entity2, deadline=now_value - timedelta(days=2), title='Other old',
         )
 
         ActionsOnTimeBrick.page_size = ActionsNotOnTimeBrick.page_size = max(
@@ -207,7 +273,7 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         create_detail(brick=ActionsOnTimeBrick,    order=50)
         create_detail(brick=ActionsNotOnTimeBrick, order=51)
 
-        response1 = self.assertGET200(self.entity.get_absolute_url())
+        response1 = self.assertGET200(entity1.get_absolute_url())
 
         detail_brick_node_ok = self.get_brick_node(
             self.get_html_tree(response1.content), brick=ActionsOnTimeBrick,
@@ -249,36 +315,61 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertInstanceLink(home_brick_node_ko, entity2)
 
     def test_validate(self):
-        action = self._create_action(date(2010, 12, 24), 'title', 'descr', 'reaction')
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity = self.create_entity(user=user)
+        action = self._create_action(
+            user=user, entity=entity, deadline=self.create_datetime(2010, 12, 24),
+        )
         self.assertFalse(action.is_ok)
         self.assertIsNone(action.validation_date)
 
         url = reverse('assistants__validate_action', args=(action.id,))
         self.assertGET405(url)
 
-        response = self.assertPOST200(url, follow=True)
-        self.assertRedirects(response, self.entity.get_absolute_url())
+        response = self.assertPOST200(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest', follow=True)
+        self.assertRedirects(response, entity.get_absolute_url())
 
         action = self.refresh(action)
         self.assertTrue(action.is_ok)
         self.assertDatetimesAlmostEqual(now(), action.validation_date)
 
+    def test_validate__no_app_perm(self):
+        user = self.login_as_standard()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity = self.create_entity(user=user)
+        action = self._create_action(
+            user=user, entity=entity, deadline=self.create_datetime(2010, 12, 24),
+        )
+        response = self.assertPOST403(
+            reverse('assistants__validate_action', args=(action.id,)),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest', follow=True,
+        )
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Assistants (Todos, Memos, …)')
+            ),
+            response.content.decode(),
+        )
+
     def test_merge(self):
-        def creator(contact01, contact02):
-            create = self._create_action
+        def creator(user, contact01, contact02):
+            create = partial(Action.objects.create, user=user)
             create(
-                # deadline='2011-2-9',
-                deadline=date(2011, 2, 9),
-                title='Fight', descr='I have trained',
-                reaction='I expect a fight',
-                entity=contact01,
+                deadline=self.create_datetime(2011, 2, 9),
+                title='Fight',
+                description='I have trained',
+                expected_reaction='I expect a fight',
+                real_entity=contact01,
             )
             create(
-                # deadline='2011-2-10',
-                deadline=date(2011, 2, 10),
-                title='Rendezvous', descr='I have flower',
-                reaction='I want a rendezvous',
-                entity=contact02,
+                deadline=self.create_datetime(2011, 2, 10),
+                title='Rendezvous',
+                description='I have flower',
+                expected_reaction='I want a rendezvous',
+                real_entity=contact02,
             )
             self.assertEqual(2, Action.objects.count())
 
@@ -292,8 +383,9 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.aux_test_merge(creator, assertor)
 
     def test_manager_filter_by_user(self):
-        user = self.user
+        user = self.login_as_root_and_get()
         now_value = now()
+        entity = self.create_entity(user=user)
 
         other_user = self.create_user(0)
         teammate1 = self.create_user(1)
@@ -304,7 +396,7 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         create_action = partial(
             Action.objects.create,
-            real_entity=self.entity, user=user,
+            real_entity=entity, user=user,
             deadline=now_value + timedelta(days=1),
         )
 

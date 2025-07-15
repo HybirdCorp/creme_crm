@@ -53,34 +53,11 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def _build_add_url(entity):
         return reverse('assistants__create_todo', args=(entity.id,))
 
-    def _create_todo(self, title='TITLE', description='DESCRIPTION', entity=None, user=None):
-        entity = entity or self.entity
-        user = user or self.user
-
-        response = self.client.post(
-            self._build_add_url(entity),
-            data={
-                'user':        user.pk,
-                'title':       title,
-                'description': description,
-            },
+    def _create_todo(self, *, entity, user, title='TITLE', description='DESCRIPTION', **kwargs):
+        return ToDo.objects.create(
+            real_entity=entity, user=user, title=title, description=description,
+            **kwargs
         )
-        self.assertNoFormError(response)
-
-        return self.get_object_or_fail(ToDo, title=title, description=description)
-
-    def _create_several_todos(self):
-        self._create_todo('Todo01', 'Description01')
-
-        entity2 = FakeContact.objects.create(
-            user=self.user, first_name='Akane', last_name='Tendo',
-        )
-        self._create_todo('Todo02', 'Description02', entity=entity2)
-
-        user2 = self.create_user(
-            username='ryoga', first_name='Ryoga', last_name='Hibiki', email='user@creme.org',
-        )
-        self._create_todo('Todo03', 'Description03', user=user2)
 
     def test_populate(self):
         # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
@@ -88,18 +65,18 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual('assistants', sv.key.app_label)
         self.assertEqual(9, sv.value)
 
-    def test_create01(self):
+    def test_create(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, all=['VIEW', 'CHANGE'])
         self.assertFalse(ToDo.objects.exists())
-        other_user = self.create_user()
 
-        entity = self.entity
-        entity.user = other_user
-        entity.save()
+        other_user = self.create_user(index=1)
+
+        entity = self.create_entity(user=other_user)
 
         queue = get_queue()
         queue.clear()
 
-        entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
         self.assertEqual(
             _('New todo for «{entity}»').format(entity=entity),
@@ -124,28 +101,57 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         # ---
         title = 'Title'
-        todo = self._create_todo(title, 'Description')
-        self.assertEqual(1, ToDo.objects.count())
-        self.assertEqual(self.user,             todo.user)
-        self.assertEqual(entity.id,             todo.entity_id)
-        self.assertEqual(entity.entity_type_id, todo.entity_content_type_id)
+        description = 'Description'
+        self.assertNoFormError(self.client.post(
+            self._build_add_url(entity),
+            data={
+                'user':        user.pk,
+                'title':       title,
+                'description': description,
+            },
+        ))
+
+        todo = self.get_object_or_fail(ToDo, title=title, description=description)
+        self.assertEqual(user, todo.user)
+        self.assertEqual(entity.id,          todo.entity_id)
+        self.assertEqual(entity.entity_type, todo.entity_content_type)
         self.assertDatetimesAlmostEqual(now(), todo.creation_date)
         self.assertIsNone(todo.deadline)
         self.assertIs(todo.reminded, False)
+
+        self.assertEqual(1, ToDo.objects.count())
 
         self.assertFalse(queue.refreshed_jobs)  # Because there is no deadline
 
         self.assertEqual(title, str(todo))
 
-    def test_create02(self):
+    def test_create__no_app_perm(self):
+        user = self.login_as_standard()
+        self.add_credentials(role=user.role, all=['VIEW', 'CHANGE'])
+        entity = self.create_entity(user=user)
+
+        response = self.assertGET403(
+            self._build_add_url(entity), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Assistants (Todos, Memos, …)')
+            ),
+            response.content.decode(),
+        )
+
+    def test_create__dynamic_user(self):
         "Deadline + dynamic user."
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user)
+
         queue = get_queue()
         queue.clear()
 
-        url = self._build_add_url(self.entity)
+        url = self._build_add_url(entity)
         title = 'my Todo'
         data = {
-            # 'user':        self.user.pk,
+            # 'user':      ...,
             'title':       title,
             'description': '',
             'deadline':    self.formfield_value_date(2013, 6, 7),
@@ -168,18 +174,24 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
         self.assertTrue(queue.refreshed_jobs)
 
-    def test_edit01(self):
+    def test_edit(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
         title = 'Title'
         description = 'Description'
-        todo = self._create_todo(title, description)
+        entity = self.create_entity(user=user)
+        todo = ToDo.objects.create(
+            user=user, real_entity=entity, title=title, description=description,
+        )
 
         url = todo.get_edit_absolute_url()
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(
-            _('Todo for «{entity}»').format(entity=self.entity),
+            _('Todo for «{entity}»').format(entity=entity),
             context.get('title'),
         )
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))
@@ -187,26 +199,24 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         # ---
         title       += '_edited'
         description += '_edited'
-        response = self.client.post(
+        response1 = self.client.post(
             url,
             data={
-                'user':        self.user.pk,
+                'user':        user.pk,
                 'title':       title,
                 'description': description,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response1)
 
         todo = self.refresh(todo)
         self.assertEqual(title,       todo.title)
         self.assertEqual(description, todo.description)
 
-    def test_edit02(self):
-        "Entity is deleted."
-        todo = self._create_todo()
-
-        entity = self.entity
-        entity.trash()
+    def test_edit__deleted_entity(self):
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user, is_deleted=True)
+        todo = self._create_todo(user=user, entity=entity)
 
         with self.assertNoException():
             todo = self.refresh(todo)
@@ -215,40 +225,85 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(entity, entity2)
         self.assertGET403(todo.get_edit_absolute_url())
 
-    def test_delete_related01(self):
-        self._create_todo()
+    def test_edit__no_app_perm(self):
+        user = self.login_as_standard()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        title = 'Title'
+        description = 'Description'
+        entity = self.create_entity(user=user)
+        todo = ToDo.objects.create(
+            user=user, real_entity=entity, title=title, description=description,
+        )
+        response = self.assertGET403(
+            todo.get_edit_absolute_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Assistants (Todos, Memos, …)')
+            ),
+            response.content.decode(),
+        )
+
+    def test_delete_related(self):
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user)
+        self._create_todo(user=user, entity=entity)
         self.assertEqual(1, ToDo.objects.count())
 
-        self.entity.delete()
+        entity.delete()
         self.assertEqual(0, ToDo.objects.count())
 
-    def test_delete02(self):
-        todo = self._create_todo()
-        self.assertEqual(1, ToDo.objects.count())
+    def test_delete(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
 
+        todo = self._create_todo(user=user, entity=self.create_entity(user=user))
         ct = ContentType.objects.get_for_model(ToDo)
-        self.assertPOST(
-            302,
+        self.assertPOST200(
             reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
             data={'id': todo.id},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        self.assertFalse(ToDo.objects.all())
+        self.assertDoesNotExist(todo)
 
     def test_validate(self):
-        todo = self._create_todo()
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity = self.create_entity(user=user)
+        todo = self._create_todo(user=user, entity=entity)
         self.assertFalse(todo.is_ok)
 
         url = reverse('assistants__validate_todo', args=(todo.id,))
         self.assertGET405(url)
 
         response = self.assertPOST200(url, follow=True)
-        self.assertRedirects(response, self.entity.get_absolute_url())
+        self.assertRedirects(response, entity.get_absolute_url())
         self.assertIs(True, self.refresh(todo).is_ok)
 
-    def test_brick(self):
-        user = self.user
-        entity1 = self.entity
+    def test_validate__no_app_perm(self):
+        user = self.login_as_standard()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
 
+        entity = self.create_entity(user=user)
+        todo = self._create_todo(user=user, entity=entity)
+        response = self.assertPOST403(
+            reverse('assistants__validate_todo', args=(todo.id,)),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Assistants (Todos, Memos, …)')
+            ),
+            response.content.decode(),
+        )
+
+    def test_brick(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity1 = self.create_entity(user=user)
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         entity2 = create_orga(name='Acme')
         entity3 = create_orga(name='Deleted', is_deleted=True)
@@ -277,7 +332,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             zone=BrickDetailviewLocation.RIGHT,
         )
 
-        response1 = self.assertGET200(self.entity.get_absolute_url())
+        response1 = self.assertGET200(entity1.get_absolute_url())
         detail_brick_node = self.get_brick_node(
             self.get_html_tree(response1.content), brick=TodosBrick,
         )
@@ -309,7 +364,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         state.set_extra_data(key=BRICK_STATE_HIDE_VALIDATED_TODOS, value=True)
         state.save()
 
-        response3 = self.assertGET200(self.entity.get_absolute_url())
+        response3 = self.assertGET200(entity1.get_absolute_url())
         detail_brick_node_hidden = self.get_brick_node(
             self.get_html_tree(response3.content), brick=TodosBrick,
         )
@@ -329,20 +384,43 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertTrue(todo_found(home_brick_node_hidden, todo3))
         self.assertFalse(todo_found(home_brick_node_hidden, todo4))
 
-    def test_brick_reload01(self):
-        "Detail-view."
-        for i in range(1, 4):
-            self._create_todo(f'Todo{i}', f'Description {i}')
+    def test_brick__no_app_perm(self):
+        user = self.login_as_standard()
+        self.add_credentials(role=user.role, own=['VIEW'])
 
-        todos = ToDo.objects.filter(entity=self.entity.id)
+        entity = self.create_entity(user=user)
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=TodosBrick,
+            model=type(entity),
+            order=50,
+            zone=BrickDetailviewLocation.RIGHT,
+        )
+
+        response = self.assertGET200(entity.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick=TodosBrick,
+        )
+        # TODO: method?
+        self.assertIn('brick-forbidden', brick_node.attrib.get('class'))
+
+    def test_brick_reload__detailview(self):
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user)
+
+        for i in range(1, 4):
+            self._create_todo(
+                user=user, entity=entity,
+                title=f'Todo{i}', description=f'Description {i}',
+            )
+
+        todos = ToDo.objects.filter(entity=entity.id)
         self.assertEqual(3, len(todos))
         self.assertCountEqual(ToDo.objects.all(), todos)
 
         self.assertGreaterEqual(TodosBrick.page_size, 2)
 
         response = self.assertGET200(
-            reverse('creme_core__reload_detailview_bricks', args=(self.entity.id,)),
-            # data={'brick_id': TodosBrick.id_},
+            reverse('creme_core__reload_detailview_bricks', args=(entity.id,)),
             data={'brick_id': TodosBrick.id},
         )
         self.assertEqual('application/json', response['Content-Type'])
@@ -359,12 +437,20 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(size, len(page.object_list))
         self.assertEqual(size, len({*todos} & {*page.object_list}))
 
-    def test_brick_reload02(self):
-        "Home."
-        self._create_several_todos()
-        self.assertEqual(3, ToDo.objects.count())
+    def test_brick_reload__home(self):
+        user1 = self.login_as_root_and_get()
+        user2 = self.create_user()
 
-        todos = ToDo.objects.filter_by_user(self.user)
+        entity1 = self.create_entity(user=user1)
+        entity2 = FakeContact.objects.create(
+            user=user1, first_name='Akane', last_name='Tendo',
+        )
+
+        self._create_todo(user=user1, entity=entity1, title='Todo01')
+        self._create_todo(user=user1, entity=entity2, title='Todo02')
+        self._create_todo(user=user2, entity=entity1, title='Todo03')
+
+        todos = ToDo.objects.filter_by_user(user1)
         self.assertEqual(2, len(todos))
 
         response = self.assertGET200(
@@ -389,12 +475,16 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         todo.creation_date = cdate - timedelta(days=1)
         todo.save()
 
-    def test_function_field01(self):
+        return todo
+
+    def test_function_field__empty(self):
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
+
         funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
         self.assertIsInstance(funf, TodosField)
         self.assertEqual(
-            # '<ul></ul>', funf(self.entity, self.user).render(ViewTag.HTML_LIST),
-            '', funf(self.entity, self.user).render(ViewTag.HTML_LIST),
+            '', funf(entity, user).render(ViewTag.HTML_LIST),
         )
 
         # ---
@@ -403,7 +493,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         field = field_class(
             cell=EntityCellFunctionField(model=FakeContact, func_field=funf),
-            user=self.user,
+            user=user,
         )
         self.assertIsInstance(field.widget, TextLVSWidget)
 
@@ -420,21 +510,23 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             to_python(value=value),
         )
 
-    def test_function_field02(self):
-        funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
-        self._oldify_todo(self._create_todo('Todo01', 'Description01'))
-        self._create_todo('Todo02', 'Description02')
+    def test_function_field(self):
+        user = self.create_user(
+            role=self.create_role(allowed_apps=['creme_core', 'assistants']),
+        )
+        entity = self.create_entity(user=user)
 
-        todo3 = self._create_todo('Todo03', 'Description03')
-        todo3.is_ok = True
-        todo3.save()
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
+
+        todo1 = self._oldify_todo(self._create_todo(user=user, entity=entity, title='Todo01'))
+        todo2 = self._create_todo(user=user, entity=entity, title='Todo02')
+        self._create_todo(user=user, entity=entity, title='Todo03', is_ok=True)
 
         with self.assertNumQueries(1):
-            result = funf(self.entity, self.user)
+            result = funf(entity, user)
 
         self.assertEqual(
-            # '<ul><li>Todo02</li><li>Todo01</li></ul>',
-            '<ul class="limited-list"><li>Todo02</li><li>Todo01</li></ul>',
+            f'<ul class="limited-list"><li>{todo2.title}</li><li>{todo1.title}</li></ul>',
             result.render(ViewTag.HTML_LIST),
         )
 
@@ -446,31 +538,32 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         #     funf(self.entity)
         # )
 
-    def test_function_field03(self):
+    def test_function_field__prefetch(self):
         "Prefetch with 'populate_entities()'."
-        user = self.user
-        self._oldify_todo(self._create_todo('Todo01', 'Description01'))
-        self._create_todo('Todo02', 'Description02')
+        user = self.create_user(
+            role=self.create_role(allowed_apps=['creme_core', 'assistants']),
+        )
 
-        todo3 = self._create_todo('Todo03', 'Description03')
-        todo3.is_ok = True
-        todo3.save()
+        entity1 = self.create_entity(user=user)
+        entity2 = CremeEntity.objects.create(user=user)
 
-        entity02 = CremeEntity.objects.create(user=user)
-        todo4 = self._create_todo('Todo04', 'Description04', entity=entity02)
+        todo1 = self._oldify_todo(self._create_todo(user=user, entity=entity1, title='Todo01'))
+        todo2 = self._create_todo(user=user, entity=entity1, title='Todo02')
+        self._create_todo(user=user, entity=entity1, title='Todo03', is_ok=True)
+
+        todo4 = self._create_todo(user=user, entity=entity2, title='Todo04')
 
         funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
 
         with self.assertNumQueries(1):
-            funf.populate_entities([self.entity, entity02], user)
+            funf.populate_entities([entity1, entity2], user)
 
         with self.assertNumQueries(0):
-            result1 = funf(self.entity, user)
-            result2 = funf(entity02, user)
+            result1 = funf(entity1, user)
+            result2 = funf(entity2, user)
 
         self.assertEqual(
-            # '<ul><li>Todo02</li><li>Todo01</li></ul>',
-            '<ul class="limited-list"><li>Todo02</li><li>Todo01</li></ul>',
+            f'<ul class="limited-list"><li>{todo2.title}</li><li>{todo1.title}</li></ul>',
             result1.render(ViewTag.HTML_LIST),
         )
         self.assertEqual(
@@ -478,10 +571,40 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             todo4.title, result2.render(ViewTag.HTML_LIST),
         )
 
+    def test_function_field__no_app_perm(self):
+        user = self.create_user(
+            role=self.create_role(allowed_apps=['creme_core']),  # Not 'assistants'
+        )
+        entity = self.create_entity(user=user)
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
+
+        with self.assertNumQueries(0):
+            result = funf(entity, user)
+
+        self.assertEqual(_('Forbidden app'), result.render(ViewTag.HTML_LIST))
+
+    def test_function_field__no_app_perm__prefetch(self):
+        user = self.create_user(
+            role=self.create_role(allowed_apps=['creme_core']),  # Not 'assistants'
+        )
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
+        entity = self.create_entity(user=user)
+
+        with self.assertNumQueries(0):
+            funf.populate_entities([entity], user)
+
+        with self.assertNumQueries(0):
+            result = funf(entity, user)
+        self.assertEqual(_('Forbidden app'), result.render(ViewTag.HTML_LIST))
+
     def test_merge(self):
-        def creator(contact01, contact02):
-            self._create_todo('Todo01', 'Fight against him', contact01)
-            self._create_todo('Todo02', 'Train with him',    contact02)
+        def creator(user, contact01, contact02):
+            self._create_todo(
+                user=user, entity=contact01, title='Todo01', description='Fight against him',
+            )
+            self._create_todo(
+                user=user, entity=contact02, title='Todo02', description='Train with him',
+            )
             self.assertEqual(2, ToDo.objects.count())
 
         def assertor(contact01):
@@ -493,12 +616,11 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.aux_test_merge(creator, assertor)
 
-    def test_todo_reminder_content01(self):
+    def test_reminder_content(self):
         user = self.get_root_user()
-        entity = self.entity
-        todo = ToDo.objects.create(
-            user=user,
-            real_entity=entity,
+        entity = self.create_entity(user=user)
+        todo = self._create_todo(
+            user=user, entity=entity,
             title='You must do something',
             description='very important!!\nReally.',
             deadline=self.create_datetime(year=2023, month=10, day=23, hour=16, utc=True),
@@ -532,15 +654,12 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             content2.get_html_body(user=user),
         )
 
-    def test_todo_reminder_content02(self):
-        "No description."
+    def test_reminder_content__no_description(self):
         user = self.get_root_user()
-        entity = self.entity
-        todo = ToDo.objects.create(
-            user=user,
-            real_entity=entity,
-            title='To be done',
-            # description='very important!!\nReally.', # <====
+        entity = self.create_entity(user=user)
+        todo = self._create_todo(
+            user=user, entity=entity, title='To be done',
+            description='',  # <====
             deadline=now() + timedelta(days=7),
         )
         content1 = TodoReminderContent(instance=todo)
@@ -564,7 +683,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             content2.get_html_body(user=user),
         )
 
-    def test_todo_reminder_content_error(self):
+    def test_reminder_content__error(self):
         "Todo does not exist anymore."
         user = self.get_root_user()
         content = TodoReminderContent.from_dict({'instance': self.UNUSED_PK})
@@ -576,8 +695,9 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(body, content.get_body(user=user))
         self.assertEqual(body, content.get_html_body(user=user))
 
-    def test_reminder01(self):
-        user = self.user
+    def test_reminder(self):
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user)
         now_value = now()
 
         # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
@@ -591,7 +711,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         job = self.get_reminder_job()
         self.assertIsNone(job.type.next_wakeup(job, now_value))
 
-        create_todo = partial(ToDo.objects.create, real_entity=self.entity, user=user)
+        create_todo = partial(ToDo.objects.create, real_entity=entity, user=user)
         todo1 = create_todo(title='Todo#1', deadline=now_value)
         create_todo(title='Todo#2', deadline=now_value + timedelta(days=2))
         create_todo(title='Todo#3')
@@ -617,9 +737,10 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         response = self.assertGET200(job.get_absolute_url())
         self.get_brick_node(self.get_html_tree(response.content), brick=JobErrorsBrick)
 
-    def test_reminder02(self):
+    def test_reminder__minimum_hour(self):
         "Minimum hour (SettingValue) is in the future."
-        user = self.user
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
         now_value = now()
 
         next_hour = localtime(now_value).hour + 1
@@ -635,9 +756,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         notif_qs = Notification.objects.filter(channel__uuid=UUID_CHANNEL_REMINDERS, user=user)
         self.assertFalse(notif_qs.all())
 
-        ToDo.objects.create(
-            real_entity=self.entity, user=user, title='Todo #1', deadline=now_value,
-        )
+        self._create_todo(entity=entity, user=user, title='Todo #1', deadline=now_value)
 
         job = self.get_reminder_job()
         wakeup = job.type.next_wakeup(job, now_value)
@@ -649,9 +768,9 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.execute_reminder_job(job)
         self.assertFalse(notif_qs.all())
 
-    def test_reminder03(self):
-        "Teams."
-        user = self.user
+    def test_reminder__teams(self):
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
         now_value = now()
 
         teammate = self.create_user(0)
@@ -662,9 +781,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         sv.value = max(localtime(now_value).hour - 1, 0)
         sv.save()
 
-        ToDo.objects.create(
-            title='Todo#1', deadline=now_value, real_entity=self.entity, user=team,
-        )
+        self._create_todo(title='Todo#1', deadline=now_value, entity=entity, user=team)
 
         self.execute_reminder_job()
 
@@ -673,14 +790,9 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.get_object_or_fail(Notification, channel__uuid=uid, user=teammate)
         self.assertFalse(Notification.objects.filter(channel__uuid=uid, user=team).exists())
 
-    def test_reminder04(self):
-        "Dynamic user."
+    def test_reminder__dynamic_user(self):
         other_user = self.create_user()
-
-        entity = self.entity
-        entity.user = other_user
-        entity.save()
-
+        entity = self.create_entity(user=other_user)
         now_value = now()
 
         # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
@@ -704,6 +816,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_next_wakeup01(self):
         "Next wake is one day later + minimum hour."
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
         now_value = now()
 
         next_hour = localtime(now_value).hour + 1
@@ -717,7 +831,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         def create_todo(title, deadline, **kwargs):
             ToDo.objects.create(
-                real_entity=self.entity, user=self.user,
+                real_entity=entity, user=user,
                 title=title, deadline=deadline, **kwargs
             )
 
@@ -738,6 +852,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_next_wakeup02(self):
         "Next wake is one day later (but minimum hour has passed)."
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
         now_value = now()
 
         previous_hour = localtime(now_value).hour - 1
@@ -749,9 +865,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         sv.value = previous_hour
         sv.save()
 
-        ToDo.objects.create(
-            real_entity=self.entity, user=self.user,
-            title='Todo#1',
+        self._create_todo(
+            entity=entity, user=user, title='Todo#1',
             deadline=now_value + timedelta(days=2),
         )
 
@@ -761,6 +876,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
     @override_settings(DEFAULT_TIME_ALERT_REMIND=30)
     def test_next_wakeup03(self):
         "ToDos + Alerts => minimum wake up."
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
         now_value = now()
 
         previous_hour = localtime(now_value).hour - 1
@@ -772,48 +889,51 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         sv.value = previous_hour
         sv.save()
 
-        ToDo.objects.create(
-            real_entity=self.entity, user=self.user, title='Todo#1',
+        self._create_todo(
+            entity=entity, user=user, title='Todo#1',
             deadline=now_value + timedelta(days=2),
         )
         alert = Alert.objects.create(
-            real_entity=self.entity, user=self.user, title='Alert#1',
+            real_entity=entity, user=user, title='Alert#1',
             trigger_date=now_value + timedelta(days=3),
         )
 
         job = self.get_reminder_job()
-        self.assertEqual(now_value + timedelta(days=1), job.type.next_wakeup(job, now_value))
+        self.assertEqual(
+            now_value + timedelta(days=1),
+            job.type.next_wakeup(job, now_value),
+        )
 
         alert.trigger_date = now_value + timedelta(minutes=50)
         alert.save()
-
-        self.assertEqual(now_value + timedelta(minutes=20), job.type.next_wakeup(job, now_value))
+        self.assertEqual(
+            now_value + timedelta(minutes=20),
+            job.type.next_wakeup(job, now_value),
+        )
 
     @staticmethod
     def _get_hlines():
         return [*HistoryLine.objects.order_by('id')]
 
-    def test_history01(self):
-        "Creation."
-        user = self.user
-        akane = FakeContact.objects.create(user=user, first_name='Akane', last_name='Tendo')
+    def test_history__creation(self):
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
         old_count = HistoryLine.objects.count()
 
-        self._create_todo(entity=akane)
+        self._create_todo(user=user, entity=entity)
         hlines = self._get_hlines()
         self.assertEqual(old_count + 1, len(hlines))
 
         hline = hlines[-1]
-        self.assertEqual(akane.id,          hline.entity.id)
-        self.assertEqual(akane.entity_type, hline.entity_ctype)
+        self.assertEqual(entity.id,          hline.entity.id)
+        self.assertEqual(entity.entity_type, hline.entity_ctype)
         self.assertEqual(user,              hline.entity_owner)
         self.assertEqual(TYPE_AUX_CREATION, hline.type)
 
-    def test_history02(self):
-        "Edition."
-        user = self.user
-        akane = FakeContact.objects.create(user=user, first_name='Akane', last_name='Tendo')
-        todo = ToDo.objects.create(user=user, real_entity=akane, title='Todo#1')
+    def test_history__edition(self):
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
+        todo = ToDo.objects.create(user=user, real_entity=entity, title='Todo#1')
         old_count = HistoryLine.objects.count()
 
         todo = self.refresh(todo)  # reset cache
@@ -824,7 +944,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(old_count + 1, len(hlines))
 
         hline = hlines[-1]
-        self.assertEqual(akane.id,         hline.entity.id)
+        self.assertEqual(entity.id,         hline.entity.id)
         self.assertEqual(TYPE_AUX_EDITION, hline.type)
         self.assertListEqual(
             [
@@ -838,11 +958,10 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             hline.modifications,
         )
 
-    def test_history03(self):
-        "Deletion."
-        user = self.user
-        akane = FakeContact.objects.create(user=user, first_name='Akane', last_name='Tendo')
-        todo = ToDo.objects.create(user=user, real_entity=akane, title='Todo#1')
+    def test_history__deletion(self):
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
+        todo = self._create_todo(user=user, entity=entity, title='Todo#1')
         old_count = HistoryLine.objects.count()
 
         todo.delete()
@@ -850,11 +969,12 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(old_count + 1, len(hlines))
 
         hline = hlines[-1]
-        self.assertEqual(akane.id,          hline.entity.id)
+        self.assertEqual(entity.id,          hline.entity.id)
         self.assertEqual(TYPE_AUX_DELETION, hline.type)
 
     def test_manager_filter_by_user(self):
-        user = self.user
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
 
         other_user = self.create_user(0)
         teammate1  = self.create_user(1)
@@ -863,7 +983,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         team1 = self.create_team('Team #1', teammate1, user)
         team2 = self.create_team('Team #2', other_user, teammate2)
 
-        create_todo = partial(ToDo.objects.create, real_entity=self.entity, user=user)
+        create_todo = partial(ToDo.objects.create, real_entity=entity, user=user)
         todo1 = create_todo(title='Todo#1')
         create_todo(title='Todo#2', user=other_user)  # No (other user)
         todo3 = create_todo(title='Todo#3', user=team1)
@@ -876,7 +996,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertCountEqual([todo1, todo3], todos)
 
     def test_brick_hide_validated_todos(self):
-        user = self.user
+        user = self.login_as_root_and_get()
 
         def get_state():
             return BrickState.objects.get_for_brick_id(user=user, brick_id=TodosBrick.id)

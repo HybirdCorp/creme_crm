@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,8 @@ from .models import Action, Alert, Memo, ToDo, UserMessage
 
 
 class _AssistantsBrick(QuerysetBrick):
+    permissions = 'assistants'
+
     def _get_queryset_for_detailview(self, entity, context):
         """OVERRIDE ME"""
         pass
@@ -40,7 +42,8 @@ class _AssistantsBrick(QuerysetBrick):
             context, self._get_queryset_for_detailview(entity, context),
         )
 
-        # NB: optimisation ; it avoids the retrieving of the entity during template rendering.
+        # NB: optimisation; it avoids the retrieving of the entity during
+        #     template rendering.
         for assistant in btc['page'].object_list:
             assistant.real_entity = entity
 
@@ -74,7 +77,6 @@ class TodosBrick(_AssistantsBrick):
     # TODO: factorise (is_ok renamed 'is_validated'?)
     def _improve_queryset(self, qs, context):
         hide_validated = BrickManager.get(context).get_state(
-            # brick_id=self.id_,
             brick_id=self.id,
             user=context['user'],
         ).get_extra_data(
@@ -147,7 +149,6 @@ class AlertsBrick(_AssistantsBrick):
 
     def _improve_queryset(self, qs, context):
         hide_validated = BrickManager.get(context).get_state(
-            # brick_id=self.id_,
             brick_id=self.id,
             user=context['user'],
         ).get_extra_data(

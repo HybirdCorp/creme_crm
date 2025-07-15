@@ -606,42 +606,23 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def _build_add_url(entity):
         return reverse('assistants__create_alert', args=(entity.id,))
 
-    def _create_alert(self,
-                      title='TITLE',
-                      description='DESCRIPTION',
-                      trigger_date=datetime(year=2010, month=9, day=29, hour=8),
-                      entity=None,
-                      ):
-        entity = entity or self.entity
-
-        ABSOLUTE = AbsoluteOrRelativeDatetimeField.ABSOLUTE
-        response = self.client.post(
-            self._build_add_url(entity),
-            data={
-                'user':         self.user.pk,
-                'title':        title,
-                'description':  description,
-
-                'trigger': ABSOLUTE,
-                f'trigger_{ABSOLUTE}': self.formfield_value_datetime(trigger_date),
-            },
+    def _create_alert(self, *, entity, user, title='TITLE', description='DESCRIPTION'):
+        return Alert.objects.create(
+            user=user, real_entity=entity, title=title, description=description,
+            trigger_date=self.create_datetime(year=2010, month=9, day=29, hour=8),
         )
-        self.assertNoFormError(response)
 
-        return self.get_object_or_fail(Alert, title=title, description=description)
-
-    def test_create_with_absolute_date(self):
+    def test_create__absolute_date(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, all=['VIEW', 'CHANGE'])
         self.assertFalse(Alert.objects.exists())
-        other_user = self.create_user()
 
-        entity = self.entity
-        entity.user = other_user
-        entity.save()
+        other_user = self.create_user(index=1)
+        entity = self.create_entity(user=other_user)
 
         queue = get_queue()
         queue.clear()
 
-        entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
         self.assertEqual(
             _('New alert for «{entity}»').format(entity=entity),
@@ -667,29 +648,44 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(type(entity), trigger_f.model)
         self.assertIsNone(trigger_f.non_hiddable_cell)
 
-        # ---
+        # POST ---
         title = 'Title'
-        dt_kwargs = {'year': 2010, 'month': 9, 'day': 29, 'hour': 8, 'minute': 0}
-        alert = self._create_alert(title, 'Description', datetime(**dt_kwargs))
-        self.assertEqual(1, Alert.objects.count())
+        description = 'Description'
+        trigger_date = self.create_datetime(year=2010, month=9, day=29, hour=8, minute=0)
+        ABSOLUTE = AbsoluteOrRelativeDatetimeField.ABSOLUTE
+        self.assertNoFormError(self.client.post(
+            self._build_add_url(entity),
+            data={
+                'user':         user.id,
+                'title':        title,
+                'description':  description,
 
-        self.assertIs(False,        alert.is_validated)
-        self.assertEqual(self.user, alert.user)
-        self.assertIs(False,        alert.reminded)
+                'trigger': ABSOLUTE,
+                f'trigger_{ABSOLUTE}': self.formfield_value_datetime(trigger_date),
+            },
+        ))
+
+        alert = self.get_object_or_fail(Alert, title=title, description=description)
+        self.assertIs(False, alert.is_validated)
+        self.assertEqual(user, alert.user)
+        self.assertIs(False, alert.reminded)
 
         self.assertEqual(entity.id,                         alert.entity_id)
         self.assertEqual(entity.entity_type_id,             alert.entity_content_type_id)
-        self.assertEqual(self.create_datetime(**dt_kwargs), alert.trigger_date)
+        self.assertEqual(trigger_date, alert.trigger_date)
         self.assertDictEqual({}, alert.trigger_offset)
 
         self.assertEqual(title, str(alert))
 
+        self.assertEqual(1, Alert.objects.count())
+
         job, _data = self.get_alone_element(queue.refreshed_jobs)
         self.assertEqual(self.get_reminder_job(), job)
 
-    def test_create_with_relative_datetime(self):
+    def test_create__relative_datetime(self):
         "DatetimeField + dynamic user."
-        entity = self.entity
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user)
 
         RELATIVE = AbsoluteOrRelativeDatetimeField.RELATIVE
         title = 'My alert'
@@ -722,20 +718,19 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             alert.trigger_offset,
         )
 
-    def test_create_with_relative_date(self):
+    def test_create__relative_date(self):
         "DateField + not in CremeEntity, in the past."
-        entity = self.entity
-        entity.birthday = date(year=2000, month=3, day=12)
-        entity.save()
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user, birthday=date(year=2000, month=3, day=12))
 
         RELATIVE = AbsoluteOrRelativeDatetimeField.RELATIVE
         title = 'My alert'
         field_name = 'birthday'
         weeks = 1
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             self._build_add_url(entity),
             data={
-                'user':         self.user.pk,
+                'user':         user.id,
                 'title':        title,
                 'description':  '',
 
@@ -745,8 +740,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 f'trigger_{RELATIVE}_2': WeeksPeriod.name,
                 f'trigger_{RELATIVE}_3': str(weeks),
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         alert = self.get_object_or_fail(Alert, title=title, description='')
         self.assertEqual(
@@ -762,16 +756,18 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             alert.trigger_offset,
         )
 
-    def test_create_errors(self):
+    def test_create__errors(self):
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user)
+
         def _fail_creation(**post_data):
-            response = self.assertPOST200(self._build_add_url(self.entity), data=post_data)
+            response = self.assertPOST200(self._build_add_url(entity), data=post_data)
             form = self.get_form_or_fail(response)
             self.assertFalse(form.is_valid(), f'Creation should fail with data={post_data}')
 
-        user_pk = self.user.pk
         ABSOLUTE = AbsoluteOrRelativeDatetimeField.ABSOLUTE
         _fail_creation(
-            user=user_pk, description='description',
+            user=user.id, description='description',
             title='',  # <==
             **{
                 'trigger': ABSOLUTE,
@@ -779,19 +775,41 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             }
         )
         _fail_creation(
-            user=user_pk, title='title', description='description',
+            user=user.id, title='title', description='description',
             trigger='',  # <===
         )
 
-    def test_edit_absolute_date(self):
+    def test_create__no_app_perm(self):
+        user = self.login_as_standard()
+        self.add_credentials(role=user.role, all=['VIEW', 'CHANGE'])
+
+        entity = self.create_entity(user=user)
+        response = self.assertGET403(
+            self._build_add_url(entity), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Assistants (Todos, Memos, …)')
+            ),
+            response.content.decode(),
+        )
+
+    def test_edit__absolute_date(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity = self.create_entity(user=user)
+
         title = 'Title'
         description = 'Description'
-        alert = self._create_alert(title, description)
+        alert = self._create_alert(
+            user=user, entity=entity, title=title, description=description,
+        )
 
         url = alert.get_edit_absolute_url()
         context = self.assertGET200(url).context
         self.assertEqual(
-            _('Alert for «{entity}»').format(entity=self.entity),
+            _('Alert for «{entity}»').format(entity=entity),
             context.get('title'),
         )
 
@@ -811,7 +829,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         response = self.client.post(
             url,
             data={
-                'user':         self.user.pk,
+                'user':         user.id,
                 'title':        title,
                 'description':  description,
 
@@ -828,14 +846,13 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         # Don't care about seconds
         self.assertEqual(self.create_datetime(**dt_kwargs), alert.trigger_date)
 
-    def test_edit_relative_date01(self):
-        entity = self.entity
-        entity.birthday = date(year=2000, month=6, day=25)
-        entity.save()
+    def test_edit__relative_date(self):
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user, birthday=date(year=2000, month=6, day=25))
 
         field_name = 'birthday'
         alert = Alert.objects.create(
-            user=self.user,
+            user=user,
             real_entity=entity,
             title='Title',
             trigger_date=self.create_datetime(
@@ -880,7 +897,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         response2 = self.client.post(
             url,
             data={
-                'user':         self.user.pk,
+                'user':         user.id,
                 'title':        title,
                 'description':  alert.description,
 
@@ -908,20 +925,20 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             alert.trigger_offset,
         )
 
-    def test_edit_relative_date02(self):
-        "NULL date."
-        entity = self.entity
+    def test_edit__relative_date__null_date(self):
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user)
         self.assertIsNone(entity.birthday)
 
         field_name = 'birthday'
-        alert = self._create_alert(title='My alert #1')
+        alert = self._create_alert(user=user, entity=entity, title='My alert #1')
 
         RELATIVE = AbsoluteOrRelativeDatetimeField.RELATIVE
         weeks = 1
         response = self.client.post(
             alert.get_edit_absolute_url(),
             data={
-                'user':         self.user.pk,
+                'user':         user.id,
                 'title':        alert.title,
                 'description':  alert.description,
 
@@ -945,12 +962,13 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             alert.trigger_offset,
         )
 
-    def test_edit_relative_date03(self):
+    def test_edit__relative_date__change_to_absolute(self):
         "Change to absolute => empty offset."
+        user = self.login_as_root_and_get()
         field_name = 'birthday'
         alert = Alert.objects.create(
-            user=self.user,
-            real_entity=self.entity,
+            user=user,
+            real_entity=self.create_entity(user=user),
             title='Title',
             trigger_date=self.create_datetime(
                 year=2022, month=5, day=10, hour=0, minute=0,
@@ -968,7 +986,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         response = self.client.post(
             alert.get_edit_absolute_url(),
             data={
-                'user':  self.user.pk,
+                'user':  user.id,
                 'title': title,
 
                 'trigger': ABSOLUTE,
@@ -981,43 +999,85 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(self.create_datetime(**dt_kwargs), alert.trigger_date)
         self.assertDictEqual({}, alert.trigger_offset)
 
-    def test_delete_related01(self):
-        self._create_alert()
+    def test_edit__no_app_perm(self):
+        user = self.login_as_standard()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity = self.create_entity(user=user)
+        alert = self._create_alert(user=user, entity=entity)
+        response = self.assertGET403(
+            alert.get_edit_absolute_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Assistants (Todos, Memos, …)')
+            ),
+            response.content.decode(),
+        )
+
+    def test_delete_entity(self):
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user)
+        self._create_alert(user=user, entity=entity)
         self.assertEqual(1, Alert.objects.count())
 
-        self.entity.delete()
+        entity.delete()
+        self.assertDoesNotExist(entity)
         self.assertEqual(0, Alert.objects.count())
 
-    def test_delete01(self):
-        alert = self._create_alert()
-        self.assertEqual(1, Alert.objects.count())
+    def test_delete(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
 
+        alert = self._create_alert(user=user, entity=self.create_entity(user=user))
         ct = ContentType.objects.get_for_model(Alert)
-        self.client.post(
+        self.assertPOST200(
             reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
             data={'id': alert.id},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        self.assertFalse(Alert.objects.all())
+        self.assertDoesNotExist(alert)
 
     def test_validate(self):
-        alert = self._create_alert()
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity = self.create_entity(user=user)
+        alert = self._create_alert(user=user, entity=entity)
         self.assertFalse(alert.is_validated)
 
         url = reverse('assistants__validate_alert', args=(alert.id,))
         self.assertGET405(url)
 
         response = self.assertPOST200(url, follow=True)
-        self.assertRedirects(response, self.entity.get_absolute_url())
-
+        self.assertRedirects(response, entity.get_absolute_url())
         self.assertTrue(self.refresh(alert).is_validated)
 
-    def test_offset_signal01(self):
-        entity = self.entity
+    def test_validate__no_app_perm(self):
+        user = self.login_as_standard()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity = self.create_entity(user=user)
+        alert = self._create_alert(user=user, entity=entity)
+        response = self.assertPOST403(
+            reverse('assistants__validate_alert', args=(alert.id,)),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Assistants (Todos, Memos, …)')
+            ),
+            response.content.decode(),
+        )
+
+    def test_offset_signal(self):
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
         # # We refresh to simulate a real edition (i.e. no snapshot) => useless
         # entity = self.refresh(self.entity)
         alert = Alert.objects.create(
-            user=self.user,
-            real_entity=self.entity,
+            user=user,
+            real_entity=entity,
             title='Title',
             trigger_date=self.create_datetime(
                 year=2022, month=5, day=10, hour=0, minute=0,
@@ -1036,16 +1096,12 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             self.refresh(alert).trigger_date,
         )
 
-    def test_offset_signal02(self):
-        """date == NULL."""
-        entity = self.entity
-        # entity = self.refresh(self.entity)
-        entity.birthday = date(year=1980, month=2, day=15)
-        entity.save()
-
+    def test_offset_signal__date_null(self):
+        user = self.get_root_user()
+        entity = self.create_entity(user=user, birthday=date(year=1980, month=2, day=15))
         alert = Alert.objects.create(
-            user=self.user,
-            real_entity=self.entity,
+            user=user,
+            real_entity=entity,
             title='Title',
             trigger_date=self.create_datetime(
                 year=1980, month=2, day=25, hour=0, minute=0,
@@ -1061,15 +1117,16 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         entity.save()
         self.assertIsNone(self.refresh(alert).trigger_date)
 
-    def test_offset_signal03(self):
+    def test_offset_signal__validated(self):
         """Validated alerts are not updated."""
-        entity = self.entity
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
         trigger_date = self.create_datetime(
             year=2022, month=5, day=10, hour=0, minute=0,
         )
         alert = Alert.objects.create(
-            user=self.user,
-            real_entity=self.entity,
+            user=user,
+            real_entity=entity,
             title='Title',
             trigger_date=trigger_date,
             trigger_offset={
@@ -1084,13 +1141,13 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         entity.save()  # NB: the field 'modified' is updated
         self.assertEqual(trigger_date, self.refresh(alert).trigger_date)
 
-    def test_function_field01(self):
+    def test_function_field__empty(self):
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
+
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
         self.assertIsNotNone(funf)
-        self.assertEqual(
-            # '<ul></ul>', funf(self.entity, self.user).render(ViewTag.HTML_LIST),
-            '', funf(self.entity, self.user).render(ViewTag.HTML_LIST),
-        )
+        self.assertEqual('', funf(entity, user).render(ViewTag.HTML_LIST))
 
         # ---
         field_class = funf.search_field_builder
@@ -1098,7 +1155,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         field = field_class(
             cell=EntityCellFunctionField(model=FakeOrganisation, func_field=funf),
-            user=self.user,
+            user=user,
         )
         self.assertIsInstance(field.widget, TextLVSWidget)
 
@@ -1115,66 +1172,103 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             to_python(value=value),
         )
 
-    def test_function_field02(self):
+    def test_function_field(self):
+        user = self.create_user(
+            role=self.create_role(allowed_apps=['creme_core', 'assistants']),
+        )
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
 
-        self._create_alert('Alert01', 'Description01', trigger_date=date(2011, 10, 21))
-        self._create_alert('Alert02', 'Description02', trigger_date=date(2010, 10, 20))
-
-        alert3 = self._create_alert('Alert03', 'Description03', trigger_date=date(2010, 10, 3))
-        alert3.is_validated = True
-        alert3.save()
+        entity = self.create_entity(user=user)
+        create_alert = partial(Alert.objects.create, user=user, real_entity=entity)
+        alert1 = create_alert(title='Alert01', trigger_date=self.create_datetime(2011, 10, 21))
+        alert2 = create_alert(title='Alert02', trigger_date=self.create_datetime(2010, 10, 20))
+        create_alert(
+            title='Alert03', trigger_date=self.create_datetime(2010, 10, 3),
+            is_validated=True,
+        )
 
         with self.assertNumQueries(1):
-            result = funf(self.entity, self.user)
+            result = funf(entity, user)
 
         self.assertEqual(
-            # '<ul><li>Alert02</li><li>Alert01</li></ul>',
-            '<ul class="limited-list"><li>Alert02</li><li>Alert01</li></ul>',
+            f'<ul class="limited-list"><li>{alert2.title}</li><li>{alert1.title}</li></ul>',
             result.render(ViewTag.HTML_LIST),
         )
 
-    def test_function_field03(self):
+    def test_function_field__prefetch(self):
         "Prefetch with 'populate_entities()'."
-        user = self.user
-        self._create_alert('Alert01', 'Description01', trigger_date=date(2011, 10, 21))
-        self._create_alert('Alert02', 'Description02', trigger_date=date(2010, 10, 20))
-
-        entity02 = CremeEntity.objects.create(user=user)
-
-        alert3 = self._create_alert(
-            'Alert03', 'Description03', trigger_date=date(2010, 10, 3), entity=entity02,
+        user = self.create_user(
+            role=self.create_role(allowed_apps=['creme_core', 'assistants']),
         )
-        alert3.is_validated = True
-        alert3.save()
 
-        self._create_alert(
-            'Alert04', 'Description04', trigger_date=date(2010, 10, 3), entity=entity02,
+        entity1 = self.create_entity(user=user)
+        entity2 = CremeEntity.objects.create(user=user)
+
+        create_alert = partial(Alert.objects.create, user=user, real_entity=entity1)
+        alert1 = create_alert(title='Alert1', trigger_date=self.create_datetime(2011, 10, 21))
+        alert2 = create_alert(title='Alert2', trigger_date=self.create_datetime(2010, 10, 20))
+        create_alert(
+            title='Alert3', trigger_date=self.create_datetime(2010, 10, 3),
+            real_entity=entity2, is_validated=True,
+        )
+        alert4 = create_alert(
+            title='Alert4', trigger_date=self.create_datetime(2010, 10, 3),
+            real_entity=entity2,
         )
 
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
 
         with self.assertNumQueries(1):
-            funf.populate_entities([self.entity, entity02], user)
+            funf.populate_entities([entity1, entity2], user)
 
         with self.assertNumQueries(0):
-            result1 = funf(self.entity, user)
-            result2 = funf(entity02, user)
+            result1 = funf(entity1, user)
+
+        with self.assertNumQueries(0):
+            result2 = funf(entity2, user)
 
         self.assertEqual(
-            # '<ul><li>Alert02</li><li>Alert01</li></ul>',
-            '<ul class="limited-list"><li>Alert02</li><li>Alert01</li></ul>',
+            f'<ul class="limited-list"><li>{alert2.title}</li><li>{alert1.title}</li></ul>',
             result1.render(ViewTag.HTML_LIST),
         )
-        self.assertEqual(
-            # '<ul><li>Alert04</li></ul>', result2.render(ViewTag.HTML_LIST),
-            'Alert04', result2.render(ViewTag.HTML_LIST),
+        self.assertEqual(alert4.title, result2.render(ViewTag.HTML_LIST))
+
+    def test_function_field__no_app_perm(self):
+        user = self.create_user(
+            role=self.create_role(allowed_apps=['creme_core']),  # Not 'assistants'
         )
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
+        entity = self.create_entity(user=user)
+
+        with self.assertNumQueries(0):
+            result = funf(entity, user)
+        self.assertEqual(_('Forbidden app'), result.render(ViewTag.HTML_LIST))
+
+    def test_function_field__no_app_perm__prefetch(self):
+        user = self.create_user(
+            role=self.create_role(allowed_apps=['creme_core']),  # Not 'assistants'
+        )
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
+        entity = self.create_entity(user=user)
+
+        with self.assertNumQueries(0):
+            funf.populate_entities([entity], user)
+
+        with self.assertNumQueries(0):
+            result = funf(entity, user)
+        self.assertEqual(_('Forbidden app'), result.render(ViewTag.HTML_LIST))
 
     def test_merge(self):
-        def creator(contact01, contact02):
-            self._create_alert('Alert01', 'Fight against him', date(2011, 1, 9),  contact01)
-            self._create_alert('Alert02', 'Train with him',    date(2011, 1, 10), contact02)
+        def creator(user, contact01, contact02):
+            create_alert = partial(Alert.objects.create, user=user)
+            create_alert(
+                title='Alert01', real_entity=contact01,
+                trigger_date=self.create_datetime(2011, 1, 9),
+            )
+            create_alert(
+                title='Alert02', real_entity=contact02,
+                trigger_date=self.create_datetime(2011, 1, 10),
+            )
             self.assertEqual(2, Alert.objects.count())
 
         def assertor(contact01):
@@ -1186,9 +1280,9 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.aux_test_merge(creator, assertor)
 
-    def test_alert_reminder_content01(self):
+    def test_reminder_content(self):
         user = self.get_root_user()
-        entity = self.entity
+        entity = self.create_entity(user=user)
         alert = Alert.objects.create(
             user=user,
             real_entity=entity,
@@ -1225,10 +1319,9 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             content2.get_html_body(user=user),
         )
 
-    def test_alert_reminder_content02(self):
-        "No description."
+    def test_reminder_content__no_description(self):
         user = self.get_root_user()
-        entity = self.entity
+        entity = self.create_entity(user=user)
         alert = Alert.objects.create(
             user=user,
             real_entity=entity,
@@ -1261,7 +1354,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             content2.get_html_body(user=user),
         )
 
-    def test_alert_reminder_content_error(self):
+    def test_reminder_content__error(self):
         "Alert does not exist anymore."
         user = self.get_root_user()
         content = AlertReminderContent.from_dict({'instance': self.UNUSED_PK})
@@ -1274,8 +1367,9 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(body, content.get_html_body(user=user))
 
     @override_settings(DEFAULT_TIME_ALERT_REMIND=60)
-    def test_reminder01(self):
-        user = self.user
+    def test_reminder(self):
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
         now_value = now()
 
         reminder_job = self.get_reminder_job()
@@ -1286,8 +1380,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertFalse(notif_qs.all())
 
         create_alert = partial(
-            Alert.objects.create,
-            real_entity=self.entity, user=user, trigger_date=now_value,
+            Alert.objects.create, real_entity=entity, user=user, trigger_date=now_value,
         )
         alert1 = create_alert(title='Alert#1', trigger_date=now_value + timedelta(minutes=50))
         alert2 = create_alert(title='Alert#2', trigger_date=now_value + timedelta(minutes=70))
@@ -1308,13 +1401,13 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertTrue(self.refresh(alert1).reminded)
         self.assertFalse(self.refresh(alert2).reminded)
 
-    def test_reminder02(self):
-        "With null trigger date."
+    def test_reminder__null_trigger_date(self):
+        user = self.get_root_user()
         job = self.get_reminder_job()
 
         Alert.objects.create(
-            user=self.user,
-            real_entity=self.entity,
+            user=user,
+            real_entity=self.create_entity(user=user),
             title='Title',
             trigger_date=None,
             trigger_offset={
@@ -1326,35 +1419,32 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.execute_reminder_job(job)
         self.assertFalse(Notification.objects.filter(
-            channel__uuid=UUID_CHANNEL_REMINDERS, user=self.user,
+            channel__uuid=UUID_CHANNEL_REMINDERS, user=user,
         ))
 
     @override_settings(DEFAULT_TIME_ALERT_REMIND=60)
-    def test_reminder03(self):
-        "Dynamic user."
-        other_user = self.create_user()
-
-        entity = self.entity
-        entity.user = other_user
-        entity.save()
+    def test_reminder__dynamic_user(self):
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
 
         notif_qs = Notification.objects.filter(
-            channel__uuid=UUID_CHANNEL_REMINDERS, user=other_user,
+            channel__uuid=UUID_CHANNEL_REMINDERS, user=user,
         )
         self.assertFalse(notif_qs.all())
 
         Alert.objects.create(real_entity=entity, trigger_date=now())
-
         self.execute_reminder_job(self.get_reminder_job())
         self.get_alone_element(notif_qs.all())
 
     @override_settings(DEFAULT_TIME_ALERT_REMIND=30)
-    def test_next_wakeup01(self):
+    def test_next_wakeup(self):
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
         now_value = now()
 
         create_alert = partial(
             Alert.objects.create,
-            real_entity=self.entity, user=self.user, trigger_date=now_value,
+            real_entity=entity, user=user, trigger_date=now_value,
         )
         create_alert(title='Alert#2', is_validated=True)
         create_alert(title='Alert#4', reminded=True)
@@ -1373,11 +1463,11 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             wakeup,
         )
 
-    def test_next_wakeup02(self):
-        "trigger_date==NULL."
+    def test_next_wakeup__null_trigger_date(self):
+        user = self.get_root_user()
         Alert.objects.create(
-            user=self.user,
-            real_entity=self.entity,
+            user=user,
+            real_entity=self.create_entity(user=user),
             title='Title',
             trigger_date=None,
             trigger_offset={
@@ -1391,8 +1481,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertIsNone(job.type.next_wakeup(job, now()))
 
     def test_manager_filter_by_user(self):
-        "Teams."
-        user = self.user
+        user = self.get_root_user()
+        entity = self.create_entity(user=user)
         now_value = now()
 
         other_user = self.create_user(0)
@@ -1404,7 +1494,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         create_alert = partial(
             Alert.objects.create,
-            real_entity=self.entity, user=user, trigger_date=now_value,
+            real_entity=entity, user=user, trigger_date=now_value,
         )
         alert1 = create_alert(title='Alert#1')
         create_alert(title='Alert#2', user=team2)  # No (other team)
@@ -1413,8 +1503,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertCountEqual([alert1, alert3], Alert.objects.filter_by_user(user=user))
 
     def test_brick(self):
-        user = self.user
-        entity1 = self.entity
+        user = self.login_as_root_and_get()
+        entity1 = self.create_entity(user=user)
 
         state = BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id)
         state.set_extra_data(key=BRICK_STATE_HIDE_VALIDATED_ALERTS, value=False)
@@ -1452,7 +1542,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             zone=BrickDetailviewLocation.RIGHT,
         )
 
-        response1 = self.assertGET200(self.entity.get_absolute_url())
+        response1 = self.assertGET200(entity1.get_absolute_url())
         detail_brick_node = self.get_brick_node(
             self.get_html_tree(response1.content), brick=AlertsBrick,
         )
@@ -1482,7 +1572,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         state.set_extra_data(key=BRICK_STATE_HIDE_VALIDATED_ALERTS, value=True)
         state.save()
 
-        response3 = self.assertGET200(self.entity.get_absolute_url())
+        response3 = self.assertGET200(entity1.get_absolute_url())
         detail_brick_node_hidden = self.get_brick_node(
             self.get_html_tree(response3.content), brick=AlertsBrick,
         )
@@ -1503,7 +1593,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertFalse(alert_found(home_brick_node_hidden, alert4))
 
     def test_brick_hide_validated_alerts(self):
-        user = self.user
+        user = self.login_as_root_and_get()
 
         def get_state():
             return BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id)

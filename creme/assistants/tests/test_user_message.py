@@ -48,23 +48,25 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             'assistants__create_message',
         )
 
-    def _create_usermessage(self, title, body, priority, users, entity):
+    def _create_usermessage(self, *, user,
+                            title='Super title', body='content',
+                            priority=None, recipients, entity=None,
+                            ):
         if priority is None:
-            priority = UserMessagePriority.objects.create(title='Important')
+            priority = UserMessagePriority.objects.all()[0]
 
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             self._build_add_url(entity),
             data={
-                'user':     self.user.pk,
+                'user':     user.id,
                 'title':    title,
                 'body':     body,
                 'priority': priority.id,
-                'users':    [u.id for u in users],
+                'users':    [u.id for u in recipients],
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
-    def test_message_sent_content01(self):
+    def test_message_sent_content(self):
         sender = self.get_root_user()
         recipient = self.create_user()
         msg = UserMessage.objects.create(
@@ -93,11 +95,10 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             content2.get_html_body(user=sender),
         )
 
-    def test_message_sent_content02(self):
-        "Related entity."
-        entity = self.entity
+    def test_message_sent_content__related_entity(self):
         sender = self.get_root_user()
         recipient = self.create_user()
+        entity = self.create_entity(user=sender)
         msg = UserMessage.objects.create(
             sender=sender, recipient=recipient, creation_date=now(),
             title='An invoice have been created',
@@ -130,7 +131,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             content2.get_html_body(user=sender),
         )
 
-    def test_message_sent_content_error(self):
+    def test_message_sent_content__error(self):
         "UserMessage does not exist anymore."
         user = self.get_root_user()
         content = MessageSentContent.from_dict({'instance': self.UNUSED_PK})
@@ -164,13 +165,15 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertFalse(chan.name)
         self.assertEqual(UserMessagesChannelType.id, chan.type_id)
 
-    def test_create01(self):
+    def test_create(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
         self.assertFalse(UserMessage.objects.exists())
 
         queue = get_queue()
         queue.clear()
 
-        entity = self.entity
+        entity = self.create_entity(user=user)
         response = self.assertGET200(self._build_add_url(entity))
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
@@ -184,10 +187,13 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         title = 'TITLE'
         body = 'BODY'
         priority = UserMessagePriority.objects.create(title='Important')
-        user1 = self.create_user(
+        recipient = self.create_user(
             username='User01', email='user01@foobar.com', first_name='User01', last_name='Foo',
         )
-        self._create_usermessage(title, body, priority, [user1], entity)
+        self._create_usermessage(
+            user=user, title=title, body=body, priority=priority,
+            recipients=[recipient], entity=entity,
+        )
 
         message = self.get_alone_element(UserMessage.objects.all())
         self.assertEqual(title,    message.title)
@@ -197,8 +203,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(entity.id,             message.entity_id)
         self.assertEqual(entity.entity_type_id, message.entity_content_type_id)
 
-        self.assertEqual(self.user, message.sender)
-        self.assertEqual(user1,    message.recipient)
+        self.assertEqual(user,      message.sender)
+        self.assertEqual(recipient, message.recipient)
 
         self.assertDatetimesAlmostEqual(now(), message.creation_date)
 
@@ -206,33 +212,32 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         notif1 = self.get_object_or_fail(
             Notification,
-            user=user1, channel__uuid=UUID_CHANNEL_USERMESSAGES, output=OUTPUT_WEB,
+            user=recipient, channel__uuid=UUID_CHANNEL_USERMESSAGES, output=OUTPUT_WEB,
         )
         self.assertEqual(MessageSentContent.id, notif1.content_id)
         self.assertDictEqual({'instance': message.id}, notif1.content_data)
 
         self.get_object_or_fail(
             Notification,
-            user=user1, channel__uuid=UUID_CHANNEL_USERMESSAGES, output=OUTPUT_EMAIL,
+            user=recipient, channel__uuid=UUID_CHANNEL_USERMESSAGES, output=OUTPUT_EMAIL,
         )
 
     @override_settings(SOFTWARE_LABEL='My CRM')
-    def test_create02(self):
-        "2 users."
-        priority = UserMessagePriority.objects.create(title='Important')
+    def test_create__2_users(self):
+        user = self.login_as_root_and_get()
+        recipient1 = self.create_user(index=0)
+        recipient2 = self.create_user(index=1)
+        self._create_usermessage(
+            user=user, recipients=[recipient1, recipient2],
+            entity=self.create_entity(user=user),
+        )
+        self.assertCountEqual(
+            [recipient1, recipient2],
+            [msg.recipient for msg in UserMessage.objects.all()],
+        )
 
-        user1 = self.create_user(index=0)
-        user2 = self.create_user(index=1)
-
-        title = 'TITLE'
-        body  = 'BODY'
-        self._create_usermessage(title, body, priority, [user1, user2], self.entity)
-
-        messages = UserMessage.objects.all()
-        self.assertCountEqual([user1, user2], [msg.recipient for msg in messages])
-
-    def test_create03(self):
-        "Without related entity."
+    def test_create__no_related_entity(self):
+        user = self.login_as_root_and_get()
         response = self.assertGET200(self._build_add_url())
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
@@ -240,44 +245,63 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(_('New message'),      context.get('title'))
         self.assertEqual(_('Save the message'), context.get('submit_label'))
 
-        priority = UserMessagePriority.objects.create(title='Important')
-        user1 = self.create_user(index=0)
-
-        self._create_usermessage('TITLE', 'BODY', priority, [user1], None)
+        # POST ---
+        self._create_usermessage(
+            user=user, recipients=[self.create_user(index=0)],
+            # entity=None
+        )
 
         message = self.get_alone_element(UserMessage.objects.all())
         self.assertIsNone(message.entity_id)
         self.assertIsNone(message.entity_content_type_id)
         self.assertIsNone(message.real_entity)
 
-    def test_create04(self):
-        "One team."
-        users = [self.create_user(index=i) for i in range(2)]
-        team = self.create_team('Team', *users)
+    def test_create__1_team(self):
+        user = self.login_as_root_and_get()
+        teammates = [self.create_user(index=i) for i in range(2)]
+        team = self.create_team('Team', *teammates)
+        self._create_usermessage(user=user, recipients=[team])
+        self.assertCountEqual(teammates, [msg.recipient for msg in UserMessage.objects.all()])
 
-        self._create_usermessage('TITLE', 'BODY', None, [team], self.entity)
-        self.assertCountEqual(users, [msg.recipient for msg in UserMessage.objects.all()])
-
-    def test_create05(self):
+    def test_create__teams(self):
         "Teams and isolated users with non-void intersections."
-        users = [self.create_user(index=i) for i in range(4)]
+        user = self.login_as_root_and_get()
+        teammates = [self.create_user(index=i) for i in range(4)]
 
-        team1 = self.create_team('Team01', *users[:2])
-        team2 = self.create_team('Team02', *users[1:3])
+        team1 = self.create_team('Team01', *teammates[:2])
+        team2 = self.create_team('Team02', *teammates[1:3])
 
         self._create_usermessage(
-            'TITLE', 'BODY', None, [team1, team2, users[0], users[3]], self.entity,
+            user=user, recipients=[team1, team2, teammates[0], teammates[3]],
         )
         self.assertCountEqual(
-            users, [msg.recipient for msg in UserMessage.objects.all()],
+            teammates, [msg.recipient for msg in UserMessage.objects.all()],
         )
 
+    def test_create__no_app_perms(self):
+        user = self.login_as_standard()
+
+        response1 = self.assertGET403(
+            self._build_add_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        err = _('You are not allowed to access to the app: {}').format(
+            _('Assistants (Todos, Memos, …)')
+        )
+        self.assertEqual(err, response1.content.decode())
+
+        # ---
+        response2 = self.assertGET403(
+            self._build_add_url(entity=self.create_entity(user=user)),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(err, response2.content.decode())
+
     def test_brick(self):
-        user = self.user
+        user = self.login_as_root_and_get()
         other_user = self.create_user()
         priority = UserMessagePriority.objects.first()
 
-        entity1 = self.entity
+        entity1 = self.create_entity(user=user)
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         entity2 = create_orga(name='Acme')
@@ -313,7 +337,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             zone=BrickDetailviewLocation.TOP,
         )
 
-        response1 = self.assertGET200(self.entity.get_absolute_url())
+        response1 = self.assertGET200(entity1.get_absolute_url())
         detail_brick_node = self.get_brick_node(
             self.get_html_tree(response1.content), brick=UserMessagesBrick,
         )
@@ -342,23 +366,20 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertFalse(message_found(home_brick_node, msg4))
         self.assertTrue(message_found(home_brick_node, msg5))
 
-    def test_delete_related01(self):
-        priority = UserMessagePriority.objects.create(title='Important')
-        self._create_usermessage('TITLE', 'BODY', priority, [self.user], self.entity)
+    def test_delete_related(self):
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user)
+        self._create_usermessage(user=user, recipients=[self.create_user()], entity=entity)
+        message = self.get_alone_element(UserMessage.objects.all())
 
-        self.assertEqual(1, UserMessage.objects.count())
-
-        self.entity.delete()
-        self.assertFalse(UserMessage.objects.all())
+        entity.delete()
+        self.assertDoesNotExist(message)
 
     def test_delete(self):
-        user = self.user
-        other_user = self.create_user()
+        user = self.login_as_assistants_user()
+        recipient2 = self.create_user(index=2)
 
-        priority = UserMessagePriority.objects.create(title='Important')
-        self._create_usermessage(
-            'TITLE', 'BODY', priority, users=[user, other_user], entity=None,
-        )
+        self._create_usermessage(user=user, recipients=[user, recipient2])
 
         messages = {msg.recipient_id: msg for msg in UserMessage.objects.all()}
         self.assertEqual(2, len(messages))
@@ -369,23 +390,47 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertPOST200(url, data={'id': msg1.id}, follow=True)
         self.assertDoesNotExist(msg1)
 
-        msg2 = messages[other_user.id]
+        msg2 = messages[recipient2.id]
         self.assertPOST403(url, data={'id': msg2.id}, follow=True)
         self.assertStillExists(msg2)
 
+    def test_delete__no_app_perm(self):
+        user = self.login_as_standard()
+        msg = UserMessage.objects.create(
+            title='Hi', body='Content', priority=UserMessagePriority.objects.first(),
+            sender=user, recipient=user,
+            creation_date=now(),
+        )
+        response = self.assertPOST403(
+            reverse('assistants__delete_message'), data={'id': msg.id},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Assistants (Todos, Memos, …)')
+            ),
+            response.content.decode(),
+        )
+
     def test_merge(self):
-        def creator(contact01, contact02):
+        def creator(user, contact01, contact02):
             priority = UserMessagePriority.objects.create(title='Important')
             user1 = self.create_user(0)
             self._create_usermessage(
-                'Beware',
-                'This guy wants to fight against you',
-                priority, [user1], contact01,
+                user=user,
+                title='Beware',
+                body='This guy wants to fight against you',
+                priority=priority,
+                recipients=[user1],
+                entity=contact01,
             )
             self._create_usermessage(
-                'Oh',
-                'This guy wants to meet you',
-                priority, [user1], contact02,
+                user=user,
+                title='Oh',
+                body='This guy wants to meet you',
+                priority=priority,
+                recipients=[user1],
+                entity=contact02,
             )
             self.assertEqual(2, UserMessage.objects.count())
 
@@ -398,21 +443,24 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.aux_test_merge(creator, assertor, moved_count=0)
 
-    def test_delete_priority01(self):
+    def test_delete_priority(self):
+        self.login_as_root()
         priority = UserMessagePriority.objects.create(title='Important')
-        response = self.client.post(reverse(
+        self.assertNoFormError(self.client.post(reverse(
             'creme_config__delete_instance',
             args=('assistants', 'message_priority', priority.id),
-        ))
-        self.assertNoFormError(response)
+        )))
 
         job = self.get_deletion_command_or_fail(UserMessagePriority).job
         job.type.execute(job)
         self.assertDoesNotExist(priority)
 
-    def test_delete_priority02(self):
+    def test_delete_priority__used(self):
+        user = self.login_as_root_and_get()
         priority = UserMessagePriority.objects.create(title='Important')
-        self._create_usermessage('TITLE', 'BODY', priority, [self.user], None)
+        self._create_usermessage(
+            user=user, recipients=[self.create_user()], priority=priority,
+        )
         self.get_alone_element(UserMessage.objects.all())
 
         response = self.assertPOST200(reverse(
