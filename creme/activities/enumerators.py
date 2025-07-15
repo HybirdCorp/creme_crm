@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022  Hybird
+#    Copyright (C) 2022-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 from creme.creme_core.core.enumerable import QSEnumerator
+from creme.creme_core.enumerators import UserEnumerator
 from creme.creme_core.utils.unicode_collation import collator
 
 
@@ -39,3 +40,14 @@ class ActivitySubTypeEnumerator(QSEnumerator):
         choices.sort(key=lambda d: sort_key(f"{d.get('group', '')}#{d['label']}"))
 
         return choices[:limit] if limit else choices
+
+
+class CalendarOwnerEnumerator(UserEnumerator):
+    def _queryset(self, user):
+        return super()._queryset(
+            user=user,
+        ).exclude(
+            # NB: this enumerator is used for calendar creation only (the owner
+            #     cannot be changed), so we can safely exclude inactive users.
+            is_active=False,
+        ).exclude(is_team=True, calendar__isnull=False)

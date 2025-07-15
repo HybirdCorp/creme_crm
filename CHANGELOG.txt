@@ -197,6 +197,7 @@
                     - The constants 'NARROW', 'FLOATING_TIME' & 'FLOATING' are now deprecated;
                       use 'Activity.FloatingType.*' instead.
                     - The constants 'SETTING_*' are now deprecated; use 'activities.setting_keys' instead.
+                    - The forms 'CalendarForm' & 'CalendarConfigForm' are now deprecated.
                 * Billing :
                     - The module 'registry' is deprecated.
                     - The class 'views.base.BaseCreation' is deprecated.

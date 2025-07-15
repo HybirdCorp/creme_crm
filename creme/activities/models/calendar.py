@@ -133,6 +133,7 @@ class CalendarManager(models.Manager):
 
 
 class Calendar(CremeModel):
+    user = core_fields.CremeUserForeignKey(verbose_name=_('Calendar owner'))
     name = models.CharField(_('Name'), max_length=100)
     is_default = models.BooleanField(
         _('Is default?'),
@@ -147,7 +148,6 @@ class Calendar(CremeModel):
         verbose_name=_('Is public?'),
         help_text=_('Public calendars can be seen by other users on the calendar view.'),
     )
-    user = core_fields.CremeUserForeignKey(verbose_name=_('Calendar owner'))
     color = core_fields.ColorField(
         # _('Color'),
         help_text=_('It is used on the calendar view to colorize Activities.'),

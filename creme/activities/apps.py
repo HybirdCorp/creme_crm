@@ -112,9 +112,11 @@ class ActivitiesConfig(CremeAppConfig):
         ).brick_class(
             bricks.CalendarsBrick
         ).creation(
-            form_class=cal_forms.CalendarConfigForm,
+            # form_class=cal_forms.CalendarConfigForm,
+            form_class=cal_forms.CalendarConfigCreationForm,
         ).edition(
-            form_class=cal_forms.CalendarConfigForm,
+            # form_class=cal_forms.CalendarConfigForm,
+            form_class=cal_forms.CalendarConfigEditionForm,
         ).deletion(
             form_class=cal_forms.CalendarDeletionForm,
         )
@@ -154,6 +156,10 @@ class ActivitiesConfig(CremeAppConfig):
         ).register_related_model(
             models.ActivitySubType,
             enumerators.ActivitySubTypeEnumerator,
+        ).register_field(
+            model=models.Calendar,
+            field_name='user',
+            enumerator_class=enumerators.CalendarOwnerEnumerator,
         )
 
     def register_fields_config(self, fields_config_registry):

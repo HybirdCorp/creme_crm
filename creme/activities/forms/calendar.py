@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+import warnings
 
 from django.contrib.auth import get_user_model
 from django.db.transaction import atomic
@@ -36,6 +38,10 @@ class CalendarForm(base.CremeModelForm):
         model = Calendar
         exclude = ('user',)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        warnings.warn('CalendarForm is deprecated.', DeprecationWarning)
+
     def get_user(self):
         return self.user
 
@@ -44,9 +50,24 @@ class CalendarForm(base.CremeModelForm):
         return super().save(*args, **kwargs)
 
 
+class MyCalendarForm(base.CremeModelForm):
+    class Meta:
+        model = Calendar
+        exclude = ('user',)
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(user=user, *args, **kwargs)
+        self.instance.user = user
+
+
 class CalendarConfigForm(CalendarForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        warnings.warn(
+            'CalendarConfigForm is deprecated; '
+            'use CalendarConfigCreationForm/CalendarConfigEditionForm instead.',
+            DeprecationWarning,
+        )
 
         if not self.instance.pk:
             self.fields['user'] = ModelChoiceField(
@@ -60,6 +81,18 @@ class CalendarConfigForm(CalendarForm):
 
     def get_user(self):
         return self.cleaned_data.get('user') or self.instance.user
+
+
+class CalendarConfigCreationForm(base.CremeModelForm):
+    class Meta:
+        model = Calendar
+        exclude = ()
+
+
+class CalendarConfigEditionForm(base.CremeModelForm):
+    class Meta:
+        model = Calendar
+        exclude = ('user',)
 
 
 class CalendarM2MReplacer(gen_forms.M2MHandler):
