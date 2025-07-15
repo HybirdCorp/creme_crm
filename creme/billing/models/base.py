@@ -187,7 +187,8 @@ class Base(CremeEntity):
             relation._delete_without_transaction()
 
         for line in lines:
-            line._delete_without_transaction()
+            # line._delete_without_transaction()
+            line.delete()
 
     def clean(self):
         self._clean_source_n_target()

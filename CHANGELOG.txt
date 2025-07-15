@@ -6,6 +6,10 @@
     # The migrations from Creme 2.5 were crashing if a filter references a Property Type
       which has been removed. The invalid conditions are now deleted, & you should
       fix/remove the concerned filter.
+    # Apps:
+        * Billing :
+            - The definitive deletion has been fixed: it did not work with lines
+              related to Product/Service instances.
 
   Developers side :
   -----------------
