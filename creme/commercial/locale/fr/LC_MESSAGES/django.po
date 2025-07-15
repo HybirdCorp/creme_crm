@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-15 09:27+0200\n"
+"POT-Creation-Date: 2025-07-15 10:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -198,6 +198,14 @@ msgstr "Une propriété avec le nom «%(name)s» existe déjà"
 
 msgid "Choose a segment to replace by"
 msgstr "Choisissez un segment par lequel remplacer"
+
+#, python-brace-format
+msgid ""
+"The segment cannot be replaced because some elements cannot be deleted: "
+"{dependencies}"
+msgstr ""
+"Le segment ne peut pas être remplacé car certains éléments ne peuvent pas "
+"être supprimés : {dependencies}"
 
 msgid "Name"
 msgstr "Nom"

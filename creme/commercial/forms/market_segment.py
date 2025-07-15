@@ -16,14 +16,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models import ProtectedError
 from django.db.transaction import atomic
 from django.forms import ModelChoiceField
 from django.forms.utils import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.models import CremeProperty, CremePropertyType, Mutex
 from creme.creme_core.utils import replace_related_object
+from creme.creme_core.utils.html import render_limited_list
+from creme.creme_core.utils.translation import verbose_instances_groups
 
 from ..models import MarketSegment
 
@@ -106,7 +111,7 @@ class SegmentReplacementForm(CremeForm):
         mutex = Mutex.get_n_lock('commercial-replace_segment')
 
         try:
-            with atomic():
+            with atomic(), run_workflow_engine(user=self.user):
                 replace_related_object(segment_2_delete, replacing_segment)
                 segment_2_delete.delete()
 
@@ -117,5 +122,17 @@ class SegmentReplacementForm(CremeForm):
 
                 CremeProperty.objects.filter(type=ptype_2_delete).delete()
                 ptype_2_delete.delete()
+        except ProtectedError as e:
+            # TODO: should we prevent the deletion in some cases?
+            # TODO: unit test
+            raise ConflictError(
+                _(
+                    'The segment cannot be replaced because some elements '
+                    'cannot be deleted: {dependencies}'
+                ).format(dependencies=render_limited_list(
+                    items=[*verbose_instances_groups(e.args[1])],
+                    limit=3,  # TODO: constant/attribute?
+                ))
+            ) from e
         finally:
             mutex.release()
