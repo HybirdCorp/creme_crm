@@ -1493,7 +1493,7 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_config_creation__team(self):
-        user = self.login_as_super()
+        user = self.login_as_root_and_get()
 
         team = self.create_team('Roots', user)
         self.assertFalse(Calendar.objects.filter(user=team))
@@ -1520,12 +1520,49 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertIs(cal.is_public, True)
 
         # Cannot create a second one ---
-        response2 = self.assertGET200(url)
+        # response2 = self.assertGET200(url)
+        #
+        # with self.assertNoException():
+        #     choices = response2.context['form'].fields['user'].choices
+        # self.assertNotInChoices(value=team.id, choices=choices)
+        # self.assertInChoices(value=user.id, label=str(user), choices=choices)
+        response2 = self.assertPOST200(
+            url,
+            data={
+                'name': 'Team calendar #2',
+                'color': '000088',
+                'user': team.id,
+                'is_default': True,
+                # 'is_public': False,  # <== True will be forced
+            },
+        )
+        self.assertFormError(
+            response2.context['form'],
+            field='user',
+            errors=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
+        )
 
-        with self.assertNoException():
-            choices = response2.context['form'].fields['user'].choices
-        self.assertNotInChoices(value=team.id, choices=choices)
-        self.assertInChoices(value=user.id, label=str(user), choices=choices)
+    def test_config_creation__inactive_user(self):
+        self.login_as_root()
+        inactive_user = self.create_user(is_active=False)
+        response = self.assertPOST200(
+            self.CONF_ADD_URL,
+            data={
+                'name': 'Inactive calendar',
+                'color': '000088',
+                'user': inactive_user.id,
+                'is_default': True,
+            },
+        )
+        self.assertFormError(
+            response.context['form'],
+            field='user',
+            errors=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
+        )
 
     def test_config_edition(self):
         user = self.login_as_root_and_get()
