@@ -1197,7 +1197,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
     def test_resource_n_activity08(self):
         "Creation credentials are needed."
         user = self.login_as_projects_user(
-            allowed_apps=['persons'],
+            allowed_apps=['activities', 'persons'],
             creatable_models=[Project, ProjectTask],
         )
         # SetCredentials.objects.create(

@@ -1537,6 +1537,8 @@ class EntityDeletion(EntityDeletionMixin,
 class RelatedToEntityDeletion(generic.base.ContentTypeRelatedMixin,
                               generic.CremeModelDeletion):
     def check_instance_permissions(self, instance, user):
+        user.has_perm_to_access_or_die(instance._meta.app_label)
+
         try:
             entity = instance.get_related_entity()
         except AttributeError:

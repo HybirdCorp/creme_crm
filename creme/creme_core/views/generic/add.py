@@ -64,6 +64,13 @@ class CremeModelCreation(base.CustomFormMixin,
     submit_label = None
     atomic_POST = True
 
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+
+        meta = self.model._meta
+        if not meta.abstract:
+            user.has_perm_to_access_or_die(meta.app_label)
+
     def dispatch(self, request, *args, **kwargs):
         user = request.user
 
@@ -161,7 +168,7 @@ class EntityCreationPopup(base.EntityModelMixin, CremeModelCreationPopup):
         super().check_view_permissions(user=user)
 
         model = self.get_checked_model()
-        user.has_perm_to_access_or_die(model._meta.app_label)
+        # user.has_perm_to_access_or_die(model._meta.app_label)
         user.has_perm_to_create_or_die(model)
 
 

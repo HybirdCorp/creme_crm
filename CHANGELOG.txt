@@ -127,6 +127,10 @@
               A new behaviour has been added with a Workflow: the target of a
               won Opportunity becomes a customer of the emitter.
             - The field 'Opportunity.chance_to_win' checks now that the value is between 0 & 100.
+        * Assistants :
+            - The app permissions are now used by the bricks & function-fields;
+              users which cannot access this app cannot view their content anymore
+              (so you may have to update some roles).
         * Crudity :
             - BEWARE: the date format corresponds now to your server's language (i.e. 'settings.LANGUAGE_CODE').
 
@@ -443,10 +447,15 @@
         # The method 'creme_core.populate.Populator._populate_optional_currencies()' has been removed.
         # The classes inheriting 'creme_core.utils.date_range.DateRange' should implement the new method 'accept()'.
         # In 'creme_core.views' :
-            - The class-view 'entity.EntityRestoration' now just checks the deletion credentials & the attribute "is_deleted".
-            - The mixin 'entity.EntityDeletionMixin' has been heavily reworked :
-                - The method 'delete_entity()' takes a new mandatory argument "deletor".
-                - The methods 'check_entity_for_deletion()' & 'move_to_trash()' have been removed.
+            - In 'generic', the class-views 'CremeModelCreation' & CremeModelEdition now check the
+              app permission (aka 'user.has_perm_to_access(...)') for the concerned model.
+            - In 'entity' :
+                - The class-view 'EntityRestoration' now just checks the deletion credentials & the attribute "is_deleted".
+                - The mixin 'EntityDeletionMixin' has been heavily reworked :
+                    - The method 'delete_entity()' takes a new mandatory argument "deletor".
+                    - The methods 'check_entity_for_deletion()' & 'move_to_trash()' have been removed.
+                - The class-view 'RelatedToEntityDeletion' now checks the app permission for the
+                  concerned model (it was just checking permission for the related entity).
         # In templates :
             - The buttons parts of the hat bricks have changed in order to manage the new deletion & cloning systems
               (good news, some {% block %} have been added) :

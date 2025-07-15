@@ -11,21 +11,21 @@ from creme.creme_core.tests.base import CremeTestCase
 
 
 class AssistantsTestCase(CremeTestCase):
-    def setUp(self):
-        super().setUp()
-        user = self.login_as_root_and_get()
-        self.entity = FakeContact.objects.create(
-            user=user, first_name='Ranma', last_name='Saotome',
+    def login_as_assistants_user(self, *, allowed_apps=('creme_core', ), **kwargs):
+        return super().login_as_standard(allowed_apps=['assistants', *allowed_apps], **kwargs)
+
+    def create_entity(self, user, **kwargs):
+        return FakeContact.objects.create(
+            user=user, first_name='Ranma', last_name='Saotome', **kwargs,
         )
-        self.user = user
 
     def aux_test_merge(self, creator, assertor, moved_count=1):
-        user = self.user
+        user  = self.login_as_root_and_get()
         create_contact = partial(FakeContact.objects.create, user=user)
         contact01 = create_contact(first_name='Ryoga', last_name='Hibiki')
         contact02 = create_contact(first_name='Ryoag', last_name='Hibiik')
 
-        creator(contact01, contact02)
+        creator(user, contact01, contact02)
         old_count = HistoryLine.objects.count()
 
         response = self.client.post(

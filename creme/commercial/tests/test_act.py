@@ -855,7 +855,10 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         objective = ActObjective.objects.create(
             act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
         )
-        self.assertGET200(self._build_create_related_entity_url(objective))
+        self.assertGET200(
+            self._build_create_related_entity_url(objective),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
 
     def test_objective_create_entity_not_superuser02(self):
         "Creation permission is needed."
@@ -874,7 +877,14 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         objective = ActObjective.objects.create(
             act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
         )
-        self.assertGET403(self._build_create_related_entity_url(objective))
+        response = self.assertGET403(
+            self._build_create_related_entity_url(objective),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(
+            _('You are not allowed to create: {}').format(_('Organisation')),
+            response.content.decode(),
+        )
 
     def test_objective_create_entity_not_superuser03(self):
         "<LINK related Act> permission needed."

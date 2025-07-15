@@ -74,6 +74,13 @@ class CremeModelEdition(base.CustomFormMixin,
     title = _('Edit «{object}»')
     submit_label = _('Save the modifications')
 
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+
+        meta = self.model._meta
+        if not meta.abstract:
+            user.has_perm_to_access_or_die(meta.app_label)
+
     def check_instance_permissions(self, instance, user):
         pass
 

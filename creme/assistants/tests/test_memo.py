@@ -30,24 +30,17 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def _build_add_url(entity):
         return reverse('assistants__create_memo', args=(entity.id,))
 
-    def _create_memo(self, content='Content', on_homepage=True, entity=None):
-        entity = entity or self.entity
-        response = self.client.post(
-            self._build_add_url(entity),
-            data={
-                'user':        self.user.pk,
-                'content':     content,
-                'on_homepage': on_homepage,
-            },
+    def _create_memo(self, *, entity, user, content='Content', on_homepage=True):
+        return Memo.objects.create(
+            user=user, real_entity=entity, content=content, on_homepage=on_homepage,
         )
-        self.assertNoFormError(response)
-
-        return self.get_object_or_fail(Memo, content=content)
 
     def test_create(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
         self.assertFalse(Memo.objects.exists())
 
-        entity = self.entity
+        entity = self.create_entity(user=user)
         context = self.assertGET200(self._build_add_url(entity)).context
         self.assertEqual(
             _('New memo for «{entity}»').format(entity=entity),
@@ -57,28 +50,57 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         homepage = True
         content = 'Content'
-        memo = self._create_memo(content, homepage)
-        self.assertEqual(1, Memo.objects.count())
+        self.assertNoFormError(self.client.post(
+            self._build_add_url(entity),
+            data={
+                'user':        user.id,
+                'content':     content,
+                'on_homepage': 'on',
+            },
+        ))
 
-        self.assertEqual(homepage,  memo.on_homepage)
-        self.assertEqual(self.user, memo.user)
-
+        memo = self.get_object_or_fail(Memo, content=content)
+        self.assertEqual(homepage, memo.on_homepage)
+        self.assertEqual(user,     memo.user)
         self.assertEqual(entity.id,             memo.entity_id)
         self.assertEqual(entity.entity_type_id, memo.entity_content_type_id)
-
         self.assertDatetimesAlmostEqual(now(), memo.creation_date)
-
         self.assertEqual(content, str(memo))
 
+        self.assertEqual(1, Memo.objects.count())
+
+    def test_create__no_app_perm(self):
+        user = self.login_as_standard()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+        self.assertFalse(Memo.objects.exists())
+
+        response = self.assertGET403(
+            self._build_add_url(self.create_entity(user=user)),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Assistants (Todos, Memos, …)')
+            ),
+            response.content.decode(),
+        )
+
     def test_edit(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        entity = self.create_entity(user=user)
+
         content = 'content'
         homepage = True
-        memo = self._create_memo(content, homepage)
+        memo = Memo.objects.create(
+            user=user, real_entity=entity, content=content, on_homepage=homepage,
+        )
 
         url = memo.get_edit_absolute_url()
         context = self.assertGET200(url).context
         self.assertEqual(
-            _('Memo for «{entity}»').format(entity=self.entity),
+            _('Memo for «{entity}»').format(entity=entity),
             context.get('title'),
         )
 
@@ -92,7 +114,7 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         response = self.client.post(
             url,
             data={
-                'user':        self.user.pk,
+                'user':        user.id,
                 'content':     content,
                 'on_homepage': homepage,
             },
@@ -105,30 +127,52 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.assertEqual('content: I add a long te…', str(memo))
 
-    def test_delete_related01(self):
-        self._create_memo()
-        self.assertEqual(1, Memo.objects.count())
+    def test_edit__no_app_perm(self):
+        user = self.login_as_standard()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
 
-        self.entity.delete()
-        self.assertEqual(0, Memo.objects.count())
+        memo = Memo.objects.create(
+            user=user, real_entity=self.create_entity(user=user), content='Le content',
+        )
+        response = self.assertGET403(
+            memo.get_edit_absolute_url(),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(
+            _('You are not allowed to access to the app: {}').format(
+                _('Assistants (Todos, Memos, …)')
+            ),
+            response.content.decode(),
+        )
 
-    def test_delete01(self):
-        memo = self._create_memo()
+    def test_delete_entity(self):
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user)
+        memo = self._create_memo(user=user, entity=entity)
+
+        entity.delete()
+        self.assertDoesNotExist(memo)
+
+    def test_delete(self):
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW', 'CHANGE'])
+
+        memo = self._create_memo(user=user, entity=self.create_entity(user=user))
         ct = ContentType.objects.get_for_model(Memo)
-        self.assertPOST(
-            302,
+        self.assertPOST200(
             reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
             data={'id': memo.id},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        self.assertEqual(0, Memo.objects.count())
+        self.assertDoesNotExist(memo)
 
-    def test_function_field01(self):
+    def test_function_field__empty(self):
+        user = self.login_as_root_and_get()
+        entity = self.create_entity(user=user)
+
         funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
         self.assertIsNotNone(funf)
-        self.assertEqual(
-            # '<ul></ul>', funf(self.entity, self.user).render(ViewTag.HTML_LIST),
-            '', funf(self.entity, self.user).render(ViewTag.HTML_LIST),
-        )
+        self.assertEqual('', funf(entity, user).render(ViewTag.HTML_LIST))
 
         # ---
         field_class = funf.search_field_builder
@@ -136,7 +180,7 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         field = field_class(
             cell=EntityCellFunctionField(model=FakeOrganisation, func_field=funf),
-            user=self.user,
+            user=user,
         )
         self.assertIsInstance(field.widget, TextLVSWidget)
 
@@ -156,55 +200,88 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         memo.creation_date = cdate - timedelta(days=1)
         memo.save()
 
-    def test_function_field02(self):
+    def test_function_field(self):
+        user = self.create_user(
+            role=self.create_role(allowed_apps=['creme_core', 'assistants']),
+        )
+        entity = self.create_entity(user=user)
+
         funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
 
-        self._oldify_memo(self._create_memo('Content01'))
-        self._create_memo('Content02')
+        self._oldify_memo(self._create_memo(user=user, entity=entity, content='Content01'))
+        self._create_memo(user=user, entity=entity, content='Content02')
 
         with self.assertNumQueries(1):
-            result = funf(self.entity, self.user)
+            result = funf(entity, user)
 
         self.assertHTMLEqual(
-            # '<ul><li>Content02</li><li>Content01</li></ul>',
             '<ul class="limited-list"><li>Content02</li><li>Content01</li></ul>',
             result.render(ViewTag.HTML_LIST),
         )
 
-    def test_function_field03(self):
+    def test_function_field__prefetch(self):
         "Prefetch with 'populate_entities()'"
-        user = self.user
-        self._oldify_memo(self._create_memo('Content01'))
-        self._create_memo('Content02')
+        user = self.create_user(
+            role=self.create_role(allowed_apps=['creme_core', 'assistants']),
+        )
+        entity1 = self.create_entity(user=user)
 
-        entity02 = CremeEntity.objects.create(user=user)
-        self._oldify_memo(self._create_memo('Content03', entity=entity02))
-        self._create_memo('Content04', entity=entity02)
+        self._oldify_memo(self._create_memo(user=user, entity=entity1, content='Content01'))
+        self._create_memo(user=user, entity=entity1, content='Content02')
+
+        entity2 = CremeEntity.objects.create(user=user)
+        self._oldify_memo(self._create_memo(user=user, entity=entity2, content='Content03'))
+        self._create_memo(user=user, entity=entity2, content='Content04')
 
         funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
 
         with self.assertNumQueries(1):
-            funf.populate_entities([self.entity, entity02], user)
+            funf.populate_entities([entity1, entity2], user)
 
         with self.assertNumQueries(0):
-            result1 = funf(self.entity, user)
-            result2 = funf(entity02, user)
+            result1 = funf(entity1, user)
+            result2 = funf(entity2, user)
 
         self.assertHTMLEqual(
-            # '<ul><li>Content02</li><li>Content01</li></ul>',
             '<ul class="limited-list"><li>Content02</li><li>Content01</li></ul>',
             result1.render(ViewTag.HTML_LIST),
         )
         self.assertHTMLEqual(
-            # '<ul><li>Content04</li><li>Content03</li></ul>',
             '<ul class="limited-list"><li>Content04</li><li>Content03</li></ul>',
             result2.render(ViewTag.HTML_LIST),
         )
 
+    def test_function_field__no_app_perm(self):
+        user = self.create_user(
+            role=self.create_role(allowed_apps=['creme_core']),  # Not 'assistants'
+        )
+        entity = self.create_entity(user=user)
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
+
+        with self.assertNumQueries(0):
+            result = funf(entity, user)
+
+        self.assertEqual(_('Forbidden app'), result.render(ViewTag.HTML_LIST))
+
+    def test_function_field__no_app_perm__prefetch(self):
+        user = self.create_user(
+            role=self.create_role(allowed_apps=['creme_core']),  # Not 'assistants'
+        )
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
+        entity = self.create_entity(user=user)
+
+        with self.assertNumQueries(0):
+            funf.populate_entities([entity], user)
+
+        with self.assertNumQueries(0):
+            result = funf(entity, user)
+        self.assertEqual(_('Forbidden app'), result.render(ViewTag.HTML_LIST))
+
     def test_merge(self):
-        def creator(contact01, contact02):
-            self._create_memo('This guy is strong',           entity=contact01)
-            self._create_memo('This guy lost himself easily', entity=contact02)
+        def creator(user, contact01, contact02):
+            create = partial(Memo.objects.create, user=user)
+            create(content='This guy is strong',           real_entity=contact01)
+            create(content='This guy lost himself easily', real_entity=contact02)
             self.assertEqual(2, Memo.objects.count())
 
         def assertor(contact01):
@@ -217,9 +294,10 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.aux_test_merge(creator, assertor)
 
     def test_brick(self):
-        user = self.user
+        user = self.login_as_assistants_user()
+        self.add_credentials(role=user.role, own=['VIEW'])
 
-        entity1 = self.entity
+        entity1 = self.create_entity(user=user)
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         entity2 = create_orga(name='Acme')
@@ -248,7 +326,7 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             zone=BrickDetailviewLocation.RIGHT,
         )
 
-        response1 = self.assertGET200(self.entity.get_absolute_url())
+        response1 = self.assertGET200(entity1.get_absolute_url())
         detail_brick_node = self.get_brick_node(
             self.get_html_tree(response1.content), brick=MemosBrick,
         )
@@ -277,7 +355,7 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_manager_filter_by_user(self):
         "Teams."
-        user = self.user
+        user = self.get_root_user()
         other_user = self.create_user(0)
         teammate1  = self.create_user(1)
         teammate2  = self.create_user(2)
@@ -286,7 +364,8 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         team2 = self.create_team('Team #2', other_user, teammate2)
 
         create_memo = partial(
-            Memo.objects.create, real_entity=self.entity, user=user, on_homepage=True,
+            Memo.objects.create,
+            real_entity=self.create_entity(user=user), user=user, on_homepage=True,
         )
         memo1 = create_memo(content='Memo#1')
         memo2 = create_memo(content='Memo#2', user=team1)
