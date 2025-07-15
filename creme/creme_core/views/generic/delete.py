@@ -80,16 +80,20 @@ class CremeDeletionMixin:
 
                 # TODO: sort predicates alphabetically?
                 for dep in dependencies:
-                    if isinstance(dep, Relation) and dep.subject_entity_id == instance.id:
-                        obj_entity = dep.object_entity
+                    if isinstance(dep, Relation):
+                        if dep.subject_entity_id == instance.id:
+                            obj_entity = dep.object_entity
 
-                        if can_view(obj_entity):
-                            yield format_html(
-                                '{predicate} {link}',
-                                predicate=dep.type.predicate,
-                                link=entity_as_link(obj_entity),
-                            )
-                        else:
+                            if can_view(obj_entity):
+                                yield format_html(
+                                    '{predicate} {link}',
+                                    predicate=dep.type.predicate,
+                                    link=entity_as_link(obj_entity),
+                                )
+                            else:
+                                not_viewable_relations_counter[dep.type.predicate] += 1
+                        elif dep.object_entity_id != instance.id:
+                            # TODO: other_relations_counter?
                             not_viewable_relations_counter[dep.type.predicate] += 1
 
                 if not_viewable_count:
