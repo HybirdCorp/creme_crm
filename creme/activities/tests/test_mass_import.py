@@ -480,7 +480,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         "Another cell splitting type: pattern '$civility $first_name $last_name'."
         user = self.login_as_root_and_get()
 
-        miss = self.get_object_or_fail(Civility, pk=2)
+        miss = self.get_object_or_fail(Civility, uuid='6b84a23d-c4ec-41c1-a35d-e6c0af5af2a0')
         aoi = Contact.objects.create(
             user=user, first_name='Aoi', last_name='Kunieda', civility=miss,
         )
@@ -1244,7 +1244,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertIsNone(ittosai.civility)
 
         # Civility retrieved by title
-        mister = self.get_object_or_fail(Civility, pk=3)
+        mister = self.get_object_or_fail(Civility, uuid='08e68afd-64aa-4981-a1db-4bde37b08655')
         first_name = 'Tatsumi'
         last_name = 'Oga'
         contacts, err_msg = ext.extract_value([f'{mister.title} {first_name} {last_name}'], user)
