@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import logging
 import sys
+import warnings
 from collections.abc import Iterable, Iterator, Sequence
 from datetime import date, datetime
 from decimal import Decimal
@@ -33,7 +34,7 @@ from math import ceil
 
 from django.core.exceptions import ValidationError
 from django.core.paginator import InvalidPage
-from django.db.models import Model, Q, QuerySet
+from django.db.models import ForeignKey, Model, Q, QuerySet
 
 from creme.creme_core.utils.dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
 from creme.creme_core.utils.db import populate_related
@@ -50,6 +51,173 @@ class FirstPage(InvalidPage):
 
 class LastPage(InvalidPage):
     pass
+
+
+def is_field_unique(model, field_name):
+    if "__" in field_name:
+        # Require all fields to be unique and not null
+        field_names = field_name.split("__")
+        for fname in field_names[:-1]:
+            if not is_field_unique(model, fname):
+                return False
+            model = model._meta.get_field(fname).related_model
+        field_name = field_names[-1]
+
+    # Require field to be unique and not null
+    field = model._meta.get_field(field_name)
+    return field.unique and not field.null
+
+
+def is_ordering_stable(model, ordering: tuple | list) -> bool:
+    """Determines if the ordering of a queryset is stable.
+
+    A stable ordering means there's at least one field that uniquely identifies each record
+    (i.e. a unique and non-null field is used in the ordering).
+
+    Example:
+        >>> is_ordering_stable(CremeUser, ('username',))  # True as username is unique & non-null
+        >>> is_ordering_stable(Contact, ('last_name',))  # False
+
+    @param model: The Django model class.
+    @param ordering: List/tuple of ordering fields (can include '-' prefix for descending order).
+    @return True if the ordering is stable, False otherwise.
+    """
+
+    if not ordering:
+        return False
+
+    # Iterate through ordering fields
+    for field_name in ordering:
+        # Remove '-' prefix if present
+        clean_name = field_name.lstrip('-')
+
+        if is_field_unique(model, clean_name):
+            return True
+
+    # No unique non-null field found in ordering
+    return False
+
+
+def flatten_ordering(model, ordering, prefix="", direction=1) -> list[str]:
+    """Flattens a complex ordering specification into a list of concrete field names.
+
+    Handles nested model relationships and processes order directions.
+
+    Example:
+        >>> flatten_ordering(Contact,  ['position', 'last_name'])
+        ['position__title', 'last_name']
+        >>> flatten_ordering(Contact,  ['last_name', 'first_name', 'civility'])
+        ['last_name', 'first_name', 'civility__title']
+
+    @param model: The Django model class.
+    @param ordering: List/tuple of ordering fields.
+    @param prefix: String prefix for field names in case of recursive calls.
+    @param direction: 1 for ascending, -1 for descending order.
+    @return List of flattened field names with proper prefixes.
+    @raise ValueError: If attempting to order by a ManyToManyField.
+    """
+
+    flatten = []
+    if not ordering:
+        # Default to ordering by 'id' if no ordering specified
+        return flatten_ordering(model, ("id",), prefix, direction=direction)
+
+    # Iterate through ordering fields
+    for field_name in ordering:
+        # Handle descending order prefix
+        field_direction = direction
+        if field_name.startswith('-'):
+            field_direction = -direction
+            field_name = field_name[1:]
+
+        # Handle related field lookups (field__related_field)
+        if "__" in field_name:
+            fmodel = model
+            fprefix = prefix
+            # Process each part of the related lookup except the last
+            for fname in field_name.split("__")[:-1]:
+                fprefix = f"{fprefix}__{fname}" if fprefix else fname
+                f = fmodel._meta.get_field(fname)
+                fmodel = f.related_model
+
+            # Process the last part of the lookup
+            flatten.extend(
+                flatten_ordering(fmodel, [field_name.split("__")[-1]], fprefix, field_direction)
+            )
+            continue
+
+        # Get the field from the model
+        field = model._meta.get_field(field_name)
+
+        # Build the complete field name with prefix
+        full_field_name = f"{prefix}__{field_name}" if prefix else field_name
+
+        # Many-to-many fields cannot be used for ordering
+        if field.many_to_many:
+            raise ValueError(f"Cannot order by ManyToManyField '{full_field_name}'.")
+
+        # For foreign keys, use the related model's default ordering
+        if isinstance(field, ForeignKey) and field_name == field.name:
+            related_model = field.related_model
+            # Récupération de l'ordre par défaut du modèle relié
+            related_ordering = related_model._meta.ordering
+
+            # Recursively process the related model's ordering
+            sub_flatten = flatten_ordering(
+                related_model,
+                related_ordering,
+                prefix=full_field_name,
+                direction=field_direction,
+            )
+
+            flatten.extend(sub_flatten)
+        else:
+            # For simple fields, add direction prefix if needed
+            if field_direction < 0:
+                full_field_name = f"-{full_field_name}"
+            flatten.append(full_field_name)
+
+    return flatten
+
+
+def validate_queryset_ordering(queryset: QuerySet) -> tuple[QuerySet, list[str]]:
+    """Ensures that a queryset has a valid and stable ordering.
+
+    Gets the ordering from the queryset or model's Meta, flattens any complex
+    ordering specifications, ensures ordering stability by adding 'id' if needed,
+    and returns updated queryset with validated ordering.
+
+    Example:
+        >>> qs = Contact.objects.all()
+        >>> qs, ordering = validate_queryset_ordering(qs)
+        >>> ordering
+        ['last_name', 'first_name', 'id']  # 'id' added to ensure stable ordering
+    @param queryset: The Django QuerySet to validate ordering for.
+    @return Tuple containing:
+        - Updated queryset with validated ordering
+        - List of flattened ordering fields.
+    """
+
+    # Get ordering from queryset or fall back to model's default ordering
+    queryset_ordering = queryset.query.order_by
+    if not queryset_ordering:
+        queryset_ordering = queryset.model._meta.ordering
+
+    # Convert complex orderings (like 'user__name') into concrete field references
+    flat_ordering = flatten_ordering(queryset.model, queryset_ordering)
+
+    # Add 'id' to ordering if current ordering is not stable
+    # (ensures consistent results in pagination)
+    if not is_ordering_stable(queryset.model, flat_ordering):
+        flat_ordering = [*flat_ordering, "id"]
+
+    # Apply the validated ordering to the queryset
+    queryset = queryset.order_by(*flat_ordering)
+
+    return queryset, flat_ordering
+
+
+_sentinel = object()
 
 
 class FlowPaginator:
@@ -72,7 +240,9 @@ class FlowPaginator:
     _attr_name: str
     _reverse_order: bool
 
-    def __init__(self, queryset: QuerySet, key: str, per_page: int, count: int = sys.maxsize):
+    def __init__(
+            self, queryset: QuerySet, *, per_page: int, count: int = sys.maxsize, key=_sentinel
+    ):
         """Constructor.
         @param queryset: QuerySet instance.
                Beware #1: lines must have always the same order when sub-set
@@ -81,22 +251,24 @@ class FlowPaginator:
                Beware #2: the Queryset must contain real instances, not tuples
                 or dicts (i.e. it is not compatible with QuerySets returned by
                 the methods 'values()' & 'values_list()').
-        @param key: Name of the field used as key (i.e. first ordering field).
-               It can be a composed field name like 'user__username'.
-               For ForeignKeys, you must use:
-                - the low-level attribute (e.g. 'myfk' => 'myfk_id').
-                - an order-able subfield's name (e.g. 'myfk__title).
-               ManyToManyFields are not managed.
         @param per_page: Number of entities.
         @param count: Total number of entities (ie should be equal to object_list.count())
                (so no additional query is performed to get it).
                The default value _should_ be overridden with the correct value;
                it is only useful when a whole queryset is iterated with pages()
                (because count is not used).
-        @raise ValueError: If key is invalid.
+        @param key: Deprecated
+        @raise ValueError: If queryset ordering is invalid.
         """
         assert per_page > 1
+        if key is not _sentinel:
+            warnings.warn(
+                'The "key" argument has been removed; '
+                'Use a properly ordered queryset instead.',
+                DeprecationWarning,
+            )
 
+        queryset, ordering = validate_queryset_ordering(queryset)
         self.queryset = queryset
         self.per_page = per_page
         self.count = count
@@ -104,7 +276,8 @@ class FlowPaginator:
 
         self._attr_name: str = ''  # TODO: rename "attr_nameS"?
         self._reverse_order: bool = False
-        self.key = key
+
+        self.key = ordering[0]
 
     @property
     def attr_name(self) -> str:

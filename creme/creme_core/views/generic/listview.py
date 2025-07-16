@@ -451,14 +451,16 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         if not self.fast_mode:
             paginator = Paginator(
                 queryset,
-                per_page=per_page, orphans=orphans,
+                per_page=per_page,
+                orphans=orphans,
                 allow_empty_first_page=allow_empty_first_page,
             )
             paginator.count = self.count
         else:
             paginator = FlowPaginator(
-                queryset=queryset, key=self.ordering[0],
-                per_page=per_page, count=self.count,
+                queryset=queryset,
+                per_page=per_page,
+                count=self.count,
             )
 
         return paginator

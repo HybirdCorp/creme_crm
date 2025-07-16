@@ -114,7 +114,6 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
     def get_paginator(self, *, queryset, ordering):
         return FlowPaginator(
             queryset=queryset.order_by(*ordering),
-            key=ordering[0],
             per_page=self.page_size,
         )
 

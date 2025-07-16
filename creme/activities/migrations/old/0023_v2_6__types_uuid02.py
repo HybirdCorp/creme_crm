@@ -149,11 +149,11 @@ def convert_history_lines(apps, schema_editor):
             instance = model.objects.filter(old_id=old_id).first()
             yield 0 if instance is None else instance.id
 
+    hlines = apps.get_model('creme_core', 'HistoryLine').objects.filter(
+        type=TYPE_EDITION, entity_ctype=activity_ct,
+    ).filter(Q(value__contains='["type"') | Q(value__contains='["sub_type"'))
     for page in FlowPaginator(
-        queryset=apps.get_model('creme_core', 'HistoryLine').objects.filter(
-            type=TYPE_EDITION, entity_ctype=activity_ct,
-        ).filter(Q(value__contains='["type"') | Q(value__contains='["sub_type"')),
-        key='id',
+        queryset=hlines.order_by('id'),
         per_page=256,
     ).pages():
         for hline in page.object_list:

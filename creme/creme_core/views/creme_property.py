@@ -189,8 +189,7 @@ class CTypePropertiesDeletion(generic.base.EntityCTypeRelatedMixin,
             perm=EntityCredentials.CHANGE,
         )
         for page in FlowPaginator(
-            queryset=qs,
-            key=key,
+            queryset=qs.order_by(key),
             per_page=256,
             count=qs.count(),
         ).pages():

@@ -892,7 +892,7 @@ class HistoryLine(Model):
 
         deleted_ids = set()
         paginator = FlowPaginator(
-            queryset=line_qs.order_by('id'), key='id', per_page=1024,
+            queryset=line_qs.order_by('id'), per_page=1024,
         )
 
         for hlines_page in paginator.pages():
@@ -908,7 +908,7 @@ class HistoryLine(Model):
             progress = False
             qs = HistoryLine.objects.filter(type__in=related_types)
             paginator = FlowPaginator(
-                queryset=qs.order_by('id'), key='id', per_page=1024,
+                queryset=qs.order_by('id'), per_page=1024,
             )
 
             for hlines_page in paginator.pages():

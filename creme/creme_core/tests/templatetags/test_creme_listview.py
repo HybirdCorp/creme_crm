@@ -67,8 +67,9 @@ class CremeListViewTagsTestCase(CremeTestCase):
             FakeOrganisation.objects.create(user=user, name=f'A{i}')
 
         paginator = FlowPaginator(
-            queryset=FakeOrganisation.objects.all(),
-            key='name', per_page=5, count=20,
+            queryset=FakeOrganisation.objects.order_by('name'),
+            per_page=5,
+            count=20,
         )
 
         with self.assertNoException():

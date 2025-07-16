@@ -83,11 +83,11 @@ TYPE_PROP_DEL = 13
 def convert_history_lines(apps, schema_editor):
     filter_ptype = apps.get_model('creme_core', 'CremePropertyType').objects.filter
 
+    hlines = apps.get_model('creme_core', 'HistoryLine').objects.filter(
+        type__in=(TYPE_PROP_ADD, TYPE_PROP_DEL),
+    )
     for page in FlowPaginator(
-        queryset=apps.get_model('creme_core', 'HistoryLine').objects.filter(
-            type__in=(TYPE_PROP_ADD, TYPE_PROP_DEL),
-        ),
-        key='id',
+        queryset=hlines.order_by('id'),
         per_page=256,
     ).pages():
         for hline in page.object_list:

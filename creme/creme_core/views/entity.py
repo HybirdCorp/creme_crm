@@ -367,7 +367,6 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
         #  not seem very useful.
         return FlowPaginator(
             queryset=queryset.order_by(*ordering),
-            key=ordering[0],
             per_page=2,  # NB: cannot
         )
 

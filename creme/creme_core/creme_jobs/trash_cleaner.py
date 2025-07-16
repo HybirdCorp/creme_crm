@@ -109,7 +109,6 @@ class _TrashCleanerType(JobType):
                         entity_class.objects.filter(is_deleted=True),
                         EntityCredentials.DELETE,
                     ).order_by('id'),  # .select_for_update()
-                    key='id',
                     per_page=256,
                 )
 
