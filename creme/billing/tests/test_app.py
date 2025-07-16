@@ -90,7 +90,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         # ---
         wf_quote_orga = self.get_object_or_fail(
-            Workflow, uuid='a6a8f398-4967-49f8-8d8f-4aece55329fa',
+            Workflow, uuid=constants.UUID_WORKFLOW_QUOTE_TARGET_ORGA_BECOME_PROSPECT,
         )
         self.assertEqual(
             _('The target Organisation becomes a prospect'), wf_quote_orga.title,
@@ -99,7 +99,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFalse(wf_quote_orga.is_custom)
 
         wf_quote_contact = self.get_object_or_fail(
-            Workflow, uuid='81a52347-4988-4a11-81dc-55eca701447e',
+            Workflow, uuid=constants.UUID_WORKFLOW_QUOTE_TARGET_CONTACT_BECOME_PROSPECT,
         )
         self.assertEqual(
             _('The target Contact becomes a prospect'), wf_quote_contact.title,
@@ -108,7 +108,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFalse(wf_quote_contact.is_custom)
 
         wf_invoice_orga = self.get_object_or_fail(
-            Workflow, uuid='3cc968ec-23c2-4f70-9609-1894d91ff300',
+            Workflow, uuid=constants.UUID_WORKFLOW_INVOICE_TARGET_ORGA_BECOME_CUSTOMER,
         )
         self.assertEqual(
             _('The target Organisation becomes a customer'), wf_invoice_orga.title,
@@ -117,7 +117,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFalse(wf_invoice_orga.is_custom)
 
         wf_invoice_contact = self.get_object_or_fail(
-            Workflow, uuid='457f762d-0bd7-41de-8215-14585e3002ba',
+            Workflow, uuid=constants.UUID_WORKFLOW_INVOICE_TARGET_CONTACT_BECOME_CUSTOMER,
         )
         self.assertEqual(
             _('The target Contact becomes a customer'), wf_invoice_contact.title,

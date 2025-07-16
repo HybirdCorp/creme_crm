@@ -21,7 +21,12 @@ from creme.creme_core.models import (
 from creme.creme_core.tests.base import CremeTestCase
 # from creme.documents.tests.base import _DocumentsTestCase
 from creme.documents.tests.base import DocumentsTestCaseMixin
-from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
+from creme.persons.constants import (
+    REL_SUB_EMPLOYED_BY,
+    REL_SUB_MANAGES,
+    UUID_CIVILITY_MR,
+    UUID_POSITION_CEO,
+)
 from creme.persons.models import Civility, Position, Sector
 
 from ..vcf_lib import readOne as read_vcf
@@ -1389,9 +1394,9 @@ END:VCARD"""
         self.assertEqual(user.id, user_id)
         self.assertEqual(first_name, first_name_f.initial)
         self.assertEqual(last_name, last_name_f.initial)
-        mr = Civility.objects.get(uuid='08e68afd-64aa-4981-a1db-4bde37b08655')
+        mr = Civility.objects.get(uuid=UUID_CIVILITY_MR)
         self.assertEqual(mr.id, civility_id)
-        ceo = Position.objects.get(uuid='1534eb82-f55c-45ef-af2e-4e2d5d68218f')
+        ceo = Position.objects.get(uuid=UUID_POSITION_CEO)
         self.assertEqual(ceo.id, position_id)
 
         self._post_step1(

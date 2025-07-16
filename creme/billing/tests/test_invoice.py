@@ -41,6 +41,8 @@ from ..constants import (
     REL_OBJ_BILL_RECEIVED,
     REL_SUB_BILL_ISSUED,
     REL_SUB_BILL_RECEIVED,
+    UUID_INVOICE_STATUS_DRAFT,
+    UUID_INVOICE_STATUS_TO_BE_SENT,
 )
 from ..models import (
     AdditionalInformation,
@@ -80,7 +82,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         default_status = self.get_alone_element(
             [status for status in statuses if status.is_default]
         )
-        self.assertEqual('1bbb7c7e-610f-4366-b3de-b92d63c9cf23', str(default_status.uuid))
+        self.assertEqual(UUID_INVOICE_STATUS_DRAFT, str(default_status.uuid))
 
         # New default status => previous default status is updated
         new_status1 = InvoiceStatus.objects.create(name='OK', is_default=True)
@@ -102,7 +104,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         validated_status = self.get_alone_element(
             [status for status in statuses if status.is_validated]
         )
-        self.assertEqual('cc1209bb-e8a2-40bb-9361-4230d9e27bf2', str(validated_status.uuid))
+        self.assertEqual(UUID_INVOICE_STATUS_TO_BE_SENT, str(validated_status.uuid))
 
         # New validated status => previous validated status is updated
         new_status1 = InvoiceStatus.objects.create(name='OK', is_validated=True)
@@ -154,7 +156,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertEqual(user, invoice.user)
         self.assertEqual(name, invoice.name)
-        self.assertEqual('1bbb7c7e-610f-4366-b3de-b92d63c9cf23', str(invoice.status.uuid))
+        self.assertEqual(UUID_INVOICE_STATUS_DRAFT, str(invoice.status.uuid))
 
         self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED, object=target)

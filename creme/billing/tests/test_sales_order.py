@@ -15,7 +15,11 @@ from creme.persons.tests.base import (
 )
 
 from ..bricks import ReceivedSalesOrdersBrick
-from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from ..constants import (
+    REL_SUB_BILL_ISSUED,
+    REL_SUB_BILL_RECEIVED,
+    UUID_SALESORDER_STATUS_ISSUED,
+)
 from ..models import Line, NumberGeneratorItem, SalesOrderStatus
 from .base import (
     Address,
@@ -44,7 +48,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         default_status = self.get_alone_element(
             [status for status in statuses if status.is_default]
         )
-        self.assertEqual('bebdab5a-0281-4b34-a257-26602a19e320', str(default_status.uuid))
+        self.assertEqual(UUID_SALESORDER_STATUS_ISSUED, str(default_status.uuid))
 
         # New default status => previous default status is updated
         new_status1 = SalesOrderStatus.objects.create(name='OK', is_default=True)
