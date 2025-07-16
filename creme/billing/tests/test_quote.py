@@ -30,7 +30,11 @@ from creme.persons.tests.base import (
 
 from ..actions import ExportQuoteAction
 from ..bricks import ReceivedQuotesBrick
-from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from ..constants import (
+    REL_SUB_BILL_ISSUED,
+    REL_SUB_BILL_RECEIVED,
+    UUID_QUOTE_STATUS_PENDING,
+)
 from ..custom_forms import QUOTE_CREATION_CFORM
 from ..forms.base import BillingSourceSubCell, BillingTargetSubCell
 # SimpleBillingAlgo
@@ -60,7 +64,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         default_status = self.get_alone_element(
             [status for status in statuses if status.is_default]
         )
-        self.assertEqual(1, default_status.pk)
+        self.assertEqual(UUID_QUOTE_STATUS_PENDING, str(default_status.uuid))
 
         # New default status => previous default status is updated
         new_status1 = QuoteStatus.objects.create(name='OK', is_default=True)

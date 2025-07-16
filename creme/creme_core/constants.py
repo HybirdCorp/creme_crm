@@ -5,6 +5,8 @@ from django.conf import settings
 
 # Auth ---
 ROOT_USERNAME = ROOT_PASSWORD = 'root'
+UUID_CREMEUSER_ROOT = 'f53e8537-9aae-454c-adc1-a89df9563c28'
+UUID_USERROLE_REGULAR = 'a97a66aa-a2c0-42bf-a6d0-a4d99b604cb3'
 UUID_SANDBOX_SUPERUSERS = '83c94e2a-8836-43a4-81b4-996627ef93aa'
 
 # Relationships ---

@@ -440,7 +440,8 @@ class TemplateBaseTestCase(_BillingTestCase):
         with self.assertNoException():
             order = tpl.create_entity()
 
-        self.assertEqual(1, order.status.id)
+        default_status = SalesOrderStatus.objects.get(is_default=True)
+        self.assertEqual(default_status.id, order.status_id)
 
     @skipIfCustomCreditNote
     def test_create_cnote(self):

@@ -97,7 +97,7 @@ class AuthTestCase(CremeTestCase):
     def test_populate(self):
         user = self.get_root_user()
         self.assertUUIDEqual(
-            'f53e8537-9aae-454c-adc1-a89df9563c28', user.uuid,
+            constants.UUID_CREMEUSER_ROOT, user.uuid,
         )
 
         sandbox = self.get_object_or_fail(Sandbox, uuid=constants.UUID_SANDBOX_SUPERUSERS)

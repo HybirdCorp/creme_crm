@@ -103,7 +103,7 @@ class Populator(BasePopulator):
     }
     CREDIT_NOTE_STATUSES = [
         CreditNoteStatus(
-            uuid='57191226-8ece-4a7d-bb5f-1b9635f41d9b',
+            uuid=constants.UUID_CREDITNOTE_STATUS_DRAFT,
             name=pgettext('billing-creditnote', 'Draft'), order=1,
             is_custom=False,
             is_default=True,
@@ -124,13 +124,13 @@ class Populator(BasePopulator):
     ]
     INVOICE_STATUSES = [
         InvoiceStatus(
-            uuid='1bbb7c7e-610f-4366-b3de-b92d63c9cf23',
+            uuid=constants.UUID_INVOICE_STATUS_DRAFT,
             name=pgettext('billing-invoice', 'Draft'), order=1,
             is_custom=False,
             is_default=True,
         ),
         InvoiceStatus(
-            uuid='cc1209bb-e8a2-40bb-9361-4230d9e27bf2',
+            uuid=constants.UUID_INVOICE_STATUS_TO_BE_SENT,
             name=pgettext('billing-invoice', 'To be sent'), order=2,
             is_custom=False,
             is_validated=True,
@@ -166,7 +166,7 @@ class Populator(BasePopulator):
     QUOTE_STATUSES = [
         # is_custom == True :
         QuoteStatus(
-            uuid='9128fed1-e87d-477b-aa94-3d220f724f05',
+            uuid=constants.UUID_QUOTE_STATUS_PENDING,
             name=pgettext('billing-quote', 'Pending'), order=2,
             is_default=True,
         ),
@@ -186,7 +186,7 @@ class Populator(BasePopulator):
     ]
     SALES_ORDER_STATUSES = [
         SalesOrderStatus(
-            uuid='bebdab5a-0281-4b34-a257-26602a19e320',
+            uuid=constants.UUID_SALESORDER_STATUS_ISSUED,
             name=pgettext('billing-salesorder', 'Issued'), order=1,
             is_default=True,
             is_custom=False,
@@ -422,25 +422,25 @@ class Populator(BasePopulator):
         #  - The target of an Invoice becomes a supplier of the emitter
         for uid, billing_model, target_model, title, rtype_id in (
             (
-                'a6a8f398-4967-49f8-8d8f-4aece55329fa',
+                constants.UUID_WORKFLOW_QUOTE_TARGET_ORGA_BECOME_PROSPECT,
                 self.Quote,
                 self.Organisation,
                 _('The target Organisation becomes a prospect'),
                 REL_SUB_PROSPECT,
             ), (
-                '81a52347-4988-4a11-81dc-55eca701447e',
+                constants.UUID_WORKFLOW_QUOTE_TARGET_CONTACT_BECOME_PROSPECT,
                 self.Quote,
                 self.Contact,
                 _('The target Contact becomes a prospect'),
                 REL_SUB_PROSPECT,
             ), (
-                '3cc968ec-23c2-4f70-9609-1894d91ff300',
+                constants.UUID_WORKFLOW_INVOICE_TARGET_ORGA_BECOME_CUSTOMER,
                 self.Invoice,
                 self.Organisation,
                 _('The target Organisation becomes a customer'),
                 REL_SUB_CUSTOMER_SUPPLIER,
             ), (
-                '457f762d-0bd7-41de-8215-14585e3002ba',
+                constants.UUID_WORKFLOW_INVOICE_TARGET_CONTACT_BECOME_CUSTOMER,
                 self.Invoice,
                 self.Contact,
                 _('The target Contact becomes a customer'),
