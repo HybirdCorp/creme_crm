@@ -16,7 +16,12 @@ from creme.persons.tests.base import skipIfCustomOrganisation
 from .. import bricks, constants, setting_keys
 # from ..algos import SimpleAlgo
 # from ..models import ConfigBillingAlgo, SimpleBillingAlgo
-from ..models import CreditNoteStatus, InvoiceStatus, SalesOrderStatus
+from ..models import (
+    CreditNoteStatus,
+    InvoiceStatus,
+    QuoteStatus,
+    SalesOrderStatus,
+)
 # from ..registry import AlgoRegistry
 from .base import (
     Contact,
@@ -56,9 +61,19 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         # ---
-        self.assertEqual(1, SalesOrderStatus.objects.filter(pk=1).count())
-        self.assertEqual(2, InvoiceStatus.objects.filter(pk__in=(1, 2)).count())
-        self.assertEqual(1, CreditNoteStatus.objects.filter(pk=1).count())
+        self.assertEqual(4, QuoteStatus.objects.count())
+        self.assertEqual(1, QuoteStatus.objects.filter(is_default=True).count())
+
+        self.assertEqual(4, SalesOrderStatus.objects.count())
+        self.assertEqual(1, SalesOrderStatus.objects.filter(is_default=True).count())
+
+        self.assertEqual(8, InvoiceStatus.objects.count())
+        self.assertEqual(1, InvoiceStatus.objects.filter(is_default=True).count())
+        self.assertEqual(1, InvoiceStatus.objects.filter(is_validated=True).count())
+        self.assertEqual(2, InvoiceStatus.objects.filter(pending_payment=True).count())
+
+        self.assertEqual(4, CreditNoteStatus.objects.count())
+        self.assertEqual(1, CreditNoteStatus.objects.filter(is_default=True).count())
 
         self.assertTrue(Vat.objects.exists())  # In creme_core populate...
 

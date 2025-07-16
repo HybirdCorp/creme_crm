@@ -60,7 +60,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         default_status = self.get_alone_element(
             [status for status in statuses if status.is_default]
         )
-        self.assertEqual(1, default_status.pk)
+        self.assertEqual('9128fed1-e87d-477b-aa94-3d220f724f05', str(default_status.uuid))
 
         # New default status => previous default status is updated
         new_status1 = QuoteStatus.objects.create(name='OK', is_default=True)

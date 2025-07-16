@@ -44,7 +44,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         default_status = self.get_alone_element(
             [status for status in statuses if status.is_default]
         )
-        self.assertEqual(1, default_status.pk)
+        self.assertEqual('bebdab5a-0281-4b34-a257-26602a19e320', str(default_status.uuid))
 
         # New default status => previous default status is updated
         new_status1 = SalesOrderStatus.objects.create(name='OK', is_default=True)
@@ -155,7 +155,8 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             {self.TARGET_KEY: target},
             form.initial,
         )
-        self.assertEqual(1, status_f.get_bound_field(form, 'status').initial)
+        default_status = SalesOrderStatus.objects.get(is_default=True)
+        self.assertEqual(default_status.id, status_f.get_bound_field(form, 'status').initial)
 
         # ---
         name = 'Order#1'

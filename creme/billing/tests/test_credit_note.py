@@ -69,7 +69,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         default_status = self.get_alone_element(
             [status for status in statuses if status.is_default]
         )
-        self.assertEqual(1, default_status.pk)
+        self.assertEqual('57191226-8ece-4a7d-bb5f-1b9635f41d9b', str(default_status.uuid))
 
         # New default status => previous default status is updated
         new_status1 = CreditNoteStatus.objects.create(name='OK', is_default=True)
