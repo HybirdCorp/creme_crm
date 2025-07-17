@@ -387,6 +387,42 @@ QUnit.test('creme.dialog.Dialog (widget, fetch url, propagateEvent)', function(a
     assert.deepEqual([['dialog-close', [dialog, dialog.options]]], this.mockListenerJQueryCalls('dialog-close'));
 });
 
+QUnit.parametrize('creme.dialog.Dialog (widget, fetch url, propagateEvent list)', [
+    [['frame-activated', 'close']],
+    ['frame-activated close']
+], function(propagateEvent, assert) {
+    var dialog = new creme.dialog.Dialog({
+        backend: this.backend,
+        propagateEvent: propagateEvent,
+        id: 'test-popup'
+    });
+
+    dialog.on('frame-activated', this.mockListener('frame-activated'));
+
+    $(document).on('dialog-frame-activated', this.mockListener('dialog-frame-activated'));
+    $(document).on('dialog-open', this.mockListener('dialog-open'));
+    $(document).on('dialog-before-destroy', this.mockListener('dialog-before-destroy'));
+    $(document).on('dialog-close', this.mockListener('dialog-close'));
+
+    dialog.open();
+    assert.deepEqual([], this.mockListenerCalls('frame-activated'));
+    assert.equal(0, dialog.content().find('.ui-creme-widget').length);
+
+    dialog.fetch('mock/widget');
+    assert.deepEqual([['frame-activated', dialog.frame()]], this.mockListenerCalls('frame-activated'));
+    assert.equal(1, dialog.content().find('.ui-creme-widget').length);
+    assert.equal(1, dialog.content().find('.ui-creme-widget.widget-ready').length);
+
+    dialog.close();
+    assert.deepEqual([['frame-activated', dialog.frame()]], this.mockListenerCalls('frame-activated'));
+    assert.equal(0, dialog.content().find('.ui-creme-widget').length);
+
+    assert.deepEqual([['dialog-frame-activated', [dialog, dialog.frame()]]], this.mockListenerJQueryCalls('dialog-frame-activated'));
+    assert.deepEqual([], this.mockListenerJQueryCalls('dialog-open'));
+    assert.deepEqual([], this.mockListenerJQueryCalls('dialog-before-destroy'));
+    assert.deepEqual([['dialog-close', [dialog, dialog.options]]], this.mockListenerJQueryCalls('dialog-close'));
+});
+
 QUnit.test('creme.dialog.Dialog (widget, fetch url, reactivate)', function(assert) {
     var dialog = new creme.dialog.Dialog({backend: this.backend});
     dialog.on('frame-activated', this.mockListener('frame-activated'));

@@ -532,8 +532,10 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
     trigger: function(event) {
         var data = Array.from(arguments).slice(1);
+        var propagate = this.options.propagateEvent || [];
+        propagate = _.isString(propagate) ? propagate.split(' ') : propagate;
 
-        if (this.options.propagateEvent) {
+        if (propagate === true || _.contains(propagate, event)) {
             /*
              * When propagateEvent is enabled, a copy of the event prefixed by 'dialog-' is triggered to allow
              * the usage of external handlers. It can be used with the new id option to listen a specific
