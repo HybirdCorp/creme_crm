@@ -179,7 +179,7 @@ class RelationTypeDeletion(base.ConfigDeletion):
             #       collected too of course) => fix that?
             raise ConflictError(
                 _(
-                    'The relationship type can not be deleted because of its '
+                    'The relationship type cannot be deleted because of its '
                     'dependencies: {dependencies}'
                 ).format(dependencies=render_limited_list(
                     items=[*verbose_instances_groups(e.args[1])],

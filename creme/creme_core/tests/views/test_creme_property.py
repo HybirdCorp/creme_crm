@@ -434,9 +434,9 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertEqual(
             _(
-                '«{instance}» can not be deleted because it is used as '
-                'relationships type constraint in: {rtypes}'
-            ).format(instance=ptype.text, rtypes=f'«{rtype.predicate}»'),
+                'The property type cannot be deleted because it is used as '
+                'relationship type constraint in: {rtypes}'
+            ).format(rtypes=f'«{rtype.predicate}»'),
             response.content.decode(),
         )
 
@@ -458,8 +458,8 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual([ptype], [*rtype.subject_forbidden_properties.all()])
         self.assertEqual(
             _(
-                '«{instance}» can not be deleted because it is used as '
-                'relationships type constraint in: {rtypes}'
+                'The property type cannot be deleted because it is used as '
+                'relationship type constraint in: {rtypes}'
             ).format(instance=ptype.text, rtypes=f'«{rtype.predicate}»'),
             response.content.decode(),
         )
@@ -507,19 +507,16 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertHTMLEqual(
             _(
-                '«{instance}» can not be deleted because it is used in '
+                'The property type cannot be deleted because it is used in '
                 'filter conditions: {filters}'
-            ).format(
-                instance=ptype1.text,
-                filters=(
-                    f'<ul class="limited-list">'
-                    f'<li>'
-                    f'<a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1.name}</a>'
-                    f'</li>'
-                    f'<li>{efilter2.name} *{_("Credentials filter")}*</li>'
-                    f'</ul>'
-                ),
-            ),
+            ).format(filters=(
+                f'<ul class="limited-list">'
+                f'<li>'
+                f'<a href="{efilter1.get_absolute_url()}" target="_blank">{efilter1.name}</a>'
+                f'</li>'
+                f'<li>{efilter2.name} *{_("Credentials filter")}*</li>'
+                f'</ul>'
+            )),
             response.content.decode(),
         )
 

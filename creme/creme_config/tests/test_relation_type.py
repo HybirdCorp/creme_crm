@@ -570,7 +570,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertStillExists(rel)
         self.assertEqual(
             _(
-                'The relationship type can not be deleted because of its '
+                'The relationship type cannot be deleted because of its '
                 'dependencies: {dependencies}'
             ).format(
                 dependencies=_('{count} {model}').format(
