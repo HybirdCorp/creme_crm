@@ -217,10 +217,9 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
         if rtypes:
             raise ConflictError(
                 gettext(
-                    '«{instance}» can not be deleted because it is used as '
-                    'relationships type constraint in: {rtypes}'
+                    'The property type cannot be deleted because it is used as '
+                    'relationship type constraint in: {rtypes}'
                 ).format(
-                    instance=instance,
                     # TODO: add a detail view for relation type, then render a link
                     rtypes=', '.join(f'«{rtype.predicate}»' for rtype in rtypes),
                 )
@@ -242,10 +241,9 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
 
             raise ConflictError(
                 _(
-                    '«{instance}» can not be deleted because it is used in '
+                    'The property type cannot be deleted because it is used in '
                     'filter conditions: {filters}'
                 ).format(
-                    instance=instance,
                     filters=render_limited_list(
                         items=efilters,
                         limit=self.dependencies_limit,
@@ -269,10 +267,9 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
         # if workflows:
         #     raise ConflictError(
         #         gettext(
-        #             '«{instance}» can not be deleted because it is used by '
+        #             'The property type cannot be deleted because it is used by '
         #             'conditions of Workflow in: {workflows}'
         #         ).format(
-        #             instance=instance,
         #             # todo: add a detail view for workflows, then render a link?
         #             workflows=', '.join(f'«{wf}»' for wf in workflows),
         #         )
