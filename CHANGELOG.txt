@@ -13,6 +13,7 @@
             - The definitive deletion has been fixed: it did not work with lines
               related to Product/Service instances.
         * Assistants:
+            - The dynamic trigger dates of Alerts were not always updated during an entities merging.
             - The URLs to entities in the HTML body of notification emails are now absolute.
         * Emails:
             - The URLs to entities in the HTML body of notification emails
