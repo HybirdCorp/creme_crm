@@ -41,11 +41,13 @@ from ..models import (
     CremeProperty,
     CremePropertyType,
     EntityFilter,
+    Workflow,
 )
 from ..models.utils import model_verbose_name_plural
 from ..utils import get_from_POST_or_404
 from ..utils.content_type import entity_ctypes
 from ..utils.html import render_limited_list
+from ..workflows import PropertyAddingTrigger
 from . import generic
 from .bricks import BricksReloading
 from .generic.base import EntityCTypeRelatedMixin
@@ -253,6 +255,23 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
             )
 
         # ---
+        workflows = [
+            workflow
+            for workflow in Workflow.objects.all()
+            if isinstance(workflow.trigger, PropertyAddingTrigger)
+            and workflow.trigger.property_type == instance
+        ]
+        if workflows:
+            raise ConflictError(
+                gettext(
+                    'The property type cannot be deleted because it is used by '
+                    'triggers of Workflow: {workflows}'
+                ).format(
+                    # TODO: add a detail view for workflows, then render a link?
+                    workflows=', '.join(f'«{wf}»' for wf in workflows),
+                )
+            )
+
         # TODO: uncomment when conditions on properties are managed by Workflow
         # ptype_uuid = str(instance.uuid)
         # workflows = [

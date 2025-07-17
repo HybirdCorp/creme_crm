@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
+from creme.creme_core import workflows
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     condition_handler,
@@ -18,6 +19,7 @@ from creme.creme_core.models import (
     Relation,
     RelationType,
     SemiFixedRelationType,
+    Workflow,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.utils.translation import smart_model_verbose_name
@@ -693,6 +695,60 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
                     f'<a href="{efilter.get_absolute_url()}" target="_blank">{efilter.name}</a>'
                 ),
             ),
+            response.content.decode(),
+        )
+
+    def test_delete__used_by_workflow__trigger(self):
+        self.login_as_root()
+
+        rtype1, sym1 = RelationType.objects.smart_update_or_create(
+            ('test-subject_foo', 'Subject predicate #1'),
+            ('test-object_foo', 'Object predicate #1'),
+            is_custom=True,
+        )
+        rtype2 = RelationType.objects.smart_update_or_create(
+            ('test-subject_bar', 'Subject predicate #2'),
+            ('test-object_bar', 'Object predicate #3'),
+            is_custom=True,
+        )[0]
+
+        wf1 = Workflow.objects.create(
+            title='Flow #1',
+            content_type=FakeContact,
+            trigger=workflows.RelationAddingTrigger(
+                subject_model=FakeContact, rtype=rtype1, object_model=FakeOrganisation,
+            ),
+            # conditions=...
+            # actions=[],
+        )
+        Workflow.objects.create(
+            title='Flow on other ptype',
+            content_type=FakeContact,
+            trigger=workflows.RelationAddingTrigger(
+                subject_model=FakeContact, rtype=rtype2, object_model=FakeOrganisation,
+            ),
+            # conditions=...,
+            # actions=[],
+        )
+        wf3 = Workflow.objects.create(
+            title='Flow #3',
+            content_type=FakeOrganisation,
+            trigger=workflows.RelationAddingTrigger(
+                subject_model=FakeOrganisation, rtype=sym1, object_model=FakeContact,
+            ),
+            # conditions=...,
+            # actions=[],
+        )
+
+        response = self.assertPOST409(
+            self.DEL_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest', data={'id': rtype1.id},
+        )
+        self.assertStillExists(rtype1)
+        self.assertEqual(
+            _(
+                'The relationship type cannot be deleted because it is used by '
+                'triggers of Workflow: {workflows}'
+            ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
             response.content.decode(),
         )
 
