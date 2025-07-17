@@ -228,6 +228,9 @@
                 - creme.utilss.JSON.isJSON is deprecated; Use _.isJSON() instead.
                 - creme.utils.JSON.clean is deprecated; Use _.cleanJSON() instead.
                 - creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText() instead.
+                - In creme.dialog.Dialog :
+                    - 'propagateEvent' option can be now a boolean, an array or a string.
+                      The event will be propagated to the DOM only if true or the event name in the array.
         # A new module 'creme_core.core.snapshot' has been added to get the changes which occurred on a model since its loading ;
           it's already used by the history system & the new workflow engine.
         # In 'creme_core.forms' :
