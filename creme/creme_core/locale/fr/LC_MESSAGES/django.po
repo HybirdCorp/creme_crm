@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-17 15:41+0200\n"
+"POT-Creation-Date: 2025-07-17 16:29+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -4321,6 +4321,14 @@ msgid ""
 msgstr ""
 "Le type de propriété ne peut être supprimé car il est utilisé dans des "
 "conditions de filtre : {filters}"
+
+#, python-brace-format
+msgid ""
+"The property type cannot be deleted because it is used by triggers of "
+"Workflow: {workflows}"
+msgstr ""
+"Le type de propriété ne peut être supprimé car il est utilisé par des "
+"déclenchements de Workflow : {workflows}"
 
 #, python-brace-format
 msgid "The field \"{model}.{field}\" is hidden."

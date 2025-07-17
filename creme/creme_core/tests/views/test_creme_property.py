@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.creme_core import workflows
 from creme.creme_core.bricks import PropertiesBrick
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
@@ -17,6 +18,7 @@ from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
     RelationType,
+    Workflow,
     history,
 )
 from creme.creme_core.utils.translation import smart_model_verbose_name
@@ -520,8 +522,56 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             response.content.decode(),
         )
 
+    def test_delete_type__used_by_workflow__trigger(self):
+        self.login_as_root()
+
+        create_ptype = partial(CremePropertyType.objects.create, is_custom=True)
+        ptype1 = create_ptype(text='is a fighter')
+        ptype2 = create_ptype(text='knows kung-fu')
+
+        wf1 = Workflow.objects.create(
+            title='Flow #1',
+            content_type=FakeContact,
+            trigger=workflows.PropertyAddingTrigger(
+                entity_model=FakeContact, ptype=ptype1,
+            ),
+            # conditions=...
+            # actions=[],
+        )
+        Workflow.objects.create(
+            title='Flow on other ptype',
+            content_type=FakeContact,
+            trigger=workflows.PropertyAddingTrigger(
+                entity_model=FakeContact, ptype=ptype2,
+            ),
+            # conditions=...,
+            # actions=[],
+        )
+        wf3 = Workflow.objects.create(
+            title='Flow #3',
+            content_type=FakeOrganisation,
+            trigger=workflows.PropertyAddingTrigger(
+                entity_model=FakeOrganisation, ptype=ptype1,
+            ),
+            # conditions=...,
+            # actions=[],
+        )
+
+        response = self.assertPOST409(
+            ptype1.get_delete_absolute_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertStillExists(ptype1)
+
+        self.assertEqual(
+            _(
+                'The property type cannot be deleted because it is used by '
+                'triggers of Workflow: {workflows}'
+            ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
+            response.content.decode(),
+        )
+
     # TODO: when conditions o property type are managed
-    # def test_delete_type__used_by_workflow(self):
+    # def test_delete_type__used_by_workflow__condition(self):
     #     self.login_as_root()
     #
     #     create_ptype = partial(CremePropertyType.objects.create, is_custom=True)
@@ -570,9 +620,9 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     #
     #     self.assertEqual(
     #         _(
-    #             '«{instance}» can not be deleted because it is used by '
+    #             'The property type cannot be deleted because it is used by '
     #             'conditions of Workflow in: {workflows}'
-    #         ).format(instance=ptype1.text, workflows=f'«{wf1.title}», «{wf3.title}»'),
+    #         ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
     #         response.content.decode(),
     #     )
 

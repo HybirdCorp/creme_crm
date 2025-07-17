@@ -21,6 +21,7 @@ from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.html import format_html
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -30,11 +31,13 @@ from creme.creme_core.models import (
     EntityFilter,
     RelationType,
     SemiFixedRelationType,
+    Workflow,
 )
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.html import render_limited_list
 from creme.creme_core.utils.translation import verbose_instances_groups
 from creme.creme_core.views import generic
+from creme.creme_core.workflows import RelationAddingTrigger
 
 from .. import bricks
 from ..forms import relation_type as rtype_forms
@@ -155,7 +158,7 @@ class RelationTypeDeletion(base.ConfigDeletion):
                 ) if url else f'{efilter.name} *{efilter.registry.verbose_name}*'
 
             raise ConflictError(
-                _(
+                gettext(
                     'The relationship type cannot be deleted because it is used '
                     'in filter conditions: {filters}'
                 ).format(
@@ -168,7 +171,23 @@ class RelationTypeDeletion(base.ConfigDeletion):
             )
 
         # ---
-        # TODO: check Workflows when conditions on Relation are managed
+        # TODO: check Workflows' conditions when they manage RelationTypes
+        workflows = [
+            workflow
+            for workflow in Workflow.objects.all()
+            if isinstance(workflow.trigger, RelationAddingTrigger)
+            and workflow.trigger.relation_type in (relation_type, relation_type.symmetric_type)
+        ]
+        if workflows:
+            raise ConflictError(
+                gettext(
+                    'The relationship type cannot be deleted because it is '
+                    'used by triggers of Workflow: {workflows}'
+                ).format(
+                    # TODO: add a detail view for workflows, then render a link?
+                    workflows=', '.join(f'«{wf}»' for wf in workflows),
+                )
+            )
 
         # ---
         try:
@@ -178,7 +197,7 @@ class RelationTypeDeletion(base.ConfigDeletion):
             # TODO: the count for Relation is x2 (symmetrical relations are
             #       collected too of course) => fix that?
             raise ConflictError(
-                _(
+                gettext(
                     'The relationship type cannot be deleted because of its '
                     'dependencies: {dependencies}'
                 ).format(dependencies=render_limited_list(

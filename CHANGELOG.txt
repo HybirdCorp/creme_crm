@@ -48,6 +48,7 @@
             - A property (i.e. one entity is tagged at least).
             - A RelationType (as a constraint).
             - A condition of Filter.
+            - A trigger of Workflow.
         - A Relationship type cannot be deleted if it is used by :
             - A Relationship (i.e. 2 entities are linked at least).
             - A condition of Filter.
