@@ -371,6 +371,7 @@ def widget_ctype_hyperlink(ctype, user):
 @register.simple_tag
 def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None,
                             target: str = '_self',  # TODO: Literal? Enum?
+                            relative: bool = True,
                             ):
     """Prints a <a> tag referencing the detail-view of an entity instance.
     @param entity: Instance of a model inheriting CremeEntity which has
@@ -383,6 +384,8 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None,
            'entity.__str__()'.
     @param target: Used to build the HTML attribute <target="...">.
            So the value should be in: "_self", "_blank", "_parent", "_top".
+    @param relative: is the URL relative? If False, 'settings.SITE_DOMAIN' is
+           used to build an absolute URL.
 
     E.g.
       {% widget_entity_hyperlink my_entity user %}
@@ -393,9 +396,11 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None,
     entity = entity.get_real_entity()
 
     if user.has_perm_to_view(entity):
+        url = entity.get_absolute_url()
+
         return format_html(
             '<a href="{url}" target="{target}"{deleted}>{label}</a>',
-            url=entity.get_absolute_url(),
+            url=url if relative else settings.SITE_DOMAIN + url,
             target=target,
             deleted=(
                 mark_safe(' class="is_deleted"')

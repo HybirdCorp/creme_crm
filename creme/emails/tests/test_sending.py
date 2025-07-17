@@ -1494,6 +1494,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         self.assertLess(job.type.next_wakeup(job, now_value), now_value)
 
+    @override_settings(SITE_DOMAIN='https://creme.domain')
     def test_campaign_sent_content(self):
         user = self.login_as_root_and_get()
         camp = EmailCampaign.objects.create(user=user, name='Camp #01')
@@ -1511,7 +1512,11 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
         self.assertHTMLEqual(
             _('The campaign %(campaign)s has been sent') % {
-                'campaign': f'<a href="{camp.get_absolute_url()}" target="_self">{camp}</a>'
+                'campaign': (
+                    f'<a href="https://creme.domain{camp.get_absolute_url()}" target="_self">'
+                    f'{camp}'
+                    f'</a>'
+                ),
             },
             content2.get_html_body(user=user),
         )

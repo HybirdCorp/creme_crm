@@ -95,6 +95,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             content2.get_html_body(user=sender),
         )
 
+    @override_settings(SITE_DOMAIN='https://crm.domain')
     def test_message_sent_content__related_entity(self):
         sender = self.get_root_user()
         recipient = self.create_user()
@@ -126,7 +127,11 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             '<h1>An invoice have been created</h1>'
             '<p>Total: 1500$&lt;script&gt;alert(&quot;pwned&quot;)&lt;/script&gt;</p>'
             + _('Related to %(entity)s') % {
-                'entity': f'<a href="{entity.get_absolute_url()}" target="_self">{entity}</a>'
+                'entity': (
+                    f'<a href="https://crm.domain{entity.get_absolute_url()}" target="_self">'
+                    f'{entity}'
+                    f'</a>'
+                ),
             },
             content2.get_html_body(user=sender),
         )
