@@ -305,14 +305,17 @@ creme.ActivityCalendar = creme.component.Component.sub({
             selectedSourceIds: [],
             showWeekNumber: true,
             showTimezoneInfo: false,
-            timezoneOffset: 0
+            timezoneOffset: 0,
+            hooks: {}
         }, options || {});
 
         this._element = element;
         this._events = new creme.component.EventHandler();
 
+        this.hooks(options.hooks || {});
         this.selectedSourceIds(options.selectedSourceIds || []);
-        this.props(_.omit(options, 'selectedSourceIds'));
+
+        this.props(_.omit(options, 'selectedSourceIds', 'hooks'));
 
         Assert.not(element.is('.fc-creme'), 'creme.ActivityCalendar is already bound');
 
@@ -336,6 +339,24 @@ creme.ActivityCalendar = creme.component.Component.sub({
             this._props[name] = value;
             return this;
         }
+    },
+
+    hooks: function(hooks) {
+        if (hooks === undefined) {
+            return Object.assign({}, this._hooks);
+        }
+
+        this._hooks = Object.assign(this._hooks || {}, hooks);
+        return this;
+    },
+
+    hook: function(name, value) {
+        if (value === undefined) {
+            return Object.assign({}, this._hooks);
+        }
+
+        this._hooks = Object.assign(this._hooks || {}, value);
+        return this;
     },
 
     trigger: function(event) {
@@ -511,6 +532,27 @@ creme.ActivityCalendar = creme.component.Component.sub({
         }
 
         return this;
+    },
+
+    _renderHook: function(name, fallback) {
+        var hook = this.hook(name);
+
+        if (Object.isFunc(hook)) {
+            return function() {
+                var args = Array.from(arguments).slice(1);
+                var ret = hook.apply(undefined, [{
+                    activityCalendar: this,
+                    fallback: fallback,
+                    name: name
+                }].concat(args));
+
+                if (ret === true) {
+                    return fallback.apply(this, args);
+                }
+            }.bind(this);
+        } else {
+            return fallback.bind(this);
+        };
     },
 
     _queryErrorMessage: function(data, error) {
@@ -806,17 +848,27 @@ creme.ActivityCalendar = creme.component.Component.sub({
                      .open({width: '80%'});
     },
 
+    _onCalendarEventShown: function(info) {
+        this.refetchEvents();
+        this.trigger('event-shown', {
+            activityCalendar: this,
+            calEvent: info
+        });
+    },
+
     _onCalendarEventShow: function(calendar, info) {
         var self = this;
+        var callback = function(info) {
+            self._onCalendarEventShown(info);
+        };
 
-        creme.dialogs.url(info.event.url)
-                     .onClose(function() {
-                         self.refetchEvents();
-                         self.trigger('event-shown', {
-                             activityCalendar: self,
-                             calEvent: info
-                         });
-                     }).open({width: '80%'});
+        var show = this._renderHook('calendarEventShow', function(calendar, info, callback) {
+            creme.dialogs.url(info.event.url)
+                         .onClose(callback)
+                         .open({width: '80%'});
+        });
+
+        return show(calendar, info, callback);
     },
 
     _formatEventTime: function(info, formatter) {
@@ -919,11 +971,15 @@ creme.ActivityCalendar = creme.component.Component.sub({
     },
 
     _renderCalendarEventContent: function(calendar, info, createElement) {
+        var renderer;
+
         if (info.view.type === 'week') {
-            return this._renderWeekEventContent(calendar, info, createElement);
+            renderer = this._renderHook('weekEventContent', this._renderWeekEventContent);
         } else {
-            return this._renderMonthEventContent(calendar, info, createElement);
+            renderer = this._renderHook('monthEventContent', this._renderMonthEventContent);
         }
+
+        return renderer(calendar, info, createElement);
     },
 
     _postRenderCalendarEvent: function(calendar, info) {
@@ -966,8 +1022,12 @@ creme.ActivityCalendar = creme.component.Component.sub({
         }
     },
 
-    _renderWeekNumber: function(calendar, info) {
+    _defaultRenderWeekNumber: function(calendar, info) {
         return this._toMoment(info.date).format('[S] W');
+    },
+
+    _renderWeekNumber: function(calendar, info) {
+        return this._renderHook('renderWeekNumber', this._defaultRenderWeekNumber)(calendar, info);
     },
 
     _onCalendarEventOverlap: function(calendar, still, moving) {
