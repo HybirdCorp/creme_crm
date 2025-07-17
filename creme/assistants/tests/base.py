@@ -1,6 +1,7 @@
 from functools import partial
 
 from creme.creme_core import creme_jobs
+from creme.creme_core.core.workflow import WorkflowEngine
 from creme.creme_core.models import FakeContact, Job
 from creme.creme_core.models.history import (
     TYPE_AUX_CREATION,
@@ -71,6 +72,9 @@ class AssistantsTestCase(CremeTestCase):
         return self.get_object_or_fail(Job, type_id=creme_jobs.reminder_type.id)
 
     def execute_reminder_job(self, job=None):
+        # Empty the Queue to avoid log messages
+        WorkflowEngine.get_current()._queue.pickup()
+
         job = job or self.get_reminder_job()
         creme_jobs.reminder_type.execute(job)
 
