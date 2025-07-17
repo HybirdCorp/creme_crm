@@ -146,7 +146,7 @@ class RelationTypeDeletion(base.ConfigDeletion):
                 condition_handler.RelationConditionHandler.type_id,
                 condition_handler.RelationSubFilterConditionHandler.type_id,
             ),
-            conditions__name=relation_type.id,
+            conditions__name__in=(relation_type.id, relation_type.symmetric_type_id),
         )
         if efilters:
             def efilter_to_link(efilter):
