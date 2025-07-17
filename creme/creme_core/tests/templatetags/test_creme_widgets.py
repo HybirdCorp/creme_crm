@@ -107,7 +107,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
         self.assertEqual('Test Contacts', render)
 
-    def test_widget_entity_hyperlink01(self):
+    def test_widget_entity_hyperlink(self):
         "Escaping."
         user = self.get_root_user()
 
@@ -162,8 +162,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render3,
         )
 
-    def test_widget_entity_hyperlink02(self):
-        "Credentials."
+    def test_widget_entity_hyperlink__credentials(self):
         user = self.login_as_standard()
 
         orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='NERV')
@@ -175,7 +174,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
         self.assertEqual(settings.HIDDEN_VALUE, render)
 
-    def test_widget_entity_hyperlink03(self):
+    def test_widget_entity_hyperlink__is_deleted(self):
         "Is deleted."
         user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Seele', is_deleted=True)
@@ -203,6 +202,41 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         self.assertHTMLEqual(
             f'<a href="/tests/organisation/{orga.id}" target="_self">{orga}</a>',
             render2,
+        )
+
+    @override_settings(SITE_DOMAIN='https://crm.domain')
+    def test_widget_entity_hyperlink__relative(self):
+        user = self.get_root_user()
+        orga = FakeOrganisation.objects.create(user=user, name='NERV')
+        ctxt = Context({'user': user, 'orga': orga})
+
+        with self.assertNoException():
+            render1 = Template(
+                r'{% load creme_widgets %}{% widget_entity_hyperlink orga user %}'
+            ).render(ctxt)
+
+        relative_render = f'<a href="/tests/organisation/{orga.id}" target="_self">{orga.name}</a>'
+        self.assertHTMLEqual(relative_render, render1)
+
+        # ---
+        with self.assertNoException():
+            render2 = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_entity_hyperlink entity=orga user=user relative=True %}'
+            ).render(ctxt)
+        self.assertHTMLEqual(relative_render, render2)
+
+        # ---
+        with self.assertNoException():
+            render3 = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_entity_hyperlink orga user=user relative=False %}'
+            ).render(ctxt)
+        self.assertHTMLEqual(
+            f'<a href="https://crm.domain/tests/organisation/{orga.id}" target="_self">'
+            f'{orga.name}'
+            f'</a>',
+            render3,
         )
 
     @override_settings(URLIZE_TARGET_BLANK=False)

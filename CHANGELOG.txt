@@ -10,6 +10,11 @@
         * Billing :
             - The definitive deletion has been fixed: it did not work with lines
               related to Product/Service instances.
+        * Assistants:
+            - The URLs to entities in the HTML body of notification emails are now absolute.
+        * Emails:
+            - The URLs to entities in the HTML body of notification emails
+              (when a campaign has been sent) are now absolute.
 
   Developers side :
   -----------------
