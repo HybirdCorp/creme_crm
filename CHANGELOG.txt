@@ -1,5 +1,11 @@
 == Version 2.5.23 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps:
+        * Assistants:
+            - The dynamic trigger dates of Alerts were not always updated during an entities merging.
+
   Developers side :
   -----------------
 
