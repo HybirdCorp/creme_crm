@@ -76,7 +76,7 @@
         # In Javascript :
             - In creme.dialog.Dialog :
                 - 'propagateEvent' option can be now a boolean, an array or a string.
-                    The event will be propagated to the DOM only if true or the event name in the array.
+                  The event will be propagated to the DOM only if true or the event name in the array.
         # App :
             * Persons :
                 - The model 'Address' got new fields: 'created', 'modified'.
