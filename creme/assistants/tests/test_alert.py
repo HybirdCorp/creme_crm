@@ -1280,6 +1280,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.aux_test_merge(creator, assertor)
 
+    @override_settings(SITE_DOMAIN='https://creme.mydomain')
     def test_reminder_content(self):
         user = self.get_root_user()
         entity = self.create_entity(user=user)
@@ -1314,11 +1315,16 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 title=alert.title,
                 body=alert.description.replace('\n', '<br>'),
             ) + _('Related to %(entity)s') % {
-                'entity': f'<a href="{entity.get_absolute_url()}" target="_self">{entity}</a>'
+                'entity': (
+                    f'<a href="https://creme.mydomain{entity.get_absolute_url()}" target="_self">'
+                    f'{entity}'
+                    f'</a>'
+                ),
             },
             content2.get_html_body(user=user),
         )
 
+    @override_settings(SITE_DOMAIN='https://crm.domain')
     def test_reminder_content__no_description(self):
         user = self.get_root_user()
         entity = self.create_entity(user=user)
@@ -1349,7 +1355,11 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             '<h1>{title}</h1>'.format(
                 title=alert.title,
             ) + _('Related to %(entity)s') % {
-                'entity': f'<a href="{entity.get_absolute_url()}" target="_self">{entity}</a>'
+                'entity': (
+                    f'<a href="https://crm.domain{entity.get_absolute_url()}" target="_self">'
+                    f'{entity}'
+                    f'</a>'
+                ),
             },
             content2.get_html_body(user=user),
         )
