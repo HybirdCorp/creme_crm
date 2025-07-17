@@ -586,11 +586,11 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
     def test_delete__used_by_efilter(self):
         self.login_as_root()
 
-        rtype1 = RelationType.objects.smart_update_or_create(
+        rtype1, sym1 = RelationType.objects.smart_update_or_create(
             ('test-subject_foo', 'subject_predicate'),
             ('test-object_foo', 'object_predicate'),
             is_custom=True,
-        )[0]
+        )
         rtype2 = RelationType.objects.smart_update_or_create(
             ('test-subject_bar', 'subject_predicate'),
             ('test-object_bar', 'object_predicate'),
@@ -613,7 +613,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         ).set_conditions(
-            [build_cond(rtype=rtype1, has=False, filter_type=EF_CREDENTIALS)],
+            [build_cond(rtype=sym1, has=False, filter_type=EF_CREDENTIALS)],
             check_cycles=False, check_privacy=False,
         )
         EntityFilter.objects.smart_update_or_create(
