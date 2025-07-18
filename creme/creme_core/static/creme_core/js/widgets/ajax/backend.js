@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -77,21 +77,21 @@ creme.ajax.Backend.prototype = {
 };
 
 creme.ajax.LOCALIZED_ERROR_MESSAGES = {
-    '0':   gettext('Connection Refused'),
-    '400': gettext('Bad Request'),
-    '401': gettext('Unauthorized'),
-    '403': gettext('Forbidden Access'),
-    '404': gettext('Not Found'),
-    '406': gettext('Not Acceptable'),
-    '409': gettext('Conflict'),
-    '500': gettext('Internal Error')
+    0:   gettext('Connection Refused'),
+    400: gettext('Bad Request'),
+    401: gettext('Unauthorized'),
+    403: gettext('Forbidden Access'),
+    404: gettext('Not Found'),
+    406: gettext('Not Acceptable'),
+    409: gettext('Conflict'),
+    500: gettext('Internal Error')
 };
 
-creme.ajax.localizedErrorMessage = function(xhr) {
-    var status = Object.isEmpty(xhr) ? '200' : (['number', 'string'].indexOf(typeof xhr) !== -1 ? xhr : (xhr.status || '200'));
-    var message = creme.ajax.LOCALIZED_ERROR_MESSAGES[status];
+creme.ajax.localizedErrorMessage = function(status) {
+    status = isNaN(status) ? parseInt(_.isString(status) ? status : (status || {}).status) : status;
+    var message = status >= 0 ? creme.ajax.LOCALIZED_ERROR_MESSAGES[status] : gettext('Error');
 
-    return message || (gettext('Error') + (status && status !== '200' ? ' (' + status + ')' : ''));
+    return message || (gettext('Error') + (status > 0 ? ' (' + status + ')' : ''));
 };
 
 // mock XHR object (thanks to jquery.form author)
@@ -240,11 +240,14 @@ creme.ajax.jqueryAjaxSend = function(url, data, successCb, errorCb, options) {
         }
     };
 
-    function _errorMessage(xhr, textStatus) {
+    function _errorMessage(xhr, textStatus, errorThrown) {
         if (textStatus === 'parseerror') {
             return "JSON parse error";
         } else {
-            return "HTTP ${status} - ${statusText}".template(xhr);
+            return "HTTP ${status} - ${statusText}".template({
+                status: xhr.status || 0,
+                statusText: xhr.statusText || errorThrown || gettext('Error')
+            });
         }
     };
 
@@ -254,7 +257,7 @@ creme.ajax.jqueryAjaxSend = function(url, data, successCb, errorCb, options) {
                 type: "request",
                 status: xhr.status,
                 request: xhr,
-                message: _errorMessage(xhr, textStatus)
+                message: _errorMessage(xhr, textStatus, errorThrown)
             });
         }
     };
