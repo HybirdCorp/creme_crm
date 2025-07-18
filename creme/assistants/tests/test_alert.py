@@ -1307,8 +1307,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             trigger_offset=trigger_offset,
         )
 
-        # return
-
         self.assertNoFormError(self.client.post(
             self.build_merge_url(contact1, contact2),
             follow=True,
@@ -1507,7 +1505,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
         self.assertFalse(notif_qs.all())
 
-        Alert.objects.create(real_entity=entity, trigger_date=now())
+        Alert.objects.create(real_entity=entity, trigger_date=now(), title='Dyn user alert')
         self.execute_reminder_job(self.get_reminder_job())
         self.get_alone_element(notif_qs.all())
 
