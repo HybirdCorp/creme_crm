@@ -817,7 +817,6 @@ creme.dialogs = $.extend(creme.dialogs, {
     },
 
     error: function(message, options, xhr) {
-        xhr = $.extend({status: 200}, xhr);
         var header = creme.ajax.localizedErrorMessage(xhr);
 
         options = $.extend({
