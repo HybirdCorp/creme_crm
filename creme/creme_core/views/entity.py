@@ -1524,13 +1524,16 @@ class EntityDeletion(EntityDeletionMixin,
     # def perform_deletion(self, request):
     #     self.delete_entity(entity=self.get_related_entity(), user=request.user)
     def perform_deletion(self, request):
-        entity = self.get_related_entity()
-        deletor = self.get_deletor_for_entity(entity)
         user = request.user
-        deletor.check_permissions(entity=entity, user=user)
 
         # TODO: test workflow
         with atomic(), run_workflow_engine(user=user):
+            # When the flag 'entity_select_for_update' is enabled the related entity query
+            # will need to be within a transaction.
+            entity = self.get_related_entity()
+            deletor = self.get_deletor_for_entity(entity)
+            deletor.check_permissions(entity=entity, user=user)
+
             self.delete_entity(entity=entity, user=user, deletor=deletor)
 
 
