@@ -27,7 +27,7 @@ from creme.creme_core.models import (
     TrashCleaningCommand,
     history,
 )
-from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.translation import smart_model_verbose_name
 
@@ -1195,3 +1195,44 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         response2 = self.assertPOST200(url, headers={'X-Requested-With': 'XMLHttpRequest'})
         # self.assertEqual(redir_url, response2.content.decode())
         self.assertEqual(redir_url, response2.text)
+
+
+@override_settings(ENTITIES_DELETION_ALLOWED=True)
+class EntityViewsTransactionTestCase(BrickTestCaseMixin, CremeTransactionTestCase):
+    DEL_ENTITIES_URL = reverse('creme_core__delete_entities')
+    EMPTY_TRASH_URL  = reverse('creme_core__empty_trash')
+
+    def setUp(self):
+        super().setUp()
+        self.populate('creme_core', 'creme_config')
+
+    def test_delete_entity(self):
+        "is_deleted=False -> trash. + view transaction"
+        user = self.login_as_root_and_get()
+
+        entity = FakeOrganisation.objects.create(user=user, name='Nerv')
+        self.assertHasAttr(entity, 'is_deleted')
+        self.assertIs(entity.is_deleted, False)
+        self.assertGET200(entity.get_edit_absolute_url())
+
+        absolute_url = entity.get_absolute_url()
+        edit_url = entity.get_edit_absolute_url()
+
+        response = self.assertGET200(absolute_url)
+        self.assertContains(response, str(entity))
+        self.assertContains(response, edit_url)
+
+        url = reverse('creme_core__delete_entity', args=(entity.id,))
+        self.assertGET405(url)
+        self.assertRedirects(self.client.post(url), entity.get_lv_absolute_url())
+
+        with self.assertNoException():
+            entity = self.refresh(entity)
+
+        self.assertIs(entity.is_deleted, True)
+
+        self.assertGET403(edit_url)
+
+        response = self.assertGET200(absolute_url)
+        self.assertContains(response, str(entity))
+        self.assertNotContains(response, edit_url)
