@@ -5,6 +5,7 @@
     # A warning is now displayed if the settings 'SITE_DOMAIN' is not correctly defined
       (this feature has been backported from Creme 2.7).
     # Filtering with the field 'role' of a user was broken.
+    # The position of the notification count indicator was wrong when exploration mode is active.
     # The migrations from Creme 2.5 were crashing if a filter references a Property Type
       which has been removed. The invalid conditions are now deleted, & you should
       fix/remove the concerned filter.
