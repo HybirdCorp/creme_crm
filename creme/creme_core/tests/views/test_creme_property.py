@@ -84,7 +84,11 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(_('Add the properties'), context1.get('submit_label'))
 
         with self.assertNoException():
-            choices = context1['form'].fields['types'].choices
+            # choices = context1['form'].fields['types'].choices
+            choices = [
+                (choice.value, label)
+                for choice, label in context1['form'].fields['types'].widget.choices
+            ]
 
         # Choices are sorted with 'text'
         choices = [*choices]
@@ -662,9 +666,13 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(_('Add the properties'),            get_ctxt1('submit_label'))
 
         with self.assertNoException():
-            ptypes_choices = context1['form'].fields['types'].choices
+            # ptypes_choices = context1['form'].fields['types'].choices
+            choices = [
+                (choice.value, label)
+                for choice, label in context1['form'].fields['types'].widget.choices
+            ]
 
-        choices = [(choice[0].value, choice[1]) for choice in ptypes_choices]
+        # choices = [(choice[0].value, choice[1]) for choice in ptypes_choices]
         self.assertInChoices(value=ptype03.id, label=ptype03.text, choices=choices)
         self.assertInChoices(value=ptype01.id, label=ptype01.text, choices=choices)
         self.assertInChoices(value=ptype02.id, label=ptype02.text, choices=choices)

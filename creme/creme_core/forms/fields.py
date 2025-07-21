@@ -44,6 +44,7 @@ from ..core.entity_filter import EF_REGULAR
 from ..gui import quick_forms
 from ..models import (
     CremeEntity,
+    CremePropertyType,
     CremeUser,
     EntityFilter,
     Relation,
@@ -2151,6 +2152,21 @@ class EnhancedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):
     @initial.setter
     def initial(self, value):
         self._initial = value
+
+
+class PropertyTypeChoiceIterator(EnhancedModelChoiceIterator):
+    def help(self, obj):
+        return obj.description
+
+
+class PropertyTypesChoiceField(EnhancedModelMultipleChoiceField):
+    iterator = PropertyTypeChoiceIterator
+
+    def __init__(self, *,
+                 label=_('Properties'),
+                 queryset=CremePropertyType.objects.none(),
+                 **kwargs):
+        super().__init__(label=label, queryset=queryset, **kwargs)
 
 
 class OrderedChoiceIterator:
