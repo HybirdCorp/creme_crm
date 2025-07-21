@@ -63,9 +63,9 @@ from ..models import (
 from ..models.utils import model_verbose_name
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.url import TemplateURLBuilder
+from . import fields as core_fields
 from .base import _CUSTOM_NAME, CremeForm, CremeModelForm, FieldBlockManager
 from .enumerable import EnumerableModelChoiceField
-from .fields import CreatorEntityField, MultiRelationEntityField
 from .widgets import (
     ChainedInput,
     PrettySelect,
@@ -121,7 +121,7 @@ def get_header(filedata, has_header):
 
 class UploadForm(CremeForm):
     step = forms.IntegerField(widget=HiddenInput)
-    document = CreatorEntityField(
+    document = core_fields.CreatorEntityField(
         label=_('File to import'),
         model=Document,
         create_action_url=reverse('documents__create_document_from_widget'),
@@ -920,7 +920,7 @@ class RelationExtractorSelector(SelectorList):
         }
 
 
-class RelationExtractorField(MultiRelationEntityField):
+class RelationExtractorField(core_fields.MultiRelationEntityField):
     widget = RelationExtractorSelector
     default_error_messages = {
         'fielddoesnotexist': _("This field doesn't exist in this ContentType."),
@@ -1483,11 +1483,12 @@ class ImportForm4CremeEntity(ImportForm):
         label=_('Owner user'), empty_label=None,
         model=CremeEntity, field_name='user',
     )
-    property_types = forms.ModelMultipleChoiceField(
-        label=_('Properties'), required=False,
-        queryset=CremePropertyType.objects.none(),
-    )
-    fixed_relations = MultiRelationEntityField(
+    # property_types = forms.ModelMultipleChoiceField(
+    #     label=_('Properties'), required=False,
+    #     queryset=CremePropertyType.objects.none(),
+    # )
+    property_types = core_fields.PropertyTypesChoiceField(required=False)
+    fixed_relations = core_fields.MultiRelationEntityField(
         label=_('Fixed relationships'), required=False, autocomplete=True,
     )
     dyn_relations = RelationExtractorField(

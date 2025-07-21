@@ -36,6 +36,7 @@ from creme.creme_core.forms.fields import (
     OptionalField,
     OrderedChoiceIterator,
     OrderedMultipleChoiceField,
+    PropertyTypesChoiceField,
     ReadonlyMessageField,
     RelativeDatePeriodField,
     UnionField,
@@ -1442,7 +1443,25 @@ class EnhancedMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertEqual('The "Sword" weapon', choice[0].help)
 
 
-class EnhancedModelMultipleChoiceFieldTestCase(CremeTestCase):
+class _EnhancedModelMultipleChoiceFieldMixin:
+    def assertFoundChoice(self, pk, label, choices):
+        for choice in choices:
+            id_obj = choice[0]
+
+            if id_obj.value == pk:
+                if choice[1] != label:
+                    self.fail(
+                        f'Choice with pk="{pk}" found with '
+                        f'label "{choice[1]}" != "{label}"'
+                    )
+
+                return id_obj
+
+        self.fail(f'Choice with pk="{pk}" not found')
+
+
+class EnhancedModelMultipleChoiceFieldTestCase(_EnhancedModelMultipleChoiceFieldMixin,
+                                               CremeTestCase):
     def assertFoundChoice(self, pk, label, choices):
         for choice in choices:
             id_obj = choice[0]
@@ -1625,6 +1644,80 @@ class EnhancedModelMultipleChoiceFieldTestCase(CremeTestCase):
         choices = [*field.choices]
         choice = self.assertFoundChoice(sector.id, sector.title, choices)
         self.assertEqual(f'The "{sector}" sector', choice.help)
+
+
+class PropertyTypesChoiceFieldTestCase(_EnhancedModelMultipleChoiceFieldMixin,
+                                       CremeTestCase):
+    def test_default(self):
+        field = PropertyTypesChoiceField()
+        self.assertEqual(_('Properties'), field.label)
+        self.assertTrue(field.required)
+        self.assertFalse([*field.queryset])
+
+    def test_required(self):
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Hot')
+        ptype2 = create_ptype(text='Cold')
+
+        label = 'Types to add'
+        field = PropertyTypesChoiceField(
+            label=label,
+            queryset=CremePropertyType.objects.all(),
+        )
+        self.assertEqual(label, field.label)
+        self.assertTrue(field.required)
+
+        ptypes = [*field.queryset]
+        self.assertIn(ptype1, ptypes)
+        self.assertIn(ptype2, ptypes)
+
+        choices = [(choice.value, label) for choice, label in field.widget.choices]
+        self.assertInChoices(value=ptype1.id, label=ptype1.text, choices=choices)
+        self.assertInChoices(value=ptype2.id, label=ptype2.text, choices=choices)
+
+        clean = field.clean
+        self.assertCountEqual([ptype1], clean([ptype1.id]))
+        self.assertCountEqual([ptype2], clean([ptype2.id]))
+        self.assertCountEqual([ptype1, ptype2], clean([ptype1.id, ptype2.id]))
+
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
+
+    def test_not_required(self):
+        ptype = CremePropertyType.objects.create(text='Hot')
+        field = PropertyTypesChoiceField(
+            queryset=CremePropertyType.objects.all(),
+            required=False,
+        )
+        self.assertFalse(field.required)
+
+        clean = field.clean
+        self.assertCountEqual([ptype], clean([ptype.id]))
+        self.assertFalse(clean(''))
+        self.assertFalse(clean([]))
+
+    def test_forced_values(self):
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Hot')
+        ptype2 = create_ptype(text='Cold')
+
+        field = PropertyTypesChoiceField(queryset=CremePropertyType.objects.all())
+        self.assertEqual(frozenset(), field.forced_values)
+        self.assertFalse(field.initial)
+
+        field.forced_values = [ptype2.id]
+        self.assertEqual(frozenset([ptype2.id]), field.forced_values)
+        self.assertSetEqual({ptype2.id}, field.initial)
+
+        # --
+        choices = [*field.choices]
+        choice1 = self.assertFoundChoice(ptype1.id, ptype1.text, choices)
+        self.assertFalse(choice1.readonly)
+
+        choice2 = self.assertFoundChoice(ptype2.id, ptype2.text, choices)
+        self.assertTrue(choice2.readonly)
 
 
 class OrderedMultipleChoiceFieldTestCase(CremeTestCase):

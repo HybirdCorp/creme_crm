@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,17 +20,12 @@ from functools import partial
 
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
-from django.forms import BooleanField, CharField, ModelMultipleChoiceField
+from django.forms import BooleanField, CharField
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import EntityCredentials
-from creme.creme_core.forms import (
-    CremeForm,
-    CremeModelForm,
-    FieldBlockManager,
-    MultiEntityCTypeChoiceField,
-    RelationEntityField,
-)
+from creme.creme_core.forms import base as core_forms
+from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.models import (
     CremePropertyType,
     RelationType,
@@ -38,20 +33,21 @@ from creme.creme_core.models import (
 )
 
 _CTypesField = partial(
-    MultiEntityCTypeChoiceField,
+    core_fields.MultiEntityCTypeChoiceField,
     required=False,
     label=_('Type constraint'),
     help_text=_('No constraint means that all types are accepted.'),
 )
 _PropertyTypesField = partial(
-    ModelMultipleChoiceField,
+    # ModelMultipleChoiceField,
+    core_fields.PropertyTypesChoiceField,
     required=False,
     label=_('Properties constraint'),
     queryset=CremePropertyType.objects.all(),
 )
 
 
-class _RelationTypeForm(CremeForm):
+class _RelationTypeForm(core_forms.CremeForm):
     error_messages = {
         'property_types_collision':  _(
             'These property types cannot be mandatory and forbidden at the '
@@ -105,7 +101,7 @@ class _RelationTypeForm(CremeForm):
         help_text=_('The object cannot have any of the selected properties.'),
     )
 
-    blocks = FieldBlockManager(
+    blocks = core_forms.FieldBlockManager(
         {
             'id': 'subject',
             'label': _('Subject'),
@@ -239,7 +235,7 @@ class RelationTypeEditionForm(_RelationTypeForm):
         )
 
 
-class NotCustomRelationTypeEditionForm(CremeForm):
+class NotCustomRelationTypeEditionForm(core_forms.CremeForm):
     subject_min_display = BooleanField(
         label=_("…the subject's page"), required=False,
         help_text=_(
@@ -255,7 +251,7 @@ class NotCustomRelationTypeEditionForm(CremeForm):
         ),
     )
 
-    blocks = FieldBlockManager(
+    blocks = core_forms.FieldBlockManager(
         {
             'id': 'minimal_display',
             # Translators: the end of the sentence is "…the subject's page" or
@@ -287,8 +283,8 @@ class NotCustomRelationTypeEditionForm(CremeForm):
         return instance
 
 
-class SemiFixedRelationTypeCreationForm(CremeModelForm):
-    semi_relation = RelationEntityField(
+class SemiFixedRelationTypeCreationForm(core_forms.CremeModelForm):
+    semi_relation = core_fields.RelationEntityField(
         label=_('Type and object'), autocomplete=True,
         allowed_rtypes=RelationType.objects.filter(is_internal=False),
         credentials=EntityCredentials.VIEW,
@@ -324,7 +320,7 @@ class SemiFixedRelationTypeCreationForm(CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-class SemiFixedRelationTypeEditionForm(CremeModelForm):
+class SemiFixedRelationTypeEditionForm(core_forms.CremeModelForm):
     class Meta:
         model = SemiFixedRelationType
         fields = ('predicate',)

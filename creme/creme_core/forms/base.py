@@ -554,11 +554,12 @@ class CustomFieldsMixin:
 
 
 class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
-    property_types = core_fields.EnhancedModelMultipleChoiceField(
-        queryset=CremePropertyType.objects.none(),
-        label=_('Properties'),
-        required=False,
-    )
+    # property_types = core_fields.EnhancedModelMultipleChoiceField(
+    #     queryset=CremePropertyType.objects.none(),
+    #     label=_('Properties'),
+    #     required=False,
+    # )
+    property_types = core_fields.PropertyTypesChoiceField(required=False)
 
     rtypes_info = forms.CharField(
         label=_('Information on relationships'),

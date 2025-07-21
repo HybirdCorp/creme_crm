@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,27 +16,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..models import CremeProperty, CremePropertyType
 from ..utils import entities_to_str
+from . import fields as core_fields
 from .base import CremeForm
-from .fields import ReadonlyMessageField
 
 
 class _PropertiesForm(CremeForm):
-    types = ModelMultipleChoiceField(
-        label=_('Type of property'),
-        queryset=CremePropertyType.objects.none(),
-    )
+    # types = ModelMultipleChoiceField(
+    #     label=_('Type of property'),
+    #     queryset=CremePropertyType.objects.none(),
+    # )
+    types = core_fields.PropertyTypesChoiceField(label=_('Type of property'))
 
 
 class PropertiesAddingForm(_PropertiesForm):
     def __init__(self, entity, *args, **kwargs):
         # We need this entity in super constructor when post_init_callback is called.
-        # TODO: Add unit tests for this !
+        # TODO: add unit tests for this!
         self.entity = entity
         super().__init__(*args, **kwargs)
 
@@ -55,7 +55,7 @@ class PropertiesAddingForm(_PropertiesForm):
 
 
 class PropertiesBulkAddingForm(_PropertiesForm):
-    entities_lbl = ReadonlyMessageField(label=_('Related entities'))
+    entities_lbl = core_fields.ReadonlyMessageField(label=_('Related entities'))
 
     def __init__(self, model, entities, forbidden_entities, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -73,7 +73,7 @@ class PropertiesBulkAddingForm(_PropertiesForm):
         )
 
         if forbidden_entities:
-            fields['bad_entities_lbl'] = ReadonlyMessageField(
+            fields['bad_entities_lbl'] = core_fields.ReadonlyMessageField(
                 label=gettext('Not editable entities'),
                 initial=entities_to_str(forbidden_entities, user),
             )
