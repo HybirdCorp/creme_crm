@@ -749,6 +749,7 @@ class Migration(migrations.Migration):
                 'indexes': [
                     models.Index(fields=['entity_id', '-id'], name='hline__entity_detailview'),
                 ],
+                'ordering': ('id',)
             },
         ),
         migrations.CreateModel(
