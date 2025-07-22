@@ -866,6 +866,7 @@ class HistoryLine(Model):
         indexes = [
             models.Index(fields=['entity_id', '-id'], name='hline__entity_detailview')
         ]
+        ordering = ('id',)
 
     def __repr__(self):
         return (
