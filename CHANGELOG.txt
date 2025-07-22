@@ -2,6 +2,8 @@
 
   Users side :
   ------------
+    # The migrations of HistoryLines related to properties (and activity types)
+      with PostgreSQL were not working correctly (some lines could be ignored).
     # A warning is now displayed if the settings 'SITE_DOMAIN' is not correctly defined
       (this feature has been backported from Creme 2.7).
     # Filtering with the field 'role' of a user was broken.

@@ -100,7 +100,7 @@ def convert_history_lines(apps, schema_editor):
     for page in FlowPaginator(
         queryset=apps.get_model('creme_core', 'HistoryLine').objects.filter(
             type__in=(TYPE_PROP_ADD, TYPE_PROP_DEL),
-        ),
+        ).order_by('id'),
         key='id',
         per_page=256,
     ).pages():
