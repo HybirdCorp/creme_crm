@@ -88,7 +88,7 @@ class Workflow(CremeModel):
     @property
     def actions(self) -> tuple[WorkflowAction, ...]:
         # NB: we use a tuple because the sequence is cached, so we prefer an immuable object
-        actions  = self._actions
+        actions = self._actions
         if actions is None:
             self._actions = actions = tuple(
                 workflow_registry.build_action(data)
