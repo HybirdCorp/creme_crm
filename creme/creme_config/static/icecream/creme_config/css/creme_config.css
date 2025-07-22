@@ -1168,6 +1168,10 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     justify-content: space-between;
 }
 
+.creme_config-workflows-brick .workflow-config .workflow-config-global_buttons .brick-action {
+    visibility: visible;
+}
+
 .creme_config-workflows-brick .workflow-config-title {
     margin-top: 5px;
 }
