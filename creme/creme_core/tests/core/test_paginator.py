@@ -207,6 +207,13 @@ class FlowPaginatorTestCase(CremeTestCase):
         with self.assertRaises(ValueError):
             FlowPaginator(contacts, key='user__role', per_page=2, count=count)
 
+    def test_not_ordered(self):
+        with self.assertRaises(ValueError):
+            FlowPaginator(
+                FakeContact.objects.order_by(),  # <===
+                key='last_name', per_page=256, count=FakeContact.objects.count(),
+            )
+
     def test_invalid_page_info01(self):
         self._build_contacts()
 
