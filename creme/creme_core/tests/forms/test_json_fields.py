@@ -350,6 +350,21 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
             field.from_python(self.UNUSED_PK)
         self.assertEqual(f'No such entity with id={self.UNUSED_PK}.', str(cm.exception))
 
+    def test_format_ctype(self):
+        field = GenericEntityField(models=[FakeOrganisation, FakeContact])
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        self.assertDictEqual(
+            {
+                'ctype': {
+                    'id': ct.id,
+                    'create': '',
+                    'create_label': _('Create an organisation'),
+                },
+                'entity': None,
+            },
+            json_load(field.from_python(ct)),
+        )
+
     def test_clean_empty_required(self):
         field = GenericEntityField(required=True)
         code = 'required'
