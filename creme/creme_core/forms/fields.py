@@ -412,6 +412,7 @@ class EntityCredsJSONField(JSONField):
 
 
 class GenericEntityField(EntityCredsJSONField):
+    """Select a CremeEntity which types is among a limited list of possibilities."""
     widget: type[widgets.TextInput] = core_widgets.CTEntitySelector
     value_type: type = dict
 
@@ -420,6 +421,13 @@ class GenericEntityField(EntityCredsJSONField):
                  # autocomplete=False, creator=True, user=None,
                  autocomplete=True, creator=True, user=None,
                  **kwargs):
+        """Constructor.
+        @param models: types of CremeEntity which are available.
+        @param autocomplete: autocompletion for the selector of models?
+        @param creator: True means a button to create instance is displayed;
+               Notice the model must have a registered quick-form too.
+        @param user: logged user.
+        """
         super().__init__(**kwargs)
         self.creator = creator
         self.autocomplete = autocomplete
@@ -428,11 +436,11 @@ class GenericEntityField(EntityCredsJSONField):
 
     @property
     def allowed_models(self) -> list[type[CremeEntity]]:
+        """Types of CremeEntity which are available."""
         return self._allowed_models
 
     @allowed_models.setter
     def allowed_models(self, allowed: Iterable[type[CremeEntity]]) -> None:
-        """@param allowed: An iterable of entity models."""
         self._allowed_models = [*allowed]
         self._update_widget_choices()
 
@@ -443,6 +451,7 @@ class GenericEntityField(EntityCredsJSONField):
 
     @property
     def autocomplete(self):
+        """Autocompletion for the selector of models?"""
         return self._autocomplete
 
     @autocomplete.setter
@@ -452,6 +461,7 @@ class GenericEntityField(EntityCredsJSONField):
 
     @property
     def creator(self):
+        """Display a button to create instance?"""
         return self._creator
 
     @creator.setter
@@ -486,6 +496,9 @@ class GenericEntityField(EntityCredsJSONField):
 
             ctype = ContentType.objects.get_for_id(ctype_id)
             pk = value
+        elif isinstance(value, ContentType):
+            ctype = value
+            pk = None
         else:
             return value
 
@@ -497,7 +510,7 @@ class GenericEntityField(EntityCredsJSONField):
                 'create': ctype_create_url,
                 'create_label': str(ctype.model_class().creation_label),
             },
-            'entity': pk
+            'entity': pk,
         }
 
     def _value_from_unjsonfied(self, data):
@@ -544,7 +557,8 @@ class GenericEntityField(EntityCredsJSONField):
 
         return choices
 
-    def get_ctypes(self):
+    def get_ctypes(self) -> list[ContentType]:
+        """Available models as a list of ContentTypes."""
         models = self._allowed_models
 
         if models:
