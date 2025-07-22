@@ -412,7 +412,22 @@ class EntityCredsJSONField(JSONField):
 
 
 class GenericEntityField(EntityCredsJSONField):
-    """Select a CremeEntity which types is among a limited list of possibilities."""
+    """Select a CremeEntity which types is among a limited list of possibilities.
+
+    Example:
+        field = GenericEntityField(
+            label='Friend entity',
+            models=[Organisation, Contact, Document],
+        )
+
+        # Initial value possibilities
+        # The instance 'my_contact' is pre-selected
+        field.initial = my_contact
+        field.initial = my_contact.id
+
+        # Only the model is pre-selected
+        field.initial = ContentType.objects.get_for_model(Contact)
+    """
     widget: type[widgets.TextInput] = core_widgets.CTEntitySelector
     value_type: type = dict
 
