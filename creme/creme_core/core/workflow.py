@@ -1018,6 +1018,8 @@ class WorkflowEngine:
             events = engine._queue.pickup(start=self._start_index)
 
             if exc_type is None and events:
+                logger.debug('WorkflowEngine: inspecting %s events', len(events))
+
                 engine._is_executing_actions = True
                 workflows = engine._workflows
 
@@ -1025,21 +1027,32 @@ class WorkflowEngine:
                     for workflow in workflows:
                         trigger = workflow.trigger
                         ctxt = trigger.activate(event)
-                        if ctxt and workflow.conditions.accept(
-                            user=self._user, context=ctxt,
-                            detect_change=trigger.conditions_detect_change,
-                            use_or=trigger.conditions_use_or,
-                        ):
-                            for action in workflow.actions:
+
+                        if ctxt:
+                            logger.debug(
+                                'WorkflowEngine: trigger %s is activated (workflow id=%s), '
+                                'inspecting its conditions...',
+                                trigger, workflow.id,
+                            )
+
+                            if workflow.conditions.accept(
+                                user=self._user, context=ctxt,
+                                detect_change=trigger.conditions_detect_change,
+                                use_or=trigger.conditions_use_or,
+                            ):
+                                actions = workflow.actions
                                 logger.debug(
-                                    'WorkflowEngine: execute the action: %s (workflow id=%s)',
-                                    action, workflow.id,
+                                    'WorkflowEngine: conditions are filled, executing %s actions',
+                                    len(actions),
                                 )
 
-                                try:
-                                    action.execute(context=ctxt, user=self._user)
-                                except Exception:
-                                    logger.exception('Error in the Workflow engine')
+                                for action in actions:
+                                    logger.debug('WorkflowEngine: execute %s', action)
+
+                                    try:
+                                        action.execute(context=ctxt, user=self._user)
+                                    except Exception:
+                                        logger.exception('Error in the Workflow engine')
 
                 # NB: we ensure all the events emitted by the actions are dropped
                 #     So they won't trigger the engine during a potential other call
