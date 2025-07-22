@@ -33,6 +33,11 @@
         # Fix calendar eventTimeFormat & slotLabelFormat issues : 24h rendered as 12h, wrong datetime or date ranges.
         # Fix creme.utils.ajaxQuery unexpected error when the query returns a 'Connection Error' without data
 
+    Breaking changes :
+    ------------------
+        # The queryset given to 'creme_core.core.paginator.FlowPaginator' must be ordered
+          (a ValueError is raised if not).
+
 
 == Version 2.6.10 ==
 
