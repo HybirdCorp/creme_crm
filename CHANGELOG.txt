@@ -27,6 +27,8 @@
     ----------------------
         # The EmptyEnumerator fallback now either raises an exception (ENUMERABLE_REGISTRATION_ERROR=True) or logs an error.
           This change is done to prevent issues with empty select when an enumerator is not correctly configured.
+        # The form-field 'creme_core.forms.fields.GenericEntityField' has been improved:
+          a ContentType instance is accepted as initial value.
         # Fix an issue when an event 'end' is null during drag-n-drop (allday events).
         # Fix calendar eventTimeFormat & slotLabelFormat issues : 24h rendered as 12h, wrong datetime or date ranges.
         # Fix creme.utils.ajaxQuery unexpected error when the query returns a 'Connection Error' without data

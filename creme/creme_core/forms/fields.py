@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -446,10 +446,36 @@ class EntityCredsJSONField(JSONField):
 
 
 class GenericEntityField(EntityCredsJSONField):
+    """Select a CremeEntity which types is among a limited list of possibilities.
+
+    Example:
+        field = GenericEntityField(
+            label='Friend entity',
+            models=[Organisation, Contact, Document],
+        )
+
+        # Initial value possibilities
+        # The instance 'my_contact' is pre-selected
+        field.initial = my_contact
+        field.initial = my_contact.id
+
+        # Only the model is pre-selected
+        field.initial = ContentType.objects.get_for_model(Contact)
+    """
     widget: type[widgets.TextInput] = core_widgets.CTEntitySelector
     value_type: type = dict
 
-    def __init__(self, *, models=(), autocomplete=False, creator=True, user=None, **kwargs):
+    def __init__(self, *,
+                 models: Iterable[type[CremeEntity]] = (),
+                 autocomplete=False, creator=True, user=None,
+                 **kwargs):
+        """Constructor.
+        @param models: types of CremeEntity which are available.
+        @param autocomplete: autocompletion for the selector of models?
+        @param creator: True means a button to create instance is displayed;
+               Notice the model must have a registered quick-form too.
+        @param user: logged user.
+        """
         super().__init__(**kwargs)
         self.creator = creator
         self.autocomplete = autocomplete
@@ -457,12 +483,12 @@ class GenericEntityField(EntityCredsJSONField):
         self.allowed_models = models
 
     @property
-    def allowed_models(self):
+    def allowed_models(self) -> list[type[CremeEntity]]:
+        """Types of CremeEntity which are available."""
         return self._allowed_models
 
     @allowed_models.setter
-    def allowed_models(self, allowed):
-        """@param allowed: An iterable of models (i.e. classes inheriting django.db.Model)."""
+    def allowed_models(self, allowed: Iterable[type[CremeEntity]]) -> None:
         self._allowed_models = [*allowed]
         self._update_widget_choices()
 
@@ -473,6 +499,7 @@ class GenericEntityField(EntityCredsJSONField):
 
     @property
     def autocomplete(self):
+        """Autocompletion for the selector of models?"""
         return self._autocomplete
 
     @autocomplete.setter
@@ -482,6 +509,7 @@ class GenericEntityField(EntityCredsJSONField):
 
     @property
     def creator(self):
+        """Display a button to create instance?"""
         return self._creator
 
     @creator.setter
@@ -516,6 +544,9 @@ class GenericEntityField(EntityCredsJSONField):
 
             ctype = ContentType.objects.get_for_id(ctype_id)
             pk = value
+        elif isinstance(value, ContentType):
+            ctype = value
+            pk = None
         else:
             return value
 
@@ -527,7 +558,7 @@ class GenericEntityField(EntityCredsJSONField):
                 'create': ctype_create_url,
                 'create_label': str(ctype.model_class().creation_label),
             },
-            'entity': pk
+            'entity': pk,
         }
 
     def _value_from_unjsonfied(self, data):
@@ -568,7 +599,8 @@ class GenericEntityField(EntityCredsJSONField):
 
         return choices
 
-    def get_ctypes(self):
+    def get_ctypes(self) -> list[ContentType]:
+        """Available models as a list of ContentTypes."""
         models = self._allowed_models
 
         if models:
