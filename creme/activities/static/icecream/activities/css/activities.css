@@ -219,7 +219,7 @@
 .calendar-menu .floating-event-filter input {
     width: 100%;
 
-    font-size: 9px;
+    font-size: 10px;
     outline-style: none;
 }
 
@@ -233,6 +233,10 @@
 
 .calendar-menu .other-calendars .calendar-menu-usergroup + .calendar-menu-usergroup {
     margin-top: 5px;
+}
+
+.calendar-menu .hidden {
+    display: none;
 }
 
 .calendar-menu .calendar-menu-empty {
