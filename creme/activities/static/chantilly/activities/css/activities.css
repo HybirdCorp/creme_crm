@@ -492,6 +492,12 @@
     border-top: 1px solid #bdd3dc;
 }
 
+.brick.activities-calendars-brick .calendar-config.user-disabled,
+.brick.activities-calendars-brick .calendar-config.user-disabled .brick-table .brick-table-content>tbody>tr {
+    background: #e5ecef;
+    color: #818485;
+}
+
 .brick.activities-calendars-brick .calendar-config-group {
     padding-left: 10px;
 }
@@ -499,11 +505,13 @@
 .brick.activities-calendars-brick .calendar-config-summary-group {
     padding-top: 5px;
     padding-bottom: 5px;
+}
 
+.brick.activities-calendars-brick .calendar-config:not(.user-disabled) .calendar-config-summary-group {
     background: #f2fbff;
 }
 
-.brick.activities-calendars-brick .brick-table.calendar-config-group .brick-table-content > tbody > tr {
+.brick.activities-calendars-brick .calendar-config:not(.user-disabled) .brick-table.calendar-config-group .brick-table-content > tbody > tr {
     border-bottom: 1px solid #f0f7f9;
 }
 
@@ -514,6 +522,14 @@
 
     text-transform: uppercase;
     font-weight: 600;
+}
+
+.brick.activities-calendars-brick .calendar-config-group-title .user-disabled-mark {
+    padding-left: 7px;
+
+    text-transform: none;
+    font-style: italic;
+    font-weight: 500;
 }
 
 .brick.activities-calendars-brick td.calendar-config-name {
@@ -539,6 +555,10 @@
     color: #fff;
     font-weight: 600;
     text-align: center;
+}
+
+.brick.activities-calendars-brick .calendar-config.user-disabled .calendar-config-default {
+    background: none;
 }
 
 .brick-calendar .fc-toolbar-title {

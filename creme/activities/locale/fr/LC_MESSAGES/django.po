@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-26 10:39+0200\n"
+"POT-Creation-Date: 2025-07-23 11:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -564,6 +564,9 @@ msgstr "Enregistrer l'activité"
 msgid "{user}'s calendar"
 msgstr "Calendrier de {user}"
 
+msgid "Calendar owner"
+msgstr "Propriétaire du calendrier"
+
 msgid "Name"
 msgstr "Nom"
 
@@ -584,9 +587,6 @@ msgid "Public calendars can be seen by other users on the calendar view."
 msgstr ""
 "Les calendriers publiques sont visibles par les autres utilisateurs dans la "
 "vue calendrier."
-
-msgid "Calendar owner"
-msgstr "Propriétaire du calendrier"
 
 msgid "It is used on the calendar view to colorize Activities."
 msgstr "C'est utilisé dans la vue calendrier pour colorier les Activités."
@@ -989,6 +989,10 @@ msgstr "{count} Calendrier"
 #, python-brace-format
 msgid "{count} Calendars"
 msgstr "{count} Calendriers"
+
+msgctxt "activities-user"
+msgid "(disabled)"
+msgstr "(désactivé)"
 
 msgid "Default calendar"
 msgstr "Calendrier par défaut"
