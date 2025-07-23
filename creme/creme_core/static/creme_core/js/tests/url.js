@@ -35,4 +35,31 @@ QUnit.test('RelativeURL.fullPath', function(assert) {
     equal(url.fullPath(), '/this/is/a/test?x=1&y=2#hash');
 });
 
+QUnit.test('toFormData', function() {
+    var data = _.toFormData();
+    equal(0, Array.from(data.keys()).length);
+
+    data = new FormData();
+    equal(_.toFormData(data), data);
+
+    data = _.toFormData({
+        a: 12,
+        b: [1, 2, 3],
+        c: new Set([4, 5, 6]),
+        d: [],
+        e: new Set(),
+        f: null
+    });
+
+    deepEqual(data.getAll('a'), ['12']);
+    deepEqual(data.getAll('b'), ['1', '2', '3']);
+    deepEqual(data.getAll('c'), ['4', '5', '6']);
+    deepEqual(data.getAll('d'), []);
+    deepEqual(data.getAll('e'), []);
+    deepEqual(data.getAll('f'), []);
+
+    data = _.toFormData($('<form><input type="text" value="12" name="a"/></form>').get(0));
+    deepEqual(data.getAll('a'), ['12']);
+});
+
 }());

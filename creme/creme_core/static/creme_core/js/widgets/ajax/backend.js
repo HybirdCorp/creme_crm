@@ -371,9 +371,7 @@ creme.ajax.jqueryAjaxSend = function(options, listeners) {
         ajaxOptions.processData = false;
         ajaxOptions.contentType = false;
 
-        for (var key in extraData) {
-            body.set(key, extraData[key]);
-        }
+        _.assignFormData(body, extraData);
     } else if (!Object.isEmpty(extraData)) {
         ajaxOptions.data = Object.assign(body || {}, extraData);
     }
