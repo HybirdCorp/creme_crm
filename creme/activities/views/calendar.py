@@ -100,14 +100,14 @@ class CalendarView(generic.CheckedTemplateView):
                 yield calendar
 
     def get_floating_activities(self):
-        # TODO only floating activities assigned to logged user ??
+        # TODO: only floating activities assigned to logged user ??
         floating_activities = []
         user = self.request.user
         contact = user.linked_contact
 
         if contact:
             for activity in Activity.objects.filter(
-                floating_type=constants.FLOATING,
+                floating_type=Activity.FloatingType.FLOATING,
                 relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
                 relations__object_entity=contact.id,
                 is_deleted=False,
