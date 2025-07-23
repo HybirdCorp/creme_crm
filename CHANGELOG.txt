@@ -1,5 +1,7 @@
 == Version 2.6.11 Work in progress (not released -- this is a draft) ==
 
+  TODO: compile .po (emails)
+
   Users side :
   ------------
     # The migrations of HistoryLines related to properties (and activity types)
