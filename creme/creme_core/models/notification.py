@@ -180,7 +180,7 @@ class NotificationChannelConfigItemManager(models.Manager):
 
             if to_retrieve:
                 for item in self.filter(to_retrieve):
-                    items[(item.chan_id, item.user_id)] = item
+                    items[(item.channel_id, item.user_id)] = item
         else:
             items = {
                 (item.channel_id, item.user_id): item
