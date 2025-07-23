@@ -137,8 +137,8 @@ var FULLCALENDAR_SETTINGS = {
 
     businessHours: {
         daysOfWeek: [ 1, 2, 3, 4, 5, 6 ], // Monday - Saturday
-        startTime: '8:00', // a start time
-        endTime: '18:00' // an end time
+        startTime: '08:00:00', // a start time
+        endTime: '18:00:00' // an end time
     },
 
     /* slots */
@@ -181,6 +181,22 @@ function convertToMoment(input, timeZone, locale) {
     }
 }
 
+function combineToMoment(date, time, timeZone, locale) {
+    time = _.isString(time) ? moment.duration(time) : time;
+    date = _.isString(date) ? moment(date) : date;
+
+    var data = [
+        date.year(),
+        date.month(),
+        date.date(),
+        time.get('hours'),
+        time.get('minutes'),
+        time.get('seconds')
+    ];
+
+    return moment.utc(moment(data).format('YYYY-MM-DD HH:mm:ss'));
+}
+
 function toISO8601(value, allDay) {
     return allDay ? value.format('YYYY-MM-DD') : value.utc().toISOString(true);
 }
@@ -220,6 +236,46 @@ creme.CalendarEventRange = creme.component.Component.sub({
         return !this.allDay && (this.end.diff(this.start) < moment.duration('00:31:00').asMilliseconds());
     },
 
+    dayRange: function() {
+        var days = Math.min(this.end.diff(this.start, 'days') + 1, 7);  // limit to a week
+
+        if (days > 0) {
+            return _.range(this.start.day(), this.start.day() + days).map(function(day) {
+                return day % 7;
+            });
+        } else {
+            return [this.start.day()];
+        }
+    },
+
+    isWithinWorkDays: function(businessHours) {
+        var weekdays = (businessHours.daysOfWeek || []);
+        var dayrange = this.dayRange();
+
+        for (var i = 0; i < dayrange.length; ++i) {
+            if (weekdays.indexOf(dayrange[i]) === -1) {
+                return false;
+            }
+        }
+
+        return true;
+    },
+
+    isWithinBusinessHours: function(businessHours) {
+        if (!this.allDay && businessHours.startTime !== businessHours.endTime) {
+            var businessStart = combineToMoment(this.start, businessHours.startTime);
+            var businessEnd = combineToMoment(this.end, businessHours.endTime);
+
+            return (
+                this.start.isSameOrAfter(businessStart) &&
+                this.end.isSameOrBefore(businessEnd) &&
+                this.start.day() === this.end.day()
+            );
+        }
+
+        return true;
+    },
+
     toString: function() {
         return '${start} − ${end}${allday}'.template({
             start: this.start,
@@ -235,6 +291,9 @@ creme.ActivityCalendar = creme.component.Component.sub({
             allowEventCreate: true,
             allowEventMove: true,
             allowEventOverlaps: true,
+            allowEventOvertime: true,
+            allowEventAnyDay: true,
+            allowSelection: true,
             defaultView: 'month',
             externalEventData: _.noop,
             eventUpdateUrl: '',
@@ -315,6 +374,18 @@ creme.ActivityCalendar = creme.component.Component.sub({
 
     allowEventOverlaps: function(state) {
         return this.prop('allowEventOverlaps', state);
+    },
+
+    allowEventOvertime: function(state) {
+        return this.prop('allowEventOvertime', state);
+    },
+
+    allowEventAnyDay: function(state) {
+        return this.prop('allowEventAnyDay', state);
+    },
+
+    allowSelection: function(state) {
+        return this.prop('allowSelection', state);
     },
 
     defaultView: function(view) {
@@ -496,6 +567,15 @@ creme.ActivityCalendar = creme.component.Component.sub({
         return convertToMoment(input, timeZone, locale);
     },
 
+    _createCalendarEventRange: function(event, duration) {
+        return new creme.CalendarEventRange({
+            start: this._toMoment(event.start),
+            end: this._toMoment(event.end),
+            duration: duration || this.fullCalendar().getOption('defaultTimedEventDuration'),
+            allDay: event.allDay
+        });
+    },
+
     _setupCalendarExternalEvents: function(element) {
         var self = this;
         var props = this._props;
@@ -526,6 +606,11 @@ creme.ActivityCalendar = creme.component.Component.sub({
             allDay: range.allDay
         });
 
+        if (!this._checkEventOvertime(calendar, range)) {
+            info.revert();
+            return false;
+        }
+
         this._query({
                  url: this.eventUpdateUrl(),
                  action: 'POST',
@@ -555,12 +640,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
 
     _onCalendarEventUpdate: function(calendar, info) {
         var self = this;
-        var range = new creme.CalendarEventRange({
-            start: this._toMoment(info.event.start),
-            end: this._toMoment(info.event.end),
-            duration: calendar.getOption('defaultTimedEventDuration'),
-            allDay: info.event.allDay
-        });
+        var range = this._createCalendarEventRange(info.event);
 
         /*
          * Drag-n-drop from AllDay to a slot will not fill the 'end' attribute.
@@ -568,6 +648,12 @@ creme.ActivityCalendar = creme.component.Component.sub({
          */
         if (!info.event.allDay && info.event.end === null) {
             info.event.setEnd(range.end.toDate());
+        }
+
+        // Check if the event range is within the configured business hours
+        if (!this._checkEventOvertime(calendar, range)) {
+            info.revert();
+            return;
         }
 
         this._query({
@@ -594,12 +680,11 @@ creme.ActivityCalendar = creme.component.Component.sub({
 
     _onCalendarEventFetch: function(calendar, info, successCb, failureCb) {
         var self = this;
+        var allowEventMove = this.allowEventMove();
         var range = new creme.CalendarEventRange({
             start: this._toMoment(info.start),
             end: this._toMoment(info.end)
         });
-
-        var isEditable = this.allowEventMove();
 
         this._query({
                 url: this.eventFetchUrl(),
@@ -612,7 +697,21 @@ creme.ActivityCalendar = creme.component.Component.sub({
             .onDone(function(event, data) {
                 var items = data.map(function(item) {
                     item.textColor = new RGBColor(item.color).foreground().toString();
-                    item.editable = item.editable && isEditable;
+                    var editable = item.editable;
+
+                    if (editable) {
+                        if (Object.isFunc(allowEventMove)) {
+                            editable = allowEventMove({
+                                activityRange: range,
+                                activityCalendar: self,
+                                item: item
+                            });
+                        } else {
+                            editable = allowEventMove;
+                        }
+                    }
+
+                    item.editable = editable;
                     return item;
                 });
 
@@ -639,15 +738,54 @@ creme.ActivityCalendar = creme.component.Component.sub({
             .start();
     },
 
+    _checkEventOvertime: function(calendar, range) {
+        var allowOvertime = this.allowEventOvertime();
+        var allowAnyDay = this.allowEventAnyDay();
+        var businessHours = calendar.getOption('businessHours');
+
+        if (Object.isFunc(allowAnyDay)) {
+            allowAnyDay = allowAnyDay({
+                businessHours: businessHours,
+                activityRange: range,
+                activityCalendar: this
+            });
+        }
+
+        if (Object.isFunc(allowOvertime)) {
+            allowOvertime = allowOvertime({
+                businessHours: businessHours,
+                activityRange: range,
+                activityCalendar: this
+            });
+        }
+
+        var allowDay = !allowAnyDay ? range.isWithinWorkDays(businessHours) : true;
+        var allowTime = !allowOvertime ? range.isWithinBusinessHours(businessHours) : true;
+
+        return allowDay && allowTime;
+    },
+
+    _checkEventCreate: function(calendar, range) {
+        var allowed = this.allowEventCreate();
+
+        if (Object.isFunc(allowed)) {
+            allowed = allowed({
+                activityRange: range,
+                activityCalendar: this
+            });
+        }
+
+        return allowed && this._checkEventOvertime(calendar, range);
+    },
+
     _onCalendarEventCreate: function(calendar, info) {
         var self = this;
+        var range = this._createCalendarEventRange(info);
 
-        var range = new creme.CalendarEventRange({
-            start: this._toMoment(info.start),
-            end: this._toMoment(info.end),
-            duration: calendar.getOption('defaultTimedEventDuration'),
-            allDay: info.allDay
-        });
+        if (!this._checkEventCreate(calendar, range)) {
+            calendar.unselect();
+            return false;
+        }
 
         var data = {
             start: toISO8601(range.start, range.allDay),
@@ -709,16 +847,19 @@ creme.ActivityCalendar = creme.component.Component.sub({
         var formatter = FullCalendar.Internal.createFormatter(calendar.getOption('eventTimeFormat'));
         var slotCount = this._eventTimeSlotCount(event, calendar);
         var typeTag = event.extendedProps.type || '';
+        var range = this._createCalendarEventRange(event);
+
+        var overtime = !this._checkEventOvertime(calendar, range) ? ' fc-overtime' : '';
 
         if (event.allDay) {
-            return createElement('div', {className: 'fc-event-main-frame'},
+            return createElement('div', {className: 'fc-event-main-frame' + overtime},
                 createElement('div', {className: 'fc-event-title'}, event.title),
                 typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
             );
         } else if (slotCount < 2) {
             text = view.dateEnv.format(event.start, formatter);
 
-            return createElement('div', {className: 'fc-event-main-frame fc-smaller'},
+            return createElement('div', {className: 'fc-event-main-frame fc-smaller' + overtime},
                 text && (createElement("div", { className: "fc-event-time" }, text)),
                 createElement('div', {className: 'fc-event-title'}, event.title),
                 typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
@@ -726,7 +867,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
         } else if (slotCount < 3) {
             text = view.dateEnv.format(event.start, formatter);
 
-            return createElement('div', {className: 'fc-event-main-frame fc-small'},
+            return createElement('div', {className: 'fc-event-main-frame fc-small' + overtime},
                 text && (createElement("div", { className: "fc-event-time" }, text)),
                 typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag)),
                 createElement('div', {className: 'fc-event-title'}, event.title)
@@ -734,7 +875,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
         } else {
             text = event.end ? this._formatEventTime(info, formatter) : text;
 
-            return createElement('div', {className: 'fc-event-main-frame'},
+            return createElement('div', {className: 'fc-event-main-frame' + overtime},
                 typeTag && (createElement('div', {className: 'fc-event-type fc-sticky'}, typeTag)),
                 createElement('div', {className: 'fc-event-header'},
                     text && (createElement("div", {className: "fc-event-time"}, text))
@@ -755,17 +896,20 @@ creme.ActivityCalendar = creme.component.Component.sub({
         var start = this._toMoment(event.start);
         var end = this._toMoment(event.end);
         var isMultiDay = end && start.format('MMD') !== end.format('MMD');
-        var formatter = FullCalendar.Internal.createFormatter(calendar.getOption('eventTimeFormat'));
+        var range = this._createCalendarEventRange(event);
+
+        var overtime = !this._checkEventOvertime(calendar, range) ? ' fc-overtime' : '';
 
         if (event.allDay || isMultiDay) {
-            return createElement('div', {className: 'fc-event-main-frame'},
+            return createElement('div', {className: 'fc-event-main-frame' + overtime},
                 createElement('div', {className: 'fc-event-title'}, event.title),
                 typeTag && (createElement('div', {className: 'fc-event-type'}, typeTag))
             );
         } else {
+            var formatter = FullCalendar.Internal.createFormatter(calendar.getOption('eventTimeFormat'));
             text = view.dateEnv.format(event.start, formatter);
 
-            return createElement('div', {className: 'fc-event-empty-frame'},
+            return createElement('div', {className: 'fc-event-empty-frame' + overtime},
                 createElement('div', {className: 'fc-daygrid-event-dot', style: {borderColor: dotColor}}),
                 text && (createElement("div", { className: "fc-event-time" }, text)),
                 createElement('div', {className: 'fc-event-title'}, event.title),
@@ -830,19 +974,8 @@ creme.ActivityCalendar = creme.component.Component.sub({
         var overlaps = this._props.allowEventOverlaps;
 
         if (Object.isFunc(overlaps)) {
-            var stillRange = new creme.CalendarEventRange({
-                start: this._toMoment(still.start),
-                end: this._toMoment(still.end),
-                duration: calendar.getOption('defaultTimedEventDuration'),
-                allDay: still.allDay
-            });
-
-            var movingRange = new creme.CalendarEventRange({
-                start: this._toMoment(moving.start),
-                end: this._toMoment(moving.end),
-                duration: calendar.getOption('defaultTimedEventDuration'),
-                allDay: moving.allDay
-            });
+            var stillRange = this._createCalendarEventRange(still);
+            var movingRange = this._createCalendarEventRange(moving);
 
             return overlaps({
                 still: still,
@@ -856,13 +989,24 @@ creme.ActivityCalendar = creme.component.Component.sub({
         }
     },
 
+    _checkAllowSelection: function(calendar, range) {
+        var allowed = this.allowSelection();
+
+        if (Object.isFunc(allowed)) {
+            allowed = allowed({
+                activityRange: range,
+                activityCalendar: this
+            });
+        }
+
+        return allowed && this._checkEventOvertime(calendar, range);
+    },
+
     _setupCalendarHandlers: function(calendar) {
         var self = this;
 
         calendar.on('select', function(info) {
-            if (self.allowEventCreate()) {
-                self._onCalendarEventCreate(calendar, info);
-            }
+            self._onCalendarEventCreate(calendar, info);
         });
         calendar.on('eventClick', function(info) {
             info.jsEvent.preventDefault();
@@ -920,6 +1064,10 @@ creme.ActivityCalendar = creme.component.Component.sub({
                 },
                 eventContent: function(info, createElement) {
                     return self._renderCalendarEventContent(calendar, info, createElement);
+                },
+                selectAllow: function(info) {
+                    var range = self._createCalendarEventRange(info);
+                    return self._checkAllowSelection(calendar, range);
                 },
                 eventDidMount: function(info) {
                     return self._postRenderCalendarEvent(calendar, info);

@@ -30,7 +30,11 @@ from creme.creme_core.gui.bulk_update import FieldOverrider
 
 from .. import constants
 from ..models import ActivityType
-from ..utils import check_activity_collisions
+from ..utils import (
+    check_activity_businesshours,
+    check_activity_collisions,
+    get_activity_config,
+)
 from . import fields
 
 
@@ -216,13 +220,21 @@ class RangeOverrider(FieldOverrider):
         instance.floating_type = floating_type
 
         if start:
-            collisions = check_activity_collisions(
+            collisions = check_activity_businesshours(
+                start=start,
+                end=end,
+                is_allday=is_all_day,
+                config=get_activity_config(instance, form.user),
+            )
+
+            collisions.extend(check_activity_collisions(
                 activity_start=start,
                 activity_end=end,
                 participants=instance.get_related_entities(constants.REL_OBJ_PART_2_ACTIVITY),
                 busy=busy,
                 exclude_activity_id=instance.id,
-            )
+            ))
+
             if collisions:
                 raise ValidationError(collisions)
 
