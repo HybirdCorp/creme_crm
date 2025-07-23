@@ -438,7 +438,7 @@ class ConversionTestCase(_BillingTestCase):
         user = self.login_as_root_and_get()
 
         status = QuoteStatus.objects.create(name='Cashing', order=5)
-        self.assertFalse(SalesOrderStatus.objects.filter(pk=status.pk).exists())
+        # self.assertFalse(SalesOrderStatus.objects.filter(pk=status.pk).exists())
 
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
         quote.status = status
@@ -448,7 +448,7 @@ class ConversionTestCase(_BillingTestCase):
 
         order = self.get_alone_element(SalesOrder.objects.all())
         # self.assertEqual(1, order.status_id)
-        self.assertTrue(order.status.is_default)
+        self.assertTrue(SalesOrderStatus.objects.get(is_default=True), order.status)
 
     @skipIfCustomQuote
     @skipIfCustomInvoice

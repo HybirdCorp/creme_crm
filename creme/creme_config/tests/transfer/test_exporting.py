@@ -282,7 +282,7 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertIsInstance(roles_info[0], dict)
 
         roles_info_per_uuid = {role_info.get('uuid'): role_info for role_info in roles_info}
-        role_info1 = roles_info_per_uuid.get('a97a66aa-a2c0-42bf-a6d0-a4d99b604cb3')
+        role_info1 = roles_info_per_uuid.get(constants.UUID_USERROLE_REGULAR)
         self.assertEqual(_('Regular user'), role_info1.get('name'))
         self.assertIn('creme_core', role_info1.get('allowed_apps'))
         self.assertListEqual([], role_info1.get('admin_4_apps'))

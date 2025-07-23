@@ -110,11 +110,11 @@ class Populator(BasePopulator):
             title=_('Madam'), shortcut=_('Mrs.'),
         ),
         Civility(
-            uuid='6b84a23d-c4ec-41c1-a35d-e6c0af5af2a0',
+            uuid=constants.UUID_CIVILITY_MS,
             title=_('Miss'), shortcut=_('Ms.'),
         ),
         Civility(
-            uuid='08e68afd-64aa-4981-a1db-4bde37b08655',
+            uuid=constants.UUID_CIVILITY_MR,
             title=_('Mister'), shortcut=_('Mr.'),
         ),
         Civility(
@@ -124,7 +124,7 @@ class Populator(BasePopulator):
     ]
     POSITIONS = [
         # is_custom=True => only created during the first execution
-        Position(uuid='1534eb82-f55c-45ef-af2e-4e2d5d68218f', title=_('CEO')),
+        Position(uuid=constants.UUID_POSITION_CEO, title=_('CEO')),
         Position(uuid='7e10f7f8-730c-45b4-8e81-6b2e4cfbab36', title=_('Secretary')),
         Position(uuid='9669e6a9-4661-4248-bc7c-d675f6e13216', title=_('Technician')),
     ]

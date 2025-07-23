@@ -225,7 +225,7 @@ class Populator(BasePopulator):
         password = constants.ROOT_PASSWORD
         self.root = get_user_model().objects.create_superuser(
             pk=1,  # TODO: remove?
-            uuid='f53e8537-9aae-454c-adc1-a89df9563c28',  # TODO: constant?
+            uuid=constants.UUID_CREMEUSER_ROOT,
             username=login, password=password,
             first_name='Fulbert', last_name='Creme',
             email=_('replaceMe@byYourAddress.com'),
@@ -243,7 +243,7 @@ class Populator(BasePopulator):
         entity_models = [*creme_registry.iter_entity_models()]
         regular_role = UserRole.objects.smart_create(
             name=_('Regular user'),
-            uuid='a97a66aa-a2c0-42bf-a6d0-a4d99b604cb3',
+            uuid=constants.UUID_USERROLE_REGULAR,
             allowed_apps=[
                 app.label for app in creme_app_configs() if app.credentials & CRED_REGULAR
             ],

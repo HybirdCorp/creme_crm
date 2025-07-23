@@ -317,11 +317,11 @@ class Populator(BasePopulator):
             (
                 self.Organisation,
                 _('The target Organisation becomes a prospect'),
-                'b8d03709-4abd-490c-aa9f-8a2414f92b97',
+                constants.UUID_WORKFLOW_OPPORT_TARGET_ORGA_BECOME_PROSPECT,
             ), (
                 self.Contact,
                 _('The target Contact becomes a prospect'),
-                '04ae1335-6e5d-4856-9be6-9f59846b06d1',
+                constants.UUID_WORKFLOW_OPPORT_TARGET_CONTACT_BECOME_PROSPECT,
             ),
         ):
             Workflow.objects.get_or_create(
