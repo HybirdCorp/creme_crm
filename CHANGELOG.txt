@@ -12,6 +12,8 @@
       which has been removed. The invalid conditions are now deleted, & you should
       fix/remove the concerned filter.
     # Apps:
+        * Activities :
+            - Fix a regression in calendar CSS : the filtered events or calendars were not hidden.
         * Billing :
             - The definitive deletion has been fixed: it did not work with lines
               related to Product/Service instances.
