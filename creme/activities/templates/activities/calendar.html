@@ -58,10 +58,10 @@
                     <h4 class='menu-group-title' data-toggle="#floating-events">
                         <span class="menu-group-label">{% translate 'Floating activities' %}</span>
                     </h4>
-                    {% if enable_floating_activities_search %}
-                    <div class='floating-event-filter' id="floating-events"><input type='search' placeholder="{% translate 'FILTER FLOATING ACTIVITIES' %}" /></div>
-                    {% endif %}
                     <div class="floating-activities toggle-collapsable menu-sublist" id="floating-events">
+                      {% if enable_floating_activities_search %}
+                        <div class='floating-event-filter' id="floating-events"><input type='search' placeholder="{% translate 'FILTER FLOATING ACTIVITIES' %}" /></div>
+                      {% endif %}
                       {% for floating_activity in floating_activities %}
                         <div class='floating-event'
                             data-id="{{floating_activity.id}}"
@@ -96,12 +96,12 @@
                     <h4 class='menu-group-title{% if not others_selected_calendar_ids %} toggle-collapsed{% endif %}' data-toggle="#other-calendars">
                         <span class="menu-group-label">{% translate 'Collaborators calendars' %}</span>
                     </h4>
-                    {% if enable_calendars_search %}
-                    <div class='calendar-menu-filter' id="other-calendars"><input type='search' placeholder="{% translate 'FILTER CALENDARS OR COLLABORATORS' %}" /></div>
-                    {% endif %}
                     <div class="other-calendars menu-sublist toggle-collapsable{% if not others_selected_calendar_ids %} toggle-collapsed{% endif %}" id="other-calendars">
-                     {% for user, calendars in others_calendars %}
-                      {% with user_key=user|activities_user_key %}
+                      {% if others_calendars and enable_calendars_search %}
+                        <div class='calendar-menu-filter' id="other-calendars"><input type='search' placeholder="{% translate 'FILTER CALENDARS OR COLLABORATORS' %}" /></div>
+                      {% endif %}
+                      {% for user, calendars in others_calendars %}
+                        {% with user_key=user|activities_user_key %}
                         <div class="calendar-menu-usergroup" data-user="{{user_key}}">
                             <h5 class="calendar-menu-usergroup-label">{{user}}</h5>
                             {% for calendar in calendars %}
@@ -111,10 +111,10 @@
                             </div>
                             {% endfor %}
                         </div> <!-- /.calendar_user_group -->
-                      {% endwith %}
-                     {% empty%}
+                        {% endwith %}
+                      {% empty%}
                         <span class="calendar-menu-empty">{% translate 'No calendar' %}</span>
-                     {% endfor %}
+                      {% endfor %}
                     </div>
                 </div>
             </div> <!-- /.calendar-menu -->
