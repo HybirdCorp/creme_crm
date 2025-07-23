@@ -353,7 +353,7 @@ class PeriodAlertSubCell(_AssistantSubCell):
         )
 
     def post_clean_instance(self, *, instance: AbstractActivity, value, form):
-        if value and instance.floating_type == constants.FLOATING:
+        if value and instance.floating_type == Activity.FloatingType.FLOATING:
             raise ValidationError(
                 self.error_messages['alert_on_floating'],
                 code='alert_on_floating',
@@ -489,7 +489,8 @@ class BaseCustomForm(core_forms.CremeEntityForm):
             if end_date:
                 raise ValidationError(self.error_messages['no_start'], code='no_start')
 
-            floating_type = constants.FLOATING
+            # floating_type = constants.FLOATING
+            floating_type = Activity.FloatingType.FLOATING
         else:
             is_all_day = get_data('is_all_day', False)
 
