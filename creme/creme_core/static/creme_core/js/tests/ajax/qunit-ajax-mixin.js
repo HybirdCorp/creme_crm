@@ -140,16 +140,6 @@
 
         mockHistoryChanges: function() {
             return this._historyChanges;
-        },
-
-        createFormData: function(data) {
-            var formdata = new FormData();
-
-            for (var key in data) {
-                formdata.append(key, data[key]);
-            }
-
-            return formdata;
         }
     };
 }(jQuery));

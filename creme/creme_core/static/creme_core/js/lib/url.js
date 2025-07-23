@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+/* globals HTMLFormElement */
+
 (function() {
 "use strict";
 
@@ -69,6 +71,40 @@ function toURLSearchParams(data) {
             }
         } else if (value !== null && value !== undefined) {
             params.append(key, value);
+        }
+    });
+
+    return params;
+}
+
+function toFormData(data) {
+    if (data instanceof FormData) {
+        return data;
+    } else if (data instanceof HTMLFormElement) {
+        return new FormData(data);
+    } else {
+        return assignFormData(new FormData(), data);
+    }
+}
+
+function assignFormData(params, data) {
+    Object.entries(data || {}).forEach(function(e) {
+        var key = e[0], value = e[1];
+
+        if (value instanceof Set) {
+            value = Array.from(value);
+        }
+
+        if (Array.isArray(value)) {
+            params.delete(key);
+
+            if (value.length > 0) {
+                value.forEach(function(item) {
+                    params.append(key, item);
+                });
+            }
+        } else if (value !== null && value !== undefined) {
+            params.set(key, value);
         }
     });
 
@@ -201,7 +237,10 @@ _.mixin({
     decodeURLSearchParams: decodeURLSearchParams,
     encodeURLSearch: function(data) {
         return _.toURLSearchParams(data).toString();
-    }
+    },
+    // TODO : Move this code to a better place once the refactoring of ajax backend is done
+    toFormData: toFormData,
+    assignFormData: assignFormData
 });
 
 }());

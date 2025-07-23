@@ -674,6 +674,76 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (options)', [
     deepEqual(ajaxCall.headers, expected.headers);
 });
 
+QUnit.parameterize('creme.ajax.jqueryAjaxSend (form data)', [
+    [
+        function() {
+            return new FormData();
+        }, {},
+        function(data) {
+            deepEqual(Array.from(data.keys()), []);
+        }
+    ],
+    [
+        function() {
+            var formdata = new FormData();
+            formdata.set('a', 12);
+            formdata.append('b', 4);
+            formdata.append('b', 5);
+            formdata.append('b', 6);
+            return formdata;
+        }, {},
+        function(data) {
+            deepEqual(data.getAll('a'), ['12']);
+            deepEqual(data.getAll('b'), ['4', '5', '6']);
+        }
+    ],
+    [
+        function() {
+            var formdata = new FormData();
+            formdata.set('a', 12);
+            formdata.append('b', 4);
+            formdata.append('b', 5);
+            formdata.append('b', 6);
+            return formdata;
+        }, {
+            extraData: {
+                c: 'test',
+                b: [1, 2, 3],
+                d: new Set([7, 8, 9])
+            }
+        },
+        function(data) {
+            deepEqual(data.getAll('a'), ['12']);
+            deepEqual(data.getAll('b'), ['1', '2', '3']);
+            deepEqual(data.getAll('c'), ['test']);
+            deepEqual(data.getAll('d'), ['7', '8', '9']);
+        }
+    ]
+], function(createData, options, assertExpected, assert) {
+    var ajaxFaker = new FunctionFaker({
+        instance: $, method: 'ajax'
+    });
+
+    ajaxFaker.with(function() {
+        creme.ajax.jqueryAjaxSend(Object.assign({
+            url: 'mock/a',
+            data: createData(),
+            method: 'POST'
+        }, options));
+    });
+
+    equal(ajaxFaker.count(), 1);
+
+    var ajaxCall = ajaxFaker.calls()[0][0];
+
+    equal(ajaxCall.async, true);
+    equal(ajaxCall.url, 'mock/a');
+    deepEqual(ajaxCall.headers, {});
+    equal(ajaxCall.type, 'POST');
+
+    assertExpected(ajaxCall.data);
+});
+
 QUnit.parameterize('creme.ajax.jqueryAjaxSend (headers)', [
     ['', {csrf: 'my-query-token'}, {
         headers: {'X-CSRFToken': 'my-query-token'}

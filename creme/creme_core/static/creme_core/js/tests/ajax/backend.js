@@ -136,6 +136,19 @@ QUnit.parametrize('creme.ajax.Backend.submit', [
             'X-CSRFToken': 'my-token',
             'X-Client-Id': 'my-key'
         }
+    }],
+    [{}, {data: {any: [1, 2, 3], text: 'B'}, headers: {'X-Client-Id': 'my-key'}}, {
+        traditional: true,
+        url: 'mock/a',
+        data: {
+            text: 'B',
+            file: null,
+            any: [1, 2, 3]
+        },
+        headers: {
+            'X-CSRFToken': 'my-token',
+            'X-Client-Id': 'my-key'
+        }
     }]
 ], function(backendOptions, queryOptions, expected, assert) {
     var successCb = function() {};
@@ -166,7 +179,7 @@ QUnit.parametrize('creme.ajax.Backend.submit', [
     equal(ajaxCall.url, expected.url);
 
     equal(ajaxCall.traditional, expected.traditional);
-    deepEqual(ajaxCall.data || new FormData(), this.createFormData(expected.data));
+    deepEqual(ajaxCall.data || new FormData(), _.toFormData(expected.data));
     deepEqual(ajaxCall.headers, expected.headers);
 });
 
