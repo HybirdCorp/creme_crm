@@ -177,7 +177,7 @@ class NotificationChannelConfigItemTestCase(CremeTestCase):
     def test_manager_bulk_get(self):
         create_chan = NotificationChannel.objects.create
         chan1 = create_chan(name='Chan #1', default_outputs=[OUTPUT_WEB])
-        chan2 = create_chan(name='Chan #3', default_outputs=[OUTPUT_EMAIL])
+        chan2 = create_chan(name='Chan #2', default_outputs=[OUTPUT_EMAIL])
 
         user1 = self.get_root_user()
         user2 = self.create_user()
@@ -233,6 +233,54 @@ class NotificationChannelConfigItemTestCase(CremeTestCase):
         self.assertCountEqual(
             [item.id for item in items], [item.id for item in items_again],
         )
+
+    def test_manager_bulk_get__complete_cache(self):
+        user = self.get_root_user()
+
+        create_chan = NotificationChannel.objects.create
+        chan1 = create_chan(name='Chan #1', default_outputs=[OUTPUT_WEB])
+        self.get_alone_element(NotificationChannelConfigItem.objects.bulk_get(
+            channels=[chan1], users=[user],
+        ))
+
+        chan2 = create_chan(name='Chan #2', default_outputs=[OUTPUT_EMAIL])
+        item2 = NotificationChannelConfigItem.objects.smart_create(channel=chan2, user=user)
+        with self.assertNumQueries(1):
+            retrieved_item2 = self.get_alone_element(
+                NotificationChannelConfigItem.objects.bulk_get(channels=[chan2], users=[user])
+            )
+        self.assertIsInstance(retrieved_item2, NotificationChannelConfigItem)
+        self.assertEqual(item2.pk, retrieved_item2.pk)
+
+        # ---
+        with self.assertNumQueries(0):
+            self.get_alone_element(
+                NotificationChannelConfigItem.objects.bulk_get(channels=[chan2], users=[user])
+            )
+
+    def test_manager_bulk_get__complete_cache_with_creation(self):
+        user = self.get_root_user()
+
+        create_chan = NotificationChannel.objects.create
+        chan1 = create_chan(name='Chan #1', default_outputs=[OUTPUT_WEB])
+        self.get_alone_element(NotificationChannelConfigItem.objects.bulk_get(
+            channels=[chan1], users=[user],
+        ))
+
+        chan2 = create_chan(name='Chan #2', default_outputs=[OUTPUT_EMAIL])
+        item2 = self.get_alone_element(NotificationChannelConfigItem.objects.bulk_get(
+            channels=[chan2], users=[user],
+        ))
+        self.assertIsNotNone(item2.pk)
+        self.assertEqual(user, item2.user)
+        self.assertEqual(chan2, item2.channel)
+        self.assertListEqual([OUTPUT_EMAIL], item2.outputs)
+
+        # ---
+        with self.assertNumQueries(0):
+            self.get_alone_element(NotificationChannelConfigItem.objects.bulk_get(
+                channels=[chan2], users=[user],
+            ))
 
 
 class NotificationTestCase(CremeTestCase):
