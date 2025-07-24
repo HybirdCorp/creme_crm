@@ -22,6 +22,7 @@ import logging
 import warnings
 from collections.abc import Iterable, Iterator
 from copy import deepcopy
+from functools import cached_property
 from uuid import uuid4
 
 from django.contrib.contenttypes.models import ContentType
@@ -375,6 +376,10 @@ class CremePropertyType(CremeModel):
     @staticmethod
     def get_lv_absolute_url():
         return reverse('creme_config__ptypes')
+
+    @cached_property
+    def properties_count(self):
+        return CremeProperty.objects.filter(type=self).count()
 
     @property
     def subject_models(self) -> Iterator[type[CremeEntity]]:

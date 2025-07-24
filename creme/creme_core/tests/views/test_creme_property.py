@@ -23,6 +23,7 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.utils.translation import smart_model_verbose_name
 from creme.creme_core.views.creme_property import (
+    PropertyTypeBarHatBrick,
     PropertyTypeInfoBrick,
     TaggedMiscEntitiesBrick,
 )
@@ -994,7 +995,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET404(url, data={'brick_id': 'tagged-persons-civility'})
 
     def test_reload_ptype_bricks02(self):
-        "Misc brick + info brick."
+        "Hat/Info/Misc bricks."
         user = self.login_as_root_and_get()
         # ptype = CremePropertyType.objects.smart_update_or_create(
         #     text='is american', subject_ctypes=[FakeOrganisation],
@@ -1008,24 +1009,28 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         CremeProperty.objects.create(type=ptype, creme_entity=rita)
 
-        misc_brick_id = TaggedMiscEntitiesBrick.id
+        hat_brick_id = PropertyTypeBarHatBrick.id
         info_brick_id = PropertyTypeInfoBrick.id
+        misc_brick_id = TaggedMiscEntitiesBrick.id
 
         response = self.assertGET200(
             reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
-            data={'brick_id': [misc_brick_id, info_brick_id]},
+            data={'brick_id': [misc_brick_id, info_brick_id, hat_brick_id]},
         )
 
         with self.assertNoException():
             result = response.json()
 
-        self.assertEqual(2, len(result))
+        self.assertEqual(3, len(result))
 
         doc1 = self.get_html_tree(result[0][1])
         self.get_brick_node(doc1, misc_brick_id)
 
         doc2 = self.get_html_tree(result[1][1])
         self.get_brick_node(doc2, info_brick_id)
+
+        doc3 = self.get_html_tree(result[2][1])
+        self.get_brick_node(doc3, hat_brick_id)
 
     def test_reload_ptype_bricks__empty(self):
         "Empty brick."

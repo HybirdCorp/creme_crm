@@ -326,6 +326,38 @@ class CremePropertyTypeTestCase(CremeTestCase):
         ptype = proxy.get_or_create()[0]
         self.assertCountEqual([activity_ct], [*ptype.subject_ctypes.all()])
 
+    def test_init(self):
+        text = 'wonderful'
+        description = 'is wonderful'
+        ptype = CremePropertyType.objects.create(text=text, description=description)
+        self.assertIsNotNone(ptype.pk)
+        self.assertEqual(text,        ptype.text)
+        self.assertEqual(description, ptype.description)
+        self.assertFalse(ptype.is_custom)
+        self.assertTrue(ptype.is_copiable)
+        self.assertTrue(ptype.enabled)
+
+        with self.assertNumQueries(1):
+            self.assertEqual(0, ptype.properties_count)
+
+        with self.assertNumQueries(0):
+            self.assertEqual(0, ptype.properties_count)
+
+    def test_properties_count(self):
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='wonderful')
+        ptype2 = create_ptype(text='cool')
+
+        user = self.get_root_user()
+        create_prop = CremeProperty.objects.create
+        c = FakeContact.objects.create(user=user, first_name='Winston', last_name='Smith')
+        o = FakeOrganisation.objects.create(user=user, name='Angsoc')
+        create_prop(type=ptype1, creme_entity=c)
+        create_prop(type=ptype1, creme_entity=o)
+        create_prop(type=ptype2, creme_entity=o)
+        self.assertEqual(2, ptype1.properties_count)
+        self.assertEqual(1, ptype2.properties_count)
+
     def test_set_subjects_ctypes(self):
         get_ct = ContentType.objects.get_for_model
         orga_ct = get_ct(FakeOrganisation)

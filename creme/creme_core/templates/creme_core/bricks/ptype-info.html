@@ -20,7 +20,8 @@
     <div class="brick-kv-item">
         <div class="brick-kv-key">{% translate 'Applies on entities with following types' %}</div>
         <div class="brick-kv-value">
-          {% for ctype in ctypes %}{% widget_join %}{% widget_ctype_hyperlink ctype=ctype user=user %}{% end_widget_join %}{% empty %}{% translate "No related type of resource" %}{% endfor %}
+{#          {% for ctype in ctypes %}{% widget_join %}{% widget_ctype_hyperlink ctype=ctype user=user %}{% end_widget_join %}{% empty %}{% translate "No related type of resource" %}{% endfor %} #}
+          {% for ctype in object.subject_ctypes.all %}{% widget_join %}{% widget_ctype_hyperlink ctype=ctype user=user %}{% end_widget_join %}{% empty %}{% translate "No related type of resource" %}{% endfor %}
         </div>
     </div>
     <div class="brick-kv-item">
@@ -33,7 +34,8 @@
     </div>
     <div class="brick-kv-item">
         <div class="brick-kv-key">{% translate 'Statistics' %}</div>
-        <div class="brick-kv-value">{% blocktranslate count count_stat as count %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktranslate %}</div>
+{#        <div class="brick-kv-value">{% blocktranslate count count_stat as count %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktranslate %}</div> #}
+        <div class="brick-kv-value">{% blocktranslate count count=object.properties_count %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktranslate %}</div>
     </div>
 </div>
 {% endblock %}
