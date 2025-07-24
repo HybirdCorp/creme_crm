@@ -42,7 +42,7 @@ _PropertyTypesField = partial(
     # ModelMultipleChoiceField,
     core_fields.PropertyTypesChoiceField,
     required=False,
-    label=_('Properties constraint'),
+    # label=_('Properties constraint'),
     queryset=CremePropertyType.objects.all(),
 )
 
@@ -57,9 +57,11 @@ class _RelationTypeForm(core_forms.CremeForm):
 
     subject_ctypes = _CTypesField()
     subject_properties = _PropertyTypesField(
+        label=_('Mandatory properties'),
         help_text=_('The subject must have all the selected properties.'),
     )
     subject_forbidden_properties = _PropertyTypesField(
+        label=_('Forbidden properties'),
         help_text=_('The subject cannot have any of the selected properties.'),
     )
 
@@ -95,9 +97,11 @@ class _RelationTypeForm(core_forms.CremeForm):
 
     object_ctypes = _CTypesField()
     object_properties = _PropertyTypesField(
+        label=_('Mandatory properties'),
         help_text=_('The object must have all the selected properties.'),
     )
     object_forbidden_properties = _PropertyTypesField(
+        label=_('Forbidden properties'),
         help_text=_('The object cannot have any of the selected properties.'),
     )
 

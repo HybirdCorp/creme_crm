@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-17 17:11+0200\n"
+"POT-Creation-Date: 2025-07-24 13:52+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -640,9 +640,6 @@ msgstr "Contrainte sur le type"
 msgid "No constraint means that all types are accepted."
 msgstr "Aucune contrainte signifiera que tous les types sont acceptés."
 
-msgid "Properties constraint"
-msgstr "Contrainte sur les propriétés"
-
 #, python-format
 msgid ""
 "These property types cannot be mandatory and forbidden at the same time: "
@@ -651,8 +648,14 @@ msgstr ""
 "Ces types de propriété ne peuvent pas être obligatoires et interdits à la "
 "fois : %(properties)s"
 
+msgid "Mandatory properties"
+msgstr "Obligatoire propriétés"
+
 msgid "The subject must have all the selected properties."
 msgstr "Le sujet doit avoir toutes les propriétés sélectionnées."
+
+msgid "Forbidden properties"
+msgstr "Interdites propriétés"
 
 msgid "The subject cannot have any of the selected properties."
 msgstr "Le sujet ne peut avoir aucune des propriétés sélectionnées."
@@ -3022,6 +3025,9 @@ msgstr "Cette action est invalide (rafraîchissez votre page)"
 
 msgid "Edit the instance's settings"
 msgstr "Modifier la configuration de l'instance"
+
+#~ msgid "Properties constraint"
+#~ msgstr "Contrainte sur les propriétés"
 
 #~ msgid "The password must contain at least %(min_length)d character."
 #~ msgid_plural "The password must contain at least %(min_length)d characters."
