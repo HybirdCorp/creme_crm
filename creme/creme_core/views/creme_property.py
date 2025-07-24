@@ -164,12 +164,11 @@ class CTypePropertiesDeletion(generic.base.EntityCTypeRelatedMixin,
     ptype_id_arg = 'ptype_id'
     ctype_id_arg: str = 'ct_id'
 
-    def get_ctype_id(self):
-        return get_from_POST_or_404(self.request.POST, self.ctype_id_arg, cast=int)
+    def get_ctype_id(self) -> int:
+        return get_from_POST_or_404(self.request.POST, key=self.ctype_id_arg, cast=int)
 
-    def get_ptype_id(self):
-        # TODO: cast=int when CremePropertyType has been reworked
-        return get_from_POST_or_404(self.request.POST, self.ptype_id_arg)
+    def get_ptype_id(self) -> int:
+        return get_from_POST_or_404(self.request.POST, key=self.ptype_id_arg, cast=int)
 
     def get_success_url(self):
         return reverse('creme_core__ptype', args=(self.get_ptype_id(),))
