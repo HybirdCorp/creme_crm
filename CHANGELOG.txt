@@ -1,6 +1,6 @@
 == Version 2.6.11 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .po (emails)
+  TODO: compile .po (creme_config, emails)
 
   Users side :
   ------------
