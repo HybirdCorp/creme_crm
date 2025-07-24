@@ -19,7 +19,8 @@
   {% if ctype %}
 {#    {% blocktranslate with models=ctype.model_class|get_meta_value:'verbose_name_plural' asvar help_text %}Remove all the properties related to the «{{models}}» which you are allowed to edit{% endblocktranslate %} #}
     {% blocktranslate with models=ctype|ctype_verbose_name_plural asvar help_text %}Remove all the properties related to the «{{models}}» which you are allowed to edit{% endblocktranslate %}
-    {% brick_header_action id='delete' url='creme_core__remove_properties'|url __ptype_id=ptype_id __ct_id=ctype.id label=_('Remove these properties') help_text=help_text %}
+{#    {% brick_header_action id='delete' url='creme_core__remove_properties'|url __ptype_id=ptype_id __ct_id=ctype.id label=_('Remove these properties') help_text=help_text %} #}
+    {% brick_header_action id='delete' url='creme_core__remove_properties'|url __ptype_id=object.id __ct_id=ctype.id label=_('Remove these properties') help_text=help_text %}
   {% endif %}
 {% endblock %}
 
@@ -34,7 +35,8 @@
           {% widget_entity_hyperlink entity user %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url=rm_url __ptype_id=ptype_id __entity_id=entity.id label=_('Remove the property') icon='unlink' enabled=user|has_perm_to_change:entity %}
+{#            {% brick_table_action id='delete' url=rm_url __ptype_id=ptype_id __entity_id=entity.id label=_('Remove the property') icon='unlink' enabled=user|has_perm_to_change:entity %} #}
+            {% brick_table_action id='delete' url=rm_url __ptype_id=object.id __entity_id=entity.id label=_('Remove the property') icon='unlink' enabled=user|has_perm_to_change:entity %}
         </td>
     </tr>
   {% endfor %}

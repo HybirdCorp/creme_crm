@@ -1681,26 +1681,33 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
+# Already in core
 msgid "You are not allowed to edit this property type"
-msgstr "Vous n'avez pas l'autorisation de modifier ce type de propriété"
+msgstr ""
 
+# Already in core
 msgid "This property type cannot be edited"
-msgstr "Ce type de propriété ne peut pas être modifié"
+msgstr ""
 
+# Already in core
 msgid "Edit this property type"
-msgstr "Modifier ce type de propriété"
+msgstr ""
 
+# Already in core
 msgid "You are not allowed to delete this property type"
-msgstr "Vous n'avez pas l'autorisation de supprimer ce type de propriété"
+msgstr ""
 
+# Already in core
 msgid "This property type cannot be deleted"
-msgstr "Ce type de propriété ne peut pas être supprimé"
+msgstr ""
 
+# Already in core
 msgid "This property type cannot be deleted because it is used"
-msgstr "Ce type de propriété ne peut pas être supprimé car il est utilisé"
+msgstr ""
 
+# Already in core
 msgid "Delete this property type"
-msgstr "Supprimer ce type de propriété"
+msgstr ""
 
 msgid "No type of property for the moment"
 msgstr "Aucun type de propriété enregistré pour le moment"

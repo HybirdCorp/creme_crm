@@ -202,7 +202,9 @@ class PropertyTypesBrick(_ConfigAdminBrick):
         return self._render(self.get_template_context(
             context,
             core_models.CremePropertyType.objects.annotate(
-                stats=Count('cremeproperty'),
+                # stats=Count('cremeproperty'),
+                # NB: kind of pre-caching the property CremePropertyType.properties_count
+                properties_count=Count('cremeproperty'),
             ).prefetch_related('subject_ctypes'),
         ))
 
