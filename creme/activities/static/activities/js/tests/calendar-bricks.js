@@ -146,7 +146,8 @@ QUnit.test('creme.ActivityCalendarBrickController.setup (settings & sources)', f
         owner: "",
         showTimezoneInfo: false,
         showWeekNumber: true,
-        timezoneOffset: 120
+        timezoneOffset: 120,
+        rendererDelay: 100
     }, controller.calendar().props());
 
     deepEqual([1, 2, 10, 11], controller.calendar().selectedSourceIds());

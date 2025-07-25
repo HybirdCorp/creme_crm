@@ -30,6 +30,9 @@
         # App :
             * Activities :
                 - The model 'Calendar' got an 'uuid' field.
+                - The JavaScript component 'creme.ActivityCalendar' has been improved :
+                    - The property 'rendererDelay' (number) has been added; Improve performances by limiting the calls
+                      to the rendering methods. (see https://fullcalendar.io/docs/rerenderDelay)
 
     Breaking changes :
     ------------------
