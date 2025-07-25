@@ -246,7 +246,8 @@ creme.ActivityCalendar = creme.component.Component.sub({
             selectedSourceIds: [],
             showWeekNumber: true,
             showTimezoneInfo: false,
-            timezoneOffset: 0
+            timezoneOffset: 0,
+            rendererDelay: 100
         }, options || {});
 
         this._element = element;
@@ -905,6 +906,14 @@ creme.ActivityCalendar = creme.component.Component.sub({
                 weekNumbers: options.showWeekNumber
             }
         );
+
+        if (options.rendererDelay > 0) {
+            /*
+             * Improve rendering performance by limiting the rendering events
+             * see https://github.com/fullcalendar/fullcalendar/issues/3003#issuecomment-2260733884
+             */
+            fullCalendarSettings.rerenderDelay = options.rendererDelay;
+        }
 
         if (options.headlessMode) {
             fullCalendarSettings.header = false;
