@@ -14,6 +14,7 @@ from creme.creme_core.models import (
     FakeOrganisation,
     FakePosition,
     FakeSector,
+    Language,
     Relation,
 )
 from creme.creme_core.utils.db import (
@@ -129,8 +130,7 @@ class DBTestCase(CremeTestCase):
             build_columns_key(('last_name', 'first_name')),
         )
 
-    def test_indexed_ordering01(self):
-        "FakeOrganisation."
+    def test_indexed_ordering__organisation(self):
         self.assertIn(
             ['name', 'cremeentity_ptr'],
             [index.fields for index in FakeOrganisation._meta.indexes],
@@ -164,8 +164,7 @@ class DBTestCase(CremeTestCase):
         )
         # TODO: M2M ?
 
-    def test_indexed_ordering02(self):
-        "FakeContact."
+    def test_indexed_ordering__contact(self):
         self.assertIn(
             ['last_name', 'first_name', 'cremeentity_ptr'],
             [index.fields for index in FakeContact._meta.indexes],
@@ -494,6 +493,28 @@ class DBTestCase(CremeTestCase):
 
         with self.assertNumQueries(2):
             populate_related(contacts, ['user__role__name'])
+
+    def test_populate_related__m2m(self):
+        user = self.get_root_user()
+        l1, l2, l3 = Language.objects.all()[:3]
+
+        create_contact = partial(FakeContact.objects.create, user=user, last_name='Simpson')
+        lisa = create_contact(first_name='Lisa')
+        maggie = create_contact(first_name='Marguerite')
+        lisa.languages.set([l1, l2])
+        maggie.languages.set([l1, l3])
+
+        lisa = self.refresh(lisa)
+        maggie = self.refresh(maggie)
+
+        with self.assertNumQueries(1):
+            populate_related([lisa, maggie], ['languages'])
+
+        with self.assertNumQueries(0):
+            self.assertCountEqual([l1, l2], lisa.languages.all())
+
+        with self.assertNumQueries(0):
+            self.assertCountEqual([l1, l3], maggie.languages.all())
 
     def test_prefetcher(self):
         sector1, sector2, sector3 = FakeSector.objects.all()[:3]

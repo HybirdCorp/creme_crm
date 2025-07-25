@@ -365,7 +365,10 @@ class BaseM2MPrinter:
                        user: CremeUser,
                        field: Field,
                        ) -> Iterator[Model]:
-        return manager.all()
+        # return manager.all()
+        # We use a cache; even if the M2M has not been prefetched,
+        # calls after the first one will not perform queries.
+        yield from instance.get_m2m_values(field.name)
 
     @staticmethod
     def enumerator_entity(*,
@@ -374,7 +377,17 @@ class BaseM2MPrinter:
                           user: CremeUser,
                           field: Field,
                           ) -> Iterator[Model]:
-        return manager.filter(is_deleted=False)
+        # return manager.filter(is_deleted=False)
+        # We use the M2M cache as above; we potentially retrieve deleted
+        # entities too (not sure if we won't display them in the future anyway).
+        entities = instance.get_m2m_values(field.name)
+        for entity in entities:
+            if not entity.is_deleted:
+                yield entity
+        # TODO? (OK in HTML, but in CSV?)
+        # for entity in entities:
+        #     if entity.is_deleted:
+        #         yield entity
 
     def __init__(self,
                  default_printer: M2MInstancePrinter,
