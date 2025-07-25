@@ -73,6 +73,7 @@ QUnit.test('creme.ActivityCalendar (options)', function(assert) {
         eventUpdateUrl: 'mock/calendar/event/update',
         eventCreateUrl: 'mock/calendar/event/create',
         eventFetchUrl: 'mock/calendar/events',
+        rendererDelay: 100,
         fullCalendarOptions: {
             slotDuration: '00:15:00'
         }
@@ -106,6 +107,7 @@ QUnit.test('creme.ActivityCalendar (options)', function(assert) {
         headlessMode: true,
         defaultView: 'week',
         externalEventData: _.noop,
+        rendererDelay: 100,
         fullCalendarOptions: {
             slotDuration: '00:15:00'
         },
@@ -630,24 +632,25 @@ QUnit.test('creme.ActivityCalendar.rendering (hilight, week view)', function(ass
     var controller = new creme.ActivityCalendar(element, {
                          eventFetchUrl: 'mock/calendar/events',
                          initialDate: '2023-03-20',
-                         selectedSourceIds: ['1', '2', '10', '11', '20']
+                         selectedSourceIds: ['1', '2', '10', '11', '20'],
+                         rendererDelay: 0
                      });
 
     controller.fullCalendar().changeView('week');
 
     var timeFormat = "H[h]mm";
 
-    var start = moment.utc('2023-03-25T08:00:00');
-    var end = moment.utc('2023-03-25T09:45:00');
+    var eventStart = moment.utc('2023-03-25T08:00:00');
+    var eventEnd = moment.utc('2023-03-25T09:45:00');
 
     deepEqual([], element.find('.fc-event-mirror').get());
 
-    controller.fullCalendar().select(start.toDate(), end.toDate());
+    controller.fullCalendar().select(eventStart.toDate(), eventEnd.toDate());
 
     deepEqual([{
         content: '${start} − ${end}'.template({
-            start: start.format(timeFormat),
-            end: end.format(timeFormat)
+            start: eventStart.format(timeFormat),
+            end: eventEnd.format(timeFormat)
         })
     }], element.find('.fc-event-mirror .fc-event-time').map(function() {
         return {

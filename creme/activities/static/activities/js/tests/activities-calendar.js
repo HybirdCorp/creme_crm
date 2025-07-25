@@ -328,7 +328,8 @@ QUnit.test('creme.ActivityCalendarController (no history)', function(assert) {
 QUnit.test('creme.ActivityCalendarController (history)', function(assert) {
     var element = $(this.createDefaultUserCalendarHtml()).appendTo(this.qunitFixture());
     var controller = creme.userActivityCalendar(element, {
-        keepState: true
+        keepState: true,
+        rendererDelay: 0
     });
 
     equal(true, controller.keepState());
