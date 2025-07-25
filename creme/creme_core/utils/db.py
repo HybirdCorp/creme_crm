@@ -30,7 +30,12 @@ from functools import lru_cache
 from typing import Any, DefaultDict
 
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.db.models import ForeignKey, Model
+from django.db.models import (
+    ForeignKey,
+    ManyToManyField,
+    Model,
+    prefetch_related_objects,
+)
 
 from ..models import CaseSensitivity
 from .meta import FieldInfo
@@ -164,16 +169,16 @@ def get_indexed_ordering(model: type[Model],
     return None
 
 
-# TODO: ManyToManyField too ?
+# TODO: manage more complex use of ManyToManyField
 def populate_related(instances: Sequence[Model],
                      field_names: Iterable[str],
                      ) -> None:
-    """Retrieve the given ForeignKeys values for some instances, in order to
-    reduce the number of DB queries.
+    """Retrieve the given ForeignKeys/ManyToManyField values for some instances,
+    in order to reduce the number of DB queries.
 
     @param instances: Sequence of instances with the _same_ ContentType.
-                      NB: iterated several times -> not an iterator.
-    @param field_names: Sequence of strings representing field names ala django
+           NB: iterated several times -> not an iterator.
+    @param field_names: Sequence of strings representing field names ala Django
            (e.g. 'user__username').
     """
     if not instances:
@@ -257,6 +262,17 @@ def populate_related(instances: Sequence[Model],
 
     while works:
         works = _populate_depth(works)
+
+    # ManyToManyFields ---
+    # NB: we only manage simple ManyToManyFields in this 1rst version
+    m2m_names = [
+        fname
+        for fname in field_names
+        if '__' not in fname
+        and isinstance(base_model._meta.get_field(fname), ManyToManyField)
+    ]
+    if m2m_names:
+        prefetch_related_objects(instances, *m2m_names)
 
 
 # NB: 'maxsize=None' => avoid locking (number of models is small)

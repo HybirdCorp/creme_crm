@@ -362,16 +362,24 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
         self.assertEqual('regular_field-position', cell.key)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
 
-        # Render ---
         user = self.get_root_user()
         position = FakePosition.objects.create(title='Sniper')
-        yoko = FakeContact(
+        yoko = self.refresh(FakeContact.objects.create(
             user=user, first_name='Yoko', last_name='Littner', position=position,
-        )
-        self.assertHTMLEqual(
-            position.title,
-            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
-        )
+        ))
+
+        with self.assertNumQueries(1):
+            EntityCellRegularField.populate_entities(
+                cells=[cell], entities=[yoko], user=user,
+            )
+
+        # Render ---
+        with self.assertNumQueries(0):
+            self.assertHTMLEqual(
+                position.title,
+                cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+            )
+
         self.assertHTMLEqual(
             position.title,
             cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
@@ -425,7 +433,6 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='languages')
         self.assertTrue(cell.is_multiline)
 
-        # Render ---
         user = self.get_root_user()
         l1, l2 = Language.objects.all()[:2]
         yoko = FakeContact.objects.create(
@@ -433,12 +440,38 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
         )
         yoko.languages.set([l1, l2])
 
+        yoko = self.refresh(yoko)
+
+        # Render (no prefetch) ---
+        expected_txt = f'{l1.name}/{l2.name}'
+        expected_html = f'<ul class="limited-list"><li>{l1.name}</li><li>{l2.name}</li></ul>'
+
+        with self.assertNumQueries(1):
+            self.assertEqual(
+                expected_txt,
+                cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
+            )
+
+        with self.assertNumQueries(0):  # Use cache
+            self.assertEqual(
+                expected_html,
+                cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+            )
+
+        # Render (with prefetch) ---
+        with self.assertNumQueries(1):
+            EntityCellRegularField.populate_entities(
+                cells=[cell], entities=[yoko], user=user,
+            )
+
+        with self.assertNumQueries(0):
+            self.assertEqual(
+                expected_txt,
+                cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
+            )
+
         self.assertEqual(
-            f'{l1.name}/{l2.name}',
-            cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
-        )
-        self.assertEqual(
-            f'<ul class="limited-list"><li>{l1.name}</li><li>{l2.name}</li></ul>',
+            expected_html,
             cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
         )
 
@@ -450,18 +483,29 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
         user = self.get_root_user()
         create_ml = partial(FakeMailingList.objects.create, user=user)
         ml1 = create_ml(name='ML #1')
-        ml2 = create_ml(name='ML #2')
+        ml2 = create_ml(name='ML #2', is_deleted=True)
+        ml3 = create_ml(name='ML #3')
 
         camp = FakeEmailCampaign.objects.create(user=user, name='Summer discount')
-        camp.mailing_lists.set([ml1, ml2])
+        camp.mailing_lists.set([ml1, ml2, ml3])
 
-        self.assertHTMLEqual(
-            f'<ul class="limited-list">'
-            f' <li><a href="{ml1.get_absolute_url()}" target="_blank">{ml1.name}</li>'
-            f' <li><a href="{ml2.get_absolute_url()}" target="_blank">{ml2.name}</li>'
-            f'</ul>',
-            cell.render(entity=camp, user=user, tag=ViewTag.HTML_DETAIL),
-        )
+        with self.assertNumQueries(1):
+            self.assertHTMLEqual(
+                f'<ul class="limited-list">'
+                f' <li><a href="{ml1.get_absolute_url()}" target="_blank">{ml1.name}</li>'
+                f' <li><a href="{ml3.get_absolute_url()}" target="_blank">{ml3.name}</li>'
+                # f' <li><a href="{ml2.get_absolute_url()}" target="_blank" class="is_deleted">'
+                # f' {ml2.name}'
+                # f' </li>'
+                f'</ul>',
+                cell.render(entity=camp, user=user, tag=ViewTag.HTML_DETAIL),
+            )
+
+        with self.assertNumQueries(0):  # Use cache
+            self.assertHTMLEqual(
+                f'{ml1.name}/{ml3.name}',
+                cell.render(entity=camp, user=user, tag=ViewTag.TEXT_PLAIN),
+            )
 
     def test_m2m_subfield(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='languages__name')
