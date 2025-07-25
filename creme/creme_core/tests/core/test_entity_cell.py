@@ -46,21 +46,14 @@ from creme.creme_core.models import (
 from ..base import CremeTestCase
 
 
-@override_settings(CELL_SIZE=50)
-class EntityCellTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
-
-    def test_registry_global(self):
+class EntityCellRegistryTestCase(CremeTestCase):
+    def test_global(self):
         self.assertEqual(EntityCellRegularField,  CELLS_MAP[EntityCellRegularField.type_id])
         self.assertEqual(EntityCellCustomField,   CELLS_MAP[EntityCellCustomField.type_id])
         self.assertEqual(EntityCellFunctionField, CELLS_MAP[EntityCellFunctionField.type_id])
         self.assertEqual(EntityCellRelation,      CELLS_MAP[EntityCellRelation.type_id])
 
-    def test_registry_register01(self):
+    def test_register(self):
         registry = EntityCellRegistry()
 
         with self.assertRaises(KeyError):
@@ -83,8 +76,7 @@ class EntityCellTestCase(CremeTestCase):
             [*registry.cell_classes],
         )
 
-    def test_registry_register02(self):
-        "Duplicate."
+    def test_register__duplicate(self):
         registry = EntityCellRegistry().register(EntityCellRegularField)
 
         class DuplicatedIdCell(EntityCell):
@@ -93,7 +85,7 @@ class EntityCellTestCase(CremeTestCase):
         with self.assertRaises(EntityCellRegistry.RegistrationError):
             registry.register(DuplicatedIdCell)
 
-    def test_registry_call(self):
+    def test_call(self):
         registry = EntityCellRegistry()
 
         with self.assertRaises(KeyError):
@@ -107,7 +99,7 @@ class EntityCellTestCase(CremeTestCase):
 
         self.assertIn(EntityCellRegularField.type_id, registry)
 
-    def test_registry_deepcopy(self):
+    def test_deepcopy(self):
         registry1 = EntityCellRegistry()
         registry1(EntityCellRegularField)
         registry1(EntityCellCustomField)
@@ -127,7 +119,7 @@ class EntityCellTestCase(CremeTestCase):
         with self.assertRaises(KeyError):
             registry1[EntityCellFunctionField.type_id]
 
-    def test_registry_build_cell_from_dict(self):
+    def test_build_cell_from_dict(self):
         build = partial(CELLS_MAP.build_cell_from_dict, model=FakeContact)
         cell1 = build(dict_cell={
             'type': EntityCellRegularField.type_id,
@@ -162,8 +154,7 @@ class EntityCellTestCase(CremeTestCase):
             'value': 'first_name',
         }))
 
-    def test_registry_build_cells_from_dicts01(self):
-        "No error."
+    def test_build_cells_from_dicts(self):
         cells, errors = CELLS_MAP.build_cells_from_dicts(
             model=FakeContact,
             dicts=[
@@ -184,8 +175,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(FakeContact,             cell2.model)
         self.assertEqual('get_pretty_properties', cell2.value)
 
-    def test_registry_build_cells_from_dicts02(self):
-        "Error."
+    def test_build_cells_from_dicts__error(self):
         cells, errors = CELLS_MAP.build_cells_from_dicts(
             model=FakeDocument,
             dicts=[
@@ -200,7 +190,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(FakeDocument,            cell.model)
         self.assertEqual('get_pretty_properties', cell.value)
 
-    def test_registry_build_cell_from_key(self):
+    def test_build_cell_from_key(self):
         build = partial(CELLS_MAP.build_cell_from_key, model=FakeContact)
         cell1 = build(key='regular_field-first_name')
         self.assertIsInstance(cell1, EntityCellRegularField)
@@ -217,8 +207,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIsNone(build(key=EntityCellRegularField.type_id))
         self.assertIsNone(build(key='not_registered-first_name'))
 
-    def test_registry_build_cells_from_keys01(self):
-        "No error."
+    def test_build_cells_from_keys(self):
         cells, errors = CELLS_MAP.build_cells_from_keys(
             model=FakeContact,
             keys=[
@@ -239,8 +228,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(FakeContact,             cell2.model)
         self.assertEqual('get_pretty_properties', cell2.value)
 
-    def test_registry_build_cells_from_keys02(self):
-        "Error."
+    def test_build_cells_from_keys__error(self):
         cells, errors = CELLS_MAP.build_cells_from_keys(
             model=FakeDocument,
             keys=[
@@ -255,7 +243,10 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(FakeDocument,            cell.model)
         self.assertEqual('get_pretty_properties', cell.value)
 
-    def test_regular_field01(self):
+
+# @override_settings(CELL_SIZE=50)  TODO: when rendering M2M
+class EntityCellRegularFieldTestCase(CremeTestCase):
+    def test_main(self):
         self.assertEqual(_('Fields'), EntityCellRegularField.verbose_name)
 
         field_name = 'first_name'
@@ -276,7 +267,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertDictEqual(dict_cell, cell.to_dict(portable=False))
         self.assertDictEqual(dict_cell, cell.to_dict(portable=True))
 
-    def test_regular_field_date(self):
+    def test_date_field(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='birthday')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,     cell.listview_css_class)
         self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, cell.header_listview_css_class)
@@ -314,11 +305,11 @@ class EntityCellTestCase(CremeTestCase):
         #         cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
         #     )
 
-    def test_regular_field_bool(self):
+    def test_boolean_field(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='is_a_nerd')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
 
-    def test_regular_field_fk(self):
+    def test_fk(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='position')
         self.assertEqual('regular_field-position', cell.key)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
@@ -326,32 +317,31 @@ class EntityCellTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='image')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
 
-    def test_regular_field_fk_subfield01(self):
+    def test_fk_subfield(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='position__title')
         self.assertEqual('regular_field-position__title', cell.key)
 
         cell = EntityCellRegularField.build(model=FakeContact, name='image__name')
         self.assertEqual('regular_field-image__name', cell.key)
 
-    def test_regular_field_fk_subfield02(self):
-        "Date ForeignKey subfield."
+    def test_fk_subfield__date(self):
+        "ForeignKey subfield is a DateField."
         cell = EntityCellRegularField.build(model=FakeContact, name='image__created')
         self.assertEqual('{} - {}'.format(_('Photograph'), _('Creation date')), cell.title)
 
-    def test_regular_field_fk_subfield03(self):
+    def test_fk_subfield__fk(self):
         "ForeignKey subfield is a FK."
         cell = EntityCellRegularField.build(model=FakeDocument, name='linked_folder__category')
         self.assertEqual('regular_field-linked_folder__category', cell.key)
 
-    def test_regular_field_m2m(self):
+    def test_m2m(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='languages')
         self.assertTrue(cell.is_multiline)
 
         cell = EntityCellRegularField.build(model=FakeContact, name='languages__name')
         self.assertTrue(cell.is_multiline)
 
-    def test_regular_field_hidden(self):
-        "Hidden field."
+    def test_hidden_field(self):
         hidden = 'first_name'
 
         FieldsConfig.objects.create(
@@ -365,19 +355,72 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(_('{} [hidden]').format(_('First name')), cell.title)
         self.assertIs(cell.is_excluded, True)
 
-    def test_regular_field_errors(self):
+    def test_errors(self):
         build = partial(EntityCellRegularField.build, model=FakeContact)
         self.assertIsNone(build(name='unknown_field'))
         self.assertIsNone(build(name='user__unknownfield'))
 
-    def test_customfield_int(self):
+    def test_populate_entities(self):
+        user = self.get_root_user()
+
+        pos = FakePosition.objects.create(title='Pilot')
+        create_contact = partial(FakeContact.objects.create, user=user, position_id=pos.id)
+        contacts = [
+            create_contact(first_name='Nagate',  last_name='Tanikaze'),
+            create_contact(first_name='Shizuka', last_name='Hoshijiro'),
+        ]
+
+        build = partial(EntityCellRegularField.build, model=FakeContact)
+        cells = [build(name='last_name'), build(name='first_name')]
+
+        with self.assertNumQueries(0):
+            EntityCellRegularField.populate_entities(
+                cells=cells, entities=contacts, user=user,
+            )
+
+        with self.assertNumQueries(1):
+            contacts[0].position  # NOQA
+
+    def test_populate_entities__fk(self):
+        user = self.get_root_user()
+
+        pos = FakePosition.objects.all()[0]
+        civ = FakeCivility.objects.all()[0]
+        create_contact = partial(
+            FakeContact.objects.create, user=user, position=pos, civility=civ,
+        )
+        contact1 = create_contact(first_name='Nagate', last_name='Tanikaze')
+        contact2 = create_contact(first_name='Shizuka', last_name='Hoshijiro')
+        # NB: we refresh because the __str__() method retrieves the civility
+        contacts = [self.refresh(contact1), self.refresh(contact2)]
+
+        build = partial(EntityCellRegularField.build, model=FakeContact)
+        cells = [
+            build(name='last_name'), build(name='first_name'),
+            build(name='position'),
+            build(name='civility__title'),
+        ]
+
+        with self.assertNumQueries(2):
+            EntityCellRegularField.populate_entities(
+                cells=cells, entities=contacts, user=user,
+            )
+
+        with self.assertNumQueries(0):
+            contacts[0].position  # NOQA
+            contacts[1].position  # NOQA
+            contacts[0].civility  # NOQA
+            contacts[1].civility  # NOQA
+
+
+@override_settings(CELL_SIZE=50)
+class EntityCellCustomFieldTestCase(CremeTestCase):
+    def test_int(self):
         self.assertEqual(_('Custom fields'), EntityCellCustomField.verbose_name)
 
         name = 'Size (cm)'
         customfield = CustomField.objects.create(
-            name=name,
-            field_type=CustomField.INT,
-            content_type=self.contact_ct,
+            name=name, field_type=CustomField.INT, content_type=FakeContact,
         )
 
         cell1 = EntityCellCustomField(customfield)
@@ -440,14 +483,14 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIsInstance(cell4, EntityCellCustomField)
         self.assertEqual(str(customfield.id), cell4.value)
 
-    def test_customfield_decimal(self):
-        customfield = CustomField.objects.create(
+    def test_decimal(self):
+        cfield = CustomField.objects.create(
             name='Weight',
             field_type=CustomField.FLOAT,
-            content_type=self.contact_ct,
+            content_type=FakeContact,
         )
 
-        cell = EntityCellCustomField(customfield)
+        cell = EntityCellCustomField(cfield)
         self.assertEqual(settings.CSS_NUMBER_LISTVIEW,         cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
@@ -456,18 +499,18 @@ class EntityCellTestCase(CremeTestCase):
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         value = Decimal('1.52')
         value_str = number_format(value)
-        customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=value)
+        cfield.value_class.objects.create(entity=yoko, custom_field=cfield, value=value)
         self.assertEqual(value_str, cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
         self.assertEqual(value_str, cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
-    def test_customfield_datetime(self):
-        customfield = CustomField.objects.create(
+    def test_datetime(self):
+        cfield = CustomField.objects.create(
             name='Day & hour',
             field_type=CustomField.DATETIME,
-            content_type=self.contact_ct,
+            content_type=FakeContact,
         )
 
-        cell = EntityCellCustomField(customfield)
+        cell = EntityCellCustomField(cfield)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,     cell.listview_css_class)
         self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, cell.header_listview_css_class)
 
@@ -475,9 +518,7 @@ class EntityCellTestCase(CremeTestCase):
         user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         dt = self.create_datetime(year=2058, month=3, day=26, hour=12)
-        customfield.value_class.objects.create(
-            entity=yoko, custom_field=customfield, value=dt,
-        )
+        cfield.value_class.objects.create(entity=yoko, custom_field=cfield, value=dt)
 
         # dt_input_format = '%Y/%m/%d %H:%M:%S'
         # local_dt = localtime(dt)
@@ -514,14 +555,12 @@ class EntityCellTestCase(CremeTestCase):
                 cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
             )
 
-    def test_customfield_date(self):
-        customfield = CustomField.objects.create(
-            name='Day',
-            field_type=CustomField.DATE,
-            content_type=self.contact_ct,
+    def test_date(self):
+        cfield = CustomField.objects.create(
+            name='Day', field_type=CustomField.DATE, content_type=FakeContact,
         )
 
-        cell = EntityCellCustomField(customfield)
+        cell = EntityCellCustomField(cfield)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,     cell.listview_css_class)
         self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, cell.header_listview_css_class)
 
@@ -529,8 +568,8 @@ class EntityCellTestCase(CremeTestCase):
         user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         date_obj = date(year=2058, month=3, day=26)
-        customfield.value_class.objects.create(
-            entity=yoko, custom_field=customfield, value=date_obj,
+        cfield.value_class.objects.create(
+            entity=yoko, custom_field=cfield, value=date_obj,
         )
 
         # date_input_format = '%d-%m-%Y'
@@ -558,35 +597,33 @@ class EntityCellTestCase(CremeTestCase):
                 cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
             )
 
-    def test_customfield_bool(self):
-        customfield = CustomField.objects.create(
-            name='Is fun?',
-            field_type=CustomField.BOOL,
-            content_type=self.contact_ct,
+    def test_bool(self):
+        cfield = CustomField.objects.create(
+            name='Is fun?', field_type=CustomField.BOOL, content_type=FakeContact,
         )
 
-        cell = EntityCellCustomField(customfield)
+        cell = EntityCellCustomField(cfield)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
         # Render ---
         user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
-        customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=True)
-        self.assertEqual(
+        cfield.value_class.objects.create(entity=yoko, custom_field=cfield, value=True)
+        self.assertHTMLEqual(
             f'<input type="checkbox" checked disabled/>{_("Yes")}',
             cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
         )
         self.assertEqual(_('Yes'), cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
-    def test_customfield_str(self):
-        customfield = CustomField.objects.create(
+    def test_str(self):
+        cfield = CustomField.objects.create(
             name='Nickname',
             field_type=CustomField.STR,
-            content_type=self.contact_ct,
+            content_type=FakeContact,
         )
 
-        cell = EntityCellCustomField(customfield)
+        cell = EntityCellCustomField(cfield)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
@@ -595,33 +632,28 @@ class EntityCellTestCase(CremeTestCase):
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
 
         value = '<i>Sniper</i>'
-        customfield.value_class.objects.create(
-            entity=yoko, custom_field=customfield, value=value,
-        )
+        cfield.value_class.objects.create(entity=yoko, custom_field=cfield, value=value)
         self.assertEqual(
             '&lt;i&gt;Sniper&lt;/i&gt;',
             cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
         )
         self.assertEqual(value, cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
-    def test_customfield_text(self):
-        customfield = CustomField.objects.create(
-            name='Plot',
-            field_type=CustomField.TEXT,
-            content_type=self.contact_ct,
+    def test_text(self):
+        cfield = CustomField.objects.create(
+            name='Plot', field_type=CustomField.TEXT, content_type=FakeContact,
         )
-
-        cell = EntityCellCustomField(customfield)
+        cell = EntityCellCustomField(cfield)
 
         # Render ---
         user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
 
-        value = 'Yoko is a young woman from <i>Littner</i>, a village neighboring Giha.\n' \
-                'She helps introduce Simon and Kamina to the surface world.'
-        customfield.value_class.objects.create(
-            entity=yoko, custom_field=customfield, value=value,
+        value = (
+            'Yoko is a young woman from <i>Littner</i>, a village neighboring Giha.\n'
+            'She helps introduce Simon and Kamina to the surface world.'
         )
+        cfield.value_class.objects.create(entity=yoko, custom_field=cfield, value=value)
         self.assertHTMLEqual(
             '<p>'
             'Yoko is a young woman from &lt;i&gt;Littner&lt;/i&gt;, a village neighboring Giha.'
@@ -632,22 +664,19 @@ class EntityCellTestCase(CremeTestCase):
         )
         self.assertEqual(value, cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
-    def test_customfield_url(self):
-        customfield = CustomField.objects.create(
-            name='Village URL',
-            field_type=CustomField.URL,
-            content_type=self.contact_ct,
+    def test_url(self):
+        cfield = CustomField.objects.create(
+            name='Village URL', field_type=CustomField.URL, content_type=FakeContact,
         )
-
-        cell = EntityCellCustomField(customfield)
+        cell = EntityCellCustomField(cfield)
 
         # Render ---
         user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
 
         value = 'www.littner.org'
-        customfield.value_class.objects.create(
-            entity=yoko, custom_field=customfield, value=value,
+        cfield.value_class.objects.create(
+            entity=yoko, custom_field=cfield, value=value,
         )
         self.assertHTMLEqual(
             # f'<a href="{value}" target="_blank">{value}</a>',
@@ -656,20 +685,18 @@ class EntityCellTestCase(CremeTestCase):
         )
         self.assertEqual(value, cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
-    def test_customfield_enum(self):
-        customfield = CustomField.objects.create(
-            name='Eva',
-            field_type=CustomField.ENUM,
-            content_type=self.contact_ct,
+    def test_enum(self):
+        cfield = CustomField.objects.create(
+            name='Eva', field_type=CustomField.ENUM, content_type=FakeContact,
         )
 
         create_enumvalue = partial(
-            CustomFieldEnumValue.objects.create, custom_field=customfield,
+            CustomFieldEnumValue.objects.create, custom_field=cfield,
         )
         enum_value1 = create_enumvalue(value='Eva-00<script>')
         create_enumvalue(value='Eva-01')
 
-        cell = EntityCellCustomField(customfield)
+        cell = EntityCellCustomField(cfield)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
@@ -679,8 +706,8 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual('', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
         self.assertEqual('', cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
-        customfield.value_class.objects.create(
-            entity=yoko, custom_field=customfield, value=enum_value1,
+        cfield.value_class.objects.create(
+            entity=yoko, custom_field=cfield, value=enum_value1,
         )
         yoko = self.refresh(yoko)  # Avoid cache
         self.assertEqual(
@@ -692,22 +719,22 @@ class EntityCellTestCase(CremeTestCase):
             cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
         )
 
-    def test_customfield_mulitenum(self):
-        customfield = CustomField.objects.create(
+    def test_mulitenum(self):
+        cfield = CustomField.objects.create(
             name='Eva',
             field_type=CustomField.MULTI_ENUM,
-            content_type=self.contact_ct,
+            content_type=FakeContact,
         )
 
         create_enumvalue = partial(
             CustomFieldEnumValue.objects.create,
-            custom_field=customfield,
+            custom_field=cfield,
         )
         enum_value1 = create_enumvalue(value='Eva-00')
         create_enumvalue(value='Eva-01')
         enum_value3 = create_enumvalue(value='Eva-02<script>')
 
-        cell = EntityCellCustomField(customfield)
+        cell = EntityCellCustomField(cfield)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
@@ -717,7 +744,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual('', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
         self.assertEqual('', cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
-        cf_value = customfield.value_class(entity=yoko, custom_field=customfield)
+        cf_value = cfield.value_class(entity=yoko, custom_field=cfield)
         cf_value.set_value_n_save([enum_value1.id, enum_value3.id])
         yoko = self.refresh(yoko)  # Avoid cache
         self.assertHTMLEqual(
@@ -745,22 +772,24 @@ class EntityCellTestCase(CremeTestCase):
                 cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
             )
 
-    def test_customfield_deleted(self):
+    def test_deleted(self):
         name = 'Size (cm)'
-        customfield = CustomField.objects.create(
+        cfield = CustomField.objects.create(
             name=name,
             field_type=CustomField.INT,
-            content_type=self.contact_ct,
+            content_type=FakeContact,
             is_deleted=True,
         )
 
-        cell = EntityCellCustomField(customfield)
+        cell = EntityCellCustomField(cfield)
         self.assertEqual(_('{} [deleted]').format(name), cell.title)
         self.assertIs(cell.is_hidden, False)
         self.assertIs(cell.is_excluded, True)
 
-    def test_relation01(self):
-        "Several related entities."
+
+@override_settings(CELL_SIZE=50)
+class EntityCellRelationTestCase(CremeTestCase):
+    def test_several_related_entities(self):
         self.assertEqual(_('Relationships'), EntityCellRelation.verbose_name)
 
         loved = RelationType.objects.smart_update_or_create(
@@ -867,8 +896,7 @@ class EntityCellTestCase(CremeTestCase):
                 cell.render(entity=self.refresh(contacts[0]), user=user, tag=ViewTag.HTML_DETAIL),
             )
 
-    def test_relation02(self):
-        "Only one related entities."
+    def test_one_related_entity(self):
         loved = RelationType.objects.smart_update_or_create(
             ('test-object_loved', 'Is loved by'),
             ('test-subject_loved', 'Is loving'),
@@ -897,8 +925,7 @@ class EntityCellTestCase(CremeTestCase):
             cell.render(entity=subject, user=user, tag=ViewTag.HTML_FORM),
         )
 
-    def test_relation_disabled(self):
-        "Disabled type."
+    def test_disabled_type(self):
         self.assertEqual(_('Relationships'), EntityCellRelation.verbose_name)
 
         hated = RelationType.objects.smart_update_or_create(
@@ -915,7 +942,68 @@ class EntityCellTestCase(CremeTestCase):
         self.assertFalse(cell.is_hidden)
         self.assertTrue(cell.is_excluded)
 
-    def test_functionfield01(self):
+    def test_populate_entities(self):
+        user = self.get_root_user()
+
+        create_rt = RelationType.objects.smart_update_or_create
+        loved = create_rt(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love', 'Is loved by'),
+        )[1]
+        hated = create_rt(
+            ('test-subject_hate', 'Is hating'),
+            ('test-object_hate', 'Is hated by'),
+        )[1]
+
+        cells = [
+            EntityCellRelation(model=FakeContact, rtype=loved),
+            EntityCellRelation(model=FakeContact, rtype=hated),
+        ]
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        nagate  = create_contact(first_name='Nagate',  last_name='Tanikaze')
+        shizuka = create_contact(first_name='Shizuka', last_name='Hoshijiro')
+        izana   = create_contact(first_name='Izana',   last_name='Shinatose')
+        norio   = create_contact(first_name='Norio',   last_name='Kunato')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=nagate,  type=loved, object_entity=izana)
+        create_rel(subject_entity=nagate,  type=hated, object_entity=norio)
+        create_rel(subject_entity=shizuka, type=loved, object_entity=norio)
+
+        # NB: sometimes a query to get this CT is performed when the Relations
+        # are retrieved. So we force the cache to be filled has he should be
+        ContentType.objects.get_for_model(CremeEntity)
+
+        with self.assertNumQueries(2):
+            EntityCellRelation.populate_entities(
+                cells=cells, entities=[nagate, shizuka], user=user,
+            )
+
+        with self.assertNumQueries(0):
+            r1 = nagate.get_relations(loved.id,  real_obj_entities=True)
+            r2 = nagate.get_relations(hated.id,  real_obj_entities=True)
+            r3 = shizuka.get_relations(loved.id, real_obj_entities=True)
+            r4 = shizuka.get_relations(hated.id, real_obj_entities=True)
+
+        with self.assertNumQueries(0):
+            objs1 = [r.object_entity.get_real_entity() for r in r1]
+            objs2 = [r.object_entity.get_real_entity() for r in r2]
+            objs3 = [r.object_entity.get_real_entity() for r in r3]
+            objs4 = [r.object_entity.get_real_entity() for r in r4]
+
+        self.assertListEqual([izana], objs1)
+        self.assertListEqual([norio], objs2)
+        self.assertListEqual([norio], objs3)
+        self.assertListEqual([],      objs4)
+
+        with self.assertNumQueries(0):
+            r1[0].real_object  # NOQA
+
+
+@override_settings(CELL_SIZE=50)
+class EntityCellFunctionFieldTestCase(CremeTestCase):
+    def test_main(self):
         self.assertEqual(_('Computed fields'), EntityCellFunctionField.verbose_name)
 
         name = 'get_pretty_properties'
@@ -973,7 +1061,7 @@ class EntityCellTestCase(CremeTestCase):
             cell2.render(entity=contact, user=user, tag=ViewTag.HTML_DETAIL),
         )
 
-    def test_functionfield02(self):
+    def test_other(self):
         class PhoneFunctionField(FunctionField):
             name         = 'phone_or_mobile'
             verbose_name = 'Phone or mobile'
@@ -987,6 +1075,8 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(funfield.verbose_name, cell.title)
         self.assertFalse(cell.is_multiline)
 
+
+class EntityCellTestCase(CremeTestCase):
     def test_eq(self):
         cell1 = EntityCellRegularField.build(model=FakeDocument, name='title')
 
@@ -1001,12 +1091,12 @@ class EntityCellTestCase(CremeTestCase):
         # Value is different
         self.assertNotEqual(
             EntityCellRegularField.build(model=FakeDocument, name='linked_folder'),
-            cell1
+            cell1,
         )
         # Model is different
         self.assertNotEqual(
             EntityCellRegularField.build(model=FakeFolder, name='title'),
-            cell1
+            cell1,
         )
 
         # Class is different
@@ -1018,119 +1108,10 @@ class EntityCellTestCase(CremeTestCase):
 
         self.assertNotEqual(
             TestCell(model=FakeDocument, value='title'),
-            cell1
+            cell1,
         )
 
-    def test_mixed_populate_entities01(self):
-        "Regular fields: no FK."
-        user = self.get_root_user()
-
-        pos = FakePosition.objects.create(title='Pilot')
-        create_contact = partial(FakeContact.objects.create, user=user, position_id=pos.id)
-        contacts = [
-            create_contact(first_name='Nagate',  last_name='Tanikaze'),
-            create_contact(first_name='Shizuka', last_name='Hoshijiro'),
-        ]
-
-        build = partial(EntityCellRegularField.build, model=FakeContact)
-        cells = [build(name='last_name'), build(name='first_name')]
-
-        with self.assertNumQueries(0):
-            EntityCell.mixed_populate_entities(cells=cells, entities=contacts, user=user)
-
-        with self.assertNumQueries(1):
-            contacts[0].position  # NOQA
-
-    def test_mixed_populate_entities02(self):
-        "Regular fields: FK."
-        user = self.get_root_user()
-
-        pos = FakePosition.objects.all()[0]
-        civ = FakeCivility.objects.all()[0]
-        create_contact = partial(
-            FakeContact.objects.create, user=user, position=pos, civility=civ,
-        )
-        contact1 = create_contact(first_name='Nagate', last_name='Tanikaze')
-        contact2 = create_contact(first_name='Shizuka', last_name='Hoshijiro')
-        # NB: we refresh because the __str__() method retrieves the civility
-        contacts = [self.refresh(contact1), self.refresh(contact2)]
-
-        build = partial(EntityCellRegularField.build, model=FakeContact)
-        cells = [
-            build(name='last_name'), build(name='first_name'),
-            build(name='position'),
-            build(name='civility__title'),
-        ]
-
-        with self.assertNumQueries(2):
-            EntityCell.mixed_populate_entities(cells=cells, entities=contacts, user=user)
-
-        with self.assertNumQueries(0):
-            contacts[0].position  # NOQA
-            contacts[1].position  # NOQA
-            contacts[0].civility  # NOQA
-            contacts[1].civility  # NOQA
-
-    def test_mixed_populate_entities03(self):
-        "Relationships."
-        user = self.get_root_user()
-
-        create_rt = RelationType.objects.smart_update_or_create
-        loved = create_rt(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love', 'Is loved by'),
-        )[1]
-        hated = create_rt(
-            ('test-subject_hate', 'Is hating'),
-            ('test-object_hate', 'Is hated by'),
-        )[1]
-
-        cells = [
-            EntityCellRegularField.build(model=FakeContact, name='last_name'),
-            EntityCellRelation(model=FakeContact, rtype=loved),
-            EntityCellRelation(model=FakeContact, rtype=hated),
-        ]
-
-        create_contact = partial(FakeContact.objects.create, user=user)
-        nagate  = create_contact(first_name='Nagate',  last_name='Tanikaze')
-        shizuka = create_contact(first_name='Shizuka', last_name='Hoshijiro')
-        izana   = create_contact(first_name='Izana',   last_name='Shinatose')
-        norio   = create_contact(first_name='Norio',   last_name='Kunato')
-
-        create_rel = partial(Relation.objects.create, user=user)
-        create_rel(subject_entity=nagate,  type=loved, object_entity=izana)
-        create_rel(subject_entity=nagate,  type=hated, object_entity=norio)
-        create_rel(subject_entity=shizuka, type=loved, object_entity=norio)
-
-        # NB: sometimes a query to get this CT is performed when the Relations
-        # are retrieved. So we force the cache to be filled has he should be
-        ContentType.objects.get_for_model(CremeEntity)
-
-        with self.assertNumQueries(2):
-            EntityCell.mixed_populate_entities(cells, [nagate, shizuka], user)
-
-        with self.assertNumQueries(0):
-            r1 = nagate.get_relations(loved.id,  real_obj_entities=True)
-            r2 = nagate.get_relations(hated.id,  real_obj_entities=True)
-            r3 = shizuka.get_relations(loved.id, real_obj_entities=True)
-            r4 = shizuka.get_relations(hated.id, real_obj_entities=True)
-
-        with self.assertNumQueries(0):
-            objs1 = [r.object_entity.get_real_entity() for r in r1]
-            objs2 = [r.object_entity.get_real_entity() for r in r2]
-            objs3 = [r.object_entity.get_real_entity() for r in r3]
-            objs4 = [r.object_entity.get_real_entity() for r in r4]
-
-        self.assertListEqual([izana], objs1)
-        self.assertListEqual([norio], objs2)
-        self.assertListEqual([norio], objs3)
-        self.assertListEqual([],      objs4)
-
-        with self.assertNumQueries(0):
-            r1[0].real_object  # NOQA
-
-    def test_mixed_populate_entities04(self):
-        "Mixed types."
+    def test_mixed_populate_entities(self):
         user = self.get_root_user()
 
         pos = FakePosition.objects.all()[0]
