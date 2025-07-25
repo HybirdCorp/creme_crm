@@ -137,22 +137,29 @@ class EntityCellRegistryTestCase(CremeTestCase):
         self.assertEqual(FakeContact,             cell2.model)
         self.assertEqual('get_pretty_properties', cell2.value)
 
-        self.assertIsNone(build(dict_cell={
-            'type': EntityCellRegularField.type_id,
-            'value': 'invalid',
-        }))
-        self.assertIsNone(build(dict_cell={
-            # 'type': EntityCellRegularField.type_id,
-            'value': 'first_name',
-        }))
-        self.assertIsNone(build(dict_cell={
-            'type': EntityCellRegularField.type_id,
-            # 'value': 'first_name',
-        }))
-        self.assertIsNone(build(dict_cell={
-            'type': 'not_registered',  # <==
-            'value': 'first_name',
-        }))
+        with self.assertLogs(level='WARNING'):
+            self.assertIsNone(build(dict_cell={
+                'type': EntityCellRegularField.type_id,
+                'value': 'invalid',
+            }))
+
+        with self.assertLogs(level='ERROR'):
+            self.assertIsNone(build(dict_cell={
+                # 'type': EntityCellRegularField.type_id,
+                'value': 'first_name',
+            }))
+
+        with self.assertLogs(level='ERROR'):
+            self.assertIsNone(build(dict_cell={
+                'type': EntityCellRegularField.type_id,
+                # 'value': 'first_name',
+            }))
+
+        with self.assertLogs(level='ERROR'):
+            self.assertIsNone(build(dict_cell={
+                'type': 'not_registered',  # <==
+                'value': 'first_name',
+            }))
 
     def test_build_cells_from_dicts(self):
         cells, errors = CELLS_MAP.build_cells_from_dicts(
@@ -176,13 +183,14 @@ class EntityCellRegistryTestCase(CremeTestCase):
         self.assertEqual('get_pretty_properties', cell2.value)
 
     def test_build_cells_from_dicts__error(self):
-        cells, errors = CELLS_MAP.build_cells_from_dicts(
-            model=FakeDocument,
-            dicts=[
-                {'type': EntityCellRegularField.type_id,  'value': 'invalid'},
-                {'type': EntityCellFunctionField.type_id, 'value': 'get_pretty_properties'},
-            ],
-        )
+        with self.assertLogs(level='WARNING'):
+            cells, errors = CELLS_MAP.build_cells_from_dicts(
+                model=FakeDocument,
+                dicts=[
+                    {'type': EntityCellRegularField.type_id,  'value': 'invalid'},
+                    {'type': EntityCellFunctionField.type_id, 'value': 'get_pretty_properties'},
+                ],
+            )
         self.assertIs(errors, True)
 
         cell = self.get_alone_element(cells)
@@ -202,10 +210,17 @@ class EntityCellRegistryTestCase(CremeTestCase):
         self.assertEqual(FakeContact,             cell2.model)
         self.assertEqual('get_pretty_properties', cell2.value)
 
-        self.assertIsNone(build(key='regular_field-invalid'))
-        self.assertIsNone(build(key='first_name'))
-        self.assertIsNone(build(key=EntityCellRegularField.type_id))
-        self.assertIsNone(build(key='not_registered-first_name'))
+        with self.assertLogs(level='WARNING'):
+            self.assertIsNone(build(key='regular_field-invalid'))
+
+        with self.assertLogs(level='WARNING'):
+            self.assertIsNone(build(key='first_name'))
+
+        with self.assertLogs(level='WARNING'):
+            self.assertIsNone(build(key=EntityCellRegularField.type_id))
+
+        with self.assertLogs(level='WARNING'):
+            self.assertIsNone(build(key='not_registered-first_name'))
 
     def test_build_cells_from_keys(self):
         cells, errors = CELLS_MAP.build_cells_from_keys(
@@ -229,13 +244,14 @@ class EntityCellRegistryTestCase(CremeTestCase):
         self.assertEqual('get_pretty_properties', cell2.value)
 
     def test_build_cells_from_keys__error(self):
-        cells, errors = CELLS_MAP.build_cells_from_keys(
-            model=FakeDocument,
-            keys=[
-                f'{EntityCellRegularField.type_id}-invalid',
-                f'{EntityCellFunctionField.type_id}-get_pretty_properties',
-            ],
-        )
+        with self.assertLogs(level='WARNING'):
+            cells, errors = CELLS_MAP.build_cells_from_keys(
+                model=FakeDocument,
+                keys=[
+                    f'{EntityCellRegularField.type_id}-invalid',
+                    f'{EntityCellFunctionField.type_id}-get_pretty_properties',
+                ],
+            )
         self.assertIs(errors, True)
 
         cell = self.get_alone_element(cells)
@@ -357,8 +373,12 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
 
     def test_errors(self):
         build = partial(EntityCellRegularField.build, model=FakeContact)
-        self.assertIsNone(build(name='unknown_field'))
-        self.assertIsNone(build(name='user__unknownfield'))
+
+        with self.assertLogs(level='WARNING'):
+            self.assertIsNone(build(name='unknown_field'))
+
+        with self.assertLogs(level='WARNING'):
+            self.assertIsNone(build(name='user__unknownfield'))
 
     def test_populate_entities(self):
         user = self.get_root_user()
@@ -419,56 +439,58 @@ class EntityCellCustomFieldTestCase(CremeTestCase):
         self.assertEqual(_('Custom fields'), EntityCellCustomField.verbose_name)
 
         name = 'Size (cm)'
-        customfield = CustomField.objects.create(
+        cfield = CustomField.objects.create(
             name=name, field_type=CustomField.INT, content_type=FakeContact,
         )
 
-        cell1 = EntityCellCustomField(customfield)
+        cell1 = EntityCellCustomField(cfield)
         self.assertIsInstance(cell1, EntityCellCustomField)
 
-        self.assertEqual(str(customfield.id),   cell1.value)
-        self.assertEqual(str(customfield.uuid), cell1.portable_value)
+        self.assertEqual(str(cfield.id),   cell1.value)
+        self.assertEqual(str(cfield.uuid), cell1.portable_value)
 
         self.assertEqual(name, cell1.title)
-        self.assertEqual(f'custom_field-{customfield.id}',   cell1.key)
-        self.assertEqual(f'custom_field-{customfield.uuid}', cell1.portable_key)
+        self.assertEqual(f'custom_field-{cfield.id}',   cell1.key)
+        self.assertEqual(f'custom_field-{cfield.uuid}', cell1.portable_key)
 
         self.assertIs(cell1.is_multiline, False)
         self.assertEqual(settings.CSS_NUMBER_LISTVIEW,         cell1.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell1.header_listview_css_class)
 
-        dict_cell_id = {'type': 'custom_field', 'value': str(customfield.id)}
+        dict_cell_id = {'type': 'custom_field', 'value': str(cfield.id)}
         self.assertDictEqual(dict_cell_id, cell1.to_dict())
         self.assertDictEqual(dict_cell_id, cell1.to_dict(portable=False))
         self.assertDictEqual(
-            {'type': 'custom_field', 'value': str(customfield.uuid)},
+            {'type': 'custom_field', 'value': str(cfield.uuid)},
             cell1.to_dict(portable=True),
         )
 
         # --
         # cell2 = EntityCellCustomField.build(FakeContact, customfield.id)
-        cell2 = EntityCellCustomField.build(FakeContact, str(customfield.id))
+        cell2 = EntityCellCustomField.build(FakeContact, str(cfield.id))
         self.assertIsInstance(cell2, EntityCellCustomField)
-        self.assertEqual(str(customfield.id), cell2.value)
+        self.assertEqual(str(cfield.id), cell2.value)
 
-        # self.assertIsNone(EntityCellCustomField.build(FakeContact, 1000))
-        self.assertIsNone(EntityCellCustomField.build(FakeContact, '1000'))
-        self.assertIsNone(EntityCellCustomField.build(FakeContact, 'notanint'))
+        with self.assertLogs(level='WARNING'):
+            # self.assertIsNone(EntityCellCustomField.build(FakeContact, 1000))
+            self.assertIsNone(EntityCellCustomField.build(FakeContact, '1000'))
+        with self.assertLogs(level='WARNING'):
+            self.assertIsNone(EntityCellCustomField.build(FakeContact, 'notanint'))
 
         # Render ---
         user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         self.assertEqual('', cell2.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
 
-        customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=152)
+        cfield.value_class.objects.create(entity=yoko, custom_field=cfield, value=152)
         yoko = self.refresh(yoko)  # Reset caches
         self.assertEqual('152', cell2.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
         self.assertEqual('152', cell2.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
         # Build from portable value ---
-        cell3 = EntityCellCustomField.build(FakeContact, str(customfield.uuid))
+        cell3 = EntityCellCustomField.build(FakeContact, str(cfield.uuid))
         self.assertIsInstance(cell3, EntityCellCustomField)
-        self.assertEqual(customfield, cell3.custom_field)
+        self.assertEqual(cfield, cell3.custom_field)
 
         # Build from int (DEPRECATED) ---
         with self.assertWarnsMessage(
@@ -478,10 +500,10 @@ class EntityCellCustomFieldTestCase(CremeTestCase):
                 'pass a string (ID ou UUID) instead.'
             )
         ):
-            cell4 = EntityCellCustomField.build(FakeContact, customfield.id)
+            cell4 = EntityCellCustomField.build(FakeContact, cfield.id)
 
         self.assertIsInstance(cell4, EntityCellCustomField)
-        self.assertEqual(str(customfield.id), cell4.value)
+        self.assertEqual(str(cfield.id), cell4.value)
 
     def test_decimal(self):
         cfield = CustomField.objects.create(
@@ -1032,7 +1054,8 @@ class EntityCellFunctionFieldTestCase(CremeTestCase):
         self.assertEqual(name, cell2.value)
 
         # self.assertIsNone(EntityCellFunctionField.build(FakeContact, func_field_name='invalid'))
-        self.assertIsNone(EntityCellFunctionField.build(FakeContact, name='invalid'))
+        with self.assertLogs(level='WARNING'):
+            self.assertIsNone(EntityCellFunctionField.build(FakeContact, name='invalid'))
 
         # Render ---
         user = self.get_root_user()
