@@ -365,6 +365,7 @@ class BaseM2MPrinter:
                        user: CremeUser,
                        field: Field,
                        ) -> Iterator[Model]:
+        # TODO: get_m2m_values ??
         return manager.all()
 
     @staticmethod
@@ -374,6 +375,8 @@ class BaseM2MPrinter:
                           user: CremeUser,
                           field: Field,
                           ) -> Iterator[Model]:
+        # TODO: get_m2m_values ?
+        #   (so python-side filter VS return deleted ones but at the end?)
         return manager.filter(is_deleted=False)
 
     def __init__(self,

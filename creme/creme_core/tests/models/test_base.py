@@ -96,6 +96,38 @@ class GetM2MValuesTestCase(CremeTestCase):
         with self.assertRaises(TypeError):
             al.get_m2m_values('first_name')  # NOQA
 
+    # TODO: MOVE? REMOVE?
+    def test_prefetch_m2m(self):
+        al = FakeContact.objects.create(
+            user=self.get_root_user(), first_name='Alphonse', last_name='Elric',
+        )
+
+        with self.assertNumQueries(1):
+            self.assertCountEqual([], al.languages.all())
+
+        with self.assertNumQueries(1):
+            self.assertCountEqual([], al.languages.all())
+
+        # ----
+        create_language = Language.objects.create
+        l1 = create_language(name='English')
+        l2 = create_language(name='French')
+        al.languages.set([l1, l2])
+
+        al_prime = FakeContact.objects.filter(id=al.id).prefetch_related('languages').first()
+
+        with self.assertNumQueries(0):
+            self.assertCountEqual([l1, l2], al_prime.languages.all())
+
+        # print('==>', dir(al.languages))
+        # ---
+        al_snd = self.refresh(al)
+        from django.db.models import prefetch_related_objects
+        prefetch_related_objects([al_snd], 'languages')
+
+        with self.assertNumQueries(0):
+            self.assertCountEqual([l1, l2], al_snd.languages.all())
+
 
 class IsReferencedTestCase(CremeTestCase):
     def test_FK(self):
