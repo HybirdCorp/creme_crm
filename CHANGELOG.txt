@@ -266,6 +266,8 @@
                     - Add headlessMode flag.
                     - Add allowEventOverlaps property (boolean or method).
                     - Add allowEventCreate property (boolean).
+                    - Add rendererDelay property (number); Improve performances by limiting the calls to the rendering methods.
+                      (see https://fullcalendar.io/docs/rerenderDelay)
             * Geolocation:
                 - The urls used in brick controllers can be now overrided in python : do not require to override an entire template.
                     - DetailMapBrick.update_address_url
