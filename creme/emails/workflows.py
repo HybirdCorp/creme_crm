@@ -606,7 +606,7 @@ class EmailSendingAction(WorkflowAction):
             with atomic():
                 e_email = EntityEmail.objects.create(
                     user=user or ctxt_entity.user,
-                    description=gettext('Created by a workflow'),
+                    description=gettext('Created by a Workflow'),
                     sender=settings.EMAIL_SENDER,
                     recipient=recipient,
                     subject=self._subject,
@@ -745,7 +745,7 @@ class TemplateSendingAction(WorkflowAction):
             if concerned_entity:
                 e_email = EntityEmail.objects.create(
                     user=user or e_template.user,
-                    description=gettext('Created by a workflow'),
+                    description=gettext('Created by a Workflow'),
                     sender=settings.EMAIL_SENDER,
                     recipient=recipient,
                     subject=e_template.subject,

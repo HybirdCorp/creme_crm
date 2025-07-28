@@ -27,7 +27,7 @@ from creme.emails.models import WorkflowEmail
 
 class _WorkflowEmailsSendType(JobType):
     id = JobType.generate_id('emails', 'workflow_emails_send')
-    verbose_name = _('Send workflow emails')
+    verbose_name = _('Send Workflow emails')
     periodic = JobType.PSEUDO_PERIODIC
 
     # TODO: in settings? Setting value? Job data?
