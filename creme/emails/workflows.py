@@ -580,7 +580,8 @@ class EmailSendingAction(WorkflowAction):
     def _body_html_context(self, entity) -> dict:
         return {
             'entity': format_html(
-                '<a href="{url}">{label}</a>',
+                '<a href="{domain}{url}">{label}</a>',
+                domain=settings.SITE_DOMAIN,
                 url=entity.get_absolute_url(),
                 label=entity,
             ),

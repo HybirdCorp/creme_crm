@@ -157,6 +157,7 @@ class EmailSendingActionTestCase(_EmailsTestCase):
 
         self.assertFalse(EntityEmail.objects.all())
 
+    @override_settings(SITE_DOMAIN='https://creme.mydomain')
     def test_user_fk(self):
         user = self.get_root_user()
         contact = user.linked_contact
@@ -182,6 +183,7 @@ class EmailSendingActionTestCase(_EmailsTestCase):
             f'A Contact has been modified: {contact}',
             wf_email.body,
         )
+        self.maxDiff = None
         self.assertHTMLEqual(
             f'<!DOCTYPE html>'
             f'<html>'
@@ -195,7 +197,7 @@ class EmailSendingActionTestCase(_EmailsTestCase):
             f'  <p style="margin: 10px;background-color: #d2e3f2;padding: 10px;'
             f'color: #21323c;border-radius: 5px;width: fit-content;">'
             f'A Contact has been modified: '
-            f'   <a href="{contact.get_absolute_url()}">{contact}</a>'
+            f'   <a href="https://creme.mydomain{contact.get_absolute_url()}">{contact}</a>'
             f'  </p>'
             f' </body>'
             f'</html>',
@@ -234,6 +236,7 @@ class EmailSendingActionTestCase(_EmailsTestCase):
         action.execute(context={EditedEntitySource.type_id: None})
         self.assertFalse(WorkflowEmail.objects.all())
 
+    @override_settings(SITE_DOMAIN='https://crm.domain')
     def test_regular_field(self):
         user1 = self.get_root_user()
         user2 = self.create_user()
@@ -286,7 +289,8 @@ class EmailSendingActionTestCase(_EmailsTestCase):
             f'padding-left:0;min-width:100%;background-color:#f0f0f0;">'
             f'  <p style="margin: 10px;background-color: #d2e3f2;padding: 10px;'
             f'color: #21323c;border-radius: 5px;width: fit-content;">'
-            f'Go & see it!!<br>Here: <a href="{contact.get_absolute_url()}">{contact}</a>'
+            f'Go & see it!!<br>Here: <a href="https://crm.domain{contact.get_absolute_url()}">'
+            f'{contact}</a>'
             f'  </p>'
             f' </body>'
             f'</html>',
