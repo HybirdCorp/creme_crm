@@ -192,7 +192,7 @@ class DBTestCase(CremeTestCase):
             get_indexed_ordering(FakeContact, ['first_name', 'last_name'])
         )
 
-    def test_indexed_ordering03(self):
+    def test_indexed_ordering__desc(self):
         "DESC order => inverted index."
         expected = ('-name', '-cremeentity_ptr_id')
         self.assertEqual(
@@ -206,8 +206,7 @@ class DBTestCase(CremeTestCase):
             )
         )
 
-    def test_indexed_ordering04(self):
-        "Blurred query."
+    def test_indexed_ordering__blurred_query(self):
         expected = ('last_name', 'first_name', 'cremeentity_ptr_id')
         self.assertEqual(
             expected,
@@ -247,8 +246,8 @@ class DBTestCase(CremeTestCase):
             get_indexed_ordering(FakeContact, ['last_name', '*', 'phone']),
         )
 
-    def test_indexed_ordering05(self):
-        "Blurred query + other model + DESC"
+    def test_indexed_ordering__blurred_query_n_desc(self):
+        "Blurred query + other model + DESC."
         self.assertEqual(
             ('name', 'cremeentity_ptr_id'),
             get_indexed_ordering(FakeOrganisation, ['name', '*']),
@@ -266,7 +265,7 @@ class DBTestCase(CremeTestCase):
             )
         )
 
-    def test_indexed_ordering06(self):
+    def test_indexed_ordering__wildcard_error(self):
         "Avoid successive wildcards."
         with self.assertRaises(ValueError):
             get_indexed_ordering(FakeContact, ['*', '*', 'cremeentity_ptr_id'])
@@ -292,8 +291,7 @@ class DBTestCase(CremeTestCase):
 
         return [self.refresh(c) for c in contacts]
 
-    def test_populate_related01(self):
-        "One field."
+    def test_populate_related__one_field(self):
         with self.assertNoException():
             populate_related([], ['sector'])
 
@@ -312,7 +310,7 @@ class DBTestCase(CremeTestCase):
 
         self.assertIsNone(contacts[2].sector)
 
-    def test_populate_related02(self):
+    def test_populate_related__two_fields(self):
         "Two fields."
         contacts = self._create_contacts()
 
@@ -329,7 +327,7 @@ class DBTestCase(CremeTestCase):
 
         self.assertIsNone(contacts[2].civility)
 
-    def test_populate_related03(self):
+    def test_populate_related__cache(self):
         "Do not retrieve already cached values."
         contacts = self._create_contacts()
         contacts[0].sector  # NOQA
@@ -338,8 +336,7 @@ class DBTestCase(CremeTestCase):
         with self.assertNumQueries(1):
             populate_related(contacts, ['sector', 'civility'])
 
-    def test_populate_related04(self):
-        "Partially cached."
+    def test_populate_related__partially_cached(self):
         contacts = self._create_contacts()
         contacts[0].sector  # NOQA
         # __ = contacts[1].sector # Not Cached
@@ -347,7 +344,7 @@ class DBTestCase(CremeTestCase):
         with self.assertNumQueries(2):
             populate_related(contacts, ['sector', 'civility'])
 
-    def test_populate_related05(self):
+    def test_populate_related__group_queries(self):
         "Two fields related to the same model."
         user = self.get_root_user()
 
@@ -373,7 +370,7 @@ class DBTestCase(CremeTestCase):
 
         self.assertEqual(marge, e1.get_real_entity())
 
-    def test_populate_related06(self):
+    def test_populate_related__depth_one(self):
         "depth = 1."
         contacts = self._create_contacts()
 
@@ -384,7 +381,7 @@ class DBTestCase(CremeTestCase):
             s1 = contacts[0].sector
         self.assertEqual(self.sector1, s1)
 
-    def test_populate_related07(self):
+    def test_populate_related__depth_one_n_fk(self):
         "Field with depth=1 is a FK."
         user = self.get_root_user()
 
@@ -422,7 +419,7 @@ class DBTestCase(CremeTestCase):
             f_null = f2.parent
         self.assertIsNone(f_null)
 
-    def test_populate_related08(self):
+    def test_populate_related__different_models(self):
         "Two fields + depth > 1  => instances of level 2 have different models."
         user1 = self.get_root_user()
         role = self.get_regular_role()
@@ -479,7 +476,7 @@ class DBTestCase(CremeTestCase):
             role2 = u2.role
         self.assertEqual(role, role2)
 
-    def test_populate_related09(self):
+    def test_populate_related__level_two_is_cached(self):
         "Already cached field (level 2)."
         user1 = self.get_root_user()
         user2 = self.create_user(role=self.get_regular_role())
@@ -498,7 +495,7 @@ class DBTestCase(CremeTestCase):
         with self.assertNumQueries(2):
             populate_related(contacts, ['user__role__name'])
 
-    def test_prefetcher01(self):
+    def test_prefetcher(self):
         sector1, sector2, sector3 = FakeSector.objects.all()[:3]
 
         fetcher = PreFetcher()
@@ -530,7 +527,7 @@ class DBTestCase(CremeTestCase):
         with self.assertRaises(RuntimeError):
             fetcher.proceed()
 
-    def test_prefetcher02(self):
+    def test_prefetcher__same_model(self):
         "Several calls to order() with the same model."
         sector1, sector2, sector3 = FakeSector.objects.all()[:3]
 
@@ -553,7 +550,7 @@ class DBTestCase(CremeTestCase):
 
         self.assertIsNone(fetcher.get(FakeSector, sector2.id))
 
-    def test_prefetcher03(self):
+    def test_prefetcher__different_models(self):
         "Several calls to order() with different models."
         sector1, sector2 = FakeSector.objects.all()[:2]
         position1, position2 = FakePosition.objects.all()[:2]
