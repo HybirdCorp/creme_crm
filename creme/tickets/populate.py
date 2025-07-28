@@ -49,6 +49,20 @@ from .models import Criticity, Priority, Status
 
 logger = logging.getLogger(__name__)
 
+# UUIDs for instances which can be deleted
+UUID_PRIORITY_LOW      = '87599d36-8133-41b7-a382-399d5e96b160'
+UUID_PRIORITY_NORMAL   = '816cefa7-2f30-46a6-8baa-92e4647f44d3'
+UUID_PRIORITY_HIGH     = '42c39215-cf78-4d0b-b00b-b54a6680f71a'
+UUID_PRIORITY_URGENT   = '69bdbe35-cf99-4168-abb3-389aab6b7313'
+UUID_PRIORITY_BLOCKING = 'd2dba4cb-382c-4d94-8306-4ec739f03144'
+
+UUID_CRITICALITY_MINOR       = '368a6b62-c66e-4286-b841-1062f59133c9'
+UUID_CRITICALITY_MAJOR       = '1aa05ca4-68ec-4068-ac3b-b9ddffaeb0aa'
+UUID_CRITICALITY_FEATURE     = 'e5a2a80e-36e8-49fd-8b2b-e802ccd4090c'
+UUID_CRITICALITY_CRITICAL    = '9937c865-d0e7-4f33-92f3-600814e293ad'
+UUID_CRITICALITY_ENHANCEMENT = '8e509e5e-8bd6-4cd0-8f96-5c129f0a875d'
+UUID_CRITICALITY_ERROR       = '3bd07632-f3ad-415e-bb33-95c723e46aa5'
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'activities']
@@ -92,20 +106,20 @@ class Populator(BasePopulator):
     ]
     PRIORITIES = [
         # is_custom=True => only created during the first execution
-        Priority(uuid='87599d36-8133-41b7-a382-399d5e96b160', name=_('Low'),      order=1),
-        Priority(uuid='816cefa7-2f30-46a6-8baa-92e4647f44d3', name=_('Normal'),   order=2),
-        Priority(uuid='42c39215-cf78-4d0b-b00b-b54a6680f71a', name=_('High'),     order=3),
-        Priority(uuid='69bdbe35-cf99-4168-abb3-389aab6b7313', name=_('Urgent'),   order=4),
-        Priority(uuid='d2dba4cb-382c-4d94-8306-4ec739f03144', name=_('Blocking'), order=5),
+        Priority(uuid=UUID_PRIORITY_LOW,      name=_('Low'),      order=1),
+        Priority(uuid=UUID_PRIORITY_NORMAL,   name=_('Normal'),   order=2),
+        Priority(uuid=UUID_PRIORITY_HIGH,     name=_('High'),     order=3),
+        Priority(uuid=UUID_PRIORITY_URGENT,   name=_('Urgent'),   order=4),
+        Priority(uuid=UUID_PRIORITY_BLOCKING, name=_('Blocking'), order=5),
     ]
     CRITICALITY = [
         # is_custom=True => only created during the first execution
-        Criticity(uuid='368a6b62-c66e-4286-b841-1062f59133c9', name=_('Minor'),       order=1),
-        Criticity(uuid='1aa05ca4-68ec-4068-ac3b-b9ddffaeb0aa', name=_('Major'),       order=2),
-        Criticity(uuid='e5a2a80e-36e8-49fd-8b2b-e802ccd4090c', name=_('Feature'),     order=3),
-        Criticity(uuid='9937c865-d0e7-4f33-92f3-600814e293ad', name=_('Critical'),    order=4),
-        Criticity(uuid='8e509e5e-8bd6-4cd0-8f96-5c129f0a875d', name=_('Enhancement'), order=5),
-        Criticity(uuid='3bd07632-f3ad-415e-bb33-95c723e46aa5', name=_('Error'),       order=6),
+        Criticity(uuid=UUID_CRITICALITY_MINOR,       name=_('Minor'),       order=1),
+        Criticity(uuid=UUID_CRITICALITY_MAJOR,       name=_('Major'),       order=2),
+        Criticity(uuid=UUID_CRITICALITY_FEATURE,     name=_('Feature'),     order=3),
+        Criticity(uuid=UUID_CRITICALITY_CRITICAL,    name=_('Critical'),    order=4),
+        Criticity(uuid=UUID_CRITICALITY_ENHANCEMENT, name=_('Enhancement'), order=5),
+        Criticity(uuid=UUID_CRITICALITY_ERROR,       name=_('Error'),       order=6),
     ]
 
     def __init__(self, *args, **kwargs):

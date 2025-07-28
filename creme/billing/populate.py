@@ -74,6 +74,51 @@ from .models import (
 
 logger = logging.getLogger(__name__)
 
+# UUIDs for instances which can be deleted
+UUID_CBRICK_INVOICE  = 'd1ae20ac-98b5-4c4b-bf32-8c284c6eadae'
+UUID_CBRICK_QUOTE    = 'eb3e5fcc-e929-4a15-b859-207a093bc4cb'
+UUID_CBRICK_ORDER    = '5e5b19c9-fa6e-43cf-a798-8b51b2ff73ce'
+UUID_CBRICK_CNOTE    = 'b3233bc2-cda8-4b07-ae4b-617b177120fc'
+UUID_CBRICK_TEMPLATE = '4653dc10-f2ce-455c-a0b2-30ff957e8f68'
+
+UUID_CNOTE_STATUS_ISSUED      = '42263776-44e0-4b63-b330-9a0237ab37c8'
+UUID_CNOTE_STATUS_CONSUMED    = '8fc73f0e-a427-4a07-b4f3-ae0b3eca9469'
+UUID_CNOTE_STATUS_OUT_OF_DATE = '0eee82dd-fb06-4de0-acf9-4d1d4b970399'
+
+UUID_INVOICE_STATUS_SENT                = 'b8ed248b-5785-47ba-90d0-094ac9f813c7'
+UUID_INVOICE_STATUS_RESULTED            = '017e8734-533d-4fc7-b355-c091748ccb34'
+UUID_INVOICE_STATUS_PARTLY_RESULTED     = '0d8da787-394c-4735-8cad-5eb3a2382415'
+UUID_INVOICE_STATUS_COLLECTION          = '134ed1ba-efce-4984-baae-dae06fa27096'
+UUID_INVOICE_STATUS_RESULTED_COLLECTION = 'b5b256bd-6205-4f67-af3b-eb76b47e97fa'
+UUID_INVOICE_STATUS_CANCELED            = 'b85ad6ce-9479-4c70-9241-97c03774e521'
+
+UUID_QUOTE_STATUS_PENDING  = '9128fed1-e87d-477b-aa94-3d220f724f05'
+UUID_QUOTE_STATUS_ACCEPTED = 'aa5b25ec-ea70-470f-91a6-402dffe933a8'
+UUID_QUOTE_STATUS_REJECTED = '7739a6ac-64a7-4f40-a04d-39a382b08d50'
+UUID_QUOTE_STATUS_CREATED  = '9571e8bb-7a50-4453-a037-de829e189952'
+
+UUID_ORDER_STATUS_ACCEPTED = '717ac4a7-97f8-4002-a555-544e4427191a'
+UUID_ORDER_STATUS_REJECTED = 'a91aa135-b075-4a81-a06b-dd1839954a71'
+UUID_ORDER_STATUS_CREATED  = 'ee4dd8f7-557f-46d8-8ed2-74c256875b84'
+
+UUID_TERMS_30_DAYS              = '5d5db3d9-8af9-450a-9daa-67e78fae82f8'
+UUID_TERMS_CASH                 = '36590d27-bf69-43fc-bdb1-d3b13d1fac8e'
+UUID_TERMS_45_DAYS              = '2d0540fa-8be0-474c-ae97-70d721d17ee3'
+UUID_TERMS_60_DAYS              = '3766296a-98ea-4341-a305-30e551d92550'
+UUID_TERMS_30_DAYS_END_MONTH_10 = 'ad9152cb-bcb4-43ff-ba15-4b8d90557f23'
+
+UUID_ADD_INFO_TRAINER_ACCREDITATION = '1c3c5157-1a42-4b88-9b78-de15b41bdd96'
+
+UUID_REPORT_INVOICES        = 'e8dc076c-16c5-462e-b32e-61c6e0249dfd'
+UUID_REPORT_UNPAID_INVOICES = '2a1f7582-7e01-434a-b26f-6ee811e4c704'
+
+UUID_RCHART_INVOICES_PER_MONTH        = 'c94e414d-931c-47bb-a7b9-144245997062'
+UUID_RCHART_INVOICES_PER_STATUS       = '94b3b88a-7350-4fae-9d9e-2d36a66677fb'
+UUID_RCHART_UNPAID_INVOICES_PER_MONTH = '5388305f-0fcc-4ebb-b8a8-2cb4b3154c9c'
+
+UUID_IBRICK_INVOICES_PER_MONTH        = '574e62e4-f5fb-4cb0-8e50-8bed100a83fd'
+UUID_IBRICK_UNPAID_INVOICES_PER_MONTH = '9b9faf6f-0537-419f-842d-d9b3fc3cb321'
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
@@ -103,111 +148,111 @@ class Populator(BasePopulator):
     }
     CREDIT_NOTE_STATUSES = [
         CreditNoteStatus(
-            uuid='57191226-8ece-4a7d-bb5f-1b9635f41d9b',
+            uuid=constants.UUID_CNOTE_STATUS_DRAFT,
             name=pgettext('billing-creditnote', 'Draft'), order=1,
             is_custom=False,
             is_default=True,
         ),
         # is_custom == True :
         CreditNoteStatus(
-            uuid='42263776-44e0-4b63-b330-9a0237ab37c8',
+            uuid=UUID_CNOTE_STATUS_ISSUED,
             name=pgettext('billing-creditnote', 'Issued'), order=2,
         ),
         CreditNoteStatus(
-            uuid='8fc73f0e-a427-4a07-b4f3-ae0b3eca9469',
+            uuid=UUID_CNOTE_STATUS_CONSUMED,
             name=pgettext('billing-creditnote', 'Consumed'), order=3,
         ),
         CreditNoteStatus(
-            uuid='0eee82dd-fb06-4de0-acf9-4d1d4b970399',
+            uuid=UUID_CNOTE_STATUS_OUT_OF_DATE,
             name=pgettext('billing-creditnote', 'Out of date'), order=4,
         ),
     ]
     INVOICE_STATUSES = [
         InvoiceStatus(
-            uuid='1bbb7c7e-610f-4366-b3de-b92d63c9cf23',
+            uuid=constants.UUID_INVOICE_STATUS_DRAFT,
             name=pgettext('billing-invoice', 'Draft'), order=1,
             is_custom=False,
             is_default=True,
         ),
         InvoiceStatus(
-            uuid='cc1209bb-e8a2-40bb-9361-4230d9e27bf2',
+            uuid=constants.UUID_INVOICE_STATUS_TO_BE_SENT,
             name=pgettext('billing-invoice', 'To be sent'), order=2,
             is_custom=False,
             is_validated=True,
         ),
         # is_custom == True :
         InvoiceStatus(
-            uuid='b8ed248b-5785-47ba-90d0-094ac9f813c7',
+            uuid=UUID_INVOICE_STATUS_SENT,
             name=pgettext('billing-invoice', 'Sent'), order=3,
             pending_payment=True,
         ),
         InvoiceStatus(
-            uuid='017e8734-533d-4fc7-b355-c091748ccb34',
+            uuid=UUID_INVOICE_STATUS_RESULTED,
             name=pgettext('billing-invoice', 'Resulted'), order=5,
         ),
         InvoiceStatus(
-            uuid='0d8da787-394c-4735-8cad-5eb3a2382415',
+            uuid=UUID_INVOICE_STATUS_PARTLY_RESULTED,
             name=pgettext('billing-invoice', 'Partly resulted'), order=4,
             pending_payment=True,
         ),
         InvoiceStatus(
-            uuid='134ed1ba-efce-4984-baae-dae06fa27096',
+            uuid=UUID_INVOICE_STATUS_COLLECTION,
             name=_('Collection'), order=7,
         ),
         InvoiceStatus(
-            uuid='b5b256bd-6205-4f67-af3b-eb76b47e97fa',
+            uuid=UUID_INVOICE_STATUS_RESULTED_COLLECTION,
             name=_('Resulted collection'), order=6,
         ),
         InvoiceStatus(
-            uuid='b85ad6ce-9479-4c70-9241-97c03774e521',
+            uuid=UUID_INVOICE_STATUS_CANCELED,
             name=pgettext('billing-invoice', 'Canceled'), order=8,
         ),
     ]
     QUOTE_STATUSES = [
         # is_custom == True :
         QuoteStatus(
-            uuid='9128fed1-e87d-477b-aa94-3d220f724f05',
+            uuid=UUID_QUOTE_STATUS_PENDING,
             name=pgettext('billing-quote', 'Pending'), order=2,
             is_default=True,
         ),
         QuoteStatus(
-            uuid='aa5b25ec-ea70-470f-91a6-402dffe933a8',
+            uuid=UUID_QUOTE_STATUS_ACCEPTED,
             name=pgettext('billing-quote', 'Accepted'), order=3,
             won=True, color='1dd420',
         ),
         QuoteStatus(
-            uuid='7739a6ac-64a7-4f40-a04d-39a382b08d50',
+            uuid=UUID_QUOTE_STATUS_REJECTED,
             name=pgettext('billing-quote', 'Rejected'), order=4,
         ),
         QuoteStatus(
-            uuid='9571e8bb-7a50-4453-a037-de829e189952',
+            uuid=UUID_QUOTE_STATUS_CREATED,
             name=pgettext('billing-quote', 'Created'), order=1,
         ),
     ]
     SALES_ORDER_STATUSES = [
         SalesOrderStatus(
-            uuid='bebdab5a-0281-4b34-a257-26602a19e320',
+            uuid=constants.UUID_ORDER_STATUS_ISSUED,
             name=pgettext('billing-salesorder', 'Issued'), order=1,
             is_default=True,
             is_custom=False,
         ),
         # is_custom == True :
         SalesOrderStatus(
-            uuid='717ac4a7-97f8-4002-a555-544e4427191a',
+            uuid=UUID_ORDER_STATUS_ACCEPTED,
             name=pgettext('billing-salesorder', 'Accepted'), order=3,
         ),
         SalesOrderStatus(
-            uuid='a91aa135-b075-4a81-a06b-dd1839954a71',
+            uuid=UUID_ORDER_STATUS_REJECTED,
             name=pgettext('billing-salesorder', 'Rejected'), order=4,
         ),
         SalesOrderStatus(
-            uuid='ee4dd8f7-557f-46d8-8ed2-74c256875b84',
-            name=pgettext('billing-salesorder', 'Created'),  order=2,
+            uuid=UUID_ORDER_STATUS_CREATED,
+            name=pgettext('billing-salesorder', 'Created'), order=2,
         ),
     ]
     PAYMENT_TERMS = [
         PaymentTerms(
-            uuid='86b76130-4cac-4337-95ff-3e9021329956',
+            uuid=constants.UUID_PAYMENT_TERMS_DEPOSIT,
             name=_('Deposit'),
             description=_(r'20% deposit will be required'),
             is_custom=False,
@@ -215,26 +260,18 @@ class Populator(BasePopulator):
     ]
     SETTLEMENT_TERMS = [
         # is_custom=True => only created during the first execution
+        SettlementTerms(uuid=UUID_TERMS_30_DAYS, name=_('30 days')),
+        SettlementTerms(uuid=UUID_TERMS_CASH,    name=_('Cash')),
+        SettlementTerms(uuid=UUID_TERMS_45_DAYS, name=_('45 days')),
+        SettlementTerms(uuid=UUID_TERMS_60_DAYS, name=_('60 days')),
         SettlementTerms(
-            uuid='5d5db3d9-8af9-450a-9daa-67e78fae82f8', name=_('30 days'),
-        ),
-        SettlementTerms(
-            uuid='36590d27-bf69-43fc-bdb1-d3b13d1fac8e', name=_('Cash'),
-        ),
-        SettlementTerms(
-            uuid='2d0540fa-8be0-474c-ae97-70d721d17ee3', name=_('45 days'),
-        ),
-        SettlementTerms(
-            uuid='3766296a-98ea-4341-a305-30e551d92550', name=_('60 days'),
-        ),
-        SettlementTerms(
-            uuid='ad9152cb-bcb4-43ff-ba15-4b8d90557f23', name=_('30 days, end month the 10'),
+            uuid=UUID_TERMS_30_DAYS_END_MONTH_10, name=_('30 days, end month the 10'),
         ),
     ]
     ADDITIONAL_INFORMATION = [
         # is_custom=True => only created during the first execution
         AdditionalInformation(
-            uuid='1c3c5157-1a42-4b88-9b78-de15b41bdd96',
+            uuid=UUID_ADD_INFO_TRAINER_ACCREDITATION,
             name=_('Trainer accreditation'),
             description=_('being certified trainer courses could be supported by your OPCA'),
         ),
@@ -422,25 +459,25 @@ class Populator(BasePopulator):
         #  - The target of an Invoice becomes a supplier of the emitter
         for uid, billing_model, target_model, title, rtype_id in (
             (
-                'a6a8f398-4967-49f8-8d8f-4aece55329fa',
+                constants.UUID_WORKFLOW_QUOTE_ORGA_TO_PROSPECT,
                 self.Quote,
                 self.Organisation,
                 _('The target Organisation becomes a prospect'),
                 REL_SUB_PROSPECT,
             ), (
-                '81a52347-4988-4a11-81dc-55eca701447e',
+                constants.UUID_WORKFLOW_QUOTE_CONTACT_TO_PROSPECT,
                 self.Quote,
                 self.Contact,
                 _('The target Contact becomes a prospect'),
                 REL_SUB_PROSPECT,
             ), (
-                '3cc968ec-23c2-4f70-9609-1894d91ff300',
+                constants.UUID_WORKFLOW_INVOICE_ORGA_TO_CUSTOMER,
                 self.Invoice,
                 self.Organisation,
                 _('The target Organisation becomes a customer'),
                 REL_SUB_CUSTOMER_SUPPLIER,
             ), (
-                '457f762d-0bd7-41de-8215-14585e3002ba',
+                constants.UUID_WORKFLOW_INVOICE_CONTACT_TO_CUSTOMER,
                 self.Invoice,
                 self.Contact,
                 _('The target Contact becomes a customer'),
@@ -818,7 +855,7 @@ class Populator(BasePopulator):
         Invoice = self.Invoice
         cbci = self._create_custom_brick_item(
             model=Invoice,
-            uuid='d1ae20ac-98b5-4c4b-bf32-8c284c6eadae',
+            uuid=UUID_CBRICK_INVOICE,
             name=_('Invoice information'),
             extra_cells=(
                 EntityCellRegularField.build(Invoice, 'status'),
@@ -832,7 +869,7 @@ class Populator(BasePopulator):
         Quote = self.Quote
         cbci = self._create_custom_brick_item(
             model=Quote,
-            uuid='eb3e5fcc-e929-4a15-b859-207a093bc4cb',
+            uuid=UUID_CBRICK_QUOTE,
             name=_('Quote information'),
             extra_cells=(
                 EntityCellRegularField.build(Quote, 'status'),
@@ -845,7 +882,7 @@ class Populator(BasePopulator):
         SalesOrder = self.SalesOrder
         cbci = self._create_custom_brick_item(
             model=SalesOrder,
-            uuid='5e5b19c9-fa6e-43cf-a798-8b51b2ff73ce',
+            uuid=UUID_CBRICK_ORDER,
             name=_('Salesorder information'),
             extra_cells=(
                 EntityCellRegularField.build(SalesOrder, 'status'),
@@ -857,7 +894,7 @@ class Populator(BasePopulator):
         CreditNote = self.CreditNote
         cbci = self._create_custom_brick_item(
             model=CreditNote,
-            uuid='b3233bc2-cda8-4b07-ae4b-617b177120fc',
+            uuid=UUID_CBRICK_CNOTE,
             name=_('Credit note information'),
             extra_cells=(
                 EntityCellRegularField.build(CreditNote, 'status'),
@@ -869,7 +906,7 @@ class Populator(BasePopulator):
         TemplateBase = self.TemplateBase
         cbci = self._create_custom_brick_item(
             model=TemplateBase,
-            uuid='4653dc10-f2ce-455c-a0b2-30ff957e8f68',
+            uuid=UUID_CBRICK_TEMPLATE,
             name=pgettext('billing', 'Template information'),
             extra_cells=(
                 EntityCellFunctionField.build(TemplateBase, 'get_verbose_status'),
@@ -937,7 +974,7 @@ class Populator(BasePopulator):
 
         # Create current year invoices report ----------------------------------
         invoices_report1 = create_report(
-            uuid='e8dc076c-16c5-462e-b32e-61c6e0249dfd',
+            uuid=UUID_REPORT_INVOICES,
             name=_('All invoices of the current year'),
             filter=self.current_year_invoices_filter,
         )
@@ -946,7 +983,7 @@ class Populator(BasePopulator):
         # cell_key = total_no_vat_cell.key
         cell_key = total_no_vat_cell.portable_key
         rgraph1 = create_graph(
-            uuid='c94e414d-931c-47bb-a7b9-144245997062',
+            uuid=UUID_RCHART_INVOICES_PER_MONTH,
             name=_('Sum of current year invoices total without taxes / month'),
             linked_report=invoices_report1,
             abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
@@ -954,7 +991,7 @@ class Populator(BasePopulator):
             ordinate_cell_key=cell_key,
         )
         create_graph(
-            uuid='94b3b88a-7350-4fae-9d9e-2d36a66677fb',
+            uuid=UUID_RCHART_INVOICES_PER_STATUS,
             name=_('Sum of current year invoices total without taxes / invoices status'),
             linked_report=invoices_report1,
             abscissa_cell_value='status', abscissa_type=ReportGraph.Group.FK,
@@ -962,20 +999,20 @@ class Populator(BasePopulator):
             ordinate_cell_key=cell_key,
         )
         ibci1 = SimpleGraphFetcher(graph=rgraph1).create_brick_config_item(
-            uuid='574e62e4-f5fb-4cb0-8e50-8bed100a83fd',
+            uuid=UUID_IBRICK_INVOICES_PER_MONTH,
         )
         BrickHomeLocation.objects.create(brick_id=ibci1.brick_id, order=11)
 
         # Create current year and unpaid invoices report -----------------------
         invoices_report2 = create_report(
-            uuid='2a1f7582-7e01-434a-b26f-6ee811e4c704',
+            uuid=UUID_REPORT_UNPAID_INVOICES,
             name=_('Invoices unpaid of the current year'),
             filter=self.current_year_unpaid_invoices_filter,
         )
         create_report_columns(invoices_report2)
 
         rgraph3 = create_graph(
-            uuid='5388305f-0fcc-4ebb-b8a8-2cb4b3154c9c',
+            uuid=UUID_RCHART_UNPAID_INVOICES_PER_MONTH,
             name=_('Sum of current year and unpaid invoices total without taxes / month'),
             linked_report=invoices_report2,
             abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
@@ -983,6 +1020,6 @@ class Populator(BasePopulator):
             ordinate_cell_key=cell_key,
         )
         ibci3 = SimpleGraphFetcher(rgraph3).create_brick_config_item(
-            uuid='9b9faf6f-0537-419f-842d-d9b3fc3cb321',
+            uuid=UUID_IBRICK_UNPAID_INVOICES_PER_MONTH,
         )
         BrickHomeLocation.objects.create(brick_id=ibci3.brick_id, order=12)

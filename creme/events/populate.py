@@ -42,6 +42,12 @@ from .models import EventType
 
 logger = logging.getLogger(__name__)
 
+# UUIDs for instances which can be deleted
+UUID_EVENT_TYPE_SHOW       = 'd4928cbc-6afd-40bf-9d07-815b8b920b39'
+UUID_EVENT_TYPE_CONFERENCE = '254fda4f-1a01-47e1-b5aa-a1b2d4ef2890'
+UUID_EVENT_TYPE_BREAKFAST  = 'b520fe79-98f4-4362-8293-b4febd46c9df'
+UUID_EVENT_TYPE_BRUNCH     = '42c72e13-9f47-4ea8-bd9b-0a0764ceea19'
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core']
@@ -53,10 +59,10 @@ class Populator(BasePopulator):
     SEARCH = ['name', 'description', 'type__name']
     EVENT_TYPES = [
         # is_custom=True => only created during the first execution
-        EventType(uuid='d4928cbc-6afd-40bf-9d07-815b8b920b39', name=_('Show')),
-        EventType(uuid='254fda4f-1a01-47e1-b5aa-a1b2d4ef2890', name=_('Conference')),
-        EventType(uuid='b520fe79-98f4-4362-8293-b4febd46c9df', name=_('Breakfast')),
-        EventType(uuid='42c72e13-9f47-4ea8-bd9b-0a0764ceea19', name=_('Brunch')),
+        EventType(uuid=UUID_EVENT_TYPE_SHOW,       name=_('Show')),
+        EventType(uuid=UUID_EVENT_TYPE_CONFERENCE, name=_('Conference')),
+        EventType(uuid=UUID_EVENT_TYPE_BREAKFAST,  name=_('Breakfast')),
+        EventType(uuid=UUID_EVENT_TYPE_BRUNCH,     name=_('Brunch')),
     ]
 
     def __init__(self, *args, **kwargs):

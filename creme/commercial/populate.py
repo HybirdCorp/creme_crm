@@ -107,16 +107,14 @@ class Populator(BasePopulator):
     }
     ACT_TYPES = [
         ActType(
-            uuid='e443e7f0-df22-4f4c-9bc8-7f718867e3d1',
-            title=_('Phone calls'), is_custom=False
+            uuid=constants.UUID_ACT_TYPE_PHONE_CALLS,
+            title=_('Phone calls'), is_custom=False,
         ),
         ActType(
-            uuid='2937497e-05b2-4790-8fa9-7f2a05dbfee0',
-            title=_('Show'), is_custom=False
+            uuid=constants.UUID_ACT_TYPE_SHOW, title=_('Show'), is_custom=False,
         ),
         ActType(
-            uuid='4cfcefd1-3140-4e9f-a6f5-ce7de1e08f51',
-            title=_('Demo'), is_custom=False,
+            uuid=constants.UUID_ACT_TYPE_DEMO, title=_('Demo'), is_custom=False,
         ),
     ]
 

@@ -22,7 +22,8 @@ from creme.creme_core.tests.base import CremeTestCase
 # from creme.documents.tests.base import _DocumentsTestCase
 from creme.documents.tests.base import DocumentsTestCaseMixin
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
-from creme.persons.models import Sector
+from creme.persons.models import Civility, Position, Sector
+from creme.persons.populate import UUID_CIVILITY_MR, UUID_POSITION_CEO
 
 from ..vcf_lib import readOne as read_vcf
 from ..vcf_lib.base import ContentLine
@@ -1389,8 +1390,10 @@ END:VCARD"""
         self.assertEqual(user.id, user_id)
         self.assertEqual(first_name, first_name_f.initial)
         self.assertEqual(last_name, last_name_f.initial)
-        self.assertEqual(3, civility_id)  # pk=3 see persons.populate
-        self.assertEqual(1, position_id)  # pk=1 idem
+        # self.assertEqual(3, civility_id)  # pk=3 see persons.populate
+        # self.assertEqual(1, position_id)  # pk=1 idem
+        self.assertEqual(Civility.objects.get(uuid=UUID_CIVILITY_MR).id, civility_id)
+        self.assertEqual(Position.objects.get(uuid=UUID_POSITION_CEO).id, position_id)
 
         self._post_step1(
             data={

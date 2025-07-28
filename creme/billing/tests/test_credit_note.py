@@ -27,6 +27,7 @@ from ..constants import (
     REL_SUB_BILL_ISSUED,
     REL_SUB_BILL_RECEIVED,
     REL_SUB_CREDIT_NOTE_APPLIED,
+    UUID_CNOTE_STATUS_DRAFT,
 )
 from ..models import CreditNoteStatus, Line
 from .base import (
@@ -69,7 +70,8 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         default_status = self.get_alone_element(
             [status for status in statuses if status.is_default]
         )
-        self.assertEqual(1, default_status.pk)
+        # self.assertEqual(1, default_status.pk)
+        self.assertUUIDEqual(UUID_CNOTE_STATUS_DRAFT, default_status.uuid)
 
         # New default status => previous default status is updated
         new_status1 = CreditNoteStatus.objects.create(name='OK', is_default=True)

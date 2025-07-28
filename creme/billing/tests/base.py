@@ -137,17 +137,20 @@ class _BillingTestCaseMixin:
         return credit_note, source, target
 
     def create_invoice(self, *, user, name, source, target,
-                       currency=None, discount=Decimal(),
+                       currency=None,
+                       status=None,
+                       discount=Decimal(),
                        issuing_date=date(year=2010, month=9, day=7),
                        **kwargs):
         currency = currency or Currency.objects.all()[0]
+        status = status or InvoiceStatus.objects.default()
         response = self.client.post(
             reverse('billing__create_invoice'),
             follow=True,
             data={
                 'user':   user.pk,
                 'name':   name,
-                'status': InvoiceStatus.objects.first().id,
+                'status': status.id,
 
                 # 'issuing_date':    self.formfield_value_date(2010,  9,  7),
                 'issuing_date':    self.formfield_value_date(issuing_date) if issuing_date else '',
@@ -178,12 +181,13 @@ class _BillingTestCaseMixin:
         )
 
     def create_invoice_n_orgas(self,
-                               *, user, name, discount=Decimal(), currency=None,
+                               *, user, name,
+                               discount=Decimal(), currency=None, status=None,
                                **kwargs):
         source, target = self.create_orgas(user=user)
         invoice = self.create_invoice(
             name=name, source=source, target=target,
-            user=user, discount=discount, currency=currency,
+            user=user, discount=discount, currency=currency, status=status,
             **kwargs
         )
 

@@ -59,6 +59,23 @@ from .models import (
 from .registry import creme_registry
 from .utils.date_period import date_period_registry
 
+# UUIDs for instances which can be deleted
+UUID_USER_ROOT = 'f53e8537-9aae-454c-adc1-a89df9563c28'
+UUID_ROLE_REGULAR = 'a97a66aa-a2c0-42bf-a6d0-a4d99b604cb3'
+
+UUID_CURRENCY_EURO              = '5777ec02-5b60-4276-9923-c833ba32df22'
+UUID_CURRENCY_US_DOLLAR         = '97d30dd5-fd4d-4579-9a15-ddda78443bdd'
+UUID_CURRENCY_POUND_STERLING    = '4e82eb18-f626-4928-97c1-36d3e0c04821'
+UUID_CURRENCY_JAPANESE_YEN      = 'b27926fb-42c0-499e-83c5-2b8e81bba215'
+UUID_CURRENCY_CHINESE_YUAN      = 'c2b6269d-0e84-40f0-8a09-29e288c076d5'
+UUID_CURRENCY_SOUTH_KOREAN_WON  = '488142a2-1767-4a36-b822-b143218588a6'
+UUID_CURRENCY_DINAR             = '4af52026-333a-461d-a0ec-88602204c3fb'
+UUID_CURRENCY_BRAZILIAN_REAL    = 'b15f7f14-8dee-4567-b1bb-50abbb58bc19'
+UUID_CURRENCY_INDIAN_RUPEE      = '664ea11e-2702-4210-9a02-3382fdb4d712'
+UUID_CURRENCY_AUSTRALIAN_DOLLAR = '7a3b13bb-ded7-4fd7-9b79-4813ff0be31b'
+UUID_CURRENCY_SWISS_FRANC       = 'af20cd3a-6d6b-47e1-a772-331a522ba5b0'
+UUID_CURRENCY_CANADIAN_DOLLAR   = 'b6f7cef4-f4d3-48c0-8d81-7697ba2f7131'
+
 
 class Populator(BasePopulator):
     JOBS = [
@@ -117,74 +134,74 @@ class Populator(BasePopulator):
     ]
     CURRENCIES = [
         Currency(
-            uuid='5777ec02-5b60-4276-9923-c833ba32df22',
+            uuid=UUID_CURRENCY_EURO,
             name=_('Euro'),
             local_symbol='€',
             international_symbol='EUR',
             # 'is_custom': False,
         ),
         Currency(
-            uuid='97d30dd5-fd4d-4579-9a15-ddda78443bdd',
+            uuid=UUID_CURRENCY_US_DOLLAR,
             name=_('United States dollar'),
             local_symbol='$',
             international_symbol='USD',
         ),
         Currency(
-            uuid='4e82eb18-f626-4928-97c1-36d3e0c04821',
+            uuid=UUID_CURRENCY_POUND_STERLING,
             name=_('Pound sterling'),
             local_symbol='£',
             international_symbol='GBP',
         ),
         Currency(
-            uuid='b27926fb-42c0-499e-83c5-2b8e81bba215',
+            uuid=UUID_CURRENCY_JAPANESE_YEN,
             name=_('Japanese yen'),
             local_symbol='¥',
             international_symbol='JPY',
         ),
         Currency(
-            uuid='c2b6269d-0e84-40f0-8a09-29e288c076d5',
+            uuid=UUID_CURRENCY_CHINESE_YUAN,
             name=_('Chinese yuan'),
             local_symbol='Ұ ',
             international_symbol='CNY',
         ),
         Currency(
-            uuid='488142a2-1767-4a36-b822-b143218588a6',
+            uuid=UUID_CURRENCY_SOUTH_KOREAN_WON,
             name=_('South Korean won'),
             local_symbol='₩',
             international_symbol='KRW',
         ),
         Currency(
-            uuid='4af52026-333a-461d-a0ec-88602204c3fb',
+            uuid=UUID_CURRENCY_DINAR,
             name=_('Dinar'),
             local_symbol='DA',
             international_symbol='DZD',
         ),
         Currency(
-            uuid='b15f7f14-8dee-4567-b1bb-50abbb58bc19',
+            uuid=UUID_CURRENCY_BRAZILIAN_REAL,
             name=_('Brazilian real'),
             local_symbol='R$',
             international_symbol='BRL',
         ),
         Currency(
-            uuid='664ea11e-2702-4210-9a02-3382fdb4d712',
+            uuid=UUID_CURRENCY_INDIAN_RUPEE,
             name=_('Indian rupee'),
             local_symbol='₹',
             international_symbol='INR',
         ),
         Currency(
-            uuid='7a3b13bb-ded7-4fd7-9b79-4813ff0be31b',
+            uuid=UUID_CURRENCY_AUSTRALIAN_DOLLAR,
             name=_('Australian dollar'),
             local_symbol='AU$',
             international_symbol='AUD',
         ),
         Currency(
-            uuid='af20cd3a-6d6b-47e1-a772-331a522ba5b0',
+            uuid=UUID_CURRENCY_SWISS_FRANC,
             name=_('Swiss franc'),
             local_symbol=_('CHF'),
             international_symbol='CHF',
         ),
         Currency(
-            uuid='b6f7cef4-f4d3-48c0-8d81-7697ba2f7131',
+            uuid=UUID_CURRENCY_CANADIAN_DOLLAR,
             name=_('Canadian dollar'),
             local_symbol='CA$',
             international_symbol='CAD',
@@ -225,7 +242,7 @@ class Populator(BasePopulator):
         password = constants.ROOT_PASSWORD
         self.root = get_user_model().objects.create_superuser(
             pk=1,  # TODO: remove?
-            uuid='f53e8537-9aae-454c-adc1-a89df9563c28',  # TODO: constant?
+            uuid=UUID_USER_ROOT,
             username=login, password=password,
             first_name='Fulbert', last_name='Creme',
             email=_('replaceMe@byYourAddress.com'),
@@ -243,7 +260,7 @@ class Populator(BasePopulator):
         entity_models = [*creme_registry.iter_entity_models()]
         regular_role = UserRole.objects.smart_create(
             name=_('Regular user'),
-            uuid='a97a66aa-a2c0-42bf-a6d0-a4d99b604cb3',
+            uuid=UUID_ROLE_REGULAR,
             allowed_apps=[
                 app.label for app in creme_app_configs() if app.credentials & CRED_REGULAR
             ],
