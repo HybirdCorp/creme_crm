@@ -24,19 +24,21 @@ from django.db.models import Q, QuerySet
 from django.utils.timezone import (
     get_current_timezone,
     localtime,
+    make_aware,
     now,
     zoneinfo,
 )
 from django.utils.translation import gettext as _
 
+from creme.activities.models.config import Weekday
 from creme.creme_core.models import Relation, SettingValue
 from creme.creme_core.utils.dates import to_utc
 
 from . import get_activity_model
-# from .constants import FLOATING_TIME, NARROW
 from .constants import REL_SUB_PART_2_ACTIVITY
 from .setting_keys import auto_subjects_key
 
+# from .constants import FLOATING_TIME, NARROW
 logger = logging.getLogger(__name__)
 
 
@@ -57,17 +59,61 @@ def get_current_utc_offset():
     return int(tz.utcoffset(now()).total_seconds() / 60)
 
 
+def check_activity_businesshours(start, end, is_allday, config):
+    collisions = []
+
+    if not start:
+        return collisions
+
+    if not config.allow_event_anyday:
+        start_day = start.weekday() + 1
+
+        event_days_count = (end - start).days if end else 0
+        event_days = list(
+            range(start_day, start_day + min(event_days_count + 1, 7))
+        ) if event_days_count > 0 else [start_day]
+
+        working_days = set(config.week_days)
+
+        collisions.extend([
+            _('{day} is not a working day.').format(day=Weekday(day).label)
+            for day in event_days if day not in working_days
+        ])
+
+    if not config.allow_event_overtime and not is_allday and not collisions:
+        day_start = localtime(make_aware(datetime.combine(start.date(), config.day_start)))
+        day_end = localtime(make_aware(datetime.combine(end.date(), config.day_end)))
+
+        is_within = (
+            start.date() == end.date() and start >= day_start and end <= day_end
+        )
+
+        if not is_within:
+            collisions.append(
+                _(
+                    'The activity is not within the business hours '
+                    'range from {day_start} to {day_end}.'
+                ).format(
+                    day_start=day_start.time(),
+                    day_end=day_end.time(),
+                )
+            )
+
+    return collisions
+
+
 def check_activity_collisions(
         activity_start,
         activity_end,
         participants,
         busy=True,
         exclude_activity_id=None):
+    collisions = []
+
     if not activity_start:
-        return
+        return collisions
 
     collision_test = ~(Q(end__lte=activity_start) | Q(start__gte=activity_end))
-    collisions = []
 
     for participant in participants:
         # Find activities of participant
