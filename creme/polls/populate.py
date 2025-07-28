@@ -40,6 +40,11 @@ from .models import PollType
 
 logger = logging.getLogger(__name__)
 
+# UUIDs for instances which can be deleted
+UUID_POLL_TYPE_SURVEY     = '90d3d792-4354-43d2-8da2-9abf7cdd1421'
+UUID_POLL_TYPE_MONITORING = 'f3568c0a-ba44-485d-b4f3-88dac5c9477b'
+UUID_POLL_TYPE_ASSESSMENT = '3b50033a-b77c-43e4-88ae-145e433dc1ca'
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
@@ -52,9 +57,9 @@ class Populator(BasePopulator):
     ]
     POLL_TYPES = [
         # is_custom=True => only created during the first execution
-        PollType(uuid='90d3d792-4354-43d2-8da2-9abf7cdd1421', name=_('Survey')),
-        PollType(uuid='f3568c0a-ba44-485d-b4f3-88dac5c9477b', name=_('Monitoring')),
-        PollType(uuid='3b50033a-b77c-43e4-88ae-145e433dc1ca', name=_('Assessment')),
+        PollType(uuid=UUID_POLL_TYPE_SURVEY,     name=_('Survey')),
+        PollType(uuid=UUID_POLL_TYPE_MONITORING, name=_('Monitoring')),
+        PollType(uuid=UUID_POLL_TYPE_ASSESSMENT, name=_('Assessment')),
     ]
 
     def __init__(self, *args, **kwargs):

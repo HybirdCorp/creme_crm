@@ -69,6 +69,7 @@ from creme.creme_core.models import (
     SearchConfigItem,
     SetCredentials,
 )
+from creme.creme_core.populate import UUID_ROLE_REGULAR
 from creme.creme_core.tests import fake_custom_forms, fake_forms
 from creme.creme_core.tests.fake_forms import FakeAddressGroup
 from creme.creme_core.tests.fake_menu import FakeContactsEntry
@@ -212,7 +213,6 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertEqual(data_id2, item[0])
 
     def test_roles(self):
-        "Roles."
         self.login_as_super(is_staff=True)
         role = self.create_role(
             name='Test',
@@ -282,7 +282,7 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertIsInstance(roles_info[0], dict)
 
         roles_info_per_uuid = {role_info.get('uuid'): role_info for role_info in roles_info}
-        role_info1 = roles_info_per_uuid.get('a97a66aa-a2c0-42bf-a6d0-a4d99b604cb3')
+        role_info1 = roles_info_per_uuid.get(UUID_ROLE_REGULAR)
         self.assertEqual(_('Regular user'), role_info1.get('name'))
         self.assertIn('creme_core', role_info1.get('allowed_apps'))
         self.assertListEqual([], role_info1.get('admin_4_apps'))

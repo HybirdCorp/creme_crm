@@ -56,6 +56,41 @@ from .models import Civility, LegalForm, Position, Sector, StaffSize
 
 logger = logging.getLogger(__name__)
 
+# UUIDs for instances which can be deleted
+UUID_CIVILITY_MRS  = '7c3867da-af53-43d4-bfcc-75c1c3e5121e'
+UUID_CIVILITY_MISS = '6b84a23d-c4ec-41c1-a35d-e6c0af5af2a0'
+UUID_CIVILITY_MR   = '08e68afd-64aa-4981-a1db-4bde37b08655'
+UUID_CIVILITY_NA   = '547504b3-a886-4837-9170-62f2bc706e7f'
+
+UUID_POSITION_CEO        = '1534eb82-f55c-45ef-af2e-4e2d5d68218f'
+UUID_POSITION_SECRETARY  = '7e10f7f8-730c-45b4-8e81-6b2e4cfbab36'
+UUID_POSITION_TECHNICIAN = '9669e6a9-4661-4248-bc7c-d675f6e13216'
+
+UUID_SECTOR_FOOD        = '4995508b-069b-4ad5-a07d-9ae9c17918f2'
+UUID_SECTOR_INDUSTRY    = '06581ce8-e5ab-4875-b18d-b1ae366a9073'
+UUID_SECTOR_SOFTWARE    = 'd3d16967-b4e4-4dff-a401-c97ab36fa9a2'
+UUID_SECTOR_TELECOM     = '471ec83d-d7cc-4b51-8ff4-b3b16c339927'
+UUID_SECTOR_RESTORATION = '115ecac3-dda1-4388-ad8c-c1d4d6e86214'
+
+UUID_LEGALFORM_FRANCE_SARL = '0f9ffebf-ae6a-4314-bf78-5ac33c477385'
+UUID_LEGALFORM_FRANCE_1901 = '97ec5342-cfcd-47f2-9977-03238a4bb815'
+UUID_LEGALFORM_FRANCE_SA   = '2a18cf05-19bd-47d1-96d0-7dd2ea969e74'
+UUID_LEGALFORM_FRANCE_SAS  = '2085dfac-9714-407c-972b-2256e8472124'
+
+UUID_STAFFSIZE_1_TO_5     = '625f5c71-db51-48f7-b548-63360d0b6653'
+UUID_STAFFSIZE_6_TO_10    = '405efcfb-b6cc-4996-8062-b0794d6b718b'
+UUID_STAFFSIZE_11_TO_50   = '57b8a9f0-b672-473a-bc77-db0cd73f4d71'
+UUID_STAFFSIZE_51_TO_100  = 'bab5348c-9a46-4a05-a72e-b94db229f818'
+UUID_STAFFSIZE_100_TO_500 = 'fd1a7587-624f-4cd1-adbc-309e237cfe91'
+UUID_STAFFSIZE_GT_500     = 'ca0a585c-a40d-480c-86d0-c9610c93b23b'
+
+UUID_CBRICK_CONTACT_INFO    = '9d945cba-f604-4552-a28c-28eb67ec4a73'
+UUID_CBRICK_CONTACT_DETAILS = '4092894e-358c-4970-ad55-151862dee576'
+UUID_CBRICK_CONTACT_COMP    = '4c6eb2a7-d7d4-4c19-a485-ad8da84f1211'
+UUID_CBRICK_ORGA_INFO       = '05af52f4-fce8-4eca-b06a-49ea65186722'
+UUID_CBRICK_ORGA_DETAILS    = '32446dad-ef2b-4099-aa71-573dc9d1099a'
+UUID_CBRICK_ORGA_COMP       = '2a0f4a73-094f-492f-8fbd-125cb5ff30ed'
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'documents']
@@ -105,53 +140,41 @@ class Populator(BasePopulator):
     ]
     CIVILITIES = [
         # is_custom=True => only created during the first execution
-        Civility(
-            uuid='7c3867da-af53-43d4-bfcc-75c1c3e5121e',
-            title=_('Madam'), shortcut=_('Mrs.'),
-        ),
-        Civility(
-            uuid='6b84a23d-c4ec-41c1-a35d-e6c0af5af2a0',
-            title=_('Miss'), shortcut=_('Ms.'),
-        ),
-        Civility(
-            uuid='08e68afd-64aa-4981-a1db-4bde37b08655',
-            title=_('Mister'), shortcut=_('Mr.'),
-        ),
-        Civility(
-            uuid='547504b3-a886-4837-9170-62f2bc706e7f',
-            title=_('N/A'), shortcut='',
-        ),
+        Civility(uuid=UUID_CIVILITY_MRS,  title=_('Madam'),  shortcut=_('Mrs.')),
+        Civility(uuid=UUID_CIVILITY_MISS, title=_('Miss'),   shortcut=_('Ms.')),
+        Civility(uuid=UUID_CIVILITY_MR,   title=_('Mister'), shortcut=_('Mr.')),
+        Civility(uuid=UUID_CIVILITY_NA,   title=_('N/A'),    shortcut=''),
     ]
     POSITIONS = [
         # is_custom=True => only created during the first execution
-        Position(uuid='1534eb82-f55c-45ef-af2e-4e2d5d68218f', title=_('CEO')),
-        Position(uuid='7e10f7f8-730c-45b4-8e81-6b2e4cfbab36', title=_('Secretary')),
-        Position(uuid='9669e6a9-4661-4248-bc7c-d675f6e13216', title=_('Technician')),
+        Position(uuid=UUID_POSITION_CEO,        title=_('CEO')),
+        Position(uuid=UUID_POSITION_SECRETARY,  title=_('Secretary')),
+        Position(uuid=UUID_POSITION_TECHNICIAN, title=_('Technician')),
     ]
     SECTORS = [
         # is_custom=True => only created during the first execution
-        Sector(uuid='4995508b-069b-4ad5-a07d-9ae9c17918f2', title=_('Food Industry')),
-        Sector(uuid='06581ce8-e5ab-4875-b18d-b1ae366a9073', title=_('Industry')),
-        Sector(uuid='d3d16967-b4e4-4dff-a401-c97ab36fa9a2', title=_('Software')),
-        Sector(uuid='471ec83d-d7cc-4b51-8ff4-b3b16c339927', title=_('Telecom')),
-        Sector(uuid='115ecac3-dda1-4388-ad8c-c1d4d6e86214', title=_('Restoration')),
+        Sector(uuid=UUID_SECTOR_FOOD,        title=_('Food Industry')),
+        Sector(uuid=UUID_SECTOR_INDUSTRY,    title=_('Industry')),
+        Sector(uuid=UUID_SECTOR_SOFTWARE,    title=_('Software')),
+        Sector(uuid=UUID_SECTOR_TELECOM,     title=_('Telecom')),
+        Sector(uuid=UUID_SECTOR_RESTORATION, title=_('Restoration')),
     ]
     LEGAL_FORMS = [
         # TODO: add data depending on the current country
         # is_custom=True => only created during the first execution
-        LegalForm(uuid='0f9ffebf-ae6a-4314-bf78-5ac33c477385', title='SARL'),
-        LegalForm(uuid='97ec5342-cfcd-47f2-9977-03238a4bb815', title='Association loi 1901'),
-        LegalForm(uuid='2a18cf05-19bd-47d1-96d0-7dd2ea969e74', title='SA'),
-        LegalForm(uuid='2085dfac-9714-407c-972b-2256e8472124', title='SAS'),
+        LegalForm(uuid=UUID_LEGALFORM_FRANCE_SARL, title='SARL'),
+        LegalForm(uuid=UUID_LEGALFORM_FRANCE_1901, title='Association loi 1901'),
+        LegalForm(uuid=UUID_LEGALFORM_FRANCE_SA,   title='SA'),
+        LegalForm(uuid=UUID_LEGALFORM_FRANCE_SAS,  title='SAS'),
     ]
     STAFF_SIZES = [
         # is_custom=True => only created during the first execution
-        StaffSize(uuid='625f5c71-db51-48f7-b548-63360d0b6653', size='1 - 5',     order=1),
-        StaffSize(uuid='405efcfb-b6cc-4996-8062-b0794d6b718b', size='6 - 10',    order=2),
-        StaffSize(uuid='57b8a9f0-b672-473a-bc77-db0cd73f4d71', size='11 - 50',   order=3),
-        StaffSize(uuid='bab5348c-9a46-4a05-a72e-b94db229f818', size='51 - 100',  order=4),
-        StaffSize(uuid='fd1a7587-624f-4cd1-adbc-309e237cfe91', size='100 - 500', order=5),
-        StaffSize(uuid='ca0a585c-a40d-480c-86d0-c9610c93b23b', size='> 500',     order=6),
+        StaffSize(uuid=UUID_STAFFSIZE_1_TO_5,     size='1 - 5',     order=1),
+        StaffSize(uuid=UUID_STAFFSIZE_6_TO_10,    size='6 - 10',    order=2),
+        StaffSize(uuid=UUID_STAFFSIZE_11_TO_50,   size='11 - 50',   order=3),
+        StaffSize(uuid=UUID_STAFFSIZE_51_TO_100,  size='51 - 100',  order=4),
+        StaffSize(uuid=UUID_STAFFSIZE_100_TO_500, size='100 - 500', order=5),
+        StaffSize(uuid=UUID_STAFFSIZE_GT_500,     size='> 500',     order=6),
     ]
 
     def __init__(self, *args, **kwargs):
@@ -396,7 +419,7 @@ class Populator(BasePopulator):
         build_cell = EntityCellRegularField.build
 
         create_cbci(
-            uuid='9d945cba-f604-4552-a28c-28eb67ec4a73',
+            uuid=UUID_CBRICK_CONTACT_INFO,
             name=_('Contact information'),
             content_type=Contact,
             cells=[
@@ -419,7 +442,7 @@ class Populator(BasePopulator):
             ],
         )
         create_cbci(
-            uuid='4092894e-358c-4970-ad55-151862dee576',
+            uuid=UUID_CBRICK_CONTACT_DETAILS,
             name=_('Contact details'),
             content_type=Contact,
             cells=[
@@ -432,7 +455,7 @@ class Populator(BasePopulator):
             ],
         )
         cbci_contact_extra = create_cbci(
-            uuid='4c6eb2a7-d7d4-4c19-a485-ad8da84f1211',
+            uuid=UUID_CBRICK_CONTACT_COMP,
             name=_('Contact complementary information'),
             content_type=Contact,
             cells=[
@@ -480,7 +503,7 @@ class Populator(BasePopulator):
         build_cell = EntityCellRegularField.build
 
         create_cbci(
-            uuid='05af52f4-fce8-4eca-b06a-49ea65186722',
+            uuid=UUID_CBRICK_ORGA_INFO,
             name=_('Organisation information'),
             content_type=Organisation,
             cells=[
@@ -510,7 +533,7 @@ class Populator(BasePopulator):
             ],
         )
         create_cbci(
-            uuid='32446dad-ef2b-4099-aa71-573dc9d1099a',
+            uuid=UUID_CBRICK_ORGA_DETAILS,
             name=_('Organisation details'),
             content_type=Organisation,
             cells=[
@@ -521,7 +544,7 @@ class Populator(BasePopulator):
             ],
         )
         cbci_orga_extra = create_cbci(
-            uuid='2a0f4a73-094f-492f-8fbd-125cb5ff30ed',
+            uuid=UUID_CBRICK_ORGA_COMP,
             name=_('Organisation complementary information'),
             content_type=Organisation,
             cells=[

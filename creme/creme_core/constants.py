@@ -4,7 +4,7 @@ from decimal import Decimal
 from django.conf import settings
 
 # Auth ---
-ROOT_USERNAME = ROOT_PASSWORD = 'root'
+ROOT_USERNAME = ROOT_PASSWORD = 'root'  # TODO: in populate.py instead
 UUID_SANDBOX_SUPERUSERS = '83c94e2a-8836-43a4-81b4-996627ef93aa'
 
 # Relationships ---

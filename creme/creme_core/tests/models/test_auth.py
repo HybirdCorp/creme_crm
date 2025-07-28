@@ -37,6 +37,7 @@ from creme.creme_core.models import (
     SetCredentials,
     UserRole,
 )
+from creme.creme_core.populate import UUID_USER_ROOT
 from creme.creme_core.sandboxes import OnlySuperusersType
 from creme.documents.models import Document, Folder
 from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
@@ -96,9 +97,7 @@ class AuthTestCase(CremeTestCase):
 
     def test_populate(self):
         user = self.get_root_user()
-        self.assertUUIDEqual(
-            'f53e8537-9aae-454c-adc1-a89df9563c28', user.uuid,
-        )
+        self.assertUUIDEqual(UUID_USER_ROOT, user.uuid)
 
         sandbox = self.get_object_or_fail(Sandbox, uuid=constants.UUID_SANDBOX_SUPERUSERS)
         self.assertIsNone(sandbox.role)

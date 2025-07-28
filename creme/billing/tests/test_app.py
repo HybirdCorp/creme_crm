@@ -16,7 +16,12 @@ from creme.persons.tests.base import skipIfCustomOrganisation
 from .. import bricks, constants, setting_keys
 # from ..algos import SimpleAlgo
 # from ..models import ConfigBillingAlgo, SimpleBillingAlgo
-from ..models import CreditNoteStatus, InvoiceStatus, SalesOrderStatus
+from ..models import (
+    CreditNoteStatus,
+    InvoiceStatus,
+    QuoteStatus,
+    SalesOrderStatus,
+)
 # from ..registry import AlgoRegistry
 from .base import (
     Contact,
@@ -56,9 +61,19 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         # ---
-        self.assertEqual(1, SalesOrderStatus.objects.filter(pk=1).count())
-        self.assertEqual(2, InvoiceStatus.objects.filter(pk__in=(1, 2)).count())
-        self.assertEqual(1, CreditNoteStatus.objects.filter(pk=1).count())
+        self.assertEqual(4, QuoteStatus.objects.count())
+        self.assertEqual(1, QuoteStatus.objects.filter(is_default=True).count())
+
+        self.assertEqual(4, SalesOrderStatus.objects.count())
+        self.assertEqual(1, SalesOrderStatus.objects.filter(is_default=True).count())
+
+        self.assertEqual(8, InvoiceStatus.objects.count())
+        self.assertEqual(1, InvoiceStatus.objects.filter(is_default=True).count())
+        self.assertEqual(1, InvoiceStatus.objects.filter(is_validated=True).count())
+        self.assertEqual(2, InvoiceStatus.objects.filter(pending_payment=True).count())
+
+        self.assertEqual(4, CreditNoteStatus.objects.count())
+        self.assertEqual(1, CreditNoteStatus.objects.filter(is_default=True).count())
 
         self.assertTrue(Vat.objects.exists())  # In creme_core populate...
 
@@ -75,7 +90,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         # ---
         wf_quote_orga = self.get_object_or_fail(
-            Workflow, uuid='a6a8f398-4967-49f8-8d8f-4aece55329fa',
+            Workflow, uuid=constants.UUID_WORKFLOW_QUOTE_ORGA_TO_PROSPECT,
         )
         self.assertEqual(
             _('The target Organisation becomes a prospect'), wf_quote_orga.title,
@@ -84,7 +99,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFalse(wf_quote_orga.is_custom)
 
         wf_quote_contact = self.get_object_or_fail(
-            Workflow, uuid='81a52347-4988-4a11-81dc-55eca701447e',
+            Workflow, uuid=constants.UUID_WORKFLOW_QUOTE_CONTACT_TO_PROSPECT,
         )
         self.assertEqual(
             _('The target Contact becomes a prospect'), wf_quote_contact.title,
@@ -93,7 +108,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFalse(wf_quote_contact.is_custom)
 
         wf_invoice_orga = self.get_object_or_fail(
-            Workflow, uuid='3cc968ec-23c2-4f70-9609-1894d91ff300',
+            Workflow, uuid=constants.UUID_WORKFLOW_INVOICE_ORGA_TO_CUSTOMER,
         )
         self.assertEqual(
             _('The target Organisation becomes a customer'), wf_invoice_orga.title,
@@ -102,7 +117,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFalse(wf_invoice_orga.is_custom)
 
         wf_invoice_contact = self.get_object_or_fail(
-            Workflow, uuid='457f762d-0bd7-41de-8215-14585e3002ba',
+            Workflow, uuid=constants.UUID_WORKFLOW_INVOICE_CONTACT_TO_CUSTOMER,
         )
         self.assertEqual(
             _('The target Contact becomes a customer'), wf_invoice_contact.title,

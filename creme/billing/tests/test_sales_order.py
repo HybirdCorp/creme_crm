@@ -15,7 +15,11 @@ from creme.persons.tests.base import (
 )
 
 from ..bricks import ReceivedSalesOrdersBrick
-from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from ..constants import (
+    REL_SUB_BILL_ISSUED,
+    REL_SUB_BILL_RECEIVED,
+    UUID_ORDER_STATUS_ISSUED,
+)
 from ..models import Line, NumberGeneratorItem, SalesOrderStatus
 from .base import (
     Address,
@@ -44,7 +48,8 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         default_status = self.get_alone_element(
             [status for status in statuses if status.is_default]
         )
-        self.assertEqual(1, default_status.pk)
+        # self.assertEqual(1, default_status.pk)
+        self.assertUUIDEqual(UUID_ORDER_STATUS_ISSUED, default_status.uuid)
 
         # New default status => previous default status is updated
         new_status1 = SalesOrderStatus.objects.create(name='OK', is_default=True)
@@ -155,7 +160,11 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             {self.TARGET_KEY: target},
             form.initial,
         )
-        self.assertEqual(1, status_f.get_bound_field(form, 'status').initial)
+        # self.assertEqual(1, status_f.get_bound_field(form, 'status').initial)
+        self.assertEqual(
+            SalesOrderStatus.objects.default().id,
+            status_f.get_bound_field(form, 'status').initial,
+        )
 
         # ---
         name = 'Order#1'

@@ -46,6 +46,10 @@ from . import bricks, buttons, constants, creme_jobs, custom_forms, menu
 
 logger = logging.getLogger(__name__)
 
+# UUIDs for instances which can be deleted
+UUID_CBRICK_EMAIL    = 'dbabb94a-a92e-41af-89ee-b18a6a920345'
+UUID_CBRICK_TEMPLATE = 'b1bf8a0a-26ef-4f05-a666-a328da6c52fd'
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'documents']
@@ -239,7 +243,7 @@ class Populator(BasePopulator):
         EntityEmail = self.EntityEmail
         build_cell = EntityCellRegularField.build
         cbci = CustomBrickConfigItem.objects.create(
-            uuid='dbabb94a-a92e-41af-89ee-b18a6a920345',
+            uuid=UUID_CBRICK_EMAIL,
             name=_('Email information'),
             content_type=EntityEmail,
             cells=[
@@ -297,7 +301,7 @@ class Populator(BasePopulator):
         EmailTemplate = self.EmailTemplate
         build_cell = EntityCellRegularField.build
         cbci = CustomBrickConfigItem.objects.create(
-            uuid='b1bf8a0a-26ef-4f05-a666-a328da6c52fd',
+            uuid=UUID_CBRICK_TEMPLATE,
             name=_('Email template information'),
             content_type=EmailTemplate,
             cells=[

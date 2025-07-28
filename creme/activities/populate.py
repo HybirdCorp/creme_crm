@@ -59,6 +59,29 @@ from .models import ActivitySubType, ActivityType, CalendarConfigItem, Status
 
 logger = logging.getLogger(__name__)
 
+# UUIDs for instances which can be deleted
+UUID_CUSTOMBRICK_COMPLEMENTARY = '3c995e5d-7457-44be-9de8-cba7f7422319'
+
+UUID_SUBTYPE_TASK_TASK = '767b94e1-b366-4b97-8755-d719b268e402'
+
+UUID_SUBTYPE_GATHERING_GATHERING = '75b957a2-4fe7-4b98-8493-3f95e43a4968'
+UUID_SUBTYPE_GATHERING_TEAM = '2147569e-7bc4-4b79-8760-844dc568c422'
+UUID_SUBTYPE_GATHERING_INTERNAL = 'e4ff08c8-80df-4528-bcc1-4f9d20c6fe61'
+UUID_SUBTYPE_GATHERING_ON_THE_SITE = '1c626935-d47a-4d9b-af4b-b90b8a71fc77'
+UUID_SUBTYPE_GATHERING_REMOTE = '8f003f06-f1ea-456e-90f3-82e8b8ef7424'
+UUID_SUBTYPE_GATHERING_OUTSIDE = 'bc001a5c-eb90-4a3c-b703-afe347d3bf34'
+
+UUID_SUBTYPE_SHOW_EXHIBITOR = 'b75a663c-af2e-4440-89b3-2a75410cd55b'
+UUID_SUBTYPE_SHOW_VISITOR = '591b34b3-4226-48d4-a74d-d94665190b44'
+
+UUID_SUBTYPE_DEMO_DEMO = 'c32a94c7-8a2a-4589-8b0d-6764c63fb659'
+UUID_SUBTYPE_DEMO_ON_THE_SITE = '247902ed-05dd-4ba6-9cbd-ea43b7c996eb'
+UUID_SUBTYPE_DEMO_OUTSIDE = 'e22a2e5d-4349-4d44-bd77-21b1a10816d5'
+UUID_SUBTYPE_DEMO_VIDEOCONF = '3faf21bf-80b4-4182-b975-8146db2fb68b'
+
+UUID_SUBTYPE_UNAVAILABILITY_HOLIDAYS = 'd0408f78-77ba-4c49-9fa7-fc1e3455554e'
+UUID_SUBTYPE_UNAVAILABILITY_ILL = '09baec7a-b0ba-4c03-8981-84fc066d2970'
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
@@ -140,7 +163,7 @@ class Populator(BasePopulator):
             ),
             [
                 ActivitySubType(
-                    uuid='767b94e1-b366-4b97-8755-d719b268e402',
+                    uuid=UUID_SUBTYPE_TASK_TASK,
                     name=_('Task'), is_custom=True,
                 ),
             ]
@@ -207,28 +230,24 @@ class Populator(BasePopulator):
             ),
             [
                 ActivitySubType(
-                    uuid='75b957a2-4fe7-4b98-8493-3f95e43a4968',
-                    name=_('Gathering'), is_custom=True,
+                    uuid=UUID_SUBTYPE_GATHERING_GATHERING, name=_('Gathering'), is_custom=True,
                 ),
                 ActivitySubType(
-                    uuid='2147569e-7bc4-4b79-8760-844dc568c422',
+                    uuid=UUID_SUBTYPE_GATHERING_TEAM,
                     name=pgettext('activities-gathering', 'Team'), is_custom=True,
                 ),
                 ActivitySubType(
-                    uuid='e4ff08c8-80df-4528-bcc1-4f9d20c6fe61',
+                    uuid=UUID_SUBTYPE_GATHERING_INTERNAL,
                     name=pgettext('activities-gathering', 'Internal'), is_custom=True,
                 ),
                 ActivitySubType(
-                    uuid='1c626935-d47a-4d9b-af4b-b90b8a71fc77',
-                    name=_('On the site'), is_custom=True,
+                    uuid=UUID_SUBTYPE_GATHERING_ON_THE_SITE, name=_('On the site'), is_custom=True,
                 ),
                 ActivitySubType(
-                    uuid='8f003f06-f1ea-456e-90f3-82e8b8ef7424',
-                    name=_('Remote'), is_custom=True,
+                    uuid=UUID_SUBTYPE_GATHERING_REMOTE, name=_('Remote'), is_custom=True,
                 ),
                 ActivitySubType(
-                    uuid='bc001a5c-eb90-4a3c-b703-afe347d3bf34',
-                    name=_('Outside'), is_custom=True,
+                    uuid=UUID_SUBTYPE_GATHERING_OUTSIDE, name=_('Outside'), is_custom=True,
                 ),
             ]
         ], [
@@ -240,12 +259,10 @@ class Populator(BasePopulator):
             ),
             [
                 ActivitySubType(
-                    uuid='b75a663c-af2e-4440-89b3-2a75410cd55b',
-                    name=_('Exhibitor'), is_custom=True,
+                    uuid=UUID_SUBTYPE_SHOW_EXHIBITOR, name=_('Exhibitor'), is_custom=True,
                 ),
                 ActivitySubType(
-                    uuid='591b34b3-4226-48d4-a74d-d94665190b44',
-                    name=_('Visitor'), is_custom=True,
+                    uuid=UUID_SUBTYPE_SHOW_VISITOR, name=_('Visitor'), is_custom=True,
                 ),
             ]
         ], [
@@ -257,20 +274,16 @@ class Populator(BasePopulator):
             ),
             [
                 ActivitySubType(
-                    uuid='c32a94c7-8a2a-4589-8b0d-6764c63fb659',
-                    name=_('Demonstration'), is_custom=True,
+                    uuid=UUID_SUBTYPE_DEMO_DEMO, name=_('Demonstration'), is_custom=True,
                 ),
                 ActivitySubType(
-                    uuid='247902ed-05dd-4ba6-9cbd-ea43b7c996eb',
-                    name=_('On the site'), is_custom=True,
+                    uuid=UUID_SUBTYPE_DEMO_ON_THE_SITE, name=_('On the site'), is_custom=True,
                 ),
                 ActivitySubType(
-                    uuid='e22a2e5d-4349-4d44-bd77-21b1a10816d5',
-                    name=_('Outside'), is_custom=True,
+                    uuid=UUID_SUBTYPE_DEMO_OUTSIDE, name=_('Outside'), is_custom=True,
                 ),
                 ActivitySubType(
-                    uuid='3faf21bf-80b4-4182-b975-8146db2fb68b',
-                    name=_('Videoconference'), is_custom=True,
+                    uuid=UUID_SUBTYPE_DEMO_VIDEOCONF, name=_('Videoconference'), is_custom=True,
                 ),
             ]
         ], [
@@ -286,13 +299,10 @@ class Populator(BasePopulator):
                     name=_('Unavailability'), is_custom=False,
                 ),
                 ActivitySubType(
-                    uuid='d0408f78-77ba-4c49-9fa7-fc1e3455554e',
-                    name=_('Holidays'), is_custom=True,
-
+                    uuid=UUID_SUBTYPE_UNAVAILABILITY_HOLIDAYS, name=_('Holidays'), is_custom=True,
                 ),
                 ActivitySubType(
-                    uuid='09baec7a-b0ba-4c03-8981-84fc066d2970',
-                    name=_('Ill'), is_custom=True,
+                    uuid=UUID_SUBTYPE_UNAVAILABILITY_ILL, name=_('Ill'), is_custom=True,
                 ),
             ]
         ],
@@ -517,7 +527,7 @@ class Populator(BasePopulator):
 
         build_cell = EntityCellRegularField.build
         cbci = CustomBrickConfigItem.objects.create(
-            uuid='3c995e5d-7457-44be-9de8-cba7f7422319',
+            uuid=UUID_CUSTOMBRICK_COMPLEMENTARY,
             name=_('Activity complementary information'),
             content_type=Activity,
             cells=[

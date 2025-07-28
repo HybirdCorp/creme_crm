@@ -48,6 +48,15 @@ from .models import ProjectStatus, TaskStatus
 
 logger = logging.getLogger(__name__)
 
+# UUIDs for instances which can be deleted
+UUID_PSTATUS_INV_TO_TENDER  = 'e0487a58-7c2a-45e9-a6da-f770c2f1bd53'
+UUID_PSTATUS_INITIALIZATION = 'c065000b-51a8-4f73-8585-64893d30770f'
+UUID_PSTATUS_PRELIMINARY    = 'c9e3665d-2747-4ee9-a037-de751ae2a59a'
+UUID_PSTATUS_ACHIEVEMENT    = '680c049d-d01f-4835-aa92-dc1455ee2e9f'
+UUID_PSTATUS_TESTS          = '61d1f8dd-1849-4ec6-9cce-3b73e3f4d9ae'
+UUID_PSTATUS_ACCEPTANCE     = '27d1c818-d7c7-4200-ac6e-744998cfa9b7'
+UUID_PSTATUS_FINISHED       = 'a7d5caf2-c41c-4695-ab07-29300b2d19c1'
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
@@ -65,31 +74,31 @@ class Populator(BasePopulator):
     PROJECT_STATUSES = [
         # is_custom=True => only created during the first execution
         ProjectStatus(
-            uuid='e0487a58-7c2a-45e9-a6da-f770c2f1bd53',
+            uuid=UUID_PSTATUS_INV_TO_TENDER,
             name=_('Invitation to tender'),
             description=_('Response to an invitation to tender'),
             order=1,
         ),
         ProjectStatus(
-            uuid='c065000b-51a8-4f73-8585-64893d30770f',
+            uuid=UUID_PSTATUS_INITIALIZATION,
             name=_('Initialization'),
             description=_('The project is starting'),
             order=2,
         ),
         ProjectStatus(
-            uuid='c9e3665d-2747-4ee9-a037-de751ae2a59a',
+            uuid=UUID_PSTATUS_PRELIMINARY,
             name=_('Preliminary phase'),
             description=_('The project is in the process of analysis and design'),
             order=3,
         ),
         ProjectStatus(
-            uuid='680c049d-d01f-4835-aa92-dc1455ee2e9f',
+            uuid=UUID_PSTATUS_ACHIEVEMENT,
             name=_('Achievement'),
             description=_('The project is being implemented'),
             order=4,
         ),
         ProjectStatus(
-            uuid='61d1f8dd-1849-4ec6-9cce-3b73e3f4d9ae',
+            uuid=UUID_PSTATUS_TESTS,
             name=_('Tests'),
             description=_(
                 'The project is in the testing process (unit / integration / functional)'
@@ -97,13 +106,13 @@ class Populator(BasePopulator):
             order=5,
         ),
         ProjectStatus(
-            uuid='27d1c818-d7c7-4200-ac6e-744998cfa9b7',
+            uuid=UUID_PSTATUS_ACCEPTANCE,
             name=_('User acceptance tests'),
             description=_('The project is in the user acceptance testing process'),
             order=6,
         ),
         ProjectStatus(
-            uuid='a7d5caf2-c41c-4695-ab07-29300b2d19c1',
+            uuid=UUID_PSTATUS_FINISHED,
             name=_('Finished'),
             description=_('The project is finished'),
             order=7,

@@ -71,6 +71,34 @@ from .models import Origin, SalesPhase
 
 logger = logging.getLogger(__name__)
 
+# UUIDs for instances which can be deleted
+UUID_PHASE_FORTHCOMING = '9fc5ff38-b358-4131-b03e-6c1f800bfb08'
+UUID_PHASE_PROGRESS    = '4445c750-bcec-4fcd-afb2-c9e35a3bf38c'
+UUID_PHASE_NEGOTIATION = 'aa59fcec-2dde-46e1-a362-c30c18386c19'
+UUID_PHASE_ABANDONED   = '779931a8-a2ed-47b1-96a1-8694452e9905'
+UUID_PHASE_WON         = 'd8b5429f-89e5-46cc-9e53-5d1a0127f880'
+UUID_PHASE_LOST        = '597d796e-a368-48f0-8dfb-56f16965792b'
+
+UUID_ORIGIN_NONE     = '814e485e-418a-42d5-a6ef-720aaffee7a0'
+UUID_ORIGIN_WEB      = '96f55fa8-df31-4d64-8f7e-c0b5f1ca0bc6'
+UUID_ORIGIN_MOUTH    = '0e914271-b162-4554-afae-837916378220'
+UUID_ORIGIN_SHOW     = '14d5bb2f-5ad7-46ab-a194-59f2bb105b66'
+UUID_ORIGIN_MAIL     = '0f23d337-7a64-4f22-9448-7c0d2df9891b'
+UUID_ORIGIN_PHONE    = 'b4e097b9-05c0-4fc9-8c12-bc62cf106046'
+UUID_ORIGIN_EMPLOYEE = 'c8632a03-4b78-4c00-8e45-7b04bacab2e8'
+UUID_ORIGIN_PARTNER  = '9bb9012f-a4dd-4e4c-8fb8-65c2aaaea789'
+UUID_ORIGIN_OTHER    = '4b0a0229-cd0d-400d-8fb5-29a1479c41fe'
+
+UUID_CBRICK_OPPORTUNITY = '43ac42b1-3b6d-4c9a-8133-942b19679353'
+
+UUID_REPORT_OPPORTUNITIES = '18a8226d-c2f1-4732-a4d5-705bd30c141f'
+
+UUID_RCHART_SALES_PER_PHASE   = 'bab31c4c-368d-4c72-a62b-57350a00f669'
+UUID_RCHART_SALES_PER_QUARTER = '47d9f0db-b96e-48e1-b975-4ffdbe5f4fa4'
+
+UUID_IBRICK_SALES_PER_PHASE   = '0ba26e9c-5525-4ca1-b7e4-aea9828fc876'
+UUID_IBRICK_SALES_PER_QUARTER = 'b3e54a05-f050-4d33-9476-1e8c85aeab08'
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities', 'products', 'billing']
@@ -88,71 +116,35 @@ class Populator(BasePopulator):
     SEARCH = ['name', 'made_sales', 'sales_phase__name', 'origin__name']
     SALES_PHASES = [
         # is_custom=True => only created during the first execution
+        SalesPhase(uuid=UUID_PHASE_FORTHCOMING, order=1, name=_('Forthcoming')),
+        SalesPhase(uuid=UUID_PHASE_PROGRESS,    order=2, name=_('In progress')),
+        SalesPhase(uuid=UUID_PHASE_NEGOTIATION, order=3, name=_('Under negotiation')),
         SalesPhase(
-            uuid='9fc5ff38-b358-4131-b03e-6c1f800bfb08',
-            order=1, name=_('Forthcoming'),
+            uuid=UUID_PHASE_ABANDONED, order=4,
+            name=pgettext('opportunities-sales_phase', 'Abandoned'),
         ),
         SalesPhase(
-            uuid='4445c750-bcec-4fcd-afb2-c9e35a3bf38c',
-            order=2, name=_('In progress'),
-        ),
-        SalesPhase(
-            uuid='aa59fcec-2dde-46e1-a362-c30c18386c19',
-            order=3, name=_('Under negotiation'),
-        ),
-        SalesPhase(
-            uuid='779931a8-a2ed-47b1-96a1-8694452e9905',
-            order=4, name=pgettext('opportunities-sales_phase', 'Abandoned'),
-        ),
-        SalesPhase(
-            uuid='d8b5429f-89e5-46cc-9e53-5d1a0127f880',
-            order=5, name=pgettext('opportunities-sales_phase', 'Won'),
+            uuid=UUID_PHASE_WON, order=5,
+            name=pgettext('opportunities-sales_phase', 'Won'),
             won=True, color='1dd420',
         ),
         SalesPhase(
-            uuid='597d796e-a368-48f0-8dfb-56f16965792b',
-            order=6, name=pgettext('opportunities-sales_phase', 'Lost'),
+            uuid=UUID_PHASE_LOST, order=6,
+            name=pgettext('opportunities-sales_phase', 'Lost'),
             lost=True, color='ae4444',
         ),
     ]
     ORIGINS = [
         # is_custom=True => only created during the first execution
-        Origin(
-            uuid='814e485e-418a-42d5-a6ef-720aaffee7a0',
-            name=pgettext('opportunities-origin', 'None'),
-        ),
-        Origin(
-            uuid='96f55fa8-df31-4d64-8f7e-c0b5f1ca0bc6',
-            name=_('Web site'),
-        ),
-        Origin(
-            uuid='0e914271-b162-4554-afae-837916378220',
-            name=_('Mouth'),
-        ),
-        Origin(
-            uuid='14d5bb2f-5ad7-46ab-a194-59f2bb105b66',
-            name=_('Show'),
-        ),
-        Origin(
-            uuid='0f23d337-7a64-4f22-9448-7c0d2df9891b',
-            name=_('Direct email'),
-        ),
-        Origin(
-            uuid='b4e097b9-05c0-4fc9-8c12-bc62cf106046',
-            name=_('Direct phone call'),
-        ),
-        Origin(
-            uuid='c8632a03-4b78-4c00-8e45-7b04bacab2e8',
-            name=_('Employee'),
-        ),
-        Origin(
-            uuid='9bb9012f-a4dd-4e4c-8fb8-65c2aaaea789',
-            name=_('Partner'),
-        ),
-        Origin(
-            uuid='4b0a0229-cd0d-400d-8fb5-29a1479c41fe',
-            name=pgettext('opportunities-origin', 'Other'),
-        ),
+        Origin(uuid=UUID_ORIGIN_NONE,     name=pgettext('opportunities-origin', 'None')),
+        Origin(uuid=UUID_ORIGIN_WEB,      name=_('Web site')),
+        Origin(uuid=UUID_ORIGIN_MOUTH,    name=_('Mouth')),
+        Origin(uuid=UUID_ORIGIN_SHOW,     name=_('Show')),
+        Origin(uuid=UUID_ORIGIN_MAIL,     name=_('Direct email')),
+        Origin(uuid=UUID_ORIGIN_PHONE,    name=_('Direct phone call')),
+        Origin(uuid=UUID_ORIGIN_EMPLOYEE, name=_('Employee')),
+        Origin(uuid=UUID_ORIGIN_PARTNER,  name=_('Partner')),
+        Origin(uuid=UUID_ORIGIN_OTHER,    name=pgettext('opportunities-origin', 'Other')),
     ]
 
     def __init__(self, *args, **kwargs):
@@ -317,11 +309,11 @@ class Populator(BasePopulator):
             (
                 self.Organisation,
                 _('The target Organisation becomes a prospect'),
-                'b8d03709-4abd-490c-aa9f-8a2414f92b97',
+                constants.UUID_WORKFLOW_TARGET_ORGA_BECOMES_PROSPECT,
             ), (
                 self.Contact,
                 _('The target Contact becomes a prospect'),
-                '04ae1335-6e5d-4856-9be6-9f59846b06d1',
+                constants.UUID_WORKFLOW_TARGET_CONTACT_BECOMES_PROSPECT,
             ),
         ):
             Workflow.objects.get_or_create(
@@ -353,7 +345,7 @@ class Populator(BasePopulator):
 
         # NB: the target of a won Opportunity becomes a customer of the emitter
         Workflow.objects.get_or_create(
-            uuid='06809c48-fbd8-4d99-b79a-4350122f092b',
+            uuid=constants.UUID_WORKFLOW_TARGET_BECOMES_CUSTOMER,
             defaults={
                 'title': _('The target of a won Opportunity becomes a customer'),
                 'content_type': self.Opportunity,
@@ -521,7 +513,7 @@ class Populator(BasePopulator):
         build_cell = EntityCellRegularField.build
         cbci = CustomBrickConfigItem.objects.create(
             # id='opportunities-complementary',
-            uuid='43ac42b1-3b6d-4c9a-8133-942b19679353',
+            uuid=UUID_CBRICK_OPPORTUNITY,
             name=_('Opportunity complementary information'),
             content_type=Opportunity,
             cells=[
@@ -660,7 +652,7 @@ class Populator(BasePopulator):
 
         # Create the report ----------------------------------------------------
         report = reports.get_report_model().objects.create(
-            uuid='18a8226d-c2f1-4732-a4d5-705bd30c141f',
+            uuid=UUID_REPORT_OPPORTUNITIES,
             name=_('Opportunities'),
             user=admin,
             ct=Opportunity,
@@ -702,7 +694,7 @@ class Populator(BasePopulator):
         )
         esales_vname = FieldInfo(Opportunity, 'estimated_sales').verbose_name
         rgraph1 = create_graph(
-            uuid='bab31c4c-368d-4c72-a62b-57350a00f669',
+            uuid=UUID_RCHART_SALES_PER_PHASE,
             name=_('Sum {estimated_sales} / {sales_phase}').format(
                 estimated_sales=esales_vname,
                 sales_phase=FieldInfo(Opportunity, 'sales_phase').verbose_name,
@@ -711,7 +703,7 @@ class Populator(BasePopulator):
             abscissa_cell_value='sales_phase',
         )
         rgraph2 = create_graph(
-            uuid='47d9f0db-b96e-48e1-b975-4ffdbe5f4fa4',
+            uuid=UUID_RCHART_SALES_PER_QUARTER,
             name=_('Sum {estimated_sales} / Quarter (90 days on {closing_date})').format(
                 estimated_sales=esales_vname,
                 closing_date=FieldInfo(Opportunity, 'closing_date').verbose_name,
@@ -723,10 +715,10 @@ class Populator(BasePopulator):
 
         # Create 2 instance block items for the 2 graphs -----------------------
         brick_id1 = SimpleGraphFetcher(rgraph1).create_brick_config_item(
-            uuid='0ba26e9c-5525-4ca1-b7e4-aea9828fc876',
+            uuid=UUID_IBRICK_SALES_PER_PHASE,
         ).brick_id
         brick_id2 = SimpleGraphFetcher(rgraph2).create_brick_config_item(
-            uuid='b3e54a05-f050-4d33-9476-1e8c85aeab08',
+            uuid=UUID_IBRICK_SALES_PER_QUARTER,
         ).brick_id
 
         create_bdl = partial(

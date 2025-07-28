@@ -35,6 +35,7 @@ from ..custom_forms import QUOTE_CREATION_CFORM
 from ..forms.base import BillingSourceSubCell, BillingTargetSubCell
 # SimpleBillingAlgo
 from ..models import Line, NumberGeneratorItem, QuoteStatus, SettlementTerms
+from ..populate import UUID_QUOTE_STATUS_PENDING
 from .base import (
     Address,
     Contact,
@@ -60,7 +61,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         default_status = self.get_alone_element(
             [status for status in statuses if status.is_default]
         )
-        self.assertEqual(1, default_status.pk)
+        # self.assertEqual(1, default_status.pk)
+        self.assertUUIDEqual(UUID_QUOTE_STATUS_PENDING, default_status.uuid)
 
         # New default status => previous default status is updated
         new_status1 = QuoteStatus.objects.create(name='OK', is_default=True)

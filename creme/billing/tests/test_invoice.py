@@ -41,6 +41,8 @@ from ..constants import (
     REL_OBJ_BILL_RECEIVED,
     REL_SUB_BILL_ISSUED,
     REL_SUB_BILL_RECEIVED,
+    UUID_INVOICE_STATUS_DRAFT,
+    UUID_INVOICE_STATUS_TO_BE_SENT,
 )
 from ..models import (
     AdditionalInformation,
@@ -80,7 +82,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         default_status = self.get_alone_element(
             [status for status in statuses if status.is_default]
         )
-        self.assertEqual(1, default_status.pk)
+        # self.assertEqual(1, default_status.pk)
+        self.assertUUIDEqual(UUID_INVOICE_STATUS_DRAFT, default_status.uuid)
 
         # New default status => previous default status is updated
         new_status1 = InvoiceStatus.objects.create(name='OK', is_default=True)
@@ -102,7 +105,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         validated_status = self.get_alone_element(
             [status for status in statuses if status.is_validated]
         )
-        self.assertEqual(2, validated_status.pk)
+        # self.assertEqual(2, validated_status.pk)
+        self.assertUUIDEqual(UUID_INVOICE_STATUS_TO_BE_SENT, validated_status.uuid)
 
         # New validated status => previous validated status is updated
         new_status1 = InvoiceStatus.objects.create(name='OK', is_validated=True)
@@ -154,7 +158,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertEqual(user, invoice.user)
         self.assertEqual(name, invoice.name)
-        self.assertEqual(1,    invoice.status_id)
+        # self.assertEqual(1,    invoice.status_id)
+        self.assertTrue(invoice.status.is_default)
 
         self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED, object=target)
@@ -285,6 +290,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         name = 'Invoice001'
         currency = Currency.objects.all()[0]
         terms = SettlementTerms.objects.all()[0]
+        status = InvoiceStatus.objects.first()
 
         source, target = self.create_orgas(user=user)
 
@@ -294,9 +300,9 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = self.create_invoice(
             user=user, name=name,
             source=source, target=target,
-            currency=currency, payment_type=terms.id,
+            currency=currency, payment_type=terms.id, status=status,
         )
-        self.assertEqual(1,        invoice.status_id)
+        self.assertEqual(status,   invoice.status)
         self.assertEqual(currency, invoice.currency)
         self.assertEqual(terms,    invoice.payment_type)
         self.assertEqual(date(year=2010, month=10, day=13), invoice.expiration_date)
@@ -468,7 +474,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             data={
                 'user':   user.id,
                 'name':  'Invoice001',
-                'status': 1,
+                'status': InvoiceStatus.objects.first().id,
 
                 'issuing_date':    self.formfield_value_date(2011,  9,  7),
                 'expiration_date': self.formfield_value_date(2011, 10, 13),
@@ -548,7 +554,11 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             {self.TARGET_KEY: target},
             form.initial,
         )
-        self.assertEqual(1, status_f.get_bound_field(form, 'status').initial)
+        # self.assertEqual(1, status_f.get_bound_field(form, 'status').initial)
+        self.assertEqual(
+            InvoiceStatus.objects.default().id,
+            status_f.get_bound_field(form, 'status').initial,
+        )
 
         # ---
         name = 'Invoice#1'
@@ -755,6 +765,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         target2.save()
 
         currency = Currency.objects.all()[0]
+        status = InvoiceStatus.objects.exclude(id=invoice.status_id)[0]
         response2 = self.client.post(
             url, follow=True,
             data={
@@ -762,7 +773,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
                 'name':            name,
                 'issuing_date':    self.formfield_value_date(2010,  9,  7),
                 'expiration_date': self.formfield_value_date(2011, 11, 14),
-                'status':          1,
+                'status':          status.id,
                 'currency':        currency.pk,
                 'discount':        Decimal(),
                 # 'discount_unit':   1,
@@ -778,6 +789,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(name, invoice.name)
         self.assertEqual(date(year=2011, month=11, day=14), invoice.expiration_date)
         self.assertIsNone(invoice.payment_info)
+        self.assertEqual(status, invoice.status)
 
         self.assertEqual(source2, invoice.source)
         self.assertEqual(target2, invoice.target)
@@ -971,7 +983,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
                 'name':            'Dreamcast',
                 'issuing_date':    self.formfield_value_date(2010,  9,  7),
                 'expiration_date': self.formfield_value_date(2010, 10, 13),
-                'status':          1,
+                'status':          InvoiceStatus.objects.first().id,
                 'currency':        currency.pk,
                 'discount':        Decimal(),
 
@@ -1290,7 +1302,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             user=user, name='Invoice001',
             source=source, target=target,
             currency=currency,
-            status=InvoiceStatus.objects.filter(is_default=False).first().id,
+            status=InvoiceStatus.objects.filter(is_default=False).first(),
         )
         invoice.additional_info = AdditionalInformation.objects.all()[0]
         invoice.payment_terms = PaymentTerms.objects.all()[0]
@@ -1390,7 +1402,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             user=user, name='Invoice001',
             source=source, target=target,
             currency=currency,
-            status=InvoiceStatus.objects.filter(is_default=False).first().id,
+            status=InvoiceStatus.objects.filter(is_default=False).first(),
         )
         invoice.additional_info = AdditionalInformation.objects.all()[0]
         invoice.payment_terms = PaymentTerms.objects.all()[0]

@@ -52,6 +52,50 @@ from .models import Category, SubCategory
 
 logger = logging.getLogger(__name__)
 
+# UUIDs for instances which can be deleted
+UUID_CATEGORY_JEWELRY     = '3fb0ef3c-45d0-40bd-8e71-b1ab49fca8d3'
+UUID_CATEGORY_MOBILE      = '74c91fab-d671-4054-984f-ba395d7dffcb'
+UUID_CATEGORY_ELECTRONICS = '69084c8f-068c-41e3-80e3-42ed312e9815'
+UUID_CATEGORY_TRAVELS     = '213e14fa-bda1-4850-a22d-d3e6bb832a98'
+UUID_CATEGORY_VEHICLE     = '684f4e8a-aad8-4eb5-980c-fbb8fc28776e'
+UUID_CATEGORY_GAMES       = '8ef405ac-9109-4ea6-94eb-f068b33c617d'
+UUID_CATEGORY_CLOTHES     = '14474aee-9ba7-4a0e-816e-e19bab639af9'
+
+UUID_SUBCAT_JEWELRY_RING     = '2d6555fe-4c25-4098-8128-25395cf2c10b'
+UUID_SUBCAT_JEWELRY_BRACELET = 'c160d58f-6878-4dd6-87d6-ee05db310f3a'
+UUID_SUBCAT_JEWELRY_NECKLACE = '83b79894-122e-4212-bf18-929573f57c74'
+UUID_SUBCAT_JEWELRY_EARRINGS = '6514cb2a-ee59-4abf-bdef-92488fac3a42'
+
+UUID_SUBCAT_MOBILE_IPHONE     = '2abfa34f-d30f-4629-9a45-8cd63ce0a362'
+UUID_SUBCAT_MOBILE_BLACKBERRY = '4c55bae2-44d3-44ca-aade-e8433339f2aa'
+UUID_SUBCAT_MOBILE_SAMSUNG    = '5fc12768-bc62-4412-a9d4-91aa9967bfac'
+UUID_SUBCAT_MOBILE_ANDROID    = '62e549a1-f132-4c82-a836-e8d94ee8b29b'
+
+UUID_SUBCAT_ELECTRONICS_LAPTOPS  = '25f7c8db-a0d1-42af-a342-97727a2229fd'
+UUID_SUBCAT_ELECTRONICS_DESKTOPS = '6e3c21d1-f81e-492c-b2ce-da1fbc46727f'
+UUID_SUBCAT_ELECTRONICS_TABLET   = '13463841-90df-4036-b830-62ad75668213'
+UUID_SUBCAT_ELECTRONICS_NOTEBOOK = '3a14d682-77b5-43b7-9b9c-8db9bcd44b0d'
+
+UUID_SUBCAT_TRAVELS_FLY     = '79c7d28f-eed2-4565-9815-1d1887f3ccaf'
+UUID_SUBCAT_TRAVELS_HOTEL   = '9812ff36-b3f3-4670-8d4a-b8e9c916bf0d'
+UUID_SUBCAT_TRAVELS_WEEKEND = '15e6f072-bd3e-4591-9963-be2af1888520'
+UUID_SUBCAT_TRAVELS_RENT    = 'abaca40b-51c9-49c1-95c4-ba93e51bdc40'
+
+UUID_SUBCAT_VEHICLE_CAR   = '7c3492c1-7621-456f-a849-1fc6af829435'
+UUID_SUBCAT_VEHICLE_BIKE  = '1f5664c6-2a88-42d0-a554-e271dbe7fd84'
+UUID_SUBCAT_VEHICLE_BOAT  = '669d7604-0d71-48b1-aa4e-6ca52f8923f8'
+UUID_SUBCAT_VEHICLE_PLANE = '886757aa-e019-4683-b83b-942ca9798e0b'
+
+UUID_SUBCAT_GAMES_BOYS   = 'f5f5efc4-b03e-47b9-b485-f85dfb1a2630'
+UUID_SUBCAT_GAMES_GIRLS  = '39d811f7-707b-4419-8750-b15179d5b3eb'
+UUID_SUBCAT_GAMES_TEENS  = 'd92fd9d0-a8cd-4d6e-9d8c-24037a2121fe'
+UUID_SUBCAT_GAMES_BABIES = 'dc8d1368-55d7-4abc-80c2-28ba1d3d1d3b'
+
+UUID_SUBCAT_CLOTHES_MEN    = '01109ac2-e539-45fd-a2a8-b3fff7992933'
+UUID_SUBCAT_CLOTHES_WOMEN  = 'eaf8bc61-e1a1-4181-a679-84c606037922'
+UUID_SUBCAT_CLOTHES_KIDS   = 'ecf095f8-f3a7-4271-921c-81b1dff714a6'
+UUID_SUBCAT_CLOTHES_BABIES = 'ba170185-892e-400a-b212-1810fc86f204'
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'documents']
@@ -79,60 +123,60 @@ class Populator(BasePopulator):
     ]
     CATEGORIES = [
         [
-            Category(uuid='3fb0ef3c-45d0-40bd-8e71-b1ab49fca8d3', name=_('Jewelry')),
+            Category(uuid=UUID_CATEGORY_JEWELRY, name=_('Jewelry')),
             [
-                SubCategory(uuid='2d6555fe-4c25-4098-8128-25395cf2c10b', name=_('Ring')),
-                SubCategory(uuid='c160d58f-6878-4dd6-87d6-ee05db310f3a', name=_('Bracelet')),
-                SubCategory(uuid='83b79894-122e-4212-bf18-929573f57c74', name=_('Necklace')),
-                SubCategory(uuid='6514cb2a-ee59-4abf-bdef-92488fac3a42', name=_('Earrings')),
+                SubCategory(uuid=UUID_SUBCAT_JEWELRY_RING,     name=_('Ring')),
+                SubCategory(uuid=UUID_SUBCAT_JEWELRY_BRACELET, name=_('Bracelet')),
+                SubCategory(uuid=UUID_SUBCAT_JEWELRY_NECKLACE, name=_('Necklace')),
+                SubCategory(uuid=UUID_SUBCAT_JEWELRY_EARRINGS, name=_('Earrings')),
             ]
         ], [
-            Category(uuid='74c91fab-d671-4054-984f-ba395d7dffcb', name=_('Mobile')),
+            Category(uuid=UUID_CATEGORY_MOBILE, name=_('Mobile')),
             [
-                SubCategory(uuid='2abfa34f-d30f-4629-9a45-8cd63ce0a362', name=_('Iphone')),
-                SubCategory(uuid='4c55bae2-44d3-44ca-aade-e8433339f2aa', name=_('Blackberry')),
-                SubCategory(uuid='5fc12768-bc62-4412-a9d4-91aa9967bfac', name=_('Samsung')),
-                SubCategory(uuid='62e549a1-f132-4c82-a836-e8d94ee8b29b', name=_('Android')),
+                SubCategory(uuid=UUID_SUBCAT_MOBILE_IPHONE,     name=_('Iphone')),
+                SubCategory(uuid=UUID_SUBCAT_MOBILE_BLACKBERRY, name=_('Blackberry')),
+                SubCategory(uuid=UUID_SUBCAT_MOBILE_SAMSUNG,    name=_('Samsung')),
+                SubCategory(uuid=UUID_SUBCAT_MOBILE_ANDROID,    name=_('Android')),
             ]
         ], [
-            Category(uuid='69084c8f-068c-41e3-80e3-42ed312e9815', name=_('Electronics')),
+            Category(uuid=UUID_CATEGORY_ELECTRONICS, name=_('Electronics')),
             [
-                SubCategory(uuid='25f7c8db-a0d1-42af-a342-97727a2229fd', name=_('Laptops')),
-                SubCategory(uuid='6e3c21d1-f81e-492c-b2ce-da1fbc46727f', name=_('Desktops')),
-                SubCategory(uuid='13463841-90df-4036-b830-62ad75668213', name=_('Tablet')),
-                SubCategory(uuid='3a14d682-77b5-43b7-9b9c-8db9bcd44b0d', name=_('Notebook')),
+                SubCategory(uuid=UUID_SUBCAT_ELECTRONICS_LAPTOPS,  name=_('Laptops')),
+                SubCategory(uuid=UUID_SUBCAT_ELECTRONICS_DESKTOPS, name=_('Desktops')),
+                SubCategory(uuid=UUID_SUBCAT_ELECTRONICS_TABLET,   name=_('Tablet')),
+                SubCategory(uuid=UUID_SUBCAT_ELECTRONICS_NOTEBOOK, name=_('Notebook')),
             ]
         ], [
-            Category(uuid='213e14fa-bda1-4850-a22d-d3e6bb832a98', name=_('Travels')),
+            Category(uuid=UUID_CATEGORY_TRAVELS, name=_('Travels')),
             [
-                SubCategory(uuid='79c7d28f-eed2-4565-9815-1d1887f3ccaf', name=_('Fly')),
-                SubCategory(uuid='9812ff36-b3f3-4670-8d4a-b8e9c916bf0d', name=_('Hotel')),
-                SubCategory(uuid='15e6f072-bd3e-4591-9963-be2af1888520', name=_('Weekend')),
-                SubCategory(uuid='abaca40b-51c9-49c1-95c4-ba93e51bdc40', name=_('Rent')),
+                SubCategory(uuid=UUID_SUBCAT_TRAVELS_FLY,     name=_('Fly')),
+                SubCategory(uuid=UUID_SUBCAT_TRAVELS_HOTEL,   name=_('Hotel')),
+                SubCategory(uuid=UUID_SUBCAT_TRAVELS_WEEKEND, name=_('Weekend')),
+                SubCategory(uuid=UUID_SUBCAT_TRAVELS_RENT,    name=_('Rent')),
             ]
         ], [
-            Category(uuid='684f4e8a-aad8-4eb5-980c-fbb8fc28776e', name=_('Vehicle')),
+            Category(uuid=UUID_CATEGORY_VEHICLE, name=_('Vehicle')),
             [
-                SubCategory(uuid='7c3492c1-7621-456f-a849-1fc6af829435', name=_('Car')),
-                SubCategory(uuid='1f5664c6-2a88-42d0-a554-e271dbe7fd84', name=_('Bike')),
-                SubCategory(uuid='669d7604-0d71-48b1-aa4e-6ca52f8923f8', name=_('Boat')),
-                SubCategory(uuid='886757aa-e019-4683-b83b-942ca9798e0b', name=_('Plane')),
+                SubCategory(uuid=UUID_SUBCAT_VEHICLE_CAR,   name=_('Car')),
+                SubCategory(uuid=UUID_SUBCAT_VEHICLE_BIKE,  name=_('Bike')),
+                SubCategory(uuid=UUID_SUBCAT_VEHICLE_BOAT,  name=_('Boat')),
+                SubCategory(uuid=UUID_SUBCAT_VEHICLE_PLANE, name=_('Plane')),
             ]
         ], [
-            Category(uuid='8ef405ac-9109-4ea6-94eb-f068b33c617d', name=_('Games & Toys')),
+            Category(uuid=UUID_CATEGORY_GAMES, name=_('Games & Toys')),
             [
-                SubCategory(uuid='f5f5efc4-b03e-47b9-b485-f85dfb1a2630', name=_('Boys')),
-                SubCategory(uuid='39d811f7-707b-4419-8750-b15179d5b3eb', name=_('Girls')),
-                SubCategory(uuid='d92fd9d0-a8cd-4d6e-9d8c-24037a2121fe', name=_('Teens')),
-                SubCategory(uuid='dc8d1368-55d7-4abc-80c2-28ba1d3d1d3b', name=_('Babies')),
+                SubCategory(uuid=UUID_SUBCAT_GAMES_BOYS,   name=_('Boys')),
+                SubCategory(uuid=UUID_SUBCAT_GAMES_GIRLS,  name=_('Girls')),
+                SubCategory(uuid=UUID_SUBCAT_GAMES_TEENS,  name=_('Teens')),
+                SubCategory(uuid=UUID_SUBCAT_GAMES_BABIES, name=_('Babies')),
             ]
         ], [
-            Category(uuid='14474aee-9ba7-4a0e-816e-e19bab639af9', name=_('Clothes')),
+            Category(uuid=UUID_CATEGORY_CLOTHES, name=_('Clothes')),
             [
-                SubCategory(uuid='01109ac2-e539-45fd-a2a8-b3fff7992933', name=_('Men')),
-                SubCategory(uuid='eaf8bc61-e1a1-4181-a679-84c606037922', name=_('Women')),
-                SubCategory(uuid='ecf095f8-f3a7-4271-921c-81b1dff714a6', name=_('Kids')),
-                SubCategory(uuid='ba170185-892e-400a-b212-1810fc86f204', name=_('Babies')),
+                SubCategory(uuid=UUID_SUBCAT_CLOTHES_MEN,    name=_('Men')),
+                SubCategory(uuid=UUID_SUBCAT_CLOTHES_WOMEN,  name=_('Women')),
+                SubCategory(uuid=UUID_SUBCAT_CLOTHES_KIDS,   name=_('Kids')),
+                SubCategory(uuid=UUID_SUBCAT_CLOTHES_BABIES, name=_('Babies')),
             ]
         ],
     ]

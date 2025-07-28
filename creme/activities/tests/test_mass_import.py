@@ -8,6 +8,7 @@ from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 from creme.documents import get_document_model
 from creme.documents.tests.base import skipIfCustomDocument
 from creme.persons.models import Civility
+from creme.persons.populate import UUID_CIVILITY_MISS, UUID_CIVILITY_MR
 from creme.persons.tests.base import (
     skipIfCustomContact,
     skipIfCustomOrganisation,
@@ -480,7 +481,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         "Another cell splitting type: pattern '$civility $first_name $last_name'."
         user = self.login_as_root_and_get()
 
-        miss = self.get_object_or_fail(Civility, pk=2)
+        miss = self.get_object_or_fail(Civility, uuid=UUID_CIVILITY_MISS)
         aoi = Contact.objects.create(
             user=user, first_name='Aoi', last_name='Kunieda', civility=miss,
         )
@@ -1244,7 +1245,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertIsNone(ittosai.civility)
 
         # Civility retrieved by title
-        mister = self.get_object_or_fail(Civility, pk=3)
+        mister = self.get_object_or_fail(Civility, uuid=UUID_CIVILITY_MR)
         first_name = 'Tatsumi'
         last_name = 'Oga'
         contacts, err_msg = ext.extract_value([f'{mister.title} {first_name} {last_name}'], user)
