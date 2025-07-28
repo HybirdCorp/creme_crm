@@ -36,9 +36,13 @@ from creme.creme_core.models import (
     FakeCivility,
     FakeContact,
     FakeDocument,
+    FakeEmailCampaign,
     FakeFolder,
+    FakeImage,
+    FakeMailingList,
     FakePosition,
     FieldsConfig,
+    Language,
     Relation,
     RelationType,
 )
@@ -260,7 +264,7 @@ class EntityCellRegistryTestCase(CremeTestCase):
         self.assertEqual('get_pretty_properties', cell.value)
 
 
-# @override_settings(CELL_SIZE=50)  TODO: when rendering M2M
+@override_settings(CELL_SIZE=50, HIDDEN_VALUE='Nope!')
 class EntityCellRegularFieldTestCase(CremeTestCase):
     def test_main(self):
         self.assertEqual(_('Fields'), EntityCellRegularField.verbose_name)
@@ -283,6 +287,18 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
         self.assertDictEqual(dict_cell, cell.to_dict(portable=False))
         self.assertDictEqual(dict_cell, cell.to_dict(portable=True))
 
+        # Render ---
+        user = self.get_root_user()
+        yoko = FakeContact(user=user, first_name='Yoko', last_name='Littner')
+        self.assertEqual(
+            yoko.first_name,
+            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+        )
+        self.assertEqual(
+            yoko.first_name,
+            cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
+        )
+
     def test_date_field(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='birthday')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,     cell.listview_css_class)
@@ -291,7 +307,7 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
         # Render ---
         birthday = date(year=2058, month=3, day=26)
         user = self.get_root_user()
-        yoko = FakeContact.objects.create(
+        yoko = FakeContact(
             user=user, first_name='Yoko', last_name='Littner', birthday=birthday,
         )
 
@@ -325,13 +341,68 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='is_a_nerd')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
 
+        # Render ---
+        user = self.get_root_user()
+        yoko = FakeContact.objects.create(
+            user=user, first_name='Yoko', last_name='Littner', is_a_nerd=True,
+        )
+        self.assertHTMLEqual(
+            '<input type="checkbox" checked disabled/>' + _('Yes'),
+            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+        )
+
+        yoko.is_a_nerd = False
+        self.assertHTMLEqual(
+            '<input type="checkbox" disabled/>' + _('No'),
+            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+        )
+
     def test_fk(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='position')
         self.assertEqual('regular_field-position', cell.key)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
 
+        # Render ---
+        user = self.get_root_user()
+        position = FakePosition.objects.create(title='Sniper')
+        yoko = FakeContact(
+            user=user, first_name='Yoko', last_name='Littner', position=position,
+        )
+        self.assertHTMLEqual(
+            position.title,
+            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+        )
+        self.assertHTMLEqual(
+            position.title,
+            cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
+        )
+
+    def test_fk__entity(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='image')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
+
+        # Render (allowed) ---
+        role = self.create_role(allowed_apps=['creme_core'])
+        self.add_credentials(role=role, own=['VIEW'])
+        user = self.create_user(role=role)
+
+        img1 = FakeImage.objects.create(user=user, name='Mugshot')
+        self.assertTrue(user.has_perm_to_view(img1))
+        yoko = FakeContact(
+            user=user, first_name='Yoko', last_name='Littner', image=img1,
+        )
+        self.assertHTMLEqual(
+            f'<a href="{img1.get_absolute_url()}" target="_self">{img1.name}</a>',
+            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+        )
+
+        # Render (forbidden) ---
+        img2 = FakeImage.objects.create(user=self.get_root_user(), name='Mugshot #2')
+        self.assertFalse(user.has_perm_to_view(img2))
+        yoko.image = img2
+        self.assertHTMLEqual(
+            'Nope!', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+        )
 
     def test_fk_subfield(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='position__title')
@@ -354,8 +425,64 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='languages')
         self.assertTrue(cell.is_multiline)
 
+        # Render ---
+        user = self.get_root_user()
+        l1, l2 = Language.objects.all()[:2]
+        yoko = FakeContact.objects.create(
+            user=user, first_name='Yoko', last_name='Littner',
+        )
+        yoko.languages.set([l1, l2])
+
+        self.assertEqual(
+            f'{l1.name}/{l2.name}',
+            cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
+        )
+        self.assertEqual(
+            f'<ul class="limited-list"><li>{l1.name}</li><li>{l2.name}</li></ul>',
+            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+        )
+
+    def test_m2m__entity(self):
+        cell = EntityCellRegularField.build(model=FakeEmailCampaign, name='mailing_lists')
+        self.assertTrue(cell.is_multiline)
+
+        # Render ---
+        user = self.get_root_user()
+        create_ml = partial(FakeMailingList.objects.create, user=user)
+        ml1 = create_ml(name='ML #1')
+        ml2 = create_ml(name='ML #2')
+
+        camp = FakeEmailCampaign.objects.create(user=user, name='Summer discount')
+        camp.mailing_lists.set([ml1, ml2])
+
+        self.assertHTMLEqual(
+            f'<ul class="limited-list">'
+            f' <li><a href="{ml1.get_absolute_url()}" target="_blank">{ml1.name}</li>'
+            f' <li><a href="{ml2.get_absolute_url()}" target="_blank">{ml2.name}</li>'
+            f'</ul>',
+            cell.render(entity=camp, user=user, tag=ViewTag.HTML_DETAIL),
+        )
+
+    def test_m2m_subfield(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='languages__name')
         self.assertTrue(cell.is_multiline)
+
+        # Render ---
+        user = self.get_root_user()
+        l1, l2 = Language.objects.all()[:2]
+        yoko = FakeContact.objects.create(
+            user=user, first_name='Yoko', last_name='Littner',
+        )
+        yoko.languages.set([l1, l2])
+
+        self.assertEqual(
+            f'{l1.name}/{l2.name}',
+            cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
+        )
+        self.assertEqual(
+            f'<ul class="limited-list"><li>{l1.name}</li><li>{l2.name}</li></ul>',
+            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+        )
 
     def test_hidden_field(self):
         hidden = 'first_name'
