@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-24 13:52+0200\n"
+"POT-Creation-Date: 2025-07-28 16:00+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -59,12 +59,15 @@ msgstr "Formulaire pour le rôle «{role}»"
 msgid "Default form"
 msgstr "Formulaire par défaut"
 
+# Already in core
 msgid "Workflows"
-msgstr "Workflows"
+msgstr ""
 
+# Already in core
 msgid "Users"
 msgstr "Utilisateurs"
 
+# Already in core
 msgid "Teams"
 msgstr "Équipes"
 
@@ -968,7 +971,7 @@ msgid "Trigger"
 msgstr "Déclenchement"
 
 msgid "Which kind of event will trigger the Workflow?"
-msgstr "Quel type d'évènement va déclencher le Workflow ?"
+msgstr "Quel type d'évènement va déclencher le Processus ?"
 
 #, python-brace-format
 msgid "Conditions on «{source}»"
@@ -2100,7 +2103,7 @@ msgstr "Types de ressource configurés"
 
 #, python-format
 msgid "Create a Workflow for «%(ctype)s»"
-msgstr "Créer un Workflow pour «%(ctype)s»"
+msgstr "Créer un Processus pour «%(ctype)s»"
 
 msgid "Rename"
 msgstr "Renommer"
@@ -2127,10 +2130,10 @@ msgid "Delete this action"
 msgstr "Supprimer cette action"
 
 msgid "No Workflow for this type of resource"
-msgstr "Pas de Workflow pour ce type de ressource"
+msgstr "Pas de Processus automatisé pour ce type de ressource"
 
 msgid "No Workflow for the moment"
-msgstr "Aucun Workflow pour le moment"
+msgstr "Aucun Processus automatisé pour le moment"
 
 msgid "Key"
 msgstr "Clé"
@@ -2279,7 +2282,7 @@ msgid "Customise the forms (which fields, their order…) of entities"
 msgstr "Personnaliser les formulaires (quels champs, leur ordre…) des fiches"
 
 msgid "Workflow rules settings"
-msgstr "Gestion des règles de Workflow"
+msgstr "Gestion des règles de Processus automatisé"
 
 msgid "Define automatic actions (adding properties, sending emails…)"
 msgstr ""
@@ -2531,10 +2534,10 @@ msgid "Configuration of users"
 msgstr "Configuration des utilisateurs"
 
 msgid "Configuration of the Workflow engine"
-msgstr "Configuration du moteur de Workflow"
+msgstr "Configuration du moteur de Processus"
 
 msgid "Workflow rules"
-msgstr "Règles de Workflow"
+msgstr "Règles de Processus automatisé"
 
 msgid ""
 "You can define how and when some automatic actions (like relationship adding "
@@ -2545,9 +2548,9 @@ msgstr ""
 "Vous pouvez définir comment et quand des actions automatiques (comme l'ajout "
 "de relation ou l'envoi d'e-mail) sont effectuées, afin d'éviter du travail "
 "manuel.\n"
-"Notez que les Workflows qui <strong>viennent d'être créés sont désactivés</"
-"strong> ; vous pouvez donc ajouter autant d'actions que vous voulez avant de "
-"les activer."
+"Notez que les Processus automatisés qui <strong>viennent d'être créés sont "
+"désactivés</strong> ; vous pouvez donc ajouter autant d'actions que vous "
+"voulez avant de les activer."
 
 msgid "Configuration of the instance"
 msgstr "Configuration de l'instance"
@@ -2762,7 +2765,7 @@ msgid ""
 "Workflow: {workflows}"
 msgstr ""
 "Le champ personnalisé ne peut pas être supprimé car il est utilisé par des "
-"conditions de Workflow : {workflows}"
+"conditions de Processus automatisé : {workflows}"
 
 #, python-brace-format
 msgid ""
@@ -2918,7 +2921,7 @@ msgid ""
 "Workflow: {workflows}"
 msgstr ""
 "Le type de relation ne peut pas être supprimé car il est utilisé par des "
-"déclenchements de Workflow : {workflows}"
+"déclenchements de Processus automatisé : {workflows}"
 
 #, python-brace-format
 msgid ""
@@ -2998,14 +3001,14 @@ msgstr "Vous n'avez pas la permission de modifier votre nom affiché"
 
 #, python-brace-format
 msgid "Create a Workflow for «{model}»"
-msgstr "Créer un Workflow pour «{model}»"
+msgstr "Créer un Processus automatisé pour «{model}»"
 
 #, python-brace-format
 msgid "Rename «{object}»"
 msgstr "Renommer «{object}»"
 
 msgid "This Workflow cannot be deleted"
-msgstr "Ce Workflow ne peut pas être supprimé"
+msgstr "Ce Processus automatisé ne peut pas être supprimé"
 
 #. Translators: 'object' is a Workflow
 #, python-brace-format
@@ -3013,7 +3016,7 @@ msgid "Add an action to «{object}»"
 msgstr "Ajouter une action à «{object}»"
 
 msgid "This Workflow cannot be edited"
-msgstr "Ce Workflow ne peut pas être modifié"
+msgstr "Ce Processus automatisé ne peut pas être modifié"
 
 #. Translators: 'object' is a Workflow
 #, python-brace-format

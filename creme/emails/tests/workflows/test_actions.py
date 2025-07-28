@@ -264,7 +264,7 @@ class EmailSendingActionTestCase(_EmailsTestCase):
 
         e_email = EntityEmail.objects.order_by('-id')[0]
         self.assertEqual(user2, e_email.user)
-        self.assertEqual(_('Created by a workflow'), e_email.description)
+        self.assertEqual(_('Created by a Workflow'), e_email.description)
         self.assertEqual(test_sender,   e_email.sender)
         self.assertEqual(contact.email, e_email.recipient)
         self.assertEqual(subject,       e_email.subject)
@@ -556,7 +556,7 @@ class TemplateSendingActionTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
 
         e_email = EntityEmail.objects.order_by('-id')[0]
         self.assertEqual(user2, e_email.user)
-        self.assertEqual(_('Created by a workflow'), e_email.description)
+        self.assertEqual(_('Created by a Workflow'), e_email.description)
         self.assertEqual(test_sender,      e_email.sender)
         self.assertEqual(contact.email,    e_email.recipient)
         self.assertEqual(template.subject, e_email.subject)
