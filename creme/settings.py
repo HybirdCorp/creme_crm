@@ -480,6 +480,7 @@ POPULATORS = {
 # It's useless to add uppercase versions, code is not case-sensitive.
 ALLOWED_IMAGES_EXTENSIONS = [
     'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'tif', 'tiff', 'svg', 'webp',
+    'heif', 'heic',
 ]
 ALLOWED_EXTENSIONS = [
     # Plain text

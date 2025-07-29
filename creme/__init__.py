@@ -1,5 +1,9 @@
 __version__ = '2.7-beta1'
 
+from pillow_heif import register_heif_opener
+
+register_heif_opener()
+
 
 def get_version():
     return __version__
