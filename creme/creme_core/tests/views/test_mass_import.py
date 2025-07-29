@@ -384,9 +384,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         lines_count = len(lines) - 1  # '-1' for header
         self.assertEqual(contact_count + lines_count, FakeContact.objects.count())
 
-        self.assertFalse(FakePosition.objects.exclude(id__in=sector_ids).exists())
+        self.assertFalse(FakePosition.objects.exclude(id__in=position_ids).exists())
 
-        sector = self.get_alone_element(FakeSector.objects.exclude(id__in=position_ids))
+        sector = self.get_alone_element(FakeSector.objects.exclude(id__in=sector_ids))
         self.assertEqual(sctr_title, sector.title)
 
         created_contacts = {}
