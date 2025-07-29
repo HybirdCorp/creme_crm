@@ -77,7 +77,9 @@ def date_to_ISO8601(d: date) -> str:
     """Converts a <datetime.date> instance to a string, using the ISO 8601 format
     (only the date part of the format).
     """
-    return d.strftime('%4Y-%m-%d')
+    # See comment in dt_to_ISO8601()
+    # return d.strftime('%4Y-%m-%d')
+    return d.strftime(f'{d.year:04d}-%m-%d')
 
 
 def dt_from_str(dt_str: str) -> datetime | None:
