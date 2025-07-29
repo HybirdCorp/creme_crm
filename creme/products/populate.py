@@ -86,13 +86,14 @@ UUID_SUBCAT_VEHICLE_BIKE  = '1f5664c6-2a88-42d0-a554-e271dbe7fd84'
 UUID_SUBCAT_VEHICLE_BOAT  = '669d7604-0d71-48b1-aa4e-6ca52f8923f8'
 UUID_SUBCAT_VEHICLE_PLANE = '886757aa-e019-4683-b83b-942ca9798e0b'
 
-UUID_SUBCAT_GAMES_BOYS   = 'f5f5efc4-b03e-47b9-b485-f85dfb1a2630'
-UUID_SUBCAT_GAMES_GIRLS  = '39d811f7-707b-4419-8750-b15179d5b3eb'
-UUID_SUBCAT_GAMES_TEENS  = 'd92fd9d0-a8cd-4d6e-9d8c-24037a2121fe'
+UUID_SUBCAT_GAMES_CARS   = '0b846e9f-6523-4a08-b7c1-a9017378df1d'
+UUID_SUBCAT_GAMES_DOLLS  = 'd97d1e98-d29a-4e45-9285-e03d6f460271'
+UUID_SUBCAT_GAMES_PUZZLE = '6df6be5e-d275-4c4a-9bda-f9e527b7db70'
 UUID_SUBCAT_GAMES_BABIES = 'dc8d1368-55d7-4abc-80c2-28ba1d3d1d3b'
 
 UUID_SUBCAT_CLOTHES_MEN    = '01109ac2-e539-45fd-a2a8-b3fff7992933'
 UUID_SUBCAT_CLOTHES_WOMEN  = 'eaf8bc61-e1a1-4181-a679-84c606037922'
+UUID_SUBCAT_CLOTHES_UNISEX = '9c9e97bd-3fc4-4d6a-bf61-1e750d03154a'
 UUID_SUBCAT_CLOTHES_KIDS   = 'ecf095f8-f3a7-4271-921c-81b1dff714a6'
 UUID_SUBCAT_CLOTHES_BABIES = 'ba170185-892e-400a-b212-1810fc86f204'
 
@@ -165,9 +166,9 @@ class Populator(BasePopulator):
         ], [
             Category(uuid=UUID_CATEGORY_GAMES, name=_('Games & Toys')),
             [
-                SubCategory(uuid=UUID_SUBCAT_GAMES_BOYS,   name=_('Boys')),
-                SubCategory(uuid=UUID_SUBCAT_GAMES_GIRLS,  name=_('Girls')),
-                SubCategory(uuid=UUID_SUBCAT_GAMES_TEENS,  name=_('Teens')),
+                SubCategory(uuid=UUID_SUBCAT_GAMES_CARS,   name=_('Cars')),
+                SubCategory(uuid=UUID_SUBCAT_GAMES_DOLLS,  name=_('Dolls')),
+                SubCategory(uuid=UUID_SUBCAT_GAMES_PUZZLE, name=_('Puzzle')),
                 SubCategory(uuid=UUID_SUBCAT_GAMES_BABIES, name=_('Babies')),
             ]
         ], [
@@ -175,6 +176,7 @@ class Populator(BasePopulator):
             [
                 SubCategory(uuid=UUID_SUBCAT_CLOTHES_MEN,    name=_('Men')),
                 SubCategory(uuid=UUID_SUBCAT_CLOTHES_WOMEN,  name=_('Women')),
+                SubCategory(uuid=UUID_SUBCAT_CLOTHES_UNISEX, name=_('Unisex')),
                 SubCategory(uuid=UUID_SUBCAT_CLOTHES_KIDS,   name=_('Kids')),
                 SubCategory(uuid=UUID_SUBCAT_CLOTHES_BABIES, name=_('Babies')),
             ]
