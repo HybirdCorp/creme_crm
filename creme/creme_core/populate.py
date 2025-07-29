@@ -241,7 +241,7 @@ class Populator(BasePopulator):
         login = constants.ROOT_USERNAME
         password = constants.ROOT_PASSWORD
         self.root = get_user_model().objects.create_superuser(
-            pk=1,  # TODO: remove?
+            # pk=1,
             uuid=UUID_USER_ROOT,
             username=login, password=password,
             first_name='Fulbert', last_name='Creme',
