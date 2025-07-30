@@ -133,6 +133,9 @@
             - The app permissions are now used by the bricks & function-fields;
               users which cannot access this app cannot view their content anymore
               (so you may have to update some roles).
+            - You cannot create Alert with a dynamic trigger date related to the field
+              "Last modification" ('modified' in the code) anymore.
+              The existing Alerts are migrated to static trigger dates.
         * Crudity :
             - BEWARE: the date format corresponds now to your server's language (i.e. 'settings.LANGUAGE_CODE').
 

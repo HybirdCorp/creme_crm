@@ -2,7 +2,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 from functools import partial
 
-from django.apps import apps
+# from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
@@ -346,9 +346,9 @@ about this fantastic animation studio."""
         #   - INSERT HistoryLine
         #   - SELECT HistoryConfigItem
         expected_queries = 5
-        if apps.is_installed('creme.assistants'):
-            # - SELECT Alert (needs Assistants app, for signals._update_alert_trigger_date())
-            expected_queries += 1
+        # if apps.is_installed('creme.assistants'):
+        #     # - SELECT Alert (needs Assistants app, for signals._update_alert_trigger_date())
+        #     expected_queries += 1
 
         with self.assertNumQueries(expected_queries):
             hayao.save()
