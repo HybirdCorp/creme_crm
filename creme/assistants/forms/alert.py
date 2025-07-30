@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -161,13 +161,14 @@ class ModelRelativeDatePeriodField(fields.MultiValueField):
     def __init__(self, *,
                  model=CremeEntity,
                  non_hiddable_cell=None,
+                 modelfield_filters=(),
                  period_registry=date_period.date_period_registry,
                  period_names=None,
                  **kwargs):
         RelativeDatePeriodField = core_fields.RelativeDatePeriodField
         super().__init__(
             (
-                fields.ChoiceField(),
+                fields.ChoiceField(),  # DateFields of the related entity
                 RelativeDatePeriodField(period_registry=period_registry),
             ),
             **kwargs
@@ -177,6 +178,12 @@ class ModelRelativeDatePeriodField(fields.MultiValueField):
         self.relative_choices = RelativeDatePeriodField.RelativeDatePeriod.choices()
         self.model = model
         self.non_hiddable_cell = non_hiddable_cell
+        self.modelfield_filters = modelfield_filters
+
+    def _accept_model_field(self, mfield):
+        return is_date_field(mfield) and all(
+            mfield_filter(mfield) for mfield_filter in self.modelfield_filters
+        )
 
     def _get_field_options(self):
         model = self._model
@@ -188,7 +195,7 @@ class ModelRelativeDatePeriodField(fields.MultiValueField):
         )
 
         for field in model._meta.fields:
-            if is_date_field(field) and (
+            if self._accept_model_field(field) and (
                 not is_field_hidden(field) or field.name == non_hiddable_fname
             ):
                 yield field.name, field.verbose_name
@@ -200,10 +207,15 @@ class ModelRelativeDatePeriodField(fields.MultiValueField):
     @model.setter
     def model(self, model):
         self._model = model
+        self.widget.field_choices = self.fields[0].choices = self._get_field_options
 
-        date_fields_f = self.fields[0]
-        date_fields_f.choices = self._get_field_options
-        self.widget.field_choices = date_fields_f.choices
+    @property
+    def modelfield_filters(self):
+        yield from self._modelfield_filters
+
+    @modelfield_filters.setter
+    def modelfield_filters(self, filters):
+        self._modelfield_filters = [*filters]
 
     @property
     def non_hiddable_cell(self):
@@ -285,7 +297,7 @@ class AbsoluteOrRelativeDatetimeField(core_fields.UnionField):
     ABSOLUTE = 'absolute'
     RELATIVE = 'relative'
 
-    def __init__(self, model=CremeEntity, **kwargs):
+    def __init__(self, model=CremeEntity, modelfield_filters=(), **kwargs):
         kwargs['fields_choices'] = (
             (self.ABSOLUTE, fields.DateTimeField(label=_('Fixed date'))),
             (
@@ -298,6 +310,7 @@ class AbsoluteOrRelativeDatetimeField(core_fields.UnionField):
                         date_period.DaysPeriod.name,
                         date_period.WeeksPeriod.name,
                     ),
+                    modelfield_filters=modelfield_filters,
                 ),
             ),
         )
@@ -314,6 +327,14 @@ class AbsoluteOrRelativeDatetimeField(core_fields.UnionField):
         self._fields_choices[1][1].model = model
 
     @property
+    def modelfield_filters(self):
+        yield from self._fields_choices[1][1].modelfield_filters
+
+    @modelfield_filters.setter
+    def modelfield_filters(self, filters):
+        self._fields_choices[1][1].modelfield_filters = filters
+
+    @property
     def non_hiddable_cell(self):
         return self._fields_choices[1][1].non_hiddable_cell
 
@@ -323,6 +344,9 @@ class AbsoluteOrRelativeDatetimeField(core_fields.UnionField):
 
 
 class AlertForm(CremeModelForm):
+    # TODO: exclude "created" too (improve the widget to manage empty 'choices' better)
+    excluded_model_fields = {'modified'}
+
     trigger = AbsoluteOrRelativeDatetimeField(
         label=_('Trigger date'),
         help_text=_(
@@ -358,6 +382,9 @@ class AlertForm(CremeModelForm):
 
         trigger_f = fields['trigger']
         trigger_f.model = type(entity)
+        trigger_f.modelfield_filters = [
+            (lambda field: field.name not in self.excluded_model_fields),
+        ]
 
         if instance.pk is None:  # Creation
             trigger_f.initial = (AbsoluteOrRelativeDatetimeField.ABSOLUTE, {})

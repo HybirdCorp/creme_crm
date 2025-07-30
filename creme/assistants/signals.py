@@ -18,10 +18,13 @@
 
 import logging
 
+from django.db.models import DateField
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 
 from creme.creme_core.core.entity_cell import CELLS_MAP
+from creme.creme_core.core.field_tags import FieldTag
+from creme.creme_core.core.snapshot import Snapshot
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.signals import pre_merge_related
 from creme.creme_core.utils import update_model_instance
@@ -65,6 +68,8 @@ def __get_date_offset_info(model, offset_dict):
 #     (the signal is sent for final class & strict class comparison is done)
 @receiver(post_save, dispatch_uid='assistants-update_alert_trigger')
 def _update_alert_trigger_date(sender, instance, created, **kwargs):
+    from creme.assistants.views.alert import AlertCreation
+
     if created:
         # The instance has just been created, no alert can exist yet
         return
@@ -72,25 +77,22 @@ def _update_alert_trigger_date(sender, instance, created, **kwargs):
     if not isinstance(instance, CremeEntity):
         return
 
-    # TODO: exclude 'modified' from available fields & activate this code?
-    # NB: Sadly this optimisation does not work because CremeEntity.modified is
-    #     updated at each edition.
     # IDEA: we could regroup the queries by using the Workflow post-processing
-    # from django.db.models import DateField
-    # from ..creme_core.core.field_tags import FieldTag
-    # from ..creme_core.core.snapshot import Snapshot
-    # snapshot = Snapshot.get_for_instance(instance)
-    # if snapshot is None:
-    #     # Instance has been created & modified in the same request;
-    #     # we assume no Alert is created in the same request AND needs to update
-    #     # its trigger date (the date-field would have been modified after the
-    #     # Alert has been created => ewwwww...)
-    #     return
-    # if not any(
-    #     isinstance(diff.field, DateField) and diff.field.get_tag(FieldTag.VIEWABLE)
-    #     for diff in snapshot.compare(instance)
-    # ):
-    #     return
+    snapshot = Snapshot.get_for_instance(instance)
+    if snapshot is None:
+        # Instance has been created & modified in the same request;
+        # we assume no Alert is created in the same request AND needs to update
+        # its trigger date (the date-field would have been modified after the
+        # Alert has been created => ewwwww...)
+        return
+
+    if not any(
+        isinstance(diff.field, DateField)
+        and diff.field.get_tag(FieldTag.VIEWABLE)
+        and diff.field.name not in AlertCreation.form_class.excluded_model_fields
+        for diff in snapshot.compare(instance)
+    ):
+        return
 
     for alert in Alert.objects.filter(
         entity_id=instance.id,
