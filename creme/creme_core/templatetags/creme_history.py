@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2022  Hybird
+#    Copyright (C) 2017-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,10 @@ def history_summary(*, entity, user):
             username='',
         )
 
-    last_edition = lines.filter(type=TYPE_EDITION).order_by('-date').first()
+    # NB: SQL query is faster when ordering by "id".
+    # last_edition = lines.filter(type=TYPE_EDITION).order_by('-date').first()
+    last_edition = lines.filter(type=TYPE_EDITION).order_by('-id').first()
+
     # NB: even at creation, entity.created & entity.modified are never exactly
     #     equal (is it a problem ?).
     if last_edition is not None:
