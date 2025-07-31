@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-28 16:00+0200\n"
+"POT-Creation-Date: 2025-07-31 10:52+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -682,7 +682,7 @@ msgstr "Saisissez une couleur HTML valide."
 
 #, python-brace-format
 msgid "The model «{key}» is invalid"
-msgstr "Le model «{key}» est valide"
+msgstr "Le modèle «{key}» est invalide"
 
 #, python-brace-format
 msgid "Error ({message})"
