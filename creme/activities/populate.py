@@ -283,7 +283,9 @@ class Populator(BasePopulator):
                     uuid=UUID_SUBTYPE_DEMO_OUTSIDE, name=_('Outside'), is_custom=True,
                 ),
                 ActivitySubType(
-                    uuid=UUID_SUBTYPE_DEMO_VIDEOCONF, name=_('Videoconference'), is_custom=True,
+                    uuid=UUID_SUBTYPE_DEMO_VIDEOCONF,
+                    name=pgettext('activities-demonstration', 'Videoconference'),
+                    is_custom=True,
                 ),
             ]
         ], [
