@@ -1,4 +1,5 @@
 from django.template import Context, Template
+from django.utils.html import escape
 from django.utils.translation import gettext as _
 
 from creme.creme_core.models import EntityFilter, FakeContact
@@ -31,9 +32,9 @@ class EntityFilterTagsTestCase(CremeTestCase):
                 ),
             }))
         self.assertEqual(
-            _(
+            escape(_(
                 'You are not allowed to view/edit/delete this filter '
                 '(you are not the owner)'
-            ),
+            )),
             render2,
         )
