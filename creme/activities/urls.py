@@ -127,6 +127,7 @@ urlpatterns = [
                 buttons.UnsuccessfulPhoneCallCreation.as_view(),
                 name='activities__create_unsuccessful_phone_call',
             ),
+            check_args=Swappable.INT_ID,
         ),
         Swappable(
             re_path(
