@@ -3,7 +3,8 @@
   UPGRADE NOTES :
     - If you upgrade your MariaDB server to 10.7+, you have to convert all the UUID fields
       (which were just CharFields before MariaDB 10.7) to real UUID fields
-      (see creme/creme_core/migrations/migrate_uuid.sql).
+      See "creme/creme_core/migrations/migrate_uuid.sql" ; copy it & remove the
+      lines related to app which are not installed) before importing it.
 
   Users side :
   ------------
@@ -36,41 +37,41 @@
     # The deletion & cloning buttons have been reworked in detailed views & list-views;
       they are now disabled when a rule avoids you to delete them (e.g. a Contact corresponding
       to a user) & the reason is displayed as tool-tip.
-    # The HeaderFilters (views of list) & EntityFilters have been improved :
-        - The ones without owner can now only be edited/deleted by superusers in the default
-          configuration ; a SettingValue has been added to allow all users to edit/delete them
-          (it was the behaviour in previous versions).
-        - They can now be cloned.
-        - EntityFilters are now grouped by owner in list-views, like HeaderFilters.
     # The deletion views have been improved :
         - The dependencies issues have now a better display.
           Example: entities are displayed as HTML links.
         - A Property type cannot be deleted if it is used by :
             - A property (i.e. one entity is tagged at least).
             - A RelationType (as a constraint).
-            - A condition of Filter.
+            - A condition of EntityFilter.
             - A trigger of Workflow.
         - A Relationship type cannot be deleted if it is used by :
             - A Relationship (i.e. 2 entities are linked at least).
             - A condition of Filter.
         - A CustomField cannot be deleted if it is used by :
-            - A condition of Filter.
+            - A condition of EntityFilter.
             - A condition of Workflow.
+    # The HeaderFilters (views of list) & EntityFilters have been improved :
+        - The ones without owner can now only be edited/deleted by superusers in the default
+          configuration ; a SettingValue has been added to allow all users to edit/delete them
+          (it was the behaviour in previous versions).
+        - They can now be cloned.
+        - EntityFilters are now grouped by owner in list-views, like HeaderFilters.
     # The Currencies have now a "Is default?" field to chose the Currency
       which is pre-selected in forms (Invoices, Quotes, Opportunities...).
-    # NotificationBox : The elapsed time from message creation is now updated each minute.
+    # In the notification box, the elapsed time from message creation is now updated each minute.
     # Apps :
         * Activities :
-            - The JavaScript component FullCalendar has been upgraded to the version "6.1.15"
-            - Improve CSS of the calendar sidebar and make it sticky.
-            - New 'My Calendar' brick is now available for the home page-view.
-            - In the calendar configuration, the visible hours range is added. Can be different from "business hours" that
-              are setting constraints to activities.
+            - The JavaScript component 'FullCalendar' has been upgraded to the version "6.1.18".
+            - The CSS of the calendar sidebar has been improved; and it's now sticky.
+            - A new brick "My Calendar" is now available for the home page.
+            - In the calendar configuration, the visible hours range is added.
+              It can be different from "business hours" which are setting constraints to Activities.
         * Creme_config :
             - The buttons configuration can now be customised per role.
             - The property types have now a field "description" (it can be empty of course).
-            - In the bricks configuration, default configuration is used as initial value when it's relevant
-              (instead of starting with an empty configuration).
+            - In the bricks configuration, the default configuration is used as initial
+              value when it's relevant (instead of starting with an empty configuration).
             - In the relation types configuration, you can now edit the "minimal display" value for standard types.
             - A view which displays all "FileRefs" (temporary files) has been added; it's only available for staff users.
             - A VAT cannot be edited if it's already referenced by an instance (classically a billing Line).
@@ -83,8 +84,8 @@
                 this field if you want to see it. As the field is optional, you can also hide it to remove
                 it everywhere (notably forms).
             - A new optional field has been added to 'Organisation': "eori".
-              This field stores the Economic Operators Registration and Identification number required for custom clearance
-              regarding import and export in/out of the EU.
+              This field stores the Economic Operators Registration and Identification number
+              required for custom clearance regarding import and export in/out of the EU.
             - The Contact field "Skype" is now named "Videoconference".
         * Documents :
             - A new field, automatically filled, has been added to Document: "file_size".
@@ -94,10 +95,11 @@
               It's used by default by the new installations.
         * Billing :
             - The number generation has been heavily reworked. The old number generation system
-              took a prefix in settings & generated numbers in the form "PREFIX15".
+              took a prefix in settings, then generated numbers like "PREFIX15".
               The new system can be visually configured & is more powerful :
-                - The configuration takes now a format string; there are a mandatory variable "{counter}",
-                  but also "{year}", "{month}" & "{code}" (which corresponds to the new field 'Organisation.code').
+                - The configuration takes now a format string.
+                  There is a mandatory variable "{counter}", but other variables are also available:
+                  "{year}", "{month}" & "{code}" (which corresponds to the new field 'Organisation.code').
                 - The counter can be reset annually/monthly.
                 - The counter can be manually edited (it's useful after a mass-import to keep a consistent numbering).
                 - The manual edition of the number can be forbidden.
@@ -115,24 +117,25 @@
             - It's now forbidden by default to edit the source Organisation of a Invoice/CreditNote when a number is set.
               This behaviour can be changed in the configuration portal of 'billing'.
             - The 'Convert to ...' buttons have been reworked :
-                - When a button is disabled, the reason is displayed as tool-tip.
+                - When a button is disabled, the reason is now displayed as tool-tip.
                 - The constraints for properties & relationships are better respected.
-            - In the list-views for Product/Service lines, lines related to deleted Invoice/Quote/... are excluded.
-            - Replaced PDFLaTeX with latexmk and LuaTeX as the LaTex compiler for billing templates.
-              This change requires the additional system package 'latexmk' to be installed; see README for a better packages list.
+            - In the list-views for Product/Service lines, lines related to deleted Invoice/Quote/... are now excluded.
+            - The LaTex backend (for PDF export) replaced 'PDFLaTeX' with 'latexmk' and 'LuaTeX' as LaTex compiler.
+              This change requires the additional system package 'latexmk' to be installed;
+              see README for a better packages list if you use this backend.
         * Opportunities :
             - You can now create unsuccessful phone calls from an Opportunity's detail-view :
                 - A button has been added (not enabled in default installations).
                 - In the block "Linked Contacts", you can activate an new action in the configuration (idem).
             - Since always, the target of an Opportunity automatically becomes a prospect of the emitter.
               This behaviour is now implemented as Workflows.
-              A new behaviour has been added with a Workflow: the target of a
-              won Opportunity becomes a customer of the emitter.
+            - A new behaviour has been added with a Workflow:
+              the target of a won Opportunity becomes a customer of the emitter.
             - The field 'Opportunity.chance_to_win' checks now that the value is between 0 & 100.
         * Assistants :
-            - The app permissions are now used by the bricks & function-fields;
+            - The app permissions are now used by the blocks & function-fields;
               users which cannot access this app cannot view their content anymore
-              (so you may have to update some roles).
+              (so you may have to update some roles if you have upgraded from Creme 2.6).
             - You cannot create Alert with a dynamic trigger date related to the field
               "Last modification" ('modified' in the code) anymore.
               The existing Alerts are migrated to static trigger dates.
@@ -160,17 +163,17 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
-            - The settings 'ENUMERABLE_REGISTRATION_ERROR' is deprecated ;
-              it will be removed in Creme 2.8 & a exception will always be raised.
+            - The settings 'ENUMERABLE_REGISTRATION_ERROR' is deprecated;
+              it will be removed in Creme 2.8 & an exception will always be raised.
             - In 'creme_core.constants' :
                 - The constant 'DEFAULT_CURRENCY_PK' is deprecated;
                   use 'Currency.objects.default().id' instead.
                 - The constant 'DISPLAY_CURRENCY_LOCAL_SYMBOL' is deprecated;
                   use 'creme_core.setting_keys.currency_symbol_key.id' instead.
-            - The method 'creme_core.core.entity_cell.EntityCellCustomField.build()' with integer "value" is deprecated;
-              pass a string (ID ou UUID) instead.
+            - The method 'creme_core.core.entity_cell.EntityCellCustomField.build()' with an
+              integer "value" is deprecated; pass a string (ID ou UUID) instead.
             - In 'creme_core.models' :
-                - The method 'CremePropertyTypeManager.smart_update_or_create() is deprecated;
+                - The method 'CremePropertyTypeManager.smart_update_or_create()' is deprecated;
                   use the classical methods 'create()' or 'update_or_create()' instead.
                   Notice: if you still want to set the field "subject_ctypes" from models like before,
                           you can use the new method 'CremePropertyType.set_subject_ctypes()'.
@@ -187,8 +190,6 @@
             - In 'creme_core.setting_keys', 'block_opening_key' & 'block_showempty_key' have been renamed (old names are deprecated).
             - The function 'creme_core.utils.translation.get_model_verbose_name()' is deprecated;
               use 'smart_model_verbose_name()' instead.
-            - The method 'creme_core.tests.base._CremeTestCase.assertRelationCount' is deprecated;
-              use the new methods 'assertHaveRelation()' & 'assertHaveNoRelation()' instead.
             - In 'creme_core.templatetags' :
                 - In the module "creme_core_tags", the argument "callback_url" of '{% inner_edition_uri %}' is deprecated.
                 - In the module "creme_ctype" :
@@ -196,6 +197,27 @@
                     - The tag "{% ctype_for_swappable %}" is deprecated; use the filter "|ctype_for_swappable" instead.
                     - The tag "{% ctype_counted_instances_label %}" is deprecated; use the filter "|ctype_counted_label" instead.
                     - The filter "|ctype_can_be_mass_imported" is deprecated.
+            - The method 'creme_core.tests.base._CremeTestCase.assertRelationCount' is deprecated;
+              use the new methods 'assertHaveRelation()' & 'assertHaveNoRelation()' instead.
+            - In Javascript :
+                - The method 'Array.copy(iterable, start, end)' is deprecated;
+                  use native code 'Array.from(iterable).slice(start, end)' instead.
+                - In 'creme.ajax' :
+                    - The function 'URL' is deprecated; use RelativeURL instead.
+                    - The function 'parseUrl()' is deprecated; use '_.urlAsDict()' instead.
+                    - The function 'param()' is deprecated; use '_.encodeURLSearch()' instead.
+                    - The function 'decodeSearchData()' is deprecated; use '_.decodeURLSearchData()' instead.
+                - In 'creme.utils' :
+                    - The function 'confirmSubmit()' is deprecated;
+                      use the new actions "creme_core-hatmenubar-update-redirect" or "delete" instead.
+                    - The functions 'showPageLoadOverlay()', 'hidePageLoadOverlay()' & 'loading()' are deprecated;
+                      use 'creme.dialog.Overlay' instead.
+                    - In 'JSON' :
+                        - The method 'encode()' is deprecated; use 'JSON.stringify()' instead.
+                        - The method 'decode()' is deprecated; use 'JSON.parse()' or '_.cleanJSON()' instead.
+                        - The method 'isJSON()' is deprecated; use '_.isJSON()' instead.
+                        - The function 'clean()' is deprecated; use '_.cleanJSON()' instead.
+                        - The function 'readScriptText()' is deprecated; use '_.readJSONScriptText()' instead.
             - App :
                 * Persons :
                     - The method 'models.base.PersonWithAddressesMixin._post_save_clone()' is deprecated.
@@ -213,33 +235,18 @@
                     - The class 'views.base.BaseCreation' is deprecated.
                 * Commercial :
                     - The constant 'DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW' is deprecated;
-                      use setting_keys.orga_approaches_key.id instead.
+                      use 'setting_keys.orga_approaches_key.id' instead.
                 * Geolocation :
-                    - The SettingKey instances (module 'setting_keys') have been renamed ; old names are deprecated.
+                    - The SettingKey instances (module 'setting_keys') have been renamed; old names are deprecated.
                 * Mobile :
                     - In 'setting_keys', 'LOCATION_MAP_URL' is deprecated; use 'location_map_url_key' instead.
                 * Projects :
                     - The method 'models.AbstractProjectTask.clone_scope()' is deprecated.
                 * Crudity :
-                    - The constant 'SETTING_CRUDITY_SANDBOX_BY_USER' is deprecated; '
+                    - The constant 'SETTING_CRUDITY_SANDBOX_BY_USER' is deprecated;
                       use 'crudity.setting_keys.sandbox_key.id' instead.
-            - Javascript:
-                - Array.copy(iterable, start, end) is deprecated; Use native code Array.from(iterable).slice(start, end) instead.
-                - creme.ajax.URL is deprecated; use RelativeURL instead
-                - creme.ajax.parseUrl() is deprecated; Use _.urlAsDict() instead
-                - creme.ajax.params() is deprecated; Use _.encodeURLSearch() instead
-                - creme.ajax.decodeSearchData() is deprecated; Use _.decodeURLSearchData() instead
-                - creme.utils.confirmSubmit() is deprecated; Use the new 'creme_core-hatmenubar-update-redirect' or 'delete' actions instead.
-                - creme.utils.showPageLoadOverlay() is deprecated;  Use creme.dialog.Overlay instead.
-                - creme.utils.hidePageLoadOverlay() is deprecated;  Use creme.dialog.Overlay instead.
-                - creme.utils.overlay() is deprecated;  Use creme.dialog.Overlay instead.
-                - creme.utilss.JSON.encode is deprecated; Use JSON.stringify() instead.
-                - creme.utilss.JSON.decode is deprecated; Use JSON.parse() or _.cleanJSON() instead.
-                - creme.utilss.JSON.isJSON is deprecated; Use _.isJSON() instead.
-                - creme.utils.JSON.clean is deprecated; Use _.cleanJSON() instead.
-                - creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText() instead.
-        # A new module 'creme_core.core.snapshot' has been added to get the changes which occurred on a model since its loading ;
-          it's already used by the history system & the new workflow engine.
+        # A new module 'creme_core.core.snapshot' has been added to get the changes which occurred
+          on a model since its loading; it's already used by the history system & the new workflow engine.
         # In 'creme_core.forms' :
             - In the class 'fields.GenericEntityField', the attribute "autocomplete" is now <True> by default.
             - In the class 'widgets.CTEntitySelector', the attribute "autocomplete" is now <True> by default.
@@ -251,7 +258,7 @@
                 - gets a new method 'has_perm_or_die()' which raises exceptions with friendly error messages.
             - The model 'FileRef' :
                 - gets a new optional field "description"; it's used by the new view
-                  which displays all FileRefs (so feel free to fill it).
+                  which displays all FileRefs (so feel free to fill it in your own code).
                 - the field 'filedata' has now a max_length equal 500 (it was 200 previously).
                   As the previous value was smaller than 'documents.Document.filedata.max_length',
                   it could cause issue when deleting a Document with a long name.
@@ -260,46 +267,51 @@
             - The 'CremeDiscoverRunner.setup_databases' method has been updated to prevent running
               the 'creme_populate' command on the default test database when the test suite is launched in
               parallel mode. This change is done to prevent cache leaking when the test processes are forked.
+        # In Javascript :
+            - The method '_.pop()' has been added to work like Python 'dict.pop()'.
+            - The class 'RelativeURL' has been added as an alternative of 'URL' which does not accept
+              relative paths (e.g. '/list?page=1' is not a valid URL).
+            - In 'creme.dialog' :
+                - In the component 'FormDialog', the forms which submit error responses
+                  with HTML can either replace the default overlay content or the frame content.
+                - A new option for 'Frame' has been added: 'fillOnError'.
+                  If it's enabled, the HTML error response replaces the content.
+                - A new option for 'Dialog' has been added : 'fillFrameOnError'.
+                  If it's enabled, the HTML error response replaces the content.
+                - The component 'creme.dialog.PopoverAction' works now better with HTML content
+                  (e.g. it allows usage of links) because it accepts now <script type="*/html">
+                  or DOM queries for the content.
         # Apps :
             * Persons :
                 - The model 'Address' gets new semantic fields (like ZipCodeField) which allow to
                   easily customise things (like the form field, the field printer etc...).
             * Activities:
-                - New FullCalendarBrick base class for implementation of calendar bricks.
-                - Refactor of creme.ActivityCalendar :
-                    - Add headlessMode flag.
-                    - Add allowEventOverlaps property (boolean or method).
-                    - Add allowEventCreate property (boolean).
+                - A new 'FullCalendarBrick' base class for calendar bricks has been added.
+                - The JavaScript component 'creme.ActivityCalendar' has been improved :
+                    - The flag 'headlessMode' has been added.
+                    - The property 'allowEventOverlaps' (boolean or method) has been added.
+                    - The property 'allowEventCreate' (boolean) has been added.
             * Geolocation:
-                - The urls used in brick controllers can be now overrided in python : do not require to override an entire template.
+                - These URLs used in brick controllers (JavaScript) can be overridden in Python code now
+                  (so it does not require to override an entire template) :
                     - DetailMapBrick.update_address_url
                     - FilteredMapBrick.addresses_url
                     - NeighboursMapBrick.neighbours_url
-                - Markers with custom icons are now supported in maps:
-                    - New registry geomarker_icon_registry allows to register an icon for a model.
-                    - New setting key 'geolocation-use_entity_icon_key' enables the feature.
-                - JSON data of creme.geolocation.PersonsBrick() controller is stored in a script (see {% jsondata %})
-        # Javascript:
-            * Add RelativeURL() class as an alternative of URL() that do not accepts relative paths (e.g '/list?page=1' is not a valid URL)
-            * FormDialog:
-                - Form submit error responses with HTML can either replace the default overlay content or the frame content.
-                - New creme.dialog.Frame option 'fillOnError'; if enabled the html error response replaces the content.
-                - New creme.dialog.Dialog option 'fillFrameOnError'; if enabled the html error response replaces the content.
-            * PopoverAction:
-                - Now accept <script type="*/html"> or dom queries for the content for popovers : allows usage of links.
-                - Factorise action creation in creme.dialog.PopoverAction.fromTarget()
-            * Added _.pop() method that works like python dict.pop().
+                - Markers with custom icons are now supported in maps :
+                    - The new registry 'geomarker_icon_registry' allows to register an icon for a model.
+                    - The new setting key 'geolocation-use_entity_icon_key' enables the feature.
+                - The JSON data of 'creme.geolocation.PersonsBrick()' controller is now stored in a script.
 
     Breaking changes :
     ------------------
         # Deprecated stuffs which have been removed :
             - In 'creme_core.gui' :
-                - In 'field_printers', the function 'image_size()' & the constants MAX_HEIGHT/MAX_WIDTH has been removed.
+                - In 'field_printers', the function 'image_size()' & the constants MAX_HEIGHT/MAX_WIDTH have been removed.
                 - In the class 'mass_import.FormRegistry' :
                     - The methods 'get()' & 'is_registered()' have been removed.
                     - The class 'UnregisteredCTypeException' has been removed.
             - In 'creme_core.models' :
-                - In the methods 'HeaderFilter.can_view()' & 'creme_core.models.EntityFilter.can_view()',
+                - In the methods 'HeaderFilter.can_view()' & 'EntityFilter.can_view()',
                   the argument "content_type" has been removed.
                 - Setting the class attribute 'HistoryLine.ENABLED' is now useless.
                   The method 'HistoryLine.disable()' has been removed.
@@ -319,48 +331,50 @@
                 - "creme_core-hatmenubar-form"
                 - "creme_core-hatmenubar-update"
                 - "creme_core-hatmenubar-view"
-            - Javascript :
-                * ArrayTools & GeneratorTools are no longer used (only by jqplot). So drop them and use underscore or d3 instead.
-                * Drop fallbacks or helpers for widely implemented Array methods :
-                    - Use Array.prototype.some() native implementation.
-                    - Array.prototype.unique() is removed; Use _.uniq(iterable) instead.
-                    - Array.prototype.removeAt() is removed; Use Array.prototype.splice(index, 1) instead.
-                    - Array.prototype.insertAt() is removed; Use Array.prototype.splice(index, 0, val1, val2, ...) instead.
-                    - Array.prototype.inArray() is removed; Use Array.prototype.indexOf(value) instead.
-                    - Array.prototype.getRange() is removed; Use Array.prototype.slice() instead.
-                    - Array.prototype.exfiltrate() is removed; Use _.without(iterable, val1, val2, ...) instead.
-                    - Array.prototype.contains() is removed; Use Array.prototype.includes(value) instead.
-                * Remove fallbacks for HTMLDocument, CSSStyleDeclaration & Event classes.
-                * Drop fallbacks or helpers for widely implemented String methods :
-                    - Use Array.prototype.startsWith() native implementation.
-                    - Use Array.prototype.endsWith() native implementation.
-                    - Use Array.prototype.trim() native implementation.
-                    - Array.prototype.ltrim() is removed; Use Array.prototype.trimStart() instead.
-                    - Array.prototype.rtrim() is removed; Use Array.prototype.trimEnd() instead.
-                * Drop fallbacks for console methods: log(), warn() & error()
-                * Drop fallbacks for widely implemented Object methods :
-                    - Object.keys()
-                    - Object.values()
-                    - Object.entries()
-                    - Object.getPrototypeOf()
-                * Drop creme.widget.template(); Use String.prototype.template instead.
-                * Drop creme.widget.writeAttr(); Use QUnitWidgetMixin.htmlAttrs() instead (only for unit tests).
-                * Drop creme.widget.buildTag(); Use QUnitWidgetMixin.fillWidgetTag() instead (only for unit tests).
-                * Refactor of creme.ajax.Backend:
-                    - Drop jquery.forms plugin; Use FormData standard API instead.
-                    - $.validateHTML5() is removed (came along jquery.forms)
-                    - Add support for download & upload progress event : new 'uploadProgress' & 'progress' options.
-                        - Refactor 'ListViewController' & 'creme.bricks.BricksReloader'
-                        - 'creme.ajax.Query' now accepts new 'uploadProgress' & 'progress' options.
-                * creme.ajax.URL.prototype.relativeTo() is replaced by RelativeURL.prototype.fullPath()
-                * creme.utils.JSON.encoder() is removed; Use JSON.stringify instead.
-                * creme.utils.JSON.decoder() is removed; Use _.cleanJSON() instead.
-                * creme.objects.build_callback() is removed.
+            - In Javascript :
+                - The modules 'ArrayTools' & 'GeneratorTools' have been removed.
+                - The fallback for 'Array.prototype.some()' has been remove (it's widely implemented).
+                - These helpers 'Array' methods have been removed :
+                    - 'unique()' has been removed; use '_.uniq(iterable)' instead.
+                    - 'removeAt()' has been removed; use 'Array.splice(index, 1)' instead.
+                    - 'insertAt()' has been removed; use 'Array.splice(index, 0, val1, val2, ...)' instead.
+                    - 'inArray()' has been removed; use 'Array.indexOf(value)' instead.
+                    - 'getRange()' has been removed; use 'Array.slice()' instead.
+                    - 'exfiltrate()' has been removed; use '_.without(iterable, val1, val2, ...)' instead.
+                    - 'contains()' has been removed; use 'Array.includes(value)' instead.
+                - The fallbacks for these widely implemented 'String' methods have been removed:
+                  'startsWith()', 'endsWith()', 'trim()'.
+                - These helpers for widely implemented 'String' methods have been removed :
+                    - 'ltrim()'; use 'trimStart()' instead.
+                    - 'rtrim()'; use 'trimEnd()' instead.
+                - The fallbacks for 'HTMLDocument', 'CSSStyleDeclaration' & 'Event' classes have been removed.
+                - These fallbacks for console methods have been removed: 'log()', 'warn()' & 'error()'.
+                - The fallbacks for these widely implemented 'Object' methods have been removed:
+                  'keys()', 'values()', 'entries()', 'getPrototypeOf()'.
+                - In 'creme.ajax' :
+                    - The prototype 'Backend' has been reworked :
+                        - The plugin 'jquery.forms' has been dropped; use the standard API 'FormData' instead.
+                        - '$.validateHTML5()' has been removed (it came along jquery.forms).
+                        - The support for download & upload progress event has been added with new options 'uploadProgress' & 'progress'.
+                            - The components 'ListViewController' & 'creme.bricks.BricksReloader' have been reworked.
+                            - The component 'creme.ajax.Query' now accepts new options 'uploadProgress' & 'progress'.
+                    - The method 'URL.prototype.relativeTo()' has been replaced by 'RelativeURL.prototype.fullPath()'.
+                - The function 'creme.objects.build_callback()' has been removed.
+                - In 'creme.utils.JSON' :
+                    - The function 'encoder()' has been removed; use 'JSON.stringify()' instead.
+                    - The function 'JSON.decoder()' has been removed; use '_.cleanJSON()' instead.
+                - In 'creme.widget' :
+                    - The function 'template()' has been removed; use 'String.template()' instead.
+                    - The function 'writeAttr()' has been removed;
+                      use 'QUnitWidgetMixin.htmlAttrs()' instead (only for unit tests).
+                    - The function 'buildTag()' has been removed;
+                      use 'QUnitWidgetMixin.fillWidgetTag()' instead (only for unit tests).
             - Apps :
                 * Activities:
-                    - Refactor creme.ActivityCalendar : can be now used as independent component.
-                        - Move the "calendar user page" features to creme.ActivityCalendarController : floating events, sidebar selection, state within url hash
-                        - Move calendar selection state queries to ActivityCalendarController. Improve performance.
+                    - The JavaScript component 'creme.ActivityCalendar' has been reworked to be used as independent component.
+                        - These features for the classical calendar view have been moved to 'creme.ActivityCalendarController' :
+                          floating events, sidebar selection, state within URL hash.
+                        - The calendar selection state queries have been moved to 'ActivityCalendarController'.
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' has been removed.
                     - The class-view 'views.contact.ContactNamesEdition' has been removed.
@@ -390,7 +404,7 @@
               probably use the new 'Cloner' system to write your custom rules. You'll have less code to maintain,
               and your checks will be used to disabled the cloning buttons.
               Hint: see the method 'creme.persons.apps.PersonsConfig.register_cloners()' as example.
-        # The format used to store 'EntityCells' in JSON has slightly changed (si in custom Brick configuration, global search configuration...).
+        # The format used to store 'EntityCells' in JSON has slightly changed (so in custom Brick configuration, global search configuration...).
           When the cell is related to a 'CustomField', the key "value" contains now the UUID, not the ID anymore.
           You won't be impacted unless you read the JSON directly (why would you do this bro?).
           In the model 'RelationBrickItem', the way ContentTypes are stored in the field "json_cells_map" has changed too;
@@ -403,7 +417,7 @@
             - In 'entity_filter.condition_handler' :
                 - The constructor of 'FilterConditionHandler' takes only keyword arguments now.
                 - In the 'FilterConditionHandler' & its child classes :
-                    - The class attribute 'efilter_registry' is now a read only property;
+                    - The class attribute 'efilter_registry' is now a read-only property;
                       use the new setter 'efilter_type' if you have to change the registry.
                     - The constructor & the class-method 'build()' get new mandatory argument "efilter_type".
                 - The class-methods of 'OperatorConditionHandlerMixin' are now classical methods.
@@ -415,15 +429,15 @@
                 - The constructor of the widget classes 'RegularFieldsConditionsWidget' & 'CustomFieldsConditionsWidget'
                   take now an argument "efilter_type" instead of "efilter_registry".
         # In 'creme_core.gui' :
-            - In the class 'bricks.Brick', the method 'has_perms()' has been removed ;
+            - In the class 'bricks.Brick', the method 'has_perms()' has been removed;
               use the new method 'check_permissions()' instead.
-            - In the class 'button_menu.Button', the method 'is_allowed()' has been removed ;
+            - In the class 'button_menu.Button', the method 'is_allowed()' has been removed;
               use the new method 'check_permissions()' instead. In the template of your button,
               you must also use the variable "button.permission_error" instead of "button.is_allowed".
-            - In the class 'menu.MenuEntry', the method '_has_perm()' has been removed ;
+            - In the class 'menu.MenuEntry', the method '_has_perm()' has been removed;
               use the new method 'check_permissions()' instead.
         # In 'creme_core.models' :
-            - In the abstract class 'MinionModel' the field "is_custom" is now marked <editable=False> ;
+            - In the abstract class 'MinionModel', the field "is_custom" is now marked <editable=False> ;
               it will at least need a migration (or a manual change in the existing migrations because
               it has no consequence on the DB).
             - In the model 'CremeEntity' :
@@ -440,20 +454,20 @@
                     - has_perm_to_export() & has_perm_to_export_or_die()
                     - has_perm_to_access() & has_perm_to_access_or_die()
                     - has_perm_to_admin() & has_perm_to_admin_or_die()
-                 - The method 'has_perms()' return <True> if you pass an empty argument, for consistency
+                 - The method 'has_perms()' returns <True> if you pass an empty argument, for consistency
                    (you did probably not use this case).
             - In 'CustomFieldMultiEnum' :
                 - The attribute '_enumvalues' has been removed.
-                - The method 'get_enumvalues()' now returns a list, not a QuerySet anymore.
+                - The method 'get_enumvalues()' now returns a list, not a 'QuerySet' anymore.
             - In 'UserRole', the arguments of the following methods have changed (2 strings => 1 positional ContentType instance):
                 - can_create()
                 - can_export()
-            - The field 'fields.DatePeriodField' does not accept strings as value anymore ;
+            - The field 'fields.DatePeriodField' does not accept strings as value anymore;
               but you can now initialize it with a dictionary (e.g. {'type': 'days', 'value': 1}).
         # The method 'creme_core.populate.Populator._populate_optional_currencies()' has been removed.
         # The classes inheriting 'creme_core.utils.date_range.DateRange' should implement the new method 'accept()'.
         # In 'creme_core.views' :
-            - In 'generic', the class-views 'CremeModelCreation' & CremeModelEdition now check the
+            - In 'generic', the class-views 'CremeModelCreation' & 'CremeModelEdition' now check the
               app permission (aka 'user.has_perm_to_access(...)') for the concerned model.
             - In 'entity' :
                 - The class-view 'EntityRestoration' now just checks the deletion credentials & the attribute "is_deleted".
@@ -470,13 +484,17 @@
               (good news, some {% block %} have been added) :
                 - "creme_core/bricks/base/hat-card.html"
                 - "creme_core/bricks/generic/hat-bar.html"
-        # Javascript :
-            - Removed ChainedSelect.clone() method : not used and does not work anyway.
-            - creme.exports.exportAs() is replaced by the 'export-as' action or 'creme.lv_widget.ExportAction'
-            - creme.forms.toImportField() is replaced by the widget 'ui-import-field' or 'creme.widget.ImportField'.
-            - Full rework of creme.notification.NotificationBox.
-            - creme.ajax.jqueryAjaxSend() arguments have changed from (url, data, successCb, errorCb, options) to ({url: url, body: data, ...options}, {done: successCb, fail: errorCb}).
-            - In 'creme.utils', the functions 'confirmPOSTQuery()' & 'confirmAjaxQuery()' have been removed; use 'creme.utils.ajaxQuery' with the option "confirm: true" instead.
+        # In Javascript :
+            - The method 'creme.widget.ChainedSelect.clone()' has been removed (it was not used and did not work anyway).
+            - The function 'creme.exports.exportAs()' has been replaced by the
+              action "export-as" or the component 'creme.lv_widget.ExportAction'.
+            - The function 'creme.forms.toImportField()' has been replaced by the widget "ui-import-field" or 'creme.widget.ImportField'.
+            - The class 'creme.notification.NotificationBox' has been heavily reworked.
+            - The arguments for the function 'creme.ajax.jqueryAjaxSend()' have changed
+              from '(url, data, successCb, errorCb, options)'
+              to '({url: url, body: data, ...options}, {done: successCb, fail: errorCb})'.
+            - In 'creme.utils', the functions 'confirmPOSTQuery()' & 'confirmAjaxQuery()' have been removed;
+              use 'creme.utils.ajaxQuery' with the option "confirm: true" instead.
         # Apps :
             * Creme_config :
                 - In the brick 'GenericModelBrick', "meta" is not injected in the context anymore.
@@ -490,7 +508,7 @@
             * Activities :
                 - The brick 'CalendarConfigItemsBrick' does not inject "has_app_perm" in the template context.
                 - The field 'Activity.floating_type' got some light changes.
-                  It's now a 'PositiveSmallIntegerField', it ahs a 'choices' attribute & it's viewable.
+                  It's now a 'PositiveSmallIntegerField', it has an attribute 'choices' & it's viewable.
                 - Some small changes have been made in the class 'views.buttons.UnsuccessfulPhoneCallCreation'.
             * Reports :
                 - In the field 'report.Field.name', the CustomFields are referenced by their UUID now (see types 'RFT_CUSTOM' & 'RFT_AGG_CUSTOM').
@@ -509,10 +527,10 @@
                     - These variables have been removed : CLASS_MAP, CONVERT_MATRIX, RTYPE_MATRIX.
                     - The function 'get_models_for_conversion()' has been removed.
                 - In 'registry' :
-                    - The classes 'Algo' & 'AlgoRegistry' have been removed ; see the new method
+                    - The classes 'Algo' & 'AlgoRegistry' have been removed; see the new method
                       'apps.BillingConfig.register_billing_number_generators()' to know how to create/register a number generator.
                     - The class 'RelationTypeConverterRegistry' & the variable 'relationtype_converter'
-                      have been removed ; you can see in 'creme.opportunities.apps.OpportunitiesConfig.register_billing()'
+                      have been removed; you can see in 'creme.opportunities.apps.OpportunitiesConfig.register_billing()'
                       how to code a feature similar to the old relationship conversion.
                 - In 'models' :
                     - The models 'ConfigBillingAlgo' & 'SimpleBillingAlgo' have been removed.
@@ -543,7 +561,7 @@
                 - The field 'forms.act.ObjectivesFromPatternForm.pattern' is now a 'CreatorEntityField'.
                 - The method 'views.strategy.BaseScoreSetting.update_stategy()' has been renamed "update_strategy".
             * Geolocation:
-                - _MapBrick.get_addresses_as_dict() is now an instance method, not a static one.
+                - The method '_MapBrick.get_addresses_as_dict()' is now an instance method, not a static one anymore.
             * Mobile :
                 - The class 'forms.PhoneInput' has been removed.
             * Polls :
