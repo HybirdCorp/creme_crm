@@ -30,7 +30,7 @@ creme.ajax.parseUrl = function(url) {
 };
 
 creme.ajax.param = function(data) {
-    console.warn('creme.ajax.params() is deprecated; Use _.encodeURLSearch() instead');
+    console.warn('creme.ajax.param() is deprecated; Use _.encodeURLSearch() instead');
     return _.encodeURLSearch(data);
 };
 
