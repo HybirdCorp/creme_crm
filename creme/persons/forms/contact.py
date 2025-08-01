@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from django import forms
 from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model, password_validation
@@ -25,18 +24,8 @@ from django.db.transaction import atomic
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# from creme import persons
 from creme.creme_core.forms import CremeEntityForm, CremeModelForm
 from creme.creme_core.models import UserRole
-
-# class ContactNamesForm(CremeModelForm):
-#     class Meta(CremeModelForm.Meta):
-#         model = persons.get_contact_model()
-#         fields = ('last_name', 'first_name')
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('ContactNamesForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
 
 
 class BaseContactCustomForm(CremeEntityForm):
@@ -99,13 +88,6 @@ class UserFromContactCreationForm(CremeModelForm):
             first_name_f.required = True
             first_name_f.help_text = _('The first name of the Contact will be updated.')
 
-        # if contact.email:
-        #     instance.email = contact.email
-        #     del fields['email']
-        # else:
-        #     email_f = fields['email']
-        #     email_f.required = True
-        #     email_f.help_text = _('The email of the Contact will be updated.')
         email_f = fields['email']
         email_f.required = True
         email = contact.email

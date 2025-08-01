@@ -3,7 +3,6 @@ from functools import partial
 
 from django.core.serializers.base import SerializationError
 from django.db.models import Q
-# from django.test.utils import override_settings
 from django.utils.translation import override as override_language
 
 from creme.creme_core.utils.queries import QSerializer
@@ -139,23 +138,11 @@ class QSerializerTestCase(CremeTestCase):
         str_q = QSerializer().dumps(q)
         self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
-    # @override_settings(
-    #     USE_L10N=False,
-    #     DATE_INPUT_FORMATS=['%d-%m-%Y', '%Y/%m/%d'],
-    #     DATETIME_INPUT_FORMATS=['%Y/%m/%d %H:%M'],
-    # )
-    # def test_date_field_no_l10n(self):
-    #     self._aux_test_date_field()
-
-    # @override_settings(USE_L10N=True)
     @override_language('en')
-    # def test_date_field_l10n_en(self):
     def test_date_field__en(self):
         self._aux_test_date_field()
 
-    # @override_settings(USE_L10N=True)
     @override_language('fr')
-    # def test_date_field_l10n_fr(self):
     def test_date_field__fr(self):
         self._aux_test_date_field()
 
@@ -178,23 +165,11 @@ class QSerializerTestCase(CremeTestCase):
         str_q = QSerializer().dumps(q)
         self._assertQEqual(FakeActivity, q, QSerializer().loads(str_q))
 
-    # @override_settings(
-    #     USE_L10N=False,
-    #     DATE_INPUT_FORMATS=['%d-%m-%Y', '%Y/%m/%d'],
-    #     DATETIME_INPUT_FORMATS=['%Y/%m/%d %H:%M'],
-    # )
-    # def test_datetime_field_no_l10n(self):
-    #     self._aux_test_datetime_field()
-
-    # @override_settings(USE_L10N=True)
     @override_language('en')
-    # def test_datetime_field_l10n_en(self):
     def test_datetime_field__en(self):
         self._aux_test_datetime_field()
 
-    # @override_settings(USE_L10N=True)
     @override_language('fr')
-    # def test_datetime_field_l10n_fr(self):
     def test_datetime_field__fr(self):
         self._aux_test_datetime_field()
 

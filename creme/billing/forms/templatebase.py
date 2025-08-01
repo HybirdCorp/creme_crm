@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,23 +33,12 @@ class BillingTemplateStatusSubCell(CustomFormExtraSubCell):
         if instance.ct:
             meta = instance.ct.model_class()._meta
             status_model = meta.get_field('status').remote_field.model
-            # field = forms.ChoiceField(
-            #     label=gettext('Status of {}').format(meta.verbose_name),
-            #     choices=[
-            #         (status.id, str(status))
-            #         for status in meta.get_field('status').remote_field.model.objects.all()
-            #     ],
-            #     **kwargs
-            # )
             field = forms.ModelChoiceField(
                 label=gettext('Status of {}').format(meta.verbose_name),
                 queryset=status_model.objects.all(),
                 **kwargs
             )
 
-            # status_id = instance.status_id
-            # if status_id:
-            #     field.initial = status_id
             status_uuid = instance.status_uuid
             if status_uuid:
                 status = status_model.objects.filter(uuid=status_uuid).first()
@@ -77,9 +66,7 @@ class BaseTemplateCreationCustomForm(base.BaseCustomForm):
             self.instance.ct = ct
 
     def save(self, *args, **kwargs):
-        instance = self.instance
-        # instance.status_id = self.cleaned_data[self.subcell_key(BillingTemplateStatusSubCell)]
-        instance.status_uuid = self.cleaned_data[
+        self.instance.status_uuid = self.cleaned_data[
             self.subcell_key(BillingTemplateStatusSubCell)
         ].uuid
 

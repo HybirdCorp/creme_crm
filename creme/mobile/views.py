@@ -180,10 +180,8 @@ def portal(request):
     #     activities which start at 0h00 will be in 'hot_activities').
     today_activities, hot_activities = partition(
         lambda a:
-            # a.floating_type == act_constants.NARROW
             a.floating_type == Activity.FloatingType.NARROW
             and (
-                # a.status_id == act_constants.STATUS_IN_PROGRESS
                 (a.status and str(a.status.uuid) == act_constants.UUID_STATUS_IN_PROGRESS)
                 or a.start < now_val
             ),
@@ -194,7 +192,6 @@ def portal(request):
     used_worked_hours = frozenset(
         localtime(a.start).hour
         for a in today_activities
-        # if a.floating_type == act_constants.NARROW
         if a.floating_type == Activity.FloatingType.NARROW
     )
     shortcuts_map = [
@@ -227,14 +224,11 @@ def persons_portal(request):
                     is_deleted=False, mobile_favorite__user=user,
                 )
             ),
-            # 'contact_model': Contact,
-
             'favorite_organisations': cred_filter(
                 Organisation.objects.filter(
                     is_deleted=False, mobile_favorite__user=user,
                 )
             ),
-            # 'orga_model': Organisation,
         },
     )
 

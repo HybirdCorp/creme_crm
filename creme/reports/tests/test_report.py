@@ -196,10 +196,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
         brick_node2 = self.get_brick_node(tree, brick=ReportGraphChartListBrick)
-        self.assertEqual(
-            # pgettext('reports-graphs', 'Graphs'), self.get_brick_title(brick_node2),
-            _('Charts'), self.get_brick_title(brick_node2),
-        )
+        self.assertEqual(_('Charts'), self.get_brick_title(brick_node2))
 
     def test_createview01(self):
         "No EntityFilter, no HeaderFilter."
@@ -454,7 +451,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             [field.type for field in columns],
         )
         self.assertListEqual(
-            # [fname1, fname2, str(cf.id)],
             [fname1, fname2, str(cf.uuid)],
             [field.name for field in columns],
         )
@@ -1396,7 +1392,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                 start=start,
                 end=end
             ),
-            # response.content.decode(),
             response.text,
         )
 
@@ -1499,15 +1494,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
         self.assertNoFormError(response)
         self.assertEqual(
-            # '{url}?doc_type={type}&date_field='.format(
-            #     url=reverse('reports__export_report', args=(report.id,)),
-            #     type=doc_type,
-            # ),
             reverse(
                 'reports__export_report',
                 args=(report.id,), query={'doc_type': doc_type, 'date_field': ''},
             ),
-            # response.content.decode(),
             response.text,
         )
 
@@ -1532,7 +1522,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             '"{}","{}","{}","{}"\r\n'.format(
                 _('Name'), _('Owner user'), rt.predicate, _('Properties'),
             ),
-            # response.content.decode(),
             response.text,
         )
 
@@ -1547,7 +1536,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             self._build_export_url(report), data={'doc_type': 'csv'},
         )
 
-        # content = (s for s in response.content.decode().split('\r\n') if s)
         content = (s for s in response.text.split('\r\n') if s)
         self.assertEqual(
             smart_str('"{}","{}","{}","{}"'.format(
@@ -1581,7 +1569,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
 
-        # content = [s for s in response.content.decode().split('\r\n') if s]
         content = [s for s in response.text.split('\r\n') if s]
         self.assertEqual(3, len(content))
 
@@ -1608,7 +1595,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
 
-        # content1 = [s for s in response1.content.decode().split('\r\n') if s]
         content1 = [s for s in response1.text.split('\r\n') if s]
         self.assertEqual(2, len(content1))
         self.assertEqual(f'"Baby","{user}","",""', content1[1])
@@ -1626,7 +1612,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
 
-        # content2 = [s for s in response2.content.decode().split('\r\n') if s]
         content2 = [s for s in response2.text.split('\r\n') if s]
         self.assertEqual(2, len(content2))
         self.assertEqual(f'"Baby","{user}","",""', content2[1])
@@ -1680,7 +1665,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
-        # content = (s for s in response.content.decode().split('\r\n') if s)
         content = (s for s in response.text.split('\r\n') if s)
         self.assertEqual(smart_str('"{}"'.format(_('Last name'))), next(content))
 
@@ -1732,7 +1716,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
-        # content = (s for s in response.content.decode().split('\r\n') if s)
         content = (s for s in response.text.split('\r\n') if s)
         self.assertEqual(
             smart_str('"{}","is an employee of"'.format(_('Last name'))),
@@ -1763,7 +1746,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
 
-        # content = [s for s in response.content.decode().split('\r\n') if s]
         content = [s for s in response.text.split('\r\n') if s]
         self.assertEqual(2, len(content))
         self.assertEqual('"{}"'.format(_('Last name')), content[0])
@@ -1855,7 +1837,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         f_name = 'last_name'
         fk_name = 'image'
         cf_id = str(cf.id)
-        # aggr_id = f'{cf_id}__max'
         aggr_id = f'{cf.uuid}__max'
         response = self.client.post(
             self._build_editfields_url(report),
@@ -2947,10 +2928,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         create_field = partial(Field.objects.create, report=report)
         create_field(name='first_name', type=RFT_FIELD,  order=1)
-        # create_field(name=cf.id,          type=RFT_CUSTOM, order=2)
         create_field(name=str(cf.uuid), type=RFT_CUSTOM, order=2)
-        # Simulates deleted CustomField
-        # create_field(name=self.UNUSED_PK, type=RFT_CUSTOM, order=3)
         create_field(name=str(uuid4()), type=RFT_CUSTOM, order=3)
 
         report = self.refresh(report)
@@ -2989,7 +2967,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD,
         )
         create_field(report=report_img, name='name', order=1)
-        # create_field(report=report_img, name=cf.id,  order=2, type=RFT_CUSTOM)
         create_field(report=report_img, name=str(cf.uuid), order=2, type=RFT_CUSTOM)
 
         report_contact = create_report(
@@ -3018,9 +2995,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         user = self.login_as_root_and_get()
 
         report = Report.objects.create(
-            user=user,
-            name='Campaign Report',
-            ct=FakeEmailCampaign,
+            user=user, name='Campaign Report', ct=FakeEmailCampaign,
         )
         create_field = partial(Field.objects.create, report=report)
         create_field(name='name',                type=RFT_FIELD, order=1)
@@ -3051,9 +3026,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.ptype2 = create_ptype(text='Not important')
 
         self.report_camp = report_camp = Report.objects.create(
-            user=user,
-            name='Campaign Report',
-            ct=FakeEmailCampaign,
+            user=user, name='Campaign Report', ct=FakeEmailCampaign,
         )
         create_field1 = partial(Field.objects.create, report=report_camp, type=RFT_FIELD)
         create_field1(name='name',                order=1)
@@ -3669,12 +3642,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         fmt = '{}__max'.format
         create_field = partial(Field.objects.create, report=self.report_orga)
         create_field(name='capital__sum', order=2, type=RFT_AGG_FIELD)
-        # create_field(name=fmt(cf.id),     order=3, type=RFT_AGG_CUSTOM)
         create_field(name=fmt(cf.uuid),   order=3, type=RFT_AGG_CUSTOM)
 
         if invalid_ones:
             # Invalid CustomField id
-            # create_field(name=fmt(1000), order=4, type=RFT_AGG_CUSTOM)
             create_field(name=fmt(uuid4()), order=4, type=RFT_AGG_CUSTOM)
             # Invalid aggregation
             create_field(name='capital__invalid', order=5, type=RFT_AGG_FIELD)
@@ -3683,10 +3654,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             # Invalid field (bad type)
             create_field(name='name__sum', order=7, type=RFT_AGG_FIELD)
             # Invalid CustomField (bad type)
-            # create_field(name=fmt(str_cf.id), order=8, type=RFT_AGG_CUSTOM)
             create_field(name=fmt(str_cf.uuid), order=8, type=RFT_AGG_CUSTOM)
             # Invalid string
-            # create_field(name=f'{cf.id}__additionalarg__max', order=9, type=RFT_AGG_CUSTOM)
             create_field(name=f'{cf.uuid}__additionalarg__max', order=9, type=RFT_AGG_CUSTOM)
 
     def test_fetch_aggregate_01(self):
@@ -3798,7 +3767,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         report = self.report_orga
         Field.objects.create(
-            # report=report, name=f'{cfield.id}__sum', type=RFT_AGG_CUSTOM, order=2,
             report=report, name=f'{cfield.uuid}__sum', type=RFT_AGG_CUSTOM, order=2,
         )
 

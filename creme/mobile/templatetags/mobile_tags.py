@@ -39,7 +39,6 @@ Organisation = get_organisation_model()
 
 @register.simple_tag
 def mobile_location_map_url(address):
-    # url = SettingValue.objects.value_4_key(setting_keys.LOCATION_MAP_URL)
     url = SettingValue.objects.value_4_key(setting_keys.location_map_url_key)
     geoaddress = getattr(address, 'geoaddress', None)
     data = {
@@ -154,7 +153,6 @@ def mobile_activity_card(context, activity,
         # TODO: test with is staff
         'user_contact_id':    linked_contact.id if linked_contact else None,
         'activity':           activity,
-        # 'is_floating':        activity.floating_type != NARROW,
         'is_floating':        activity.floating_type != activity.FloatingType.NARROW,
         'buttons_template':   _BUTTONS[button_panel],
         'show_date':          show_date,

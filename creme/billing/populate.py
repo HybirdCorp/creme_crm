@@ -35,7 +35,6 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -369,8 +368,6 @@ class Populator(BasePopulator):
         self._save_minions(self.SALES_ORDER_STATUSES)
 
     def _populate_relation_types(self):
-        # Product = products.get_product_model()
-        # Service = products.get_service_model()
         line_models = [*line_registry]
 
         create_rtype = RelationType.objects.smart_update_or_create
@@ -660,19 +657,6 @@ class Populator(BasePopulator):
         self._populate_header_filters_for_productline()
         self._populate_header_filters_for_serviceline()
 
-    # def _populate_custom_forms(self):
-    #     create_cform = CustomFormConfigItem.objects.create_if_needed
-    #     create_cform(descriptor=custom_forms.INVOICE_CREATION_CFORM)
-    #     create_cform(descriptor=custom_forms.INVOICE_EDITION_CFORM)
-    #     create_cform(descriptor=custom_forms.QUOTE_CREATION_CFORM)
-    #     create_cform(descriptor=custom_forms.QUOTE_EDITION_CFORM)
-    #     create_cform(descriptor=custom_forms.ORDER_CREATION_CFORM)
-    #     create_cform(descriptor=custom_forms.ORDER_EDITION_CFORM)
-    #     create_cform(descriptor=custom_forms.CNOTE_CREATION_CFORM)
-    #     create_cform(descriptor=custom_forms.CNOTE_EDITION_CFORM)
-    #     create_cform(descriptor=custom_forms.BTEMPLATE_CREATION_CFORM)
-    #     create_cform(descriptor=custom_forms.BTEMPLATE_EDITION_CFORM)
-
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed
         fields = self.SEARCH
@@ -683,12 +667,6 @@ class Populator(BasePopulator):
 
         for model in (self.ProductLine, self.ServiceLine):
             create_sci(model=model, fields=[], disabled=True)
-
-    # def _populate_setting_values(self):
-    #     create_svalue = SettingValue.objects.get_or_create
-    #     create_svalue(key_id=setting_keys.payment_info_key.id,       defaults={'value': True})
-    #     create_svalue(key_id=setting_keys.button_redirection_key.id, defaults={'value': True})
-    #     create_svalue(key_id=setting_keys.emitter_edition_key.id,    defaults={'value': False})
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
@@ -713,7 +691,6 @@ class Populator(BasePopulator):
 
     def _populate_buttons_config_for_invoice(self):
         ButtonMenuItem.objects.create_if_needed(
-            # model=self.Invoice, button=buttons.GenerateInvoiceNumberButton, order=1001,
             model=self.Invoice, button=buttons.GenerateNumberButton, order=1001,
         )
 
@@ -981,7 +958,6 @@ class Populator(BasePopulator):
         )
         create_report_columns(invoices_report1)
 
-        # cell_key = total_no_vat_cell.key
         cell_key = total_no_vat_cell.portable_key
         rgraph1 = create_graph(
             uuid=UUID_RCHART_INVOICES_PER_MONTH,

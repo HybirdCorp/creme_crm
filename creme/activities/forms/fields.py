@@ -161,22 +161,6 @@ class ParticipatingUsersField(forms.ModelMultipleChoiceField):
         super().__init__(queryset=queryset, **kwargs)
         self.user = user
 
-    # def clean(self, value):
-    #     user = self.user
-    #     assert user is not None
-    #
-    #     users = set()
-    #
-    #     for part_user in super().clean(value=value):
-    #         if not part_user.is_team:
-    #             users.add(part_user)
-    #         else:
-    #             users.update(part_user.teammates.values())
-    #
-    #     return validators.validate_linkable_entities(
-    #         get_contact_model().objects.filter(is_user__in=users).select_related('is_user'),
-    #         self.user,
-    #     )
     def clean(self, value):
         user = self.user
         assert user is not None

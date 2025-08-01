@@ -42,7 +42,6 @@ class SandboxType:
     #     return f'Restricted to "{self.sandbox.user}"'
 
 
-# class _SandboxTypeRegistry:
 class SandboxTypeRegistry:
     class Error(Exception):
         pass
@@ -70,7 +69,6 @@ class SandboxTypeRegistry:
         return None
 
 
-# sandbox_type_registry = _SandboxTypeRegistry()
 sandbox_type_registry = SandboxTypeRegistry()
 
 

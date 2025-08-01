@@ -214,7 +214,6 @@ class EntityFiltersTestCase(CremeTestCase):
         )
 
         user = self.create_user(index=1, role=self.create_role(allowed_apps=['creme_core']))
-        # self.assertTrue(EntityFilter(entity_type=FakeContact).can_edit(user)[0])
         self.assertTupleEqual(
             (True, 'OK'),
             EntityFilter(user=user, entity_type=FakeContact).can_edit(user),
@@ -2159,9 +2158,7 @@ class EntityFiltersTestCase(CremeTestCase):
             pk='test-filter01', name='Filter 01', model=FakeContact, is_custom=True,
             conditions=[
                 build(rtype=loves,      has=True, entity=self.contacts['rei']),
-                # build(rtype=self.loved, has=True, ct=self.contact_ct),
                 build(rtype=loved, has=True, ct=self.contact_ct),
-                # build(rtype=self.hates, has=True),
                 build(rtype=hates, has=True),
                 SubFilterConditionHandler.build_condition(subfilter),  # <= should not be deleted
             ],
@@ -2171,7 +2168,6 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertCountEqual(
             [
                 (SubFilterConditionHandler.type_id, str(subfilter.id)),
-                # (RelationConditionHandler.type_id,  str(self.hates.id)),
                 (RelationConditionHandler.type_id,  str(hates.id)),
             ],
             efilter.conditions.values_list('type', 'name'),
@@ -2296,7 +2292,6 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_relations_subfilter04(self):
         "RelationType is deleted."
-        # loves = self._aux_test_relations()
         create_rtype = RelationType.objects.smart_update_or_create
         loves = create_rtype(
             ('test-subject_love', 'Is loving'),
@@ -2333,16 +2328,13 @@ class EntityFiltersTestCase(CremeTestCase):
         )
         build = partial(RelationSubFilterConditionHandler.build_condition, model=FakeContact)
         efilter.set_conditions([
-            build(rtype=loves,      has=True, subfilter=sub_efilter01),
-            # build(rtype=self.hates, has=True, subfilter=sub_efilter02),
+            build(rtype=loves, has=True, subfilter=sub_efilter01),
             build(rtype=hates, has=True, subfilter=sub_efilter02),
         ])
 
         loves.delete()
         self.assertListEqual(
-            # [self.hates.id],
-            [hates.id],
-            [cond.name for cond in efilter.conditions.all()]
+            [hates.id], [cond.name for cond in efilter.conditions.all()]
         )
 
     def test_relations_subfilter05(self):
@@ -3069,7 +3061,6 @@ class EntityFiltersTestCase(CremeTestCase):
 
         custom_field01.delete()
         self.assertListEqual(
-            # [str(custom_field02.id)],
             [str(custom_field02.uuid)],
             [*efilter.conditions.values_list('name', flat=True)],
         )
@@ -3801,7 +3792,6 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(ef2, efl.select_by_id('unknown_id', ef2.id))
 
         self.assertEqual(ef1.can_view(user), (True, 'OK'))
-        # self.assertEqual(ef1.can_view(user, ct), (True, 'OK'))
 
         # self.assertEqual(ef3.can_view(user, ct), (False, 'Invalid entity type'))
         self.assertNotIn(ef3, efl)

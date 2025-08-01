@@ -17,7 +17,6 @@
 ################################################################################
 
 from collections import defaultdict
-# from json import JSONDecodeError
 from json import loads as json_load
 
 from django import forms
@@ -52,7 +51,6 @@ class SemanticCharField(models.CharField):
 
 # TODO: add a form field? (validation)
 # TODO: fix the max_length value?
-# class PhoneField(models.CharField):
 class PhoneField(SemanticCharField):
     pass
 
@@ -172,15 +170,6 @@ class DatePeriodField(models.TextField):  # TODO: inherit from JSONField?
         - dictionary, like the ones 'DatePeriod.as_dict()' generates
           (e.g. {'type': 'days', 'value': 1}).
     """
-    # def to_python(self, value):
-    #     if not value:
-    #         return None
-    #
-    #     if isinstance(value, str):
-    #         return date_period_registry.deserialize(json_load(value))
-    #
-    #     # DatePeriod instance
-    #     return value
     def to_python(self, value) -> DatePeriod | None:
         if not value:
             return None
@@ -236,14 +225,6 @@ class DatePeriodField(models.TextField):  # TODO: inherit from JSONField?
     def get_prep_value(self, value):
         return self.to_python(super().get_prep_value(value))
 
-    # def get_db_prep_value(self, value, connection, prepared=False):
-    #     if value is None:
-    #         return None
-    #
-    #     if not isinstance(value, DatePeriod):
-    #         raise ValueError('DatePeriodField: value must be a DatePeriod')
-    #
-    #     return json_encode(value.as_dict())
     def get_db_prep_value(self, *args, **kwargs):
         prep_value = super().get_db_prep_value(*args, **kwargs)
 
@@ -579,15 +560,11 @@ class RealEntityForeignKey(FieldCacheMixin):
         setattr(instance, self._ct_field_name, ct)
         setattr(instance, self._fk_field_name, value)
 
-    # def get_cache_name(self):
-    #     return self.name
     @property
     def cache_name(self):  # See FieldCacheMixin
         return self.name
 
-    # def get_prefetch_queryset(self, instances, queryset=None):
     def get_prefetch_querysets(self, instances, querysets=None):
-        # if queryset is not None:
         if querysets is not None:
             raise ValueError("Custom queryset can't be used for this lookup.")
 

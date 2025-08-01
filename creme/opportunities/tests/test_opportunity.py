@@ -11,7 +11,6 @@ from parameterized import parameterized
 
 from creme import products
 from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
-# from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
@@ -181,7 +180,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertHaveRelation(target,  type=constants.REL_OBJ_TARGETS,   object=opportunity)
         self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
 
-        # with self.assertNumQueries(1):
         with self.assertNumQueries(2):
             prop_emitter1 = opportunity.emitter
         self.assertEqual(emitter, prop_emitter1)
@@ -228,7 +226,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'expected_closing_date': self.formfield_value_date(2010, 9, 20),
                 'closing_date':          self.formfield_value_date(2010, 10, 11),
                 'first_action_date':     self.formfield_value_date(2010, 7, 13),
-                # 'currency':              DEFAULT_CURRENCY_PK,
                 'currency':              currency.id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
@@ -275,7 +272,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'expected_closing_date': self.formfield_value_date(2010, 9, 20),
                 'closing_date':          self.formfield_value_date(2010, 10, 11),
                 'first_action_date':     self.formfield_value_date(2010, 7, 13),
-                # 'currency':              DEFAULT_CURRENCY_PK,
                 'currency':              currency.id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
@@ -316,7 +312,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':         'My opportunity',
                 'sales_phase':  SalesPhase.objects.first().id,
                 'closing_date': self.formfield_value_date(2011, 3, 14),
-                # 'currency':     DEFAULT_CURRENCY_PK,
                 'currency':     Currency.objects.first().id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
@@ -392,7 +387,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':         name,
                 'sales_phase':  phase.id,
                 'closing_date': self.formfield_value_date(2011, 3, 12),
-                # 'currency':     DEFAULT_CURRENCY_PK,
                 'currency':     currency.id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
@@ -416,7 +410,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':         f'Opportunity Two linked to {target}',
                 'sales_phase':  phase.id,
                 'closing_date': self.formfield_value_date(2011, 3, 12),
-                # 'currency':     DEFAULT_CURRENCY_PK,
                 'currency':     currency.id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
@@ -455,7 +448,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':         name,
                 'sales_phase':  phase.id,
                 'closing_date': self.formfield_value_date(2011, 3, 12),
-                # 'currency':     DEFAULT_CURRENCY_PK,
                 'currency':     currency.id,
 
                 self.EMITTER_KEY: emitter.id,
@@ -521,7 +513,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':         name,
                 'sales_phase':  phase.id,
                 'closing_date': self.formfield_value_date(2011, 3, 12),
-                # 'currency':     DEFAULT_CURRENCY_PK,
                 'currency':     currency.id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
@@ -545,7 +536,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':         f'Opportunity 2 linked to {target}',
                 'sales_phase':  phase.id,
                 'closing_date': self.formfield_value_date(2011, 3, 12),
-                # 'currency':     DEFAULT_CURRENCY_PK,
                 'currency':     currency.id,
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
@@ -573,7 +563,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'sales_phase':  phase.id,
                 'closing_date': self.formfield_value_date(2011, 3, 12),
                 'target':       self.formfield_value_generic_entity(target),
-                # 'currency':     DEFAULT_CURRENCY_PK,
                 'currency':     currency.id,
 
                 self.EMITTER_KEY: emitter.id,

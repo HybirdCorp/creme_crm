@@ -106,18 +106,6 @@ class MenuEntry:
         self.data = data = {} if data is None else data  # Used by creme_config
         self.label = data.get('label') or self.label
 
-    # def _has_perm(self, context) -> bool:
-    #     permissions = self.permissions
-    #
-    #     if permissions:
-    #         user = context['user']
-    #         return (
-    #             user.has_perm(permissions)
-    #             if isinstance(permissions, str) else
-    #             user.has_perms(permissions)
-    #         )
-    #
-    #     return True
     def check_permissions(self, user: CremeUser) -> None:
         """@raise PermissionDenied."""
         user.has_perms_or_die(self.permissions)
@@ -187,11 +175,6 @@ class FixedURLEntry(MenuEntry):
     def render(self, context):
         label = self.render_label(context)
 
-        # if not self._has_perm(context):
-        #     return format_html(
-        #         '<span class="ui-creme-navigation-text-entry forbidden">{}</span>',
-        #         label,
-        #     )
         try:
             self.check_permissions(context['user'])
         except PermissionDenied as e:
@@ -627,7 +610,6 @@ class _CreationViewLink:
 
         if model is not None:
             get = kwargs.get
-            # self.label = get('label') or model._meta.verbose_name
             self.label = get('label') or model_verbose_name(model)
             # NB: we cannot call model.get_create_absolute_url() immediately
             #     because the url resolver will be used too soon

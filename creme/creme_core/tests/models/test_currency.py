@@ -11,7 +11,6 @@ class CurrencyTestCase(CremeTestCase):
         self.assertEqual(_('Euro'), cur1.name)
         self.assertEqual('€',       cur1.local_symbol)
         self.assertEqual('EUR',     cur1.international_symbol)
-        # self.assertIs(cur1.is_custom, False)
         self.assertIs(cur1.is_custom, True)
         self.assertIs(cur1.is_default, True)
 

@@ -119,7 +119,6 @@ class SearcherMixin:
             app_labels=role.allowed_apps if role else None
         )]
         sort_key = collator.sort_key
-        # models.sort(key=lambda m: sort_key(str(m._meta.verbose_name)))
         models.sort(key=lambda m: sort_key(model_verbose_name(m)))
 
         return models
@@ -174,7 +173,6 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
         context['searched'] = self.get_search_terms()
         context['error_message'] = self.get_search_error()
         context['models'] = models = [*self.get_searcher().models]
-        # context['verbose_names'] = [str(model._meta.verbose_name) for model in models]
         context['verbose_names'] = [*map(model_verbose_name, models)]
 
         ctype = self.get_ctype()

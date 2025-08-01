@@ -5,7 +5,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.core.entity_filter import entity_filter_registries
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
@@ -107,7 +106,6 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
             field = ReportRelationSubfiltersConditionsField(model=FakeContact)
             field.user = user
 
-        # field.efilter_registry = entity_filter_registries[EF_REPORTS]
         field.efilter_type = EF_REPORTS
 
         conditions = field.clean(json_dump([
@@ -217,9 +215,7 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
         )
 
         field = ReportRelationSubfiltersConditionsField(
-            model=FakeContact, user=user,
-            # efilter_registry=entity_filter_registries[EF_REPORTS],
-            efilter_type=EF_REPORTS,
+            model=FakeContact, user=user, efilter_type=EF_REPORTS,
         )
 
         condition = self.get_alone_element(field.clean(json_dump([{
@@ -271,10 +267,7 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
         rtype.save()
 
         field = ReportRelationSubfiltersConditionsField(
-            model=FakeContact,
-            user=self.get_root_user(),
-            # efilter_registry=entity_filter_registries[EF_REPORTS],
-            efilter_type=EF_REPORTS,
+            model=FakeContact, user=self.get_root_user(), efilter_type=EF_REPORTS,
         )
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -664,7 +657,6 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
                 'is_private': 'on',
                 'user': user.id,
                 'use_or': 'True',
-                # 'subfiltercondition': [report_filter.id]
                 'reportsubfiltercondition': [public_report_efilter.id],
             },
         ))
@@ -1069,7 +1061,6 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         )
 
         response = self.assertGET200(
-            # f'{reverse("creme_core__efilters")}?ct_id={efilter.entity_type_id}&type={EF_REPORTS}'
             reverse(
                 'creme_core__efilters',
                 query={'ct_id': efilter.entity_type_id, 'type': EF_REPORTS},

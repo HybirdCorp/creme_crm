@@ -49,10 +49,7 @@ class AbstractReportGraph(CremeEntity):
     Group = constants.AbscissaGroup
     Aggregator = constants.OrdinateAggregator
 
-    name = models.CharField(
-        # pgettext_lazy('reports-graphs', 'Name of the graph'), max_length=100,
-        _('Name of the chart'), max_length=100,
-    )
+    name = models.CharField(_('Name of the chart'), max_length=100)
 
     linked_report = models.ForeignKey(
         settings.REPORTS_REPORT_MODEL, editable=False, on_delete=models.CASCADE,
@@ -80,9 +77,7 @@ class AbstractReportGraph(CremeEntity):
     chart = models.CharField(_('Chart type'), max_length=100, null=True)
     asc   = models.BooleanField('ASC order', default=True, editable=False)  # TODO: not viewable ?
 
-    # creation_label = _("Create a report's graph")
     creation_label = _("Create a report chart")
-    # save_label     = pgettext_lazy('reports-graphs', 'Save the graph')
     save_label     = _('Save the chart')
 
     abscissa_constraints = abscissa_constraints
@@ -93,9 +88,7 @@ class AbstractReportGraph(CremeEntity):
     class Meta:
         abstract = True
         app_label = 'reports'
-        # verbose_name = _("Report's graph")
         verbose_name = _('Report chart')
-        # verbose_name_plural = _("Reports' graphs")
         verbose_name_plural = _('Report charts')
         ordering = ['name']
 
@@ -147,7 +140,6 @@ class AbstractReportGraph(CremeEntity):
     def abscissa_info(self, abs_info: AbscissaInfo):
         assert abs_info.cell is not None
 
-        # self.abscissa_cell_value = abs_info.cell.value
         self.abscissa_cell_value = abs_info.cell.portable_value
         self.abscissa_type = abs_info.graph_type
         self.abscissa_parameter = abs_info.parameter
@@ -180,7 +172,6 @@ class AbstractReportGraph(CremeEntity):
         self.ordinate_type = ord_info.aggr_id
 
         cell = ord_info.cell
-        # self.ordinate_cell_key = cell.key if cell else ''
         self.ordinate_cell_key = cell.portable_key if cell else ''
 
     # TODO: use creme_core.utils.meta.Order

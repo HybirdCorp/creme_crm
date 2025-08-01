@@ -337,7 +337,6 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         # ---
         BrickHomeLocation.objects.get_or_create(
-            # brick_id=MemosBrick.id_, defaults={'order': 50},
             brick_id=MemosBrick.id, defaults={'order': 50},
         )
 

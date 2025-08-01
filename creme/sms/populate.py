@@ -27,7 +27,6 @@ from creme import sms
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     HeaderFilter,
@@ -81,15 +80,6 @@ class Populator(BasePopulator):
             name=_('Message template view'),
             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
         )
-
-    # def _populate_custom_forms(self):
-    #     create_cfci = CustomFormConfigItem.objects.create_if_needed
-    #     create_cfci(descriptor=custom_forms.CAMPAIGN_CREATION_CFORM)
-    #     create_cfci(descriptor=custom_forms.CAMPAIGN_EDITION_CFORM)
-    #     create_cfci(descriptor=custom_forms.TEMPLATE_CREATION_CFORM)
-    #     create_cfci(descriptor=custom_forms.TEMPLATE_EDITION_CFORM)
-    #     create_cfci(descriptor=custom_forms.MESSAGINGLIST_CREATION_CFORM)
-    #     create_cfci(descriptor=custom_forms.MESSAGINGLIST_EDITION_CFORM)
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

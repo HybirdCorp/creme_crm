@@ -22,7 +22,6 @@
 #
 ################################################################################
 
-# from collections import OrderedDict
 from collections.abc import (
     Callable,
     ItemsView,

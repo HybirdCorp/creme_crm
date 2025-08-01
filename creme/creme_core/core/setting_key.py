@@ -156,7 +156,6 @@ class UserSettingKey(_SettingKey):
 
 
 # TODO: would be cool to declare class _SettingKeyRegistry[Type[_SettingKey]] ...
-# class _SettingKeyRegistry:
 class SettingKeyRegistry:
     class RegistrationError(Exception):
         pass
@@ -200,9 +199,7 @@ class SettingKeyRegistry:
         return self
 
 
-# setting_key_registry = _SettingKeyRegistry(SettingKey)
 setting_key_registry = SettingKeyRegistry(SettingKey)
-# user_setting_key_registry = _SettingKeyRegistry(UserSettingKey)
 user_setting_key_registry = SettingKeyRegistry(UserSettingKey)
 
 

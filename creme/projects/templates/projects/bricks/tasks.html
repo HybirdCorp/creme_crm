@@ -65,7 +65,6 @@
             {% brick_table_action id='edit' url='projects__edit_task_popup'|url:task.id label=_('Edit this task') enabled=change_perm %}
         </td>
         <td {% brick_table_data_status action %}>
-{#            {% brick_table_action id='delete' url=task.get_delete_absolute_url label=_('Delete this task') enabled=user|has_perm_to_delete:task %} #}
             {% brick_table_delete_entity_action entity=task user=user label=_('Delete this task') %}
         </td>
     </tr>

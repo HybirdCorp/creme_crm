@@ -59,7 +59,6 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     ).set_tags(optional=True)
     fax      = models.CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)
     email    = models.EmailField(_('Email address'), blank=True).set_tags(optional=True)
-    # url_site = models.URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)
     url_site = core_fields.CremeURLField(
         _('Web Site'), max_length=500, blank=True,
     ).set_tags(optional=True)
@@ -157,9 +156,6 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
 
     def get_absolute_url(self):
         return reverse('persons__view_organisation', args=(self.id,))
-
-    # def get_clone_absolute_url(self):
-    #     return '' if self.is_managed else super().get_clone_absolute_url()
 
     @staticmethod
     def get_create_absolute_url():

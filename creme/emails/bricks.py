@@ -170,11 +170,6 @@ class ContactsBrick(_RelatedEntitiesBrick):
     def _get_queryset(self, entity):  # NB: entity==mailing_list
         return entity.contacts.select_related('civility')
 
-    # def _update_context(self, context):
-    #     context['field_hidden'] = context[
-    #         'fields_configs'
-    #     ].get_for_model(Contact).is_fieldname_hidden('email')
-
 
 class OrganisationsBrick(_RelatedEntitiesBrick):
     id = _RelatedEntitiesBrick.generate_id('emails', 'organisations')
@@ -185,11 +180,6 @@ class OrganisationsBrick(_RelatedEntitiesBrick):
 
     def _get_queryset(self, entity):  # NB: entity==mailing_list
         return entity.organisations.all()
-
-    # def _update_context(self, context):
-    #     context['field_hidden'] = context[
-    #         'fields_configs'
-    #     ].get_for_model(Organisation).is_fieldname_hidden('email')
 
 
 class ChildListsBrick(_RelatedEntitiesBrick):

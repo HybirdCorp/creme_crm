@@ -233,7 +233,6 @@ class Populator(BasePopulator):
         self._populate_root()
         super()._first_populate()
         self._populate_roles()
-        # self._populate_optional_currencies()
         self._populate_languages()
         self._populate_vats()
 
@@ -241,7 +240,6 @@ class Populator(BasePopulator):
         login = constants.ROOT_USERNAME
         password = constants.ROOT_PASSWORD
         self.root = get_user_model().objects.create_superuser(
-            # pk=1,
             uuid=UUID_USER_ROOT,
             username=login, password=password,
             first_name='Fulbert', last_name='Creme',
@@ -293,27 +291,7 @@ class Populator(BasePopulator):
             )
 
     def _populate_currencies(self):
-        # Currency.objects.get_or_create(
-        #     id=constants.DEFAULT_CURRENCY_PK,
-        #     defaults={
-        #         'name': _('Euro'),
-        #         'local_symbol': _('€'),
-        #         'international_symbol': _('EUR'),
-        #         'is_custom': False,
-        #         # 'is_default': True,  # Not useful
-        #     },
-        # )
         self._save_minions(self.CURRENCIES)
-
-    # def _populate_optional_currencies(self):
-    #     Currency.objects.get_or_create(
-    #         id=2,
-    #         defaults={
-    #             'name': _('United States dollar'),
-    #             'local_symbol': _('$'),
-    #             'international_symbol': _('USD'),
-    #         },
-    #     )
 
     def _populate_languages(self):
         Language.objects.bulk_create([
@@ -348,94 +326,6 @@ class Populator(BasePopulator):
             (constants.REL_SUB_HAS, _('owns')),
             (constants.REL_OBJ_HAS, _('belongs to')),
         )
-
-    # def _populate_jobs(self):
-    #     create_job = Job.objects.get_or_create
-    #     create_job(
-    #         type_id=creme_jobs.sessions_cleaner_type.id,
-    #         defaults={
-    #             'language': settings.LANGUAGE_CODE,
-    #             'periodicity': date_period_registry.get_period('days', 1),
-    #             'status': Job.STATUS_OK,
-    #         },
-    #     )
-    #     create_job(
-    #         type_id=creme_jobs.temp_files_cleaner_type.id,
-    #         defaults={
-    #             'language': settings.LANGUAGE_CODE,
-    #             'periodicity': date_period_registry.get_period('days', 1),
-    #             'status': Job.STATUS_OK,
-    #             'data': {
-    #                 'delay': date_period_registry.get_period('days', 1).as_dict(),
-    #             },
-    #         },
-    #     )
-    #     create_job(
-    #         type_id=creme_jobs.reminder_type.id,
-    #         defaults={
-    #             'language': settings.LANGUAGE_CODE,
-    #             'status': Job.STATUS_OK,
-    #         },
-    #     )
-    #     create_job(
-    #         type_id=creme_jobs.notification_emails_sender_type.id,
-    #         defaults={
-    #             'language': settings.LANGUAGE_CODE,
-    #             'status': Job.STATUS_OK,
-    #         },
-    #     )
-
-    # def _populate_sandboxes(self):
-    #     Sandbox.objects.get_or_create(
-    #         uuid=constants.UUID_SANDBOX_SUPERUSERS,
-    #         defaults={
-    #             # 'superuser': True,
-    #             'type_id': sandboxes.OnlySuperusersType.id,
-    #         },
-    #     )
-
-    # def _populate_setting_values(self):
-    #     create_svalue = SettingValue.objects.get_or_create
-    #     create_svalue(key_id=setting_keys.global_filters_edition_key.id,
-    #                   defaults={'value': False})
-    #     create_svalue(key_id=setting_keys.block_opening_key.id,   defaults={'value': True})
-    #     create_svalue(key_id=setting_keys.block_showempty_key.id, defaults={'value': True})
-    #     create_svalue(key_id=setting_keys.currency_symbol_key.id, defaults={'value': True})
-
-    # def _populate_notification_channels(self):
-    #     create_channel = NotificationChannel.objects.get_or_create
-    #     create_channel(
-    #         uuid=constants.UUID_CHANNEL_SYSTEM,
-    #         defaults={
-    #             'type_id': notification.SystemChannelType.id,
-    #             'required': True,
-    #             'default_outputs': [OUTPUT_WEB],
-    #         },
-    #     )
-    #     create_channel(
-    #         uuid=constants.UUID_CHANNEL_ADMIN,
-    #         defaults={
-    #             'type_id': notification.AdministrationChannelType.id,
-    #             'default_outputs': [OUTPUT_WEB],
-    #             'required': False,
-    #         },
-    #     )
-    #     create_channel(
-    #         uuid=constants.UUID_CHANNEL_JOBS,
-    #         defaults={
-    #             'type_id': notification.JobsChannelType.id,
-    #             'default_outputs': [OUTPUT_WEB],
-    #             'required': False,
-    #         },
-    #     )
-    #     create_channel(
-    #         uuid=constants.UUID_CHANNEL_REMINDERS,
-    #         defaults={
-    #             'type_id': notification.RemindersChannelType.id,
-    #             'required': True,
-    #             'default_outputs': [OUTPUT_EMAIL],
-    #         },
-    #     )
 
     def _populate_menu_config(self):
         create_mitem = MenuConfigItem.objects.create

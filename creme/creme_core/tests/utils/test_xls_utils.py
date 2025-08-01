@@ -13,7 +13,6 @@ class XLSUtilsTestCase(CremeTestCase):
     files = (
         'data-xls5.0-95.xls',
         'data-xls97-2003.xls',
-        # 'data-xlsx.xlsx'
     )
     current_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
     data = [

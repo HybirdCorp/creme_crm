@@ -107,7 +107,6 @@ if apps.is_installed('creme.activities'):
                 user=brick_context['user'],
                 queryset=future(entity, brick_context['today']),
             ).first()
-            # context['NARROW'] = activities_constants.NARROW
 
             return context
 
@@ -309,7 +308,6 @@ class ContactCardHatBrick(_PersonsCardHatBrick):
 
         return self._render(self.get_template_context(
             context,
-            # hidden_fields=context['fields_configs'].get_for_model(Contact).hidden_field_names,
 
             max_organisations=max_organisations,
             managed=managed,
@@ -354,7 +352,6 @@ class OrganisationCardHatBrick(_PersonsCardHatBrick):
         organisation = context['object']
         user = context['user']
         managed_orgas = Organisation.objects.filter_managed_by_creme()
-        # get_fconfigs = context['fields_configs'].get_for_model
         max_contacts = self.max_related_contacts
 
         def retrieve_contacts_n_count(qs):
@@ -371,8 +368,6 @@ class OrganisationCardHatBrick(_PersonsCardHatBrick):
 
         return self._render(self.get_template_context(
             context,
-            # hidden_fields=get_fconfigs(Organisation).hidden_field_names,
-            # position_is_hidden=get_fconfigs(Contact).is_fieldname_hidden('position'),
             position_is_hidden=context['fields_configs'].get_for_model(
                 Contact
             ).is_fieldname_hidden('position'),

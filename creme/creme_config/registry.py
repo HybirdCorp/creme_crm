@@ -735,8 +735,6 @@ class _ConfigRegistry:
                 )
                 continue
 
-            # if not brick.has_perms(user=user):
-            #     brick = VoidBrick(id=brick.id)
             try:
                 brick.check_permissions(user=user)
             except (PermissionDenied, ConflictError):
@@ -761,8 +759,6 @@ class _ConfigRegistry:
             brick = Brick()
         else:
             brick = brick_class()
-            # if not brick.has_perms(user=user):
-            #     brick = VoidBrick(id=brick.id)
             try:
                 brick.check_permissions(user=user)
             except (PermissionDenied, ConflictError):

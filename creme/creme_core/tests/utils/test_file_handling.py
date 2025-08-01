@@ -24,12 +24,7 @@ class FileHandlingTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        utils_dir_path = join(
-            settings.MEDIA_ROOT,
-            # 'upload',
-            'creme_core-tests',
-            'utils',
-        )
+        utils_dir_path = join(settings.MEDIA_ROOT, 'creme_core-tests', 'utils')
 
         if not exists(utils_dir_path):
             makedirs(utils_dir_path, 0o755)

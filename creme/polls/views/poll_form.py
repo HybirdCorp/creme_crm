@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2024  Hybird
+#    Copyright (C) 2012-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -164,7 +164,6 @@ class _RelatedSectionMixin(base.EntityRelatedMixin):
 
     def get_related_section(self):
         try:
-            # section = getattr(self, 'related_section')
             section = self.related_section  # NOQA
         except AttributeError:
             self.related_section = section = get_object_or_404(
@@ -231,7 +230,6 @@ class ConditionsEdition(generic.RelatedToEntityFormPopup):
 
     def get_related_line(self):
         try:
-            # line = getattr(self, 'related_line')
             line = self.related_line  # NOQA
         except AttributeError:
             self.related_line = line = get_object_or_404(

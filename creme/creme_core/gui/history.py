@@ -247,11 +247,9 @@ class HTMLTextFieldChangeExplainer(HTMLFieldChangeExplainer):
                     ' <summary>{summary}</summary>'
                     ' <details>'
                     '  <div class="history-line-field-change-text-old_value">'
-                    # '   <h4>{old_title}</h4><p>{old}</p>'
                     '   <h4>{old_title}</h4>{old}'
                     '  </div>'
                     '  <div class="history-line-field-change-text-new_value">'
-                    # '   <h4>{new_title}</h4><p>{new}</p>'
                     '   <h4>{new_title}</h4>{new}'
                     '  </div>'
                     ' </details>'
@@ -260,7 +258,6 @@ class HTMLTextFieldChangeExplainer(HTMLFieldChangeExplainer):
                     summary=gettext('Details of modifications'),
 
                     old_title=gettext('Old value'),
-                    # old=old_value,
                     old=mark_safe(
                         linebreaks(old_value, autoescape=True)
                         if old_value else
@@ -268,7 +265,6 @@ class HTMLTextFieldChangeExplainer(HTMLFieldChangeExplainer):
                     ),
 
                     new_title=gettext('New value'),
-                    # new=new_value,
                     new=mark_safe(
                         linebreaks(new_value, autoescape=True)
                         if new_value else

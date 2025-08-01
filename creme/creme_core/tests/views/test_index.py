@@ -14,7 +14,6 @@ from ..base import CremeTestCase
 from .base import AppPermissionBrick, BrickTestCaseMixin  # ViewsTestCase
 
 
-# class IndexViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     @classmethod
     def setUpClass(cls):

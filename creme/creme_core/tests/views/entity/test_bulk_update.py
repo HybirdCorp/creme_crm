@@ -7,7 +7,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import Max
 from django.forms import CharField, DateField
-# from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.timezone import now
@@ -542,7 +541,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             ) % {'counter': 1},
         )
 
-    # @override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y'])
     def test_regular_field_date(self):
         user = self.login_as_root_and_get()
 
@@ -1031,7 +1029,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertRaises(DoesNotExist, self.get_cf_values, cf_str, self.refresh(mario))
         self.assertRaises(DoesNotExist, self.get_cf_values, cf_str, self.refresh(luigi))
 
-    # @override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y %H:%M:%S'])
     def test_custom_field_datetime(self):
         user = self.login_as_root_and_get()
 
@@ -1609,7 +1606,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         response = self.client.get(self.build_inneredit_uri(sector, 'title'))
         self.assertIn(
             escape(f'This model is not a entity model: {FakeSector}'),
-            # response.content.decode(),
             response.text,
         )
 

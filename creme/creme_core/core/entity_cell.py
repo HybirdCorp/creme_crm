@@ -29,7 +29,7 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.db.models import Field, Model
 from django.utils.functional import cached_property
-from django.utils.html import escape  # format_html, format_html_join
+from django.utils.html import escape
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -258,14 +258,12 @@ class EntityCell:
                & ID in the other case.
         @return: A dictionary indicating the type & the value of the cell.
         """
-        # return {'type': self.type_id, 'value': self.value}
         return {
             'type': self.type_id,
             'value': self.portable_value if portable else self.value,
         }
 
 
-# class EntityCellsRegistry:
 class EntityCellRegistry:
     __slots__ = ('_cell_classes', )
 
@@ -389,7 +387,6 @@ class EntityCellRegistry:
         return self
 
 
-# CELLS_MAP = EntityCellsRegistry()
 CELLS_MAP = EntityCellRegistry()
 
 
@@ -485,11 +482,6 @@ class EntityCellRegularField(EntityCell):
         )
 
     @classmethod
-    # def build(cls,
-    #           model: type[Model],
-    #           name: str,
-    #           is_hidden: bool = False,
-    #           ):
     def build(cls,
               model: type[Model],
               name: str,
@@ -565,15 +557,6 @@ class EntityCellCustomField(EntityCell):
 
     @staticmethod
     def _multi_enum_html(entity, cf_value, user, cfield):
-        # if cf_value is None:
-        #     return ''
-        #
-        # li_tags = format_html_join(
-        #     '', '<li>{}</li>',
-        #     ((str(val),) for val in cf_value.get_enumvalues())
-        # )
-        #
-        # return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
         return render_limited_list(
             items=[] if cf_value is None else cf_value.get_enumvalues(),
             limit=settings.CELL_SIZE,
@@ -608,7 +591,6 @@ class EntityCellCustomField(EntityCell):
         super().__init__(
             model=customfield.content_type.model_class(),
             value=str(customfield.id),
-            # title=customfield.name,
             is_hidden=False,
             is_excluded=customfield.is_deleted,
         )
@@ -616,20 +598,6 @@ class EntityCellCustomField(EntityCell):
         self._printers = {}
 
     @classmethod
-    # def build(cls,
-    #           model: type[Model],
-    #           customfield_id: str,
-    #           ) -> EntityCellCustomField | None:
-    #     try:
-    #         cfield = CustomField.objects.get_for_model(model)[int(customfield_id)]
-    #     except (KeyError, ValueError):
-    #         logger.warning(
-    #             'EntityCellCustomField: custom field id="%s" (on model %s) does not exist',
-    #             customfield_id, model,
-    #         )
-    #         return None
-    #
-    #     return cls(cfield)
     def build(cls, model: type[Model], name: str) -> EntityCellCustomField | None:
         """Helper method to build an EntityCellCustomField instance.
 
@@ -759,13 +727,11 @@ class EntityCellFunctionField(EntityCell):
         @param name: Name of a FunctionField class (i.e. string used to register it).
         @return: An instance of EntityCellFunctionField, or None (if an error occurred).
         """
-        # func_field = cls.field_registry.get(model, func_field_name)
         func_field = cls.field_registry.get(model=model, name=name)
 
         if func_field is None:
             logger.warning(
                 'EntityCellFunctionField: function field "%s" does not exist',
-                # func_field_name,
                 name,
             )
             return None
@@ -815,21 +781,6 @@ class EntityCellRelation(EntityCell):
         )
 
     @classmethod
-    # def build(cls,
-    #           model: type[Model],
-    #           rtype_id: str,
-    #           is_hidden: bool = False,
-    #           ) -> EntityCellRelation | None:
-    #     try:
-    #         rtype = RelationType.objects.get(pk=rtype_id)
-    #     except RelationType.DoesNotExist:
-    #         logger.warning(
-    #             'EntityCellRelation: relation type "%s" does not exist',
-    #             rtype_id,
-    #         )
-    #         return None
-    #
-    #     return cls(model=model, rtype=rtype, is_hidden=is_hidden)
     def build(cls,
               model: type[Model],
               name: str,
@@ -876,25 +827,9 @@ class EntityCellRelation(EntityCell):
             related_entities = entity.get_related_entities(self.value, True)
             a_target = '_blank' if tag == ViewTag.HTML_FORM else '_self'
 
-            # if not related_entities:
-            #     return ''
-            #
-            # if len(related_entities) == 1:
-            #     return widget_entity_hyperlink(related_entities[0], user, target=a_target)
-
             sort_key = collator.sort_key
             related_entities.sort(key=lambda e: sort_key(str(e)))
 
-            # return format_html(
-            #     '<ul>{}</ul>',
-            #     format_html_join(
-            #         '', '<li>{}</li>',
-            #         (
-            #             [widget_entity_hyperlink(e, user, target=a_target)]
-            #             for e in related_entities
-            #         ),
-            #     ),
-            # )
             # NB: about limiting the number of results
             #     It would be probably better to limit the number of elements in the SQL query
             #     (notice we would not have the exact count anymore) but as we often prefetch

@@ -51,11 +51,6 @@ class UnsuccessfulPhoneCallCreation(generic.base.EntityRelatedMixin, generic.Che
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_link_or_die(entity)
-        # if entity == user.linked_contact:
-        #     raise ConflictError(gettext(
-        #         'The current contact is you; '
-        #         'the button has to be used with a different contact'
-        #     ))
 
     def _get_participants(self, user, entity: CremeEntity) -> list[CremeEntity]:
         linked_contact = user.linked_contact

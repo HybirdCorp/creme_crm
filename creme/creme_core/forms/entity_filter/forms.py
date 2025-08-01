@@ -60,7 +60,6 @@ class _EntityFilterForm(CremeModelForm):
         self.instance.filter_type = efilter_registry.id
         fields = self.fields
 
-        # fields['user'].empty_label = _('All users')
         user_f = fields['user']
         user_f.empty_label = _('No owner')
         user_f.help_text = _(
@@ -75,7 +74,6 @@ class _EntityFilterForm(CremeModelForm):
         f_kwargs = {
             'user': self.user,
             'required': False,
-            # 'efilter_registry': efilter_registry,
             'efilter_type': efilter_registry.id,
         }
         for handler_cls in efilter_registry.handler_classes:
@@ -141,7 +139,6 @@ class EntityFilterCreationForm(_EntityFilterForm):
         super().save(commit=False, *args, **kwargs)
         generate_string_id_and_save(
             EntityFilter, [instance],
-            # f'{self.pk_prefix}{ct.app_label}-{ct.model}',
             f'{self.pk_prefix}{ct.app_label}-{ct.model}-',
         )
 
@@ -184,7 +181,6 @@ class EntityFilterCloningForm(_EntityFilterForm):
         super().save(commit=False, *args, **kwargs)
         generate_string_id_and_save(
             EntityFilter, [instance],
-            # f'{self.pk_prefix}{ct.app_label}-{ct.model}',
             f'{self.pk_prefix}{ct.app_label}-{ct.model}-',
         )
 

@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from collections.abc import Container, Iterable, Iterator, Sequence
 from datetime import date, datetime, time
 from decimal import Decimal
@@ -29,11 +28,8 @@ from json import loads as json_load
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-# from django.core.exceptions import ValidationError
 from django.db import models
-# from django.db.models import ForeignKey
 from django.db.models import Model, signals
-# from django.db.models.base import ModelState
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
@@ -170,56 +166,6 @@ class _HistoryLineType:
     @classmethod
     def _build_fields_modifs(cls, instance) -> list[tuple]:
         modifs = []
-        # backup = getattr(instance, '_instance_backup', None)
-        #
-        # if backup is not None:
-        #     backup['_state'] = ModelState()
-        #     old_instance = instance.__class__()
-        #     old_instance.__dict__ = backup
-        #     excluded_fields: Container = (
-        #         _EXCLUDED_FIELDS if isinstance(instance, CremeEntity) else ()
-        #     )
-        #
-        #     for field in instance._meta.fields:
-        #         # use get_attname instead of name to check ids for foreignkeys
-        #         # instead of the entity to optimize queries' number
-        #         fname = field.get_attname()
-        #
-        #         if fname in excluded_fields or not field.get_tag(FieldTag.VIEWABLE):
-        #             continue
-        #
-        #         old_value = getattr(old_instance, fname)
-        #         new_value = getattr(instance, fname)
-        #
-        #         if not isinstance(field, ForeignKey):
-        #             try:
-        #                 # Sometimes a form sets a string representing an int in
-        #                 # an IntegerField (for example)
-        #                 #   => the type difference leads to a useless log like:
-        #                 #      Set field “My field” from “X” to “X”
-        #                 new_value = field.clean(new_value, instance)
-        #             except ValidationError as e:
-        #                 logger.debug(
-        #                     'Error in _HistoryLineType._build_fields_modifs() [%s]: %s',
-        #                     __name__, e,
-        #                 )
-        #                 continue
-        #
-        #         if old_value != new_value:
-        #             if not new_value and not old_value:
-        #                 # Ignore useless changes like : None -> ""
-        #                 continue
-        #
-        #             modif: tuple
-        #
-        #             if field.get_internal_type() not in _SERIALISABLE_FIELDS:
-        #                 modif = (fname,)
-        #             elif old_value:
-        #                 modif = (fname, old_value, new_value)
-        #             else:
-        #                 modif = (fname, new_value)
-        #
-        #             modifs.append(modif)
         snapshot = Snapshot.get_for_instance(instance)
 
         if snapshot is not None:
@@ -253,11 +199,6 @@ class _HistoryLineType:
                 modifs.append(modif)
 
         return modifs
-
-    # @staticmethod
-    # def _create_entity_backup(entity: Model) -> None:
-    #     entity._instance_backup = backup = entity.__dict__.copy()
-    #     del backup['_state']
 
 
 class _HLTCacheMixin:
@@ -357,18 +298,10 @@ class _HLTEntityEdition(_HLTManyToManyMixin,
                     entity, cls.type_id, date=entity.modified, modifs=modifs,
                 )
                 _HLTRelatedEntity.create_lines(entity, hline)
-                # cls._create_entity_backup(entity)
                 cls._set_cached_line(entity, hline)
             else:
                 # NB: to build attribute "_modifications"  TODO: improve HistoryLine API...
                 hline._read_attrs()
-
-                # # NB: we could merge modifications of the same field, but one
-                # #     should avoiding multiple save() (& so HistoryLine can help
-                # #     detecting these cases).
-                # modifications = [*hline._modifications, *modifs]
-                # hline.value = hline._encode_attrs(entity, modifs=modifications)
-                # hline._modifications = modifications  # TODO
                 hline.value = hline._encode_attrs(entity, modifs=modifs)
                 hline.save()
 
@@ -412,18 +345,6 @@ class _HLTCustomFieldsEdition(_HLTManyToManyMixin,
                               _HistoryLineType):
     verbose_name = _('Edition (custom fields)')
 
-    # backup_attname = '_history_value_backup'
-
-    # @classmethod
-    # def _create_cvalue_backup(cls, custom_value: CustomFieldValue):
-    #     if not isinstance(custom_value, CustomFieldMultiEnum):
-    #         storable_value = (
-    #             custom_value.value_id
-    #             if isinstance(custom_value, CustomFieldEnum) else
-    #             custom_value.value
-    #         )
-    #         setattr(custom_value, cls.backup_attname, storable_value)
-
     @classmethod
     def _get_cache_key(cls, instance):
         return f'creme_core-history_lines-custom-{instance.id}'
@@ -435,14 +356,6 @@ class _HLTCustomFieldsEdition(_HLTManyToManyMixin,
 
         entity = custom_value.entity
 
-        # old_value = getattr(custom_value, cls.backup_attname, None)
-        # new_value = (
-        #     None if emptied else (
-        #         custom_value.value_id
-        #         if isinstance(custom_value, CustomFieldEnum) else
-        #         custom_value.value
-        #     )
-        # )
         def storable_value(cvalue):
             return (
                 cvalue.value_id
@@ -536,10 +449,8 @@ class _HLTEntityTrash(_HistoryLineType):
 
     @classmethod
     def create_line(cls, entity: CremeEntity) -> None:
-        # backup = getattr(entity, '_instance_backup', None)
         snapshot = Snapshot.get_for_instance(entity)
 
-        # if backup and backup['is_deleted'] != entity.is_deleted:
         # TODO: method snapshot.has_changed(...)?
         if snapshot and any(
             diff.field_name == 'is_deleted' for diff in snapshot.compare(entity)
@@ -702,19 +613,11 @@ class _HLTAuxEdition(_HLTManyToManyMixin,
                     cls.type_id,
                     modifs=[cls._build_modifs(related), *fields_modifs],
                 )
-                # cls._create_entity_backup(related)
                 cls._set_cached_line(related, hline)
             else:
                 # NB: to build attribute "_modifications"  TODO: improve HistoryLine API...
                 hline._read_attrs()
 
-                # # NB: we could merge modification of the same field, but one
-                # #     should avoiding multiple save() (& so HistoryLine can help
-                # #     detecting these cases).
-                # modifications = [*hline._modifications, *fields_modifs]
-                # hline.value = hline._encode_attrs(
-                #     cls._build_modifs(related), modifs=modifications,
-                #  )
                 # hline._modifications = modifications  # TODO
                 hline.value = hline._encode_attrs(
                     cls._build_modifs(related),
@@ -815,14 +718,6 @@ def is_history_enabled() -> bool:
 
     Hint: if you want to enable/disable the history, see 'creme_core.core.history'.
     """
-    # if hasattr(HistoryLine, 'ENABLED'):
-    #     warnings.warn(
-    #         'HistoryLine.ENABLED is deprecated ;'
-    #         'use creme.creme_core.models.toggle_history instead.',
-    #         DeprecationWarning,
-    #     )
-    #     return HistoryLine.ENABLED
-
     cache = get_per_request_cache()
 
     per_request_status = cache.get(HISTORY_ENABLED_CACHE_KEY)
@@ -923,19 +818,6 @@ class HistoryLine(Model):
 
             if not progress:
                 break
-
-    # @staticmethod
-    # def disable(instance) -> None:
-    #     """Disable history for this instance.
-    #     @type instance: Can be an instance of CremeEntity, Relation,
-    #           CremeProperty, an auxiliary model.
-    #     """
-    #     instance._hline_disabled = True
-    #     warnings.warn(
-    #         'HistoryLine.disable() is deprecated; '
-    #         'use creme.creme_core.core.history.toggle_history instead.',
-    #         DeprecationWarning,
-    #     )
 
     @staticmethod
     def mark_as_reassigned(instance, old_reference, new_reference, field_name: str):
@@ -1124,7 +1006,6 @@ class HistoryLine(Model):
     @property
     def user(self):
         try:
-            # user = getattr(self, '_user_cache')
             user = self._user_cache
         except AttributeError:
             username = self.username
@@ -1146,46 +1027,11 @@ def _final_entity(entity) -> bool:
     return entity.entity_type_id == _get_ct(entity).id
 
 
-# @receiver(signals.post_init, dispatch_uid='creme_core-prepare_log_for_history')
-# def _prepare_log(sender, instance, **kwargs):
-#     # NB: optimization (it's checked in HistoryLine.save() anyway)
-#     if not is_history_enabled():
-#         return
-#
-#     # if getattr(instance, '_hline_disabled', False):
-#     #     return
-#
-#     if hasattr(instance, 'get_related_entity'):
-#         if instance.id:
-#             _HistoryLineType._create_entity_backup(instance)
-#     elif isinstance(instance, CremeEntity) and instance.id and _final_entity(instance):
-#         _HistoryLineType._create_entity_backup(instance)
-#     elif isinstance(instance, CustomFieldValue):
-#         _HLTCustomFieldsEdition._create_cvalue_backup(instance)
-#     # XXX: following billing lines problem should not exist anymore
-#     #      (several inheritance levels are avoided).
-#     # todo: replace with this code
-#     #      problem with billing lines : the update view does not retrieve
-#     #      final class, so 'instance.entity_type_id == _get_ct(instance).id'
-#     #      test avoid the creation of a line
-#     #      --> find a better way to test if a final object is alive ?
-#     # if isinstance(instance, CremeEntity):
-#     #     if not instance.id or instance.entity_type_id != _get_ct(instance).id:
-#     #         return
-#     # elif not hasattr(instance, 'get_related_entity'):
-#     #     return
-#     #
-#     # _HistoryLineType._create_entity_backup(instance)
-
-
 @receiver(signals.post_save, dispatch_uid='creme_core-create_history_line')
 def _log_creation_edition(sender, instance, created, **kwargs):
     # NB: optimization (it's checked in HistoryLine.save() anyway)
     if not is_history_enabled():
         return
-
-    # if getattr(instance, '_hline_disabled', False):
-    #     return
 
     try:
         if isinstance(instance, CremeProperty):
@@ -1216,9 +1062,6 @@ def _log_m2m_edition(sender, instance, action, pk_set, **kwargs):
     # NB: optimization (it's checked in HistoryLine.save() anyway)
     if not is_history_enabled():
         return
-
-    # if getattr(instance, '_hline_disabled', False):
-    #     return
 
     if hasattr(instance, 'get_related_entity'):
         create = partial(_HLTAuxEdition.create_line_for_m2m, related=instance)
@@ -1273,9 +1116,6 @@ def _log_deletion(sender, instance, **kwargs):
     # NB: optimization (it's checked in HistoryLine.save() anyway)
     if not is_history_enabled():
         return
-
-    # if getattr(instance, '_hline_disabled', False):
-    #     return
 
     # When we are dealing with CremeEntities, we check that we are dealing
     # with the final class, because the signal is sent several times, with

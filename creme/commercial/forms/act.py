@@ -87,10 +87,6 @@ class ObjectiveForm(core_forms.CremeModelForm):
 
 
 class ObjectivesFromPatternForm(core_forms.CremeForm):
-    # pattern = forms.ModelChoiceField(
-    #     label=_('Pattern'), empty_label=None,
-    #     queryset=ActObjectivePattern.objects.all(),
-    # )
     pattern = core_fields.CreatorEntityField(
         label=pgettext_lazy('commercial', 'Pattern'),
         model=ActObjectivePattern,
@@ -100,9 +96,6 @@ class ObjectivesFromPatternForm(core_forms.CremeForm):
         super().__init__(*args, **kwargs)
         self.act = entity
 
-        # self.fields['pattern'].queryset = ActObjectivePattern.objects.filter(
-        #     segment=entity.segment_id,
-        # )
         pattern_f = self.fields['pattern']
         pattern_f.q_filter = {'segment': entity.segment_id}
         pattern_f.help_text = mark_safe(

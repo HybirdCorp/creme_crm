@@ -246,12 +246,7 @@ class EntityViewsTestCase(CremeTestCase):
 
         response = self.assertPOST200(url, data={'id': mario.id}, follow=True)
         self.assertRedirects(
-            response,
-            # '{login_url}?next={clone_url}'.format(
-            #     login_url=reverse(settings.LOGIN_URL),
-            #     clone_url=url,
-            # )
-            reverse(settings.LOGIN_URL, query={'next': url}),
+            response, reverse(settings.LOGIN_URL, query={'next': url}),
         )
 
     def test_clone__standard_user(self):
@@ -292,7 +287,6 @@ class EntityViewsTestCase(CremeTestCase):
 
         image = FakeImage.objects.create(user=user, name='Img1')
         count = FakeImage.objects.count()
-        # self.assertPOST404(self.CLONE_URL, data={'id': image.id}, follow=True)
         self.assertPOST409(self.CLONE_URL, data={'id': image.id}, follow=True)
         self.assertEqual(count, FakeImage.objects.count())
 
@@ -318,7 +312,6 @@ class EntityViewsTestCase(CremeTestCase):
             ).order_by('created')
 
         self.assertEqual(mario.last_name, oiram.last_name)
-        # self.assertEqual(oiram.get_absolute_url(), response.content.decode())
         self.assertEqual(oiram.get_absolute_url(), response.text)
 
     def test_restrict_entity_2_superusers01(self):

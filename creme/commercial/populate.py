@@ -19,7 +19,6 @@
 import logging
 
 from django.apps import apps
-# from django.conf import settings
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -28,7 +27,6 @@ from creme import commercial, persons, products
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
@@ -177,14 +175,6 @@ class Populator(BasePopulator):
             ),
         )
 
-    # def _populate_property_types(self):
-    #     CremePropertyType.objects.smart_update_or_create(
-    #         uuid=constants.UUID_PROP_IS_A_SALESMAN,
-    #         app_label='commercial',
-    #         text=_('is a salesman'),
-    #         subject_ctypes=[self.Contact],
-    #     )
-
     def _populate_header_filters_for_act(self):
         HeaderFilter.objects.create_if_needed(
             pk=constants.DEFAULT_HFILTER_ACT, model=self.Act,
@@ -218,28 +208,6 @@ class Populator(BasePopulator):
         self._populate_header_filters_for_strategy()
         self._populate_header_filters_for_pattern()
 
-    # def _populate_jobs(self):
-    #     Job.objects.get_or_create(
-    #         type_id=creme_jobs.com_approaches_emails_send_type.id,
-    #         defaults={
-    #             'language':    settings.LANGUAGE_CODE,
-    #             'periodicity': date_period_registry.get_period('days', 1),
-    #             'status':      Job.STATUS_OK,
-    #             # The CommercialApproach field for Activities' CustomForms is not
-    #             # in the default configuration, so a enabled job would be annoying.
-    #             'enabled': False,
-    #         },
-    #     )
-
-    # def _populate_custom_forms(self):
-    #     create_cform = CustomFormConfigItem.objects.create_if_needed
-    #     create_cform(descriptor=custom_forms.ACT_CREATION_CFORM)
-    #     create_cform(descriptor=custom_forms.ACT_EDITION_CFORM)
-    #     create_cform(descriptor=custom_forms.PATTERN_CREATION_CFORM)
-    #     create_cform(descriptor=custom_forms.PATTERN_EDITION_CFORM)
-    #     create_cform(descriptor=custom_forms.STRATEGY_CREATION_CFORM)
-    #     create_cform(descriptor=custom_forms.STRATEGY_EDITION_CFORM)
-
     def _populate_search_config(self):
         def create_sci(model, key):
             fields = self.SEARCH[key]
@@ -250,12 +218,6 @@ class Populator(BasePopulator):
         create_sci(model=self.Act,                 key='ACT')
         create_sci(model=self.Strategy,            key='STRATEGY')
         create_sci(model=self.ActObjectivePattern, key='PATTERN')
-
-    # def _populate_setting_values(self):
-    #     SettingValue.objects.get_or_create(
-    #         key_id=setting_keys.orga_approaches_key.id,
-    #         defaults={'value': True},
-    #     )
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

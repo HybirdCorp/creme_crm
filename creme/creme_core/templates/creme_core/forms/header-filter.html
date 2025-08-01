@@ -5,12 +5,10 @@
 {% block page_title %}{% if not object.pk %}{% translate 'Create a view of list' %}{% else %}{% translate 'Edit a view of list' %}{% endif %} - {{form.instance.entity_type}} - {% endblock %}
 
 {% block content %}
-{#    {% if not form.instance.pk %} #}
     {% if not object.pk %}
         {% blocktranslate with ctype=form.instance.entity_type asvar form_title %}Create a view of list for «{{ctype}}»{% endblocktranslate %}
         {% include 'creme_core/generics/blockform/base.html' with icon_name='header_filter' icon_label=_('View of list') title=form_title %}
     {% else %}
-{#        {% blocktranslate with view=form.instance asvar form_title %}Edit the view of list «{{view}}»{% endblocktranslate %} #}
         {% blocktranslate with view=object asvar form_title %}Edit the view of list «{{view}}»{% endblocktranslate %}
         {% include 'creme_core/generics/blockform/base.html' with icon_name='header_filter' icon_label=_('View of list') title=form_title %}
     {% endif %}

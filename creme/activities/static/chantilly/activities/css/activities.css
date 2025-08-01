@@ -71,21 +71,6 @@
     font-family: 'Open Sans', sans-serif;
 }
 
-/*
-.calendar-menu {
-    position: absolute;
-    clear: both;
-
-    width: 320px;
-    overflow-y: auto;
-
-    margin-top: 41px;
-    padding-bottom: 10px;
-
-    font-family: 'Open Sans', sans-serif;
-}
-*/
-
 /* apply a natural box layout model to all elements */
 .calendar-menu, .calendar-menu * {
     box-sizing: border-box;
@@ -265,16 +250,6 @@
 .calendar-main .fc-toolbar .fc-left {
     min-width: 365px;
 }
-
-/*
-.calendar-main .calendar.with-menu {
-    margin: 0 0 0 325px;
-}
-
-.calendar-main .fc-creme.with-menu .fc-toolbar .fc-toolbar-title {
-    min-width: 365px;
-}
-*/
 
 .calendar-main .fc-creme.with-menu .fc-toolbar.fc-header-toolbar {
     margin-left: -325px;

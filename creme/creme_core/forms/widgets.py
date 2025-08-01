@@ -479,7 +479,6 @@ class ChainedInput(widgets.TextInput):
         widget_type = 'ui-creme-chainedselect'
 
         value = self.from_python(value) if self.from_python is not None else value
-        # context = super().get_context(name='', value='', attrs=attrs)
         context = super().get_context(name=f'chain|{name}', value='', attrs=attrs)
         widget_cxt = context['widget']
         final_attrs = widget_cxt.pop('attrs')
@@ -644,7 +643,6 @@ class CTEntitySelector(ChainedInput):
                  content_types=(),
                  attrs=None,
                  multiple=False,
-                 # autocomplete=False,
                  autocomplete=True,
                  creator=False,
                  ):
@@ -921,7 +919,6 @@ class FilteredEntityTypeWidget(ChainedInput):
         # TODO: do not make a request for ContentType ID == '0'
         add_dselect(
             'efilter',
-            # options=reverse('creme_core__efilters') + '?ct_id=${%s}&all=true' % ctype_name,
             options=reverse('creme_core__efilters') + '?' + urlencode(
                 {
                     'ct_id': '${%s}' % ctype_name,
@@ -1135,11 +1132,6 @@ class YearInput(widgets.NumberInput):
         final_attrs['widget'] = widget_type  # TODO: data-widget[-type]
 
         return context
-
-
-# class ColorInput(widgets.Input):
-#     input_type = 'color'
-#     template_name = 'creme_core/forms/widgets/color.html'
 
 
 class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultiple):
@@ -1380,9 +1372,6 @@ class DatePeriodWidget(widgets.MultiWidget):
         self.widgets[0].choices = choices
 
     def decompress(self, value):
-        # if value:
-        #     d = value.as_dict()
-        #     return d['type'], d['value']
         if value:
             # NB: value can be a dict (see DatePeriod.as_dict()) or a DatePeriod directly.
             dict_value = value if isinstance(value, dict) else value.as_dict()

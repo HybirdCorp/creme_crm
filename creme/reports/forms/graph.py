@@ -138,7 +138,6 @@ class AbscissaWidget(ChainedInput):
                     gtype_id_dname: rgraph_type,
                     constraint_dname: get_constraint(rgraph_type=rgraph_type).type_id,
                 }),
-                # GROUP_TYPES.get(rgraph_type, '??'),
                 AbscissaGroup(rgraph_type).label,
             ) for rgraph_type in registry.rgraph_types
         ]

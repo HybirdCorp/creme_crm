@@ -25,7 +25,6 @@ from typing import Any, DefaultDict
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.base import DeserializationError
-# from django.core.serializers.python import _get_model
 from django.core.serializers.python import Deserializer
 
 from creme.creme_core.models import CremeEntity
@@ -280,7 +279,6 @@ class CRUDityRegistry:
                 input_name     = backend_cfg.pop('input', '')
                 # TODO: use ContentType.objects.get_by_natural_key() ?
                 # TODO: accept swappable ID ?
-                # model          = _get_model(backend_cfg.pop('model'))
                 model          = Deserializer._get_model_from_node(backend_cfg.pop('model'))
                 method         = backend_cfg.pop('method', '')
                 subject        = backend_cfg['subject']

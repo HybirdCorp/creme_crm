@@ -200,42 +200,6 @@ $.extend(creme.widget, {
         return widget;
     },
 
-    // TODO : remove it and replace it by creme.utils.template or String.template
-    /*
-    template: function(template, values) {
-        if (template === undefined || values === undefined) {
-            return template;
-        }
-
-        var entries = template.match(/\$\{[\w\d]+\}/g);
-
-        if (entries === null) {
-            return template;
-        }
-
-        var res = '' + template;
-        var getter;
-
-        if (typeof values !== 'function') {
-            getter = function(key) { return values[key]; };
-        } else {
-            getter = values;
-        }
-
-        for (var i = 0; i < entries.length; i++) {
-            var entry = entries[i];
-            var key = entry.slice(2, -1);
-            var value = getter(key);
-
-            if (value !== undefined) {
-                res = res.replace(entry, getter(key));
-            }
-        }
-
-        return res;
-    },
-    */
-
     parseattr: function(element, excludes) {
         var attributes = {};
         var index;
@@ -358,35 +322,6 @@ $.extend(creme.widget, {
 
         return Object.isFunc(element.data) && !Object.isNone(element.data('CremeWidget'));
     }
-/*
-    writeAttr: function(element, options) {
-        for (var key in options) {
-            var value = options[key];
-
-            if (value !== undefined) {
-                element.attr(key, value);
-            }
-        }
-
-        return element;
-    },
-
-    buildTag: function(element, widget, options, auto) {
-        element.addClass('ui-creme-widget')
-               .addClass(widget)
-               .attr('widget', widget);
-
-        if (auto === true) {
-            element.addClass('widget-auto');
-        }
-
-        if (Object.isEmpty(options)) {
-            return element;
-        }
-
-        return this.writeAttr(element, options);
-    }
-*/
 });
 
 $.fn.creme = function() {

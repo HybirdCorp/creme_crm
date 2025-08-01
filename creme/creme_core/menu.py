@@ -113,11 +113,6 @@ class PasswordChangeEntry(menu.FixedURLEntry):
     label = _('Change password')
     url_name = 'creme_core__change_own_password'
 
-    # def _has_perm(self, context):
-    #     return (
-    #         super()._has_perm(context)
-    #         and get_world_settings_model().objects.instance().password_change_enabled
-    #     )
     def check_permissions(self, user):
         # NB: notice that even when superusers cannot change their password here,
         #     they still can use the creme_config's view.

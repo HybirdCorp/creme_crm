@@ -69,9 +69,7 @@ class GeolocationConfig(CremeAppConfig):
         from . import setting_keys
 
         setting_key_registry.register(
-            # setting_keys.NEIGHBOURHOOD_DISTANCE,
             setting_keys.neighbourhood_distance_key,
-            # setting_keys.GOOGLE_API_KEY,
             setting_keys.google_api_key,
             setting_keys.use_entity_icon_key,
         )

@@ -376,15 +376,6 @@ def get_import_form_builder(header_dict, choices):
             choices=choices, label=pgettext_lazy('billing', 'Target'),
         )
 
-        # override_billing_addr = forms.BooleanField(
-        #     label=_('Update the billing address'), required=False,
-        #     help_text=_('In update mode, update the billing address from the target.'),
-        # )
-        # override_shipping_addr = forms.BooleanField(
-        #     label=_('Update the shipping address'), required=False,
-        #     help_text=_('In update mode, update the shipping address from the target.'),
-        # )
-
         totals = TotalsExtractorField(choices=choices, label=_('Totals & VAT'))
 
         class Meta:
@@ -394,9 +385,7 @@ def get_import_form_builder(header_dict, choices):
             {
                 'id': 'organisations_and_addresses',
                 'label': _('Organisations'),
-                'fields': [
-                    'source', 'target',  # 'override_billing_addr', 'override_shipping_addr',
-                ],
+                'fields': ['source', 'target'],
             },
             {
                 'id': 'totals',
@@ -407,16 +396,6 @@ def get_import_form_builder(header_dict, choices):
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-
-            # model = self._meta.model
-            # if model.generate_number_in_create:
-            #     self.fields['number'].help_text = _(
-            #         'If you chose an organisation managed by {software} as source organisation, '
-            #         'a number will be automatically generated for created «{models}».'
-            #     ).format(
-            #         software=settings.SOFTWARE_LABEL,
-            #         models=model._meta.verbose_name_plural,
-            #     )
             self.fields['number'].help_text = self._build_number_help_text()
 
         def _build_number_help_text(self):
@@ -539,22 +518,5 @@ def get_import_form_builder(header_dict, choices):
 
                 for error in errors:
                     self.append_error(error)
-
-            # if updated:
-            #     target = instance.target
-            #     b_change = s_change = False
-            #
-            #     if cdata['override_billing_addr']:
-            #         b_change = _copy_or_update_address(
-            #             target, instance, 'billing_address', _('Billing address'),
-            #         )
-            #
-            #     if cdata['override_shipping_addr']:
-            #         s_change = _copy_or_update_address(
-            #             target, instance, 'shipping_address', _('Shipping address'),
-            #         )
-            #
-            #     if b_change or s_change:
-            #         instance.save()
 
     return BillingMassImportForm

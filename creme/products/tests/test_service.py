@@ -156,7 +156,6 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
             name='Eva', description='Fake gods', category=cat,
         )
         service = Service.objects.create(
-            # user=self.user,
             user=user,
             name='Eva00', description='description#1',
             unit_price=Decimal('1.23'), reference='42', unit='unit',

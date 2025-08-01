@@ -140,16 +140,7 @@ class AddLinkedContactButton(Button):
 
     def check_permissions(self, *, entity, request):
         super().check_permissions(entity=entity, request=request)
-
-        user = request.user
-        user.has_perm_to_link_or_die(entity)
-        # user.has_perm_to_link_or_die(Contact)
-
-    # def get_context(self, *, entity, request):
-    #     context = super().get_context(entity=entity, request=request)
-    #     context['contact_link_perm'] = request.user.has_perm_to_link(Contact)
-    #
-    #     return context
+        request.user.has_perm_to_link_or_die(entity)
 
     def get_ctypes(self):
         return (Organisation,)

@@ -52,7 +52,6 @@
             {% brick_card_action_for_field instance=object field='sales_phase' user=user %}
         </span>
     </div>
-{#    {% if 'estimated_sales' not in hidden_fields %} #}
     {% if not object|is_field_hidden:'estimated_sales' %}
     <div class="card-info-field">
         <span class='card-info-key'>{% translate 'Estimated sales' %}</span>
@@ -66,7 +65,6 @@
         </span>
     </div>
     {% endif %}
-{#    {% if 'made_sales' not in hidden_fields %} #}
     {% if not object|is_field_hidden:'made_sales' %}
     <div class="card-info-field">
         <span class='card-info-key'>{% translate 'Made sales' %}</span>

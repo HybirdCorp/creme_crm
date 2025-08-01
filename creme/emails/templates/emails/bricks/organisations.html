@@ -16,7 +16,6 @@
 {% endblock %}
 
 {% block brick_table_columns %}
-{# {% if not field_hidden %} #}
  {% if not objects_ctype|is_field_hidden:'email' %}
     {% brick_table_column title=_('Address') status='primary' %}
     {% brick_table_column title=_('Action') status='action' %}
@@ -24,7 +23,6 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{# {% if field_hidden %} #}
  {% if objects_ctype|is_field_hidden:'email' %}
     <tr>
         <td class="brick-table-data-error">{% translate 'The field «Email address» of Organisation is hidden; in order to use this block, you have to reactivate it (so please contact your administrator).' %}</td>

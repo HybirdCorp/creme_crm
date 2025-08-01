@@ -155,7 +155,6 @@ class CremeDeletionMixin:
         )
 
 
-# class CremeDeletion(CheckedView):
 class CremeDeletion(CremeDeletionMixin, CheckedView):
     def get_ajax_success_url(self):
         return ''

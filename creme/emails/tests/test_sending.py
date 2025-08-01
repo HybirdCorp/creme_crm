@@ -778,7 +778,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         # ---
         response2 = self.assertGET200(reverse('emails__lw_mail_body', args=(mail.id,)))
-        # self.assertEqual(b'', response2.content)
         self.assertEqual('', response2.text)
         self.assertEqual('SAMEORIGIN', response2.get('X-Frame-Options'))
 
@@ -804,7 +803,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertPOST405(body_url)
 
         response4 = self.assertGET200(body_url)
-        # self.assertEqual(b'', response4.content)
         self.assertEqual('', response4.text)
         self.assertEqual('SAMEORIGIN', response4.get('X-Frame-Options'))
 

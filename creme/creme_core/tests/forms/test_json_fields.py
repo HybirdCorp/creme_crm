@@ -477,15 +477,6 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
             models=[FakeOrganisation, FakeContact, FakeImage],
             required=False, user=user,
         )
-        # self.assertFormfieldError(
-        #     field=field,
-        #     value=json_dump({'ctype': {'create': '', 'id': None}}),
-        #     messages=_('This content type is not allowed.'),
-        #     codes='ctypenotallowed',
-        #
-        # )
-        #  messages=_('This content type does not exist.'),
-        #             codes='ctypedoesnotexist',
         self.assertIsNone(field.clean(json_dump({'ctype': {'create': '', 'id': None}})))
 
         contact = self.create_contact(user=user)
@@ -525,16 +516,11 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_autocomplete_property(self):
         field = GenericEntityField()
-        # self.assertFalse(field.autocomplete)
         self.assertTrue(field.autocomplete)
 
-        # field = GenericEntityField(autocomplete=True)
-        # self.assertTrue(field.autocomplete)
         field = GenericEntityField(autocomplete=False)
         self.assertFalse(field.autocomplete)
 
-        # field.autocomplete = False
-        # self.assertFalse(field.autocomplete)
         field.autocomplete = True
         self.assertTrue(field.autocomplete)
 

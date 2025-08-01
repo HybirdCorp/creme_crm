@@ -203,7 +203,6 @@ class PollFormSection(CremeModel):
                     break
 
                 raise models.ProtectedError(
-                    # gettext('There is at least one question in this section.'),
                     'There is at least one question in this section.',
                     [self],
                 )
@@ -263,9 +262,6 @@ class PollFormLine(CremeModel, _PollLine):
     def delete(self, *args, **kwargs):
         if not self.disabled and PollFormLineCondition.objects.filter(source=self).exists():
             raise models.ProtectedError(
-                # gettext(
-                #     'There is at least one other question which depends on this question.'
-                # ),
                 'There is at least one other question which depends on this question.',
                 [self],
             )

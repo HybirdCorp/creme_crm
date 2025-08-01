@@ -60,21 +60,6 @@ class ButtonsBrick(Brick):
 
     button_registry = button_menu.button_registry
 
-    # def _get_buttons(self, entity: CremeEntity) -> dict[str, button_menu.Button]:
-    #     button_ids = ButtonMenuItem.objects.filter(
-    #         Q(content_type=entity.entity_type) | Q(content_type__isnull=True)
-    #     ).exclude(button_id='').order_by('order').values_list('button_id', flat=True)
-    #
-    #     registry = self.button_registry
-    #     # NB1: remember that dicts keep the order of insertion
-    #     # NB2: we insert mandatory buttons at the beginning
-    #     buttons = {
-    #         button.id: button for button in registry.mandatory_buttons(entity=entity)
-    #     }
-    #     for button in registry.get_buttons(button_ids, entity):
-    #         buttons[button.id] = button
-    #
-    #     return buttons
     def _get_buttons(self, entity: CremeEntity, user: CremeUser) -> dict[str, button_menu.Button]:
         registry = self.button_registry
         # NB1: remember that dicts keep the order of insertion
@@ -127,7 +112,6 @@ class ButtonsBrick(Brick):
 
     def detailview_display(self, context):
         entity = context['object']
-        # buttons = self._get_buttons(entity)
         buttons = self._get_buttons(entity=entity, user=context['user'])
         self._set_dependencies(buttons=buttons, model=type(entity))
 

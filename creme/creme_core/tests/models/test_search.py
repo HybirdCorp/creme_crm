@@ -252,7 +252,6 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertListEqual(
             [
                 {'type': 'regular_field', 'value': 'last_name'},
-                # {'type': 'custom_field', 'value': str(cfield.id)},
                 {'type': 'custom_field', 'value': str(cfield.uuid)},
             ],
             sc_item.json_cells,

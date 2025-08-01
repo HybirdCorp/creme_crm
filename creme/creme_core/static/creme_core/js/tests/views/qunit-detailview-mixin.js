@@ -47,10 +47,6 @@
 
         /* TODO: in brick mixin? */
         createButtonsBrick: function(options) {
-//            options = $.extend({
-//                classes: ['creme_core-buttons-brick']
-//            }, options || {});
-
             return this.createBrickWidget({
                 classes: ['creme_core-buttons-brick'],
                 content: (options.buttons || []).join('')

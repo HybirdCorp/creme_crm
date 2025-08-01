@@ -14,7 +14,6 @@ from creme.creme_config.forms.fields import (
     CustomMultiEnumChoiceField,
 )
 from creme.creme_core.core.history import toggle_history
-# from creme.creme_core.models import HistoryLine
 from creme.creme_core.models import (
     CremeEntity,
     CustomField,
@@ -254,7 +253,6 @@ by a man named Tochiro.
         self.assertValueEqual(cfield=cfield, entity=orga, value=value)
 
         formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
-        # self.assertIsInstance(formfield, forms.URLField)
         self.assertIsInstance(formfield, forms.CharField)
         self.assertEqual(200, formfield.max_length)
 

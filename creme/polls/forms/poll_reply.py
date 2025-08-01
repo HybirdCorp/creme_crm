@@ -19,7 +19,6 @@
 from itertools import repeat
 
 from django import forms
-# from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.utils.translation import gettext
@@ -42,9 +41,6 @@ PollReply    = polls.get_pollreply_model()
 
 
 class PollRepliesCreationForm(core_forms.CremeForm):
-    # user = forms.ModelChoiceField(
-    #     label=_('User'), queryset=get_user_model().objects.filter(is_staff=False),
-    # )
     user = CreatorEnumerableModelChoiceField(model=PollReply, field_name='user')
     name = forms.CharField(label=_('Name'))
     campaign = core_fields.CreatorEntityField(

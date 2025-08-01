@@ -2526,11 +2526,9 @@ class AuthTestCase(CremeTestCase):
 
         self.assertFalse(fake_team.is_team)
 
-        # with self.assertRaises(AssertionError):
         with self.assertRaises(ValueError):
             fake_team.teammates = [user]
 
-        # with self.assertRaises(AssertionError):
         with self.assertRaises(ValueError):
             fake_team.teammates  # NOQA
 
@@ -2822,7 +2820,6 @@ class AuthTestCase(CremeTestCase):
         ct = ContentType.objects.get_for_model(FakeOrganisation)
         self.assertFalse(has_perm_to_link(ct))
 
-        # self.assertRaises(PermissionDenied, user.has_perm_to_link_or_die, FakeOrganisation)
         with self.assertRaises(PermissionDenied) as model_cm:
             user.has_perm_to_link_or_die(FakeOrganisation)
         msg = _('You are not allowed to link: {}').format('Test Organisation')

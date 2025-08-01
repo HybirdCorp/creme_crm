@@ -170,8 +170,6 @@ class CremeModel(Model):
         """
         pass
 
-    # @staticmethod
-    # def _delete_stored_file(field_value):
     def _delete_stored_file(self, field_value):
         max_length = FileRef._meta.get_field('filedata').max_length
         path = str(field_value)

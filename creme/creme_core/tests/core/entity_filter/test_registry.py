@@ -27,14 +27,6 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         self.assertEqual('creme_core-regular', EF_REGULAR)
         self.assertEqual('creme_core-credentials', EF_CREDENTIALS)
 
-        # with self.assertWarnsMessage(
-        #     expected_warning=DeprecationWarning,
-        #     expected_message='"EF_USER" is deprecated; use EF_REGULAR instead.'
-        # ):
-        #     from creme.creme_core.core.entity_filter import EF_USER
-        #
-        # self.assertEqual('creme_core-regular', EF_USER)
-
     def test_handlers01(self):
         name = 'Common'
         registry = EntityFilterRegistry(id='creme_core-default', verbose_name=name)

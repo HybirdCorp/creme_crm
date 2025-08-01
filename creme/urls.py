@@ -63,7 +63,6 @@ urlpatterns = [
     #     the files in the directory 'media/static/' (and so the following line is never used).
     re_path(
         rf'^{__prepare_static_url()}(?P<path>.*)$',
-        # serve,
         serve_immutable,
         {'document_root': settings.STATIC_ROOT},
     ),

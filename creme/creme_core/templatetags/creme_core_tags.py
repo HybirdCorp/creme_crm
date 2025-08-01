@@ -18,7 +18,6 @@
 
 import logging
 import warnings
-# import warnings
 from itertools import zip_longest
 from re import compile as compile_re
 from urllib.parse import urlencode, urlsplit
@@ -27,14 +26,11 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-# from django.contrib.contenttypes.models import ContentType
 from django.template import Library
 from django.template import Node as TemplateNode
 from django.template import Template, TemplateSyntaxError
 from django.template.defaulttags import TemplateLiteral
-# from django.template.library import token_kwargs
 from django.urls import reverse
-# from django.utils.encoding import force_str
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -344,7 +340,6 @@ def grouper(value, n):
 
 
 @register.filter(name='range')
-# def range_filter(integer, start=0):
 def range_filter(count, start=0):
     """Create a range iterator.
     @param count: number of element in the range.
@@ -373,10 +368,8 @@ def request_is_ajax(request):
 def optionize_model_iterable(iterable, type='tuple'):
     """Build a choices-friendly generator from an iterable of instances."""
     if type == 'dict':
-        # return ({'value': model.id, 'label': str(model)} for model in iterable)
         return ({'value': model.pk, 'label': str(model)} for model in iterable)
     else:
-        # return ((model.id, str(model)) for model in iterable)
         return ((model.pk, str(model)) for model in iterable)
 
 
@@ -565,7 +558,6 @@ def jsonify(value):
 
 @register.filter
 def verbose_models(models):
-    # return [m._meta.verbose_name for m in models]
     return [model_verbose_name(m) for m in models]
 
 
@@ -660,7 +652,6 @@ def inner_edition_uri(instance, cells, callback_url=None):
         cells=[cells] if isinstance(cells, EntityCell) else cells,
     )
 
-    # if callback_url:
     if callback_url and uri:
         warnings.warn(
             'In the tag {% inner_edition_uri %}, the argument "callback_url" is deprecated.',
@@ -681,105 +672,6 @@ def print_field(context, *, object, field, tag=ViewTag.HTML_DETAIL):
         user=context['user'],
         tag=tag,
     )
-
-
-# # TAG : "has_perm_to" [DEPRECATED]----------------------------------------------
-#
-# _haspermto_re = compile_re(r'(\w+) (.*?) as (\w+)')
-#
-#
-# def _can_create(model_or_ct, user):
-#     ct = (
-#         model_or_ct
-#         if isinstance(model_or_ct, ContentType) else
-#         ContentType.objects.get_for_model(model_or_ct)
-#     )
-#     return user.has_perm(f'{ct.app_label}.add_{ct.model}')
-#
-#
-# def _can_export(model_or_ct, user):
-#     ct = (
-#         model_or_ct
-#         if isinstance(model_or_ct, ContentType) else
-#         ContentType.objects.get_for_model(model_or_ct)
-#     )
-#     return user.has_perm(f'{ct.app_label}.export_{ct.model}')
-#
-#
-# _PERMS_FUNCS = {
-#     'create': _can_create,
-#     'export': _can_export,
-#     'view':   lambda entity, user: user.has_perm_to_view(entity),
-#     'change': lambda entity, user: user.has_perm_to_change(entity),
-#     'delete': lambda entity, user: user.has_perm_to_delete(entity),
-#     'link':   lambda entity_or_model, user: user.has_perm_to_link(entity_or_model),
-#     'unlink': lambda entity, user: user.has_perm_to_unlink(entity),
-#     'access': lambda app_name, user: user.has_perm_to_access(app_name),
-#     'admin':  lambda app_name, user: user.has_perm_to_admin(app_name),
-# }
-#
-#
-# @register.tag(name='has_perm_to')
-# def do_has_perm_to(parser, token):
-#     """{% has_perm_to TYPE OBJECT as VAR %}
-#     Example: {% has_perm_to change action.creme_entity as has_perm %}
-#
-#     TYPE: must be in ('create', 'view', 'change', 'delete', 'link', 'unlink',
-#           'export', 'access', 'admin')
-#     OBJECT: * TYPE in ('view','change', 'delete', 'unlink') => must be a CremeEntity instance.
-#             * TYPE='link' => can be a CremeEntity instance or a class inheriting CremeEntity.
-#             * TYPE in ('create', 'export') => can be a CremeEntity instance,
-#               a class inheriting CremeEntity or a ContentType instance.
-#             * TYPE in ('access', 'admin') => an app name, like "creme_core".
-#     """
-#     warnings.warn(
-#         'The template-tag {% has_perm_to %} is deprecated; '
-#         'use the template-filters of the library "creme_perms" instead.',
-#         DeprecationWarning,
-#     )
-#
-#     try:
-#         # Splitting by None == splitting by spaces.
-#         tag_name, arg = token.contents.split(None, 1)
-#     except ValueError as e:
-#         raise TemplateSyntaxError(
-#             f'"{token.contents.split()[0]}" tag requires arguments'
-#         ) from e
-#
-#     match = _haspermto_re.search(arg)
-#     if not match:
-#         raise TemplateSyntaxError(
-#             f'"{tag_name}" tag had invalid arguments: <{arg}>'
-#         )
-#
-#     perm_type, entity_path, var_name = match.groups()
-#
-#     perm_func = _PERMS_FUNCS.get(perm_type)
-#     if not perm_func:
-#         raise TemplateSyntaxError(
-#             f'"{tag_name}" invalid permission tag: "{perm_type}"'
-#         )
-#
-#     entity_var = TemplateLiteral(parser.compile_filter(entity_path), entity_path)
-#
-#     return HasPermToNode(perm_func, entity_var, var_name)
-#
-#
-# class HasPermToNode(TemplateNode):
-#     def __init__(self, perm_func, entity_var, var_name):
-#         self.perm_func = perm_func
-#         self.entity_var = entity_var
-#         self.var_name = var_name
-#
-#     def __repr__(self):
-#         return '<HasPermTo node>'
-#
-#     def render(self, context):
-#         var = self.entity_var.eval(context)  # Can raise template.VariableDoesNotExist...
-#         user = context['user']
-#         context[self.var_name] = self.perm_func(var, user)
-#
-#         return ''
 
 
 # TAG : "include_creme_media" --------------------------------------------------
@@ -827,40 +719,6 @@ def jsondata(value, **kwargs):
     )
 
 
-# @register.tag(name='blockjsondata')
-# def do_jsondata(parser, token):
-#     """ Encode json of the block and render it in a <script> tag with attributes.
-#
-#     {% blockjsondata arg1=foo.bar arg2='baz' %}
-#         {{data}}
-#     {% endblockjsondata %}
-#     """
-#     nodelist = parser.parse(('endblockjsondata',))
-#     parser.delete_first_token()
-#     kwargs = token_kwargs(token.split_contents()[1:], parser)
-#     return JsonScriptNode(nodelist, kwargs)
-#
-#
-# class JsonScriptNode(TemplateNode):
-#     def __init__(self, nodelist, kwargs):
-#         self.nodelist = nodelist
-#         self.kwargs = kwargs
-#
-#     def render(self, context):
-#         output = self.nodelist.render(context)
-#         kwargs = self.kwargs
-#
-#         if kwargs.pop("type", None) is not None:
-#             logger.warning('jsondatablock tag do not accept custom "type" attribute')
-#
-#         attrs = ''.join(
-#             f' {k}="{escape(force_str(v.resolve(context)))}"'
-#             for k, v in kwargs.items()
-#         )
-#
-#         return mark_safe(
-#             f'<script type="application/json"{attrs}><!-- {escapejson(output)} --></script>'
-#         )
 @register.simple_block_tag
 def blockjsondata(content, **attrs):
     """ Encode JSON of the block and render it in a <script> tag with attributes.

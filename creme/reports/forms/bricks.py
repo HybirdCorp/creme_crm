@@ -165,7 +165,6 @@ class GraphInstanceBrickForm(CremeModelForm):
 
     error_messages = {
         'duplicated': _(
-            # 'The instance block for «{graph}» with these parameters already exists!'
             'The instance block for «{chart}» with these parameters already exists!'
         ),
     }
@@ -190,7 +189,6 @@ class GraphInstanceBrickForm(CremeModelForm):
         ):
             if extra_items == dict(ibci.extra_data_items):
                 raise ValidationError(
-                    # self.error_messages['duplicated'].format(graph=graph),
                     self.error_messages['duplicated'].format(chart=graph),
                     code='duplicated',
                 )

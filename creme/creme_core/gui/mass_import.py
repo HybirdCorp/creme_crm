@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,10 +18,8 @@
 
 from __future__ import annotations
 
-# import warnings
 from typing import TYPE_CHECKING
 
-# from django.contrib.contenttypes.models import ContentType
 from ..models import CremeEntity
 
 if TYPE_CHECKING:
@@ -34,14 +32,6 @@ if TYPE_CHECKING:
 
 class FormRegistry:
     """Registry for forms importing entities from CSV/XLS."""
-    # class UnregisteredCTypeException(Exception):
-    #     def __init__(self, *args, **kwargs):
-    #         warnings.warn(
-    #             'FormRegistry.UnregisteredCTypeException is deprecated.',
-    #             DeprecationWarning,
-    #         )
-    #         super().__init__(*args, **kwargs)
-
     class RegistrationError(Exception):
         pass
 
@@ -83,29 +73,6 @@ class FormRegistry:
             ) from e
 
         return self
-
-    # def get(self, ct: ContentType) -> FormFactory | None:
-    #     warnings.warn(
-    #         'FormRegistry.get() is deprecated; '
-    #         'use "[]" operator instead (beware it takes a model class).',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     try:
-    #         return self._form_factories[ct.model_class()]
-    #     except KeyError as e:
-    #         raise self.UnregisteredCTypeException(
-    #             f'Unregistered ContentType: {ct}'
-    #         ) from e
-
-    # def is_registered(self, ct: ContentType) -> bool:
-    #     warnings.warn(
-    #         'FormRegistry.is_registered() is deprecated; '
-    #         'use "in" instead (beware it takes a model class).',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     return ct.model_class() in self._form_factories
 
     def __getitem__(self, model: type[CremeEntity]) -> FormFactory | None:
         """@raise KeyError If model is not registered."""

@@ -175,7 +175,6 @@ class VcfImportForm(CremeModelForm):
     work_phone    = CharField(label=_('Phone'),          required=False)
     work_fax      = CharField(label=_('Fax'),            required=False)
     work_email    = EmailField(label=_('Email address'), required=False)
-    # work_url_site = URLField(label=_('Web Site'),        required=False)
     work_url_site = CharField(label=_('Web Site'),       required=False)
 
     # Organisation address
@@ -408,7 +407,6 @@ class VcfImportForm(CremeModelForm):
 
             if prefix:
                 # TODO: find in title too ?
-                # civ = Civility.objects.filter(shortcut__icontains=prefix).first()
                 # TODO: test __iexact
                 # TODO: should use levenshtein distance
                 civ = Civility.objects.filter(shortcut__iexact=prefix).first()

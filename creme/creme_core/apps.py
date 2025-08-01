@@ -313,7 +313,6 @@ class CremeAppConfig(AppConfig):
     def register_entity_models(self, creme_registry: CremeRegistry) -> None:
         pass
 
-    # def register_actions(self, actions_registry: 'ActionRegistry') -> None:
     def register_actions(self, action_registry: 'ActionRegistry') -> None:
         pass
 
@@ -350,7 +349,6 @@ class CremeAppConfig(AppConfig):
     def register_fields_config(self, fields_config_registry: 'FieldsConfigRegistry') -> None:
         pass
 
-    # def register_field_printers(self, field_printers_registry: 'FieldPrinterRegistry') -> None:
     def register_field_printers(self, field_printer_registry: 'FieldPrinterRegistry') -> None:
         pass
 
@@ -383,7 +381,6 @@ class CremeAppConfig(AppConfig):
     def register_notification(self, notification_registry: 'NotificationRegistry') -> None:
         pass
 
-    # def register_quickforms(self, quickforms_registry: 'QuickFormRegistry') -> None:
     def register_quickforms(self, quickform_registry: 'QuickFormRegistry') -> None:
         pass
 
@@ -402,7 +399,6 @@ class CremeAppConfig(AppConfig):
     def register_smart_columns(self, smart_columns_registry: 'SmartColumnsRegistry') -> None:
         pass
 
-    # def register_statistics(self, statistics_registry: 'StatisticRegistry') -> None:
     def register_statistics(self, statistic_registry: 'StatisticRegistry') -> None:
         pass
 
@@ -460,7 +456,6 @@ class CremeCoreConfig(CremeAppConfig):
             menu.EntitiesCreationEntry,
         )
 
-    # def register_actions(self, actions_registry):
     def register_actions(self, action_registry):
         from . import actions
 
@@ -767,7 +762,6 @@ class CremeCoreConfig(CremeAppConfig):
                 return config_fields.CreatorEnumerableModelChoiceField(
                     model=self.model,
                     field_name=self.name,
-                    # required=not self.blank,
                     required=not self.blank or required,
                     label=self.verbose_name,
                     help_text=self.help_text,

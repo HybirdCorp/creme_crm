@@ -104,10 +104,6 @@ class CustomerCreation(ContactRelatedToOrganisationMixin, OrganisationCreation):
     title = 'Create a suspect / prospect / customer'   # Overridden in get_title()
     permissions = build_link_perm(Organisation)
 
-    # def check_view_permissions(self, user):
-    #     super().check_view_permissions(user=user)
-    #     user.has_perm_to_link_or_die(Organisation)
-
     def get_form_class(self):
         form_cls = super().get_form_class()
         rtype_descriptions = self.get_enabled_descriptions()

@@ -585,7 +585,6 @@ class EntityExtractor(BaseExtractor):
                     ).format(
                         raw_error=e,
                         value=value,
-                        # model=model._meta.verbose_name,
                         model=model_verbose_name(model),
                     )
                 else:
@@ -597,7 +596,6 @@ class EntityExtractor(BaseExtractor):
                 ).format(
                     raw_error=e,
                     value=value,
-                    # model=model._meta.verbose_name,
                     model=model_verbose_name(model),
                 )
 
@@ -736,7 +734,6 @@ class EntityExtractorField(forms.Field):
                 if cmd.create and not can_create(cmd.model):
                     raise ValidationError(
                         self.error_messages['nocreationperm'],
-                        # params={'model': cmd.model._meta.verbose_name},
                         params={'model': model_verbose_name(cmd.model)},
                         code='nocreationperm',
                     )
@@ -810,7 +807,6 @@ class RelationExtractor(SingleColumnExtractor):
                     column=self._column_index,
                     field=self._subfield_search,
                     value=value,
-                    # model=model._meta.verbose_name,
                     model=model_verbose_name(model),
                 )
             else:
@@ -827,7 +823,6 @@ class RelationExtractor(SingleColumnExtractor):
                                 'tried to build {model} with data={data} '
                                 '(column {column}) ➔ errors={errors}'
                             ).format(
-                                # model=model._meta.verbose_name,
                                 model=model_verbose_name(model),
                                 column=self._column_index,
                                 data=data,
@@ -842,7 +837,6 @@ class RelationExtractor(SingleColumnExtractor):
                             field=self._subfield_search,
                             column=self._column_index,
                             value=value,
-                            # model=model._meta.verbose_name,
                             model=model_verbose_name(model),
                         )
 
@@ -1483,10 +1477,6 @@ class ImportForm4CremeEntity(ImportForm):
         label=_('Owner user'), empty_label=None,
         model=CremeEntity, field_name='user',
     )
-    # property_types = forms.ModelMultipleChoiceField(
-    #     label=_('Properties'), required=False,
-    #     queryset=CremePropertyType.objects.none(),
-    # )
     property_types = core_fields.PropertyTypesChoiceField(required=False)
     fixed_relations = core_fields.MultiRelationEntityField(
         label=_('Fixed relationships'), required=False, autocomplete=True,
@@ -1554,7 +1544,6 @@ class ImportForm4CremeEntity(ImportForm):
             if extractor.create_if_unfound and not can_create(extractor.related_model):
                 raise ValidationError(
                     self.error_messages['creation_forbidden'],
-                    # params={'model': extractor.related_model._meta.verbose_name},
                     params={'model': model_verbose_name(extractor.related_model)},
                     code='creation_forbidden',
                 )
@@ -1696,7 +1685,6 @@ def form_factory(ct, header):
         choices.extend((i, fstring.format(i)) for i in range(1, 21))
 
     model_class = ct.model_class()
-    # customform_factory = import_form_registry.get(ct)
     customform_factory = import_form_registry[model_class]
 
     if customform_factory:

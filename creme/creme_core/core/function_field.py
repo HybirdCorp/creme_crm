@@ -162,16 +162,6 @@ class FunctionFieldResultsList(FunctionFieldResult):
         self._data: list[FunctionFieldResult] = [*iterable]  # type: ignore
 
     def render(self, tag):
-        # return (
-        #     '/'.join(e.render(tag) for e in self._data)
-        #     if tag == ViewTag.TEXT_PLAIN else
-        #     format_html(
-        #         '<ul>{}</ul>',
-        #         format_html_join(
-        #             '', '<li>{}</li>', ([e.render(tag)] for e in self._data)
-        #         )
-        #     )
-        # )
         if tag == ViewTag.TEXT_PLAIN:
             return '/'.join(e.render(tag) for e in self._data)
 
@@ -182,7 +172,6 @@ class FunctionFieldResultsList(FunctionFieldResult):
         )
 
 
-# class _FunctionFieldRegistry:
 class FunctionFieldRegistry:
     """Registry for FunctionFields.
 
@@ -276,7 +265,6 @@ class FunctionFieldRegistry:
                 )
 
 
-# function_field_registry = _FunctionFieldRegistry()
 function_field_registry = FunctionFieldRegistry()
 
 

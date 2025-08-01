@@ -8,20 +8,3 @@
     {{button.icon.render}}{{button.verbose_name}}
 </a>
 {% endif %}
-
-{% comment %}
-{% load i18n creme_perms %}
-{% with link_perm=user|has_perm_to_link:object %}
-{% if button.is_allowed and link_perm %}
-<a class="menu_button menu-button-icon" title="{{button.description}}" data-action="redirect"
-   href="{% url 'activities__create_related_activity' object.id %}?callback_url=${location}{% if button.type_uuid %}&activity_type={{button.type_uuid}}{% endif %}">
-    {{button.icon.render}}{{button.verbose_name}}
-</a>
-{% else %}
-<span class="menu_button menu-button-icon forbidden"
-      title="{% if not link_perm %}{% translate 'You are not allowed to link this entity' %}{% else %}{% translate 'You are not allowed to create an Activity' %}{% endif %}">
-    {{button.icon.render}}{{button.verbose_name}}
-</span>
-{% endif %}
-{% endwith %}
-{% endcomment %}

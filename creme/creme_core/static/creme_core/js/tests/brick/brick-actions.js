@@ -43,7 +43,6 @@ QUnit.module("creme.bricks.actions", new QUnitMixin(QUnitEventMixin,
 
 QUnit.test('creme.bricks.Brick.action (toggle collapse)', function(assert) {
     var element = $(
-//        '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>'
         '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test" data-brick-id="for-test"></div>'
     ).appendTo(this.qunitFixture());
     var brick = new creme.bricks.Brick({
@@ -73,7 +72,6 @@ QUnit.test('creme.bricks.Brick.action (toggle collapse)', function(assert) {
 
 QUnit.test('creme.bricks.Brick.action (toggle content-reduced)', function(assert) {
     var element = $(
-//        '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>'
         '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test" data-brick-id="for-test"></div>'
     ).appendTo(this.qunitFixture());
     var brick = new creme.bricks.Brick({
@@ -102,7 +100,6 @@ QUnit.test('creme.bricks.Brick.action (toggle content-reduced)', function(assert
 });
 
 QUnit.test('creme.bricks.Brick.action (form, canceled)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -123,7 +120,6 @@ QUnit.test('creme.bricks.Brick.action (form, canceled)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (form, submit)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     equal(true, brick.isBound());
@@ -163,7 +159,6 @@ QUnit.test('creme.bricks.Brick.action (form, comeback)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (form, submit, redirect)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     equal(true, brick.isBound());
@@ -187,7 +182,6 @@ QUnit.test('creme.bricks.Brick.action (form, submit, redirect)', function(assert
 });
 
 QUnit.test('creme.bricks.Brick.action (form-refresh, canceled)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     equal(true, brick.isBound());
@@ -208,7 +202,6 @@ QUnit.test('creme.bricks.Brick.action (form-refresh, canceled)', function(assert
 });
 
 QUnit.test('creme.bricks.Brick.action (form-refresh, submit)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget({id: 'for-test'}).brick();
     equal('brick-for-test', brick.id());
     equal('for-test', brick.type_id());
@@ -230,13 +223,11 @@ QUnit.test('creme.bricks.Brick.action (form-refresh, submit)', function(assert) 
         ], this.mockFormSubmitCalls('action-done'));
 
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["for-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (refresh)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget({id: 'creme_core-testA'}).brick();
 
     brick.action('refresh').on(this.brickActionListeners).start();
@@ -289,7 +280,6 @@ QUnit.test('creme.bricks.Brick.action (refresh, progress)', function(assert) {
 
 
 QUnit.test('creme.bricks.Brick.action (add, submit)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -308,13 +298,11 @@ QUnit.test('creme.bricks.Brick.action (add, submit)', function(assert) {
               this.mockFormSubmitCalls('action-done'));
 
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (edit, submit)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -333,13 +321,11 @@ QUnit.test('creme.bricks.Brick.action (edit, submit)', function(assert) {
               this.mockFormSubmitCalls('action-done'));
 
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (link, submit)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -358,20 +344,17 @@ QUnit.test('creme.bricks.Brick.action (link, submit)', function(assert) {
               this.mockFormSubmitCalls('action-done'));
 
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (delete, not confirmed)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
 
     brick.action('delete', 'mock/brick/delete').on(this.brickActionListeners).start();
     equal(false, brick.isLoading());
-//    this.assertOpenedDialog();
     this.assertOpenedConfirmDialog(gettext("Are you sure?"));
     deepEqual([], this.mockListenerCalls('action-cancel'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
@@ -386,7 +369,6 @@ QUnit.test('creme.bricks.Brick.action (delete, not confirmed)', function(assert)
 });
 
 QUnit.test('creme.bricks.Brick.action (delete, confirmed)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -404,13 +386,11 @@ QUnit.test('creme.bricks.Brick.action (delete, confirmed)', function(assert) {
     deepEqual([['done', '']], this.mockListenerCalls('action-done'));
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/delete'));
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (delete, confirmed, failed)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -450,7 +430,6 @@ QUnit.test('creme.bricks.Brick.action (delete, with custom confirmation)', funct
 });
 
 QUnit.test('creme.bricks.Brick.action (update)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -461,13 +440,11 @@ QUnit.test('creme.bricks.Brick.action (update)', function(assert) {
     deepEqual([['done', '']], this.mockListenerCalls('action-done'));
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (update, failed)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -486,7 +463,6 @@ QUnit.test('creme.bricks.Brick.action (update, failed)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (update, with confirmation, not confirmed)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -508,7 +484,6 @@ QUnit.test('creme.bricks.Brick.action (update, with confirmation, not confirmed)
 });
 
 QUnit.test('creme.bricks.Brick.action (update, with confirmation, confirmed)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -526,13 +501,11 @@ QUnit.test('creme.bricks.Brick.action (update, with confirmation, confirmed)', f
     deepEqual([['done', '']], this.mockListenerCalls('action-done'));
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (update, with custom confirmation, confirmed)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -552,13 +525,11 @@ QUnit.test('creme.bricks.Brick.action (update, with custom confirmation, confirm
     deepEqual([['done', '']], this.mockListenerCalls('action-done'));
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (update, with message on success)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -580,14 +551,12 @@ QUnit.test('creme.bricks.Brick.action (update, with message on success)', functi
     deepEqual([['done', '']], this.mockListenerCalls('action-done'));
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.action (update, message + reload on success)', function(assert) {
     var current_url = window.location.href;
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -614,7 +583,6 @@ QUnit.test('creme.bricks.Brick.action (update, message + reload on success)', fu
 
 QUnit.test('creme.bricks.Brick.action (update, message + reload on fail)', function(assert) {
     var current_url = window.location.href;
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -638,7 +606,6 @@ QUnit.test('creme.bricks.Brick.action (update, message + reload on fail)', funct
 });
 
 QUnit.test('creme.bricks.Brick.action (update-redirect)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -654,7 +621,6 @@ QUnit.test('creme.bricks.Brick.action (update-redirect)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (update-redirect, no redirection)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -670,7 +636,6 @@ QUnit.test('creme.bricks.Brick.action (update-redirect, no redirection)', functi
 });
 
 QUnit.test('creme.bricks.Brick.action (update-redirect, failed)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -693,7 +658,6 @@ QUnit.test('creme.bricks.Brick.action (update-redirect, failed)', function(asser
 });
 
 QUnit.test('creme.bricks.Brick.action (update-redirect, with confirmation, not confirmed)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -716,7 +680,6 @@ QUnit.test('creme.bricks.Brick.action (update-redirect, with confirmation, not c
 });
 
 QUnit.test('creme.bricks.Brick.action (update-redirect, with confirmation, confirmed)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -738,7 +701,6 @@ QUnit.test('creme.bricks.Brick.action (update-redirect, with confirmation, confi
 });
 
 QUnit.test('creme.bricks.Brick.action (redirect)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -750,7 +712,6 @@ QUnit.test('creme.bricks.Brick.action (redirect)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (redirect, comeback)', function(assert) {
-//  var brick = this.createBrickWidget('brick-for-test').brick();
   var brick = this.createBrickWidget().brick();
   var location = window.location.href.replace(/.*?:\/\/[^\/]*/g, '');
 
@@ -768,7 +729,6 @@ QUnit.test('creme.bricks.Brick.action (redirect, comeback)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (redirect template)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
     var location = window.location.href.replace(/.*?:\/\/[^\/]*/g, '');
 
@@ -784,7 +744,6 @@ QUnit.test('creme.bricks.Brick.action (redirect template)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (view)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -802,7 +761,6 @@ QUnit.test('creme.bricks.Brick.action (view)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (view, failed)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     this.assertClosedDialog();
@@ -820,7 +778,6 @@ QUnit.test('creme.bricks.Brick.action (view, failed)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (add relationships, no selection)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
 
     brick.action('add-relationships', '', {}, {
@@ -864,7 +821,6 @@ QUnit.test('creme.bricks.Brick.action (add relationships, no selection)', functi
 });
 
 QUnit.test('creme.bricks.Brick.action (add relationships, single, multiple selection)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
     brick.action('add-relationships', 'mock/relation/add', {}, {
         subject_id: '74',
@@ -906,7 +862,6 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, multiple selec
 });
 
 QUnit.test('creme.bricks.Brick.action (add relationships, single)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
     brick.action('add-relationships', 'mock/relation/add', {}, {
         subject_id: '74',
@@ -942,7 +897,6 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single)', function(ass
 
 // TODO: test "list_title" option
 QUnit.test('creme.bricks.Brick.action (add relationships, q_filter)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
     var rtype_id = 'creme_core-subject_test_predicate';
     var sel_url = 'mock/relation/selector';
@@ -969,7 +923,6 @@ QUnit.test('creme.bricks.Brick.action (add relationships, q_filter)', function(a
 });
 
 QUnit.test('creme.bricks.Brick.action (add relationships, single, fail)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
     brick.action('add-relationships', 'mock/relation/add/fail', {}, {
         subject_id: '74',
@@ -1003,7 +956,6 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, fail)', functi
 
 QUnit.test('creme.bricks.Brick.action (add relationships, single, reload)', function(assert) {
     var current_url = window.location.href;
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
     brick.action('add-relationships', 'mock/relation/add', {}, {
         subject_id: '74',
@@ -1040,7 +992,6 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload)', func
 
 
 QUnit.test('creme.bricks.Brick.action (add relationships, single, reload, fail)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
     brick.action('add-relationships', 'mock/relation/add/fail', {}, {
         subject_id: '74',
@@ -1072,7 +1023,6 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload, fail)'
 });
 
 QUnit.test('creme.bricks.Brick.action (add relationships, multiple)', function(assert) {
-//    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
     brick.action('add-relationships', 'mock/relation/add', {}, {
         subject_id: '74',
@@ -1108,7 +1058,6 @@ QUnit.test('creme.bricks.Brick.action (add relationships, multiple)', function(a
 });
 
 QUnit.test('creme.bricks.Brick.action (unknown)', function(assert) {
-//    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>');
     var element = $(
         '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test" data-brick-id="for-test"></div>'
     );
@@ -1129,7 +1078,6 @@ QUnit.test('creme.bricks.Brick.action (unknown)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (loading)', function(assert) {
-//    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>');
     var element = $(
         '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test" data-brick-id="for-test"></div>'
     );
@@ -1146,7 +1094,6 @@ QUnit.test('creme.bricks.Brick.action (loading)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (link, no data)', function(assert) {
-//    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>');
     var element = $(
         '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test" data-brick-id="for-test"></div>'
     );
@@ -1175,7 +1122,6 @@ QUnit.test('creme.bricks.Brick.action (link, no data)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (link, unknown)', function(assert) {
-//    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>');
     var element = $(
         '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test" data-brick-id="for-test"></div>'
     );
@@ -1199,7 +1145,6 @@ QUnit.test('creme.bricks.Brick.action (link, unknown)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (link, loading state)', function(assert) {
-//    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>');
     var element = $(
         '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test" data-brick-id="for-test"></div>'
     );
@@ -1232,7 +1177,6 @@ QUnit.test('creme.bricks.Brick.action (link, loading state)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (link, async)', function(assert) {
-//    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>');
     var element = $(
         '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test" data-brick-id="for-test"></div>'
     );
@@ -1266,7 +1210,6 @@ QUnit.test('creme.bricks.Brick.action (link, async)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (popover)', function(assert) {
-//    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>');
     var element = $(
         '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test" data-brick-id="for-test"></div>'
     );
@@ -1292,7 +1235,6 @@ QUnit.test('creme.bricks.Brick.action (popover)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.registry', function(assert) {
-//    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>');
     var element = $(
         '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test" data-brick-id="for-test"></div>'
     );

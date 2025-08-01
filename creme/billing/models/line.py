@@ -202,15 +202,6 @@ class Line(CremeEntity):
         related = self._related_document
 
         if related is False:
-            # try:
-            #     related = self.relations.get(
-            #         type=constants.REL_OBJ_HAS_LINE,
-            #         subject_entity=self.id,
-            #     ).real_object
-            # except Relation.DoesNotExist:
-            #     related = None
-            #
-            # self._related_document = related
             relations = self.get_relations(constants.REL_OBJ_HAS_LINE)
             self._related_document = related = (
                 relations[0].real_object if relations else None
