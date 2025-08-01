@@ -628,7 +628,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertEqual('redirect', download_action.type)
         self.assertEqual(
             doc1.get_download_absolute_url(),
-            download_action.url
+            download_action.url,
         )
         self.assertTrue(download_action.is_enabled)
         self.assertTrue(download_action.is_visible)
@@ -785,7 +785,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         product.images.set([image, doc, forbidden])
 
         self.assertHTMLEqual(
-            # f'''<ul>
             f'''<ul class="limited-list">
              <li>
               <a onclick="creme.dialogs.image('{image.get_download_absolute_url()}').open();">

@@ -1085,7 +1085,6 @@ better &amp; lighter than the previous one.
 
         self.assertIn(
             escape(_('No type of relationship is compatible.')),
-            # error_response.content.decode(),
             error_response.text,
         )
 
@@ -1184,7 +1183,6 @@ better &amp; lighter than the previous one.
         response = self.assertGET200(
             reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html'))
         )
-        # self.assertEqual(b'', response.content)
         self.assertEqual('', response.text)
         self.assertEqual('SAMEORIGIN', response.get('X-Frame-Options'))
 
@@ -1205,7 +1203,6 @@ better &amp; lighter than the previous one.
             '<p>hi</p>'
             '<img alt="Totoro">'
             '<img alt="Nekobus" src="{}nekobus.jpg">'.format(settings.MEDIA_URL),
-            # response.content.decode(),
             response.text,
         )
 
@@ -1214,7 +1211,6 @@ better &amp; lighter than the previous one.
             '<p>hi</p>'
             '<img alt="Totoro" src="http://external/images/totoro.jpg">'
             '<img alt="Nekobus" src="{}nekobus.jpg">'.format(settings.MEDIA_URL),
-            # response.content.decode(),
             response.text,
         )
         # TODO: improve sanitization test (other tags, css...)
@@ -1236,7 +1232,6 @@ better &amp; lighter than the previous one.
 
         message = messages[0]
         self.assertEqual(email1.subject, message.subject)
-        # self.assertEqual(email1.body,    message.body)
         self.assertBodiesEqual(message, body=email1.body, body_html=email1.body_html)
 
         SENT = EntityEmail.Status.SENT
@@ -1312,7 +1307,6 @@ better &amp; lighter than the previous one.
 
         message = self.get_alone_element(mail.outbox)
         self.assertEqual(email.subject, message.subject)
-        # self.assertEqual(email.body,    message.body)
         self.assertBodiesEqual(message, body=email.body, body_html=email.body_html)
 
     def test_job__already_sent(self):

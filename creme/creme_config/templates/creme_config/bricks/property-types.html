@@ -34,10 +34,8 @@
         <td class="property-app_label">{% if prop_type.app_label %}{{prop_type.app_label|app_verbose_name:HIDDEN_VALUE}}{% else %}—{% endif %}</td>
         <td class="property-copiable">{% print_field object=prop_type field='is_copiable' %}</td>
         <td class="property-count">
-{#            {% blocktranslate count count=prop_type.stats %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktranslate %} #}
             {% blocktranslate count count=prop_type.properties_count %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktranslate %}
         </td>
-{#        {% with action_enabled=admin_perm|and_op:prop_type.is_custom %} #}
         <td {% brick_table_data_status action %}>
           {% if prop_type.enabled %}
             {% brick_table_action id='update' url='creme_config__disable_ptype'|url:prop_type.id label=_('Disable') display='text' enabled=admin_perm %}
@@ -47,7 +45,6 @@
         </td>
         <td {% brick_table_data_status action %}>{# TODO: factorise reasons with detail-view #}
           {% if prop_type.enabled %}
-{#            {% brick_table_action id='edit' url='creme_config__edit_ptype'|url:prop_type.id label=_('Edit this property type') enabled=action_enabled %} #}
            {% if not admin_perm %}
             {% brick_table_action id='edit' label=_('You are not allowed to edit this property type') enabled=False %}
            {% elif not prop_type.is_custom %}
@@ -58,19 +55,16 @@
           {% endif %}
         </td>
         <td {% brick_table_data_status action %}>
-{#            {% brick_table_action id='delete' url=prop_type.get_delete_absolute_url label=_('Delete this property type') enabled=action_enabled %} #}
           {% if not admin_perm %}
             {% brick_table_action id='delete' label=_('You are not allowed to delete this property type') enabled=False %}
           {% elif not prop_type.is_custom %}
             {% brick_table_action id='delete' label=_('This property type cannot be deleted') enabled=False %}
-{#          {% elif prop_type.stats %} #}
           {% elif prop_type.properties_count %}
             {% brick_table_action id='delete' label=_('This property type cannot be deleted because it is used') enabled=False %}
           {% else %}
             {% brick_table_action id='delete' url=prop_type.get_delete_absolute_url label=_('Delete this property type') %}
           {% endif %}
         </td>
-{#        {% endwith %} #}
     </tr>
   {% endfor %}
  {% endwith %}

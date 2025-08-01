@@ -459,7 +459,6 @@ class CustomFormShowDetails(EntityCTypeRelatedMixin,
                             new_value = {'ctype': ctype_id, 'items': sorted(items)}
                 else:
                     # Hide a ContentType not shown => do nothing
-                    # new_value = current_value
                     return
 
         super().set_value(state=state, value=new_value)

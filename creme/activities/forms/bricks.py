@@ -35,7 +35,6 @@ from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.persons import get_contact_model
 
 from .. import constants
-# from ..models import Calendar
 from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
 from . import fields as act_fields
 
@@ -122,10 +121,6 @@ class ParticipantsAddingForm(CremeForm):
 
         if not self._errors:
             activity = self.activity
-            # extend_participants = self.participants.update
-            # extend_participants(cleaned_data['participating_users'])
-            # extend_participants(cleaned_data['participants'])
-
             collisions = check_activity_collisions(
                 activity.start, activity.end,
                 self.participants,
@@ -137,35 +132,6 @@ class ParticipantsAddingForm(CremeForm):
 
         return cleaned_data
 
-    # def save(self):
-    #     activity = self.activity
-    #     create_relation = partial(
-    #         Relation.objects.safe_create,
-    #         object_entity=activity,
-    #         type_id=constants.REL_SUB_PART_2_ACTIVITY,
-    #         user=activity.user,
-    #     )
-    #     me = self.user
-    #     other_users = []
-    #     calendars = []
-    #
-    #     for participant in self.participants:
-    #         user = participant.is_user
-    #         if user:
-    #             if user == me:
-    #                 my_participation = self.cleaned_data.get('my_participation')
-    #                 if my_participation:
-    #                     calendars.append(my_participation.data)
-    #                 else:
-    #                     continue  # Avoid an error message about relation uniqueness
-    #             else:
-    #                 other_users.append(user)
-    #
-    #         create_relation(subject_entity=participant)
-    #
-    #     calendars.extend(Calendar.objects.get_default_calendars(other_users).values())
-    #     for calendars_chunk in iter_as_chunk(calendars, 256):
-    #         activity.calendars.add(*calendars_chunk)
     def save(self):
         activity = self.activity
         user = activity.user

@@ -60,14 +60,9 @@ class _RelationTypeBaseTestCase(CremeTestCase):
         self.client.login(username=self.basic_user.username, password=self.USER_PASSWORD)
 
 
-# class RelationTypeTestCase(CremeTestCase):
 class RelationTypeTestCase(_RelationTypeBaseTestCase):
     ADD_URL = reverse('creme_config__create_rtype')
     DEL_URL = reverse('creme_config__delete_rtype')
-
-    # def setUp(self):
-    #     super().setUp()
-    #     self.login_as_root()
 
     @staticmethod
     def _build_edit_not_custom_url(rtype):
@@ -131,9 +126,6 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         "Property types (mandatory & forbidden)."
         self._login_as_admin()
 
-        # create_pt = CremePropertyType.objects.smart_update_or_create
-        # pt_sub = create_pt(text='has cash', subject_ctypes=[FakeOrganisation])
-        # pt_obj = create_pt(text='need cash', subject_ctypes=[FakeContact])
         create_pt = CremePropertyType.objects.create
         pt_sub = create_pt(text='has cash').set_subject_ctypes(FakeOrganisation)
         pt_obj = create_pt(text='need cash').set_subject_ctypes(FakeContact)
@@ -753,22 +745,9 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         )
 
 
-# class SemiFixedRelationTypeTestCase(CremeTestCase):
 class SemiFixedRelationTypeTestCase(_RelationTypeBaseTestCase):
     ADD_URL = reverse('creme_config__create_semifixed_rtype')
 
-    # def setUp(self):
-    #     super().setUp()
-    #     self.user = self.login_as_root_and_get()
-    #
-    #     self.loves = RelationType.objects.smart_update_or_create(
-    #         ('test-subject_foobar', 'is loving'),
-    #         ('test-object_foobar',  'is loved by'),
-    #     )[0]
-    #
-    #     self.iori = FakeContact.objects.create(
-    #         user=self.user, first_name='Iori', last_name='Yoshizuki',
-    #     )
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -818,7 +797,6 @@ class SemiFixedRelationTypeTestCase(_RelationTypeBaseTestCase):
         )
 
         itsuki = FakeContact.objects.create(
-            # user=self.user, first_name='Itsuki', last_name='Akiba',
             user=self.core_admin, first_name='Itsuki', last_name='Akiba',
         )
         response = self.assertPOST200(

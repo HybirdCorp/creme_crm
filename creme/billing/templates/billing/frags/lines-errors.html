@@ -1,9 +1,8 @@
-{% load i18n creme_ctype %}{# {% load get_meta_value from creme_core_tags %} #}
+{% load i18n creme_ctype %}
 {% for line_errors in errors %}
     {% if line_errors.item %}
       {% blocktranslate with item=line_errors.item %}Errors on the line <strong>«{{item}}»:</strong>{% endblocktranslate %}
     {% else %}
-{#      {% blocktranslate with model=line_errors.instance|get_meta_value:'verbose_name' %}Errors on the new «{{model}}»:{% endblocktranslate %} #}
       {% blocktranslate with model=line_errors.instance|ctype_for_instance %}Errors on the new «{{model}}»:{% endblocktranslate %}
     {% endif %}
     <ul class="bline-error-list">

@@ -48,7 +48,6 @@ class AppRegistryMixin:
 
     def get_app_registry(self):
         try:
-            # app_registry = getattr(self, 'app_registry')
             app_registry = self.app_registry  # NOQA
         except AttributeError:
             app_name = self.kwargs[self.app_name_url_kwarg]
@@ -69,7 +68,6 @@ class ModelConfMixin(AppRegistryMixin):
 
     def get_model_conf(self):
         try:
-            # mconf = getattr(self, 'model_conf')
             mconf = self.model_conf  # NOQA
         except AttributeError:
             model_name = self.kwargs[self.model_name_url_kwarg]

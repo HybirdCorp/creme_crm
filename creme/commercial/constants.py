@@ -17,8 +17,6 @@ UUID_ACT_TYPE_SHOW        = '2937497e-05b2-4790-8fa9-7f2a05dbfee0'
 UUID_ACT_TYPE_DEMO        = '4cfcefd1-3140-4e9f-a6f5-ce7de1e08f51'
 
 
-# DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW = \
-#     'commercial-display_only_orga_demco_on_orga_detailview'
 def __getattr__(name):
     if name == 'DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW':
         warnings.warn(

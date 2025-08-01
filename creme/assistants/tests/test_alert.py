@@ -529,7 +529,6 @@ class ModelRelativeDatePeriodFieldTestCase(AssistantsTestCase):
 
     def test_relative_choices__default_choices(self):
         field = ModelRelativeDatePeriodField(model=FakeContact)
-        # expected_choices = [(-1, _('Before')), (1, _('After'))]
         expected_choices = [
             (-1, pgettext('creme_core-date_period', 'Before')),
             (1,  pgettext('creme_core-date_period', 'After')),
