@@ -1,3 +1,51 @@
+== Version 2.6.11 ==
+
+  Users side :
+  ------------
+    # The lib 'reportlab' has been pinned to "4.3.X" to work with Python 3.8; sorry.
+    # The migrations of HistoryLines related to properties (and activity types)
+      with PostgreSQL were not working correctly (some lines could be ignored).
+    # A warning is now displayed if the settings 'SITE_DOMAIN' is not correctly defined
+      (this feature has been backported from Creme 2.7).
+    # Filtering with the field 'role' of a user was broken.
+    # The position of the notification count indicator was wrong when exploration mode is active.
+    # The migrations from Creme 2.5 were crashing if a filter references a Property Type
+      which has been removed. The invalid conditions are now deleted, & you should
+      fix/remove the concerned filter.
+    # Apps:
+        * Activities :
+            - Fix a regression in calendar CSS : the filtered events or calendars were not hidden.
+        * Billing :
+            - The definitive deletion has been fixed: it did not work with lines
+              related to Product/Service instances.
+        * Assistants:
+            - The dynamic trigger dates of Alerts were not always updated during an entities merging.
+            - The URLs to entities in the HTML body of notification emails are now absolute.
+        * Emails:
+            - The URLs to entities in the HTML body of notification emails
+              (when a campaign has been sent) are now absolute.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The EmptyEnumerator fallback now either raises an exception (ENUMERABLE_REGISTRATION_ERROR=True) or logs an error.
+          This change is done to prevent issues with empty select when an enumerator is not correctly configured.
+        # The form-field 'creme_core.forms.fields.GenericEntityField' has been improved:
+          a ContentType instance is accepted as initial value.
+        # A crash in 'creme_core.models.notification.NotificationChannelConfigItemManager.bulk_get()' has been fixed.
+        # The function 'creme_core.utils.dates.date_to_ISO8601()' was not working correctly on Windows.
+        # Fix an issue when an event 'end' is null during drag-n-drop (allday events).
+        # Fix calendar eventTimeFormat & slotLabelFormat issues : 24h rendered as 12h, wrong datetime or date ranges.
+        # Fix creme.utils.ajaxQuery unexpected error when the query returns a 'Connection Error' without data
+
+    Breaking changes :
+    ------------------
+        # The queryset given to 'creme_core.core.paginator.FlowPaginator' must be ordered
+          (a ValueError is raised if not).
+
+
 == Version 2.6.10 ==
 
   Users side :

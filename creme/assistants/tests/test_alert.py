@@ -1191,6 +1191,70 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.aux_test_merge(creator, assertor)
 
+    def test_merge__update_offset(self):
+        "Dynamic trigger dates must be updated."
+        user  = self.login_as_root_and_get()
+
+        year = now().year + 1
+        birthday1 = date(year=year, month=3, day=26)
+        birthday2 = date(year=year, month=2, day=26)
+
+        create_contact = partial(
+            FakeContact.objects.create,
+            user=user, first_name='Ryoga',
+        )
+        contact1 = create_contact(last_name='Hibik1', birthday=birthday1)
+        contact2 = create_contact(last_name='Hibik2', birthday=birthday2)
+
+        title = 'Alert with offset'
+        trigger_offset = {
+            'cell': {'type': 'regular_field', 'value': 'birthday'},
+            'sign': -1,
+            'period': {'type': DaysPeriod.name, 'value': 1},
+        }
+        alert = Alert.objects.create(
+            user=user, title=title, real_entity=contact2,
+            trigger_date=self.create_datetime(year=year, month=2, day=25),
+            trigger_offset=trigger_offset,
+        )
+
+        self.assertNoFormError(self.client.post(
+            self.build_merge_url(contact1, contact2),
+            follow=True,
+            data={
+                'user_1':      user.id,
+                'user_2':      user.id,
+                'user_merged': user.id,
+
+                'first_name_1':      contact1.first_name,
+                'first_name_2':      contact2.first_name,
+                'first_name_merged': contact1.first_name,
+
+                'last_name_1':      contact1.last_name,
+                'last_name_2':      contact2.last_name,
+                'last_name_merged': 'Hibiki',
+
+                'birthday_1':      self.formfield_value_date(contact1.birthday),
+                'birthday_2':      self.formfield_value_date(contact2.birthday),
+                'birthday_merged': self.formfield_value_date(contact1.birthday),  # <==
+            },
+        ))
+        self.assertDoesNotExist(contact2)
+
+        contact1 = self.assertStillExists(contact1)
+        self.assertEqual('Hibiki',  contact1.last_name)
+        self.assertEqual(birthday1, contact1.birthday)
+
+        alert = self.refresh(alert)
+        self.assertEqual(title,    alert.title)
+        self.assertEqual(contact1, alert.real_entity)
+        self.assertDictEqual(trigger_offset, alert.trigger_offset)
+        self.assertEqual(
+            self.create_datetime(year=year, month=3, day=25),
+            alert.trigger_date,
+        )
+
+    @override_settings(SITE_DOMAIN='https://creme.mydomain')
     def test_alert_reminder_content01(self):
         user = self.get_root_user()
         entity = self.entity
@@ -1225,11 +1289,16 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 title=alert.title,
                 body=alert.description.replace('\n', '<br>'),
             ) + _('Related to %(entity)s') % {
-                'entity': f'<a href="{entity.get_absolute_url()}" target="_self">{entity}</a>'
+                'entity': (
+                    f'<a href="https://creme.mydomain{entity.get_absolute_url()}" target="_self">'
+                    f'{entity}'
+                    f'</a>'
+                ),
             },
             content2.get_html_body(user=user),
         )
 
+    @override_settings(SITE_DOMAIN='https://crm.domain')
     def test_alert_reminder_content02(self):
         "No description."
         user = self.get_root_user()
@@ -1261,7 +1330,11 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             '<h1>{title}</h1>'.format(
                 title=alert.title,
             ) + _('Related to %(entity)s') % {
-                'entity': f'<a href="{entity.get_absolute_url()}" target="_self">{entity}</a>'
+                'entity': (
+                    f'<a href="https://crm.domain{entity.get_absolute_url()}" target="_self">'
+                    f'{entity}'
+                    f'</a>'
+                ),
             },
             content2.get_html_body(user=user),
         )

@@ -98,6 +98,10 @@ class FlowPaginator:
         """
         assert per_page > 1
 
+        # TODO: check the order is stable & compatible with key.
+        if not queryset.ordered:
+            raise ValueError('The Queryset must be ordered')
+
         self.queryset = queryset
         self.per_page = per_page
         self.count = count

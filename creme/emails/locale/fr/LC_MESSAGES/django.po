@@ -971,9 +971,7 @@ msgstr "{count} E-mails dans l'historique"
 msgid "Send a new related email"
 msgstr "Envoyer un nouvel e-mail lié"
 
-#, fuzzy
-#| msgid "Send an email (with a template)"
-msgid "Send a email (with a template)"
+msgid "Send an email (with a template)"
 msgstr "Envoyer un e-mail (avec un patron)"
 
 msgid "Link to emails"

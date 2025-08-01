@@ -131,6 +131,7 @@ class CremeEntity(CremeModel):
         self._properties = None
         self._cvalues_map = {}
 
+    # TODO: move this in _pre_delete? (beware sub classes MUST call super()._pre_delete())
     @atomic
     def delete(self, using=None, keep_parents=False):
         from .history import _get_deleted_entity_ids

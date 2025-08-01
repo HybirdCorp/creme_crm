@@ -45,9 +45,11 @@
 }
 
 .visitor-box {
+    position: relative;
+    top: -6px;
     display: inline-block;
-    margin-top: 8px;
-    margin-right: 5px;
+/*    margin-top: 8px; */
+    margin-right: 14px;
 }
 .visitor-box a {
     padding-top: 5px;
@@ -82,7 +84,7 @@
 }
 .visitor-box a img {
     position: absolute;
-    top: calc(50% - 12px);
+    top: calc(50% - 11px);
     left: 10px;
 }
 
@@ -403,6 +405,7 @@ span.create-group-entry {
 /* Notification box --------------------------------------------------------- */
 
 .notification-box {
+    position: relative; /* In order notification-box-count's absolute uses it as parent */
     display: inline-block;
     padding: 6px 5px;  /* We use 'padding' & not 'margin' to get a bigger "hover" zone */
 }

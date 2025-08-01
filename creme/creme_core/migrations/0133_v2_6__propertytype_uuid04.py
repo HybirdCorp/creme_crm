@@ -61,7 +61,7 @@ def fill_relation_types(apps, schema_editor):
 
 # -----
 def convert_filter_conditions(apps, schema_editor):
-    get_ptype = apps.get_model('creme_core', 'CremePropertyType').objects.get
+    CremePropertyType = apps.get_model('creme_core', 'CremePropertyType')
 
     for condition in apps.get_model('creme_core', 'EntityFilterCondition').objects.filter(
         type=15, # NB: PropertyConditionHandler.type_id
@@ -71,8 +71,22 @@ def convert_filter_conditions(apps, schema_editor):
         try:
             UUID(condition.name)
         except ValueError:
-            condition.name = str(get_ptype(old_id=condition.name).uuid)
-            condition.save()
+            ptype = CremePropertyType.objects.filter(old_id=condition.name).first()
+            if ptype is None:
+                efilter = condition.filter
+                print(
+                    f"BEWARE: a filter condition attached to the EntityFilter("
+                    f"id='{efilter.id}', entity_type={efilter.entity_type}, "
+                    f"name='{efilter.name}') references the "
+                    f"CremePropertyType(old_pk='{condition.name}') which does not "
+                    f"exist anymore. This condition HAS BEEN REMOVED. "
+                    f"You SHOULD probably EDIT this filter to fix it once your install is done "
+                    f"(or remove the filter of course)."
+                )
+                condition.delete()
+            else:
+                condition.name = str(ptype.uuid)
+                condition.save()
 
 
 # -----
@@ -86,7 +100,7 @@ def convert_history_lines(apps, schema_editor):
     for page in FlowPaginator(
         queryset=apps.get_model('creme_core', 'HistoryLine').objects.filter(
             type__in=(TYPE_PROP_ADD, TYPE_PROP_DEL),
-        ),
+        ).order_by('id'),
         key='id',
         per_page=256,
     ).pages():

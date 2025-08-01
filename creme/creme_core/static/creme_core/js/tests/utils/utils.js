@@ -1,8 +1,8 @@
-/* global QUnitConsoleMixin */
+/* global QUnitConsoleMixin FunctionFaker */
 
 (function($) {
 
-QUnit.module("creme.widget.utils.js", new QUnitMixin(QUnitConsoleMixin));
+QUnit.module("creme.widget.utils.js", new QUnitMixin(QUnitConsoleMixin, QUnitDialogMixin));
 
 QUnit.test('creme.utils.JSON.encode (null)', function(assert) {
     var codec = new creme.utils.JSON();
@@ -232,6 +232,70 @@ QUnit.test('creme.utils.JSON.readScriptText (ignore empty)', function(assert) {
 
     equal('', creme.utils.JSON.readScriptText($('script.unknown'), {ignoreEmpty: true}));
     deepEqual([], this.mockConsoleWarnCalls());
+});
+
+QUnit.parametrize('creme.utils.ajaxQuery (error message)', [
+    // xhr, textStatus, errorThrown
+    [[{}, undefined, undefined], {
+        header: gettext('Error'),
+        message: 'HTTP 0 - ' + gettext('Error')
+    }],
+    [[{status: 0, statusText: 'error statusText'}, 'error', undefined], {
+        header: gettext('Connection Refused'),
+        message: 'HTTP 0 - error statusText'
+    }],
+    [[{status: 400, statusText: 'error statusText'}, 'error', ''], {
+        header: gettext('Bad Request'),
+        message: 'HTTP 400 - error statusText'
+    }],
+    [[{status: 501, statusText: 'error statusText'}, 'error', ''], {
+        header: gettext('Error (501)'),
+        message: 'HTTP 501 - error statusText'
+    }],
+    [[{status: 0}, 'error', 'error thrown'], {
+        header: gettext('Connection Refused'),
+        message: 'HTTP 0 - error thrown'
+    }],
+    [[{status: 0, statusText: 'error statusText'}, 'parseerror', 'error thrown'], {
+        header: gettext('Connection Refused'),
+        message: 'JSON parse error'
+    }],
+    [[{status: 0, statusText: 'error statusText', responseText: 'error responseText'}, 'error', 'error thrown'], {
+        header: gettext('Connection Refused'),
+        message: 'error responseText'
+    }]
+], function(response, expected, assert) {
+    var query;
+    var ajaxFaker = new FunctionFaker({
+        instance: $,
+        method: 'ajax',
+        callable: function(options) {
+            options.error.apply(undefined, response);
+        }
+    });
+
+    ajaxFaker.with(function() {
+        query = creme.utils.ajaxQuery('mock/error', {warnOnFail: true});
+        query.start();
+    });
+
+    equal(query.isRunning(), true);
+
+    var dialog = this.assertOpenedDialog();
+    equal(dialog.find('.header').html(), expected.header);
+    equal(dialog.find('.message').html(), expected.message);
+
+    this.closeDialog();
+
+    equal(query.isRunning(), false);
+
+    ajaxFaker.with(function() {
+        query = creme.utils.ajaxQuery('mock/error', {warnOnFail: false});
+        query.start();
+    });
+
+    this.assertClosedDialog();
+    equal(query.isRunning(), false);
 });
 
 }(jQuery));

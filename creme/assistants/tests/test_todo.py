@@ -505,6 +505,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.aux_test_merge(creator, assertor)
 
+    @override_settings(SITE_DOMAIN='https://crm.domain')
     def test_todo_reminder_content01(self):
         user = self.get_root_user()
         entity = self.entity
@@ -539,11 +540,16 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 title=todo.title,
                 body=todo.description.replace('\n', '<br>'),
             ) + _('Related to %(entity)s') % {
-                'entity': f'<a href="{entity.get_absolute_url()}" target="_self">{entity}</a>',
+                'entity': (
+                    f'<a href="https://crm.domain{entity.get_absolute_url()}" target="_self">'
+                    f'{entity}'
+                    f'</a>'
+                ),
             },
             content2.get_html_body(user=user),
         )
 
+    @override_settings(SITE_DOMAIN='https://creme.domain')
     def test_todo_reminder_content02(self):
         "No description."
         user = self.get_root_user()
@@ -571,7 +577,11 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             '<h1>{title}</h1>'.format(
                 title=todo.title,
             ) + _('Related to %(entity)s') % {
-                'entity': f'<a href="{entity.get_absolute_url()}" target="_self">{entity}</a>',
+                'entity': (
+                    f'<a href="https://creme.domain{entity.get_absolute_url()}" target="_self">'
+                    f'{entity}'
+                    f'</a>'
+                ),
             },
             content2.get_html_body(user=user),
         )

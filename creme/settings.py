@@ -177,7 +177,15 @@ DEFAULT_ENCODING = 'UTF8'
 
 # SITE: URLs / PATHS / ... #####################################################
 
-SITE_DOMAIN = 'http://mydomain'  # No end slash!
+# Domain on which the Creme instance is hosted.
+# It's used by some code to build URLs (e.g. to put some <a> to your domain in
+# emails body).
+# NB1: it should match the settings 'ALLOWED_HOSTS'.
+# NB2: it MUST NOT end with a slash.
+# NB3: it's called "domain" but it MUST include the protocol (e.g. http).
+# NB4: it's a legacy from the contrib app "site", which is not installed by
+#      Creme since years & uses now 'SITE_ID'.
+SITE_DOMAIN = 'http://mydomain'
 
 APPEND_SLASH = False
 
@@ -741,6 +749,11 @@ URLIZE_TARGET_BLANK = False
 # URL used in the GUI to indicate the repository address
 REPOSITORY = 'https://github.com/HybirdCorp/creme_crm'
 SCM = 'git'  # Other possible values: 'hg'
+
+# When a foreignkey field or its related model are not registered in the
+# EnumerableRegistry, an exception will be raised if this flag is enabled, and an error
+# log if not (default = False)
+ENUMERABLE_REGISTRATION_ERROR = False
 
 # GUI [END]#####################################################################
 

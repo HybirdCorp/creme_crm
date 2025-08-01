@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2024 Hybird
+# Copyright (c) 2009-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -81,8 +81,10 @@ def date_to_ISO8601(d: date) -> str:
     """Converts a <datetime.date> instance to a string, using the ISO 8601 format
     (only the date part of the format).
     """
+    # See comment in dt_to_ISO8601()
     # return d.strftime(DATE_ISO8601_FMT)
-    return d.strftime('%4Y-%m-%d')
+    # return d.strftime('%4Y-%m-%d')
+    return d.strftime(f'{d.year:04d}-%m-%d')
 
 
 def dt_from_str(dt_str: str) -> datetime | None:
