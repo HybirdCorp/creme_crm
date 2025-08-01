@@ -125,11 +125,9 @@ class CremeListViewTagsTestCase(CremeTestCase):
         self.assertIs(ctxt.get('show_buttons'), True)
         self.assertEqual(ctxt.get('selected'), hf)
 
-        # self.assertIs(ctxt.get('can_edit'),   True)
         self.assertIs(True, ctxt.get('edition_allowed'))
         self.assertEqual('OK', ctxt.get('edition_error'))
 
-        # self.assertIs(ctxt.get('can_delete'), False)
         self.assertIs(False, ctxt.get('deletion_allowed'))
         self.assertEqual(_("This view can't be deleted"), ctxt.get('deletion_error'))
 
@@ -163,11 +161,9 @@ class CremeListViewTagsTestCase(CremeTestCase):
         )
         self.assertIs(ctxt.get('show_buttons'), False)
 
-        # self.assertIs(ctxt.get('can_edit'),   True)
         self.assertIs(True, ctxt.get('edition_allowed'))
         self.assertEqual('OK', ctxt.get('edition_error'))
 
-        # self.assertIs(ctxt.get('can_delete'), True)
         self.assertIs(True, ctxt.get('deletion_allowed'))
         self.assertEqual('OK', ctxt.get('deletion_error'))
 
@@ -224,7 +220,6 @@ class CremeListViewTagsTestCase(CremeTestCase):
         other_filter2 = create_efilter(id='creme_core-ml5', name='ML filter #2', user=other_user2)
 
         efilters = EntityFilterList(content_type=ctype, user=user)
-        # efilters.select_by_id(efilter1.id)
         efilters.select_by_id(g_filter1.id)
 
         ctxt1 = listview_entity_filters(
@@ -235,7 +230,6 @@ class CremeListViewTagsTestCase(CremeTestCase):
         )
         self.assertIsInstance(ctxt1, dict)
         self.assertIs(ctxt1.get('model'), FakeMailingList)
-        # self.assertIs(ctxt1.get('entity_filters'), efilters)
         self.assertListEqual([g_filter2, g_filter1], ctxt1.get('global_efilters'))
         self.assertListEqual([user_filter],          ctxt1.get('my_efilters'))
         self.assertListEqual(
@@ -246,7 +240,6 @@ class CremeListViewTagsTestCase(CremeTestCase):
             ctxt1.get('other_efilters'),
         )
         self.assertIs(ctxt1.get('show_buttons'), True)
-        # self.assertEqual(ctxt1.get('efilter_id'), efilter1.id)
         self.assertEqual(ctxt1.get('selected'), g_filter1)
 
         self.assertIs(True, ctxt1.get('edition_allowed'))

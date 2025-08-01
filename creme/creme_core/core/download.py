@@ -114,7 +114,6 @@ class FileFieldDownLoadRegistry:
         if info is None:
             raise self.InvalidField('This field is not registered')
 
-        # info.permission_checker(user, instance)
         if not user.is_staff:
             info.permission_checker(user, instance)
 

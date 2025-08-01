@@ -150,7 +150,6 @@ class VoidAction(UIAction):
     pass
 
 
-# class ActionsChain(InheritedDataChain):
 class ActionChain(InheritedDataChain):
     """Collections of UIActions per model.
 
@@ -263,7 +262,6 @@ class ActionChain(InheritedDataChain):
             register(VoidAction, action_id=action_class.id, model=model)
 
 
-# class ActionsRegistry:
 class ActionRegistry:
     """Registry for UIAction with 2 groups of actions:
       - action which operate on 1 instance (called "instance action").
@@ -281,12 +279,6 @@ class ActionRegistry:
     def __init__(self, instance_chain_class=ActionChain, bulk_chain_class=ActionChain):
         self._instance_action_classes = instance_chain_class(base_class=UIAction)
         self._bulk_action_classes = bulk_chain_class(base_class=BulkAction)
-
-    # def is_registered_for_instance(self, model, action):
-    #     return self.instance_action(model, action.id) is not None
-    #
-    # def is_registered_for_bulk(self, model, action):
-    #     return self.bulk_action(model, action.id) is not None
 
     # TODO ? (return instance)
     # def instance_action(self, model, action_id):
@@ -392,7 +384,6 @@ class ActionRegistry:
         return self
 
 
-# actions_registry = ActionsRegistry()
 action_registry = ActionRegistry()
 
 

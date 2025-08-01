@@ -117,18 +117,10 @@ def get_creme_entities_repr(request, entities_ids):
     entities = CremeEntity.objects.in_bulk(e_ids)
     CremeEntity.populate_real_entities([*entities.values()])
 
-    user = request.user
-    # has_perm = user.has_perm_to_view
-
     return [
         {
             'id': e_id,
-            # 'text': (
-            #     entity.get_real_entity().get_entity_summary(user)
-            #     if has_perm(entity) else
-            #     gettext('Entity #{id} (not viewable)').format(id=e_id)
-            # ),
-            'text': entity.get_real_entity().get_entity_summary(user),
+            'text': entity.get_real_entity().get_entity_summary(request.user),
         }
         for e_id, entity in ((e_id, entities.get(e_id)) for e_id in e_ids)
         if entity is not None
@@ -234,18 +226,12 @@ class Clone(base.EntityRelatedMixin, base.CheckedView):
         return cloner
 
     def check_related_entity_permissions(self, entity, user):
-        # if entity.get_clone_absolute_url() != CremeEntity.get_clone_absolute_url():
-        #     raise Http404(gettext('This model does not use the generic clone view.'))
-        #
-        # user.has_perm_to_create_or_die(entity)
-        # user.has_perm_to_view_or_die(entity)
         self.get_cloner_for_entity(entity).check_permissions(user=user, entity=entity)
 
     def get_related_entity_id(self):
         return get_from_POST_or_404(self.request.POST, self.entity_id_arg)
 
     def post(self, request, *args, **kwargs):
-        # new_entity = self.get_related_entity().clone()  # NB: clone() is @atomic
         entity = self.get_related_entity()
         new_entity = self.get_cloner_for_entity(entity).perform(user=request.user, entity=entity)
 
@@ -1237,11 +1223,6 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
 
     # TODO: should the deletors registry manage the perm to restore too?
     def check_related_entity_permissions(self, entity, user):
-        # if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
-        #     raise ConflictError(gettext('This model does not use the generic deletion view.'))
-        #
-        # if hasattr(entity, 'get_related_entity'):
-        #     raise ConflictError('Can not restore an auxiliary entity')  # See trash_entity()
         if not entity.is_deleted:
             raise ConflictError('Can not restore an entity which is not in the trash')
 
@@ -1256,7 +1237,6 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
         return HttpResponse() if is_ajax(request) else redirect(entity)
 
 
-# class EntityDeletionMixin:
 class EntityDeletionMixin(generic.CremeDeletionMixin):
     deletor_registry = entity_deletor_registry
 
@@ -1272,93 +1252,6 @@ class EntityDeletionMixin(generic.CremeDeletionMixin):
 
         return deletor
 
-    # def check_entity_for_deletion(self, entity, user):
-    #     if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
-    #         raise ConflictError(
-    #             gettext('«{entity}» does not use the generic deletion view.').format(
-    #                 entity=entity.allowed_str(user),
-    #             )
-    #         )
-    #
-    #     if hasattr(entity, 'get_related_entity'):
-    #         related = entity.get_related_entity()
-    #
-    #         if related is None:
-    #             logger.critical(
-    #                 'delete_entity(): an auxiliary entity seems orphan (id=%s)',
-    #                 entity.id,
-    #             )
-    #             raise PermissionDenied(
-    #                 gettext('You are not allowed to delete this entity: {}').format(
-    #                     entity.allowed_str(user),
-    #                 )
-    #             )
-    #
-    #         if not user.has_perm_to_change(related):
-    #             raise PermissionDenied(
-    #                 gettext('{entity}: <b>Permission denied</b>').format(
-    #                     entity=entity.allowed_str(user),
-    #                 )
-    #             )
-    #     else:
-    #         if not user.has_perm_to_delete(entity):
-    #             raise PermissionDenied(
-    #                 gettext('{entity}: <b>Permission denied</b>').format(
-    #                     entity=entity.allowed_str(user),
-    #                 )
-    #             )
-
-    # def delete_entity(self, entity, user):
-    #     to_trash = self.move_to_trash(entity)
-    #
-    #     if (
-    #         not to_trash
-    #         and not settings.ENTITIES_DELETION_ALLOWED
-    #         and not user.is_staff
-    #         and not hasattr(entity, 'get_related_entity')
-    #     ):
-    #         raise ConflictError(
-    #             gettext(
-    #                 '«{entity}» can not be deleted because the deletion has '
-    #                 'been disabled by the administrator.'
-    #             ).format(entity=entity.allowed_str(user)),
-    #         )
-    #
-    #     try:
-    #         if to_trash:
-    #             entity.trash()
-    #         else:
-    #             entity.delete()
-    #     except SpecificProtectedError as e:
-    #         raise ConflictError(
-    #             '{} {}'.format(
-    #                 gettext('«{entity}» can not be deleted.').format(
-    #                     entity=entity.allowed_str(user),
-    #                 ),
-    #                 e.args[0],
-    #             ),
-    #         ) from e
-    #     except ProtectedError as e:
-    #         raise ConflictError(
-    #             gettext(
-    #                 '«{entity}» can not be deleted because of its dependencies '
-    #                 '({dependencies}).'
-    #             ).format(
-    #                 entity=entity.allowed_str(user),
-    #                 dependencies=self.dependencies_to_str(
-    #                     dependencies=e.args[1],
-    #                     user=user,
-    #                 ),
-    #             ),
-    #         ) from e
-    #     except Exception as e:
-    #         logger.exception('Error when trying delete "%s" (id=%s)', entity, entity.id)
-    #         raise ConflictError(
-    #             gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
-    #                 entity=entity.allowed_str(user),
-    #                 error=e,
-    #             ),
-    #         ) from e
     def delete_entity(self, *,
                       entity: CremeEntity, user: CremeUser, deletor: EntityDeletor,
                       ) -> None:
@@ -1389,9 +1282,6 @@ class EntityDeletionMixin(generic.CremeDeletionMixin):
             raise ConflictError(
                 gettext('The deletion caused an unexpected error [{error}].').format(error=e),
             ) from e
-
-    # def move_to_trash(self, entity):
-    #     return False if hasattr(entity, 'get_related_entity') else not entity.is_deleted
 
 
 class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
@@ -1435,16 +1325,6 @@ class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
 
             CremeEntity.populate_real_entities(entities)
 
-            # for entity in entities:
-            #     real_entity = entity.get_real_entity()
-            #
-            #     try:
-            #         self.check_entity_for_deletion(entity=real_entity, user=user)
-            #         self.delete_entity(entity=entity.get_real_entity(), user=user)
-            #     except PermissionDenied as e:
-            #         errors[403].append(e.args[0])
-            #     except ConflictError as e:
-            #         errors[409].append(e.args[0])
             error_msg = gettext('{entity}: {error}')
 
             def format_error(entity, message):
@@ -1520,9 +1400,6 @@ class EntityDeletion(EntityDeletionMixin,
     def get_success_url(self):
         return self.get_callback_url() or self.get_url_for_entity()
 
-    # @atomic
-    # def perform_deletion(self, request):
-    #     self.delete_entity(entity=self.get_related_entity(), user=request.user)
     def perform_deletion(self, request):
         user = request.user
 
@@ -1559,12 +1436,6 @@ class RelatedToEntityDeletion(generic.base.ContentTypeRelatedMixin,
 
     def get_success_url(self):
         return self.object.get_related_entity().get_absolute_url()
-
-    # def perform_deletion(self, request):
-    #     try:
-    #         super().perform_deletion(request)
-    #     except ProtectedError as e:
-    #         raise PermissionDenied(e.args[0]) from e
 
 
 class SuperusersRestriction(base.CheckedView):

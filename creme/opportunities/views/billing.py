@@ -104,21 +104,12 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
     entity_id_url_kwarg = 'opp_id'
 
     behaviours = {
-        # Value is (Relation type ID between the new doc & the opportunity,
-        #           Set the Relationship 'Current doc' ?,
-        #           # Workflow function,
-        #         )
-        Quote: (
-            constants.REL_SUB_LINKED_QUOTE,
-            True,
-            # workflow.transform_target_into_prospect,
-        ),
-        Invoice: (
-            constants.REL_SUB_LINKED_INVOICE,
-            False,
-            # workflow.transform_target_into_customer,
-        ),
-        # SalesOrder: (constants.REL_SUB_LINKED_SALESORDER, False, None),
+        # Value is (
+        #    Relation type ID between the new doc & the opportunity,
+        #    Set the Relationship 'Current doc' ?,
+        # )
+        Quote: (constants.REL_SUB_LINKED_QUOTE, True),
+        Invoice: (constants.REL_SUB_LINKED_INVOICE, False),
         SalesOrder: (constants.REL_SUB_LINKED_SALESORDER, False),
     }
     generated_name = '{document.number} — {opportunity}'
@@ -132,7 +123,6 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
         klass = self.get_ctype().model_class()
 
         try:
-            # rtype_id, set_as_current, workflow_action = self.behaviours[klass]
             rtype_id, set_as_current = self.behaviours[klass]
         except KeyError as e:
             raise Http404('Bad billing document type') from e
@@ -161,7 +151,6 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
         )
         create_relation(type=rtype, object_entity=opp)
 
-        # b_document.generate_number()  # Need the relationship with emitter organisation
         b_document.generate_number_in_create = True
         b_document.name = self.generated_name.format(document=b_document, opportunity=opp)
         b_document.save()
@@ -192,9 +181,6 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
         if set_as_current:
             # TODO: what if RelationType disabled?
             create_relation(type_id=constants.REL_SUB_CURRENT_DOC, object_entity=opp)
-
-        # if workflow_action:
-        #     workflow_action(opp.emitter, opp.target, user)
 
         if is_ajax(request):
             return HttpResponse()

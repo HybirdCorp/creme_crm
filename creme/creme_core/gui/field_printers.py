@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import warnings
-# import warnings
 from collections.abc import Iterable
 from functools import partial
 from os.path import splitext
@@ -86,49 +85,6 @@ if TYPE_CHECKING:
     #   - "user"
     #   - "field"
     M2MInstancePrinter = Callable[[Model, Model, Manager, CremeUser, Field], str]
-
-
-# def __getattr__(name):
-#     if name == 'MAX_HEIGHT':
-#         warnings.warn('"MAX_HEIGHT" is deprecated', DeprecationWarning)
-#         return 200
-#
-#     if name == 'MAX_WIDTH':
-#         warnings.warn('"MAX_WIDTH" is deprecated', DeprecationWarning)
-#         return 200
-#
-#     raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
-
-
-# def image_size(image, max_h: int = 200, max_w: int = 200) -> str:
-#     warnings.warn(
-#         'creme_core.gui.field_printers.image_size() is deprecated.',
-#         DeprecationWarning,
-#     )
-#
-#     if hasattr(image, 'height'):
-#         h = image.height
-#     elif hasattr(image, 'height_field'):
-#         h = image.height_field
-#     else:
-#         h = max_h
-#     if hasattr(image, 'width'):
-#         w = image.width
-#     elif hasattr(image, 'width_field'):
-#         w = image.width_field
-#     else:
-#         w = max_w
-#
-#     h = float(h)
-#     w = float(w)
-#
-#     ratio = max(h / max_h, w / max_w)
-#
-#     if ratio >= 1.0:
-#         h /= ratio
-#         w /= ratio
-#
-#     return format_html('height="{}" width="{}"', h, w)
 
 
 def simple_print_html(*, instance: Model, value: Any, user, field: Field) -> str:
@@ -365,7 +321,6 @@ class BaseM2MPrinter:
                        user: CremeUser,
                        field: Field,
                        ) -> Iterator[Model]:
-        # return manager.all()
         # We use a cache; even if the M2M has not been prefetched,
         # calls after the first one will not perform queries.
         yield from instance.get_m2m_values(field.name)
@@ -377,7 +332,6 @@ class BaseM2MPrinter:
                           user: CremeUser,
                           field: Field,
                           ) -> Iterator[Model]:
-        # return manager.filter(is_deleted=False)
         # We use the M2M cache as above; we potentially retrieve deleted
         # entities too (not sure if we won't display them in the future anyway).
         entities = instance.get_m2m_values(field.name)
@@ -435,18 +389,6 @@ class M2MPrinterForHTML(BaseM2MPrinter):
 
         printer, enumerator = print_enum
         common_args = {'user': user, 'field': field}
-        # li_tags = format_html_join(
-        #     '', '<li>{}</li>',
-        #     (
-        #         (
-        #             printer(
-        #                 instance=e, related_instance=instance, value=value, **common_args,
-        #             ),
-        #         ) for e in enumerator(instance=instance, manager=value, **common_args)
-        #     )
-        # )
-        #
-        # return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
         return render_limited_list(
             items=[*enumerator(instance=instance, manager=value, **common_args)],
             limit=settings.CELL_SIZE,
@@ -523,7 +465,6 @@ def print_unsafehtml_html(*, value, **kwargs) -> str:
 
 
 # TODO: Do more specific fields (i.e: currency field....) ?
-# class _FieldPrintersRegistry:
 class FieldPrinterRegistry:
     class _Printers:
         def __init__(self, printers_for_field_types, default_printer, choice_printer, m2m_joiner):
@@ -647,11 +588,6 @@ class FieldPrinterRegistry:
             return '/'.join(rendered_fields)
 
         def html_joiner(rendered_fields: Iterable[str]):
-            # li_tags = format_html_join(
-            #     '', '<li>{}</li>', ((v,) for v in rendered_fields)
-            # )
-            #
-            # return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
             return render_limited_list(items=[*rendered_fields], limit=settings.CELL_SIZE)
 
         def build_html_fk_printer(target=None):
@@ -898,7 +834,6 @@ class FieldPrinterRegistry:
             yield self._printers[tag]._for_field_types[type]
 
 
-# field_printers_registry = _FieldPrintersRegistry()
 field_printer_registry = FieldPrinterRegistry()
 
 

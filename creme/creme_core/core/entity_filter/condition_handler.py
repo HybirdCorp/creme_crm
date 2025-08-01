@@ -83,7 +83,6 @@ class FilterConditionHandler:
     <creme_core.core.entity_filter._EntityFilterRegistry>.
     """
     type_id: int
-    # efilter_registry = entity_filter_registries[EF_REGULAR]
 
     class DataError(Exception):
         pass
@@ -94,7 +93,6 @@ class FilterConditionHandler:
     _model: type[CremeEntity]
     _subfilter: EntityFilter | None | bool
 
-    # def __init__(self, model: type[CremeEntity]:
     def __init__(self, *, efilter_type: str, model: type[CremeEntity]):
         """Constructor.
 
@@ -233,7 +231,6 @@ class SubFilterConditionHandler(FilterConditionHandler):
         @param subfilter: <creme_core.models.EntityFilter> instance or ID (string).
         """
         if isinstance(subfilter, EntityFilter):
-            # super().__init__(model=subfilter.entity_type.model_class())
             super().__init__(
                 efilter_type=efilter_type,
                 model=subfilter.entity_type.model_class(),
@@ -246,7 +243,6 @@ class SubFilterConditionHandler(FilterConditionHandler):
                     'The argument "model" must be passed if a filter ID is passed.'
                 )
 
-            # super().__init__(model=model)
             super().__init__(efilter_type=efilter_type, model=model)
             self._subfilter_id = subfilter
 
@@ -258,9 +254,7 @@ class SubFilterConditionHandler(FilterConditionHandler):
         return self.subfilter.applicable_on_entity_base
 
     @classmethod
-    # def build(cls, *, model, name, data):
     def build(cls, *, efilter_type, model, name, data):
-        # return cls(model=model, subfilter=name)
         return cls(efilter_type=efilter_type, model=model, subfilter=name)
 
     @classmethod
@@ -284,7 +278,6 @@ class SubFilterConditionHandler(FilterConditionHandler):
             name=subfilter.id,
             # NB: avoid a query to retrieve again the sub-filter (in forms).
             # TODO: assert this class is available in the registry ?
-            # handler=cls(subfilter=subfilter),
             handler=cls(efilter_type=filter_type, subfilter=subfilter),
         )
 
@@ -325,28 +318,16 @@ class SubFilterConditionHandler(FilterConditionHandler):
 class OperatorConditionHandlerMixin:
     efilter_registry: EntityFilterRegistry
 
-    # @classmethod
-    # def _check_operator(cls, operator_id):
-    #     if cls.get_operator(operator_id) is None:
-    #         return f"Operator ID '{operator_id}' is invalid"
     def _check_operator(self, operator_id):
         if self.get_operator(operator_id) is None:
             return f"Operator ID '{operator_id}' is invalid"
 
-    # @classmethod
-    # def get_operand(cls, value, user) -> operands.ConditionDynamicOperand | None:
-    #     return cls.efilter_registry.get_operand(type_id=value, user=user)
     def get_operand(self, value, user) -> operands.ConditionDynamicOperand | None:
         return self.efilter_registry.get_operand(type_id=value, user=user)
 
-    # @classmethod
-    # def get_operator(cls, operator_id: int) -> operators.ConditionOperator | None:
-    #     return cls.efilter_registry.get_operator(operator_id)
     def get_operator(self, operator_id: int) -> operators.ConditionOperator | None:
         return self.efilter_registry.get_operator(operator_id)
 
-    # @classmethod
-    # def resolve_operands(cls, values, user):
     def resolve_operands(self, values, user):
         """Return a list where:
             - values which does not correspond to a special dynamic operand are unchanged.
@@ -355,7 +336,6 @@ class OperatorConditionHandlerMixin:
         resolved_values = []
 
         for value in values:
-            # operand = cls.get_operand(value=value, user=user)
             operand = self.get_operand(value=value, user=user)
             if operand is None:
                 resolved_values.append(value)
@@ -438,7 +418,6 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
                 None
                 if base_instance is None else
                 # NB: see remark about Snapshot in get_m2m_values()'s docstring
-                # [*getattr(base_instance, last_field.attname).values_list('pk', flat=True)]or None
                 [o.pk for o in base_instance.get_m2m_values(last_field.attname)] or None
             )
 
@@ -464,7 +443,6 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
 
     # TODO: multi-value is stupid for some operator (LT, GT etc...) => improve checking ???
     @classmethod
-    # def build(cls, *, model, name, data):
     def build(cls, *, efilter_type, model, name, data):
         try:
             kwargs = {
@@ -476,13 +454,11 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
                 f'{cls.__name__}.build(): invalid data ({e})'
             )
 
-        # return cls(model=model, field_name=name, **kwargs)
         return cls(efilter_type=efilter_type, model=model, field_name=name, **kwargs)
 
     @classmethod
     def build_condition(cls, *, model, field_name, operator, values,
                         user=None,
-                        # filter_type=EF_USER,
                         filter_type=EF_REGULAR,
                         condition_cls=EntityFilterCondition,
                         ):
@@ -500,7 +476,6 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         """
         operator_id = operator if isinstance(operator, int) else operator.type_id
 
-        # operator_obj = cls.get_operator(operator_id)
         registry = entity_filter_registries[filter_type]
         operator_obj = registry.get_operator(operator_id)
         if operator_obj is None:
@@ -519,7 +494,6 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             # TODO: cast more values (e.g. integers instead of "digit" string)
             values = operator_obj.validate_field_values(
                 field=field, values=values, user=user,
-                # efilter_registry=cls.efilter_registry,
                 efilter_registry=registry,
             )
         except ValidationError as e:
@@ -764,9 +738,7 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
     """Filter entities by using one of their date fields."""
     type_id = 6
 
-    # def __init__(self, *, model, field_name, **kwargs):
     def __init__(self, *, efilter_type, model, field_name, **kwargs):
-        # BaseRegularFieldConditionHandler.__init__(self, model=model, field_name=field_name)
         BaseRegularFieldConditionHandler.__init__(
             self, efilter_type=efilter_type, model=model, field_name=field_name,
         )
@@ -778,7 +750,6 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
         )
 
     @classmethod
-    # def build(cls, *, model, name, data):
     def build(cls, *, efilter_type, model, name, data):
         return cls(
             efilter_type=efilter_type,
@@ -852,7 +823,6 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
     _custom_field: CustomField | None
     _related_name: str
 
-    # def __init__(self, *, model=None, custom_field, related_name=None):
     def __init__(self, *,
                  efilter_type,
                  model=None,
@@ -868,7 +838,6 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
                used CustomField.
         """
         if isinstance(custom_field, CustomField):
-            # super().__init__(model=custom_field.content_type.model_class())
             super().__init__(
                 efilter_type=efilter_type,
                 model=custom_field.content_type.model_class(),
@@ -888,7 +857,6 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
                     'The argument "related_name" must be passed if a CustomField ID is passed.'
                 )
 
-            # super().__init__(model=model)
             super().__init__(efilter_type=efilter_type, model=model)
             self._custom_field_uuid = custom_field
             self._custom_field = None
@@ -951,7 +919,6 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         @param values: List of values to filter with.
         """
         super().__init__(
-            # model=model, custom_field=custom_field, related_name=related_name,
             efilter_type=efilter_type, model=model,
             custom_field=custom_field, related_name=related_name,
         )
@@ -999,7 +966,6 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         )
 
     @classmethod
-    # def build(cls, *, model, name, data):
     def build(cls, *, efilter_type, model, name, data):
         try:
             cf_uuid = UUID(name)
@@ -1013,7 +979,6 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
                 f'{cls.__name__}.build(): invalid data ({e})'
             )
 
-        # return cls(model=model, custom_field=cf_uuid, **kwargs)
         return cls(efilter_type=efilter_type, model=model, custom_field=cf_uuid, **kwargs)
 
     @classmethod
@@ -1035,7 +1000,6 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         """
         operator_id = operator if isinstance(operator, int) else operator.type_id
 
-        # operator_obj = cls.get_operator(operator_id)
         operator_obj = entity_filter_registries[filter_type].get_operator(operator_id)
 
         if operator_obj is None:
@@ -1072,7 +1036,6 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         try:
             # TODO: move this in Operator code
             if operator_id == operators.ISEMPTY:
-                # value = cls.get_operator(operator_id).validate_field_values(
                 value = operator_obj.validate_field_values(
                     field=None, values=values, user=user,
                     efilter_registry=cls.efilter_registry,
@@ -1183,12 +1146,10 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
     """Filter entities by using one of their date CustomFields."""
     type_id = 21
 
-    # def __init__(self, *, model=None, custom_field, related_name=None, **kwargs):
     def __init__(self, *,
                  efilter_type, model=None,
                  custom_field, related_name=None,
-                 **kwargs,
-                 ):
+                 **kwargs):
         """Constructor.
 
         @param model: See <BaseCustomFieldConditionHandler>.
@@ -1199,7 +1160,6 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
         @param end: See <DateFieldHandlerMixin>.
         """
         BaseCustomFieldConditionHandler.__init__(
-            # self, model=model, custom_field=custom_field, related_name=related_name,
             self, efilter_type=efilter_type, model=model,
             custom_field=custom_field, related_name=related_name,
         )
@@ -1214,7 +1174,6 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
         )
 
     @classmethod
-    # def build(cls, *, model, name, data):
     def build(cls, *, efilter_type, model, name, data):
         kwargs = cls._load_daterange_kwargs(data)  # It tests if it's a dict too
         try:
@@ -1225,7 +1184,6 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
                 f'{cls.__name__}.build(): invalid data ({e})'
             )
 
-        # return cls(model=model, custom_field=cf_id, related_name=rname, **kwargs)
         return cls(
             efilter_type=efilter_type, model=model, custom_field=cf_id, related_name=rname,
             **kwargs
@@ -1299,9 +1257,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
 
 
 class BaseRelationConditionHandler(FilterConditionHandler):
-    # def __init__(self, *, model, rtype, exclude):
     def __init__(self, *, efilter_type, model, rtype, exclude):
-        # super().__init__(model=model)
         super().__init__(efilter_type=efilter_type, model=model)
         self._exclude = exclude
 
@@ -1362,7 +1318,6 @@ class RelationConditionHandler(BaseRelationConditionHandler):
                  ctype: ContentType | tuple[str, str] | None = None,
                  entity: UUID | None = None,
                  ):
-        # super().__init__(model=model, rtype=rtype, exclude=exclude)
         super().__init__(
             efilter_type=efilter_type, model=model, rtype=rtype, exclude=exclude,
         )
@@ -1400,7 +1355,6 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         return not found if self._exclude else found
 
     @classmethod
-    # def build(cls, *, model, name, data):
     def build(cls, *, efilter_type, model, name, data):
         if not isinstance(data, dict):
             raise cls.DataError(f'{cls.__name__}.build(): data must be a dictionary')
@@ -1504,7 +1458,6 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
             if ctype is not None:
                 fmt_kwargs['model'] = (
-                    # ctype.model_class()._meta.verbose_name_plural
                     model_verbose_name_plural(ctype.model_class())
                     if ctype else
                     '???'
@@ -1517,7 +1470,6 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
     @property
     def entity(self) -> CremeEntity | None | Literal[False]:
-        # if self._entity_id is None:
         if self._entity_uuid is None:
             return None
 
@@ -1574,7 +1526,6 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
         True:  _('The entities have no relationship «{predicate}» to «{filter}»'),
     }
 
-    # def __init__(self, *, model, rtype, subfilter, exclude=False):
     def __init__(self, *, efilter_type, model, rtype, subfilter, exclude=False):
         """Constructor.
 
@@ -1585,7 +1536,6 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
         @param exclude: Boolean ; the retrieved Relations have to be
                included (True) or excluded (False).
         """
-        # super().__init__(model=model, rtype=rtype, exclude=exclude)
         super().__init__(
             efilter_type=efilter_type, model=model, rtype=rtype, exclude=exclude,
         )
@@ -1601,7 +1551,6 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
     # def accept(self, *, entity, user):  TODO ? (not needed currently for credentials filters)
 
     @classmethod
-    # def build(cls, *, model, name, data):
     def build(cls, *, efilter_type, model, name, data):
         try:
             filter_id = data['filter_id']
@@ -1612,7 +1561,6 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
         if not isinstance(has, bool):
             raise cls.DataError(f'{cls.__name__}.build(): "has" is not a boolean')
 
-        # return cls(model=model, rtype=name, subfilter=filter_id, exclude=not has)
         return cls(
             efilter_type=efilter_type, model=model,
             rtype=name, subfilter=filter_id, exclude=not has,
@@ -1644,7 +1592,6 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
             value={'has': has, 'filter_id': subfilter.id},
             # NB: avoid a query to retrieve again the sub-filter (in forms).
             # TODO: assert this class is available in the registry ?
-            # handler=cls(model=model, rtype=rtype, subfilter=subfilter, exclude=not has),
             handler=cls(
                 efilter_type=filter_type, model=model,
                 rtype=rtype, subfilter=subfilter, exclude=not has,
@@ -1732,7 +1679,6 @@ class PropertyConditionHandler(FilterConditionHandler):
         @param exclude: Boolean ; the retrieved CremeProperties have to be
                included (True) or excluded (False).
         """
-        # super().__init__(model=model)
         super().__init__(efilter_type=efilter_type, model=model)
         if isinstance(ptype, CremePropertyType):
             self._ptype_uuid = ptype.uuid
@@ -1757,7 +1703,6 @@ class PropertyConditionHandler(FilterConditionHandler):
         return True
 
     @classmethod
-    # def build(cls, *, model, name, data):
     def build(cls, *, efilter_type, model, name, data):
         try:
             has = data['has']
@@ -1767,7 +1712,6 @@ class PropertyConditionHandler(FilterConditionHandler):
         if not isinstance(has, bool):
             raise cls.DataError(f'{cls.__name__}.build(): "has" is not a boolean')
 
-        # return cls(model=model, ptype=name, exclude=(not has))
         return cls(
             efilter_type=efilter_type, model=model, ptype=name, exclude=(not has),
         )

@@ -40,29 +40,6 @@ from creme.reports.tests.base import Report, ReportGraph
 
 class ReportGraphHandTestCase(CremeTestCase):
     def test_generate_date_format(self):
-        # with self.settings(USE_L10N=False):
-        #     with self.settings(DATE_INPUT_FORMATS=['%Y-%m-%d']):
-        #         self.assertEqual('%Y', _generate_date_format(year=True))
-        #         self.assertEqual('%Y-%m', _generate_date_format(year=True, month=True))
-        #         self.assertEqual(
-        #             '%Y-%m-%d', _generate_date_format(year=True, month=True, day=True),
-        #         )
-        #
-        #     with self.settings(DATE_INPUT_FORMATS=['%d/%m/%y']):
-        #         self.assertEqual('%y', _generate_date_format(year=True))
-        #         self.assertEqual('%m/%y', _generate_date_format(year=True, month=True))
-        #         self.assertEqual(
-        #             '%d/%m/%y', _generate_date_format(year=True, month=True, day=True),
-        #         )
-        #
-        #     with self.settings(DATE_INPUT_FORMATS=['%m.%d.%Y', '%d/%m/%y']):
-        #         self.assertEqual('%Y', _generate_date_format(year=True))
-        #         self.assertEqual('%m.%Y', _generate_date_format(year=True, month=True))
-        #         self.assertEqual(
-        #             '%m.%d.%Y', _generate_date_format(year=True, month=True, day=True),
-        #         )
-
-        # with self.settings(USE_L10N=True):
         with override_language('en'):
             self.assertEqual(
                 '%Y-%m-%d', _generate_date_format(year=True, month=True, day=True),
@@ -101,7 +78,6 @@ class ReportGraphHandTestCase(CremeTestCase):
             user=user, name='Field Test', linked_report=report,
             abscissa_cell_value='modified', abscissa_type=ReportGraph.Group.MONTH,
             ordinate_type=ReportGraph.Aggregator.SUM,
-            # ordinate_cell_key=ordinate_cell.key,
             ordinate_cell_key=ordinate_cell.portable_key,
         )
 
@@ -285,7 +261,6 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value=str(cfield.id),
             abscissa_cell_value=str(cfield.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_DAY,
             ordinate_type=ReportGraph.Aggregator.COUNT,
@@ -308,7 +283,6 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value=str(cfield.id),
             abscissa_cell_value=str(cfield.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_MONTH,
             ordinate_type=ReportGraph.Aggregator.COUNT,
@@ -331,7 +305,6 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value=str(cfield.id),
             abscissa_cell_value=str(cfield.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_YEAR,
             ordinate_type=ReportGraph.Aggregator.COUNT,
@@ -354,7 +327,6 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value=str(cfield.id),
             abscissa_cell_value=str(cfield.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_RANGE,
             abscissa_parameter='90',
@@ -377,7 +349,6 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value=str(cfield.id),
             abscissa_cell_value=str(cfield.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_FK,
             ordinate_type=ReportGraph.Aggregator.COUNT,
@@ -394,7 +365,6 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='1234',  # < ==
             abscissa_cell_value=str(uuid4()),  # < ==
             abscissa_type=ReportGraph.Group.CUSTOM_DAY,
             ordinate_type=ReportGraph.Aggregator.COUNT,
@@ -422,7 +392,6 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value=str(cfield.id),
             abscissa_cell_value=str(cfield.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_FK,
             ordinate_type=ReportGraph.Aggregator.COUNT,

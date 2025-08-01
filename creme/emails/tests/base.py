@@ -96,7 +96,6 @@ class _EmailsTestCase(CremeTestCase):
                       recipient='vincent.law@immigrates.rmd',
                       subject='Under arrest',
                       body='Freeze!',
-                      # body_html='',
                       body_html='<p>Freeze!</p>',
                       signature=None,
                       ):

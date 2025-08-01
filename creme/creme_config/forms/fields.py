@@ -21,7 +21,6 @@ from copy import deepcopy
 from django.db.models.base import Model
 from django.forms import ValidationError, fields
 from django.forms import models as modelforms
-# from django.forms.fields import CallableChoiceIterator
 from django.urls import reverse
 from django.utils.choices import CallableChoiceIterator
 from django.utils.translation import gettext
@@ -300,7 +299,6 @@ class MenuEntriesField(fields.JSONField):
         for cls in self.menu_registry.entry_classes:
             entry_id = cls.id
             if entry_id not in excluded and cls.level == level:
-                # yield entry_id, cls().label
                 label = cls().label
                 # NB: entries with empty label are ignored; it's used for example
                 #     by entries for CustomEntities which are not enabled yet.

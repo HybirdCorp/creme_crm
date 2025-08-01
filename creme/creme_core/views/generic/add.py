@@ -168,7 +168,6 @@ class EntityCreationPopup(base.EntityModelMixin, CremeModelCreationPopup):
         super().check_view_permissions(user=user)
 
         model = self.get_checked_model()
-        # user.has_perm_to_access_or_die(model._meta.app_label)
         user.has_perm_to_create_or_die(model)
 
 

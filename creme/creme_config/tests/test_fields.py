@@ -370,7 +370,6 @@ class CreatorEnumerableModelChoiceFieldTestCase(_ConfigFieldTestCase):
 
         self.assertTupleEqual(('', False), field.creation_url_n_allowed)
 
-        # field.user = create_user()
         field.user = self.admin
         self.assertTupleEqual((self.ADD_URL, True), field.creation_url_n_allowed)
 

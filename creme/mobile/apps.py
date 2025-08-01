@@ -37,6 +37,5 @@ class MobileConfig(CremeAppConfig):
         from . import setting_keys
 
         setting_key_registry.register(
-            # setting_keys.LOCATION_MAP_URL,
             setting_keys.location_map_url_key,
         )

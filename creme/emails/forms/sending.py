@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,6 @@ from datetime import datetime, time
 from json import dumps as json_dump
 
 from django import forms
-# from django.forms.fields import CallableChoiceIterator
 from django.template.base import Template, VariableNode
 from django.utils.timezone import make_aware, now
 from django.utils.translation import gettext_lazy as _
@@ -29,7 +28,6 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core import forms as core_forms
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core.history import toggle_history
-# from creme.creme_core.models import HistoryLine
 from creme.creme_core.forms.widgets import CalendarWidget, PrettySelect
 
 from .. import get_emailtemplate_model
@@ -141,18 +139,6 @@ class SendingConfigField(forms.MultiValueField):
 
     @queryset.setter
     def queryset(self, value):
-        # qs = value.all()
-        # self.fields[0].queryset = qs
-        # self.widget.choices = CallableChoiceIterator(
-        #     lambda: (
-        #         (
-        #             str(item.id),
-        #             item.name,
-        #             {'default_sender': item.default_sender}
-        #         ) for item in qs
-        #     )
-        # )
-
         # NB: we copy the old-fashioned CallableChoiceIterator because the new
         #     one (i.e django.utils.choices.CallableChoiceIterator) does not
         #     like our 3-tuples.

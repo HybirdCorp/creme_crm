@@ -227,7 +227,6 @@ QUnit.test('creme.FormGroupsController (toggle content type)', function(assert) 
     equal(controller.ctype(ctypeIdB).is('.customform-config-collapsed'), true);
 
     deepEqual([
-//        ['POST', {ct_id: ctypeIdA}]
         ['POST', {action: 'show', ct_id: ctypeIdA}]
     ], this.mockBackendUrlCalls('mock/group/expand'));
 
@@ -237,9 +236,7 @@ QUnit.test('creme.FormGroupsController (toggle content type)', function(assert) 
     equal(controller.ctype(ctypeIdB).is('.customform-config-collapsed'), true);
 
     deepEqual([
-//        ['POST', {ct_id: ctypeIdA}],
         ['POST', {action: 'show', ct_id: ctypeIdA}],
-//        ['POST', {ct_id: '0'}]
         ['POST', {action: 'hide', ct_id: ctypeIdA}]
     ], this.mockBackendUrlCalls('mock/group/expand'));
 });
@@ -381,7 +378,6 @@ QUnit.test('creme.FormGroupsController (reorder groups, failure)', function(asse
         ['mock/group/reorder/0/fail', 'POST', {target: group.index()}, {delay: 0, enableUriSearch: false, sync: true}],
         [
             'mock/brick/all/reload', 'GET',
-//             {"brick_id": ["brick-for-test"], "extra_data": "{}"},
              {"brick_id": ["creme_core-test"], "extra_data": "{}"},
              {dataType: "json", delay: 0, enableUriSearch: false, sync: true}
         ]

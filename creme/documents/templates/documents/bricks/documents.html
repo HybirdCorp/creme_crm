@@ -27,7 +27,6 @@
         </td>
         <td {% brick_table_data_status action %}>
           {% if not doc.is_deleted %}
-{#            {% brick_table_action id='delete' url=doc.get_delete_absolute_url label=_('Send this document to the trash') enabled=user|has_perm_to_delete:doc %} #}
             {% brick_table_delete_entity_action entity=doc user=user label=_('Send this document to the trash') %}
           {% endif %}
         </td>

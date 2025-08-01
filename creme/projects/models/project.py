@@ -26,7 +26,6 @@ from django.utils.timezone import localtime, now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core import models as core_models
 from creme.creme_core.models.currency import get_default_currency_pk
 
@@ -52,7 +51,6 @@ class AbstractProject(core_models.CremeEntity):
 
     currency = models.ForeignKey(
         core_models.Currency, verbose_name=_('Currency'), related_name='+',
-        # default=DEFAULT_CURRENCY_PK,
         default=get_default_currency_pk,
         on_delete=models.PROTECT,
     )

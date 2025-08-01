@@ -63,14 +63,6 @@ urlpatterns = [
             ),
             check_args=Swappable.INT_ID,
         ),
-        # Swappable(
-        #     re_path(
-        #         r'^contact/edit_names/(?P<contact_id>\d+)[/]?$',
-        #         contact.ContactNamesEdition.as_view(),
-        #         name='persons__edit_contact_names',
-        #     ),
-        #     check_args=Swappable.INT_ID,
-        # ),
         Swappable(
             re_path(
                 r'^contact/(?P<contact_id>\d+)[/]?$',

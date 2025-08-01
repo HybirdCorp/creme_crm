@@ -25,7 +25,6 @@ import creme.creme_core.bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     HeaderFilter,
@@ -53,7 +52,6 @@ class Populator(BasePopulator):
         self.Report = get_report_model()
 
     def _already_populated(self):
-        # return BrickDetailviewLocation.objects.filter_for_model(self.Report).exists()
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_REPORT).exists()
 
     def _populate_header_filters(self):
@@ -65,11 +63,6 @@ class Populator(BasePopulator):
                 (EntityCellRegularField, {'name': 'ct'}),
             ],
         )
-
-    # def _populate_custom_forms(self):
-    #     create_cfci = CustomFormConfigItem.objects.create_if_needed
-    #     create_cfci(descriptor=custom_forms.REPORT_CREATION_CFORM)
-    #     create_cfci(descriptor=custom_forms.REPORT_EDITION_CFORM)
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(model=self.Report, fields=self.SEARCH)

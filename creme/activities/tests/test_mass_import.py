@@ -116,7 +116,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 'user': user.id,
                 'start_colselect': 2,
                 'end_colselect': 3,
-                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
                 'type_selector': sub_type.id,
 
                 # Should not be used
@@ -136,7 +135,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertEqual(sub_type.id,      act1.sub_type_id)
         self.assertIsNone(act1.start)
         self.assertIsNone(act1.end)
-        # self.assertEqual(constants.FLOATING, act1.floating_type)
         self.assertEqual(Activity.FloatingType.FLOATING, act1.floating_type)
 
         self.assertFalse(act1.relations.all())

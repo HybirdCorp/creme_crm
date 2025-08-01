@@ -228,9 +228,6 @@ class BaseReportsTestCase(CremeTestCase):
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_kawaii', text='Kawaii',
-        # )
         ptype = CremePropertyType.objects.create(text='Kawaii')
         CremeProperty.objects.create(type=ptype, creme_entity=rei)
 

@@ -1,7 +1,6 @@
 {% extends 'creme_core/bricks/base/base.html' %}
 {% load creme_bricks %}
 
-{# {% block brick_content_extra_class %}{% if page.paginator.num_pages > 1 %} is-paginated{% endif %}{% if not page or page.paginator.count == 0 %} is-empty{% endif %}{% endblock %} #}
 {% block brick_content_extra_class %}{% if page.paginator.num_pages > 1 %} is-paginated{% endif %}{% if page.paginator.count == 0 %} is-empty{% endif %}{% endblock %}
 
 {% block brick_footer %}

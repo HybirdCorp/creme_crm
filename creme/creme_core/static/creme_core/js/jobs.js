@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2016-2022  Hybird
+    Copyright (C) 2016-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -117,7 +117,6 @@ creme.jobs.BaseJobsMonitor = creme.component.Component.sub({
                 break;
 
             case __JOB_STATUS.OK: // STATUS_OK
-//                jobs.text(gettext('Finished'));
                 jobs.text(gettext('Completed successfully'));  // TODO: keep synchronized with python code...
                 break;
         }

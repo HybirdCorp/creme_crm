@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 import logging
 
 from django.conf import settings
@@ -24,13 +23,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, PermissionDenied
 from django.db.models import Field
-# from django.db.models.deletion import ProtectedError
 from django.db.models.deletion import PROTECT
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.functional import partition
-# from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext, pgettext_lazy
 
@@ -50,7 +47,6 @@ from ..utils.unicode_collation import collator
 from . import generic
 from .bricks import BricksReloading
 from .decorators import jsonify
-# from .entity import EntityDeletionMixin
 from .enumerable import FieldChoicesView
 from .generic import base
 
@@ -453,9 +449,6 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
         return kwargs
 
 
-# class EntityFilterDeletion(EntityDeletionMixin,
-#                            EntityFilterMixin,
-#                            generic.CremeModelDeletion):
 class EntityFilterDeletion(EntityFilterMixin, generic.CremeModelDeletion):
     model = EntityFilter
     pk_url_kwarg = 'efilter_id'
@@ -470,17 +463,6 @@ class EntityFilterDeletion(EntityFilterMixin, generic.CremeModelDeletion):
             raise PermissionDenied(msg)
 
     def get_query_kwargs(self):
-        # try:
-        #     kwargs = {'pk': self.kwargs[self.pk_url_kwarg]}
-        # except KeyError:
-        #     warnings.warn(
-        #         'EntityFilterDeletion with ID as POST argument is deprecated; '
-        #         'set it in the URL instead.',
-        #         DeprecationWarning
-        #     )
-        #     kwargs = super().get_query_kwargs()
-        #
-        # return kwargs
         return {'pk': self.kwargs[self.pk_url_kwarg]}
 
     def get_success_url(self):
@@ -492,18 +474,6 @@ class EntityFilterDeletion(EntityFilterMixin, generic.CremeModelDeletion):
             super().perform_deletion(request)
         except EntityFilter.DependenciesError as e:
             raise ConflictError(e) from e
-        # except ProtectedError as e:
-        #     raise ConflictError(
-        #         gettext(
-        #             'The filter can not be deleted because of its dependencies '
-        #             '({dependencies}).'
-        #         ).format(
-        #             dependencies=self.dependencies_to_str(
-        #                 dependencies=e.args[1],
-        #                 user=request.user,
-        #             ),
-        #         )
-        #     ) from e
 
 
 # TODO: factorise with views.relations.json_rtype_ctypes  ???

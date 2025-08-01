@@ -104,7 +104,6 @@ class JobScheduler:
         self._running_userjob_ids: set[int] = set()
 
     def _retrieve_jobs(self) -> None:
-        # now_value = now()
         users_jobs = self._users_jobs
         system_jobs = self._system_jobs
 
@@ -133,7 +132,6 @@ class JobScheduler:
                 users_jobs.appendleft(job)
             else:  # System jobs
                 if jtype.periodic != JobType.NOT_PERIODIC:
-                    # heappush(system_jobs, (self._next_wakeup(job, now_value), job.id, job))
                     heappush(system_jobs, (self._next_wakeup(job), job.id, job))
                 else:
                     logger.warning(
@@ -313,7 +311,6 @@ class JobScheduler:
         #    => IDEA: create a transaction marker within the transaction, send
         #       its ID in the command, & wait for them to be reachable (so we
         #       are sure the transaction is finished).
-        # if job.enabled:
         if job.enabled and job.type.periodic == JobType.PSEUDO_PERIODIC:
             secure_wakeup = now() + timedelta(seconds=30)
             next_wakeup = min(next_wakeup, secure_wakeup)

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -343,7 +343,6 @@ class IconRegistry:
             except KeyError:
                 logger.warning('Missing image: %s', path)
 
-        # return Icon(url=url, size=size_px, label=model._meta.verbose_name)
         return Icon(url=url, size=size_px, label=model_verbose_name(model))
 
     def get_4_instance(self, instance: Model, theme: str, size_px: int) -> Icon:
@@ -374,7 +373,6 @@ class IconRegistry:
 
         return Icon(
             url=url, size=size_px,
-            # label=label or instance._meta.verbose_name,
             label=label or model_verbose_name(type(instance)),
         )
 

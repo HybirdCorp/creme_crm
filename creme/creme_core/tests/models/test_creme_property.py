@@ -38,7 +38,6 @@ class CremePropertyTypeTestCase(CremeTestCase):
 
     def test_manager_smart_update_or_create02(self):  # DEPRECATED
         "ContentTypes & app label."
-        # pk = 'test-prop_foo'
         uid = '73b2c0b5-10a8-443a-9e07-1f2398e889ea'
         text = 'is wonderful'
         label = 'creme_core'
@@ -119,11 +118,9 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertNotEqual(ptype1.uuid, ptype2.uuid)
 
     def test_manager_compatible(self):
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='is delicious')
         ptype2 = create_ptype(text='is happy')
-        # ptype3 = create_ptype(text='is wonderful', subject_ctypes=[FakeContact])
         ptype3 = create_ptype(text='is wonderful').set_subject_ctypes(FakeContact)
 
         # ---

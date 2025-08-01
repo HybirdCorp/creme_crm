@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,27 +51,10 @@ class TemplateBaseVerboseStatusField(FunctionField):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self._cache = defaultdict(list)
         # e.g. of item: Invoice: {UUID('123...'): InvoiceStatus(name='OK'), UUID(...): ...}
         self._statuses_per_model = defaultdict(dict)
 
     def __call__(self, entity, user):
-        # cache = self._cache
-        # e_id = entity.id
-        # status = cache.get(e_id)
-        #
-        # if status is None or status.id != entity.status_id:
-        #     status_model = entity.ct.model_class()._meta.get_field('status').remote_field.model
-        #
-        #     try:
-        #         status = status_model.objects.get(id=entity.status_id)
-        #     except status_model.DoesNotExist as e:
-        #         logger.warning('Invalid status in TemplateBase(id=%s) [%s]', e_id, e)
-        #         status = status_model(id=entity.status_id, name='')
-        #
-        #     cache[e_id] = status
-        #
-        # return self.result_type(label=status.name, color=status.color)
         statuses_per_model = self._statuses_per_model
         statuses = statuses_per_model[entity.ct.model_class()]
         status_uuid = entity.status_uuid

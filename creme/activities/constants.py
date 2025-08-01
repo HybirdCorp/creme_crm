@@ -59,18 +59,6 @@ UUID_STATUS_CANCELLED    = '9c23117f-a2eb-4284-8cc2-0c541f87e7ef'
 UUID_STATUS_UNSUCCESSFUL = '480717eb-f4cf-4075-ad9f-24b650e3d538'
 
 # ------------------------------------------------------------------------------
-# SETTING_DISPLAY_REVIEW     = 'activities-display_review_activities_blocks'
-# SETTING_AUTO_ORGA_SUBJECTS = 'activities-auto_orga_subjects'
-# SETTING_UNSUCCESSFUL_SUBTYPE_UUID = 'activities-unsuccessful_call_subtype'
-# SETTING_UNSUCCESSFUL_TITLE        = 'activities-unsuccessful_call_title'
-# SETTING_UNSUCCESSFUL_STATUS_UUID  = 'activities-unsuccessful_call_status'
-# SETTING_UNSUCCESSFUL_DURATION     = 'activities-unsuccessful_call_duration'
-
-# ------------------------------------------------------------------------------
-# NARROW        = 1
-# FLOATING_TIME = 2
-# FLOATING      = 3
-
 EFILTER_MEETINGS    = 'activities-meetings'
 EFILTER_PHONECALLS  = 'activities-phonecalls'
 EFILTER_TASKS       = 'activities-tasks'

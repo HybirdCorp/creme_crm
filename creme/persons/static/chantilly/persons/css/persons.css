@@ -166,12 +166,6 @@
 /* states - empty state */
 .persons-addresses-brick .is-empty {
     padding: 5px 10px;
-/*
-    text-align: left;
-
-    font-weight: 600;
-    color: #5e6b71;
-*/
 
     cursor: default;
 }

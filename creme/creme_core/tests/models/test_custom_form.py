@@ -119,7 +119,6 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
                 }, {
                     'name': group_name2,
                     'layout': LAYOUT_DUAL_SECOND,
-                    # 'cells': [{'type': 'custom_field', 'value': str(customfield.id)}],
                     'cells': [{'type': 'custom_field', 'value': str(customfield.uuid)}],
                 },
             ],
@@ -494,7 +493,6 @@ class CustomFormConfigItemTestCase(CremeTestCase):
                     'cells': [
                         {'type': 'regular_field', 'value': 'first_name'},
                         {'type': 'regular_field', 'value': 'last_name'},
-                        # {'type': 'custom_field', 'value': str(cfield.id)},
                         {'type': 'custom_field', 'value': str(cfield.uuid)},
                     ],
                 },

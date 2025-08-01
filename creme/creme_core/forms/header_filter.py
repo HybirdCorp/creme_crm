@@ -29,7 +29,7 @@ from uuid import uuid4
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.db.transaction import atomic
-from django.forms.fields import Field  # CallableChoiceIterator
+from django.forms.fields import Field
 from django.forms.widgets import Widget
 from django.utils.choices import CallableChoiceIterator
 from django.utils.translation import gettext_lazy as _
@@ -454,7 +454,7 @@ class EntityCellRelationsField(UniformEntityCellsField):
             model, include_internals=True,
         ).filter(
             Q(enabled=True) | Q(id__in=_non_hiddable_rtype_ids)
-        ):  # .order_by('predicate')
+        ):
             cell = cell_class(model=model, rtype=rtype)
 
             yield cell.key, cell
@@ -469,7 +469,6 @@ class EntityCellRelationsField(UniformEntityCellsField):
                 raise ValidationError(
                     self.error_messages['incompatible'],
                     code='incompatible',
-                    # params={'model': self.model._meta.verbose_name},
                     params={'model': model_verbose_name(self.model)},
                 )
 
@@ -605,15 +604,6 @@ class _HeaderFilterForm(CremeModelForm):
 
     class Meta(CremeModelForm.Meta):
         model = HeaderFilter
-        # help_texts = {
-        #     'user': _(
-        #         'All users can see the view, but only the owner can edit or delete it'
-        #     ),
-        #     'is_private': _(
-        #         'A private view of list can only be used by its owner '
-        #         '(or the teammates if the owner is a team)'
-        #     ),
-        # }
 
     blocks = CremeModelForm.blocks.new({
         'id': 'cells', 'label': _('Columns'), 'fields': ['cells'],
@@ -621,7 +611,6 @@ class _HeaderFilterForm(CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.fields['user'].empty_label = _('All users')
         user_f = self.fields['user']
         user_f.empty_label = _('No owner')
         user_f.help_text = _(
@@ -699,7 +688,6 @@ class HeaderFilterCreationForm(_HeaderFilterForm):
         super().save(*args, **kwargs)
         generate_string_id_and_save(
             HeaderFilter, [instance],
-            # f'creme_core-userhf_{ct.app_label}-{ct.model}',
             f'creme_core-userhf_{ct.app_label}-{ct.model}-',
         )
 
@@ -732,7 +720,6 @@ class HeaderFilterCloningForm(_HeaderFilterForm):
         super().save(*args, **kwargs)
         generate_string_id_and_save(
             HeaderFilter, [instance],
-            # f'creme_core-userhf_{ct.app_label}-{ct.model}',
             f'creme_core-userhf_{ct.app_label}-{ct.model}-',
         )
 

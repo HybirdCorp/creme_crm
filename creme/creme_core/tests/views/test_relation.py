@@ -30,13 +30,6 @@ class RelationViewsTestCase(CremeTestCase):
     ADD_FROM_PRED_URL = reverse('creme_core__save_relations')
     SELECTION_URL     = reverse('creme_core__select_entities_to_link')
 
-    # def assertEntiTyHasRelation(self, subject_entity, rtype, object_entity):
-    #     self.assertTrue(
-    #         subject_entity.relations
-    #                       .filter(type=rtype, object_entity=object_entity.id)
-    #                       .exists()
-    #     )
-
     @staticmethod
     def _build_add_url(subject):
         return reverse('creme_core__create_relations', args=(subject.id,))
@@ -248,8 +241,6 @@ class RelationViewsTestCase(CremeTestCase):
         )
         self.assertNoFormError(response2)
         self.assertEqual(2, subject.relations.count())
-        # self.assertEntiTyHasRelation(subject, rtype1, object1)
-        # self.assertEntiTyHasRelation(subject, rtype2, object2)
         self.assertHaveRelation(subject, rtype1, object1)
         self.assertHaveRelation(subject, rtype2, object2)
 
@@ -692,8 +683,6 @@ class RelationViewsTestCase(CremeTestCase):
             self.client.post(url, data={'semifixed_rtypes': [sfrt1.id, sfrt2.id]})
         )
         self.assertEqual(2, subject.relations.count())
-        # self.assertEntiTyHasRelation(subject, rtype1, object1)
-        # self.assertEntiTyHasRelation(subject, rtype2, object2)
         self.assertHaveRelation(subject, rtype1, object1)
         self.assertHaveRelation(subject, rtype2, object2)
 
@@ -740,8 +729,6 @@ class RelationViewsTestCase(CremeTestCase):
         )
         self.assertNoFormError(response)
         self.assertEqual(2, subject.relations.count())
-        # self.assertEntiTyHasRelation(subject, rtype1, object1)
-        # self.assertEntiTyHasRelation(subject, rtype2, object2)
         self.assertHaveRelation(subject, rtype1, object1)
         self.assertHaveRelation(subject, rtype2, object2)
 
@@ -937,8 +924,6 @@ class RelationViewsTestCase(CremeTestCase):
         )
         self.assertNoFormError(response)
         self.assertEqual(2, subject.relations.count())
-        # self.assertEntiTyHasRelation(subject, rtype, object1)
-        # self.assertEntiTyHasRelation(subject, rtype, object2)
         self.assertHaveRelation(subject, rtype, object1)
         self.assertHaveRelation(subject, rtype, object2)
 
@@ -1006,8 +991,6 @@ class RelationViewsTestCase(CremeTestCase):
         )
         self.assertNoFormError(response)
         self.assertEqual(2, subject.relations.count())
-        # self.assertEntiTyHasRelation(subject, allowed_rtype, object1)
-        # self.assertEntiTyHasRelation(subject, allowed_rtype, object2)
         self.assertHaveRelation(subject, allowed_rtype, object1)
         self.assertHaveRelation(subject, allowed_rtype, object2)
 

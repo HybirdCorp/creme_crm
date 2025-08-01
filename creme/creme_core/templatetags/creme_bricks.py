@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -512,7 +512,6 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
                 'order': 'desc' if current_is_desc else 'asc',  # TODO: use utils.meta.Order
             }
             help = _('Sort «{model}» by «{field}»').format(
-                # model=cell.model._meta.verbose_name_plural,
                 model=model_verbose_name_plural(cell.model),
                 field=verbose_name,
             )

@@ -28,13 +28,10 @@ QUnit.module("creme.widgets.checklistselect.js", new QUnitMixin(QUnitEventMixin,
             createUrl: 'mock/items/create',
             delegate: '<select class="ui-creme-input" multiple></select>',
             attrs: {},
-//            auto: true,
-//            disabled: false
             auto: true
         }, options || {});
 
         var html = (
-//                '<div widget="ui-creme-checklistselect" class="ui-creme-checklistselect ui-creme-widget" ${disabled}>' +
                 '<div widget="ui-creme-checklistselect" class="ui-creme-checklistselect ui-creme-widget">' +
                     '${delegate}' +
                     '<div class="checklist-header">' +
