@@ -46,7 +46,6 @@ class AutoIncr:
 
 
 class _PollsTestCase(CremeTestCase):
-    # ADD_REPLY_URL = reverse('polls__create_reply')
     ADD_REPLIES_URL = reverse('polls__create_replies')
 
     def login_as_polls_user(self, *, allowed_apps=(), **kwargs):

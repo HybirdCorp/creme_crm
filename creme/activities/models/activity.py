@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,6 @@ from django.utils.translation import pgettext_lazy
 from creme.creme_core.models import CREME_REPLACE_NULL, CremeEntity
 from creme.creme_core.models.manager import CremeEntityManager
 
-# from ..constants import NARROW
 from ..constants import (
     CREATION_LABELS,
     REL_OBJ_ACTIVITY_SUBJECT,
@@ -114,9 +113,6 @@ class AbstractActivity(CremeEntity):
 
     is_all_day = models.BooleanField(_('All day?'), default=False)
     busy = models.BooleanField(_('Busy?'), default=False)
-    # floating_type = models.PositiveIntegerField(
-    #     _('Floating type'), default=NARROW, editable=False,
-    # ).set_tags(viewable=False)
     floating_type = models.PositiveSmallIntegerField(
         _('Fixed or floating?'),
         choices=FloatingType, default=FloatingType.NARROW,

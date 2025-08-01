@@ -242,7 +242,6 @@ class _QuarterRange(DateRange):
         return start <= value <= end
 
 
-# class PreviousQuarterRange(DateRange):
 class PreviousQuarterRange(_QuarterRange):
     name = 'previous_quarter'
     verbose_name = _('Previous quarter')
@@ -261,7 +260,6 @@ class PreviousQuarterRange(_QuarterRange):
         return get_quarter_dates(year, previous_quarter)
 
 
-# class CurrentQuarterRange(DateRange):
 class CurrentQuarterRange(_QuarterRange):
     name = 'current_quarter'
     verbose_name = _('Current quarter')
@@ -271,7 +269,6 @@ class CurrentQuarterRange(_QuarterRange):
         return get_quarter_dates(now.year, get_quarter(now.month))
 
 
-# class NextQuarterRange(DateRange):
 class NextQuarterRange(_QuarterRange):
     name = 'next_quarter'
     verbose_name = _('Next quarter')

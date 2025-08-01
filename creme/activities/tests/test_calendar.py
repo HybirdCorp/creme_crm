@@ -404,7 +404,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_act = partial(
             Activity.objects.create, user=user,
             type_id=sub_type1.type_id, sub_type=sub_type1,
-            # floating_type=constants.FLOATING,
             floating_type=Activity.FloatingType.FLOATING,
         )
         act1 = create_act(title='Act#1')
@@ -467,7 +466,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 user=user, title=f'Floating Act#{i}',
                 type_id=sub_type.type_id,
                 sub_type=sub_type,
-                # floating_type=constants.FLOATING,
                 floating_type=Activity.FloatingType.FLOATING,
             )
             Relation.objects.create(
@@ -1520,12 +1518,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertIs(cal.is_public, True)
 
         # Cannot create a second one ---
-        # response2 = self.assertGET200(url)
-        #
-        # with self.assertNoException():
-        #     choices = response2.context['form'].fields['user'].choices
-        # self.assertNotInChoices(value=team.id, choices=choices)
-        # self.assertInChoices(value=user.id, label=str(user), choices=choices)
         response2 = self.assertPOST200(
             url,
             data={

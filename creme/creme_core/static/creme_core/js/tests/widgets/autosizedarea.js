@@ -34,12 +34,6 @@ QUnit.test('creme.widget.AutoSizedTextArea.create (default min)', function(asser
     equal(element.hasClass('widget-ready'), true);
     equal(widget.layout()._min, 3);
     equal(widget.layout()._max, undefined);
-
-//    if (BrowserVersion.isFirefox()) {
-//        equal(element.attr('rows'), String(3 - 1));
-//    } else {
-//        equal(element.attr('rows'), String(3));
-//    }
     equal(element.attr('rows'), String(3));
 });
 
@@ -54,12 +48,6 @@ QUnit.test('creme.widget.AutoSizedTextArea.create (min/max)', function(assert) {
     equal(element.hasClass('widget-ready'), true);
     equal(widget.layout()._min, 2);
     equal(widget.layout()._max, 5);
-
-//    if (BrowserVersion.isFirefox()) {
-//        equal(element.attr('rows'), String(3));
-//    } else {
-//        equal(element.attr('rows'), String(2));
-//    }
     equal(element.attr('rows'), String(2));
 });
 

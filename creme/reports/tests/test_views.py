@@ -77,7 +77,6 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
             path=reverse('reports__update_graph_fetch_settings', args=(graph.pk,)),
             data=data,
         )
-        # self.assertEqual(response.content.decode(), expected)
         self.assertEqual(response.text, expected)
 
     def test_update_settings(self):
@@ -156,7 +155,6 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
             ),
             data=data,
         )
-        # self.assertEqual(response.content.decode(), expected)
         self.assertEqual(response.text, expected)
 
     def test_update_instance_settings(self):

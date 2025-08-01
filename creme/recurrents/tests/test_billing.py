@@ -166,13 +166,12 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
         self.assertEqual(tpl, gen.template.get_real_entity())
         self.assertTrue(gen.is_working)
 
-        self.assertEqual(user,      tpl.user)
-        self.assertEqual(currency,  tpl.currency)
-        # self.assertEqual(status.id, tpl.status_id)
+        self.assertEqual(user,        tpl.user)
+        self.assertEqual(currency,    tpl.currency)
         self.assertEqual(status.uuid, tpl.status_uuid)
-        self.assertEqual(discount,  tpl.discount)
-        self.assertEqual(source,    tpl.source)
-        self.assertEqual(target,    tpl.target)
+        self.assertEqual(discount,    tpl.discount)
+        self.assertEqual(source,      tpl.source)
+        self.assertEqual(target,      tpl.target)
 
         billing_address = tpl.billing_address
         self.assertIsInstance(billing_address, Address)

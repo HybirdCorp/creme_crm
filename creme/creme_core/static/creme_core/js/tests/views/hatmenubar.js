@@ -229,7 +229,6 @@ QUnit.test('creme.detailview.hatmenubar (action registry)', function(assert) {
     ok(registry.has('creme_core-hatmenubar-update'));
     ok(registry.has('creme_core-hatmenubar-form'));
     ok(registry.has('creme_core-hatmenubar-update-redirect'));
-//    ok(registry.has('creme_core-hatmenubar-addrelationships'));
 });
 
 }(jQuery));

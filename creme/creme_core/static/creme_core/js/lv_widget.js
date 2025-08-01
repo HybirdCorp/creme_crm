@@ -121,7 +121,6 @@ creme.lv_widget.DeleteSelectedAction = creme.component.Action.sub({
                           })
                          .open();
         } else {
-            // var query = creme.utils.confirmPOSTQuery(options.url, {warnOnFail: false, dataType: 'json'}, {ids: selection.join(',')});
             var query = creme.utils.ajaxQuery(options.url, {
                 action: 'POST',
                 confirm: true,
@@ -486,7 +485,6 @@ creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegist
             draggable: true,
             width: width * 0.8,
             maxWidth: width,
-            // validator: 'innerpopup',
             url: url,
             title: title
         };

@@ -337,7 +337,6 @@ else:
             _('Mobile'), max_length=100, blank=True,  # null=True,
         ).set_tags(optional=True)
         email = models.EmailField(_('Email address'), max_length=100, blank=True)
-        # url_site = models.URLField(_('Web Site'), max_length=500, blank=True)
         url_site = core_fields.CremeURLField(_('Web Site'), max_length=500, blank=True)
 
         position = models.ForeignKey(
@@ -580,11 +579,9 @@ else:
 
         name = models.CharField(_('Name of the campaign'), max_length=100)
         type = models.PositiveIntegerField(
-            # 'Type', choices=Type.choices, null=True, default=None,
             'Type', choices=Type, null=True, default=None,
         )
         status = models.PositiveIntegerField(
-            # 'Status', choices=Status.choices, default=Status.WAITING,
             'Status', choices=Status, default=Status.WAITING,
         )
         mailing_lists = models.ManyToManyField(
@@ -616,7 +613,6 @@ else:
         ).set_tags(optional=True)
         currency = models.ForeignKey(
             Currency, verbose_name=_('Currency'), related_name='+',
-            # default=DEFAULT_CURRENCY_PK,
             default=get_default_currency_pk,
             on_delete=models.PROTECT,
         )
@@ -673,7 +669,6 @@ else:
         )
         discount_unit = models.PositiveIntegerField(
             _('Discount Unit'), blank=True, null=True,
-            # choices=Discount.choices, default=Discount.PERCENT,
             choices=Discount, default=Discount.PERCENT,
         )
         vat_value = models.ForeignKey(
@@ -806,9 +801,6 @@ else:
 
         def __str__(self):
             return self.title
-
-        # def get_delete_absolute_url(self):
-        #     return ''
 
     # TODO: MinionModel?
     class FakeIngredientGroup(CremeModel):

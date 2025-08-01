@@ -205,7 +205,6 @@ class QSEnumerator(Enumerator):
         )
 
 
-# class _EnumerableRegistry:
 class EnumerableRegistry:
     """Registry which manages the choices available for (enumerable) model fields.
 
@@ -402,7 +401,6 @@ class EnumerableRegistry:
         return self
 
 
-# enumerable_registry = _EnumerableRegistry()
 enumerable_registry = EnumerableRegistry()
 
 

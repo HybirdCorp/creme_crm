@@ -25,7 +25,6 @@ class VatTestCase(_BillingTestCase):
 
         old_value = Decimal('5.00')
         self.assertFalse(Vat.objects.filter(value=old_value))
-        # print(Vat.objects.values_list('old_value', flat=True))
 
         vat = Vat.objects.create(value=old_value)
 
@@ -54,7 +53,6 @@ class VatTestCase(_BillingTestCase):
 
         value = Decimal('5.00')
         self.assertFalse(Vat.objects.filter(value=value))
-        # print(Vat.objects.values_list('value', flat=True))
 
         vat = Vat.objects.create(value=value)
 

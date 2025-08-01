@@ -158,7 +158,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_incomplete_data_required(self):
         field = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         )
         EQUALS = operators.EQUALS
@@ -183,7 +182,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_invalid_field(self):
         field = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         )
         build_data = self.build_data
@@ -263,7 +261,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         """FK field with invalid id."""
         self.assertFormfieldError(
             field=RegularFieldsConditionsField(
-                # model=FakeContact, efilter_registry=efilter_registry,
                 model=FakeContact, efilter_type=efilter_registry.id,
             ),
             value=self.build_data({
@@ -283,7 +280,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         """Static choice field with invalid value."""
         self.assertFormfieldError(
             field=RegularFieldsConditionsField(
-                # model=FakeInvoiceLine, efilter_registry=efilter_registry,
                 model=FakeInvoiceLine, efilter_type=efilter_registry.id,
             ),
             value=self.build_data({
@@ -301,7 +297,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_invalid_many2many_id(self):
         field = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         )
 
@@ -323,7 +318,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_several_invalid_inputs(self):
         field = RegularFieldsConditionsField(
-            # model=FakeOrganisation, efilter_registry=efilter_registry,
             model=FakeOrganisation, efilter_type=efilter_registry.id,
         )
         error_fmt = _('Condition on field «{field}»: {error}').format
@@ -355,7 +349,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_iequals_condition(self):
         with self.assertNumQueries(0):
             field = RegularFieldsConditionsField(
-                # model=FakeContact, efilter_registry=efilter_registry,
                 model=FakeContact, efilter_type=efilter_registry.id,
             )
 
@@ -387,10 +380,7 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_initialize(self):
         "initialize() + filter_type."
-        field = RegularFieldsConditionsField(
-            # efilter_registry=entity_filter_registries[EF_CREDENTIALS],
-            efilter_type=EF_CREDENTIALS,
-        )
+        field = RegularFieldsConditionsField(efilter_type=EF_CREDENTIALS)
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact))
 
         operator = operators.IEQUALS
@@ -409,7 +399,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_iequals_condition_multiple_as_string(self):
         clean = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.IEQUALS
@@ -430,7 +419,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_iequals_condition_multiple_as_list(self):
         clean = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.IEQUALS
@@ -452,7 +440,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_isempty_condition(self):
         "ISEMPTY (true) -> boolean."
         field = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         )
         operator = operators.ISEMPTY
@@ -491,7 +478,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_isnotempty_condition(self):
         "ISEMPTY (false) -> boolean."
         clean = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.ISEMPTY
@@ -510,7 +496,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_equals_boolean_condition(self):
         field = RegularFieldsConditionsField(
-            # model=FakeOrganisation, efilter_registry=efilter_registry,
             model=FakeOrganisation, efilter_type=efilter_registry.id,
         )
         operator = operators.EQUALS
@@ -546,7 +531,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_fk_subfield(self):
         "FK subfield."
         clean = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.ISTARTSWITH
@@ -564,7 +548,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_fk(self):
         "FK field."
         clean = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
@@ -581,7 +564,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_multiple_fk_as_string(self):
         clean = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
@@ -601,7 +583,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_multiple_fk_as_list(self):
         clean = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
@@ -620,7 +601,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_many2many(self):
         "ManyToMany field."
         clean = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
@@ -638,7 +618,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_multiple_many2many_as_list(self):
         "ManyToMany field."
         clean = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
@@ -658,7 +637,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_multiple_many2many_as_string(self):
         "ManyToMany field."
         clean = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
@@ -682,7 +660,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_static_choices(self):
         "Static choice field."
         clean = RegularFieldsConditionsField(
-            # model=FakeInvoiceLine, efilter_registry=efilter_registry,
             model=FakeInvoiceLine, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
@@ -731,7 +708,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_iendswith_valuelist(self):
         "Multi values."
         clean = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.IENDSWITH
@@ -750,7 +726,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_multi_conditions(self):
         clean = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
 
@@ -794,7 +769,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_many2many_subfield(self):
         clean = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.IEQUALS
@@ -823,7 +797,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
         field = RegularFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         )
 
@@ -868,7 +841,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
         self.assertFormfieldError(
             field=RegularFieldsConditionsField(
-                # model=FakeContact, efilter_registry=efilter_registry,
                 model=FakeContact, efilter_type=efilter_registry.id,
             ),
             value=self.build_data({
@@ -888,7 +860,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        # field = RegularFieldsConditionsField(efilter_registry=efilter_registry)
         field = RegularFieldsConditionsField(efilter_type=efilter_registry.id)
         field.initialize(
             ctype=ContentType.objects.get_for_model(FakeContact),
@@ -917,7 +888,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             descriptions=[('description', {FieldsConfig.HIDDEN: True})],
         )
 
-        # field = RegularFieldsConditionsField(efilter_registry=efilter_registry)
         field = RegularFieldsConditionsField(efilter_type=efilter_registry.id)
         field.initialize(
             ctype=ContentType.objects.get_for_model(FakeContact),
@@ -946,10 +916,9 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         hidden_sfname = 'image__description'
         FieldsConfig.objects.create(
             content_type=FakeContact,
-            descriptions=[('image', {FieldsConfig.HIDDEN: True})]
+            descriptions=[('image', {FieldsConfig.HIDDEN: True})],
         )
 
-        # field = RegularFieldsConditionsField(efilter_registry=efilter_registry)
         field = RegularFieldsConditionsField(efilter_type=efilter_registry.id)
         field.initialize(
             ctype=ContentType.objects.get_for_model(FakeContact),
@@ -982,7 +951,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
         position = FakePosition.objects.all()[0]
-        # field = RegularFieldsConditionsField(efilter_registry=efilter_registry)
         field = RegularFieldsConditionsField(efilter_type=efilter_registry.id)
         field.initialize(
             ctype=ContentType.objects.get_for_model(FakeContact),
@@ -1123,9 +1091,7 @@ class DateFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_ok02(self):
         "Start/end + filter_type."
         field = DateFieldsConditionsField(
-            model=FakeContact,
-            # efilter_registry=entity_filter_registries[EF_CREDENTIALS],
-            efilter_type=EF_CREDENTIALS,
+            model=FakeContact, efilter_type=EF_CREDENTIALS,
         )
         name01 = 'created'
         name02 = 'birthday'
@@ -1513,7 +1479,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_choices(self):
         field = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         )
         cfields = [*field.widget.fields]
@@ -1532,7 +1497,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_frompython_custom_int(self):
         EQUALS = operators.EQUALS
         field = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         )
         condition = CustomFieldConditionHandler.build_condition(
@@ -1553,7 +1517,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_frompython_custom_string(self):
         EQUALS = operators.EQUALS
         field = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         )
         condition = CustomFieldConditionHandler.build_condition(
@@ -1574,7 +1537,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_frompython_custom_bool(self):
         EQUALS = operators.EQUALS
         field = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         )
         condition = CustomFieldConditionHandler.build_condition(
@@ -1611,7 +1573,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_frompython_custom_enum(self):
         EQUALS = operators.EQUALS
         field = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         )
         condition = CustomFieldConditionHandler.build_condition(
@@ -1633,7 +1594,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_clean_invalid_data_format(self):
         self.assertFormfieldError(
             field=CustomFieldsConditionsField(
-                # model=FakeContact, efilter_registry=efilter_registry,
                 model=FakeContact, efilter_type=efilter_registry.id,
             ),
             value=self.build_data({
@@ -1647,7 +1607,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_invalid_field(self):
         field = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         )
         msg = _('This custom field is invalid with this model.')
@@ -1695,7 +1654,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_clean_missing_value(self):
         self.assertFormfieldError(
             field=CustomFieldsConditionsField(
-                # model=FakeContact, efilter_registry=efilter_registry,
                 model=FakeContact, efilter_type=efilter_registry.id,
             ),
             value=json_dump([{
@@ -1709,7 +1667,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_clean_integer01(self):
         with self.assertNumQueries(0):
             field = CustomFieldsConditionsField(
-                # model=FakeContact, efilter_registry=efilter_registry,
                 model=FakeContact, efilter_type=efilter_registry.id,
             )
 
@@ -1737,10 +1694,7 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_clean_integer02(self):
         "'model' property + filter_type."
         with self.assertNumQueries(0):
-            field = CustomFieldsConditionsField(
-                # efilter_registry=entity_filter_registries[EF_CREDENTIALS],
-                efilter_type=EF_CREDENTIALS,
-            )
+            field = CustomFieldsConditionsField(efilter_type=EF_CREDENTIALS)
             field.model = FakeContact
 
         cfield = self.cfield_int
@@ -1767,7 +1721,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_integer_error(self):
         "Invalid value."
-        # field = CustomFieldsConditionsField(efilter_registry=efilter_registry)
         field = CustomFieldsConditionsField(efilter_type=efilter_registry.id)
         field.model = FakeContact
 
@@ -1788,7 +1741,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_enum(self):
         clean = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
@@ -1813,7 +1765,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_enum_as_string(self):
         clean = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
@@ -1840,7 +1791,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_enum_as_list(self):
         clean = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
@@ -1867,7 +1817,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_multienum(self):
         clean = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
@@ -1890,7 +1839,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_multienum_as_string(self):
         clean = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
@@ -1917,7 +1865,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_multienum_as_list(self):
         clean = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         cfield = self.cfield_multienum
@@ -1946,7 +1893,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_empty_string(self):
         clean = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
@@ -1964,7 +1910,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_bad_cfield_types(self):
         field = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         )
         msg = _('This custom field is invalid with this model.')
@@ -1989,7 +1934,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_several_invalid_inputs(self):
         field = CustomFieldsConditionsField(
-            # efilter_registry=efilter_registry, model=FakeContact
             model=FakeContact, efilter_type=efilter_registry.id,
         )
         error_fmt = _('Condition on field «{field}»: {error}').format
@@ -2020,7 +1964,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_equals_boolean_condition(self):
         clean = CustomFieldsConditionsField(
-            # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         cfield = self.cfield_bool
@@ -2063,7 +2006,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
         self.assertFormfieldError(
             field=CustomFieldsConditionsField(
-                # efilter_registry=efilter_registry, model=FakeContact,
                 efilter_type=efilter_registry.id, model=FakeContact,
             ),
             value=self.build_data({
@@ -2082,7 +2024,6 @@ class CustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         cfield_str.save()
 
         field = CustomFieldsConditionsField(
-            # efilter_registry=efilter_registry, model=FakeContact
             efilter_type=efilter_registry.id, model=FakeContact
         )
         field.initialize(
@@ -2249,10 +2190,7 @@ class DateCustomFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_empty(self):
         "Empty operator + filter_type."
         with self.assertNumQueries(0):
-            field = DateCustomFieldsConditionsField(
-                # efilter_registry=entity_filter_registries[EF_CREDENTIALS],
-                efilter_type=EF_CREDENTIALS,
-            )
+            field = DateCustomFieldsConditionsField(efilter_type=EF_CREDENTIALS)
             field.model = FakeContact
 
         conditions = field.clean(json_dump([
@@ -2332,11 +2270,8 @@ class PropertiesConditionsFieldTestCase(_ConditionsFieldTestCase):
     def setUp(self):
         super().setUp()
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
         create_ptype = CremePropertyType.objects.create
         self.ptype01 = create_ptype(text='Is active')
-        # self.ptype02 = create_ptype(text='Is cute', subject_ctypes=[FakeContact])
-        # self.ptype03 = create_ptype(text='Is evil', subject_ctypes=[FakeOrganisation])
         self.ptype02 = create_ptype(text='Is cute').set_subject_ctypes(FakeContact)
         self.ptype03 = create_ptype(text='Is evil').set_subject_ctypes(FakeOrganisation)
 
@@ -2414,10 +2349,7 @@ class PropertiesConditionsFieldTestCase(_ConditionsFieldTestCase):
         ptype = self.ptype01
 
         with self.assertNumQueries(0):
-            field = PropertiesConditionsField(
-                # efilter_registry=entity_filter_registries[EF_CREDENTIALS],
-                efilter_type=EF_CREDENTIALS,
-            )
+            field = PropertiesConditionsField(efilter_type=EF_CREDENTIALS)
             field.model = FakeContact
 
         condition = self.get_alone_element(
@@ -2598,9 +2530,7 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
         rtype1, rtype2 = self._create_rtype()
 
         field = RelationsConditionsField(
-            model=FakeContact,
-            # efilter_registry=entity_filter_registries[EF_CREDENTIALS],
-            efilter_type=EF_CREDENTIALS,
+            model=FakeContact, efilter_type=EF_CREDENTIALS,
         )
         ct_id = ContentType.objects.get_for_model(FakeContact).id
         conditions = field.clean(json_dump([
@@ -2934,10 +2864,7 @@ class SubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
         user = self.get_root_user()
 
         field = SubfiltersConditionsField(
-            model=FakeContact,
-            user=user,
-            # efilter_registry=entity_filter_registries[EF_CREDENTIALS],
-            efilter_type=EF_CREDENTIALS,
+            model=FakeContact, user=user, efilter_type=EF_CREDENTIALS,
         )
         field.initialize(
             ctype=ContentType.objects.get_for_model(FakeContact),
@@ -3054,7 +2981,6 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
         field = RelationSubfiltersConditionsField(
             model=FakeContact,
             user=self.get_root_user(),
-            # efilter_registry=entity_filter_registries[EF_CREDENTIALS],
             efilter_type=EF_CREDENTIALS,
         )
 

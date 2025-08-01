@@ -309,7 +309,6 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         element.trigger('change');
 
         this._updateDisabledState(element);
-        // this._updateAutocomplete();
     },
 
     _select: function(element, value) {
@@ -414,7 +413,6 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     },
 
     selectfirst: function(element) {
-//        element.val($('option:not(:disabled):first', element).attr('value'));
         var value = $('option:not(:disabled)', element).first().attr('value');
         this._select(element, value);
     },

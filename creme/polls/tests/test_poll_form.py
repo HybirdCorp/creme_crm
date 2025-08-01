@@ -5,7 +5,6 @@ from json import loads as json_load
 from django.contrib.contenttypes.models import ContentType
 from django.test.utils import override_settings
 from django.urls import reverse
-# from django.utils.encoding import smart_str
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
@@ -147,7 +146,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(_('Replies'), self.get_brick_title(replies_node))
         self.assertBrickHeaderHasNoButton(
             self.get_brick_header_buttons(replies_node),
-            # reverse('polls__create_reply_from_pform', args=(pform.id,)),
             reverse('polls__create_replies_from_pform', args=(pform.id,)),
         )
 
@@ -426,7 +424,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
             [True], [node.has_line for node in SectionTree(pform) if node.is_section],
         )
 
-        # self.assertEqual(403, self.delete_section(section).status_code)
         self.assertEqual(409, self.delete_section(section).status_code)
         self.assertStillExists(line)
         self.assertStillExists(section)
@@ -472,16 +469,11 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
         response = self.delete_section(section, ajax=True)
-        # self.assertEqual(403, response.status_code)
         self.assertEqual(409, response.status_code)
         self.assertStillExists(section)
         self.assertStillExists(sub_section1)
         self.assertStillExists(sub_section2)
         self.assertStillExists(line)
-        # self.assertEqual(
-        #     _('There is at least one question in this section.'),
-        #     smart_str(response.content),
-        # )
         self.assertHTMLEqual(
             '<span>{message}</span><ul><li>{dependencies}</li></ul>'.format(
                 message=_(
@@ -1988,7 +1980,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertStillExists(cond)
         self.assertEqual(
             _('There is at least one other question which depends on this question.'),
-            # smart_str(response.content),
             response.text,
         )
 
@@ -2031,7 +2022,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
         response = self.delete_line(line2)
-        # self.assertEqual(403, response.status_code)
         self.assertEqual(409, response.status_code)
         self.assertStillExists(line2)
         self.assertStillExists(cond)
@@ -2077,14 +2067,9 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
         response = self.delete_line(line2, ajax=True)
-        # self.assertEqual(403, response.status_code)
         self.assertEqual(409, response.status_code)
         self.assertStillExists(line2)
         self.assertStillExists(cond)
-        # self.assertEqual(
-        #     _('There is at least one other question which depends on this question.'),
-        #     smart_str(response.content),
-        # )
         self.assertHTMLEqual(
             '<span>{message}</span><ul><li>{dependencies}</li></ul>'.format(
                 message=_(

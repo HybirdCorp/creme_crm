@@ -22,7 +22,6 @@ from django.dispatch.dispatcher import receiver
 
 from creme.creme_core.models import SettingValue
 
-# from .constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from .models import WaitingAction
 from .setting_keys import sandbox_key
 
@@ -32,7 +31,6 @@ def post_save_setting_value(sender, instance, **kwargs):
     """Set is_sandbox_by_user value on CreateFromEmailBackend subclasses
     because they are singletons.
     """
-    # if instance.key_id == SETTING_CRUDITY_SANDBOX_BY_USER:
     if instance.key_id == sandbox_key.id:
         # TODO: do not modify existing instances, just check on-the-fly, so we
         #       can change SettingValue as <False -> True -> False> without

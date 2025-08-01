@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022-2024  Hybird
+#    Copyright (C) 2022-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,6 @@ class PasswordReset(base.SubmittableMixin, auth_views.PasswordResetView):
     extra_email_context = {
         'software': settings.SOFTWARE_LABEL,
     }
-    # template_name = 'creme_core/auth/password_reset/form.html'
     template_name = 'creme_core/auth/password_reset/reset-email.html'
     subject_template_name = 'creme_core/auth/password_reset/email/subject.txt'
     email_template_name = 'creme_core/auth/password_reset/email/body.txt'
@@ -64,7 +63,6 @@ class PasswordResetDone(auth_views.PasswordResetDoneView):
 
 class PasswordResetConfirm(base.SubmittableMixin,
                            auth_views.PasswordResetConfirmView):
-    # template_name = 'creme_core/auth/password_reset/form.html'
     template_name = 'creme_core/auth/password_reset/confirm.html'
     success_url = reverse_lazy('creme_core__password_reset_complete')
     title = _('Reset your password (Step 3/4)')

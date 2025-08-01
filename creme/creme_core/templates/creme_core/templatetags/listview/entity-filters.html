@@ -65,39 +65,3 @@
   {% endif %}
  {% endwith %}
 </fieldset>
-{% comment %}
-{% load i18n creme_ctype creme_widgets %}{% load blockjsondata from creme_core_tags %}
-<fieldset title="{% translate 'Filter the lines of the table with conditions on fields, relationships…' %}">
-    <div class="legend">
-        {% translate 'Filter' context 'creme_core-noun' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}
-    </div>
-    <div class="select-wrapper">
-        <select name="filter" class="lv-state-field list-filters-selector">
-            <option value="">{% translate 'All' context 'creme_core-filter' %}</option>
-            {% for efilter in entity_filters %}
-                <option value="{{efilter.id}}"{% if efilter_id == efilter.id %} selected{% endif %}>{{efilter}}</option>
-            {% endfor %}
-        </select>
-        <div class="select-arrow"></div>
-    </div>
-{% with efilter=entity_filters.selected %}
-    {% if efilter_id %}
-        <a data-action="popover" data-title="{% blocktranslate %}Conditions of «{{efilter}}»{% endblocktranslate %}">
-            {% widget_icon name='info' label=_('Information on the current filter') size='listview-filter-action' %}
-            <script type="text/html">{% include 'creme_core/frags/entity-filter-summary.html' with efilter=efilter user=user %}</script>
-        </a>
-    {% endif %}
-    {% if show_buttons %}{% ctype_for_model model as ctype %}
-        <a href="{% url 'creme_core__create_efilter' ctype.id %}">
-            {% widget_icon name='add' label=_('Create a custom filter') size='listview-filter-action' %}
-        </a>
-        <a href="{{efilter.get_edit_absolute_url}}" data-action="redirect" class="{% if not can_edit %}is-disabled{% endif %}">
-            {% widget_icon name='edit' label=_('Edit this filter') size='listview-filter-action' %}
-        </a>
-        <a href="{{efilter.get_delete_absolute_url}}" data-action="delete" class="{% if not can_delete %}is-disabled{% endif %}">
-            {% widget_icon name='delete' label=_('Delete this custom filter') size='listview-filter-action' %}
-        </a>
-    {% endif %}
-{% endwith %}
-</fieldset>
-{% endcomment %}

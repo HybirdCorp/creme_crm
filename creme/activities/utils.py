@@ -95,7 +95,6 @@ def check_activity_collisions(
             collision_test,
             is_deleted=False,
             pk__in=activity_ids,
-            # floating_type__in=(NARROW, FLOATING_TIME),
             floating_type__in=(
                 Activity.FloatingType.NARROW,
                 Activity.FloatingType.FLOATING_TIME,

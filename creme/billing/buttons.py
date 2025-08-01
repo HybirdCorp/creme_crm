@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,14 +19,12 @@
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
-# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import SettingValue
 
 from .. import billing
 from .constants import REL_OBJ_BILL_RECEIVED
-# from .core import get_models_for_conversion
 from .core import BILLING_MODELS, conversion
 from .core.number_generation import number_generator_registry
 from .models import Base, NumberGeneratorItem
@@ -38,26 +36,6 @@ Quote      = billing.get_quote_model()
 SalesOrder = billing.get_sales_order_model()
 
 
-# class GenerateInvoiceNumberButton(Button):
-#     id = Button.generate_id('billing', 'generate_invoice_number')
-#     verbose_name = _('Generate the number of the Invoice')
-#     description = _(
-#         'This button generates the number for the current invoice.\n'
-#         'App: Billing'
-#     )
-#     dependencies = [Invoice]
-#     template_name = 'billing/buttons/generate-invoice-number.html'
-#
-#     def get_ctypes(self):
-#         return (Invoice,)
-#
-#     def is_allowed(self, *, entity, request):
-#         return super().is_allowed(
-#             entity=entity, request=request,
-#         ) and request.user.has_perm_to_change(entity)
-#
-#     def ok_4_display(self, entity):
-#         return not bool(entity.number)
 class GenerateNumberButton(Button):
     id = Button.generate_id('billing', 'generate_number')
     verbose_name = _('Generate the number')
@@ -128,12 +106,6 @@ class _AddBillingDocumentButton(Button):
     def get_ctypes(self):
         return persons.get_organisation_model(), persons.get_contact_model()
 
-    # def is_allowed(self, *, entity, request):
-    #     return (
-    #         super().is_allowed(entity=entity, request=request)
-    #         and request.user.has_perm_to_create(self.model_to_create)
-    #     )
-
 
 class AddInvoiceButton(_AddBillingDocumentButton):
     model_to_create = Invoice
@@ -144,7 +116,6 @@ class AddInvoiceButton(_AddBillingDocumentButton):
         'The current entity is pre-selected to be the target of the created invoice.\n'
         'App: Billing'
     )
-    # permissions = cperm(Invoice)
     url_name = 'billing__create_related_invoice'
 
 
@@ -157,7 +128,6 @@ class AddSalesOrderButton(_AddBillingDocumentButton):
         'The current entity is pre-selected to be the target of the created order.\n'
         'App: Billing'
     )
-    # permissions = cperm(SalesOrder)
     url_name = 'billing__create_related_order'
 
 
@@ -170,15 +140,12 @@ class AddQuoteButton(_AddBillingDocumentButton):
         'The current entity is pre-selected to be the target of the created quote.\n'
         'App: Billing'
     )
-    # permissions = cperm(Quote)
     url_name = 'billing__create_related_quote'
 
 
 class _ConvertToButton(Button):
     template_name = 'billing/buttons/convert-to.html'
     target_model = Base  # Override
-    # target_modelname = ''
-
     converter_registry = conversion.converter_registry
 
     def _target_name(self):
@@ -206,12 +173,7 @@ class _ConvertToButton(Button):
 
     def get_context(self, *, entity, request):
         context = super().get_context(entity=entity, request=request)
-        # context['convert_to'] = self.target_modelname
         context['convert_to'] = self._target_name()
-
-        # target_model = self.target_model
-        # context['model_vname'] = target_model._meta.verbose_name
-        # context['creation_perm'] = request.user.has_perm_to_create(target_model)
         context['model_vname'] = self.target_model._meta.verbose_name
 
         return context
@@ -225,14 +187,6 @@ class _ConvertToButton(Button):
             if target == current_target
         ]
 
-    # def is_allowed(self, *, entity, request):
-    #     user = request.user
-    #     return (
-    #         super().is_allowed(entity=entity, request=request)
-    #         and not user.is_staff
-    #         and not entity.is_deleted
-    #     )
-
 
 class ConvertToInvoiceButton(_ConvertToButton):
     id = Button.generate_id('billing', 'convert_to_invoice')
@@ -243,7 +197,6 @@ class ConvertToInvoiceButton(_ConvertToButton):
         'App: Billing'
     )
     target_model = Invoice
-    # target_modelname = 'invoice'
 
 
 class ConvertToSalesOrderButton(_ConvertToButton):
@@ -255,7 +208,6 @@ class ConvertToSalesOrderButton(_ConvertToButton):
         'App: Billing'
     )
     target_model = SalesOrder
-    # target_modelname = 'sales_order'
 
 
 class ConvertToQuoteButton(_ConvertToButton):
@@ -267,4 +219,3 @@ class ConvertToQuoteButton(_ConvertToButton):
         'App: Billing'
     )
     target_model = Quote
-    # target_modelname = 'quote'

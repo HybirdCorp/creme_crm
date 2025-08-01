@@ -62,7 +62,6 @@ if apps.is_installed('creme.billing'):
             for r in instance.get_relations(constants.REL_SUB_CURRENT_DOC, real_obj_entities=True):
                 update_sales(r.real_object)
 
-    # @receiver((post_save, post_delete), sender=Relation)
     @receiver(
         post_save, sender=Relation, dispatch_uid='opportunities-manage_current_quote_adding',
     )

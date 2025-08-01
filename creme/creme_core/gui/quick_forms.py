@@ -28,7 +28,6 @@ if TYPE_CHECKING:
     from creme.creme_core.forms.base import CremeEntityQuickForm
 
 
-# class QuickFormsRegistry:
 class QuickFormRegistry:
     """Registry for "quick" forms, ie small forms which can be easily used in an
     inner-popup to create entities on-the-go.
@@ -97,7 +96,6 @@ class QuickFormRegistry:
         return iter(self._forms.keys())
 
 
-# quickforms_registry = QuickFormsRegistry()
 quickform_registry = QuickFormRegistry()
 
 

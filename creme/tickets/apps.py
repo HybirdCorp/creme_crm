@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -87,7 +87,6 @@ class TicketsConfig(CremeAppConfig):
             self.TicketTemplate,
         )
 
-    # def register_field_printers(self, field_printers_registry):
     def register_field_printers(self, field_printer_registry):
         from django.db.models import ForeignKey
 
@@ -136,7 +135,6 @@ class TicketsConfig(CremeAppConfig):
             self.Ticket
         ).register_field('title').register_field('status')
 
-    # def register_statistics(self, statistics_registry):
     def register_statistics(self, statistic_registry):
         statistic_registry.register(
             id='tickets-not_closed',

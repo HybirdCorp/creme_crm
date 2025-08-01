@@ -321,10 +321,6 @@ ul.multi-select {
 }
 
 .select-wrapper select {
-/*
-    -webkit-appearance: none;
-       -moz-appearance: none;
-*/
     appearance: none;
 
     width: 280px;

@@ -70,7 +70,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         default_status = self.get_alone_element(
             [status for status in statuses if status.is_default]
         )
-        # self.assertEqual(1, default_status.pk)
         self.assertUUIDEqual(UUID_CNOTE_STATUS_DRAFT, default_status.uuid)
 
         # New default status => previous default status is updated
@@ -875,13 +874,11 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         origin_b_addr.zipcode += ' (edited)'
         origin_b_addr.save()
 
-        # cloned = self.refresh(credit_note.clone())
         cloned = self.clone(credit_note)
         self.assertIsInstance(cloned, CreditNote)
         self.assertNotEqual(credit_note.pk, cloned.pk)
         self.assertEqual(credit_note.name,   cloned.name)
         self.assertEqual(credit_note.status, cloned.status)
-        # self.assertEqual('0',                cloned.number)
         self.assertEqual('',                 cloned.number)
 
         self.assertEqual(source, cloned.source)
@@ -915,11 +912,9 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         credit_note = self.create_credit_note(
             user=user, name='My Order', source=source, target=target,
         )
-        # self.assertEqual('0', credit_note.number)
         self.assertEqual('', credit_note.number)
 
         cloned = self.clone(credit_note)
-        # self.assertEqual('0', cloned.number)
         self.assertEqual('', cloned.number)
 
     @skipIfCustomAddress
@@ -957,7 +952,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotEqual(credit_note.pk, cloned.pk)
         self.assertEqual(credit_note.name,   cloned.name)
         self.assertEqual(credit_note.status, cloned.status)
-        # self.assertEqual('0',                cloned.number)
         self.assertEqual('',                 cloned.number)
 
         self.assertEqual(source, cloned.source)
@@ -991,11 +985,9 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         credit_note = self.create_credit_note(
             user=user, name='My Order', source=source, target=target,
         )
-        # self.assertEqual('0', credit_note.number)
         self.assertEqual('', credit_note.number)
 
         cloned = credit_note.clone()
-        # self.assertEqual('0', cloned.number)
         self.assertEqual('', cloned.number)
 
     def test_brick(self):
@@ -1049,7 +1041,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         tpl = TemplateBase.objects.create(
             user=user,
             ct=CreditNote,
-            # status_id=status1.id,
             status_uuid=status1.uuid,
             source=create_orga(name='Source'),
             target=create_orga(name='Target'),
@@ -1061,7 +1052,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(status1, credit_note1.status)
 
         # ---
-        # tpl.status_id = self.UNUSED_PK
         tpl.status_uuid = uuid4()
         status2 = CreditNote().build(tpl).status
         self.assertIsInstance(status2, CreditNoteStatus)

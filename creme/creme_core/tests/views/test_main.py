@@ -250,7 +250,6 @@ class MiscViewsTestCase(CremeTestCase):
         self.assertEqual(path, build_cancel_path(request))
 
 
-# class LanguageTestCase(ViewsTestCase):
 class LanguageTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()

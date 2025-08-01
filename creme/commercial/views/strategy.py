@@ -171,7 +171,6 @@ class BaseEvaluatedOrganisationView(generic.BricksView):
 
     def get_organisation(self):
         try:
-            # orga = getattr(self, 'organisation')
             orga = self.organisation  # NOQA
         except AttributeError:
             orga_id = self.kwargs[self.orga_id_url_kwarg]
@@ -192,7 +191,6 @@ class BaseEvaluatedOrganisationView(generic.BricksView):
 
     def get_strategy(self):
         try:
-            # strategy = getattr(self, 'strategy')
             strategy = self.strategy  # NOQA
         except AttributeError:
             self.strategy = strategy = get_object_or_404(
@@ -238,7 +236,6 @@ class BaseScoreSetting(generic.base.EntityRelatedMixin, generic.CheckedView):
         model_id = get_from_POST_or_404(request.POST, self.model_id_arg, int)
 
         try:
-            # self.update_stategy(
             self.update_strategy(
                 strategy=strategy,
                 model_id=model_id,
@@ -249,19 +246,16 @@ class BaseScoreSetting(generic.base.EntityRelatedMixin, generic.CheckedView):
 
         return HttpResponse()
 
-    # def update_stategy(self, *, strategy, model_id, **kwargs):
     def update_strategy(self, *, strategy, model_id, **kwargs):
         raise NotImplementedError
 
 
 class AssetScoreSetting(BaseScoreSetting):
-    # def update_stategy(self, *, strategy, model_id, **kwargs):
     def update_strategy(self, *, strategy, model_id, **kwargs):
         strategy.set_asset_score(asset_id=model_id, **kwargs)
 
 
 class CharmScoreSetting(BaseScoreSetting):
-    # def update_stategy(self, *, strategy, model_id, **kwargs):
     def update_strategy(self, *, strategy, model_id, **kwargs):
         strategy.set_charm_score(charm_id=model_id, **kwargs)
 

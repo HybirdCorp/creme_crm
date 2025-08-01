@@ -18,7 +18,6 @@
 
 from django.contrib.auth.forms import AuthenticationForm
 from django.forms.fields import BooleanField
-# from django.forms.widgets import Input
 from django.forms.widgets import TelInput
 from django.utils.translation import pgettext_lazy
 
@@ -42,10 +41,6 @@ class MobileAuthenticationForm(AuthenticationForm):
 
             if field.required:
                 attrs['required'] = ''
-
-
-# class PhoneInput(Input):
-#     input_type = 'tel'
 
 
 class MobilePersonCreationFormMixin:
@@ -80,9 +75,7 @@ class MobileContactCreationForm(MobilePersonCreationFormMixin,
     class Meta(quick.ContactQuickForm.Meta):
         fields = ('user', 'last_name', 'first_name', 'phone', 'mobile', 'email')
         widgets = {
-            # 'phone':  PhoneInput,
             'phone':  TelInput,
-            # 'mobile': PhoneInput,
             'mobile': TelInput,
         }
 

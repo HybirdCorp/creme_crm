@@ -85,7 +85,6 @@ QUnit.test('creme.lv_widget.ListViewHeader.bind (standalone, already floating)',
 QUnit.test('creme.lv_widget.ListViewHeader (enter first row)', function(assert) {
     var list = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.qunitFixture());
     var header = new creme.lv_widget.ListViewHeader();
-//    var table = list.find('table:first');
     var table = list.find('table').first();
 
     header.bind(table);
@@ -117,7 +116,6 @@ QUnit.test('creme.lv_widget.ListViewHeader (enter first row, standalone)', funct
         standalone: true,
         headTop: 35
     });
-//    var table = list.find('table:first');
     var table = list.find('table').first();
 
     header.bind(table);
@@ -192,7 +190,6 @@ QUnit.test('creme.lv_widget.ListViewHeader (selection change)', function(assert)
         this.createListViewHtml(this.defaultListViewHtmlOptions())
     ).appendTo(this.qunitFixture());
     var header = new creme.lv_widget.ListViewHeader();
-//    var table = list.find('table:first');
     var table = list.find('table').first();
 
     header.bind(table);

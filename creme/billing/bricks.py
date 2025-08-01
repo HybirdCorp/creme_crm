@@ -104,7 +104,6 @@ class _LinesBrick(Brick):
         document = context['object']
         user = context['user']
         line_model = self.line_model
-        # lines = document.get_lines(line_model).order_by('order')
         lines = document.get_lines(line_model)
 
         lineformset = line_forms.BaseLineEditionFormset(
@@ -160,7 +159,6 @@ class CreditNotesBrick(PaginatedBrick):
             context,
             context['object'].get_credit_notes(),
             rtype_id=self.relation_type_deps[0],
-            # hidden_fields=context['fields_configs'].get_for_model(CreditNote).hidden_field_names,
         ))
 
 
@@ -210,7 +208,6 @@ class ReceivedInvoicesBrick(QuerysetBrick):
                 relations__object_entity=context['object'].id,  # Contact/Organisation
                 relations__type=constants.REL_SUB_BILL_RECEIVED,
             ).select_related('status', 'currency'),
-            # hidden_fields=context['fields_configs'].get_for_model(Invoice).hidden_field_names,
         ))
 
 
@@ -243,7 +240,6 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
             title_plural=self._title_plural,
             empty_title=self._empty_title,
             empty_msg=self._empty_msg,
-            # hidden_fields=context['fields_configs'].get_for_model(model).hidden_field_names,
         ))
 
 

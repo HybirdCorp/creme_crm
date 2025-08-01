@@ -11,7 +11,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.test.utils import override_settings
 from django.urls import reverse
-# from django.utils.encoding import force_str
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
@@ -357,7 +356,6 @@ class ListViewTestCase(CremeTestCase):
         ptype_cell_content = content[6]
         self.assertIsList(ptype_cell_content, length=1)
         self.assertHTMLEqual(
-            # f'<ul><li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li></ul>',
             f'<a href="{ptype1.get_absolute_url()}">{ptype1.text}</a>',
             html_tostring(ptype_cell_content[0], encoding='unicode'),
         )
@@ -519,7 +517,6 @@ class ListViewTestCase(CremeTestCase):
             self.assertInHTML(
                 f'<input class="lv-state-field" value="{selection}" '
                 f'name="selection" type="hidden" />',
-                # force_str(response.content),
                 response.text,
             )
 
@@ -541,7 +538,6 @@ class ListViewTestCase(CremeTestCase):
             self.assertInHTML(
                 f'<input class="lv-state-field" value="{selection}" '
                 f'name="selection" type="hidden" />',
-                # force_str(response.content),
                 response.text,
             )
 
@@ -792,7 +788,6 @@ class ListViewTestCase(CremeTestCase):
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
                 (EntityCellRegularField, {'name': fname}),
-                # (EntityCellFunctionField, {'func_field_name': func_field_name}),
                 (EntityCellFunctionField, {'name': func_field_name}),
             ],
         )
@@ -1375,7 +1370,6 @@ class ListViewTestCase(CremeTestCase):
             button_node.attrib.get('data-action-url')
             for button_node in buttons_node.findall('a')
         ]
-        # dl_url = '{}?ct_id={}'.format(reverse('creme_core__mass_export'), ct_id)
         dl_url = reverse('creme_core__mass_export', query={'ct_id': ct_id})
         dl_uri = data_hrefs[1]
         self.assertStartsWith(dl_uri, dl_url)
