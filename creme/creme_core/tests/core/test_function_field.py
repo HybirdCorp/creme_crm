@@ -274,7 +274,6 @@ class FunctionFieldsTestCase(CremeTestCase):
         with self.settings(CELL_SIZE=2):
             self.assertEqual(f'{value1}/{value2}', result1.render(ViewTag.TEXT_PLAIN))
             self.assertHTMLEqual(
-                # f'<ul><li>{value1}</li><li>{value2}</li></ul>',
                 f'<ul class="limited-list"><li>{value1}</li><li>{value2}</li></ul>',
                 result1.render(ViewTag.HTML_DETAIL),
             )
@@ -315,11 +314,6 @@ class FunctionFieldsTestCase(CremeTestCase):
     def test_properties_field(self):
         user = self.get_root_user()
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(text='Foo')
-        # ptype2 = create_ptype(text='Bar', subject_ctypes=[FakeContact, FakeOrganisation])
-        # ptype3 = CremePropertyType.objects.create(text='Deleted', enabled=False)
-        # ptype4 = create_ptype(text='Baz', subject_ctypes=[FakeOrganisation])
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Foo', description='Blablabla')
         ptype2 = create_ptype(text='Bar').set_subject_ctypes(FakeContact, FakeOrganisation)

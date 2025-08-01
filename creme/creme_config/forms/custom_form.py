@@ -94,7 +94,6 @@ class CFormCellCustomFieldsField(FieldIgnoringBase,
 
 
 # Special cells ----------------------------------------------------------------
-
 class CFormCellSpecialFieldsWidget(hf_forms.UniformEntityCellsWidget):
     template_name = 'creme_config/forms/widgets/cform-cells/special-fields.html'
     type_id = EntityCellCustomFormSpecial.type_id
@@ -123,7 +122,6 @@ class CFormCellSpecialFieldsField(FieldIgnoringBase,
 
 
 # Extra Cells ------------------------------------------------------------------
-
 class CFormCellExtraFieldsWidget(hf_forms.UniformEntityCellsWidget):
     template_name = 'creme_config/forms/widgets/cform-cells/extra-fields.html'
     type_id = EntityCellCustomFormExtra.type_id

@@ -76,9 +76,7 @@ class LatexExporter(ContextMixin, base.BillingExporter):
             logger.critical(
                 'It seems the PDF generation has failed. '
                 'The temporary directory has not been removed, '
-                # 'so you can inspect the *.log file in "%s"',
                 'so you can inspect the log file "%s"',
-                # dir_path,
                 log_file.name,
             )
             if settings.TESTS_ON:

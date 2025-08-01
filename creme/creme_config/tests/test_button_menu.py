@@ -46,8 +46,6 @@ class TestButton5(Button):
 
 
 class ButtonMenuConfigTestCase(CremeTestCase):
-    # WIZARD_URL = reverse('creme_config__add_buttons_to_ctype')
-    # DEL_URL = reverse('creme_config__delete_ctype_buttons')
     DEL_URL = reverse('creme_config__delete_buttons')
 
     @classmethod
@@ -71,10 +69,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             TestButton1, TestButton2, TestButton3, TestButton4, TestButton5,
         )
 
-    # def setUp(self):
-    #     super().setUp()
-    #     self.login_as_root()
-
     def _login_as_core_admin(self):
         return self.login_as_standard(admin_4_apps=['creme_core'])
 
@@ -92,10 +86,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.login_as_root()
 
         ct = self.contact_ct
-        # url = self.WIZARD_URL
         url = reverse('creme_config__add_base_buttons')
         ctxt1 = self.assertGET200(url).context
-        # self.assertEqual(_('New buttons configuration'), ctxt1.get('title'))
         self.assertEqual(_('New buttons base configuration'), ctxt1.get('title'))
 
         with self.assertNoException():
@@ -106,7 +98,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertNotIn(ContentType.objects.get_for_model(FakeInvoiceLine), ctypes)
 
         # ---
-        # step_key = 'button_menu_wizard-current_step'
         step_key = 'button_menu_base_creation_wizard-current_step'
         response2 = self.assertPOST200(
             url,
@@ -307,13 +298,11 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.login_as_root()
 
         ct = self.contact_ct
-        # self.assertGET404(reverse('creme_config__edit_ctype_buttons', args=(ct.id,)))
         self.assertGET404(reverse('creme_config__edit_base_buttons', args=(ct.id,)))
 
     def test_edit__base__default(self):
         self.login_as_root()
 
-        # url = reverse('creme_config__edit_ctype_buttons', args=(0,))
         url = reverse('creme_config__edit_base_buttons', args=(0,))
 
         # GET ---
@@ -321,7 +310,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
 
         context1 = response1.context
-        # self.assertEqual(_('Edit default configuration'), context1.get('title'))
         self.assertEqual(_('Edit default base configuration'), context1.get('title'))
         self.assertEqual(_('Save the modifications'),          context1.get('submit_label'))
 
@@ -367,11 +355,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             content_type=FakeContact, button=TestButton4, order=1,
         )
 
-        # url = reverse('creme_config__edit_ctype_buttons', args=(ct.id,))
         url = reverse('creme_config__edit_base_buttons', args=(ct.id,))
         context = self.assertGET200(url).context
         self.assertEqual(
-            # _('Edit configuration for «{model}»').format(model=ct),
             _('Edit base configuration for «{model}»').format(model=ct),
             context.get('title'),
         )
@@ -415,7 +401,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         )
 
         self.assertNoFormError(self.client.post(
-            # reverse('creme_config__edit_ctype_buttons', args=(ct.id,)),
             reverse('creme_config__edit_base_buttons', args=(ct.id,)),
             data={'button_ids': []},
         ))

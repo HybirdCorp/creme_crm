@@ -45,7 +45,6 @@ class ReportsConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Report)
 
-    # def register_actions(self, actions_registry):
     def register_actions(self, action_registry):
         from . import actions
 

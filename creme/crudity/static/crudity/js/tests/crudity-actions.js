@@ -97,7 +97,6 @@ QUnit.test('creme.emails.brick.crudity-validate', function(assert) {
     this.closeDialog();
 
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["crudity-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });

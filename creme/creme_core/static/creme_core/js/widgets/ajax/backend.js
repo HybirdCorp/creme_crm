@@ -95,7 +95,6 @@ creme.ajax.Backend.prototype = {
         var extraData = _.pop(opts, 'data', opts.extraData || {});
         var csrf = data.get('csrfmiddlewaretoken') || creme.ajax.cookieCSRF();
 
-        // creme.ajax.jqueryFormSubmit(form, successCb, errorCb, opts);
         return creme.ajax.jqueryAjaxSend(Object.assign({
             url: url,
             method: 'POST',
@@ -202,74 +201,6 @@ creme.ajax.serializeFormAsDict = function(form, extraData) {
 
     return data;
 };
-/*
-creme.ajax.jqueryFormSubmit = function(form, successCb, errorCb, options) {
-    options = options || {};
-
-    var formUrl = form.attr('action');
-
-    form.attr('action', options.action || formUrl);
-
-    function _parseIFrameResponseStatus(responseText) {
-        if (/^HTTPError [0-9]+$/.test(responseText)) {
-            return parseInt(responseText.substr('HTTPError '.length));
-        } else {
-            return 200;
-        }
-    }
-
-    function _onSuccess(responseText, statusText, xhr, form) {
-        form.attr('action', formUrl);
-
-        if (submitOptions.iframe && xhr.status === 0) {
-            xhr.status = _parseIFrameResponseStatus(responseText);
-        }
-
-        if (xhr.status === 200) {
-            if (Object.isFunc(successCb)) {
-                successCb(responseText, statusText, xhr, form);
-            }
-        } else if (Object.isFunc(errorCb)) {
-            errorCb(responseText, {
-                type:    "request",
-                status:  xhr.status,
-                message: "HTTP - " + xhr.status + " error",
-                request: xhr
-            });
-        }
-    };
-
-    function _onError(xhr) {
-        if (Object.isFunc(errorCb)) {
-            errorCb(xhr.responseText, {
-                type:   "request",
-                status:  xhr.status,
-                message: "HTTP - " + xhr.status + " error",
-                request: xhr});
-        }
-    };
-
-    // disable iframe if no file input in form
-    var useIFrame = $('input[type=file]', form).length > 0;
-    var headers = {};
-
-    if ($('input[name="csrfmiddlewaretoken"]', form).length === 0) {
-        headers = {'X-CSRFToken': creme.ajax.cookieCSRF()};
-    }
-
-    var submitOptions = $.extend(true, {
-        iframe: useIFrame,
-        success: _onSuccess,
-        error: _onError,
-        headers: headers,
-        // Use explicit traditional=true argument to replace ajaxSettings.traditional deprecated
-        // since jQuery 1.9 see (https://bugs.jquery.com/ticket/12137)
-        traditional: true
-    }, options);
-
-    $(form).ajaxSubmit(submitOptions);
-};
-*/
 
 function xhrEventLoadedPercent(event) {
     var position = event.loaded || event.position; /* event.position is deprecated */

@@ -114,7 +114,6 @@ class _ActivityDateSubCell(CustomFormExtraSubCell):
             dt = localtime(dt)
             field.initial = (
                 dt.date(),
-                # None if instance.floating_type == constants.FLOATING_TIME else dt.time(),
                 None
                 if instance.floating_type == Activity.FloatingType.FLOATING_TIME else
                 dt.time(),
@@ -489,16 +488,10 @@ class BaseCustomForm(core_forms.CremeEntityForm):
             if end_date:
                 raise ValidationError(self.error_messages['no_start'], code='no_start')
 
-            # floating_type = constants.FLOATING
             floating_type = Activity.FloatingType.FLOATING
         else:
             is_all_day = get_data('is_all_day', False)
 
-            # floating_type = (
-            #     constants.NARROW
-            #     if start_time or is_all_day else
-            #     constants.FLOATING_TIME
-            # )
             floating_type = (
                 Activity.FloatingType.NARROW
                 if start_time or is_all_day else
@@ -508,7 +501,6 @@ class BaseCustomForm(core_forms.CremeEntityForm):
             # TODO: not start_date, not end_date, start time, end time =>
             #       floating activity with time set but lost in the process
 
-            # if floating_type == constants.FLOATING_TIME and get_data('busy', False):
             if floating_type == Activity.FloatingType.FLOATING_TIME and get_data('busy', False):
                 raise ValidationError(
                     self.error_messages['floating_cannot_busy'],
@@ -524,7 +516,6 @@ class BaseCustomForm(core_forms.CremeEntityForm):
             else:
                 tdelta = activity_type.as_timedelta()
 
-                # if (is_all_day or floating_type == constants.FLOATING_TIME) and tdelta.days:
                 if (
                     is_all_day or floating_type == Activity.FloatingType.FLOATING_TIME
                 ) and tdelta.days:
@@ -539,7 +530,6 @@ class BaseCustomForm(core_forms.CremeEntityForm):
 
                 end = start + tdelta
 
-            # if is_all_day or floating_type == constants.FLOATING_TIME:
             if is_all_day or floating_type == Activity.FloatingType.FLOATING_TIME:
                 start = make_aware(datetime.combine(start, time(hour=0, minute=0)))
                 end   = make_aware(datetime.combine(end,   time(hour=23, minute=59)))
@@ -588,7 +578,6 @@ class BaseCreationCustomForm(BaseCustomForm):
         get_key = self.subcell_key
         participants = self.participants
 
-        # participants.update(cdata.get(get_key(UsersSubCell), ()))
         others_data = cdata.get(get_key(UsersSubCell))
         if others_data:
             participants.update(others_data['contacts'])
@@ -631,25 +620,6 @@ class BaseCreationCustomForm(BaseCustomForm):
             for entity in entities
         )
 
-    # def save(self, *args, **kwargs):
-    #     instance = super().save(*args, **kwargs)
-    #     cdata = self.cleaned_data
-    #     get_key = self.subcell_key
-    #     calendars = [
-    #         *Calendar.objects.get_default_calendars(
-    #             part_user.is_user
-    #             for part_user in cdata.get(get_key(UsersSubCell), ())
-    #         ).values()
-    #     ]
-    #
-    #     my_participation = cdata.get(get_key(MyParticipationSubCell))
-    #     if my_participation and my_participation.is_set:
-    #         calendars.append(my_participation.data)
-    #
-    #     for calendars_chunk in iter_as_chunk(calendars, 256):
-    #         instance.calendars.add(*calendars_chunk)
-    #
-    #     return instance
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
 

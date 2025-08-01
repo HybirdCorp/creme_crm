@@ -42,11 +42,6 @@ class MobileAppTestCase(MobileBaseTestCase):
         )
         self.assertRedirects(response, self.PORTAL_URL)
 
-    # def test_logout_GET(self):  # DEPRECATED
-    #     self.login_as_root()
-    #     response = self.assertGET200(reverse('mobile__logout'), follow=True)
-    #     self.assertRedirects(response, reverse(settings.LOGIN_URL))
-
     def test_logout(self):
         self.login_as_root()
         response = self.assertPOST200(reverse('mobile__logout'), follow=True)

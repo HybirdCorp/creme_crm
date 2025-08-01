@@ -266,7 +266,6 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_search_for_role(self):
         "Use Role's config if it exists."
         user = self.login_as_standard(allowed_apps=['creme_core'])
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
 
         SearchConfigItem.objects.create_if_needed(

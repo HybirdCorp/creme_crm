@@ -718,11 +718,6 @@ button_menu_patterns = [
     ),
 
     # Creation
-    # re_path(
-    #     r'^wizard[/]?$',
-    #     button_menu.ButtonMenuWizard.as_view(),
-    #     name='creme_config__add_buttons_to_ctype',
-    # ),
     re_path(
         r'^add/base[/]?$',
         button_menu.ButtonMenuBaseCreationWizard.as_view(),
@@ -741,11 +736,8 @@ button_menu_patterns = [
 
     # Edition
     re_path(
-        # r'^edit/(?P<ct_id>\d+)[/]?$',
         r'^edit/base/(?P<ct_id>\d+)[/]?$',
-        # button_menu.ButtonMenuEdition.as_view(),
         button_menu.ButtonMenuBaseEdition.as_view(),
-        # name='creme_config__edit_ctype_buttons',
         name='creme_config__edit_base_buttons',
     ),
     re_path(
@@ -763,7 +755,6 @@ button_menu_patterns = [
     re_path(
         r'^delete[/]?$',
         button_menu.ButtonMenuDeletion.as_view(),
-        # name='creme_config__delete_ctype_buttons',
         name='creme_config__delete_buttons',
     ),
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2024  Hybird
+#    Copyright (C) 2020-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -137,12 +137,10 @@ class _TrashCleanerType(JobType):
                                 continue
 
                             try:
-                                # entity.delete()
                                 deletor.perform(entity=entity, user=user)
                             except ProtectedError:
                                 create_error(
                                     entity,
-                                    # _('Can not be deleted because of its dependencies.'),
                                     _('Can not be deleted because of links with other entities.'),
                                 )
                             except Exception as e:

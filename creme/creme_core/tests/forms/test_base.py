@@ -125,7 +125,6 @@ class CremeModelFormTestCase(CremeTestCase):
             title_f = fields['title']
 
         self.assertEqual(user, title_f.user)
-        # self.assertIn('is_custom', fields)
         self.assertNotIn('is_custom', fields)
         self.assertNotIn('order',     fields)
 
@@ -135,7 +134,6 @@ class CremeModelFormTestCase(CremeTestCase):
             general_group = blocks['general']
 
         self.assertEqual(_('General information'), general_group.label)
-        # self.assertEqual(2, len(general_group.bound_fields))
         self.assertEqual(1, len(general_group.bound_fields))
 
         # --
@@ -150,7 +148,6 @@ class CremeModelFormTestCase(CremeTestCase):
         sector = form2.save()
         self.assertIsInstance(sector, FakeSector)
         self.assertEqual(title, sector.title)
-        # self.assertFalse(sector.is_custom)
         self.assertTrue(sector.is_custom)
         self.assertIsNotNone(sector.id)
 
@@ -382,12 +379,9 @@ class CremeEntityFormTestCase(CremeTestCase):
     def test_properties01(self):
         user = self.get_root_user()
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
         create_ptype = CremePropertyType.objects.create
         ptype01 = create_ptype(text='Haunted by a spirit')
         ptype02 = create_ptype(text='Cursed by a bakemono')
-        # ptype03 = create_ptype(text='See the yokai', subject_ctypes=[FakeContact])
-        # ptype04 = create_ptype(text='Has a license', subject_ctypes=[FakeOrganisation])
         ptype03 = create_ptype(text='See the yokai').set_subject_ctypes(FakeContact)
         ptype04 = create_ptype(text='Has a license').set_subject_ctypes(FakeOrganisation)
 
@@ -440,11 +434,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         "Forced CremePropertyTypes (IDs)."
         user = self.get_root_user()
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
         create_ptype = CremePropertyType.objects.create
         ptype01 = create_ptype(text='Haunted by a spirit')
         ptype02 = create_ptype(text='Cursed by a bakemono')
-        # ptype03 = create_ptype(text='See the yokai', subject_ctypes=[FakeContact])
         ptype03 = create_ptype(text='See the yokai').set_subject_ctypes(FakeContact)
 
         form = FakeContactForm(user=user, forced_ptypes=[ptype02.id])
@@ -464,11 +456,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         "Forced CremePropertyTypes (instances)."
         user = self.get_root_user()
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
         create_ptype = CremePropertyType.objects.create
         ptype01 = create_ptype(text='Haunted by a spirit')
         ptype02 = create_ptype(text='Cursed by a bakemono')
-        # ptype03 = create_ptype(text='See the yokai', subject_ctypes=[FakeContact])
         ptype03 = create_ptype(text='See the yokai').set_subject_ctypes(FakeContact)
 
         form = FakeContactForm(user=user, forced_ptypes=[ptype02])
@@ -726,14 +716,11 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertIn('relation_types', fields2)
         initial_info2 = fields2['rtypes_info'].initial
         self.assertHTMLEqual(
-            # _('These relationships will be added: {}').format(
             ngettext(
                 'This relationship will be added: {}',
                 'These relationships will be added: {}',
                 number=2,
             ).format(
-                # f'<ul><li>{rtype2.predicate} «{orga}»</li>'
-                # f'<li>{rtype1.predicate} «{contact1}»</li></ul>'
                 '<ul><li>{item1}</li><li>{item2}</li></ul>'.format(
                     item1=_('{predicate} «{entity}»').format(
                         predicate=rtype2.predicate, entity=orga,

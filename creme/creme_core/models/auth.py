@@ -224,15 +224,6 @@ class UserRole(models.Model):
     def get_allowed_apps_verbose(self) -> list[str]:  # For templates
         return self._build_apps_verbose(self.allowed_apps)
 
-    # def can_create(self, app_name: str, model_name: str) -> bool:
-    #     ct = ContentType.objects.get_by_natural_key(app_name, model_name)
-    #
-    #     if self._creatable_ctypes_set is None:
-    #         self._creatable_ctypes_set = frozenset(
-    #             self.creatable_ctypes.values_list('id', flat=True)
-    #         )
-    #
-    #     return ct.id in self._creatable_ctypes_set
     def can_create(self, ctype: ContentType, /) -> bool:  # TODO: accept model too?
         """Creation credentials.
         @param ctype: ContentType of the model we want to create.
@@ -246,15 +237,6 @@ class UserRole(models.Model):
         return ctype.id in self._creatable_ctypes_set
 
     # TODO: factorise with can_create() ??
-    # def can_export(self, app_name: str, model_name: str) -> bool:
-    #     ct = ContentType.objects.get_by_natural_key(app_name, model_name)
-    #
-    #     if self._exportable_ctypes_set is None:
-    #         self._exportable_ctypes_set = frozenset(
-    #             self.exportable_ctypes.values_list('id', flat=True)
-    #         )
-    #
-    #     return ct.id in self._exportable_ctypes_set
     def can_export(self, ctype: ContentType, /) -> bool:
         """Mass-export credentials.
         @param ctype: ContentType of the model we want to export.
@@ -1256,7 +1238,6 @@ class CremeUser(AbstractBaseUser):
                 for perm in perm_list:
                     self.has_perm_or_die(perm, obj)
 
-    # def has_perm_to_access(self, app_name: str) -> bool:
     def has_perm_to_access(self, app_label: str, /) -> bool:
         return self.is_superuser or self.role.is_app_allowed_or_administrable(app_label)
 
@@ -1267,7 +1248,6 @@ class CremeUser(AbstractBaseUser):
         except LookupError:
             return gettext('Invalid app "{}"').format(app_label)
 
-    # def has_perm_to_access_or_die(self, app_label: str) -> None:
     def has_perm_to_access_or_die(self, app_label: str, /) -> None:
         if not self.has_perm_to_access(app_label):
             raise PermissionDenied(
@@ -1276,11 +1256,9 @@ class CremeUser(AbstractBaseUser):
                 )
             )
 
-    # def has_perm_to_admin(self, app_name: str) -> bool:
     def has_perm_to_admin(self, app_label: str, /) -> bool:
         return self.is_superuser or self.role.is_app_administrable(app_label)
 
-    # def has_perm_to_admin_or_die(self, app_name: str) -> None:
     def has_perm_to_admin_or_die(self, app_label: str, /) -> None:
         if not self.has_perm_to_admin(app_label):
             raise PermissionDenied(
@@ -1348,9 +1326,6 @@ class CremeUser(AbstractBaseUser):
                 )
             )
 
-    # def has_perm_to_create(self, model_or_entity: EntityInstanceOrClass) -> bool:
-    #     meta = model_or_entity._meta
-    #     return self.has_perm(f'{meta.app_label}.add_{meta.object_name.lower()}')
     def has_perm_to_create(self,
                            ct_or_model_or_entity: EntityInstanceOrClassOrCType,
                            /) -> bool:
@@ -1372,13 +1347,6 @@ class CremeUser(AbstractBaseUser):
 
         return self.role.can_create(as_ctype(ct_or_model_or_entity))
 
-    # def has_perm_to_create_or_die(self, model_or_entity: EntityInstanceOrClass) -> None:
-    #     if not self.has_perm_to_create(model_or_entity):
-    #         raise PermissionDenied(
-    #             gettext('You are not allowed to create: {}').format(
-    #                 model_or_entity._meta.verbose_name,
-    #             )
-    #         )
     def has_perm_to_create_or_die(self,
                                   ct_or_model_or_entity: EntityInstanceOrClassOrCType,
                                   /) -> None:
@@ -1414,9 +1382,6 @@ class CremeUser(AbstractBaseUser):
             )
 
     # TODO: factorise with has_perm_to_create() ??
-    # def has_perm_to_export(self, model_or_entity: EntityInstanceOrClass) -> bool:
-    #     meta = model_or_entity._meta
-    #     return self.has_perm(f'{meta.app_label}.export_{meta.object_name.lower()}')
     def has_perm_to_export(self,
                            ct_or_model_or_entity: EntityInstanceOrClassOrCType,
                            /) -> bool:
@@ -1431,15 +1396,6 @@ class CremeUser(AbstractBaseUser):
         # TODO: check is a CremeEntity?
         return self.is_superuser or self.role.can_export(as_ctype(ct_or_model_or_entity))
 
-    # def has_perm_to_export_or_die(self,
-    #                               model_or_entity: type[CremeEntity] | CremeEntity,
-    #                               ) -> None:
-    #     if not self.has_perm_to_export(model_or_entity):
-    #         raise PermissionDenied(
-    #             gettext('You are not allowed to export: {}').format(
-    #                 model_or_entity._meta.verbose_name
-    #             )
-    #         )
     def has_perm_to_export_or_die(self,
                                   ct_or_model_or_entity: EntityInstanceOrClassOrCType,
                                   /) -> None:
@@ -1454,10 +1410,6 @@ class CremeUser(AbstractBaseUser):
                 gettext('You are not allowed to export: {}').format(meta.verbose_name)
             )
 
-    # def has_perm_to_link(self,
-    #                      entity_or_model: EntityInstanceOrClass,
-    #                      owner: CremeUser | None = None,
-    #                      ) -> bool:
     def has_perm_to_link(self,
                          ct_or_model_or_entity: EntityInstanceOrClassOrCType,
                          /,
@@ -1491,10 +1443,6 @@ class CremeUser(AbstractBaseUser):
         )
 
     # TODO: factorise ??
-    # def has_perm_to_link_or_die(self,
-    #                             entity_or_model: EntityInstanceOrClass,
-    #                             owner: CremeUser | None = None,
-    #                             ) -> None:
     def has_perm_to_link_or_die(self,
                                 ct_or_model_or_entity: EntityInstanceOrClassOrCType,
                                 /,
@@ -1507,7 +1455,6 @@ class CremeUser(AbstractBaseUser):
                 )
                 if isinstance(ct_or_model_or_entity, CremeEntity) else
                 gettext('You are not allowed to link: {}').format(
-                    # entity_or_model._meta.verbose_name
                     model_verbose_name(as_model(ct_or_model_or_entity))
                 )
             )
@@ -1530,14 +1477,12 @@ class CremeUser(AbstractBaseUser):
         @param entity: An instance of CremeEntity, or an auxiliary instance
                (i.e. with a method get_related_entity()).
         """
-        # return self._get_credentials(entity).can_view()
         return self._get_credentials(self._get_main_entity(entity)).can_view()
 
     def has_perm_to_view_or_die(self, entity: CremeModel) -> None:
         if not self.has_perm_to_view(entity):
             raise PermissionDenied(
                 gettext('You are not allowed to view this entity: {}').format(
-                    # entity.allowed_str(self),
                     self._get_main_entity(entity).allowed_str(self),
                 )
             )

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -84,7 +84,6 @@ class BillingConfig(CremeAppConfig):
         self.ServiceLine  = billing.get_service_line_model()
         super().all_apps_ready()
 
-        # self.register_billing_algorithm()
         self.register_billing_number_generators()
         self.register_billing_converters()
         self.register_billing_lines()
@@ -102,24 +101,15 @@ class BillingConfig(CremeAppConfig):
             self.ProductLine,
         )
 
-    # def register_actions(self, actions_registry):
     def register_actions(self, action_registry):
         from . import actions
 
         action_registry.register_instance_actions(
             actions.ExportInvoiceAction,
             actions.ExportQuoteAction,
-            # actions.GenerateNumberAction,
             actions.GenerateInvoiceNumberAction,
             actions.GenerateCreditNoteNumberAction,
         )
-
-    # def register_billing_algorithm(self):
-    #     from .algos import SimpleAlgo
-    #     from .models import SimpleBillingAlgo
-    #     from .registry import algo_registry
-    #
-    #     algo_registry.register((SimpleBillingAlgo.ALGO_NAME, SimpleAlgo))
 
     def register_billing_number_generators(self):
         from . import number_generators
@@ -226,7 +216,6 @@ class BillingConfig(CremeAppConfig):
         from . import buttons
 
         button_registry.register(
-            # buttons.GenerateInvoiceNumberButton,
             buttons.GenerateNumberButton,
             buttons.AddQuoteButton,
             buttons.AddSalesOrderButton,
@@ -325,7 +314,6 @@ class BillingConfig(CremeAppConfig):
             # models.PaymentInformation,
         )
 
-    # def register_field_printers(self, field_printers_registry):
     def register_field_printers(self, field_printer_registry):
         from django.db.models import ForeignKey
 
@@ -334,7 +322,6 @@ class BillingConfig(CremeAppConfig):
         from . import models, utils
         from .models.fields import BillingDiscountField
 
-        # field_printers_registry.register(BillingDiscountField, print_discount)
         field_printer_registry.register_model_field_type(
             type=BillingDiscountField, printer=utils.print_discount, tags='html*',
         )
@@ -447,7 +434,6 @@ class BillingConfig(CremeAppConfig):
                 'status',
             ).register_relationtype(constants.REL_SUB_BILL_RECEIVED)
 
-    # def register_statistics(self, statistics_registry):
     def register_statistics(self, statistic_registry):
         Invoice = self.Invoice
         Quote = self.Quote

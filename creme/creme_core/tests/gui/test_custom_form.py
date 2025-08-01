@@ -1312,12 +1312,9 @@ class FieldGroupListTestCase(CremeTestCase):
         user = self.get_root_user()
         model = FakeContact
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
         create_ptype = CremePropertyType.objects.create
         ptype01 = create_ptype(text='Smokes')
         ptype02 = create_ptype(text='Wears glasses')
-        # ptype03 = create_ptype(text='Has a gun', subject_ctypes=[model])
-        # ptype04 = create_ptype(text='Is a ship', subject_ctypes=[FakeOrganisation])
         ptype03 = create_ptype(text='Has a gun').set_subject_ctypes(model)
         ptype04 = create_ptype(text='Is a ship').set_subject_ctypes(FakeOrganisation)
 

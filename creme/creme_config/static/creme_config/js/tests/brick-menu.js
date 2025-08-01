@@ -106,7 +106,6 @@ QUnit.test('creme.MenuContainersController (drag n drop, success, 2 roots nodes)
 
     deepEqual([
         ['mock/menu/reorder/level0/default/1', 'POST', {target: 3}],
-//        ['mock/brick/all/reload', 'GET', {brick_id: ['brick-for-test'], extra_data: "{}"}]
         ['mock/brick/all/reload', 'GET', {brick_id: ['creme_config-test'], extra_data: "{}"}]
     ], this.mockBackendUrlCalls());
 });
@@ -129,7 +128,6 @@ QUnit.test('creme.MenuContainersController (drag n drop, success, 1 root node)',
 
     deepEqual([
         ['mock/menu/reorder/level0/default/1', 'POST', {target: 3}],
-//        ['mock/brick/all/reload', 'GET', {brick_id: ['brick-for-test'], extra_data: "{}"}]
         ['mock/brick/all/reload', 'GET', {brick_id: ['creme_config-test'], extra_data: "{}"}]
     ], this.mockBackendUrlCalls());
 });

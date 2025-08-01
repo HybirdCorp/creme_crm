@@ -388,7 +388,6 @@ class ExportingTestCase(TransferBaseTestCase):
             ]
 
         rbi_info01 = self.get_alone_element(all_rbi_info01)
-        # self.assertEqual(rbi1.id, rbi_info01.get('id'))
         self.assertEqual(str(rbi1.uuid), rbi_info01.get('uuid'))
         self.assertNotIn('cells', rbi_info01)
 
@@ -401,35 +400,20 @@ class ExportingTestCase(TransferBaseTestCase):
             ]
 
         rbi_info02 = self.get_alone_element(all_rbi_info02)
-        # self.assertEqual(rbi2.id, rbi_info02.get('id'))
         self.assertEqual(str(rbi2.uuid), rbi_info02.get('uuid'))
 
         cells_info = rbi_info02.get('cells')
-        # self.assertIsList(cells_info, length=2)
         self.assertIsDict(cells_info, length=2)
-
-        # def find_cells_for_naturalkey(key):
-        #     for ctype_info in cells_info:
-        #         self.assertIsList(ctype_info, length=2)
-        #
-        #         if ctype_info[0] == key:
-        #             return ctype_info[1]
-        #
-        #     self.fail(f'Cells for key="{key} not found.')
-
         self.assertListEqual(
             [
                 {'type': 'regular_field', 'value': 'first_name'},
                 {'type': 'regular_field', 'value': 'last_name'},
-                # {'type': 'custom_field', 'value': str(cfield.id)},
                 {'type': 'custom_field', 'value': str(cfield.uuid)},
             ],
-            # find_cells_for_naturalkey('creme_core.fakecontact'),
             cells_info.get('creme_core.fakecontact'),
         )
         self.assertListEqual(
             [{'type': 'regular_field', 'value': 'name'}],
-            # find_cells_for_naturalkey('creme_core.fakeorganisation'),
             cells_info.get('creme_core.fakeorganisation'),
         )
 
@@ -639,7 +623,6 @@ class ExportingTestCase(TransferBaseTestCase):
             for dumped_bdl in content.get('detail_bricks')
             if (
                 dumped_bdl.get('ctype') == 'creme_core.fakecontact'
-                # and dumped_bdl.get('role') == role.name
                 and dumped_bdl.get('role') == role_uuid
             )
         ]
@@ -665,7 +648,6 @@ class ExportingTestCase(TransferBaseTestCase):
                 {
                     'id': constants.MODELBRICK_ID, 'order': 5, 'zone': LEFT,
                     'ctype': 'creme_core.fakecontact',
-                    # 'role': role.name
                     'role': role_uuid,
                 },
             ],
@@ -676,7 +658,6 @@ class ExportingTestCase(TransferBaseTestCase):
                 {
                     'id': bricks.HistoryBrick.id, 'order': 10, 'zone': RIGHT,
                     'ctype': 'creme_core.fakecontact',
-                    # 'role': role.name,
                     'role': role_uuid,
                 },
             ],
@@ -1220,7 +1201,6 @@ class ExportingTestCase(TransferBaseTestCase):
             [
                 {
                     'ctype': 'creme_core.fakecontact',
-                    # 'role': role.name,
                     'role': str(role.uuid),
                     'cells': [{'type': 'regular_field', 'value': 'last_name'}],
                 },
@@ -1254,16 +1234,6 @@ class ExportingTestCase(TransferBaseTestCase):
     def test_property_types(self):
         self.login_as_super(is_staff=True)
 
-        # CremePropertyType.objects.create(text='Sugoi!')
-        # self.assertTrue(CremePropertyType.objects.filter(is_custom=False))
-        #
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(text='Is important', is_custom=True)
-        # ptype2 = create_ptype(text='Is funny', is_custom=True, is_copiable=False)
-        # ptype3 = create_ptype(
-        #     text='Is cool', is_custom=True,
-        #     subject_ctypes=[FakeContact, FakeOrganisation],
-        # )
         create_ptype = CremePropertyType.objects.create
         create_ptype(text='Sugoi!')
         self.assertTrue(CremePropertyType.objects.filter(is_custom=False))
@@ -1553,14 +1523,13 @@ class ExportingTestCase(TransferBaseTestCase):
                     {'type': EntityCellCustomField.type_id,  'value': str(cfield.uuid)},
                 ],
             },
-            loaded_hfilters.get(hf1.id)
+            loaded_hfilters.get(hf1.id),
         )
         self.assertDictEqual(
             {
                 'id': hf2.id,
                 'name': hf2.name,
                 'ctype': 'creme_core.fakeorganisation',
-                # 'user': other_user.username,
                 'user': str(other_user.uuid),
                 'cells': [
                     {'type': EntityCellRegularField.type_id, 'value': 'name'},
@@ -1574,7 +1543,6 @@ class ExportingTestCase(TransferBaseTestCase):
                 'id': hf3.id,
                 'name': hf3.name,
                 'ctype': 'creme_core.fakeorganisation',
-                # 'user': other_user.username,
                 'user': str(other_user.uuid),
                 'is_private': True,
                 'cells': [
@@ -1717,7 +1685,6 @@ class ExportingTestCase(TransferBaseTestCase):
                 'name':  ef2.name,
                 'ctype': ct_str_o,
                 'filter_type': EF_REGULAR,
-                # 'user':  other_user.username,
                 'user': str(other_user.uuid),
                 'use_or': True,
                 'conditions': [
@@ -1748,7 +1715,6 @@ class ExportingTestCase(TransferBaseTestCase):
                 'name':  ef3.name,
                 'ctype': ct_str_o,
                 'filter_type': EF_REGULAR,
-                # 'user':  other_user.username,
                 'user': str(other_user.uuid),
                 'is_private': True,
                 'use_or': False,
@@ -1918,7 +1884,6 @@ class ExportingTestCase(TransferBaseTestCase):
                     ],
                 }, {
                     'descriptor': descriptor_id,
-                    # 'role': role.name,
                     'role': str(role.uuid),
                     'groups': [
                         {

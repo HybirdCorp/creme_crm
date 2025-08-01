@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2024  Hybird
+#    Copyright (C) 2018-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,12 +49,7 @@ class EditAction(EntityAction):
 
     @property
     def url(self):
-        # return self.instance.get_edit_absolute_url()
         return self._url
-
-    # @property
-    # def is_enabled(self):
-    #     return bool(self.url) and self.user.has_perm_to_change(self.instance)
 
 
 class DeleteAction(EntityAction):
@@ -83,10 +78,6 @@ class DeleteAction(EntityAction):
     @property
     def url(self):
         return self.instance.get_delete_absolute_url()
-
-    # @property
-    # def is_enabled(self):
-    #     return bool(self.url) and self.user.has_perm_to_delete(self.instance)
 
 
 class ViewAction(EntityAction):
@@ -137,24 +128,12 @@ class CloneAction(EntityAction):
 
     @property
     def url(self):
-        # return self.instance.get_clone_absolute_url()
         return self.instance.get_clone_absolute_url() if self.is_visible else ''
 
     def _get_data(self):
         return {
             'id': self.instance.id,
         }
-
-    # @property
-    # def is_enabled(self):
-    #     instance = self.instance
-    #     user = self.user
-    #
-    #     return (
-    #         bool(self.url)
-    #         and user.has_perm_to_create(instance)
-    #         and user.has_perm_to_view(instance)
-    #     )
 
 
 class BulkEditAction(BulkEntityAction):

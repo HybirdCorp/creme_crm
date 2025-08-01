@@ -48,7 +48,6 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         default_status = self.get_alone_element(
             [status for status in statuses if status.is_default]
         )
-        # self.assertEqual(1, default_status.pk)
         self.assertUUIDEqual(UUID_ORDER_STATUS_ISSUED, default_status.uuid)
 
         # New default status => previous default status is updated
@@ -196,7 +195,6 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=order, type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=order, type=REL_SUB_BILL_RECEIVED, object=target)
 
-        # self.assertEqual(order.get_absolute_url(), response.content.decode())
         self.assertEqual(order.get_absolute_url(), response.text)
 
     def test_create_related__no_redirection(self):
@@ -403,7 +401,6 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotEqual(order.pk, cloned.pk)
         self.assertEqual(order.name,   cloned.name)
         self.assertEqual(order.status, cloned.status)
-        # self.assertEqual('0',          cloned.number)
         self.assertEqual('',           cloned.number)
 
         self.assertEqual(source, cloned.source)
@@ -443,11 +440,9 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         item.save()
 
         order = self.create_salesorder(user=user, name='My Order', source=source, target=target)
-        # self.assertEqual('BC1', order.number)
         self.assertEqual('ORD-0001', order.number)
 
         cloned = self.clone(order)
-        # self.assertEqual('BC2', cloned.number)
         self.assertEqual('ORD-0002', cloned.number)
 
     @skipIfCustomAddress
@@ -484,7 +479,6 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotEqual(order.pk, cloned.pk)
         self.assertEqual(order.name,   cloned.name)
         self.assertEqual(order.status, cloned.status)
-        # self.assertEqual('0',          cloned.number)
         self.assertEqual('',           cloned.number)
 
         self.assertEqual(source, cloned.source)
@@ -524,11 +518,9 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         item.save()
 
         order = self.create_salesorder(user=user, name='My Order', source=source, target=target)
-        # self.assertEqual('BC1', order.number)
         self.assertEqual('ORD-0001', order.number)
 
         cloned = order.clone()
-        # self.assertEqual('BC2', cloned.number)
         self.assertEqual('ORD-0002', cloned.number)
 
     def test_brick(self):

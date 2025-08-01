@@ -3,9 +3,7 @@ from decimal import Decimal
 from functools import partial
 
 from django.db.models.query_utils import Q
-# from django.test.utils import override_settings
 from django.urls import reverse
-# from django.utils.encoding import force_str
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
@@ -55,7 +53,6 @@ from .base import (
 
 
 @skipIfCustomOrganisation
-# class ConvertTestCase(_BillingTestCase):
 class ConversionTestCase(_BillingTestCase):
     def _convert(self, status_code, src, dest_type, is_ajax=False):
         http_header = {}
@@ -67,15 +64,6 @@ class ConversionTestCase(_BillingTestCase):
             status_code, reverse('billing__convert', args=(src.id,)),
             data={'type': dest_type}, follow=True, **http_header
         )
-
-    # def test_get_models_for_conversion(self):
-    #     from ..core import get_models_for_conversion
-    #     self.assertListEqual([], [*get_models_for_conversion('unknown')])
-    #
-    #     self.assertListEqual([Quote, SalesOrder], [*get_models_for_conversion('invoice')])
-    #     self.assertListEqual([], [*get_models_for_conversion('credit_note')])
-    #     self.assertListEqual([Invoice], [*get_models_for_conversion('quote')])
-    #     self.assertListEqual([Quote], [*get_models_for_conversion('sales_order')])
 
     def test_registry(self):
         user = self.login_as_root_and_get()
@@ -264,7 +252,6 @@ class ConversionTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     @skipIfCustomSalesOrder
-    # @override_settings(SALESORDER_NUMBER_PREFIX='ORD')
     def test_quote_to_salesorder(self):
         "SalesOrder + not superuser."
         user = self.login_as_standard(
@@ -322,12 +309,7 @@ class ConversionTestCase(_BillingTestCase):
         response = self._convert(200, quote, 'sales_order', is_ajax=True)
         self.assertEqual(0, Invoice.objects.count())
         self.assertEqual(1, SalesOrder.objects.count())
-
-        self.assertEqual(
-            # force_str(response.content),
-            response.text,
-            SalesOrder.objects.first().get_absolute_url(),
-        )
+        self.assertEqual(response.text, SalesOrder.objects.first().get_absolute_url())
 
     @skipIfCustomQuote
     def test_creation_forbidden(self):
@@ -392,7 +374,6 @@ class ConversionTestCase(_BillingTestCase):
             related_item=self.create_service(user=user), unit_price=Decimal('5'),
         )
 
-        # quote.save() # To set total_vat...
         quote = self.refresh(quote)
 
         self.assertEqual(2, quote.get_lines(ServiceLine).count())
@@ -438,7 +419,6 @@ class ConversionTestCase(_BillingTestCase):
         user = self.login_as_root_and_get()
 
         status = QuoteStatus.objects.create(name='Cashing', order=5)
-        # self.assertFalse(SalesOrderStatus.objects.filter(pk=status.pk).exists())
 
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
         quote.status = status
@@ -447,7 +427,6 @@ class ConversionTestCase(_BillingTestCase):
         self._convert(200, quote, 'sales_order')
 
         order = self.get_alone_element(SalesOrder.objects.all())
-        # self.assertEqual(1, order.status_id)
         self.assertTrue(order.status.is_default)
 
     @skipIfCustomQuote
@@ -456,7 +435,6 @@ class ConversionTestCase(_BillingTestCase):
         "Quote -> Invoice : status id can not be converted (bugfix)."
         user = self.login_as_root_and_get()
 
-        # pk = 12
         pk = 1024
         self.assertFalse(InvoiceStatus.objects.filter(pk=pk).exists())
 
@@ -470,7 +448,6 @@ class ConversionTestCase(_BillingTestCase):
         self._convert(200, quote, 'invoice')
 
         invoice = self.get_alone_element(Invoice.objects.all())
-        # self.assertEqual(1, invoice.status_id)
         self.assertTrue(invoice.status.is_default)
 
     @skipIfCustomQuote
@@ -546,37 +523,6 @@ class ConversionTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype5).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype6).count())
-
-    # @skipIfCustomQuote
-    # def test_quote_to_invoice__converted_relations(self):
-    #     user = self.login_as_root_and_get()
-    #     from ..registry import relationtype_converter
-    #
-    #     self.assertEqual(0, Relation.objects.count())
-    #     quote, source, target = self.create_quote_n_orgas(user=user, name='My Quote')
-    #     rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-    #         ('test-CONVERT-subject_foobar', 'is loving',   [Quote]),
-    #         ('test-CONVERT-object_foobar',  'is loved by', [Organisation]),
-    #     )
-    #     rtype3, rtype4 = RelationType.objects.smart_update_or_create(
-    #         ('test-CONVERT-subject_foobar_not_copiable', 'is loving', [Invoice]),
-    #         ('test-CONVERT-object_foobar_not_copiable',  'is loved by', [Organisation]),
-    #     )
-    #     relationtype_converter.register(Quote, rtype1, Invoice, rtype3)
-    #
-    #     Relation.objects.create(
-    #         user=user, type=rtype1, subject_entity=quote, object_entity=source,
-    #     )
-    #     self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
-    #     self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
-    #     self.assertEqual(0, Relation.objects.filter(type=rtype3).count())
-    #     self.assertEqual(0, Relation.objects.filter(type=rtype4).count())
-    #
-    #     self._convert(200, quote, 'invoice')
-    #     self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
-    #     self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
-    #     self.assertEqual(1, Relation.objects.filter(type=rtype3).count())
-    #     self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
 
     def test_error_invalid_source(self):
         "Source is not a billing document."

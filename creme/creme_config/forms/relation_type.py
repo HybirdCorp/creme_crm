@@ -39,10 +39,8 @@ _CTypesField = partial(
     help_text=_('No constraint means that all types are accepted.'),
 )
 _PropertyTypesField = partial(
-    # ModelMultipleChoiceField,
     core_fields.PropertyTypesChoiceField,
     required=False,
-    # label=_('Properties constraint'),
     queryset=CremePropertyType.objects.all(),
 )
 

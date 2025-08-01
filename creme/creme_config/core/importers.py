@@ -100,13 +100,7 @@ logger = logging.getLogger(__name__)
 get_ct = ContentType.objects.get_by_natural_key
 
 
-# def load_ct(ct_str: str) -> ContentType:
-#     return get_ct(*ct_str.split('.'))
-
-
-# def load_model(model_str: str) -> Model:
 def load_model(ct_str: str) -> Model:
-    # return load_ct(model_str).model_class()
     return ctype_from_key(ct_str).model_class()
 
 
@@ -236,9 +230,6 @@ class CellProxyCustomField(CellProxy):
                     'The column with custom-field="{uuid}" is invalid in «{container}».'
                 ).format(uuid=value, container=self.container_label)
             )
-
-    # def build_cell(self):
-    #     return self.cell_cls(CustomField.objects.get(uuid=self.value))
 
 
 @CELL_PROXIES
@@ -453,7 +444,6 @@ class UserRolesImporter(Importer):
             data = {
                 'value':     info['value'],
                 'set_type':  info['type'],
-                # 'ctype':     load_ct(ctype_str) if ctype_str else None,
                 'ctype':     ctype_from_key(ctype_str) if ctype_str else None,
                 'forbidden': info.get('forbidden', False),
             }
@@ -479,18 +469,15 @@ class UserRolesImporter(Importer):
                 'admin_4_apps': role_info.get('admin_4_apps', ()),
 
                 'creatable_ctypes':  [
-                    # *map(load_ct, role_info.get('creatable_ctypes', ())),
                     *map(ctype_from_key, role_info.get('creatable_ctypes', ())),
                 ],
                 'exportable_ctypes': [
-                    # *map(load_ct, role_info.get('exportable_ctypes', ())),
                     *map(ctype_from_key, role_info.get('exportable_ctypes', ())),
                 ],
 
                 'credentials': [*map(load_creds, role_info.get('credentials', ()))],
             } for role_info in deserialized_section
         ]
-        # validated_data[UserRole].update(d['name'] for d in self._data)
         validated_data[UserRole].update(d['uuid'] for d in self._data)
 
     def save(self):
@@ -586,7 +573,6 @@ class ButtonsConfigImporter(Importer):
 
         natural_ctype = bmi_info.get('ctype')
         if natural_ctype:
-            # data['content_type'] = load_ct(natural_ctype)
             data['content_type'] = ctype_from_key(natural_ctype)
 
         role_uuid = bmi_info.get('role')
@@ -601,7 +587,6 @@ class ButtonsConfigImporter(Importer):
         return data
 
     def _validate_section(self, deserialized_section, validated_data):
-        # self._data = [*map(self.load_bmi, deserialized_section)]
         self._data = [
             self.load_bmi(bmi_info, validated_data) for bmi_info in deserialized_section
         ]
@@ -831,7 +816,6 @@ class FieldsConfigImporter(Importer):
     def _validate_section(self, deserialized_section, validated_data):
         def load_fields_config(fconfig_info: dict) -> dict:
             return {
-                # 'content_type': load_ct(fconfig_info['ctype']),
                 'content_type': ctype_from_key(fconfig_info['ctype']),
                 'descriptions': fconfig_info['descriptions'],
             }
@@ -869,7 +853,6 @@ class CustomFieldsImporter(Importer):
             )
 
         name = cfield_info['name']
-        # ctype = load_ct(cfield_info['ctype'])
         ctype = ctype_from_key(cfield_info['ctype'])
         if CustomField.objects.filter(content_type=ctype, name=name).exists():
             raise ValidationError(
@@ -945,14 +928,11 @@ class HeaderFiltersImporter(Importer):
                 ),
             }
 
-            # username = hfilter_info.get('user')
             user_uuid = hfilter_info.get('user')
-            # if username:
             if user_uuid:
                 data['is_private'] = bool(hfilter_info.get('is_private', False))
 
                 try:
-                    # data['user'] = User.objects.get(username=username)
                     data['user'] = User.objects.get(uuid=user_uuid)
                 except User.DoesNotExist:
                     logger.warning(
@@ -1190,7 +1170,6 @@ class ConditionProxyRelation(ConditionProxy):
                 )
 
         ct_str = value.get('ct')
-        # self.ct = load_ct(ct_str) if ct_str else None
         self.ct = ctype_from_key(ct_str) if ct_str else None
 
         self.rtype = None
@@ -1430,14 +1409,11 @@ class EntityFiltersImporter(Importer):
                 'extra_data': efilter_info.get('extra_data') or {},
             }
 
-            # username = efilter_info.get('user')
             user_uuid = efilter_info.get('user')
-            # if username:
             if user_uuid:
                 data['is_private'] = bool(efilter_info.get('is_private', False))
 
                 try:
-                    # data['user'] = User.objects.get(username=username)
                     data['user'] = User.objects.get(uuid=user_uuid)
                 except User.DoesNotExist:
                     logger.warning(
@@ -1470,10 +1446,7 @@ class EntityFiltersImporter(Importer):
             )
         except DependenciesLoopError as e:
             raise ValidationError(mark_safe(
-                _('There is a cycle between the filters [{}].').format(
-                    # str(e).replace('\n', '<br>'),
-                    linebreaks(e)
-                )
+                _('There is a cycle between the filters [{}].').format(linebreaks(e))
             ))
 
     def save(self):
@@ -1653,15 +1626,12 @@ class RelationBrickItemsImporter(Importer):
     cells_proxies_registry = CELL_PROXIES
 
     def _validate_section(self, deserialized_section, validated_data):
-        # def load_ctype_cells(rtype_id, ctype_cells_info):
         def load_ctype_cells(rtype_id, ctype_key, cells_dicts):
-            # ctype = load_ct(ctype_cells_info[0])
             ctype = ctype_from_key(ctype_key)
 
             return ctype, self.cells_proxies_registry.build_proxies_from_dicts(
                 model=ctype.model_class(),
                 container_label=_('block for relation-type id="{id}"').format(id=rtype_id),
-                # cell_dicts=ctype_cells_info[1],
                 cell_dicts=cells_dicts,
                 validated_data=validated_data,
             )
@@ -1671,13 +1641,8 @@ class RelationBrickItemsImporter(Importer):
         for info in deserialized_section:
             rtype_id = info['relation_type']
             data.append({
-                # 'id': info['id'],
                 'uuid': info['uuid'],
                 'relation_type_id': rtype_id,
-                # 'cells': [
-                #     load_ctype_cells(rtype_id, ctype_cells)
-                #     for ctype_cells in info.get('cells', ())
-                # ],
                 'cells': [
                     load_ctype_cells(rtype_id, ctype_key, cells_dicts)
                     for ctype_key, cells_dicts in info.get('cells', {}).items()
@@ -1746,7 +1711,6 @@ class CustomBrickConfigItemsImporter(Importer):
 
         for info in deserialized_section:
             cbci_uuid = info['uuid']
-            # ctype = load_ct(info['content_type'])
             ctype = ctype_from_key(info['content_type'])
 
             data.append({
@@ -1806,7 +1770,6 @@ class DetailviewBricksLocationsImporter(Importer):
 
             natural_ctype = info.get('ctype')
             if natural_ctype:
-                # data['content_type'] = load_ct(natural_ctype)
                 data['content_type'] = ctype_from_key(natural_ctype)
 
             role_uuid = info.get('role')

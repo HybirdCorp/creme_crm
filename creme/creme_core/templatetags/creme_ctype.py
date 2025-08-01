@@ -113,7 +113,6 @@ def ctype_for_swappable(model_setting: str) -> ContentType:
 @register.filter
 def ctype_verbose_name(ctype: ContentType, count: int | None  = None) -> str:
     model = ctype.model_class()
-    # return model._meta.verbose_name if count is None else get_model_verbose_name(model, count)
 
     if count is None:
         warnings.warn(

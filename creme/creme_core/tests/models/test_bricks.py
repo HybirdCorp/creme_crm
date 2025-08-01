@@ -589,12 +589,6 @@ class BrickTestCase(CremeTestCase):
         rbi.save()
         self.assertDictEqual(
             {
-                # ct_contact.id: [
-                #     {'type': 'regular_field', 'value': 'last_name'},
-                #     {'type': 'function_field', 'value': 'get_pretty_properties'},
-                #     {'type': 'custom_field', 'value': str(cfield.id)},
-                # ],
-                # ct_orga.id: [{'type': 'regular_field', 'value': 'name'}],
                 'creme_core.fakecontact': [
                     {'type': 'regular_field', 'value': 'last_name'},
                     {'type': 'function_field', 'value': 'get_pretty_properties'},
@@ -661,7 +655,6 @@ class BrickTestCase(CremeTestCase):
 
         # Inject error by bypassing checks
         invalid_info = rbi.json_cells_map
-        # invalid_info[ct_contact.id][1]['value'] = 'invalid'
         invalid_info['creme_core.fakecontact'][1]['value'] = 'invalid'
         rbi.json_cells_map = invalid_info
         rbi.save()
@@ -674,7 +667,6 @@ class BrickTestCase(CremeTestCase):
             deserialized = rbi.json_cells_map
 
         self.assertDictEqual(
-            # {ct_contact.id: [{'type': 'regular_field', 'value': 'last_name'}]},
             {'creme_core.fakecontact': [{'type': 'regular_field', 'value': 'last_name'}]},
             deserialized,
         )
@@ -813,7 +805,6 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(
             [
                 {'type': 'regular_field', 'value': fname},
-                # {'type': 'custom_field', 'value': str(cfield.id)},
                 {'type': 'custom_field', 'value': str(cfield.uuid)},
             ],
             cbci.json_cells,
@@ -855,7 +846,6 @@ class BrickTestCase(CremeTestCase):
 
     def test_custom_brick_errors02(self):
         cbci = CustomBrickConfigItem.objects.create(
-            # id='tests-organisations01',
             name='General', content_type=FakeOrganisation,
             cells=[
                 EntityCellRegularField.build(FakeOrganisation, 'name'),
@@ -1222,7 +1212,6 @@ class BrickTestCase(CremeTestCase):
         class TestBrick(Brick):
             id = Brick.generate_id('creme_core', 'test_brick_models_state03')
 
-        # sv_open = SettingValue.objects.get_4_key(setting_keys.block_opening_key)
         sv_open = SettingValue.objects.get_4_key(setting_keys.brick_opening_key)
         sv_open.value = False
         sv_open.save()
@@ -1232,7 +1221,6 @@ class BrickTestCase(CremeTestCase):
         self.assertTrue(state.show_empty_fields)
 
         # ---
-        # sv_show = SettingValue.objects.get_4_key(setting_keys.block_showempty_key)
         sv_show = SettingValue.objects.get_4_key(setting_keys.brick_showempty_key)
         sv_show.value = False
         sv_show.save()

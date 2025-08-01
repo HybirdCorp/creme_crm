@@ -2,7 +2,6 @@ from datetime import date, timedelta
 from decimal import Decimal
 from functools import partial
 
-# from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
@@ -68,10 +67,6 @@ class HistoryTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
         self.old_time = now().replace(microsecond=0)
-
-    # def tearDown(self):
-    #     super().tearDown()
-    #     HistoryLine.ENABLED = True
 
     def _simple_login(self):
         user = self.user
@@ -1655,124 +1650,6 @@ about this fantastic animation studio."""
         hline = HistoryLine.objects.filter(entity=nerv.id).order_by('-id')[0]
         self.assertEqual(TYPE_EDITION, hline.type)
         self.assertIn('["NERV", ["name", "Nerv", "NERV"]]', hline.value)
-
-    # def test_disable01(self):  # DEPRECATED
-    #     "CremeEntity creation, edition & deletion."
-    #     old_count = HistoryLine.objects.count()
-    #     logo = FakeImage(user=self.user, name="nerv's logo")
-    #
-    #     HistoryLine.disable(logo)
-    #     logo.save()
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
-    #
-    #     # Edition ---
-    #     logo = self.refresh(logo)
-    #     HistoryLine.disable(logo)
-    #
-    #     logo.name = logo.name.title()
-    #     logo.save()
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
-    #
-    #     # Edition (M2M) ---
-    #     logo.categories.add(FakeImageCategory.objects.first())
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
-    #
-    #     # Deletion ---
-    #     logo = self.refresh(logo)
-    #     HistoryLine.disable(logo)
-    #
-    #     logo.delete()
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
-    #
-    # def test_disable02(self):  # DEPRECATED
-    #     "Relationship creation & deletion."
-    #     user = self.user
-    #     hayao = FakeContact.objects.create(
-    #         user=user, first_name='Hayao', last_name='Miyazaki',
-    #     )
-    #     ghibli = FakeOrganisation.objects.create(user=user, name='Ghibli')
-    #     rtype = RelationType.objects.smart_update_or_create(
-    #         ('test-subject_employed', 'is employed'),
-    #         ('test-object_employed', 'employs'),
-    #     )[0]
-    #
-    #     old_count = HistoryLine.objects.count()
-    #     rel = Relation(user=user, subject_entity=hayao, object_entity=ghibli, type=rtype)
-    #
-    #     HistoryLine.disable(rel)
-    #     rel.save()
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
-    #
-    #     # -----------------------
-    #     rel = self.refresh(rel)
-    #     HistoryLine.disable(rel)
-    #
-    #     rel.delete()
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
-    #
-    # def test_disable03(self):  # DEPRECATED
-    #     "Property creation & deletion."
-    #     user = self.user
-    #     hayao = FakeContact.objects.create(
-    #         user=user, first_name='Hayao', last_name='Miyazaki',
-    #     )
-    #
-    #     ptype = CremePropertyType.objects.create(text='Make anime series')
-    #     old_count = HistoryLine.objects.count()
-    #
-    #     prop = CremeProperty(type=ptype, creme_entity=hayao)
-    #     HistoryLine.disable(prop)
-    #     prop.save()
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
-    #
-    #     # -----------------------
-    #     prop = self.refresh(prop)
-    #     HistoryLine.disable(prop)
-    #
-    #     prop.delete()
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
-    #
-    # def test_disable04(self):  # DEPRECATED
-    #     "Auxiliary creation, edition & deletion."
-    #     user = self.user
-    #     nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
-    #     old_count = HistoryLine.objects.count()
-    #     address = FakeAddress(entity=nerv, city='tokyo')
-    #
-    #     HistoryLine.disable(address)
-    #     address.save()
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
-    #
-    #     # -----------------------
-    #     address = self.refresh(address)
-    #     HistoryLine.disable(address)
-    #
-    #     address.city = address.city.upper()
-    #     address.save()
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
-    #
-    #     # -----------------------
-    #     address = self.refresh(address)
-    #     HistoryLine.disable(address)
-    #
-    #     address.delete()
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
-
-    # Could interfere with other tests
-    # def test_globally_disable(self):
-    #     old_count = HistoryLine.objects.count()
-    #
-    #     HistoryLine.ENABLED = False
-    #
-    #     nerv = FakeOrganisation.objects.create(user=self.user, name='nerv')
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
-    #
-    #     nerv.name = nerv.name.title()
-    #     nerv.save()
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
-    #
-    #     FakeAddress.objects.create(entity=nerv, city='Tokyo')
-    #     self.assertEqual(old_count, HistoryLine.objects.count())
 
     def test_delete_lines(self):
         user = self.user

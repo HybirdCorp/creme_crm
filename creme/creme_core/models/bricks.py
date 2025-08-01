@@ -34,10 +34,6 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from .. import setting_keys
-# from ..constants import (
-#   SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
-#   SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS
-# )
 from ..constants import MODELBRICK_ID
 from ..utils.content_type import ctype_as_key, ctype_from_key, entity_ctypes
 from .auth import UserRole
@@ -61,7 +57,6 @@ logger = logging.getLogger(__name__)
 
 class BrickDetailviewLocationManager(models.Manager):
     # TODO: Enum for zone
-    # def create_if_needed(self,
     def create_if_needed(self, *,
                          brick: type[Brick] | str,
                          order: int,
@@ -539,9 +534,6 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
     def all_ctypes_configured(self) -> bool:
         "Hint: use prefetch_rtypes() if your call this method on several instances."
         # NB: we do not optimize with values_list() in order to use potential prefetched values.
-        # compat_ctype_ids = {
-        #     *self.relation_type.object_ctypes.values_list('id', flat=True),
-        # } or {ct.id for ct in entity_ctypes()}
         compat_ctype_ids = {
             ct.id for ct in (self.relation_type.object_ctypes.all() or entity_ctypes())
         }
@@ -556,10 +548,6 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
         return f'{self._brick_id_prefix}-{self.uuid}'
 
     def _dump_cells_map(self):
-        # self.json_cells_map = {
-        #     ct_id: [cell.to_dict() for cell in cells]
-        #     for ct_id, cells in self._cells_map.items()
-        # }
         get_ct = ContentType.objects.get_for_id
         self.json_cells_map = {
             ctype_as_key(get_ct(ct_id)): [cell.to_dict(portable=True) for cell in cells]
@@ -573,13 +561,10 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
             from ..core.entity_cell import CELLS_MAP
 
             self._cells_map = cells_map = {}
-            # get_ct = ContentType.objects.get_for_id
             build = CELLS_MAP.build_cells_from_dicts
             total_errors = False
 
-            # for ct_id, cells_as_dicts in self.json_cells_map.items():
             for ct_key, cells_as_dicts in self.json_cells_map.items():
-                # ct = get_ct(ct_id)
                 ct = ctype_from_key(ct_key)
                 # TODO: do it lazily ??
                 cells, errors = build(model=ct.model_class(), dicts=cells_as_dicts)
@@ -743,7 +728,6 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
     def _dump_cells(self, cells: Iterable[EntityCell]) -> None:
         # TODO: custom encoder instead?
-        # self.json_cells = [cell.to_dict() for cell in cells]
         self.json_cells = [cell.to_dict(portable=True) for cell in cells]
 
     # TODO: factorise with HeaderFilter.cells
@@ -788,10 +772,8 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
 class BrickStateManager(models.Manager):
     FIELDS: dict[str, str] = {
-        # SettingKey ID                     BrickState field-name
-        # SETTING_BRICK_DEFAULT_STATE_IS_OPEN:           'is_open',
-        setting_keys.brick_opening_key.id: 'is_open',  # TODO: constants...
-        # SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS: 'show_empty_fields',
+        # SettingKey ID                      BrickState field-name
+        setting_keys.brick_opening_key.id:   'is_open',  # TODO: constants...
         setting_keys.brick_showempty_key.id: 'show_empty_fields',
     }
 

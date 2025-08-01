@@ -369,7 +369,6 @@ headerfilter_patterns = [
 enumerable_patterns = [
     re_path(
         r'^(?P<ct_id>\d+)/(?P<field>[\w]+)/json[/]?$',
-        # enumerable.ChoicesView.as_view(),
         enumerable.FieldChoicesView.as_view(),
         name='creme_core__enumerable_choices',
     ),

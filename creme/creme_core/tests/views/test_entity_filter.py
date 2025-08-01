@@ -932,7 +932,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
 
         subfilter = EntityFilter.objects.smart_update_or_create(
             'creme_core-subfilter', 'Misato', model=FakeContact,
-            # user=self.other_user, is_private=True, is_custom=True,
             user=self.create_user(), is_private=True, is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
@@ -1834,7 +1833,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self.assertNoFormError(response2)
 
     def test_clone(self):
-        # user = self.login_as_root_and_get()
         user = self.login_as_standard(allowed_apps=['creme_core'])
 
         # GET (404) ---
@@ -2163,20 +2161,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
             ),
             msg,
         )
-
-    # def test_delete__deprecated(self):
-    #     self.login_as_root()
-    #
-    #     efilter = EntityFilter.objects.smart_update_or_create(
-    #         'test-filter01', 'Filter 01', FakeContact, is_custom=True,
-    #     )
-    #     response = self.assertPOST200(
-    #         reverse('creme_core__delete_efilter'),
-    #         data={'id': efilter.id},
-    #         follow=True,
-    #     )
-    #     self.assertRedirects(response, FakeContact.get_lv_absolute_url())
-    #     self.assertDoesNotExist(efilter)
 
     def test_delete__credentials(self):
         "Cannot delete a credentials filter with the regular view."

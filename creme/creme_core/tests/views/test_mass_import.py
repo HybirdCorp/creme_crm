@@ -274,11 +274,6 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         position_ids = [*FakePosition.objects.values_list('id', flat=True)]
         sector_ids   = [*FakeSector.objects.values_list('id', flat=True)]
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(text='Really cute in her suit')
-        # ptype2 = create_ptype(text='Great accuracy', subject_ctypes=[FakeContact])
-        # ptype3 = create_ptype(text='International', subject_ctypes=[FakeOrganisation])
-        # ptype4 = CremePropertyType.objects.create(text='Disabled', enabled=False)
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Really cute in her suit')
         ptype2 = create_ptype(text='Great accuracy').set_subject_ctypes(FakeContact)
@@ -571,9 +566,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
 
         lines = [
-            # 'First name', 'Last name', 'Email
-            ('Unchô',      'Kan-u', 'kanu@acme.org'),
-            ('Gentoku',    'Ryûbi', ''),
+            # 'First name', 'Last name', 'Email'
+            ('Unchô',      'Kan-u',      'kanu@acme.org'),
+            ('Gentoku',    'Ryûbi',      ''),
         ]
         doc = self._build_csv_doc(lines, user=user)
         url = self._build_import_url(FakeContact)
@@ -2300,7 +2295,6 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         job = self._get_job(response)
         # We simulate an interrupted job
-        # MassImportJobResult.objects.create(job=job, entity=rei)
         MassImportJobResult.objects.create(job=job, real_entity=rei)
 
         mass_import_type.execute(job)

@@ -7,7 +7,6 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme import persons
-# from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import (
     Currency,
     FieldsConfig,
@@ -845,7 +844,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'user':        user.id,
                 'name':        name,
                 'sales_phase': phase.id,
-                # 'currency':    DEFAULT_CURRENCY_PK,
                 'currency':    Currency.objects.default().id,
 
                 'cform_extra-opportunities_target': self.formfield_value_generic_entity(casca),
@@ -894,8 +892,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             'user':        user.pk,
             'name':        name,
             'sales_phase': SalesPhase.objects.all()[0].id,
-            # 'currency':    DEFAULT_CURRENCY_PK,
-            'currency': Currency.objects.default().id,
+            'currency':    Currency.objects.default().id,
 
             'cform_extra-opportunities_target': rhino.id,
             'cform_extra-opportunities_emitter': emitter.id,
@@ -945,8 +942,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'user':        user.id,
                 'name':        name,
                 'sales_phase': SalesPhase.objects.first().id,
-                # 'currency':    DEFAULT_CURRENCY_PK,
-                'currency': Currency.objects.default().id,
+                'currency':    Currency.objects.default().id,
 
                 'cform_extra-opportunities_target': self.formfield_value_generic_entity(casca),
                 'cform_extra-opportunities_emitter': emitter.id,

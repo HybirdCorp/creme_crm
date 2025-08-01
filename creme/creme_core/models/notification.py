@@ -26,7 +26,6 @@ from typing import Literal
 from django.conf import settings
 from django.db import IntegrityError, models
 from django.db.transaction import atomic
-# from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -118,14 +117,6 @@ class NotificationChannel(models.Model):
 
         return self.description if chan_type is None else str(chan_type.description)
 
-    # @cached_property
-    # def type(self):
-    #     type_id = self.type_id
-    #     return (
-    #         notification.notification_registry.get_channel_type(type_id)
-    #         if type_id else
-    #         None
-    #     )
     @property
     def type(self) -> NotificationChannelType | None:
         chan_type = self._channel_type

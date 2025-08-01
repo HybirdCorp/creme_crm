@@ -37,7 +37,6 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=Alert, dispatch_uid='assistants-refresh_alert_job')
 @receiver(post_save, sender=ToDo, dispatch_uid='assistants-refresh_todo_job')
-# def _refresh_alert_reminder_job(sender, instance, **kwargs):
 def _refresh_reminder_job(sender, instance, **kwargs):
     from creme.creme_core.creme_jobs import reminder_type
 

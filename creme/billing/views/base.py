@@ -64,18 +64,9 @@ class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
 
     def get_initial(self):
         initial = super().get_initial()
-        # status = (
-        #     self.model._meta.get_field('status')
-        #     .related_model.objects.filter(is_default=True)
-        #     .first()
-        # )
-        # if status is not None:
-        #     initial['status'] = status.id
-
-        target = self.get_related_entity()
         initial[
             base_forms.BillingTargetSubCell(model=self.model).into_cell().key
-        ] = target
+        ] = self.get_related_entity()
 
         return initial
 

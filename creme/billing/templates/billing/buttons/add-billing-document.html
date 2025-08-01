@@ -17,26 +17,3 @@
     }{% endblockjsondata %}
 </a>
 {% endif %}
-
-{% comment %}
-{% load i18n creme_perms creme_widgets %}{% load format_amount blockjsondata from creme_core_tags %}
-{% if button.is_allowed and user|has_perm_to_link:object %}
-<a class="menu_button menu-button-icon" title="{{button.description}}" data-action="billing-hatmenubar-add-document"
-   href="{% url button.url_name object.id %}{% if button.redirect %}?redirection=true{% endif %}">
-    {% widget_icon name='invoice' size='instance-button' label=button.model_vname %}
-    {{button.verbose_name}}
-    {% blockjsondata %}{
-        "data": {
-            "rtype_id": "{{button.rtype_id}}",
-            "model_id": "{{button.model_id}}"
-        }
-    }{% endblockjsondata %}
-</a>
-{% else %}
-<span class="menu_button menu-button-icon forbidden"
-      title="{% if not button.is_allowed %}{% blocktranslate with model=button.model_vname %}You are not allowed to create: «{{model}}»{% endblocktranslate %}{% else %}{% translate 'You are not allowed to link this entity' %}{% endif %}">
-    {% widget_icon name='invoice' size='instance-button' label=button.model_vname %}
-    {{button.verbose_name}}
-</span>
-{% endif %}
-{% endcomment %}

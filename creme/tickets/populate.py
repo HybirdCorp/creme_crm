@@ -26,7 +26,6 @@ import creme.creme_core.bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
@@ -208,13 +207,6 @@ class Populator(BasePopulator):
                 (EntityCellRegularField, {'name': 'criticity'}),
             ],
         )
-
-    # def _populate_custom_forms(self):
-    #     create_cfci = CustomFormConfigItem.objects.create_if_needed
-    #     create_cfci(descriptor=custom_forms.TICKET_CREATION_CFORM)
-    #     create_cfci(descriptor=custom_forms.TICKET_EDITION_CFORM)
-    #     create_cfci(descriptor=custom_forms.TTEMPLATE_CREATION_CFORM)
-    #     create_cfci(descriptor=custom_forms.TTEMPLATE_EDITION_CFORM)
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(

@@ -84,26 +84,10 @@ class _LinesList(generic.EntitiesList):
         return False
 
 
-# class ProductLinesList(generic.EntitiesList):
-#     model = ProductLine
-#
-#     def get_mode(self):
-#         return SelectionMode.NONE
-#
-#     def get_show_actions(self):
-#         return False
 class ProductLinesList(_LinesList):
     model = ProductLine
 
 
-# class ServiceLinesList(generic.EntitiesList):
-#     model = ServiceLine
-#
-#     def get_mode(self):
-#         return SelectionMode.NONE
-#
-#     def get_show_actions(self):
-#         return False
 class ServiceLinesList(_LinesList):
     model = ServiceLine
 

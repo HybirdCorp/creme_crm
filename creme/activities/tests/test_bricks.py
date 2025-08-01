@@ -227,7 +227,6 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         activity.calendars.add(cal)
 
         response = self.assertGET200(activity.get_absolute_url())
-        # self.assertTemplateUsed(response, 'activities/bricks/activity-hat-bar.html')
         self.assertTemplateUsed(response, 'activities/bricks/activity-hat-card.html')
 
         tree = self.get_html_tree(response.content)
@@ -668,14 +667,6 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             url,
             data={'participants': self.formfield_value_multi_creator_entity(c1, c2)},
         ))
-        # self.assertCountEqual(
-        #     [c1.id, c2.id],
-        #     [
-        #         *Relation.objects.filter(
-        #             object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
-        #         ).values_list('subject_entity_id', flat=True),
-        #     ],
-        # )
         self.assertCountEqual(
             [c1, c2],
             [
@@ -767,7 +758,6 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         activity = self._create_activity_by_view(user=user)
         self.assertIsNone(activity.start)
         self.assertIsNone(activity.end)
-        # self.assertEqual(FLOATING, activity.floating_type)
         self.assertEqual(Activity.FloatingType.FLOATING, activity.floating_type)
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -819,7 +809,6 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertCountEqual(
             [
                 Calendar.objects.get_default_calendar(user)
-                # for user in (user1, user2, user3)
                 for user in (user1, user2, user3, team)
             ],
             activity.calendars.all(),
@@ -870,7 +859,6 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertHaveRelation(user.linked_contact,       REL_SUB_PART_2_ACTIVITY, activity)
         self.assertHaveRelation(other_user.linked_contact, REL_SUB_PART_2_ACTIVITY, activity)
         self.assertCountEqual(
-            # [cal1, get_default_calendar(other_user)],
             [cal1, get_default_calendar(other_user), get_default_calendar(team)],
             activity.calendars.all(),
         )

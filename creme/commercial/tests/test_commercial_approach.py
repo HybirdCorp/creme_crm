@@ -46,7 +46,6 @@ from creme.persons.tests.base import (
 )
 
 from ..bricks import ApproachesBrick
-# from ..constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
 from ..creme_jobs import com_approaches_emails_send_type
 from ..forms.activity import IsCommercialApproachSubCell
 from ..models import CommercialApproach
@@ -369,7 +368,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_brick01(self):
         ApproachesBrick.page_size = 5  # TODO: ugly (page_size has a brick instance attribute ?)
 
-        # sv = SettingValue.objects.get(key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW)
         sv = SettingValue.objects.get(key_id=orga_approaches_key.id)
         self.assertTrue(sv.value)
 
@@ -381,7 +379,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         BrickDetailviewLocation.objects.create(
             content_type=ContentType.objects.get_for_model(Organisation),
-            # brick_id=ApproachesBrick.id_,
             brick_id=ApproachesBrick.id,
             order=10,
             zone=BrickDetailviewLocation.RIGHT,

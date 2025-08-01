@@ -227,13 +227,11 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         sum_ctxt1 = summary.get_context(
             entity=c, brick_context={'user': user, 'today': now_value},
         )
-        # self.assertIsDict(sum_ctxt1, length=3)
         self.assertIsDict(sum_ctxt1, length=2)
         self.assertEqual(
             'persons/bricks/frags/card-summary-next-activity.html',
             sum_ctxt1.get('template_name'),
         )
-        # self.assertEqual(Activity.FloatingType.NARROW, sum_ctxt1.get('NARROW'))
         self.assertIsNone(sum_ctxt1.get('activity', -1))
 
         # ----
@@ -1063,8 +1061,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
         bricks.EmployeesBrick.page_size = max(bricks.EmployeesBrick.page_size, 3)
 
-        # url = o1.get_absolute_url()
-        # response = self.assertGET200(url)
         response = self.assertGET200(o1.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content), brick=bricks.EmployeesBrick,

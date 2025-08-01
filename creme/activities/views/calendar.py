@@ -413,8 +413,6 @@ class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView)
         activity = self.get_related_entity()
 
         # Dropping a floating Activity on the Calendar fixes it.
-        # if activity.floating_type == constants.FLOATING:
-        #     activity.floating_type = constants.NARROW
         if activity.floating_type == Activity.FloatingType.FLOATING:
             activity.floating_type = Activity.FloatingType.NARROW
 
@@ -441,14 +439,12 @@ class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView)
 
 class CalendarCreation(generic.CremeModelCreationPopup):
     model = Calendar
-    # form_class = calendar_forms.CalendarForm
     form_class = calendar_forms.MyCalendarForm
     permissions = 'activities'
 
 
 class CalendarEdition(generic.CremeModelEditionPopup):
     model = Calendar
-    # form_class = calendar_forms.CalendarForm
     form_class = calendar_forms.MyCalendarForm
     permissions = 'activities'
     pk_url_kwarg = 'calendar_id'

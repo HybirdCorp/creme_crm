@@ -116,14 +116,6 @@ urlpatterns = [
             ),
             check_args=Swappable.INT_ID,
         ),
-        # Swappable(
-        #     re_path(
-        #         r'^invoice/generate_number/(?P<invoice_id>\d+)[/]?$',
-        #         invoice.InvoiceNumberGeneration.as_view(),
-        #         name='billing__generate_invoice_number',
-        #     ),
-        #     check_args=Swappable.INT_ID,
-        # ),
         Swappable(
             re_path(
                 r'^invoice/(?P<invoice_id>\d+)[/]?$',

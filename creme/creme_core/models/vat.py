@@ -40,7 +40,6 @@ class VatManager(models.Manager):
 
 
 class Vat(MinionModel):
-    # value = models.DecimalField(_('VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
     value = DecimalPercentField(_('VAT'), default=DEFAULT_VAT)
     is_default = models.BooleanField(_('Is default?'), default=False)
 
@@ -49,7 +48,6 @@ class Vat(MinionModel):
     creation_label = _('Create a VAT value')
 
     def __str__(self):
-        # return str(self.value)
         return f'{number_format(self.value, force_grouping=True)} %'
 
     class Meta:

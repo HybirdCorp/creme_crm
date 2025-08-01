@@ -84,9 +84,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         return reverse('polls__link_reply_to_person', args=(entity.id,))
 
     @staticmethod
-    # def _build_preply_from_person_url(person):
     def _build_preplies_from_person_url(person):
-        # return reverse('polls__create_reply_from_person', args=(person.id,))
         return reverse('polls__create_replies_from_person', args=(person.id,))
 
     def _build_reply_with_bool_line(self, user):
@@ -190,9 +188,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.get_object_or_fail(PollReplyLine, pform_line=self.fline2)
         self.get_object_or_fail(PollReplyLine, pform_line=self.fline3)
 
-    # def _build_rlines_with_conditions_on_bool(self):
     def _build_rlines_with_conditions_on_bool(self, user):
-        # pform  = PollForm.objects.create(user=self.user, name='Form#1')
         pform  = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
@@ -270,9 +266,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         return PollReply.objects.create(user=user, pform=pform, name='Reply#1', type=ptype)
 
     @staticmethod
-    # def _build_preply_from_pform_url(pform):
     def _build_preplies_from_pform_url(pform):
-        # return reverse('polls__create_reply_from_pform', args=(pform.id,))
         return reverse('polls__create_replies_from_pform', args=(pform.id,))
 
     def _build_preply_from_pform(self, pform, name='Reply#1'):
@@ -459,7 +453,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         )
         self.assertBrickHeaderHasButton(
             self.get_brick_header_buttons(replies_node),
-            # url=reverse('polls__create_reply_from_pform', args=(pform.id,)),
             url=self._build_preplies_from_pform_url(pform),
             label=_('Create replies'),
         )
@@ -1482,7 +1475,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "Fill one ENUM question."
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
-        # choices = [[1, 'White'], [2, 'Black'], [3, 'Green']]
         choices = [(1, 'White'), (2, 'Black'), (3, 'Green')]
         fline = self._get_formline_creator(pform)(
             'What is the main color of a swallow?',
@@ -1529,7 +1521,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
-        # choices = [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']]
         choices = [(1, 'White'), (2, 'Black'), (3, 'Green'), (4, 'Purple')]
         fline = self._get_formline_creator(pform)(
             'What are the main colors of a swallow?',

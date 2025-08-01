@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -73,7 +73,6 @@ class OpportunitiesConfig(CremeAppConfig):
     def register_buttons(self, button_registry):
         from . import buttons
 
-        # button_registry.register(buttons.LinkedOpportunityButton)
         button_registry.register(*buttons.button_classes)
 
     def register_creme_config(self, config_registry):
@@ -104,7 +103,6 @@ class OpportunitiesConfig(CremeAppConfig):
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Opportunity)
 
-    # def register_field_printers(self, field_printers_registry):
     def register_field_printers(self, field_printer_registry):
         from django.db.models import ForeignKey
 
@@ -164,7 +162,6 @@ class OpportunitiesConfig(CremeAppConfig):
                               .register_field('sales_phase') \
                               .register_relationtype(REL_SUB_TARGETS)
 
-    # def register_statistics(self, statistics_registry):
     def register_statistics(self, statistic_registry):
         from creme.persons import get_organisation_model
 
@@ -181,33 +178,6 @@ class OpportunitiesConfig(CremeAppConfig):
         )
 
     def register_billing(self):
-        # from creme import billing
-        # from creme.billing.registry import relationtype_converter
-        # from creme.creme_core.models import RelationType
-        #
-        # from . import constants
-        #
-        # get_rtype = RelationType.objects.get
-        #
-        # try:
-        #     linked_salesorder = get_rtype(id=constants.REL_SUB_LINKED_SALESORDER)
-        #     linked_invoice    = get_rtype(id=constants.REL_SUB_LINKED_INVOICE)
-        #     linked_quote      = get_rtype(id=constants.REL_SUB_LINKED_QUOTE)
-        # except Exception as e:
-        #     logger.info(
-        #         'A problem occurred: %s\n'
-        #         'It can happen during unit tests or during the "populate" phase. '
-        #         'Otherwise, has the database correctly been populated?', e
-        #     )
-        # else:
-        #     Invoice    = billing.get_invoice_model()
-        #     Quote      = billing.get_quote_model()
-        #     SalesOrder = billing.get_sales_order_model()
-        #
-        #     register_rtype = relationtype_converter.register
-        #     register_rtype(Quote,      linked_quote,      SalesOrder, linked_salesorder)
-        #     register_rtype(Quote,      linked_quote,      Invoice,    linked_invoice)
-        #     register_rtype(SalesOrder, linked_salesorder, Invoice,    linked_invoice)
         from creme import billing
         from creme.billing.core.conversion import converter_registry
 

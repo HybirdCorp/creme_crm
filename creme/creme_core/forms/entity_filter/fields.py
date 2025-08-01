@@ -30,7 +30,6 @@ from django.db.models import FileField as ModelFileField
 from django.db.models import ForeignKey as ModelForeignKey
 from django.db.models.query_utils import Q
 from django.forms import DateField, ModelMultipleChoiceField
-# from django.forms.fields import CallableChoiceIterator
 from django.utils.choices import CallableChoiceIterator
 from django.utils.formats import get_format
 from django.utils.translation import gettext_lazy as _
@@ -72,7 +71,6 @@ class _ConditionsField(JSONField):
 
     def __init__(self, *,
                  model: type[CremeEntity] = CremeEntity,
-                 # efilter_registry=None,
                  efilter_type: str = EF_REGULAR,
                  condition_cls: type[EntityFilterCondition] = EntityFilterCondition,
                  **kwargs):
@@ -84,12 +82,10 @@ class _ConditionsField(JSONField):
         super().__init__(**kwargs)
         self.model = model
         self.efilter_type = efilter_type
-        # self.efilter_registry = efilter_registry or entity_filter_registries[EF_REGULAR]
         self.condition_cls = condition_cls
 
     @property
     def efilter_type(self) -> str:
-        # return self._efilter_registry.id
         return self._efilter_type
 
     @efilter_type.setter
@@ -104,12 +100,7 @@ class _ConditionsField(JSONField):
 
     @property
     def efilter_registry(self) -> EntityFilterRegistry:
-        # return self._efilter_registry
         return entity_filter_registries[self.efilter_type]
-
-    # @efilter_registry.setter
-    # def efilter_registry(self, efilter_registry):
-    #     self._efilter_registry = self.widget.efilter_registry = efilter_registry
 
     @property
     def model(self) -> type[CremeEntity]:
@@ -812,14 +803,6 @@ class RelationsConditionsField(_ConditionsField):
         ctype_id = ctype.id if ctype else 0
 
         # TODO: regroup queries....
-        # entity_id = value.get('entity_id')
-        # if entity_id:
-        #     try:
-        #         entity = CremeEntity.objects.get(pk=entity_id)
-        #     except CremeEntity.DoesNotExist:
-        #         entity_id = None
-        #     else:
-        #         ctype_id = entity.entity_type_id
         entity = condition.handler.entity
         if entity:
             entity_id = entity.id
@@ -1076,7 +1059,6 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
 
     def __init__(self, *,
                  model=CremeEntity,
-                 # efilter_registry=None,
                  efilter_type: str = EF_REGULAR,
                  condition_cls=EntityFilterCondition,
                  user=None,
@@ -1084,13 +1066,11 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
         super().__init__(queryset=EntityFilter.objects.none(), **kwargs)
         self.user = user
         self.model = model
-        # self.efilter_registry = efilter_registry or entity_filter_registries[EF_REGULAR]
         self.efilter_type = efilter_type
         self.condition_cls = condition_cls
 
     @property
     def efilter_type(self):
-        # return self.efilter_registry.id
         return self._efilter_type
 
     @efilter_type.setter

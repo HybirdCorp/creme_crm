@@ -606,12 +606,6 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     padding-left: 15px;
 }
 
-/*
-.creme_config-buttonmenu-brick .brick-content {
-    padding: 0;
-}
-*/
-
 .creme_config-buttonmenu-brick .brick-content .brick-list-item:last-child {
     padding-bottom: 5px;
 }
@@ -869,7 +863,6 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     min-width: 160px;
     text-transform: uppercase;
     font-weight: 600;
-    /* flex-grow: 1; */
     align-self: center;
 }
 

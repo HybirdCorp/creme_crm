@@ -155,7 +155,6 @@ class ReportHandsFieldTestCase(CremeTestCase):
         cf2 = create_cf(field_type=CustomField.STR, name='Tag')
         cf3 = create_cf(field_type=CustomField.INT, name='Size (cm)', content_type=FakeContact)
 
-        # agg_id = f'{cf1.id}__avg'
         agg_id = f'{cf1.uuid}__avg'
         cell = ReportEntityCellCustomAggregate.build(FakeOrganisation, agg_id)
         self.assertIsInstance(cell, ReportEntityCellCustomAggregate)
@@ -396,7 +395,6 @@ class ReportHandsFieldTestCase(CremeTestCase):
 
         field.model = FakeOrganisation
         choices = self._find_sub_widget(field, 'custom_aggregate').choices
-        # value = f'custom_aggregate-{cf1.id}__avg'
         value = f'custom_aggregate-{cf1.uuid}__avg'
         self.assertCellInChoices(
             value,
@@ -404,26 +402,22 @@ class ReportHandsFieldTestCase(CremeTestCase):
             choices=choices,
         )
         self.assertCellInChoices(
-            # f'custom_aggregate-{cf1.id}__min',
             f'custom_aggregate-{cf1.uuid}__min',
             label=f"{_('Minimum')} - {cf1.name}",
             choices=choices,
         )
         self.assertCellInChoices(
-            # f'custom_aggregate-{cf1.id}__max',
             f'custom_aggregate-{cf1.uuid}__max',
             label=f"{_('Maximum')} - {cf1.name}",
             choices=choices,
         )
         self.assertCellInChoices(
-            # f'custom_aggregate-{cf1.id}__sum',
             f'custom_aggregate-{cf1.uuid}__sum',
             label=f"{_('Sum')} - {cf1.name}",
             choices=choices,
         )
 
         self.assertListEqual(
-            # [ReportEntityCellCustomAggregate.build(FakeOrganisation, f'{cf1.id}__avg')],
             [ReportEntityCellCustomAggregate.build(FakeOrganisation, f'{cf1.uuid}__avg')],
             field.clean(value),
         )
@@ -458,11 +452,9 @@ class ReportHandsFieldTestCase(CremeTestCase):
 
         field = ReportHandsField(model=FakeOrganisation)
         field.non_hiddable_cells = [
-            # ReportEntityCellCustomAggregate.build(FakeOrganisation, f'{cfield.id}__avg'),
             ReportEntityCellCustomAggregate.build(FakeOrganisation, f'{cfield.uuid}__avg'),
         ]
 
-        # agg_id = f'custom_aggregate-{cfield.id}__avg'
         agg_id = f'custom_aggregate-{cfield.uuid}__avg'
         self.assertListEqual(
             [(agg_id, f"{_('Average')} - {cfield.name}")],
@@ -473,7 +465,6 @@ class ReportHandsFieldTestCase(CremeTestCase):
         )
 
         self.assertListEqual(
-            # [ReportEntityCellCustomAggregate.build(FakeOrganisation, f'{cfield.id}__avg')],
             [ReportEntityCellCustomAggregate.build(FakeOrganisation, f'{cfield.uuid}__avg')],
             field.clean(agg_id),
         )
@@ -515,9 +506,8 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
         )
 
         create_rfield = partial(Field.objects.create, report=report)
-        create_rfield(type=constants.RFT_RELATION, name=rtype.id,       order=3)
-        create_rfield(type=constants.RFT_FUNCTION, name=func_name,      order=3)
-        # create_rfield(type=constants.RFT_CUSTOM,   name=str(cfield.id), order=4)
+        create_rfield(type=constants.RFT_RELATION, name=rtype.id,         order=3)
+        create_rfield(type=constants.RFT_FUNCTION, name=func_name,        order=3)
         create_rfield(type=constants.RFT_CUSTOM,   name=str(cfield.uuid), order=4)
 
         form = ReportFieldsForm(user=user, instance=report)
@@ -575,7 +565,6 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
             ct=self.ct_contact,
         )
 
-        # agg_id = f'{cfield.id}__max'
         agg_id = f'{cfield.uuid}__max'
         Field.objects.create(
             report=report,
@@ -612,7 +601,6 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
         )
 
 
-# class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
 class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
     def test_clean_empty_not_required(self):
         with self.assertNoException():
@@ -1533,7 +1521,6 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         )
 
 
-# class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
 class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
     def test_clean_empty_not_required(self):
         with self.assertNoException():

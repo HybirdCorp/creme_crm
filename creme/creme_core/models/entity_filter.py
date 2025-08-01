@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from collections.abc import Iterable, Iterator
 from copy import deepcopy
 from itertools import zip_longest
@@ -54,7 +53,6 @@ if TYPE_CHECKING:
         FilterConditionHandler,
     )
 
-# _NOT_PASSED = object()
 logger = logging.getLogger(__name__)
 
 
@@ -76,10 +74,7 @@ class EntityFilterList(list):
             EntityFilter.objects.filter_by_user(user)
         )
 
-        super().__init__(
-            # EntityFilter.objects.filter_by_user(user).filter(entity_type=content_type)
-            qs.filter(entity_type=content_type)
-        )
+        super().__init__(qs.filter(entity_type=content_type))
         self._selected: EntityFilter | None = None
 
     @property
@@ -340,7 +335,6 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     # to "enumerate" it.
     user = core_fields.CremeUserForeignKey(
         verbose_name=_('Owner user'), blank=True, null=True,
-        # help_text=_('All users can see this filter, but only the owner can edit or delete it'),
         help_text=_('If you assign an owner, only the owner can edit or delete the filter'),
     )  # TODO: .set_null_label(_('No owner'))  # must fix the enumerable view
     is_private = models.BooleanField(
@@ -437,7 +431,6 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
             return False, gettext('You are not allowed to access to this app')
 
         if not self.user_id:  # All users allowed
-            # return True, 'OK'
             from .setting_value import SettingValue
 
             return (
@@ -468,17 +461,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
             )
         )
 
-    # def can_view(self, user: CremeUser, content_type=_NOT_PASSED) -> tuple[bool, str]:
     def can_view(self, user: CremeUser) -> tuple[bool, str]:
-        # if content_type is not _NOT_PASSED:
-        #     warnings.warn(
-        #         'In EntityFilter.can_view(), the argument "content_type" is deprecated.',
-        #         DeprecationWarning,
-        #     )
-        #
-        #     if content_type and content_type != self.entity_type:
-        #         return False, 'Invalid entity type'
-
         return self.can_edit(user)
 
     def check_cycle(self, conditions: Iterable[EntityFilterCondition]) -> None:

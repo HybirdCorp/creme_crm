@@ -288,17 +288,6 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         value = date(year=2019, month=8, day=21)
 
-        # with override_settings(
-        #     USE_L10N=False,
-        #     DATE_FORMAT='j F Y',
-        #     DATE_INPUT_FORMATS=['%d-%m-%Y'],
-        # ):
-        #     self.assertEqual(
-        #         date_format(value, 'DATE_FORMAT'),
-        #         print_date_html(instance=c, value=value, user=user, field=field),
-        #     )
-
-        # with override_settings(USE_L10N=True):
         with override_language('en'):
             self.assertEqual(
                 date_format(value, 'DATE_FORMAT'),
@@ -312,19 +301,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual('', print_date_text(instance=c, value=None, user=user, field=field))
 
         value = date(year=2019, month=8, day=21)
-        # date_input_format = '%d-%m-%Y'
-        #
-        # with override_settings(
-        #         USE_L10N=False,
-        #         DATE_FORMAT='j F Y',
-        #         DATE_INPUT_FORMATS=[date_input_format],
-        # ):
-        #     self.assertEqual(
-        #         value.strftime(date_input_format),
-        #         print_date_text(instance=c, value=value, user=user, field=field),
-        #     )
 
-        # with override_settings(USE_L10N=True):
         with override_language('en'):
             self.assertEqual(
                 value.strftime('%Y-%m-%d'),
@@ -341,20 +318,6 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         value = self.create_datetime(year=2019, month=8, day=21, hour=11, minute=30)
 
-        # with override_settings(
-        #     USE_L10N=False,
-        #     DATETIME_FORMAT='j F Y H:i',
-        #     DATETIME_INPUT_FORMATS=['%d-%m-%Y %H:%M:%S'],
-        # ):
-        #     self.assertHTMLEqual(
-        #         '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
-        #             seconds=_('Seconds: {}').format(value.second),
-        #             dt=date_format(value, 'DATETIME_FORMAT'),
-        #         ),
-        #         print_datetime_html(instance=a, value=value, user=user, field=field),
-        #     )
-
-        # with override_settings(USE_L10N=True):
         with override_language('en'):
             self.assertHTMLEqual(
                 '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
@@ -372,19 +335,6 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         value = self.create_datetime(year=2019, month=8, day=21, hour=11, minute=30)
 
-        # dt_input_format = '%d-%m-%Y %H:%M:%S'
-        #
-        # with override_settings(
-        #     USE_L10N=False,
-        #     DATETIME_FORMAT='j F Y H:i',
-        #     DATETIME_INPUT_FORMATS=[dt_input_format],
-        # ):
-        #     self.assertEqual(
-        #         value.strftime(dt_input_format),
-        #         print_datetime_text(instance=a, value=value, user=user, field=field)
-        #     )
-
-        # with override_settings(USE_L10N=True):
         with override_language('en'):
             self.assertEqual(
                 value.strftime('%Y-%m-%d %H:%M:%S'),
@@ -428,7 +378,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             'www.bebop.org'
             '</a>'
             '</p>',
-            p1
+            p1,
         )
 
         with override_settings(URLIZE_TARGET_BLANK=False):
@@ -438,7 +388,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             '<p>See you &lt;b&gt;space&lt;/b&gt; cowboy...<br>The real folk blues: '
             '<a href="http://www.bebop.org">www.bebop.org</a>'
             '</p>',
-            p2
+            p2,
         )
 
     def test_print_percent_html(self):
@@ -934,7 +884,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')
         ])
         self.assertHTMLEqual(
-            # '<ul><li>A</li><li>B</li><li>C</li></ul>',
             '<ul class="limited-list"><li>A</li><li>B</li><li>C</li></ul>',
             printer(instance=img, value=img.categories, user=user, field=field),
         )
@@ -968,7 +917,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             default_enumerator=M2MPrinterForHTML.enumerator_all,
         )
         self.assertHTMLEqual(
-            # f'<ul><li>{img1}</li><li>{img2}</li></ul>',
             f'<ul class="limited-list"><li>{img1}</li><li>{img2}</li></ul>',
             printer(instance=prod, value=prod.images, user=user, field=field),
         )
@@ -997,7 +945,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             enumerator=M2MPrinterForHTML.enumerator_entity,
         )
         self.assertHTMLEqual(
-            # f'<ul>'
             f'<ul class="limited-list">'
             f' <li><a target="_blank" href="{img1.get_absolute_url()}">{img1}</a></li>'
             f' <li>{settings.HIDDEN_VALUE}</li>'
@@ -1509,15 +1456,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             render_field(field_name='created'),
         )
 
-        # dt_fmt = '%d-%m-%Y %H:%M:%S'
-        # with override_settings(USE_L10N=False, DATETIME_INPUT_FORMATS=[dt_fmt]):
-        #     self.assertEqual(
-        #         local_dt.strftime(dt_fmt),
-        #         render_field(field_name='created', tag=ViewTag.TEXT_PLAIN),
-        #     )
-
         self.assertEqual(
-            # f'<ul><li>{cat1.name}</li><li>{cat2.name}</li></ul>',
             f'<ul class="limited-list"><li>{cat1.name}</li><li>{cat2.name}</li></ul>',
             render_field(field_name='image__categories'),
         )
@@ -1551,14 +1490,12 @@ class FieldsPrintersTestCase(CremeTestCase):
             registry.get_field_value, instance=img, user=user, tag=ViewTag.HTML_DETAIL,
         )
         self.assertHTMLEqual(
-            # '<ul><li>A</li><li>B</li><li>C</li></ul>',
             '<ul class="limited-list"><li>A</li><li>B</li><li>C</li></ul>',
             render_field(field_name='categories'),
         )
         self.assertEqual('A/B/C', render_field(field_name='categories', tag=ViewTag.TEXT_PLAIN))
 
         self.assertHTMLEqual(
-            # '<ul><li>A</li><li>B</li><li>C</li></ul>',
             '<ul class="limited-list"><li>A</li><li>B</li><li>C</li></ul>',
             render_field(field_name='categories__name'),
         )
@@ -1595,7 +1532,6 @@ class FieldsPrintersTestCase(CremeTestCase):
         registry = FieldPrinterRegistry()
         theme1 = settings.THEMES[0][1]
         self.assertHTMLEqual(
-            # f'<ul><li>{theme1}</li></ul>',
             theme1,
             registry.get_field_value(
                 instance=team, field_name='teammates_set__theme', user=user1,
@@ -1623,7 +1559,6 @@ class FieldsPrintersTestCase(CremeTestCase):
         render_field = partial(registry.get_field_value, instance=camp, user=user)
 
         self.assertHTMLEqual(
-            # f'<ul><li>{ml2.name}</li><li>{ml1.name}</li></ul>',
             f'<ul class="limited-list"><li>{ml2.name}</li><li>{ml1.name}</li></ul>',
             render_field(field_name='mailing_lists__name', tag=ViewTag.HTML_DETAIL),
         )
@@ -1633,7 +1568,6 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
         self.assertHTMLEqual(
-            # f'<ul><li><p>{ml1.description}</p></li></ul>',
             f'<p>{ml1.description}</p>',
             render_field(field_name='mailing_lists__description', tag=ViewTag.HTML_DETAIL),
         )
@@ -1656,7 +1590,6 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         registry = FieldPrinterRegistry()
         self.assertHTMLEqual(
-            # f'<ul><li>{settings.HIDDEN_VALUE}</li><li>{ml1.name}</li></ul>',
             f'<ul class="limited-list"><li>{settings.HIDDEN_VALUE}</li><li>{ml1.name}</li></ul>',
             registry.get_field_value(
                 instance=camp, field_name='mailing_lists__name', user=user,
@@ -1683,7 +1616,6 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         registry = FieldPrinterRegistry()
         self.assertHTMLEqual(
-            # f'<ul><li>{ml1.name}</li></ul>',
             ml1.name,
             registry.get_field_value(
                 instance=camp, field_name='mailing_lists__name', user=user,

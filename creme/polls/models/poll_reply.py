@@ -71,13 +71,8 @@ class AbstractPollReply(CremeEntity):
     def get_absolute_url(self):
         return reverse('polls__view_reply', args=(self.id,))
 
-    # @staticmethod
-    # def get_clone_absolute_url():
-    #     return ''
-
     @staticmethod
     def get_create_absolute_url():
-        # return reverse('polls__create_reply')
         return reverse('polls__create_replies')
 
     def get_edit_absolute_url(self):

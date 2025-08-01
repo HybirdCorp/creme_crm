@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2022  Hybird
+#    Copyright (C) 2020-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 from django.template import Library
 from django.utils.functional import partition
 
-# from creme.creme_core.utils import split_filter
 from creme.creme_core.forms.base import LAYOUT_DUAL_FIRST, LAYOUT_REGULAR
 
 register = Library()

@@ -89,11 +89,6 @@ class ContactsBrick(_RelatedEntitiesBrick):
     def _get_queryset(self, entity):  # NB: entity=mlist
         return entity.contacts.all()
 
-    # def _update_context(self, context):
-    #     context['field_hidden'] = context['fields_configs'].get_for_model(
-    #         get_contact_model(),
-    #     ).is_fieldname_hidden('mobile')
-
 
 class MessagesBrick(QuerysetBrick):
     id = QuerysetBrick.generate_id('sms', 'messages')

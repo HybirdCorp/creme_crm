@@ -42,7 +42,6 @@ class DatePeriod:
     def __eq__(self, other_dp):
         try:
             other_td = other_dp.as_timedelta()
-        # except:
         except AttributeError:
             return False
 

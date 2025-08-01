@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,10 +47,6 @@ class ChildFolderCreation(base.EntityRelatedMixin, generic.EntityCreation):
     title = _('Create a sub-folder for «{entity}»')
     permissions = auth.build_link_perm(Folder)
 
-    # def check_view_permissions(self, user):
-    #     super().check_view_permissions(user=user)
-    #     user.has_perm_to_link_or_die(Folder, owner=None)
-
     def get_form_class(self):
         form_cls = super().get_form_class()
 
@@ -88,10 +84,6 @@ class ChildFolderCreationPopup(generic.AddingInstanceToEntityPopup):
     title = _('Create a sub-folder for «{entity}»')
     entity_id_url_kwarg = 'folder_id'
     entity_classes = Folder
-
-    # def check_view_permissions(self, user):
-    #     super().check_view_permissions(user=user)
-    #     user.has_perm_to_link_or_die(Folder, owner=None)
 
     # TODO: factorise
     def get_form_class(self):

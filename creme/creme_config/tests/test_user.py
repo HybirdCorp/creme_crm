@@ -521,7 +521,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfNotCremeUser
     @override_settings(
         AUTH_PASSWORD_VALIDATORS=[{
-            # 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
             'NAME': 'creme.creme_core.auth.password_validation.NumericPasswordValidator',
         }],
     )
@@ -715,7 +714,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfNotCremeUser
     @override_settings(
         AUTH_PASSWORD_VALIDATORS=[{
-            # 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
             'NAME': 'creme.creme_core.auth.password_validation.UserAttributeSimilarityValidator',
         }],
     )
@@ -931,7 +929,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         data = {
             'first_name': user.first_name,
             'last_name': user.last_name,
-            # 'role': other_user.role_id,
             'email': other_user.email,  # <==
         }
 
@@ -1107,7 +1104,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     @override_settings(AUTH_PASSWORD_VALIDATORS=[{
-        # 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
         'NAME': 'creme.creme_core.auth.password_validation.MinimumLengthValidator',
     }])
     def test_change_password04(self):
@@ -1250,7 +1246,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             '<ul class="errorlist"><li>{}</li></ul>'.format(
                 _('An active user with the same email address already exists.')
             ),
-            # response1.content.decode(),
             response1.text,
         )
 
@@ -1735,7 +1730,6 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         ('fr', 'Français'),
     ])
     def test_change_language(self):
-        # user = self.user
         user = self.login_as_root_and_get()
         self.assertEqual('', user.language)
 
@@ -1762,7 +1756,6 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
             self.assertEqual(language, response['Content-Language'])
 
     def test_change_displayed_name(self):
-        # user = self.user
         user = self.login_as_root_and_get()
         self.assertEqual('', user.displayed_name)
 

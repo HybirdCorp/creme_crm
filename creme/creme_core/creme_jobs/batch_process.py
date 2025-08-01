@@ -152,7 +152,6 @@ class _BatchProcessType(JobType):
         try:
             job_data = job.data
             model = self._get_model(job_data)
-            # desc = [gettext('Entity type: {}').format(model._meta.verbose_name)]
             desc = [gettext('Entity type: {}').format(model_verbose_name(model))]
 
             efilter = self._get_efilter(job_data, raise_exception=False)

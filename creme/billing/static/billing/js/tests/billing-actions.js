@@ -191,7 +191,6 @@ QUnit.test('creme.billing.brick (billing-line-saveall, ok)', function(assert) {
 
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });

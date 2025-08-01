@@ -101,7 +101,6 @@ class ReplacerRegistry:
         return replacers
 
 
-# REPLACERS_MAP = ReplacersRegistry()
 REPLACERS_MAP = ReplacerRegistry()
 
 

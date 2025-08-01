@@ -18,25 +18,3 @@
     {{button.verbose_name}}
 </span>
 {% endif %}
-
-{% comment %}
-{% load i18n creme_ctype creme_perms creme_widgets %}{% load blockjsondata from creme_core_tags %}
-{% ctype_for_swappable 'TICKETS_TICKET_MODEL' as ticket_ct %}
-{% if button.is_allowed and user|has_perm_to_link:object and button.rtype.enabled %}
-<a class="menu_button menu-button-icon" title="{{button.description}}" data-action="add-relationships">
-    {% widget_icon name='ticket' size='instance-button' label=_('Ticket') %}
-    {{button.verbose_name}}
-    {% blockjsondata %}{
-        "data": {
-            "subject_id": {{object.id}}, "rtype_id": "{{button.rtype.id}}", "ctype_id": {{ticket_ct.id}}
-        }
-    }{% endblockjsondata %}
-</a>
-{% else %}
-<span class="menu_button menu-button-icon forbidden{% if not button.rtype.enabled %} menu-button-error{% endif %}"
-      title="{% if not button.rtype.enabled %}{% blocktranslate with predicate=button.rtype.predicate %}The relationship type «{{predicate}}» is disabled{% endblocktranslate %}{% elif not link_perm %}{% translate 'You are not allowed to link this entity' %}{% else %}{% translate 'You are not allowed to access to the app «Tickets»' %}{% endif %}">
-    {% widget_icon name='ticket' size='instance-button' label=_('Ticket') %}
-    {{button.verbose_name}}
-</span>
-{% endif %}
-{% endcomment %}

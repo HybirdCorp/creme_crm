@@ -3,7 +3,6 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.models import FakeOrganisation
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
-# from creme.documents.tests.base import _DocumentsTestCase
 from creme.documents.tests.base import (
     Document,
     DocumentsTestCaseMixin,
@@ -15,7 +14,6 @@ from .base import EmailTemplate, _EmailsTestCase, skipIfCustomEmailTemplate
 
 
 @skipIfCustomEmailTemplate
-# class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase):
 class TemplatesTestCase(BrickTestCaseMixin, DocumentsTestCaseMixin, _EmailsTestCase):
     @staticmethod
     def _build_rm_attachment_url(template):

@@ -331,26 +331,19 @@ QUnit.test('creme.ActivityCalendarController (history)', function(assert) {
         keepState: true
     });
 
-    // var view = controller.fullCalendar().view;
-    // var initialStart = this.toISO8601(view.activeStart, true);
-
     equal(true, controller.keepState());
 
-    deepEqual([
-        // ['push', '#view=month&date=' + initialStart, undefined]
-    ], this.mockHistoryChanges());
+    deepEqual([], this.mockHistoryChanges());
 
     controller.goToDate('2023-03-20');
 
     deepEqual([
-        // ['push', '#view=month&date=' + initialStart, undefined],
         ['push', '#view=month&date=' + '2023-02-27', undefined]
     ], this.mockHistoryChanges());
 
     controller.goToDate('2023-02-27');
 
     deepEqual([
-        // ['push', '#view=month&date=' + initialStart, undefined],
         ['push', '#view=month&date=' + '2023-02-27', undefined],
         ['push', '#view=month&date=' + '2023-01-30', undefined]
     ], this.mockHistoryChanges());
@@ -371,7 +364,6 @@ QUnit.test('creme.ActivityCalendarController (history)', function(assert) {
         controller.goToDate('2023-02-15');
 
         deepEqual([
-            // ['push', '#view=month&date=' + initialStart, undefined],
             ['push', '#view=month&date=' + '2023-02-27', undefined],
             ['push', '#view=month&date=' + '2023-01-30', undefined]
         ], this.mockHistoryChanges());

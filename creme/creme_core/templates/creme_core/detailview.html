@@ -1,5 +1,5 @@
 {% extends BASE_HTML %}
-{% load i18n creme_bricks creme_ctype creme_widgets %}{# {% load get_meta_value from creme_core_tags %} #}
+{% load i18n creme_bricks creme_ctype creme_widgets %}
 
 {% block page_title %}{{object}} - {% endblock %}
 
@@ -30,7 +30,6 @@
             <div class="hat-bar">
                 <div class="bar-icon">{% block logo %}{% widget_icon instance=object size='brick-hat-bar' %}{% endblock %}</div>
                 <div class="bar-title">
-{#                    <h1>{% block title %}{{object|get_meta_value:'verbose_name'|capfirst}} : {{object|capfirst}}{% endblock %}</h1> #}
                     <h1>{% block title %}{{object|ctype_for_instance|capfirst}} : {{object|capfirst}}{% endblock %}</h1>
                 </div>
                 <div class="bar-actions">{% block title_buttons %}{% endblock %}</div>

@@ -270,7 +270,6 @@ class PhoneCallsList(TypedActivitiesList):
     title = _('List of phone calls')
     creation_label = _('Create a phone call')
     creation_url = reverse_lazy('activities__create_activity', args=('phonecall',))
-    # internal_q = Q(type=constants.ACTIVITYTYPE_PHONECALL)
     internal_q = Q(type__uuid=constants.UUID_TYPE_PHONECALL)
 
 
@@ -278,7 +277,6 @@ class MeetingsList(TypedActivitiesList):
     title = _('List of meetings')
     creation_label = _('Create a meeting')
     creation_url = reverse_lazy('activities__create_activity', args=('meeting',))
-    # internal_q = Q(type=constants.ACTIVITYTYPE_MEETING)
     internal_q = Q(type__uuid=constants.UUID_TYPE_MEETING)
 
 

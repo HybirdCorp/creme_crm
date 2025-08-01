@@ -2789,7 +2789,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBrickConfigItem.objects.create(
-            # id='tests-contacts1',
             name='Contact info', content_type=ct,
             cells=[
                 build_cell(FakeContact, valid_fname),

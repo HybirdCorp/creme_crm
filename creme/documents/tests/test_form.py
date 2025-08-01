@@ -40,7 +40,6 @@ class ImageEntityFieldTestCase(_DocumentsTestCase):
         field.user = self.user
         self.assertIsNone(field.clean(''))
 
-        # img = self._create_image()
         img = self._create_image(user=self.user)
         self.assertEqual(img, field.clean(str(img.id)))
 

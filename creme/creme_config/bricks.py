@@ -115,9 +115,7 @@ class GenericModelBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             model.objects.all(),
-
             model=model,
-            # meta=meta,
 
             app_name=self.app_name,
             model_config=model_config,
@@ -202,7 +200,6 @@ class PropertyTypesBrick(_ConfigAdminBrick):
         return self._render(self.get_template_context(
             context,
             core_models.CremePropertyType.objects.annotate(
-                # stats=Count('cremeproperty'),
                 # NB: kind of pre-caching the property CremePropertyType.properties_count
                 properties_count=Count('cremeproperty'),
             ).prefetch_related('subject_ctypes'),
@@ -1053,29 +1050,6 @@ class ButtonMenuBrick(Brick):
 
     button_registry = button_registry
 
-    # def get_buttons(self):
-    #     default_buttons = []
-    #     buttons_map = defaultdict(list)
-    #
-    #     get_button = self.button_registry.get_button
-    #
-    #     for bmi in :
-    #         if bmi.content_type is not None:
-    #             _button_list = buttons_map[bmi.content_type]
-    #         else:
-    #             _button_list = default_buttons
-    #
-    #         button = get_button(bmi.button_id)
-    #         if button is not None:
-    #             _button_list.append({
-    #                 'label': str(bmi),
-    #                 'description': str(button.description),
-    #             })
-    #
-    #     sort_key = collator.sort_key
-    #     buttons = sorted(buttons_map.items(), key=lambda t: sort_key(str(t[0])))
-    #
-    #     return default_buttons, buttons
     def _build_buttons_info(self, items):
         default_buttons = []
         buttons_map = defaultdict(list)
@@ -1100,14 +1074,6 @@ class ButtonMenuBrick(Brick):
 
         return default_buttons, ctype_buttons
 
-    # def detailview_display(self, context):
-    #     default_buttons, buttons = self.get_buttons()
-    #
-    #     return self._render(self.get_template_context(
-    #         context,
-    #         default_buttons=default_buttons,
-    #         buttons=buttons,
-    #     ))
     def detailview_display(self, context):
         items = core_models.ButtonMenuItem.objects.order_by('order')
 
@@ -1346,7 +1312,6 @@ class EntityFiltersBrick(PaginatedBrick):
             entity_type__in=[ctw.ctype for ctw in ctypes_wrappers],
         ):
             # TODO: templatetags instead? (+ reason in tooltip if forbidden)
-            # efilter.view_perm = efilter.can_view(user)[0]
             efilter.edition_url = reverse(self.edition_url_name, args=(efilter.id,))
             efilter.edition_perm = efilter.can_edit(user)[0]
             efilter.deletion_perm = efilter.can_delete(user)[0]

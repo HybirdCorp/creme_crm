@@ -234,7 +234,6 @@ class CredentialsFilterStep(CremeModelForm):
             f_kwargs = {
                 'user': self.user,
                 'required': False,
-                # 'efilter_registry': efilter_registry,
                 'efilter_type': efilter_type,
             }
             handler_fieldname = self._handler_fieldname

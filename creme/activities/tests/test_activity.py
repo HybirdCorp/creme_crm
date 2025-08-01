@@ -216,11 +216,9 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         efilter = self.get_object_or_fail(EntityFilter, pk=constants.EFILTER_TASKS)
         check_content(efilter, 'Task01', 'Task02')
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_DISPLAY_REVIEW)
         sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.review_key.id)
         self.assertIs(sv.value, True)
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
         sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.auto_subjects_key.id)
         self.assertIs(sv.value, True)
 
@@ -273,13 +271,10 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         response = self.assertGET200(activity.get_absolute_url())
         brick_node = self.get_brick_node(
-            # tree=self.get_html_tree(response.content), brick=Brick.GENERIC_HAT_BRICK_ID,
             tree=self.get_html_tree(response.content), brick=ActivityCardHatBrick,
         )
-        # icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
         icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-icon"]/div/img')
         self.assertEqual(
-            # get_creme_media_url(theme='icecream', url='images/meeting_48.png'),
             get_creme_media_url(theme='icecream', url='images/meeting_22.png'),
             icon_node.attrib.get('src'),
         )
@@ -296,13 +291,10 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         response = self.assertGET200(activity.get_absolute_url())
         brick_node = self.get_brick_node(
-            # tree=self.get_html_tree(response.content), brick=Brick.GENERIC_HAT_BRICK_ID,
             tree=self.get_html_tree(response.content), brick=ActivityCardHatBrick,
         )
-        # icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
         icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-icon"]/div/img')
         self.assertEqual(
-            # get_creme_media_url(theme='icecream', url='images/phone_48.png'),
             get_creme_media_url(theme='icecream', url='images/phone_22.png'),
             icon_node.attrib.get('src'),
         )
@@ -397,11 +389,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
 
         REL_SUB_PART_2_ACTIVITY = constants.REL_SUB_PART_2_ACTIVITY
-        # self.assertRelationCount(1, user.linked_contact,       REL_SUB_PART_2_ACTIVITY, act)
-        # self.assertRelationCount(1, genma,                     REL_SUB_PART_2_ACTIVITY, act)
-        # self.assertRelationCount(1, other_user.linked_contact, REL_SUB_PART_2_ACTIVITY, act)
-        # self.assertRelationCount(1, ranma, constants.REL_SUB_ACTIVITY_SUBJECT,  act)
-        # self.assertRelationCount(1, dojo,  constants.REL_SUB_LINKED_2_ACTIVITY, act)
         self.assertHaveRelation(user.linked_contact,       REL_SUB_PART_2_ACTIVITY, act)
         self.assertHaveRelation(genma,                     REL_SUB_PART_2_ACTIVITY, act)
         self.assertHaveRelation(other_user.linked_contact, REL_SUB_PART_2_ACTIVITY, act)
@@ -718,7 +705,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         user = self.login_as_root_and_get()
         me = user.linked_contact
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
         sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.auto_subjects_key.id)
         sv.value = False  # We disable the auto subjects feature
         sv.save()
@@ -1038,7 +1024,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'user':  user.id,
                 'title': 'My task',
 
-                # self.EXTRA_SUBTYPE_KEY:  constants.ACTIVITYTYPE_TASK,
                 self.EXTRA_SUBTYPE_KEY: self._get_sub_type(
                     constants.UUID_SUBTYPE_MEETING_MEETING
                 ).id,
@@ -1264,7 +1249,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'user':  user.id,
                 'title': title,
 
-                # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 self.EXTRA_SUBTYPE_KEY: self._get_sub_type(
                     constants.UUID_SUBTYPE_MEETING_NETWORK,
                 ).id,
@@ -2300,7 +2284,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             build_uri(),
             data={
                 'entities': [activity1.pk, activity2.pk],
-                # formfield_name: subtype.id,
                 formfield_name: subtype2.id,
             },
         ))
@@ -2858,7 +2841,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_manager_future_linked_to_organisation(self):
         user = self.login_as_root_and_get()
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
         sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.auto_subjects_key.id)
         sv.value = False  # We disable the auto subjects feature
         sv.save()
@@ -2969,7 +2951,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_manager_past_linked_to_organisation(self):
         user = self.login_as_root_and_get()
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
         sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.auto_subjects_key.id)
         sv.value = False  # We disable the auto subjects feature
         sv.save()

@@ -144,7 +144,6 @@ class RegularNumberGeneratorItemEditionForm(NumberGeneratorItemEditionForm):
                 raise ValidationError(gettext('The empty variable «{}» is forbidden.'))
             elif re.match(pattern='^counter(:0[1-9])?', string=var):
                 counter_found = True
-            # elif var not in ('year', 'month', 'code'):
             elif var not in self.extra_variables:
                 raise ValidationError(
                     gettext('The variable «{name}» is invalid.').format(name=var),

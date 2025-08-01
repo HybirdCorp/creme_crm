@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -57,35 +57,6 @@ class RoleRelatedMixin:
         return role
 
 
-# class ButtonMenuWizard(generic.wizard.CremeWizardViewPopup):
-#     class _ResourceStep(button_forms.ButtonMenuCreationForm):
-#         step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
-#
-#         def save(self, commit=False):
-#             return super().save(commit=commit)
-#
-#     class _ButtonsStep(button_forms.ButtonMenuEditionForm):
-#         @property
-#         def step_title(self):
-#             return gettext('New buttons configuration for «{model}»').format(model=self.ct)
-#
-#     form_list = [
-#         _ResourceStep,
-#         _ButtonsStep,
-#     ]
-#     title = _('New buttons configuration')
-#     submit_label = _('Save the configuration')
-#     permissions = 'creme_core.can_admin'
-#
-#     def get_form_kwargs(self, step=None):
-#         kwargs = super().get_form_kwargs(step)
-#
-#         if step == '1':
-#             cleaned_data = self.get_cleaned_data_for_step('0')
-#             kwargs['button_menu_items'] = ()
-#             kwargs['ct_id'] = cleaned_data['ctype'].id
-#
-#         return kwargs
 class _ButtonMenuCreationWizard(generic.wizard.CremeWizardViewPopup):
     class _ResourceStep(button_forms.ButtonMenuCreationForm):
         step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
@@ -154,44 +125,6 @@ class ButtonMenuSuperuserCreationWizard(_ButtonMenuCreationWizard):
         return True
 
 
-# class ButtonMenuEdition(generic.base.EntityCTypeRelatedMixin, base.ConfigEdition):
-#     model = ButtonMenuItem
-#     form_class = button_forms.ButtonMenuEditionForm
-#     ct_id_0_accepted = True
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.items = None
-#
-#     def get_items(self):
-#         items = self.items
-#
-#         if items is None:
-#             items = ButtonMenuItem.objects.filter(content_type=self.get_ctype())
-#
-#             if not items:
-#                 raise Http404('This configuration does not exist.')
-#
-#             self.items = items
-#
-#         return items
-#
-#     def get_form_kwargs(self):
-#         kwargs = super().get_form_kwargs()
-#         ctype = self.get_ctype()
-#         kwargs['ct_id'] = None if ctype is None else ctype.id
-#         kwargs['button_menu_items'] = self.get_items()
-#
-#         return kwargs
-#
-#     def get_title(self):
-#         ctype = self.get_ctype()
-#
-#         return (
-#             gettext('Edit configuration for «{model}»').format(model=ctype)
-#             if ctype else
-#             gettext('Edit default configuration')
-#         )
 class _ButtonMenuEdition(generic.base.EntityCTypeRelatedMixin, base.ConfigEdition):
     model = ButtonMenuItem
     form_class = button_forms.ButtonMenuEditionForm
@@ -282,12 +215,6 @@ class ButtonMenuSuperuserEdition(_ButtonMenuEdition):
         )
 
 
-# class ButtonMenuDeletion(base.ConfigDeletion):
-#     ct_id_arg = 'id'
-#
-#     def perform_deletion(self, request):
-#         ct_id = get_from_POST_or_404(request.POST, self.ct_id_arg, cast=int)
-#         ButtonMenuItem.objects.filter(content_type=ct_id).delete()
 class ButtonMenuDeletion(base.ConfigDeletion):
     ct_id_arg = 'ctype'
     role_arg = 'role'

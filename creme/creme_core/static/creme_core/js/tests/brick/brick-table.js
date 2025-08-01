@@ -392,12 +392,10 @@ QUnit.test('creme.bricks.Brick.table (toggle sort)', function(assert) {
     equal('brick-creme_core-test', brick_id);
     equal('creme_core-test', brick.type_id());
 
-//    this.setBrickReloadContent('brick-for-test', this.createBrickTableHtml(options));
     this.setBrickReloadContent(brick_id, this.createBrickTableHtml(options));
 
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
-//    brick = $('#brick-for-test').creme().widget().brick();
     brick = $('#' + brick_id).creme().widget().brick();
     equal(true, brick.isBound());
 
@@ -405,19 +403,15 @@ QUnit.test('creme.bricks.Brick.table (toggle sort)', function(assert) {
     $('th[data-sort-field="created"]', brick.element()).trigger('click');
 
     deepEqual([
-//        ['GET', {'brick-for-test_order': '-created', brick_id: ['brick-for-test'], extra_data: '{}'}]
         ['GET', {'creme_core-test_order': '-created', brick_id: ['creme_core-test'], extra_data: '{}'}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
-//    brick = $('#brick-for-test').creme().widget().brick();
     brick = $('#' + brick_id).creme().widget().brick();
     equal(true, brick.isBound());
 
     $('th[data-sort-field="name"]', brick.element()).trigger('click');
 
     deepEqual([
-//        ['GET', {'brick-for-test_order': '-created', brick_id: ['brick-for-test'], extra_data: '{}'}],
-//        ['GET', {'brick-for-test_order': 'name', brick_id: ['brick-for-test'], extra_data: '{}'}]
         ['GET', {'creme_core-test_order': '-created', brick_id: ['creme_core-test'], extra_data: '{}'}],
         ['GET', {'creme_core-test_order': 'name', brick_id: ['creme_core-test'], extra_data: '{}'}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));

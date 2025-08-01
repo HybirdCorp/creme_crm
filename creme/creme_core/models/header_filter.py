@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from typing import TYPE_CHECKING, Iterable
 
 from django.contrib.contenttypes.models import ContentType
@@ -37,7 +36,6 @@ from . import fields as core_fields
 if TYPE_CHECKING:
     from ..core.entity_cell import EntityCell
 
-# _NOT_PASSED = object()
 logger = logging.getLogger(__name__)
 
 
@@ -215,7 +213,6 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
             return False, gettext('You are not allowed to access to this app')
 
         if not self.user_id:  # All users allowed
-            # return True, 'OK'
             from .setting_value import SettingValue
 
             return (
@@ -241,21 +238,10 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
     def can_view(self,
                  user: CremeUser,
-                 # content_type=_NOT_PASSED,
                  ) -> tuple[bool, str]:
-        # if content_type is not _NOT_PASSED:
-        #     warnings.warn(
-        #         'In HeaderFilter.can_view(), the argument "content_type" is deprecated.',
-        #         DeprecationWarning,
-        #     )
-        #
-        #     if content_type and content_type != self.entity_type:
-        #         return False, 'Invalid entity type'
-
         return self.can_edit(user)
 
     def _dump_cells(self, cells: Iterable[EntityCell]) -> None:
-        # self.json_cells = [cell.to_dict() for cell in cells]
         self.json_cells = [cell.to_dict(portable=True) for cell in cells]
 
     @property

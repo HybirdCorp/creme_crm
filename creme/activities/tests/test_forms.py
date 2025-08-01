@@ -298,10 +298,6 @@ class ParticipatingUsersFieldTestCase(CremeTestCase):
         staff_user = self.create_user(index=2, is_staff=True)
 
         field = ParticipatingUsersField(user=user)
-        # self.assertCountEqual(
-        #     [user.linked_contact, other_user.linked_contact],
-        #     field.clean([user.id, other_user.id]),
-        # )
         cleaned = field.clean([user.id, other_user.id])
         self.assertIsDict(cleaned, length=2)
         self.assertCountEqual(
@@ -330,10 +326,6 @@ class ParticipatingUsersFieldTestCase(CremeTestCase):
         team = self.create_team('Samurais', user3, user4)
 
         field = ParticipatingUsersField(user=user1)
-        # self.assertCountEqual(
-        #     [u.linked_contact for u in (user2, user3, user4)],
-        #     field.clean([user2.id, team.id]),
-        # )
         cleaned = field.clean([user2.id, team.id])
         self.assertCountEqual(
             [u.linked_contact for u in (user2, user3, user4)],

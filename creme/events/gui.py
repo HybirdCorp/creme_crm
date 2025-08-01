@@ -39,7 +39,6 @@ class AddContactsButton(ListViewButton):
     template_name = 'events/listview/buttons/link-contacts.html'
 
 
-# class RelatedContactsActionsRegistry(ActionRegistry):
 class RelatedContactActionRegistry(ActionRegistry):
     def __init__(self, event, *args, **kwargs):
         super().__init__(*args, **kwargs)

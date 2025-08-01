@@ -4,7 +4,6 @@ from functools import partial
 from uuid import uuid4
 
 from django.contrib.contenttypes.models import ContentType
-# from django.test.utils import override_settings
 from django.utils.formats import date_format, number_format
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
@@ -143,11 +142,6 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
-    # @override_settings(
-    #     USE_L10N=False,
-    #     DATETIME_FORMAT='j F Y H:i',
-    #     DATETIME_INPUT_FORMATS=['%Y/%m/%d %H:%M:%S'],
-    # )
     @override_language('fr')
     def test_regular_field_datetime(self):
         user = self.get_root_user()
@@ -159,7 +153,6 @@ class ReportHandTestCase(CremeTestCase):
 
         aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
         self.assertEqual(
-            # localtime(aria.modified).strftime('%Y/%m/%d %H:%M:%S'),
             localtime(aria.modified).strftime('%d/%m/%Y %H:%M:%S'),
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
@@ -235,7 +228,6 @@ class ReportHandTestCase(CremeTestCase):
 
         rfield = Field(
             report=Report(user=user, ct=FakeContact),
-            # type=RFT_CUSTOM, name=str(cfield.id),
             type=RFT_CUSTOM, name=str(cfield.uuid),
         )
         hand = RHCustomField(rfield)
@@ -263,7 +255,6 @@ class ReportHandTestCase(CremeTestCase):
 
         rfield = Field(
             report=Report(ct=FakeContact),
-            # type=RFT_CUSTOM, name=str(cfield.id),
             type=RFT_CUSTOM, name=str(cfield.uuid),
         )
         hand = RHCustomField(rfield)
@@ -280,7 +271,6 @@ class ReportHandTestCase(CremeTestCase):
 
         rfield = Field(
             report=Report(user=user, ct=FakeContact),
-            # type=RFT_CUSTOM, name=str(cfield.id),
             type=RFT_CUSTOM, name=str(cfield.uuid),
         )
         hand = RHCustomField(rfield)
@@ -302,7 +292,6 @@ class ReportHandTestCase(CremeTestCase):
 
         rfield = Field(
             report=Report(user=user, ct=FakeContact),
-            # type=RFT_CUSTOM, name=str(cfield.id),
             type=RFT_CUSTOM, name=str(cfield.uuid),
         )
         hand = RHCustomField(rfield)
@@ -325,7 +314,6 @@ class ReportHandTestCase(CremeTestCase):
 
         rfield = Field(
             report=Report(user=user, ct=FakeContact),
-            # type=RFT_CUSTOM, name=str(cfield.id),
             type=RFT_CUSTOM, name=str(cfield.uuid),
         )
         hand = RHCustomField(rfield)
@@ -348,7 +336,6 @@ class ReportHandTestCase(CremeTestCase):
 
         rfield = Field(
             report=Report(user=user, ct=FakeContact),
-            # type=RFT_CUSTOM, name=str(cfield.id),
             type=RFT_CUSTOM, name=str(cfield.uuid),
         )
         hand = RHCustomField(rfield)
@@ -381,7 +368,6 @@ class ReportHandTestCase(CremeTestCase):
 
         rfield = Field(
             report=Report(user=user, ct=FakeContact),
-            # type=RFT_CUSTOM, name=str(cfield.id),
             type=RFT_CUSTOM, name=str(cfield.uuid),
         )
         hand = RHCustomField(rfield)
@@ -391,17 +377,11 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_custom_field_error01(self):
-        # cf_id = str(self.UNUSED_PK)
         cf_uuid = str(uuid4())
-        rfield = Field(
-            report=Report(ct=FakeContact),
-            # type=RFT_CUSTOM, name=cf_id,
-            type=RFT_CUSTOM, name=cf_uuid,
-        )
+        rfield = Field(report=Report(ct=FakeContact), type=RFT_CUSTOM, name=cf_uuid)
         with self.assertRaises(ReportHand.ValueError) as cm:
             RHCustomField(rfield)
 
-        # self.assertEqual(f'Invalid custom field: "{cf_id}"', str(cm.exception))
         self.assertEqual(f'Invalid custom field: "{cf_uuid}"', str(cm.exception))
 
     def test_custom_field_error02(self):
@@ -607,7 +587,6 @@ class ReportHandTestCase(CremeTestCase):
 
         rfield = Field(
             report=Report(ct=FakeContact),
-            # type=RFT_AGG_CUSTOM, name=f'{cfield.id}__avg',
             type=RFT_AGG_CUSTOM, name=f'{cfield.uuid}__avg',
         )
         hand = RHAggregateCustomField(rfield)
@@ -639,7 +618,6 @@ class ReportHandTestCase(CremeTestCase):
 
         rfield = Field(
             report=Report(ct=FakeContact),
-            # type=RFT_AGG_CUSTOM, name=f'{cfield.id}__avg',
             type=RFT_AGG_CUSTOM, name=f'{cfield.uuid}__avg',
         )
         hand = RHAggregateCustomField(rfield)
@@ -647,11 +625,9 @@ class ReportHandTestCase(CremeTestCase):
         self.assertTrue(hand.hidden)
 
     def test_custom_aggregate_error01(self):
-        # cf_id = 'unknown'
         cf_uuid = 'invalid'
         rfield = Field(
             report=Report(ct=FakeOrganisation),
-            # type=RFT_AGG_FIELD, name=f'{cf_id}__avg',
             type=RFT_AGG_CUSTOM, name=f'{cf_uuid}__avg',
         )
 
@@ -673,7 +649,6 @@ class ReportHandTestCase(CremeTestCase):
         agg_id = 'unknown'
         rfield = Field(
             report=Report(ct=FakeOrganisation),
-            # type=RFT_AGG_FIELD, name=f'{cfield.id}__{agg_id}',
             type=RFT_AGG_CUSTOM, name=f'{cfield.uuid}__{agg_id}',
         )
 
@@ -691,7 +666,6 @@ class ReportHandTestCase(CremeTestCase):
 
         rfield = Field(
             report=Report(ct=FakeOrganisation),
-            # type=RFT_AGG_FIELD, name=f'{cfield.id}__avg',
             type=RFT_AGG_CUSTOM, name=f'{cfield.uuid}__avg',
         )
 
@@ -699,7 +673,6 @@ class ReportHandTestCase(CremeTestCase):
             RHAggregateCustomField(rfield)
 
         self.assertEqual(
-            # f'This type of custom field can not be aggregated: "{cfield.id}"',
             f'This type of custom field can not be aggregated: "{cfield.name}"',
             str(cm.exception)
         )

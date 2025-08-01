@@ -458,7 +458,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user,              rgraph.user)
-        # self.assertEqual(str(cf_enum.id), rgraph.abscissa_cell_value)
         self.assertEqual(str(cf_enum.uuid), rgraph.abscissa_cell_value)
         self.assertEqual(gtype,             rgraph.abscissa_type)
 
@@ -496,7 +495,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user,                         rgraph.user)
-        # self.assertEqual(str(cf_dt.id), rgraph.abscissa_cell_value)
         self.assertEqual(str(cf_dt.uuid),              rgraph.abscissa_cell_value)
         self.assertEqual(gtype,                        rgraph.abscissa_type)
         self.assertEqual(ReportGraph.Aggregator.COUNT, rgraph.ordinate_type)
@@ -538,7 +536,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user,                         rgraph.user)
-        # self.assertEqual(str(cf_date.id),              rgraph.abscissa_cell_value)
         self.assertEqual(str(cf_date.uuid),            rgraph.abscissa_cell_value)
         self.assertEqual(gtype,                        rgraph.abscissa_type)
         self.assertEqual(ReportGraph.Aggregator.COUNT, rgraph.ordinate_type)
@@ -578,7 +575,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user,                         rgraph.user)
-        # self.assertEqual(str(cf_dt.id), rgraph.abscissa_cell_value)
         self.assertEqual(str(cf_dt.uuid),              rgraph.abscissa_cell_value)
         self.assertEqual(gtype,                        rgraph.abscissa_type)
         self.assertEqual(days,                         rgraph.abscissa_parameter)
@@ -733,7 +729,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph.ordinate_info = OrdinateInfo(aggr_id=aggr_id2, cell=cell2)
 
         self.assertEqual(aggr_id2,  rgraph.ordinate_type)
-        # self.assertEqual(cell2.key, rgraph.ordinate_cell_key)
         self.assertEqual(cell2.portable_key, rgraph.ordinate_cell_key)
 
         ord_info2 = rgraph.ordinate_info
@@ -1004,7 +999,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name='Number of clans per countries',
             abscissa_type=ReportGraph.Group.CUSTOM_FK,
-            # abscissa_cell_value=str(cf.id),
             abscissa_cell_value=str(cf.uuid),
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
@@ -1168,7 +1162,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Max soldiers by sector',
             abscissa_cell_value='sector', abscissa_type=ReportGraph.Group.FK,
             ordinate_type=ReportGraph.Aggregator.MAX,
-            # ordinate_cell_key=f'custom_field-{cf.id}',
             ordinate_cell_key=f'custom_field-{cf.uuid}',
         )
 
@@ -1457,7 +1450,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_orga(name='Target Orga6', creation_date=date(2013, 6, 30), capital=200)
 
         # ASC -----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_asc, y_asc = rgraph.fetch(user)
 
@@ -1476,7 +1468,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListEqual([2, fmt('2013-06-16', '2013-06-30')], y_asc[1])
 
         # DESC -----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d']):
         with override_language('en'):
             x_desc, y_desc = rgraph.fetch(user=user, order='DESC')
 
@@ -1490,7 +1481,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # Extra q --------------------------------------------------------------
         extra_q = Q(capital__gt=200)
 
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
 
@@ -1539,12 +1529,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_orga(name='Orga4', creation_date=date(2013, 7,  5), capital=1000, is_deleted=True)
 
         # ASC -----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
         with override_language('fr'):
             x_asc, y_asc = rgraph.fetch(user)
 
         self.assertListEqual(
-            # ['2013/06/22-2013/07/01', '2013/07/02-2013/07/11'], x_asc,
             ['22/06/2013-01/07/2013', '02/07/2013-11/07/2013'], x_asc,
         )
 
@@ -1557,7 +1545,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListEqual([150, fmt('2013-07-02', '2013-07-11')], y_asc[1])
 
         # DESC ----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_desc, y_desc = rgraph.fetch(order='DESC', user=user)
 
@@ -1591,7 +1578,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_orga(name='Target Orga6', creation_date=date(2014,  1,  7))
 
         # ASC -----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_asc, y_asc = rgraph.fetch(user)
 
@@ -1610,7 +1596,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListEqual([2, fmt('2014-01-05', '2014-01-19')], y_asc[1])
 
         # DESC ----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_desc, y_desc = rgraph.fetch(user=user, order='DESC', extra_q=None)
 
@@ -1677,13 +1662,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user,
             linked_report=self._create_simple_organisations_report(user=user),
             name=f'First victory / {days} day(s)',
-            # abscissa_cell_value=cf.id,
             abscissa_cell_value=str(cf.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_RANGE, abscissa_parameter=str(days),
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_asc, y_asc = rgraph.fetch(user)
 
@@ -1755,14 +1738,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user,
             linked_report=self._create_simple_organisations_report(user=user),
             name=f'First victory / {days} day(s)',
-            # abscissa_cell_value=cf.id,
             abscissa_cell_value=str(cf.uuid),
             abscissa_type=ReportGraph.Group.CUSTOM_RANGE, abscissa_parameter=str(days),
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         # ASC -----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_asc, y_asc = rgraph.fetch(user)
 
@@ -1797,12 +1778,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         # DESC ----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d']):
         with override_language('fr'):
             x_desc, y_desc = rgraph.fetch(order='DESC', user=user)
 
         self.assertListEqual(
-            # ['2014-01-07/2013-12-24', '2013-12-23/2013-12-09'], x_desc,
             ['07/01/2014-24/12/2013', '23/12/2013-09/12/2013'], x_desc,
         )
 
@@ -1835,7 +1814,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # Extra Q --------------------------------------------------------------
         extra_q = Q(capital__gt=500)
 
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
 
@@ -1862,7 +1840,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Useless name',
-            # abscissa_cell_value=1000,  # <====
             abscissa_cell_value=str(uuid4()),  # <====
             abscissa_type=ReportGraph.Group.CUSTOM_RANGE, abscissa_parameter='11',
             ordinate_type=ReportGraph.Aggregator.COUNT,
@@ -1891,7 +1868,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_orga(name='Wildlings',       creation_date=date(2013, 7, 5),  capital=130)
 
         # ASC ------------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_asc, y_asc = rgraph.fetch(user=user)
 
@@ -1911,7 +1887,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(130, y_asc[1][0])
 
         # DESC -----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d']):
         with override_language('en'):
             self.assertListEqual(
                 ['2013-07-05', '2013-06-22'],
@@ -1919,11 +1894,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             )
 
         # Extra Q --------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
         with override_language('fr'):
             x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=Q(name__startswith='House'))
 
-        # self.assertListEqual(['2013/06/22'], x_xtra)
         self.assertListEqual(['22/06/2013'], x_xtra)
 
         self.assertEqual(150, y_xtra[0][0])
@@ -1960,13 +1933,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Average of capital by 1rst victory (by day)',
-            # abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_DAY,
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportGraph.Group.CUSTOM_DAY,
             ordinate_type=ReportGraph.Aggregator.AVG,
             ordinate_cell_key='regular_field-capital',
         )
 
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_asc, y_asc = rgraph.fetch(user)
 
@@ -2014,14 +1985,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Average of capital by 1rst victory (by day)',
-            # abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_DAY,
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportGraph.Group.CUSTOM_DAY,
             ordinate_type=ReportGraph.Aggregator.AVG,
             ordinate_cell_key='regular_field-capital',
         )
 
         # ASC -----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_asc, y_asc = rgraph.fetch(user)
 
@@ -2039,10 +2008,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListviewURL(url=url, model=FakeOrganisation, expected_q=expected_q)
 
         # DESC ----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
         with override_language('fr'):
             self.assertListEqual(
-                # ['2013/07/05', '2013/06/22'],
                 ['05/07/2013', '22/06/2013'],
                 rgraph.fetch(user=user, order='DESC')[0],
             )
@@ -2050,7 +2017,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # ASC -----------------------------------------------------------------
         extra_q = Q(description='Westeros')
 
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d']):
         with override_language('en'):
             x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
 
@@ -2071,7 +2037,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Average of capital by creation date (by day)',
-            # abscissa_cell_value=1000,  # <====
             abscissa_cell_value=str(uuid4()),  # <====
             abscissa_type=ReportGraph.Group.CUSTOM_DAY,
             ordinate_type=ReportGraph.Aggregator.AVG,
@@ -2105,7 +2070,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_orga(name='Orga3', creation_date=date(2013, 8, 5))
 
         # ASC -----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_asc, y_asc = rgraph.fetch(user=user)
 
@@ -2121,7 +2085,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(1, y_asc[1][0])
 
         # DESC ----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d']):
         with override_language('en'):
             self.assertListEqual(
                 ['2013-08', '2013-06'],
@@ -2150,12 +2113,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of houses by 1rst victory (period of 1 month)',
-            # abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_MONTH,
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportGraph.Group.CUSTOM_MONTH,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_asc, y_asc = rgraph.fetch(user=user)
 
@@ -2197,12 +2158,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of houses by 1rst victory (period of 1 month)',
-            # abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_MONTH,
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportGraph.Group.CUSTOM_MONTH,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
         with override_language('fr'):
             x_asc, y_asc = rgraph.fetch(user=user)
 
@@ -2225,11 +2184,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # Extra Q --------------------------------------------------------------
         extra_q = Q(capital__gt=200)
 
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d-%m-%Y']):
         with override_language('en'):
             x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
 
-        # self.assertListEqual(['06-2013'], x_xtra)
         self.assertListEqual(['2013-06'], x_xtra)
 
         extra_value, extra_url = y_xtra[0]
@@ -2257,7 +2214,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_orga(name='Orga3', creation_date=date(2014, 8,  5))
 
         # ASC -----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
         with override_language('en'):
             x_asc, y_asc = rgraph.fetch(user)
 
@@ -2272,11 +2228,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListEqual([1, fmt(2014)], y_asc[1])
 
         # DESC ----------------------------------------------------------------
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%m-%d-%y']):
         with override_language('en'):
             x_desc, y_desc = rgraph.fetch(order='DESC', user=user)
 
-        # self.assertListEqual(['14', '13'], x_desc)
         self.assertListEqual(['2014', '2013'], x_desc)
         self.assertListEqual([1, fmt(2014)], y_desc[0])
         self.assertListEqual([2, fmt(2013)], y_desc[1])
@@ -2308,7 +2262,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Sum of vine by creation date (period of 1 year)',
             abscissa_cell_value='creation_date', abscissa_type=ReportGraph.Group.YEAR,
             ordinate_type=ReportGraph.Aggregator.SUM,
-            # ordinate_cell_key=f'custom_field-{cf.id}',
             ordinate_cell_key=f'custom_field-{cf.uuid}',
         )
 
@@ -2385,7 +2338,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Sum of gold by creation date (period of 1 year)',
             abscissa_cell_value='creation_date', abscissa_type=ReportGraph.Group.YEAR,
             ordinate_type=ReportGraph.Aggregator.SUM,
-            # ordinate_cell_key=f'custom_field-{cf1.id}',
             ordinate_cell_key=f'custom_field-{cf1.uuid}',
         )
 
@@ -2406,7 +2358,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Average of gold by creation date (period of 1 year)',
             abscissa_cell_value='creation_date', abscissa_type=ReportGraph.Group.YEAR,
             ordinate_type=ReportGraph.Aggregator.AVG,
-            # ordinate_cell_key=f'custom_field-{cf2.id}',
             ordinate_cell_key=f'custom_field-{cf2.uuid}',
         )
 
@@ -2445,10 +2396,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Sum of gold by birthday (period of 1 year)',
-            # abscissa_cell_value=cf_x.id, abscissa_type=ReportGraph.Group.CUSTOM_YEAR,
             abscissa_cell_value=str(cf_x.uuid), abscissa_type=ReportGraph.Group.CUSTOM_YEAR,
             ordinate_type=ReportGraph.Aggregator.SUM,
-            # ordinate_cell_key=f'custom_field-{cf_y.id}',
             ordinate_cell_key=f'custom_field-{cf_y.uuid}',
         )
 
@@ -2488,12 +2437,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of house by 1rst victory (period of 1 year)',
-            # abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_YEAR,
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportGraph.Group.CUSTOM_YEAR,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
         with override_language('en'):
             x_asc, y_asc = rgraph.fetch(user=user)
 
@@ -2558,11 +2505,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # Extra q --------------------------------------------------------------
         extra_q = Q(capital__gt=200)
 
-        # with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%y-%m-%d']):
         with override_language('en'):
             x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
 
-        # self.assertListEqual(['13'], x_xtra)
         self.assertListEqual(['2013'], x_xtra)
 
         extra_value, extra_url = y_xtra[0]
@@ -2765,7 +2710,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             name='Contacts HP by house',
             abscissa_cell_value=rtype_id, abscissa_type=ReportGraph.Group.RELATION,
             ordinate_type=ReportGraph.Aggregator.SUM,
-            # ordinate_cell_key=f'custom_field-{cf.id}',
             ordinate_cell_key=f'custom_field-{cf.uuid}',
         )
 
@@ -2821,7 +2765,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contacts by title',
-            # abscissa_cell_value=1000,  # <=========
             abscissa_cell_value=str(uuid4()),  # <=========
             abscissa_type=ReportGraph.Group.CUSTOM_FK,
             ordinate_type=ReportGraph.Aggregator.COUNT,
@@ -2864,7 +2807,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contacts by title',
-            # abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_FK,
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportGraph.Group.CUSTOM_FK,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
@@ -2924,7 +2866,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Capital by policy',
-            # abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_FK,
             abscissa_cell_value=str(cf.uuid), abscissa_type=ReportGraph.Group.CUSTOM_FK,
             ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key='regular_field-capital',
@@ -2992,10 +2933,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph1 = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Sum of gold by type',
-            # abscissa_cell_value=str(cf_enum.id), abscissa_type=ReportGraph.Group.CUSTOM_FK,
             abscissa_cell_value=str(cf_enum.uuid), abscissa_type=ReportGraph.Group.CUSTOM_FK,
             ordinate_type=ReportGraph.Aggregator.SUM,
-            # ordinate_cell_key=f'custom_field-{cf_int1.id}',
             ordinate_cell_key=f'custom_field-{cf_int1.uuid}',
         )
 
@@ -3017,10 +2956,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph2 = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Average of gold by type',
-            # abscissa_cell_value=str(cf_enum.id), abscissa_type=ReportGraph.Group.CUSTOM_FK,
             abscissa_cell_value=str(cf_enum.uuid), abscissa_type=ReportGraph.Group.CUSTOM_FK,
             ordinate_type=ReportGraph.Aggregator.AVG,
-            # ordinate_cell_key=f'custom_field-{cf_int2.id}',
             ordinate_cell_key=f'custom_field-{cf_int2.uuid}',
         )
 

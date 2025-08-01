@@ -94,12 +94,10 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
         target = create_orga(name='Target')
 
         workflow.transform_target_into_prospect(source, target, user)
-        # self.assertRelationCount(1, target, constants.REL_SUB_PROSPECT, source)
         self.assertHaveRelation(subject=target, type=constants.REL_SUB_PROSPECT, object=source)
 
         # Do not create duplicate
         workflow.transform_target_into_prospect(source, target, user)
-        # self.assertRelationCount(1, target, constants.REL_SUB_PROSPECT, source)
         self.assertHaveRelation(subject=target, type=constants.REL_SUB_PROSPECT, object=source)
 
     def test_transform_target_into_customer(self):  # DEPRECATED

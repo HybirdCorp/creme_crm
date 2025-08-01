@@ -42,22 +42,18 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
 
     def test_populate(self):
         self.assertSettingValueEqual(
-            # key=constants.SETTING_UNSUCCESSFUL_SUBTYPE_UUID,
             key=setting_keys.unsuccessful_subtype_key,
             value=constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
         )
         self.assertSettingValueEqual(
-            # key=constants.SETTING_UNSUCCESSFUL_TITLE,
             key=setting_keys.unsuccessful_title_key,
             value=_('Unsuccessful call'),
         )
         self.assertSettingValueEqual(
-            # key=constants.SETTING_UNSUCCESSFUL_STATUS_UUID,
             key=setting_keys.unsuccessful_status_key,
             value=constants.UUID_STATUS_UNSUCCESSFUL,
         )
         self.assertSettingValueEqual(
-            # key=constants.SETTING_UNSUCCESSFUL_DURATION,
             key=setting_keys.unsuccessful_duration_key,
             value=3,
         )
@@ -128,19 +124,15 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         ))
 
         self.assertSettingValueEqual(
-            # key=constants.SETTING_UNSUCCESSFUL_SUBTYPE_UUID, value=str(stype2.uuid),
             key=setting_keys.unsuccessful_subtype_key, value=str(stype2.uuid),
         )
         self.assertSettingValueEqual(
-            # key=constants.SETTING_UNSUCCESSFUL_TITLE, value=title,
             key=setting_keys.unsuccessful_title_key, value=title,
         )
         self.assertSettingValueEqual(
-            # key=constants.SETTING_UNSUCCESSFUL_STATUS_UUID, value=str(status2.uuid),
             key=setting_keys.unsuccessful_status_key, value=str(status2.uuid),
         )
         self.assertSettingValueEqual(
-            # key=constants.SETTING_UNSUCCESSFUL_DURATION, value=2,
             key=setting_keys.unsuccessful_duration_key, value=2,
         )
 
@@ -151,23 +143,19 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             uuid=constants.UUID_SUBTYPE_PHONECALL_CONFERENCE,
         )
         SettingValue.objects.set_4_key(
-            # key=constants.SETTING_UNSUCCESSFUL_SUBTYPE_UUID, value=str(sub_type.uuid),
             key=setting_keys.unsuccessful_subtype_key, value=str(sub_type.uuid),
         )
 
         title = 'Damn it'
-        # SettingValue.objects.set_4_key(key=constants.SETTING_UNSUCCESSFUL_TITLE, value=title)
         SettingValue.objects.set_4_key(key=setting_keys.unsuccessful_title_key, value=title)
 
         status = self.get_object_or_fail(Status, uuid=constants.UUID_STATUS_DELAYED)
         SettingValue.objects.set_4_key(
-            # key=constants.SETTING_UNSUCCESSFUL_STATUS_UUID, value=str(status.uuid),
             key=setting_keys.unsuccessful_status_key, value=str(status.uuid),
         )
 
         duration = 2
         SettingValue.objects.set_4_key(
-            # key=constants.SETTING_UNSUCCESSFUL_DURATION, value=duration,
             key=setting_keys.unsuccessful_duration_key, value=duration,
         )
 
@@ -248,7 +236,6 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         self.assertFalse(ActivitySubType.objects.filter(uuid=sub_type_uuid))
 
         SettingValue.objects.set_4_key(
-            # key=constants.SETTING_UNSUCCESSFUL_SUBTYPE_UUID, value=str(sub_type_uuid),
             key=setting_keys.unsuccessful_subtype_key, value=str(sub_type_uuid),
         )
 
@@ -278,7 +265,6 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         self.assertFalse(Status.objects.filter(uuid=status_uuid))
 
         SettingValue.objects.set_4_key(
-            # key=constants.SETTING_UNSUCCESSFUL_STATUS_UUID, value=str(status_uuid),
             key=setting_keys.unsuccessful_status_key, value=str(status_uuid),
         )
 
@@ -290,7 +276,6 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
 
         # Badly formed UUID (should not happen if you do not edit manually the DB)
         SettingValue.objects.set_4_key(
-            # key=constants.SETTING_UNSUCCESSFUL_STATUS_UUID, value='invalid-uuid',
             key=setting_keys.unsuccessful_status_key, value='invalid-uuid',
         )
 
@@ -307,21 +292,15 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
     def test_config__setting_values_are_hidden(self):
         self.login_as_root()
 
-        # def assertEditionFailed(key_id):
         def assertEditionFailed(key):
-            # setting_value = self.get_object_or_fail(SettingValue, key_id=key_id)
             setting_value = self.get_object_or_fail(SettingValue, key_id=key.id)
             self.assertGET409(
                 reverse('creme_config__edit_setting', args=(setting_value.id,))
             )
 
-        # assertEditionFailed(key_id=constants.SETTING_UNSUCCESSFUL_SUBTYPE_UUID)
         assertEditionFailed(key=setting_keys.unsuccessful_subtype_key)
-        # assertEditionFailed(key_id=constants.SETTING_UNSUCCESSFUL_TITLE)
         assertEditionFailed(key=setting_keys.unsuccessful_title_key)
-        # assertEditionFailed(key_id=constants.SETTING_UNSUCCESSFUL_STATUS_UUID)
         assertEditionFailed(key=setting_keys.unsuccessful_status_key)
-        # assertEditionFailed(key_id=constants.SETTING_UNSUCCESSFUL_DURATION)
         assertEditionFailed(key=setting_keys.unsuccessful_duration_key)
 
     def test_creation__default(self):
@@ -381,23 +360,19 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             uuid=constants.UUID_SUBTYPE_PHONECALL_CONFERENCE,
         )
         SettingValue.objects.set_4_key(
-            # key=constants.SETTING_UNSUCCESSFUL_SUBTYPE_UUID, value=str(sub_type.uuid),
             key=setting_keys.unsuccessful_subtype_key, value=str(sub_type.uuid),
         )
 
         title = 'Damn it'
-        # SettingValue.objects.set_4_key(key=constants.SETTING_UNSUCCESSFUL_TITLE, value=title)
         SettingValue.objects.set_4_key(key=setting_keys.unsuccessful_title_key, value=title)
 
         status = self.get_object_or_fail(Status, uuid=constants.UUID_STATUS_DELAYED)
         SettingValue.objects.set_4_key(
-            # key=constants.SETTING_UNSUCCESSFUL_STATUS_UUID, value=str(status.uuid),
             key=setting_keys.unsuccessful_status_key, value=str(status.uuid),
         )
 
         duration = 2
         SettingValue.objects.set_4_key(
-            # key=constants.SETTING_UNSUCCESSFUL_DURATION, value=duration,
             key=setting_keys.unsuccessful_duration_key, value=duration,
         )
 
@@ -418,7 +393,6 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         sub_type_uuid = uuid4()
         self.assertFalse(ActivitySubType.objects.filter(uuid=sub_type_uuid))
         SettingValue.objects.set_4_key(
-            # key=constants.SETTING_UNSUCCESSFUL_SUBTYPE_UUID, value=str(sub_type_uuid),
             key=setting_keys.unsuccessful_subtype_key, value=str(sub_type_uuid),
         )
 
@@ -439,7 +413,6 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         status_uuid = uuid4()
         self.assertFalse(Status.objects.filter(uuid=status_uuid))
         SettingValue.objects.set_4_key(
-            # key=constants.SETTING_UNSUCCESSFUL_STATUS_UUID, value=str(status_uuid),
             key=setting_keys.unsuccessful_status_key, value=str(status_uuid),
         )
 
@@ -478,7 +451,6 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             'integrity error if it is not truncated by the view'
         )
         self.assertGreater(len(title), 100)
-        # SettingValue.objects.set_4_key(key=constants.SETTING_UNSUCCESSFUL_TITLE, value=title)
         SettingValue.objects.set_4_key(key=setting_keys.unsuccessful_title_key, value=title)
 
         self.assertPOST200(self._build_add_url(self.contact))

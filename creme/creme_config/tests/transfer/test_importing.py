@@ -1565,7 +1565,6 @@ class ImportingTestCase(TransferBaseTestCase):
                 'id':    'creme_config-test_import_headerfilters02',
                 'name':  'Organisation view with spécial character in name',
                 'ctype': 'creme_core.fakeorganisation',
-                # 'user':  other_user.username,
                 'user':  str(other_user.uuid),
                 'cells': [],
                 'extra_data': {'my_value': 'my_value'},
@@ -1573,7 +1572,6 @@ class ImportingTestCase(TransferBaseTestCase):
                 'id':         'creme_config-test_import_headerfilters03',
                 'name':       'Private contact view',
                 'ctype':      'creme_core.fakecontact',
-                # 'user':       other_user.username,
                 'user': str(other_user.uuid),
                 'is_private': True,
                 'cells':      [],
@@ -1581,7 +1579,6 @@ class ImportingTestCase(TransferBaseTestCase):
                 'id':    'creme_config-test_import_headerfilters04',
                 'name':  "Invalid user's Organisation view",
                 'ctype': 'creme_core.fakeorganisation',
-                # 'user':  'invalid',
                 'user':  str(uuid4()),  # Unknown user
                 'cells': [],
             },
@@ -1999,7 +1996,6 @@ class ImportingTestCase(TransferBaseTestCase):
                 'id':     'creme_config-test_import_entityfilters01_2',
                 'name':   'Organisation view with spécial characters in name',
                 'ctype':  ct_str_o,
-                # 'user':   other_user.username,
                 'user':   str(other_user.uuid),
                 'use_or': False,
                 'conditions': [
@@ -2030,7 +2026,6 @@ class ImportingTestCase(TransferBaseTestCase):
                 'id':         'creme_config-test_import_entityfilters01_3',
                 'name':       'Private contact view',
                 'ctype':      ct_str_c,
-                # 'user':       other_user.username,
                 'user':       str(other_user.uuid),
                 'is_private': True,
                 'use_or':     True,
@@ -2049,7 +2044,6 @@ class ImportingTestCase(TransferBaseTestCase):
                 'id':         'creme_config-test_import_entityfilters01_4',
                 'name':       "Invalid user's Organisation view",
                 'ctype':      ct_str_o,
-                # 'user':       'invalid',  # <==
                 'user':       str(uuid4()),  # <==
                 'conditions': [],
             }, {
@@ -3128,7 +3122,6 @@ class ImportingTestCase(TransferBaseTestCase):
         # Will be removed
         rbi2 = RelationBrickItem.objects.create(relation_type=rtype02)
 
-        # rbi_id3 = rbi2.id + 1
         rbi_uuid3 = uuid4()
 
         rtypes_data = [
@@ -3145,26 +3138,11 @@ class ImportingTestCase(TransferBaseTestCase):
 
         rbi_data = [
             {
-                # 'id': rbi1.id,
                 'uuid': str(rbi1.uuid),
                 'relation_type': rtype01.id,
             }, {
-                # 'id': rbi_id3,
                 'uuid': str(rbi_uuid3),
                 'relation_type': rtype03_id,
-                # 'cells': [
-                #     [
-                #         ct_str1,
-                #         [
-                #             {'type': EntityCellRegularField.type_id, 'value': 'first_name'},
-                #             {'type': EntityCellRegularField.type_id, 'value': 'last_name'},
-                #             {'type': EntityCellCustomField.type_id,  'value': str(cf_uuid)},
-                #         ],
-                #     ], [
-                #         ct_str2,
-                #         [{'type': 'regular_field', 'value': 'name'}],
-                #     ],
-                # ]
                 'cells': {
                     ct_str1: [
                         {'type': EntityCellRegularField.type_id, 'value': 'first_name'},
@@ -3197,7 +3175,6 @@ class ImportingTestCase(TransferBaseTestCase):
         cfield = self.get_object_or_fail(CustomField, uuid=cf_uuid)
 
         rbi3 = self.get_object_or_fail(RelationBrickItem, relation_type_id=rtype03_id)
-        # self.assertEqual(rbi_id3, rbi3.id)
         self.assertEqual(rbi_uuid3, rbi3.uuid)
 
         def assert_cells(model, keys):
@@ -3704,7 +3681,7 @@ class ImportingTestCase(TransferBaseTestCase):
             [
                 {'id': loc.brick_id, 'order': loc.order, 'superuser': True}
                 for loc in BrickHomeLocation.objects.filter(role=None, superuser=True)
-            ]
+            ],
         )
 
     def test_mypage_bricks(self):
@@ -3728,7 +3705,7 @@ class ImportingTestCase(TransferBaseTestCase):
             [
                 {'id': loc.brick_id, 'order': loc.order}
                 for loc in BrickMypageLocation.objects.filter(user=None)
-            ]
+            ],
         )
 
         self.assertStillExists(user_loc)

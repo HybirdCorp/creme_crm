@@ -21,7 +21,6 @@ from __future__ import annotations
 import logging
 import warnings
 from datetime import date
-# from typing import TYPE_CHECKING
 from functools import partial
 
 from django.conf import settings
@@ -31,7 +30,6 @@ from django.db.transaction import atomic
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import (
     CREME_REPLACE_NULL,
     CremeEntity,
@@ -50,12 +48,9 @@ from ..constants import (
     REL_SUB_HAS_LINE,
 )
 from . import other_models
-# from .algo import ConfigBillingAlgo
 from .fields import BillingDiscountField
 from .line import Line
 
-# if TYPE_CHECKING:
-#     from creme.persons.models import AbstractOrganisation
 logger = logging.getLogger(__name__)
 
 
@@ -88,7 +83,6 @@ class Base(CremeEntity):
 
     currency = models.ForeignKey(
         Currency, verbose_name=_('Currency'), related_name='+',
-        # default=DEFAULT_CURRENCY_PK,
         default=get_default_currency_pk,
         on_delete=models.PROTECT,
     )
@@ -192,7 +186,6 @@ class Base(CremeEntity):
             relation._delete_without_transaction()
 
         for line in lines:
-            # line._delete_without_transaction()
             line.delete()
 
     def clean(self):
@@ -257,27 +250,6 @@ class Base(CremeEntity):
                 )
 
         return credit_notes
-
-    # def generate_number(self, source: AbstractOrganisation | None = None):
-    #     from creme.billing.registry import algo_registry
-    #
-    #     if source is None:
-    #         source = self.source
-    #
-    #     if not self.number:
-    #         self.number = '0'
-    #
-    #     if source:
-    #         real_content_type = self.entity_type
-    #
-    #         try:
-    #             name_algo = ConfigBillingAlgo.objects.get(
-    #                 organisation=source, ct=real_content_type,
-    #             ).name_algo
-    #             algo = algo_registry.get_algo(name_algo)
-    #             self.number = algo().generate_number(source, real_content_type)
-    #         except Exception as e:
-    #             logger.info('billing.generate_number(): number cannot be generated (%s)', e)
 
     def get_lines(self, klass):
         assert issubclass(klass, Line)
@@ -344,26 +316,6 @@ class Base(CremeEntity):
         self.number = ''
 
         self._address_auto_copy = False
-
-    # def _copy_relations(self, source, allowed_internal=()):
-    #     from ..registry import relationtype_converter
-    #
-    #     # Not REL_OBJ_CREDIT_NOTE_APPLIED, links to CreditNote are not cloned.
-    #     relation_create = Relation.objects.create
-    #     class_map = relationtype_converter.get_class_map(source, self)
-    #     super()._copy_relations(source, allowed_internal=allowed_internal)
-    #
-    #     for relation in source.relations.filter(
-    #         type__is_internal=False,
-    #         type__is_copiable=True,
-    #         type__in=class_map.keys(),
-    #     ):
-    #         relation_create(
-    #             user_id=relation.user_id,
-    #             subject_entity=self,
-    #             type=class_map[relation.type],
-    #             object_entity_id=relation.object_entity_id,
-    #         )
 
     def _post_clone(self, source):
         warnings.warn(
@@ -512,9 +464,6 @@ class Base(CremeEntity):
         if not self.pk:  # Creation
             self._clean_source_n_target()
 
-            # if self.generate_number_in_create:
-            #     self.generate_number(source)
-
             super().save(*args, **kwargs)
 
             self._source_rel = create_relation(
@@ -533,8 +482,6 @@ class Base(CremeEntity):
             # which garanties the totals are updated, does not use <update_fields> :
             #    if update_fields is not None:
             #        update_fields = { 'total_vat', 'total_no_vat', *update_fields}
-            # self.total_vat    = self._get_total_with_tax()
-            # self.total_no_vat = self._get_total()
             self._update_totals()
 
             super().save(*args, **kwargs)

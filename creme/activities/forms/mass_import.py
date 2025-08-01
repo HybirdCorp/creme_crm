@@ -284,7 +284,6 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
             name_fmt='{}_pattern_colselect', selected_key='pattern_column_index',
         )
 
-        # widget_cxt['pattern_select'] = Select(
         widget_cxt['pattern_select'] = PrettySelect(
             choices=[
                 (pattern_id, str(pattern.verbose_name))
@@ -572,7 +571,6 @@ class SubjectsExtractorField(Field):
 def get_massimport_form_builder(header_dict, choices):
     class ActivityMassImportForm(ImportForm4CremeEntity):
         type_selector = ActivitySubTypeField(
-            # label=_('Type'), limit_choices_to=~Q(type__id=constants.ACTIVITYTYPE_INDISPO),
             label=_('Type'), limit_choices_to=~Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY),
         )
 
@@ -615,7 +613,6 @@ def get_massimport_form_builder(header_dict, choices):
                     Calendar.objects.get_default_calendar(user).id,
                 )
 
-            # self.user_participants: list[Contact] = []
             self.user_participants = set()
             self.calendars = []
 
@@ -629,10 +626,6 @@ def get_massimport_form_builder(header_dict, choices):
             return my_participation
 
         def clean_participating_users(self):
-            # user_contacts = self.cleaned_data['participating_users']
-            # self.user_participants.extend(user_contacts)
-            #
-            # return {contact.is_user for contact in user_contacts}
             participants_data = self.cleaned_data['participating_users']
             self.user_participants.update(participants_data['contacts'])
             self.calendars.extend(participants_data['calendars'])
@@ -643,7 +636,6 @@ def get_massimport_form_builder(header_dict, choices):
             sub_type = self.cleaned_data['type_selector']
             instance.type, instance.sub_type = sub_type.type, sub_type
 
-            # instance.floating_type = constants.NARROW
             instance.floating_type = instance.FloatingType.NARROW
             start = instance.start
             end = instance.end
@@ -653,7 +645,6 @@ def get_massimport_form_builder(header_dict, choices):
 
                 if start.time() == null_time and (not end or end.time() == null_time):
                     instance.end = make_aware(datetime.combine(start, time(hour=23, minute=59)))
-                    # instance.floating_type = constants.FLOATING_TIME
                     instance.floating_type = instance.FloatingType.FLOATING_TIME
                 elif not end:
                     instance.end = start + instance.type.as_timedelta()
@@ -661,7 +652,6 @@ def get_massimport_form_builder(header_dict, choices):
                     instance.end = start + instance.type.as_timedelta()
                     self.append_error(_('End time is before start time'))
             else:
-                # instance.floating_type = constants.FLOATING
                 instance.floating_type = instance.FloatingType.FLOATING
 
         def _post_instance_creation(self, instance, line, updated):
@@ -704,14 +694,6 @@ def get_massimport_form_builder(header_dict, choices):
 
                 instance.calendars.add(calendar)
 
-            # my_participation = cdata['my_participation']
-            # if my_participation.is_set:
-            #     add_participant(self.user.linked_contact)
-            #     instance.calendars.add(my_participation.data)
-            #
-            # for participant in self.user_participants:
-            #     add_participant(participant)
-            #     add_to_default_calendar(participant.is_user)
             for participant in self.user_participants:
                 add_participant(participant)
 

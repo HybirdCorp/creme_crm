@@ -288,7 +288,6 @@ class RelationLinkedGraphFetcher(GraphFetcher):
                 if not rtype.is_compatible(model):
                     self.error = gettext(
                         'The relationship type is not compatible with «{}».'
-                        # ).format(model._meta.verbose_name)
                     ).format(model_verbose_name(model))
                 else:
                     self.verbose_name = gettext(

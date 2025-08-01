@@ -196,16 +196,6 @@
     opacity: 0.8;
 }
 
-/*
-.line-chart .dot text {
-    text-anchor: middle;
-}
-
-.line-chart .dot text.inner.dark-bg {
-    font-weight: 600;
-}
-*/
-
 .line-chart .limit {
     stroke: #f6c2d4;
     z-index: 1;

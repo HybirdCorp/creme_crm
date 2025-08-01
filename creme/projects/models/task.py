@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -82,10 +82,6 @@ class AbstractProjectTask(CremeEntity):
 
     def get_absolute_url(self):
         return reverse('projects__view_task', args=(self.id,))
-
-    # @staticmethod
-    # def get_clone_absolute_url():
-    #     return ''
 
     def get_edit_absolute_url(self):
         return reverse('projects__edit_task', args=(self.id,))

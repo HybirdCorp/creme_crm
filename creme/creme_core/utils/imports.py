@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,6 @@
 ################################################################################
 
 import logging
-# import warnings
 from importlib import import_module
 
 from django.apps import apps
@@ -45,33 +44,8 @@ def import_apps_sub_modules(module_name):
     return modules
 
 
-# def import_object(objectpath):
-#     warnings.warn(
-#         'creme.creme_core.utils.imports.import_object() is deprecated ; '
-#         'use django.utils.module_loading.import_string() instead.',
-#         DeprecationWarning,
-#     )
-#
-#     i = objectpath.rfind('.')
-#     module, attr = objectpath[:i], objectpath[i + 1:]
-#     try:
-#         mod = import_module(module)
-#     except ImportError:
-#         raise
-#
-#     try:
-#         result = getattr(mod, attr)
-#     except AttributeError as e:
-#         raise AttributeError(
-#             f'Module "{module}" does not define a "{attr}" object'
-#         ) from e
-#
-#     return result
-
-
 def safe_import_object(objectpath):
     try:
-        # return import_object(objectpath)
         return import_string(objectpath)
     except Exception as e:
         logger.warning('An error occurred trying to import "%s": [%s]', objectpath, e)

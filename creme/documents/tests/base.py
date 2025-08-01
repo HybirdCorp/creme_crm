@@ -23,17 +23,9 @@ def skipIfCustomFolder(test_func):
     return skipIf(skip_folder_tests, 'Custom folder model in use')(test_func)
 
 
-# class _DocumentsTestCase(CremeTestCase):
-#     @classmethod
-#     def setUpClass(cls):
-#         super().setUpClass()
-#         cls.ADD_DOC_URL = reverse('documents__create_document')
 class DocumentsTestCaseMixin:
     ADD_DOC_URL = reverse('documents__create_document')
 
-    # def _create_doc(self, title,
-    #                 file_obj=None, folder=None, description=None, user=None,
-    #                 **extra_data):
     def _create_doc(self, title, *, user,
                     file_obj=None, folder=None, description=None,
                     **extra_data):
@@ -56,7 +48,6 @@ class DocumentsTestCaseMixin:
 
         return self.get_object_or_fail(Document, title=title)
 
-    # def _create_image(self, ident=1, user=None, title=None, folder=None, description=None):
     def _create_image(self, *, ident=1, user, title=None, folder=None, description=None):
         IMAGE_PATHS = {
             1: 'creme_22.png',

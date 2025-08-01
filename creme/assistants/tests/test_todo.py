@@ -39,7 +39,6 @@ from creme.creme_core.models.history import (
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from ..bricks import TodosBrick
-# from ..constants import MIN_HOUR_4_TODO_REMINDER
 from ..constants import BRICK_STATE_HIDE_VALIDATED_TODOS
 from ..function_fields import TodosField
 from ..models import Alert, ToDo
@@ -60,7 +59,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
 
     def test_populate(self):
-        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         self.assertEqual('assistants', sv.key.app_label)
         self.assertEqual(9, sv.value)
@@ -343,7 +341,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         # Home + do no hide ---
         BrickHomeLocation.objects.get_or_create(
-            # brick_id=TodosBrick.id_, defaults={'order': 50},
             brick_id=TodosBrick.id, defaults={'order': 50},
         )
 
@@ -566,10 +563,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             f'<ul class="limited-list"><li>{todo2.title}</li><li>{todo1.title}</li></ul>',
             result1.render(ViewTag.HTML_LIST),
         )
-        self.assertEqual(
-            # '<ul><li>Todo04</li></ul>', result2.render(ViewTag.HTML_LIST),
-            todo4.title, result2.render(ViewTag.HTML_LIST),
-        )
+        self.assertEqual(todo4.title, result2.render(ViewTag.HTML_LIST))
 
     def test_function_field__no_app_perm(self):
         user = self.create_user(
@@ -710,7 +704,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         entity = self.create_entity(user=user)
         now_value = now()
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = localtime(now_value).hour
         sv.save()
@@ -757,12 +750,10 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         if next_hour > 23:
             raise SkipTest('It is too late.')
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = next_hour
         sv.save()
 
-        # reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
         notif_qs = Notification.objects.filter(channel__uuid=UUID_CHANNEL_REMINDERS, user=user)
         self.assertFalse(notif_qs.all())
 
@@ -786,7 +777,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         teammate = self.create_user(0)
         team = self.create_team('Team #1', teammate, user)
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = max(localtime(now_value).hour - 1, 0)
         sv.save()
@@ -805,7 +795,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         entity = self.create_entity(user=other_user)
         now_value = now()
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = localtime(now_value).hour
         sv.save()
@@ -818,11 +807,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         ToDo.objects.create(real_entity=entity, title='Todo#1', deadline=now_value)
 
         self.execute_reminder_job(self.get_reminder_job())
-        # self.assertEqual(1, DateReminder.objects.count())
         self.get_alone_element(notif_qs.all())
-
-        # message = self.get_alone_element(mail.outbox)
-        # self.assertListEqual([other_user.email], message.to)
 
     def test_next_wakeup01(self):
         "Next wake is one day later + minimum hour."
@@ -834,7 +819,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         if next_hour > 23:
             raise SkipTest('It is too late.')
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = next_hour
         sv.save()
@@ -870,7 +854,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         if previous_hour < 0:
             raise SkipTest('It is too early.')
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = previous_hour
         sv.save()
@@ -894,7 +877,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         if previous_hour < 0:
             raise SkipTest('It is too early.')
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv = self.get_object_or_fail(SettingValue, key_id=todo_reminder_key.id)
         sv.value = previous_hour
         sv.save()

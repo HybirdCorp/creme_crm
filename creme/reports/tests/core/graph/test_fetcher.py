@@ -49,7 +49,6 @@ class GraphFetcherTestCase(CremeTestCase):
         ibci = fetcher1.create_brick_config_item()
         self.assertIsInstance(ibci, InstanceBrickConfigItem)
         self.assertEqual(graph.id, ibci.entity_id)
-        # self.assertEqual(ReportGraphChartInstanceBrick.id_, ibci.brick_class_id)
         self.assertEqual(ReportGraphChartInstanceBrick.id, ibci.brick_class_id)
         self.assertEqual(RGF_NOLINK, ibci.get_extra_data('type'))
         self.assertIsNone(ibci.get_extra_data('value'))
