@@ -35,7 +35,6 @@ from ..core.entity_filter.condition_handler import PropertyConditionHandler
 from ..core.exceptions import ConflictError
 from ..core.paginator import FlowPaginator
 from ..forms import creme_property as prop_forms
-# from ..gui.bricks import Brick
 from ..gui.bricks import ForbiddenBrick, QuerysetBrick, SimpleBrick
 from ..models import (
     CremeEntity,
@@ -320,26 +319,11 @@ class PropertyTypeBarHatBrick(SimpleBrick):
     template_name = 'creme_core/bricks/ptype-hat-bar.html'
 
 
-# class PropertyTypeInfoBrick(Brick):
 class PropertyTypeInfoBrick(SimpleBrick):
     id = 'property_type_info'
     dependencies = '*'
     read_only = True
     template_name = 'creme_core/bricks/ptype-info.html'
-
-    # def __init__(self, ptype, ctypes):
-    #     super().__init__()
-    #     self.ptype = ptype
-    #     self.ctypes = ctypes
-    #
-    # def detailview_display(self, context):
-    #     ptype = self.ptype
-    #
-    #     return self._render(self.get_template_context(
-    #         context,
-    #         ctypes=self.ctypes,
-    #         count_stat=CremeEntity.objects.filter(properties__type=ptype).count(),
-    #     ))
 
 
 class TaggedEntitiesBrick(QuerysetBrick):
@@ -347,10 +331,8 @@ class TaggedEntitiesBrick(QuerysetBrick):
 
     id_prefix = 'tagged'
 
-    # def __init__(self, ptype, ctype):
     def __init__(self, ctype):
         super().__init__()
-        # self.ptype = ptype
         self.ctype = ctype
         self.id = f'{self.id_prefix}-{ctype.app_label}-{ctype.model}'
         self.dependencies = (ctype.model_class(),)
@@ -396,9 +378,7 @@ class TaggedEntitiesBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
             context,
-            # ctype.get_all_objects_for_this_type(properties__type=ptype),
             ctype.get_all_objects_for_this_type(properties__type=context['object']),
-            # ptype_id=ptype.id,
             ctype=ctype,  # If the model is inserted in the context,
                           #  the template call it and create an instance...
         ))
@@ -409,20 +389,16 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
     dependencies = (CremeEntity,)
     template_name = 'creme_core/bricks/tagged-entities.html'
 
-    # def __init__(self, ptype, excluded_ctypes):
     def __init__(self, excluded_ctypes):
         super().__init__()
-        # self.ptype = ptype
         self.excluded_ctypes = excluded_ctypes
 
     def detailview_display(self, context):
         # ptype = self.ptype
         btc = self.get_template_context(
             context,
-            # CremeEntity.objects.filter(properties__type=ptype)
             CremeEntity.objects.filter(properties__type=context['object'])
                                .exclude(entity_type__in=self.excluded_ctypes),
-            # ptype_id=ptype.id,
             ctype=None,
         )
 
@@ -438,36 +414,6 @@ class PropertyTypeDetail(generic.CremeModelDetail):
     pk_url_kwarg = 'ptype_id'
     bricks_reload_url_name = 'creme_core__reload_ptype_bricks'
 
-    # def get_bricks(self):
-    #     ptype = self.object
-    #     ctypes = ptype.subject_ctypes.all()
-    #
-    #     bricks = [PropertyTypeInfoBrick(ptype, ctypes)]
-    #     user = self.request.user
-    #
-    #     if ctypes:
-    #         has_perm_to_access = user.has_perm_to_access
-    #
-    #         for ctype in ctypes:
-    #             brick = TaggedEntitiesBrick(ptype, ctype)
-    #             if not has_perm_to_access(ctype.app_label):
-    #                 brick = ForbiddenBrick(
-    #                     id=brick.id,
-    #                     verbose_name=ctype.model_class()._meta.verbose_name_plural,
-    #                 )
-    #
-    #             bricks.append(brick)
-    #
-    #         bricks.append(TaggedMiscEntitiesBrick(ptype, excluded_ctypes=ctypes))
-    #     else:
-    #         bricks.extend(
-    #             TaggedEntitiesBrick(ptype, ctype)
-    #             for ctype in entity_ctypes(
-    #                 app_labels=None if user.is_superuser else user.role.allowed_apps,
-    #             )
-    #         )
-    #
-    #     return bricks
     def get_bricks(self):
         ptype = self.object
         ctypes = ptype.subject_ctypes.all()
@@ -523,17 +469,14 @@ class PropertyTypeBricksReloading(BricksReloading):
                 case PropertyTypeBarHatBrick.id:
                     brick = PropertyTypeBarHatBrick()
                 case PropertyTypeInfoBrick.id:
-                    # brick = PropertyTypeInfoBrick(ptype, ctypes)
                     brick = PropertyTypeInfoBrick()
                 case TaggedMiscEntitiesBrick.id:
-                    # brick = TaggedMiscEntitiesBrick(ptype, ctypes)
                     brick = TaggedMiscEntitiesBrick(excluded_ctypes=ctypes)
                 case _:
                     ctype = TaggedEntitiesBrick.parse_brick_id(brick_id)
                     if ctype is None:
                         raise Http404(f'Invalid brick id "{brick_id}"')
 
-                    # brick = TaggedEntitiesBrick(ptype, ctype)
                     brick = TaggedEntitiesBrick(ctype=ctype)
 
                     # TODO: factorise
@@ -559,7 +502,6 @@ class PropertyTypeBricksReloading(BricksReloading):
 
         if ptype is None:
             self.ptype = ptype = get_object_or_404(
-                # CremePropertyType,
                 CremePropertyType.objects.prefetch_related('subject_ctypes'),
                 id=self.kwargs[self.ptype_id_url_kwarg],
             )

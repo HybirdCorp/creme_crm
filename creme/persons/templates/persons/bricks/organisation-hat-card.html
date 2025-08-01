@@ -10,10 +10,8 @@
 
 {% block card_main %}
     <div class='card-main{% if object.is_managed or is_customer or is_supplier %} has-indicators{% endif %}'>
-{#        <span class="card-name">{{object.name}}{% if object.legal_form and 'legal_form' not in hidden_fields %}, {{object.legal_form}}{% endif %} #}
         <span class="card-name">{{object.name}}{% if object.legal_form and not object|is_field_hidden:'legal_form' %}, {{object.legal_form}}{% endif %}
             {% if not object.is_deleted and not object.sandbox %}
-{#             {% brick_card_action_for_field instance=object field='name' user=user %} #}
              {% cell_4_regularfield instance=object field="name" as name_cell %}
              {% cell_4_regularfield instance=object field="legal_form" as lform_cell %}
              {% listify name_cell lform_cell as cells %}
@@ -65,7 +63,6 @@
 {% endblock %}
 
 {% block card_fields %}
-{#  {% if 'phone' not in hidden_fields %} #}
   {% if not object|is_field_hidden:'phone' %}
     <div class="card-info-field">
         <span class='card-info-key'>{% translate 'Phone' %}</span>
@@ -75,7 +72,6 @@
         </span>
     </div>
   {% endif %}
-{#  {% if 'billing_address' not in hidden_fields %} #}
   {% if not object|is_field_hidden:'billing_address' %}
     <div class="card-info-field">
         <span class='card-info-key'>{% translate 'Address' %}</span>

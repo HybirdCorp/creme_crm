@@ -76,25 +76,6 @@ def listview_entity_filters(*,
                             efilters: EntityFilterList,
                             show_buttons: bool,
                             ):
-    # efilter = efilters.selected
-    #
-    # if efilter:
-    #     efilter_id = efilter.id
-    #     can_edit   = efilter.can_edit(user)[0]
-    #     can_delete = efilter.can_delete(user)[0]
-    # else:
-    #     efilter_id = 0
-    #     can_edit = can_delete = False
-    #
-    # return {
-    #     'user': user,
-    #     'model': model,
-    #     'entity_filters': efilters,
-    #     'efilter_id': efilter_id,
-    #     'can_edit': can_edit,
-    #     'can_delete': can_delete,
-    #     'show_buttons': show_buttons,
-    # }
     global_efilters, my_efilters, other_efilters = _group_filters(user=user, filters=efilters)
 
     selected_efilter = efilters.selected
@@ -136,20 +117,6 @@ def listview_header_filters(*,
     for hfilter in hfilters:
         grouped_hfilters[hfilter.user_id].append(hfilter)
 
-    # global_header_filters = grouped_hfilters.pop(None, ())
-    # my_header_filters     = grouped_hfilters.pop(user.id, ())
-    #
-    # if grouped_hfilters:
-    #     users = get_user_model().objects.in_bulk(grouped_hfilters.keys())
-    #     other_header_filters = [
-    #         (users.get(user_id), user_hfilters)
-    #         for user_id, user_hfilters in grouped_hfilters.items()
-    #     ]
-    #
-    #     sort_key = collator.sort_key
-    #     other_header_filters.sort(key=lambda t: sort_key(str(t[0])))
-    # else:
-    #     other_header_filters = ()
     global_header_filters, my_header_filters, other_header_filters = _group_filters(
         user=user, filters=hfilters,
     )
@@ -168,8 +135,6 @@ def listview_header_filters(*,
         'selected': selected_hfilter,
 
         'show_buttons': show_buttons,
-        # 'can_edit':   selected_hfilter.can_edit(user)[0],
-        # 'can_delete': selected_hfilter.can_delete(user)[0],
 
         'edition_allowed': edition_allowed,
         'edition_error': edition_error,

@@ -48,7 +48,6 @@ class HeaderFilterViewsTestCase(CremeTestCase):
 
     @staticmethod
     def _build_get4ctype_url(ctype):
-        # return '{}?ct_id={}'.format(reverse('creme_core__hfilters'), ctype.id)
         return reverse('creme_core__hfilters', query={'ct_id': ctype.id})
 
     @override_settings(FILTERS_INITIAL_PRIVATE=False)

@@ -31,7 +31,6 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -472,39 +471,10 @@ class Populator(BasePopulator):
             ],
         )
 
-    # def _populate_custom_forms(self):
-    #     create_cfci = CustomFormConfigItem.objects.create_if_needed
-    #     create_cfci(descriptor=custom_forms.ACTIVITY_CREATION_CFORM)
-    #     create_cfci(descriptor=custom_forms.ACTIVITY_CREATION_FROM_CALENDAR_CFORM)
-    #     create_cfci(descriptor=custom_forms.UNAVAILABILITY_CREATION_CFORM)
-    #     create_cfci(descriptor=custom_forms.ACTIVITY_EDITION_CFORM)
-
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(
             model=self.Activity, fields=self.SEARCH,
         )
-
-    # def _populate_setting_values(self):
-    #     create_svalue = SettingValue.objects.get_or_create
-    #     create_svalue(key_id=setting_keys.review_key.id,        defaults={'value': True})
-    #     create_svalue(key_id=setting_keys.auto_subjects_key.id, defaults={'value': True})
-    #
-    #     create_svalue(
-    #         key_id=setting_keys.unsuccessful_subtype_key.id,
-    #         defaults={'value': constants.UUID_SUBTYPE_PHONECALL_OUTGOING},
-    #     )
-    #     create_svalue(
-    #         key_id=setting_keys.unsuccessful_title_key.id,
-    #         defaults={'value': _('Unsuccessful call')},
-    #     )
-    #     create_svalue(
-    #         key_id=setting_keys.unsuccessful_status_key.id,
-    #         defaults={'value': constants.UUID_STATUS_UNSUCCESSFUL},
-    #     )
-    #     create_svalue(
-    #         key_id=setting_keys.unsuccessful_duration_key.id,
-    #         defaults={'value': 3},
-    #     )
 
     def _populate_menu_config(self):
         create_mitem = MenuConfigItem.objects.create

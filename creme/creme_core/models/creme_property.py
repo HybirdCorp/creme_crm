@@ -427,7 +427,6 @@ class CremeProperty(CremeModel):
     type = models.ForeignKey(
         CremePropertyType,
         verbose_name=_('Type of property'),
-        # on_delete=models.CASCADE,
         on_delete=models.PROTECT,
     )
     creme_entity = models.ForeignKey(

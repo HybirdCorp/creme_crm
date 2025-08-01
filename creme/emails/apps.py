@@ -46,7 +46,6 @@ class EmailsConfig(CremeAppConfig):
             self.EntityEmail,
         )
 
-    # def register_actions(self, actions_registry):
     def register_actions(self, action_registry):
         from . import actions
 

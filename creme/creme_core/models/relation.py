@@ -469,7 +469,6 @@ class Relation(CremeModel):
 
     user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    # type = models.ForeignKey(RelationType, on_delete=models.CASCADE)
     type = models.ForeignKey(RelationType, on_delete=models.PROTECT)
     symmetric_relation = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
 

@@ -361,12 +361,6 @@ class CreationTestCase(CremeTestCase):
     def test_entity_creation_properties(self):
         user = self.login_as_root_and_get()
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype01 = create_ptype(text='Smokes')
-        # ptype02 = create_ptype(text='Wears glasses')
-        # ptype03 = create_ptype(text='Has a gun', subject_ctypes=[FakeContact])
-        # ptype04 = create_ptype(text='Is a ship', subject_ctypes=[FakeOrganisation])
-        # ptype05 = CremePropertyType.objects.create(text='Disabled', enabled=False)
         create_ptype = CremePropertyType.objects.create
         ptype01 = create_ptype(text='Smokes')
         ptype02 = create_ptype(text='Wears glasses')
@@ -449,13 +443,11 @@ class CreationTestCase(CremeTestCase):
         sfrt1 = create_strt(
             predicate='Pilots the Swordfish',
             relation_type=rtype2,
-            # object_entity=orga2,
             real_object=orga2,
         )
         sfrt2 = create_strt(
             predicate='Loves Faye',
             relation_type=rtype1,
-            # object_entity=contact2,
             real_object=contact2,
         )
         disabled_sfrt = create_strt(

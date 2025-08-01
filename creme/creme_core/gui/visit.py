@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import json
-# from urllib.parse import urlencode
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
@@ -170,11 +169,6 @@ class EntityVisitor:
         if self.search_dict:
             parameters.update(self.search_dict)
 
-        # url = reverse(
-        #     self.url_name,
-        #     args=(ContentType.objects.get_for_model(self.model).id,),
-        # )
-        # return f'{url}?{urlencode(parameters)}'
         return reverse(
             self.url_name,
             args=(ContentType.objects.get_for_model(self.model).id,),

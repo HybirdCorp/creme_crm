@@ -94,7 +94,6 @@ class HeaderFiltersTestCase(CremeTestCase):
             cells_desc=[
                 (EntityCellRegularField, {'name': 'last_name'}),
                 EntityCellRelation(model=FakeContact, rtype=loves),
-                # (EntityCellRelation, {'rtype_id': likes.id}),
                 (EntityCellRelation, {'name': likes.id}),
                 None,
             ],
@@ -204,7 +203,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertFalse(setting_value.value)
 
         user = self.create_user(index=1, role=self.create_role(allowed_apps=['creme_core']))
-        # self.assertTrue(HeaderFilter(entity_type=FakeContact).can_edit(user)[0])
         self.assertTupleEqual(
             (True, 'OK'),
             HeaderFilter(user=user, entity_type=FakeContact).can_edit(user),
@@ -268,7 +266,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertListEqual(
             [
                 {'type': 'regular_field', 'value': fname1},
-                # {'type': 'custom_field', 'value': str(cfield.id)},
                 {'type': 'custom_field', 'value': str(cfield.uuid)},
             ],
             hf.json_cells,
@@ -284,7 +281,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(
             [
                 {'type': 'regular_field', 'value': fname1},
-                # {'type': 'custom_field', 'value': str(cfield.id)},
                 {'type': 'custom_field', 'value': str(cfield.uuid)},
                 {'type': 'regular_field', 'value': fname2},
             ],
@@ -325,7 +321,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf', name='Contact view', model=FakeContact,
             cells_desc=[
-                # (EntityCellFunctionField, {'func_field_name': ffield_name}),
                 (EntityCellFunctionField, {'name': ffield_name}),
                 (EntityCellRegularField,  {'name': rfield_name}),
             ],
@@ -607,7 +602,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(hf2, hfl.select_by_id('unknown_id', hf2.id))
 
         self.assertEqual(hf1.can_view(user), (True, 'OK'))
-        # self.assertEqual(hf1.can_view(user, ct), (True, 'OK'))
 
         # self.assertEqual(hf3.can_view(user, ct), (False, 'Invalid entity type'))
         self.assertNotIn(hf3, hfl)

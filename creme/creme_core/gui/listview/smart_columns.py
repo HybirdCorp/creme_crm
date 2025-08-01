@@ -50,7 +50,6 @@ class _ModelSmartColumnsRegistry:
             if cell_cls is EntityCellRegularField:
                 cell = EntityCellRegularField.build(model=model, name=data)
             elif cell_cls is EntityCellFunctionField:
-                # cell = EntityCellFunctionField.build(model, func_field_name=data)
                 cell = EntityCellFunctionField.build(model, name=data)
             else:  # EntityCellRelation
                 rtype = self._get_relationtype(data)

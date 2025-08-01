@@ -231,7 +231,6 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
 
         self.assertIsNone(activity.start)
         self.assertIsNone(activity.end)
-        # self.assertEqual(constants.FLOATING, activity.floating_type)
         self.assertEqual(Activity.FloatingType.FLOATING, activity.floating_type)
         self.assertFalse(activity.is_all_day)
         self.assertFalse(activity.busy)
@@ -438,16 +437,10 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         user = self.login_as_root_and_get()
 
         atype = ActivityType.objects.create(
-            # id='test-activity_contest',
             name='Martial contest',
-            default_day_duration=2,
-            default_hour_duration='05:00:00',
+            default_day_duration=2, default_hour_duration='05:00:00',
         )
-        sub_type = ActivitySubType.objects.create(
-            # id='test-activity_contest',
-            name='Karate contest',
-            type=atype,
-        )
+        sub_type = ActivitySubType.objects.create(name='Karate contest', type=atype)
 
         create_dt = self.create_datetime
         activity = Activity.objects.create(

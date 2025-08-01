@@ -130,13 +130,9 @@ AUTHENTICATION_BACKENDS = ['creme.creme_core.auth.backend.EntityBackend']
 AUTH_USER_MODEL = 'creme_core.CremeUser'
 
 AUTH_PASSWORD_VALIDATORS = [
-    # {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'creme.creme_core.auth.password_validation.UserAttributeSimilarityValidator'},
-    # {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
     {'NAME': 'creme.creme_core.auth.password_validation.MinimumLengthValidator'},
-    # {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
     {'NAME': 'creme.creme_core.auth.password_validation.CommonPasswordValidator'},
-    # {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
     {'NAME': 'creme.creme_core.auth.password_validation.NumericPasswordValidator'},
 ]
 
@@ -165,11 +161,6 @@ LANGUAGES = [
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
-
-# DEPRECATED (+ default value is True)
-# If you set this to True, Django will format dates, numbers and calendars
-# according to user current locale.
-# USE_L10N = True
 
 LOCALE_PATHS = [join(CREME_ROOT, 'locale')]
 
@@ -860,7 +851,6 @@ CREME_LIB_JS = [
     'creme_core/js/jquery/ui/jquery-ui-1.13.1.js',
     'creme_core/js/jquery/ui/jquery-ui-locale.js',
     'creme_core/js/jquery/extensions/jquery.dragtable.js',
-    # 'creme_core/js/jquery/extensions/jquery.form-3.51.js',
     'creme_core/js/jquery/extensions/jquery.floatthead-2.2.4.js',
     'creme_core/js/lib/momentjs/moment-2.29.4.js',
     'creme_core/js/lib/momentjs/locale/en-us.js',
@@ -1348,10 +1338,6 @@ BILLING_QUOTE_FORCE_NOT_CUSTOM         = False
 BILLING_SALES_ORDER_FORCE_NOT_CUSTOM   = False
 BILLING_SERVICE_LINE_FORCE_NOT_CUSTOM  = False
 BILLING_TEMPLATE_BASE_FORCE_NOT_CUSTOM = False
-
-# QUOTE_NUMBER_PREFIX = 'DE'
-# INVOICE_NUMBER_PREFIX = 'FA'
-# SALESORDER_NUMBER_PREFIX = 'BC'
 
 BILLING_EXPORTERS = [
     'creme.billing.exporters.xls.XLSExportEngine',

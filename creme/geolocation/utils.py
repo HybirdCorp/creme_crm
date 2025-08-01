@@ -115,14 +115,12 @@ def addresses_from_persons(queryset, user):
 
 def get_radius():
     return SettingValue.objects.value_4_key(
-        # setting_keys.NEIGHBOURHOOD_DISTANCE,
         setting_keys.neighbourhood_distance_key,
         default=constants.DEFAULT_SEPARATING_NEIGHBOURS,
     )
 
 
 def get_google_api_key():
-    # return SettingValue.objects.value_4_key(setting_keys.GOOGLE_API_KEY, default='') or ''
     return SettingValue.objects.value_4_key(setting_keys.google_api_key, default='') or ''
 
 

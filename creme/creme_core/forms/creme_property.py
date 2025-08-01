@@ -26,10 +26,6 @@ from .base import CremeForm
 
 
 class _PropertiesForm(CremeForm):
-    # types = ModelMultipleChoiceField(
-    #     label=_('Type of property'),
-    #     queryset=CremePropertyType.objects.none(),
-    # )
     types = core_fields.PropertyTypesChoiceField(label=_('Type of property'))
 
 

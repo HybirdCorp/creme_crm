@@ -12,11 +12,6 @@ from parameterized import parameterized
 
 import creme.creme_core.tests.views.base as views_base
 import creme.projects.bricks as proj_bricks
-# from creme.activities.constants import (
-#     ACTIVITYSUBTYPE_MEETING_MEETING,
-#     ACTIVITYTYPE_MEETING,
-#     ACTIVITYTYPE_TASK,
-# )
 from creme.activities.constants import (
     REL_SUB_PART_2_ACTIVITY,
     UUID_SUBTYPE_MEETING_MEETING,
@@ -44,7 +39,6 @@ from . import (
     task_model_is_custom,
 )
 from .actions import ProjectCloseAction
-# from .constants import COMPLETED_PK, NOT_STARTED_PK
 from .constants import (
     REL_OBJ_PROJECT_MANAGER,
     REL_SUB_LINKED_2_PTASK,
@@ -135,7 +129,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
                         duration='8', sub_type_id=None, busy='', errors=False,
                         ):
         if not sub_type_id:
-            # sub_type_id = ActivitySubType.objects.filter(type=ACTIVITYTYPE_TASK).first().id
             sub_type_id = ActivitySubType.objects.filter(type__uuid=UUID_TYPE_TASK).first().id
 
         response = self.client.post(
@@ -201,10 +194,8 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
                     status=None, sub_type_id=None,
                     ):
         if not sub_type_id:
-            # sub_type_id = ActivitySubType.objects.filter(type=ACTIVITYTYPE_TASK).first().id
             sub_type_id = ActivitySubType.objects.filter(type__uuid=UUID_TYPE_TASK).first().id
 
-        # status = status or TaskStatus.objects.get(pk=NOT_STARTED_PK)
         status = status or TaskStatus.objects.get(uuid=UUID_TSTATUS_NOT_STARTED)
         response = self.client.post(
             self._build_add_task_url(project), follow=True,
@@ -263,7 +254,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             user=user,
             linked_project=project,
             title='legs',
-            # tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
             tstatus=TaskStatus.objects.get(uuid=UUID_TSTATUS_NOT_STARTED),
             start=now_value,
             end=now_value + timedelta(days=3),
@@ -381,7 +371,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         self.assertGET200(reverse('projects__list_projects'))
 
     def test_listview_instance_actions(self):
-        # user = self.login_as_root_and_get()
         user = self.login_as_projects_user(
             allowed_apps=['persons'], creatable_models=[Project],
         )
@@ -1097,7 +1086,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             'end':           self.formfield_value_date(2015, 5, 22),
             'duration':      10,
             'user':          user.id,
-            # 'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
             'type_selector': stype.id,
         }
         self.client.post(self._build_add_activity_url(task), follow=True, data=data)
@@ -1150,7 +1138,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
                 'start':         self.formfield_value_date(2016, 5, 19),
                 'end':           self.formfield_value_date(2016, 6,  3),
                 'duration':      8,
-                # 'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
                 'type_selector': stype.id,
                 'user':          user.id,
             },
@@ -1198,7 +1185,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
                 'end':           self.formfield_value_date(2020, 12, 31),
                 'duration':      100,
                 'user':          user.id,
-                # 'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
                 'type_selector': stype.id,
             },
         )
@@ -1248,7 +1234,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         task = ProjectTask.objects.create(
             user=user,
             linked_project=project,
-            # tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
             tstatus=TaskStatus.objects.get(uuid=UUID_TSTATUS_NOT_STARTED),
             start=now_value,
             end=now_value + timedelta(days=3),
@@ -1414,7 +1399,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             linked_project=project,
             order=0, duration=0,
             tstatus=status, title=title,
-            # user=self.user,
             user=project.user,
             start=now_value,
             end=now_value + timedelta(hours=1),
@@ -1833,11 +1817,9 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
     def test_edit_activity_error(self):
         "Activity not related to a project task."
         user = self.login_as_root_and_get()
-        # sub_type = ActivitySubType.objects.filter(type_id=ACTIVITYTYPE_TASK).first()
         sub_type = ActivitySubType.objects.filter(type__uuid=UUID_TYPE_TASK).first()
         activity = Activity.objects.create(
             user=user, title='My task',
-            # type_id=ACTIVITYTYPE_TASK,
             type_id=sub_type.type_id,
             sub_type=sub_type,
         )
@@ -1849,11 +1831,9 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         "Activity not related to a project task."
         user = self.login_as_root_and_get()
 
-        # sub_type = ActivitySubType.objects.filter(type_id=ACTIVITYTYPE_TASK).first()
         sub_type = ActivitySubType.objects.filter(type__uuid=UUID_TYPE_TASK).first()
         activity = Activity.objects.create(
             user=user, title='My task',
-            # type_id=ACTIVITYTYPE_TASK,
             type_id=sub_type.type_id,
             sub_type=sub_type,
         )

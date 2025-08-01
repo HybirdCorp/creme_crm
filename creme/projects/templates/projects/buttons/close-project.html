@@ -1,6 +1,5 @@
 {% load i18n creme_widgets creme_perms %}{% load blockjsondata from creme_core_tags %}
 {% translate 'Close project' as close_label %}
-{# <a class="menu_button menu-button-icon{% if not user|has_perm_to_change:object %} forbidden is-disabled{% endif %}" data-action="projects-hatmenubar-close" href="{% url 'projects__close_project' object.id %}"> #}
 <a class="menu_button menu-button-icon{% if not user|has_perm_to_change:object %} forbidden is-disabled{% endif %}" data-action="update" href="{% url 'projects__close_project' object.id %}">
     {% widget_icon name='cancel' size='instance-button' label=close_label %}
     {{close_label}}

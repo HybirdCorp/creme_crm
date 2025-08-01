@@ -69,7 +69,6 @@ urlpatterns = [
     ),
     re_path(
         r'^poll_reply/clean[/]?$',
-        # poll_reply.clean
         poll_reply.PollReplyCleaning.as_view(),
         name='polls__clean_reply',
     ),
@@ -180,7 +179,6 @@ urlpatterns = [
             re_path(
                 r'^poll_reply/add[/]?$',
                 poll_reply.PollRepliesCreation.as_view(),
-                # name='polls__create_reply',
                 name='polls__create_replies',
             ),
         ),
@@ -188,7 +186,6 @@ urlpatterns = [
             re_path(
                 r'^poll_reply/add_from_pform/(?P<pform_id>\d+)[/]?$',
                 poll_reply.RepliesCreationFromPForm.as_view(),
-                # name='polls__create_reply_from_pform',
                 name='polls__create_replies_from_pform',
             ),
             check_args=Swappable.INT_ID,
@@ -197,7 +194,6 @@ urlpatterns = [
             re_path(
                 r'^poll_reply/add_from_campaign/(?P<campaign_id>\d+)[/]?$',
                 poll_reply.RepliesCreationFromCampaign.as_view(),
-                # name='polls__create_reply_from_campaign',
                 name='polls__create_replies_from_campaign',
             ),
             check_args=Swappable.INT_ID,
@@ -206,7 +202,6 @@ urlpatterns = [
             re_path(
                 r'^poll_reply/add_from_person/(?P<person_id>\d+)[/]?$',
                 poll_reply.RepliesCreationFromPerson.as_view(),
-                # name='polls__create_reply_from_person',
                 name='polls__create_replies_from_person',
             ),
             check_args=Swappable.INT_ID,

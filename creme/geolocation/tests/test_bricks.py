@@ -501,7 +501,6 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         GoogleDetailMapBrick,
     ])
     def test_disabled_bricks(self, brick_class):
-        # user = self._simple_login()
         user = self.login_as_root_and_get()
 
         contact = Contact.objects.create(last_name='Contact 1', user=user)

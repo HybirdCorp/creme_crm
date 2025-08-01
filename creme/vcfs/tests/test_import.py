@@ -19,7 +19,6 @@ from creme.creme_core.models import (
     RelationType,
 )
 from creme.creme_core.tests.base import CremeTestCase
-# from creme.documents.tests.base import _DocumentsTestCase
 from creme.documents.tests.base import DocumentsTestCaseMixin
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 from creme.persons.models import Civility, Position, Sector
@@ -38,7 +37,6 @@ from .base import (
 )
 
 
-# class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
 class VcfImportTestCase(DocumentsTestCaseMixin, CremeTestCase):
     IMPORT_URL = reverse('vcfs__import')
     image_data = (
@@ -685,7 +683,6 @@ END:VCARD"""
             first_name=first_name, last_name=last_name,
             phone=phone, mobile=mobile, fax=fax, email=email,
         )
-        # self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
         self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=orga)
         self.assertRedirects(response, contact.get_absolute_url())
 
@@ -993,7 +990,6 @@ END:VCARD"""
         self.assertEqual(name,     orga.name)
         self.assertEqual(phone,    orga.phone)
         self.assertEqual(email,    orga.email)
-        # self.assertEqual(f'http://{url_site}', orga.url_site)
         self.assertEqual(url_site, orga.url_site)
 
     @skipIfCustomContact
@@ -1183,7 +1179,6 @@ END:VCARD"""
         self.assertEqual(name,  orga.name)
         self.assertEqual(phone, orga.phone)
         self.assertEqual(email, orga.email)
-        # self.assertEqual(f'http://{site}', orga.url_site)
         self.assertEqual(site,  orga.url_site)
 
         billing_address = orga.billing_address
@@ -1358,7 +1353,6 @@ END:VCARD"""
         contact = self.get_object_or_fail(
             Contact, first_name=first_name, last_name=last_name,
         )
-        # self.assertEqual('http://www.url.com', contact.url_site)
         self.assertEqual(url_site, contact.url_site)
 
     @skipIfCustomContact
@@ -1390,8 +1384,6 @@ END:VCARD"""
         self.assertEqual(user.id, user_id)
         self.assertEqual(first_name, first_name_f.initial)
         self.assertEqual(last_name, last_name_f.initial)
-        # self.assertEqual(3, civility_id)  # pk=3 see persons.populate
-        # self.assertEqual(1, position_id)  # pk=1 idem
         self.assertEqual(Civility.objects.get(uuid=UUID_CIVILITY_MR).id, civility_id)
         self.assertEqual(Position.objects.get(uuid=UUID_POSITION_CEO).id, position_id)
 

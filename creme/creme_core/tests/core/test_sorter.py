@@ -712,7 +712,6 @@ class QuerySorterTestCase(CremeTestCase):
         cells = [
             EntityCellRegularField.build(model=FakeOrganisation, name=field_name),
             EntityCellFunctionField.build(
-                # model=FakeContact, func_field_name='get_pretty_properties',
                 model=FakeContact, name='get_pretty_properties',
             ),
         ]
@@ -809,7 +808,6 @@ class QuerySorterTestCase(CremeTestCase):
         field_name = 'name'
         cells = [
             EntityCellRegularField.build(model=FakeOrganisation, name=field_name),
-            # EntityCellRelation.build(model=FakeOrganisation,     rtype_id=REL_SUB_HAS),
             EntityCellRelation.build(model=FakeOrganisation,     name=REL_SUB_HAS),
         ]
 

@@ -2,7 +2,6 @@ from functools import partial
 from time import sleep
 
 from django.apps import apps
-# from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.models import Session
 from django.test.utils import override_settings
 
@@ -420,27 +419,11 @@ class GuiTestCase(CremeTestCase):
     def test_mass_import_registry01(self):
         registry = FormRegistry()
 
-        # get_ct = ContentType.objects.get_for_model
-        # contact_ct = get_ct(FakeContact)
-        # orga_ct    = get_ct(FakeOrganisation)
-        # ticket_ct  = get_ct(FakeTicket)
-
-        # self.assertFalse(registry.is_registered(contact_ct))
-        # self.assertFalse(registry.is_registered(orga_ct))
-        # self.assertFalse(registry.is_registered(ticket_ct))
-
         self.assertNotIn(FakeContact,      registry)
         self.assertNotIn(FakeOrganisation, registry)
         self.assertNotIn(FakeTicket,       registry)
 
         # ---
-        # with self.assertRaises(registry.UnregisteredCTypeException) as old_cm_absent:
-        #     registry.get(contact_ct)
-        # self.assertEqual(
-        #     'Unregistered ContentType: Test Contact',
-        #     str(old_cm_absent.exception),
-        # )
-
         with self.assertRaises(KeyError) as cm_absent:
             registry[FakeContact]  # NOQA
         self.assertEqual(
@@ -450,32 +433,17 @@ class GuiTestCase(CremeTestCase):
 
         # ---
         registry.register(FakeContact, get_csv_form_builder).register(FakeTicket)
-        # self.assertTrue(registry.is_registered(contact_ct))
-        # self.assertFalse(registry.is_registered(orga_ct))
-        # self.assertTrue(registry.is_registered(ticket_ct))
-
         self.assertIn(FakeContact, registry)
         self.assertNotIn(FakeOrganisation, registry)
         self.assertIn(FakeTicket, registry)
-
-        # with self.assertNoException():
-        #     old_contact_builder = registry.get(contact_ct)
-        # self.assertIs(get_csv_form_builder, old_contact_builder)
 
         with self.assertNoException():
             contact_builder = registry[FakeContact]
         self.assertIs(get_csv_form_builder, contact_builder)
 
-        # with self.assertNoException():
-        #     old_ticket_builder = registry.get(ticket_ct)
-        # self.assertIsNone(old_ticket_builder)
-
         with self.assertNoException():
             ticket_builder = registry[FakeTicket]
         self.assertIsNone(ticket_builder)
-
-        # with self.assertRaises(registry.UnregisteredCTypeException):
-        #     registry.get(orga_ct)
 
         with self.assertRaises(KeyError):
             registry[FakeOrganisation]  # NOQA

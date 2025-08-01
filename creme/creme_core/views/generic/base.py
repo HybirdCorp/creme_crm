@@ -23,7 +23,7 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ImproperlyConfigured  # PermissionDenied
+from django.core.exceptions import ImproperlyConfigured
 from django.db.models.query import QuerySet
 from django.db.transaction import atomic
 from django.http import (
@@ -125,17 +125,6 @@ class PermissionsMixin:
         @param user: Instance of <auth.get_user_model()>.
         @raise: PermissionDenied.
         """
-        # permissions = self.permissions
-        #
-        # if permissions:
-        #     allowed = (
-        #         user.has_perm(permissions)
-        #         if isinstance(permissions, str) else
-        #         user.has_perms(permissions)
-        #     )
-        #
-        #     if not allowed:
-        #         raise PermissionDenied(gettext('You are not allowed to access this view.'))
         user.has_perms_or_die(self.permissions)
 
     def handle_not_logged(self):
@@ -325,7 +314,6 @@ class ContentTypeRelatedMixin:
 
     def get_ctype(self) -> ContentType:
         try:
-            # ctype = getattr(self, 'related_ctype')
             ctype = self.related_ctype
         except AttributeError:
             ct_id_str = self.get_ctype_id()

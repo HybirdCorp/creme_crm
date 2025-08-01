@@ -3,16 +3,13 @@ from email.mime.image import MIMEImage
 from django.core import mail as django_mail
 from django.utils.html import escape
 
-# from creme.documents.tests.base import _DocumentsTestCase
 from creme.documents.tests.base import DocumentsTestCaseMixin
 
 from ..models import EmailSignature
-# from ..utils import get_mime_image
 from ..utils import EMailSender, SignatureImage, SignatureRenderer, get_domain
 from .base import EntityEmail, _EmailsTestCase
 
 
-# class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 class UtilsTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
     class TestEMailSender(EMailSender):
         subject = 'Test'
@@ -32,27 +29,6 @@ class UtilsTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
         self.assertEqual('', get_domain('Faye <faye.valentine>'))
         self.assertEqual('', get_domain('Faye <>'))
         self.assertEqual('', get_domain('Faye <'))
-
-    # def test_get_mime_image(self):  # DEPRECATED
-    #     "PNG."
-    #     user = self.login_as_root_and_get()
-    #     img = self._create_image(user=user)
-    #
-    #     with self.assertNoException():
-    #         imime = get_mime_image(img)
-    #
-    #     self.assertIsInstance(imime, MIMEImage)
-    #     self.assertEqual('image/png', imime.get_content_type())
-    #
-    #     with self.assertNoException():
-    #         content_id = imime['Content-ID']
-    #
-    #     self.assertEqual(f'<img_{img.id}>', content_id)
-    #
-    #     with self.assertNoException():
-    #         content_disp = imime['Content-Disposition']
-    #
-    #     self.assertRegex(content_disp, r'inline; filename="creme_22(.*).png"')
 
     def test_signature_image(self):
         user = self.login_as_root_and_get()
@@ -91,10 +67,8 @@ class UtilsTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
         )
         signature.images.set([img1, img2])
 
-        # renderer = SignatureRenderer(signature=signature)
         domain = 'test.com'
         renderer = SignatureRenderer(signature=signature, domain=domain)
-        # self.assertEqual(f'\n--\n{signature.body}', renderer.render_text())
         self.assertEqual(f'\n\n--\n{signature.body}', renderer.render_text())
         self.assertHTMLEqual(
             f'<div class="creme-emails-signature" id="signature-{signature.id}">'

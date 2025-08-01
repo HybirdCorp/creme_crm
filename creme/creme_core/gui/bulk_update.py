@@ -113,7 +113,6 @@ class FieldOverrider:
 # NB2: the previous version accepted models which were not inheriting CremeEntity ;
 #      the new version focus on CremeEntity, but maybe the possibility will be
 #      back if it's useful.
-# class _BulkUpdateRegistry:
 class BulkUpdateRegistry:
     """Registry which stores which fields of entities models can or cannot be
     edited via the inner/bulk edition system, and if they use a specific form.

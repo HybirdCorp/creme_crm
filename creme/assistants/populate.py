@@ -18,13 +18,10 @@
 
 from functools import partial
 
-# from django.conf import settings
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core import notification
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-# from creme.creme_core.models import Job
-# from creme.creme_core.utils import create_if_needed
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -34,7 +31,6 @@ from creme.creme_core.models import (
 
 from . import constants
 from .bricks import AlertsBrick, MemosBrick, TodosBrick, UserMessagesBrick
-# from .creme_jobs import usermessages_send_type
 from .models import UserMessagePriority
 from .notification import UserMessagesChannelType
 from .setting_keys import todo_reminder_key
@@ -73,7 +69,6 @@ class Populator(BasePopulator):
     ]
 
     def _already_populated(self):
-        # return UserMessagePriority.objects.filter(pk=constants.PRIO_IMP_PK).exists()
         return UserMessagePriority.objects.exists()
 
     def _populate(self):
@@ -82,24 +77,6 @@ class Populator(BasePopulator):
 
     def _populate_message_priorities(self):
         self._save_minions(self.PRIORITIES)
-
-    # def _populate_setting_values(self):
-    #     SettingValue.objects.get_or_create(
-    #         key_id=todo_reminder_key.id, defaults={'value': 9},
-    #     )
-
-    # def _populate_notification_channels(self):
-    #     NotificationChannel.objects.get_or_create(
-    #         uuid=constants.UUID_CHANNEL_USERMESSAGES,
-    #         defaults={
-    #             'type_id': UserMessagesChannelType.id,
-    #             'required': True,
-    #             'default_outputs': [
-    #                 notification.OUTPUT_EMAIL,
-    #                 notification.OUTPUT_WEB,
-    #             ],
-    #         },
-    #     )
 
     def _populate_bricks_config(self):
         create_bdl = partial(

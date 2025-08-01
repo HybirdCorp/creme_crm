@@ -196,13 +196,7 @@ class CremeEntity(CremeModel):
 
         return real_entity.get_absolute_url()
 
-    # @staticmethod
-    # def get_clone_absolute_url() -> str:
     def get_clone_absolute_url(self) -> str:
-        # """Returns the url of the clone view of this entity type.
-        # This URL should only accept POST method, and take an 'id' POST parameter.
-        # If '' (void string) is returned, the type can not be cloned.
-        # """
         """You should probably not override this method in child classes.
         Use the cloning system instead (see <creme_core.core.cloning> &
         <creme_core.apps.CremeAppConfig.register_cloners()>).
@@ -225,9 +219,6 @@ class CremeEntity(CremeModel):
         return ''
 
     def get_delete_absolute_url(self) -> str:
-        # """Returns the url of the deletion view (should use POST method) for this instance.
-        # If '' (void string) is returned, the model can not be deleted directly.
-        # """
         """You should probably not override this method in child classes.
         Use the deletion system instead (see <creme_core.core.deletion> &
         <creme_core.apps.CremeAppConfig.register_deletors()>).

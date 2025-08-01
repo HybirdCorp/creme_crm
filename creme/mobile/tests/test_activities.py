@@ -584,7 +584,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         pcall = self._create_pcall(
             user=user, title='Phone call#1',
-            # status_id=STATUS_PLANNED,
             status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
             participant=user.linked_contact,
         )

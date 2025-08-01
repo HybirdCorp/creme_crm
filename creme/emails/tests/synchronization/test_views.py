@@ -287,8 +287,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         user = self.login_as_emails_user()
 
         create_e2s = EmailToSync.objects.create
-        create_e2s(user=user,            subject='I want a swordfish II')
-        # create_e2s(user=self.other_user, subject='I want a swordfish III')
+        create_e2s(user=user,                 subject='I want a swordfish II')
         create_e2s(user=self.get_root_user(), subject='I want a swordfish III')
 
         response = self.assertGET200(reverse('emails__sync_portal'))
@@ -370,7 +369,6 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertGET405(url, data=data)
 
         response = self.assertPOST200(url, data=data)
-        # self.assertEqual(_('Operation successfully completed'), response.content.decode())
         self.assertEqual(_('Operation successfully completed'), response.text)
 
         self.assertDoesNotExist(e2s1)
@@ -1196,7 +1194,6 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_accept_email_to_sync_perm03(self):
         "Not owner but staff."
-        # user = self.login_as_super(is_staff=True)
         self.login_as_super(is_staff=True)
 
         other_user = self.get_root_user()
@@ -1206,7 +1203,6 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             body="Hello,\nI'd prefer a blue one.\n Have a good day.",
         )
 
-        # sender_contact = user.linked_contact
         sender_contact = Contact.objects.create(
             user=other_user, first_name='Akane', last_name='Tendô',
         )

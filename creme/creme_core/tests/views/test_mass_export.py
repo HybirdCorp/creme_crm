@@ -105,7 +105,6 @@ class MassExportViewsTestCase(CremeTestCase):
             EntityCellRelation(model=FakeContact, rtype=rtype_pilots),
             # TODO: EntityCellCustomField
             EntityCellFunctionField.build(
-                # model=FakeContact, func_field_name='get_pretty_properties',
                 model=FakeContact, name='get_pretty_properties',
             ),
         ]
@@ -342,7 +341,6 @@ class MassExportViewsTestCase(CremeTestCase):
     def test_list_view_export_credentials02(self):
         "Views credential."
         user = self.login_as_standard()
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
         user.role.exportable_ctypes.set([self.ct])
 
@@ -370,12 +368,7 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
         self.assertEqual(result[3], '"","Wong","Edward","","is a girl"')
 
-    @override_settings(
-        # USE_L10N=False,
-        # DATETIME_FORMAT='j F Y H:i',
-        # DATETIME_INPUT_FORMATS=['%d-%m-%Y %H:%M:%S'],
-        LANGUAGE_CODE='en',
-    )
+    @override_settings(LANGUAGE_CODE='en')
     def test_list_view_export_datetime(self):
         user = self.login_as_root_and_get()
 
@@ -396,7 +389,6 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertEqual(
             '"{}","{}"'.format(
                 spike.last_name,
-                # localtime(spike.created).strftime('%d-%m-%Y %H:%M:%S'),
                 localtime(spike.created).strftime('%Y-%m-%d %H:%M:%S'),
             ),
             result[1],
@@ -586,11 +578,7 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists ?!')
         self.assertEqual(Path(settings.MEDIA_ROOT, 'xls'), fullpath.parent)
 
-    @override_settings(
-        # USE_L10N=False,
-        # DATE_INPUT_FORMATS=['%d,%m,%Y'],
-        LANGUAGE_CODE='fr',
-    )
+    @override_settings(LANGUAGE_CODE='fr')
     def test_xls_export02(self):
         "Other CT, other type of fields."
         user = self.login_as_root_and_get()
@@ -629,7 +617,6 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertListEqual(next(it), [orga01.name, _('Yes'), ''])
         self.assertListEqual(
             next(it),
-            # [orga02.name, _('No'), orga02.creation_date.strftime('%d,%m,%Y')],
             [orga02.name, _('No'), orga02.creation_date.strftime('%d/%m/%Y')],
         )
         with self.assertRaises(StopIteration):

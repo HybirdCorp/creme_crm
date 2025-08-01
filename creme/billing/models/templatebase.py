@@ -16,10 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from datetime import timedelta
 import logging
 
-# from django.db.models import PositiveIntegerField
 from django.db.models import UUIDField
 from django.urls import reverse
 from django.utils.translation import pgettext_lazy
@@ -34,7 +32,6 @@ logger = logging.getLogger(__name__)
 class AbstractTemplateBase(Base):
     ct = CTypeForeignKey(editable=False).set_tags(viewable=False)
     # TODO: avoid deletion of status
-    # status_id = PositiveIntegerField(editable=False).set_tags(viewable=False)
     status_uuid = UUIDField(editable=False).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('billing', 'Create a template')
@@ -50,15 +47,8 @@ class AbstractTemplateBase(Base):
     def get_absolute_url(self):
         return reverse('billing__view_template', args=(self.id,))
 
-    # @staticmethod
-    # def get_clone_absolute_url():
-    #     return ''
-
     def get_edit_absolute_url(self):
         return reverse('billing__edit_template', args=(self.id,))
-
-    # def get_delete_absolute_url(self):
-    #     return ''
 
     @staticmethod
     def get_lv_absolute_url():
@@ -66,20 +56,6 @@ class AbstractTemplateBase(Base):
 
     def create_entity(self):
         "This method is used by the generation job."
-        # instance_class = self.ct.model_class()
-        # instance = instance_class()
-        # instance.build(self)
-        #
-        # if not instance.generate_number_in_create:
-        #     instance.generate_number()
-        # instance.expiration_date = instance.issuing_date + timedelta(days=30)
-        #
-        # instance.additional_info = self.additional_info
-        # instance.payment_terms = self.payment_terms
-        #
-        # instance.save()
-        #
-        # return instance
         from ..core.spawning import spawner_registry
 
         spawner = spawner_registry.get(model=self.ct.model_class())

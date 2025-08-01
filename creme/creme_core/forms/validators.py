@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -140,7 +140,6 @@ def validate_linkable_model(model, user, owner, code='linknotallowed'):
     validate_authenticated_user(
         user, gettext_lazy('Not authenticated user is not allowed to link «{model}»'),
         code=code,
-        # model=model._meta.verbose_name_plural,
         model=model_verbose_name_plural(model),
     )
 

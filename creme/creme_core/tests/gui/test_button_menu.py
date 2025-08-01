@@ -23,7 +23,6 @@ class ButtonMenuTestCase(CremeTestCase):
         request = FakeRequest(user=user)
 
         button = TestButton()
-        # self.assertIs(button.is_allowed(entity=c, request=request), True)
         self.assertIs(button.ok_4_display(entity=c), True)
         # TODO: uncomment when 'is_allowed' is removed
         # self.assertDictEqual(
@@ -80,7 +79,6 @@ class ButtonMenuTestCase(CremeTestCase):
 
         request = FakeRequest(user=user)
         button1 = TestButton01()
-        # self.assertIs(button1.is_allowed(entity=c, request=request), False)
         # TODO: uncomment when 'is_allowed' is removed
         # self.assertDictEqual(
         #     {
@@ -110,10 +108,6 @@ class ButtonMenuTestCase(CremeTestCase):
         with self.assertLogs(level='CRITICAL'):
             is_allowed = is_allowed_func()
         self.assertIs(is_allowed, False)
-
-        # self.assertIs(TestButton02().is_allowed(entity=c, request=request), True)
-        # self.assertIs(TestButton03().is_allowed(entity=c, request=request), False)
-        # self.assertIs(TestButton04().is_allowed(entity=c, request=request), True)
 
         with self.assertNoException():
             TestButton02().check_permissions(entity=c, request=request)
@@ -236,10 +230,6 @@ class ButtonMenuTestCase(CremeTestCase):
         basic_ctxt = {'request': create_request(basic_user),           'entity': entity}
         super_ctxt = {'request': create_request(self.get_root_user()), 'entity': entity}
 
-        # is_allowed1 = TestButton01().is_allowed
-        # self.assertIs(is_allowed1(**super_ctxt), True)
-        # self.assertIs(is_allowed1(**basic_ctxt), True)
-
         button1 = TestButton01()
         with self.assertNoException():
             button1.check_permissions(**super_ctxt)
@@ -249,10 +239,6 @@ class ButtonMenuTestCase(CremeTestCase):
         class TestButton02(Button):
             id = Button.generate_id('creme_core', 'test_button_registry04_02')
             permissions = 'documents'
-
-        # is_allowed2 = TestButton02().is_allowed
-        # self.assertIs(is_allowed2(**super_ctxt), True)
-        # self.assertIs(is_allowed2(**basic_ctxt), False)
 
         button2 = TestButton02()
         with self.assertNoException():
@@ -274,9 +260,6 @@ class ButtonMenuTestCase(CremeTestCase):
             id = Button.generate_id('creme_core', 'test_button_registry04_04')
             permissions = 'creme_core.add_fakeorganisation'
 
-        # self.assertTrue(TestButton03().is_allowed(**basic_ctxt))
-        # self.assertFalse(TestButton04().is_allowed(**basic_ctxt))
-
         with self.assertNoException():
             TestButton03().check_permissions(**basic_ctxt)
 
@@ -295,9 +278,6 @@ class ButtonMenuTestCase(CremeTestCase):
         class TestButton06(Button):
             id = Button.generate_id('creme_core', 'test_button_registry04_06')
             permissions = ['persons', 'creme_core.add_fakeorganisation']
-
-        # self.assertTrue(TestButton05().is_allowed(**basic_ctxt))
-        # self.assertFalse(TestButton06().is_allowed(**basic_ctxt))
 
         with self.assertNoException():
             TestButton05().check_permissions(**basic_ctxt)

@@ -152,7 +152,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         ticket = Ticket.objects.create(
             user=user,
             title='Test ticket',
-            # status=Status.objects.get(pk=OPEN_PK),
             status=Status.objects.get(uuid=constants.UUID_STATUS_OPEN),
             priority=Priority.objects.all()[0],
             criticity=Criticity.objects.all()[0],
@@ -250,7 +249,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertEqual(description,  ticket.description)
         self.assertEqual(priority,     ticket.priority)
         self.assertEqual(criticity,    ticket.criticity)
-        # self.assertEqual(OPEN_PK,      ticket.status_id)
         self.assertUUIDEqual(constants.UUID_STATUS_OPEN, ticket.status.uuid)
 
         self.assertTrue(ticket.number)
@@ -302,7 +300,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
         self.assertEqual('', funf(ticket, user).render(ViewTag.HTML_LIST))
 
-        # ticket.status = get_status(pk=CLOSED_PK)
         ticket.status = get_status(uuid=constants.UUID_STATUS_CLOSED)
         ticket.save()
         self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
@@ -334,7 +331,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             user=user,
             title='title',
             description='description',
-            # status=Status.objects.get(pk=OPEN_PK),
             status=Status.objects.get(uuid=constants.UUID_STATUS_OPEN),
             priority=Priority.objects.all()[0],
             criticity=Criticity.objects.all()[0],
@@ -745,7 +741,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             user=user,
             title='My ticket',
             description='Test description',
-            # status=get_status(pk=OPEN_PK),
             status=get_status(uuid=constants.UUID_STATUS_OPEN),
             priority=Priority.objects.all()[0],
             criticity=Criticity.objects.all()[0],

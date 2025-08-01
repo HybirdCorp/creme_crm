@@ -741,7 +741,6 @@ class _CremeTestCase:
 
         return CremeProperty.objects.filter(**kwargs)
 
-    # def assertHasProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | str):
     def assertHasProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | int | str):
         if not self.__get_creme_properties(entity=entity, ptype=ptype).exists():
             self.fail(f'<{entity}> has no property with type <{ptype}>')
