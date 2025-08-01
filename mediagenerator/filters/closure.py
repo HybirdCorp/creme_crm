@@ -1,11 +1,12 @@
-from json import loads as parse_json
+import json
 
 from django.conf import settings
 
 from mediagenerator.generators.bundles.base import SubProcessFilter
 
-COMPILATION_LEVEL = getattr(settings, 'CLOSURE_COMPILATION_LEVEL',
-                            'SIMPLE_OPTIMIZATIONS')
+COMPILATION_LEVEL = getattr(
+    settings, 'CLOSURE_COMPILATION_LEVEL', 'SIMPLE_OPTIMIZATIONS'
+)
 
 
 class Closure(SubProcessFilter):
@@ -17,8 +18,11 @@ class Closure(SubProcessFilter):
             f'The parent filter expects "{self.filetype}".')
 
     def parse_errors(self, output):
-        # ignore the first line which is not json (WTF !)
-        errors = parse_json(output.splitlines()[1])
+        try:
+            # ignore the first line which is not json (WTF !)
+            errors = json.loads(output.splitlines()[1])
+        except json.decoder.JSONDecodeError:
+            return []
 
         return [
             (e['line'], e['column'], e['description'])
@@ -43,9 +47,10 @@ class Closure(SubProcessFilter):
 
                 if errors:
                     message = self.format_lint_errors(errors, source)
-                    raise ValueError(message)
                 else:
                     message = f"The Closure compiler has returned an error. {e.stderr}"
+
+                raise ValueError(message) from e
 
             except Exception as e:
                 raise ValueError(

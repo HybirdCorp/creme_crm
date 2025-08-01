@@ -1,3 +1,21 @@
+== Version 2.5.23 ==
+
+  Users side :
+  ------------
+    # Apps:
+        * Assistants:
+            - The dynamic trigger dates of Alerts were not always updated during an entities merging.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The EmptyEnumerator fallback now either raises an exception (ENUMERABLE_REGISTRATION_ERROR=True) or logs an error.
+          This change is done to prevent issues with empty select when an enumerator is not correctly configured.
+        # Fix creme.utils.ajaxQuery unexpected error when the query returns a 'Connection Error' without data.
+
+
 == Version 2.5.22 ==
 
   Users side :

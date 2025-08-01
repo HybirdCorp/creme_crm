@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -81,11 +81,12 @@ class Alert(core_models.CremeModel):
     def to_be_reminded(self):
         return not self.is_validated and not self.reminded
 
-    def trigger_date_from_offset(self, cell, sign, period):
+    # TODO: staticmethod? move in a new abstraction DateOffset?
+    def trigger_date_from_offset(self, cell, sign, period, entity=None):
         # TODO?
         # if not isinstance(cell, EntityCellRegularField):
         #     return None
-        origin = cell.field_info.value_from(self.real_entity)
+        origin = cell.field_info.value_from(entity or self.real_entity)
 
         if origin:
             if not isinstance(origin, datetime):
