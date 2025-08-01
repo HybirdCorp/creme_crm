@@ -1,7 +1,8 @@
-== Version 2.6.11 Work in progress (not released -- this is a draft) ==
+== Version 2.6.11 ==
 
   Users side :
   ------------
+    # The lib 'reportlab' has been pinned to "4.3.X" to work with Python 3.8; sorry.
     # The migrations of HistoryLines related to properties (and activity types)
       with PostgreSQL were not working correctly (some lines could be ignored).
     # A warning is now displayed if the settings 'SITE_DOMAIN' is not correctly defined
