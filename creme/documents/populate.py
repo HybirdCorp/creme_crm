@@ -29,7 +29,6 @@ from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     EntityFilter,
@@ -169,13 +168,6 @@ class Populator(BasePopulator):
     def _populate_header_filters(self):
         self._populate_header_filters_for_document()
         self._populate_header_filters_for_folder()
-
-    # def _populate_custom_forms(self):
-    #     create_cfci = CustomFormConfigItem.objects.create_if_needed
-    #     create_cfci(descriptor=custom_forms.FOLDER_CREATION_CFORM)
-    #     create_cfci(descriptor=custom_forms.FOLDER_EDITION_CFORM)
-    #     create_cfci(descriptor=custom_forms.DOCUMENT_CREATION_CFORM)
-    #     create_cfci(descriptor=custom_forms.DOCUMENT_EDITION_CFORM)
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

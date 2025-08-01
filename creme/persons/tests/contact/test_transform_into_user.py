@@ -47,7 +47,6 @@ class TransformationIntoUserTestCase(_BaseTestCase):
         self.assertIn('password_2', fields)
         self.assertNotIn('last_name', fields)
         self.assertNotIn('first_name', fields)
-        # self.assertNotIn('email', fields)
 
         self.assertEqual('*{}*'.format(_('Superuser')), role_f.empty_label)
 

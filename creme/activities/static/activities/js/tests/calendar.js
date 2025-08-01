@@ -2,13 +2,6 @@
 
 (function($) {
 
-/*
-function todayUTCAt(options) {
-    options = $.extend({hours: 0, minutes: 0, seconds: 0}, options || {});
-    return moment.utc(options);
-};
-*/
-
 QUnit.module("creme.ActivityCalendar", new QUnitMixin(QUnitEventMixin,
                                                       QUnitAjaxMixin,
                                                       QUnitDialogMixin,
@@ -41,87 +34,6 @@ QUnit.module("creme.ActivityCalendar", new QUnitMixin(QUnitEventMixin,
             'mock/calendar/event/create': backend.response(200, '')
         });
     }
-
-    /*
-    getCalendarEventItemFootprint: function(item) {
-        return $(item).data().fcSeg.footprint;
-    },
-
-    findCalendarEventItem: function(element, id) {
-        var self = this;
-
-        return element.find('.fc-event').filter(function() {
-            return self.getCalendarEventItemFootprint(this).eventInstance.def.id === id;
-        });
-    },
-
-    getCalendarEvents: function(element) {
-        var self = this;
-        return element.find('.fc-event').map(function() {
-            var footprint = self.getCalendarEventItemFootprint(this);
-            var event = footprint.eventInstance;
-            var isAllDay = footprint.componentFootprint.isAllDay;
-
-            if (event) {
-                return {
-                    title: event.def.title,
-                    id: event.def.id,
-                    calendar: event.def.miscProps.calendar,
-                    start: event.dateProfile.start.toString(),
-                    end: isAllDay ? null : event.dateProfile.end.toString(),
-                    allDay: isAllDay || false
-                };
-            }
-        }).get().sort(function(a, b) {
-            return a.id > b.id ? 1 : (a.id < b.id) ? -1 : 0;
-        });
-    },
-
-    simulateCalendarResize: function(controller, item, range) {
-        var view = controller.fullCalendar().view;
-        var event = this.getCalendarEventItemFootprint(item).eventInstance;
-
-        view.reportEventResize(
-            event,
-            FullCalendar.EventDefMutation.createFromRawProps(event, {
-                id: event.def.id,
-                start: range.activeStart,
-                end: range.activeEnd,
-                className: []
-            }),
-            item,
-            $.Event('mouseup')
-        );
-    },
-
-    simulateCalendarExternalDragNDrop: function(controller, item, range) {
-        var view = controller.fullCalendar().view;
-        var singleEvent = FullCalendar.SingleEventDef.parse(
-            range, new FullCalendar.EventSource(view.calendar)
-        );
-
-        view.reportExternalDrop(
-            singleEvent, false, false, item, $.Event('mouseup')
-        );
-    },
-
-    simulateCalendarDragNDrop: function(controller, item, range) {
-        var view = controller.fullCalendar().view;
-        var event = this.getCalendarEventItemFootprint(item).eventInstance;
-
-        view.reportEventDrop(
-            event,
-            FullCalendar.EventDefMutation.createFromRawProps(event, {
-                id: event.def.id,
-                start: range.start,
-                end: range.end,
-                className: []
-            }),
-            item,
-            $.Event('mouseup')
-        );
-    }
-    */
 }));
 
 QUnit.test('creme.ActivityCalendar (empty)', function(assert) {
@@ -1282,17 +1194,9 @@ QUnit.parameterize('creme.ActivityCalendar.allowEventOverlaps (function)', [
                 end: controller._toMoment(stillEventEnd.toDate()),
                 allDay: false
             })
-            /*
-            movingRange: new creme.CalendarEventRange({
-                start: controller._toMoment(movingEventStart.toDate()),
-                end: controller._toMoment(movingEventEnd.toDate()),
-                allDay: false
-            }),
-            activityCalendar: controller
-            */
         }
     ], fakeOverlap.calls().map(function(args) {
-        return _.pick(args[0], 'stillRange'/*, 'movingRange', 'activityCalendar' */);
+        return _.pick(args[0], 'stillRange');
     }));
 });
 

@@ -587,7 +587,6 @@ class RegistryTestCase(CremeTestCase):
             'App config brick class with invalid ID (already unregistered?):',
         )
 
-    # def test_register_userbricks(self):
     def test_get_user_bricks(self):
         user = self.create_user(role=self.create_role(allowed_apps=['persons']))
 

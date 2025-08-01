@@ -25,7 +25,6 @@
 import logging
 import sys
 import traceback
-# import warnings
 from collections.abc import Iterable
 
 from django.http import Http404
@@ -35,22 +34,6 @@ from django.utils.translation import gettext as _
 from ..signals import pre_replace_related
 
 logger = logging.getLogger(__name__)
-
-
-# def create_if_needed(model, get_dict, **attrs):
-#     warnings.warn(
-#         'creme_core.utils.create_if_needed() is deprecated; '
-#         'use MyModel.objects.get_or_create() instead.',
-#         DeprecationWarning
-#     )
-#
-#     try:
-#         instance = model.objects.get(**get_dict)
-#     except model.DoesNotExist:
-#         attrs.update(get_dict)
-#         instance = model.objects.create(**attrs)
-#
-#     return instance
 
 
 def update_model_instance(obj, **fields):
@@ -149,23 +132,6 @@ def entities_to_str(entities: Iterable, user) -> str:
     with care of permissions.
     """
     return ', '.join(entity.allowed_str(user) for entity in entities)
-
-
-# __BFS_MAP = {
-#     'true':  True,
-#     'false': False,
-# }
-#
-#
-# def bool_from_str(string: str) -> bool:
-#     warnings.warn('bool_from_str() is deprecated.', DeprecationWarning)
-#
-#     b = __BFS_MAP.get(string.lower())
-#
-#     if b is not None:
-#         return b
-#
-#     raise ValueError(f'Can not be coerced to a boolean value: {string}')
 
 
 def bool_from_str_extended(value: str) -> bool:

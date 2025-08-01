@@ -11,7 +11,6 @@
 {% block brick_header_actions %}
   {% with link_perm=user|has_perm_to_link:object creation_perm=user|has_perm_to_create:objects_ctype %}
     {% brick_header_action id='link' url='polls__link_reply_to_person'|url:object.id     label=_('Link to replies') enabled=link_perm %}
-{#    {% brick_header_action id='add'  url='polls__create_reply_from_person'|url:object.id label=_('Create replies')  enabled=link_perm|and_op:creation_perm %} #}
     {% brick_header_action id='add'  url='polls__create_replies_from_person'|url:object.id label=_('Create replies')  enabled=link_perm|and_op:creation_perm %}
   {% endwith %}
 {% endblock %}

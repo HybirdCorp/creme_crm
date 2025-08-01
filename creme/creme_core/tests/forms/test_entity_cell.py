@@ -429,7 +429,6 @@ class EntityCellsWidgetTestCase(CremeTestCase):
                     'regular_field-last_name':       contact2.last_name,
                     'regular_field-email':           '',
                     f'custom_field-{cfield.id}':     '',
-                    # f'function_field-{ffield.name}': '<ul></ul>',
                     f'function_field-{ffield.name}': '',
                     f'relation-{loves.id}':          '',
                 }, {
@@ -438,7 +437,6 @@ class EntityCellsWidgetTestCase(CremeTestCase):
                     'regular_field-email':
                         f'<a href="mailto:{contact1.email}">{contact1.email}</a>',
                     f'custom_field-{cfield.id}':     '',
-                    # f'function_field-{ffield.name}': '<ul></ul>',
                     f'function_field-{ffield.name}': '',
                     f'relation-{loves.id}':          '',
                 },
@@ -1021,10 +1019,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             ('test-object_love',  'Is loved by')
         )[0]
         customfield = CustomField.objects.create(
-            name='Size (cm)',
-            field_type=CustomField.INT,
-            # content_type=self.ct_contact,
-            content_type=FakeContact,
+            name='Size (cm)', field_type=CustomField.INT, content_type=FakeContact,
         )
         funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
 

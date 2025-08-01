@@ -11,7 +11,6 @@ from django.utils.translation import gettext as _
 
 import creme.creme_core.forms.entity_filter.fields as ef_fields
 import creme.creme_core.forms.entity_filter.widgets as ef_widgets
-# from creme.creme_core.core.entity_filter import EntityFilterRegistry
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
@@ -267,17 +266,12 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
 
     def test_formfield(self):
         user = self.get_root_user()
-        # efilter_registry = _EntityFilterRegistry(id=None, verbose_name='Test')
-        # efilter_registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         formfield1 = RegularFieldConditionHandler.formfield(
-            user=user,
-            # efilter_registry=efilter_registry,
-            efilter_type=EF_REGULAR,
+            user=user, efilter_type=EF_REGULAR,
         )
         self.assertIsInstance(formfield1, ef_fields.RegularFieldsConditionsField)
         self.assertEqual(user, formfield1.user)
-        # self.assertIs(efilter_registry, formfield1.efilter_registry)
         self.assertIs(EF_REGULAR, formfield1.efilter_type)
         self.assertIs(formfield1.required, True)
         self.assertEqual(_('On regular fields'), formfield1.label)
@@ -285,7 +279,6 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
 
         widget1 = formfield1.widget
         self.assertIsInstance(widget1, ef_widgets.RegularFieldsConditionsWidget)
-        # self.assertIs(efilter_registry, widget1.efilter_registry)
         self.assertIs(EF_REGULAR, widget1.efilter_type)
 
         # ---
@@ -2698,7 +2691,6 @@ class DateCustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         handler = DateCustomFieldConditionHandler(
             efilter_type=EF_REGULAR,
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field.uuid,
             related_name=rname,
             date_range=range_name,
@@ -3066,7 +3058,6 @@ class DateCustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         handler = DateCustomFieldConditionHandler(
             efilter_type=EF_REGULAR,
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field,
             related_name='customfielddatetime',
             date_range='previous_year',
@@ -3352,7 +3343,6 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
             name=rtype_id,
             data={
                 'has': False,
-                # 'ct_id': ct_id,
                 'ct': 'creme_core.fakeorganisation',
             },
         )
@@ -3662,7 +3652,6 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
             efilter_type=EF_REGULAR,
             model=FakeContact,
             rtype=loves.id,
-            # entity=rei.id,
             entity=rei.uuid,
         )
         self.assertIs(handler4.accept(entity=shinji, user=user), True)
@@ -3887,7 +3876,6 @@ class SubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
             ],
         )
 
-        # handler = SubFilterConditionHandler(subfilter=sub_efilter)
         handler = SubFilterConditionHandler(
             efilter_type=EF_REGULAR, subfilter=sub_efilter,
         )
@@ -3998,7 +3986,6 @@ class SubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
             ],
         )
 
-        # handler = SubFilterConditionHandler(subfilter=sub_efilter)
         handler = SubFilterConditionHandler(
             efilter_type=EF_REGULAR, subfilter=sub_efilter,
         )

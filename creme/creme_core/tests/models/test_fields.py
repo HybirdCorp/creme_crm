@@ -57,11 +57,6 @@ class ModelFieldsTestCase(CremeTestCase):
 
 class DatePeriodFieldTestCase(CremeTestCase):
     def test_ok(self):
-        # from creme.creme_core.tests.fake_models import FakeInvoice
-        # user = self.get_root_user()
-        # inv = FakeInvoice.objects.create(user=user, name='Inv')
-        # self.assertEqual(MonthsPeriod(1), self.refresh(inv).periodicity)
-
         field = DatePeriodField(name='Periodicity')
         self.assertIsNone(field.to_python(None))
         self.assertIsNone(field.to_python({}))
@@ -428,7 +423,6 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         self.assertEqual(orga.id, todo.entity_id)
         self.assertEqual(FakeOrganisation, todo.entity_content_type.model_class())
 
-    # def test_get_prefetch_queryset(self):
     def test_get_prefetch_querysets(self):
         user = self.user
 

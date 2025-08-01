@@ -9,7 +9,6 @@
   {% if count %}
     {% brick_header_title title=objects_ctype|ctype_counted_label:count count=count %}
   {% else %}
-{#    {% brick_header_title title=meta.verbose_name_plural %} #}
     {% brick_header_title title=objects_ctype|ctype_verbose_name_plural %}
   {% endif %}
  {% endwith %}

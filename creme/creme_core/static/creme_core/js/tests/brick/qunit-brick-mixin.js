@@ -3,7 +3,6 @@
 (function($) {
     "use strict";
 
-//    var MOCK_BRICK_CONTENT = '<div class="brick ui-creme-widget" widget="brick" id="${id}"></div>';
     var MOCK_BRICK_CONTENT = '<div class="brick ui-creme-widget" widget="brick" id="brick-${id}" data-brick-id="${id}"></div>';
 
     var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></div>';

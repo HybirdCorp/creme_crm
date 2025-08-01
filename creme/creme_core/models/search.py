@@ -219,7 +219,6 @@ class SearchConfigItem(CremeModel):
     @cells.setter
     def cells(self, cells: Iterable[EntityCell]) -> None:
         self._cells = cells = [cell for cell in cells if cell]
-        # self.json_cells = [cell.to_dict() for cell in cells]
         self.json_cells = [cell.to_dict(portable=True) for cell in cells]
 
     @property

@@ -1,5 +1,4 @@
 import logging
-# import warnings
 from random import randint
 from tempfile import NamedTemporaryFile
 from xml.etree import ElementTree
@@ -9,15 +8,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.creme_jobs.mass_import import mass_import_type
 from creme.creme_core.gui.bricks import Brick
-from creme.creme_core.models import MassImportJobResult  # SetCredentials
+from creme.creme_core.models import MassImportJobResult
 from creme.creme_core.utils.translation import plural
 from creme.creme_core.utils.xlwt_utils import XlwtWriter
 from creme.documents.models import Document, Folder, FolderCategory
 
-# from ..base import CremeTestCase
 logger = logging.getLogger(__name__)
 
 
@@ -34,59 +31,6 @@ class AppPermissionBrick(Brick):
 
     def home_display(self, context):
         return self.home_str.format(id=self.id)
-
-
-# class ViewsTestCase(CremeTestCase):
-#     @classmethod
-#     def setUpClass(cls):
-#         super().setUpClass()
-#         warnings.warn(
-#             'The class ViewsTestCase is deprecated; use CremeTestCase instead.',
-#             DeprecationWarning,
-#         )
-#
-#     def _set_all_perms_on_own(self, user):
-#         warnings.warn(
-#             'The method ViewsTestCase._set_all_perms_on_own() is deprecated; '
-#             'use CremeTestCase.add_credentials() instead.',
-#             DeprecationWarning,
-#         )
-#
-#         SetCredentials.objects.create(
-#             role=user.role,
-#             value=(
-#                 EntityCredentials.VIEW
-#                 | EntityCredentials.CHANGE
-#                 | EntityCredentials.DELETE
-#                 | EntityCredentials.LINK
-#                 | EntityCredentials.UNLINK
-#             ),
-#             set_type=SetCredentials.ESET_OWN,
-#         )
-#
-#     def _set_all_creds_except_one(self, *, user, excluded):
-#         warnings.warn(
-#             'The method ViewsTestCase._set_all_creds_except_one() is deprecated; '
-#             'use CremeTestCase.add_credentials() instead.',
-#             DeprecationWarning,
-#         )
-#
-#         value = EntityCredentials.NONE
-#
-#         for cred in (
-#                 EntityCredentials.VIEW,
-#                 EntityCredentials.CHANGE,
-#                 EntityCredentials.DELETE,
-#                 EntityCredentials.LINK,
-#                 EntityCredentials.UNLINK,
-#         ):
-#             if cred != excluded:
-#                 value |= cred
-#
-#         SetCredentials.objects.create(
-#             role=user.role, value=value,
-#             set_type=SetCredentials.ESET_ALL,
-#         )
 
 
 class BrickTestCaseMixin:
@@ -293,7 +237,6 @@ class MassImportBaseTestCaseMixin:
 
     def _build_doc(self, tmpfile, user):
         tmpfile.file.seek(0)
-        # category = FolderCategory.objects.create(id=10, name='Test category')
         category = FolderCategory.objects.get_or_create(name='Test category')[0]
         folder = Folder.objects.create(
             user=user, title='Test folder',
@@ -315,10 +258,6 @@ class MassImportBaseTestCaseMixin:
         )
         self.assertNoFormError(response)
 
-        # with self.assertNoException():
-        #     doc = Document.objects.get(title=title)
-        #
-        # return doc
         return self.get_object_or_fail(Document, title=title)
 
     def _build_csv_doc(self, lines, *, user, separator=',', extension='csv'):

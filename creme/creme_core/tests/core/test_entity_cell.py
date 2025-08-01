@@ -322,22 +322,6 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
                 cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
             )
 
-        # date_input_format = '%d-%m-%Y'
-        #
-        # with self.settings(
-        #     USE_L10N=False,
-        #     DATE_FORMAT='j F Y',
-        #     DATE_INPUT_FORMATS=[date_input_format],
-        # ):
-        #     self.assertEqual(
-        #         date_format(birthday, 'DATE_FORMAT'),
-        #         cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
-        #     )
-        #     self.assertEqual(
-        #         birthday.strftime(date_input_format),
-        #         cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
-        #     )
-
     def test_boolean_field(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='is_a_nerd')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
@@ -646,13 +630,11 @@ class EntityCellCustomFieldTestCase(CremeTestCase):
         )
 
         # --
-        # cell2 = EntityCellCustomField.build(FakeContact, customfield.id)
         cell2 = EntityCellCustomField.build(FakeContact, str(cfield.id))
         self.assertIsInstance(cell2, EntityCellCustomField)
         self.assertEqual(str(cfield.id), cell2.value)
 
         with self.assertLogs(level='WARNING'):
-            # self.assertIsNone(EntityCellCustomField.build(FakeContact, 1000))
             self.assertIsNone(EntityCellCustomField.build(FakeContact, '1000'))
         with self.assertLogs(level='WARNING'):
             self.assertIsNone(EntityCellCustomField.build(FakeContact, 'notanint'))
@@ -722,26 +704,6 @@ class EntityCellCustomFieldTestCase(CremeTestCase):
         dt = self.create_datetime(year=2058, month=3, day=26, hour=12)
         cfield.value_class.objects.create(entity=yoko, custom_field=cfield, value=dt)
 
-        # dt_input_format = '%Y/%m/%d %H:%M:%S'
-        # local_dt = localtime(dt)
-        #
-        # with self.settings(
-        #     USE_L10N=False,
-        #     DATETIME_FORMAT='j F Y H:i',
-        #     DATETIME_INPUT_FORMATS=[dt_input_format],
-        # ):
-        #     self.assertHTMLEqual(
-        #         '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
-        #             seconds=_('Seconds: {}').format(local_dt.second),
-        #             dt=date_format(local_dt, 'DATETIME_FORMAT'),
-        #         ),
-        #         cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
-        #     )
-        #     self.assertEqual(
-        #         local_dt.strftime(dt_input_format),
-        #         cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
-        #     )
-
         local_dt = localtime(dt)
 
         with override_language('en'):
@@ -774,21 +736,6 @@ class EntityCellCustomFieldTestCase(CremeTestCase):
             entity=yoko, custom_field=cfield, value=date_obj,
         )
 
-        # date_input_format = '%d-%m-%Y'
-        #
-        # with self.settings(
-        #     USE_L10N=False,
-        #     DATE_FORMAT='j F Y',
-        #     DATE_INPUT_FORMATS=[date_input_format],
-        # ):
-        #     self.assertEqual(
-        #         date_format(date_obj, 'DATE_FORMAT'),
-        #         cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
-        #     )
-        #     self.assertEqual(
-        #         date_obj.strftime(date_input_format),
-        #         cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
-        #     )
         with override_language('en'):
             self.assertEqual(
                 date_format(date_obj, 'DATE_FORMAT'),
@@ -881,7 +828,6 @@ class EntityCellCustomFieldTestCase(CremeTestCase):
             entity=yoko, custom_field=cfield, value=value,
         )
         self.assertHTMLEqual(
-            # f'<a href="{value}" target="_blank">{value}</a>',
             f'<a href="//{value}" target="_blank">{value}</a>',
             cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
         )
@@ -950,7 +896,6 @@ class EntityCellCustomFieldTestCase(CremeTestCase):
         cf_value.set_value_n_save([enum_value1.id, enum_value3.id])
         yoko = self.refresh(yoko)  # Avoid cache
         self.assertHTMLEqual(
-            # f'<ul><li>{enum_value1.value}</li><li>Eva-02&lt;script&gt;</li></ul>',
             f'<ul class="limited-list">'
             f' <li>{enum_value1.value}</li>'
             f' <li>Eva-02&lt;script&gt;</li>'
@@ -1037,7 +982,6 @@ class EntityCellRelationTestCase(CremeTestCase):
             cell.render(entity=contacts[0], user=user, tag=ViewTag.TEXT_PLAIN),
         )
         self.assertHTMLEqual(
-            # f'<ul>'
             f'<ul class="limited-list">'
             f' <li>'
             f'  <a href="{contacts[2].get_absolute_url()}" target="_self">{contacts[2]}</a>'
@@ -1049,7 +993,6 @@ class EntityCellRelationTestCase(CremeTestCase):
             cell.render(entity=contacts[0], user=user, tag=ViewTag.HTML_DETAIL),
         )
         self.assertHTMLEqual(
-            # f'<ul>'
             f'<ul class="limited-list">'
             f' <li>'
             f'  <a href="{contacts[2].get_absolute_url()}" target="_blank">{contacts[2]}</a>'
@@ -1228,12 +1171,10 @@ class EntityCellFunctionFieldTestCase(CremeTestCase):
         self.assertDictEqual(dict_cell, cell1.to_dict(portable=True))
 
         # ---
-        # cell2 = EntityCellFunctionField.build(FakeContact, func_field_name=name)
         cell2 = EntityCellFunctionField.build(FakeContact, name=name)
         self.assertIsInstance(cell2, EntityCellFunctionField)
         self.assertEqual(name, cell2.value)
 
-        # self.assertIsNone(EntityCellFunctionField.build(FakeContact, func_field_name='invalid'))
         with self.assertLogs(level='WARNING'):
             self.assertIsNone(EntityCellFunctionField.build(FakeContact, name='invalid'))
 
@@ -1256,7 +1197,6 @@ class EntityCellFunctionFieldTestCase(CremeTestCase):
             cell2.render(entity=contact, user=user, tag=ViewTag.TEXT_PLAIN),
         )
         self.assertHTMLEqual(
-            # f'<ul>'
             f'<ul class="limited-list">'
             f' <li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</li>'
             f' <li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</li>'

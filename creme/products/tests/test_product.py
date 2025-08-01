@@ -326,14 +326,12 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         job.type.execute(job)
         self.assertDoesNotExist(sub_cat)
 
-    # def _build_product_cat_subcat(self):
     def _build_product_cat_subcat(self, user):
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
         sub_cat = SubCategory.objects.create(
             name='Eva', description='Fake gods', category=cat,
         )
         product = Product.objects.create(
-            # user=self.user,
             user=user,
             name='Eva00', description='A fake god',
             unit_price=Decimal('1.23'), code=42,

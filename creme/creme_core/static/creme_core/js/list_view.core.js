@@ -517,14 +517,6 @@
                 this._loading = state;
                 this._element.toggleClass('is-loading', state);
                 this._overlay.update(state, '', state ? 100 : 0);
-
-                /*
-                if (state) {
-                    creme.utils.showPageLoadOverlay();
-                } else {
-                    creme.utils.hidePageLoadOverlay();
-                }
-                */
             }
         },
 
@@ -646,7 +638,6 @@
                 e.preventDefault();
                 e.stopPropagation();
 
-//                var column = $(this).parent('.lv-column:first');
                 var column = $(this).parent('.lv-column').first();
                 self.toggleSort(column.attr('data-column-key'));
             });

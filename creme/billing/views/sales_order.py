@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,6 @@ SalesOrder = billing.get_sales_order_model()
 Invoice = billing.get_invoice_model()
 
 
-# class SalesOrderCreation(base.BaseCreation):
 class SalesOrderCreation(generic.EntityCreation):
     model = SalesOrder
     form_class = custom_forms.ORDER_CREATION_CFORM
@@ -55,7 +54,6 @@ class SalesOrderEdition(generic.EntityEdition):
     pk_url_kwarg = 'order_id'
 
 
-# class SalesOrdersList(generic.EntitiesList):
 class SalesOrdersList(base.BaseList):
     model = SalesOrder
     default_headerfilter_id = DEFAULT_HFILTER_ORDER

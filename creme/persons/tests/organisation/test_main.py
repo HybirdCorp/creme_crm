@@ -321,7 +321,6 @@ class OrganisationTestCase(_BaseTestCase):
         "Do not clone 'is_managed'."
         user = self.login_as_root_and_get()
         bebop = Organisation.objects.create(user=user, name='Bebop', is_managed=True)
-        # self.assertEqual('', bebop.get_clone_absolute_url())
         self.assertPOST409(
             bebop.get_clone_absolute_url(), data={'id': bebop.id}, follow=True,
         )

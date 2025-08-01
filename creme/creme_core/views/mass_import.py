@@ -122,7 +122,6 @@ def mass_import(request, ct_id):
         {
             'form': form,
             'title': _('Import «{model}» from data file').format(
-                # model=model._meta.verbose_name_plural,
                 model=model_verbose_name_plural(model),
             ),
             'cancel_url': cancel_url,

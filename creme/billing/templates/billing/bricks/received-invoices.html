@@ -18,7 +18,6 @@
     {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary' %}
     {% brick_table_column_for_field ctype=objects_ctype field='number' %}
 
-{#    {% if 'expiration_date' not in hidden_fields %} #}
     {% if not objects_ctype|is_field_hidden:'expiration_date' %}
     {% brick_table_column_for_field ctype=objects_ctype field='expiration_date' %}
     {% endif %}
@@ -36,13 +35,11 @@
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink invoice user %}</td>
         {% if user|has_perm_to_view:invoice %}
          <td>{{invoice.number|default:'—'}}</td>
-{#         {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{invoice.expiration_date|default:'—'}}</td>{% endif %} #}
          {% if display_expiration %}<td data-type="date">{{invoice.expiration_date|default:'—'}}</td>{% endif %}
          <td>{{invoice.status}}</td>
          <td data-type="money">{{invoice.total_no_vat|format_amount:invoice.currency}}</td>
         {% else %}
          <td>{{HIDDEN_VALUE}}</td>
-{#         {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{HIDDEN_VALUE}}</td>{% endif %} #}
          {% if display_expiration %}<td data-type="date">{{HIDDEN_VALUE}}</td>{% endif %}
          <td>{{HIDDEN_VALUE}}</td>
          <td data-type="money">{{HIDDEN_VALUE}}</td>

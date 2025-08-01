@@ -1,9 +1,7 @@
 from decimal import Decimal
 from functools import partial
 
-# from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-# from django.test.utils import override_settings
 from django.utils.formats import get_format, number_format
 from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
@@ -178,10 +176,6 @@ class SearchWidgetsTestCase(CremeTestCase):
             widget.render(name=name, value='a'),
         )
 
-    # @override_settings(
-    #     USE_L10N=False,
-    #     DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y'],
-    # )
     @override_language('en')
     def test_daterangewidget(self):
         widget = lv_forms.DateRangeLVSWidget()
@@ -403,19 +397,11 @@ class SearchFieldsTestCase(CremeTestCase):
             Q(discount__exact=Decimal('0.5')), to_python(value=dec_sep + '5'),
         )
 
-    # @override_settings(USE_L10N=False)
-    # def test_regular_decimalfield_no_l10n(self):
-    #     self._aux_test_regular_decimalfield()
-
-    # @override_settings(USE_L10N=True)
     @override_language('en')
-    # def test_regular_decimalfield_l10n_en(self):
     def test_regular_decimalfield_en(self):
         self._aux_test_regular_decimalfield()
 
-    # @override_settings(USE_L10N=True)
     @override_language('fr')
-    # def test_regular_decimalfield_l10n_fr(self):
     def test_regular_decimalfield_fr(self):
         self._aux_test_regular_decimalfield()
 
@@ -1175,12 +1161,8 @@ class SearchFieldsTestCase(CremeTestCase):
         from creme.creme_core.function_fields import PropertiesField
         from creme.creme_core.models import CremePropertyType
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
         create_ptype = CremePropertyType.objects.create
-        # ct_orga = ContentType.objects.get_for_model(FakeOrganisation)
         ptype1 = create_ptype(text='is cool')
-        # ptype2 = create_ptype(text='is beautiful', subject_ctypes=[ct_orga, FakeContact])
-        # ptype3 = create_ptype(text='is a trust', subject_ctypes=[ct_orga])
         ptype2 = create_ptype(text='is beautiful').set_subject_ctypes(
             FakeOrganisation, FakeContact,
         )

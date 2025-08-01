@@ -258,14 +258,6 @@ class JSONField(fields.CharField):
         @raise: ValidationError.
         """
         if not isinstance(ctype, ContentType):
-            # try:
-            #     ctype = ContentType.objects.get_for_id(ctype)
-            # except ContentType.DoesNotExist as e:
-            #     raise ValidationError(
-            #         self.error_messages['doesnotexist'],
-            #         params={'ctype': ctype},
-            #         code='doesnotexist',
-            #     ) from e
             ctype = self._clean_ctype(ctype)
 
         entity = None
@@ -434,7 +426,6 @@ class GenericEntityField(EntityCredsJSONField):
 
     def __init__(self, *,
                  models: Iterable[type[CremeEntity]] = (),
-                 # autocomplete=False, creator=True, user=None,
                  autocomplete=True, creator=True, user=None,
                  **kwargs):
         """Constructor.
@@ -702,13 +693,10 @@ class RelationEntityField(EntityCredsJSONField):
 
     @allowed_rtypes.setter
     def allowed_rtypes(self, allowed):
-        rtypes = (
+        self._allowed_rtypes = (
             allowed if isinstance(allowed, QuerySet) else
             RelationType.objects.filter(id__in=allowed)
         )
-        # rtypes = rtypes.order_by('predicate')
-
-        self._allowed_rtypes = rtypes
         self.widget.relation_types = self._get_options()
 
     @property
@@ -929,7 +917,6 @@ class CreatorEntityField(EntityCredsJSONField):
         return self._model
 
     @model.setter
-    # def model(self, model=None):
     def model(self, model: type[CremeEntity] | None):
         self._model = model
         self.widget.model = model
@@ -1726,7 +1713,6 @@ class YearField(fields.IntegerField):
 class ColorField(fields.CharField):
     """A Field which handles HTML colors (e.g: #F2FAB3) without '#'."""
     default_validators = [validators.validate_color]
-    # widget = core_widgets.ColorInput
     widget = widgets.ColorInput
     default_error_messages = {
         'invalid': _('Enter a valid value (e.g. DF8177).'),

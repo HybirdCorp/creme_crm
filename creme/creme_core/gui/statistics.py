@@ -26,7 +26,6 @@ StatisticsFunc = Callable[[], list]
 logger = logging.getLogger(__name__)
 
 
-# class _StatisticsRegistry:
 class StatisticRegistry:
     __slots__ = ('_items',)
 
@@ -112,7 +111,6 @@ class StatisticRegistry:
         )
 
 
-# statistics_registry = _StatisticsRegistry()
 statistic_registry = StatisticRegistry()
 
 

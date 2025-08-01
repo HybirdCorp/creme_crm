@@ -5,7 +5,6 @@ from django.urls import reverse
 from django.utils.timezone import now
 
 from creme import activities, persons
-# from creme.activities.constants import FLOATING
 from creme.activities.constants import (
     REL_SUB_PART_2_ACTIVITY,
     UUID_SUBTYPE_MEETING_NETWORK,
@@ -36,7 +35,6 @@ class MobileBaseTestCase(CremeTestCase):
             type_id=sub_type.type_id,
             sub_type=sub_type,
             status=status,
-            # floating_type=FLOATING,
             floating_type=Activity.FloatingType.FLOATING,
         )
 
@@ -75,7 +73,6 @@ class MobileBaseTestCase(CremeTestCase):
         return activity
 
     def _create_meeting(self, user, title, start=None, end=None,
-                        # participant=None, status_id=None,
                         participant=None, status=None,
                         **kwargs):
         if start is None:

@@ -130,23 +130,19 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             uuid=act_constants.UUID_SUBTYPE_PHONECALL_CONFERENCE,
         )
         SettingValue.objects.set_4_key(
-            # key=act_constants.SETTING_UNSUCCESSFUL_SUBTYPE_UUID, value=str(sub_type.uuid),
             key=act_skeys.unsuccessful_subtype_key, value=str(sub_type.uuid),
         )
 
         title = 'Damn it'
-        # SettingValue.objects.set_4_key(key=act_constants.SETTING_UNSUCCESSFUL_TITLE, value=title)
         SettingValue.objects.set_4_key(key=act_skeys.unsuccessful_title_key, value=title)
 
         status = self.get_object_or_fail(Status, uuid=act_constants.UUID_STATUS_DELAYED)
         SettingValue.objects.set_4_key(
-            # key=act_constants.SETTING_UNSUCCESSFUL_STATUS_UUID, value=str(status.uuid),
             key=act_skeys.unsuccessful_status_key, value=str(status.uuid),
         )
 
         duration = 2
         SettingValue.objects.set_4_key(
-            # key=act_constants.SETTING_UNSUCCESSFUL_DURATION, value=duration,
             key=act_skeys.unsuccessful_duration_key, value=duration,
         )
 
@@ -191,7 +187,6 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         sub_type_uuid = uuid4()
         self.assertFalse(ActivitySubType.objects.filter(uuid=sub_type_uuid))
         SettingValue.objects.set_4_key(
-            # key=act_constants.SETTING_UNSUCCESSFUL_SUBTYPE_UUID, value=str(sub_type_uuid),
             key=act_skeys.unsuccessful_subtype_key, value=str(sub_type_uuid),
         )
 
@@ -212,7 +207,6 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         status_uuid = uuid4()
         self.assertFalse(Status.objects.filter(uuid=status_uuid))
         SettingValue.objects.set_4_key(
-            # key=act_constants.SETTING_UNSUCCESSFUL_STATUS_UUID, value=str(status_uuid),
             key=act_skeys.unsuccessful_status_key, value=str(status_uuid),
         )
 
@@ -237,7 +231,6 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             'integrity error if it is not truncated by the view'
         )
         self.assertGreater(len(title), 100)
-        # SettingValue.objects.set_4_key(key=act_constants.SETTING_UNSUCCESSFUL_TITLE, value=title)
         SettingValue.objects.set_4_key(key=act_skeys.unsuccessful_title_key, value=title)
 
         self.assertPOST200(self._build_add_url(self.opp))

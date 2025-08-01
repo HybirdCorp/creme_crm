@@ -4,7 +4,6 @@ from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-# from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import Currency
 from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 from creme.documents import get_document_model
@@ -47,7 +46,6 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, OpportunitiesBaseTestCase)
         # 'target_persons_contact_create':         True,
 
         'currency_colselect': 0,
-        # 'currency_defval':    DEFAULT_CURRENCY_PK,
 
         'reference_colselect':              0,
         'chance_to_win_colselect':          0,

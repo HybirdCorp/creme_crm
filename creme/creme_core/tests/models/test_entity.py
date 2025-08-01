@@ -165,18 +165,14 @@ class EntityTestCase(CremeTestCase):
         # separated by the ordering, but they are equal for the users.
         create_contact = partial(FakeContact.objects.create, user=user)
         c1 = create_contact(
-            first_name='Naruto', last_name='Uzumaki',
-            # email='n.uzumaki@konoha.jp',
-            phone='445566',
+            first_name='Naruto', last_name='Uzumaki', phone='445566',
         )
         c2 = create_contact(first_name='Sasuke', last_name='Uchiwa')
         c3 = create_contact(
-            first_name='Sakura', last_name='Haruno',
-            phone='',
+            first_name='Sakura', last_name='Haruno', phone='',
         )
         c4 = create_contact(
-            first_name='Kakashi', last_name='Hatake',
-            phone='112233',
+            first_name='Kakashi', last_name='Hatake', phone='112233',
         )
 
         qs = FakeContact.objects.filter(pk__in=[c1.id, c2.id, c3.id, c4.id])
@@ -505,7 +501,6 @@ class EntityTestCase(CremeTestCase):
 
         self.assertIsInstance(result, FunctionFieldResultsList)
         self.assertHTMLEqual(
-            # f'<ul>'
             f'<ul class="limited-list">'
             f' <li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li>'
             f' <li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
@@ -546,7 +541,6 @@ class EntityTestCase(CremeTestCase):
             result1.render(ViewTag.HTML_LIST),
         )
         self.assertHTMLEqual(
-            # f'<ul><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li></ul>',
             f'<a href="{ptype2.get_absolute_url()}">{ptype2.text}</a>',
             result2.render(ViewTag.HTML_LIST),
         )

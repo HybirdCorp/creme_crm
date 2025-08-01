@@ -10,18 +10,3 @@
     {{button.verbose_name}}
 </a>
 {% endif %}
-
-{% comment %}
-{% load i18n creme_perms creme_widgets %}
-{% if button.is_allowed and user|has_perm_to_link:object %}
-<a class="menu_button menu-button-icon" href="{% url 'opportunities__create_related_opportunity' object.id %}" title="{% blocktranslate %}Create an opportunity which targets «{{object}}».{% endblocktranslate %}" >
-    {% widget_icon name='opportunity' size='instance-button' label=_('Opportunity') %}
-    {{button.verbose_name}}
-</a>
-{% else %}
-<span class="menu_button menu-button-icon forbidden" title="{% if not link_perm %}{% translate 'You are not allowed to link this entity' %}{% else %}{{button.description}}{% endif %}">
-    {% widget_icon name='opportunity' size='instance-button' label=_('Opportunity') %}
-    {{button.verbose_name}}
-</span>
-{% endif %}
-{% endcomment %}

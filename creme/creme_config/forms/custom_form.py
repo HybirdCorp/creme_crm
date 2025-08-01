@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2022  Hybird
+#    Copyright (C) 2020-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -93,7 +93,6 @@ class CFormCellCustomFieldsField(FieldIgnoringBase,
 
 
 # Special cells ----------------------------------------------------------------
-
 class CFormCellSpecialFieldsWidget(hf_forms.UniformEntityCellsWidget):
     template_name = 'creme_config/forms/widgets/cform-cells/special-fields.html'
     type_id = EntityCellCustomFormSpecial.type_id
@@ -122,7 +121,6 @@ class CFormCellSpecialFieldsField(FieldIgnoringBase,
 
 
 # Extra Cells ------------------------------------------------------------------
-
 class CFormCellExtraFieldsWidget(hf_forms.UniformEntityCellsWidget):
     template_name = 'creme_config/forms/widgets/cform-cells/extra-fields.html'
     type_id = EntityCellCustomFormExtra.type_id

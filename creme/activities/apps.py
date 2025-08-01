@@ -40,7 +40,6 @@ class ActivitiesConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Activity)
 
-    # def register_actions(self, actions_registry):
     def register_actions(self, action_registry):
         from creme.activities import actions
 
@@ -112,10 +111,8 @@ class ActivitiesConfig(CremeAppConfig):
         ).brick_class(
             bricks.CalendarsBrick
         ).creation(
-            # form_class=cal_forms.CalendarConfigForm,
             form_class=cal_forms.CalendarConfigCreationForm,
         ).edition(
-            # form_class=cal_forms.CalendarConfigForm,
             form_class=cal_forms.CalendarConfigEditionForm,
         ).deletion(
             form_class=cal_forms.CalendarDeletionForm,
@@ -165,7 +162,6 @@ class ActivitiesConfig(CremeAppConfig):
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Activity)
 
-    # def register_field_printers(self, field_printers_registry):
     def register_field_printers(self, field_printer_registry):
         from django.db.models import ForeignKey
 
@@ -268,7 +264,6 @@ class ActivitiesConfig(CremeAppConfig):
             setting_keys.unsuccessful_duration_key,
         )
 
-    # def register_statistics(self, statistics_registry):
     def register_statistics(self, statistic_registry):
         from .statistics import AveragePerMonthStatistics
 

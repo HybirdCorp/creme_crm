@@ -6,16 +6,13 @@ from os.path import join
 from django.conf import settings
 from django.http import Http404
 from django.test import TestCase
-# from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import make_aware, zoneinfo
 from django.utils.translation import gettext, gettext_lazy, ngettext
 from django.utils.translation import override as override_language
 from PIL.Image import open as open_img
 
-# from creme.creme_core.models import FakeCivility
 from creme.creme_core.models import FakeContact, FakeOrganisation
-# from creme.creme_core.utils import create_if_needed
 from creme.creme_core.utils import (
     as_int,
     ellipsis,
@@ -76,23 +73,6 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual('',      truncate_str('abcdef', -1, suffix='aaaaaa'))
         self.assertEqual('a',     truncate_str('b',       1, suffix='a'))
         self.assertEqual('abcd',  truncate_str('abcdef',  4, suffix='01234'))
-
-    # def test_create_if_needed(self):
-    #     title = 'Mister'
-    #     pk = 999999  # We need a DB-valid primary key
-    #     self.assertFalse(FakeCivility.objects.filter(pk=pk).exists())
-    #
-    #     civ = create_if_needed(FakeCivility, {'pk': pk}, title=title)
-    #     self.assertIsInstance(civ, FakeCivility)
-    #     self.assertEqual(pk,       civ.pk)
-    #     self.assertEqual(title,    civ.title)
-    #
-    #     civ = self.get_object_or_fail(FakeCivility, pk=pk)  # Check has been saved
-    #
-    #     self.assertEqual(title, civ.title)
-    #
-    #     civ = create_if_needed(FakeCivility, {'pk': pk}, title=title + '2')
-    #     self.assertEqual(title, civ.title)
 
     def test_update_model_instance01(self):
         user = self.get_root_user()
@@ -397,9 +377,6 @@ better &amp; lighter than the previous one.
 
     def test_entities_to_str(self):
         user = self.login_as_standard()
-        # SetCredentials.objects.create(
-        #     role=user.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -560,41 +537,7 @@ class DatesTestCase(CremeTestCase):
             )),
         )
 
-    # @override_settings(
-    #     USE_L10N=False,
-    #     DATE_INPUT_FORMATS=['%d/%m/%Y', '%Y-%m-%d'],
-    #     DATETIME_INPUT_FORMATS=['%Y-%m-%d %H:%M'],
-    # )
-    # def test_dt_from_str01(self):
-    #     create_dt = self.create_datetime
-    #     self.assertEqual(
-    #         create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
-    #         dt_from_str('2013-07-25 12:28:45'),
-    #     )
-    #     self.assertEqual(
-    #         create_dt(year=2013, month=7, day=25, hour=8, utc=True),
-    #         dt_from_str('2013-07-25 11:00:00+03:00'),
-    #     )
-    #     self.assertIsNone(dt_from_str('25-07-2013 11:00:00'))
-    #
-    #     self.assertEqual(
-    #         create_dt(year=2013, month=7, day=25),
-    #         dt_from_str('25/07/2013'),
-    #     )
-    #     self.assertEqual(
-    #         create_dt(year=2014, month=8, day=26),
-    #         dt_from_str('2014-08-26'),
-    #     )
-    #     self.assertIsNone(dt_from_str('26-08-2014'))
-    #
-    #     self.assertEqual(
-    #         create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
-    #         dt_from_str('2013-07-25 12:28:45'),
-    #     )
-
-    # @override_settings(USE_L10N=True)
     @override_language('en')
-    # def test_dt_from_str02(self):
     def test_dt_from_str__en(self):
         create_dt = self.create_datetime
         self.assertEqual(
@@ -618,9 +561,7 @@ class DatesTestCase(CremeTestCase):
             dt_from_str('2013-07-25 12:28:45'),
         )
 
-    # @override_settings(USE_L10N=True)
     @override_language('fr')
-    # def test_dt_from_str03(self):
     def test_dt_from_str__fr(self):
         create_dt = self.create_datetime
         self.assertEqual(
@@ -648,27 +589,14 @@ class DatesTestCase(CremeTestCase):
             dt_from_str('2013-07-25 12:28:45'),
         )
 
-    # @override_settings(
-    #     USE_L10N=False,
-    #     DATE_INPUT_FORMATS=['%d/%m/%Y', '%Y-%m-%d'],
-    # )
-    # def test_date_from_str01(self):
-    #     self.assertEqual(date(year=2013, month=7, day=25), date_from_str('25/07/2013'))
-    #     self.assertEqual(date(year=2014, month=8, day=26), date_from_str('2014-08-26'))
-    #     self.assertIsNone(date_from_str('2014/08/26'))
-
-    # @override_settings(USE_L10N=True)
     @override_language('en')
-    # def test_date_from_str02(self):
     def test_date_from_str__en(self):
         self.assertEqual(date(year=2014, month=8, day=26), date_from_str('2014-08-26'))
         self.assertEqual(date(year=2014, month=8, day=26), date_from_str('08/26/2014'))
         self.assertIsNone(date_from_str('25/07/2013'))
         self.assertIsNone(date_from_str('2014/08/26'))
 
-    # @override_settings(USE_L10N=True)
     @override_language('fr')
-    # def test_date_from_str03(self):
     def test_date_from_str__fr(self):
         self.assertEqual(date(year=2013, month=7, day=25), date_from_str('25/07/2013'))
         self.assertEqual(date(year=2014, month=8, day=26), date_from_str('2014-08-26'))
@@ -781,12 +709,10 @@ class CurrencyFormatTestCase(CremeTestCase):
     def test_currency(self):
         from decimal import Decimal
 
-        # from creme.creme_core.constants import DISPLAY_CURRENCY_LOCAL_SYMBOL
         from creme.creme_core.models import Currency, SettingValue
         from creme.creme_core.setting_keys import currency_symbol_key
         from creme.creme_core.utils.currency_format import currency
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=DISPLAY_CURRENCY_LOCAL_SYMBOL)
         sv = self.get_object_or_fail(SettingValue, key_id=currency_symbol_key.id)
         self.assertTrue(sv.value)
 

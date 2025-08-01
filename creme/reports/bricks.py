@@ -75,7 +75,6 @@ class ReportFieldsBrick(core_bricks.Brick):
 
 class ReportGraphChartListBrick(ReportGraphMixin, core_bricks.QuerysetBrick):
     id = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
-    # verbose_name = _("Report's graphs")
     verbose_name = _('Report charts')
     description = _(
         'Adds & edits some charts related to a report.\n'
@@ -245,7 +244,6 @@ class ReportGraphChartInstanceBrick(ReportGraphMixin, core_bricks.InstanceBrick)
 class ReportGraphChartBrick(ReportGraphMixin, core_bricks.Brick):
     id = core_bricks.Brick.generate_id('reports', 'graph-chart')
     dependencies = (ReportGraph,)
-    # verbose_name = _("Report's graph")
     verbose_name = _('Report chart')
     template_name = 'reports/bricks/report-chart.html'
     target_ctypes = (ReportGraph,)

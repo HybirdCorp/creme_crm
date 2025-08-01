@@ -2,8 +2,6 @@
 {% load i18n creme_bricks creme_widgets %}
 {% load url from creme_core_tags %}
 
-{# {% block page_title %}«{{object}}» - {% endblock %} #}
-
 {% block global_buttons %}
     <li>{% translate 'Go to the configuration of filters' as list_label %}
         <a class="menu_button menu-button-icon" href="{% url 'creme_config__efilters' %}">

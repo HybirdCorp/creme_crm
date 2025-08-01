@@ -33,7 +33,6 @@ from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-# from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -461,22 +460,10 @@ class Populator(BasePopulator):
             ],
         )
 
-    # def _populate_custom_forms(self):
-    #     create_cfci = CustomFormConfigItem.objects.create_if_needed
-    #     create_cfci(descriptor=custom_forms.OPPORTUNITY_CREATION_CFORM)
-    #     create_cfci(descriptor=custom_forms.OPPORTUNITY_EDITION_CFORM)
-
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(
             model=self.Opportunity, fields=self.SEARCH,
         )
-
-    # def _populate_setting_values(self):
-    #     create_sv = SettingValue.objects.get_or_create
-    #     create_sv(key_id=setting_keys.quote_key.id,              defaults={'value': False})
-    #     create_sv(key_id=setting_keys.target_constraint_key.id,  defaults={'value': True})
-    #     create_sv(key_id=setting_keys.emitter_constraint_key.id, defaults={'value': True})
-    #     create_sv(key_id=setting_keys.unsuccessful_key.id,       defaults={'value': False})
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
@@ -512,7 +499,6 @@ class Populator(BasePopulator):
 
         build_cell = EntityCellRegularField.build
         cbci = CustomBrickConfigItem.objects.create(
-            # id='opportunities-complementary',
             uuid=UUID_CBRICK_OPPORTUNITY,
             name=_('Opportunity complementary information'),
             content_type=Opportunity,
@@ -689,7 +675,6 @@ class Populator(BasePopulator):
             ReportGraph.objects.create,
             linked_report=report, user=admin,
             ordinate_type=ReportGraph.Aggregator.SUM,
-            # ordinate_cell_key=sales_cell.key,
             ordinate_cell_key=sales_cell.portable_key,
         )
         esales_vname = FieldInfo(Opportunity, 'estimated_sales').verbose_name

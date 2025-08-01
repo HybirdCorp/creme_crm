@@ -6,10 +6,8 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from parameterized import parameterized
 
-# from creme.creme_core.bricks import EntityJobErrorsBrick
 from creme.creme_core.bricks import TrashBrick, TrashCleanerJobErrorsBrick
 from creme.creme_core.creme_jobs import reminder_type, trash_cleaner_type
-# from creme.creme_core.models import CremeEntity
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -154,7 +152,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         sector1, sector2, sector3 = FakeSector.objects.all()[:3]
         self.assertHTMLEqual(
-            # f'<ul><li>{sector1}</li><li>{sector2}</li></ul>',
             '<ul><li>{}</li></ul>'.format(
                 _('{count} {model}').format(
                     count=2,
@@ -167,12 +164,8 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertHTMLEqual(
             '<ul>'
             ' <li>{error}</li>'
-            # ' <li>{label1}</li>'
-            # ' <li>{label2}</li>'
             ' <li>{misc}</li>'
             '</ul>'.format(
-                # label1=str(sector2),
-                # label2=str(sector3),
                 error=ngettext(
                     '{count} not viewable entity',
                     '{count} not viewable entities',
@@ -262,7 +255,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.client.post(self._build_delete_url(ticket))
         self.assertContains(
             response,
-            # text=_('«{entity}» does not use the generic deletion view.').format(entity=ticket),
             text=_('This type of entity does not use the generic deletion view.'),
             status_code=409, html=True,
         )
@@ -285,7 +277,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'callback_url': cb_url},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        # self.assertEqual(cb_url, response.content.decode())
         self.assertEqual(cb_url, response.text)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
@@ -304,10 +295,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(entity)
         self.assertContains(
             response,
-            # _(
-            #     '«{entity}» can not be deleted because the deletion has '
-            #     'been disabled by the administrator.'
-            # ).format(entity=entity),
             _('Deletion has been disabled by your administrator'),
             status_code=409,
             html=True,
@@ -425,15 +412,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         with self.assertNoException():
             msg = response.context['error_message']
 
-        # self.assertEqual(
-        #     _(
-        #         '«{entity}» can not be deleted because of its '
-        #         'dependencies ({dependencies}).'
-        #     ).format(
-        #         entity=entity01.name,
-        #         dependencies='is a daughter of «Seele &lt;em&gt;corp&lt;/em&gt;»',
-        #     ),
-        # )
         self.assertHTMLEqual(
             '<span>{message}</span>'
             '<ul>'
@@ -505,9 +483,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_delete_entities(self):
         user = self.login_as_root_and_get()
 
-        # create_entity = partial(CremeEntity.objects.create, user=user)
-        # entity1, entity2 = (create_entity() for __ in range(2))
-        # entity3, entity4 = (create_entity(is_deleted=True) for __ in range(2))
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         entity1, entity2 = (create_orga(name=f'Orga #{i+1}') for i in range(2))
         entity3, entity4 = (
@@ -523,14 +498,11 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET405(url, data=data)
 
         response = self.assertPOST200(url, data=data)
-        # self.assertEqual(response.content.decode(), _('Operation successfully completed'))
         self.assertEqual(response.text, _('Operation successfully completed'))
 
-        # entity1 = self.get_object_or_fail(CremeEntity, pk=entity1.id)
         entity1 = self.get_object_or_fail(FakeOrganisation, pk=entity1.id)
         self.assertTrue(entity1.is_deleted)
 
-        # entity2 = self.get_object_or_fail(CremeEntity, pk=entity2.id)
         entity2 = self.get_object_or_fail(FakeOrganisation, pk=entity2.id)
         self.assertTrue(entity2.is_deleted)
 
@@ -541,8 +513,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         "Some entities do not exist."
         user = self.login_as_root_and_get()
 
-        # create_entity = partial(CremeEntity.objects.create, user=user)
-        # entity1, entity2 = (create_entity() for __ in range(2))
         create_entity = partial(FakeOrganisation.objects.create, user=user)
         entity1, entity2 = (create_entity(name=f'Orga #{i+1}') for i in range(2))
 
@@ -564,11 +534,9 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             response.json(),
         )
 
-        # entity1 = self.get_object_or_fail(CremeEntity, pk=entity1.id)
         entity1 = self.get_object_or_fail(FakeOrganisation, pk=entity1.id)
         self.assertTrue(entity1.is_deleted)
 
-        # self.get_object_or_fail(CremeEntity, pk=entity2.id)
         self.get_object_or_fail(FakeOrganisation, pk=entity2.id)
 
     def test_delete_entities__dependencies_error(self):
@@ -591,23 +559,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertPOST409(self.DEL_ENTITIES_URL, data={'ids': f'{entity1.id}'})
         self.assertStillExists(entity1)
         self.assertStillExists(entity2)
-        # self.assertDictEqual(
-        #     {
-        #         'count': 1,
-        #         'errors': [
-        #             _('{entity}: {error}').format(
-        #                 entity='Nerv &lt;em&gt;inc.&lt;/em&gt;',
-        #                 error=_(
-        #                     'This entity can not be deleted because of its '
-        #                     'dependencies ({dependencies}).'
-        #                 ).format(
-        #                     dependencies='is a daughter of «Seele &lt;b&gt;corp.&lt;/b&gt;»',
-        #                 ),
-        #             ),
-        #         ],
-        #     },
-        #     response.json(),
-        # )
+
         content = response.json()
         self.assertIsDict(content, length=2)
         self.assertEqual(1, content.get('count'))
@@ -643,8 +595,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*')
 
-        # forbidden = CremeEntity.objects.create(user=self.get_root_user())
-        # allowed   = CremeEntity.objects.create(user=user)
         forbidden = FakeOrganisation.objects.create(name='KO', user=self.get_root_user())
         allowed   = FakeOrganisation.objects.create(name='OK', user=user)
 
@@ -656,9 +606,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             {
                 'count': 2,
                 'errors': [
-                    # _('{entity}: <b>Permission denied</b>').format(
-                    #     entity=forbidden.allowed_str(user),
-                    # ),
                     _('{entity}: {error}').format(
                         entity=forbidden.allowed_str(user),
                         error=_('You are not allowed to delete this entity by your role'),
@@ -668,11 +615,9 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             response.json(),
         )
 
-        # allowed = self.get_object_or_fail(CremeEntity, pk=allowed.id)
         allowed = self.get_object_or_fail(FakeOrganisation, pk=allowed.id)
         self.assertTrue(allowed.is_deleted)
 
-        # self.get_object_or_fail(CremeEntity, pk=forbidden.id)
         self.get_object_or_fail(FakeOrganisation, pk=forbidden.id)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
@@ -680,15 +625,12 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         "Deletion is disabled in settings."
         user = self.login_as_root_and_get()
 
-        # create_entity = partial(CremeEntity.objects.create, user=user)
-        # entity1, entity2 = (create_entity() for __ in range(2))
         create_entity = partial(FakeOrganisation.objects.create, user=user)
         entity1, entity2 = (create_entity(name=f'Orga #{i+1}') for i in range(2))
 
         url = self.DEL_ENTITIES_URL
         data = {'ids': f'{entity1.id},{entity2.id}'}
         response1 = self.assertPOST200(url, data=data)
-        # self.assertEqual(response1.content.decode(), _('Operation successfully completed'))
         self.assertEqual(response1.text, _('Operation successfully completed'))
 
         entity1 = self.assertStillExists(entity1)
@@ -698,18 +640,12 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # ---
         response2 = self.assertPOST409(url, data=data)
-        # msg = _(
-        #     '«{entity}» can not be deleted because the deletion has been '
-        #     'disabled by the administrator.'
-        # )
         fmt = _('{entity}: {error}').format
         error_msg = _('Deletion has been disabled by your administrator')
         self.assertDictEqual(
             {
                 'count': 2,
                 'errors': [
-                    # msg.format(entity=entity1),
-                    # msg.format(entity=entity2),
                     fmt(entity=entity1, error=error_msg),
                     fmt(entity=entity2, error=error_msg),
                 ],
@@ -722,15 +658,12 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         "Logged as staff."
         user = self.login_as_super(is_staff=True)
 
-        # create_entity = partial(CremeEntity.objects.create, user=user, is_deleted=True)
-        # entity1, entity2 = (create_entity() for __ in range(2))
         create_entity = partial(FakeOrganisation.objects.create, user=user, is_deleted=True)
         entity1, entity2 = (create_entity(name=f'Orga #{i+1}') for i in range(2))
 
         response = self.assertPOST200(
             self.DEL_ENTITIES_URL, data={'ids': f'{entity1.id},{entity2.id}'},
         )
-        # self.assertEqual(response.content.decode(), _('Operation successfully completed'))
         self.assertEqual(response.text, _('Operation successfully completed'))
         self.assertDoesNotExist(entity1)
         self.assertDoesNotExist(entity2)
@@ -886,7 +819,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_empty_trash(self):
         user = self.login_as_standard(allowed_apps=('creme_core',))  # 'persons'
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
 
         create_contact = partial(FakeContact.objects.create, user=user, is_deleted=True)
@@ -1003,7 +935,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNotNone(jresult1)
         self.assertEqual(entity1.entity_type, jresult1.entity_ctype)
         self.assertListEqual(
-            # [_('Can not be deleted because of its dependencies.')],
             [_('Can not be deleted because of links with other entities.')],
             jresult1.messages,
         )
@@ -1011,7 +942,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(entity2.id, jresults)
 
         result_brick = self.get_alone_element(trash_cleaner_type.results_bricks)
-        # self.assertIsInstance(result_brick, EntityJobErrorsBrick)
         self.assertIsInstance(result_brick, TrashCleanerJobErrorsBrick)
 
     def test_empty_trash__perms(self):
@@ -1193,7 +1123,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # AJAX version
         response2 = self.assertPOST200(url, headers={'X-Requested-With': 'XMLHttpRequest'})
-        # self.assertEqual(redir_url, response2.content.decode())
         self.assertEqual(redir_url, response2.text)
 
 

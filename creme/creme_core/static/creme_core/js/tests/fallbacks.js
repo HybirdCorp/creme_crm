@@ -523,37 +523,7 @@ if (jQuery === undefined) {
                                                return element >= 10;
                                            }), [12, 44]);
     });
-/*
-    QUnit.test('fallbacks.Array.getRange', function() {
-        equal(typeof Array.prototype.getRange, 'function');
-        equal(typeof [].getRange, 'function');
 
-        deepEqual([1, 2, 1, 4, 5, 4].getRange(2, 4), [1, 4, 5]);
-    });
-
-
-    QUnit.test('fallbacks.Array.inArray', function() {
-        equal(typeof Array.prototype.inArray, 'function');
-        equal(typeof [].inArray, 'function');
-
-        equal([12, 5, 8, 5, 44].inArray(5), true);
-        equal([12, 5, 8, 5, 44].inArray(58), false);
-    });
-
-    QUnit.test('fallbacks.Array.insertAt', function() {
-        equal(typeof Array.prototype.insertAt, 'function');
-        equal(typeof [].insertAt, 'function');
-
-        deepEqual(['dog', 'cat', 'horse'].insertAt(2, 'mouse'), ['dog', 'cat', 'mouse', 'horse']);
-    });
-
-    QUnit.test('fallbacks.Array.removeAt', function() {
-        equal(typeof Array.prototype.removeAt, 'function');
-        equal(typeof [].removeAt, 'function');
-
-        deepEqual(['dog', 'cat', 'mouse', 'horse'].removeAt(2), ['dog', 'cat', 'horse']);
-    });
-*/
     QUnit.test('fallbacks.Array.some', function() {
         equal(typeof Array.prototype.some, 'function');
         equal(typeof [].some, 'function');
@@ -566,14 +536,6 @@ if (jQuery === undefined) {
                                           return element >= 100;
                                     }), false);
     });
-/*
-    QUnit.test('fallbacks.Array.unique', function() {
-        equal(typeof Array.prototype.unique, 'function');
-        equal(typeof [].unique, 'function');
-
-        deepEqual([1, 2, 1, 4, 5, 4].unique(), [1, 2, 4, 5]);
-    });
-*/
 }
 
 QUnit.test('fallbacks.HTMLDocument', function() {
@@ -595,72 +557,7 @@ QUnit.test('fallbacks.Event', function() {
 QUnit.test('fallbacks.Event.preventDefault', function() {
     equal(typeof Event.prototype.preventDefault, 'function');
 });
-/*
-QUnit.test('fallbacks.String.trim', function() {
-    equal('', ''.trim());
-    equal('', '   '.trim());
-    equal('', '\t\t'.trim());
-    equal('abc', 'abc'.trim());
-    equal('abc', '  abc'.trim());
-    equal('abc', 'abc  '.trim());
-    equal('abc', '  abc  '.trim());
-    equal('abc', '\tabc'.trim());
-    equal('abc', 'abc\t'.trim());
-    equal('abc', '\tabc\t'.trim());
-});
 
-QUnit.test('fallbacks.String.ltrim', function() {
-    equal('', ''.ltrim());
-    equal('', '   '.ltrim());
-    equal('', '\t\t'.ltrim());
-    equal('abc', 'abc'.ltrim());
-    equal('abc', 'abc'.ltrim());
-    equal('abc  ', 'abc  '.ltrim());
-    equal('abc  ', '  abc  '.ltrim());
-    equal('abc', '\tabc'.ltrim());
-    equal('abc\t', 'abc\t'.ltrim());
-    equal('abc\t', '\tabc\t'.ltrim());
-});
-
-QUnit.test('fallbacks.String.rtrim', function() {
-    equal('', ''.rtrim());
-    equal('', '   '.rtrim());
-    equal('', '\t\t'.rtrim());
-    equal('abc', 'abc'.rtrim());
-    equal('  abc', '  abc'.rtrim());
-    equal('abc', 'abc  '.rtrim());
-    equal('  abc', '  abc  '.rtrim());
-    equal('\tabc', '\tabc'.rtrim());
-    equal('abc', 'abc\t'.rtrim());
-    equal('\tabc', '\tabc\t'.rtrim());
-});
-
-QUnit.test('fallbacks.String.startsWith', function() {
-    equal(''.startsWith(''), true);
-    equal(''.startsWith('a'), false);
-
-    equal('a'.startsWith('a'), true);
-    equal('abcd'.startsWith('a'), true);
-    equal('abcd'.startsWith('abcd'), true);
-
-    equal('d'.startsWith('a'), false);
-    equal('dcba'.startsWith('a'), false);
-    equal('dcba'.startsWith('abcd'), false);
-});
-
-QUnit.test('fallbacks.String.endsWith', function() {
-    equal(''.endsWith(''), true);
-    equal(''.endsWith('a'), false);
-
-    equal('d'.endsWith('d'), true);
-    equal('abcd'.endsWith('d'), true);
-    equal('abcd'.endsWith('abcd'), true);
-
-    equal('a'.endsWith('d'), false);
-    equal('dcba'.endsWith('d'), false);
-    equal('dcba'.startsWith('abcd'), false);
-});
-*/
 QUnit.test('fallbacks.String.format (skip format)', function() {
     equal('%d', '%%d'.format(12));
     equal('%12', '%%%d'.format(12));

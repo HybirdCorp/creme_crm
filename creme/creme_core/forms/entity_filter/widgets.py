@@ -32,7 +32,6 @@ from django.db.models.fields.related import RelatedField as ModelRelatedField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.core.entity_filter import EntityFilterRegistry
 from creme.creme_core.core.entity_filter import (
     EF_REGULAR,
     entity_filter_registries,
@@ -91,9 +90,6 @@ class UserEnumerableSelect(EnumerableSelect):
         )
 
         user_ctype = ContentType.objects.get_for_model(field.model)
-        # user_choices_url = reverse(
-        #     'creme_core__efilter_user_choices', args=(user_ctype.id, field.name)
-        # )
         uri = reverse(
             'creme_core__efilter_user_choices',
             args=(user_ctype.id, field.name), query={'filter_type': filter_type},
@@ -106,7 +102,6 @@ class UserEnumerableSelect(EnumerableSelect):
                     field=field,
                     filter_type=filter_type,
                 ),
-                # url=f'{user_choices_url}?filter_type={filter_type}'
                 url=uri,
             ),
             attrs=attrs,
@@ -225,7 +220,6 @@ class FieldConditionSelector(ChainedInput):
             widget=DynamicInput, type='date', attrs={'auto': False},
         )
         add_input(
-            # '^boolean(__null)?.*', widget=DynamicSelect,
             '^boolean(__null)?.*$', widget=DynamicSelect,
             options=_BOOL_OPTIONS, attrs=field_attrs,
         )
@@ -383,7 +377,6 @@ class RegularFieldsConditionsWidget(ConditionListWidget):
     def __init__(self,
                  model=CremeEntity,
                  fields=(),
-                 # efilter_registry=None,
                  efilter_type: str = EF_REGULAR,
                  attrs=None,
                  enabled=True,  # TODO: use
@@ -391,21 +384,14 @@ class RegularFieldsConditionsWidget(ConditionListWidget):
         super().__init__(None, attrs)
         self.model = model
         self.fields = fields
-        # self.efilter_registry = efilter_registry or EntityFilterRegistry(
-        #     id='creme_core-default',
-        #     verbose_name='Default for RegularFieldsConditionsWidget',
-        # )
         self.efilter_type = efilter_type
 
     def get_selector(self, name, value, attrs):
-        # registry = self.efilter_registry
         efilter_type = self.efilter_type
 
         return FieldConditionSelector(
             model=self.model,
             fields=self.fields,
-            # operators=[*registry.operators],
-            # filter_type=registry.id,
             filter_type=efilter_type,
             operators=[*entity_filter_registries[efilter_type].operators],
             autocomplete=True,
@@ -557,11 +543,6 @@ class CustomFieldsConditionsWidget(ConditionListWidget):
                  ):
         super().__init__(None, attrs)
         self.fields = fields
-        # self.efilter_registry = efilter_registry or EntityFilterRegistry(
-        #     # id=-1,
-        #     id='creme_core-default',
-        #     verbose_name='Default for RegularFieldsConditionsWidget',
-        # )
         self.efilter_type = efilter_type
 
     def get_selector(self, name, value, attrs):
@@ -572,7 +553,6 @@ class CustomFieldsConditionsWidget(ConditionListWidget):
 
         return CustomFieldConditionSelector(
             fields=fields, autocomplete=True,
-            # operators=[*self.efilter_registry.operators],
             operators=[*entity_filter_registries[self.efilter_type].operators],
         )
 

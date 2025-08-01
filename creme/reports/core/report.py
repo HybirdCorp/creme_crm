@@ -186,7 +186,6 @@ class ReportHand:
                                      scope: QuerySet,
                                      ) -> str:
         """Overload this in sub-class when you compute the hand value (entity is viewable)."""
-        # return
         raise NotImplementedError
 
     def _handle_report_values(self,
@@ -446,9 +445,7 @@ class RHCustomField(ReportHand):
 
     def __init__(self, report_field):
         try:
-            # self._cfield = cf = CustomField.objects.get(id=report_field.name)
             self._cfield = cf = CustomField.objects.get(uuid=UUID(report_field.name))
-        # except CustomField.DoesNotExist as e:
         except (ValueError, CustomField.DoesNotExist) as e:
             raise ReportHand.ValueError(
                 f'Invalid custom field: "{report_field.name}"'
@@ -624,7 +621,6 @@ class RHAggregateCustomField(RHAggregate):
 
     def _build_query_n_vname(self, report_field, field_name, aggregation):
         try:
-            # cfield = CustomField.objects.get(id=field_name)
             cfield = CustomField.objects.get(uuid=UUID(field_name))
         except (ValueError, CustomField.DoesNotExist) as e:
             raise ReportHand.ValueError(
@@ -672,7 +668,6 @@ class RHRelated(ReportHand):
 
         super().__init__(
             report_field,
-            # title=str(related_field.related_model._meta.verbose_name),
             title=model_verbose_name(related_field.related_model),
             support_subreport=True,
         )
