@@ -419,7 +419,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                     model=smart_model_verbose_name(model=CremeProperty, count=1),
                 ),
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_delete_type__used_by_rtype(self):
@@ -444,7 +444,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'The property type cannot be deleted because it is used as '
                 'relationship type constraint in: {rtypes}'
             ).format(rtypes=f'«{rtype.predicate}»'),
-            response.content.decode(),
+            response.text,
         )
 
     def test_delete_type__used_by_rtype__forbidden(self):
@@ -468,7 +468,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'The property type cannot be deleted because it is used as '
                 'relationship type constraint in: {rtypes}'
             ).format(instance=ptype.text, rtypes=f'«{rtype.predicate}»'),
-            response.content.decode(),
+            response.text,
         )
 
     def test_delete_type__used_by_efilter(self):
@@ -524,7 +524,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                 f'<li>{efilter2.name} *{_("Credentials filter")}*</li>'
                 f'</ul>'
             )),
-            response.content.decode(),
+            response.text,
         )
 
     def test_delete_type__used_by_workflow__trigger(self):
@@ -572,7 +572,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'The property type cannot be deleted because it is used by '
                 'triggers of Workflow: {workflows}'
             ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
-            response.content.decode(),
+            response.text,
         )
 
     # TODO: when conditions o property type are managed

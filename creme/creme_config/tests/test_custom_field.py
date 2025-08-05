@@ -579,7 +579,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
                     f'</ul>'
                 ),
             ),
-            response.content.decode(),
+            response.text,
         )
         self.assertStillExists(cfield1)
         self.assertStillExists(efilter1)
@@ -617,7 +617,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
                     f'</a>'
                 ),
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_delete__used_by_workflow(self):
@@ -681,7 +681,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'The custom field cannot be deleted because it is used by '
                 'conditions of Workflow: {workflows}'
             ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
-            response.content.decode(),
+            response.text,
         )
         self.assertStillExists(cfield1)
         self.assertStillExists(wf1)
@@ -718,7 +718,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'The custom field cannot be deleted because it is used by '
                 'conditions of Workflow: {workflows}'
             ).format(workflows=f'«{wf.title}»'),
-            response.content.decode(),
+            response.text,
         )
 
     def test_delete__no_app_perms(self):

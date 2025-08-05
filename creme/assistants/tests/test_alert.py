@@ -863,7 +863,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             _('You are not allowed to access to the app: {}').format(
                 _('Assistants (Todos, Memos, …)')
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_edit__absolute_date(self):
@@ -1084,7 +1084,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             _('You are not allowed to access to the app: {}').format(
                 _('Assistants (Todos, Memos, …)')
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_delete_entity(self):
@@ -1139,7 +1139,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             _('You are not allowed to access to the app: {}').format(
                 _('Assistants (Todos, Memos, …)')
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_offset_signal__datetime(self):

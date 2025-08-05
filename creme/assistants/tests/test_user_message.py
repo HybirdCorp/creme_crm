@@ -292,14 +292,14 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         err = _('You are not allowed to access to the app: {}').format(
             _('Assistants (Todos, Memos, …)')
         )
-        self.assertEqual(err, response1.content.decode())
+        self.assertEqual(err, response1.text)
 
         # ---
         response2 = self.assertGET403(
             self._build_add_url(entity=self.create_entity(user=user)),
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        self.assertEqual(err, response2.content.decode())
+        self.assertEqual(err, response2.text)
 
     def test_brick(self):
         user = self.login_as_root_and_get()
@@ -414,7 +414,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             _('You are not allowed to access to the app: {}').format(
                 _('Assistants (Todos, Memos, …)')
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_merge(self):
