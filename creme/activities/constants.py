@@ -1,5 +1,4 @@
-import warnings
-
+# import warnings
 from django.utils.translation import gettext_lazy as _
 
 REL_SUB_LINKED_2_ACTIVITY = 'activities-subject_linked_2_activity'
@@ -67,74 +66,74 @@ EFILTER_PARTICIPATE = 'activities-participate'
 DEFAULT_HFILTER_ACTIVITY = 'activities-hf_activity'
 
 
-def __getattr__(name):
-    if name == 'NARROW':
-        warnings.warn(
-            '"NARROW" is deprecated; use Activity.FloatingType.NARROW instead.',
-            DeprecationWarning,
-        )
-        return 1
-
-    if name == 'FLOATING_TIME':
-        warnings.warn(
-            '"FLOATING_TIME" is deprecated; use Activity.FloatingType.FLOATING_TIME instead.',
-            DeprecationWarning,
-        )
-        return 2
-
-    if name == 'FLOATING':
-        warnings.warn(
-            '"FLOATING" is deprecated; use Activity.FloatingType.FLOATING instead.',
-            DeprecationWarning,
-        )
-        return 3
-
-    if name == 'SETTING_DISPLAY_REVIEW':
-        warnings.warn(
-            '"SETTING_DISPLAY_REVIEW" is deprecated; '
-            'use activities.setting_keys.review_key.id instead.',
-            DeprecationWarning,
-        )
-        return 'activities-display_review_activities_blocks'
-
-    if name == 'SETTING_AUTO_ORGA_SUBJECTS':
-        warnings.warn(
-            '"SETTING_AUTO_ORGA_SUBJECTS" is deprecated; '
-            'use activities.setting_keys.auto_subjects_key.id instead.',
-            DeprecationWarning,
-        )
-        return 'activities-auto_orga_subjects'
-
-    if name == 'SETTING_UNSUCCESSFUL_SUBTYPE_UUID':
-        warnings.warn(
-            '"SETTING_UNSUCCESSFUL_SUBTYPE_UUID" is deprecated; '
-            'use activities.setting_keys.unsuccessful_subtype_key.id instead.',
-            DeprecationWarning,
-        )
-        return 'activities-unsuccessful_call_subtype'
-
-    if name == 'SETTING_UNSUCCESSFUL_TITLE':
-        warnings.warn(
-            '"SETTING_UNSUCCESSFUL_TITLE" is deprecated; '
-            'use activities.setting_keys.unsuccessful_title_key.id instead.',
-            DeprecationWarning,
-        )
-        return 'activities-unsuccessful_call_title'
-
-    if name == 'SETTING_UNSUCCESSFUL_STATUS_UUID':
-        warnings.warn(
-            '"SETTING_UNSUCCESSFUL_STATUS_UUID" is deprecated; '
-            'use activities.setting_keys.unsuccessful_status_key.id instead.',
-            DeprecationWarning,
-        )
-        return 'activities-unsuccessful_call_status'
-
-    if name == 'SETTING_UNSUCCESSFUL_DURATION':
-        warnings.warn(
-            '"SETTING_UNSUCCESSFUL_DURATION" is deprecated; '
-            'use activities.setting_keys.unsuccessful_duration_key.id instead.',
-            DeprecationWarning,
-        )
-        return 'activities-unsuccessful_call_duration'
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == 'NARROW':
+#         warnings.warn(
+#             '"NARROW" is deprecated; use Activity.FloatingType.NARROW instead.',
+#             DeprecationWarning,
+#         )
+#         return 1
+#
+#     if name == 'FLOATING_TIME':
+#         warnings.warn(
+#             '"FLOATING_TIME" is deprecated; use Activity.FloatingType.FLOATING_TIME instead.',
+#             DeprecationWarning,
+#         )
+#         return 2
+#
+#     if name == 'FLOATING':
+#         warnings.warn(
+#             '"FLOATING" is deprecated; use Activity.FloatingType.FLOATING instead.',
+#             DeprecationWarning,
+#         )
+#         return 3
+#
+#     if name == 'SETTING_DISPLAY_REVIEW':
+#         warnings.warn(
+#             '"SETTING_DISPLAY_REVIEW" is deprecated; '
+#             'use activities.setting_keys.review_key.id instead.',
+#             DeprecationWarning,
+#         )
+#         return 'activities-display_review_activities_blocks'
+#
+#     if name == 'SETTING_AUTO_ORGA_SUBJECTS':
+#         warnings.warn(
+#             '"SETTING_AUTO_ORGA_SUBJECTS" is deprecated; '
+#             'use activities.setting_keys.auto_subjects_key.id instead.',
+#             DeprecationWarning,
+#         )
+#         return 'activities-auto_orga_subjects'
+#
+#     if name == 'SETTING_UNSUCCESSFUL_SUBTYPE_UUID':
+#         warnings.warn(
+#             '"SETTING_UNSUCCESSFUL_SUBTYPE_UUID" is deprecated; '
+#             'use activities.setting_keys.unsuccessful_subtype_key.id instead.',
+#             DeprecationWarning,
+#         )
+#         return 'activities-unsuccessful_call_subtype'
+#
+#     if name == 'SETTING_UNSUCCESSFUL_TITLE':
+#         warnings.warn(
+#             '"SETTING_UNSUCCESSFUL_TITLE" is deprecated; '
+#             'use activities.setting_keys.unsuccessful_title_key.id instead.',
+#             DeprecationWarning,
+#         )
+#         return 'activities-unsuccessful_call_title'
+#
+#     if name == 'SETTING_UNSUCCESSFUL_STATUS_UUID':
+#         warnings.warn(
+#             '"SETTING_UNSUCCESSFUL_STATUS_UUID" is deprecated; '
+#             'use activities.setting_keys.unsuccessful_status_key.id instead.',
+#             DeprecationWarning,
+#         )
+#         return 'activities-unsuccessful_call_status'
+#
+#     if name == 'SETTING_UNSUCCESSFUL_DURATION':
+#         warnings.warn(
+#             '"SETTING_UNSUCCESSFUL_DURATION" is deprecated; '
+#             'use activities.setting_keys.unsuccessful_duration_key.id instead.',
+#             DeprecationWarning,
+#         )
+#         return 'activities-unsuccessful_call_duration'
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
