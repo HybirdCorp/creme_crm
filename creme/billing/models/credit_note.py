@@ -16,15 +16,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
+# import warnings
 from django.db.models import ForeignKey
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CREME_REPLACE, Relation
 
-from .. import get_template_base_model
+# from .. import get_template_base_model
 from ..constants import REL_SUB_CREDIT_NOTE_APPLIED
 from .base import Base
 from .other_models import CreditNoteStatus, get_default_credit_note_status_pk
@@ -62,20 +61,20 @@ class AbstractCreditNote(Base):
     def get_lv_absolute_url():
         return reverse('billing__list_cnotes')
 
-    def build(self, template):
-        warnings.warn(
-            'The method billing.models.Invoice.build() is deprecated.',
-            DeprecationWarning,
-        )
-
-        status = None
-
-        if isinstance(template, get_template_base_model()):
-            status = CreditNoteStatus.objects.filter(uuid=template.status_uuid).first()
-
-        self.status = status or CreditNoteStatus.objects.default()
-
-        return super().build(template)
+    # def build(self, template):
+    #     warnings.warn(
+    #         'The method billing.models.Invoice.build() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     status = None
+    #
+    #     if isinstance(template, get_template_base_model()):
+    #         status = CreditNoteStatus.objects.filter(uuid=template.status_uuid).first()
+    #
+    #     self.status = status or CreditNoteStatus.objects.default()
+    #
+    #     return super().build(template)
 
     def _update_linked_docs(self):
         for rel in Relation.objects.filter(

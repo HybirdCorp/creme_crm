@@ -16,17 +16,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# import warnings
 import logging
-import warnings
 
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext
+# from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CREME_REPLACE
 
-from .. import get_template_base_model
+# from .. import get_template_base_model
 from .base import Base
 from .other_models import QuoteStatus, get_default_quote_status_pk
 
@@ -63,28 +63,28 @@ class AbstractQuote(Base):
     def get_lv_absolute_url():
         return reverse('billing__list_quotes')
 
-    def build(self, template):
-        warnings.warn(
-            'The method billing.models.Quote.build() is deprecated.',
-            DeprecationWarning,
-        )
-
-        status = None
-
-        if isinstance(template, get_template_base_model()):
-            status = QuoteStatus.objects.filter(uuid=template.status_uuid).first()
-            if status is None:
-                logger.warning('Invalid status UUID in TemplateBase(id=%s)', template.id)
-
-        if status is None:
-            status = QuoteStatus.objects.order_by('-is_default').first()
-            if status is None:
-                logger.warning('TemplateBase: no Quote Status available, so we create one')
-                status = QuoteStatus.objects.create(name=gettext('N/A'))
-
-        self.status = status
-
-        return super().build(template)
+    # def build(self, template):
+    #     warnings.warn(
+    #         'The method billing.models.Quote.build() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     status = None
+    #
+    #     if isinstance(template, get_template_base_model()):
+    #         status = QuoteStatus.objects.filter(uuid=template.status_uuid).first()
+    #         if status is None:
+    #             logger.warning('Invalid status UUID in TemplateBase(id=%s)', template.id)
+    #
+    #     if status is None:
+    #         status = QuoteStatus.objects.order_by('-is_default').first()
+    #         if status is None:
+    #             logger.warning('TemplateBase: no Quote Status available, so we create one')
+    #             status = QuoteStatus.objects.create(name=gettext('N/A'))
+    #
+    #     self.status = status
+    #
+    #     return super().build(template)
 
     class Meta(Base.Meta):
         abstract = True
