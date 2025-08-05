@@ -717,7 +717,7 @@ button_menu_patterns = [
         name='creme_config__buttons',
     ),
 
-    # Creattion
+    # Creation
     # re_path(
     #     r'^wizard[/]?$',
     #     button_menu.ButtonMenuWizard.as_view(),
