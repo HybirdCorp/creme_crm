@@ -71,6 +71,8 @@
                     - The class 'views.base.BaseCreation' has been removed.
                 * Commercial :
                     - The constant 'DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW' has been removed.
+                * Geolocation :
+                    - The SettingKey names 'NEIGHBOURHOOD_DISTANCE' & 'GOOGLE_API_KEY' have been removed.
 
 
 == Version 2.7 ==

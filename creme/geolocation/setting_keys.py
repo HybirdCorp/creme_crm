@@ -1,5 +1,4 @@
-import warnings
-
+# import warnings
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.setting_key import SettingKey
@@ -29,21 +28,21 @@ use_entity_icon_key = SettingKey(
 )
 
 
-def __getattr__(name):
-    if name == 'NEIGHBOURHOOD_DISTANCE':
-        warnings.warn(
-            '"NEIGHBOURHOOD_DISTANCE" is deprecated; '
-            'use geolocation.setting_keys.neighbourhood_distance_key instead.',
-            DeprecationWarning,
-        )
-        return neighbourhood_distance_key
-
-    if name == 'GOOGLE_API_KEY':
-        warnings.warn(
-            '"GOOGLE_API_KEY" is deprecated; '
-            'use geolocation.setting_keys.google_api_key instead.',
-            DeprecationWarning,
-        )
-        return google_api_key
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == 'NEIGHBOURHOOD_DISTANCE':
+#         warnings.warn(
+#             '"NEIGHBOURHOOD_DISTANCE" is deprecated; '
+#             'use geolocation.setting_keys.neighbourhood_distance_key instead.',
+#             DeprecationWarning,
+#         )
+#         return neighbourhood_distance_key
+#
+#     if name == 'GOOGLE_API_KEY':
+#         warnings.warn(
+#             '"GOOGLE_API_KEY" is deprecated; '
+#             'use geolocation.setting_keys.google_api_key instead.',
+#             DeprecationWarning,
+#         )
+#         return google_api_key
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
