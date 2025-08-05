@@ -6,6 +6,7 @@
       you edited/created some configurations of bricks.
       UPGRADE NOTE: run the command "migrate" to fix the issue, even if you have
       already migrated (a new migration "0156_v2_6_12__fix_hatbricks.py" should be performed).
+    # The code has been fixed to accept a settings 'LOGIN_URL' as an URL (it may be necessary to use a SSO).
 
 
 == Version 2.6.11 ==
