@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2024  Hybird
+#    Copyright (C) 2020-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,10 @@ class ExporterLocalisationWidget(ChainedInput):
         self.model = model
 
     def get_context(self, name, value, attrs):
-        field_attrs = {'auto': False, 'datatype': 'json'}
+        field_attrs = {
+            'auto': False, 'datatype': 'json',
+            'autocomplete': True,  # NB: to get a pretty <select>
+        }
         country_data_name = self.country_data_name
 
         countries_n_lang = defaultdict(set)
@@ -78,11 +81,6 @@ class ExporterLocalisationWidget(ChainedInput):
                 )
                 for country_code, languages in countries_n_lang.items()
             ],
-            # TODO: when there are a lot of countries
-            # attrs={
-            #     **field_attrs,
-            #     'autocomplete': True,
-            # },
             attrs=field_attrs,
             avoid_empty=True,
         )
