@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 from itertools import chain
 
 from django.conf import settings
@@ -180,45 +180,45 @@ class AbstractProjectTask(CremeEntity):
     #     for resource in source.get_resources():
     #         resource.clone_for_task(self)
 
-    @classmethod
-    def clone_scope(cls, tasks, project):
-        """Clone each task in 'tasks', assign them to 'project',
-        and restore links between each task.
-        @params tasks: an iterable of ProjectTask.
-        @params project: a Project instance.
-        """
-        warnings.warn(
-            'The method ProjectTask.clone_scope() is deprecated.',
-            DeprecationWarning,
-        )
-
-        context = {}
-
-        project_task_filter = cls._default_manager.filter
-
-        for task in tasks:
-            new_task = task.clone()
-            new_task.linked_project = project
-            new_task.save()
-
-            context[task.id] = {
-                'new_pk':     new_task.id,
-                'o_children': project_task_filter(
-                    parent_tasks=task.id,
-                ).values_list('pk', flat=True),
-            }
-
-        new_links = {
-            values['new_pk']: [
-                context[old_child_id]['new_pk']
-                for old_child_id in values['o_children']
-            ]
-            for values in context.values()
-        }
-
-        for task in project_task_filter(pk__in=new_links.keys()):
-            for sub_task in project_task_filter(pk__in=new_links[task.id]):
-                sub_task.parent_tasks.add(task)
+    # @classmethod
+    # def clone_scope(cls, tasks, project):
+    #     """Clone each task in 'tasks', assign them to 'project',
+    #     and restore links between each task.
+    #     @params tasks: an iterable of ProjectTask.
+    #     @params project: a Project instance.
+    #     """
+    #     warnings.warn(
+    #         'The method ProjectTask.clone_scope() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     context = {}
+    #
+    #     project_task_filter = cls._default_manager.filter
+    #
+    #     for task in tasks:
+    #         new_task = task.clone()
+    #         new_task.linked_project = project
+    #         new_task.save()
+    #
+    #         context[task.id] = {
+    #             'new_pk':     new_task.id,
+    #             'o_children': project_task_filter(
+    #                 parent_tasks=task.id,
+    #             ).values_list('pk', flat=True),
+    #         }
+    #
+    #     new_links = {
+    #         values['new_pk']: [
+    #             context[old_child_id]['new_pk']
+    #             for old_child_id in values['o_children']
+    #         ]
+    #         for values in context.values()
+    #     }
+    #
+    #     for task in project_task_filter(pk__in=new_links.keys()):
+    #         for sub_task in project_task_filter(pk__in=new_links[task.id]):
+    #             sub_task.parent_tasks.add(task)
 
     def save(self, *args, **kwargs):
         if self.pk is None and not self.order:
