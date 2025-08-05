@@ -31,6 +31,7 @@
         }
     };
 
+/*
     appendStatic('copy', function(iterable, start, end) {
         console.warn('Deprecated; Use Array.from(iterable).slice(start, end) instead');
 
@@ -44,4 +45,5 @@
 
         return res;
     });
+*/
 }(jQuery));

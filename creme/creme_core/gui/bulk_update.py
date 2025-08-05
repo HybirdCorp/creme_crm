@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-import warnings
+# import warnings
 from collections.abc import Iterable, Iterator, Sequence
 from itertools import chain
 
@@ -487,12 +487,12 @@ class BulkUpdateRegistry:
 bulk_update_registry = BulkUpdateRegistry()
 
 
-def __getattr__(name):
-    if name == '_BulkUpdateRegistry':
-        warnings.warn(
-            '"_BulkUpdateRegistry" is deprecated; use "BulkUpdateRegistry" instead.',
-            DeprecationWarning,
-        )
-        return BulkUpdateRegistry
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == '_BulkUpdateRegistry':
+#         warnings.warn(
+#             '"_BulkUpdateRegistry" is deprecated; use "BulkUpdateRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return BulkUpdateRegistry
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

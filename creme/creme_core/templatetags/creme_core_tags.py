@@ -17,7 +17,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from itertools import zip_longest
 from re import compile as compile_re
 from urllib.parse import urlencode, urlsplit
@@ -645,19 +645,20 @@ def get_entity_html_attrs(context, entity):
 
 
 @register.simple_tag
-def inner_edition_uri(instance, cells, callback_url=None):
+# def inner_edition_uri(instance, cells, callback_url=None):
+def inner_edition_uri(instance, cells):
     # TODO: pass the registry in context? accept it as argument?
     uri = bulk_update_registry.inner_uri(
         instance=instance,
         cells=[cells] if isinstance(cells, EntityCell) else cells,
     )
 
-    if callback_url and uri:
-        warnings.warn(
-            'In the tag {% inner_edition_uri %}, the argument "callback_url" is deprecated.',
-            DeprecationWarning
-        )
-        uri += f'&callback_url={callback_url}'
+    # if callback_url and uri:
+    #     warnings.warn(
+    #         'In the tag {% inner_edition_uri %}, the argument "callback_url" is deprecated.',
+    #         DeprecationWarning
+    #     )
+    #     uri += f'&callback_url={callback_url}'
 
     return uri
 

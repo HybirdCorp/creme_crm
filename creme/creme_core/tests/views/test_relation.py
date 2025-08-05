@@ -2196,76 +2196,76 @@ class RelationViewsTestCase(CremeTestCase):
         )
         self.assertStillExists(relation)
 
-    def test_not_copiable_relations01(self):  # DEPRECATED
-        user = self.login_as_root_and_get()
-
-        self.assertEqual(0, Relation.objects.count())
-        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is loving'),
-            ('test-object_foobar',  'is loved by'),
-            is_copiable=False,
-        )
-        rtype3, rtype4 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar_copiable', 'is loving'),
-            ('test-object_foobar_copiable',  'is loved by'),
-        )
-
-        create_entity = CremeEntity.objects.create
-        entity1 = create_entity(user=user)
-        entity2 = create_entity(user=user)
-
-        Relation.objects.create(
-            user=user, type=rtype1,
-            subject_entity=entity1, object_entity=entity2,
-        )
-        self.assertRelationCounts(((rtype1, 1), (rtype2, 1)))
-
-        Relation.objects.create(
-            user=user, type=rtype3,
-            subject_entity=entity1, object_entity=entity2,
-        )
-        self.assertRelationCounts(((rtype3, 1), (rtype4, 1)))
-
-        entity1.clone()
-        self.assertRelationCounts(((rtype1, 1), (rtype2, 1), (rtype3, 2), (rtype4, 2)))
-
-    def test_not_copiable_relations02(self):  # DEPRECATED
-        user = self.login_as_root_and_get()
-        self.assertEqual(0, Relation.objects.count())
-
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1, rtype2 = create_rtype(
-            ('test-subject_foobar_copiable', 'is loving',   [FakeContact, FakeOrganisation]),
-            ('test-object_foobar_copiable',  'is loved by', [FakeContact]),
-        )
-        rtype3, rtype4 = create_rtype(
-            ('test-subject_foobar', 'is loving',   [FakeContact]),
-            ('test-object_foobar',  'is loved by', [FakeOrganisation]),
-        )
-
-        create_contact = partial(FakeContact.objects.create, user=user)
-        contact1 = create_contact(last_name='Toto')
-        contact2 = create_contact(last_name='Titi')
-
-        orga = FakeOrganisation.objects.create(user=user, name='Toto CORP')
-
-        # Contact1 <------> Orga
-        Relation.objects.create(
-            user=user, type=rtype1,
-            subject_entity=contact1,
-            object_entity=orga,
-        )
-        Relation.objects.create(
-            user=user, type=rtype3,
-            subject_entity=contact1,
-            object_entity=orga,
-        )
-
-        self.assertRelationCounts(((rtype1, 1), (rtype2, 1), (rtype3, 1), (rtype4, 1)))
-
-        # Contact2 < ---- > Orga
-        contact2._copy_relations(contact1)
-        self.assertRelationCounts(((rtype1, 2), (rtype2, 2), (rtype3, 2), (rtype4, 2)))
-
-        orga._copy_relations(contact1)
-        self.assertRelationCounts(((rtype1, 3), (rtype2, 3), (rtype3, 2), (rtype4, 2)))
+    # def test_not_copiable_relations01(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #
+    #     self.assertEqual(0, Relation.objects.count())
+    #     rtype1, rtype2 = RelationType.objects.smart_update_or_create(
+    #         ('test-subject_foobar', 'is loving'),
+    #         ('test-object_foobar',  'is loved by'),
+    #         is_copiable=False,
+    #     )
+    #     rtype3, rtype4 = RelationType.objects.smart_update_or_create(
+    #         ('test-subject_foobar_copiable', 'is loving'),
+    #         ('test-object_foobar_copiable',  'is loved by'),
+    #     )
+    #
+    #     create_entity = CremeEntity.objects.create
+    #     entity1 = create_entity(user=user)
+    #     entity2 = create_entity(user=user)
+    #
+    #     Relation.objects.create(
+    #         user=user, type=rtype1,
+    #         subject_entity=entity1, object_entity=entity2,
+    #     )
+    #     self.assertRelationCounts(((rtype1, 1), (rtype2, 1)))
+    #
+    #     Relation.objects.create(
+    #         user=user, type=rtype3,
+    #         subject_entity=entity1, object_entity=entity2,
+    #     )
+    #     self.assertRelationCounts(((rtype3, 1), (rtype4, 1)))
+    #
+    #     entity1.clone()
+    #     self.assertRelationCounts(((rtype1, 1), (rtype2, 1), (rtype3, 2), (rtype4, 2)))
+    #
+    # def test_not_copiable_relations02(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #     self.assertEqual(0, Relation.objects.count())
+    #
+    #     create_rtype = RelationType.objects.smart_update_or_create
+    #     rtype1, rtype2 = create_rtype(
+    #         ('test-subject_foobar_copiable', 'is loving',   [FakeContact, FakeOrganisation]),
+    #         ('test-object_foobar_copiable',  'is loved by', [FakeContact]),
+    #     )
+    #     rtype3, rtype4 = create_rtype(
+    #         ('test-subject_foobar', 'is loving',   [FakeContact]),
+    #         ('test-object_foobar',  'is loved by', [FakeOrganisation]),
+    #     )
+    #
+    #     create_contact = partial(FakeContact.objects.create, user=user)
+    #     contact1 = create_contact(last_name='Toto')
+    #     contact2 = create_contact(last_name='Titi')
+    #
+    #     orga = FakeOrganisation.objects.create(user=user, name='Toto CORP')
+    #
+    #     # Contact1 <------> Orga
+    #     Relation.objects.create(
+    #         user=user, type=rtype1,
+    #         subject_entity=contact1,
+    #         object_entity=orga,
+    #     )
+    #     Relation.objects.create(
+    #         user=user, type=rtype3,
+    #         subject_entity=contact1,
+    #         object_entity=orga,
+    #     )
+    #
+    #     self.assertRelationCounts(((rtype1, 1), (rtype2, 1), (rtype3, 1), (rtype4, 1)))
+    #
+    #     # Contact2 < ---- > Orga
+    #     contact2._copy_relations(contact1)
+    #     self.assertRelationCounts(((rtype1, 2), (rtype2, 2), (rtype3, 2), (rtype4, 2)))
+    #
+    #     orga._copy_relations(contact1)
+    #     self.assertRelationCounts(((rtype1, 3), (rtype2, 3), (rtype3, 2), (rtype4, 2)))

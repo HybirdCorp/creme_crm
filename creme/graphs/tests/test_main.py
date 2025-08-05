@@ -378,31 +378,31 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(orga, cloned_node.real_entity)
         self.assertCountEqual([rtype2], cloned_node.relation_types.all())
 
-    def test_clone__method(self):  # DEPRECATED
-        user = self.get_root_user()
-
-        rtype1 = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee', 'is employed by'),
-            ('test-object_employee',  'has employee'),
-        )[0]
-        rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_pilot', 'is a pilot from'),
-            ('test-object_pilot',  'has pilot'),
-        )[0]
-
-        graph = Graph.objects.create(user=user, name='Graph')
-        graph.orbital_relation_types.add(rtype1)
-
-        orga = FakeOrganisation.objects.create(user=user, name='NERV')
-        rnode = RootNode.objects.create(graph=graph, real_entity=orga)
-        rnode.relation_types.set([rtype2])
-
-        cloned_graph = graph.clone()
-        self.assertIsInstance(cloned_graph, Graph)
-        self.assertNotEqual(graph.pk, cloned_graph.pk)
-        self.assertEqual(graph.name, cloned_graph.name)
-        self.assertCountEqual([rtype1], cloned_graph.orbital_relation_types.all())
-
-        cloned_node = self.get_alone_element(cloned_graph.roots.all())
-        self.assertEqual(orga, cloned_node.real_entity)
-        self.assertCountEqual([rtype2], cloned_node.relation_types.all())
+    # def test_clone__method(self):  # DEPRECATED
+    #     user = self.get_root_user()
+    #
+    #     rtype1 = RelationType.objects.smart_update_or_create(
+    #         ('test-subject_employee', 'is employed by'),
+    #         ('test-object_employee',  'has employee'),
+    #     )[0]
+    #     rtype2 = RelationType.objects.smart_update_or_create(
+    #         ('test-subject_pilot', 'is a pilot from'),
+    #         ('test-object_pilot',  'has pilot'),
+    #     )[0]
+    #
+    #     graph = Graph.objects.create(user=user, name='Graph')
+    #     graph.orbital_relation_types.add(rtype1)
+    #
+    #     orga = FakeOrganisation.objects.create(user=user, name='NERV')
+    #     rnode = RootNode.objects.create(graph=graph, real_entity=orga)
+    #     rnode.relation_types.set([rtype2])
+    #
+    #     cloned_graph = graph.clone()
+    #     self.assertIsInstance(cloned_graph, Graph)
+    #     self.assertNotEqual(graph.pk, cloned_graph.pk)
+    #     self.assertEqual(graph.name, cloned_graph.name)
+    #     self.assertCountEqual([rtype1], cloned_graph.orbital_relation_types.all())
+    #
+    #     cloned_node = self.get_alone_element(cloned_graph.roots.all())
+    #     self.assertEqual(orga, cloned_node.real_entity)
+    #     self.assertCountEqual([rtype2], cloned_node.relation_types.all())

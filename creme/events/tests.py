@@ -1035,14 +1035,14 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(event.type,       cloned_event.type)
         self.assertEqual(event.start_date, cloned_event.start_date)
 
-    def test_clone__method(self):  # DEPRECATED
-        user = self.get_root_user()
-        event = Event.objects.create(
-            user=user, name='Eclipse', type=EventType.objects.all()[0], start_date=now(),
-        )
-        cloned_event = event.clone()
-        self.assertIsInstance(cloned_event, Event)
-        self.assertNotEqual(event.pk, cloned_event.pk)
-        self.assertEqual(event.name,       cloned_event.name)
-        self.assertEqual(event.type,       cloned_event.type)
-        self.assertEqual(event.start_date, cloned_event.start_date)
+    # def test_clone__method(self):  # DEPRECATED
+    #     user = self.get_root_user()
+    #     event = Event.objects.create(
+    #         user=user, name='Eclipse', type=EventType.objects.all()[0], start_date=now(),
+    #     )
+    #     cloned_event = event.clone()
+    #     self.assertIsInstance(cloned_event, Event)
+    #     self.assertNotEqual(event.pk, cloned_event.pk)
+    #     self.assertEqual(event.name,       cloned_event.name)
+    #     self.assertEqual(event.type,       cloned_event.type)
+    #     self.assertEqual(event.start_date, cloned_event.start_date)

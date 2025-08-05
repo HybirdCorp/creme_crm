@@ -21,7 +21,7 @@
 # SOFTWARE.
 ################################################################################
 
-import warnings
+# import warnings
 from collections import Counter
 from collections.abc import Iterable
 from typing import Iterator
@@ -73,14 +73,14 @@ def smart_model_verbose_name(model: type[Model], count: int) -> str:
     )
 
 
-def get_model_verbose_name(model, count):
-    warnings.warn(
-        'The function creme_core.utils.translation.get_model_verbose_name() is deprecated; '
-        'use smart_model_verbose_name() instead.',
-        DeprecationWarning
-    )
-
-    return smart_model_verbose_name(model=model, count=count)
+# def get_model_verbose_name(model, count):
+#     warnings.warn(
+#         'The function creme_core.utils.translation.get_model_verbose_name() is deprecated; '
+#         'use smart_model_verbose_name() instead.',
+#         DeprecationWarning
+#     )
+#
+#     return smart_model_verbose_name(model=model, count=count)
 
 
 def verbose_instances_groups(instances: Iterable[Model]) -> Iterator[str]:

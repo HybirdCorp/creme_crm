@@ -932,25 +932,25 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render1.strip(),
         )
 
-        # cell instance + callback URL (DEPRECATED) ---
-        url = orga.get_lv_absolute_url()
-        with self.assertNoException():
-            render2 = Template(
-                '{% load creme_core_tags %}'
-                '{% inner_edition_uri instance=entity cells=cell callback_url=url %}'
-            ).render(Context({
-                'entity': orga,
-                'cell': build_cell(name='name'),
-                'url': url,
-            }))
-
-        self.assertEqual(
-            reverse(
-                'creme_core__inner_edition',
-                args=(orga.entity_type_id, orga.id)
-            ) + f'?cell=regular_field-name&amp;callback_url={url}',
-            render2.strip(),
-        )
+        # # cell instance + callback URL (DEPRECATED) ---
+        # url = orga.get_lv_absolute_url()
+        # with self.assertNoException():
+        #     render2 = Template(
+        #         '{% load creme_core_tags %}'
+        #         '{% inner_edition_uri instance=entity cells=cell callback_url=url %}'
+        #     ).render(Context({
+        #         'entity': orga,
+        #         'cell': build_cell(name='name'),
+        #         'url': url,
+        #     }))
+        #
+        # self.assertEqual(
+        #     reverse(
+        #         'creme_core__inner_edition',
+        #         args=(orga.entity_type_id, orga.id)
+        #     ) + f'?cell=regular_field-name&amp;callback_url={url}',
+        #     render2.strip(),
+        # )
 
     def test_get_cloning_info(self):
         user = self.get_root_user()

@@ -175,21 +175,21 @@ class MessageTemplateTestCase(CremeTestCase):
         self.assertEqual(template.subject, cloned_template.subject)
         self.assertEqual(template.body,    cloned_template.body)
 
-    def test_clone__method(self):  # DEPRECATED
-        user = self.get_root_user()
-        template = MessageTemplate.objects.create(
-            user=user,
-            name='My first template',
-            subject='Insert a joke *here*',
-            body='blablabla',
-        )
-
-        cloned_template = template.clone()
-        self.assertIsInstance(cloned_template, MessageTemplate)
-        self.assertNotEqual(template.pk, cloned_template.pk)
-        self.assertEqual(template.name,    cloned_template.name)
-        self.assertEqual(template.subject, cloned_template.subject)
-        self.assertEqual(template.body,    cloned_template.body)
+    # def test_clone__method(self):  # DEPRECATED
+    #     user = self.get_root_user()
+    #     template = MessageTemplate.objects.create(
+    #         user=user,
+    #         name='My first template',
+    #         subject='Insert a joke *here*',
+    #         body='blablabla',
+    #     )
+    #
+    #     cloned_template = template.clone()
+    #     self.assertIsInstance(cloned_template, MessageTemplate)
+    #     self.assertNotEqual(template.pk, cloned_template.pk)
+    #     self.assertEqual(template.name,    cloned_template.name)
+    #     self.assertEqual(template.subject, cloned_template.subject)
+    #     self.assertEqual(template.body,    cloned_template.body)
 
     def test_delete(self):
         user = self.login_as_root_and_get()
