@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections.abc import Callable, Iterator
 from functools import partial
 from json import loads as json_load
@@ -203,15 +203,15 @@ setting_key_registry = SettingKeyRegistry(SettingKey)
 user_setting_key_registry = SettingKeyRegistry(UserSettingKey)
 
 
-def __getattr__(name):
-    if name == '_SettingKeyRegistry':
-        warnings.warn(
-            '"_SettingKeyRegistry" is deprecated; use "SettingKeyRegistry" instead.',
-            DeprecationWarning,
-        )
-        return SettingKeyRegistry
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == '_SettingKeyRegistry':
+#         warnings.warn(
+#             '"_SettingKeyRegistry" is deprecated; use "SettingKeyRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return SettingKeyRegistry
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 class UserSettingValueManager:

@@ -748,13 +748,7 @@ URLIZE_TARGET_BLANK = False
 REPOSITORY = 'https://github.com/HybirdCorp/creme_crm'
 SCM = 'git'  # Other possible values: 'hg'
 
-# DEPRECATED: this settings will be removed in Creme 2.8
-# When a foreignkey field (or its related model) is not registered in the
-# EnumerableRegistry & a model form uses it without defining a specific form-field:
-#  - an exception is raised if this flag set to True
-#  - an error message is logged if this flag set to False
-# ENUMERABLE_REGISTRATION_ERROR = False  in Creme 2.5/2.6
-ENUMERABLE_REGISTRATION_ERROR = True
+# ENUMERABLE_REGISTRATION_ERROR = True
 
 # GUI [END]#####################################################################
 
@@ -876,7 +870,7 @@ CREME_CORE_JS = [
 
     # Base tools
     'creme_core/js/lib/fallbacks/object-0.1.js',
-    'creme_core/js/lib/fallbacks/array-0.9.js',
+    # 'creme_core/js/lib/fallbacks/array-0.9.js',
     'creme_core/js/lib/fallbacks/string-0.1.js',
     'creme_core/js/lib/math.js',
     'creme_core/js/lib/color.js',
@@ -902,12 +896,12 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/utils/template.js',
     'creme_core/js/widgets/utils/lambda.js',
     'creme_core/js/widgets/utils/converter.js',
-    'creme_core/js/widgets/utils/json.js',
+    # 'creme_core/js/widgets/utils/json.js',
     'creme_core/js/widgets/utils/compare.js',
     'creme_core/js/widgets/utils/history.js',
     'creme_core/js/widgets/utils/plugin.js',
 
-    'creme_core/js/widgets/ajax/url.js',
+    # 'creme_core/js/widgets/ajax/url.js',
     'creme_core/js/widgets/ajax/backend.js',
     'creme_core/js/widgets/ajax/mockbackend.js',
     'creme_core/js/widgets/ajax/cachebackend.js',

@@ -530,83 +530,83 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             '2.1.1', '2.1.2', '2.2.1', '2.2.2',
         )
 
-    def test_clone__method(self):  # DEPRECATED
-        pattern = self._create_pattern()
-
-        get_ct = ContentType.objects.get_for_model
-        ct_contact = get_ct(FakeContact)
-        ct_orga    = get_ct(FakeOrganisation)
-
-        efilter = EntityFilter.objects.smart_update_or_create(
-            'test-filter01', 'Ninja', FakeContact, is_custom=True,
-        )
-
-        create_comp = partial(
-            ActObjectivePatternComponent.objects.create,
-            pattern=pattern, success_rate=1,
-        )
-        comp1 = create_comp(name='1', ctype=ct_orga)
-
-        comp11 = create_comp(name='1.1', parent=comp1, success_rate=20, ctype=ct_contact)
-        create_comp(name='1.1.1', parent=comp11)
-        create_comp(name='1.1.2', parent=comp11)
-
-        comp12 = create_comp(name='1.2', parent=comp1, ctype=ct_contact, filter=efilter)
-        create_comp(name='1.2.1', parent=comp12)
-        create_comp(name='1.2.2', parent=comp12)
-
-        comp2 = create_comp(name='2', success_rate=50)
-
-        comp21 = create_comp(name='2.1', parent=comp2)
-        create_comp(name='2.1.1', parent=comp21)
-        create_comp(name='2.1.2', parent=comp21)
-
-        comp22 = create_comp(name='2.2', parent=comp2)
-        create_comp(name='2.2.1', parent=comp22)
-        create_comp(name='2.2.2', parent=comp22)
-
-        cloned_pattern = pattern.clone()
-
-        filter_comp = partial(
-            ActObjectivePatternComponent.objects.filter,
-            pattern=cloned_pattern,
-        )
-        self.assertEqual(14, filter_comp().count())
-
-        cloned_comp1 = self.get_object_or_fail(
-            ActObjectivePatternComponent,
-            pattern=cloned_pattern, name=comp1.name,
-        )
-        self.assertIsNone(cloned_comp1.parent)
-        self.assertEqual(1, cloned_comp1.success_rate)
-        self.assertEqual(ct_orga, cloned_comp1.ctype)
-        self.assertIsNone(cloned_comp1.filter)
-
-        with self.assertNoException():
-            cloned_comp11, cloned_comp12 = cloned_comp1.children.all()
-
-        self.assertEqual(ct_contact, cloned_comp11.ctype)
-        self.assertEqual(efilter,    cloned_comp12.filter)
-
-        self.assertCompNamesEqual(
-            filter_comp(parent__name__in=['1.1', '1.2']),
-            '1.1.1', '1.1.2', '1.2.1', '1.2.2',
-        )
-
-        cloned_comp2 = self.get_object_or_fail(
-            ActObjectivePatternComponent,
-            pattern=cloned_pattern, name=comp2.name,
-        )
-        self.assertIsNone(cloned_comp2.parent)
-        self.assertEqual(50, cloned_comp2.success_rate)
-        self.assertIsNone(cloned_comp2.ctype)
-        self.assertIsNone(cloned_comp1.filter)
-        self.assertCompNamesEqual(cloned_comp2.children, '2.1', '2.2')
-
-        self.assertCompNamesEqual(
-            filter_comp(parent__name__in=['2.1', '2.2']),
-            '2.1.1', '2.1.2', '2.2.1', '2.2.2',
-        )
+    # def test_clone__method(self):  # DEPRECATED
+    #     pattern = self._create_pattern()
+    #
+    #     get_ct = ContentType.objects.get_for_model
+    #     ct_contact = get_ct(FakeContact)
+    #     ct_orga    = get_ct(FakeOrganisation)
+    #
+    #     efilter = EntityFilter.objects.smart_update_or_create(
+    #         'test-filter01', 'Ninja', FakeContact, is_custom=True,
+    #     )
+    #
+    #     create_comp = partial(
+    #         ActObjectivePatternComponent.objects.create,
+    #         pattern=pattern, success_rate=1,
+    #     )
+    #     comp1 = create_comp(name='1', ctype=ct_orga)
+    #
+    #     comp11 = create_comp(name='1.1', parent=comp1, success_rate=20, ctype=ct_contact)
+    #     create_comp(name='1.1.1', parent=comp11)
+    #     create_comp(name='1.1.2', parent=comp11)
+    #
+    #     comp12 = create_comp(name='1.2', parent=comp1, ctype=ct_contact, filter=efilter)
+    #     create_comp(name='1.2.1', parent=comp12)
+    #     create_comp(name='1.2.2', parent=comp12)
+    #
+    #     comp2 = create_comp(name='2', success_rate=50)
+    #
+    #     comp21 = create_comp(name='2.1', parent=comp2)
+    #     create_comp(name='2.1.1', parent=comp21)
+    #     create_comp(name='2.1.2', parent=comp21)
+    #
+    #     comp22 = create_comp(name='2.2', parent=comp2)
+    #     create_comp(name='2.2.1', parent=comp22)
+    #     create_comp(name='2.2.2', parent=comp22)
+    #
+    #     cloned_pattern = pattern.clone()
+    #
+    #     filter_comp = partial(
+    #         ActObjectivePatternComponent.objects.filter,
+    #         pattern=cloned_pattern,
+    #     )
+    #     self.assertEqual(14, filter_comp().count())
+    #
+    #     cloned_comp1 = self.get_object_or_fail(
+    #         ActObjectivePatternComponent,
+    #         pattern=cloned_pattern, name=comp1.name,
+    #     )
+    #     self.assertIsNone(cloned_comp1.parent)
+    #     self.assertEqual(1, cloned_comp1.success_rate)
+    #     self.assertEqual(ct_orga, cloned_comp1.ctype)
+    #     self.assertIsNone(cloned_comp1.filter)
+    #
+    #     with self.assertNoException():
+    #         cloned_comp11, cloned_comp12 = cloned_comp1.children.all()
+    #
+    #     self.assertEqual(ct_contact, cloned_comp11.ctype)
+    #     self.assertEqual(efilter,    cloned_comp12.filter)
+    #
+    #     self.assertCompNamesEqual(
+    #         filter_comp(parent__name__in=['1.1', '1.2']),
+    #         '1.1.1', '1.1.2', '1.2.1', '1.2.2',
+    #     )
+    #
+    #     cloned_comp2 = self.get_object_or_fail(
+    #         ActObjectivePatternComponent,
+    #         pattern=cloned_pattern, name=comp2.name,
+    #     )
+    #     self.assertIsNone(cloned_comp2.parent)
+    #     self.assertEqual(50, cloned_comp2.success_rate)
+    #     self.assertIsNone(cloned_comp2.ctype)
+    #     self.assertIsNone(cloned_comp1.filter)
+    #     self.assertCompNamesEqual(cloned_comp2.children, '2.1', '2.2')
+    #
+    #     self.assertCompNamesEqual(
+    #         filter_comp(parent__name__in=['2.1', '2.2']),
+    #         '2.1.1', '2.1.2', '2.2.1', '2.2.2',
+    #     )
 
     # TODO?
     # def test_inneredit(self):

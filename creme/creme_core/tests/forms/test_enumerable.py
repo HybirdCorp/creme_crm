@@ -31,7 +31,8 @@ from creme.creme_core.models import (
 from ..base import CremeTestCase
 
 
-@override_settings(FORM_ENUMERABLE_LIMIT=100, ENUMERABLE_REGISTRATION_ERROR=False)
+# @override_settings(FORM_ENUMERABLE_LIMIT=100, ENUMERABLE_REGISTRATION_ERROR=False)
+@override_settings(FORM_ENUMERABLE_LIMIT=100)
 class FieldEnumerableChoiceSetTestCase(CremeTestCase):
     maxDiff = None
 
@@ -50,27 +51,29 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('first_name'))
         self.assertIsInstance(enumerable.enumerator, EmptyEnumerator)
 
-        with self.assertLogs(level='ERROR') as logs:
-            choices, more = enumerable.choices()
-
-        self.assertEqual(logs.output, [
-            'ERROR:'
-            'creme.creme_core.core.enumerable:'
-            'No enumerator has been found for the field "creme_core.FakeContact.first_name". '
-            'Please register the field or its related model in apps config '
-            '(see register_enumerable())'
-        ])
-
-        self.assertFalse(more)
-        self.assertEqual([], list(choices))
-
-        groups, more = enumerable.groups()
-        self.assertFalse(more)
-        self.assertEqual([], list(groups))
-
-        with override_settings(ENUMERABLE_REGISTRATION_ERROR=True):
-            with self.assertRaises(NotImplementedError) as err:
-                enumerable.choices()
+        # with self.assertLogs(level='ERROR') as logs:
+        #     choices, more = enumerable.choices()
+        #
+        # self.assertEqual(logs.output, [
+        #     'ERROR:'
+        #     'creme.creme_core.core.enumerable:'
+        #     'No enumerator has been found for the field "creme_core.FakeContact.first_name". '
+        #     'Please register the field or its related model in apps config '
+        #     '(see register_enumerable())'
+        # ])
+        #
+        # self.assertFalse(more)
+        # self.assertEqual([], list(choices))
+        #
+        # groups, more = enumerable.groups()
+        # self.assertFalse(more)
+        # self.assertEqual([], list(groups))
+        #
+        # with override_settings(ENUMERABLE_REGISTRATION_ERROR=True):
+        #     with self.assertRaises(NotImplementedError) as err:
+        #         enumerable.choices()
+        with self.assertRaises(NotImplementedError) as err:
+            enumerable.choices()
 
         self.assertEqual(
             str(err.exception),

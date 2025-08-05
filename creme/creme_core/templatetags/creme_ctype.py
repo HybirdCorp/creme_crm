@@ -16,8 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
+# import warnings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
 from django.template import Library
@@ -33,22 +32,14 @@ register = Library()
 # TODO: {% if object|ctype_is:my_ctype %} ?
 
 
-@register.simple_tag
-def ctype_for_model(model: type[Model]) -> ContentType:
-    """Returns an instance of ContentType for a model.
-
-    @param model: Class 'inheriting django.db.models.Model'.
-    @return: A ContentType instance.
-
-        {% ctype_for_model currency_model as currency_ctype %}
-        <h1>List of {{currency_ctype}}</h1>
-    """
-    warnings.warn(
-        '{% ctype_for_model %} is deprecated; '
-        'use the filter "|ctype_for_instance" instead.',
-        DeprecationWarning
-    )
-    return ContentType.objects.get_for_model(model)
+# @register.simple_tag
+# def ctype_for_model(model: type[Model]) -> ContentType:
+#     warnings.warn(
+#         '{% ctype_for_model %} is deprecated; '
+#         'use the filter "|ctype_for_instance" instead.',
+#         DeprecationWarning
+#     )
+#     return ContentType.objects.get_for_model(model)
 
 
 @register.filter
@@ -80,22 +71,14 @@ def ctype_for_naturalkey(app_label: str, model: str) -> ContentType:
     return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
 
 
-@register.simple_tag(name='ctype_for_swappable')
-def ctype_for_swappable__deprecated(model_setting: str) -> ContentType:
-    """Returns an instance of ContentType for a swappable model.
-
-    @param model_setting: String identifying a swappable model.
-    @return: A ContentType instance.
-
-        {% ctype_for_swappable 'PERSONS_CONTACT_MODEL' as contact_ctype %}
-        <h1>List of {{contact_ctype}}</h1>
-    """
-    warnings.warn(
-        '{% ctype_for_swappable %} is deprecated; '
-        'use the filter "|ctype_for_swappable" instead.',
-        DeprecationWarning
-    )
-    return ContentType.objects.get_for_model(get_concrete_model(model_setting))
+# @register.simple_tag(name='ctype_for_swappable')
+# def ctype_for_swappable__deprecated(model_setting: str) -> ContentType:
+#     warnings.warn(
+#         '{% ctype_for_swappable %} is deprecated; '
+#         'use the filter "|ctype_for_swappable" instead.',
+#         DeprecationWarning
+#     )
+#     return ContentType.objects.get_for_model(get_concrete_model(model_setting))
 
 
 @register.filter
@@ -111,16 +94,17 @@ def ctype_for_swappable(model_setting: str) -> ContentType:
 
 
 @register.filter
-def ctype_verbose_name(ctype: ContentType, count: int | None  = None) -> str:
+# def ctype_verbose_name(ctype: ContentType, count: int | None  = None) -> str:
+def ctype_verbose_name(ctype: ContentType, count: int) -> str:
     model = ctype.model_class()
 
-    if count is None:
-        warnings.warn(
-            '|ctype_verbose_name without "count" argument is deprecated; '
-            'you can just print the ContentType instance.',
-            DeprecationWarning,
-        )
-        return utils.model_verbose_name(model)
+    # if count is None:
+    #     warnings.warn(
+    #         '|ctype_verbose_name without "count" argument is deprecated; '
+    #         'you can just print the ContentType instance.',
+    #         DeprecationWarning,
+    #     )
+    #     return utils.model_verbose_name(model)
 
     return smart_model_verbose_name(model, count)
 
@@ -130,18 +114,18 @@ def ctype_verbose_name_plural(ctype: ContentType) -> str:
     return utils.model_verbose_name_plural(ctype.model_class())
 
 
-@register.simple_tag
-def ctype_counted_instances_label(ctype: ContentType, count: int) -> str:
-    warnings.warn(
-        '{% ctype_counted_instances_label %} is deprecated; '
-        'use |ctype_counted_label instead.',
-        DeprecationWarning,
-    )
-
-    return _('{count} {model}').format(
-        count=count,
-        model=smart_model_verbose_name(model=ctype.model_class(), count=count),
-    )
+# @register.simple_tag
+# def ctype_counted_instances_label(ctype: ContentType, count: int) -> str:
+#     warnings.warn(
+#         '{% ctype_counted_instances_label %} is deprecated; '
+#         'use |ctype_counted_label instead.',
+#         DeprecationWarning,
+#     )
+#
+#     return _('{count} {model}').format(
+#         count=count,
+#         model=smart_model_verbose_name(model=ctype.model_class(), count=count),
+#     )
 
 
 @register.filter
@@ -176,25 +160,25 @@ def ctype_can_be_merged(ctype: ContentType) -> bool:
     return ctype.model_class() in merge_form_registry
 
 
-@register.filter
-def ctype_can_be_mass_imported(ctype: ContentType) -> bool:
-    """Indicates if some instances of a specific model can be created from a CSV/XLS/... file.
-
-    @param ctype: A ContentType instance corresponding to your model.
-    @return: A boolean.
-
-        {% if my_entity.entity_type|ctype_can_be_mass_imported %}
-            <span>Can be imported !!</span>
-        {% endif %}
-    """
-    from ..gui.mass_import import import_form_registry
-
-    warnings.warn(
-        'The template filter |ctype_can_be_mass_imported is deprecated',
-        DeprecationWarning,
-    )
-
-    return ctype.model_class() in import_form_registry
+# @register.filter
+# def ctype_can_be_mass_imported(ctype: ContentType) -> bool:
+#     """Indicates if some instances of a specific model can be created from a CSV/XLS/... file.
+#
+#     @param ctype: A ContentType instance corresponding to your model.
+#     @return: A boolean.
+#
+#         {% if my_entity.entity_type|ctype_can_be_mass_imported %}
+#             <span>Can be imported !!</span>
+#         {% endif %}
+#     """
+#     from ..gui.mass_import import import_form_registry
+#
+#     warnings.warn(
+#         'The template filter |ctype_can_be_mass_imported is deprecated',
+#         DeprecationWarning,
+#     )
+#
+#     return ctype.model_class() in import_form_registry
 
 
 @register.filter

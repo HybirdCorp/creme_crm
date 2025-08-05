@@ -20,102 +20,102 @@ from ..fake_models import FakeActivity
 
 
 class CremePropertyTypeTestCase(CremeTestCase):
-    def test_manager_smart_update_or_create01(self):  # DEPRECATED
-        uid = 'f4dc2004-30d1-46b2-95e0-7164bf286969'
-        text = 'is delicious'
-
-        ptype = CremePropertyType.objects.smart_update_or_create(uuid=uid, text=text)
-
-        self.assertIsInstance(ptype, CremePropertyType)
-        self.assertEqual(uid, ptype.uuid)
-        self.assertEqual('', ptype.app_label)
-        self.assertEqual(text, ptype.text)
-        self.assertFalse(ptype.is_custom)
-        self.assertTrue(ptype.is_copiable)
-        self.assertTrue(ptype.enabled)
-        self.assertFalse(ptype.subject_ctypes.all())
-        self.assertFalse([*ptype.subject_models])
-
-    def test_manager_smart_update_or_create02(self):  # DEPRECATED
-        "ContentTypes & app label."
-        uid = '73b2c0b5-10a8-443a-9e07-1f2398e889ea'
-        text = 'is wonderful'
-        label = 'creme_core'
-
-        get_ct = ContentType.objects.get_for_model
-        orga_ct = get_ct(FakeOrganisation)
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            uuid=uid,
-            text=text,
-            app_label=label,
-            is_copiable=False,
-            is_custom=True,
-            subject_ctypes=[FakeContact, orga_ct],
-        )
-
-        self.assertEqual(label, ptype.app_label)
-        self.assertTrue(ptype.is_custom)
-        self.assertFalse(ptype.is_copiable)
-        self.assertCountEqual(
-            [get_ct(FakeContact), orga_ct], [*ptype.subject_ctypes.all()],
-        )
-        self.assertCountEqual(
-            [FakeContact, FakeOrganisation], [*ptype.subject_models],
-        )
-
-    def test_manager_smart_update_or_create03(self):  # DEPRECATED
-        "Update existing."
-        uid = '85df6868-beee-41b3-a263-a139f6dfde27'
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        create_ptype(uuid=uid, text='is delicious', subject_ctypes=[FakeOrganisation])
-
-        text = 'is very delicious'
-        ptype = create_ptype(
-            uuid=uid,
-            text=text,
-            is_copiable=False,
-            is_custom=True,
-            subject_ctypes=[FakeContact],
-        )
-
-        self.assertEqual(text, ptype.text)
-        self.assertTrue(ptype.is_custom)
-        self.assertFalse(ptype.is_copiable)
-        self.assertListEqual([FakeContact], [*ptype.subject_models])
-
-    def test_manager_smart_update_or_create04(self):  # DEPRECATED
-        "Generate uuid."
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        text1 = 'is delicious'
-        ptype1 = create_ptype(
-            text=text1,
-            is_custom=True,
-            is_copiable=False,
-        )
-        self.assertTrue(ptype1.uuid)
-        self.assertEqual(text1, ptype1.text)
-        self.assertEqual('', ptype1.app_label)
-        self.assertTrue(ptype1.is_custom)
-        self.assertFalse(ptype1.is_copiable)
-        self.assertFalse([*ptype1.subject_models])
-
-        text2 = 'is yummy'
-        label2 = 'documents'
-        ptype2 = create_ptype(
-            text=text2,
-            app_label=label2,
-            is_custom=False,
-            is_copiable=True,
-            subject_ctypes=[FakeContact],
-        )
-        self.assertTrue(ptype2.uuid)
-        self.assertEqual(text2, ptype2.text)
-        self.assertEqual(label2, ptype2.app_label)
-        self.assertFalse(ptype2.is_custom)
-        self.assertTrue(ptype2.is_copiable)
-        self.assertListEqual([FakeContact], [*ptype2.subject_models])
-
-        self.assertNotEqual(ptype1.uuid, ptype2.uuid)
+    # def test_manager_smart_update_or_create01(self):  # DEPRECATED
+    #     uid = 'f4dc2004-30d1-46b2-95e0-7164bf286969'
+    #     text = 'is delicious'
+    #
+    #     ptype = CremePropertyType.objects.smart_update_or_create(uuid=uid, text=text)
+    #
+    #     self.assertIsInstance(ptype, CremePropertyType)
+    #     self.assertEqual(uid, ptype.uuid)
+    #     self.assertEqual('', ptype.app_label)
+    #     self.assertEqual(text, ptype.text)
+    #     self.assertFalse(ptype.is_custom)
+    #     self.assertTrue(ptype.is_copiable)
+    #     self.assertTrue(ptype.enabled)
+    #     self.assertFalse(ptype.subject_ctypes.all())
+    #     self.assertFalse([*ptype.subject_models])
+    #
+    # def test_manager_smart_update_or_create02(self):  # DEPRECATED
+    #     "ContentTypes & app label."
+    #     uid = '73b2c0b5-10a8-443a-9e07-1f2398e889ea'
+    #     text = 'is wonderful'
+    #     label = 'creme_core'
+    #
+    #     get_ct = ContentType.objects.get_for_model
+    #     orga_ct = get_ct(FakeOrganisation)
+    #     ptype = CremePropertyType.objects.smart_update_or_create(
+    #         uuid=uid,
+    #         text=text,
+    #         app_label=label,
+    #         is_copiable=False,
+    #         is_custom=True,
+    #         subject_ctypes=[FakeContact, orga_ct],
+    #     )
+    #
+    #     self.assertEqual(label, ptype.app_label)
+    #     self.assertTrue(ptype.is_custom)
+    #     self.assertFalse(ptype.is_copiable)
+    #     self.assertCountEqual(
+    #         [get_ct(FakeContact), orga_ct], [*ptype.subject_ctypes.all()],
+    #     )
+    #     self.assertCountEqual(
+    #         [FakeContact, FakeOrganisation], [*ptype.subject_models],
+    #     )
+    #
+    # def test_manager_smart_update_or_create03(self):  # DEPRECATED
+    #     "Update existing."
+    #     uid = '85df6868-beee-41b3-a263-a139f6dfde27'
+    #     create_ptype = CremePropertyType.objects.smart_update_or_create
+    #     create_ptype(uuid=uid, text='is delicious', subject_ctypes=[FakeOrganisation])
+    #
+    #     text = 'is very delicious'
+    #     ptype = create_ptype(
+    #         uuid=uid,
+    #         text=text,
+    #         is_copiable=False,
+    #         is_custom=True,
+    #         subject_ctypes=[FakeContact],
+    #     )
+    #
+    #     self.assertEqual(text, ptype.text)
+    #     self.assertTrue(ptype.is_custom)
+    #     self.assertFalse(ptype.is_copiable)
+    #     self.assertListEqual([FakeContact], [*ptype.subject_models])
+    #
+    # def test_manager_smart_update_or_create04(self):  # DEPRECATED
+    #     "Generate uuid."
+    #     create_ptype = CremePropertyType.objects.smart_update_or_create
+    #     text1 = 'is delicious'
+    #     ptype1 = create_ptype(
+    #         text=text1,
+    #         is_custom=True,
+    #         is_copiable=False,
+    #     )
+    #     self.assertTrue(ptype1.uuid)
+    #     self.assertEqual(text1, ptype1.text)
+    #     self.assertEqual('', ptype1.app_label)
+    #     self.assertTrue(ptype1.is_custom)
+    #     self.assertFalse(ptype1.is_copiable)
+    #     self.assertFalse([*ptype1.subject_models])
+    #
+    #     text2 = 'is yummy'
+    #     label2 = 'documents'
+    #     ptype2 = create_ptype(
+    #         text=text2,
+    #         app_label=label2,
+    #         is_custom=False,
+    #         is_copiable=True,
+    #         subject_ctypes=[FakeContact],
+    #     )
+    #     self.assertTrue(ptype2.uuid)
+    #     self.assertEqual(text2, ptype2.text)
+    #     self.assertEqual(label2, ptype2.app_label)
+    #     self.assertFalse(ptype2.is_custom)
+    #     self.assertTrue(ptype2.is_copiable)
+    #     self.assertListEqual([FakeContact], [*ptype2.subject_models])
+    #
+    #     self.assertNotEqual(ptype1.uuid, ptype2.uuid)
 
     def test_manager_compatible(self):
         create_ptype = CremePropertyType.objects.create

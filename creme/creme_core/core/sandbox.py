@@ -16,8 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# import warnings
 import logging
-import warnings
 
 from creme.creme_core.models import Sandbox
 
@@ -72,12 +72,12 @@ class SandboxTypeRegistry:
 sandbox_type_registry = SandboxTypeRegistry()
 
 
-def __getattr__(name):
-    if name == '_SandboxTypeRegistry':
-        warnings.warn(
-            '"_SandboxTypeRegistry" is deprecated; use "SandboxTypeRegistry" instead.',
-            DeprecationWarning,
-        )
-        return SandboxTypeRegistry
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == '_SandboxTypeRegistry':
+#         warnings.warn(
+#             '"_SandboxTypeRegistry" is deprecated; use "SandboxTypeRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return SandboxTypeRegistry
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

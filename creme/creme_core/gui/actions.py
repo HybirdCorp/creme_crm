@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-import warnings
+# import warnings
 from collections.abc import Iterator
 from typing import Type
 
@@ -387,26 +387,26 @@ class ActionRegistry:
 action_registry = ActionRegistry()
 
 
-def __getattr__(name):
-    if name == 'ActionsRegistry':
-        warnings.warn(
-            '"ActionsRegistry" is deprecated; use "ActionRegistry" instead.',
-            DeprecationWarning,
-        )
-        return ActionRegistry
-
-    if name == 'ActionsChain':
-        warnings.warn(
-            '"ActionsChain" is deprecated; use "ActionChain" instead.',
-            DeprecationWarning,
-        )
-        return ActionChain
-
-    if name == 'actions_registry':
-        warnings.warn(
-            '"actions_registry" is deprecated; use "action_registry" instead.',
-            DeprecationWarning,
-        )
-        return action_registry
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == 'ActionsRegistry':
+#         warnings.warn(
+#             '"ActionsRegistry" is deprecated; use "ActionRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return ActionRegistry
+#
+#     if name == 'ActionsChain':
+#         warnings.warn(
+#             '"ActionsChain" is deprecated; use "ActionChain" instead.',
+#             DeprecationWarning,
+#         )
+#         return ActionChain
+#
+#     if name == 'actions_registry':
+#         warnings.warn(
+#             '"actions_registry" is deprecated; use "action_registry" instead.',
+#             DeprecationWarning,
+#         )
+#         return action_registry
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
