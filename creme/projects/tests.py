@@ -319,27 +319,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
     def test_project_createview02(self):
         "Credentials error."
         user = self.login_as_projects_user(creatable_models=[Project])
-
-        # create_sc = partial(SetCredentials.objects.create, role=user.role)
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #     ),  # Not LINK
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, all='!LINK', own='*')
 
         manager = Contact.objects.create(user=user, first_name='Gendo', last_name='Ikari')
@@ -606,11 +585,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             allowed_apps=['persons'],
             creatable_models=[Project, ProjectTask],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         project01 = self.create_project(user=user, name='Eva01')[0]
@@ -642,11 +616,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             allowed_apps=['persons'],
             creatable_models=[Project],  # ProjectTask
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         project = self.create_project(user=user, name='Eva01')[0]
@@ -1200,11 +1169,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             allowed_apps=['activities', 'persons'],
             creatable_models=[Project, ProjectTask],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         project = self.create_project(user=user, name='Eva02')[0]
@@ -1248,12 +1212,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
     def test_create_resource01(self):
         "Not super-user."
         user = self.login_as_projects_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     ctype=Project,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE'], model=Project)
 
         project = Project.objects.create(
@@ -1279,12 +1237,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
     def test_create_resource02(self):
         "Edition permission needed."
         user = self.login_as_projects_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,  # | EntityCredentials.CHANGE,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     ctype=Project,
-        # )
         self.add_credentials(user.role, all=['VIEW'], model=Project)  # Not CHANGE
 
         project = Project.objects.create(
