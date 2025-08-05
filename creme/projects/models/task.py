@@ -165,20 +165,20 @@ class AbstractProjectTask(CremeEntity):
         # TODO: boolean field if TaskStatus instead?
         return str(self.tstatus.uuid) not in (UUID_TSTATUS_COMPLETED, UUID_TSTATUS_CANCELED)
 
-    def _clone_m2m(self, source):  # Handled manually in clone_scope
-        warnings.warn(
-            'The method ProjectTask._clone_m2m() is deprecated.',
-            DeprecationWarning,
-        )
-
-    def _post_save_clone(self, source):
-        warnings.warn(
-            'The method ProjectTask._post_save_clone() is deprecated.',
-            DeprecationWarning,
-        )
-
-        for resource in source.get_resources():
-            resource.clone_for_task(self)
+    # def _clone_m2m(self, source):  # Handled manually in clone_scope
+    #     warnings.warn(
+    #         'The method ProjectTask._clone_m2m() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    # def _post_save_clone(self, source):
+    #     warnings.warn(
+    #         'The method ProjectTask._post_save_clone() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     for resource in source.get_resources():
+    #         resource.clone_for_task(self)
 
     @classmethod
     def clone_scope(cls, tasks, project):

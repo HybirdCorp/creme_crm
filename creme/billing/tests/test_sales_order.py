@@ -445,83 +445,83 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         cloned = self.clone(order)
         self.assertEqual('ORD-0002', cloned.number)
 
-    @skipIfCustomAddress
-    @skipIfCustomServiceLine
-    def test_clone__method01(self):  # DEPRECATED
-        "Organisation not managed => number is set to '0'."
-        user = self.login_as_root_and_get()
-        source, target = self.create_orgas(user=user)
-
-        target.billing_address = Address.objects.create(
-            name='Billing address 01',
-            address='BA1 - Address', city='BA1 - City', zipcode='123',
-            owner=target,
-        )
-        target.save()
-
-        order = self.create_salesorder(
-            user=user, name='Order #1', source=source, target=target,
-            status=SalesOrderStatus.objects.exclude(is_default=True).first(),
-        )
-        sl = ServiceLine.objects.create(
-            related_item=self.create_service(user=user), user=user, related_document=order,
-            quantity=25, unit_price=100,
-        )
-
-        address_count = Address.objects.count()
-
-        origin_b_addr = order.billing_address
-        origin_b_addr.zipcode += ' (edited)'
-        origin_b_addr.save()
-
-        cloned = order.clone()
-        self.assertIsInstance(cloned, SalesOrder)
-        self.assertNotEqual(order.pk, cloned.pk)
-        self.assertEqual(order.name,   cloned.name)
-        self.assertEqual(order.status, cloned.status)
-        self.assertEqual('',           cloned.number)
-
-        self.assertEqual(source, cloned.source)
-        self.assertEqual(target, cloned.target)
-
-        # Lines are cloned
-        cloned_line = self.get_alone_element(cloned.iter_all_lines())
-        self.assertIsInstance(cloned_line, ServiceLine)
-        self.assertNotEqual(sl.pk, cloned_line.pk)
-        self.assertEqual(sl.related_item, cloned_line.related_item)
-        self.assertEqual(sl.quantity,     cloned_line.quantity)
-        self.assertEqual(sl.unit_price,   cloned_line.unit_price)
-
-        # Addresses are cloned
-        self.assertEqual(address_count + 2, Address.objects.count())
-
-        billing_address = cloned.billing_address
-        self.assertIsInstance(billing_address, Address)
-        self.assertEqual(cloned,                billing_address.owner)
-        self.assertEqual(origin_b_addr.name,    billing_address.name)
-        self.assertEqual(origin_b_addr.city,    billing_address.city)
-        self.assertEqual(origin_b_addr.zipcode, billing_address.zipcode)
-
-    def test_clone__method02(self):  # DEPRECATED
-        "Organisation is managed => number is generated (but only once BUGFIX)."
-        user = self.login_as_root_and_get()
-
-        source, target = self.create_orgas(user=user)
-        self._set_managed(source)
-
-        item = self.get_object_or_fail(
-            NumberGeneratorItem,
-            organisation=source,
-            numbered_type=ContentType.objects.get_for_model(SalesOrder),
-        )
-        item.data['format'] = 'ORD-{counter:04}'
-        item.save()
-
-        order = self.create_salesorder(user=user, name='My Order', source=source, target=target)
-        self.assertEqual('ORD-0001', order.number)
-
-        cloned = order.clone()
-        self.assertEqual('ORD-0002', cloned.number)
+    # @skipIfCustomAddress
+    # @skipIfCustomServiceLine
+    # def test_clone__method01(self):  # DEPRECATED
+    #     "Organisation not managed => number is set to '0'."
+    #     user = self.login_as_root_and_get()
+    #     source, target = self.create_orgas(user=user)
+    #
+    #     target.billing_address = Address.objects.create(
+    #         name='Billing address 01',
+    #         address='BA1 - Address', city='BA1 - City', zipcode='123',
+    #         owner=target,
+    #     )
+    #     target.save()
+    #
+    #     order = self.create_salesorder(
+    #         user=user, name='Order #1', source=source, target=target,
+    #         status=SalesOrderStatus.objects.exclude(is_default=True).first(),
+    #     )
+    #     sl = ServiceLine.objects.create(
+    #         related_item=self.create_service(user=user), user=user, related_document=order,
+    #         quantity=25, unit_price=100,
+    #     )
+    #
+    #     address_count = Address.objects.count()
+    #
+    #     origin_b_addr = order.billing_address
+    #     origin_b_addr.zipcode += ' (edited)'
+    #     origin_b_addr.save()
+    #
+    #     cloned = order.clone()
+    #     self.assertIsInstance(cloned, SalesOrder)
+    #     self.assertNotEqual(order.pk, cloned.pk)
+    #     self.assertEqual(order.name,   cloned.name)
+    #     self.assertEqual(order.status, cloned.status)
+    #     self.assertEqual('',           cloned.number)
+    #
+    #     self.assertEqual(source, cloned.source)
+    #     self.assertEqual(target, cloned.target)
+    #
+    #     # Lines are cloned
+    #     cloned_line = self.get_alone_element(cloned.iter_all_lines())
+    #     self.assertIsInstance(cloned_line, ServiceLine)
+    #     self.assertNotEqual(sl.pk, cloned_line.pk)
+    #     self.assertEqual(sl.related_item, cloned_line.related_item)
+    #     self.assertEqual(sl.quantity,     cloned_line.quantity)
+    #     self.assertEqual(sl.unit_price,   cloned_line.unit_price)
+    #
+    #     # Addresses are cloned
+    #     self.assertEqual(address_count + 2, Address.objects.count())
+    #
+    #     billing_address = cloned.billing_address
+    #     self.assertIsInstance(billing_address, Address)
+    #     self.assertEqual(cloned,                billing_address.owner)
+    #     self.assertEqual(origin_b_addr.name,    billing_address.name)
+    #     self.assertEqual(origin_b_addr.city,    billing_address.city)
+    #     self.assertEqual(origin_b_addr.zipcode, billing_address.zipcode)
+    #
+    # def test_clone__method02(self):  # DEPRECATED
+    #     "Organisation is managed => number is generated (but only once BUGFIX)."
+    #     user = self.login_as_root_and_get()
+    #
+    #     source, target = self.create_orgas(user=user)
+    #     self._set_managed(source)
+    #
+    #     item = self.get_object_or_fail(
+    #         NumberGeneratorItem,
+    #         organisation=source,
+    #         numbered_type=ContentType.objects.get_for_model(SalesOrder),
+    #     )
+    #     item.data['format'] = 'ORD-{counter:04}'
+    #     item.save()
+    #
+    #     order = self.create_salesorder(user=user, name='My Order', source=source, target=target)
+    #     self.assertEqual('ORD-0001', order.number)
+    #
+    #     cloned = order.clone()
+    #     self.assertEqual('ORD-0002', cloned.number)
 
     def test_brick(self):
         user = self.login_as_root_and_get()

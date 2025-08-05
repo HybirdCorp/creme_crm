@@ -1006,74 +1006,74 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         cloned = self.clone(quote)
         self.assertEqual('QUO-0002', cloned.number)
 
-    @skipIfCustomAddress
-    @skipIfCustomServiceLine
-    def test_clone__method01(self):  # DEPRECATED
-        "Organisation not managed => number is set to '0'."
-        user = self.login_as_root_and_get()
-        source, target = self.create_orgas(user=user)
-
-        target.billing_address = b_addr = Address.objects.create(
-            name='Billing address 01',
-            address='BA1 - Address', city='BA1 - City',
-            owner=target,
-        )
-        target.save()
-
-        quote = self.create_quote(
-            user=user, name='Quote001', source=source, target=target,
-            # status=status,
-            number='12',
-        )
-        quote.acceptation_date = date.today()
-        quote.save()
-
-        sl = ServiceLine.objects.create(
-            related_item=self.create_service(user=user), user=user, related_document=quote,
-        )
-
-        cloned = self.refresh(quote.clone())
-        quote = self.refresh(quote)
-
-        self.assertIsNone(cloned.acceptation_date)
-        self.assertEqual('', cloned.number)
-
-        self.assertNotEqual(quote, cloned)  # Not the same pk
-        self.assertEqual(source, cloned.source)
-        self.assertEqual(target, cloned.target)
-
-        # Lines are cloned
-        cloned_lines = [*cloned.iter_all_lines()]
-        self.assertEqual(1, len(cloned_lines))
-        self.assertNotEqual([sl], cloned_lines)
-
-        # Addresses are cloned
-        billing_address = cloned.billing_address
-        self.assertIsInstance(billing_address, Address)
-        self.assertEqual(cloned,      billing_address.owner)
-        self.assertEqual(b_addr.name, billing_address.name)
-        self.assertEqual(b_addr.city, billing_address.city)
-
-    def test_clone__method02(self):  # DEPRECATED
-        "Organisation is managed => number is generated (but only once BUGFIX)."
-        user = self.login_as_root_and_get()
-
-        source, target = self.create_orgas(user=user)
-        self._set_managed(source)
-
-        item = self.get_object_or_fail(
-            NumberGeneratorItem,
-            organisation=source,
-            numbered_type=ContentType.objects.get_for_model(Quote),
-        )
-        item.data['format'] = 'QUO-{counter:04}'
-        item.save()
-
-        quote = self.create_quote(user=user, name='My Quote', source=source, target=target)
-        self.assertEqual('QUO-0001', quote.number)
-
-        cloned = quote.clone()
-        self.assertEqual('QUO-0002', cloned.number)
+    # @skipIfCustomAddress
+    # @skipIfCustomServiceLine
+    # def test_clone__method01(self):  # DEPRECATED
+    #     "Organisation not managed => number is set to '0'."
+    #     user = self.login_as_root_and_get()
+    #     source, target = self.create_orgas(user=user)
+    #
+    #     target.billing_address = b_addr = Address.objects.create(
+    #         name='Billing address 01',
+    #         address='BA1 - Address', city='BA1 - City',
+    #         owner=target,
+    #     )
+    #     target.save()
+    #
+    #     quote = self.create_quote(
+    #         user=user, name='Quote001', source=source, target=target,
+    #         # status=status,
+    #         number='12',
+    #     )
+    #     quote.acceptation_date = date.today()
+    #     quote.save()
+    #
+    #     sl = ServiceLine.objects.create(
+    #         related_item=self.create_service(user=user), user=user, related_document=quote,
+    #     )
+    #
+    #     cloned = self.refresh(quote.clone())
+    #     quote = self.refresh(quote)
+    #
+    #     self.assertIsNone(cloned.acceptation_date)
+    #     self.assertEqual('', cloned.number)
+    #
+    #     self.assertNotEqual(quote, cloned)  # Not the same pk
+    #     self.assertEqual(source, cloned.source)
+    #     self.assertEqual(target, cloned.target)
+    #
+    #     # Lines are cloned
+    #     cloned_lines = [*cloned.iter_all_lines()]
+    #     self.assertEqual(1, len(cloned_lines))
+    #     self.assertNotEqual([sl], cloned_lines)
+    #
+    #     # Addresses are cloned
+    #     billing_address = cloned.billing_address
+    #     self.assertIsInstance(billing_address, Address)
+    #     self.assertEqual(cloned,      billing_address.owner)
+    #     self.assertEqual(b_addr.name, billing_address.name)
+    #     self.assertEqual(b_addr.city, billing_address.city)
+    #
+    # def test_clone__method02(self):  # DEPRECATED
+    #     "Organisation is managed => number is generated (but only once BUGFIX)."
+    #     user = self.login_as_root_and_get()
+    #
+    #     source, target = self.create_orgas(user=user)
+    #     self._set_managed(source)
+    #
+    #     item = self.get_object_or_fail(
+    #         NumberGeneratorItem,
+    #         organisation=source,
+    #         numbered_type=ContentType.objects.get_for_model(Quote),
+    #     )
+    #     item.data['format'] = 'QUO-{counter:04}'
+    #     item.save()
+    #
+    #     quote = self.create_quote(user=user, name='My Quote', source=source, target=target)
+    #     self.assertEqual('QUO-0001', quote.number)
+    #
+    #     cloned = quote.clone()
+    #     self.assertEqual('QUO-0002', cloned.number)
 
     def test_num_queries(self):
         """Avoid the queries about line sa creation

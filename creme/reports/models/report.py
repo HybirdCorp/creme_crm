@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections.abc import Iterator
 from itertools import chain
 from typing import TYPE_CHECKING, Type
@@ -194,19 +194,19 @@ class AbstractReport(CremeEntity):
             for f in self.filtered_columns
         )
 
-    def _post_save_clone(self, source):
-        warnings.warn(
-            'The method Report._post_save_clone() is deprecated.',
-            DeprecationWarning,
-        )
-
-        for rfield in source.fields.all():
-            rfield.clone(report=self)
-
-        for graph in source.reportgraph_set.all():
-            new_graph = graph.clone()
-            new_graph.linked_report = self
-            new_graph.save()
+    # def _post_save_clone(self, source):
+    #     warnings.warn(
+    #         'The method Report._post_save_clone() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     for rfield in source.fields.all():
+    #         rfield.clone(report=self)
+    #
+    #     for graph in source.reportgraph_set.all():
+    #         new_graph = graph.clone()
+    #         new_graph.linked_report = self
+    #         new_graph.save()
 
 
 class Report(AbstractReport):

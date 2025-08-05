@@ -2649,56 +2649,56 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertNotEqual(activity1.busy, activity2.busy)
         self.assertSameRelationsNProperties(activity1, activity2, exclude_internal=False)
 
-    def test_clone__method01(self):  # DEPRECATED
-        user = self.login_as_root_and_get()
-
-        activity1 = self._create_meeting(user=user)
-        activity2 = activity1.clone()
-        self.assertNotEqual(activity1.pk, activity2.pk)
-
-        for attr in (
-            'user', 'title', 'start', 'end', 'description', 'minutes',
-            'type', 'sub_type', 'is_all_day', 'status', 'busy',
-        ):
-            self.assertEqual(getattr(activity1, attr), getattr(activity2, attr))
-
-    @skipIfCustomContact
-    def test_clone__method02(self):  # DEPRECATED
-        user = self.login_as_root_and_get()
-
-        rtype_participant = RelationType.objects.get(pk=constants.REL_SUB_PART_2_ACTIVITY)
-
-        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
-        create_dt = self.create_datetime
-        activity1 = Activity.objects.create(
-            user=user,
-            type_id=sub_type.type_id, sub_type=sub_type,
-            title='Meeting', description='Desc',
-            start=create_dt(year=2015, month=3, day=20, hour=9),
-            end=create_dt(year=2015, month=3, day=20, hour=11),
-            is_all_day=False, busy=True,
-            place='Here', minutes='123',
-            status=Status.objects.all()[0],
-        )
-
-        create_contact = partial(Contact.objects.create, user=user, last_name='Saotome')
-        create_rel = partial(
-            Relation.objects.create, user=user, type=rtype_participant, object_entity=activity1,
-        )
-        create_rel(subject_entity=create_contact(first_name='Ranma'))
-        create_rel(subject_entity=create_contact(first_name='Genma'))
-
-        activity2 = activity1.clone().clone().clone().clone().clone().clone().clone()
-        self.assertNotEqual(activity1.pk, activity2.pk)
-
-        for attr in (
-            'user', 'title', 'start', 'end', 'description', 'minutes',
-            'type', 'sub_type', 'is_all_day', 'status', 'place',
-        ):
-            self.assertEqual(getattr(activity1, attr), getattr(activity2, attr))
-
-        self.assertNotEqual(activity1.busy, activity2.busy)
-        self.assertSameRelationsNProperties(activity1, activity2, exclude_internal=False)
+    # def test_clone__method01(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #
+    #     activity1 = self._create_meeting(user=user)
+    #     activity2 = activity1.clone()
+    #     self.assertNotEqual(activity1.pk, activity2.pk)
+    #
+    #     for attr in (
+    #         'user', 'title', 'start', 'end', 'description', 'minutes',
+    #         'type', 'sub_type', 'is_all_day', 'status', 'busy',
+    #     ):
+    #         self.assertEqual(getattr(activity1, attr), getattr(activity2, attr))
+    #
+    # @skipIfCustomContact
+    # def test_clone__method02(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #
+    #     rtype_participant = RelationType.objects.get(pk=constants.REL_SUB_PART_2_ACTIVITY)
+    #
+    #     sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
+    #     create_dt = self.create_datetime
+    #     activity1 = Activity.objects.create(
+    #         user=user,
+    #         type_id=sub_type.type_id, sub_type=sub_type,
+    #         title='Meeting', description='Desc',
+    #         start=create_dt(year=2015, month=3, day=20, hour=9),
+    #         end=create_dt(year=2015, month=3, day=20, hour=11),
+    #         is_all_day=False, busy=True,
+    #         place='Here', minutes='123',
+    #         status=Status.objects.all()[0],
+    #     )
+    #
+    #     create_contact = partial(Contact.objects.create, user=user, last_name='Saotome')
+    #     create_rel = partial(
+    #         Relation.objects.create, user=user, type=rtype_participant, object_entity=activity1,
+    #     )
+    #     create_rel(subject_entity=create_contact(first_name='Ranma'))
+    #     create_rel(subject_entity=create_contact(first_name='Genma'))
+    #
+    #     activity2 = activity1.clone().clone().clone().clone().clone().clone().clone()
+    #     self.assertNotEqual(activity1.pk, activity2.pk)
+    #
+    #     for attr in (
+    #         'user', 'title', 'start', 'end', 'description', 'minutes',
+    #         'type', 'sub_type', 'is_all_day', 'status', 'place',
+    #     ):
+    #         self.assertEqual(getattr(activity1, attr), getattr(activity2, attr))
+    #
+    #     self.assertNotEqual(activity1.busy, activity2.busy)
+    #     self.assertSameRelationsNProperties(activity1, activity2, exclude_internal=False)
 
     def test_manager_future_linked(self):
         user = self.login_as_root_and_get()

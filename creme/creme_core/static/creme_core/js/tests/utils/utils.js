@@ -4,6 +4,7 @@
 
 QUnit.module("creme.widget.utils.js", new QUnitMixin(QUnitConsoleMixin, QUnitDialogMixin));
 
+/*
 QUnit.test('creme.utils.JSON.encode (null)', function(assert) {
     var codec = new creme.utils.JSON();
 
@@ -21,7 +22,8 @@ QUnit.test('creme.utils.JSON.encode', function(assert) {
                         'c': 12
                        }), '{"a":["a","b",150],"b":"test","c":12}');
 });
-
+*/
+/*
 QUnit.test('creme.utils.JSON.decode (null)', function(assert) {
     var codec = new creme.utils.JSON();
 
@@ -49,7 +51,8 @@ QUnit.test('creme.utils.JSON.decode (valid)', function(assert) {
     var codec = new creme.utils.JSON();
     deepEqual(codec.decode('{"a":1, "b":true, "c":[1, 2, 3]}'), {a: 1, b: true, c: [1, 2, 3]});
 });
-
+*/
+/*
 QUnit.test('creme.utils.JSON.clean', function(assert) {
     var clean = creme.utils.JSON.clean;
 
@@ -59,6 +62,7 @@ QUnit.test('creme.utils.JSON.clean', function(assert) {
     deepEqual(clean('{"a":1}'), {a: 1});
     deepEqual({a: 1}, clean({a: 1}));
 });
+*/
 
 QUnit.test('creme.utils.comparator (simple)', function(assert) {
     var compare = creme.utils.comparator();
@@ -119,6 +123,7 @@ QUnit.test('creme.utils.isHTMLDataType', function(assert) {
     equal(creme.utils.isHTMLDataType(12), false);
 });
 
+/*
 QUnit.test('creme.utils.JSON.readScriptText', function(assert) {
     equal('', creme.utils.JSON.readScriptText(''));
 
@@ -221,7 +226,7 @@ QUnit.test('creme.utils.JSON.readScriptText (ignore empty)', function(assert) {
         ["creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText instead."]
     ], this.mockConsoleWarnCalls());
 });
-
+*/
 QUnit.parametrize('creme.utils.ajaxQuery (error message)', [
     // xhr, textStatus, errorThrown
     [[{}, undefined, undefined], {
