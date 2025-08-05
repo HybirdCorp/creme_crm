@@ -64,6 +64,12 @@
                     - These constants have been removed:
                       'NARROW', 'FLOATING_TIME', 'FLOATING', 'SETTING_*'.
                     - The forms 'CalendarForm' & 'CalendarConfigForm' have been removed.
+                * Billing :
+                    - In 'models.Base' (& child classes), these methods have been removed :
+                      'build()' '_build_object()', '_build_relations()', '_build_properties()'.
+                    - The module 'registry' has been removed.
+                    - The class 'views.base.BaseCreation' has been removed.
+
 
 
 == Version 2.7 ==
