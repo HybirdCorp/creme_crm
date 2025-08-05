@@ -493,7 +493,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
                 },
             )
 
-        excluded = 'description'  # see FAKEACTIVITY_CFORM
+        excluded = 'description'  # see FAKEACTIVITY_CREATION_CFORM
         response2 = post(*field_names, excluded)
         self.assertFormError(
             response2.context['form'],
@@ -1226,7 +1226,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
                 },
             )
 
-        excluded = 'description'  # see FAKEACTIVITY_CFORM
+        excluded = 'description'  # see FAKEACTIVITY_CREATION_CFORM
         response2 = post(*fields2, excluded)
         self.assertFormError(
             response2.context['form'],
