@@ -75,6 +75,8 @@
                     - The SettingKey names 'NEIGHBOURHOOD_DISTANCE' & 'GOOGLE_API_KEY' have been removed.
                 * Mobile :
                     - In 'setting_keys', the alias 'LOCATION_MAP_URL' has been removed.
+                * Projects :
+                    - The method 'models.AbstractProjectTask.clone_scope()' has been removed.
 
 
 == Version 2.7 ==
