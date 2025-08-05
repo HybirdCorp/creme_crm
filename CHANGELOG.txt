@@ -60,6 +60,10 @@
                     - The module 'workflow' has been removed.
                 * Assistants :
                     - The constant 'MIN_HOUR_4_TODO_REMINDER' has been removed.
+                * Activities :
+                    - These constants have been removed:
+                      'NARROW', 'FLOATING_TIME', 'FLOATING', 'SETTING_*'.
+                    - The forms 'CalendarForm' & 'CalendarConfigForm' have been removed.
 
 
 == Version 2.7 ==

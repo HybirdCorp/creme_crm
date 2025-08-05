@@ -16,9 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.contrib.auth import get_user_model
+# import warnings
+# from django.contrib.auth import get_user_model
 from django.db.transaction import atomic
 from django.forms import ModelChoiceField
 from django.utils.translation import gettext_lazy as _
@@ -33,21 +32,21 @@ from ..models import Calendar
 Activity = get_activity_model()
 
 
-class CalendarForm(base.CremeModelForm):
-    class Meta:
-        model = Calendar
-        exclude = ('user',)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        warnings.warn('CalendarForm is deprecated.', DeprecationWarning)
-
-    def get_user(self):
-        return self.user
-
-    def save(self, *args, **kwargs):
-        self.instance.user = self.get_user()
-        return super().save(*args, **kwargs)
+# class CalendarForm(base.CremeModelForm):
+#     class Meta:
+#         model = Calendar
+#         exclude = ('user',)
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         warnings.warn('CalendarForm is deprecated.', DeprecationWarning)
+#
+#     def get_user(self):
+#         return self.user
+#
+#     def save(self, *args, **kwargs):
+#         self.instance.user = self.get_user()
+#         return super().save(*args, **kwargs)
 
 
 class MyCalendarForm(base.CremeModelForm):
@@ -60,27 +59,27 @@ class MyCalendarForm(base.CremeModelForm):
         self.instance.user = user
 
 
-class CalendarConfigForm(CalendarForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        warnings.warn(
-            'CalendarConfigForm is deprecated; '
-            'use CalendarConfigCreationForm/CalendarConfigEditionForm instead.',
-            DeprecationWarning,
-        )
-
-        if not self.instance.pk:
-            self.fields['user'] = ModelChoiceField(
-                label=_('User'),
-                queryset=get_user_model().objects
-                                         .filter(is_staff=False)
-                                         .exclude(is_team=True, calendar__isnull=False),
-                empty_label=None,
-                initial=self.user.id,
-            )
-
-    def get_user(self):
-        return self.cleaned_data.get('user') or self.instance.user
+# class CalendarConfigForm(CalendarForm):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         warnings.warn(
+#             'CalendarConfigForm is deprecated; '
+#             'use CalendarConfigCreationForm/CalendarConfigEditionForm instead.',
+#             DeprecationWarning,
+#         )
+#
+#         if not self.instance.pk:
+#             self.fields['user'] = ModelChoiceField(
+#                 label=_('User'),
+#                 queryset=get_user_model().objects
+#                                          .filter(is_staff=False)
+#                                          .exclude(is_team=True, calendar__isnull=False),
+#                 empty_label=None,
+#                 initial=self.user.id,
+#             )
+#
+#     def get_user(self):
+#         return self.cleaned_data.get('user') or self.instance.user
 
 
 class CalendarConfigCreationForm(base.CremeModelForm):
