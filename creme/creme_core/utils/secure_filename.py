@@ -8,7 +8,7 @@
 #    library.
 #
 #    Copyright: (c) 2010 by the Werkzeug Team
-#                   2018-2020 Hybird
+#                   2018-2025 Hybird
 #    License: BSD
 #    Website: http://werkzeug.pocoo.org/
 
@@ -23,19 +23,19 @@ _filename_ascii_strip_re = re.compile(r'[^A-Za-z0-9_.-]')
 
 
 def secure_filename(filename: str) -> str:
-    """Pass it a filename and it will return a secure version of it.
+    """Pass it a filename, and it will return a secure version of it.
     This filename can then safely be stored on a regular file system and passed
     to :func:`os.path.join`.
     The filename returned is an ASCII only string for maximum portability.
 
-    On windows system the function also makes sure that the file is not
+    On Windows system, the function also makes sure that the file is not
     named after one of the special device files.
 
     >>> secure_filename("My cool movie.mov")
     'My_cool_movie.mov'
     >>> secure_filename("../../../etc/passwd")
     'etc_passwd'
-    >>> secure_filename(u'i contain cool \xfcml\xe4uts.txt')
+    >>> secure_filename("i contain cool \xfcml\xe4uts.txt")
     'i_contain_cool_umlauts.txt'
 
     @param filename: the filename to secure (str).
