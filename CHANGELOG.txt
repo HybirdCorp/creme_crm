@@ -55,6 +55,9 @@
                     - The functions 'showPageLoadOverlay()', 'hidePageLoadOverlay()' & 'loading()' have been removed.
                     - In 'JSON', these methods have been removed :
                       'encode()', 'decode()', 'isJSON()', 'clean()', 'readScriptText()'.
+            - App :
+                * Persons :
+                    - The module 'workflow' has been removed.
 
 
 == Version 2.7 ==
