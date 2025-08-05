@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-import warnings
+# import warnings
 from collections.abc import Iterable, Iterator
 from typing import TYPE_CHECKING
 
@@ -268,12 +268,12 @@ class FunctionFieldRegistry:
 function_field_registry = FunctionFieldRegistry()
 
 
-def __getattr__(name):
-    if name == '_FunctionFieldRegistry':
-        warnings.warn(
-            '"_FunctionFieldRegistry" is deprecated; use "FunctionFieldRegistry" instead.',
-            DeprecationWarning,
-        )
-        return FunctionFieldRegistry
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == '_FunctionFieldRegistry':
+#         warnings.warn(
+#             '"_FunctionFieldRegistry" is deprecated; use "FunctionFieldRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return FunctionFieldRegistry
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

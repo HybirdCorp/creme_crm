@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-/* globals creme_media_url */
 (function($) {
 "use strict";
 
@@ -55,19 +54,21 @@ creme.utils.goTo = function(url, data) {
     }
 };
 
-/* istanbul ignore next */
+/*
 creme.utils.showPageLoadOverlay = function() {
     console.warn('creme.utils.showPageLoadOverlay is deprecated; Use creme.dialog.Overlay instead.');
     creme.utils.loading('', false);
 };
+*/
 
-/* istanbul ignore next */
+/*
 creme.utils.hidePageLoadOverlay = function() {
     console.warn('creme.utils.showPageLoadOverlay is deprecated; Use creme.dialog.Overlay instead.');
     creme.utils.loading('', true);
 };
+*/
 
-/* istanbul ignore next */
+/*
 creme.utils.loading = function(div_id, is_loaded, params) {
     console.warn('creme.utils.loading is deprecated; Use creme.dialog.Overlay instead.');
 
@@ -88,8 +89,9 @@ creme.utils.loading = function(div_id, is_loaded, params) {
     var visible = overlay._loadstack > 0;
     overlay.update(visible, null, visible ? 100 : 0);
 };
+*/
 
-/* istanbul ignore next */
+/*
 creme.utils.confirmSubmit = function(atag, msg) {
     console.warn('creme.utils.confimSubmit is now deprecated; should use actions instead');
     creme.dialogs.confirm(msg || gettext('Are you sure?'))
@@ -98,6 +100,7 @@ creme.utils.confirmSubmit = function(atag, msg) {
                   })
                  .open();
 };
+*/
 
 creme.utils.scrollTo = function(element) {
     if (Object.isNone(element) === false) {
@@ -216,6 +219,7 @@ creme.utils.ajaxQuery = function(url, options, data) {
                   }
               });
 
+/*
         if (options.waitingOverlay) {
             console.warn('The option "waitingOverlay" of creme.utils.ajaxQuery is deprecated.');
 
@@ -226,6 +230,7 @@ creme.utils.ajaxQuery = function(url, options, data) {
                       creme.utils.hidePageLoadOverlay();
                   });
         }
+*/
 
         if (options.confirm) {
             var confirmMessage = Object.isString(options.confirm) ? options.confirm : gettext("Are you sure?");

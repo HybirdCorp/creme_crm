@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections import defaultdict
 from collections.abc import Iterable, Iterator, Sequence
 from heapq import heappop, heappush
@@ -94,12 +94,6 @@ class Button:
 
     def get_context(self, *, entity: CremeEntity, request) -> dict:
         """Context used by the template system to render the button."""
-        # return {
-        #     'verbose_name': self.verbose_name,
-        #     'description': self.description,
-        #     'is_allowed': self.is_allowed(entity=entity, request=request),
-        #     'template_name': self.template_name,
-        # }
         is_allowed = True
 
         def _get_is_allowed():  # TODO: to be removed in creme2.8
@@ -136,17 +130,6 @@ class Button:
         """
         return ()
 
-    # def is_allowed(self, *, entity, request) -> bool:
-    #     permissions = self.permissions
-    #     if not permissions:
-    #         return True
-    #
-    #     return (
-    #         request.user.has_perm(permissions)
-    #         if isinstance(permissions, str) else
-    #         request.user.has_perms(permissions)
-    #     )
-
     # TODO: pass 'request' too ? (see Restrict2SuperusersButton)
     def ok_4_display(self, entity: CremeEntity) -> bool:
         """Can this button be displayed on this entity's detail-view?
@@ -156,7 +139,6 @@ class Button:
         return True
 
 
-# class ButtonsRegistry:
 class ButtonRegistry:
     """Registry of <Button> classes, to retrieve them by their ID."""
     class RegistrationError(Exception):
@@ -365,12 +347,12 @@ class ButtonRegistry:
 button_registry = ButtonRegistry()
 
 
-def __getattr__(name):
-    if name == 'ButtonsRegistry':
-        warnings.warn(
-            '"ButtonsRegistry" is deprecated; use "ButtonRegistry" instead.',
-            DeprecationWarning,
-        )
-        return ButtonRegistry
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == 'ButtonsRegistry':
+#         warnings.warn(
+#             '"ButtonsRegistry" is deprecated; use "ButtonRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return ButtonRegistry
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

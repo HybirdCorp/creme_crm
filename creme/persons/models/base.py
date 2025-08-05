@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
+# import warnings
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -42,27 +41,27 @@ class PersonWithAddressesMixin(models.Model):
     class Meta:
         abstract = True
 
-    def _aux_post_save_clone(self, source):
-        warnings.warn(
-            'The method PersonWithAddressesMixin._post_save_clone() is deprecated.',
-            DeprecationWarning,
-        )
-
-        save = False
-
-        if source.billing_address is not None:
-            self.billing_address = source.billing_address.clone(self)
-            save = True
-
-        if source.shipping_address is not None:
-            self.shipping_address = source.shipping_address.clone(self)
-            save = True
-
-        if save:
-            self.save()
-
-        for address in source.other_addresses:
-            address.clone(self)
+    # def _aux_post_save_clone(self, source):
+    #     warnings.warn(
+    #         'The method PersonWithAddressesMixin._post_save_clone() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     save = False
+    #
+    #     if source.billing_address is not None:
+    #         self.billing_address = source.billing_address.clone(self)
+    #         save = True
+    #
+    #     if source.shipping_address is not None:
+    #         self.shipping_address = source.shipping_address.clone(self)
+    #         save = True
+    #
+    #     if save:
+    #         self.save()
+    #
+    #     for address in source.other_addresses:
+    #         address.clone(self)
 
     @property
     def other_addresses(self):

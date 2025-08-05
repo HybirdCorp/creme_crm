@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections import OrderedDict
 from collections.abc import Iterator
 from typing import TYPE_CHECKING
@@ -41,7 +41,6 @@ EF_CREDENTIALS = 'creme_core-credentials'
 TYPE_ID_MAX_LENGTH = 36
 
 
-# class _EntityFilterRegistry:
 class EntityFilterRegistry:
     """A registry which stores information about a type of <models.EntityFilter>.
      (current types: regular, credentials, reports -- with the "reports" app).
@@ -217,7 +216,6 @@ class EntityFilterRegistry:
             return None
 
         try:
-            # return cls.build(model=model, name=name, data=data)
             return cls.build(efilter_type=self.id, model=model, name=name, data=data)
         except cls.DataError:
             return None
@@ -262,7 +260,6 @@ class EntityFilterRegistry:
             yield op_cls()
 
 
-# class _EntityFilterSuperRegistry:
 class EntityFilterSuperRegistry:
     """A registry of _EntityFilterRegistry, to manage different types of filter
 
@@ -323,23 +320,20 @@ entity_filter_registries = EntityFilterSuperRegistry().register(
 )
 
 
-def __getattr__(name):
-    # if name == 'EF_USER':
-    #     warnings.warn('"EF_USER" is deprecated; use EF_REGULAR instead.', DeprecationWarning)
-    #     return EF_REGULAR
-
-    if name == '_EntityFilterRegistry':
-        warnings.warn(
-            '"_EntityFilterRegistry" is deprecated; use "EntityFilterRegistry" instead.',
-            DeprecationWarning,
-        )
-        return EntityFilterRegistry
-
-    if name == '_EntityFilterSuperRegistry':
-        warnings.warn(
-            '"_EntityFilterSuperRegistry" is deprecated; use "EntityFilterSuperRegistry" instead.',
-            DeprecationWarning,
-        )
-        return EntityFilterSuperRegistry
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == '_EntityFilterRegistry':
+#         warnings.warn(
+#             '"_EntityFilterRegistry" is deprecated; use "EntityFilterRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return EntityFilterRegistry
+#
+#     if name == '_EntityFilterSuperRegistry':
+#         warnings.warn(
+#             '"_EntityFilterSuperRegistry" is deprecated;
+#             use "EntityFilterSuperRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return EntityFilterSuperRegistry
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

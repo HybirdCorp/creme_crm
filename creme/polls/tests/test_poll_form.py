@@ -2389,98 +2389,98 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(count_pforms + 1, PollForm.objects.count())
         self.assertEqual(1, PollFormLine.objects.filter(pform__id=cloned_pform.id).count())
 
-    def test_clone__method01(self):  # DEPRECATED
-        "Cloning a form with multiple sections, lines and conditions."
-        user = self.login_as_root_and_get()
-        pform = PollForm.objects.create(user=user, name='Form#1')
-        create_section = partial(PollFormSection.objects.create, pform=pform)
-        create_line = self._get_formline_creator(pform)
-
-        section      = create_section(name='Chapter I',   order=1)
-        sub_section1 = create_section(name='Chapter I.1', order=2, parent=section)
-        sub_section2 = create_section(name='Chapter I.2', order=3, parent=section)
-
-        line1 = create_line(
-            'How do you like swallows ?',
-            qtype=PollLineType.ENUM,
-            section=section, choices=[[1, 'A little bit'], [2, 'A lot']],
-        )
-        line2 = create_line(
-            'How do you like parrots ?',
-            qtype=PollLineType.ENUM_OR_STRING,
-            section=sub_section1, choices=[[1, 'A little bit'], [2, 'A lot']],
-        )
-        line3 = create_line(
-            'What nuts do you like ?',
-            qtype=PollLineType.MULTI_ENUM,
-            section=sub_section2, choices=[[1, 'Coco nuts'], [2, 'Peanuts']],
-        )
-        line_with_conds = create_line(
-            'Do you love all birds ?', order=6, conds_use_or=False,
-        )
-        create_cond = partial(
-            PollFormLineCondition.objects.create, operator=PollFormLineCondition.EQUALS,
-        )
-        dumps = json_dump
-        create_cond(line=line_with_conds, source=line1, raw_answer='2')
-        create_cond(line=line_with_conds, source=line2, raw_answer=dumps([1]))
-        create_cond(line=line_with_conds, source=line2, raw_answer=dumps([0]))
-        create_cond(line=line_with_conds, source=line3, raw_answer=dumps([1]))
-
-        count_pforms = PollForm.objects.count()
-        count_sections = PollFormSection.objects.count()
-        count_lines = PollFormLine.objects.count()
-        count_conditions = PollFormLineCondition.objects.count()
-
-        cloned_pform = pform.clone()
-
-        self.assertEqual(pform.name, cloned_pform.name)
-        self.assertEqual(pform.type, cloned_pform.type)
-
-        self.assertEqual(count_pforms + 1, PollForm.objects.count())
-        self.assertEqual(count_sections + 3, PollFormSection.objects.count())
-        self.assertEqual(count_lines + 4, PollFormLine.objects.count())
-        self.assertEqual(count_conditions + 4, PollFormLineCondition.objects.count())
-
-        nodes = [*SectionTree(pform)]
-        cloned_nodes = [*SectionTree(cloned_pform)]
-        self.assertEqual(len(nodes), len(cloned_nodes))
-
-        line_attrs = ('order', 'type', 'type_args', 'conds_use_or', 'question')
-        section_attrs = ('name', 'body', 'order')
-
-        for node, cnode in zip(nodes, cloned_nodes):
-            is_section = node.is_section
-            self.assertEqual(is_section, cnode.is_section)
-
-            for attr in (section_attrs if is_section else line_attrs):
-                self.assertEqual(getattr(node, attr), getattr(cnode, attr))
-
-    def test_clone_method02(self):  # DEPRECATED
-        "Disabled lines excluded when cloning a form."
-        user = self.login_as_root_and_get()
-        pform = PollForm.objects.create(user=user, name='Form#1')
-        count_pforms = PollForm.objects.count()
-
-        create_line = self._get_formline_creator(pform)
-        create_line(
-            'How do you like swallows ?',
-            qtype=PollLineType.ENUM,
-            choices=[[1, 'A little bit'], [2, 'A lot']],
-            disabled=True,  # <=======
-        )
-        create_line(
-            'How do you like parrots ?',
-            qtype=PollLineType.ENUM_OR_STRING,
-            choices=[[1, 'A little bit'], [2, 'A lot']],
-        )
-
-        cloned_pform = pform.clone()
-        self.assertEqual(pform.name, cloned_pform.name)
-        self.assertEqual(pform.type, cloned_pform.type)
-
-        self.assertEqual(count_pforms + 1, PollForm.objects.count())
-        self.assertEqual(1, PollFormLine.objects.filter(pform__id=cloned_pform.id).count())
+    # def test_clone__method01(self):  # DEPRECATED
+    #     "Cloning a form with multiple sections, lines and conditions."
+    #     user = self.login_as_root_and_get()
+    #     pform = PollForm.objects.create(user=user, name='Form#1')
+    #     create_section = partial(PollFormSection.objects.create, pform=pform)
+    #     create_line = self._get_formline_creator(pform)
+    #
+    #     section      = create_section(name='Chapter I',   order=1)
+    #     sub_section1 = create_section(name='Chapter I.1', order=2, parent=section)
+    #     sub_section2 = create_section(name='Chapter I.2', order=3, parent=section)
+    #
+    #     line1 = create_line(
+    #         'How do you like swallows ?',
+    #         qtype=PollLineType.ENUM,
+    #         section=section, choices=[[1, 'A little bit'], [2, 'A lot']],
+    #     )
+    #     line2 = create_line(
+    #         'How do you like parrots ?',
+    #         qtype=PollLineType.ENUM_OR_STRING,
+    #         section=sub_section1, choices=[[1, 'A little bit'], [2, 'A lot']],
+    #     )
+    #     line3 = create_line(
+    #         'What nuts do you like ?',
+    #         qtype=PollLineType.MULTI_ENUM,
+    #         section=sub_section2, choices=[[1, 'Coco nuts'], [2, 'Peanuts']],
+    #     )
+    #     line_with_conds = create_line(
+    #         'Do you love all birds ?', order=6, conds_use_or=False,
+    #     )
+    #     create_cond = partial(
+    #         PollFormLineCondition.objects.create, operator=PollFormLineCondition.EQUALS,
+    #     )
+    #     dumps = json_dump
+    #     create_cond(line=line_with_conds, source=line1, raw_answer='2')
+    #     create_cond(line=line_with_conds, source=line2, raw_answer=dumps([1]))
+    #     create_cond(line=line_with_conds, source=line2, raw_answer=dumps([0]))
+    #     create_cond(line=line_with_conds, source=line3, raw_answer=dumps([1]))
+    #
+    #     count_pforms = PollForm.objects.count()
+    #     count_sections = PollFormSection.objects.count()
+    #     count_lines = PollFormLine.objects.count()
+    #     count_conditions = PollFormLineCondition.objects.count()
+    #
+    #     cloned_pform = pform.clone()
+    #
+    #     self.assertEqual(pform.name, cloned_pform.name)
+    #     self.assertEqual(pform.type, cloned_pform.type)
+    #
+    #     self.assertEqual(count_pforms + 1, PollForm.objects.count())
+    #     self.assertEqual(count_sections + 3, PollFormSection.objects.count())
+    #     self.assertEqual(count_lines + 4, PollFormLine.objects.count())
+    #     self.assertEqual(count_conditions + 4, PollFormLineCondition.objects.count())
+    #
+    #     nodes = [*SectionTree(pform)]
+    #     cloned_nodes = [*SectionTree(cloned_pform)]
+    #     self.assertEqual(len(nodes), len(cloned_nodes))
+    #
+    #     line_attrs = ('order', 'type', 'type_args', 'conds_use_or', 'question')
+    #     section_attrs = ('name', 'body', 'order')
+    #
+    #     for node, cnode in zip(nodes, cloned_nodes):
+    #         is_section = node.is_section
+    #         self.assertEqual(is_section, cnode.is_section)
+    #
+    #         for attr in (section_attrs if is_section else line_attrs):
+    #             self.assertEqual(getattr(node, attr), getattr(cnode, attr))
+    #
+    # def test_clone_method02(self):  # DEPRECATED
+    #     "Disabled lines excluded when cloning a form."
+    #     user = self.login_as_root_and_get()
+    #     pform = PollForm.objects.create(user=user, name='Form#1')
+    #     count_pforms = PollForm.objects.count()
+    #
+    #     create_line = self._get_formline_creator(pform)
+    #     create_line(
+    #         'How do you like swallows ?',
+    #         qtype=PollLineType.ENUM,
+    #         choices=[[1, 'A little bit'], [2, 'A lot']],
+    #         disabled=True,  # <=======
+    #     )
+    #     create_line(
+    #         'How do you like parrots ?',
+    #         qtype=PollLineType.ENUM_OR_STRING,
+    #         choices=[[1, 'A little bit'], [2, 'A lot']],
+    #     )
+    #
+    #     cloned_pform = pform.clone()
+    #     self.assertEqual(pform.name, cloned_pform.name)
+    #     self.assertEqual(pform.type, cloned_pform.type)
+    #
+    #     self.assertEqual(count_pforms + 1, PollForm.objects.count())
+    #     self.assertEqual(1, PollFormLine.objects.filter(pform__id=cloned_pform.id).count())
 
     # TODO?
     # def test_inneredit_line(self):

@@ -9,8 +9,8 @@ from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
 )
+# from creme.creme_core.utils.translation import get_model_verbose_name
 from creme.creme_core.utils.translation import (
-    get_model_verbose_name,
     plural,
     smart_model_verbose_name,
     verbose_instances_groups,
@@ -47,32 +47,32 @@ class TranslationTestCase(CremeTestCase):
             self.assertFalse(plural(1))
             self.assertTrue(plural(2))
 
-    @skipIf(not settings.USE_I18N, "This test is made for <USE_I18N==False>")
-    def test_get_model_verbose_name__i18n(self):  # DEPRECATED
-        ce_type1 = self._enable_custom_type(id=1, name='Shop',    plural_name='Shops')
-        ce_type2 = self._enable_custom_type(id=2, name='Country', plural_name='Countries')
-
-        with override_language('en'):
-            self.assertEqual('Test Contacts', get_model_verbose_name(FakeContact, 0))
-            self.assertEqual('Test Contact',  get_model_verbose_name(FakeContact, 1))
-            self.assertEqual('Test Contacts', get_model_verbose_name(FakeContact, count=2))
-
-            self.assertEqual('Test Organisation', get_model_verbose_name(FakeOrganisation, 1))
-
-            self.assertEqual(
-                ce_type1.name, get_model_verbose_name(ce_type1.entity_model, count=1),
-            )
-            self.assertEqual(
-                ce_type2.name, get_model_verbose_name(ce_type2.entity_model, count=1),
-            )
-            self.assertEqual(
-                ce_type1.plural_name, get_model_verbose_name(ce_type1.entity_model, count=2),
-            )
-
-        with override_language('fr'):
-            self.assertEqual('Test Contact',  get_model_verbose_name(FakeContact, 0))
-            self.assertEqual('Test Contact',  get_model_verbose_name(FakeContact, 1))
-            self.assertEqual('Test Contacts', get_model_verbose_name(FakeContact, count=2))
+    # @skipIf(not settings.USE_I18N, "This test is made for <USE_I18N==False>")
+    # def test_get_model_verbose_name__i18n(self):  # DEPRECATED
+    #     ce_type1 = self._enable_custom_type(id=1, name='Shop',    plural_name='Shops')
+    #     ce_type2 = self._enable_custom_type(id=2, name='Country', plural_name='Countries')
+    #
+    #     with override_language('en'):
+    #         self.assertEqual('Test Contacts', get_model_verbose_name(FakeContact, 0))
+    #         self.assertEqual('Test Contact',  get_model_verbose_name(FakeContact, 1))
+    #         self.assertEqual('Test Contacts', get_model_verbose_name(FakeContact, count=2))
+    #
+    #         self.assertEqual('Test Organisation', get_model_verbose_name(FakeOrganisation, 1))
+    #
+    #         self.assertEqual(
+    #             ce_type1.name, get_model_verbose_name(ce_type1.entity_model, count=1),
+    #         )
+    #         self.assertEqual(
+    #             ce_type2.name, get_model_verbose_name(ce_type2.entity_model, count=1),
+    #         )
+    #         self.assertEqual(
+    #             ce_type1.plural_name, get_model_verbose_name(ce_type1.entity_model, count=2),
+    #         )
+    #
+    #     with override_language('fr'):
+    #         self.assertEqual('Test Contact',  get_model_verbose_name(FakeContact, 0))
+    #         self.assertEqual('Test Contact',  get_model_verbose_name(FakeContact, 1))
+    #         self.assertEqual('Test Contacts', get_model_verbose_name(FakeContact, count=2))
 
     @skipIf(settings.USE_I18N, "This test is made for <USE_I18N==False>")
     def test_smart_model_verbose_name__no_i18n(self):

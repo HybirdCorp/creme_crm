@@ -3141,34 +3141,34 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         self.assertEqual(rgraph.chart, cloned_rgraph.chart)
 
-    def test_clone_report__method(self):  # DEPRECATED
-        user = self.login_as_root_and_get()
-        report = self._create_simple_organisations_report(user=user)
-        rgraph = ReportGraph.objects.create(
-            user=user, linked_report=report,
-            name='capital per month of creation',
-            chart='barchart',
-            abscissa_cell_value='created', abscissa_type=ReportGraph.Group.MONTH,
-            ordinate_type=ReportGraph.Aggregator.SUM,
-            ordinate_cell_key='regular_field-capital',
-        )
-
-        cloned_report = report.clone()
-
-        cloned_rgraph = self.get_alone_element(
-            ReportGraph.objects.filter(linked_report=cloned_report)
-        )
-        self.assertNotEqual(rgraph.id, cloned_rgraph.id)
-        self.assertEqual(rgraph.name,  cloned_rgraph.name)
-
-        self.assertEqual(rgraph.abscissa_cell_value, cloned_rgraph.abscissa_cell_value)
-        self.assertEqual(rgraph.abscissa_type,       cloned_rgraph.abscissa_type)
-        self.assertEqual(rgraph.abscissa_parameter,  cloned_rgraph.abscissa_parameter)
-
-        self.assertEqual(rgraph.ordinate_type,     cloned_rgraph.ordinate_type)
-        self.assertEqual(rgraph.ordinate_cell_key, cloned_rgraph.ordinate_cell_key)
-
-        self.assertEqual(rgraph.chart, cloned_rgraph.chart)
+    # def test_clone_report__method(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #     report = self._create_simple_organisations_report(user=user)
+    #     rgraph = ReportGraph.objects.create(
+    #         user=user, linked_report=report,
+    #         name='capital per month of creation',
+    #         chart='barchart',
+    #         abscissa_cell_value='created', abscissa_type=ReportGraph.Group.MONTH,
+    #         ordinate_type=ReportGraph.Aggregator.SUM,
+    #         ordinate_cell_key='regular_field-capital',
+    #     )
+    #
+    #     cloned_report = report.clone()
+    #
+    #     cloned_rgraph = self.get_alone_element(
+    #         ReportGraph.objects.filter(linked_report=cloned_report)
+    #     )
+    #     self.assertNotEqual(rgraph.id, cloned_rgraph.id)
+    #     self.assertEqual(rgraph.name,  cloned_rgraph.name)
+    #
+    #     self.assertEqual(rgraph.abscissa_cell_value, cloned_rgraph.abscissa_cell_value)
+    #     self.assertEqual(rgraph.abscissa_type,       cloned_rgraph.abscissa_type)
+    #     self.assertEqual(rgraph.abscissa_parameter,  cloned_rgraph.abscissa_parameter)
+    #
+    #     self.assertEqual(rgraph.ordinate_type,     cloned_rgraph.ordinate_type)
+    #     self.assertEqual(rgraph.ordinate_cell_key, cloned_rgraph.ordinate_cell_key)
+    #
+    #     self.assertEqual(rgraph.chart, cloned_rgraph.chart)
 
     def test_credentials01(self):
         "Filter retrieved entities with permission."

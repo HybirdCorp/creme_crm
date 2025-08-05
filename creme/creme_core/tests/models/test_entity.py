@@ -1,5 +1,5 @@
 from datetime import timedelta
-from decimal import Decimal
+# from decimal import Decimal
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
@@ -15,28 +15,30 @@ from creme.creme_core.core.function_field import (
     function_field_registry,
 )
 from creme.creme_core.gui.view_tag import ViewTag
+# from creme.creme_core.models import (
+#     CustomFieldBoolean,
+#     CustomFieldDateTime,
+#     CustomFieldEnum,
+#     CustomFieldEnumValue,
+#     CustomFieldFloat,
+#     CustomFieldMultiEnum,
+#     CustomFieldString,
+#     FakeCivility,
+#     FakeCountry,
+#     FakeImage,
+#     FakeImageCategory,
+#     Language,
+# )
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
     CremeUser,
     CustomField,
-    CustomFieldBoolean,
-    CustomFieldDateTime,
-    CustomFieldEnum,
-    CustomFieldEnumValue,
-    CustomFieldFloat,
     CustomFieldInteger,
-    CustomFieldMultiEnum,
-    CustomFieldString,
-    FakeCivility,
     FakeContact,
-    FakeCountry,
-    FakeImage,
-    FakeImageCategory,
     FakeOrganisation,
     FakeSector,
-    Language,
     Relation,
     RelationType,
 )
@@ -284,162 +286,168 @@ class EntityTestCase(CremeTestCase):
         self.assertTrue(get_field('date_joined').get_tag(FieldTag.VIEWABLE))
         self.assertTrue(get_field('role').get_tag(FieldTag.VIEWABLE))
 
-    def test_clone01(self):  # DEPRECATED
-        user = self.get_root_user()
-        self._build_rtypes_n_ptypes()
-
-        created = modified = now()
-        entity1 = CremeEntity.objects.create(user=user)
-        original_ce = CremeEntity.objects.create(
-            created=created, modified=modified, is_deleted=False, user=user,
-        )
-
-        create_rel = partial(
-            Relation.objects.create, user=user,
-            subject_entity=original_ce, object_entity=entity1,
-        )
-        create_rel(type=self.rtype1)
-        create_rel(type=self.rtype3)  # Internal
-
-        create_prop = partial(CremeProperty.objects.create, creme_entity=original_ce)
-        create_prop(type=self.ptype01)
-        create_prop(type=self.ptype02)
-
-        clone_ce = original_ce.clone()
-        self.assertIsNotNone(clone_ce.pk)
-        self.assertNotEqual(original_ce.pk, clone_ce.pk)
-
-        self.assertNotEqual(original_ce.created,  clone_ce.created)
-        self.assertNotEqual(original_ce.modified, clone_ce.modified)
-
-        self.assertEqual(original_ce.is_deleted,  clone_ce.is_deleted)
-        self.assertEqual(original_ce.entity_type, clone_ce.entity_type)
-        self.assertEqual(original_ce.user,        clone_ce.user)
-        self.assertEqual(
-            original_ce.header_filter_search_field,
-            clone_ce.header_filter_search_field,
-        )
-
-        self.assertSameRelationsNProperties(original_ce, clone_ce)
-        self.assertFalse(clone_ce.relations.filter(type__is_internal=True))
-
-    def test_clone02(self):  # DEPRECATED
-        "Clone regular fields."
-        user = self.get_root_user()
-        self._build_rtypes_n_ptypes()
-
-        civility = FakeCivility.objects.all()[0]
-        language = Language.objects.all()[0]
-        sasuke  = CremeEntity.objects.create(user=user)
-        sakura  = CremeEntity.objects.create(user=user)
-
-        image = FakeImage.objects.create(user=user, name='Naruto selfie')
-        create_country = FakeCountry.objects.create
-        countries = [
-            create_country(name='Land of Fire'),
-            create_country(name='Land of Wind'),
-        ]
-        naruto = FakeContact.objects.create(
-            user=user, civility=civility,
-            first_name='Naruto', last_name='Uzumaki',
-            description='Ninja', birthday=now(),
-            phone='123456', mobile='+81 0 0 0 00 01',
-            email='naruto.uzumaki@konoha.jp',
-            image=image,
-        )
-        naruto.languages.add(language)
-        naruto.preferred_countries.set(countries)
-
-        CremeProperty.objects.create(type=self.ptype01, creme_entity=naruto)
-
-        create_rel = partial(Relation.objects.create, user=user, subject_entity=naruto)
-        create_rel(type=self.rtype1, object_entity=sasuke)
-        create_rel(type=self.rtype2, object_entity=sakura)
-
-        count = FakeContact.objects.count()
-        kage_bunshin = naruto.clone()
-        self.assertEqual(count + 1, FakeContact.objects.count())
-
-        self.assertNotEqual(kage_bunshin.pk, naruto.pk)
-        self.assertSameRelationsNProperties(naruto, kage_bunshin)
-
-        for attr in ['civility', 'first_name', 'last_name', 'description',
-                     'birthday', 'image']:
-            self.assertEqual(getattr(naruto, attr), getattr(kage_bunshin, attr))
-
-        self.assertCountEqual([language], kage_bunshin.languages.all())
-        self.assertFalse(kage_bunshin.preferred_countries.all())  # Not clonable
-
-    def test_clone03(self):  # DEPRECATED
-        user = self.get_root_user()
-
-        create_cf = partial(
-            CustomField.objects.create,
-            content_type=ContentType.objects.get_for_model(FakeOrganisation),
-        )
-        cf_int        = create_cf(name='int',        field_type=CustomField.INT)
-        cf_float      = create_cf(name='float',      field_type=CustomField.FLOAT)
-        cf_bool       = create_cf(name='bool',       field_type=CustomField.BOOL)
-        cf_str        = create_cf(name='str',        field_type=CustomField.STR)
-        cf_date       = create_cf(name='date',       field_type=CustomField.DATETIME)
-        cf_enum       = create_cf(name='enum',       field_type=CustomField.ENUM)
-        cf_multi_enum = create_cf(name='multi_enum', field_type=CustomField.MULTI_ENUM)
-
-        enum1 = CustomFieldEnumValue.objects.create(custom_field=cf_enum, value='Enum1')
-
-        m_enum1 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value='MEnum1')
-        m_enum2 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value='MEnum2')
-
-        orga = FakeOrganisation.objects.create(name='Konoha', user=user)
-
-        CustomFieldInteger.objects.create(custom_field=cf_int, entity=orga, value=50)
-        CustomFieldFloat.objects.create(custom_field=cf_float, entity=orga, value=Decimal('10.5'))
-        CustomFieldBoolean.objects.create(custom_field=cf_bool, entity=orga, value=True)
-        CustomFieldString.objects.create(custom_field=cf_str, entity=orga, value='kunai')
-        CustomFieldDateTime.objects.create(custom_field=cf_date, entity=orga, value=now())
-        CustomFieldEnum.objects.create(custom_field=cf_enum, entity=orga, value=enum1)
-        CustomFieldMultiEnum(
-            custom_field=cf_multi_enum, entity=orga,
-        ).set_value_n_save([m_enum1, m_enum2])
-
-        clone = orga.clone()
-
-        def get_cf_values(cf, entity):
-            return cf.value_class.objects.get(custom_field=cf, entity=entity)
-
-        self.assertEqual(get_cf_values(cf_int,   orga).value, get_cf_values(cf_int,   clone).value)
-        self.assertEqual(get_cf_values(cf_float, orga).value, get_cf_values(cf_float, clone).value)
-        self.assertEqual(get_cf_values(cf_bool,  orga).value, get_cf_values(cf_bool,  clone).value)
-        self.assertEqual(get_cf_values(cf_str,   orga).value, get_cf_values(cf_str,   clone).value)
-        self.assertEqual(get_cf_values(cf_date,  orga).value, get_cf_values(cf_date,  clone).value)
-
-        self.assertEqual(get_cf_values(cf_enum, orga).value, get_cf_values(cf_enum, clone).value)
-
-        self.assertTrue(get_cf_values(cf_multi_enum, orga).value.exists())
-        self.assertSetEqual(
-            {*get_cf_values(cf_multi_enum, orga).value.values_list('pk', flat=True)},
-            {*get_cf_values(cf_multi_enum, clone).value.values_list('pk', flat=True)},
-        )
-
-    def test_clone04(self):  # DEPRECATED
-        "ManyToMany"
-        user = self.get_root_user()
-
-        image1 = FakeImage.objects.create(user=user, name='Konoha by night')
-        categories = [*FakeImageCategory.objects.all()]
-        self.assertTrue(categories)
-        image1.categories.set(categories)
-
-        image2 = image1.clone()
-        self.assertNotEqual(image1.pk, image2.pk)
-
-        for attr in ('user', 'name'):
-            self.assertEqual(getattr(image1, attr), getattr(image2, attr))
-
-        self.assertSetEqual(
-            {*image1.categories.values_list('pk', flat=True)},
-            {*image2.categories.values_list('pk', flat=True)},
-        )
+    # def test_clone01(self):  # DEPRECATED
+    #     user = self.get_root_user()
+    #     self._build_rtypes_n_ptypes()
+    #
+    #     created = modified = now()
+    #     entity1 = CremeEntity.objects.create(user=user)
+    #     original_ce = CremeEntity.objects.create(
+    #         created=created, modified=modified, is_deleted=False, user=user,
+    #     )
+    #
+    #     create_rel = partial(
+    #         Relation.objects.create, user=user,
+    #         subject_entity=original_ce, object_entity=entity1,
+    #     )
+    #     create_rel(type=self.rtype1)
+    #     create_rel(type=self.rtype3)  # Internal
+    #
+    #     create_prop = partial(CremeProperty.objects.create, creme_entity=original_ce)
+    #     create_prop(type=self.ptype01)
+    #     create_prop(type=self.ptype02)
+    #
+    #     clone_ce = original_ce.clone()
+    #     self.assertIsNotNone(clone_ce.pk)
+    #     self.assertNotEqual(original_ce.pk, clone_ce.pk)
+    #
+    #     self.assertNotEqual(original_ce.created,  clone_ce.created)
+    #     self.assertNotEqual(original_ce.modified, clone_ce.modified)
+    #
+    #     self.assertEqual(original_ce.is_deleted,  clone_ce.is_deleted)
+    #     self.assertEqual(original_ce.entity_type, clone_ce.entity_type)
+    #     self.assertEqual(original_ce.user,        clone_ce.user)
+    #     self.assertEqual(
+    #         original_ce.header_filter_search_field,
+    #         clone_ce.header_filter_search_field,
+    #     )
+    #
+    #     self.assertSameRelationsNProperties(original_ce, clone_ce)
+    #     self.assertFalse(clone_ce.relations.filter(type__is_internal=True))
+    #
+    # def test_clone02(self):  # DEPRECATED
+    #     "Clone regular fields."
+    #     user = self.get_root_user()
+    #     self._build_rtypes_n_ptypes()
+    #
+    #     civility = FakeCivility.objects.all()[0]
+    #     language = Language.objects.all()[0]
+    #     sasuke  = CremeEntity.objects.create(user=user)
+    #     sakura  = CremeEntity.objects.create(user=user)
+    #
+    #     image = FakeImage.objects.create(user=user, name='Naruto selfie')
+    #     create_country = FakeCountry.objects.create
+    #     countries = [
+    #         create_country(name='Land of Fire'),
+    #         create_country(name='Land of Wind'),
+    #     ]
+    #     naruto = FakeContact.objects.create(
+    #         user=user, civility=civility,
+    #         first_name='Naruto', last_name='Uzumaki',
+    #         description='Ninja', birthday=now(),
+    #         phone='123456', mobile='+81 0 0 0 00 01',
+    #         email='naruto.uzumaki@konoha.jp',
+    #         image=image,
+    #     )
+    #     naruto.languages.add(language)
+    #     naruto.preferred_countries.set(countries)
+    #
+    #     CremeProperty.objects.create(type=self.ptype01, creme_entity=naruto)
+    #
+    #     create_rel = partial(Relation.objects.create, user=user, subject_entity=naruto)
+    #     create_rel(type=self.rtype1, object_entity=sasuke)
+    #     create_rel(type=self.rtype2, object_entity=sakura)
+    #
+    #     count = FakeContact.objects.count()
+    #     kage_bunshin = naruto.clone()
+    #     self.assertEqual(count + 1, FakeContact.objects.count())
+    #
+    #     self.assertNotEqual(kage_bunshin.pk, naruto.pk)
+    #     self.assertSameRelationsNProperties(naruto, kage_bunshin)
+    #
+    #     for attr in ['civility', 'first_name', 'last_name', 'description',
+    #                  'birthday', 'image']:
+    #         self.assertEqual(getattr(naruto, attr), getattr(kage_bunshin, attr))
+    #
+    #     self.assertCountEqual([language], kage_bunshin.languages.all())
+    #     self.assertFalse(kage_bunshin.preferred_countries.all())  # Not clonable
+    #
+    # def test_clone03(self):  # DEPRECATED
+    #     user = self.get_root_user()
+    #
+    #     create_cf = partial(
+    #         CustomField.objects.create,
+    #         content_type=ContentType.objects.get_for_model(FakeOrganisation),
+    #     )
+    #     cf_int        = create_cf(name='int',        field_type=CustomField.INT)
+    #     cf_float      = create_cf(name='float',      field_type=CustomField.FLOAT)
+    #     cf_bool       = create_cf(name='bool',       field_type=CustomField.BOOL)
+    #     cf_str        = create_cf(name='str',        field_type=CustomField.STR)
+    #     cf_date       = create_cf(name='date',       field_type=CustomField.DATETIME)
+    #     cf_enum       = create_cf(name='enum',       field_type=CustomField.ENUM)
+    #     cf_multi_enum = create_cf(name='multi_enum', field_type=CustomField.MULTI_ENUM)
+    #
+    #     enum1 = CustomFieldEnumValue.objects.create(custom_field=cf_enum, value='Enum1')
+    #
+    #     m_enum1 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value='MEnum1')
+    #     m_enum2 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value='MEnum2')
+    #
+    #     orga = FakeOrganisation.objects.create(name='Konoha', user=user)
+    #
+    #     CustomFieldInteger.objects.create(custom_field=cf_int, entity=orga, value=50)
+    #     CustomFieldFloat.objects.create(
+    #       custom_field=cf_float, entity=orga, value=Decimal('10.5'))
+    #     CustomFieldBoolean.objects.create(custom_field=cf_bool, entity=orga, value=True)
+    #     CustomFieldString.objects.create(custom_field=cf_str, entity=orga, value='kunai')
+    #     CustomFieldDateTime.objects.create(custom_field=cf_date, entity=orga, value=now())
+    #     CustomFieldEnum.objects.create(custom_field=cf_enum, entity=orga, value=enum1)
+    #     CustomFieldMultiEnum(
+    #         custom_field=cf_multi_enum, entity=orga,
+    #     ).set_value_n_save([m_enum1, m_enum2])
+    #
+    #     clone = orga.clone()
+    #
+    #     def get_cf_values(cf, entity):
+    #         return cf.value_class.objects.get(custom_field=cf, entity=entity)
+    #
+    #     self.assertEqual(get_cf_values(cf_int,   orga).value,
+    #      get_cf_values(cf_int,   clone).value)
+    #     self.assertEqual(get_cf_values(cf_float, orga).value,
+    #      get_cf_values(cf_float, clone).value)
+    #     self.assertEqual(get_cf_values(cf_bool,  orga).value,
+    #      get_cf_values(cf_bool,  clone).value)
+    #     self.assertEqual(get_cf_values(cf_str,   orga).value,
+    #      get_cf_values(cf_str,   clone).value)
+    #     self.assertEqual(get_cf_values(cf_date,  orga).value,
+    #      get_cf_values(cf_date,  clone).value)
+    #
+    #     self.assertEqual(get_cf_values(cf_enum, orga).value, get_cf_values(cf_enum, clone).value)
+    #
+    #     self.assertTrue(get_cf_values(cf_multi_enum, orga).value.exists())
+    #     self.assertSetEqual(
+    #         {*get_cf_values(cf_multi_enum, orga).value.values_list('pk', flat=True)},
+    #         {*get_cf_values(cf_multi_enum, clone).value.values_list('pk', flat=True)},
+    #     )
+    #
+    # def test_clone04(self):  # DEPRECATED
+    #     "ManyToMany"
+    #     user = self.get_root_user()
+    #
+    #     image1 = FakeImage.objects.create(user=user, name='Konoha by night')
+    #     categories = [*FakeImageCategory.objects.all()]
+    #     self.assertTrue(categories)
+    #     image1.categories.set(categories)
+    #
+    #     image2 = image1.clone()
+    #     self.assertNotEqual(image1.pk, image2.pk)
+    #
+    #     for attr in ('user', 'name'):
+    #         self.assertEqual(getattr(image1, attr), getattr(image2, attr))
+    #
+    #     self.assertSetEqual(
+    #         {*image1.categories.values_list('pk', flat=True)},
+    #         {*image2.categories.values_list('pk', flat=True)},
+    #     )
 
     def test_delete01(self):
         "Simple delete."
