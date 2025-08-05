@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 from collections.abc import Sequence
 
 import creme.billing.forms.base as base_forms
@@ -29,29 +29,27 @@ from creme.creme_core.utils import bool_from_str_extended
 from creme.creme_core.views import generic
 
 
-class BaseCreation(generic.EntityCreation):
-    model = Base
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        warnings.warn(
-            'The class billing.views.base.BaseCreation is deprecated.',
-            DeprecationWarning,
-        )
-
-    def get_initial(self):
-        initial = super().get_initial()
-        status = (
-            self.model._meta.get_field('status')
-                            .related_model.objects.filter(is_default=True)
-                            .first()
-        )
-        if status is not None:
-            initial['status'] = status.id
-
-        return initial
-
-
+# class BaseCreation(generic.EntityCreation):
+#     model = Base
+#
+#     def __init__(self, **kwargs):
+#         super().__init__(**kwargs)
+#         warnings.warn(
+#             'The class billing.views.base.BaseCreation is deprecated.',
+#             DeprecationWarning,
+#         )
+#
+#     def get_initial(self):
+#         initial = super().get_initial()
+#         status = (
+#             self.model._meta.get_field('status')
+#                             .related_model.objects.filter(is_default=True)
+#                             .first()
+#         )
+#         if status is not None:
+#             initial['status'] = status.id
+#
+#         return initial
 class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
     model = Base
     permissions: str | Sequence[str] = 'billing'  # Need creation perm too
