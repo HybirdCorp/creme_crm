@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
+# from uuid import uuid4
 from functools import partial
-from uuid import uuid4
 
 from django.template import Context, Template
 from django.urls import reverse
@@ -30,6 +30,7 @@ from ..constants import (
     UUID_CNOTE_STATUS_DRAFT,
 )
 from ..models import CreditNoteStatus, Line
+# from .base import TemplateBase
 from .base import (
     Address,
     CreditNote,
@@ -37,7 +38,6 @@ from .base import (
     Organisation,
     ProductLine,
     ServiceLine,
-    TemplateBase,
     _BillingTestCase,
     skipIfCustomCreditNote,
     skipIfCustomInvoice,
@@ -1034,27 +1034,27 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(5, len(table_cells))
         self.assertInstanceLink(table_cells[0], entity=credit_note)
 
-    def test_build(self):  # DEPRECATED
-        user = self.get_root_user()
-        status1 = CreditNoteStatus.objects.exclude(is_default=True).first()
-        create_orga = partial(Organisation.objects.create, user=user)
-        tpl = TemplateBase.objects.create(
-            user=user,
-            ct=CreditNote,
-            status_uuid=status1.uuid,
-            source=create_orga(name='Source'),
-            target=create_orga(name='Target'),
-        )
-
-        credit_note1 = CreditNote().build(tpl)
-        self.assertIsNotNone(credit_note1.pk)
-        self.assertEqual(user,    credit_note1.user)
-        self.assertEqual(status1, credit_note1.status)
-
-        # ---
-        tpl.status_uuid = uuid4()
-        status2 = CreditNote().build(tpl).status
-        self.assertIsInstance(status2, CreditNoteStatus)
-        self.assertTrue(status2.is_default)
+    # def test_build(self):  # DEPRECATED
+    #     user = self.get_root_user()
+    #     status1 = CreditNoteStatus.objects.exclude(is_default=True).first()
+    #     create_orga = partial(Organisation.objects.create, user=user)
+    #     tpl = TemplateBase.objects.create(
+    #         user=user,
+    #         ct=CreditNote,
+    #         status_uuid=status1.uuid,
+    #         source=create_orga(name='Source'),
+    #         target=create_orga(name='Target'),
+    #     )
+    #
+    #     credit_note1 = CreditNote().build(tpl)
+    #     self.assertIsNotNone(credit_note1.pk)
+    #     self.assertEqual(user,    credit_note1.user)
+    #     self.assertEqual(status1, credit_note1.status)
+    #
+    #     # ---
+    #     tpl.status_uuid = uuid4()
+    #     status2 = CreditNote().build(tpl).status
+    #     self.assertIsInstance(status2, CreditNoteStatus)
+    #     self.assertTrue(status2.is_default)
 
     # TODO: complete (other views)

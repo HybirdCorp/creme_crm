@@ -153,8 +153,8 @@ class Line(CremeEntity):
     #     self._new_related_document = new_related_document or self.related_document
     #
     #     return super().clone()
-
-    clone.alters_data = True
+    #
+    # clone.alters_data = True
 
     def get_absolute_url(self):
         return self.get_related_entity().get_absolute_url()
