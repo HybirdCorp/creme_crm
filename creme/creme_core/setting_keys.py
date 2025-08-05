@@ -1,5 +1,4 @@
-import warnings
-
+# import warnings
 from django.utils.translation import gettext_lazy as _
 
 from .core.setting_key import SettingKey
@@ -32,21 +31,21 @@ currency_symbol_key = SettingKey(
 )
 
 
-def __getattr__(name):
-    if name == 'block_opening_key':
-        warnings.warn(
-            '"block_opening_key" is deprecated; '
-            'use creme_core.setting_keys.brick_opening_key instead.',
-            DeprecationWarning,
-        )
-        return brick_opening_key
-
-    if name == 'block_showempty_key':
-        warnings.warn(
-            '"block_showempty_key" is deprecated; '
-            'use creme_core.setting_keys.brick_showempty_key instead.',
-            DeprecationWarning,
-        )
-        return brick_showempty_key
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == 'block_opening_key':
+#         warnings.warn(
+#             '"block_opening_key" is deprecated; '
+#             'use creme_core.setting_keys.brick_opening_key instead.',
+#             DeprecationWarning,
+#         )
+#         return brick_opening_key
+#
+#     if name == 'block_showempty_key':
+#         warnings.warn(
+#             '"block_showempty_key" is deprecated; '
+#             'use creme_core.setting_keys.brick_showempty_key instead.',
+#             DeprecationWarning,
+#         )
+#         return brick_showempty_key
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

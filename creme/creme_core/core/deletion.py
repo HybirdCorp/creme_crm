@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections.abc import Iterable
 from typing import TYPE_CHECKING
 
@@ -104,15 +104,15 @@ class ReplacerRegistry:
 REPLACERS_MAP = ReplacerRegistry()
 
 
-def __getattr__(name):
-    if name == 'ReplacersRegistry':
-        warnings.warn(
-            '"ReplacersRegistry" is deprecated; use "ReplacerRegistry" instead.',
-            DeprecationWarning,
-        )
-        return ReplacerRegistry
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == 'ReplacersRegistry':
+#         warnings.warn(
+#             '"ReplacersRegistry" is deprecated; use "ReplacerRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return ReplacerRegistry
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 @REPLACERS_MAP

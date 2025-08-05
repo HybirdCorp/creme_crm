@@ -1,4 +1,4 @@
-import warnings
+# import warnings
 from decimal import Decimal
 
 from django.conf import settings
@@ -28,21 +28,21 @@ MODELBRICK_ID = 'model'
 DEFAULT_VAT = Decimal(getattr(settings, 'DEFAULT_VAT', '20.0'))  # TODO: depends on country...
 
 
-def __getattr__(name):
-    if name == 'DEFAULT_CURRENCY_PK':
-        warnings.warn(
-            '"DEFAULT_CURRENCY_PK" is deprecated; '
-            'use Currency.objects.default().id instead.',
-            DeprecationWarning,
-        )
-        return 1
-
-    if name == 'DISPLAY_CURRENCY_LOCAL_SYMBOL':
-        warnings.warn(
-            '"DISPLAY_CURRENCY_LOCAL_SYMBOL" is deprecated; '
-            'use creme_core.setting_keys.currency_symbol_key.id instead.',
-            DeprecationWarning,
-        )
-        return 'creme_core-display_currency_local_symbol'
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == 'DEFAULT_CURRENCY_PK':
+#         warnings.warn(
+#             '"DEFAULT_CURRENCY_PK" is deprecated; '
+#             'use Currency.objects.default().id instead.',
+#             DeprecationWarning,
+#         )
+#         return 1
+#
+#     if name == 'DISPLAY_CURRENCY_LOCAL_SYMBOL':
+#         warnings.warn(
+#             '"DISPLAY_CURRENCY_LOCAL_SYMBOL" is deprecated; '
+#             'use creme_core.setting_keys.currency_symbol_key.id instead.',
+#             DeprecationWarning,
+#         )
+#         return 'creme_core-display_currency_local_symbol'
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

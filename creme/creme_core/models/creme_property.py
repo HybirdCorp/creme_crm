@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections.abc import Iterable, Iterator
 from copy import deepcopy
 from functools import cached_property
@@ -151,58 +151,49 @@ class CremePropertyTypeManager(models.Manager):
             | Q(subject_ctypes__isnull=True)
         )
 
-    def smart_update_or_create(
-        self, *,
-        uuid: str = '',
-        text: str,
-        app_label: str = '',
-        subject_ctypes: Iterable[ContentType | type[CremeEntity]] = (),
-        is_custom: bool = False,
-        is_copiable: bool = True,
-    ) -> CremePropertyType:
-        """Helps the creation of new CremePropertyType instance.
-        @param uuid: Used to fill <CremePropertyType.uuid> ;
-               if you pass an empty string, a UUID will be generated.
-        @param text: Used to fill <CremePropertyType.text>.
-        @param app_label: Used to fill <CremePropertyType.app_label>.
-        @param subject_ctypes: Used to fill <CremePropertyType.subject_ctypes>.
-        @param is_custom: Used to fill <CremePropertyType.is_custom>.
-        @param is_copiable: Used to fill <CremePropertyType.is_copiable>.
-        """
-        warnings.warn(
-            'CremePropertyTypeManager.smart_update_or_create() is deprecated; '
-            'use create()/update_or_create() instead '
-            '(& eventually CremePropertyType.set_subject_ctypes() too), '
-            'or eventually CremePropertyTypeManager.proxy().'
-        )
-
-        if uuid:
-            property_type = self.update_or_create(
-                uuid=uuid,
-                defaults={
-                    'text': text,
-                    'is_custom': is_custom,
-                    'is_copiable': is_copiable,
-                    'app_label': app_label,
-                },
-            )[0]
-        else:
-            property_type = self.create(
-                text=text,
-                is_custom=is_custom,
-                is_copiable=is_copiable,
-                app_label=app_label,
-            )
-
-        get_ct = ContentType.objects.get_for_model
-        property_type.subject_ctypes.set([
-            model if isinstance(model, ContentType) else get_ct(model)
-            for model in subject_ctypes
-        ])
-
-        return property_type
-
-    smart_update_or_create.alters_data = True
+    # def smart_update_or_create(
+    #     self, *,
+    #     uuid: str = '',
+    #     text: str,
+    #     app_label: str = '',
+    #     subject_ctypes: Iterable[ContentType | type[CremeEntity]] = (),
+    #     is_custom: bool = False,
+    #     is_copiable: bool = True,
+    # ) -> CremePropertyType:
+    #     warnings.warn(
+    #         'CremePropertyTypeManager.smart_update_or_create() is deprecated; '
+    #         'use create()/update_or_create() instead '
+    #         '(& eventually CremePropertyType.set_subject_ctypes() too), '
+    #         'or eventually CremePropertyTypeManager.proxy().'
+    #     )
+    #
+    #     if uuid:
+    #         property_type = self.update_or_create(
+    #             uuid=uuid,
+    #             defaults={
+    #                 'text': text,
+    #                 'is_custom': is_custom,
+    #                 'is_copiable': is_copiable,
+    #                 'app_label': app_label,
+    #             },
+    #         )[0]
+    #     else:
+    #         property_type = self.create(
+    #             text=text,
+    #             is_custom=is_custom,
+    #             is_copiable=is_copiable,
+    #             app_label=app_label,
+    #         )
+    #
+    #     get_ct = ContentType.objects.get_for_model
+    #     property_type.subject_ctypes.set([
+    #         model if isinstance(model, ContentType) else get_ct(model)
+    #         for model in subject_ctypes
+    #     ])
+    #
+    #     return property_type
+    #
+    # smart_update_or_create.alters_data = True
 
     def proxy(self,
               subject_models: Iterable[type[CremeEntity]] = (),

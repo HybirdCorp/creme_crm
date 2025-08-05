@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-import warnings
+# import warnings
 from datetime import timedelta
 
 from django.utils.timezone import now
@@ -68,12 +68,12 @@ class ImprintManager:
 imprint_manager = ImprintManager()
 
 
-def __getattr__(name):
-    if name == '_ImprintManager':
-        warnings.warn(
-            '"_ImprintManager" is deprecated; use "ImprintManager" instead.',
-            DeprecationWarning,
-        )
-        return ImprintManager
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == '_ImprintManager':
+#         warnings.warn(
+#             '"_ImprintManager" is deprecated; use "ImprintManager" instead.',
+#             DeprecationWarning,
+#         )
+#         return ImprintManager
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

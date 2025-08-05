@@ -749,20 +749,20 @@ class _CremeTestCase:
         if self.__get_creme_properties(entity=entity, ptype=ptype).exists():
             self.fail(f'<{entity}> has property with type <{ptype}>')
 
-    def assertRelationCount(self, count, subject_entity, type_id, object_entity):
-        warnings.warn(
-            'assertRelationCount() is deprecated;'
-            'use assertHaveRelation()/assertHaveNoRelation() instead.',
-            DeprecationWarning
-        )
-        self.assertEqual(
-            count,
-            Relation.objects.filter(
-                subject_entity=subject_entity.id,
-                type=type_id,
-                object_entity=object_entity.id,
-            ).count(),
-        )
+    # def assertRelationCount(self, count, subject_entity, type_id, object_entity):
+    #     warnings.warn(
+    #         'assertRelationCount() is deprecated;'
+    #         'use assertHaveRelation()/assertHaveNoRelation() instead.',
+    #         DeprecationWarning
+    #     )
+    #     self.assertEqual(
+    #         count,
+    #         Relation.objects.filter(
+    #             subject_entity=subject_entity.id,
+    #             type=type_id,
+    #             object_entity=object_entity.id,
+    #         ).count(),
+    #     )
 
     def assertHaveRelation(self,
                            subject: CremeEntity | int,

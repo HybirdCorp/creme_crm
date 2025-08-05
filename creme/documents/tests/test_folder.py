@@ -673,20 +673,20 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             self.assertNotEqual(stack[-1].title, cloned_folder.title)
             stack_append(cloned_folder)
 
-    def test_clone__method(self):  # DEPRECATED
-        user = self.login_as_root_and_get()
-        title = 'folder'
-        folder = Folder.objects.create(user=user, title=title, description='d')
-
-        stack = [folder]
-        stack_append = stack.append
-
-        for i in range(100):
-            clone = folder.clone()
-            self.assertNotEqual(stack[-1].title, clone.title)
-            stack_append(clone)
-
-        self.assertTrue(getattr(folder.clone, 'alters_data', False))
+    # def test_clone__method(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #     title = 'folder'
+    #     folder = Folder.objects.create(user=user, title=title, description='d')
+    #
+    #     stack = [folder]
+    #     stack_append = stack.append
+    #
+    #     for i in range(100):
+    #         clone = folder.clone()
+    #         self.assertNotEqual(stack[-1].title, clone.title)
+    #         stack_append(clone)
+    #
+    #     self.assertTrue(getattr(folder.clone, 'alters_data', False))
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview__empty(self):

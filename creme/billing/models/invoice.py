@@ -59,19 +59,19 @@ class AbstractInvoice(Base):
         verbose_name = _('Invoice')
         verbose_name_plural = _('Invoices')
 
-    def _pre_save_clone(self, source):
-        warnings.warn(
-            'The method Invoice._pre_save_clone() is deprecated.',
-            DeprecationWarning,
-        )
-
-        super()._pre_save_clone(source=source)
-
-        status = InvoiceStatus.objects.default()
-        if status:
-            self.status = status
-        else:
-            logger.critical('AbstractInvoice._pre_save_clone(): cannot find a default status')
+    # def _pre_save_clone(self, source):
+    #     warnings.warn(
+    #         'The method Invoice._pre_save_clone() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     super()._pre_save_clone(source=source)
+    #
+    #     status = InvoiceStatus.objects.default()
+    #     if status:
+    #         self.status = status
+    #     else:
+    #         logger.critical('AbstractInvoice._pre_save_clone(): cannot find a default status')
 
     def _get_total(self):
         lines_total, creditnotes_total = self._get_lines_total_n_creditnotes_total()

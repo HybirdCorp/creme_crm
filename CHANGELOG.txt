@@ -1,5 +1,62 @@
 == Version 2.8 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Breaking changes :
+    ------------------
+        # Deprecated stuffs which have been removed :
+            - The settings 'ENUMERABLE_REGISTRATION_ERROR' has been removed.
+            - In 'creme_core.constants', 'DEFAULT_CURRENCY_PK' & 'DISPLAY_CURRENCY_LOCAL_SYMBOL' have been removed.
+            - In 'creme_core.core' :
+                - The method 'entity_cell.EntityCellCustomField.build()' does not accept integer "value" anymore.
+                - These aliases have been removed :
+                  'EntityCellsRegistry', '_EntityFilterRegistry', '_EntityFilterSuperRegistry',
+                  '_EnumerableRegistry', '_FunctionFieldRegistry', '_ImprintManager',
+                  '_SandboxTypeRegistry', '_SettingKeyRegistry', 'ReplacersRegistry'
+            - In 'creme_core.gui', these aliases have been removed :
+             'ActionsRegistry', 'ActionsChain', 'actions_registry',
+             '_BrickRegistry', 'BricksManager', '_BulkUpdateRegistry',
+             'ButtonsRegistry', '_FieldPrintersRegistry', 'field_printers_registry',
+             'QuickFormsRegistry', 'quickforms_registry',
+             '_StatisticsRegistry', 'statistics_registry'.
+            - In 'creme_core.models' :
+                - The method 'CremePropertyTypeManager.smart_update_or_create()' has been removed.
+                - These methods of 'CremeEntity' (& sub-classes) have been removed :
+                    - clone()
+                    - _clone_object()
+                    - _clone_custom_values()
+                    - _clone_m2m()
+                    - _copy_properties()
+                    - _copy_relations()
+                    - _pre_save_clone()
+                    - _post_clone()
+                    - _post_save_clone()
+            - In 'creme_core.setting_keys', 'block_opening_key' & 'block_showempty_key' have been removed.
+            - The function 'creme_core.utils.translation.get_model_verbose_name()' has been removed.
+            - In 'creme_core.templatetags' :
+                - In the module "creme_core_tags", the argument "callback_url" of '{% inner_edition_uri %}' has been removed.
+                - In the module "creme_ctype" :
+                    - These tags have been removed :
+                        - {% ctype_for_model %}
+                        - {% ctype_for_swappable %}
+                        - {% ctype_counted_instances_label %}
+                    - The filter "|ctype_can_be_mass_imported" has been removed.
+                    - The filter "|ctype_verbose_name" must take a "count" argument.
+            - The method 'creme_core.tests.base._CremeTestCase.assertRelationCount' has been removed.
+            - In Javascript :
+                - The method 'Array.copy()' has been removed.
+                - In 'creme.ajax' :
+                    - The class 'URL' has been removed.
+                    - These functions have been removed : 'parseUrl()', 'param()' & 'decodeSearchData()'.
+                - In 'creme.utils' :
+                    - The function 'confirmSubmit()' has been removed.
+                    - The option "waitingOverlay" of 'ajaxQuery()' has been removed.
+                    - The functions 'showPageLoadOverlay()', 'hidePageLoadOverlay()' & 'loading()' have been removed.
+                    - In 'JSON', these methods have been removed :
+                      'encode()', 'decode()', 'isJSON()', 'clean()', 'readScriptText()'.
+
+
 == Version 2.7 ==
 
   UPGRADE NOTES :

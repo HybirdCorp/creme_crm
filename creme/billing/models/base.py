@@ -304,48 +304,48 @@ class Base(CremeEntity):
 
         return max(DEFAULT_DECIMAL, lines_total_with_tax - creditnotes_total)
 
-    def _pre_save_clone(self, source):
-        warnings.warn(
-            'The method Base._pre_save_clone() is deprecated.',
-            DeprecationWarning,
-        )
-
-        self.source = source.source
-        self.target = source.target
-
-        self.number = ''
-
-        self._address_auto_copy = False
-
-    def _post_clone(self, source):
-        warnings.warn(
-            'The method Base._post_clone() is deprecated.',
-            DeprecationWarning,
-        )
-
-        source.invalidate_cache()
-
-        for line in source.iter_all_lines():
-            line.clone(self)
-
-    def _post_save_clone(self, source):
-        warnings.warn(
-            'The method Base._post_save_clone() is deprecated.',
-            DeprecationWarning,
-        )
-
-        save = False
-
-        if source.billing_address is not None:
-            self.billing_address = source.billing_address.clone(self)
-            save = True
-
-        if source.shipping_address is not None:
-            self.shipping_address = source.shipping_address.clone(self)
-            save = True
-
-        if save:
-            self.save()
+    # def _pre_save_clone(self, source):
+    #     warnings.warn(
+    #         'The method Base._pre_save_clone() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     self.source = source.source
+    #     self.target = source.target
+    #
+    #     self.number = ''
+    #
+    #     self._address_auto_copy = False
+    #
+    # def _post_clone(self, source):
+    #     warnings.warn(
+    #         'The method Base._post_clone() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     source.invalidate_cache()
+    #
+    #     for line in source.iter_all_lines():
+    #         line.clone(self)
+    #
+    # def _post_save_clone(self, source):
+    #     warnings.warn(
+    #         'The method Base._post_save_clone() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     save = False
+    #
+    #     if source.billing_address is not None:
+    #         self.billing_address = source.billing_address.clone(self)
+    #         save = True
+    #
+    #     if source.shipping_address is not None:
+    #         self.shipping_address = source.shipping_address.clone(self)
+    #         save = True
+    #
+    #     if save:
+    #         self.save()
 
     def build(self, template: Base):
         warnings.warn(

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,18 +16,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-from random import randint
-
+# import warnings
+# from random import randint
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+# from creme.creme_core.utils import truncate_str
 from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.models import CREME_REPLACE_NULL, CremeEntity
-from creme.creme_core.utils import truncate_str
 
 from .. import constants
 from .other_models import FolderCategory
@@ -121,21 +120,21 @@ class AbstractFolder(CremeEntity):
     def get_lv_absolute_url():
         return reverse('documents__list_folders')
 
-    def _pre_save_clone(self, source):
-        warnings.warn(
-            'The method Folder._pre_save_clone() is deprecated.',
-            DeprecationWarning,
-        )
-
-        max_length = self._meta.get_field('title').max_length
-        self.title = truncate_str(
-            source.title, max_length,
-            suffix=' ({} {:08x})'.format(gettext('Copy'), randint(0, MAXINT)),
-        )
-
-        # TODO: atomic
-        while Folder.objects.filter(title=self.title).exists():
-            self._pre_save_clone(source)
+    # def _pre_save_clone(self, source):
+    #     warnings.warn(
+    #         'The method Folder._pre_save_clone() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     max_length = self._meta.get_field('title').max_length
+    #     self.title = truncate_str(
+    #         source.title, max_length,
+    #         suffix=' ({} {:08x})'.format(gettext('Copy'), randint(0, MAXINT)),
+    #     )
+    #
+    #     # TODO: atomic
+    #     while Folder.objects.filter(title=self.title).exists():
+    #         self._pre_save_clone(source)
 
     def already_in_children(self, other_folder_id):
         children = self.children.all()

@@ -459,6 +459,7 @@ QUnit.test('fallbacks.Array.isArray', function() {
     equal(Array.isArray({'test': 1}), false);
 });
 
+/*
 QUnit.test('fallbacks.Array.copy', function() {
     equal(typeof Array.copy, 'function');
 
@@ -498,6 +499,7 @@ QUnit.test('fallbacks.Array.copy (arguments)', function() {
     deepEqual(['b'], f_1_2('a', 'b', 'c'));
     deepEqual([], f_1_2(['a', 'b', 'c']));
 });
+*/
 
 QUnit.test('fallbacks.HTMLDocument', function() {
     notEqual(typeof HTMLDocument, 'undefined');

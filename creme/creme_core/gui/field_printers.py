@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-import warnings
+# import warnings
 from collections.abc import Iterable
 from functools import partial
 from os.path import splitext
@@ -837,19 +837,19 @@ class FieldPrinterRegistry:
 field_printer_registry = FieldPrinterRegistry()
 
 
-def __getattr__(name):
-    if name == '_FieldPrintersRegistry':
-        warnings.warn(
-            '"_FieldPrintersRegistry" is deprecated; use "FieldPrinterRegistry" instead.',
-            DeprecationWarning,
-        )
-        return FieldPrinterRegistry
-
-    if name == 'field_printers_registry':
-        warnings.warn(
-            '"field_printers_registry" is deprecated; use "field_printer_registry" instead.',
-            DeprecationWarning,
-        )
-        return field_printer_registry
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == '_FieldPrintersRegistry':
+#         warnings.warn(
+#             '"_FieldPrintersRegistry" is deprecated; use "FieldPrinterRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return FieldPrinterRegistry
+#
+#     if name == 'field_printers_registry':
+#         warnings.warn(
+#             '"field_printers_registry" is deprecated; use "field_printer_registry" instead.',
+#             DeprecationWarning,
+#         )
+#         return field_printer_registry
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

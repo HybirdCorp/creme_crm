@@ -17,7 +17,6 @@ else:
     from django.utils.translation import gettext_lazy as _
     from django.utils.translation import pgettext_lazy
 
-    # from ..constants import DEFAULT_CURRENCY_PK
     from ..core.entity_filter import EF_REGULAR
     from ..models import (
         CremeEntity,

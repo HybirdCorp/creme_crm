@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _
 from parameterized import parameterized
 
 from creme.billing import bricks
-from creme.creme_core.models import FakeOrganisation, Relation, Vat
+from creme.creme_core.models import FakeOrganisation, Vat  # Relation
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.models import Contact, Organisation
 from creme.persons.tests.base import skipIfCustomOrganisation
@@ -516,79 +516,79 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertIsNone(product)
 
-    @skipIfCustomProduct
-    @skipIfCustomProductLine
-    def test_product_line_clone__method(self):  # DEPRECATED
-        user = self.login_as_root_and_get()
-
-        product = self.create_product(user=user)
-        invoice1 = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
-        invoice2 = self.create_invoice_n_orgas(user=user, name='Invoice002')[0]
-
-        product_line = ProductLine.objects.create(
-            user=user, related_document=invoice1, related_item=product,
-        )
-        product_line2 = product_line.clone(invoice2)
-
-        product_line2 = self.refresh(product_line2)
-        self.assertEqual(invoice2, product_line2.related_document)
-        self.assertEqual(product, product_line2.related_item)
-
-        rel_filter = Relation.objects.filter
-        self.assertListEqual(
-            [product_line2.pk],
-            [
-                *rel_filter(
-                    type=REL_SUB_HAS_LINE, subject_entity=invoice2,
-                ).values_list('object_entity', flat=True),
-            ],
-        )
-        self.assertCountEqual(
-            [product_line.pk, product_line2.pk],
-            rel_filter(
-                type=REL_SUB_LINE_RELATED_ITEM, object_entity=product,
-            ).values_list('subject_entity', flat=True),
-        )
-
-    @skipIfCustomServiceLine
-    def test_service_line_clone__method(self):  # DEPRECATED
-        user = self.login_as_root_and_get()
-
-        service = self.create_service(user=user)
-        invoice1 = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
-        invoice2 = self.create_invoice_n_orgas(user=user, name='Invoice002')[0]
-
-        service_line1 = ServiceLine.objects.create(
-            user=user, related_document=invoice1, related_item=service,
-        )
-
-        service_line2 = service_line1.clone(invoice2)
-        service_line2 = self.refresh(service_line2)
-        self.assertEqual(invoice2, service_line2.related_document)
-        self.assertEqual(service, service_line2.related_item)
-        self.assertNotEqual(service_line1, service_line2)
-
-        rel_filter = Relation.objects.filter
-        self.assertListEqual(
-            [service_line1.pk],
-            [
-                *rel_filter(
-                    type=REL_SUB_HAS_LINE, subject_entity=invoice1,
-                ).values_list('object_entity', flat=True)
-            ],
-        )
-        self.assertCountEqual(
-            [service_line2.pk],
-            rel_filter(
-                type=REL_SUB_HAS_LINE, subject_entity=invoice2,
-            ).values_list('object_entity', flat=True)
-        )
-        self.assertCountEqual(
-            [service_line1.pk, service_line2.pk],
-            rel_filter(
-                type=REL_SUB_LINE_RELATED_ITEM, object_entity=service,
-            ).values_list('subject_entity', flat=True)
-        )
+    # @skipIfCustomProduct
+    # @skipIfCustomProductLine
+    # def test_product_line_clone__method(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #
+    #     product = self.create_product(user=user)
+    #     invoice1 = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
+    #     invoice2 = self.create_invoice_n_orgas(user=user, name='Invoice002')[0]
+    #
+    #     product_line = ProductLine.objects.create(
+    #         user=user, related_document=invoice1, related_item=product,
+    #     )
+    #     product_line2 = product_line.clone(invoice2)
+    #
+    #     product_line2 = self.refresh(product_line2)
+    #     self.assertEqual(invoice2, product_line2.related_document)
+    #     self.assertEqual(product, product_line2.related_item)
+    #
+    #     rel_filter = Relation.objects.filter
+    #     self.assertListEqual(
+    #         [product_line2.pk],
+    #         [
+    #             *rel_filter(
+    #                 type=REL_SUB_HAS_LINE, subject_entity=invoice2,
+    #             ).values_list('object_entity', flat=True),
+    #         ],
+    #     )
+    #     self.assertCountEqual(
+    #         [product_line.pk, product_line2.pk],
+    #         rel_filter(
+    #             type=REL_SUB_LINE_RELATED_ITEM, object_entity=product,
+    #         ).values_list('subject_entity', flat=True),
+    #     )
+    #
+    # @skipIfCustomServiceLine
+    # def test_service_line_clone__method(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #
+    #     service = self.create_service(user=user)
+    #     invoice1 = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
+    #     invoice2 = self.create_invoice_n_orgas(user=user, name='Invoice002')[0]
+    #
+    #     service_line1 = ServiceLine.objects.create(
+    #         user=user, related_document=invoice1, related_item=service,
+    #     )
+    #
+    #     service_line2 = service_line1.clone(invoice2)
+    #     service_line2 = self.refresh(service_line2)
+    #     self.assertEqual(invoice2, service_line2.related_document)
+    #     self.assertEqual(service, service_line2.related_item)
+    #     self.assertNotEqual(service_line1, service_line2)
+    #
+    #     rel_filter = Relation.objects.filter
+    #     self.assertListEqual(
+    #         [service_line1.pk],
+    #         [
+    #             *rel_filter(
+    #                 type=REL_SUB_HAS_LINE, subject_entity=invoice1,
+    #             ).values_list('object_entity', flat=True)
+    #         ],
+    #     )
+    #     self.assertCountEqual(
+    #         [service_line2.pk],
+    #         rel_filter(
+    #             type=REL_SUB_HAS_LINE, subject_entity=invoice2,
+    #         ).values_list('object_entity', flat=True)
+    #     )
+    #     self.assertCountEqual(
+    #         [service_line1.pk, service_line2.pk],
+    #         rel_filter(
+    #             type=REL_SUB_LINE_RELATED_ITEM, object_entity=service,
+    #         ).values_list('subject_entity', flat=True)
+    #     )
 
     @skipIfCustomProductLine
     def test_multiple_delete01(self):

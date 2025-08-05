@@ -19,10 +19,10 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections.abc import Iterable, Iterator, Sequence
 
-from django.conf import settings
+# from django.conf import settings
 from django.db.models import CharField, Field, Model
 from django.db.models.query_utils import Q
 
@@ -121,22 +121,23 @@ class EmptyEnumerator(Enumerator):
     """Class which can enumerate nothing. Used as a placeholder if the enumerator
     cannot be found in the registry"""
     def choices(self, *args, **kwargs):
-        # To keep compatibility with previous versions, calling an EmptyEnumerator will
-        # not raise but just create a log and a broken select.
-        if settings.ENUMERABLE_REGISTRATION_ERROR:
-            raise NotImplementedError(
-                f'No enumerator has been found for the field "{self.field}". '
-                'HINT: Register the field or its related model in apps config '
-                '(see register_enumerable())'
-            )
-
-        logger.error(
-            'No enumerator has been found for the field "%s". '
-            'Please register the field or its related model in apps config '
-            '(see register_enumerable())', self.field
+        # if settings.ENUMERABLE_REGISTRATION_ERROR:
+        #     raise NotImplementedError(
+        #         f'No enumerator has been found for the field "{self.field}". '
+        #         'HINT: Register the field or its related model in apps config '
+        #         '(see register_enumerable())'
+        #     )
+        # logger.error(
+        #     'No enumerator has been found for the field "%s". '
+        #     'Please register the field or its related model in apps config '
+        #     '(see register_enumerable())', self.field
+        # )
+        # return ()
+        raise NotImplementedError(
+            f'No enumerator has been found for the field "{self.field}". '
+            'HINT: Register the field or its related model in apps config '
+            '(see register_enumerable())'
         )
-
-        return ()
 
     def to_python(self, user, values):
         return ()
@@ -404,12 +405,12 @@ class EnumerableRegistry:
 enumerable_registry = EnumerableRegistry()
 
 
-def __getattr__(name):
-    if name == '_EnumerableRegistry':
-        warnings.warn(
-            '"_EnumerableRegistry" is deprecated; use "EnumerableRegistry" instead.',
-            DeprecationWarning,
-        )
-        return EnumerableRegistry
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == '_EnumerableRegistry':
+#         warnings.warn(
+#             '"_EnumerableRegistry" is deprecated; use "EnumerableRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return EnumerableRegistry
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

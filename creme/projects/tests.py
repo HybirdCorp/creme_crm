@@ -1523,90 +1523,90 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         self.assertSetEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task1))
         self.assertSetEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task2))
 
-    @skipIfCustomTask
-    def test_project_clone__method01(self):  # DEPRECATED
-        user = self.login_as_root_and_get()
-        project = self.create_project(user=user, name='Project')[0]
-
-        create_task = self._create_parented_task
-        task1    = create_task('1', project)
-        task11   = create_task('1.1', project, [task1])
-        task111  = create_task('1.1.1', project, [task11])
-        task1111 = create_task('1.1.1.1', project, [task111])
-        create_task('all 1', project, [task1, task11, task111, task1111])
-
-        task2 = create_task('2', project)
-        create_task('all 2', project, [task1, task11, task111, task1111, task2])
-
-        cloned_project = project.clone()
-
-        titles_list = self._titles_list
-        titles_set = self._titles_set
-        self.assertSetEqual(
-            {'1', '1.1', '1.1.1', '1.1.1.1', 'all 1', '2', 'all 2'},
-            titles_set(cloned_project.get_tasks()),
-        )
-
-        self.assertFalse(self._tasks_pk_set(project) & self._tasks_pk_set(cloned_project))
-
-        get_task = cloned_project.get_tasks().get
-        self.assertFalse(get_task(title='1').get_parents())
-        self.assertListEqual(['1'],     titles_list(get_task(title='1.1').get_parents()))
-        self.assertListEqual(['1.1'],   titles_list(get_task(title='1.1.1').get_parents()))
-        self.assertListEqual(['1.1.1'], titles_list(get_task(title='1.1.1.1').get_parents()))
-        self.assertSetEqual(
-            {'1', '1.1', '1.1.1', '1.1.1.1'},
-            titles_set(get_task(title='all 1').get_parents()),
-        )
-        self.assertFalse(get_task(title='2').get_parents())
-        self.assertSetEqual(
-            {'1', '1.1', '1.1.1', '1.1.1.1', '2'},
-            titles_set(get_task(title='all 2').get_parents()),
-        )
-
-    @skipIfCustomTask
-    def test_project_clone__method02(self):  # DEPRECATED
-        user = self.login_as_root_and_get()
-
-        project = self.create_project(user=user, name='Project')[0]
-        contact1 = Contact.objects.create(user=user)
-        contact2 = Contact.objects.create(user=user)
-
-        create_resource = Resource.objects.create
-
-        task1 = self._create_parented_task('1', project)
-        create_resource(linked_contact=contact1, task=task1)
-        create_resource(linked_contact=contact2, task=task1)
-
-        task2 = self._create_parented_task('2', project)
-        create_resource(linked_contact=contact1, task=task2)
-        create_resource(linked_contact=contact2, task=task2)
-
-        task3 = self._create_parented_task('3', project, [task1, task2])
-        self._create_parented_task('4', project, [task3])
-
-        cloned_project = project.clone()
-
-        for attr in [
-            'name', 'description', 'status', 'start_date', 'end_date', 'effective_end_date',
-        ]:
-            self.assertEqual(getattr(project, attr), getattr(cloned_project, attr))
-
-        get_task = cloned_project.get_tasks().get
-        c_task1 = get_task(title='1')
-        c_task2 = get_task(title='2')
-
-        self.assertEqual({'1', '2', '3', '4'}, self._titles_set(cloned_project.get_tasks()))
-        self.assertFalse(self._tasks_pk_set(project) & self._tasks_pk_set(cloned_project))
-
-        self.assertSetEqual({'1', '2'}, self._titles_set(get_task(title='3').get_parents()))
-        self.assertListEqual(['3'], self._titles_list(get_task(title='4').get_parents()))
-
-        def linked_contacts_set(task):
-            return {*task.get_resources().values_list('linked_contact', flat=True)}
-
-        self.assertSetEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task1))
-        self.assertSetEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task2))
+    # @skipIfCustomTask
+    # def test_project_clone__method01(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #     project = self.create_project(user=user, name='Project')[0]
+    #
+    #     create_task = self._create_parented_task
+    #     task1    = create_task('1', project)
+    #     task11   = create_task('1.1', project, [task1])
+    #     task111  = create_task('1.1.1', project, [task11])
+    #     task1111 = create_task('1.1.1.1', project, [task111])
+    #     create_task('all 1', project, [task1, task11, task111, task1111])
+    #
+    #     task2 = create_task('2', project)
+    #     create_task('all 2', project, [task1, task11, task111, task1111, task2])
+    #
+    #     cloned_project = project.clone()
+    #
+    #     titles_list = self._titles_list
+    #     titles_set = self._titles_set
+    #     self.assertSetEqual(
+    #         {'1', '1.1', '1.1.1', '1.1.1.1', 'all 1', '2', 'all 2'},
+    #         titles_set(cloned_project.get_tasks()),
+    #     )
+    #
+    #     self.assertFalse(self._tasks_pk_set(project) & self._tasks_pk_set(cloned_project))
+    #
+    #     get_task = cloned_project.get_tasks().get
+    #     self.assertFalse(get_task(title='1').get_parents())
+    #     self.assertListEqual(['1'],     titles_list(get_task(title='1.1').get_parents()))
+    #     self.assertListEqual(['1.1'],   titles_list(get_task(title='1.1.1').get_parents()))
+    #     self.assertListEqual(['1.1.1'], titles_list(get_task(title='1.1.1.1').get_parents()))
+    #     self.assertSetEqual(
+    #         {'1', '1.1', '1.1.1', '1.1.1.1'},
+    #         titles_set(get_task(title='all 1').get_parents()),
+    #     )
+    #     self.assertFalse(get_task(title='2').get_parents())
+    #     self.assertSetEqual(
+    #         {'1', '1.1', '1.1.1', '1.1.1.1', '2'},
+    #         titles_set(get_task(title='all 2').get_parents()),
+    #     )
+    #
+    # @skipIfCustomTask
+    # def test_project_clone__method02(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #
+    #     project = self.create_project(user=user, name='Project')[0]
+    #     contact1 = Contact.objects.create(user=user)
+    #     contact2 = Contact.objects.create(user=user)
+    #
+    #     create_resource = Resource.objects.create
+    #
+    #     task1 = self._create_parented_task('1', project)
+    #     create_resource(linked_contact=contact1, task=task1)
+    #     create_resource(linked_contact=contact2, task=task1)
+    #
+    #     task2 = self._create_parented_task('2', project)
+    #     create_resource(linked_contact=contact1, task=task2)
+    #     create_resource(linked_contact=contact2, task=task2)
+    #
+    #     task3 = self._create_parented_task('3', project, [task1, task2])
+    #     self._create_parented_task('4', project, [task3])
+    #
+    #     cloned_project = project.clone()
+    #
+    #     for attr in [
+    #         'name', 'description', 'status', 'start_date', 'end_date', 'effective_end_date',
+    #     ]:
+    #         self.assertEqual(getattr(project, attr), getattr(cloned_project, attr))
+    #
+    #     get_task = cloned_project.get_tasks().get
+    #     c_task1 = get_task(title='1')
+    #     c_task2 = get_task(title='2')
+    #
+    #     self.assertEqual({'1', '2', '3', '4'}, self._titles_set(cloned_project.get_tasks()))
+    #     self.assertFalse(self._tasks_pk_set(project) & self._tasks_pk_set(cloned_project))
+    #
+    #     self.assertSetEqual({'1', '2'}, self._titles_set(get_task(title='3').get_parents()))
+    #     self.assertListEqual(['3'], self._titles_list(get_task(title='4').get_parents()))
+    #
+    #     def linked_contacts_set(task):
+    #         return {*task.get_resources().values_list('linked_contact', flat=True)}
+    #
+    #     self.assertSetEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task1))
+    #     self.assertSetEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task2))
 
     @skipIfCustomTask
     def test_delete_project_status(self):

@@ -317,69 +317,69 @@ class OrganisationTestCase(_BaseTestCase):
             self.assertIsNotNone(address2, ident)
             self.assertAddressOnlyContentEqual(address, address2)
 
-    def test_clone__managed(self):  # DEPRECATED
-        "Do not clone 'is_managed'."
-        user = self.login_as_root_and_get()
-        bebop = Organisation.objects.create(user=user, name='Bebop', is_managed=True)
-        self.assertPOST409(
-            bebop.get_clone_absolute_url(), data={'id': bebop.id}, follow=True,
-        )
-
-        cloned = bebop.clone()
-        self.assertEqual(bebop.name, cloned.name)
-        self.assertFalse(cloned.is_managed)
-
-    @skipIfCustomAddress
-    def test_clone__method(self):  # DEPRECATED
-        "Addresses are problematic."
-        user = self.login_as_root_and_get()
-
-        bebop = Organisation.objects.create(user=user, name='Bebop')
-
-        create_address = partial(
-            Address.objects.create,
-            address='XXX',
-            city='Red city', state='North', zipcode='111',
-            country='Mars', department='Dome #12',
-            owner=bebop,
-        )
-        bebop.billing_address  = create_address(name='Hideout #1')
-        bebop.shipping_address = create_address(name='Hideout #2')
-        bebop.save()
-
-        for i in range(3, 5):
-            create_address(name=f'Hideout #{i}')
-
-        self.assertEqual(
-            reverse('creme_core__clone_entity'),
-            bebop.get_clone_absolute_url(),
-        )
-
-        cloned = bebop.clone()
-
-        self.assertEqual(bebop.name, cloned.name)
-        self.assertFalse(cloned.is_managed)
-
-        self.assertEqual(bebop.id, bebop.billing_address.object_id)
-        self.assertEqual(bebop.id, bebop.shipping_address.object_id)
-
-        self.assertEqual(cloned.id, cloned.billing_address.object_id)
-        self.assertEqual(cloned.id, cloned.shipping_address.object_id)
-
-        addresses   = [*Address.objects.filter(object_id=bebop.id)]
-        c_addresses = [*Address.objects.filter(object_id=cloned.id)]
-        self.assertEqual(4, len(addresses))
-        self.assertEqual(4, len(c_addresses))
-
-        addresses_map   = {a.name: a for a in addresses}
-        c_addresses_map = {a.name: a for a in c_addresses}
-        self.assertEqual(4, len(addresses_map))
-        self.assertEqual(4, len(c_addresses_map))
-
-        for ident, address in addresses_map.items():
-            address2 = c_addresses_map.get(ident)
-            self.assertIsNotNone(address2, ident)
-            self.assertAddressOnlyContentEqual(address, address2)
+    # def test_clone__managed(self):  # DEPRECATED
+    #     "Do not clone 'is_managed'."
+    #     user = self.login_as_root_and_get()
+    #     bebop = Organisation.objects.create(user=user, name='Bebop', is_managed=True)
+    #     self.assertPOST409(
+    #         bebop.get_clone_absolute_url(), data={'id': bebop.id}, follow=True,
+    #     )
+    #
+    #     cloned = bebop.clone()
+    #     self.assertEqual(bebop.name, cloned.name)
+    #     self.assertFalse(cloned.is_managed)
+    #
+    # @skipIfCustomAddress
+    # def test_clone__method(self):  # DEPRECATED
+    #     "Addresses are problematic."
+    #     user = self.login_as_root_and_get()
+    #
+    #     bebop = Organisation.objects.create(user=user, name='Bebop')
+    #
+    #     create_address = partial(
+    #         Address.objects.create,
+    #         address='XXX',
+    #         city='Red city', state='North', zipcode='111',
+    #         country='Mars', department='Dome #12',
+    #         owner=bebop,
+    #     )
+    #     bebop.billing_address  = create_address(name='Hideout #1')
+    #     bebop.shipping_address = create_address(name='Hideout #2')
+    #     bebop.save()
+    #
+    #     for i in range(3, 5):
+    #         create_address(name=f'Hideout #{i}')
+    #
+    #     self.assertEqual(
+    #         reverse('creme_core__clone_entity'),
+    #         bebop.get_clone_absolute_url(),
+    #     )
+    #
+    #     cloned = bebop.clone()
+    #
+    #     self.assertEqual(bebop.name, cloned.name)
+    #     self.assertFalse(cloned.is_managed)
+    #
+    #     self.assertEqual(bebop.id, bebop.billing_address.object_id)
+    #     self.assertEqual(bebop.id, bebop.shipping_address.object_id)
+    #
+    #     self.assertEqual(cloned.id, cloned.billing_address.object_id)
+    #     self.assertEqual(cloned.id, cloned.shipping_address.object_id)
+    #
+    #     addresses   = [*Address.objects.filter(object_id=bebop.id)]
+    #     c_addresses = [*Address.objects.filter(object_id=cloned.id)]
+    #     self.assertEqual(4, len(addresses))
+    #     self.assertEqual(4, len(c_addresses))
+    #
+    #     addresses_map   = {a.name: a for a in addresses}
+    #     c_addresses_map = {a.name: a for a in c_addresses}
+    #     self.assertEqual(4, len(addresses_map))
+    #     self.assertEqual(4, len(c_addresses_map))
+    #
+    #     for ident, address in addresses_map.items():
+    #         address2 = c_addresses_map.get(ident)
+    #         self.assertIsNotNone(address2, ident)
+    #         self.assertAddressOnlyContentEqual(address, address2)
 
     def _build_managed_orga(self, user, name='Bebop'):
         return Organisation.objects.create(user=user, name=name, is_managed=True)

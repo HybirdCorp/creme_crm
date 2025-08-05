@@ -17,7 +17,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from functools import partial
 
 from django.core.exceptions import ValidationError
@@ -93,14 +93,14 @@ class Line(CremeEntity):
         verbose_name_plural = _('Lines')
         ordering = ('created',)
 
-    def _pre_save_clone(self, source):
-        warnings.warn(
-            'The method Line._pre_save_clone() is deprecated.',
-            DeprecationWarning,
-        )
-
-        self.related_document = source._new_related_document
-        self.related_item     = source.related_item
+    # def _pre_save_clone(self, source):
+    #     warnings.warn(
+    #         'The method Line._pre_save_clone() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     self.related_document = source._new_related_document
+    #     self.related_item     = source.related_item
 
     def clean(self):
         match self.discount_unit:
@@ -145,14 +145,14 @@ class Line(CremeEntity):
 
         super().clean()
 
-    def clone(self, new_related_document=None):
-        warnings.warn('The method Line.clone() is deprecated.', DeprecationWarning)
-
-        # BEWARE: CremeProperty and Relation are not cloned
-        #         (excepted our 2 internal relations)
-        self._new_related_document = new_related_document or self.related_document
-
-        return super().clone()
+    # def clone(self, new_related_document=None):
+    #     warnings.warn('The method Line.clone() is deprecated.', DeprecationWarning)
+    #
+    #     # BEWARE: CremeProperty and Relation are not cloned
+    #     #         (excepted our 2 internal relations)
+    #     self._new_related_document = new_related_document or self.related_document
+    #
+    #     return super().clone()
 
     clone.alters_data = True
 
