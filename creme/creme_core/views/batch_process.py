@@ -29,7 +29,7 @@ from ..core.exceptions import BadRequestError
 from ..forms.batch_process import BatchProcessForm
 from ..http import CremeJsonResponse
 from ..models import Job
-from ..utils import worklow
+from ..utils import workflow
 from ..utils.content_type import get_ctype_or_404
 from . import generic
 from .utils import build_cancel_path
@@ -72,7 +72,7 @@ def batch_process(request, ct_id):
             'submit_label':  _('Run'),
             'cancel_url':    cancel_url,
             # TODO: unit test
-            'help_message': worklow.form_help_message(model=ct.model_class()),
+            'help_message': workflow.form_help_message(model=ct.model_class()),
         },
     )
 

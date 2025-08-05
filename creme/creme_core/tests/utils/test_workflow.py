@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ngettext
 
 from creme.creme_core.models import FakeContact, FakeOrganisation, Workflow
-from creme.creme_core.utils.worklow import form_help_message
+from creme.creme_core.utils.workflow import form_help_message
 from creme.creme_core.workflows import (
     EntityCreationTrigger,
     EntityEditionTrigger,
