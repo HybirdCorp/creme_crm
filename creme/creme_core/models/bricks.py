@@ -632,8 +632,8 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
     )
 
     # NB1: do not use directly ; use the function get_extra_data() & set_extra_data()
-    # NB: if you want to refer instances, you should store UUID instead of local
-    #     IDs, in order to make import/export more reliable.
+    # NB2: if you want to refer instances, you should store UUIDs instead of
+    #      local IDs, in order to make import/export more reliable.
     json_extra_data = models.JSONField(
         editable=False,
         default=dict,
