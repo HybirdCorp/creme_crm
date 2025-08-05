@@ -38,7 +38,7 @@ from ..forms.mass_import import (
 from ..gui.mass_import import import_form_registry
 from ..models import Job, MassImportJobResult
 from ..models.utils import model_verbose_name_plural
-from ..utils import get_from_POST_or_404, worklow
+from ..utils import get_from_POST_or_404, workflow
 from ..utils.content_type import get_ctype_or_404
 from .utils import build_cancel_path
 
@@ -87,7 +87,7 @@ def mass_import(request, ct_id):
                 )
 
                 # TODO: unit test
-                help_message = worklow.form_help_message(model)
+                help_message = workflow.form_help_message(model)
             else:
                 submit_label = _('Import this file')
         else:
