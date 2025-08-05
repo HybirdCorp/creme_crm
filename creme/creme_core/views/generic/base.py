@@ -32,7 +32,7 @@ from django.http import (
     HttpResponse,
     HttpResponseRedirect,
 )
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, resolve_url
 from django.urls import reverse, reverse_lazy
 from django.utils.html import escape
 from django.utils.translation import gettext
@@ -162,7 +162,7 @@ class PermissionsMixin:
         if not login_url_name:
             raise ImproperlyConfigured('Define settings.LOGIN_URL')
 
-        url = reverse(login_url_name)
+        url = resolve_url(login_url_name)
         redirect_arg_name = self.login_redirect_arg_name
 
         return '{}?{}'.format(
