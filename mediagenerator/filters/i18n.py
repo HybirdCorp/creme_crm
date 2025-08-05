@@ -54,7 +54,7 @@ class I18N(Filter):
         translation.activate(language)
         content += JavaScriptCatalog(
             packages=[app_config.name for app_config in apps.app_configs.values()],
-        ).get(HttpRequest()).content.decode()
+        ).get(HttpRequest()).text
 
         # The hgettext() function just calls gettext() internally,
         # but it won't get indexed by makemessages.

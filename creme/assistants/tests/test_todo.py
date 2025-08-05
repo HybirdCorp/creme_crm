@@ -137,7 +137,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             _('You are not allowed to access to the app: {}').format(
                 _('Assistants (Todos, Memos, …)')
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_create__dynamic_user(self):
@@ -242,7 +242,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             _('You are not allowed to access to the app: {}').format(
                 _('Assistants (Todos, Memos, …)')
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_delete_related(self):
@@ -296,7 +296,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             _('You are not allowed to access to the app: {}').format(
                 _('Assistants (Todos, Memos, …)')
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_brick(self):

@@ -883,7 +883,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
         self.assertEqual(
             _('You are not allowed to create: {}').format(_('Organisation')),
-            response.content.decode(),
+            response.text,
         )
 
     def test_objective_create_entity_not_superuser03(self):

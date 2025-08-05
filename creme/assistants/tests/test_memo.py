@@ -82,7 +82,7 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             _('You are not allowed to access to the app: {}').format(
                 _('Assistants (Todos, Memos, …)')
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_edit(self):
@@ -142,7 +142,7 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             _('You are not allowed to access to the app: {}').format(
                 _('Assistants (Todos, Memos, …)')
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_delete_entity(self):

@@ -391,7 +391,7 @@ class _CremeTestCase:
     def assertPOST(self, expected_status, *args, **kwargs):
         response = self.client.post(*args, **kwargs)
         # self.assertEqual(expected_status, response.status_code)
-        self.assertEqual(expected_status, response.status_code, response.content.decode())
+        self.assertEqual(expected_status, response.status_code, response.text)
 
         return response
 

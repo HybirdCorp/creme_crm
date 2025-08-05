@@ -108,7 +108,7 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
             _('You are not allowed to access to the app: {}').format(
                 _('Assistants (Todos, Memos, …)')
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_edit(self):
@@ -172,7 +172,7 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
             _('You are not allowed to access to the app: {}').format(
                 _('Assistants (Todos, Memos, …)')
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_delete_entity(self):
@@ -225,7 +225,7 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
             _('You are not allowed to access to the app: {}').format(
                 _('Assistants (Todos, Memos, …)')
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_brick(self):
@@ -351,7 +351,7 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
             _('You are not allowed to access to the app: {}').format(
                 _('Assistants (Todos, Memos, …)')
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_merge(self):

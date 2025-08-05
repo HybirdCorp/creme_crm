@@ -580,7 +580,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
                     model=smart_model_verbose_name(model=Relation, count=2)
                 )
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_delete__used_by_efilter(self):
@@ -645,7 +645,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
                     f'</ul>'
                 ),
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_delete__used_by_efilter__subfilter(self):
@@ -695,7 +695,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
                     f'<a href="{efilter.get_absolute_url()}" target="_blank">{efilter.name}</a>'
                 ),
             ),
-            response.content.decode(),
+            response.text,
         )
 
     def test_delete__used_by_workflow__trigger(self):
@@ -749,7 +749,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
                 'The relationship type cannot be deleted because it is used by '
                 'triggers of Workflow: {workflows}'
             ).format(workflows=f'«{wf1.title}», «{wf3.title}»'),
-            response.content.decode(),
+            response.text,
         )
 
 
