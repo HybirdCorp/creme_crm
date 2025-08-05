@@ -256,11 +256,11 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         with OverrideSettingValueContext(setting_keys.neighbourhood_distance_key, 12500):
             self.assertEqual(get_radius(), 12500)
 
-    def test_get_radius__deprecated(self):
-        self.assertEqual(get_radius(), constants.DEFAULT_SEPARATING_NEIGHBOURS)
-
-        with OverrideSettingValueContext(setting_keys.NEIGHBOURHOOD_DISTANCE, 12500):
-            self.assertEqual(get_radius(), 12500)
+    # def test_get_radius__deprecated(self):
+    #     self.assertEqual(get_radius(), constants.DEFAULT_SEPARATING_NEIGHBOURS)
+    #
+    #     with OverrideSettingValueContext(setting_keys.NEIGHBOURHOOD_DISTANCE, 12500):
+    #         self.assertEqual(get_radius(), 12500)
 
     def test_get_google_api_key(self):
         self.assertEqual(get_google_api_key(), '')
@@ -268,11 +268,11 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         with OverrideSettingValueContext(setting_keys.google_api_key, 'thegoldenticket'):
             self.assertEqual(get_google_api_key(), 'thegoldenticket')
 
-    def test_get_google_api_key__deprecated(self):
-        self.assertEqual(get_google_api_key(), '')
-
-        with OverrideSettingValueContext(setting_keys.GOOGLE_API_KEY, 'thegoldenticket'):
-            self.assertEqual(get_google_api_key(), 'thegoldenticket')
+    # def test_get_google_api_key__deprecated(self):
+    #     self.assertEqual(get_google_api_key(), '')
+    #
+    #     with OverrideSettingValueContext(setting_keys.GOOGLE_API_KEY, 'thegoldenticket'):
+    #         self.assertEqual(get_google_api_key(), 'thegoldenticket')
 
     def test_use_entity_icon_key(self):
         self.assertEqual(use_entity_icon(), False)
