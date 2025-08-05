@@ -18,8 +18,8 @@
 
 from __future__ import annotations
 
+# import warnings
 import logging
-import warnings
 
 from django.conf import settings
 from django.db import models
@@ -177,12 +177,12 @@ class AbstractEntityEmail(_Email, CremeEntity):
 
         return email
 
-    def _pre_save_clone(self, source):
-        warnings.warn(
-            'The method EntityEmail._pre_save_clone() is deprecated.',
-            DeprecationWarning,
-        )
-        self.genid_n_save()
+    # def _pre_save_clone(self, source):
+    #     warnings.warn(
+    #         'The method EntityEmail._pre_save_clone() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #     self.genid_n_save()
 
     def restore(self):
         CremeEntity.restore(self)

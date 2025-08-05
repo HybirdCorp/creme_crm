@@ -654,18 +654,18 @@ class EntityCellCustomFieldTestCase(CremeTestCase):
         self.assertIsInstance(cell3, EntityCellCustomField)
         self.assertEqual(cfield, cell3.custom_field)
 
-        # Build from int (DEPRECATED) ---
-        with self.assertWarnsMessage(
-            expected_warning=DeprecationWarning,
-            expected_message=(
-                'EntityCellCustomField.build() with integer value is deprecated; '
-                'pass a string (ID ou UUID) instead.'
-            )
-        ):
-            cell4 = EntityCellCustomField.build(FakeContact, cfield.id)
-
-        self.assertIsInstance(cell4, EntityCellCustomField)
-        self.assertEqual(str(cfield.id), cell4.value)
+        # # Build from int (DEPRECATED) ---
+        # with self.assertWarnsMessage(
+        #     expected_warning=DeprecationWarning,
+        #     expected_message=(
+        #         'EntityCellCustomField.build() with integer value is deprecated; '
+        #         'pass a string (ID ou UUID) instead.'
+        #     )
+        # ):
+        #     cell4 = EntityCellCustomField.build(FakeContact, cfield.id)
+        #
+        # self.assertIsInstance(cell4, EntityCellCustomField)
+        # self.assertEqual(str(cfield.id), cell4.value)
 
     def test_decimal(self):
         cfield = CustomField.objects.create(

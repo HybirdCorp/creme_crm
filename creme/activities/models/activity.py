@@ -16,8 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
+# import warnings
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -172,24 +171,24 @@ class AbstractActivity(CremeEntity):
             self.start = self.start.replace(hour=0, minute=0)
             self.end   = self.end.replace(hour=23, minute=59)
 
-    def _pre_save_clone(self, source):
-        warnings.warn(
-            'The method CremeEntity._pre_save_clone() is deprecated.',
-            DeprecationWarning,
-        )
-        if source.busy:
-            self.busy = False
-
-    def _copy_relations(self, source, allowed_internal=()):
-        warnings.warn(
-            'The method Activity._copy_relations() is deprecated.',
-            DeprecationWarning,
-        )
-
-        super()._copy_relations(
-            source,
-            allowed_internal=[*allowed_internal, REL_OBJ_PART_2_ACTIVITY],
-        )
+    # def _pre_save_clone(self, source):
+    #     warnings.warn(
+    #         'The method CremeEntity._pre_save_clone() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #     if source.busy:
+    #         self.busy = False
+    #
+    # def _copy_relations(self, source, allowed_internal=()):
+    #     warnings.warn(
+    #         'The method Activity._copy_relations() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     super()._copy_relations(
+    #         source,
+    #         allowed_internal=[*allowed_internal, REL_OBJ_PART_2_ACTIVITY],
+    #     )
 
 
 class Activity(AbstractActivity):

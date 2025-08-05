@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections.abc import Callable
 
 StatisticsFunc = Callable[[], list]
@@ -114,19 +114,19 @@ class StatisticRegistry:
 statistic_registry = StatisticRegistry()
 
 
-def __getattr__(name):
-    if name == '_StatisticsRegistry':
-        warnings.warn(
-            '"_StatisticsRegistry" is deprecated; use "StatisticRegistry" instead.',
-            DeprecationWarning,
-        )
-        return StatisticRegistry
-
-    if name == 'statistics_registry':
-        warnings.warn(
-            '"statistics_registry" is deprecated; use "statistic_registry" instead.',
-            DeprecationWarning,
-        )
-        return statistic_registry
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == '_StatisticsRegistry':
+#         warnings.warn(
+#             '"_StatisticsRegistry" is deprecated; use "StatisticRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return StatisticRegistry
+#
+#     if name == 'statistics_registry':
+#         warnings.warn(
+#             '"statistics_registry" is deprecated; use "statistic_registry" instead.',
+#             DeprecationWarning,
+#         )
+#         return statistic_registry
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

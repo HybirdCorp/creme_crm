@@ -22,6 +22,7 @@
 
 creme.ajax = creme.ajax || {};
 
+/*
 creme.ajax.URL = RelativeURL;
 
 creme.ajax.parseUrl = function(url) {
@@ -38,5 +39,6 @@ creme.ajax.decodeSearchData = function(search) {
     console.warn('creme.ajax.decodeSearchData() is deprecated; Use _.decodeURLSearchData() instead');
     return _.decodeURLSearchData(search);
 };
+*/
 
 }());

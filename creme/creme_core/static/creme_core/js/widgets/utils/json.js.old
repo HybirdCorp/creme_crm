@@ -23,16 +23,19 @@ creme.utils = creme.utils || {};
 
 creme.utils.JSON = function() {};
 creme.utils.JSON.prototype = {
+/*
     encode: function(data) {
         console.warn('creme.utils.JSON.encode is deprecated; Use JSON.stringify instead.');
         return JSON.stringify(data);
     },
-
+*/
+/*
     isJSON: function(data) {
         console.warn('creme.utils.JSON.isJSON is deprecated; Use _.isJSON instead.');
         return _.isJSON(data);
     },
-
+*/
+/*
     decode: function(data, defaults) {
         if (defaults !== undefined) {
             try {
@@ -50,13 +53,17 @@ creme.utils.JSON.prototype = {
 
         return JSON.parse(data);
     }
+*/
 };
 
+/*
 creme.utils.JSON.clean = function(data, defaults) {
     console.warn('creme.utils.JSON.clean is deprecated; Use _.cleanJSON instead.');
     return _.isString(data) ? _.cleanJSON(data) || defaults : data;
 };
+*/
 
+/*
 creme.utils.JSON.readScriptText = function(element, options) {
     console.warn('creme.utils.JSON.readScriptText is deprecated; Use _.readJSONScriptText instead.');
     element = $(element).first();
@@ -64,7 +71,6 @@ creme.utils.JSON.readScriptText = function(element, options) {
         ignoreEmpty: false
     }, options || {});
 
-    // TODO : seems never used remove it ?
     if (element.length === 0) {
         if (!options.ignoreEmpty) {
             console.warn('No such JSON script element');
@@ -75,5 +81,6 @@ creme.utils.JSON.readScriptText = function(element, options) {
 
     return _.readJSONScriptText(element.get(0));
 };
+*/
 
 }(jQuery));

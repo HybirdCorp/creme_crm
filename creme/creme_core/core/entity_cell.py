@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from typing import DefaultDict
@@ -390,15 +390,15 @@ class EntityCellRegistry:
 CELLS_MAP = EntityCellRegistry()
 
 
-def __getattr__(name):
-    if name == 'EntityCellsRegistry':
-        warnings.warn(
-            '"EntityCellsRegistry" is deprecated; use "EntityCellRegistry" instead.',
-            DeprecationWarning,
-        )
-        return EntityCellRegistry
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == 'EntityCellsRegistry':
+#         warnings.warn(
+#             '"EntityCellsRegistry" is deprecated; use "EntityCellRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return EntityCellRegistry
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 # @CELLS_MAP TODO
@@ -610,14 +610,16 @@ class EntityCellCustomField(EntityCell):
 
         # NB: we prefer use the cache with all model's CustomFields because of
         #     high probability to use several CustomFields in the same request.
-        if isinstance(name, int):
-            warnings.warn(
-                'EntityCellCustomField.build() with integer value is deprecated; '
-                'pass a string (ID ou UUID) instead.',
-                DeprecationWarning
-            )
-            cfield = cfields.get(name)
-        elif name.isdigit():
+
+        # if isinstance(name, int):
+        #     warnings.warn(
+        #         'EntityCellCustomField.build() with integer value is deprecated; '
+        #         'pass a string (ID ou UUID) instead.',
+        #         DeprecationWarning
+        #     )
+        #     cfield = cfields.get(name)
+        # elif name.isdigit():
+        if name.isdigit():
             cfield = cfields.get(int(name))
         else:
             for cf in cfields.values():

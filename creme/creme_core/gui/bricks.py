@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections import defaultdict
 from collections.abc import Iterable, Iterator, Sequence
 from typing import DefaultDict, List, Literal, Tuple, Type, Union
@@ -178,17 +178,6 @@ class Brick:
 
         self._reloading_info = None
 
-    # def has_perms(self, user) -> bool:
-    #     permissions = self.permissions
-    #
-    #     return bool(
-    #         not permissions
-    #         or (
-    #             user.has_perm(permissions)
-    #             if isinstance(permissions, str) else
-    #             user.has_perms(permissions)
-    #         )
-    #     )
     def check_permissions(self, user) -> None:
         """@raise PermissionDenied, ConflictError."""
         user.has_perms_or_die(self.permissions)
@@ -298,7 +287,6 @@ class SimpleBrick(Brick):
     detailview_display = Brick._simple_detailview_display
 
 
-# class ForbiddenBrick(SimpleBrick):
 class ForbiddenBrick(Brick):
     """Used by code which needs to get a content for forbidden brick.
     You should not have to use it.
@@ -314,7 +302,6 @@ class ForbiddenBrick(Brick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(context, permissions_error=self.error))
 
-    # home_display = Brick._simple_detailview_display
     def home_display(self, context):
         return self.detailview_display(context=context)
 
@@ -698,7 +685,6 @@ class CustomBrick(Brick):
         ))
 
 
-# class BricksManager:
 class BrickManager:
     """The bricks of a page are registered in order to regroup the query to get
     their states.
@@ -763,7 +749,6 @@ class BrickManager:
         return self._bricks_groups.pop(group_name)
 
 
-# class _BrickRegistry:
 class BrickRegistry:
     """Use to retrieve a Brick by its id.
     Many services (like reloading views) need your Bricks to be registered in.
@@ -1064,8 +1049,6 @@ class BrickRegistry:
             else:
                 brick = brick_cls()
 
-                # if user and not brick.has_perms(user=user):
-                #     brick = ForbiddenBrick(id=brick.id, verbose_name=brick.verbose_name)
                 if user:
                     try:
                         brick.check_permissions(user=user)
@@ -1195,23 +1178,22 @@ class BrickRegistry:
         return model in self._invalid_models
 
 
-# brick_registry = _BrickRegistry()
 brick_registry = BrickRegistry()
 
 
-def __getattr__(name):
-    if name == '_BrickRegistry':
-        warnings.warn(
-            '"_BrickRegistry" is deprecated; use "BrickRegistry" instead.',
-            DeprecationWarning,
-        )
-        return BrickRegistry
-
-    if name == 'BricksManager':
-        warnings.warn(
-            '"BricksManager" is deprecated; use "BrickManager" instead.',
-            DeprecationWarning,
-        )
-        return BrickManager
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == '_BrickRegistry':
+#         warnings.warn(
+#             '"_BrickRegistry" is deprecated; use "BrickRegistry" instead.',
+#             DeprecationWarning,
+#         )
+#         return BrickRegistry
+#
+#     if name == 'BricksManager':
+#         warnings.warn(
+#             '"BricksManager" is deprecated; use "BrickManager" instead.',
+#             DeprecationWarning,
+#         )
+#         return BrickManager
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
