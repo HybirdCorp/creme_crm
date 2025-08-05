@@ -1,5 +1,4 @@
-from functools import partial
-
+# from functools import partial
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -9,7 +8,7 @@ from creme.creme_core.menu import CremeEntry
 from creme.creme_core.models import EntityFilter, HeaderFilter, UserRole
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
-from .. import bricks, constants, workflow
+from .. import bricks, constants  # workflow
 from ..deletors import ContactDeletor, OrganisationDeletor
 from ..menu import UserContactEntry
 from ..models import Sector
@@ -86,34 +85,34 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
             brick=bricks.ManagedOrganisationsBrick,
         )
 
-    def test_transform_target_into_prospect(self):  # DEPRECATED
-        user = self.login_as_root_and_get()
+    # def test_transform_target_into_prospect(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #
+    #     create_orga = partial(Organisation.objects.create, user=user)
+    #     source = create_orga(name='Source')
+    #     target = create_orga(name='Target')
+    #
+    #     workflow.transform_target_into_prospect(source, target, user)
+    #     self.assertHaveRelation(subject=target, type=constants.REL_SUB_PROSPECT, object=source)
+    #
+    #     # Do not create duplicate
+    #     workflow.transform_target_into_prospect(source, target, user)
+    #     self.assertHaveRelation(subject=target, type=constants.REL_SUB_PROSPECT, object=source)
 
-        create_orga = partial(Organisation.objects.create, user=user)
-        source = create_orga(name='Source')
-        target = create_orga(name='Target')
-
-        workflow.transform_target_into_prospect(source, target, user)
-        self.assertHaveRelation(subject=target, type=constants.REL_SUB_PROSPECT, object=source)
-
-        # Do not create duplicate
-        workflow.transform_target_into_prospect(source, target, user)
-        self.assertHaveRelation(subject=target, type=constants.REL_SUB_PROSPECT, object=source)
-
-    def test_transform_target_into_customer(self):  # DEPRECATED
-        user = self.login_as_root_and_get()
-
-        create_orga = partial(Organisation.objects.create, user=user)
-        source = create_orga(name='Source')
-        target = create_orga(name='Target')
-
-        workflow.transform_target_into_customer(source, target, user)
-        type_id = constants.REL_SUB_CUSTOMER_SUPPLIER
-        self.assertHaveRelation(subject=target, type=type_id, object=source)
-
-        # Do not create duplicate
-        workflow.transform_target_into_customer(source, target, user)
-        self.assertHaveRelation(subject=target, type=type_id, object=source)
+    # def test_transform_target_into_customer(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #
+    #     create_orga = partial(Organisation.objects.create, user=user)
+    #     source = create_orga(name='Source')
+    #     target = create_orga(name='Target')
+    #
+    #     workflow.transform_target_into_customer(source, target, user)
+    #     type_id = constants.REL_SUB_CUSTOMER_SUPPLIER
+    #     self.assertHaveRelation(subject=target, type=type_id, object=source)
+    #
+    #     # Do not create duplicate
+    #     workflow.transform_target_into_customer(source, target, user)
+    #     self.assertHaveRelation(subject=target, type=type_id, object=source)
 
     def test_user_contact_menu_entry01(self):
         user = self.login_as_persons_user()
