@@ -69,7 +69,8 @@
                       'build()' '_build_object()', '_build_relations()', '_build_properties()'.
                     - The module 'registry' has been removed.
                     - The class 'views.base.BaseCreation' has been removed.
-
+                * Commercial :
+                    - The constant 'DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW' has been removed.
 
 
 == Version 2.7 ==
