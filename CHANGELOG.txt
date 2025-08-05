@@ -58,6 +58,8 @@
             - App :
                 * Persons :
                     - The module 'workflow' has been removed.
+                * Assistants :
+                    - The constant 'MIN_HOUR_4_TODO_REMINDER' has been removed.
 
 
 == Version 2.7 ==
