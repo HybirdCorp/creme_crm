@@ -77,6 +77,8 @@
                     - In 'setting_keys', the alias 'LOCATION_MAP_URL' has been removed.
                 * Projects :
                     - The method 'models.AbstractProjectTask.clone_scope()' has been removed.
+                * Crudity :
+                    - The constant 'SETTING_CRUDITY_SANDBOX_BY_USER' has been removed.
 
 
 == Version 2.7 ==
