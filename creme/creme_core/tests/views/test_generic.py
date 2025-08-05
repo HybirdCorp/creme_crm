@@ -548,7 +548,8 @@ class CreationTestCase(CremeTestCase):
             data={
                 'user':        user.id,
                 'title':       title,
-                'description': 'Trip on Mars',  # should not be used see FAKEACTIVITY_CFORM
+                # Should not be used (see FAKEACTIVITY_CREATION_CFORM)
+                'description': 'Trip on Mars',
                 'type':        atype.id,
                 'place':       place,
                 # 'minutes':   ...,
@@ -937,7 +938,7 @@ class EditionTestCase(CremeTestCase):
                 'user':  user.id,
                 'title': title,
 
-                # Should not be used ; see FAKEACTIVITY_CFORM
+                # Should not be used ; see FAKEACTIVITY_CREATION_CFORM
                 'description': 'Trip on Mars',
 
                 'type':  atype2.id,
