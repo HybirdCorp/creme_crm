@@ -1,5 +1,4 @@
-import warnings
-
+# import warnings
 UUID_PROP_IS_A_SALESMAN = '042e6f86-c40d-4e29-a18b-24fe05ad2193'
 
 REL_SUB_SOLD = 'commercial-subject_sold_by'  # NB: keep the value (wrong "_by") for compatibility
@@ -17,13 +16,13 @@ UUID_ACT_TYPE_SHOW        = '2937497e-05b2-4790-8fa9-7f2a05dbfee0'
 UUID_ACT_TYPE_DEMO        = '4cfcefd1-3140-4e9f-a6f5-ce7de1e08f51'
 
 
-def __getattr__(name):
-    if name == 'DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW':
-        warnings.warn(
-            '"DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW" is deprecated; '
-            'use commercial.setting_keys.orga_approaches_key.id instead.',
-            DeprecationWarning,
-        )
-        return 'commercial-display_only_orga_demco_on_orga_detailview'
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == 'DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW':
+#         warnings.warn(
+#             '"DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW" is deprecated; '
+#             'use commercial.setting_keys.orga_approaches_key.id instead.',
+#             DeprecationWarning,
+#         )
+#         return 'commercial-display_only_orga_demco_on_orga_detailview'
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
