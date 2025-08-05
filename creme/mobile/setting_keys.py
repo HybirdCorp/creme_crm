@@ -1,4 +1,4 @@
-import warnings
+# import warnings
 from functools import partial
 
 from django.forms import URLField
@@ -32,13 +32,13 @@ location_map_url_key = SettingKey(
 )
 
 
-def __getattr__(name):
-    if name == 'LOCATION_MAP_URL':
-        warnings.warn(
-            '"LOCATION_MAP_URL" is deprecated; '
-            'use mobile.setting_keys.location_map_url_key instead.',
-            DeprecationWarning,
-        )
-        return location_map_url_key
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == 'LOCATION_MAP_URL':
+#         warnings.warn(
+#             '"LOCATION_MAP_URL" is deprecated; '
+#             'use mobile.setting_keys.location_map_url_key instead.',
+#             DeprecationWarning,
+#         )
+#         return location_map_url_key
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
