@@ -1,4 +1,4 @@
-import warnings
+# import warnings
 
 UUID_CHANNEL_USERMESSAGES = '395ca7a2-24f3-4348-a0d3-55887e956e61'
 
@@ -10,13 +10,13 @@ BRICK_STATE_HIDE_VALIDATED_ALERTS = 'assistants-hide_validated_alerts'
 BRICK_STATE_HIDE_VALIDATED_TODOS  = 'assistants-hide_validated_todos'
 
 
-def __getattr__(name):
-    if name == 'MIN_HOUR_4_TODO_REMINDER':
-        warnings.warn(
-            '"MIN_HOUR_4_TODO_REMINDER" is deprecated; '
-            'use assistants.setting_keys.todo_reminder_key.id instead.',
-            DeprecationWarning,
-        )
-        return 'assistants-min_hour_4_todo_reminder'
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == 'MIN_HOUR_4_TODO_REMINDER':
+#         warnings.warn(
+#             '"MIN_HOUR_4_TODO_REMINDER" is deprecated; '
+#             'use assistants.setting_keys.todo_reminder_key.id instead.',
+#             DeprecationWarning,
+#         )
+#         return 'assistants-min_hour_4_todo_reminder'
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
