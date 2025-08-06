@@ -170,8 +170,19 @@
                   use 'Currency.objects.default().id' instead.
                 - The constant 'DISPLAY_CURRENCY_LOCAL_SYMBOL' is deprecated;
                   use 'creme_core.setting_keys.currency_symbol_key.id' instead.
-            - The method 'creme_core.core.entity_cell.EntityCellCustomField.build()' with an
-              integer "value" is deprecated; pass a string (ID ou UUID) instead.
+            - In 'creme_core.core' :
+                - The method 'entity_cell.EntityCellCustomField.build()' with an
+                  integer "value" is deprecated; pass a string (ID ou UUID) instead.
+                - These aliases are deprecated :
+                  'EntityCellsRegistry', '_EntityFilterRegistry', '_EntityFilterSuperRegistry',
+                  '_EnumerableRegistry', '_FunctionFieldRegistry', '_ImprintManager',
+                  '_SandboxTypeRegistry', '_SettingKeyRegistry', 'ReplacersRegistry'
+            - In 'creme_core.gui', these aliases are deprecated :
+              'ActionsRegistry', 'ActionsChain', 'actions_registry',
+              '_BrickRegistry', 'BricksManager', '_BulkUpdateRegistry',
+              'ButtonsRegistry', '_FieldPrintersRegistry', 'field_printers_registry',
+              'QuickFormsRegistry', 'quickforms_registry',
+              '_StatisticsRegistry', 'statistics_registry'.
             - In 'creme_core.models' :
                 - The method 'CremePropertyTypeManager.smart_update_or_create()' is deprecated;
                   use the classical methods 'create()' or 'update_or_create()' instead.
@@ -196,6 +207,7 @@
                     - The tag "{% ctype_for_model %}" is deprecated; use the filter "|ctype_for_instance" instead.
                     - The tag "{% ctype_for_swappable %}" is deprecated; use the filter "|ctype_for_swappable" instead.
                     - The tag "{% ctype_counted_instances_label %}" is deprecated; use the filter "|ctype_counted_label" instead.
+                    - Using the filter "|ctype_verbose_name without" without "count" argument is deprecated.
                     - The filter "|ctype_can_be_mass_imported" is deprecated.
             - The method 'creme_core.tests.base._CremeTestCase.assertRelationCount' is deprecated;
               use the new methods 'assertHaveRelation()' & 'assertHaveNoRelation()' instead.
@@ -203,7 +215,7 @@
                 - The method 'Array.copy(iterable, start, end)' is deprecated;
                   use native code 'Array.from(iterable).slice(start, end)' instead.
                 - In 'creme.ajax' :
-                    - The function 'URL' is deprecated; use RelativeURL instead.
+                    - The class 'URL' is deprecated; use 'RelativeURL' instead.
                     - The function 'parseUrl()' is deprecated; use '_.urlAsDict()' instead.
                     - The function 'param()' is deprecated; use '_.encodeURLSearch()' instead.
                     - The function 'decodeSearchData()' is deprecated; use '_.decodeURLSearchData()' instead.
@@ -231,6 +243,8 @@
                     - The constants 'SETTING_*' are now deprecated; use 'activities.setting_keys' instead.
                     - The forms 'CalendarForm' & 'CalendarConfigForm' are now deprecated.
                 * Billing :
+                    - In 'models.Base' (& child classes), these methods are deprecated :
+                      'build()', '_build_object()', '_build_relations()', '_build_properties()'.
                     - The module 'registry' is deprecated.
                     - The class 'views.base.BaseCreation' is deprecated.
                 * Commercial :
