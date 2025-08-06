@@ -530,7 +530,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             '2.1.1', '2.1.2', '2.2.1', '2.2.2',
         )
 
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         pattern = self._create_pattern()
 
         get_ct = ContentType.objects.get_for_model

@@ -780,7 +780,7 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             [email], cloned_mlist.emailrecipient_set.values_list('address', flat=True),
         )
 
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.get_root_user()
         create_ml = partial(MailingList.objects.create, user=user)
         mlist = create_ml(name='ml01')

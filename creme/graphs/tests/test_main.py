@@ -378,7 +378,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(orga, cloned_node.real_entity)
         self.assertCountEqual([rtype2], cloned_node.relation_types.all())
 
-    def test_clone__method(self):
+    def test_clone__method(self):  # DEPRECATED
         user = self.get_root_user()
 
         rtype1 = RelationType.objects.smart_update_or_create(

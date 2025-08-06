@@ -20,7 +20,7 @@ from ..fake_models import FakeActivity
 
 
 class CremePropertyTypeTestCase(CremeTestCase):
-    def test_manager_smart_update_or_create01(self):
+    def test_manager_smart_update_or_create01(self):  # DEPRECATED
         uid = 'f4dc2004-30d1-46b2-95e0-7164bf286969'
         text = 'is delicious'
 
@@ -36,7 +36,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertFalse(ptype.subject_ctypes.all())
         self.assertFalse([*ptype.subject_models])
 
-    def test_manager_smart_update_or_create02(self):
+    def test_manager_smart_update_or_create02(self):  # DEPRECATED
         "ContentTypes & app label."
         # pk = 'test-prop_foo'
         uid = '73b2c0b5-10a8-443a-9e07-1f2398e889ea'
@@ -64,7 +64,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
             [FakeContact, FakeOrganisation], [*ptype.subject_models],
         )
 
-    def test_manager_smart_update_or_create03(self):
+    def test_manager_smart_update_or_create03(self):  # DEPRECATED
         "Update existing."
         uid = '85df6868-beee-41b3-a263-a139f6dfde27'
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -84,7 +84,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertFalse(ptype.is_copiable)
         self.assertListEqual([FakeContact], [*ptype.subject_models])
 
-    def test_manager_smart_update_or_create04(self):
+    def test_manager_smart_update_or_create04(self):  # DEPRECATED
         "Generate uuid."
         create_ptype = CremePropertyType.objects.smart_update_or_create
         text1 = 'is delicious'
