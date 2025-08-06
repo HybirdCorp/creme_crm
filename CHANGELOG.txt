@@ -1,5 +1,13 @@
 == Version 2.6.12 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # The migration from Creme 2.5 managed badly the classical "hat" bricks (Blocks) if
+      you edited/created some configurations of bricks.
+      UPGRADE NOTE: run the command "migrate" to fix the issue, even if you have
+      already migrated (a new migration "0156_v2_6_12__fix_hatbricks.py" should be performed).
+
+
 == Version 2.6.11 ==
 
   Users side :
