@@ -280,7 +280,7 @@ QUnit.parametrize('creme.utils.ajaxQuery (error message)', [
         message: 'HTTP 400 - error statusText'
     }],
     [[{status: 501, statusText: 'error statusText'}, 'error', ''], {
-        header: gettext('Error (501)'),
+        header: gettext('Error') + ' (501)',
         message: 'HTTP 501 - error statusText'
     }],
     [[{status: 0}, 'error', 'error thrown'], {
