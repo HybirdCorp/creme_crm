@@ -224,6 +224,7 @@
                       use the new actions "creme_core-hatmenubar-update-redirect" or "delete" instead.
                     - The functions 'showPageLoadOverlay()', 'hidePageLoadOverlay()' & 'loading()' are deprecated;
                       use 'creme.dialog.Overlay' instead.
+                      The option "waitingOverlay" of 'creme.utils.ajaxQuery()' is deprecated.
                     - In 'JSON' :
                         - The method 'encode()' is deprecated; use 'JSON.stringify()' instead.
                         - The method 'decode()' is deprecated; use 'JSON.parse()' or '_.cleanJSON()' instead.
