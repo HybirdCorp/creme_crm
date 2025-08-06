@@ -274,7 +274,7 @@ class NotCustomRelationTypeEditionForm(core_forms.CremeForm):
         fields['object_min_display'].initial = instance.symmetric_type.minimal_display
 
     @atomic
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> RelationType:
         instance: RelationType = self.instance
         get_data = self.cleaned_data.get
         instance.minimal_display = get_data('subject_min_display')

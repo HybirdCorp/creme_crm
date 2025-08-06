@@ -95,8 +95,10 @@ class NumberGeneratorRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
+    _generator_classes: dict[type[Base], type[NumberGenerator]]
+
     def __init__(self):
-        self._generator_classes: dict[type[Base], type[NumberGenerator]] = {}
+        self._generator_classes = {}
 
     def __getitem__(self, item: NumberGeneratorItem) -> NumberGenerator:
         gen = self.get(item)

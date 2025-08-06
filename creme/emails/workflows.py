@@ -442,8 +442,10 @@ class ActionRecipientsRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
+    _recipient_classes: dict[str, type[ActionRecipient]]
+
     def __init__(self, wf_registry=workflow_registry):
-        self._recipient_classes: dict[str, type[ActionRecipient]] = {}
+        self._recipient_classes = {}
         self._workflow_registry = wf_registry
 
     @property
