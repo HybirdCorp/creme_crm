@@ -230,8 +230,9 @@ creme.utils.ajaxQuery = function(url, options, data) {
                   }
               });
 
-        /* TODO : remove this feature. */
         if (options.waitingOverlay) {
+            console.warn('The option "waitingOverlay" of creme.utils.ajaxQuery is deprecated.');
+
             query.onStart(function() {
                       creme.utils.showPageLoadOverlay();
                   })
