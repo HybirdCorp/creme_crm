@@ -67,7 +67,7 @@ class RelatedItemCopier(copying.PreSaveCopier):
 
 
 class ReassignedLineCloner(EntityCloner):
-    """A kind of Cloner made to clone a line; but tye cloned line belongs to
+    """A kind of Cloner made to clone a line; but the cloned line belongs to
     another document.
 
     Beware: the API is different from Cloner (the constructor takes an argument).

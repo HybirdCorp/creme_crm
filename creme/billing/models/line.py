@@ -142,6 +142,8 @@ class Line(CremeEntity):
         super().clean()
 
     def clone(self, new_related_document=None):
+        warnings.warn('The method Line.clone() is deprecated.', DeprecationWarning)
+
         # BEWARE: CremeProperty and Relation are not cloned
         #         (excepted our 2 internal relations)
         self._new_related_document = new_related_document or self.related_document
