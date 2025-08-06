@@ -496,7 +496,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             user=user, first_name='Guybrush', last_name='Threepwood',
         )
         # cell = entity_cell.EntityCellCustomField.build(model=model, customfield_id=cfield.id)
-        cell = entity_cell.EntityCellCustomField.build(model=model, name=cfield.id)
+        cell = entity_cell.EntityCellCustomField.build(model=model, name=str(cfield.id))
         self.assertEqual(
             self.build_inneredit_uri(instance, cfield),
             registry.inner_uri(instance=instance, cells=[cell]),
