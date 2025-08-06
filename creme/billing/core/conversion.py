@@ -130,11 +130,10 @@ class ConverterRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
+    _converter_classes: dict[tuple[type[Base], type[Base]], type[Converter]]
+
     def __init__(self):
-        self._converter_classes: dict[
-            tuple[type[Base], type[Base]],
-            type[Converter]
-        ] = {}
+        self._converter_classes = {}
 
     def get_converter_class(self, *,
                             source_model: type[Base],

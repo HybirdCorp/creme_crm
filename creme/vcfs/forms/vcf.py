@@ -235,13 +235,15 @@ class VcfImportForm(CremeModelForm):
     type_help_text  = _('Read in VCF File without type: ')
     other_help_text = _('Read in VCF File: ')
 
+    _vcf_image_info: tuple[ContentFile, str] | None
+
     def __init__(self, vcf_data=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         fields = self.fields
         self.contact_address = self.organisation_address = None
 
         # Cleaned data about image embedded/linked in the file
-        self._vcf_image_info: tuple[ContentFile, str] | None = None
+        self._vcf_image_info = None
 
         # Organisation chosen/created by the user (filled by clean())
         self.organisation = None

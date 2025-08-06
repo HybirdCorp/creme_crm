@@ -602,6 +602,9 @@ def get_massimport_form_builder(header_dict, choices):
             ],
         })
 
+        user_participants: set[Contact]
+        calendars: list[Calendar]
+
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
@@ -613,8 +616,8 @@ def get_massimport_form_builder(header_dict, choices):
                 )
 
             # self.user_participants: list[Contact] = []
-            self.user_participants: set[Contact] = set()
-            self.calendars: list[Calendar] = []
+            self.user_participants = set()
+            self.calendars = []
 
         def clean_my_participation(self):
             my_participation = self.cleaned_data['my_participation']

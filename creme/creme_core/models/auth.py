@@ -1503,7 +1503,7 @@ class CremeUser(AbstractBaseUser):
         if not self.has_perm_to_link(ct_or_model_or_entity, owner):
             raise PermissionDenied(
                 gettext('You are not allowed to link this entity: {}').format(
-                    ct_or_model_or_entity.allowed_str(self)
+                    ct_or_model_or_entity.allowed_str(user=self)
                 )
                 if isinstance(ct_or_model_or_entity, CremeEntity) else
                 gettext('You are not allowed to link: {}').format(

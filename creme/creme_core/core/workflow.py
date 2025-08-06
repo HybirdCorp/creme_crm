@@ -170,8 +170,10 @@ class WorkflowEventQueue:
     (i.e. apply WorkflowActions) the events later (i.e. when the response is built),
     with a middleware (see 'creme_core.middleware.workflow.WorkflowMiddleware').
     """
+    _events: list[WorkflowEvent]
+
     def __init__(self):
-        self._events: list[WorkflowEvent] = []
+        self._events = []
 
     def __bool__(self):
         return bool(self._events)
@@ -733,10 +735,14 @@ class WorkflowRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
+    _source_classes: dict[str, type[WorkflowSource]]
+    _action_classes: dict[str, type[WorkflowAction]]
+    _trigger_classes: dict[str, type[WorkflowTrigger]]
+
     def __init__(self):
-        self._source_classes: dict[str, type[WorkflowSource]] = {}
-        self._action_classes: dict[str, type[WorkflowAction]] = {}
-        self._trigger_classes: dict[str, type[WorkflowTrigger]] = {}
+        self._source_classes = {}
+        self._action_classes = {}
+        self._trigger_classes = {}
 
     @classmethod
     def checked_type_id(cls, registrable_cls) -> str:

@@ -246,7 +246,7 @@ class WorkflowActionEdition(base.ConfigModelEdition):
 class WorkflowActionDeletion(base.ConfigDeletion):
     index_arg = 'index'
 
-    def perform_deletion(self, request):
+    def perform_deletion(self, request) -> None:
         wf: Workflow = get_object_or_404(Workflow, id=self.kwargs['workflow_id'])
 
         # TODO: factorise
