@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,14 +16,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import (
     HTTPBasicAuthHandler,
-    HTTPError,
     HTTPPasswordMgrWithDefaultRealm,
     HTTPRedirectHandler,
     Request,
-    URLError,
     build_opener,
 )
 
