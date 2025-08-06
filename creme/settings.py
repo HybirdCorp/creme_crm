@@ -757,7 +757,7 @@ URLIZE_TARGET_BLANK = False
 REPOSITORY = 'https://github.com/HybirdCorp/creme_crm'
 SCM = 'git'  # Other possible values: 'hg'
 
-# DEPRECATED: ths settings will be removed in Creme 2.8
+# DEPRECATED: this settings will be removed in Creme 2.8
 # When a foreignkey field (or its related model) is not registered in the
 # EnumerableRegistry & a model form uses it without defining a specific form-field:
 #  - an exception is raised if this flag set to True

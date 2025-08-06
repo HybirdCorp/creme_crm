@@ -6,6 +6,7 @@ from django.utils.translation import override as override_language
 from creme.creme_core.models import (
     Currency,
     CustomEntityType,
+    FakeContact,
     FakePosition,
     FakeSector,
 )
@@ -13,11 +14,10 @@ from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.creme_core.utils.translation import smart_model_verbose_name
 
 from ..base import CremeTestCase
-from ..fake_models import FakeContact
 
 
 class CremeCTypeTagsTestCase(CremeTestCase):
-    def test_ctype_for_model(self):
+    def test_ctype_for_model(self):  # DEPRECATED
         with self.assertNoException():
             template = Template(
                 r"{% load creme_ctype %}"
@@ -126,8 +126,7 @@ class CremeCTypeTagsTestCase(CremeTestCase):
                 r'{% load creme_ctype %}'
                 r'{{sector_ctype|ctype_verbose_name:1}}#'
                 r'{{sector_ctype|ctype_verbose_name:10}}#'
-                r'{{sector_ctype|ctype_verbose_name}}#'  # DEPRECATED
-                r'{{sector_ctype|ctype_verbose_name}}'
+                r'{{sector_ctype|ctype_verbose_name}}'  # DEPRECATED
             )
             render = template.render(Context({
                 'sector_ctype': ContentType.objects.get_for_model(FakeSector),
@@ -136,7 +135,6 @@ class CremeCTypeTagsTestCase(CremeTestCase):
         self.assertEqual(
             f'{smart_model_verbose_name(model=FakeSector, count=1)}#'
             f'{smart_model_verbose_name(model=FakeSector, count=10)}#'
-            f'{FakeSector._meta.verbose_name}#'
             f'{FakeSector._meta.verbose_name}',
             render.strip(),
         )
@@ -154,7 +152,7 @@ class CremeCTypeTagsTestCase(CremeTestCase):
                 r'{% load creme_ctype %}'
                 r'{{custom_ctype|ctype_verbose_name:1}}#'
                 r'{{custom_ctype|ctype_verbose_name:10}}#'
-                r'{{custom_ctype|ctype_verbose_name}}'
+                r'{{custom_ctype|ctype_verbose_name}}'  # DEPRECATED
             )
             render = template.render(Context({
                 'custom_ctype': ContentType.objects.get_for_model(ce_type.entity_model),

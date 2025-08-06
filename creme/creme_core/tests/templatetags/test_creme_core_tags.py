@@ -1056,7 +1056,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render1.strip(),
         )
 
-        # cell instance + callback URL ---
+        # cell instance + callback URL (DEPRECATED) ---
         url = orga.get_lv_absolute_url()
         with self.assertNoException():
             render2 = Template(
