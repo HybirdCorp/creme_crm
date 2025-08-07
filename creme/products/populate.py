@@ -51,6 +51,9 @@ from .models import Category, SubCategory
 
 logger = logging.getLogger(__name__)
 
+Product = get_product_model()
+Service = get_service_model()
+
 # UUIDs for instances which can be deleted
 UUID_CATEGORY_JEWELRY     = '3fb0ef3c-45d0-40bd-8e71-b1ab49fca8d3'
 UUID_CATEGORY_MOBILE      = '74c91fab-d671-4054-984f-ba395d7dffcb'
@@ -100,6 +103,30 @@ UUID_SUBCAT_CLOTHES_BABIES = 'ba170185-892e-400a-b212-1810fc86f204'
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'documents']
 
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_PRODUCT,
+            model=Product,
+            name=_('Product view'),
+            cells=[
+                (EntityCellRegularField, 'images'),
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'code'),
+                (EntityCellRegularField, 'user'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_SERVICE,
+            model=Service,
+            name=_('Service view'),
+            cells=[
+                (EntityCellRegularField, 'images'),
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'reference'),
+                (EntityCellRegularField, 'user'),
+            ],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.PRODUCT_CREATION_CFORM,
         custom_forms.PRODUCT_EDITION_CFORM,
@@ -184,8 +211,10 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Product = get_product_model()
-        self.Service = get_service_model()
+        # self.Product = get_product_model()
+        # self.Service = get_service_model()
+        self.Product = Product
+        self.Service = Service
 
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_PRODUCT).exists()
@@ -209,31 +238,31 @@ class Populator(BasePopulator):
                 sub_category.category = category
                 sub_category.save()
 
-    def _populate_header_filters(self):
-        create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_PRODUCT,
-            model=self.Product,
-            name=_('Product view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'images'}),
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'code'}),
-                (EntityCellRegularField, {'name': 'user'}),
-            ],
-        )
-
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_SERVICE,
-            model=self.Service,
-            name=_('Service view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'images'}),
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'reference'}),
-                (EntityCellRegularField, {'name': 'user'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     create_hf = HeaderFilter.objects.create_if_needed
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_PRODUCT,
+    #         model=self.Product,
+    #         name=_('Product view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'images'}),
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'code'}),
+    #             (EntityCellRegularField, {'name': 'user'}),
+    #         ],
+    #     )
+    #
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_SERVICE,
+    #         model=self.Service,
+    #         name=_('Service view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'images'}),
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'reference'}),
+    #             (EntityCellRegularField, {'name': 'user'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

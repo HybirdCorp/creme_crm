@@ -227,6 +227,21 @@ class Populator(BasePopulator):
         ),
         *BILLING_RELATION_TYPES,
     ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_OPPORTUNITY,
+            model=Opportunity,
+            name=_('Opportunity view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRelation, constants.REL_SUB_TARGETS),
+                (EntityCellRegularField, 'sales_phase'),
+                (EntityCellRegularField, 'estimated_sales'),
+                (EntityCellRegularField, 'made_sales'),
+                (EntityCellRegularField, 'closing_date'),
+            ],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.OPPORTUNITY_CREATION_CFORM,
         custom_forms.OPPORTUNITY_EDITION_CFORM,
@@ -583,22 +598,22 @@ class Populator(BasePopulator):
             ],
         )
 
-    def _populate_header_filters(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_OPPORTUNITY, model=self.Opportunity,
-            name=_('Opportunity view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                EntityCellRelation(
-                    model=self.Opportunity,
-                    rtype=RelationType.objects.get(id=constants.REL_SUB_TARGETS),
-                ),
-                (EntityCellRegularField, {'name': 'sales_phase'}),
-                (EntityCellRegularField, {'name': 'estimated_sales'}),
-                (EntityCellRegularField, {'name': 'made_sales'}),
-                (EntityCellRegularField, {'name': 'closing_date'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_OPPORTUNITY, model=self.Opportunity,
+    #         name=_('Opportunity view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             EntityCellRelation(
+    #                 model=self.Opportunity,
+    #                 rtype=RelationType.objects.get(id=constants.REL_SUB_TARGETS),
+    #             ),
+    #             (EntityCellRegularField, {'name': 'sales_phase'}),
+    #             (EntityCellRegularField, {'name': 'estimated_sales'}),
+    #             (EntityCellRegularField, {'name': 'made_sales'}),
+    #             (EntityCellRegularField, {'name': 'closing_date'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(

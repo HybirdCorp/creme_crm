@@ -19,7 +19,9 @@
 from __future__ import annotations
 
 import logging
+from copy import deepcopy
 from typing import TYPE_CHECKING, Iterable
+from uuid import UUID
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -37,6 +39,8 @@ if TYPE_CHECKING:
     from ..core.entity_cell import EntityCell
 
 logger = logging.getLogger(__name__)
+
+_DEFAULT_IS_PRIVATE = False
 
 
 class HeaderFilterList(list):
@@ -71,6 +75,190 @@ class HeaderFilterList(list):
         return self._selected
 
 
+class HeaderFilterProxy:
+    """This class is useful to build HeaderFilter instances in a declarative
+    way, notably in 'populate' scripts.
+
+    The value for the field 'HeaderFilter.entity_type' is store as a model class
+    in order to avoid some issues with ContentTypes which are cached & can have
+    different IDs in the test DBs.
+
+    The EntityCells can be passed as tuples (cell_class, cell_value), and the
+    potential queries (to retrieve RelationTypes for example) are made only
+    when the HeaderFilter is created (see the method 'get_or_create()').
+
+    The owner user can be passed as UUID (string or instance), and the instance
+    is retrieved as late as possible (classically the method 'get_or_create()').
+
+    Hint: use HeaderFilter.objects.proxy().
+    """
+    def __init__(self, *,
+                 instance: HeaderFilter,
+                 model: type[CremeEntity],
+                 user: CremeUser | UUID | str | None = None,
+                 cells: Iterable[EntityCell | tuple[type[EntityCell], str]],
+                 ):
+        """
+        @param instance: Instance of HeaderFilter; no need to set the value
+               for these fields: "user", "entity_type", "json_cells".
+        @param model: used to set the field 'entity_type' of the underlying
+               HeaderFilter instance.
+        @param user: used to set the field 'user' of the underlying
+               HeaderFilter instance. It can be:
+               - None (no owner)
+               - A CremeUser instance.
+               - An UUID (instance or string).
+        @param cells: used to set the field 'json_cells' of the underlying
+               HeaderFilter instance. Elements of the iterable can be:
+               - EntityCell instance
+               - tuple (cell_class, cell_value)
+        """
+        # TODO: when uuid
+        #  if instance.pk is not None:
+        #     raise ValueError(f'HeaderFilter(uuid={instance.uuid}) is already saved in DB')
+
+        self._instance = instance
+        self._model = model
+        self._user = user
+        self.cells = cells
+
+    # NB: not settable (create another instance should be a better idea)
+    @property
+    def id(self) -> str:
+        return self._instance.id
+
+    # NB: not settable (create another instance should be a better idea)
+    @property
+    def entity_type(self) -> ContentType:
+        return ContentType.objects.get_for_model(self._model)
+
+    # NB: not settable (create another instance should be a better idea)
+    @property
+    def model(self) -> type[CremeEntity]:
+        return self._model
+
+    @property
+    def is_custom(self) -> bool:
+        return self._instance.is_custom
+
+    @is_custom.setter
+    def is_custom(self, value: bool) -> None:
+        self._instance.is_custom = value
+
+    @property
+    def is_private(self) -> bool:
+        return self._instance.is_private
+
+    @is_private.setter
+    def is_private(self, value: bool) -> None:
+        self._instance.is_private = value
+
+    @property
+    def extra_data(self) -> dict:
+        return self._instance.extra_data
+
+    @extra_data.setter
+    def extra_data(self, value: dict) -> None:
+        self._instance.extra_data = value
+
+    @property
+    def name(self) -> str:
+        return self._instance.name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        self._instance.name = value
+
+    @property
+    def user(self) -> CremeUser | None:
+        user_info = self._user
+        if user_info is None:
+            return None
+
+        if isinstance(user_info, CremeUser):
+            return user_info
+
+        return CremeUser.objects.get(uuid=user_info)
+
+    @user.setter
+    def user(self, value: CremeUser | UUID | str | None) -> None:
+        """Set the field 'user' of the underlying HeaderFilter instance.
+
+        @param value: It can be:
+           - None (no owner)
+           - A CremeUser instance.
+           - An UUID (instance or string).
+        """
+        self._user = value
+
+    @property
+    def cells(self) -> list[EntityCell]:
+        from ..core.entity_cell import EntityCell
+
+        cells = []
+
+        for cell_info in self._cells_info:
+            if isinstance(cell_info, EntityCell):
+                cells.append(cell_info)
+            else:
+                cell_class, cell_name = cell_info
+                cell = cell_class.build(model=self._model, name=cell_name)
+                if cell is not None:
+                    cells.append(cell)
+
+        return cells
+
+    @cells.setter
+    def cells(self, cells: Iterable[EntityCell | tuple[type[EntityCell], str]]) -> None:
+        """Set the field 'json_cells' of the underlying HeaderFilter instance.
+
+        @param value: Elements of the iterable can be:
+               - EntityCell instance
+               - tuple (cell_class, cell_value)
+
+        Exemple:
+            proxy.cells = [
+                EntityCellRegularField.build(model, 'name'),  # Instance case
+                (EntityCellRelation, REL_SUB_HAS),            # Tuple case
+            ]
+        """
+        self._cells_info = [*cells]
+
+    def get_or_create(self) -> tuple[HeaderFilter, bool]:
+        instance = self._instance
+        saved_instance = type(instance).objects.filter(id=instance.id).first()
+        if saved_instance is not None:
+            return saved_instance, False
+
+        user = self.user
+        if user and user.is_staff:
+            # Staff users cannot be owner in order to stay 'invisible'.
+            raise ValueError(
+                f'{type(self)}.get_or_create(): the owner cannot be a staff user.'
+            )
+
+        if self.is_private:
+            if not user:
+                raise ValueError(
+                    f'{type(self)}.get_or_create(): a private filter must belong to a User.'
+                )
+
+            if not self.is_custom:
+                # NB: It should not be useful to create a private HeaderFilter
+                #     (so it belongs to a user) which cannot be deleted.
+                raise ValueError(
+                    f'{type(self)}.get_or_create(): a private filter must be custom.'
+                )
+
+        saved_instance = deepcopy(instance)
+        saved_instance.entity_type = self._model
+        saved_instance.cells = self.cells
+        saved_instance.user = user
+        saved_instance.save()
+
+        return saved_instance, True
+
+
 class HeaderFilterManager(models.Manager):
     def filter_by_user(self, user: CremeUser) -> QuerySet:
         if user.is_team:
@@ -90,6 +278,7 @@ class HeaderFilterManager(models.Manager):
             )
         )
 
+    # TODO: deprecate?
     def create_if_needed(
             self,
             pk: str,
@@ -97,7 +286,7 @@ class HeaderFilterManager(models.Manager):
             model: type[CremeEntity],
             is_custom: bool = False,
             user: CremeUser | None = None,
-            is_private: bool = False,
+            is_private: bool = _DEFAULT_IS_PRIVATE,
             cells_desc: Iterable[EntityCell | tuple[type[EntityCell], dict]] = (),
             extra_data: dict | None = None,
     ) -> HeaderFilter:
@@ -152,9 +341,65 @@ class HeaderFilterManager(models.Manager):
 
     create_if_needed.alters_data = True
 
+    def proxy(self, *,
+              id: str,
+              model: type[CremeEntity],
+              name: str,
+              cells: Iterable[EntityCell | tuple[type[EntityCell], str]],
+              user: CremeUser | UUID | str | None = None,
+              is_custom: bool = False,  # TODO: change the default value in models?
+              is_private: bool = _DEFAULT_IS_PRIVATE,
+              extra_data: dict | None = None,
+              ) -> HeaderFilterProxy:
+        """Helper method to create a HeaderFilterProxy instance, useful to create
+        easily HeaderFilter.
+        They are notably used in 'populate' script to declare HeaderFilters to
+        built in the populator class attribute 'HEADER_FILTERS' (without
+        performing SQL queries).
+
+        @param id: Value of the field 'id' of the future instance of HeaderFilter.
+        @param model: Used to set the value of the field 'entity_type' of the
+               future instance of HeaderFilter.
+        @param name: Value of the field 'name' of the future instance of HeaderFilter.
+        @param cells: Used to set the value of the field 'json_cells' of the
+               future instance of HeaderFilter. EntityCells can be passed as
+               simple tuples (cell_class, cell_value).
+        @param user: Used to set the value of the field 'user' of the future
+               instance of HeaderFilter. User can be passed as a simple UUID
+               (instance or string).
+        @param is_custom: Value of the field 'is_custom' of the future instance
+               of HeaderFilter.
+        @param is_private: Value of the field 'is_private' of the future
+               instance of HeaderFilter.
+        @param extra_data: Value of the field 'extra_data' of the future
+               instance of HeaderFilter.
+
+        @return: A HeaderFilterProxy instance.
+
+        Example:
+            header_filter = HeaderFilter.objects.proxy(
+                id=constants.DEFAULT_HFILTER_MY_MODEL,
+                name=_('My model view'),
+                model=MyModel,
+                cells=[
+                    (EntityCellRegularField, 'name'),
+                    (EntityCellRegularField, 'status'),
+                    (EntityCellRelation,     constants.REL_OBJ_RELATED),
+                ],
+            ).get_or_create()[0]
+        """
+        return HeaderFilterProxy(
+            model=model, cells=cells, user=user,
+            instance=self.model(
+                id=id, name=name,
+                is_custom=is_custom, is_private=is_private,
+                extra_data=extra_data or {},
+            ),
+        )
+
 
 class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
-    """View of list : sets of columns (see EntityCell) stored for a specific
+    """View of list: set of columns (see EntityCell) stored for a specific
     ContentType of CremeEntity.
     """
     id = models.CharField(primary_key=True, max_length=100, editable=False)
@@ -244,6 +489,7 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
     def _dump_cells(self, cells: Iterable[EntityCell]) -> None:
         self.json_cells = [cell.to_dict(portable=True) for cell in cells]
 
+    # TODO: return a deepcopy? generator?
     @property
     def cells(self) -> list[EntityCell]:
         cells = self._cells
@@ -268,6 +514,7 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
         return cells
 
+    # TODO: accept tuples like HeaderFilterProxy?
     @cells.setter
     def cells(self, cells: Iterable[EntityCell]) -> None:
         self._cells = cells = [cell for cell in cells if cell]

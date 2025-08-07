@@ -12,6 +12,7 @@
         # The declarative possibilities of 'creme_core.management.commands.creme_populate.BasePopulator'
           have been extended; new class attributes are :
              - BUTTONS
+             - HEADER_FILTERS
              - RELATION_TYPES
 
     Breaking changes :
@@ -103,15 +104,24 @@
             - In the class 'quick_forms.QuickCreation', the attribute
              'quickforms_registry' has been renamed "quickform_registry".
         # Apps :
+            * Documents :
+                - The methods 'populate.Populator._populate_header_filters_for_*()' have been removed.
             * Persons :
-                - The content of the class attribute 'populate.Populator.BUTTONS' has changed
-                  (it now contains 'ButtonMenuItemProxy' instances).
+                - In the class 'populate.Populator' :
+                    - The content of the class attribute 'BUTTONS' has changed
+                      (it now contains 'ButtonMenuItemProxy' instances).
+                    - The methods '_populate_header_filters_for_*()' have been removed.
             * Activities :
                 - The content of the class attribute 'populate.Populator.BUTTONS' has changed
                   (it now contains 'ButtonMenuItem' instances).
             * Billing :
-               - The methods 'populate.Populator._populate_buttons_config_for_*()' has been removed.
+               - These methods of 'populate.Populator' have been removed :
+                    - _populate_buttons_config_for_*()
+                    - _create_header_filter_for_line()
+                    - _populate_header_filters_for_*()
                - The module 'views.convert' has been renamed "conversion".
+            * Commercial :
+                - The methods 'populate.Populator._populate_header_filters_for_*()' have been removed.
 
 
 == Version 2.7 ==

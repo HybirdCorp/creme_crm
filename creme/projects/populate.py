@@ -97,6 +97,30 @@ class Populator(BasePopulator):
             models=[Activity],
         ),
     ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_PROJECT,
+            model=Project,
+            name=_('Project view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'start_date'),
+                (EntityCellRegularField, 'end_date'),
+                (EntityCellRegularField, 'status'),
+                (EntityCellRegularField, 'description'),
+            ],
+        ),
+        # Used in form
+        HeaderFilter.objects.proxy(
+            id='projects-hf_task',  # TODO: constant
+            name=_('Task view'),
+            model=ProjectTask,
+            cells=[
+                (EntityCellRegularField, 'title'),
+                (EntityCellRegularField, 'description'),
+            ],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.PROJECT_CREATION_CFORM,
         custom_forms.PROJECT_EDITION_CFORM,
@@ -242,31 +266,31 @@ class Populator(BasePopulator):
     #         is_internal=True,
     #     )
 
-    def _populate_header_filters(self):
-        create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_PROJECT,
-            model=self.Project,
-            name=_('Project view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'start_date'}),
-                (EntityCellRegularField, {'name': 'end_date'}),
-                (EntityCellRegularField, {'name': 'status'}),
-                (EntityCellRegularField, {'name': 'description'}),
-            ],
-        )
-
-        # Used in form
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_PTASK,
-            model=self.ProjectTask,
-            name=_('Task view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'title'}),
-                (EntityCellRegularField, {'name': 'description'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     create_hf = HeaderFilter.objects.create_if_needed
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_PROJECT,
+    #         model=self.Project,
+    #         name=_('Project view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'start_date'}),
+    #             (EntityCellRegularField, {'name': 'end_date'}),
+    #             (EntityCellRegularField, {'name': 'status'}),
+    #             (EntityCellRegularField, {'name': 'description'}),
+    #         ],
+    #     )
+    #
+    #     # Used in form
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_PTASK,
+    #         model=self.ProjectTask,
+    #         name=_('Task view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'title'}),
+    #             (EntityCellRegularField, {'name': 'description'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

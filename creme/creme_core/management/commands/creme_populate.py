@@ -45,6 +45,7 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.models.button_menu import ButtonMenuItemProxy
 from creme.creme_core.models.creme_property import CremePropertyTypeProxy
+from creme.creme_core.models.header_filter import HeaderFilterProxy
 from creme.creme_core.models.relation import RelationTypeBuilder
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.content_type import entity_ctypes
@@ -93,6 +94,19 @@ class BasePopulator:
     SANDBOXES: list[Sandbox] = []
     CUSTOM_FORMS: list[CustomFormDescriptor] = []
     SETTING_VALUES: list[SettingValue] = []
+    HEADER_FILTERS: list[HeaderFilterProxy] = [
+        # Example:
+        # HeaderFilter.objects.proxy(
+        #     id=constants.DEFAULT_HFILTER_MY_MODEL,
+        #     name=_('My model view'),
+        #     model=MyModel,
+        #     cells=[
+        #         (EntityCellRegularField, 'name'),
+        #         (EntityCellRegularField, 'status'),
+        #         (EntityCellRelation,     constants.REL_OBJ_RELATED),
+        #     ],
+        # ),
+    ]
     NOTIFICATION_CHANNELS: list[NotificationChannel] = []
     BUTTONS: list[ButtonMenuItem | ButtonMenuItemProxy] = [
         # Example:
@@ -193,7 +207,15 @@ class BasePopulator:
         pass
 
     def _populate_header_filters(self) -> None:
-        pass
+        for hf_proxy in self.HEADER_FILTERS:
+            if not isinstance(hf_proxy, HeaderFilterProxy):
+                raise TypeError(f'{hf_proxy} is not a HeaderFilterProxy')
+
+            if hf_proxy.is_custom:
+                if not self.already_populated:
+                    hf_proxy.get_or_create()
+            else:
+                hf_proxy.get_or_create()
 
     def _populate_jobs(self) -> None:
         # These are system jobs, with only one instance per type.

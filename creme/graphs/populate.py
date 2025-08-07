@@ -38,10 +38,20 @@ from .menu import GraphsEntry
 
 logger = logging.getLogger(__name__)
 
+Graph = get_graph_model()
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=DEFAULT_HFILTER_GRAPH,
+            name=_('Graph view'),
+            model=Graph,
+            cells=[(EntityCellRegularField, 'name')],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.GRAPH_CREATION_CFORM,
         custom_forms.GRAPH_EDITION_CFORM,
@@ -50,16 +60,17 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Graph = get_graph_model()
+        # self.Graph = get_graph_model()
+        self.Graph = Graph
 
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=DEFAULT_HFILTER_GRAPH).exists()
 
-    def _populate_header_filters(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=DEFAULT_HFILTER_GRAPH, name=_('Graph view'), model=self.Graph,
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
+    # def _populate_header_filters(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=DEFAULT_HFILTER_GRAPH, name=_('Graph view'), model=self.Graph,
+    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+    #     )
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(

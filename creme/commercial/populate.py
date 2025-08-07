@@ -109,6 +109,33 @@ class Populator(BasePopulator):
             models=[Act],
         ),
     ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_ACT,
+            model=Act,
+            name=_('Com Action view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'expected_sales'),
+                (EntityCellRegularField, 'due_date'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_STRATEGY,
+            model=Strategy,
+            name=_('Strategy view'),
+            cells=[(EntityCellRegularField, 'name')],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_PATTERN,
+            model=ActObjectivePattern,
+            name=_('Objective pattern view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'segment'),
+            ],
+        ),
+    ]
     JOBS = [
         Job(
             type=creme_jobs.com_approaches_emails_send_type,
@@ -209,38 +236,38 @@ class Populator(BasePopulator):
     #         ),
     #     )
 
-    def _populate_header_filters_for_act(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_ACT, model=self.Act,
-            name=_('Com Action view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'expected_sales'}),
-                (EntityCellRegularField, {'name': 'due_date'}),
-            ],
-        )
-
-    def _populate_header_filters_for_strategy(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_STRATEGY, model=self.Strategy,
-            name=_('Strategy view'),
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
-
-    def _populate_header_filters_for_pattern(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_PATTERN, model=self.ActObjectivePattern,
-            name=_('Objective pattern view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'segment'}),
-            ],
-        )
-
-    def _populate_header_filters(self):
-        self._populate_header_filters_for_act()
-        self._populate_header_filters_for_strategy()
-        self._populate_header_filters_for_pattern()
+    # def _populate_header_filters_for_act(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_ACT, model=self.Act,
+    #         name=_('Com Action view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'expected_sales'}),
+    #             (EntityCellRegularField, {'name': 'due_date'}),
+    #         ],
+    #     )
+    #
+    # def _populate_header_filters_for_strategy(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_STRATEGY, model=self.Strategy,
+    #         name=_('Strategy view'),
+    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+    #     )
+    #
+    # def _populate_header_filters_for_pattern(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_PATTERN, model=self.ActObjectivePattern,
+    #         name=_('Objective pattern view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'segment'}),
+    #         ],
+    #     )
+    #
+    # def _populate_header_filters(self):
+    #     self._populate_header_filters_for_act()
+    #     self._populate_header_filters_for_strategy()
+    #     self._populate_header_filters_for_pattern()
 
     def _populate_search_config(self):
         def create_sci(model, key):

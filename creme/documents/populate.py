@@ -68,6 +68,28 @@ class Populator(BasePopulator):
             models=[Document],
         ),
     ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_FOLDER,
+            model=Folder,
+            name=_('Folder view'),
+            cells=[
+                (EntityCellRegularField, 'title'),
+                (EntityCellRegularField, 'description'),
+                (EntityCellRegularField, 'category'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_DOCUMENT,
+            model=Document,
+            name=_('Document view'),
+            cells=[
+                (EntityCellRegularField, 'title'),
+                (EntityCellRegularField, 'linked_folder__title'),
+                (EntityCellRegularField, 'mime_type'),
+            ],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.FOLDER_CREATION_CFORM,
         custom_forms.FOLDER_EDITION_CFORM,
@@ -158,31 +180,31 @@ class Populator(BasePopulator):
             ],
         )
 
-    def _populate_header_filters_for_document(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_DOCUMENT, model=self.Document,
-            name=_('Document view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'title'}),
-                (EntityCellRegularField, {'name': 'linked_folder__title'}),
-                (EntityCellRegularField, {'name': 'mime_type'}),
-            ],
-        )
-
-    def _populate_header_filters_for_folder(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_FOLDER, model=self.Folder,
-            name=_('Folder view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'title'}),
-                (EntityCellRegularField, {'name': 'description'}),
-                (EntityCellRegularField, {'name': 'category'}),
-            ],
-        )
-
-    def _populate_header_filters(self):
-        self._populate_header_filters_for_document()
-        self._populate_header_filters_for_folder()
+    # def _populate_header_filters_for_document(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_DOCUMENT, model=self.Document,
+    #         name=_('Document view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'title'}),
+    #             (EntityCellRegularField, {'name': 'linked_folder__title'}),
+    #             (EntityCellRegularField, {'name': 'mime_type'}),
+    #         ],
+    #     )
+    #
+    # def _populate_header_filters_for_folder(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_FOLDER, model=self.Folder,
+    #         name=_('Folder view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'title'}),
+    #             (EntityCellRegularField, {'name': 'description'}),
+    #             (EntityCellRegularField, {'name': 'category'}),
+    #         ],
+    #     )
+    #
+    # def _populate_header_filters(self):
+    #     self._populate_header_filters_for_document()
+    #     self._populate_header_filters_for_folder()
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

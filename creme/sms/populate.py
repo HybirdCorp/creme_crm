@@ -38,10 +38,34 @@ from . import bricks, constants, custom_forms, menu
 
 logger = logging.getLogger(__name__)
 
+SMSCampaign = sms.get_smscampaign_model()
+MessagingList = sms.get_messaginglist_model()
+MessageTemplate = sms.get_messagetemplate_model()
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_MLIST,
+            model=MessagingList,
+            name=_('Messaging list view'),
+            cells=[(EntityCellRegularField, 'name')],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_SMSCAMPAIGN,
+            model=SMSCampaign,
+            name=_('Campaign view'),
+            cells=[(EntityCellRegularField, 'name')],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_MTEMPLATE,
+            model=MessageTemplate,
+            name=_('Message template view'),
+            cells=[(EntityCellRegularField, 'name')],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.CAMPAIGN_CREATION_CFORM,
         custom_forms.CAMPAIGN_EDITION_CFORM,
@@ -53,33 +77,36 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.SMSCampaign     = sms.get_smscampaign_model()
-        self.MessagingList   = sms.get_messaginglist_model()
-        self.MessageTemplate = sms.get_messagetemplate_model()
+        # self.SMSCampaign     = sms.get_smscampaign_model()
+        # self.MessagingList   = sms.get_messaginglist_model()
+        # self.MessageTemplate = sms.get_messagetemplate_model()
+        self.SMSCampaign     = SMSCampaign
+        self.MessagingList   = MessagingList
+        self.MessageTemplate = MessageTemplate
 
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_MLIST).exists()
 
-    def _populate_header_filters(self):
-        create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_MLIST,
-            model=self.MessagingList,
-            name=_('Messaging list view'),
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_SMSCAMPAIGN,
-            model=self.SMSCampaign,
-            name=_('Campaign view'),
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_MTEMPLATE,
-            model=self.MessageTemplate,
-            name=_('Message template view'),
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
+    # def _populate_header_filters(self):
+    #     create_hf = HeaderFilter.objects.create_if_needed
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_MLIST,
+    #         model=self.MessagingList,
+    #         name=_('Messaging list view'),
+    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+    #     )
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_SMSCAMPAIGN,
+    #         model=self.SMSCampaign,
+    #         name=_('Campaign view'),
+    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+    #     )
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_MTEMPLATE,
+    #         model=self.MessageTemplate,
+    #         name=_('Message template view'),
+    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+    #     )
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

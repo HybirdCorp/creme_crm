@@ -81,6 +81,32 @@ class Populator(BasePopulator):
             models=[Ticket],
         ),
     ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_TICKET,
+            model=Ticket,
+            name=_('Ticket view'),
+            cells=[
+                (EntityCellRegularField, 'number'),
+                (EntityCellRegularField, 'title'),
+                (EntityCellRegularField, 'status'),
+                (EntityCellRegularField, 'priority'),
+                (EntityCellRegularField, 'criticity'),
+                (EntityCellRegularField, 'closing_date'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_TTEMPLATE,
+            model=TicketTemplate,
+            name=_('Ticket template view'),
+            cells=[
+                (EntityCellRegularField, 'title'),
+                (EntityCellRegularField, 'status'),
+                (EntityCellRegularField, 'priority'),
+                (EntityCellRegularField, 'criticity'),
+            ],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.TICKET_CREATION_CFORM,
         custom_forms.TICKET_EDITION_CFORM,
@@ -94,7 +120,7 @@ class Populator(BasePopulator):
 
         ButtonMenuItem.objects.proxy(
             model=persons.get_organisation_model(), button=buttons.Linked2TicketButton, order=1050,
-        ),
+        )
     ]
     SEARCH = [
         'title', 'number', 'description',
@@ -208,32 +234,32 @@ class Populator(BasePopulator):
                 pk=REL_SUB_ACTIVITY_SUBJECT,
             ).add_subject_ctypes(self.Ticket)
 
-    def _populate_header_filters(self):
-        create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_TICKET,
-            model=self.Ticket,
-            name=_('Ticket view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'number'}),
-                (EntityCellRegularField, {'name': 'title'}),
-                (EntityCellRegularField, {'name': 'status'}),
-                (EntityCellRegularField, {'name': 'priority'}),
-                (EntityCellRegularField, {'name': 'criticity'}),
-                (EntityCellRegularField, {'name': 'closing_date'}),
-            ],
-        )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_TTEMPLATE,
-            model=self.TicketTemplate,
-            name=_('Ticket template view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'title'}),
-                (EntityCellRegularField, {'name': 'status'}),
-                (EntityCellRegularField, {'name': 'priority'}),
-                (EntityCellRegularField, {'name': 'criticity'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     create_hf = HeaderFilter.objects.create_if_needed
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_TICKET,
+    #         model=self.Ticket,
+    #         name=_('Ticket view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'number'}),
+    #             (EntityCellRegularField, {'name': 'title'}),
+    #             (EntityCellRegularField, {'name': 'status'}),
+    #             (EntityCellRegularField, {'name': 'priority'}),
+    #             (EntityCellRegularField, {'name': 'criticity'}),
+    #             (EntityCellRegularField, {'name': 'closing_date'}),
+    #         ],
+    #     )
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_TTEMPLATE,
+    #         model=self.TicketTemplate,
+    #         name=_('Ticket template view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'title'}),
+    #             (EntityCellRegularField, {'name': 'status'}),
+    #             (EntityCellRegularField, {'name': 'priority'}),
+    #             (EntityCellRegularField, {'name': 'criticity'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(
