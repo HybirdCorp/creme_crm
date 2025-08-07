@@ -11,10 +11,7 @@ import creme.creme_core.models.fields as creme_fields
 class Migration(migrations.Migration):
     # replaces=[
     #   ('assistants', '0001_initial'),
-    #   ('assistants', '0014_v2_6__remove_usermsg_job'),
-    #   ('assistants', '0015_v2_6__remove_usermessage_email_sent'),
-    #   ('assistants', '0016_v_2_6__fix_priority_uuids'),
-    #   ('assistants', '0017_v2_6__settingvalue_json'),
+    #   ('assistants', '0018_v2_7__fix_dyn_alerts_on_modified.py'),
     # ]
     initial = True
     dependencies = [
@@ -273,7 +270,6 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=200, verbose_name='Title')),
                 ('body', models.TextField(verbose_name='Message body')),
                 ('creation_date', models.DateTimeField(verbose_name='Creation date')),
-                # ('email_sent', models.BooleanField(default=False)),
                 (
                     'entity',
                     models.ForeignKey(
