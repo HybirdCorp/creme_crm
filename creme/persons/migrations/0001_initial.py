@@ -13,9 +13,8 @@ from creme.persons.models import address
 class Migration(migrations.Migration):
     # replaces = [
     #     ('persons', '0001_initial'),
-    #     ('persons', '0033_v2_6__is_staff_contact'),
-    #     ('persons', '0034_v2_6__fix_uuids'),
-    #     ('persons', '0035_v2_6__address_extra_data'),
+    #     ('persons', '0036_v2_7__organisation_code'),
+    #     ('persons', '0037_v2_7__organisation_eori'),
     # ]
     initial = True
     dependencies = [
@@ -115,14 +114,10 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name', blank=True)),
                 ('address', models.TextField(verbose_name='Address', blank=True)),
                 ('po_box', models.CharField(max_length=50, verbose_name='PO box', blank=True)),
-                # ('zipcode', models.CharField(max_length=100, verbose_name='Zip code', blank=True)),
                 ('zipcode', address.ZipCodeField(blank=True, max_length=100, verbose_name='Zip code')),
-                # ('city', models.CharField(max_length=100, verbose_name='City', blank=True)),
                 ('city', address.CityField(blank=True, max_length=100, verbose_name='City')),
-                # ('department', models.CharField(max_length=100, verbose_name='Department', blank=True)),
                 ('department', address.DepartmentField(blank=True, max_length=100, verbose_name='Department')),
                 ('state', models.CharField(max_length=100, verbose_name='State', blank=True)),
-                # ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
                 ('country', address.CountryField(blank=True, max_length=40, verbose_name='Country')),
                 (
                     'object',
@@ -170,7 +165,6 @@ class Migration(migrations.Migration):
                 ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
                 ('phone', core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)),
                 ('mobile', core_fields.PhoneField(max_length=100, verbose_name='Mobile', blank=True)),
-                # ('skype', models.CharField(max_length=100, verbose_name='Skype', blank=True)),
                 ('skype', models.CharField(max_length=100, verbose_name='Videoconference', blank=True)),
                 ('fax', models.CharField(max_length=100, verbose_name='Fax', blank=True)),
                 ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
@@ -266,9 +260,26 @@ class Migration(migrations.Migration):
                 ('naf', models.CharField(max_length=100, verbose_name='NAF code', blank=True)),
                 ('siret', models.CharField(max_length=100, verbose_name='SIRET', blank=True)),
                 ('rcs', models.CharField(max_length=100, verbose_name='RCS/RM', blank=True)),
+                (
+                    'eori',
+                    models.CharField(
+                        max_length=17, verbose_name='EORI number', blank=True,
+                        help_text=(
+                            'Economic Operators Registration and Identification number. '
+                            'Required for customs clearance in the EU.'
+                        ),
+                    ),
+                ),
                 ('tvaintra', models.CharField(max_length=100, verbose_name='VAT number', blank=True)),
                 ('subject_to_vat', models.BooleanField(default=True, verbose_name='Subject to VAT')),
                 ('annual_revenue', models.CharField(max_length=100, verbose_name='Annual revenue', blank=True)),
+                (
+                    'code',
+                    models.CharField(
+                        max_length=30, verbose_name='Code', blank=True,
+                        help_text='Useful to distinguish your managed organisations',
+                    ),
+                ),
                 ('creation_date', models.DateField(null=True, verbose_name='Date of creation of the organisation', blank=True)),
                 (
                     'billing_address',

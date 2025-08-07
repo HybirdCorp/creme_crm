@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, SET_NULL
@@ -11,14 +9,7 @@ from creme.emails.utils import generate_id
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('emails', '0001_initial'),
-    #     ('emails', '0026_v2_7__workflowemail'),
-    #     ('emails', '0027_v2_7__signature_uuid01'),
-    #     ('emails', '0028_v2_7__signature_uuid02'),
-    #     ('emails', '0029_v2_7__signature_uuid03'),
-    # ]
-
+    # Memo: last migration was "0025_v2_5__emailsending_config_item03"
     initial = True
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -39,7 +30,6 @@ class Migration(migrations.Migration):
                         verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
                     )
                 ),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 (
                     'name',
                     models.CharField(
@@ -634,54 +624,6 @@ class Migration(migrations.Migration):
                         ),
                     )
                 ),
-            ],
-        ),
-        migrations.CreateModel(
-            name='WorkflowEmail',
-            fields=[
-                (
-                    'id',
-                    models.AutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
-                    )
-                ),
-                (
-                    'reads',
-                    models.PositiveIntegerField(
-                        default=0, editable=False, null=True, verbose_name='Number of reads',
-                    )
-                ),
-                (
-                    'status',
-                    models.PositiveSmallIntegerField(
-                        verbose_name='Status',
-                        choices=[
-                            (1, 'Sent'),
-                            (2, 'Not sent'),
-                            (3, 'Sending error'),
-                            (4, 'Synchronized'),
-                        ],
-                        default=2, editable=False,
-                    )
-                ),
-                ('sender', models.CharField(max_length=100, verbose_name='Sender')),
-                ('subject', models.CharField(blank=True, max_length=100, verbose_name='Subject')),
-                ('recipient', models.CharField(max_length=100, verbose_name='Recipient')),
-                ('body', models.TextField(verbose_name='Body')),
-                (
-                    'sending_date',
-                    models.DateTimeField(editable=False, null=True, verbose_name='Sending date')
-                ),
-                (
-                    'reception_date',
-                    models.DateTimeField(editable=False, null=True, verbose_name='Reception date')
-                ),
-                ('body_html', core_fields.UnsafeHTMLField()),
-                (
-                    'signature',
-                    models.ForeignKey(to='emails.emailsignature', null=True, on_delete=SET_NULL)
-                ),
-                ('attachments', models.ManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL)),
             ],
         ),
     ]

@@ -7,14 +7,16 @@ from django.db.models.deletion import CASCADE, SET_NULL
 import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CREME_REPLACE_NULL
 from creme.documents.models.fields import ImageEntityForeignKey
+from creme.persons.models import address
 
 
 class Migration(migrations.Migration):
     # replaces = [
     #     ('persons', '0001_initial'),
-    #     ('persons', '0032_v2_5__django42_indexes'),
+    #     ('persons', '0033_v2_6__is_staff_contact'),
+    #     ('persons', '0034_v2_6__fix_uuids'),
+    #     ('persons', '0035_v2_6__address_extra_data'),
     # ]
-
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),
@@ -31,7 +33,7 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ('shortcut', models.CharField(max_length=100, verbose_name='Shortcut')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
@@ -47,7 +49,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
@@ -63,7 +65,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
@@ -79,7 +81,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
@@ -96,7 +98,7 @@ class Migration(migrations.Migration):
                 ('size', models.CharField(max_length=100, verbose_name='Size')),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
@@ -113,13 +115,30 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name', blank=True)),
                 ('address', models.TextField(verbose_name='Address', blank=True)),
                 ('po_box', models.CharField(max_length=50, verbose_name='PO box', blank=True)),
-                ('zipcode', models.CharField(max_length=100, verbose_name='Zip code', blank=True)),
-                ('city', models.CharField(max_length=100, verbose_name='City', blank=True)),
-                ('department', models.CharField(max_length=100, verbose_name='Department', blank=True)),
+                # ('zipcode', models.CharField(max_length=100, verbose_name='Zip code', blank=True)),
+                ('zipcode', address.ZipCodeField(blank=True, max_length=100, verbose_name='Zip code')),
+                # ('city', models.CharField(max_length=100, verbose_name='City', blank=True)),
+                ('city', address.CityField(blank=True, max_length=100, verbose_name='City')),
+                # ('department', models.CharField(max_length=100, verbose_name='Department', blank=True)),
+                ('department', address.DepartmentField(blank=True, max_length=100, verbose_name='Department')),
                 ('state', models.CharField(max_length=100, verbose_name='State', blank=True)),
-                ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
-                ('object', models.ForeignKey(editable=False, on_delete=CASCADE, to='creme_core.CremeEntity', related_name='persons_addresses')),
-                ('content_type', core_fields.EntityCTypeForeignKey(editable=False, on_delete=CASCADE, related_name='+', to='contenttypes.ContentType')),
+                # ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
+                ('country', address.CountryField(blank=True, max_length=40, verbose_name='Country')),
+                (
+                    'object',
+                    models.ForeignKey(
+                        to='creme_core.CremeEntity',
+                        editable=False, on_delete=CASCADE, related_name='persons_addresses',
+                    )
+                ),
+                (
+                    'content_type',
+                    core_fields.EntityCTypeForeignKey(
+                        to='contenttypes.ContentType',
+                        editable=False, on_delete=CASCADE, related_name='+',
+                    )
+                ),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
                 'ordering': ('id',),
@@ -151,10 +170,11 @@ class Migration(migrations.Migration):
                 ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
                 ('phone', core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)),
                 ('mobile', core_fields.PhoneField(max_length=100, verbose_name='Mobile', blank=True)),
-                ('skype', models.CharField(max_length=100, verbose_name='Skype', blank=True)),
+                # ('skype', models.CharField(max_length=100, verbose_name='Skype', blank=True)),
+                ('skype', models.CharField(max_length=100, verbose_name='Videoconference', blank=True)),
                 ('fax', models.CharField(max_length=100, verbose_name='Fax', blank=True)),
                 ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
-                ('url_site', models.URLField(max_length=500, verbose_name='Web Site', blank=True)),
+                ('url_site', core_fields.CremeURLField(max_length=500, verbose_name='Web Site', blank=True)),
                 ('birthday', models.DateField(null=True, verbose_name='Birthday', blank=True)),
                 (
                     'billing_address',
@@ -209,7 +229,6 @@ class Migration(migrations.Migration):
                 'ordering': ('last_name', 'first_name'),
                 'verbose_name': 'Contact',
                 'verbose_name_plural': 'Contacts',
-                # 'index_together': {('last_name', 'first_name', 'cremeentity_ptr')},
                 'indexes': [
                     models.Index(
                         fields=['last_name', 'first_name', 'cremeentity_ptr'],
@@ -241,7 +260,7 @@ class Migration(migrations.Migration):
                 ('phone', core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)),
                 ('fax', models.CharField(max_length=100, verbose_name='Fax', blank=True)),
                 ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
-                ('url_site', models.URLField(max_length=500, verbose_name='Web Site', blank=True)),
+                ('url_site', core_fields.CremeURLField(max_length=500, verbose_name='Web Site', blank=True)),
                 ('capital', models.PositiveIntegerField(null=True, verbose_name='Capital', blank=True)),
                 ('siren', models.CharField(max_length=100, verbose_name='SIREN', blank=True)),
                 ('naf', models.CharField(max_length=100, verbose_name='NAF code', blank=True)),
@@ -299,7 +318,6 @@ class Migration(migrations.Migration):
                 'ordering': ('name',),
                 'verbose_name': 'Organisation',
                 'verbose_name_plural': 'Organisations',
-                # 'index_together': {('name', 'cremeentity_ptr')},
                 'indexes': [
                     models.Index(
                         fields=['name', 'cremeentity_ptr'], name='persons__orga__default_lv',

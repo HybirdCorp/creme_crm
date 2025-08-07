@@ -4,10 +4,8 @@ from django.db.models.deletion import CASCADE
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('geolocation', '0001_initial'),
-    #     ('geolocation', '0005_v2_6__settingvalue_json'),
-    # ]
+    # Memo: last migration was "0005_v2_6__settingvalue_json".
+
     initial = True
     dependencies = [
         migrations.swappable_dependency(settings.PERSONS_ADDRESS_MODEL),

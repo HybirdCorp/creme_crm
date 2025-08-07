@@ -7,10 +7,7 @@ from creme.creme_core.models import CREME_REPLACE
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('events', '0001_initial'),
-    #     ('events', '0008_v2_6__fix_event_type_uuids'),
-    # ]
+    # Memo: last migration was "0008_v2_6__fix_event_type_uuids.py"
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),

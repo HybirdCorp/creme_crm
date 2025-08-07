@@ -8,10 +8,7 @@ import creme.polls.models.base
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('polls', '0001_initial'),
-    #     ('polls', '0007_v2_6__fix_ptype_uuids'),
-    # ]
+    # Memo: last migration was "0007_v2_6__fix_ptype_uuids"
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),

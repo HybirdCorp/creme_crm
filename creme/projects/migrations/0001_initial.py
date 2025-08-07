@@ -10,10 +10,7 @@ from creme.creme_core.models.currency import get_default_currency_pk
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('projects', '0001_initial'),
-    #     ('projects', '0028_v2_6__fix_statuses_uuids'),
-    # ]
+    # Memo: last migration was "0028_v2_6__fix_statuses_uuids"
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),

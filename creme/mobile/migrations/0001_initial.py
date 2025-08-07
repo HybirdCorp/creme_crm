@@ -4,10 +4,7 @@ from django.db.models.deletion import CASCADE
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('mobile', '0001_initial'),
-    #     ('mobile', '0005_v2_6__settingvalue_json'),
-    # ]
+    # Memo: last migration was "0005_v2_6__settingvalue_json".
     initial = True
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
