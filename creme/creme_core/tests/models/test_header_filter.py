@@ -27,16 +27,8 @@ from creme.creme_core.setting_keys import global_filters_edition_key
 from ..base import CremeTestCase
 
 
-class HeaderFiltersTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        get_ct = ContentType.objects.get_for_model
-        cls.contact_ct = get_ct(FakeContact)  # TODO: used once ?!
-        cls.orga_ct    = get_ct(FakeOrganisation)
-
-    def test_manager_create_if_needed01(self):
+class HeaderFilterManagerTestCase(CremeTestCase):
+    def test_create_if_needed(self):
         name = 'Contact view'
         pk   = 'tests-hf_contact'
         hf = HeaderFilter.objects.create_if_needed(
@@ -45,7 +37,9 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(pk,   hf.pk)
         self.assertEqual(name, hf.name)
         self.assertIsNone(hf.user)
-        self.assertEqual(self.contact_ct, hf.entity_type)
+        self.assertEqual(
+            ContentType.objects.get_for_model(FakeContact), hf.entity_type,
+        )
         self.assertIs(hf.is_custom, True)
         self.assertIs(hf.is_private, False)
         self.assertDictEqual({}, hf.extra_data)
@@ -53,26 +47,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertFalse(hf.cells)
         self.assertListEqual([], hf.filtered_cells)
 
-        hf.cells = [EntityCellRegularField.build(model=FakeContact, name='first_name')]
-        hf.save()
-
-        hf = self.refresh(hf)
-        self.assertEqual(1, len(hf.cells))
-
-        with self.assertNoException():
-            deserialized = hf.json_cells
-
-        self.assertListEqual(
-            [{'type': 'regular_field', 'value': 'first_name'}],
-            deserialized,
-        )
-
-        self.assertListEqual(
-            [EntityCellRegularField.build(model=FakeContact, name='first_name')],
-            hf.filtered_cells,
-        )
-
-    def test_manager_create_if_needed02(self):
+    def test_create_if_needed__cells_n_extra(self):
         "With cells & extra_data."
         user = self.get_root_user()
 
@@ -113,7 +88,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         )
         self.assertDictEqual(extra_data, hf.extra_data)
 
-    def test_manager_create_if_needed03(self):
+    def test_create_if_needed__already_exists(self):
         "Do not modify if it already exists."
         pk = 'tests-hf_contact'
         name = 'Contact view'
@@ -138,8 +113,7 @@ class HeaderFiltersTestCase(CremeTestCase):
             hf.cells,
         )
 
-    def test_manager_create_if_needed04(self):
-        "Errors."
+    def test_create_if_needed__errors(self):
         user = self.get_root_user()
 
         # Private + no user => error
@@ -158,6 +132,35 @@ class HeaderFiltersTestCase(CremeTestCase):
                 is_private=True, is_custom=False,
                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
             )
+
+
+class HeaderFilterTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.orga_ct = ContentType.objects.get_for_model(FakeOrganisation)
+
+    def test_cells(self):
+        hf = HeaderFilter.objects.create(
+            pk='tests-hf_contact', name='Contact view', entity_type=FakeContact,
+        )
+        hf.cells = [EntityCellRegularField.build(model=FakeContact, name='first_name')]
+        hf.save()
+
+        hf = self.refresh(hf)
+        self.assertEqual(1, len(hf.cells))
+
+        with self.assertNoException():
+            deserialized = hf.json_cells
+        self.assertListEqual(
+            [{'type': 'regular_field', 'value': 'first_name'}],
+            deserialized,
+        )
+
+        self.assertListEqual(
+            [EntityCellRegularField.build(model=FakeContact, name='first_name')],
+            hf.filtered_cells,
+        )
 
     def test_can_edit__root(self):
         sv_open = SettingValue.objects.get_4_key(global_filters_edition_key)
