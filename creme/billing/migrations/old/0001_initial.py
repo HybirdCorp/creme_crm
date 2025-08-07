@@ -6,18 +6,20 @@ from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
 
 import creme.creme_core.models.fields as core_fields
+from creme.billing.models import other_models
 from creme.billing.models.fields import BillingDiscountField
 from creme.creme_core.models import CREME_REPLACE, CREME_REPLACE_NULL
+from creme.creme_core.models.currency import get_default_currency_pk
 from creme.creme_core.models.vat import get_default_vat_pk
 
 
 class Migration(migrations.Migration):
     # replaces = [
     #     ('billing', '0001_initial'),
-    #     ('billing', '0028_v2_5__colored_statuses01'),
-    #     ('billing', '0029_v2_5__colored_statuses02'),
-    #     ('billing', '0030_v2_5__lines_order'),
-    #     ('billing', '0031_v2_5__lines_order_data'),
+    #     ('billing', '0032_v2_6__statuses_is_default01'),
+    #     ('billing', '0033_v2_6__statuses_is_default02'),
+    #     ('billing', '0034_v2_6__fix_uuids'),
+    #     ('billing', '0035_v2_6__settingvalue_json'),
     # ]
 
     initial = True
@@ -33,11 +35,11 @@ class Migration(migrations.Migration):
             name='AdditionalInformation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -79,11 +81,11 @@ class Migration(migrations.Migration):
             name='PaymentTerms',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Payment terms')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -111,10 +113,10 @@ class Migration(migrations.Migration):
             name='SettlementTerms',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Settlement terms')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
             ],
             options={
                 'ordering': ('name',),
@@ -127,6 +129,7 @@ class Migration(migrations.Migration):
             name='CreditNoteStatus',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'color',
@@ -135,10 +138,10 @@ class Migration(migrations.Migration):
                         max_length=6, verbose_name='Color',
                     )
                 ),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -196,7 +199,9 @@ class Migration(migrations.Migration):
                     'currency',
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
-                        related_name='+', on_delete=PROTECT, default=1,
+                        related_name='+', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_currency_pk,
                     )
                 ),
                 (
@@ -242,6 +247,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         verbose_name='Status of credit note',
                         to='billing.CreditNoteStatus', on_delete=CREME_REPLACE,
+                        default=other_models.get_default_credit_note_status_pk,
                     )
                 ),
             ],
@@ -257,6 +263,7 @@ class Migration(migrations.Migration):
             name='InvoiceStatus',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'color',
@@ -265,11 +272,18 @@ class Migration(migrations.Migration):
                         max_length=6, verbose_name='Color',
                     )
                 ),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('pending_payment', models.BooleanField(default=False, verbose_name='Pending payment')),
+                (
+                    'is_validated',
+                    models.BooleanField(
+                        default=False, verbose_name='Is validated?',
+                        help_text='If true, the status is used when an Invoice number is generated.',
+                    )
+                ),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -321,7 +335,9 @@ class Migration(migrations.Migration):
                     'currency',
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
-                        related_name='+', on_delete=PROTECT, default=1,
+                        related_name='+', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_currency_pk,
                     )
                 ),
                 (
@@ -355,7 +371,14 @@ class Migration(migrations.Migration):
                     )
                 ),
 
-                ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status of invoice', to='billing.InvoiceStatus')),
+                (
+                    'status',
+                    models.ForeignKey(
+                        to='billing.InvoiceStatus', verbose_name='Status of invoice',
+                        on_delete=CREME_REPLACE,
+                        default=other_models.get_default_invoice_status_pk,
+                    )
+                ),
                 (
                     'payment_type',
                     models.ForeignKey(
@@ -383,6 +406,7 @@ class Migration(migrations.Migration):
             name='QuoteStatus',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'color',
@@ -391,11 +415,11 @@ class Migration(migrations.Migration):
                         max_length=6, verbose_name='Color',
                     )
                 ),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('won', models.BooleanField(default=False, verbose_name='Won')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -453,7 +477,9 @@ class Migration(migrations.Migration):
                     'currency',
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
-                        related_name='+', on_delete=PROTECT, default=1,
+                        related_name='+', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_currency_pk,
                     )
                 ),
                 (
@@ -497,7 +523,11 @@ class Migration(migrations.Migration):
                 ('acceptation_date', models.DateField(null=True, verbose_name='Acceptation date', blank=True)),
                 (
                     'status',
-                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status of quote', to='billing.QuoteStatus')
+                    models.ForeignKey(
+                        to='billing.QuoteStatus', verbose_name='Status of quote',
+                        on_delete=CREME_REPLACE,
+                        default=other_models.get_default_quote_status_pk,
+                    )
                 ),
             ],
             options={
@@ -512,6 +542,7 @@ class Migration(migrations.Migration):
             name='SalesOrderStatus',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'color',
@@ -520,10 +551,10 @@ class Migration(migrations.Migration):
                         max_length=6, verbose_name='Color',
                     )
                 ),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -581,7 +612,9 @@ class Migration(migrations.Migration):
                     'currency',
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
-                        related_name='+', on_delete=PROTECT, default=1,
+                        related_name='+', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_currency_pk,
                     )
                 ),
                 (
@@ -622,7 +655,14 @@ class Migration(migrations.Migration):
                     )
                 ),
 
-                ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status of salesorder', to='billing.SalesOrderStatus')),
+                (
+                    'status',
+                    models.ForeignKey(
+                        to='billing.SalesOrderStatus', verbose_name='Status of salesorder',
+                        on_delete=CREME_REPLACE,
+                        default=other_models.get_default_sales_order_status_pk,
+                    )
+                ),
             ],
             options={
                 'swappable': 'BILLING_SALES_ORDER_MODEL',
@@ -694,7 +734,9 @@ class Migration(migrations.Migration):
                     'currency',
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
-                        related_name='+', on_delete=PROTECT, default=1,
+                        related_name='+', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_currency_pk,
                     )
                 ),
                 (

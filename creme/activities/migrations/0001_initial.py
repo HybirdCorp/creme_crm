@@ -13,13 +13,8 @@ from creme.creme_core.models import CREME_REPLACE_NULL
 class Migration(migrations.Migration):
     # replaces = [
     #     ('activities', '0001_initial'),
-    #     ('activities', '0022_v2_6__types_uuid01'),
-    #     ('activities', '0023_v2_6__types_uuid02'),
-    #     ('activities', '0024_v2_6__types_uuid03'),
-    #     ('activities', '0025_v2_6__calendarconfigitem'),
-    #     ('activities', '0026_v2_6__fix_status_uuids'),
-    #     ('activities', '0027_v2_6__settingvalue_json'),
-    #     ('activities', '0028_v2_6__clean_teams_calendars'),
+    #     ('activities', '0029_v2_7__floating_type_choices'),
+    #     ('activities', '0030_v2_7__calendarconfigitem_view_day'),
     # ]
     initial = True
     dependencies = [
@@ -32,12 +27,6 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ActivityType',
             fields=[
-                # (
-                #     'id',
-                #     models.CharField(
-                #         max_length=100, serialize=False, editable=False, primary_key=True,
-                #     )
-                # ),
                 (
                     'id',
                     models.AutoField(
@@ -67,12 +56,6 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ActivitySubType',
             fields=[
-                # (
-                #     'id',
-                #     models.CharField(
-                #         max_length=100, serialize=False, editable=False, primary_key=True,
-                #     )
-                # ),
                 (
                     'id',
                     models.AutoField(
@@ -177,6 +160,26 @@ class Migration(migrations.Migration):
                     'allow_keep_state',
                     models.BooleanField(default=False, verbose_name='Keep navigation state')
                 ),
+                (
+                    'view_day_end',
+                    models.TimeField(
+                        verbose_name='View end', default=datetime.time(0, 0),
+                        help_text=(
+                            'End of the displayed hours.\n'
+                            'Can be different from the day range that restricts the moves and creation of events'
+                        ),
+                    ),
+                ),
+                (
+                    'view_day_start',
+                    models.TimeField(
+                        verbose_name='View start', default=datetime.time(0, 0),
+                        help_text=(
+                            'Start of the displayed hours.\n'
+                            'Can be different from the day range that restricts the moves and creation of events'
+                        ),
+                    ),
+                ),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 (
                     'role',
@@ -274,8 +277,9 @@ class Migration(migrations.Migration):
                 ('busy', models.BooleanField(default=False, verbose_name='Busy?')),
                 (
                     'floating_type',
-                    models.PositiveIntegerField(
-                        default=1, verbose_name='Floating type', editable=False,
+                    models.PositiveSmallIntegerField(
+                        choices=[(1, 'Fixed'), (2, 'Floating time'), (3, 'Floating')],
+                        default=1, editable=False, verbose_name='Fixed or floating?',
                     )
                 ),
                 (

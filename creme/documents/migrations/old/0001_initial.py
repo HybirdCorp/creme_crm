@@ -5,15 +5,14 @@ from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
 
 from creme.creme_core.models import CREME_REPLACE_NULL
-from creme.creme_core.models import fields as core_fields
 
 
 class Migration(migrations.Migration):
     # replaces = [
     #     ('documents', '0001_initial'),
-    #     ('documents', '0023_v2_7__file_size1'),
-    #     ('documents', '0024_v2_7__file_size2'),
-    #     ('documents', '0025_v2_7__file_size3'),
+    #     ('documents', '0020_v2_4__minion_categories01'),
+    #     ('documents', '0021_v2_4__minion_categories02'),
+    #     ('documents', '0022_v2_4__minion_categories03'),
     # ]
 
     initial = True
@@ -136,10 +135,6 @@ class Migration(migrations.Migration):
                     models.FileField(
                         verbose_name='File', upload_to='documents', max_length=500,
                     ),
-                ),
-                (
-                    'file_size',
-                    core_fields.FileSizeField(editable=False, verbose_name='Size of the file'),
                 ),
                 (
                     'linked_folder',

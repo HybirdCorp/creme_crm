@@ -8,10 +8,7 @@ from creme.creme_core.models import CREME_REPLACE
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('tickets', '0001_initial'),
-    #     ('tickets', '0015_v2_6__fix_uuids'),
-    # ]
+    # Memo: last migration was "0015_v2_6__fix_uuids"
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),

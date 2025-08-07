@@ -1,20 +1,26 @@
-import uuid
+import datetime
+from uuid import uuid4
 
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
 
 import creme.creme_core.models.fields as creme_fields
+from creme.activities.models.config import Weekday
 from creme.creme_core.models import CREME_REPLACE_NULL
 
 
 class Migration(migrations.Migration):
     # replaces = [
     #     ('activities', '0001_initial'),
-    #     ('activities', '0020_v2_5__status_color01'),
-    #     ('activities', '0021_v2_5__status_color02'),
+    #     ('activities', '0022_v2_6__types_uuid01'),
+    #     ('activities', '0023_v2_6__types_uuid02'),
+    #     ('activities', '0024_v2_6__types_uuid03'),
+    #     ('activities', '0025_v2_6__calendarconfigitem'),
+    #     ('activities', '0026_v2_6__fix_status_uuids'),
+    #     ('activities', '0027_v2_6__settingvalue_json'),
+    #     ('activities', '0028_v2_6__clean_teams_calendars'),
     # ]
-
     initial = True
     dependencies = [
         ('auth', '0001_initial'),
@@ -26,12 +32,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ActivityType',
             fields=[
+                # (
+                #     'id',
+                #     models.CharField(
+                #         max_length=100, serialize=False, editable=False, primary_key=True,
+                #     )
+                # ),
                 (
                     'id',
-                    models.CharField(
-                        max_length=100, serialize=False, editable=False, primary_key=True,
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
                     )
                 ),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 (
                     'default_day_duration',
@@ -54,12 +67,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ActivitySubType',
             fields=[
+                # (
+                #     'id',
+                #     models.CharField(
+                #         max_length=100, serialize=False, editable=False, primary_key=True,
+                #     )
+                # ),
                 (
                     'id',
-                    models.CharField(
-                        max_length=100, serialize=False, editable=False, primary_key=True,
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
                     )
                 ),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 (
@@ -96,9 +116,9 @@ class Migration(migrations.Migration):
                         max_length=6, verbose_name='Color',
                     )
                 ),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -106,6 +126,70 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'Status of activity',
             },
             bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='CalendarConfigItem',
+            fields=[
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
+                    )
+                ),
+                ('superuser', models.BooleanField(default=False, editable=False)),
+                (
+                    'view',
+                    models.CharField(
+                        verbose_name='Default view mode',
+                        choices=[('month', 'Month'), ('week', 'Week')], default='month',
+                        max_length=100,
+                    )
+                ),
+                (
+                    'week_start',
+                    models.IntegerField(
+                        verbose_name='First day of the week',
+                        choices=[
+                            (1, 'Monday'), (2, 'Tuesday'), (3, 'Wednesday'), (4, 'Thursday'),
+                            (5, 'Friday'), (6, 'Saturday'), (7, 'Sunday'),
+                        ],
+                        default=1,
+                    )
+                ),
+                (
+                    'week_days',
+                    models.JSONField(
+                        verbose_name='Days of the week',
+                        default=Weekday.default_days, editable=False,
+                    )
+                ),
+                ('day_start', models.TimeField(default=datetime.time(8, 0), verbose_name='Start')),
+                ('day_end', models.TimeField(default=datetime.time(18, 0), verbose_name='End')),
+                (
+                    'slot_duration',
+                    models.TimeField(default=datetime.time(0, 15), verbose_name='Slot duration')
+                ),
+                (
+                    'allow_event_move',
+                    models.BooleanField(default=True, verbose_name='Allow drag-n-drop')
+                ),
+                (
+                    'allow_keep_state',
+                    models.BooleanField(default=False, verbose_name='Keep navigation state')
+                ),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                (
+                    'role',
+                    models.ForeignKey(
+                        to='creme_core.userrole',
+                        default=None, editable=False, null=True, on_delete=CASCADE,
+                    )
+                ),
+            ],
+            options={
+                'verbose_name': 'Calendar display configuration',
+                'verbose_name_plural': 'Calendar display configurations',
+            },
         ),
         migrations.CreateModel(
             name='Calendar',

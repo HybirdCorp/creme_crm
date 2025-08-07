@@ -4,7 +4,8 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     initial = True
     dependencies = [
-        ('creme_core', '0160_v2_7__customentitytype'),
+        # ('creme_core', '0160_v2_7__customentitytype'),
+        ('creme_core', '0001_initial'),
     ]
 
     operations = [
