@@ -133,6 +133,132 @@ class HeaderFilterManagerTestCase(CremeTestCase):
                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
             )
 
+    def test_proxy__get_or_create__minimal(self):
+        count = HeaderFilter.objects.count()
+
+        name = 'Contact view'
+        hf_id   = 'tests-hf_contact'
+        model = FakeContact
+        proxy = HeaderFilter.objects.proxy(
+            id=hf_id, name=name, model=model, is_custom=True, cells=(),
+        )
+        self.assertEqual(count, HeaderFilter.objects.count())
+        self.assertEqual(hf_id, proxy.id)
+        self.assertEqual(name, proxy.name)
+        self.assertIsNone(proxy.user)
+        self.assertIs(proxy.is_custom, True)
+        self.assertIs(proxy.is_private, False)
+
+        ct = ContentType.objects.get_for_model(model)
+        self.assertEqual(ct,    proxy.entity_type)
+        self.assertEqual(model, proxy.model)
+
+        self.assertDictEqual({}, proxy.extra_data)
+        self.assertListEqual([], proxy.json_cells)
+        self.assertListEqual([], proxy.cells)
+
+        # TODO?
+        # with self.assertRaises(NotImplementedError):???
+        # self.assertListEqual([], proxy.filtered_cells)
+
+        hf1, created1 = proxy.get_or_create()
+        self.assertIs(created1, True)
+        self.assertIsInstance(hf1, HeaderFilter)
+        self.assertEqual(hf_id, hf1.id)
+        self.assertEqual(name, hf1.name)
+        self.assertIsNone(hf1.user)
+        self.assertEqual(ct, hf1.entity_type)
+        self.assertIs(hf1.is_custom, True)
+        self.assertIs(hf1.is_private, False)
+        self.assertDictEqual({}, hf1.extra_data)
+        self.assertListEqual([], hf1.json_cells)
+        self.assertListEqual([], hf1.cells)
+
+        self.assertEqual(count + 1, HeaderFilter.objects.count())
+
+        # get_or_create() again ---
+        hf2, created3 = proxy.get_or_create()
+        self.assertIs(created3, False)
+        self.assertIsInstance(hf2, HeaderFilter)
+        self.assertEqual(count + 1, HeaderFilter.objects.count())
+
+        # New proxy ---
+        proxy2 = HeaderFilter.objects.proxy(
+            id=hf_id, name='Other name', model=FakeContact, cells=(),
+        )
+        hf3, created3 = proxy2.get_or_create()
+        self.assertIs(created3, False)
+        self.assertEqual(name, hf3.name)
+        self.assertEqual(count + 1, HeaderFilter.objects.count())
+
+    def test_proxy__get_or_create__cells(self):
+        count = HeaderFilter.objects.count()
+
+        name = 'Orga view'
+        hf_id = 'tests-hf_orga'
+        model = FakeOrganisation
+        proxy = HeaderFilter.objects.proxy(
+            id=hf_id, name=name, model=model, is_custom=False,
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRelation, REL_SUB_HAS),
+            ],
+        )
+        self.assertEqual(count, HeaderFilter.objects.count())
+        self.assertEqual(hf_id, proxy.id)
+        self.assertEqual(name, proxy.name)
+        self.assertIs(proxy.is_custom, False)
+
+        ct = ContentType.objects.get_for_model(model)
+        self.assertEqual(ct,    proxy.entity_type)
+        self.assertEqual(model, proxy.model)
+
+        # self.assertListEqual([], proxy.json_cells)  # TODO: error?
+        self.assertListEqual(
+            [
+                EntityCellRegularField.build(model, 'name'),
+                EntityCellRelation.build(model, REL_SUB_HAS),
+            ],
+            proxy.cells,
+        )
+
+        # TODO?
+        # with self.assertRaises(NotImplementedError):???
+        # self.assertListEqual([], proxy.filtered_cells)
+
+        hf = self.refresh(proxy.get_or_create()[0])
+        self.assertEqual(hf_id, hf.id)
+        self.assertEqual(name, hf.name)
+        self.assertEqual(ct, hf.entity_type)
+        self.assertIs(hf.is_custom, False)
+        self.assertListEqual(
+            [
+                EntityCellRegularField.build(model, 'name'),
+                EntityCellRelation.build(model, REL_SUB_HAS),
+            ],
+            hf.cells,
+        )
+
+    def test_proxy__get_or_create__user(self):
+        model = FakeOrganisation
+        user1 = self.get_root_user()
+        proxy = HeaderFilter.objects.proxy(
+            id='tests-hf_orga1', name='Orga view #1', model=model,
+            is_custom=True, is_private=True,
+            user=user1.uuid, cells=[],
+        )
+        self.assertEqual(user1, proxy.user)
+        self.assertTrue(proxy.is_private)
+
+        hf = self.refresh(proxy.get_or_create()[0])
+        self.assertEqual(user1, hf.user)
+        self.assertTrue(hf.is_private)
+
+        # setter ---
+        user2 = self.create_user()
+        proxy.user = user2.uuid
+        self.assertEqual(user2, proxy.user)
+
 
 class HeaderFilterTestCase(CremeTestCase):
     @classmethod

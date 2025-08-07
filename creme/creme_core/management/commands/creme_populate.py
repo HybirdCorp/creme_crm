@@ -43,6 +43,7 @@ from creme.creme_core.models import (
     SettingValue,
 )
 from creme.creme_core.models.creme_property import CremePropertyTypeProxy
+from creme.creme_core.models.header_filter import HeaderFilterProxy
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.dependence_sort import dependence_sort
@@ -74,6 +75,19 @@ class BasePopulator:
     SANDBOXES: list[Sandbox] = []
     CUSTOM_FORMS: list[CustomFormDescriptor] = []
     SETTING_VALUES: list[SettingValue] = []
+    HEADER_FILTERS: list[HeaderFilterProxy] = [
+        # Example:
+        # HeaderFilter.objects.proxy(
+        #     id=constants.DEFAULT_HFILTER_MY_MODEL,
+        #     name=_('My model view'),
+        #     model=MyModel,
+        #     cells=[
+        #         (EntityCellRegularField, 'name'),
+        #         (EntityCellRegularField, 'status'),
+        #         (EntityCellRelation,     constants.REL_OBJ_RELATED),
+        #     ],
+        # ),
+    ]
     NOTIFICATION_CHANNELS: list[NotificationChannel] = []
 
     def __init__(self, verbosity, app, all_apps, options, stdout, style):
@@ -159,7 +173,9 @@ class BasePopulator:
         pass
 
     def _populate_header_filters(self) -> None:
-        pass
+        for hf_proxy in self.HEADER_FILTERS:
+            # TODO: check type?
+            hf_proxy.get_or_create()
 
     def _populate_jobs(self) -> None:
         # These are system jobs, with only one instance per type.

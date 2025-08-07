@@ -51,6 +51,9 @@ from .models import FolderCategory
 
 logger = logging.getLogger(__name__)
 
+Document = get_document_model()
+Folder = get_folder_model()
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core']
@@ -60,6 +63,28 @@ class Populator(BasePopulator):
         custom_forms.FOLDER_EDITION_CFORM,
         custom_forms.DOCUMENT_CREATION_CFORM,
         custom_forms.DOCUMENT_EDITION_CFORM,
+    ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_FOLDER,
+            model=Folder,
+            name=_('Folder view'),
+            cells=[
+                (EntityCellRegularField, 'title'),
+                (EntityCellRegularField, 'description'),
+                (EntityCellRegularField, 'category'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_DOCUMENT,
+            model=Document,
+            name=_('Document view'),
+            cells=[
+                (EntityCellRegularField, 'title'),
+                (EntityCellRegularField, 'linked_folder__title'),
+                (EntityCellRegularField, 'mime_type'),
+            ],
+        ),
     ]
     SEARCH = {
         'FOLDER': ['title', 'description', 'category__name'],
@@ -71,8 +96,10 @@ class Populator(BasePopulator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.Document = get_document_model()
-        self.Folder   = get_folder_model()
+        # self.Document = get_document_model()
+        # self.Folder   = get_folder_model()
+        self.Document = Document
+        self.Folder   = Folder
 
         self.entities_category = None
 
@@ -143,31 +170,31 @@ class Populator(BasePopulator):
             ],
         )
 
-    def _populate_header_filters_for_document(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_DOCUMENT, model=self.Document,
-            name=_('Document view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'title'}),
-                (EntityCellRegularField, {'name': 'linked_folder__title'}),
-                (EntityCellRegularField, {'name': 'mime_type'}),
-            ],
-        )
-
-    def _populate_header_filters_for_folder(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_FOLDER, model=self.Folder,
-            name=_('Folder view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'title'}),
-                (EntityCellRegularField, {'name': 'description'}),
-                (EntityCellRegularField, {'name': 'category'}),
-            ],
-        )
-
-    def _populate_header_filters(self):
-        self._populate_header_filters_for_document()
-        self._populate_header_filters_for_folder()
+    # def _populate_header_filters_for_document(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_DOCUMENT, model=self.Document,
+    #         name=_('Document view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'title'}),
+    #             (EntityCellRegularField, {'name': 'linked_folder__title'}),
+    #             (EntityCellRegularField, {'name': 'mime_type'}),
+    #         ],
+    #     )
+    #
+    # def _populate_header_filters_for_folder(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_FOLDER, model=self.Folder,
+    #         name=_('Folder view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'title'}),
+    #             (EntityCellRegularField, {'name': 'description'}),
+    #             (EntityCellRegularField, {'name': 'category'}),
+    #         ],
+    #     )
+    #
+    # def _populate_header_filters(self):
+    #     self._populate_header_filters_for_document()
+    #     self._populate_header_filters_for_folder()
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

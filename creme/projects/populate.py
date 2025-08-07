@@ -47,6 +47,12 @@ from .models import ProjectStatus, TaskStatus
 
 logger = logging.getLogger(__name__)
 
+Contact  = get_contact_model()
+Activity = get_activity_model()
+
+Project     = get_project_model()
+ProjectTask = get_task_model()
+
 # UUIDs for instances which can be deleted
 UUID_PSTATUS_INV_TO_TENDER  = 'e0487a58-7c2a-45e9-a6da-f770c2f1bd53'
 UUID_PSTATUS_INITIALIZATION = 'c065000b-51a8-4f73-8585-64893d30770f'
@@ -65,6 +71,30 @@ class Populator(BasePopulator):
         custom_forms.PROJECT_EDITION_CFORM,
         custom_forms.TASK_CREATION_CFORM,
         custom_forms.TASK_EDITION_CFORM,
+    ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_PROJECT,
+            model=Project,
+            name=_('Project view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'start_date'),
+                (EntityCellRegularField, 'end_date'),
+                (EntityCellRegularField, 'status'),
+                (EntityCellRegularField, 'description'),
+            ],
+        ),
+        # Used in form
+        HeaderFilter.objects.proxy(
+            id='projects-hf_task',  # TODO: constant
+            name=_('Task view'),
+            model=ProjectTask,
+            cells=[
+                (EntityCellRegularField, 'title'),
+                (EntityCellRegularField, 'description'),
+            ],
+        ),
     ]
     SEARCH = {
         'PROJECT': ['name', 'description', 'status__name'],
@@ -147,12 +177,16 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # self.Contact  = get_contact_model()
+        # self.Activity = get_activity_model()
+        #
+        # self.Project     = get_project_model()
+        # self.ProjectTask = get_task_model()
+        self.Contact  = Contact
+        self.Activity = Activity
 
-        self.Contact  = get_contact_model()
-        self.Activity = get_activity_model()
-
-        self.Project     = get_project_model()
-        self.ProjectTask = get_task_model()
+        self.Project     = Project
+        self.ProjectTask = ProjectTask
 
     def _already_populated(self):
         return RelationType.objects.filter(
@@ -202,29 +236,29 @@ class Populator(BasePopulator):
             is_internal=True,
         )
 
-    def _populate_header_filters(self):
-        create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_PROJECT,
-            model=self.Project,
-            name=_('Project view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'start_date'}),
-                (EntityCellRegularField, {'name': 'end_date'}),
-                (EntityCellRegularField, {'name': 'status'}),
-                (EntityCellRegularField, {'name': 'description'}),
-            ],
-        )
-
-        # Used in form
-        create_hf(
-            pk='projects-hf_task', name=_('Task view'), model=self.ProjectTask,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'title'}),
-                (EntityCellRegularField, {'name': 'description'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     create_hf = HeaderFilter.objects.create_if_needed
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_PROJECT,
+    #         model=self.Project,
+    #         name=_('Project view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'start_date'}),
+    #             (EntityCellRegularField, {'name': 'end_date'}),
+    #             (EntityCellRegularField, {'name': 'status'}),
+    #             (EntityCellRegularField, {'name': 'description'}),
+    #         ],
+    #     )
+    #
+    #     # Used in form
+    #     create_hf(
+    #         pk='projects-hf_task', name=_('Task view'), model=self.ProjectTask,
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'title'}),
+    #             (EntityCellRegularField, {'name': 'description'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

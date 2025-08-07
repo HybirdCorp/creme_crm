@@ -73,6 +73,18 @@ from .models import (
 
 logger = logging.getLogger(__name__)
 
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
+CreditNote   = billing.get_credit_note_model()
+Invoice      = billing.get_invoice_model()
+Quote        = billing.get_quote_model()
+SalesOrder   = billing.get_sales_order_model()
+TemplateBase = billing.get_template_base_model()
+
+ProductLine = billing.get_product_line_model()
+ServiceLine = billing.get_service_line_model()
+
 # UUIDs for instances which can be deleted
 UUID_CBRICK_INVOICE  = 'd1ae20ac-98b5-4c4b-bf32-8c284c6eadae'
 UUID_CBRICK_QUOTE    = 'eb3e5fcc-e929-4a15-b859-207a093bc4cb'
@@ -138,6 +150,98 @@ class Populator(BasePopulator):
         SettingValue(key=setting_keys.payment_info_key,       value=True),
         SettingValue(key=setting_keys.button_redirection_key, value=True),
         SettingValue(key=setting_keys.emitter_edition_key,    value=False),
+    ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_INVOICE,
+            name=_('Invoice view'),
+            model=Invoice,
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRelation, constants.REL_SUB_BILL_RECEIVED),
+                (EntityCellRegularField, 'number'),
+                (EntityCellRegularField, 'status'),
+                (EntityCellRegularField, 'total_no_vat'),
+                (EntityCellRegularField, 'issuing_date'),
+                (EntityCellRegularField, 'expiration_date'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_QUOTE,
+            name=_('Quote view'),
+            model=Quote,
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRelation, constants.REL_SUB_BILL_RECEIVED),
+                (EntityCellRegularField, 'number'),
+                (EntityCellRegularField, 'status'),
+                (EntityCellRegularField, 'total_no_vat'),
+                (EntityCellRegularField, 'issuing_date'),
+                (EntityCellRegularField, 'expiration_date'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_ORDER,
+            name=_('Sales order view'),
+            model=SalesOrder,
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRelation, constants.REL_SUB_BILL_RECEIVED),
+                (EntityCellRegularField, 'number'),
+                (EntityCellRegularField, 'status'),
+                (EntityCellRegularField, 'total_no_vat'),
+                (EntityCellRegularField, 'issuing_date'),
+                (EntityCellRegularField, 'expiration_date'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_CNOTE,
+            name=_('Credit note view'),
+            model=CreditNote,
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRelation, constants.REL_SUB_BILL_RECEIVED),
+                (EntityCellRegularField, 'number'),
+                (EntityCellRegularField, 'status'),
+                (EntityCellRegularField, 'total_no_vat'),
+                (EntityCellRegularField, 'issuing_date'),
+                (EntityCellRegularField, 'expiration_date'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_TEMPLATE,
+            name=_('Template view'),
+            model=TemplateBase,
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRelation, constants.REL_SUB_BILL_RECEIVED),
+                (EntityCellRegularField, 'number'),
+                # (EntityCellRegularField, 'status'),  TODO: function field?
+                (EntityCellRegularField, 'total_no_vat'),
+                (EntityCellRegularField, 'issuing_date'),
+                (EntityCellRegularField, 'expiration_date'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id='billing-hg_product_lines',  # TODO: constant
+            name=_('Product lines view'),
+            model=ProductLine,
+            cells=[
+                (EntityCellRegularField, 'on_the_fly_item'),
+                (EntityCellRegularField, 'quantity'),
+                (EntityCellRegularField, 'unit_price'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id='billing-hg_service_lines',  # TODO: constant
+            name=_('Service lines view'),
+            model=ServiceLine,
+            cells=[
+                (EntityCellRegularField, 'on_the_fly_item'),
+                (EntityCellRegularField, 'quantity'),
+                (EntityCellRegularField, 'unit_price'),
+            ],
+        ),
     ]
     SEARCH = {
         'INVOICE':     ['name', 'number', 'status__name'],
@@ -278,17 +382,28 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
+        # self.Contact      = persons.get_contact_model()
+        # self.Organisation = persons.get_organisation_model()
+        #
+        # self.CreditNote   = billing.get_credit_note_model()
+        # self.Invoice      = billing.get_invoice_model()
+        # self.Quote        = billing.get_quote_model()
+        # self.SalesOrder   = billing.get_sales_order_model()
+        # self.TemplateBase = billing.get_template_base_model()
+        #
+        # self.ProductLine = billing.get_product_line_model()
+        # self.ServiceLine = billing.get_service_line_model()
+        self.Contact      = Contact
+        self.Organisation = Organisation
 
-        self.CreditNote   = billing.get_credit_note_model()
-        self.Invoice      = billing.get_invoice_model()
-        self.Quote        = billing.get_quote_model()
-        self.SalesOrder   = billing.get_sales_order_model()
-        self.TemplateBase = billing.get_template_base_model()
+        self.CreditNote   = CreditNote
+        self.Invoice      = Invoice
+        self.Quote        = Quote
+        self.SalesOrder   = SalesOrder
+        self.TemplateBase = TemplateBase
 
-        self.ProductLine = billing.get_product_line_model()
-        self.ServiceLine = billing.get_service_line_model()
+        self.ProductLine = ProductLine
+        self.ServiceLine = ServiceLine
 
     def _already_populated(self):
         return RelationType.objects.filter(
@@ -570,91 +685,91 @@ class Populator(BasePopulator):
             ],
         )
 
-    def _create_header_filter(self, *, pk, name, model, status=True):
-        HeaderFilter.objects.create_if_needed(
-            pk=pk, name=name, model=model,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                EntityCellRelation(
-                    model=model,
-                    rtype=RelationType.objects.get(id=constants.REL_SUB_BILL_RECEIVED),
-                ),
-                (EntityCellRegularField, {'name': 'number'}),
-                (EntityCellRegularField, {'name': 'status'}) if status else None,
-                (EntityCellRegularField, {'name': 'total_no_vat'}),
-                (EntityCellRegularField, {'name': 'issuing_date'}),
-                (EntityCellRegularField, {'name': 'expiration_date'}),
-            ],
-        )
-
-    def _create_header_filter_for_line(self, *, pk, name, model):
-        HeaderFilter.objects.create_if_needed(
-            pk=pk, name=name, model=model,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'on_the_fly_item'}),
-                (EntityCellRegularField, {'name': 'quantity'}),
-                (EntityCellRegularField, {'name': 'unit_price'}),
-            ],
-        )
-
-    def _populate_header_filters_for_invoice(self):
-        self._create_header_filter(
-            pk=constants.DEFAULT_HFILTER_INVOICE,
-            name=_('Invoice view'),
-            model=self.Invoice,
-        )
-
-    def _populate_header_filters_for_quote(self):
-        self._create_header_filter(
-            pk=constants.DEFAULT_HFILTER_QUOTE,
-            name=_('Quote view'),
-            model=self.Quote,
-        )
-
-    def _populate_header_filters_for_order(self):
-        self._create_header_filter(
-            pk=constants.DEFAULT_HFILTER_ORDER,
-            name=_('Sales order view'),
-            model=self.SalesOrder,
-        )
-
-    def _populate_header_filters_for_creditnode(self):
-        self._create_header_filter(
-            pk=constants.DEFAULT_HFILTER_CNOTE,
-            name=_('Credit note view'),
-            model=self.CreditNote,
-        )
-
-    def _populate_header_filters_for_templatebase(self):
-        self._create_header_filter(
-            pk=constants.DEFAULT_HFILTER_TEMPLATE,
-            name=_('Template view'),
-            model=self.TemplateBase,
-            status=False,
-        )
-
-    def _populate_header_filters_for_productline(self):
-        self._create_header_filter_for_line(
-            pk='billing-hg_product_lines',
-            name=_('Product lines view'),
-            model=self.ProductLine,
-        )
-
-    def _populate_header_filters_for_serviceline(self):
-        self._create_header_filter_for_line(
-            pk='billing-hg_service_lines',
-            name=_('Service lines view'),
-            model=self.ServiceLine,
-        )
-
-    def _populate_header_filters(self):
-        self._populate_header_filters_for_invoice()
-        self._populate_header_filters_for_quote()
-        self._populate_header_filters_for_order()
-        self._populate_header_filters_for_creditnode()
-
-        self._populate_header_filters_for_productline()
-        self._populate_header_filters_for_serviceline()
+    # def _create_header_filter(self, *, pk, name, model, status=True):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=pk, name=name, model=model,
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             EntityCellRelation(
+    #                 model=model,
+    #                 rtype=RelationType.objects.get(id=constants.REL_SUB_BILL_RECEIVED),
+    #             ),
+    #             (EntityCellRegularField, {'name': 'number'}),
+    #             (EntityCellRegularField, {'name': 'status'}) if status else None,
+    #             (EntityCellRegularField, {'name': 'total_no_vat'}),
+    #             (EntityCellRegularField, {'name': 'issuing_date'}),
+    #             (EntityCellRegularField, {'name': 'expiration_date'}),
+    #         ],
+    #     )
+    #
+    # def _create_header_filter_for_line(self, *, pk, name, model):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=pk, name=name, model=model,
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'on_the_fly_item'}),
+    #             (EntityCellRegularField, {'name': 'quantity'}),
+    #             (EntityCellRegularField, {'name': 'unit_price'}),
+    #         ],
+    #     )
+    #
+    # def _populate_header_filters_for_invoice(self):
+    #     self._create_header_filter(
+    #         pk=constants.DEFAULT_HFILTER_INVOICE,
+    #         name=_('Invoice view'),
+    #         model=self.Invoice,
+    #     )
+    #
+    # def _populate_header_filters_for_quote(self):
+    #     self._create_header_filter(
+    #         pk=constants.DEFAULT_HFILTER_QUOTE,
+    #         name=_('Quote view'),
+    #         model=self.Quote,
+    #     )
+    #
+    # def _populate_header_filters_for_order(self):
+    #     self._create_header_filter(
+    #         pk=constants.DEFAULT_HFILTER_ORDER,
+    #         name=_('Sales order view'),
+    #         model=self.SalesOrder,
+    #     )
+    #
+    # def _populate_header_filters_for_creditnode(self):
+    #     self._create_header_filter(
+    #         pk=constants.DEFAULT_HFILTER_CNOTE,
+    #         name=_('Credit note view'),
+    #         model=self.CreditNote,
+    #     )
+    #
+    # def _populate_header_filters_for_templatebase(self):
+    #     self._create_header_filter(
+    #         pk=constants.DEFAULT_HFILTER_TEMPLATE,
+    #         name=_('Template view'),
+    #         model=self.TemplateBase,
+    #         status=False,
+    #     )
+    #
+    # def _populate_header_filters_for_productline(self):
+    #     self._create_header_filter_for_line(
+    #         pk='billing-hg_product_lines',
+    #         name=_('Product lines view'),
+    #         model=self.ProductLine,
+    #     )
+    #
+    # def _populate_header_filters_for_serviceline(self):
+    #     self._create_header_filter_for_line(
+    #         pk='billing-hg_service_lines',
+    #         name=_('Service lines view'),
+    #         model=self.ServiceLine,
+    #     )
+    #
+    # def _populate_header_filters(self):
+    #     self._populate_header_filters_for_invoice()
+    #     self._populate_header_filters_for_quote()
+    #     self._populate_header_filters_for_order()
+    #     self._populate_header_filters_for_creditnode()
+    #
+    #     self._populate_header_filters_for_productline()
+    #     self._populate_header_filters_for_serviceline()
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

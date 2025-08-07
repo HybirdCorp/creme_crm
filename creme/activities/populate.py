@@ -58,6 +58,11 @@ from .models import ActivitySubType, ActivityType, CalendarConfigItem, Status
 
 logger = logging.getLogger(__name__)
 
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
+Activity = get_activity_model()
+
 # UUIDs for instances which can be deleted
 UUID_CUSTOMBRICK_COMPLEMENTARY = '3c995e5d-7457-44be-9de8-cba7f7422319'
 
@@ -106,6 +111,22 @@ class Populator(BasePopulator):
             value=constants.UUID_STATUS_UNSUCCESSFUL,
         ),
         SettingValue(key=setting_keys.unsuccessful_duration_key, value=3),
+    ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_ACTIVITY,
+            name=_('Activity view'),
+            model=Activity,
+            cells=[
+                (EntityCellRegularField, 'start'),
+                (EntityCellRegularField, 'title'),
+                (EntityCellRegularField, 'type'),
+                (EntityCellRelation,     constants.REL_OBJ_PART_2_ACTIVITY),
+                (EntityCellRelation,     constants.REL_OBJ_ACTIVITY_SUBJECT),
+                (EntityCellRegularField, 'user'),
+                (EntityCellRegularField, 'end'),
+            ],
+        ),
     ]
     BUTTONS = [
         # (class, order)
@@ -311,9 +332,12 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
-        self.Activity = get_activity_model()
+        # self.Contact      = persons.get_contact_model()
+        # self.Organisation = persons.get_organisation_model()
+        # self.Activity = get_activity_model()
+        self.Contact      = Contact
+        self.Organisation = Organisation
+        self.Activity = Activity
 
     def _already_populated(self):
         return RelationType.objects.filter(
@@ -448,28 +472,28 @@ class Populator(BasePopulator):
             ],
         )
 
-    def _populate_header_filters(self):
-        Activity = self.Activity
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_ACTIVITY,
-            name=_('Activity view'),
-            model=Activity,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'start'}),
-                (EntityCellRegularField, {'name': 'title'}),
-                (EntityCellRegularField, {'name': 'type'}),
-                EntityCellRelation(
-                    model=Activity,
-                    rtype=RelationType.objects.get(id=constants.REL_OBJ_PART_2_ACTIVITY),
-                ),
-                EntityCellRelation(
-                    model=Activity,
-                    rtype=RelationType.objects.get(id=constants.REL_OBJ_ACTIVITY_SUBJECT),
-                ),
-                (EntityCellRegularField, {'name': 'user'}),
-                (EntityCellRegularField, {'name': 'end'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     Activity = self.Activity
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_ACTIVITY,
+    #         name=_('Activity view'),
+    #         model=Activity,
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'start'}),
+    #             (EntityCellRegularField, {'name': 'title'}),
+    #             (EntityCellRegularField, {'name': 'type'}),
+    #             EntityCellRelation(
+    #                 model=Activity,
+    #                 rtype=RelationType.objects.get(id=constants.REL_OBJ_PART_2_ACTIVITY),
+    #             ),
+    #             EntityCellRelation(
+    #                 model=Activity,
+    #                 rtype=RelationType.objects.get(id=constants.REL_OBJ_ACTIVITY_SUBJECT),
+    #             ),
+    #             (EntityCellRegularField, {'name': 'user'}),
+    #             (EntityCellRegularField, {'name': 'end'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(

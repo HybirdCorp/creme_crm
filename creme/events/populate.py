@@ -41,6 +41,10 @@ from .models import EventType
 
 logger = logging.getLogger(__name__)
 
+Contact = get_contact_model()
+Opportunity = get_opportunity_model()
+Event = get_event_model()
+
 # UUIDs for instances which can be deleted
 UUID_EVENT_TYPE_SHOW       = 'd4928cbc-6afd-40bf-9d07-815b8b920b39'
 UUID_EVENT_TYPE_CONFERENCE = '254fda4f-1a01-47e1-b5aa-a1b2d4ef2890'
@@ -55,6 +59,19 @@ class Populator(BasePopulator):
         custom_forms.EVENT_CREATION_CFORM,
         custom_forms.EVENT_EDITION_CFORM,
     ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_EVENT,
+            name=_('Event view'),
+            model=Event,
+            cells=[
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'type'}),
+                (EntityCellRegularField, {'name': 'start_date'}),
+                (EntityCellRegularField, {'name': 'end_date'}),
+            ],
+        ),
+    ]
     SEARCH = ['name', 'description', 'type__name']
     EVENT_TYPES = [
         # is_custom=True => only created during the first execution
@@ -67,9 +84,12 @@ class Populator(BasePopulator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.Event = get_event_model()
-        self.Contact = get_contact_model()
-        self.Opportunity = get_opportunity_model()
+        # self.Event = get_event_model()
+        # self.Contact = get_contact_model()
+        # self.Opportunity = get_opportunity_model()
+        self.Event = Event
+        self.Contact = Contact
+        self.Opportunity = Opportunity
 
     def _already_populated(self):
         return RelationType.objects.filter(
@@ -140,16 +160,16 @@ class Populator(BasePopulator):
             is_internal=True,
         )
 
-    def _populate_header_filters(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_EVENT, name=_('Event view'), model=self.Event,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'type'}),
-                (EntityCellRegularField, {'name': 'start_date'}),
-                (EntityCellRegularField, {'name': 'end_date'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_EVENT, name=_('Event view'), model=self.Event,
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'type'}),
+    #             (EntityCellRegularField, {'name': 'start_date'}),
+    #             (EntityCellRegularField, {'name': 'end_date'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(

@@ -55,6 +55,9 @@ from .models import Civility, LegalForm, Position, Sector, StaffSize
 
 logger = logging.getLogger(__name__)
 
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
 # UUIDs for instances which can be deleted
 UUID_CIVILITY_MRS  = '7c3867da-af53-43d4-bfcc-75c1c3e5121e'
 UUID_CIVILITY_MISS = '6b84a23d-c4ec-41c1-a35d-e6c0af5af2a0'
@@ -99,6 +102,47 @@ class Populator(BasePopulator):
         custom_forms.CONTACT_EDITION_CFORM,
         custom_forms.ORGANISATION_CREATION_CFORM,
         custom_forms.ORGANISATION_EDITION_CFORM,
+    ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_CONTACT,
+            model=Contact,
+            name=_('Contact view'),
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
+                (EntityCellRegularField, 'phone'),
+                (EntityCellRegularField, 'email'),
+                (EntityCellRegularField, 'user'),
+                (EntityCellRelation, constants.REL_SUB_EMPLOYED_BY),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_ORGA,
+            model=Organisation,
+            name=_('Organisation view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'phone'),
+                (EntityCellRegularField, 'user'),
+                (EntityCellRelation, constants.REL_OBJ_MANAGES),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_ORGA_CUSTOMERS,
+            model=Organisation,
+            name=_('Prospect/Suspect view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'sector'),
+                (EntityCellRegularField, 'phone'),
+                (EntityCellRegularField, 'email'),
+                (EntityCellRegularField, 'user'),
+                (EntityCellRelation, constants.REL_SUB_CUSTOMER_SUPPLIER),
+                (EntityCellRelation, constants.REL_SUB_PROSPECT),
+                (EntityCellRelation, constants.REL_SUB_SUSPECT),
+            ],
+        ),
     ]
     SEARCH = {
         'CONTACT': [
@@ -178,8 +222,10 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
+        # self.Contact      = persons.get_contact_model()
+        # self.Organisation = persons.get_organisation_model()
+        self.Contact      = Contact
+        self.Organisation = Organisation
 
     def _already_populated(self):
         return RelationType.objects.filter(
@@ -305,64 +351,64 @@ class Populator(BasePopulator):
         self._populate_entity_filters_for_contact()
         self._populate_entity_filters_for_organisation()
 
-    def _populate_header_filters_for_contact(self):
-        Contact = self.Contact
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_CONTACT, model=Contact,
-            name=_('Contact view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'first_name'}),
-                (EntityCellRegularField, {'name': 'phone'}),
-                (EntityCellRegularField, {'name': 'email'}),
-                (EntityCellRegularField, {'name': 'user'}),
-                EntityCellRelation(
-                    model=Contact,
-                    rtype=RelationType.objects.get(id=constants.REL_SUB_EMPLOYED_BY),
-                ),
-            ],
-        )
-
-    def _populate_header_filters_for_organisation(self):
-        Organisation = self.Organisation
-        create_hf = HeaderFilter.objects.create_if_needed
-        get_rtype = RelationType.objects.get
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_ORGA, model=Organisation,
-            name=_('Organisation view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'phone'}),
-                (EntityCellRegularField, {'name': 'user'}),
-                EntityCellRelation(
-                    model=Organisation, rtype=get_rtype(id=constants.REL_OBJ_MANAGES),
-                ),
-            ],
-        )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_ORGA_CUSTOMERS, model=Organisation,
-            name=_('Prospect/Suspect view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'sector'}),
-                (EntityCellRegularField, {'name': 'phone'}),
-                (EntityCellRegularField, {'name': 'email'}),
-                (EntityCellRegularField, {'name': 'user'}),
-                EntityCellRelation(
-                    model=Organisation, rtype=get_rtype(id=constants.REL_SUB_CUSTOMER_SUPPLIER),
-                ),
-                EntityCellRelation(
-                    model=Organisation, rtype=get_rtype(id=constants.REL_SUB_PROSPECT),
-                ),
-                EntityCellRelation(
-                    model=Organisation, rtype=get_rtype(id=constants.REL_SUB_SUSPECT),
-                ),
-            ],
-        )
-
-    def _populate_header_filters(self):
-        self._populate_header_filters_for_contact()
-        self._populate_header_filters_for_organisation()
+    # def _populate_header_filters_for_contact(self):
+    #     Contact = self.Contact
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_CONTACT, model=Contact,
+    #         name=_('Contact view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'last_name'}),
+    #             (EntityCellRegularField, {'name': 'first_name'}),
+    #             (EntityCellRegularField, {'name': 'phone'}),
+    #             (EntityCellRegularField, {'name': 'email'}),
+    #             (EntityCellRegularField, {'name': 'user'}),
+    #             EntityCellRelation(
+    #                 model=Contact,
+    #                 rtype=RelationType.objects.get(id=constants.REL_SUB_EMPLOYED_BY),
+    #             ),
+    #         ],
+    #     )
+    #
+    # def _populate_header_filters_for_organisation(self):
+    #     Organisation = self.Organisation
+    #     create_hf = HeaderFilter.objects.create_if_needed
+    #     get_rtype = RelationType.objects.get
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_ORGA, model=Organisation,
+    #         name=_('Organisation view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'phone'}),
+    #             (EntityCellRegularField, {'name': 'user'}),
+    #             EntityCellRelation(
+    #                 model=Organisation, rtype=get_rtype(id=constants.REL_OBJ_MANAGES),
+    #             ),
+    #         ],
+    #     )
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_ORGA_CUSTOMERS, model=Organisation,
+    #         name=_('Prospect/Suspect view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'sector'}),
+    #             (EntityCellRegularField, {'name': 'phone'}),
+    #             (EntityCellRegularField, {'name': 'email'}),
+    #             (EntityCellRegularField, {'name': 'user'}),
+    #             EntityCellRelation(
+    #                 model=Organisation, rtype=get_rtype(id=constants.REL_SUB_CUSTOMER_SUPPLIER),
+    #             ),
+    #             EntityCellRelation(
+    #                 model=Organisation, rtype=get_rtype(id=constants.REL_SUB_PROSPECT),
+    #             ),
+    #             EntityCellRelation(
+    #                 model=Organisation, rtype=get_rtype(id=constants.REL_SUB_SUSPECT),
+    #             ),
+    #         ],
+    #     )
+    #
+    # def _populate_header_filters(self):
+    #     self._populate_header_filters_for_contact()
+    #     self._populate_header_filters_for_organisation()
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

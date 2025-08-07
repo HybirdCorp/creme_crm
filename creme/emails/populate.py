@@ -44,6 +44,14 @@ from . import bricks, buttons, constants, creme_jobs, custom_forms, menu
 
 logger = logging.getLogger(__name__)
 
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
+EntityEmail   = emails.get_entityemail_model()
+EmailCampaign = emails.get_emailcampaign_model()
+EmailTemplate = emails.get_emailtemplate_model()
+MailingList   = emails.get_mailinglist_model()
+
 # UUIDs for instances which can be deleted
 UUID_CBRICK_EMAIL    = 'dbabb94a-a92e-41af-89ee-b18a6a920345'
 UUID_CBRICK_TEMPLATE = 'b1bf8a0a-26ef-4f05-a666-a328da6c52fd'
@@ -69,6 +77,39 @@ class Populator(BasePopulator):
         custom_forms.MAILINGLIST_CREATION_CFORM,
         custom_forms.MAILINGLIST_EDITION_CFORM,
     ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            pk=constants.DEFAULT_HFILTER_MAILINGLIST,
+            model=MailingList,
+            name=_('Mailing list view'),
+            cells=[(EntityCellRegularField, 'name')],
+        ),
+        HeaderFilter.objects.proxy(
+            pk=constants.DEFAULT_HFILTER_CAMPAIGN,
+            model=EmailCampaign,
+            name=_('Campaign view'),
+            cells=[(EntityCellRegularField, 'name')],
+        ),
+        HeaderFilter.objects.proxy(
+            pk=constants.DEFAULT_HFILTER_TEMPLATE,
+            model=EmailTemplate,
+            name=_('Email template view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'subject'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            pk=constants.DEFAULT_HFILTER_EMAIL,
+            model=EntityEmail,
+            name=_('Email view'),
+            cells=[
+                (EntityCellRegularField, 'sender'),
+                (EntityCellRegularField, 'recipient'),
+                (EntityCellRegularField, 'subject'),
+            ],
+        ),
+    ]
     SEARCH = {
         'CAMPAIGN': ['name', 'mailing_lists__name'],
         'MAILING_LIST': [
@@ -89,13 +130,20 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
+        # self.Contact      = persons.get_contact_model()
+        # self.Organisation = persons.get_organisation_model()
+        #
+        # self.EntityEmail   = emails.get_entityemail_model()
+        # self.EmailCampaign = emails.get_emailcampaign_model()
+        # self.EmailTemplate = emails.get_emailtemplate_model()
+        # self.MailingList   = emails.get_mailinglist_model()
+        self.Contact      = Contact
+        self.Organisation = Organisation
 
-        self.EntityEmail   = emails.get_entityemail_model()
-        self.EmailCampaign = emails.get_emailcampaign_model()
-        self.EmailTemplate = emails.get_emailtemplate_model()
-        self.MailingList   = emails.get_mailinglist_model()
+        self.EntityEmail   = EntityEmail
+        self.EmailCampaign = EmailCampaign
+        self.EmailTemplate = EmailTemplate
+        self.MailingList   = MailingList
 
     def _already_populated(self):
         return RelationType.objects.filter(
@@ -140,39 +188,39 @@ class Populator(BasePopulator):
             (constants.REL_OBJ_RELATED_TO, _('related to the email'), []),
         )
 
-    def _populate_header_filters(self):
-        create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_MAILINGLIST,
-            model=self.MailingList,
-            name=_('Mailing list view'),
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_CAMPAIGN,
-            model=self.EmailCampaign,
-            name=_('Campaign view'),
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_TEMPLATE,
-            model=self.EmailTemplate,
-            name=_('Email template view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'subject'}),
-            ],
-        )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_EMAIL,
-            model=self.EntityEmail,
-            name=_('Email view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'sender'}),
-                (EntityCellRegularField, {'name': 'recipient'}),
-                (EntityCellRegularField, {'name': 'subject'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     create_hf = HeaderFilter.objects.create_if_needed
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_MAILINGLIST,
+    #         model=self.MailingList,
+    #         name=_('Mailing list view'),
+    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+    #     )
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_CAMPAIGN,
+    #         model=self.EmailCampaign,
+    #         name=_('Campaign view'),
+    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+    #     )
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_TEMPLATE,
+    #         model=self.EmailTemplate,
+    #         name=_('Email template view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'subject'}),
+    #         ],
+    #     )
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_EMAIL,
+    #         model=self.EntityEmail,
+    #         name=_('Email view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'sender'}),
+    #             (EntityCellRegularField, {'name': 'recipient'}),
+    #             (EntityCellRegularField, {'name': 'subject'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

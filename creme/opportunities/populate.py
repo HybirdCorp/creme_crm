@@ -70,6 +70,14 @@ from .models import Origin, SalesPhase
 
 logger = logging.getLogger(__name__)
 
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
+Product = products.get_product_model()
+Service = products.get_service_model()
+
+Opportunity = get_opportunity_model()
+
 # UUIDs for instances which can be deleted
 UUID_PHASE_FORTHCOMING = '9fc5ff38-b358-4131-b03e-6c1f800bfb08'
 UUID_PHASE_PROGRESS    = '4445c750-bcec-4fcd-afb2-c9e35a3bf38c'
@@ -105,6 +113,21 @@ class Populator(BasePopulator):
     CUSTOM_FORMS = [
         custom_forms.OPPORTUNITY_CREATION_CFORM,
         custom_forms.OPPORTUNITY_EDITION_CFORM,
+    ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_OPPORTUNITY,
+            model=Opportunity,
+            name=_('Opportunity view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRelation, constants.REL_SUB_TARGETS),
+                (EntityCellRegularField, 'sales_phase'),
+                (EntityCellRegularField, 'estimated_sales'),
+                (EntityCellRegularField, 'made_sales'),
+                (EntityCellRegularField, 'closing_date'),
+            ],
+        ),
     ]
     SETTING_VALUES = [
         SettingValue(key=setting_keys.quote_key,              value=False),
@@ -148,14 +171,20 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # self.Contact      = persons.get_contact_model()
+        # self.Organisation = persons.get_organisation_model()
+        #
+        # self.Product = products.get_product_model()
+        # self.Service = products.get_service_model()
+        #
+        # self.Opportunity = get_opportunity_model()
+        self.Contact      = Contact
+        self.Organisation = Organisation
 
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
+        self.Product = Product
+        self.Service = Service
 
-        self.Product = products.get_product_model()
-        self.Service = products.get_service_model()
-
-        self.Opportunity = get_opportunity_model()
+        self.Opportunity = Opportunity
 
     def _already_populated(self):
         return RelationType.objects.filter(pk=constants.REL_SUB_TARGETS).exists()
@@ -443,22 +472,22 @@ class Populator(BasePopulator):
             ],
         )
 
-    def _populate_header_filters(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_OPPORTUNITY, model=self.Opportunity,
-            name=_('Opportunity view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                EntityCellRelation(
-                    model=self.Opportunity,
-                    rtype=RelationType.objects.get(id=constants.REL_SUB_TARGETS),
-                ),
-                (EntityCellRegularField, {'name': 'sales_phase'}),
-                (EntityCellRegularField, {'name': 'estimated_sales'}),
-                (EntityCellRegularField, {'name': 'made_sales'}),
-                (EntityCellRegularField, {'name': 'closing_date'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_OPPORTUNITY, model=self.Opportunity,
+    #         name=_('Opportunity view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             EntityCellRelation(
+    #                 model=self.Opportunity,
+    #                 rtype=RelationType.objects.get(id=constants.REL_SUB_TARGETS),
+    #             ),
+    #             (EntityCellRegularField, {'name': 'sales_phase'}),
+    #             (EntityCellRegularField, {'name': 'estimated_sales'}),
+    #             (EntityCellRegularField, {'name': 'made_sales'}),
+    #             (EntityCellRegularField, {'name': 'closing_date'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(

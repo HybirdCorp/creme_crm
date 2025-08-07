@@ -98,6 +98,33 @@ class Populator(BasePopulator):
     SETTING_VALUES = [
         SettingValue(key=setting_keys.orga_approaches_key, value=True),
     ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_ACT,
+            model=Act,
+            name=_('Com Action view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'expected_sales'),
+                (EntityCellRegularField, 'due_date'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_STRATEGY,
+            model=Strategy,
+            name=_('Strategy view'),
+            cells=[(EntityCellRegularField, 'name')],
+        ),
+        HeaderFilter.objects.proxy(
+            pk=constants.DEFAULT_HFILTER_PATTERN,
+            model=ActObjectivePattern,
+            name=_('Objective pattern view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'segment'),
+            ],
+        ),
+    ]
     SEARCH = {
         'ACT': ['name', 'expected_sales', 'cost', 'goal'],
         'STRATEGY': ['name'],
@@ -175,38 +202,38 @@ class Populator(BasePopulator):
             ),
         )
 
-    def _populate_header_filters_for_act(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_ACT, model=self.Act,
-            name=_('Com Action view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'expected_sales'}),
-                (EntityCellRegularField, {'name': 'due_date'}),
-            ],
-        )
-
-    def _populate_header_filters_for_strategy(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_STRATEGY, model=self.Strategy,
-            name=_('Strategy view'),
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
-
-    def _populate_header_filters_for_pattern(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_PATTERN, model=self.ActObjectivePattern,
-            name=_('Objective pattern view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'segment'}),
-            ],
-        )
-
-    def _populate_header_filters(self):
-        self._populate_header_filters_for_act()
-        self._populate_header_filters_for_strategy()
-        self._populate_header_filters_for_pattern()
+    # def _populate_header_filters_for_act(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_ACT, model=self.Act,
+    #         name=_('Com Action view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'expected_sales'}),
+    #             (EntityCellRegularField, {'name': 'due_date'}),
+    #         ],
+    #     )
+    #
+    # def _populate_header_filters_for_strategy(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_STRATEGY, model=self.Strategy,
+    #         name=_('Strategy view'),
+    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+    #     )
+    #
+    # def _populate_header_filters_for_pattern(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_PATTERN, model=self.ActObjectivePattern,
+    #         name=_('Objective pattern view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'segment'}),
+    #         ],
+    #     )
+    #
+    # def _populate_header_filters(self):
+    #     self._populate_header_filters_for_act()
+    #     self._populate_header_filters_for_strategy()
+    #     self._populate_header_filters_for_pattern()
 
     def _populate_search_config(self):
         def create_sci(model, key):

@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+from copy import deepcopy
 from typing import TYPE_CHECKING, Iterable
 
 from django.contrib.contenttypes.models import ContentType
@@ -69,6 +70,151 @@ class HeaderFilterList(list):
             self._selected = None
 
         return self._selected
+
+
+# TODO: errors like create_if_needed()??
+class HeaderFilterProxy:
+    """TODO"""
+    def __init__(self, *,
+                 model: type[CremeEntity],
+                 cells: Iterable[tuple[type[EntityCell], str]],
+                 instance: HeaderFilter,
+                 user: str | None = None,  # TODO: accept UUID?
+                 ):
+        # TODO
+        # """
+        # @param instance: Instance of CremePropertyType which should not be saved
+        #        (i.e. no PK).
+        # @param subject_models: used to set the M2M 'subject_ctypes' of the
+        #        underlying CremePropertyType
+        # """
+        # TODO
+        # if instance.pk is not None:
+        #     raise ValueError(f'{instance} is already saved in DB')
+        self._instance = instance
+        self._model = model
+        self._cells_info = [*cells]
+        # TODO: check user is a uuid
+        self._user = user
+
+    @property
+    def entity_type(self) -> ContentType:
+        return ContentType.objects.get_for_model(self._model)
+
+    @property
+    def model(self) -> type[CremeEntity]:
+        return self._model
+
+    @property
+    def user(self) -> CremeUser | None:
+        uid = self._user
+        return CremeUser.objects.get(uuid=uid) if uid else None
+
+    @user.setter
+    def user(self, value: str | None) -> None:
+        self._user = value
+
+    def __getattr__(self, name):
+        # TODO
+        # try:
+        #     type(self._instance)._meta.get_field(name)
+        # except FieldDoesNotExist as e:
+        #     raise AttributeError(
+        #         f'CremePropertyTypeProxy has no attribute "{name}" ({e})'
+        #     ) from e
+
+        return getattr(self._instance, name)
+
+    # TODO
+    # def __setattr__(self, name, value):
+    #     if name in ('_instance', '_subject_models'):
+    #         object.__setattr__(self, name, value)
+    #     elif name in ('id', 'pk'):
+    #         raise AttributeError(f"can't set attribute '{name}'")
+    #     else:
+    #         self._instance.__setattr__(name, value)
+
+    @property
+    def cells(self) -> list[EntityCell]:
+        # TODO: what about error?
+        return [
+            cell_cls.build(model=self._model, name=cell_name)
+            for cell_cls, cell_name in self._cells_info
+        ]
+        # cells = self._cells
+        #
+        # if cells is None:
+        #     from ..core.entity_cell import CELLS_MAP
+        #
+        #     cells, errors = CELLS_MAP.build_cells_from_dicts(
+        #         model=self.entity_type.model_class(),
+        #         dicts=self.json_cells,
+        #     )
+        #
+        #     if errors:
+        #         logger.warning(
+        #             'HeaderFilter (id="%s") is saved with valid cells.',
+        #             self.id,
+        #         )
+        #         self._dump_cells(cells)
+        #         self.save()
+        #
+        #     self._cells = cells
+        #
+        # return cells
+
+    # TODO
+    # @cells.setter
+    # def cells(self, cells: Iterable[EntityCell]) -> None:
+    #     self._cells = cells = [cell for cell in cells if cell]
+    #     self._dump_cells(cells)
+
+    # @property
+    # def filtered_cells(self) -> list[EntityCell]:
+    #     """List of not excluded EntityCell instances.
+    #     (e.g. fields not hidden with FieldsConfig, CustomFields not deleted).
+    #     """
+    #     return [cell for cell in self.cells if not cell.is_excluded]
+
+    # TODO: insert_cell & remove_cell
+    # def add_models(self, *models: type[CremeEntity]) -> CremePropertyTypeProxy:
+    #     self._subject_models.update(models)
+    #
+    #     return self
+    #
+    # def remove_models(self, *models: type[CremeEntity]) -> CremePropertyTypeProxy:
+    #     remove = self._subject_models.remove
+    #     for model in models:
+    #         remove(model)
+    #
+    #     return self
+
+    def get_or_create(self) -> tuple[HeaderFilter, bool]:
+        instance = self._instance
+        saved_instance = type(instance).objects.filter(id=instance.id).first()
+        if saved_instance is not None:
+            return saved_instance, False
+
+        saved_instance = deepcopy(instance)
+        saved_instance.entity_type = self._model
+        saved_instance.cells = self.cells
+        saved_instance.user = self.user
+        saved_instance.save()
+
+        return saved_instance, True
+
+    # TODO: remove?
+    # def update_or_create(self) -> CremePropertyType:
+    #     instance = deepcopy(self._instance)
+    #
+    #     existing = type(instance).objects.filter(uuid=instance.uuid).first()
+    #     if existing is not None:
+    #         instance.pk = existing.pk
+    #
+    #     instance.save()
+    #     instance.subject_ctypes.set(self.subject_ctypes)
+    #
+    #     return instance
 
 
 class HeaderFilterManager(models.Manager):
@@ -151,6 +297,17 @@ class HeaderFilterManager(models.Manager):
         return hf
 
     create_if_needed.alters_data = True
+
+    def proxy(self, *,
+              model: type[CremeEntity],
+              cells: Iterable[tuple[type[EntityCell], str]],
+              user: str | None = None,  # TODO: accept UUID?
+              **kwargs):
+        return HeaderFilterProxy(
+            model=model, cells=cells, user=user,
+            instance=self.model(**kwargs),
+            # TODO: user => uuid
+        )
 
 
 class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
