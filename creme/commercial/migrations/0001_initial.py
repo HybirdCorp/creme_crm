@@ -9,16 +9,7 @@ import creme.creme_core.models.fields as core_fields
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('commercial', '0001_initial'),
-    #     ('commercial', '0016_v2_6__ptype_uuid01'),
-    #     ('commercial', '0017_v2_6__ptype_uuid02'),
-    #     ('commercial', '0018_v2_6__ptype_uuid03'),
-    #     ('commercial', '0019_v2_6__ptype_uuid04'),
-    #     ('commercial', '0020_v2_6__ptype_uuid05'),
-    #     ('commercial', '0021_v2_6__fix_act_type_uuids'),
-    #     ('commercial', '0022_v2_6__settingvalue_json'),
-    # ]
+    # Memo: last migration was "0022_v2_6__settingvalue_json.py"
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),

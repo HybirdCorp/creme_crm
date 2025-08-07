@@ -16,10 +16,12 @@ from creme.creme_core.models.vat import get_default_vat_pk
 class Migration(migrations.Migration):
     # replaces = [
     #     ('billing', '0001_initial'),
-    #     ('billing', '0032_v2_6__statuses_is_default01,),
-    #     ('billing', '0033_v2_6__statuses_is_default02,),
-    #     ('billing', '0034_v2_6__fix_uuids,),
-    #     ('billing', '0035_v2_6__settingvalue_json,),
+    #     ('billing', '0036_v2_7__templatebase_status_uuid01.py'),
+    #     ('billing', '0037_v2_7__templatebase_status_uuid02.py'),
+    #     ('billing', '0038_v2_7__templatebase_status_uuid03.py'),
+    #     ('billing', '0039_v2_7__number_generation01.py'),
+    #     ('billing', '0040_v2_7__number_generation02.py'),
+    #     ('billing', '0041_v2_7__number_generation03.py'),
     # ]
 
     initial = True
@@ -31,6 +33,41 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.CreateModel(
+            name='NumberGeneratorItem',
+            fields=[
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID',
+                    )
+                ),
+                (
+                    'is_edition_allowed',
+                    models.BooleanField(
+                        verbose_name='Editable number',
+                        default=True,
+                        help_text='Can the number be manually edited?',
+                    )
+                ),
+                ('data', models.JSONField(default=dict)),
+                (
+                    'numbered_type',
+                    core_fields.EntityCTypeForeignKey(
+                        to='contenttypes.contenttype', on_delete=models.CASCADE,
+                    )
+                ),
+                (
+                    'organisation',
+                    models.ForeignKey(
+                        to=settings.PERSONS_ORGANISATION_MODEL,
+                        on_delete=models.CASCADE,
+                    )),
+            ],
+            options={
+                'unique_together': {('organisation', 'numbered_type')},
+            },
+        ),
         migrations.CreateModel(
             name='AdditionalInformation',
             fields=[
@@ -94,21 +131,21 @@ class Migration(migrations.Migration):
             },
             bases=(models.Model,),
         ),
-        migrations.CreateModel(
-            name='ConfigBillingAlgo',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name_algo', models.CharField(max_length=400, verbose_name='Algo name')),
-                ('ct', core_fields.CTypeForeignKey(to='contenttypes.ContentType')),
-                (
-                    'organisation',
-                    models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)
-                ),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
+        # migrations.CreateModel(
+        #     name='ConfigBillingAlgo',
+        #     fields=[
+        #         ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+        #         ('name_algo', models.CharField(max_length=400, verbose_name='Algo name')),
+        #         ('ct', core_fields.CTypeForeignKey(to='contenttypes.ContentType')),
+        #         (
+        #             'organisation',
+        #             models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)
+        #         ),
+        #     ],
+        #     options={
+        #     },
+        #     bases=(models.Model,),
+        # ),
         migrations.CreateModel(
             name='SettlementTerms',
             fields=[
@@ -336,7 +373,6 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
                         related_name='+', on_delete=PROTECT,
-                        # default=1,
                         default=get_default_currency_pk,
                     )
                 ),
@@ -478,7 +514,6 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
                         related_name='+', on_delete=PROTECT,
-                        # default=1,
                         default=get_default_currency_pk,
                     )
                 ),
@@ -672,20 +707,20 @@ class Migration(migrations.Migration):
             },
             bases=('creme_core.cremeentity',),
         ),
-        migrations.CreateModel(
-            name='SimpleBillingAlgo',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('last_number', models.IntegerField()),
-                ('prefix', models.CharField(max_length=400, verbose_name='Invoice prefix')),
-                ('ct', core_fields.CTypeForeignKey(to='contenttypes.ContentType')),
-                ('organisation', models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)),
-            ],
-            options={
-                'unique_together': {('organisation', 'last_number', 'ct')},
-            },
-            bases=(models.Model,),
-        ),
+        # migrations.CreateModel(
+        #     name='SimpleBillingAlgo',
+        #     fields=[
+        #         ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+        #         ('last_number', models.IntegerField()),
+        #         ('prefix', models.CharField(max_length=400, verbose_name='Invoice prefix')),
+        #         ('ct', core_fields.CTypeForeignKey(to='contenttypes.ContentType')),
+        #         ('organisation', models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)),
+        #     ],
+        #     options={
+        #         'unique_together': {('organisation', 'last_number', 'ct')},
+        #     },
+        #     bases=(models.Model,),
+        # ),
         migrations.CreateModel(
             name='TemplateBase',
             fields=[
@@ -735,7 +770,6 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
                         related_name='+', on_delete=PROTECT,
-                        # default=1,
                         default=get_default_currency_pk,
                     )
                 ),
@@ -777,7 +811,8 @@ class Migration(migrations.Migration):
                     )
                 ),
 
-                ('status_id', models.PositiveIntegerField(editable=False)),
+                # ('status_id', models.PositiveIntegerField(editable=False)),
+                ('status_uuid', models.UUIDField(editable=False)),
                 ('ct', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
             ],
             options={
@@ -837,7 +872,6 @@ class Migration(migrations.Migration):
                     'vat_value',
                     models.ForeignKey(
                         to='creme_core.Vat', verbose_name='VAT', on_delete=PROTECT,
-                        # default=1,
                         default=get_default_vat_pk,
                     )
                 ),
@@ -903,7 +937,6 @@ class Migration(migrations.Migration):
                     'vat_value',
                     models.ForeignKey(
                         to='creme_core.Vat', verbose_name='VAT', on_delete=PROTECT,
-                        # default=1,
                         default=get_default_vat_pk,
                     )
                 ),
