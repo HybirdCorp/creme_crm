@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 04/09/2025 for Creme 2.7
+:Version: 05/09/2025 for Creme 2.8
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -750,6 +750,24 @@ Then we create a file : ``my_project/beavers/populate.py``. ::
     class Populator(BasePopulator):
         dependencies = ['creme_core', 'persons']
 
+        # The base class uses this attribute to build HeaderFilter instances
+        # (see method '_populate_header_filters()')
+        HEADER_FILTERS = [
+            # By default the instances are marqued as <is_custom=False>; it
+            # allows to get default HeaderFilters which can be deleted.
+            # The parent class classe will create the instance only if does not
+            # exist yet (using l'ID), so don't worry the command can be run again.
+            HeaderFilter.objects.proxy(
+                id=constants.DEFAULT_HFILTER_BEAVER,
+                name=_('Beaver view'),
+                model=Beaver,
+                cells=[
+                    (EntityCellRegularField, 'name'),
+                    (EntityCellRegularField, 'birthday'),
+                ],
+            ),
+        ]
+
         # This method allow to know if the command has already be run for our app.
         # You MUST implement it.
         def _already_populated(self):
@@ -759,21 +777,6 @@ Then we create a file : ``my_project/beavers/populate.py``. ::
 
         # This method is defined by the parent class 'BasePopulator' and is
         # automatically called.
-        def _populate_header_filters(self):
-            # The method 'create_if_needed()' creates the instance only if it
-            # does not already exist (using the PK).
-            # So, do not worry if it's called each time the commande is run.
-            HeaderFilter.objects.create_if_needed(
-                pk=constants.DEFAULT_HFILTER_BEAVER,
-                name=_('Beaver view'),
-                model=Beaver,
-                cells_desc=[
-                    (EntityCellRegularField, {'name': 'name'}),
-                    (EntityCellRegularField, {'name': 'birthday'}),
-                ],
-            )
-
-        # See remarks for '_populate_header_filters()'.
         def _populate_search_config(self):
             SearchConfigItem.objects.create_if_needed(Beaver, ['name'])
 

@@ -39,6 +39,13 @@ from .models import PollType
 
 logger = logging.getLogger(__name__)
 
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
+PollCampaign = polls.get_pollcampaign_model()
+PollForm     = polls.get_pollform_model()
+PollReply    = polls.get_pollreply_model()
+
 # UUIDs for instances which can be deleted
 UUID_POLL_TYPE_SURVEY     = '90d3d792-4354-43d2-8da2-9abf7cdd1421'
 UUID_POLL_TYPE_MONITORING = 'f3568c0a-ba44-485d-b4f3-88dac5c9477b'
@@ -48,6 +55,34 @@ UUID_POLL_TYPE_ASSESSMENT = '3b50033a-b77c-43e4-88ae-145e433dc1ca'
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_PFORM,
+            model=PollForm,
+            name=_('Form view'),
+            cells=[(EntityCellRegularField, 'name')],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_PREPLY,
+            model=PollReply,
+            name=_('Reply view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'pform'),
+                (EntityCellRegularField, 'person'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_PCAMPAIGN,
+            model=PollCampaign,
+            name=_('Campaign view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'due_date'),
+                (EntityCellRegularField, 'segment'),
+            ],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.CAMPAIGN_CREATION_CFORM,
         custom_forms.CAMPAIGN_EDITION_CFORM,
@@ -63,13 +98,18 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # self.Contact      = persons.get_contact_model()
+        # self.Organisation = persons.get_organisation_model()
+        #
+        # self.PollCampaign = polls.get_pollcampaign_model()
+        # self.PollForm     = polls.get_pollform_model()
+        # self.PollReply    = polls.get_pollreply_model()
+        self.Contact      = Contact
+        self.Organisation = Organisation
 
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
-
-        self.PollCampaign = polls.get_pollcampaign_model()
-        self.PollForm     = polls.get_pollform_model()
-        self.PollReply    = polls.get_pollreply_model()
+        self.PollCampaign = PollCampaign
+        self.PollForm     = PollForm
+        self.PollReply    = PollReply
 
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_PFORM).exists()
@@ -81,31 +121,31 @@ class Populator(BasePopulator):
     def _populate_poll_types(self):
         self._save_minions(self.POLL_TYPES)
 
-    def _populate_header_filters(self):
-        create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_PFORM,
-            model=self.PollForm, name=_('Form view'),
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_PREPLY,
-            model=self.PollReply, name=_('Reply view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'pform'}),
-                (EntityCellRegularField, {'name': 'person'}),
-            ],
-        )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_PCAMPAIGN,
-            model=self.PollCampaign, name=_('Campaign view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'due_date'}),
-                (EntityCellRegularField, {'name': 'segment'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     create_hf = HeaderFilter.objects.create_if_needed
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_PFORM,
+    #         model=self.PollForm, name=_('Form view'),
+    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+    #     )
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_PREPLY,
+    #         model=self.PollReply, name=_('Reply view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'pform'}),
+    #             (EntityCellRegularField, {'name': 'person'}),
+    #         ],
+    #     )
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_PCAMPAIGN,
+    #         model=self.PollCampaign, name=_('Campaign view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'due_date'}),
+    #             (EntityCellRegularField, {'name': 'segment'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

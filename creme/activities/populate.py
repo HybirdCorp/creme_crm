@@ -122,6 +122,22 @@ class Populator(BasePopulator):
             models=[Activity],
         ),
     ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_ACTIVITY,
+            name=_('Activity view'),
+            model=Activity,
+            cells=[
+                (EntityCellRegularField, 'start'),
+                (EntityCellRegularField, 'title'),
+                (EntityCellRegularField, 'type'),
+                (EntityCellRelation,     constants.REL_OBJ_PART_2_ACTIVITY),
+                (EntityCellRelation,     constants.REL_OBJ_ACTIVITY_SUBJECT),
+                (EntityCellRegularField, 'user'),
+                (EntityCellRegularField, 'end'),
+            ],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.ACTIVITY_CREATION_CFORM,
         custom_forms.ACTIVITY_CREATION_FROM_CALENDAR_CFORM,
@@ -354,7 +370,7 @@ class Populator(BasePopulator):
         # self.Contact      = persons.get_contact_model()
         # self.Organisation = persons.get_organisation_model()
         # self.Activity = get_activity_model()
-        self.Contact = Contact
+        self.Contact      = Contact
         self.Organisation = Organisation
         self.Activity = Activity
 
@@ -491,28 +507,28 @@ class Populator(BasePopulator):
             ],
         )
 
-    def _populate_header_filters(self):
-        Activity = self.Activity
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_ACTIVITY,
-            name=_('Activity view'),
-            model=Activity,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'start'}),
-                (EntityCellRegularField, {'name': 'title'}),
-                (EntityCellRegularField, {'name': 'type'}),
-                EntityCellRelation(
-                    model=Activity,
-                    rtype=RelationType.objects.get(id=constants.REL_OBJ_PART_2_ACTIVITY),
-                ),
-                EntityCellRelation(
-                    model=Activity,
-                    rtype=RelationType.objects.get(id=constants.REL_OBJ_ACTIVITY_SUBJECT),
-                ),
-                (EntityCellRegularField, {'name': 'user'}),
-                (EntityCellRegularField, {'name': 'end'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     Activity = self.Activity
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_ACTIVITY,
+    #         name=_('Activity view'),
+    #         model=Activity,
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'start'}),
+    #             (EntityCellRegularField, {'name': 'title'}),
+    #             (EntityCellRegularField, {'name': 'type'}),
+    #             EntityCellRelation(
+    #                 model=Activity,
+    #                 rtype=RelationType.objects.get(id=constants.REL_OBJ_PART_2_ACTIVITY),
+    #             ),
+    #             EntityCellRelation(
+    #                 model=Activity,
+    #                 rtype=RelationType.objects.get(id=constants.REL_OBJ_ACTIVITY_SUBJECT),
+    #             ),
+    #             (EntityCellRegularField, {'name': 'user'}),
+    #             (EntityCellRegularField, {'name': 'end'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(

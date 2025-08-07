@@ -40,6 +40,16 @@ RecurrentGenerator = get_rgenerator_model()
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_RGENERATOR,
+            model=RecurrentGenerator,
+            name=_('Generator view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+            ],
+        ),
+    ]
     JOBS = [Job(type=recurrents_gendocs_type)]
     CUSTOM_FORMS = [
         custom_forms.GENERATOR_CREATION_CFORM,
@@ -49,13 +59,13 @@ class Populator(BasePopulator):
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_RGENERATOR).exists()
 
-    def _populate_header_filters(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_RGENERATOR,
-            model=RecurrentGenerator,
-            name=_('Generator view'),
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
+    # def _populate_header_filters(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_RGENERATOR,
+    #         model=RecurrentGenerator,
+    #         name=_('Generator view'),
+    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+    #     )
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(RecurrentGenerator, ['name', 'description'])

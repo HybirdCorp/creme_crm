@@ -37,10 +37,23 @@ from .menu import ReportsEntry
 
 logger = logging.getLogger(__name__)
 
+Report = get_report_model()
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_REPORT,
+            name=_('Report view'),
+            model=Report,
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'ct'),
+            ],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.REPORT_CREATION_CFORM,
         custom_forms.REPORT_EDITION_CFORM,
@@ -49,20 +62,21 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Report = get_report_model()
+        # self.Report = get_report_model()
+        self.Report = Report
 
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_REPORT).exists()
 
-    def _populate_header_filters(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_REPORT,
-            name=_('Report view'), model=self.Report,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'ct'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_REPORT,
+    #         name=_('Report view'), model=self.Report,
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'ct'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(model=self.Report, fields=self.SEARCH)

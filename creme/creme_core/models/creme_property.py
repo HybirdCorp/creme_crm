@@ -197,7 +197,7 @@ class CremePropertyTypeManager(models.Manager):
 
     def proxy(self,
               subject_models: Iterable[type[CremeEntity]] = (),
-              **kwargs):
+              **kwargs) -> CremePropertyTypeProxy:
         return CremePropertyTypeProxy(
             instance=self.model(**kwargs), subject_models=subject_models,
         )

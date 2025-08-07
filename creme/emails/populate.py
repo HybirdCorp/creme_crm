@@ -88,6 +88,39 @@ class Populator(BasePopulator):
             predicate=_('related to the email'),
         ),
     ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_MAILINGLIST,
+            model=MailingList,
+            name=_('Mailing list view'),
+            cells=[(EntityCellRegularField, 'name')],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_CAMPAIGN,
+            model=EmailCampaign,
+            name=_('Campaign view'),
+            cells=[(EntityCellRegularField, 'name')],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_TEMPLATE,
+            model=EmailTemplate,
+            name=_('Email template view'),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'subject'),
+            ],
+        ),
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_EMAIL,
+            model=EntityEmail,
+            name=_('Email view'),
+            cells=[
+                (EntityCellRegularField, 'sender'),
+                (EntityCellRegularField, 'recipient'),
+                (EntityCellRegularField, 'subject'),
+            ],
+        ),
+    ]
     JOBS = [
         Job(type=creme_jobs.entity_emails_send_type),
         Job(type=creme_jobs.campaign_emails_send_type),
@@ -188,39 +221,39 @@ class Populator(BasePopulator):
     #         (constants.REL_OBJ_RELATED_TO, _('related to the email'), []),
     #     )
 
-    def _populate_header_filters(self):
-        create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_MAILINGLIST,
-            model=self.MailingList,
-            name=_('Mailing list view'),
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_CAMPAIGN,
-            model=self.EmailCampaign,
-            name=_('Campaign view'),
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_TEMPLATE,
-            model=self.EmailTemplate,
-            name=_('Email template view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'subject'}),
-            ],
-        )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_EMAIL,
-            model=self.EntityEmail,
-            name=_('Email view'),
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'sender'}),
-                (EntityCellRegularField, {'name': 'recipient'}),
-                (EntityCellRegularField, {'name': 'subject'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     create_hf = HeaderFilter.objects.create_if_needed
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_MAILINGLIST,
+    #         model=self.MailingList,
+    #         name=_('Mailing list view'),
+    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+    #     )
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_CAMPAIGN,
+    #         model=self.EmailCampaign,
+    #         name=_('Campaign view'),
+    #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+    #     )
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_TEMPLATE,
+    #         model=self.EmailTemplate,
+    #         name=_('Email template view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'subject'}),
+    #         ],
+    #     )
+    #     create_hf(
+    #         pk=constants.DEFAULT_HFILTER_EMAIL,
+    #         model=self.EntityEmail,
+    #         name=_('Email view'),
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'sender'}),
+    #             (EntityCellRegularField, {'name': 'recipient'}),
+    #             (EntityCellRegularField, {'name': 'subject'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         create_sci = SearchConfigItem.objects.create_if_needed

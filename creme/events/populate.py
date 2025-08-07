@@ -41,6 +41,10 @@ from .models import EventType
 
 logger = logging.getLogger(__name__)
 
+Contact = get_contact_model()
+Opportunity = get_opportunity_model()
+Event = get_event_model()
+
 # UUIDs for instances which can be deleted
 UUID_EVENT_TYPE_SHOW       = 'd4928cbc-6afd-40bf-9d07-815b8b920b39'
 UUID_EVENT_TYPE_CONFERENCE = '254fda4f-1a01-47e1-b5aa-a1b2d4ef2890'
@@ -115,6 +119,19 @@ class Populator(BasePopulator):
             id=constants.REL_OBJ_GEN_BY_EVENT,
             predicate=_('(event) has generated the opportunity'),
             models=[Event],
+        ),
+    ]
+    HEADER_FILTERS = [
+        HeaderFilter.objects.proxy(
+            id=constants.DEFAULT_HFILTER_EVENT,
+            name=_('Event view'),
+            model=Event,
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'type'),
+                (EntityCellRegularField, 'start_date'),
+                (EntityCellRegularField, 'end_date'),
+            ],
         ),
     ]
     CUSTOM_FORMS = [
@@ -208,16 +225,16 @@ class Populator(BasePopulator):
     #         is_internal=True,
     #     )
 
-    def _populate_header_filters(self):
-        HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_EVENT, name=_('Event view'), model=self.Event,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'type'}),
-                (EntityCellRegularField, {'name': 'start_date'}),
-                (EntityCellRegularField, {'name': 'end_date'}),
-            ],
-        )
+    # def _populate_header_filters(self):
+    #     HeaderFilter.objects.create_if_needed(
+    #         pk=constants.DEFAULT_HFILTER_EVENT, name=_('Event view'), model=self.Event,
+    #         cells_desc=[
+    #             (EntityCellRegularField, {'name': 'name'}),
+    #             (EntityCellRegularField, {'name': 'type'}),
+    #             (EntityCellRegularField, {'name': 'start_date'}),
+    #             (EntityCellRegularField, {'name': 'end_date'}),
+    #         ],
+    #     )
 
     def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(
