@@ -9,11 +9,7 @@ from creme.creme_core.models.currency import get_default_currency_pk
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('opportunities', '0001_initial'),
-    #     ('opportunities', '0017_v2_6__fix_uuids'),
-    #     ('opportunities', '0018_v2_6__settingvalue_json'),
-    # ]
+    # Memo: last migration was "0018_v2_6__settingvalue_json"
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -77,7 +73,6 @@ class Migration(migrations.Migration):
                 ('reference', models.CharField(max_length=100, verbose_name='Reference', blank=True)),
                 ('estimated_sales', models.PositiveIntegerField(null=True, verbose_name='Estimated sales', blank=True)),
                 ('made_sales', models.PositiveIntegerField(null=True, verbose_name='Made sales', blank=True)),
-                # ('chance_to_win', models.PositiveIntegerField(null=True, verbose_name='% of chance to win', blank=True)),
                 ('chance_to_win', core_fields.IntegerPercentField(null=True, verbose_name='Chance to win', blank=True)),
                 ('expected_closing_date', models.DateField(null=True, verbose_name='Expected closing date', blank=True)),
                 ('closing_date', models.DateField(null=True, verbose_name='Actual closing date', blank=True)),
@@ -87,7 +82,6 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         verbose_name='Currency', to='creme_core.Currency',
                         on_delete=PROTECT,
-                        # default=1,
                         default=get_default_currency_pk,
                     )
                 ),
