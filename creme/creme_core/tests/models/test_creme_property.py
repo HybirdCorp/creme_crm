@@ -190,9 +190,9 @@ class CremePropertyTypeTestCase(CremeTestCase):
 
         # New proxy ---
         proxy2 = CremePropertyType.objects.proxy(uuid=uuid, text='Other text')
-        ptype2, created2 = proxy2.get_or_create()
-        self.assertIs(created2, False)
-        self.assertEqual(text1, ptype2.text)
+        ptype3, created3 = proxy2.get_or_create()
+        self.assertIs(created3, False)
+        self.assertEqual(text1, ptype3.text)
         self.assertEqual(count + 1, CremePropertyType.objects.count())
 
     def test_manager_proxy__get_or_create__more_arguments(self):
