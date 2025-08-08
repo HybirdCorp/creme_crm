@@ -539,6 +539,27 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(source2, tpl.source)
         self.assertEqual(target2, tpl.target)
 
+    def test_listview(self):
+        # quote1 = self.create_quote_n_orgas(user=user, name='Quote1')[0]
+        # quote2 = self.create_quote_n_orgas(user=user, name='Quote2')[0]
+        invoice_status = InvoiceStatus.objects.first()
+        quote_status   = QuoteStatus.objects.first()
+
+        tpl1 = self._create_templatebase(
+            Invoice, status_uuid=invoice_status.uuid, name='Invoice template',
+        )
+        tpl2 = self._create_templatebase(
+            Quote, status_uuid=quote_status.uuid, name='Quote template',
+        )
+
+        response = self.assertGET200(TemplateBase.get_lv_absolute_url())
+
+        with self.assertNoException():
+            quotes_page = response.context['page_obj']
+
+        self.assertEqual(2, quotes_page.paginator.count)
+        self.assertCountEqual([tpl1, tpl2], quotes_page.paginator.object_list)
+
     def test_delete_invoice_status(self):
         new_status, other_status = InvoiceStatus.objects.all()[:2]
         status2del = InvoiceStatus.objects.create(name='OK')
