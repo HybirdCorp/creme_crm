@@ -638,14 +638,14 @@ class Populator(BasePopulator):
 
     def _populate_header_filters_for_productline(self):
         self._create_header_filter_for_line(
-            pk='billing-hg_product_lines',
+            pk=constants.DEFAULT_HFILTER_PLINE,
             name=_('Product lines view'),
             model=self.ProductLine,
         )
 
     def _populate_header_filters_for_serviceline(self):
         self._create_header_filter_for_line(
-            pk='billing-hg_service_lines',
+            pk=constants.DEFAULT_HFILTER_SLINE,
             name=_('Service lines view'),
             model=self.ServiceLine,
         )
