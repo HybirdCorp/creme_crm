@@ -57,10 +57,11 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.target = create_orga(name='Target')
 
     # def _create_templatebase(self, model, status_id, comment='', **kwargs):
-    def _create_templatebase(self, model, status_uuid, comment='', **kwargs):
+    def _create_templatebase(self, model, status_uuid, name=None, comment='', **kwargs):
         return TemplateBase.objects.create(
             user=self.user,
             ct=model,
+            name=name or f'{model._meta.verbose_name} template',
             # status_id=status_id,
             status_uuid=status_uuid,
             comment=comment,
