@@ -1,5 +1,6 @@
 from unittest import skipIf
 
+from creme.creme_core.core.workflow import WorkflowEngine
 from creme.creme_core.models import Job
 from creme.creme_core.tests.base import CremeTestCase
 
@@ -22,4 +23,7 @@ class RecurrentsTestCase(CremeTestCase):
         return self.get_object_or_fail(Job, type_id=recurrents_gendocs_type.id)
 
     def _generate_docs(self, job=None):
+        # Empty the Queue to avoid log messages
+        WorkflowEngine.get_current()._queue.pickup()
+
         recurrents_gendocs_type.execute(job or self._get_job())
