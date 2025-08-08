@@ -353,14 +353,20 @@ class TemplateBaseTestCase(_BillingTestCase):
         # tpl = self._create_templatebase(Quote, pk)
         tpl = self._create_templatebase(Quote, status_uuid=uid)
 
-        with self.assertNoException():
-            quote = tpl.create_entity()
+        with self.assertLogs(level='WARNING') as logs_manager:
+            with self.assertNoException():
+                quote = tpl.create_entity()
 
         # status = quote.status
         # self.assertIsNotNone(status)
         # self.assertEqual(pk,       status.id)
         # self.assertEqual(_('N/A'), status.name)
         self.assertEqual(default_status, quote.status)
+
+        self.assertIn(
+            f'Invalid status UUID in TemplateBase(id={tpl.id})',
+            logs_manager.output[0],
+        )
 
     @skipIfCustomQuote
     def test_create_quote__no_default_status_available(self):
@@ -370,12 +376,23 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         tpl = self._create_templatebase(Quote, status_uuid=uid)
 
-        with self.assertNoException():
-            quote = tpl.create_entity()
+        with self.assertLogs(level='WARNING') as logs_manager:
+            with self.assertNoException():
+                quote = tpl.create_entity()
 
         status = quote.status
         self.assertIsNotNone(status)
         self.assertIn(status.id, status_ids)
+
+        self.assertIn(
+            "No default instance found for "
+            "<class 'creme.billing.models.other_models.QuoteStatus'>",
+            logs_manager.output[0],
+        )
+        self.assertIn(
+            f'Invalid status UUID in TemplateBase(id={tpl.id})',
+            logs_manager.output[1],
+        )
 
     @skipIfCustomQuote
     def test_create_quote__no_status_available(self):
@@ -384,12 +401,27 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         tpl = self._create_templatebase(Quote, status_uuid=uid)
 
-        with self.assertNoException():
-            quote = tpl.create_entity()
+        with self.assertLogs(level='WARNING') as logs_manager:
+            with self.assertNoException():
+                quote = tpl.create_entity()
 
         status = quote.status
         self.assertIsNotNone(status)
         self.assertEqual(_('N/A'), status.name)
+
+        self.assertIn(
+            "No default instance found for "
+            "<class 'creme.billing.models.other_models.QuoteStatus'>",
+            logs_manager.output[0],
+        )
+        self.assertIn(
+            f'Invalid status UUID in TemplateBase(id={tpl.id})',
+            logs_manager.output[1],
+        )
+        self.assertIn(
+            'no Quote Status available, so we create one',
+            logs_manager.output[2],
+        )
 
     @skipIfCustomQuote
     # @override_settings(QUOTE_NUMBER_PREFIX='QU')
