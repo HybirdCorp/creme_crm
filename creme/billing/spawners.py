@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024 Hybird
+#    Copyright (C) 2024-2025 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -54,7 +54,6 @@ class QuoteStatusCopier(PreSaveCopier):
         if status is None:
             logger.warning('Invalid status UUID in TemplateBase(id=%s)', source.id)
 
-        if status is None:
             status = status_model.objects.order_by('-is_default').first()
             if status is None:
                 logger.warning('TemplateBase: no Quote Status available, so we create one')
