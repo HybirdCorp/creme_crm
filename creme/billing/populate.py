@@ -632,6 +632,7 @@ class Populator(BasePopulator):
         self._populate_header_filters_for_quote()
         self._populate_header_filters_for_order()
         self._populate_header_filters_for_creditnode()
+        self._populate_header_filters_for_templatebase()
 
         self._populate_header_filters_for_productline()
         self._populate_header_filters_for_serviceline()
