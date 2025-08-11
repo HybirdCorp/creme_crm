@@ -16,13 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+import warnings
 
 from django.utils.deprecation import MiddlewareMixin
 
 from ..core.workflow import WorkflowEngine
-
-logger = logging.getLogger(__name__)
 
 
 class WorkflowMiddleware(MiddlewareMixin):
@@ -30,11 +28,12 @@ class WorkflowMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
         events = WorkflowEngine.get_current()._queue.pickup()
         if events:
-            logger.critical(
-                'Some workflow events have not been managed by the view "%s": %s '
-                'Hint: use <creme.creme_core.core.workflow.run_workflow_engine()> '
-                'or the view decorator <creme.creme_core.views.decorators.workflow_engine>',
-                request.path, events,
+            warnings.warn(
+                f'Some workflow events have not been managed by the view '
+                f'"{request.path}": {events}.\n'
+                f'Hint: use <creme.creme_core.core.workflow.run_workflow_engine()> '
+                f'or the view decorator <creme.creme_core.views.decorators.workflow_engine>',
+                RuntimeWarning,
             )
 
         return response

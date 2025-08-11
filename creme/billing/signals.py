@@ -27,6 +27,7 @@ from django.dispatch import receiver
 import creme.creme_core.signals as core_signals
 from creme import billing, persons
 # from creme.persons import workflow
+from creme.creme_core.core.workflow import WorkflowEngine
 from creme.creme_core.models import Relation
 from creme.creme_core.models.utils import assign_2_charfield
 
@@ -148,6 +149,7 @@ def handle_replace_statuses(sender, model_field, replacing_instance, **kwargs):
 
     if STATUSES_REPLACEMENTS.get(model) == model_field.name:
         tpl_mngr = billing.get_template_base_model().objects
+        wf_engine = WorkflowEngine.get_current()
 
         for pk in tpl_mngr.filter(
             # status_id=sender.pk,
@@ -159,7 +161,7 @@ def handle_replace_statuses(sender, model_field, replacing_instance, **kwargs):
             #       - get a HistoryLine for entities.
             # NB2: as in edition view, we perform a select_for_update() to avoid
             #      overriding other fields (if there are concurrent accesses)
-            with atomic():
+            with atomic(), wf_engine.run(user=None):
                 tpl = tpl_mngr.select_for_update().filter(pk=pk).first()
                 # tpl.status_id = replacing_instance.id
                 tpl.status_uuid = replacing_instance.uuid

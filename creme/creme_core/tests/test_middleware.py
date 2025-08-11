@@ -16,7 +16,7 @@ from .base import CremeTestCase
 
 class WorkflowMiddlewareTestCase(CremeTestCase):
     def test_ok(self):
-        "No log."
+        "No warning."
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.create(text='Is cool')
@@ -32,7 +32,8 @@ class WorkflowMiddlewareTestCase(CremeTestCase):
         )
 
         name = 'NERV'
-        with self.assertNoLogs(level='CRITICAL'):
+        # The warning causes an error (see CremeTestCase.setUpClass())
+        with self.assertNoException():
             self.assertNoFormError(
                 self.client.post(
                     FakeOrganisation.get_create_absolute_url(),
@@ -46,7 +47,7 @@ class WorkflowMiddlewareTestCase(CremeTestCase):
         self.assertHasProperty(entity=orga, ptype=ptype)
 
     def test_remaining_events(self):
-        "Some events have not been managed by the engine => log."
+        "Some events have not been managed by the engine => warning."
         user = self.login_as_root_and_get()
         ptype = CremePropertyType.objects.create(text='Is cool')
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
@@ -61,17 +62,15 @@ class WorkflowMiddlewareTestCase(CremeTestCase):
             )],
         )
 
-        with self.assertLogs(level='CRITICAL') as logs_manager:
+        with self.assertWarns(expected_warning=RuntimeWarning) as warn_manager:
             self.assertPOST200(reverse('creme_core__workflow_not_called', args=(orga.id,)))
 
         self.assertEqual('Engine not called', self.refresh(orga).description)
-        self.assertListEqual(
-            [
-                f'CRITICAL:creme.creme_core.middleware.workflow:Some workflow events have not '
-                f'been managed by the view "/tests/organisation/workflow_badly_used/{orga.id}": '
-                f'[EntityEdited(entity=<FakeOrganisation: NERV>)] Hint: use '
-                f'<creme.creme_core.core.workflow.run_workflow_engine()> or the view decorator '
-                f'<creme.creme_core.views.decorators.workflow_engine>'
-            ],
-            logs_manager.output,
+        self.assertEqual(
+            f'Some workflow events have not been managed by the view '
+            f'"/tests/organisation/workflow_badly_used/{orga.id}": '
+            f'[EntityEdited(entity=<FakeOrganisation: NERV>)].\n'
+            f'Hint: use <creme.creme_core.core.workflow.run_workflow_engine()> '
+            f'or the view decorator <creme.creme_core.views.decorators.workflow_engine>',
+            str(warn_manager.warning),
         )

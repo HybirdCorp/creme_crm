@@ -573,8 +573,6 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(target2, tpl.target)
 
     def test_listview(self):
-        # quote1 = self.create_quote_n_orgas(user=user, name='Quote1')[0]
-        # quote2 = self.create_quote_n_orgas(user=user, name='Quote2')[0]
         invoice_status = InvoiceStatus.objects.first()
         quote_status   = QuoteStatus.objects.first()
 

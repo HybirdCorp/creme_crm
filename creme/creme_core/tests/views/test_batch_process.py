@@ -16,7 +16,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
 )
 # Should be a test queue
 from creme.creme_core.core.job import get_queue, job_type_registry
-from creme.creme_core.core.workflow import WorkflowConditions
+from creme.creme_core.core.workflow import WorkflowConditions, WorkflowEngine
 from creme.creme_core.creme_jobs.batch_process import batch_process_type
 from creme.creme_core.models import (
     CremePropertyType,
@@ -747,6 +747,9 @@ class BatchProcessViewsTestCase(CremeTestCase):
         orga01.name = 'Coding'
         orga01.save()
         EntityJobResult.objects.create(job=job, real_entity=orga01)
+
+        # Empty the Queue to avoid log messages
+        WorkflowEngine.get_current()._queue.pickup()
 
         batch_process_type.execute(job)
         self.assertEqual('Manga',   self.refresh(orga02).name)

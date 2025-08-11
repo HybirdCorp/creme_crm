@@ -20,6 +20,7 @@ from collections import Counter
 from collections.abc import Sequence
 
 from django.db.models import ProtectedError
+from django.db.transaction import atomic
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -29,6 +30,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.http import is_ajax
 from creme.creme_core.models import (
     CremeEntity,
@@ -199,20 +201,23 @@ class CremeModelDeletion(CremeDeletion):
         return self.model._default_manager.all()
 
     def perform_deletion(self, request):
-        self.object = self.get_object()
+        user = request.user
 
-        try:
-            self.object.delete()
-        except ProtectedError as e:
-            raise ConflictError(
-                format_html(
-                    '<span>{message}</span>{dependencies}',
-                    message=_(
-                        'This deletion cannot be performed because of the links '
-                        'with some entities (& other elements):'
-                    ),
-                    dependencies=self.dependencies_to_html(
-                        instance=self.object, dependencies=e.args[1], user=request.user,
-                    ),
-                )
-            ) from e
+        with atomic(), run_workflow_engine(user=user):
+            self.object = instance = self.get_object()
+
+            try:
+                instance.delete()
+            except ProtectedError as e:
+                raise ConflictError(
+                    format_html(
+                        '<span>{message}</span>{dependencies}',
+                        message=_(
+                            'This deletion cannot be performed because of the '
+                            'links with some entities (& other elements):'
+                        ),
+                        dependencies=self.dependencies_to_html(
+                            instance=instance, dependencies=e.args[1], user=user,
+                        ),
+                    )
+                ) from e

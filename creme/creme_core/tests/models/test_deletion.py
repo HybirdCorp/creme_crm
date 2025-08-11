@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from creme.creme_core.core.deletion import FixedValueReplacer, SETReplacer
+from creme.creme_core.core.workflow import WorkflowEngine
 from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.models import (
     DeletionCommand,
@@ -24,6 +25,15 @@ from ..base import CremeTestCase
 
 
 class DeletionCommandTestCase(CremeTestCase):
+    def _create_job(self, user):
+        return Job.objects.create(type_id=deletor_type.id, user=user)
+
+    def _execute_job(self, job):
+        # Empty the Queue to avoid log messages
+        WorkflowEngine.get_current()._queue.pickup()
+
+        deletor_type.execute(job)
+
     def test_creme_replace_null(self):
         user = self.get_root_user()
         civ = FakeCivility.objects.create(title='Kun')
@@ -57,10 +67,7 @@ class DeletionCommandTestCase(CremeTestCase):
         user = self.get_root_user()
 
         civ = FakeCivility.objects.create(title='Kun')
-        job = Job.objects.create(
-            type_id=deletor_type.id,
-            user=user,
-        )
+        job = self._create_job(user)
         dcom = DeletionCommand.objects.create(
             content_type=ContentType.objects.get_for_model(FakeCivility),
             job=job,
@@ -76,10 +83,7 @@ class DeletionCommandTestCase(CremeTestCase):
         user = self.get_root_user()
 
         sector = FakeSector.objects.create(title='Ninja')
-        job = Job.objects.create(
-            type_id=deletor_type.id,
-            user=user,
-        )
+        job = self._create_job(user)
         dcom = DeletionCommand.objects.create(
             job=job,
             instance_to_delete=sector,
@@ -102,10 +106,7 @@ class DeletionCommandTestCase(CremeTestCase):
         sector     = create_sector(title='Shinobi')
         sector2del = create_sector(title='Ninja')
 
-        job = Job.objects.create(
-            type_id=deletor_type.id,
-            user=user,
-        )
+        job = self._create_job(user)
 
         field1 = FakeContact._meta.get_field('sector')
         field2 = FakeOrganisation._meta.get_field('sector')
@@ -142,10 +143,7 @@ class DeletionCommandTestCase(CremeTestCase):
         user = self.get_root_user()
         prio2del = FakeTicketPriority.objects.create(name='Not so important')
 
-        job = Job.objects.create(
-            type_id=deletor_type.id,
-            user=user,
-        )
+        job = self._create_job(user)
         field = FakeTicket._meta.get_field('priority')
         dcom = DeletionCommand.objects.create(
             job=job,
@@ -170,10 +168,7 @@ class DeletionCommandTestCase(CremeTestCase):
             last_name='Hattori', first_name='Hanzo',
         )
 
-        job = Job.objects.create(
-            type_id=deletor_type.id,
-            user=user,
-        )
+        job = self._create_job(user)
         dcom = DeletionCommand.objects.create(
             job=job,
             instance_to_delete=civ,
@@ -201,7 +196,7 @@ class DeletionCommandTestCase(CremeTestCase):
             progress.label,
         )
 
-        deletor_type.execute(job)
+        self._execute_job(job)
         self.assertDoesNotExist(civ)
 
         contact = self.assertStillExists(contact)
@@ -223,10 +218,7 @@ class DeletionCommandTestCase(CremeTestCase):
             user=user, civility=civ2del, last_name='Hattori', first_name='Genzo',
         )
 
-        job = Job.objects.create(
-            type_id=deletor_type.id,
-            user=user,
-        )
+        job = self._create_job(user)
         DeletionCommand.objects.create(
             job=job,
             instance_to_delete=civ2del,
@@ -242,7 +234,7 @@ class DeletionCommandTestCase(CremeTestCase):
         self.assertEqual(0, progress.percentage)
         self.assertFalse(progress.label)
 
-        deletor_type.execute(job)
+        self._execute_job(job)
         self.assertDoesNotExist(civ2del)
         self.assertEqual(civ, self.refresh(contact).civility)
 
@@ -289,10 +281,7 @@ class DeletionCommandTestCase(CremeTestCase):
         contact1 = create_contact(last_name='Hattori', first_name='Genzo')
         contact2 = create_contact(last_name='Hattori', first_name='Hanzo')
 
-        job = Job.objects.create(
-            type_id=deletor_type.id,
-            user=user,
-        )
+        job = self._create_job(user)
         DeletionCommand.objects.create(
             job=job,
             instance_to_delete=civ2del,
@@ -304,7 +293,7 @@ class DeletionCommandTestCase(CremeTestCase):
             ],
         )
 
-        deletor_type.execute(job)
+        self._execute_job(job)
         self.assertDoesNotExist(civ2del)
         self.assertEqual(civ, self.refresh(contact1).civility)
         self.assertEqual(civ, self.refresh(contact2).civility)
@@ -331,17 +320,14 @@ class DeletionCommandTestCase(CremeTestCase):
             user=user, sector=sector, name='Hattori clan',
         )
 
-        job = Job.objects.create(
-            type_id=deletor_type.id,
-            user=user,
-        )
+        job = self._create_job(user)
         DeletionCommand.objects.create(
             job=job,
             instance_to_delete=sector,
             replacers=[],
         )
 
-        deletor_type.execute(job)
+        self._execute_job(job)
         self.assertStillExists(sector)
         self.assertEqual(sector, self.refresh(orga).sector)
 

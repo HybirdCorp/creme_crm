@@ -23,6 +23,7 @@ from django.utils.translation import pgettext
 from creme.creme_core.constants import UUID_CHANNEL_JOBS
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
+from creme.creme_core.core.workflow import WorkflowEngine
 from creme.creme_core.gui.history import html_history_registry
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -596,6 +597,9 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         return self.get_object_or_fail(Job, type_id=campaign_emails_send_type.id)
 
     def _send_mails(self, job=None):
+        # Empty the Queue to avoid log messages
+        WorkflowEngine.get_current()._queue.pickup()
+
         campaign_emails_send_type.execute(job or self._get_job())
 
     @skipIfCustomContact

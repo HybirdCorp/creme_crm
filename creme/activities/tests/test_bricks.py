@@ -887,6 +887,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         dt_now = now()
         sub_type = self._get_sub_type(UUID_SUBTYPE_PHONECALL_OUTGOING)
         phone_call = Activity.objects.create(
+            title='Phone call to be deleted',
             start=dt_now, end=dt_now,
             user=user,
             type_id=sub_type.type_id, sub_type=sub_type,
