@@ -12,6 +12,7 @@ from creme.creme_core.core.notification import (
     OUTPUT_WEB,
     SimpleNotifContent,
 )
+from creme.creme_core.core.workflow import WorkflowEngine
 from creme.creme_core.creme_jobs import (
     notification_emails_sender_type as sender_type,
 )
@@ -41,6 +42,12 @@ class NotificationEmailsSenderTestCase(CremeTestCase):
 
     def _get_job(self):
         return self.get_object_or_fail(Job, type_id=sender_type.id)
+
+    def _send_mails(self, job):
+        # Empty the Queue to avoid log messages
+        WorkflowEngine.get_current()._queue.pickup()
+
+        sender_type.execute(job)
 
     @override_settings(
         SOFTWARE_LABEL=SOFTWARE_LABEL,
@@ -78,7 +85,7 @@ class NotificationEmailsSenderTestCase(CremeTestCase):
         now_value = now()
         self.assertEqual(now_value, sender_type.next_wakeup(job=job, now_value=now_value))
 
-        sender_type.execute(job)
+        self._send_mails(job)
         self.assertFalse(self.refresh(notif1).discarded)
 
         messages = mail.outbox
@@ -112,7 +119,7 @@ class NotificationEmailsSenderTestCase(CremeTestCase):
     def test_emails_error(self):
         user = self.login_as_standard()
 
-        job = self.get_object_or_fail(Job, type_id=sender_type.id)
+        job = self._get_job()
         self.assertIsNone(sender_type.next_wakeup(job=job, now_value=now()))
 
         chan = NotificationChannel.objects.first()
@@ -130,7 +137,7 @@ class NotificationEmailsSenderTestCase(CremeTestCase):
             raise Exception(err_msg)
 
         EmailBackend.send_messages = send_messages
-        sender_type.execute(self._get_job())
+        self._send_mails(job)
 
         self.assertTrue(send_messages_called)
 

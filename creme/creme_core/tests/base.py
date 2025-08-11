@@ -105,9 +105,18 @@ class _CremeTestCase:
 
     @classmethod
     def setUpClass(cls):
+        # Django's warnings about naive datetime are transformed into errors
         warnings.filterwarnings(
-            'error', r"(.)* received a naive datetime (.)*",
-            RuntimeWarning, r'django\.db\.models\.fields',
+            action='error',
+            message=r"(.)* received a naive datetime (.)*",
+            category=RuntimeWarning,
+            module=r'django\.db\.models\.fields',
+        )
+        # Creme's warnings about remaining events are transformed into errors
+        warnings.filterwarnings(
+            action='error',
+            message='Some workflow events have not been managed',
+            category=RuntimeWarning,
         )
         cls.request_factory = RequestFactory()
 

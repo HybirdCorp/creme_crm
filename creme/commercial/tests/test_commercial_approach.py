@@ -17,6 +17,7 @@ from creme.activities.constants import (
 from creme.activities.custom_forms import ACTIVITY_CREATION_CFORM
 from creme.activities.models import ActivitySubType, Calendar, Status
 from creme.activities.tests.base import skipIfCustomActivity
+from creme.creme_core.core.workflow import WorkflowEngine
 from creme.creme_core.forms import LAYOUT_REGULAR
 from creme.creme_core.gui.custom_form import FieldGroup, FieldGroupList
 from creme.creme_core.models import (
@@ -438,6 +439,9 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self._get_commap_brick_node(response)
 
     def _send_mails(self):
+        # Empty the Queue to avoid log messages
+        WorkflowEngine.get_current()._queue.pickup()
+
         job = self.get_object_or_fail(Job, type_id=com_approaches_emails_send_type.id)
         self.assertIsNone(job.user)
 

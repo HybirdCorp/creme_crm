@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
@@ -137,11 +138,12 @@ class JobType:
 
         events = WorkflowEngine.get_current()._queue.pickup()
         if events:
-            logger.critical(
-                'Some workflow events have not been managed by the job %s: %s '
-                'Hint: see <creme.creme_core.core.workflow.run_workflow_engine()>',
-                type(self), events,
-            )  # TODO: unit test
+            warnings.warn(
+                f'Some workflow events have not been managed by the job '
+                f'{type(self).__name__}: {events}.\n'
+                f'Hint: see <creme.creme_core.core.workflow.run_workflow_engine()>',
+                RuntimeWarning,
+            )
 
         from ..core.job import get_queue
         get_queue().end_job(job)

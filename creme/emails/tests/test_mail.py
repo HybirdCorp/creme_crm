@@ -17,7 +17,7 @@ from creme.creme_core import workflows
 from creme.creme_core.core.entity_filter import condition_handler
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
-from creme.creme_core.core.workflow import WorkflowConditions
+from creme.creme_core.core.workflow import WorkflowConditions, WorkflowEngine
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.gui import actions
 from creme.creme_core.models import (
@@ -94,6 +94,9 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         return self.get_object_or_fail(Job, type_id=entity_emails_send_type.id)
 
     def _send_mails(self, job=None):
+        # Empty the Queue to avoid log messages
+        WorkflowEngine.get_current()._queue.pickup()
+
         entity_emails_send_type.execute(job or self._get_job())
 
     @skipIfCustomContact

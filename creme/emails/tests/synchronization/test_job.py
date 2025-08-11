@@ -13,6 +13,7 @@ from django.utils.translation import ngettext
 from parameterized import parameterized
 from PIL.Image import open as open_img
 
+from creme.creme_core.core.workflow import WorkflowEngine
 from creme.creme_core.models import Job, JobResult
 from creme.emails.creme_jobs import entity_emails_sync_type
 from creme.emails.models import (
@@ -30,6 +31,12 @@ from creme.persons.tests.base import (
 class _SynchronizationJobTestCase(_EmailsTestCase):
     def _get_sync_job(self):
         return self.get_object_or_fail(Job, type_id=entity_emails_sync_type.id)
+
+    def _synchronize_emails(self, job):
+        # Empty the Queue to avoid log messages
+        WorkflowEngine.get_current()._queue.pickup()
+
+        entity_emails_sync_type.execute(job)
 
 
 class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
@@ -87,7 +94,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = pop_instance = self.mock_POP_for_messages()
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         pop_mock.assert_called_once_with(host=item.host, port=item.port)
         pop_instance.user.assert_called_once_with(item.username)
@@ -140,7 +147,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             )
 
             # Go!
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         pop_mock.assert_called_once_with(host=item.host)
         pop_instance.user.assert_called_once_with(item.username)
@@ -252,7 +259,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             )
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         self.assertListEqual(
             [call(msg_id1), call(msg_id2)],
@@ -353,7 +360,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = self.mock_POP_for_messages(*ids_n_messages)
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         emails_to_sync = [*EmailToSync.objects.order_by('id')]
         self.assertEqual(len(ids_n_messages), len(emails_to_sync))
@@ -409,7 +416,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             )
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         pop_instance.list.assert_called_once()
         self.assertEqual(2, pop_instance.retr.call_count)
@@ -462,7 +469,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = self.mock_POP_for_messages((1, msg1))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         e2sync1 = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(subject, e2sync1.subject)
@@ -492,7 +499,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = pop_instance = self.mock_POP_for_messages((1, msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         pop_instance.list.assert_called_once()
         pop_instance.retr.assert_called_once()
@@ -536,7 +543,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = pop_instance = self.mock_POP_for_messages((1, msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         pop_instance.list.assert_called_once()
         pop_instance.retr.assert_called_once()
@@ -603,7 +610,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = self.mock_POP_for_messages((1, msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         e2sync = self.get_alone_element(EmailToSync.objects.order_by('id'))
         self.assertEqual(user, e2sync.user)
@@ -671,7 +678,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = self.mock_POP_for_messages((1, msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         e2sync = self.get_alone_element(EmailToSync.objects.order_by('id'))
         self.assertEqual(user, e2sync.user)
@@ -727,7 +734,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = self.mock_POP_for_messages((1, msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         e2sync = self.get_alone_element(EmailToSync.objects.order_by('id'))
         self.assertEqual(user, e2sync.user)
@@ -783,7 +790,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             )
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         emails_to_sync = [*EmailToSync.objects.order_by('id')]
         self.assertEqual(2, len(emails_to_sync))
@@ -836,7 +843,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = self.mock_POP_for_messages((1, msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         e2sync = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(team, e2sync.user)
@@ -877,7 +884,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = self.mock_POP_for_messages((1, msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         e2sync = self.get_alone_element(EmailToSync.objects.order_by('id'))
         self.assertEqual(user, e2sync.user)
@@ -933,7 +940,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = self.mock_POP_for_messages((5, msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         e2sync = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(subject, e2sync.subject)
@@ -994,7 +1001,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = self.mock_POP_for_messages((1, msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         e2sync = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(subject, e2sync.subject)
@@ -1010,7 +1017,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         with patch('poplib.POP3') as pop_mock:
             pop_mock.side_effect = poplib.error_proto(error_msg)
 
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         self.assertFalse(EmailToSync.objects.all())
 
@@ -1040,7 +1047,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = pop_instance
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         pop_mock.assert_called_once_with(host=item.host, port=item.port)
         pop_instance.user.assert_called_once_with(item.username)
@@ -1107,7 +1114,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = pop_instance
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         pop_instance.dele.assert_called_once_with(msg_id2)
         pop_instance.quit.assert_called_once()
@@ -1187,7 +1194,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             imap_mock.return_value = imap_instance = self.mock_IMAP_for_messages()
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         imap_mock.assert_called_once_with(host=item.host, port=item.port)
         imap_instance.login.assert_called_once_with(item.username, item.password)
@@ -1242,7 +1249,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             imap_mock.return_value = imap_instance = self.mock_IMAP_for_messages((msg_id, msg))
 
             # Go!
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         imap_mock.assert_called_once_with(host=item.host, port=item.port)
         imap_instance.login.assert_called_once_with(item.username, item.password)
@@ -1355,7 +1362,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             )
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         self.assertListEqual(
             [call(msg_id1, '(RFC822)'), call(msg_id2, '(RFC822)')],
@@ -1457,7 +1464,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = self.mock_IMAP_for_messages(*ids_n_messages)
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         emails_to_sync = [*EmailToSync.objects.order_by('id')]
         self.assertEqual(len(ids_n_messages), len(emails_to_sync))
@@ -1514,7 +1521,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             imap_mock.return_value = imap_instance = self.mock_IMAP_for_messages(*messages)
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         imap_instance.search.assert_called_once()
         self.assertEqual(2, imap_instance.fetch.call_count)
@@ -1568,7 +1575,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = imap_instance = self.mock_IMAP_for_messages((b'1', msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         imap_instance.search.assert_called_once()
         imap_instance.fetch.assert_called_once()
@@ -1612,7 +1619,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             imap_mock.return_value = imap_instance = self.mock_IMAP_for_messages((b'2', msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         imap_instance.search.assert_called_once()
         imap_instance.fetch.assert_called_once()
@@ -1679,7 +1686,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             imap_mock.return_value = self.mock_IMAP_for_messages((b'1', msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         e2sync = self.get_alone_element(EmailToSync.objects.order_by('id'))
         self.assertEqual(user, e2sync.user)
@@ -1747,7 +1754,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             imap_mock.return_value = self.mock_IMAP_for_messages((b'1', msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         e2sync = self.get_alone_element(EmailToSync.objects.order_by('id'))
         self.assertEqual(user, e2sync.user)
@@ -1814,7 +1821,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = self.mock_IMAP_for_messages((b'2', msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         e2sync = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(subject, e2sync.subject)
@@ -1876,7 +1883,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             pop_mock.return_value = self.mock_IMAP_for_messages((b'1', msg))
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         e2sync = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(subject, e2sync.subject)
@@ -1890,7 +1897,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         error_msg = 'Unit test error'
 
         with patch('imaplib.IMAP4.__init__', side_effect=imaplib.IMAP4.error(error_msg)):
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         self.assertFalse(EmailToSync.objects.all())
 
@@ -1922,7 +1929,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             imap_mock.return_value = imap_instance
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         imap_mock.assert_called_once_with(host=item.host)
         imap_instance.search.assert_called_once()
@@ -1991,7 +1998,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             imap_mock.error = Exception  # TypeError if IMAP4.error is not a BaseException
 
             # Go !
-            entity_emails_sync_type.execute(job)
+            self._synchronize_emails(job)
 
         imap_instance.store.assert_called_once_with(msg_id2, '+FLAGS', r'\Deleted')
         imap_instance.logout.assert_called_once()

@@ -152,7 +152,7 @@ class ActivityDeletion(generic.CremeModelDeletion):
         relations = self.get_relations(activity)
 
         try:
-            with atomic():
+            with atomic(), run_workflow_engine(user=request.user):
                 for rel in relations.values():
                     rel.delete()
 

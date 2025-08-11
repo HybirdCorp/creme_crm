@@ -1845,7 +1845,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
 
     @skipIfCustomActivity
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete_activity01(self):
+    def test_delete_activity__no_related_task(self):
         "Activity not related to a project task."
         user = self.login_as_root_and_get()
 
@@ -1865,7 +1865,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
     @skipIfCustomActivity
     @skipIfCustomTask
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete_activity02(self):
+    def test_delete_activity__related_task(self):
         "Activity is related to a project task."
         user = self.login_as_root_and_get()
 
