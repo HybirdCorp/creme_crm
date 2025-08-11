@@ -140,7 +140,7 @@ module.exports = function(config) {
                     '--remote-debugging-port=' + browserDebugPort
                 ]
             },
-            // Works on debian stable (strech) with chromium 69
+            // Works on debian stable (stretch) with chromium 69
             ChromiumHeadless: {
                 base: 'Chromium',
                 flags: [

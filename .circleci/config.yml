@@ -156,7 +156,8 @@ commands:
 
 orbs:
 # See https://circleci.com/developer/orbs/orb/circleci/browser-tools
-  browser-tools: circleci/browser-tools@1.5.2
+#  browser-tools: circleci/browser-tools@1.5.2
+  browser-tools: circleci/browser-tools@2.2.1
 
 jobs:
   python310-lint-isort:
@@ -406,7 +407,8 @@ jobs:
     docker:
      - image: cimg/python:3.10-browsers
     steps:
-      - browser-tools/install-browser-tools
+#      - browser-tools/install-browser-tools
+      - browser-tools/install_browser_tools
       - checkout-creme
       - install-creme-system-packages
       - install-py-dev-env
