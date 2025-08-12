@@ -364,7 +364,11 @@ class JobScheduler:
             if system_jobs:
                 print('System jobs:')
                 for dt, __, job in system_jobs:
-                    if not job.enabled:
+                    if isinstance(job, self._DeferredJob):
+                        # There should never be deferred jobs at starting,
+                        # but the static typer will be happy
+                        continue
+                    elif not job.enabled:
                         print(f' - {job} (id={job.id}) -> disabled')
                     elif dt <= now_value:
                         print(f' - {job} (id={job.id}) -> run immediately')
