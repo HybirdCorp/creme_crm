@@ -108,10 +108,13 @@ class Populator(BasePopulator):
         SettingValue(key=setting_keys.unsuccessful_duration_key, value=3),
     ]
     BUTTONS = [
-        # (class, order)
-        (buttons.AddRelatedActivityButton, 10),
-        (buttons.AddMeetingButton,         11),
-        (buttons.AddPhoneCallButton,       12),
+        # # (class, order)
+        # (buttons.AddRelatedActivityButton, 10),
+        # (buttons.AddMeetingButton,         11),
+        # (buttons.AddPhoneCallButton,       12),
+        ButtonMenuItem(button=buttons.AddRelatedActivityButton, order=10),
+        ButtonMenuItem(button=buttons.AddMeetingButton,         order=11),
+        ButtonMenuItem(button=buttons.AddPhoneCallButton,       order=12),
     ]
     SEARCH = ['title', 'description', 'type__name']
     STATUSES = [
@@ -488,11 +491,11 @@ class Populator(BasePopulator):
         create_mitem(entry_id=menu.PhoneCallsEntry.id, order=30, parent=menu_container)
         create_mitem(entry_id=menu.MeetingsEntry.id,   order=40, parent=menu_container)
 
-    def _populate_buttons_config(self):
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-
-        for button_cls, order in self.BUTTONS:
-            create_bmi(button=button_cls, order=order)
+    # def _populate_buttons_config(self):
+    #     create_bmi = ButtonMenuItem.objects.create_if_needed
+    #
+    #     for button_cls, order in self.BUTTONS:
+    #         create_bmi(button=button_cls, order=order)
 
     def _populate_bricks_config_for_activity(self):
         Activity = self.Activity

@@ -98,6 +98,9 @@ class Populator(BasePopulator):
     SETTING_VALUES = [
         SettingValue(key=setting_keys.orga_approaches_key, value=True),
     ]
+    BUTTONS = [
+        ButtonMenuItem(button=buttons.CompleteGoalButton, order=60),
+    ]
     SEARCH = {
         'ACT': ['name', 'expected_sales', 'cost', 'goal'],
         'STRATEGY': ['name'],
@@ -247,10 +250,10 @@ class Populator(BasePopulator):
         if creations_entry is not None:
             create_mitem(entry_id=menu.ActCreationEntry.id, order=40, parent=creations_entry)
 
-    def _populate_buttons_config(self):
-        ButtonMenuItem.objects.create_if_needed(
-            button=buttons.CompleteGoalButton, order=60,
-        )
+    # def _populate_buttons_config(self):
+    #     ButtonMenuItem.objects.create_if_needed(
+    #         button=buttons.CompleteGoalButton, order=60,
+    #     )
 
     def _populate_bricks_config_for_act(self):
         BrickDetailviewLocation.objects.multi_create(

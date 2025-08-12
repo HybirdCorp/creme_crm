@@ -44,6 +44,14 @@ from . import bricks, buttons, constants, creme_jobs, custom_forms, menu
 
 logger = logging.getLogger(__name__)
 
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
+EntityEmail   = emails.get_entityemail_model()
+EmailCampaign = emails.get_emailcampaign_model()
+EmailTemplate = emails.get_emailtemplate_model()
+MailingList   = emails.get_mailinglist_model()
+
 # UUIDs for instances which can be deleted
 UUID_CBRICK_EMAIL    = 'dbabb94a-a92e-41af-89ee-b18a6a920345'
 UUID_CBRICK_TEMPLATE = 'b1bf8a0a-26ef-4f05-a666-a328da6c52fd'
@@ -69,6 +77,11 @@ class Populator(BasePopulator):
         custom_forms.MAILINGLIST_CREATION_CFORM,
         custom_forms.MAILINGLIST_EDITION_CFORM,
     ]
+    BUTTONS = [
+        ButtonMenuItem.objects.proxy(
+            model=EntityEmail, button=buttons.EntityEmailLinkButton, order=1020,
+        ),
+    ]
     SEARCH = {
         'CAMPAIGN': ['name', 'mailing_lists__name'],
         'MAILING_LIST': [
@@ -89,13 +102,20 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
+        # self.Contact      = persons.get_contact_model()
+        # self.Organisation = persons.get_organisation_model()
+        #
+        # self.EntityEmail   = emails.get_entityemail_model()
+        # self.EmailCampaign = emails.get_emailcampaign_model()
+        # self.EmailTemplate = emails.get_emailtemplate_model()
+        # self.MailingList   = emails.get_mailinglist_model()
+        self.Contact      = Contact
+        self.Organisation = Organisation
 
-        self.EntityEmail   = emails.get_entityemail_model()
-        self.EmailCampaign = emails.get_emailcampaign_model()
-        self.EmailTemplate = emails.get_emailtemplate_model()
-        self.MailingList   = emails.get_mailinglist_model()
+        self.EntityEmail   = EntityEmail
+        self.EmailCampaign = EmailCampaign
+        self.EmailTemplate = EmailTemplate
+        self.MailingList   = MailingList
 
     def _already_populated(self):
         return RelationType.objects.filter(
@@ -196,12 +216,12 @@ class Populator(BasePopulator):
         create_mitem(entry_id=menu.EntityEmailsEntry.id,   order=25)
         create_mitem(entry_id=menu.EmailSyncEntry.id,      order=30)
 
-    def _populate_buttons_config(self):
-        ButtonMenuItem.objects.create_if_needed(
-            model=self.EntityEmail,
-            button=buttons.EntityEmailLinkButton,
-            order=1020,
-        )
+    # def _populate_buttons_config(self):
+    #     ButtonMenuItem.objects.create_if_needed(
+    #         model=self.EntityEmail,
+    #         button=buttons.EntityEmailLinkButton,
+    #         order=1020,
+    #     )
 
     def _populate_bricks_config_for_email(self):
         EntityEmail = self.EntityEmail

@@ -55,6 +55,9 @@ from .models import Civility, LegalForm, Position, Sector, StaffSize
 
 logger = logging.getLogger(__name__)
 
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
 # UUIDs for instances which can be deleted
 UUID_CIVILITY_MRS  = '7c3867da-af53-43d4-bfcc-75c1c3e5121e'
 UUID_CIVILITY_MISS = '6b84a23d-c4ec-41c1-a35d-e6c0af5af2a0'
@@ -90,6 +93,8 @@ UUID_CBRICK_ORGA_INFO       = '05af52f4-fce8-4eca-b06a-49ea65186722'
 UUID_CBRICK_ORGA_DETAILS    = '32446dad-ef2b-4099-aa71-573dc9d1099a'
 UUID_CBRICK_ORGA_COMP       = '2a0f4a73-094f-492f-8fbd-125cb5ff30ed'
 
+_Button = ButtonMenuItem.objects.proxy
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'documents']
@@ -108,23 +113,35 @@ class Populator(BasePopulator):
             'name', 'phone', 'email', 'sector__title', 'legal_form__title',
         ],
     }
-    BUTTONS = {
-        'CONTACT': [
-            # (class, order)
-            (buttons.BecomeProspectButton, 1021),
-            (buttons.BecomeSuspectButton,  1022),
-            (buttons.BecomeInactiveButton, 1023),
-        ],
-        'ORGANISATION': [
-            # (class, order)
-            (buttons.BecomeCustomerButton,   1020),
-            (buttons.BecomeProspectButton,   1021),
-            (buttons.BecomeSuspectButton,    1022),
-            (buttons.BecomeInactiveButton,   1023),
-            (buttons.BecomeSupplierButton,   1024),
-            (buttons.AddLinkedContactButton, 1025),
-        ],
-    }
+    # BUTTONS = {
+    #     'CONTACT': [
+    #         # (class, order)
+    #         (buttons.BecomeProspectButton, 1021),
+    #         (buttons.BecomeSuspectButton,  1022),
+    #         (buttons.BecomeInactiveButton, 1023),
+    #     ],
+    #     'ORGANISATION': [
+    #         # (class, order)
+    #         (buttons.BecomeCustomerButton,   1020),
+    #         (buttons.BecomeProspectButton,   1021),
+    #         (buttons.BecomeSuspectButton,    1022),
+    #         (buttons.BecomeInactiveButton,   1023),
+    #         (buttons.BecomeSupplierButton,   1024),
+    #         (buttons.AddLinkedContactButton, 1025),
+    #     ],
+    # }
+    BUTTONS = [
+        _Button(model=Contact, button=buttons.BecomeProspectButton, order=1021),
+        _Button(model=Contact, button=buttons.BecomeSuspectButton,  order=1022),
+        _Button(model=Contact, button=buttons.BecomeInactiveButton, order=1023),
+
+        _Button(model=Organisation, button=buttons.BecomeCustomerButton,   order=1020),
+        _Button(model=Organisation, button=buttons.BecomeProspectButton,   order=1021),
+        _Button(model=Organisation, button=buttons.BecomeSuspectButton,    order=1022),
+        _Button(model=Organisation, button=buttons.BecomeInactiveButton,   order=1023),
+        _Button(model=Organisation, button=buttons.BecomeSupplierButton,   order=1024),
+        _Button(model=Organisation, button=buttons.AddLinkedContactButton, order=1025),
+    ]
     DOC_CATEGORIES = [
         DocumentCategory(
             uuid=constants.UUID_DOC_CAT_IMG_ORGA,
@@ -178,8 +195,10 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
+        # self.Contact      = persons.get_contact_model()
+        # self.Organisation = persons.get_organisation_model()
+        self.Contact      = Contact
+        self.Organisation = Organisation
 
     def _already_populated(self):
         return RelationType.objects.filter(
@@ -395,14 +414,14 @@ class Populator(BasePopulator):
                 order=20, parent=creations_entry,
             )
 
-    def _populate_buttons_config(self):
-        create_bmi = ButtonMenuItem.objects.create_if_needed
-
-        for button_cls, order in self.BUTTONS['CONTACT']:
-            create_bmi(model=self.Contact, button=button_cls, order=order)
-
-        for button_cls, order in self.BUTTONS['ORGANISATION']:
-            create_bmi(model=self.Organisation, button=button_cls, order=order)
+    # def _populate_buttons_config(self):
+    #     create_bmi = ButtonMenuItem.objects.create_if_needed
+    #
+    #     for button_cls, order in self.BUTTONS['CONTACT']:
+    #         create_bmi(model=self.Contact, button=button_cls, order=order)
+    #
+    #     for button_cls, order in self.BUTTONS['ORGANISATION']:
+    #         create_bmi(model=self.Organisation, button=button_cls, order=order)
 
     def _populate_bricks_config_for_contact(self):
         Contact = self.Contact
