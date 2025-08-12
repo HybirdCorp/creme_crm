@@ -3,7 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.buttons import Restrict2SuperusersButton
 from creme.creme_core.gui.button_menu import Button, button_registry
-from creme.creme_core.models import ButtonMenuItem, FakeContact
+from creme.creme_core.models import ButtonMenuItem, FakeContact, FakeSector
+from creme.creme_core.models.button_menu import ButtonMenuItemProxy
 
 from ..base import CremeTestCase
 
@@ -36,21 +37,20 @@ class ButtonMenuItemManagerTestCase(_ButtonMenuItemTestCase):
         )
         self.assertEqual(old_count + 1, ButtonMenuItem.objects.count())
 
-        bmi = self.get_object_or_fail(
+        bmi1 = self.get_object_or_fail(
             ButtonMenuItem,
             content_type=content_type,
             button_id=TestButton.id,
             superuser=False,
             role=None,
         )
-        self.assertEqual(FakeContact,   bmi.content_type.model_class())
-        self.assertEqual(TestButton.id, bmi.button_id)
-        self.assertEqual(order,         bmi.order)
+        self.assertEqual(order, bmi1.order)
 
-        bmi = ButtonMenuItem.objects.create_if_needed(
+        bmi2 = ButtonMenuItem.objects.create_if_needed(
             model=FakeContact, button=TestButton, order=order + 5,
         )
-        self.assertEqual(order, bmi.order)
+        self.assertEqual(bmi1.id, bmi2.id)
+        self.assertEqual(order, bmi2.order)
         self.assertEqual(old_count + 1, ButtonMenuItem.objects.count())
 
     def test_create_if_needed__no_ctype(self):
@@ -97,6 +97,202 @@ class ButtonMenuItemManagerTestCase(_ButtonMenuItemTestCase):
             content_type=ContentType.objects.get_for_model(FakeContact),
             button_id=Restrict2SuperusersButton.id,
             superuser=False, role=role,
+        )
+
+    def test_proxy(self):
+        old_count = ButtonMenuItem.objects.count()
+
+        order1 = 10
+        proxy1 = ButtonMenuItem.objects.proxy(
+            model=FakeContact, button=TestButton, order=order1,
+        )
+        self.assertEqual(FakeContact,     proxy1.model)
+        self.assertEqual(FakeContact,     proxy1.content_type.model_class())
+        self.assertEqual(TestButton,      proxy1.button)
+        self.assertEqual(TestButton.id,   proxy1.button_id)
+        self.assertEqual(order1,           proxy1.order)
+        self.assertIsNone(proxy1.role)
+        self.assertFalse(proxy1.superuser)
+
+        bmi1, created1 = proxy1.get_or_create()
+        self.assertIs(created1, True)
+        self.assertIsInstance(bmi1, ButtonMenuItem)
+        self.assertTrue(bmi1.pk)
+        self.assertEqual(old_count + 1, ButtonMenuItem.objects.count())
+
+        refreshed_bmi1 = self.get_object_or_fail(
+            ButtonMenuItem,
+            content_type=ContentType.objects.get_for_model(FakeContact),
+            button_id=TestButton.id,
+            superuser=False,
+            role=None,
+        )
+        self.assertEqual(order1, refreshed_bmi1.order)
+
+        # ---
+        bmi1_again, created_again = proxy1.get_or_create()
+        self.assertIs(created_again, False)
+        self.assertEqual(refreshed_bmi1.id, bmi1_again.id)
+
+        # ---
+        order2 = 5
+        proxy2 = ButtonMenuItem.objects.proxy(button=TestButton, order=order2)
+        self.assertIsNone(proxy2.model)
+        self.assertIsNone(proxy2.content_type)
+        self.assertEqual(TestButton, proxy2.button)
+        self.assertEqual(order2,     proxy2.order)
+
+        bmi2, created2 = proxy2.get_or_create()
+        self.assertIs(created2, True)
+        self.assertTrue(bmi1_again.pk)
+        self.assertEqual(old_count + 2, ButtonMenuItem.objects.count())
+        self.assertIsNone(bmi2.content_type)
+        self.assertEqual(TestButton, bmi2.button)
+        self.assertEqual(order2,     bmi2.order)
+
+    def test_proxy__superuser(self):
+        proxy1 = ButtonMenuItem.objects.proxy(
+            model=FakeContact, button=Restrict2SuperusersButton, order=1,
+            role='superuser',
+        )
+        self.assertIsNone(proxy1.role)
+        self.assertIs(proxy1.superuser, True)
+
+        bmi1, created1 = proxy1.get_or_create()
+        self.assertIs(created1, True)
+        self.assertIsInstance(bmi1, ButtonMenuItem)
+        self.get_object_or_fail(
+            ButtonMenuItem,
+            content_type=ContentType.objects.get_for_model(FakeContact),
+            button_id=Restrict2SuperusersButton.id,
+            superuser=True, role=None,
+        )
+
+        # ---
+        _, created_again = proxy1.get_or_create()
+        self.assertFalse(created_again)
+
+        # ---
+        _, created2 = ButtonMenuItem.objects.proxy(
+            model=FakeContact, button=Restrict2SuperusersButton, order=1,
+        ).get_or_create()
+        self.assertTrue(created2)
+
+    def test_proxy__role(self):
+        role1 = self.get_regular_role()
+        proxy1 = ButtonMenuItem.objects.proxy(
+            model=FakeContact, button=TestButton, order=1,
+            role=str(role1.uuid),  # TODO: accept UUIDs?
+        )
+        self.assertFalse(proxy1.superuser)
+        self.assertEqual(role1, proxy1.role)
+
+        bmi1, created1 = proxy1.get_or_create()
+        self.assertIs(created1, True)
+        self.get_object_or_fail(
+            ButtonMenuItem,
+            content_type=ContentType.objects.get_for_model(FakeContact),
+            button_id=TestButton.id,
+            superuser=False, role=role1,
+        )
+
+        # Get if it already exists ---
+        _, created_again = proxy1.get_or_create()
+        self.assertFalse(created_again)
+
+        # Create if different role ---
+        proxy2 = ButtonMenuItem.objects.proxy(
+            model=FakeContact, button=TestButton, order=1,
+        )
+        _, created2 = proxy2.get_or_create()
+        self.assertTrue(created2)
+
+        # Role setter (UserRole instance) ---
+        role2 = self.create_role(name='Lite')
+        proxy2.role = role2
+        self.assertEqual(role2, proxy2.role)
+
+        # Role setter (UUID instance) ---
+        proxy2.role = role1.uuid
+        self.assertEqual(role1, proxy2.role)
+
+    def test_proxy__order(self):
+        proxy = ButtonMenuItem.objects.proxy(button=TestButton, order=1)
+        order = 10
+        proxy.order = order
+        self.assertEqual(order, proxy.order)
+
+    def test_proxy__buttons(self):
+        proxy = ButtonMenuItem.objects.proxy(button=Restrict2SuperusersButton, order=1)
+        proxy.button = TestButton
+        self.assertEqual(TestButton, proxy.button)
+
+    def test_proxy__helper_errors(self):
+        proxy = ButtonMenuItem.objects.proxy(button=TestButton, order=1)
+        with self.assertRaises(AttributeError):
+            proxy.save  # NOQA
+
+        with self.assertRaises(ValueError):
+            ButtonMenuItem.objects.proxy(
+                button=TestButton, order=1,
+                model=FakeSector,  # <===
+            )
+
+        with self.assertRaises(ValueError):
+            ButtonMenuItem.objects.proxy(
+                button=TestButton, order=1,
+                role=FakeSector,  # <===
+            )
+
+        with self.assertRaises(ValueError):
+            ButtonMenuItem.objects.proxy(
+                button=TestButton, order=1,
+                role='not-uuid',  # <===
+            )
+
+    def test_proxy__errors(self):
+        with self.assertRaises(ValueError) as cm:
+            ButtonMenuItemProxy(
+                instance=ButtonMenuItem(content_type=FakeContact),  # <
+                model=None, role=None,
+            )
+        self.assertIn(
+            'The field "content_type" of the ButtonMenuItem must not be set',
+            str(cm.exception),
+        )
+
+        with self.assertRaises(ValueError) as cm:
+            ButtonMenuItemProxy(
+                instance=ButtonMenuItem(
+                    button_id=TestButton.id, order=1,
+                    role=self.get_regular_role(),  # <==
+                ),
+                model=None, role=None,
+            )
+        self.assertIn(
+            'The field "role" of the ButtonMenuItem must not be set',
+            str(cm.exception),
+        )
+
+        with self.assertRaises(ValueError) as cm:
+            ButtonMenuItemProxy(
+                instance=ButtonMenuItem(
+                    button_id=TestButton.id, order=1,
+                    superuser=True,  # <==
+                ),
+                model=None, role=None,
+            )
+        self.assertIn(
+            'The field "superuser" of the ButtonMenuItem must not be set',
+            str(cm.exception),
+        )
+
+        bmi = ButtonMenuItem.objects.create(button_id=TestButton.id, order=1)
+        with self.assertRaises(ValueError) as cm:
+            ButtonMenuItemProxy(instance=bmi, model=None, role=None)
+        self.assertIn(
+            'The field "pk" of the ButtonMenuItem must not be set',
+            str(cm.exception),
         )
 
 

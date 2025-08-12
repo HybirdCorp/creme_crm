@@ -23,6 +23,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
 import creme.creme_core.bricks as core_bricks
+from creme import persons
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
@@ -38,6 +39,7 @@ from creme.creme_core.models import (
 )
 
 from . import (
+    buttons,
     constants,
     custom_forms,
     get_ticket_model,
@@ -71,6 +73,15 @@ class Populator(BasePopulator):
         custom_forms.TICKET_EDITION_CFORM,
         custom_forms.TTEMPLATE_CREATION_CFORM,
         custom_forms.TTEMPLATE_EDITION_CFORM,
+    ]
+    BUTTONS = [
+        ButtonMenuItem.objects.proxy(
+            model=persons.get_contact_model(), button=buttons.Linked2TicketButton, order=1050,
+        ),
+
+        ButtonMenuItem.objects.proxy(
+            model=persons.get_organisation_model(), button=buttons.Linked2TicketButton, order=1050,
+        ),
     ]
     SEARCH = [
         'title', 'number', 'description',
@@ -225,14 +236,14 @@ class Populator(BasePopulator):
             entry_id=TicketsEntry.id, parent=menu_container, order=100,
         )
 
-    def _populate_buttons_config(self):
-        if apps.is_installed('creme.persons'):
-            from creme import persons
-            from creme.tickets.buttons import Linked2TicketButton
-
-            create_bmi = ButtonMenuItem.objects.create_if_needed
-            for model in (persons.get_contact_model(), persons.get_organisation_model()):
-                create_bmi(model=model, button=Linked2TicketButton, order=1050)
+    # def _populate_buttons_config(self):
+    #     if apps.is_installed('creme.persons'):
+    #         from creme import persons
+    #         from creme.tickets.buttons import Linked2TicketButton
+    #
+    #         create_bmi = ButtonMenuItem.objects.create_if_needed
+    #         for model in (persons.get_contact_model(), persons.get_organisation_model()):
+    #             create_bmi(model=model, button=Linked2TicketButton, order=1050)
 
     def _populate_bricks_config(self):
         Ticket = self.Ticket

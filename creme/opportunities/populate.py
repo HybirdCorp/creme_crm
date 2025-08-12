@@ -70,6 +70,14 @@ from .models import Origin, SalesPhase
 
 logger = logging.getLogger(__name__)
 
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
+Product = products.get_product_model()
+Service = products.get_service_model()
+
+Opportunity = get_opportunity_model()
+
 # UUIDs for instances which can be deleted
 UUID_PHASE_FORTHCOMING = '9fc5ff38-b358-4131-b03e-6c1f800bfb08'
 UUID_PHASE_PROGRESS    = '4445c750-bcec-4fcd-afb2-c9e35a3bf38c'
@@ -112,6 +120,14 @@ class Populator(BasePopulator):
         SettingValue(key=setting_keys.emitter_constraint_key, value=True),
         SettingValue(key=setting_keys.unsuccessful_key,       value=False),
     ]
+    BUTTONS = [
+        ButtonMenuItem.objects.proxy(
+            model=Organisation, button=LinkedOpportunityButton, order=1030,
+        ),
+        ButtonMenuItem.objects.proxy(
+            model=Contact,      button=LinkedOpportunityButton, order=1030,
+        ),
+    ]
     SEARCH = ['name', 'made_sales', 'sales_phase__name', 'origin__name']
     SALES_PHASES = [
         # is_custom=True => only created during the first execution
@@ -148,14 +164,20 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # self.Contact      = persons.get_contact_model()
+        # self.Organisation = persons.get_organisation_model()
+        #
+        # self.Product = products.get_product_model()
+        # self.Service = products.get_service_model()
+        #
+        # self.Opportunity = get_opportunity_model()
+        self.Contact      = Contact
+        self.Organisation = Organisation
 
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
+        self.Product = Product
+        self.Service = Service
 
-        self.Product = products.get_product_model()
-        self.Service = products.get_service_model()
-
-        self.Opportunity = get_opportunity_model()
+        self.Opportunity = Opportunity
 
     def _already_populated(self):
         return RelationType.objects.filter(pk=constants.REL_SUB_TARGETS).exists()
@@ -487,10 +509,10 @@ class Populator(BasePopulator):
                 order=30, parent=creations_entry,
             )
 
-    def _populate_buttons_config(self):
-        create_button = ButtonMenuItem.objects.create_if_needed
-        create_button(model=self.Organisation, button=LinkedOpportunityButton, order=1030)
-        create_button(model=self.Contact,      button=LinkedOpportunityButton, order=1030)
+    # def _populate_buttons_config(self):
+    #     create_button = ButtonMenuItem.objects.create_if_needed
+    #     create_button(model=self.Organisation, button=LinkedOpportunityButton, order=1030)
+    #     create_button(model=self.Contact,      button=LinkedOpportunityButton, order=1030)
 
     def _populate_bricks_config(self):
         Opportunity = self.Opportunity

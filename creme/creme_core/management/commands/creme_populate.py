@@ -32,6 +32,7 @@ from django.db.models.signals import pre_save
 from creme.creme_core.apps import creme_app_configs
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.models import (
+    ButtonMenuItem,
     CremePropertyType,
     CustomFormConfigItem,
     HeaderFilter,
@@ -42,6 +43,7 @@ from creme.creme_core.models import (
     SearchConfigItem,
     SettingValue,
 )
+from creme.creme_core.models.button_menu import ButtonMenuItemProxy
 from creme.creme_core.models.creme_property import CremePropertyTypeProxy
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.content_type import entity_ctypes
@@ -76,6 +78,15 @@ class BasePopulator:
     CUSTOM_FORMS: list[CustomFormDescriptor] = []
     SETTING_VALUES: list[SettingValue] = []
     NOTIFICATION_CHANNELS: list[NotificationChannel] = []
+    BUTTONS: list[ButtonMenuItem | ButtonMenuItemProxy] = [
+        # Example:
+        # ButtonMenuItem(button=MyButton1, order=1), # No model, no role
+        # ButtonMenuItem.objects.proxy(button=MyButton2, order=5, model=MyModel),
+        # ButtonMenuItem.objects.proxy(button=MyButton3, order=8, role="superuser"),
+        # ButtonMenuItem.objects.proxy(
+        #     button=MyButton4, order=8, role=MY_ROLE_UUID, model=MyModel,
+        # ),
+    ]
 
     def __init__(self, verbosity, app, all_apps, options, stdout, style):
         self.verbosity = verbosity
@@ -227,7 +238,15 @@ class BasePopulator:
         pass
 
     def _populate_buttons_config(self) -> None:
-        pass
+        for button in self.BUTTONS:
+            if isinstance(button, ButtonMenuItem):
+                button = ButtonMenuItemProxy(instance=button, model=None, role=None)
+            elif not isinstance(button, ButtonMenuItemProxy):
+                raise TypeError(
+                    f'{button} is not an instance of ButtonMenuItem|ButtonMenuItemProxy'
+                )
+
+            button.get_or_create()
 
     def _populate_bricks_config(self) -> None:
         pass
