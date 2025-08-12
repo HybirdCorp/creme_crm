@@ -79,6 +79,15 @@
                     - The method 'models.AbstractProjectTask.clone_scope()' has been removed.
                 * Crudity :
                     - The constant 'SETTING_CRUDITY_SANDBOX_BY_USER' has been removed.
+        # Apps :
+            * Persons :
+                - The content of the class attribute 'populate.Populator.BUTTONS' has changed
+                  (it now contains 'ButtonMenuItemProxy' instances).
+            * Activities :
+                - The content of the class attribute 'populate.Populator.BUTTONS' has changed
+                  (it now contains 'ButtonMenuItem' instances).
+            * Billing :
+               - The methods 'populate.Populator._populate_buttons_config_for_*()' has been removed.
 
 
 == Version 2.7 ==

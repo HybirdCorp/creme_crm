@@ -73,6 +73,18 @@ from .models import (
 
 logger = logging.getLogger(__name__)
 
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
+CreditNote   = billing.get_credit_note_model()
+Invoice      = billing.get_invoice_model()
+Quote        = billing.get_quote_model()
+SalesOrder   = billing.get_sales_order_model()
+TemplateBase = billing.get_template_base_model()
+
+ProductLine = billing.get_product_line_model()
+ServiceLine = billing.get_service_line_model()
+
 # UUIDs for instances which can be deleted
 UUID_CBRICK_INVOICE  = 'd1ae20ac-98b5-4c4b-bf32-8c284c6eadae'
 UUID_CBRICK_QUOTE    = 'eb3e5fcc-e929-4a15-b859-207a093bc4cb'
@@ -118,6 +130,8 @@ UUID_RCHART_UNPAID_INVOICES_PER_MONTH = '5388305f-0fcc-4ebb-b8a8-2cb4b3154c9c'
 UUID_IBRICK_INVOICES_PER_MONTH        = '574e62e4-f5fb-4cb0-8e50-8bed100a83fd'
 UUID_IBRICK_UNPAID_INVOICES_PER_MONTH = '9b9faf6f-0537-419f-842d-d9b3fc3cb321'
 
+_ButtonProxy = ButtonMenuItem.objects.proxy
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
@@ -138,6 +152,24 @@ class Populator(BasePopulator):
         SettingValue(key=setting_keys.payment_info_key,       value=True),
         SettingValue(key=setting_keys.button_redirection_key, value=True),
         SettingValue(key=setting_keys.emitter_edition_key,    value=False),
+    ]
+    BUTTONS = [
+        _ButtonProxy(model=CreditNote, button=buttons.GenerateNumberButton, order=1001),
+
+        _ButtonProxy(model=Invoice, button=buttons.GenerateNumberButton, order=1001),
+
+        _ButtonProxy(model=Quote, button=buttons.ConvertToInvoiceButton,    order=1001),
+        _ButtonProxy(model=Quote, button=buttons.ConvertToSalesOrderButton, order=1002),
+
+        _ButtonProxy(model=SalesOrder, button=buttons.ConvertToInvoiceButton, order=101),
+
+        _ButtonProxy(model=Contact, button=buttons.AddQuoteButton,      order=1010),
+        _ButtonProxy(model=Contact, button=buttons.AddSalesOrderButton, order=1011),
+        _ButtonProxy(model=Contact, button=buttons.AddInvoiceButton,    order=1012),
+
+        _ButtonProxy(model=Organisation, button=buttons.AddQuoteButton,      order=1010),
+        _ButtonProxy(model=Organisation, button=buttons.AddSalesOrderButton, order=1011),
+        _ButtonProxy(model=Organisation, button=buttons.AddInvoiceButton,    order=1012),
     ]
     SEARCH = {
         'INVOICE':     ['name', 'number', 'status__name'],
@@ -278,17 +310,28 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
+        # self.Contact      = persons.get_contact_model()
+        # self.Organisation = persons.get_organisation_model()
+        #
+        # self.CreditNote   = billing.get_credit_note_model()
+        # self.Invoice      = billing.get_invoice_model()
+        # self.Quote        = billing.get_quote_model()
+        # self.SalesOrder   = billing.get_sales_order_model()
+        # self.TemplateBase = billing.get_template_base_model()
+        #
+        # self.ProductLine = billing.get_product_line_model()
+        # self.ServiceLine = billing.get_service_line_model()
+        self.Contact      = Contact
+        self.Organisation = Organisation
 
-        self.CreditNote   = billing.get_credit_note_model()
-        self.Invoice      = billing.get_invoice_model()
-        self.Quote        = billing.get_quote_model()
-        self.SalesOrder   = billing.get_sales_order_model()
-        self.TemplateBase = billing.get_template_base_model()
+        self.CreditNote   = CreditNote
+        self.Invoice      = Invoice
+        self.Quote        = Quote
+        self.SalesOrder   = SalesOrder
+        self.TemplateBase = TemplateBase
 
-        self.ProductLine = billing.get_product_line_model()
-        self.ServiceLine = billing.get_service_line_model()
+        self.ProductLine = ProductLine
+        self.ServiceLine = ServiceLine
 
     def _already_populated(self):
         return RelationType.objects.filter(
@@ -684,46 +727,46 @@ class Populator(BasePopulator):
         create_mitem(entry_id=menu.ProductLinesEntry.id, order=200)
         create_mitem(entry_id=menu.ServiceLinesEntry.id, order=210)
 
-    def _populate_buttons_config_for_credit_note(self):
-        ButtonMenuItem.objects.create_if_needed(
-            model=self.CreditNote, button=buttons.GenerateNumberButton, order=1001,
-        )
-
-    def _populate_buttons_config_for_invoice(self):
-        ButtonMenuItem.objects.create_if_needed(
-            model=self.Invoice, button=buttons.GenerateNumberButton, order=1001,
-        )
-
-    def _populate_buttons_config_for_quote(self):
-        create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Quote)
-        create_bmi(button=buttons.ConvertToInvoiceButton,    order=1001)
-        create_bmi(button=buttons.ConvertToSalesOrderButton, order=1002)
-
-    def _populate_buttons_config_for_order(self):
-        ButtonMenuItem.objects.create_if_needed(
-            model=self.SalesOrder, button=buttons.ConvertToInvoiceButton, order=101,
-        )
-
-    def _populate_buttons_config_for_contact(self):
-        create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Contact)
-        create_bmi(button=buttons.AddQuoteButton,      order=1010)
-        create_bmi(button=buttons.AddSalesOrderButton, order=1011)
-        create_bmi(button=buttons.AddInvoiceButton,    order=1012)
-
-    def _populate_buttons_config_for_organisation(self):
-        create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Organisation)
-        create_bmi(button=buttons.AddQuoteButton,      order=1010)
-        create_bmi(button=buttons.AddSalesOrderButton, order=1011)
-        create_bmi(button=buttons.AddInvoiceButton,    order=1012)
-
-    def _populate_buttons_config(self):
-        self._populate_buttons_config_for_credit_note()
-        self._populate_buttons_config_for_invoice()
-        self._populate_buttons_config_for_quote()
-        self._populate_buttons_config_for_order()
-
-        self._populate_buttons_config_for_contact()
-        self._populate_buttons_config_for_organisation()
+    # def _populate_buttons_config_for_credit_note(self):
+    #     ButtonMenuItem.objects.create_if_needed(
+    #         model=self.CreditNote, button=buttons.GenerateNumberButton, order=1001,
+    #     )
+    #
+    # def _populate_buttons_config_for_invoice(self):
+    #     ButtonMenuItem.objects.create_if_needed(
+    #         model=self.Invoice, button=buttons.GenerateNumberButton, order=1001,
+    #     )
+    #
+    # def _populate_buttons_config_for_quote(self):
+    #     create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Quote)
+    #     create_bmi(button=buttons.ConvertToInvoiceButton,    order=1001)
+    #     create_bmi(button=buttons.ConvertToSalesOrderButton, order=1002)
+    #
+    # def _populate_buttons_config_for_order(self):
+    #     ButtonMenuItem.objects.create_if_needed(
+    #         model=self.SalesOrder, button=buttons.ConvertToInvoiceButton, order=101,
+    #     )
+    #
+    # def _populate_buttons_config_for_contact(self):
+    #     create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Contact)
+    #     create_bmi(button=buttons.AddQuoteButton,      order=1010)
+    #     create_bmi(button=buttons.AddSalesOrderButton, order=1011)
+    #     create_bmi(button=buttons.AddInvoiceButton,    order=1012)
+    #
+    # def _populate_buttons_config_for_organisation(self):
+    #     create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Organisation)
+    #     create_bmi(button=buttons.AddQuoteButton,      order=1010)
+    #     create_bmi(button=buttons.AddSalesOrderButton, order=1011)
+    #     create_bmi(button=buttons.AddInvoiceButton,    order=1012)
+    #
+    # def _populate_buttons_config(self):
+    #     self._populate_buttons_config_for_credit_note()
+    #     self._populate_buttons_config_for_invoice()
+    #     self._populate_buttons_config_for_quote()
+    #     self._populate_buttons_config_for_order()
+    #
+    #     self._populate_buttons_config_for_contact()
+    #     self._populate_buttons_config_for_organisation()
 
     def _populate_bricks_config_for_documents(self):
         # logger.info(
