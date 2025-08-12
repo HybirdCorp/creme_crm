@@ -13,7 +13,7 @@ class TestButton(Button):
     verbose_name = 'Testing purpose'
 
 
-class ButtonMenuItemTestCase(CremeTestCase):
+class _ButtonMenuItemTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -24,7 +24,9 @@ class ButtonMenuItemTestCase(CremeTestCase):
         super().tearDownClass()
         button_registry.unregister(TestButton)
 
-    def test_manager_create_if_needed(self):
+
+class ButtonMenuItemManagerTestCase(_ButtonMenuItemTestCase):
+    def test_create_if_needed(self):
         content_type = ContentType.objects.get_for_model(FakeContact)
         old_count = ButtonMenuItem.objects.count()
 
@@ -51,7 +53,7 @@ class ButtonMenuItemTestCase(CremeTestCase):
         self.assertEqual(order, bmi.order)
         self.assertEqual(old_count + 1, ButtonMenuItem.objects.count())
 
-    def test_manager_create_if_needed__no_ctype(self):
+    def test_create_if_needed__no_ctype(self):
         "Default config (content_type=None)."
         old_count = ButtonMenuItem.objects.count()
         bmi = ButtonMenuItem.objects.create_if_needed(
@@ -60,7 +62,7 @@ class ButtonMenuItemTestCase(CremeTestCase):
         self.assertEqual(old_count + 1, ButtonMenuItem.objects.count())
         self.assertIsNone(bmi.content_type)
 
-    def test_manager_create_if_needed__button_id(self):
+    def test_create_if_needed__button_id(self):
         "Button ID."
         order = 10
         ButtonMenuItem.objects.create_if_needed(
@@ -72,7 +74,7 @@ class ButtonMenuItemTestCase(CremeTestCase):
             button_id=TestButton.id,
         )
 
-    def test_manager_create_if_needed__superuser(self):
+    def test_create_if_needed__superuser(self):
         ButtonMenuItem.objects.create_if_needed(
             model=FakeContact, button=Restrict2SuperusersButton, order=1,
             role='superuser',
@@ -84,7 +86,7 @@ class ButtonMenuItemTestCase(CremeTestCase):
             superuser=True, role=None,
         )
 
-    def test_manager_create_if_needed__role(self):
+    def test_create_if_needed__role(self):
         role = self.create_role()
         ButtonMenuItem.objects.create_if_needed(
             model=FakeContact, button=Restrict2SuperusersButton, order=1,
@@ -97,6 +99,8 @@ class ButtonMenuItemTestCase(CremeTestCase):
             superuser=False, role=role,
         )
 
+
+class ButtonMenuItemTestCase(_ButtonMenuItemTestCase):
     # TODO?
     # def test_eq(self):
     #     ct = ContentType.objects.get_for_model(FakeContact)
