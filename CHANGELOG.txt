@@ -557,6 +557,7 @@
                           system, which is derived from the new cloning system.
                           This new system is de-coupled from the clone & conversion systems;
                           it should be easier to customise from another app.
+                    - The field 'Line.on_the_fly_item' is now blank=True (again), to avoid some annoying messages with the new Snapshot system.
                 - In 'views' :
                     - The class 'invoice.InvoiceNumberGeneration' has been removed.
                     - The class view 'convert.Conversion' has been reworked :
