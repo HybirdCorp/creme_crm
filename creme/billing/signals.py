@@ -27,6 +27,7 @@ from django.dispatch import receiver
 import creme.creme_core.signals as core_signals
 from creme import billing, persons
 # from creme.persons import workflow
+from creme.creme_core.core.snapshot import Snapshot
 from creme.creme_core.core.workflow import WorkflowEngine
 from creme.creme_core.models import Relation
 from creme.creme_core.models.utils import assign_2_charfield
@@ -74,6 +75,42 @@ def init_number_generation_config(sender, instance, **kwargs):
     # TODO: regroup queries?
     for model, generator_cls in number_generator_registry.registered_items():
         generator_cls.create_default_item(organisation=instance, model=model)
+
+
+# NB1: we keep the owner of Lines synchronised with the owner of the related
+#      Invoice/Quotes/SalesOrder/..., in order to credentials are relatively
+#      accurate. It's not perfect, permission management of auxiliary entities
+#      is still not correctly designed...
+# NB2: <sender=Base> does not work (no signal is emitted).
+@receiver(signals.post_save, dispatch_uid='billing-sync_line_user')
+def sync_line_user(sender, instance, created, **kwargs):
+    if not issubclass(sender, Base):
+        # Line are only related to CremeEntities inheriting Base
+        return
+
+    if created:
+        # No Line exist juste after the creation
+        return
+
+    snapshot = Snapshot.get_for_instance(instance)
+    if snapshot is None:
+        # Instance has been created & modified in the same request;
+        # we assume no Line is created in the same request AND needs to update
+        # its owner (the user field would have been modified after the
+        # Lines have been created => ewwwww...)
+        return
+
+    for diff in snapshot.compare(instance):
+        if diff.field_name == 'user_id':
+            new_user_id = diff.new_value
+
+            # TODO: change with future Credentials system?
+            for line in instance.iter_all_lines():
+                line.user_id = new_user_id
+                # We do not use queryset.update() to call the CremeEntity.save() method
+                line.save()
+
+            return
 
 
 # NB: <sender=Base> does not work (no signal is emitted).

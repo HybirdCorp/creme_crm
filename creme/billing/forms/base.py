@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -91,8 +91,8 @@ class BaseCustomForm(core_forms.CremeEntityForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         instance = self.instance
-        # TODO: use the future snapshot system instead
-        self.old_user_id = instance.user_id
+        # self.old_user_id = instance.user_id
+        # TODO: use Snapshot instead?
         self.old_number = instance.number
 
         get_key = self.subcell_key
@@ -132,15 +132,12 @@ class BaseCustomForm(core_forms.CremeEntityForm):
 
         return cdata
 
-    def save(self, *args, **kwargs):
-        instance = self.instance
-
-        # TODO: do this in model/with signal to avoid errors ???
-        if self.old_user_id and self.old_user_id != self.cleaned_data['user'].id:
-            # Do not use queryset.update() to call the CremeEntity.save() method
-            # TODO: change with future Credentials system ??
-            for line in instance.iter_all_lines():
-                line.user = instance.user
-                line.save()
-
-        return super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     instance = self.instance
+    #
+    #     if self.old_user_id and self.old_user_id != self.cleaned_data['user'].id:
+    #         for line in instance.iter_all_lines():
+    #             line.user = instance.user
+    #             line.save()
+    #
+    #     return super().save(*args, **kwargs)
