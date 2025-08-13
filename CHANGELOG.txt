@@ -541,6 +541,7 @@
                 - In 'core' :
                     - These variables have been removed : CLASS_MAP, CONVERT_MATRIX, RTYPE_MATRIX.
                     - The function 'get_models_for_conversion()' has been removed.
+                - The attribute 'forms.base.BaseCustomForm.old_user_id' has been removed.
                 - In 'registry' :
                     - The classes 'Algo' & 'AlgoRegistry' have been removed; see the new method
                       'apps.BillingConfig.register_billing_number_generators()' to know how to create/register a number generator.
