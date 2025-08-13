@@ -281,10 +281,14 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertListEqual([], self.refresh(invoice).get_credit_notes())
         self.assertEqual(Decimal('100'), self.refresh(invoice).total_no_vat)
 
+        self.assertTrue(getattr(credit_note.trash, 'alters_data', False))
+
         credit_note.restore()
         self.assertFalse(self.refresh(credit_note).is_deleted)
         self.assertListEqual([credit_note], self.refresh(invoice).get_credit_notes())
         self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
+
+        self.assertTrue(getattr(credit_note.restore, 'alters_data', False))
 
     def test_delete(self):
         user = self.login_as_root_and_get()

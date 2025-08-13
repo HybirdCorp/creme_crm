@@ -1676,6 +1676,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         camp.restore()
         self.assertFalse(self.refresh(camp).is_deleted)
+        self.assertTrue(getattr(camp.restore, 'alters_data', False))
 
         jobs = queue.refreshed_jobs
         self.assertEqual(1, len(jobs))

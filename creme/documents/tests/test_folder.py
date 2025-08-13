@@ -686,6 +686,8 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             self.assertNotEqual(stack[-1].title, clone.title)
             stack_append(clone)
 
+        self.assertTrue(getattr(folder.clone, 'alters_data', False))
+
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview__empty(self):
         "No doc inside."
@@ -697,6 +699,8 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         response = self.assertPOST200(folder.get_delete_absolute_url(), follow=True)
         self.assertDoesNotExist(folder)
         self.assertRedirects(response, self.LIST_URL)
+
+        self.assertTrue(getattr(folder.trash, 'alters_data', False))
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview__one_doc(self):

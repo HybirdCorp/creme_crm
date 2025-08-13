@@ -64,3 +64,5 @@ class WorkflowEmail(_Email):
         #  if sender.send(self):
         #      logger.debug('Mail sent to %s', self.recipient)
         sender.send(self)
+
+    send.alters_data = True

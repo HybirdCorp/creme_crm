@@ -149,6 +149,8 @@ class AbstractProject(core_models.CremeEntity):
 
         return already_closed
 
+    close.alters_data = True
+
     @property
     def is_closed(self):
         return bool(self.effective_end_date)

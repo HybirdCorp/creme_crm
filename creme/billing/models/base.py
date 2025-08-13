@@ -411,6 +411,8 @@ class Base(CremeEntity):
 
         return self
 
+    build.alters_data = True
+
     def _build_object(self, template: Base):
         warnings.warn(
             'The method billing.models.Base._build_object() is deprecated.',
