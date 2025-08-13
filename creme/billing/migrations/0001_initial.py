@@ -798,7 +798,10 @@ class Migration(migrations.Migration):
                         to='creme_core.CremeEntity', on_delete=CASCADE,
                     )
                 ),
-                ('on_the_fly_item', models.CharField(max_length=100, null=True, verbose_name='On-the-fly line')),
+                (
+                    'on_the_fly_item',
+                    models.CharField(max_length=100, blank=True, null=True, verbose_name='On-the-fly line')
+                ),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
                 (
                     'quantity',
@@ -858,7 +861,10 @@ class Migration(migrations.Migration):
                         to='creme_core.CremeEntity', on_delete=CASCADE,
                     )
                 ),
-                ('on_the_fly_item', models.CharField(max_length=100, null=True, verbose_name='On-the-fly line')),
+                (
+                    'on_the_fly_item',
+                    models.CharField(max_length=100, blank=True, null=True, verbose_name='On-the-fly line')
+                ),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
                 (
                     'quantity',

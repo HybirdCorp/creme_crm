@@ -43,8 +43,12 @@ class Line(CremeEntity):
         LINE_AMOUNT = 2, _('Amount per line'),
         ITEM_AMOUNT = 3, _('Amount per unit'),
 
-    # NB: not blank (no related item => name is filled)
-    on_the_fly_item = models.CharField(_('On-the-fly line'), max_length=100, null=True)
+    # NB: blank is True to avoid annoying messages from the Snapshot system;
+    #     of course forms which build Lines with on-the-fly item should mark the
+    #     related <input> as required.
+    on_the_fly_item = models.CharField(
+        _('On-the-fly line'), max_length=100, blank=True, null=True,
+    )
 
     comment = models.TextField(_('Comment'), blank=True)
 
