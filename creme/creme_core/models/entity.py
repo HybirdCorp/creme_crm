@@ -592,10 +592,16 @@ class CremeEntity(CremeModel):
 
         return new_entity
 
+    clone.alters_data = True
+
     def restore(self) -> None:
         self.is_deleted = False
         self.save()
 
+    restore.alters_data = True
+
     def trash(self) -> None:
         self.is_deleted = True
         self.save()
+
+    trash.alters_data = True

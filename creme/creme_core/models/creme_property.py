@@ -401,6 +401,8 @@ class CremePropertyType(CremeModel):
 
         return self
 
+    set_subject_ctypes.alters_data = True
+
     def is_compatible(self, ctype_or_model: ContentType | type[CremeEntity], /) -> bool:
         """Is the type compatible with a model?
         Hint: use a .prefetch_related('subject_ctypes') if you want to avoid
