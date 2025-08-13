@@ -278,6 +278,8 @@ class EmailSending(CremeModel):
 
         # TODO: close the connection ??
 
+    send_mails.alters_data = True
+
     @property
     def unsent_mails(self):
         Status = _Email.Status
@@ -344,3 +346,5 @@ class LightWeightEmail(_Email):
                 self.pk = None
             else:
                 return
+
+    genid_n_save.alters_data = True

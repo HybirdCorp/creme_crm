@@ -11,6 +11,13 @@
         * Billing :
             - No HeaderFilter for 'TemplateBase' was populated (only useful if you use recurrent documents).
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Many methods have been marked with 'alters_data = True'.
+
 
 == Version 2.6.11 ==
 

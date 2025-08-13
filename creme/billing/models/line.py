@@ -153,6 +153,8 @@ class Line(CremeEntity):
 
         return super().clone()
 
+    clone.alters_data = True
+
     def get_absolute_url(self):
         return self.get_related_entity().get_absolute_url()
 

@@ -138,6 +138,8 @@ class AbstractEntityEmail(_Email, CremeEntity):
             else:
                 return
 
+    genid_n_save.alters_data = True
+
     def __str__(self):
         return gettext('Email <from: {sender}> <to: {to}> <status: {status}>').format(
             sender=self.sender,
@@ -203,6 +205,8 @@ class AbstractEntityEmail(_Email, CremeEntity):
 
         if sender.send(self):
             logger.debug('Mail sent to %s', self.recipient)
+
+    send.alters_data = True
 
 
 class EntityEmail(AbstractEntityEmail):

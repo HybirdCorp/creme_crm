@@ -398,6 +398,8 @@ class Base(CremeEntity):
 
         return self
 
+    build.alters_data = True
+
     def _build_object(self, template: Base):
         logger.debug('=> Clone base object')
 
