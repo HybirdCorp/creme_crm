@@ -1,5 +1,10 @@
 == Version 2.6.13 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Fix issue in merge view : the left & right value cannot be applied with the image selector.
+
+
 == Version 2.6.12 ==
 
   Users side :
