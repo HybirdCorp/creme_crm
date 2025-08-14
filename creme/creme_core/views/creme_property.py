@@ -305,6 +305,10 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
             'is_custom': True,
         }
 
+    def get_ajax_success_url(self):
+        # TODO: callback_url?
+        return self.object.get_lv_absolute_url()
+
     def get_success_url(self):
         # TODO: callback_url?
         return self.object.get_lv_absolute_url()
