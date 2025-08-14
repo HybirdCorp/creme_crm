@@ -2011,7 +2011,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         ),
     ])
     def test_editview06(self, start_day, start, end_day, end, is_allday, expected):
-        "Overtime."
+        "Overtime + owner is user."
         user = self.login_as_root_and_get()
 
         config = CalendarConfigItem.objects.for_user(user)
@@ -2070,6 +2070,111 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             )
         else:
             self.assertNoFormError(response)
+
+    def test_editview07(self):
+        "Overtime + owner is other user."
+        user = self.create_user(role=self.get_regular_role(), password='test')
+        other_user = self.create_user(
+            username='other', index=1, role=self.get_regular_role(), password='test'
+        )
+
+        CalendarConfigItem.objects.create(
+            role=user.role,
+            allow_event_overtime=True,
+            allow_event_anyday=True,
+        )
+
+        CalendarConfigItem.objects.create(
+            role=other_user.role,
+            allow_event_overtime=False,
+            allow_event_anyday=False,
+            day_start=time(8, 0, 0),
+            day_end=time(18, 0, 0)
+        )
+
+        contact = user.linked_contact
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
+
+        def create_meeting(owner, **kwargs):
+            task = Activity.objects.create(
+                user=owner, type_id=sub_type.type_id, sub_type=sub_type, **kwargs
+            )
+            Relation.objects.create(
+                subject_entity=contact, user=owner,
+                type_id=constants.REL_SUB_PART_2_ACTIVITY,
+                object_entity=task,
+            )
+
+            return task
+
+        create_dt = self.create_datetime
+        user_meeting = create_meeting(
+            user,
+            title='Meeting#1',
+            start=create_dt(year=2013, month=4, day=17, hour=11, minute=0),
+            end=create_dt(year=2013,   month=4, day=17, hour=12, minute=0),
+        )
+        other_user_meeting = create_meeting(
+            other_user,
+            title='Meeting#2',
+            start=create_dt(year=2013, month=4, day=17, hour=11, minute=0),
+            end=create_dt(year=2013,   month=4, day=17, hour=12, minute=0),
+        )
+
+        form_data = {
+            'title': 'Meeting#3',
+            'busy':  True,
+            'is_all_day': False,
+
+            f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2025, 7, 14),
+            f'{self.EXTRA_START_KEY}_1': '17:30:00',
+
+            f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2025, 7, 14),
+            f'{self.EXTRA_END_KEY}_1': '18:01:00',
+
+            self.EXTRA_SUBTYPE_KEY: sub_type.pk,
+        }
+
+        self.assertTrue(self.client.login(username=user.username, password='test'))
+
+        # meeting is using 'user' configuration (allows anything)
+        response = self.assertPOST200(
+            user_meeting.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user': user.pk,
+                **form_data,
+            }
+        )
+
+        self.assertNoFormError(response)
+
+        # other_meeting is using 'other_user' configuration (8h-18h range only)
+        response = self.assertPOST200(
+            other_user_meeting.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user': user.pk,
+                **form_data,
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2025, 7, 16),
+                f'{self.EXTRA_START_KEY}_1': '17:30:00',
+
+                f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2025, 7, 16),
+                f'{self.EXTRA_END_KEY}_1': '18:01:00',
+            }
+        )
+
+        self.assertFormError(
+            self.get_form_or_fail(response),
+            field=None,
+            errors=_(
+                'The activity is not within the business hours '
+                'range from {day_start} to {day_end}.'
+            ).format(
+                day_start='08:00:00',
+                day_end='18:00:00',
+            ),
+        )
 
     @skipIfCustomContact
     @override_settings(ENTITIES_DELETION_ALLOWED=True)

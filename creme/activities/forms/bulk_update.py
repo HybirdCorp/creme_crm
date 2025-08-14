@@ -133,6 +133,9 @@ class RangeOverrider(FieldOverrider):
 
         return field
 
+    def get_activity_owner(self, activity, user=None):
+        return activity.user if activity.user_id else user
+
     # TODO: factorise with BaseCustomForm._clean_temporal_data() + error_messages
     def post_clean_instance(self, *, instance, value, form):
         start = end = None
@@ -216,7 +219,9 @@ class RangeOverrider(FieldOverrider):
                 start=start,
                 end=end,
                 is_allday=is_all_day,
-                config=CalendarConfigItem.objects.for_user(form.user),
+                config=CalendarConfigItem.objects.for_user(
+                    self.get_activity_owner(instance, form.user)
+                ),
             )
 
             collisions.extend(check_activity_collisions(

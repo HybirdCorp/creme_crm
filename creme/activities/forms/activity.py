@@ -443,6 +443,9 @@ class BaseCustomForm(core_forms.CremeEntityForm):
         'end_before_start': _('End is before start'),
     }
 
+    def get_activity_owner(self, activity, user=None):
+        return activity.user if activity.user_id else user
+
     def clean(self):
         cdata = super().clean()
 
@@ -459,7 +462,9 @@ class BaseCustomForm(core_forms.CremeEntityForm):
                     start=start,
                     end=instance.end,
                     is_allday=cdata.get('is_all_day', False),
-                    config=CalendarConfigItem.objects.for_user(self.user),
+                    config=CalendarConfigItem.objects.for_user(
+                        self.get_activity_owner(instance, self.user)
+                    ),
                 )
 
                 collisions.extend(check_activity_collisions(

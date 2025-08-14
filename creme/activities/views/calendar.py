@@ -382,6 +382,7 @@ class CalendarsSelection(CalendarsMixin, generic.CheckedView):
         return HttpResponse()
 
 
+# TODO : Change the name of this class. It is too confusing
 class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView):
     """This view is used when drag & dropping Activities in the Calendar."""
     permissions = 'activities'
@@ -395,6 +396,9 @@ class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView)
 
     def get_related_entity_id(self):
         return get_from_POST_or_404(self.request.POST, key=self.activity_id_arg, cast=int)
+
+    def get_activity_owner(self, activity, user=None):
+        return activity.user if activity.user_id else user
 
     @atomic
     @method_decorator(workflow_engine)
@@ -427,7 +431,9 @@ class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView)
             start=activity.start,
             end=activity.end,
             is_allday=activity.is_all_day,
-            config=CalendarConfigItem.objects.for_user(request.user),
+            config=CalendarConfigItem.objects.for_user(
+                self.get_activity_owner(activity, request.user)
+            ),
         )
 
         collisions.extend(check_activity_collisions(
