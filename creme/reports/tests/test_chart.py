@@ -168,7 +168,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         abs_info = rgraph.abscissa_info
         self.assertIsInstance(abs_info, AbscissaInfo)
-        self.assertEqual(gtype, abs_info.graph_type)
+        self.assertEqual(gtype, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
         self.assertEqual('regular_field-sector', abs_info.cell.key)
 
@@ -681,7 +681,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         abs_info1 = rgraph.abscissa_info
         self.assertIsInstance(abs_info1, AbscissaInfo)
-        self.assertEqual(ReportGraph.Group.FK, abs_info1.graph_type)
+        self.assertEqual(ReportGraph.Group.FK, abs_info1.chart_type)
         self.assertIsNone(abs_info1.parameter)
         self.assertEqual('regular_field-capital', abs_info1.cell.key)
 
@@ -696,7 +696,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual('3', rgraph.abscissa_parameter)
 
         abs_info2 = rgraph.abscissa_info
-        self.assertEqual(ReportGraph.Group.RANGE, abs_info2.graph_type)
+        self.assertEqual(ReportGraph.Group.RANGE, abs_info2.chart_type)
         self.assertEqual('regular_field-created', abs_info2.cell.key)
         self.assertEqual('3', abs_info2.parameter)
 

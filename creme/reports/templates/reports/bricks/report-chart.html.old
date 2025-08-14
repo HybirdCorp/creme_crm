@@ -19,22 +19,22 @@
 {% block brick_content_extra_class %}{% if not data %}is-empty{% endif %}{% endblock %}
 
 {% block brick_content %}
-  {% if data %}
+    {% if data %}
     <div class="brick-graph-header clearfix">
         <div class="graph-controls" data-fetch-settings-url="{{settings_update_url}}">
             <div class="graph-control graph-controls-type">
                 <span class="graph-control-name">{% translate 'Type of chart' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
                 <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the type of visualisation for this chart' %}">
-                  {% for plot in plot %}
-                    <option value="{{plot.name}}" {% if plot.name == chart.plot_name %}selected{% endif %}>{{plot.label}}</option>
+                  {% for chart in charts %}{# TODO: "chart_types" #}
+                    <option value="{{chart.name}}" {% if chart.name == graph.chart %}selected{% endif %}>{{chart.label}}</option>
                   {% endfor %}
                 </select>
             </div>
             <div class="graph-control graph-controls-sort">
                 <span class="graph-control-name">{% translate 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
                 <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the sort order' %}">
-                    <option value="ASC" {% if chart.asc %}selected{% endif %}>{% translate 'Ascending' %}</option>
-                    <option value="DESC" {% if not chart.asc %}selected{% endif %}>{% translate 'Descending' %}</option>
+                    <option value="ASC" {% if graph.asc %}selected{% endif %}>{% translate 'Ascending' %}</option>
+                    <option value="DESC" {% if not graph.asc %}selected{% endif %}>{% translate 'Descending' %}</option>
                 </select>
             </div>
         </div>
@@ -50,10 +50,10 @@
     <div class="brick-d3-content"></div>
     {% jsondata data class="sketch-chart-data" %}
     {% if props %}{% jsondata props class="sketch-chart-props" %}{% endif %}
-  {% elif error %}
+    {% elif error %}
     <div class="brick-d3-empty brick-error">{{error}}</div>
-  {% else %}
-   {% if object and fetcher.verbose_name %}
+    {% else %}
+    {% if object and fetcher.verbose_name %}
     <div class="brick-graph-header clearfix">
         <div class="graph-actions">
             <div class="graph-volatile">
@@ -62,13 +62,14 @@
             </div>
         </div>
     </div>
-   {% endif %}
+    {% endif %}
     <div class="brick-d3-empty is-empty">{% translate 'No values (or chart is not applicable here)' %}</div>
-  {% endif %}
+    {% endif %}
 {% endblock %}
 
+
 {% block brick_script %}
-  {% if data %}
+    {% if data %}
     <script type="text/javascript">
         (function($) {
             creme.setupReportD3ChartBrick('.brick[data-brick-id="{{brick_id}}"]', {
@@ -94,5 +95,5 @@
             });
         }(jQuery));
     </script>
-  {% endif %}
+    {% endif %}
 {% endblock %}

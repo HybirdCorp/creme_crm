@@ -656,7 +656,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(field_name, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_rfield_date_year(self):
@@ -675,7 +675,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(field_name, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_rfield_date_month(self):
@@ -686,7 +686,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             abscissa=FakeContact._meta.get_field('birthday'),
             graph_type=graph_type,
         ))
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_rfield_date_day(self):
@@ -697,7 +697,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             abscissa=FakeContact._meta.get_field('birthday'),
             graph_type=graph_type,
         ))
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_rfield_range(self):
@@ -718,7 +718,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(field_name, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertEqual(days, abs_info.parameter)
 
     def test_clean_rfield_error01(self):
@@ -931,7 +931,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(rtype.id, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_rtype_error(self):
@@ -976,7 +976,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(str(cfield.id), cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_cfield_enum02(self):
@@ -1038,7 +1038,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(str(cfield.id), cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     @parameterized.expand([CustomField.DATETIME, CustomField.DATE])
@@ -1063,7 +1063,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(str(cfield.id), cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     @parameterized.expand([CustomField.DATETIME, CustomField.DATE])
@@ -1088,7 +1088,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(str(cfield.id), cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_cfield_range(self):
@@ -1111,7 +1111,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(str(cfield.id), cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertEqual(days, abs_info.parameter)
 
     def test_clean_cfield_error01(self):
@@ -1311,7 +1311,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(field_name, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_not_required(self):
@@ -1348,7 +1348,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(CremeEntity, cell.model)
         self.assertEqual(field_name, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_no_model02(self):
@@ -1372,7 +1372,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(CremeEntity, cell.model)
         self.assertEqual(rtype.id, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(graph_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_from_python_rfield_fk(self):
@@ -2010,7 +2010,7 @@ class GraphFetcherFieldTestCase(CremeTestCase):
         graph = self._build_graph()
 
         field = GraphFetcherField()
-        self.assertIsNone(field.graph)
+        self.assertIsNone(field.chart)
         self.assertEqual('|', field.choice_separator)
 
         choices_it1 = field.widget.choices
@@ -2020,11 +2020,11 @@ class GraphFetcherFieldTestCase(CremeTestCase):
         self.assertFalse([*choices_it1])
 
         # ---
-        field.graph = graph
-        self.assertEqual(graph, field.graph)
+        field.chart = graph
+        self.assertEqual(graph, field.chart)
 
         choices_it2 = field.widget.choices
-        self.assertEqual(graph, choices_it2.graph)
+        self.assertEqual(graph, choices_it2.chart)
 
         choices = [*choices_it2]
         self.assertInChoices(
@@ -2074,7 +2074,7 @@ class GraphFetcherFieldTestCase(CremeTestCase):
         graph = self._build_graph()
 
         field = GraphFetcherField(graph=graph)
-        self.assertEqual(graph, field.graph)
+        self.assertEqual(graph, field.chart)
 
         # RGF_NOLINK ---
         fetcher1a = field.clean(value=constants.RGF_NOLINK)
@@ -2186,7 +2186,7 @@ class GraphFetcherFieldTestCase(CremeTestCase):
         self.assertEqual('#', field.widget.choices.separator)
 
         # ---
-        field.graph = self._build_graph()
+        field.chart = self._build_graph()
         choices_it = field.widget.choices
         self.assertEqual('#', choices_it.separator)
 
@@ -2223,7 +2223,7 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
 
         fetcher_f = form1.fields.get('fetcher')
         self.assertIsInstance(fetcher_f, GraphFetcherField)
-        self.assertEqual(graph, fetcher_f.graph)
+        self.assertEqual(graph, fetcher_f.chart)
 
         fk_name = 'linked_folder'
         form2 = GraphInstanceBrickForm(
