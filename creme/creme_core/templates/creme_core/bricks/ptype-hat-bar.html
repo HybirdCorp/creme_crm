@@ -41,7 +41,7 @@
               {% elif object.properties_count %}
                 {% brick_bar_button action='delete' icon='delete' url='' label=_('This property type cannot be deleted because it is used') enabled=False %}
               {% else %}
-                {% brick_bar_button action='creme_core-hatmenubar-update-redirect' label=_('Delete this property type') url=object.get_delete_absolute_url icon='delete' confirm=_('Do you really want to delete this property type?') __redirect=object.get_lv_absolute_url %}
+                {% brick_bar_button action='creme_core-detailview-delete' label=_('Delete this property type') url=object.get_delete_absolute_url icon='delete' confirm=_('Do you really want to delete this property type?') %}
               {% endif %}
             </div>
           {% endblock %}

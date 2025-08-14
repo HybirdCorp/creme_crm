@@ -385,6 +385,16 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(ptype)
         self.assertRedirects(response, CremePropertyType.get_lv_absolute_url())
 
+    def test_delete_type__ajax(self):
+        self.login_as_root()
+        ptype = CremePropertyType.objects.create(text='is cool', is_custom=True)
+        response = self.assertPOST200(
+            ptype.get_delete_absolute_url(),
+            headers={'X-Requested-With': 'XMLHttpRequest'},
+        )
+        self.assertDoesNotExist(ptype)
+        self.assertEqual(response.text, CremePropertyType.get_lv_absolute_url())
+
     def test_delete_type__not_custom(self):
         self.login_as_root()
         ptype = CremePropertyType.objects.create(text='is beautiful', is_custom=False)
