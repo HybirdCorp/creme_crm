@@ -1,0 +1,45 @@
+{% extends 'creme_core/bricks/generic/hat-bar.html' %}
+{% load i18n creme_bricks creme_widgets %}
+{% load url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-efilter-hat-bar{% endblock %}
+
+{% block brick_content %}
+    <div class="hat-bar">
+        <div class="bar-icon">{% widget_icon name='filter' size='brick-hat-bar' label=_('Filter of Entity') %}</div>
+        <div class="bar-title">
+            <h1>{% translate 'Filter of Entity' %} : {{object|capfirst}}</h1>
+        </div>
+        <div class="bar-actions">
+         {% block buttons %}
+
+          {% block edit_button %}
+           {% if edition.url %}
+            <div class='bar-action'>
+              {% if edition.allowed %}
+                {% brick_bar_button action='redirect' label=_('Edit') url=edition.url icon='edit' %}
+              {% else %}
+                {% blocktranslate asvar edit_button_label with error=edition.error %}Edition is forbidden ({{error}}){% endblocktranslate %}
+                {% brick_bar_button action='redirect' label=edit_button_label url='#' icon='edit' enabled=False %}
+              {% endif %}
+            </div>
+           {% endif %}
+          {% endblock %}
+
+          {% block delete_button %}
+           {% if deletion.url %}
+            <div class='bar-action'>
+              {% if deletion.allowed %}
+                {% brick_bar_button action='creme_core-detailview-delete' __callback_url='creme_config__efilters'|url label=_('Delete') url=deletion.url icon='delete' confirm=_('Do you really want to delete this filter?') %}
+              {% else %}
+                {% blocktranslate asvar del_button_label with error=deletion.error %}Deletion is forbidden ({{error}}){% endblocktranslate %}
+                {% brick_bar_button action='redirect' label=del_button_label url='#' icon='delete' enabled=False %}
+              {% endif %}
+            </div>
+           {% endif %}
+          {% endblock %}
+
+         {% endblock buttons %}
+        </div>
+    </div>
+{% endblock %}

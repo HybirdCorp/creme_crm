@@ -3,6 +3,34 @@
 {% load url from creme_core_tags %}
 
 {% block global_buttons %}
+    <li>
+        <a class="menu_button menu-button-icon" href="{% url 'creme_config__efilters' %}">
+            {% widget_icon name='listview' size='global-button' label=_('List') %}
+            {% translate 'Go to the configuration of filters' %}
+        </a>
+    </li>
+{% endblock %}
+
+{% block view_title %}
+    {% brick_declare bricks.hat %}
+    {% brick_declare bricks.main %}
+
+    {% brick_display bricks.hat %}
+{% endblock %}
+
+{% block instance_buttons_container %}{% endblock %}
+
+{% block main_content %}
+    {% brick_display bricks.main %}
+    {% brick_end %}
+{% endblock %}
+
+{% comment %}
+{% extends 'creme_core/detailview.html' %}
+{% load i18n creme_bricks creme_widgets %}
+{% load url from creme_core_tags %}
+
+{% block global_buttons %}
     <li>{% translate 'Go to the configuration of filters' as list_label %}
         <a class="menu_button menu-button-icon" href="{% url 'creme_config__efilters' %}">
             {% widget_icon name='listview' size='global-button' label=list_label %} {{list_label}}
@@ -12,7 +40,6 @@
 
 {% block logo %} {% widget_icon name='filter' size='brick-hat-bar' label=_('Filter of Entity') %}{% endblock %}
 
-{# BEWARE : NOT IN A BRICK. Actions that needs a brick reload will not work (page redirections are fine) #}
 {% block title_buttons %}
   {% with edition_url=object.get_edit_absolute_url deletion_url=object.get_delete_absolute_url %}
    {% if edition_url %}
@@ -33,3 +60,4 @@
     {% brick_display bricks %}
     {% brick_end %}
 {% endblock %}
+{% endcomment %}
