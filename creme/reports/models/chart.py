@@ -20,40 +20,56 @@ from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
-# from django.utils.translation import pgettext_lazy
 from django.utils.translation import gettext_lazy as _
 
+import creme.creme_core.models.fields as core_fields
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeModel,
+    InstanceBrickConfigItem,
+)
 
 from .. import constants
-from ..core.graph import (
+from ..core.chart import (
     AbscissaInfo,
     OrdinateInfo,
     abscissa_constraints,
+    chart_fetcher_registry,
     ordinate_constraints,
 )
-from ..graph_fetcher_registry import graph_fetcher_registry
 
 if TYPE_CHECKING:
-    from ..core.graph import ReportGraphHand
+    from ..core.chart import ReportGraphHand
 
 logger = logging.getLogger(__name__)
 
 
-class AbstractReportGraph(CremeEntity):
+class ReportChart(CremeModel):
     Group = constants.AbscissaGroup
     Aggregator = constants.OrdinateAggregator
 
+    created = core_fields.CreationDateTimeField(_('Creation date')).set_tags(clonable=False)
+    modified = core_fields.ModificationDateTimeField(
+        _('Last modification'),
+    ).set_tags(clonable=False)
+
+    uuid = models.UUIDField(
+        unique=True, editable=False, default=uuid4,
+    ).set_tags(viewable=False, clonable=False)
     name = models.CharField(_('Name of the chart'), max_length=100)
 
     linked_report = models.ForeignKey(
         settings.REPORTS_REPORT_MODEL, editable=False, on_delete=models.CASCADE,
     )
+
+    # Not used in vanilla but migrated from ReportGraph
+    description = models.TextField(_('Description'), blank=True)
 
     # TODO: string IDs instead of integer ?
     abscissa_type = models.PositiveIntegerField(
@@ -74,19 +90,24 @@ class AbstractReportGraph(CremeEntity):
         _('Y axis (field)'), max_length=100, editable=False, default='',
     )
 
-    chart = models.CharField(_('Chart type'), max_length=100, null=True)
-    asc   = models.BooleanField('ASC order', default=True, editable=False)  # TODO: not viewable ?
+    plot_name = models.CharField(_('Chart type'), max_length=100, null=True)
+    asc = models.BooleanField('ASC order', default=True, editable=False)  # TODO: not viewable ?
 
-    creation_label = _("Create a report chart")
+    # Can be used by third party code to store the data they want,
+    # without having to modify the code.
+    extra_data = models.JSONField(
+        editable=False, default=dict,
+    ).set_tags(viewable=False)  # clonable=False ??
+
+    creation_label = _('Create a report chart')
     save_label     = _('Save the chart')
 
     abscissa_constraints = abscissa_constraints
     ordinate_constraints = ordinate_constraints
-    fetcher_registry = graph_fetcher_registry
+    fetcher_registry = chart_fetcher_registry
     _hand: ReportGraphHand | None = None
 
     class Meta:
-        abstract = True
         app_label = 'reports'
         verbose_name = _('Report chart')
         verbose_name_plural = _('Report charts')
@@ -96,11 +117,12 @@ class AbstractReportGraph(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('reports__view_graph', args=(self.id,))
+        return reverse('reports__view_chart', args=(self.id,))
 
     def get_related_entity(self):
         return self.linked_report
 
+    # TODO: fix (signal??)
     def delete(self, *args, **kwargs):
         # NB: we call InstanceBrickConfigItem.delete() explicitly to delete
         #     related BrickDetailviewLocation/BrickHomeLocation/... instances
@@ -115,14 +137,13 @@ class AbstractReportGraph(CremeEntity):
         assert report is not None
 
         model = report.ct.model_class()
-        abscissa_constraint = self.abscissa_constraints.get_constraint_by_rgraph_type(
-            model=model,
-            rgraph_type=self.abscissa_type,
+        abscissa_constraint = self.abscissa_constraints.get_constraint_by_chart_type(
+            model=model, chart_type=self.abscissa_type,
         )
         if not abscissa_constraint:
             logger.warning(
                 'AbstractReportGraph.abscissa_info: '
-                'invalid abscissa info (model=<%s> rgraph_type=%s)',
+                'invalid abscissa info (model=<%s> chart_type=%s)',
                 model, self.abscissa_type,
             )
             return None
@@ -132,7 +153,7 @@ class AbstractReportGraph(CremeEntity):
                 model,
                 self.abscissa_cell_value,
             ),
-            graph_type=self.abscissa_type,
+            chart_type=self.abscissa_type,
             parameter=self.abscissa_parameter,
         )
 
@@ -141,7 +162,7 @@ class AbstractReportGraph(CremeEntity):
         assert abs_info.cell is not None
 
         self.abscissa_cell_value = abs_info.cell.portable_value
-        self.abscissa_type = abs_info.graph_type
+        self.abscissa_type = abs_info.chart_type
         self.abscissa_parameter = abs_info.parameter
 
     @property
@@ -157,7 +178,7 @@ class AbstractReportGraph(CremeEntity):
         )
         if not ordinate_constraint:
             logger.warning(
-                'AbstractReportGraph.ordinate_info: invalid ordinate info (model=<%s> aggr_id=%s)',
+                'ReportChart.ordinate_info: invalid ordinate info (model=<%s> aggr_id=%s)',
                 model, aggr_id,
             )
             return None
@@ -198,12 +219,12 @@ class AbstractReportGraph(CremeEntity):
 
     @property
     def hand(self) -> ReportGraphHand:
-        from ..core.graph import RGRAPH_HANDS_MAP  # Lazy loading
+        from ..core.chart import CHART_HANDS_MAP  # Lazy loading
 
         hand = self._hand
 
         if hand is None:
-            self._hand = hand = RGRAPH_HANDS_MAP[self.abscissa_type](self)
+            self._hand = hand = CHART_HANDS_MAP[self.abscissa_type](self)
 
         return hand
 
@@ -229,8 +250,3 @@ class AbstractReportGraph(CremeEntity):
             return f'{aggregator.cell} - {aggregator.verbose_name}'
 
         return aggregator.verbose_name
-
-
-class ReportGraph(AbstractReportGraph):
-    class Meta(AbstractReportGraph.Meta):
-        swappable = 'REPORTS_GRAPH_MODEL'
