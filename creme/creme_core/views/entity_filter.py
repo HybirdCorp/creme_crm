@@ -37,7 +37,7 @@ from ..core.entity_filter import EF_REGULAR, entity_filter_registries
 from ..core.exceptions import BadRequestError, ConflictError
 from ..enumerators import UserEnumerator
 from ..forms.entity_filter import forms as efilter_forms
-from ..gui.bricks import PaginatedBrick, QuerysetBrick, SimpleBrick
+from ..gui import bricks
 from ..gui.listview import ListViewState
 from ..http import CremeJsonResponse
 from ..models import CremeEntity, EntityFilter, RelationType
@@ -131,13 +131,45 @@ class EntityFilterMixin(FilterMixin):
         return self.efilter_registries[self.efilter_type]
 
 
-class EntityFilterInfoBrick(SimpleBrick):
+class EntityFilterBarHatBrick(bricks.Brick):
+    id = 'efilter_hat_bar'
+    dependencies = [EntityFilter]
+    template_name = 'creme_core/bricks/efilter-hat-bar.html'
+
+    def detailview_display(self, context):
+        efilter = context['object']
+        user = context['user']
+
+        edition_allowed, edition_error = efilter.can_edit(user)
+        edition_info = {
+            'url': efilter.get_edit_absolute_url(),
+            'allowed': edition_allowed,
+        }
+        if not edition_allowed:
+            edition_info['error'] = edition_error
+
+        deletion_allowed, deletion_error = efilter.can_delete(user)
+        deletion_info = {
+            'url': efilter.get_delete_absolute_url(),
+            'allowed': deletion_allowed,
+        }
+        if not deletion_allowed:
+            deletion_info['error'] = deletion_error
+
+        return self._render(self.get_template_context(
+            context,
+            edition=edition_info,
+            deletion=deletion_info,
+        ))
+
+
+class EntityFilterInfoBrick(bricks.SimpleBrick):
     id = 'efilter_info'
     read_only = True
     template_name = 'creme_core/bricks/efilter-info.html'
 
 
-class EntityFilterParentsBrick(PaginatedBrick):
+class EntityFilterParentsBrick(bricks.PaginatedBrick):
     id = 'efilter_parents'
     read_only = True
     template_name = 'creme_core/bricks/efilter-parents.html'
@@ -153,7 +185,7 @@ class EntityFilterParentsBrick(PaginatedBrick):
         ))
 
 
-class EntityFilterLinkedEntitiesBrick(QuerysetBrick):
+class EntityFilterLinkedEntitiesBrick(bricks.QuerysetBrick):
     read_only = True
     template_name = 'creme_core/bricks/efilter-linked-entities.html'
 
@@ -251,18 +283,31 @@ class EntityFilterDetail(EntityFilterMixin, generic.CremeModelDetail):
         if not allowed:
             raise PermissionDenied(msg)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #
+    #     efilter = self.object
+    #     user = self.request.user
+    #     context['edition_perm'] = efilter.can_edit(user)[0]
+    #     context['deletion_perm'] = efilter.can_delete(user)[0]
+    #
+    #     return context
 
-        efilter = self.object
-        user = self.request.user
-        context['edition_perm'] = efilter.can_edit(user)[0]
-        context['deletion_perm'] = efilter.can_delete(user)[0]
-
-        return context
-
+    # def get_bricks(self):
+    #     bricks = [EntityFilterInfoBrick(), EntityFilterParentsBrick()]
+    #     efilter = self.object
+    #
+    #     for rel_objects in (f for f in efilter._meta.get_fields() if f.one_to_many):
+    #         if issubclass(rel_objects.related_model, CremeEntity):
+    #             bricks.append(
+    #                 EntityFilterLinkedEntitiesBrick(
+    #                     model=rel_objects.related_model,
+    #                     field=rel_objects.field,
+    #                 )
+    #             )
+    #     return bricks
     def get_bricks(self):
-        bricks = [EntityFilterInfoBrick(), EntityFilterParentsBrick()]
+        main_bricks = [EntityFilterInfoBrick(), EntityFilterParentsBrick()]
         efilter = self.object
 
         # TODO: regroup fields from the same model?
@@ -270,7 +315,7 @@ class EntityFilterDetail(EntityFilterMixin, generic.CremeModelDetail):
         #   => what about non-viewable fields?
         for rel_objects in (f for f in efilter._meta.get_fields() if f.one_to_many):
             if issubclass(rel_objects.related_model, CremeEntity):
-                bricks.append(
+                main_bricks.append(
                     EntityFilterLinkedEntitiesBrick(
                         model=rel_objects.related_model,
                         field=rel_objects.field,
@@ -284,7 +329,10 @@ class EntityFilterDetail(EntityFilterMixin, generic.CremeModelDetail):
         #         if f.many_to_many and f.auto_created
         #     ): [...]
 
-        return bricks
+        return {
+            'hat': [EntityFilterBarHatBrick()],
+            'main': main_bricks,
+        }
 
     def get_bricks_reload_url(self):
         return reverse(self.bricks_reload_url_name, args=(self.object.id,))
@@ -308,7 +356,9 @@ class EntityFilterBricksReloading(BricksReloading):
 
         for brick_id in self.get_brick_ids():
             # NB: not useful
-            # if brick_id == EntityFilterInfoBrick.id:
+            # if brick_id == EntityFilterBarHatBrick.id:
+            #     brick = EntityFilterBarHatBrick()
+            # elif brick_id == EntityFilterInfoBrick.id:
             #     brick = EntityFilterInfoBrick()
 
             if brick_id == EntityFilterParentsBrick.id:
@@ -449,7 +499,9 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
         return kwargs
 
 
-class EntityFilterDeletion(EntityFilterMixin, generic.CremeModelDeletion):
+class EntityFilterDeletion(EntityFilterMixin,
+                           base.CallbackMixin,
+                           generic.CremeModelDeletion):
     model = EntityFilter
     pk_url_kwarg = 'efilter_id'
 
@@ -465,9 +517,17 @@ class EntityFilterDeletion(EntityFilterMixin, generic.CremeModelDeletion):
     def get_query_kwargs(self):
         return {'pk': self.kwargs[self.pk_url_kwarg]}
 
+    def _get_success_url(self):
+        return (
+            self.get_callback_url()
+            or self.object.entity_type.model_class().get_lv_absolute_url()
+        )
+
+    def get_ajax_success_url(self):
+        return self._get_success_url()
+
     def get_success_url(self):
-        # TODO: callback_url?
-        return self.object.entity_type.model_class().get_lv_absolute_url()
+        return self._get_success_url()
 
     def perform_deletion(self, request):
         try:

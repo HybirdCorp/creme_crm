@@ -167,6 +167,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self.assertEqual('a', config_button_node.tag)
         self.assertEqual(reverse('creme_config__efilters'), config_button_node.attrib.get('href'))
 
+        self.get_brick_node(tree, efilter_views.EntityFilterBarHatBrick)
         self.get_brick_node(tree, efilter_views.EntityFilterInfoBrick)
 
         parents_node = self.get_brick_node(tree, efilter_views.EntityFilterParentsBrick)
@@ -2003,9 +2004,16 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
             condition.value,
         )
 
-    def _delete(self, efilter):
+    def _delete(self, efilter, callback_url=None, ajax=False):
+        data = {}
+        if callback_url:
+            data['callback_url'] = callback_url
+
+        headers = {'X-Requested-With': 'XMLHttpRequest'} if ajax else None
+
         return self.client.post(
             reverse('creme_core__delete_efilter', args=(efilter.id,)),
+            data=data, headers=headers,
         )
 
     def test_delete(self):
@@ -2084,6 +2092,28 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         )
         self._delete(efilter)
         self.assertDoesNotExist(efilter)
+
+    def test_delete__callback_url(self):
+        self.login_as_root()
+
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter01', 'Filter01', FakeContact, is_custom=True,
+        )
+        cb_url = reverse('creme_config__efilters')
+        response = self._delete(efilter, callback_url=cb_url)
+        self.assertDoesNotExist(efilter)
+        self.assertRedirects(response, cb_url)
+
+    def test_delete__callback_url__ajax(self):
+        self.login_as_root()
+
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter01', 'Filter01', FakeContact, is_custom=True,
+        )
+        cb_url = reverse('creme_config__efilters')
+        response = self._delete(efilter, callback_url=cb_url, ajax=True)
+        self.assertDoesNotExist(efilter)
+        self.assertEqual(cb_url, response.text)
 
     def test_delete__dependencies_error01(self):
         "Can not delete if used as sub-filter."

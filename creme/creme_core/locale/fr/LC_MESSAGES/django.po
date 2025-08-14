@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-10 16:50+0200\n"
+"POT-Creation-Date: 2025-10-08 12:53+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3153,6 +3153,17 @@ msgstr ""
 "Il semble que tous les champs soient cachés. Demandez à votre administrateur "
 "de corriger la configuration."
 
+#, python-format
+msgid "Edition is forbidden (%(error)s)"
+msgstr "La modification est interdite (%(error)s)"
+
+msgid "Do you really want to delete this filter?"
+msgstr "Voulez-vous vraiment supprimer ce filtre ?"
+
+#, python-format
+msgid "Deletion is forbidden (%(error)s)"
+msgstr "La suppression est interdite (%(error)s)"
+
 msgid "Type of filter"
 msgstr "Type de filtre"
 
@@ -3213,10 +3224,6 @@ msgstr "Fiche dans la corbeille"
 
 msgid "You are not allowed to view this block"
 msgstr "Vous n'avez pas la permission de voir ce bloc"
-
-#, python-format
-msgid "Deletion is forbidden (%(error)s)"
-msgstr "La suppression est interdite (%(error)s)"
 
 msgid "Concerned entity"
 msgstr "Fiche concernée"
@@ -3593,11 +3600,11 @@ msgstr ""
 msgid "Cannot restrict because already in «%(sandbox)s»"
 msgstr "Impossible de réserver car déjà dans «%(sandbox)s»"
 
+msgid "List"
+msgstr "Liste"
+
 msgid "Go to the configuration of filters"
 msgstr "Aller à la configuration des filtres"
-
-msgid "Do you really want to delete this filter?"
-msgstr "Voulez-vous vraiment supprimer ce filtre ?"
 
 msgid "Go to the configuration of types"
 msgstr "Aller à la configuration des types"
