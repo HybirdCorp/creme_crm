@@ -631,6 +631,7 @@ class EntitySelector(widgets.Widget):
             attrs={
                 'class': f'ui-creme-input {widget_type}',
                 'required': self.is_required,
+                'id': final_attrs.pop('id'),
             },
         )['widget']
 
