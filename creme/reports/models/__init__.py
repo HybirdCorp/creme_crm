@@ -1,5 +1,6 @@
 from django.conf import settings
 
+from .chart import ReportChart  # NOQA
 from .graph import AbstractReportGraph, ReportGraph  # NOQA
 from .report import AbstractReport, Field, Report  # NOQA
 

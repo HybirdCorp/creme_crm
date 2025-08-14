@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,15 +23,39 @@ from creme.creme_core.views import generic
 
 from .. import get_rgraph_model
 from ..bricks import InstanceBricksInfoBrick
-from ..forms.bricks import GraphInstanceBrickForm
+# from ..forms.bricks import GraphInstanceBrickForm
+from ..forms.bricks import ChartInstanceBrickForm
+from ..models import ReportChart
 
 
-class GraphInstanceBrickCreation(generic.AddingInstanceToEntityPopup):
+# class GraphInstanceBrickCreation(generic.AddingInstanceToEntityPopup):
+#     model = InstanceBrickConfigItem
+#     form_class = GraphInstanceBrickForm
+#     permissions = 'reports.can_admin'
+#     title = _('Create an instance block for «{entity}»')
+#     entity_classes = get_rgraph_model()
+#     entity_id_url_kwarg = 'graph_id'
+#     entity_form_kwarg = 'graph'
+#
+#     help_message = _(
+#         'When you create a block, it becomes available in the blocks configuration. '
+#         'It can be displayed on Home, on «My Page» & on the detail-views of entities.'
+#     )
+#
+#     def check_related_entity_permissions(self, entity, user):
+#         pass  # NB: only admin credentials are needed
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['help_message'] = self.help_message
+#
+#         return context
+class ChartInstanceBrickCreation(generic.AddingInstanceToEntityPopup):
     model = InstanceBrickConfigItem
-    form_class = GraphInstanceBrickForm
+    form_class = ChartInstanceBrickForm
     permissions = 'reports.can_admin'
     title = _('Create an instance block for «{entity}»')
-    entity_classes = get_rgraph_model()
+    entity_classes = get_rgraph_model()  # TODO: rework view base class
     entity_id_url_kwarg = 'graph_id'
     entity_form_kwarg = 'graph'
 
@@ -51,10 +75,19 @@ class GraphInstanceBrickCreation(generic.AddingInstanceToEntityPopup):
         return context
 
 
-class GraphInstanceBricks(generic.RelatedToEntityDetailPopup):
-    model = get_rgraph_model()
-    pk_url_kwarg = 'graph_id'
-    bricks_reload_url_name = 'creme_core__reload_detailview_bricks'
+# class GraphInstanceBricks(generic.RelatedToEntityDetailPopup):
+#     model = get_rgraph_model()
+#     pk_url_kwarg = 'graph_id'
+#     bricks_reload_url_name = 'creme_core__reload_detailview_bricks'
+#
+#     def get_brick_ids(self):
+#         return (
+#             InstanceBricksInfoBrick.id,
+#         )
+class ChartInstanceBricks(generic.RelatedToEntityDetailPopup):
+    model = ReportChart
+    pk_url_kwarg = 'chart_id'
+    bricks_reload_url_name = 'creme_core__reload_detailview_bricks'  # TODO: FIX ???
 
     def get_brick_ids(self):
         return (
