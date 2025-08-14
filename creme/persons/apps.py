@@ -48,7 +48,8 @@ class PersonsConfig(CremeAppConfig):
             from . import signals  # NOQA
 
             if apps.is_installed('creme.reports'):
-                self.register_reports_graph_fetchers()
+                # self.register_reports_graph_fetchers()
+                self.register_reports_chart_fetchers()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Contact, self.Organisation)
@@ -384,11 +385,19 @@ class PersonsConfig(CremeAppConfig):
         # NB: to facilitate customisation by a child class
         return ContactUserCreationForm
 
-    def register_reports_graph_fetchers(self):
-        from creme.reports.graph_fetcher_registry import graph_fetcher_registry
+    # def register_reports_graph_fetchers(self):
+    #     from creme.reports.graph_fetcher_registry import graph_fetcher_registry
+    #
+    #     from . import reports
+    #
+    #     graph_fetcher_registry.register(
+    #         reports.OwnedGraphFetcher,
+    #     )
+    def register_reports_chart_fetchers(self):
+        from creme.reports.core.chart import fetcher
 
         from . import reports
 
-        graph_fetcher_registry.register(
-            reports.OwnedGraphFetcher,
+        fetcher.chart_fetcher_registry.register(
+            reports.OwnedChartFetcher,
         )

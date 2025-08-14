@@ -2,10 +2,10 @@
 {% load i18n creme_bricks %}
 {% load jsondata templatize jsonify from creme_core_tags %}
 
-{% block brick_extra_class %}sketch-chart-brick reports-chart-brick{% endblock %}
+{% block brick_extra_class %}sketch-chart-brick reports-graph-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=chart.name icon='report' %}
+    {% brick_header_title title=graph.name icon='report' %}
 {% endblock %}
 
 {% block brick_header_actions %}
@@ -19,30 +19,30 @@
 {% block brick_content_extra_class %}{% if not data %}is-empty{% endif %}{% endblock %}
 
 {% block brick_content %}
-  {% if data %}
-    <div class="brick-chart-header clearfix">
-        <div class="chart-controls" data-fetch-settings-url="{{settings_update_url}}">
-            <div class="chart-control chart-controls-plot">
-                <span class="chart-control-name">{% translate 'Type of chart' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
-                <select class="chart-control-value" data-dropdown-alt="{% translate 'Select the type of visualisation for this chart' %}">
-                  {% for plot in plots %}
-                    <option value="{{plot.name}}" {% if plot.name == chart.plot_name %}selected{% endif %}>{{plot.label}}</option>
+    {% if data %}
+    <div class="brick-graph-header clearfix">
+        <div class="graph-controls" data-fetch-settings-url="{{settings_update_url}}">
+            <div class="graph-control graph-controls-type">
+                <span class="graph-control-name">{% translate 'Type of chart' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
+                <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the type of visualisation for this chart' %}">
+                  {% for chart in charts %}{# TODO: "chart_types" #}
+                    <option value="{{chart.name}}" {% if chart.name == graph.chart %}selected{% endif %}>{{chart.label}}</option>
                   {% endfor %}
                 </select>
             </div>
-            <div class="chart-control chart-controls-sort">
-                <span class="chart-control-name">{% translate 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
-                <select class="chart-control-value" data-dropdown-alt="{% translate 'Select the sort order' %}">
-                    <option value="ASC" {% if chart.asc %}selected{% endif %}>{% translate 'Ascending' %}</option>
-                    <option value="DESC" {% if not chart.asc %}selected{% endif %}>{% translate 'Descending' %}</option>
+            <div class="graph-control graph-controls-sort">
+                <span class="graph-control-name">{% translate 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
+                <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the sort order' %}">
+                    <option value="ASC" {% if graph.asc %}selected{% endif %}>{% translate 'Ascending' %}</option>
+                    <option value="DESC" {% if not graph.asc %}selected{% endif %}>{% translate 'Descending' %}</option>
                 </select>
             </div>
         </div>
         {% if object and fetcher.verbose_name %}
-        <div class="chart-actions">
-            <div class="chart-volatile">
-                <span class="chart-volatile-label">{% translate 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
-                <span class="chart-volatile-value">{{ fetcher.verbose_name }}</span>
+        <div class="graph-actions">
+            <div class="graph-volatile">
+                <span class="graph-volatile-label">{% translate 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
+                <span class="graph-volatile-value">{{ fetcher.verbose_name }}</span>
             </div>
         </div>
         {% endif %}
@@ -50,25 +50,26 @@
     <div class="brick-d3-content"></div>
     {% jsondata data class="sketch-chart-data" %}
     {% if props %}{% jsondata props class="sketch-chart-props" %}{% endif %}
-  {% elif error %}
+    {% elif error %}
     <div class="brick-d3-empty brick-error">{{error}}</div>
-  {% else %}
-   {% if object and fetcher.verbose_name %}
-    <div class="brick-chart-header clearfix">
-        <div class="chart-actions">
-            <div class="chart-volatile">
-                <span class="chart-volatile-label">{% translate 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
-                <span class="chart-volatile-value">{{ fetcher.verbose_name }}</span>
+    {% else %}
+    {% if object and fetcher.verbose_name %}
+    <div class="brick-graph-header clearfix">
+        <div class="graph-actions">
+            <div class="graph-volatile">
+                <span class="graph-volatile-label">{% translate 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
+                <span class="graph-volatile-value">{{ fetcher.verbose_name }}</span>
             </div>
         </div>
     </div>
-   {% endif %}
+    {% endif %}
     <div class="brick-d3-empty is-empty">{% translate 'No values (or chart is not applicable here)' %}</div>
-  {% endif %}
+    {% endif %}
 {% endblock %}
 
+
 {% block brick_script %}
-  {% if data %}
+    {% if data %}
     <script type="text/javascript">
         (function($) {
             creme.setupReportD3ChartBrick('.brick[data-brick-id="{{brick_id}}"]', {
@@ -94,5 +95,5 @@
             });
         }(jQuery));
     </script>
-  {% endif %}
+    {% endif %}
 {% endblock %}

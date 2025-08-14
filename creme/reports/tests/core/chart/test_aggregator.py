@@ -16,70 +16,63 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.reports.constants import OrdinateAggregator
-from creme.reports.core.graph.aggregator import (
-    ReportGraphAggregator,
-    ReportGraphAggregatorRegistry,
-    RGAAverage,
-    RGACount,
-    RGASum,
+from creme.reports.core.chart.aggregator import (
+    ChartAverage,
+    ChartCount,
+    ChartSum,
+    ReportChartAggregator,
+    ReportChartAggregatorRegistry,
 )
-from creme.reports.core.graph.cell_constraint import (
+from creme.reports.core.chart.cell_constraint import (
     ACCCount,
     ACCFieldAggregation,
     AggregatorCellConstraint,
     AggregatorConstraintsRegistry,
 )
-from creme.reports.tests.base import (
-    Report,
-    ReportGraph,
-    skipIfCustomReport,
-    skipIfCustomRGraph,
-)
+from creme.reports.models import ReportChart
+from creme.reports.tests.base import Report, skipIfCustomReport
 
 
 # TODO: test annotate() + sum, max, min
 # TODO: test aggregate() + sum, max, min
 @skipIfCustomReport
-@skipIfCustomRGraph
 class AggregatorTestCase(CremeTestCase):
     def test_registry01(self):
-        registry = ReportGraphAggregatorRegistry()
+        registry = ReportChartAggregatorRegistry()
         report = Report(ct=FakeOrganisation)
-        rgraph = ReportGraph(
-            linked_report=report,
-            ordinate_type=OrdinateAggregator.COUNT,
+        chart = ReportChart(
+            linked_report=report, ordinate_type=OrdinateAggregator.COUNT,
         )
 
-        aggregator1 = registry[rgraph]
-        self.assertIsInstance(aggregator1, ReportGraphAggregator)
-        self.assertNotEqual(type(aggregator1), RGACount)
+        aggregator1 = registry[chart]
+        self.assertIsInstance(aggregator1, ReportChartAggregator)
+        self.assertNotEqual(type(aggregator1), ChartCount)
         self.assertEqual('??', aggregator1.verbose_name)
         self.assertEqual(_('the aggregation function is invalid.'), aggregator1.error)
 
         # ---
-        registry(OrdinateAggregator.COUNT)(RGACount)
-        aggregator2 = registry[rgraph]
-        self.assertIsInstance(aggregator2, RGACount)
+        registry(OrdinateAggregator.COUNT)(ChartCount)
+        aggregator2 = registry[chart]
+        self.assertIsInstance(aggregator2, ChartCount)
         self.assertIsNone(aggregator2.error)
 
     def test_registry02(self):
-        registry = ReportGraphAggregatorRegistry()
+        registry = ReportChartAggregatorRegistry()
         report = Report(ct=FakeOrganisation)
-        rgraph = ReportGraph(
-            linked_report=report,
-            ordinate_type=OrdinateAggregator.SUM,
+        chart = ReportChart(
+            linked_report=report, ordinate_type=OrdinateAggregator.SUM,
         )
 
-        registry(OrdinateAggregator.SUM)(RGASum)
-        aggregator1 = registry[rgraph]
-        self.assertNotEqual(type(aggregator1), RGACount)
+        registry(OrdinateAggregator.SUM)(ChartSum)
+        aggregator1 = registry[chart]
+        self.assertNotEqual(type(aggregator1), ChartCount)
         self.assertEqual('??', aggregator1.verbose_name)
         self.assertEqual(_('the field does not exist any more.'), aggregator1.error)
 
         # ---
-        rgraph.ordinate_cell_key = 'regular_field-capital'
-        aggregator2 = registry[rgraph]
-        self.assertIsInstance(aggregator2, RGASum)
+        chart.ordinate_cell_key = 'regular_field-capital'
+        aggregator2 = registry[chart]
+        self.assertIsInstance(aggregator2, ChartSum)
         self.assertIsNone(aggregator2.error)
 
     def test_registry03(self):
@@ -90,40 +83,40 @@ class AggregatorTestCase(CremeTestCase):
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        registry = ReportGraphAggregatorRegistry()
+        registry = ReportChartAggregatorRegistry()
         report = Report(ct=FakeOrganisation)
-        rgraph = ReportGraph(
+        chart = ReportChart(
             linked_report=report,
             ordinate_type=OrdinateAggregator.SUM,
             ordinate_cell_key=f'regular_field-{hidden_fname}',
         )
 
-        registry(OrdinateAggregator.SUM)(RGASum)
-        aggregator = registry[rgraph]
-        self.assertIsInstance(aggregator, RGASum)
+        registry(OrdinateAggregator.SUM)(ChartSum)
+        aggregator = registry[chart]
+        self.assertIsInstance(aggregator, ChartSum)
         self.assertEqual(_('this field should be hidden.'), aggregator.error)
 
     def test_count(self):
-        agg1 = RGACount()
+        agg1 = ChartCount()
         self.assertIsNone(agg1.error)
 
         # ---
         with self.assertRaises(ValueError) as cm:
-            RGACount(cell=EntityCellRegularField.build(FakeOrganisation, 'capital'))
+            ChartCount(cell=EntityCellRegularField.build(FakeOrganisation, 'capital'))
 
         self.assertEqual(
-            'RGACount does not work with a cell.',
-            str(cm.exception)
+            'ChartCount does not work with a cell.',
+            str(cm.exception),
         )
 
     def test_average01(self):
         "Regular field."
-        agg = RGAAverage(cell=EntityCellRegularField.build(FakeOrganisation, 'capital'))
+        agg = ChartAverage(cell=EntityCellRegularField.build(FakeOrganisation, 'capital'))
         self.assertIsNone(agg.error)
 
         # ---
         with self.assertRaises(ValueError) as cm1:
-            RGAAverage(cell=None)
+            ChartAverage(cell=None)
 
         self.assertEqual(
             _('the field does not exist any more.'),
@@ -132,7 +125,7 @@ class AggregatorTestCase(CremeTestCase):
 
         # ---
         with self.assertRaises(ValueError) as cm2:
-            RGAAverage(
+            ChartAverage(
                 cell=EntityCellFunctionField.build(FakeOrganisation, 'get_pretty_properties'),
             )
 
@@ -146,7 +139,7 @@ class AggregatorTestCase(CremeTestCase):
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        agg = RGAAverage(cell=EntityCellRegularField.build(FakeOrganisation, hidden_fname))
+        agg = ChartAverage(cell=EntityCellRegularField.build(FakeOrganisation, hidden_fname))
         self.assertEqual(_('this field should be hidden.'), agg.error)
 
     def test_average03(self):
@@ -159,10 +152,10 @@ class AggregatorTestCase(CremeTestCase):
         cfield1 = create_cfield(name='Hair size')
         cfield2 = create_cfield(name='Hair brightness', is_deleted=True)
 
-        agg1 = RGAAverage(cell=EntityCellCustomField(cfield1))
+        agg1 = ChartAverage(cell=EntityCellCustomField(cfield1))
         self.assertIsNone(agg1.error)
 
-        agg2 = RGAAverage(cell=EntityCellCustomField(cfield2))
+        agg2 = ChartAverage(cell=EntityCellCustomField(cfield2))
         self.assertEqual(_('this custom field is deleted.'), agg2.error)
 
 

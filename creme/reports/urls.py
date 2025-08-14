@@ -3,8 +3,8 @@ from django.urls import include, re_path
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
-from . import report_model_is_custom, rgraph_model_is_custom
-from .views import bricks, entity_filter, export, graph, report
+from . import report_model_is_custom  # rgraph_model_is_custom
+from .views import bricks, chart, entity_filter, export, report  # graph
 
 urlpatterns = [
     re_path(
@@ -88,27 +88,66 @@ urlpatterns = [
         name='reports__edit_fields',
     ),
 
+    # re_path(
+    #     r'^graph/fetch/(?P<graph_id>\d+)/settings[/]?$',
+    #     graph.GraphFetchSettings.as_view(),
+    #     name='reports__update_graph_fetch_settings',
+    # ),
+    # re_path(
+    #     r'^graph/fetch/(?P<instance_brick_id>\d+)/settings/(?P<entity_id>\d+)[/]?$',
+    #     graph.GraphFetchSettingsForInstance.as_view(),
+    #     name='reports__update_graph_fetch_settings_for_instance',
+    # ),
+    # Charts
     re_path(
-        r'^graph/fetch/(?P<graph_id>\d+)/settings[/]?$',
-        graph.GraphFetchSettings.as_view(),
-        name='reports__update_graph_fetch_settings',
+        r'^chart/(?P<report_id>\d+)/add[/]?$',
+        chart.ChartCreation.as_view(),
+        name='reports__create_chart',
     ),
-    # DEPRECATED
     re_path(
-        r'^graph/fetch/(?P<instance_brick_id>\d+)/settings/(?P<entity_id>\d+)[/]?$',
-        graph.GraphFetchSettingsForInstance.as_view(),
-        name='reports__update_graph_fetch_settings_for_instance',
+        r'^chart/edit/(?P<chart_id>\d+)[/]?$',
+        chart.ChartEdition.as_view(),
+        name='reports__edit_chart',
+    ),
+    re_path(
+        r'^chart/(?P<chart_id>\d+)[/]?$',
+        chart.ChartDetail.as_view(),
+        name='reports__view_chart',
+    ),
+    re_path(
+        r'^chart/(?P<chart_id>\d+)/reload_bricks[/]?$',
+        chart.ChartDetailBricksReloading.as_view(),
+        name='reports__reload_chart_bricks',
+    ),
+    re_path(
+        r'^chart/delete/(?P<chart_id>\d+)[/]?$',
+        chart.ChartDeletion.as_view(),
+        name='reports__delete_chart',
+    ),
+    re_path(
+        r'^chart/fetch/(?P<chart_id>\d+)/settings[/]?$',
+        chart.ChartFetchSettingsUpdate.as_view(),
+        name='reports__update_chart_fetch_settings',
     ),
 
     re_path(
-        r'^graph/(?P<graph_id>\d+)/brick/add[/]?$',
-        bricks.GraphInstanceBrickCreation.as_view(),
+        # r'^graph/(?P<graph_id>\d+)/brick/add[/]?$',
+        r'^chart/(?P<chart_id>\d+)/instance_brick/add[/]?$',
+        # bricks.GraphInstanceBrickCreation.as_view(),
+        bricks.ChartInstanceBrickCreation.as_view(),
         name='reports__create_instance_brick',
     ),
     re_path(
-        r'^graph/(?P<graph_id>\d+)/bricks[/]?$',
-        bricks.GraphInstanceBricks.as_view(),
+        # r'^graph/(?P<graph_id>\d+)/bricks[/]?$',
+        r'^chart/(?P<chart_id>\d+)/instance_bricks[/]?$',
+        # bricks.GraphInstanceBricks.as_view(),
+        bricks.ChartInstanceBricksInfo.as_view(),
         name='reports__instance_bricks_info',
+    ),
+    re_path(
+        r'^chart/(?P<chart_id>\d+)/instance_bricks/reload[/]?$',
+        bricks.ChartInstanceBricksInfoReloading.as_view(),
+        name='reports__reload_chart_ibci_bricks',
     ),
 
     *swap_manager.add_group(
@@ -146,34 +185,34 @@ urlpatterns = [
         app_name='reports',
     ).kept_patterns(),
 
-    *swap_manager.add_group(
-        rgraph_model_is_custom,
-        Swappable(
-            re_path(
-                r'^graph/(?P<report_id>\d+)/add[/]?$',
-                graph.GraphCreation.as_view(),
-                name='reports__create_graph',
-            ),
-            check_args=Swappable.INT_ID,
-        ),
-        Swappable(
-            re_path(
-                r'^graph/edit/(?P<graph_id>\d+)[/]?$',
-                graph.GraphEdition.as_view(),
-                name='reports__edit_graph',
-            ),
-            check_args=Swappable.INT_ID,
-        ),
-        Swappable(
-            re_path(
-                r'^graph/(?P<graph_id>\d+)[/]?$',
-                graph.GraphDetail.as_view(),
-                name='reports__view_graph',
-            ),
-            check_args=Swappable.INT_ID,
-        ),
-        app_name='reports',
-    ).kept_patterns(),
+    # *swap_manager.add_group(
+    #     rgraph_model_is_custom,
+    #     Swappable(
+    #         re_path(
+    #             r'^graph/(?P<report_id>\d+)/add[/]?$',
+    #             graph.GraphCreation.as_view(),
+    #             name='reports__create_graph',
+    #         ),
+    #         check_args=Swappable.INT_ID,
+    #     ),
+    #     Swappable(
+    #         re_path(
+    #             r'^graph/edit/(?P<graph_id>\d+)[/]?$',
+    #             graph.GraphEdition.as_view(),
+    #             name='reports__edit_graph',
+    #         ),
+    #         check_args=Swappable.INT_ID,
+    #     ),
+    #     Swappable(
+    #         re_path(
+    #             r'^graph/(?P<graph_id>\d+)[/]?$',
+    #             graph.GraphDetail.as_view(),
+    #             name='reports__view_graph',
+    #         ),
+    #         check_args=Swappable.INT_ID,
+    #     ),
+    #     app_name='reports',
+    # ).kept_patterns(),
 ]
 
 if settings.TESTS_ON:

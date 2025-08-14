@@ -1,0 +1,141 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_perms creme_widgets reports_tags %}
+{% load jsondata jsonify url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} reports-graphs-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Chart') plural=_('{count} Charts') empty=_('Charts') icon='graph' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% brick_header_action id='add' url='reports__create_graph'|url:object.id label=_('Create a new chart') enabled=user|has_perm_to_change:object %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('X axis (field)') %}
+    {% brick_table_column title=_('X axis (grouping)') %}
+    {% brick_table_column title=_('Y axis (type)') %}
+    {% brick_table_column title=_('Y axis (field)') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+ {% with admin_perm=user|has_perm_to_admin:'reports' %}
+  {% for row in rows %}
+   {% with hand=row.graph.hand graph=row.graph %}
+    <tr data-graph-id="{{graph.id}}" class="graph-row-header">
+        <td {% if hand.abscissa_error is not None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_abscissa}}</td>
+        <td {% if hand.abscissa_error is not None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_name}}{% if graph.abscissa_parameter %} ({{graph.abscissa_parameter}}){% endif %}</td>{# TODO: hand.verbose parameter ? #}
+        {% with ordinate=hand.ordinate %}
+        <td {% if ordinate.error is not None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.verbose_name}}</td>
+        <td {% if ordinate.error is not None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.cell|default:'—'}}</td>
+        {% endwith %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='reports__edit_graph'|url:graph.id enabled=user|has_perm_to_change:graph %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_delete_entity_action entity=graph user=user label=_('Delete this chart') %}
+        </td>
+    </tr>
+    <tr class="graph-row-title">
+        <td colspan="6">
+            <div class="graph-accordion-title" data-graph-id="{{graph.id}}">
+                <div class="graph-accordion-toggle">{% widget_icon name='expand' size='brick-table-action' class='graph-accordion-icon' %}</div>
+                <div class="graph-accordion-text"><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></div>
+                <div class="graph-accordion-toggle">{% widget_icon name='expand' size='brick-table-action' class='graph-accordion-icon' %}</div>
+            </div>
+        </td>
+    </tr>
+    <tr data-graph-id="{{graph.id}}" class="graph-row graph-row-collapsed{% if not row.data %} is-empty{% endif %}">
+        <td class="reports-graph-brick" colspan="6">
+            <div class="brick-chart-header clearfix">
+                {% if row.data %}
+                <div class="graph-controls" data-fetch-settings-url="{{row.settings_update_url}}">
+                    <div class="graph-control graph-controls-type">
+                        <span class="graph-control-name">{% translate 'Chart' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
+                        <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the type of visualisation for this chart' %}">
+                          {% for chart in charts %}{# TODO: "chart_types" #}
+                            <option value="{{chart.name}}" {% if chart.name == graph.chart %}selected{% endif %}>{{chart.label}}</option>
+                          {% endfor %}
+                        </select>
+                    </div>
+                    <div class="graph-control graph-controls-sort">
+                        <span class="graph-control-name">{% translate 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
+                        <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the sort order' %}">
+                            <option value="ASC" {% if graph.asc %}selected{% endif %}>{% translate 'Ascending' %}</option>
+                            <option value="DESC" {% if not graph.asc %}selected{% endif %}>{% translate 'Descending' %}</option>
+                        </select>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="graph-actions">
+                    {% if volatile_column %}
+                    <div class="graph-volatile">
+                        <span class="graph-volatile-label">{% translate 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
+                        <span class="graph-volatile-value">{{volatile_column}}</span>
+                    </div>
+                    {% endif %}
+                    {% with bricks_count=row.instance_brick_count %}{% blocktranslate count count=bricks_count asvar popup_label %}{{count}} configured block{% plural %}{{count}} configured blocks{% endblocktranslate %}
+                    {% if bricks_count %}
+                    <div class="graph-action">
+                        {% brick_table_action id='view' url='reports__instance_bricks_info'|url:graph.id label=popup_label display='text' %}
+                    </div>
+                    {% endif  %}
+                    {% endwith %}
+                    <div class="graph-action">
+                        {% brick_table_action id='add' url='reports__create_instance_brick'|url:graph.id label=_('Create a block for this chart') display='text' enabled=admin_perm %}
+                    </div>
+                </div>
+            </div>
+            {% if row.data %}
+             <div class="brick-d3-content"></div>
+             {% jsondata row.data class="sketch-chart-data" %}
+             {% if row.props %}{% jsondata row.props class="sketch-chart-props" %}{% endif %}
+             {% elif row.error %}
+             <div class="brick-d3-empty brick-error">{{row.error}}</div>
+            {% else %}
+             <div class="brick-d3-empty">{% translate 'No values (or chart is not applicable here)' %}</div>
+            {% endif %}
+        </td>
+    </tr>
+   {% endwith %}
+  {% endfor %}
+ {% endwith %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No chart for the moment' %}
+{% endblock %}
+
+{% block brick_script %}
+    <script type="text/javascript">
+        (function($) {
+            creme.setupReportD3ChartListBrick('.brick[data-brick-id="{{brick_id}}"]', {
+                // TODO : use constructors instead ! Also move the options in props
+                // and build them from the server side
+                charts: function() {
+                    return {
+                        piechart: new creme.D3DonutChart({
+                            band: 0,
+                            margin: {top: 3, left: 3, right: 3},
+                            colors: creme.d3SpectralColors
+                        }),
+                        barchart: new creme.D3BarChart({
+                            margin: {top: 3, left: 3, right: 3},
+                            colors: creme.d3SpectralColors
+                        }),
+                        linechart: new creme.D3LineChart({
+                            margin: {top: 3, left: 3, right: 3},
+                            colors: creme.d3SpectralColors
+                        }),
+                        tubechart: new creme.D3TubeChart({
+                            margin: {top: 3, left: 3, right: 3},
+                            colors: creme.d3SpectralColors
+                        })
+                    };
+                }
+            });
+        }(jQuery));
+    </script>
+{% endblock %}

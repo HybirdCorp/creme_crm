@@ -38,17 +38,25 @@ QUnit.module("creme.reports.ReportD3Chart*BrickController", new QUnitMixin(QUnit
             return '<div class="brick-empty">No data</div>';
         } else {
             return (
-                '<div class="brick-graph-header clearfix">' +
-                    '<div class="graph-controls">' +
-                        '<div class="graph-control graph-controls-type">' +
-                            '<span class="graph-control-name">Graph</span>' +
-                            '<select class="graph-control-value" data-switch-alt="Type of graph">' +
+//                '<div class="brick-graph-header clearfix">' +
+                '<div class="brick-chart-header clearfix">' +
+//                    '<div class="graph-controls">' +
+                    '<div class="chart-controls">' +
+//                        '<div class="graph-control graph-controls-type">' +
+                        '<div class="chart-control chart-controls-plot">' +
+//                            '<span class="graph-control-name">Graph</span>' +
+                            '<span class="chart-control-name">Graph</span>' +
+//                            '<select class="graph-control-value" data-switch-alt="Type of graph">' +
+                            '<select class="chart-control-value" data-switch-alt="Type of graph">' +
                                 '${charts}' +
                             '</select>' +
                         '</div>' +
-                        '<div class="graph-control graph-controls-sort">' +
-                            '<span class="graph-control-name">Sort</span>' +
-                            '<select class="graph-control-value" data-switch-alt="Ordering">' +
+//                        '<div class="graph-control graph-controls-sort">' +
+                        '<div class="chart-control chart-controls-sort">' +
+//                            '<span class="graph-control-name">Sort</span>' +
+                            '<span class="chart-control-name">Sort</span>' +
+//                            '<select class="graph-control-value" data-switch-alt="Ordering">' +
+                            '<select class="chart-control-value" data-switch-alt="Ordering">' +
                                 '<option value="ASC">Ascending</option>' +
                                 '<option value="DESC">Descending</option>' +
                             '</select>' +
@@ -103,18 +111,26 @@ QUnit.module("creme.reports.ReportD3Chart*BrickController", new QUnitMixin(QUnit
         ).template({
             graphs: options.graphs.map(function(graph) {
                 return (
-                    '<tr data-graph-id="${id}" class="graph-row-header"><td></td></tr>' +
-                    '<tr class="graph-row-title">' +
+//                    '<tr data-graph-id="${id}" class="graph-row-header"><td></td></tr>' +
+                    '<tr data-chart-id="${id}" class="chart-row-header"><td></td></tr>' +
+//                    '<tr class="graph-row-title">' +
+                    '<tr class="chart-row-title">' +
                         '<td>' +
-                            '<div class="graph-accordion-title" data-graph-id="${id}">' +
-                                '<div class="graph-accordion-toggle"></div>' +
-                                '<div class="graph-accordion-title">${title}</div>' +
-                                '<div class="graph-accordion-toggle"></div>' +
+//                            '<div class="graph-accordion-title" data-graph-id="${id}">' +
+                            '<div class="chart-accordion-title" data-chart-id="${id}">' +
+//                                '<div class="graph-accordion-toggle"></div>' +
+                                '<div class="chart-accordion-toggle"></div>' +
+//                                '<div class="graph-accordion-title">${title}</div>' +
+                                '<div class="chart-accordion-text">${title}</div>' +
+//                                '<div class="graph-accordion-toggle"></div>' +
+                                '<div class="chart-accordion-toggle"></div>' +
                             '</div>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr data-graph-id="${id}" class="graph-row graph-row-collapsed ${empty}">' +
-                        '<td class="reports-graph-brick">${chart}</td>' +
+//                    '<tr data-graph-id="${id}" class="graph-row graph-row-collapsed ${empty}">' +
+                    '<tr data-chart-id="${id}" class="chart-row chart-row-collapsed ${empty}">' +
+//                        '<td class="reports-graph-brick">${chart}</td>' +
+                        '<td class="reports-chart-brick">${chart}</td>' +
                     '</tr>'
                 ).template({
                     id: graph.id,
@@ -234,7 +250,8 @@ QUnit.test('creme.ReportD3ChartBrickController (visibility)', function(assert) {
     controller.bind(brick);
 
     var sketch = controller.swapper().sketch();
-    var chartSelect = brick.element().find('.graph-controls-type .graph-control-value');
+//    var chartSelect = brick.element().find('.graph-controls-type .graph-control-value');
+    var chartSelect = brick.element().find('.chart-controls-plot .chart-control-value');
 
     // At initial state, only the default pie chart is rendered
     assert.equal('pie', chartSelect.val());
@@ -308,7 +325,8 @@ QUnit.parametrize('creme.ReportD3ChartBrickController (ordering)', [
     controller.registerActions(brick);
     controller.bind(brick);
 
-    var orderingSelect = brick.element().find('.graph-controls-sort .graph-control-value');
+//    var orderingSelect = brick.element().find('.graph-controls-sort .graph-control-value');
+    var orderingSelect = brick.element().find('.chart-controls-sort .chart-control-value');
 
     // Select the bar !
     orderingSelect.val('DESC').trigger('change');
@@ -357,7 +375,7 @@ QUnit.test('creme.ReportD3ChartListBrickController (empty)', function(assert) {
 
 QUnit.test('creme.ReportD3ChartListBrickController (toggle)', function(assert) {
     var html = this.createD3ChartListBrickHtml({
-        graphs: [
+        graphs: [ /* TODO: rename */
             {
                 id: 'graph-a',
                 chart: {
@@ -410,10 +428,13 @@ QUnit.test('creme.ReportD3ChartListBrickController (toggle)', function(assert) {
     assert.deepEqual(Object.keys(swappers), ['graph-a', 'graph-b']);
 
     // All rows are collapsed on startup
-    assert.deepEqual(element.find('.graph-row').map(function() {
+//    assert.deepEqual(element.find('.graph-row').map(function() {
+    assert.deepEqual(element.find('.chart-row').map(function() {
         return {
-            id: $(this).data('graphId'),
-            collapsed: $(this).is('.graph-row-collapsed')
+//            id: $(this).data('graphId'),
+            id: $(this).data('chartId'),
+//            collapsed: $(this).is('.graph-row-collapsed')
+            collapsed: $(this).is('.chart-row-collapsed')
         };
     }).get(), [
         {id: 'graph-a', collapsed: true},
@@ -435,18 +456,24 @@ QUnit.test('creme.ReportD3ChartListBrickController (toggle)', function(assert) {
     assert.equal(0, element.find('svg .d3-chart').length);
 
     // Now toggle first one
-    element.find('.graph-accordion-title[data-graph-id="graph-b"]').trigger('click');
+//    element.find('.graph-accordion-title[data-graph-id="graph-b"]').trigger('click');
+    element.find('.chart-accordion-title[data-chart-id="graph-b"]').trigger('click');
 
-    assert.equal(element.find('.graph-row[data-graph-id="graph-a"]').is('.graph-row-collapsed'), true);
-    assert.equal(element.find('.graph-row[data-graph-id="graph-b"]').is('.graph-row-collapsed'), false);
+//    assert.equal(element.find('.graph-row[data-graph-id="graph-a"]').is('.graph-row-collapsed'), true);
+    assert.equal(element.find('.chart-row[data-chart-id="graph-a"]').is('.chart-row-collapsed'), true);
+//    assert.equal(element.find('.graph-row[data-graph-id="graph-b"]').is('.graph-row-collapsed'), false);
+    assert.equal(element.find('.chart-row[data-chart-id="graph-b"]').is('.chart-row-collapsed'), false);
 
     assert.equal(1, element.find('svg .d3-chart').length);
 
     // Then the second one
-    element.find('.graph-accordion-title[data-graph-id="graph-a"]').trigger('click');
+//    element.find('.graph-accordion-title[data-graph-id="graph-a"]').trigger('click');
+    element.find('.chart-accordion-title[data-chart-id="graph-a"]').trigger('click');
 
-    assert.equal(element.find('.graph-row[data-graph-id="graph-a"]').is('.graph-row-collapsed'), false);
-    assert.equal(element.find('.graph-row[data-graph-id="graph-b"]').is('.graph-row-collapsed'), false);
+//    assert.equal(element.find('.graph-row[data-graph-id="graph-a"]').is('.graph-row-collapsed'), false);
+    assert.equal(element.find('.chart-row[data-chart-id="graph-a"]').is('.chart-row-collapsed'), false);
+//    assert.equal(element.find('.graph-row[data-graph-id="graph-b"]').is('.graph-row-collapsed'), false);
+    assert.equal(element.find('.chart-row[data-chart-id="graph-b"]').is('.chart-row-collapsed'), false);
 
     assert.equal(2, element.find('svg .d3-chart').length);
 });
@@ -503,10 +530,13 @@ QUnit.test('creme.ReportD3ChartListBrickController (empty sub-graph)', function(
 
     assert.deepEqual(Object.keys(swappers), ['graph-b']);
 
-    assert.deepEqual(element.find('.graph-row').map(function() {
+//    assert.deepEqual(element.find('.graph-row').map(function() {
+    assert.deepEqual(element.find('.chart-row').map(function() {
         return {
-            id: $(this).data('graphId'),
-            collapsed: $(this).is('.graph-row-collapsed')
+//            id: $(this).data('graphId'),
+            id: $(this).data('chartId'),
+//            collapsed: $(this).is('.graph-row-collapsed')
+            collapsed: $(this).is('.chart-row-collapsed')
         };
     }).get(), [
         {id: 'graph-a', collapsed: true},

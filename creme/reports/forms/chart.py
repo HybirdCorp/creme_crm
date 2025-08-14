@@ -43,16 +43,16 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.fields import MoneyField
 from creme.creme_core.utils.unicode_collation import collator
 
-from .. import get_rgraph_model
 from ..constants import AbscissaGroup, OrdinateAggregator
-from ..core.graph import AbscissaInfo, OrdinateInfo
-from ..core.graph.cell_constraint import (
+from ..core.chart.axis_info import AbscissaInfo, OrdinateInfo
+from ..core.chart.cell_constraint import (
     AggregatorCellConstraint,
     AggregatorConstraintsRegistry,
-    GraphHandCellConstraint,
-    GraphHandConstraintsRegistry,
+    ChartHandCellConstraint,
+    ChartHandConstraintsRegistry,
 )
-from ..report_chart_registry import report_chart_registry
+from ..core.chart.plot import plot_registry
+from ..models import ReportChart
 
 
 # Abscissa ---------------------------------------------------------------------
@@ -65,21 +65,21 @@ class AbscissaWidget(ChainedInput):
     ]
 
     cell_data_name = 'entity_cell'
-    gtype_data_name = 'graph_type'
+    chart_type_data_name = 'chart_type'
     cell_key_data_name = 'cell_key'
-    gtype_id_data_name = 'type_id'
+    chart_type_id_data_name = 'type_id'
     constraint_data_name = 'grouping_category'
     parameter_data_name = 'parameter'
 
     def __init__(self,
                  attrs=None,
                  model=CremeEntity,
-                 constraint_registry: GraphHandConstraintsRegistry | None = None,
+                 constraint_registry: ChartHandConstraintsRegistry | None = None,
                  ):
         super().__init__(attrs=attrs)
         self.model: type[CremeEntity] = model
-        self.constraint_registry: GraphHandConstraintsRegistry = \
-            constraint_registry or GraphHandConstraintsRegistry()
+        self.constraint_registry: ChartHandConstraintsRegistry = \
+            constraint_registry or ChartHandConstraintsRegistry()
         self.not_hiddable_cell_keys: set[str] = set()
 
     def build_cell_choices(self):
@@ -126,35 +126,35 @@ class AbscissaWidget(ChainedInput):
 
         return cell_choices
 
-    def build_graph_type_choices(self):
+    def build_chart_type_choices(self):
         registry = self.constraint_registry
-        gtype_id_dname = self.gtype_id_data_name
-        constraint_dname = self.constraint_data_name
-        get_constraint = partial(registry.get_constraint_by_rgraph_type, model=self.model)
+        type_id_key = self.chart_type_id_data_name
+        constraint_key = self.constraint_data_name
+        get_constraint = partial(registry.get_constraint_by_chart_type, model=self.model)
 
         return [
             (
                 json_dump({
-                    gtype_id_dname: rgraph_type,
-                    constraint_dname: get_constraint(rgraph_type=rgraph_type).type_id,
+                    type_id_key: chart_type,
+                    constraint_key: get_constraint(chart_type=chart_type).type_id,
                 }),
-                AbscissaGroup(rgraph_type).label,
-            ) for rgraph_type in registry.rgraph_types
+                AbscissaGroup(chart_type).label,
+            ) for chart_type in registry.chart_types
         ]
 
     def build_parameter_input(self):
         sub_attrs = {'auto': False}
         pinput = PolymorphicInput(
-            key=f'${{{self.gtype_data_name}.{self.gtype_id_data_name}}}',
+            key=f'${{{self.chart_type_data_name}.{self.chart_type_id_data_name}}}',
             attrs=sub_attrs,
         )
 
         pinput.set_default_input(widget=DynamicInput, attrs=sub_attrs, type='hidden')
 
-        for gtype_id, validator in self.constraint_registry.parameter_validators:
+        for chart_type_id, validator in self.constraint_registry.parameter_validators:
             if validator:
                 pinput.add_input(
-                    str(gtype_id),
+                    str(chart_type_id),
                     widget=DynamicInput,
                     attrs={
                         **sub_attrs,
@@ -181,8 +181,8 @@ class AbscissaWidget(ChainedInput):
             avoid_empty=True,
         )
         self.add_dselect(
-            self.gtype_data_name,
-            options=self.build_graph_type_choices(),
+            self.chart_type_data_name,
+            options=self.build_chart_type_choices(),
             attrs={
                 **field_attrs,
                 'filter': (
@@ -192,7 +192,7 @@ class AbscissaWidget(ChainedInput):
                     f'true'
                 ),
                 'dependencies': cell_data_name,
-                'autocomplete': True,  # TODO: to get a pretty <select>
+                'autocomplete': True,  # NB: to get a pretty <select>
             },
             avoid_empty=True,
         )
@@ -210,8 +210,8 @@ class AbscissaField(JSONField):
         'ecellrequired':   'The entity cell is required.',
         'ecellnotallowed': 'This entity cell is not allowed.',
 
-        'graphtyperequired':   'The graph type is required.',
-        'graphtypenotallowed': 'The graph type is not allowed.',
+        'charttyperequired':   'The chart type is required.',
+        'charttypenotallowed': 'The chart type is not allowed.',
 
         'invalidparameter': _('The parameter is invalid. {}'),
     }
@@ -219,30 +219,30 @@ class AbscissaField(JSONField):
     value_type = dict
     widget = AbscissaWidget
 
-    cell_data_name       = AbscissaWidget.cell_data_name
-    gtype_data_name      = AbscissaWidget.gtype_data_name
-    cell_key_data_name   = AbscissaWidget.cell_key_data_name
-    gtype_id_data_name   = AbscissaWidget.gtype_id_data_name
-    constraint_data_name = AbscissaWidget.constraint_data_name
-    parameter_data_name  = AbscissaWidget.parameter_data_name
+    cell_data_name          = AbscissaWidget.cell_data_name
+    chart_type_data_name    = AbscissaWidget.chart_type_data_name
+    cell_key_data_name      = AbscissaWidget.cell_key_data_name
+    chart_type_id_data_name = AbscissaWidget.chart_type_id_data_name
+    constraint_data_name    = AbscissaWidget.constraint_data_name
+    parameter_data_name     = AbscissaWidget.parameter_data_name
 
     _model: type[CremeEntity]
-    _constraint_registry: GraphHandConstraintsRegistry
+    _constraint_registry: ChartHandConstraintsRegistry
     not_hiddable_cell_keys: set[str]
 
     def __init__(self, *, model=CremeEntity, abscissa_constraints=None, **kwargs):
         self._initial = None
         super().__init__(**kwargs)
         self.model = model
-        self.constraint_registry = abscissa_constraints or GraphHandConstraintsRegistry()
-        # TODO: when required=False => empty choice for cell/graph type
+        self.constraint_registry = abscissa_constraints or ChartHandConstraintsRegistry()
+        # TODO: when required=False => empty choice for cell/chart type
 
     @property
-    def constraint_registry(self):
+    def constraint_registry(self) -> ChartHandConstraintsRegistry:
         return self._constraint_registry
 
     @constraint_registry.setter
-    def constraint_registry(self, registry: GraphHandConstraintsRegistry):
+    def constraint_registry(self, registry: ChartHandConstraintsRegistry) -> None:
         self._constraint_registry = self.widget.constraint_registry = registry
 
     @property
@@ -272,7 +272,7 @@ class AbscissaField(JSONField):
     def model(self, model):
         self._model = self.widget.model = model
 
-    def _clean_cell(self, data, constraint: GraphHandCellConstraint) -> EntityCell | None:
+    def _clean_cell(self, data, constraint: ChartHandCellConstraint) -> EntityCell | None:
         clean_value = self.clean_value
         required = self.required
 
@@ -302,21 +302,27 @@ class AbscissaField(JSONField):
 
         return cell
 
-    def _clean_graph_type(self, data) -> int | None:
+    def _clean_chart_type(self, data) -> int | None:
         clean_value = self.clean_value
         required = self.required
 
-        gtype_info = clean_value(data, self.gtype_data_name, dict, required, 'graphtyperequired')
-        if not gtype_info:
+        type_info = clean_value(
+            data=data, name=self.chart_type_data_name, type=dict,
+            required=required, required_error_key='charttyperequired',
+        )
+        if not type_info:
             raise ValidationError(
-                self.error_messages['graphtyperequired'],
-                code='graphtyperequired',
+                self.error_messages['charttyperequired'],
+                code='charttyperequired',
             )
 
-        return clean_value(gtype_info, self.gtype_id_data_name, int, required, 'graphtyperequired')
+        return clean_value(
+            data=type_info, name=self.chart_type_id_data_name, type=int,
+            required=required, required_error_key='charttyperequired',
+        )
 
-    def _clean_parameter(self, data, graph_type: int):
-        validator = self.constraint_registry.get_parameter_validator(graph_type)
+    def _clean_parameter(self, data, chart_type: int):
+        validator = self.constraint_registry.get_parameter_validator(chart_type)
 
         if validator:
             value = data.get('parameter')
@@ -335,18 +341,17 @@ class AbscissaField(JSONField):
         return parameter
 
     def _value_from_unjsonfied(self, data):
-        gtype = self._clean_graph_type(data)
-        if gtype is None:
+        chart_type = self._clean_chart_type(data)
+        if chart_type is None:
             return None
 
-        constraint = self.constraint_registry.get_constraint_by_rgraph_type(
-            model=self.model,
-            rgraph_type=gtype,
+        constraint = self.constraint_registry.get_constraint_by_chart_type(
+            model=self.model, chart_type=chart_type,
         )
         if constraint is None:
             raise ValidationError(
-                self.error_messages['graphtypenotallowed'],
-                code='graphtypenotallowed',
+                self.error_messages['charttypenotallowed'],
+                code='charttypenotallowed',
             )
 
         cell = self._clean_cell(data, constraint=constraint)
@@ -355,14 +360,13 @@ class AbscissaField(JSONField):
 
         return AbscissaInfo(
             cell=cell,
-            graph_type=gtype,
-            parameter=self._clean_parameter(data, graph_type=gtype),
+            chart_type=chart_type,
+            parameter=self._clean_parameter(data, chart_type=chart_type),
         )
 
     def _value_to_jsonifiable(self, value):
-        constraint = self.constraint_registry.get_constraint_by_rgraph_type(
-            model=self.model,
-            rgraph_type=value.graph_type,
+        constraint = self.constraint_registry.get_constraint_by_chart_type(
+            model=self.model, chart_type=value.chart_type,
         )
         category = constraint.type_id if constraint else '??'
         constraint_dname = self.constraint_data_name
@@ -372,8 +376,8 @@ class AbscissaField(JSONField):
                 self.cell_key_data_name: value.cell.key,
                 constraint_dname: category,
             },
-            self.gtype_data_name: {
-                self.gtype_id_data_name: value.graph_type,
+            self.chart_type_data_name: {
+                self.chart_type_id_data_name: value.chart_type,
                 constraint_dname: category,
             },
             self.parameter_data_name: value.parameter or '',
@@ -481,10 +485,9 @@ class OrdinateWidget(ChainedInput):
         self.add_dselect(
             aggr_data_name,
             options=self.build_aggr_choices(cells_per_aggr_category),
-            # attrs=field_attrs,
             attrs={
                 **field_attrs,
-                'autocomplete': True,  # TODO: to get a pretty <select>
+                'autocomplete': True,  # NB: to get a pretty <select>
             },
             avoid_empty=True,
         )
@@ -629,8 +632,7 @@ class OrdinateField(JSONField):
             return None
 
         constraint = self.constraint_registry.get_constraint_by_aggr_id(
-            model=self.model,
-            aggr_id=aggr_id,
+            model=self.model, aggr_id=aggr_id,
         )
         if constraint is None:
             raise ValidationError(
@@ -638,19 +640,13 @@ class OrdinateField(JSONField):
                 code='aggridinvalid',
             )
 
-        cell = self._clean_cell(data, constraint)
-
-        return OrdinateInfo(
-            aggr_id=aggr_id,
-            cell=cell,
-        )
+        return OrdinateInfo(aggr_id=aggr_id, cell=self._clean_cell(data, constraint))
 
     def _value_to_jsonifiable(self, value):
         cell = value.cell
 
         constraint = self.constraint_registry.get_constraint_by_aggr_id(
-            model=self.model,
-            aggr_id=value.aggr_id,
+            model=self.model, aggr_id=value.aggr_id,
         )
         category = constraint.type_id if constraint else '??'
         constraint_dname = self.constraint_data_name
@@ -668,13 +664,8 @@ class OrdinateField(JSONField):
 
 
 # ------------------------------------------------------------------------------
-# NB: not <CremeEntityForm> to avoid Relationships & CremeProperties
-class ReportGraphForm(CremeModelForm):
-    chart = forms.ChoiceField(
-        label=_('Chart type'),
-        choices=report_chart_registry.choices(),
-        widget=PrettySelect,
-    )
+class ChartForm(CremeModelForm):
+    plot_name = forms.ChoiceField(label=_('Chart type'), widget=PrettySelect)
     abscissa = AbscissaField(label=_('X axis'))
     ordinate = OrdinateField(label=_('Y axis'))
 
@@ -684,7 +675,7 @@ class ReportGraphForm(CremeModelForm):
     )
 
     class Meta(CremeModelForm.Meta):
-        model = get_rgraph_model()
+        model = ReportChart
         exclude = ('description',)
 
     def __init__(self, entity, *args, **kwargs):
@@ -695,6 +686,9 @@ class ReportGraphForm(CremeModelForm):
 
         instance = self.instance
         fields = self.fields
+
+        # Plot -----------------------------------------------------------------
+        fields['plot_name'].choices = [(plot.name, plot.label) for plot in plot_registry]
 
         # Abscissa -------------------------------------------------------------
         abscissa_f = fields['abscissa']
@@ -729,9 +723,10 @@ class ReportGraphForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         cdata = self.cleaned_data
-        graph = self.instance
-        graph.linked_report = self.report
-        graph.abscissa_info = cdata['abscissa']
-        graph.ordinate_info = cdata['ordinate']
+        chart = self.instance
+        chart.user = self.user
+        chart.linked_report = self.report
+        chart.abscissa_info = cdata['abscissa']
+        chart.ordinate_info = cdata['ordinate']
 
         return super().save(*args, **kwargs)

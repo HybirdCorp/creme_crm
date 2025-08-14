@@ -115,7 +115,7 @@ class AbstractReportGraph(CremeEntity):
         assert report is not None
 
         model = report.ct.model_class()
-        abscissa_constraint = self.abscissa_constraints.get_constraint_by_rgraph_type(
+        abscissa_constraint = self.abscissa_constraints.get_constraint_by_chart_type(
             model=model,
             rgraph_type=self.abscissa_type,
         )
@@ -141,7 +141,7 @@ class AbstractReportGraph(CremeEntity):
         assert abs_info.cell is not None
 
         self.abscissa_cell_value = abs_info.cell.portable_value
-        self.abscissa_type = abs_info.graph_type
+        self.abscissa_type = abs_info.chart_type
         self.abscissa_parameter = abs_info.parameter
 
     @property

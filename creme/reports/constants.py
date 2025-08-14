@@ -41,7 +41,7 @@ class OrdinateAggregator(models.TextChoices):
     SUM   = 'sum',   _('Sum'),
 
 
-# ReportGraph fetchers
-RGF_NOLINK   = 'reports-no_link'
-RGF_FK       = 'reports-fk'
-RGF_RELATION = 'reports-relation'
+# # ReportGraph fetchers
+# RGF_NOLINK   = 'reports-no_link'
+# RGF_FK       = 'reports-fk'
+# RGF_RELATION = 'reports-relation'

@@ -164,6 +164,17 @@
              'quickforms_registry' has been renamed "quickform_registry".
         # There is no "back" button in the template "creme_core/detailview.html" anymore.
         # Apps :
+            * Reports :
+                - The entity model 'ReportGraph' has been replaced by the new simple model 'ReportChart'
+                  (because it was not very relevant to use an CremeEntity & because the name was confusing).
+                  NB: The new model have globally the same fields, but "chart" is now called "plot_name".
+                    - The settings 'REPORTS_GRAPH_MODEL' have been removed.
+                    - The whole app have been reworked to use the new name (core, views, bricks, templates, cloners...).
+                    - The module 'graph_fetcher_registry.py' has been removed
+                      (see 'core.chart.fetcher.ChartFetcherRegistry' instead).
+                    - The module 'report_chart_registry.py' has been removed
+                      (see the new module 'core.chart.plot' instead).
+                - The templatetags have been removed (they were useless).
             * Documents :
                 - The methods 'populate.Populator._populate_header_filters_for_*()' have been removed.
             * Persons :

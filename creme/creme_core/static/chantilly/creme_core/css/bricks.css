@@ -1190,7 +1190,8 @@
     top: -1px;
 }
 
-.brick-graph .brick-graph-header .typography-colon {
+/* .brick-graph .brick-graph-header .typography-colon { */
+.brick-graph .brick-chart-header .typography-colon {
     position: relative;
     top: -1px;
 }
