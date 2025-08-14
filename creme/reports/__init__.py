@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,11 +28,11 @@ def report_model_is_custom():
     )
 
 
-def rgraph_model_is_custom():
-    return (
-        settings.REPORTS_GRAPH_MODEL != 'reports.ReportGraph'
-        and not settings.REPORTS_GRAPH_FORCE_NOT_CUSTOM
-    )
+# def rgraph_model_is_custom():
+#     return (
+#         settings.REPORTS_GRAPH_MODEL != 'reports.ReportGraph'
+#         and not settings.REPORTS_GRAPH_FORCE_NOT_CUSTOM
+#     )
 
 
 def get_report_model():
@@ -40,6 +40,6 @@ def get_report_model():
     return get_concrete_model('REPORTS_REPORT_MODEL')
 
 
-def get_rgraph_model():
-    "Returns the ReportGraph model that is active in this project."
-    return get_concrete_model('REPORTS_GRAPH_MODEL')
+# def get_rgraph_model():
+#     "Returns the ReportGraph model that is active in this project."
+#     return get_concrete_model('REPORTS_GRAPH_MODEL')

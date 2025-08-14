@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,21 +26,35 @@ class ReportFieldsCopier(PostSaveCopier):
             rfield.clone(report=target)
 
 
-class ReportGraphesCopier(PostSaveCopier):
+# class ReportGraphesCopier(PostSaveCopier):
+#     def copy_to(self, target):
+#         source = self._source
+#
+#         for graph in source.reportgraph_set.all():
+#             new_graph = type(graph)()
+#             RegularFieldsCopier(user=self._user, source=graph).copy_to(target=new_graph)
+#             new_graph.linked_report = target
+#
+#             new_graph.save()
+class ReportChartsCopier(PostSaveCopier):
     def copy_to(self, target):
         source = self._source
 
-        for graph in source.reportgraph_set.all():
-            new_graph = type(graph)()
-            RegularFieldsCopier(user=self._user, source=graph).copy_to(target=new_graph)
-            new_graph.linked_report = target
+        for chart in source.charts.all():
+            new_chart = type(chart)()
+            user = self._user
 
-            new_graph.save()
+            RegularFieldsCopier(user=user, source=chart).copy_to(target=new_chart)
+            new_chart.linked_report = target
+            new_chart.user = user
+
+            new_chart.save()
 
 
 class ReportCloner(EntityCloner):
     post_save_copiers = [
         *EntityCloner.post_save_copiers,
         ReportFieldsCopier,
-        ReportGraphesCopier,
+        # ReportGraphesCopier,
+        ReportChartsCopier,
     ]

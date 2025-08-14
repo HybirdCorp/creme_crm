@@ -14,14 +14,17 @@ from creme.creme_core.models import (
 from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.queries import QSerializer
-from creme.persons.constants import RGF_OWNED
-from creme.persons.reports import OwnedGraphFetcher
 
+# from creme.persons.constants import RGF_OWNED
+# from creme.persons.reports import OwnedGraphFetcher
 from .base import Contact, Organisation
 
 if apps.is_installed('creme.reports'):
-    from creme.reports.bricks import ReportGraphChartInstanceBrick
-    from creme.reports.core.graph.fetcher import GraphFetcher
+    from creme.persons.reports import OwnedChartFetcher
+    # from creme.reports.bricks import ReportGraphChartInstanceBrick
+    from creme.reports.bricks import ReportChartInstanceBrick
+    # from creme.reports.core.graph.fetcher import GraphFetcher
+    from creme.reports.core.chart.fetcher import ChartFetcher
     from creme.reports.tests.base import (
         Report,
         ReportGraph,
@@ -58,24 +61,26 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
             choices = [*response.context['form'].fields['fetcher'].widget.choices]
 
         vname = _('Belongs to the Contact/User')
+        ftype_id = OwnedChartFetcher.type_id
         self.assertInChoices(
-            value=f'{RGF_OWNED}|',
+            # value=f'{RGF_OWNED}|',
+            value=f'{ftype_id}|',
             label=vname,
             choices=choices,
         )
 
-        self.assertNoFormError(self.client.post(url, data={'fetcher': RGF_OWNED}))
+        # self.assertNoFormError(self.client.post(url, data={'fetcher': RGF_OWNED}))
+        self.assertNoFormError(self.client.post(url, data={'fetcher': ftype_id}))
 
         ibci = self.get_object_or_fail(InstanceBrickConfigItem, entity=graph.id)
         self.assertEqual('instance-reports-graph', ibci.brick_class_id)
-        self.assertEqual(RGF_OWNED, ibci.get_extra_data('type'))
+        # self.assertEqual(RGF_OWNED, ibci.get_extra_data('type'))
+        self.assertEqual(ftype_id, ibci.get_extra_data('type'))
         self.assertIsNone(ibci.get_extra_data('value'))
 
-        brick = ReportGraphChartInstanceBrick(ibci)
-        self.assertEqual(
-            f'{graph.name} - {vname}',
-            brick.verbose_name,
-        )
+        # brick = ReportGraphChartInstanceBrick(ibci)
+        brick = ReportChartInstanceBrick(ibci)
+        self.assertEqual(f'{graph.name} - {vname}', brick.verbose_name)
         self.assertListEqual([Contact], brick.target_ctypes)
 
         # Display on detail-view
@@ -89,7 +94,8 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         create_orga(name='Orga#4', creation_date=date(year=2016, month=4, day=4))
 
         fetcher = brick.fetcher
-        self.assertIsInstance(fetcher, OwnedGraphFetcher)
+        # self.assertIsInstance(fetcher, OwnedGraphFetcher)
+        self.assertIsInstance(fetcher, OwnedChartFetcher)
         self.assertIsNone(fetcher.error)
         self.assertEqual(vname, fetcher.verbose_name)
 
@@ -140,7 +146,8 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
-        fetcher = OwnedGraphFetcher(graph=graph)
+        # fetcher = OwnedGraphFetcher(graph=graph)
+        fetcher = OwnedChartFetcher(graph=graph)
         self.assertIsNone(fetcher.error)
 
         contact = Contact.objects.create(
@@ -149,7 +156,8 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
             last_name='Spiegel',
         )
 
-        with self.assertRaises(GraphFetcher.UselessResult) as cm:
+        # with self.assertRaises(GraphFetcher.UselessResult) as cm:
+        with self.assertRaises(ChartFetcher.UselessResult) as cm:
             fetcher.fetch_4_entity(entity=contact, user=user)
 
         self.assertEqual(
@@ -185,10 +193,12 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
-        fetcher = OwnedGraphFetcher(graph=graph)
+        # fetcher = OwnedGraphFetcher(graph=graph)
+        fetcher = OwnedChartFetcher(graph=graph)
         invoice = FakeInvoice.objects.create(user=user, name='SwordFish II')
 
-        with self.assertRaises(GraphFetcher.IncompatibleContentType) as cm:
+        # with self.assertRaises(GraphFetcher.IncompatibleContentType) as cm:
+        with self.assertRaises(ChartFetcher.IncompatibleContentType) as cm:
             fetcher.fetch_4_entity(entity=invoice, user=user)
 
         error_msg = _(
@@ -226,5 +236,6 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
-        fetcher = OwnedGraphFetcher(graph=graph, value='whatever')
+        # fetcher = OwnedGraphFetcher(graph=graph, value='whatever')
+        fetcher = OwnedChartFetcher(graph=graph, value='whatever')
         self.assertEqual(_('No value is needed.'), fetcher.error)

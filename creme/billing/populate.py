@@ -1132,23 +1132,21 @@ class Populator(BasePopulator):
     def _populate_reports(self):
         logger.info(
             'Reports app is installed '
-            '=> we create 2 billing reports, with 3 graphs, and related blocks in home'
+            '=> we create 2 billing reports, with 3 charts, and related blocks in home'
         )
 
-        # NB: the fixed UUIDs were added with Creme2.5 in order to facilitate
-        #     import/export in 'creme_config'. So the Reports/ReportGraphes
-        #     populated with previous versions will have different UUIDs.
         from functools import partial
 
         from django.contrib.auth import get_user_model
 
         from creme import reports
         from creme.reports.constants import RFT_FIELD, RFT_RELATION
-        from creme.reports.core.graph.fetcher import SimpleGraphFetcher
-        from creme.reports.models import Field
+        # from creme.reports.core.graph.fetcher import SimpleGraphFetcher
+        from creme.reports.core.chart.fetcher import SimpleChartFetcher
+        from creme.reports.models import Field, ReportChart
 
         admin = get_user_model().objects.get_admin()
-        ReportGraph = reports.get_rgraph_model()
+        # ReportGraph = reports.get_rgraph_model()
 
         Invoice = self.Invoice
         total_no_vat_cell = EntityCellRegularField.build(Invoice, 'total_no_vat')
@@ -1170,7 +1168,7 @@ class Populator(BasePopulator):
             create_field(name='expiration_date', order=7)
 
         create_report = partial(reports.get_report_model().objects.create, user=admin, ct=Invoice)
-        create_graph = partial(ReportGraph.objects.create, user=admin)
+        # create_graph = partial(ReportGraph.objects.create, user=admin)
 
         # Create current year invoices report ----------------------------------
         invoices_report1 = create_report(
@@ -1181,23 +1179,42 @@ class Populator(BasePopulator):
         create_report_columns(invoices_report1)
 
         cell_key = total_no_vat_cell.portable_key
-        rgraph1 = create_graph(
+        # rgraph1 = create_graph(
+        #     uuid=UUID_RCHART_INVOICES_PER_MONTH,
+        #     name=_('Sum of current year invoices total without taxes / month'),
+        #     linked_report=invoices_report1,
+        #     abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
+        #     ordinate_type=ReportGraph.Aggregator.SUM,
+        #     ordinate_cell_key=cell_key,
+        # )
+        chart1 = ReportChart.objects.create(
             uuid=UUID_RCHART_INVOICES_PER_MONTH,
+            user=admin,
             name=_('Sum of current year invoices total without taxes / month'),
             linked_report=invoices_report1,
-            abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
-            ordinate_type=ReportGraph.Aggregator.SUM,
+            abscissa_cell_value='issuing_date', abscissa_type=ReportChart.Group.MONTH,
+            ordinate_type=ReportChart.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )
-        create_graph(
+        # create_graph(
+        #     uuid=UUID_RCHART_INVOICES_PER_STATUS,
+        #     name=_('Sum of current year invoices total without taxes / invoices status'),
+        #     linked_report=invoices_report1,
+        #     abscissa_cell_value='status', abscissa_type=ReportGraph.Group.FK,
+        #     ordinate_type=ReportGraph.Aggregator.SUM,
+        #     ordinate_cell_key=cell_key,
+        # )
+        ReportChart.objects.create(
             uuid=UUID_RCHART_INVOICES_PER_STATUS,
+            user=admin,
             name=_('Sum of current year invoices total without taxes / invoices status'),
             linked_report=invoices_report1,
-            abscissa_cell_value='status', abscissa_type=ReportGraph.Group.FK,
-            ordinate_type=ReportGraph.Aggregator.SUM,
+            abscissa_cell_value='status', abscissa_type=ReportChart.Group.FK,
+            ordinate_type=ReportChart.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )
-        ibci1 = SimpleGraphFetcher(graph=rgraph1).create_brick_config_item(
+        # ibci1 = SimpleGraphFetcher(graph=rgraph1).create_brick_config_item(
+        ibci1 = SimpleChartFetcher(chart=chart1).create_brick_config_item(
             uuid=UUID_IBRICK_INVOICES_PER_MONTH,
         )
         BrickHomeLocation.objects.create(brick_id=ibci1.brick_id, order=11)
@@ -1210,15 +1227,25 @@ class Populator(BasePopulator):
         )
         create_report_columns(invoices_report2)
 
-        rgraph3 = create_graph(
+        # rgraph3 = create_graph(
+        #     uuid=UUID_RCHART_UNPAID_INVOICES_PER_MONTH,
+        #     name=_('Sum of current year and unpaid invoices total without taxes / month'),
+        #     linked_report=invoices_report2,
+        #     abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
+        #     ordinate_type=ReportGraph.Aggregator.SUM,
+        #     ordinate_cell_key=cell_key,
+        # )
+        chart3 = ReportChart.objects.create(
             uuid=UUID_RCHART_UNPAID_INVOICES_PER_MONTH,
+            user=admin,
             name=_('Sum of current year and unpaid invoices total without taxes / month'),
             linked_report=invoices_report2,
-            abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
-            ordinate_type=ReportGraph.Aggregator.SUM,
+            abscissa_cell_value='issuing_date', abscissa_type=ReportChart.Group.MONTH,
+            ordinate_type=ReportChart.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )
-        ibci3 = SimpleGraphFetcher(rgraph3).create_brick_config_item(
+        # ibci3 = SimpleGraphFetcher(rgraph3).create_brick_config_item(
+        ibci3 = SimpleChartFetcher(chart=chart3).create_brick_config_item(
             uuid=UUID_IBRICK_UNPAID_INVOICES_PER_MONTH,
         )
         BrickHomeLocation.objects.create(brick_id=ibci3.brick_id, order=12)

@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# TODO: move this module to reports.core?
 from __future__ import annotations
 
 from collections.abc import Iterator

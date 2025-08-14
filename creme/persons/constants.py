@@ -43,4 +43,4 @@ UUID_FIRST_ORGA    = 'bb93b21d-f7f1-46d7-a92f-7edda7b9ec2b'
 UUID_DOC_CAT_IMG_ORGA    = 'b1486e1c-633a-4849-95bc-376119135dcd'
 UUID_DOC_CAT_IMG_CONTACT = 'fad633b9-a270-4708-917e-1d73b2514f06'
 
-RGF_OWNED = 'persons-owned'
+# RGF_OWNED = 'persons-owned'

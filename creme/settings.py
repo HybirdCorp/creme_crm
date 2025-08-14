@@ -1291,10 +1291,10 @@ DEFAULT_TIME_TODO_REMIND = 120
 
 # REPORTS ----------------------------------------------------------------------
 REPORTS_REPORT_MODEL = 'reports.Report'
-REPORTS_GRAPH_MODEL  = 'reports.ReportGraph'
+# REPORTS_GRAPH_MODEL  = 'reports.ReportGraph'
 
 REPORTS_REPORT_FORCE_NOT_CUSTOM = False
-REPORTS_GRAPH_FORCE_NOT_CUSTOM  = False
+# REPORTS_GRAPH_FORCE_NOT_CUSTOM  = False
 
 # ACTIVITIES -------------------------------------------------------------------
 ACTIVITIES_ACTIVITY_MODEL = 'activities.Activity'

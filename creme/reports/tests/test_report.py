@@ -60,7 +60,7 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.xlrd_utils import XlrdReader
 
 from ..actions import ExportReportAction
-from ..bricks import ReportFieldsBrick, ReportGraphChartListBrick
+from ..bricks import ReportChartsBrick, ReportFieldsBrick
 from ..constants import (
     EF_REPORTS,
     RFT_AGG_CUSTOM,
@@ -195,7 +195,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             _('Columns of the report'), self.get_brick_title(brick_node1),
         )
 
-        brick_node2 = self.get_brick_node(tree, brick=ReportGraphChartListBrick)
+        brick_node2 = self.get_brick_node(tree, brick=ReportChartsBrick)
         self.assertEqual(_('Charts'), self.get_brick_title(brick_node2))
 
     def test_createview01(self):

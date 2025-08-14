@@ -331,9 +331,10 @@ class Populator(BasePopulator):
         if apps.is_installed('creme.reports'):
             logger.info(
                 'Reports app is installed'
-                ' => we create an Opportunity report, with 2 graphs, and related blocks'
+                ' => we create an Opportunity report, with 2 charts, and related blocks'
             )
-            self._populate_report_n_graphes()
+            # self._populate_report_n_graphes()
+            self._populate_report_n_charts()
 
     def _populate_phases(self):
         self._save_minions(self.SALES_PHASES)
@@ -776,18 +777,17 @@ class Populator(BasePopulator):
             model=self.Organisation,
         )
 
-    def _populate_report_n_graphes(self):
-        "Create the report 'Opportunities' and 2 ReportGraphs."
-        # NB: the fixed UUIDs were added with Creme2.5 in order to facilitate
-        #     import/export in 'creme_config'. So the Reports/ReportGraphes
-        #     populated with previous versions will have different UUIDs.
+    # def _populate_report_n_graphes(self):
+    def _populate_report_n_charts(self):
+        "Create the report 'Opportunities' and 2 ReportCharts."
         from django.contrib.auth import get_user_model
 
         from creme import reports
         from creme.creme_core.utils.meta import FieldInfo
         from creme.reports.constants import RFT_FIELD, RFT_RELATION
-        from creme.reports.core.graph.fetcher import SimpleGraphFetcher
-        from creme.reports.models import Field
+        # from creme.reports.core.graph.fetcher import SimpleGraphFetcher
+        from creme.reports.core.chart.fetcher import SimpleChartFetcher
+        from creme.reports.models import Field, ReportChart
 
         admin = get_user_model().objects.get_admin()
 
@@ -814,12 +814,12 @@ class Populator(BasePopulator):
         create_field(name=constants.REL_OBJ_EMIT_ORGA, order=5, type=RFT_RELATION)
 
         # Create 2 graphs ------------------------------------------------------
-        if reports.rgraph_model_is_custom():
-            logger.info(
-                'ReportGraph model is custom'
-                ' => no Opportunity report-graph is created.'
-            )
-            return
+        # if reports.rgraph_model_is_custom():
+        #     logger.info(
+        #         'ReportGraph model is custom'
+        #         ' => no Opportunity report-graph is created.'
+        #     )
+        #     return
 
         sales_cell = EntityCellRegularField.build(Opportunity, 'estimated_sales')
         if sales_cell is None:
@@ -829,41 +829,69 @@ class Populator(BasePopulator):
             )
             return
 
-        ReportGraph = reports.get_rgraph_model()
+        # ReportGraph = reports.get_rgraph_model()
 
         # TODO: helper method (range only on DateFields etc...)
-        create_graph = partial(
-            ReportGraph.objects.create,
-            linked_report=report, user=admin,
-            ordinate_type=ReportGraph.Aggregator.SUM,
+        # create_graph = partial(
+        #     ReportGraph.objects.create,
+        #     linked_report=report, user=admin,
+        #     ordinate_type=ReportGraph.Aggregator.SUM,
+        #     ordinate_cell_key=sales_cell.portable_key,
+        # )
+        create_chart = partial(
+            ReportChart.objects.create,
+            linked_report=report,
+            user=admin,
+            ordinate_type=ReportChart.Aggregator.SUM,
             ordinate_cell_key=sales_cell.portable_key,
         )
         esales_vname = FieldInfo(Opportunity, 'estimated_sales').verbose_name
-        rgraph1 = create_graph(
+        # rgraph1 = create_graph(
+        #     uuid=UUID_RCHART_SALES_PER_PHASE,
+        #     name=_('Sum {estimated_sales} / {sales_phase}').format(
+        #         estimated_sales=esales_vname,
+        #         sales_phase=FieldInfo(Opportunity, 'sales_phase').verbose_name,
+        #     ),
+        #     abscissa_type=ReportGraph.Group.FK,
+        #     abscissa_cell_value='sales_phase',
+        # )
+        chart1 = create_chart(
             uuid=UUID_RCHART_SALES_PER_PHASE,
             name=_('Sum {estimated_sales} / {sales_phase}').format(
                 estimated_sales=esales_vname,
                 sales_phase=FieldInfo(Opportunity, 'sales_phase').verbose_name,
             ),
-            abscissa_type=ReportGraph.Group.FK,
+            abscissa_type=ReportChart.Group.FK,
             abscissa_cell_value='sales_phase',
         )
-        rgraph2 = create_graph(
+        # rgraph2 = create_graph(
+        #     uuid=UUID_RCHART_SALES_PER_QUARTER,
+        #     name=_('Sum {estimated_sales} / Quarter (90 days on {closing_date})').format(
+        #         estimated_sales=esales_vname,
+        #         closing_date=FieldInfo(Opportunity, 'closing_date').verbose_name,
+        #     ),
+        #     abscissa_type=ReportGraph.Group.RANGE,
+        #     abscissa_cell_value='closing_date',
+        #     abscissa_parameter='90',
+        # )
+        chart2 = create_chart(
             uuid=UUID_RCHART_SALES_PER_QUARTER,
             name=_('Sum {estimated_sales} / Quarter (90 days on {closing_date})').format(
                 estimated_sales=esales_vname,
                 closing_date=FieldInfo(Opportunity, 'closing_date').verbose_name,
             ),
-            abscissa_type=ReportGraph.Group.RANGE,
+            abscissa_type=ReportChart.Group.RANGE,
             abscissa_cell_value='closing_date',
             abscissa_parameter='90',
         )
 
         # Create 2 instance block items for the 2 graphs -----------------------
-        brick_id1 = SimpleGraphFetcher(rgraph1).create_brick_config_item(
+        # brick_id1 = SimpleGraphFetcher(rgraph1).create_brick_config_item(
+        brick_id1 = SimpleChartFetcher(chart=chart1).create_brick_config_item(
             uuid=UUID_IBRICK_SALES_PER_PHASE,
         ).brick_id
-        brick_id2 = SimpleGraphFetcher(rgraph2).create_brick_config_item(
+        # brick_id2 = SimpleGraphFetcher(rgraph2).create_brick_config_item(
+        brick_id2 = SimpleChartFetcher(chart=chart2).create_brick_config_item(
             uuid=UUID_IBRICK_SALES_PER_QUARTER,
         ).brick_id
 

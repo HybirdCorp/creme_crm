@@ -33,36 +33,33 @@ from creme.creme_core.tests.fake_constants import (
     FAKE_REL_SUB_BILL_RECEIVED as REL_SUB_BILL_RECEIVED,
 )
 from creme.creme_core.utils.queries import QSerializer
-from creme.reports.constants import RGF_NOLINK
 
-from .. import (
-    constants,
-    get_report_model,
-    get_rgraph_model,
-    report_model_is_custom,
-    rgraph_model_is_custom,
-)
-from ..models import Field
+# from .. import get_rgraph_model, rgraph_model_is_custom
+from .. import constants, get_report_model, report_model_is_custom
+# from ..constants import RGF_NOLINK
+from ..core.chart.fetcher import SimpleChartFetcher
+from ..models import Field, ReportChart
 from .fake_models import FakeReportsDocument, FakeReportsFolder
 
 skip_report_tests = report_model_is_custom()
-skip_rgraph_tests = rgraph_model_is_custom()
+# skip_rgraph_tests = rgraph_model_is_custom()
 
 Report = get_report_model()
-ReportGraph = get_rgraph_model()
+# ReportGraph = get_rgraph_model()
 
 
 def skipIfCustomReport(test_func):
     return skipIf(skip_report_tests, 'Custom Report model in use')(test_func)
 
 
-def skipIfCustomRGraph(test_func):
-    return skipIf(skip_rgraph_tests, 'Custom ReportGraph model in use')(test_func)
+# def skipIfCustomRGraph(test_func):
+#     return skipIf(skip_rgraph_tests, 'Custom ReportGraph model in use')(test_func)
 
 
 class AxisFieldsMixin:
     @staticmethod
-    def formfield_value_abscissa(*, abscissa, graph_type, parameter=''):
+    # def formfield_value_abscissa(*, abscissa, graph_type, parameter=''):
+    def formfield_value_abscissa(*, abscissa, chart_type, parameter=''):
         if isinstance(abscissa, ModelField):
             key = f'regular_field-{abscissa.name}'
         elif isinstance(abscissa, RelationType):
@@ -78,8 +75,10 @@ class AxisFieldsMixin:
                     'cell_key': key,
                     'grouping_category': 'not used',
                 },
-                'graph_type': {
-                    'type_id': graph_type,
+                # 'graph_type': {
+                'chart_type': {
+                    # 'type_id': graph_type,
+                    'type_id': chart_type,
                     'grouping_category': 'not used',
                 },
                 'parameter': parameter,
@@ -148,13 +147,24 @@ class BaseReportsTestCase(CremeTestCase):
 
         self.assertFalse(GET_params)  # All valid parameters have been removed
 
-    def _create_graph_instance_brick(self, graph, fetcher=RGF_NOLINK, **kwargs):
+    # def _create_graph_instance_brick(self, graph, fetcher=RGF_NOLINK, **kwargs):
+    #     self.assertNoFormError(self.client.post(
+    #         reverse('reports__create_instance_brick', args=(graph.id,)),
+    #         data={'fetcher': fetcher, **kwargs}
+    #     ))
+    #
+    #     return InstanceBrickConfigItem.objects.get(entity=graph.id)
+    def _create_chart_instance_brick(self, chart, fetcher=SimpleChartFetcher, **kwargs):
         self.assertNoFormError(self.client.post(
-            reverse('reports__create_instance_brick', args=(graph.id,)),
-            data={'fetcher': fetcher, **kwargs}
+            reverse('reports__create_instance_brick', args=(chart.id,)),
+            data={'fetcher': fetcher.type_id, **kwargs},
         ))
 
-        return InstanceBrickConfigItem.objects.get(entity=graph.id)
+        return self.get_object_or_fail(
+            InstanceBrickConfigItem,
+            entity=chart.linked_report,
+            json_extra_data__chart=str(chart.uuid),
+        )
 
     def _create_simple_contacts_report(self, *,
                                        user,
@@ -265,46 +275,82 @@ class BaseReportsTestCase(CremeTestCase):
 
         return invoice
 
-    def _create_documents_rgraph(self, user):
+    # def _create_documents_rgraph(self, user):
+    #     report = self._create_simple_documents_report(user=user)
+    #     return ReportGraph.objects.create(
+    #         user=user,
+    #         linked_report=report,
+    #         name='Number of created documents / year',
+    #         abscissa_cell_value='created',
+    #         abscissa_type=ReportGraph.Group.YEAR,
+    #         ordinate_type=ReportGraph.Aggregator.COUNT,
+    #     )
+    def _create_documents_chart(self, user):
         report = self._create_simple_documents_report(user=user)
-        return ReportGraph.objects.create(
-            user=user,
+        return ReportChart.objects.create(
             linked_report=report,
             name='Number of created documents / year',
             abscissa_cell_value='created',
-            abscissa_type=ReportGraph.Group.YEAR,
-            ordinate_type=ReportGraph.Aggregator.COUNT,
+            abscissa_type=ReportChart.Group.YEAR,
+            ordinate_type=ReportChart.Aggregator.COUNT,
         )
 
-    def _create_documents_colors_rgraph(self, report):
-        return ReportGraph.objects.create(
-            user=report.user,
+    # def _create_documents_colors_rgraph(self, report):
+    #     return ReportGraph.objects.create(
+    #         user=report.user,
+    #         linked_report=report,
+    #         name='Number of created documents / category',
+    #         abscissa_cell_value='category',
+    #         abscissa_type=ReportGraph.Group.FK,
+    #         ordinate_type=ReportGraph.Aggregator.COUNT,
+    #     )
+    def _create_documents_colors_chart(self, report):
+        return ReportChart.objects.create(
             linked_report=report,
             name='Number of created documents / category',
             abscissa_cell_value='category',
-            abscissa_type=ReportGraph.Group.FK,
-            ordinate_type=ReportGraph.Aggregator.COUNT,
+            abscissa_type=ReportChart.Group.FK,
+            ordinate_type=ReportChart.Aggregator.COUNT,
         )
 
-    def _create_invoice_report_n_graph(self,
+    # def _create_invoice_report_n_graph(self,
+    #                                    user,
+    #                                    abscissa='issuing_date',
+    #                                    ordinate_type=ReportGraph.Aggregator.SUM,
+    #                                    ordinate_field='total_no_vat',
+    #                                    ):
+    #     self.report = report = Report.objects.create(
+    #         user=user,
+    #         name='All invoices of the current year',
+    #         ct=FakeInvoice,
+    #     )
+    #
+    #     return ReportGraph.objects.create(
+    #         user=user,
+    #         linked_report=report,
+    #         name='Sum of current year invoices total without taxes / month',
+    #         abscissa_cell_value=abscissa,
+    #         abscissa_type=ReportGraph.Group.MONTH,
+    #         ordinate_type=ordinate_type,
+    #         ordinate_cell_key=f'regular_field-{ordinate_field}',
+    #     )
+    def _create_invoice_report_n_chart(self,
                                        user,
                                        abscissa='issuing_date',
-                                       ordinate_type=ReportGraph.Aggregator.SUM,
+                                       ordinate_type=ReportChart.Aggregator.SUM,
                                        ordinate_field='total_no_vat',
                                        ):
         self.report = report = Report.objects.create(
-            user=user,
-            name='All invoices of the current year',
-            ct=FakeInvoice,
+            user=user, name='All invoices of the current year', ct=FakeInvoice,
         )
 
-        # TODO: we need a helper ReportGraph.create() ??
-        return ReportGraph.objects.create(
-            user=user,
+        # TODO: we need a helper ReportChart.objects.smart_create()?
+        return ReportChart.objects.create(
+            # user=user,
             linked_report=report,
             name='Sum of current year invoices total without taxes / month',
             abscissa_cell_value=abscissa,
-            abscissa_type=ReportGraph.Group.MONTH,
+            abscissa_type=ReportChart.Group.MONTH,
             ordinate_type=ordinate_type,
             ordinate_cell_key=f'regular_field-{ordinate_field}',
         )
