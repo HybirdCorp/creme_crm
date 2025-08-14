@@ -1,0 +1,19 @@
+{% extends 'creme_core/detailview.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block global_buttons %}
+    <li>
+        <a class="menu_button menu-button-icon" href="{{object.linked_report.get_absolute_url}}">{% translate 'Back to the report' as back_label %}
+            {% widget_icon name='previous' size='global-button' label=back_label %}
+            {{back_label}}
+        </a>
+    </li>
+{% endblock %}
+
+{% block title %}{% blocktranslate with report=object.linked_report %}Chart related to the report «{{report}}»{% endblocktranslate %}{% endblock %}
+
+{% block main_content %}
+    {% brick_declare bricks.main %}
+    {% brick_display bricks.main %}
+    {% brick_end %}
+{% endblock %}

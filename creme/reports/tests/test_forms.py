@@ -30,25 +30,25 @@ from creme.creme_core.tests.fake_constants import (
     FAKE_REL_SUB_EMPLOYED_BY,
 )
 from creme.reports import constants
-from creme.reports.bricks import ReportGraphChartInstanceBrick
-from creme.reports.core.graph import AbscissaInfo, OrdinateInfo
-from creme.reports.core.graph.cell_constraint import (
+from creme.reports.bricks import ReportChartInstanceBrick
+from creme.reports.core.chart import AbscissaInfo, OrdinateInfo
+from creme.reports.core.chart.cell_constraint import (
     ACCCount,
     ACCFieldAggregation,
     abscissa_constraints,
     ordinate_constraints,
 )
-from creme.reports.core.graph.fetcher import (
-    RegularFieldLinkedGraphFetcher,
-    RelationLinkedGraphFetcher,
-    SimpleGraphFetcher,
+from creme.reports.core.chart.fetcher import (
+    RegularFieldLinkedChartFetcher,
+    RelationLinkedChartFetcher,
+    SimpleChartFetcher,
 )
 from creme.reports.forms.bricks import (
+    ChartFetcherField,
+    ChartInstanceBrickForm,
     FetcherChoiceIterator,
-    GraphFetcherField,
-    GraphInstanceBrickForm,
 )
-from creme.reports.forms.graph import AbscissaField, OrdinateField
+from creme.reports.forms.chart import AbscissaField, OrdinateField
 from creme.reports.forms.report import (
     ReportEntityCellCustomAggregate,
     ReportEntityCellRegularAggregate,
@@ -56,14 +56,18 @@ from creme.reports.forms.report import (
     ReportFieldsForm,
     ReportHandsField,
 )
-from creme.reports.models import FakeReportsDocument, FakeReportsFolder, Field
+from creme.reports.models import (
+    FakeReportsDocument,
+    FakeReportsFolder,
+    Field,
+    ReportChart,
+)
 from creme.reports.report_aggregation_registry import FieldAggregation
 
 from .base import (
     AxisFieldsMixin,
     BaseReportsTestCase,
     Report,
-    ReportGraph,
     skipIfCustomReport,
 )
 
@@ -628,7 +632,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
     def test_clean_invalid_data(self):
         self.assertFormfieldError(
             field=AbscissaField(required=False),
-            value='{"graph_type":"notadict"}',
+            value='{"chart_type":"notadict"}',
             messages=_('Invalid format'),
             codes='invalidformat',
         )
@@ -636,7 +640,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
     def test_clean_rfield_fk(self):
         model = FakeOrganisation
         field_name = 'sector'
-        graph_type = ReportGraph.Group.FK
+        chart_type = ReportChart.Group.FK
 
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
         widget = field.widget
@@ -647,7 +651,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
 
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=model._meta.get_field(field_name),
-            graph_type=graph_type,
+            chart_type=chart_type,
         ))
         self.assertIsInstance(abs_info, AbscissaInfo)
 
@@ -656,61 +660,61 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(field_name, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_rfield_date_year(self):
         model = FakeContact
         field_name = 'birthday'
-        graph_type = ReportGraph.Group.YEAR
+        chart_type = ReportChart.Group.YEAR
 
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
 
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=FakeContact._meta.get_field(field_name),
-            graph_type=graph_type,
+            chart_type=chart_type,
         ))
         cell = abs_info.cell
         self.assertIsInstance(cell, EntityCellRegularField)
         self.assertEqual(model, cell.model)
         self.assertEqual(field_name, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_rfield_date_month(self):
         field = AbscissaField(model=FakeContact, abscissa_constraints=abscissa_constraints)
 
-        graph_type = ReportGraph.Group.MONTH
+        chart_type = ReportChart.Group.MONTH
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=FakeContact._meta.get_field('birthday'),
-            graph_type=graph_type,
+            chart_type=chart_type,
         ))
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_rfield_date_day(self):
         field = AbscissaField(model=FakeContact, abscissa_constraints=abscissa_constraints)
 
-        graph_type = ReportGraph.Group.DAY
+        chart_type = ReportChart.Group.DAY
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=FakeContact._meta.get_field('birthday'),
-            graph_type=graph_type,
+            chart_type=chart_type,
         ))
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_rfield_range(self):
         model = FakeContact
         field_name = 'created'
-        graph_type = ReportGraph.Group.RANGE
+        chart_type = ReportChart.Group.RANGE
         days = 3
 
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
 
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=FakeContact._meta.get_field(field_name),
-            graph_type=graph_type,
+            chart_type=chart_type,
             parameter=str(days),
         ))
         cell = abs_info.cell
@@ -718,7 +722,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(field_name, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertEqual(days, abs_info.parameter)
 
     def test_clean_rfield_error01(self):
@@ -735,7 +739,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
                 # 'entity_cell': {
                 #     'cell_key': ...,
                 # },
-                'graph_type': {'type_id': ReportGraph.Group.FK},
+                'chart_type': {'type_id': ReportChart.Group.FK},
                 'parameter': '',
             })
         )
@@ -745,7 +749,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
                 'entity_cell': {
                     # 'cell_key': ...,
                 },
-                'graph_type': {'type_id': ReportGraph.Group.FK},
+                'chart_type': {'type_id': ReportChart.Group.FK},
                 'parameter': '',
             })
         )
@@ -756,7 +760,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field, codes=allow_code, messages=allow_msg,
             value=self.formfield_value_abscissa(
                 abscissa=model._meta.get_field('name'),  # <= forbidden field
-                graph_type=ReportGraph.Group.FK,
+                chart_type=ReportChart.Group.FK,
             ),
         )
         self.assertFormfieldError(
@@ -765,8 +769,8 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
                 'entity_cell': {
                     'cell_key': 'regular_field-sector__title',  # <= forbidden field
                 },
-                'graph_type': {
-                    'type_id': ReportGraph.Group.FK,
+                'chart_type': {
+                    'type_id': ReportChart.Group.FK,
                 },
                 'parameter': '',
             }),
@@ -777,26 +781,26 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
                 'entity_cell': {
                     'cell_key': 'regular_field-image__created',  # <= forbidden field
                 },
-                'graph_type': {
-                    'type_id': ReportGraph.Group.YEAR,
+                'chart_type': {
+                    'type_id': ReportChart.Group.YEAR,
                 },
                 'parameter': '',
             }),
         )
 
     def test_clean_rfield_error02(self):
-        "Error on graph type."
+        "Error on chart type."
         model = FakeOrganisation
         field = AbscissaField(
             model=model, abscissa_constraints=abscissa_constraints,
         )
-        req_code = 'graphtyperequired'
-        req_msg = 'The graph type is required.'
+        req_code = 'charttyperequired'
+        req_msg = 'The chart type is required.'
         self.assertFormfieldError(
             field=field, codes=req_code, messages=req_msg,
             value=json_dump({
                 'entity_cell': {'cell_key': 'regular_field-sector'},
-                # 'graph_type': {
+                # 'chart_type': {
                 #     'type_id': ...,
                 # },
                 'parameter': '',
@@ -806,7 +810,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field, codes=req_code, messages=req_msg,
             value=json_dump({
                 'entity_cell': {'cell_key': 'regular_field-sector'},
-                'graph_type': {
+                'chart_type': {
                     # 'type_id': ...,
                 },
                 'parameter': '',
@@ -820,21 +824,21 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field, codes=allow_code, messages=allow_msg,
             value=self.formfield_value_abscissa(
                 abscissa=sector_field,
-                graph_type=ReportGraph.Group.YEAR,  # <===
+                chart_type=ReportChart.Group.YEAR,  # <===
             ),
         )
         self.assertFormfieldError(
             field=field, codes=allow_code, messages=allow_msg,
             value=self.formfield_value_abscissa(
                 abscissa=sector_field,
-                graph_type=ReportGraph.Group.MONTH,  # <===
+                chart_type=ReportChart.Group.MONTH,  # <===
             ),
         )
         self.assertFormfieldError(
             field=field, codes=allow_code, messages=allow_msg,
             value=self.formfield_value_abscissa(
                 abscissa=sector_field,
-                graph_type=ReportGraph.Group.DAY,  # <===
+                chart_type=ReportChart.Group.DAY,  # <===
             ),
         )
 
@@ -846,13 +850,13 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         )
 
         abscissa = model._meta.get_field('created')
-        graph_type = ReportGraph.Group.RANGE
+        chart_type = ReportChart.Group.RANGE
 
         self.assertFormfieldError(
             field=field,
             value=self.formfield_value_abscissa(
                 abscissa=abscissa,
-                graph_type=graph_type,
+                chart_type=chart_type,
                 # parameter='2',
             ),
             messages=_('The parameter is invalid. {}').format(_('This field is required.')),
@@ -864,7 +868,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field,
             value=self.formfield_value_abscissa(
                 abscissa=abscissa,
-                graph_type=graph_type,
+                chart_type=chart_type,
                 parameter='notanint',
             ),
             messages=_('The parameter is invalid. {}').format(_('Enter a whole number.')),
@@ -874,7 +878,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
     def test_clean_rfield_fields_config(self):
         model = FakeOrganisation
         field_name = 'sector'
-        graph_type = ReportGraph.Group.FK
+        chart_type = ReportChart.Group.FK
 
         FieldsConfig.objects.create(
             content_type=model,
@@ -893,7 +897,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field,
             value=self.formfield_value_abscissa(
                 abscissa=sector_field,
-                graph_type=graph_type,
+                chart_type=chart_type,
             ),
             messages='This entity cell is not allowed.',
             codes='ecellnotallowed',
@@ -901,7 +905,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
 
         # ---
         cell = EntityCellRegularField.build(model, field_name)
-        init_abs_info = AbscissaInfo(cell=cell, graph_type=graph_type)
+        init_abs_info = AbscissaInfo(cell=cell, chart_type=chart_type)
         field.initial = init_abs_info
         self.assertEqual(init_abs_info, field.initial)
         self.assertSetEqual({cell.key}, field.not_hiddable_cell_keys)
@@ -909,20 +913,19 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
 
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=model._meta.get_field(field_name),
-            graph_type=graph_type,
+            chart_type=chart_type,
         ))
         self.assertIsInstance(abs_info, AbscissaInfo)
 
     def test_clean_rtype(self):
         model = FakeOrganisation
-        graph_type = ReportGraph.Group.RELATION
+        chart_type = ReportChart.Group.RELATION
         rtype = RelationType.objects.compatible(model)[0]
 
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
 
         abs_info = field.clean(self.formfield_value_abscissa(
-            abscissa=rtype,
-            graph_type=graph_type,
+            abscissa=rtype, chart_type=chart_type,
         ))
         self.assertIsInstance(abs_info, AbscissaInfo)
 
@@ -931,7 +934,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(rtype.id, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_rtype_error(self):
@@ -949,7 +952,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field,
             value=self.formfield_value_abscissa(
                 abscissa=rtype,
-                graph_type=ReportGraph.Group.RELATION,
+                chart_type=ReportChart.Group.RELATION,
             ),
             messages='This entity cell is not allowed.',
             codes='ecellnotallowed',
@@ -957,7 +960,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
 
     def test_clean_cfield_enum01(self):
         model = FakeContact
-        graph_type = ReportGraph.Group.CUSTOM_FK
+        chart_type = ReportChart.Group.CUSTOM_FK
         cfield = CustomField.objects.create(
             content_type=model,
             name='Hair',
@@ -967,8 +970,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
 
         abs_info = field.clean(self.formfield_value_abscissa(
-            abscissa=cfield,
-            graph_type=graph_type,
+            abscissa=cfield, chart_type=chart_type,
         ))
         self.assertIsInstance(abs_info, AbscissaInfo)
 
@@ -977,13 +979,13 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(str(cfield.id), cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_cfield_enum02(self):
         "Field is deleted."
         model = FakeContact
-        graph_type = ReportGraph.Group.CUSTOM_FK
+        chart_type = ReportChart.Group.CUSTOM_FK
         cfield = CustomField.objects.create(
             content_type=model,
             name='Hair',
@@ -992,32 +994,30 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         )
 
         field = AbscissaField(
-            model=model,
-            abscissa_constraints=abscissa_constraints,
+            model=model, abscissa_constraints=abscissa_constraints,
         )
         self.assertFormfieldError(
             field=field,
-            value=self.formfield_value_abscissa(abscissa=cfield, graph_type=graph_type),
+            value=self.formfield_value_abscissa(abscissa=cfield, chart_type=chart_type),
             messages='This entity cell is not allowed.',
             codes='ecellnotallowed',
         )
 
         # ---
         cell = EntityCellCustomField(cfield)
-        init_abs_info = AbscissaInfo(cell=cell, graph_type=graph_type)
+        init_abs_info = AbscissaInfo(cell=cell, chart_type=chart_type)
         field.initial = init_abs_info
         self.assertSetEqual({cell.key}, field.not_hiddable_cell_keys)
 
         abs_info = field.clean(self.formfield_value_abscissa(
-            abscissa=cfield,
-            graph_type=graph_type,
+            abscissa=cfield, chart_type=chart_type,
         ))
         self.assertIsInstance(abs_info, AbscissaInfo)
 
     @parameterized.expand([CustomField.DATETIME, CustomField.DATE])
     def test_clean_cfield_date_year(self, cfield_type):
         model = FakeContact
-        graph_type = ReportGraph.Group.CUSTOM_YEAR
+        chart_type = ReportChart.Group.CUSTOM_YEAR
         cfield = CustomField.objects.create(
             content_type=model,
             name='First fight',
@@ -1029,8 +1029,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         )
 
         abs_info = field.clean(self.formfield_value_abscissa(
-            abscissa=cfield,
-            graph_type=graph_type,
+            abscissa=cfield, chart_type=chart_type,
         ))
         self.assertIsInstance(abs_info, AbscissaInfo)
 
@@ -1039,13 +1038,13 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(str(cfield.id), cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     @parameterized.expand([CustomField.DATETIME, CustomField.DATE])
     def test_clean_cfield_date_month(self, cfield_type):
         model = FakeContact
-        graph_type = ReportGraph.Group.CUSTOM_MONTH
+        chart_type = ReportChart.Group.CUSTOM_MONTH
         cfield = CustomField.objects.create(
             content_type=model,
             name='First fight',
@@ -1055,7 +1054,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
 
         abs_info = field.clean(self.formfield_value_abscissa(
-            abscissa=cfield, graph_type=graph_type,
+            abscissa=cfield, chart_type=chart_type,
         ))
         self.assertIsInstance(abs_info, AbscissaInfo)
 
@@ -1064,13 +1063,13 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(str(cfield.id), cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     @parameterized.expand([CustomField.DATETIME, CustomField.DATE])
     def test_clean_cfield_date_day(self, cfield_type):
         model = FakeContact
-        graph_type = ReportGraph.Group.CUSTOM_DAY
+        chart_type = ReportChart.Group.CUSTOM_DAY
         cfield = CustomField.objects.create(
             content_type=model,
             name='First fight',
@@ -1080,7 +1079,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
 
         abs_info = field.clean(self.formfield_value_abscissa(
-            abscissa=cfield, graph_type=graph_type,
+            abscissa=cfield, chart_type=chart_type,
         ))
         self.assertIsInstance(abs_info, AbscissaInfo)
 
@@ -1089,12 +1088,12 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(str(cfield.id), cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_cfield_range(self):
         model = FakeContact
-        graph_type = ReportGraph.Group.CUSTOM_RANGE
+        chart_type = ReportChart.Group.CUSTOM_RANGE
         days = 5
         cfield = CustomField.objects.create(
             content_type=model,
@@ -1104,7 +1103,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=cfield,
-            graph_type=graph_type,
+            chart_type=chart_type,
             parameter=str(days),
         ))
 
@@ -1112,7 +1111,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(str(cfield.id), cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertEqual(days, abs_info.parameter)
 
     def test_clean_cfield_error01(self):
@@ -1130,7 +1129,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field, messages=msg, codes=code,
             value=self.formfield_value_abscissa(
                 abscissa=cfield1,
-                graph_type=ReportGraph.Group.CUSTOM_FK,
+                chart_type=ReportChart.Group.CUSTOM_FK,
             ),
         )
 
@@ -1144,12 +1143,12 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field, messages=msg, codes=code,
             value=self.formfield_value_abscissa(
                 abscissa=cfield2,
-                graph_type=ReportGraph.Group.CUSTOM_FK,
+                chart_type=ReportChart.Group.CUSTOM_FK,
             ),
         )
 
     def test_clean_cfield_error02(self):
-        "Error on graph type."
+        "Error on chart type."
         model = FakeOrganisation
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
 
@@ -1164,28 +1163,28 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field, codes=code, messages=msg,
             value=self.formfield_value_abscissa(
                 abscissa=cfield_enum,
-                graph_type=ReportGraph.Group.CUSTOM_YEAR,
+                chart_type=ReportChart.Group.CUSTOM_YEAR,
             ),
         )
         self.assertFormfieldError(
             field=field, codes=code, messages=msg,
             value=self.formfield_value_abscissa(
                 abscissa=cfield_enum,
-                graph_type=ReportGraph.Group.CUSTOM_MONTH,
+                chart_type=ReportChart.Group.CUSTOM_MONTH,
             ),
         )
         self.assertFormfieldError(
             field=field, codes=code, messages=msg,
             value=self.formfield_value_abscissa(
                 abscissa=cfield_enum,
-                graph_type=ReportGraph.Group.CUSTOM_DAY,
+                chart_type=ReportChart.Group.CUSTOM_DAY,
             ),
         )
         self.assertFormfieldError(
             field=field, codes=code, messages=msg,
             value=self.formfield_value_abscissa(
                 abscissa=cfield_enum,
-                graph_type=ReportGraph.Group.CUSTOM_RANGE,
+                chart_type=ReportChart.Group.CUSTOM_RANGE,
                 parameter='7',
             ),
         )
@@ -1199,7 +1198,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field, codes=code, messages=msg,
             value=self.formfield_value_abscissa(
                 abscissa=cfield_dt,
-                graph_type=ReportGraph.Group.CUSTOM_FK,
+                chart_type=ReportChart.Group.CUSTOM_FK,
             ),
         )
 
@@ -1207,7 +1206,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         "Error on extra parameter."
         model = FakeContact
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
-        graph_type = ReportGraph.Group.CUSTOM_RANGE
+        chart_type = ReportChart.Group.CUSTOM_RANGE
 
         cfield = CustomField.objects.create(
             content_type=model,
@@ -1219,7 +1218,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field,
             value=self.formfield_value_abscissa(
                 abscissa=cfield,
-                graph_type=graph_type,
+                chart_type=chart_type,
                 # parameter='2',
             ),
             messages=_('The parameter is invalid. {}').format(_('This field is required.')),
@@ -1229,7 +1228,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field,
             value=self.formfield_value_abscissa(
                 abscissa=cfield,
-                graph_type=graph_type,
+                chart_type=chart_type,
                 parameter='notanint',
             ),
             messages=_('The parameter is invalid. {}').format(_('Enter a whole number.')),
@@ -1247,7 +1246,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field, messages=msg, codes=code,
             value=json_dump({
                 'entity_cell': {'cell_key': cell.key},
-                'graph_type': {'type_id': ReportGraph.Group.FK},
+                'chart_type': {'type_id': ReportChart.Group.FK},
                 'parameter': '',
             }),
         )
@@ -1255,7 +1254,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field, messages=msg, codes=code,
             value=json_dump({
                 'entity_cell': {'cell_key': cell.key.replace('-', '')},
-                'graph_type': {'type_id': ReportGraph.Group.FK},
+                'chart_type': {'type_id': ReportChart.Group.FK},
                 'parameter': '',
             }),
         )
@@ -1263,7 +1262,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field, messages=msg, codes=code,
             value=json_dump({
                 'entity_cell': {'cell_key': 'regular_field-INVALID'},
-                'graph_type': {'type_id': ReportGraph.Group.FK},
+                'chart_type': {'type_id': ReportChart.Group.FK},
                 'parameter': '',
             }),
         )
@@ -1271,13 +1270,13 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field, messages=msg, codes=code,
             value=json_dump({
                 'entity_cell': {'cell_key': 'INVALID-stuff'},
-                'graph_type': {'type_id': ReportGraph.Group.FK},
+                'chart_type': {'type_id': ReportChart.Group.FK},
                 'parameter': '',
             }),
         )
 
     def test_clean_error02(self):
-        "Error on graph type."
+        "Error on chart type."
         model = FakeContact
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
         cell = EntityCellRegularField.build(FakeContact, 'position')
@@ -1285,26 +1284,26 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field,
             value=json_dump({
                 'entity_cell': {'cell_key': cell.key},
-                'graph_type': {
+                'chart_type': {
                     'type_id': 1024,  # <==
                 },
                 'parameter': '',
             }),
-            codes='graphtypenotallowed',
-            messages='The graph type is not allowed.',
+            codes='charttypenotallowed',
+            messages='The chart type is not allowed.',
         )
 
     def test_clean_error03(self):
         "Error on parameter."
         model = FakeContact
         field_name = 'birthday'
-        graph_type = ReportGraph.Group.YEAR
+        chart_type = ReportChart.Group.YEAR
 
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
 
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=FakeContact._meta.get_field(field_name),
-            graph_type=graph_type,
+            chart_type=chart_type,
             parameter='6',  # <== should be ignored
         ))
         cell = abs_info.cell
@@ -1312,7 +1311,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(model, cell.model)
         self.assertEqual(field_name, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_not_required(self):
@@ -1323,12 +1322,11 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             required=False,
         )
         self.assertIsNone(field.clean(self.formfield_value_abscissa(
-            abscissa=None,
-            graph_type='',
+            abscissa=None, chart_type='',
         )))
         self.assertIsNone(field.clean(self.formfield_value_abscissa(
             abscissa=model._meta.get_field('sector'),
-            graph_type='',
+            chart_type='',
         )))
 
     def test_clean_no_model01(self):
@@ -1337,10 +1335,10 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertIs(field.model, CremeEntity)
 
         field_name = 'created'
-        graph_type = ReportGraph.Group.YEAR
+        chart_type = ReportChart.Group.YEAR
         abs_info = field.clean(self.formfield_value_abscissa(
             abscissa=CremeEntity._meta.get_field(field_name),
-            graph_type=graph_type,
+            chart_type=chart_type,
         ))
         self.assertIsInstance(abs_info, AbscissaInfo)
 
@@ -1349,7 +1347,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(CremeEntity, cell.model)
         self.assertEqual(field_name, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_clean_no_model02(self):
@@ -1360,11 +1358,9 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             id='test-subject_likes', predicate='likes',
         ).symmetric(id='test-object_likes',  predicate='is liked by').get_or_create()[0]
 
-        graph_type = ReportGraph.Group.RELATION
-
+        chart_type = ReportChart.Group.RELATION
         abs_info = field.clean(self.formfield_value_abscissa(
-            abscissa=rtype,
-            graph_type=graph_type,
+            abscissa=rtype, chart_type=chart_type,
         ))
 
         cell = abs_info.cell
@@ -1372,7 +1368,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertEqual(CremeEntity, cell.model)
         self.assertEqual(rtype.id, cell.value)
 
-        self.assertEqual(graph_type, abs_info.graph_type)
+        self.assertEqual(chart_type, abs_info.chart_type)
         self.assertIsNone(abs_info.parameter)
 
     def test_from_python_rfield_fk(self):
@@ -1380,21 +1376,21 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
             model=FakeOrganisation, abscissa_constraints=abscissa_constraints,
         )
         cell = EntityCellRegularField.build(FakeOrganisation, 'sector')
-        graph_type = ReportGraph.Group.FK
+        chart_type = ReportChart.Group.FK
         self.assertEqual(
             {
                 'entity_cell': {
                     'cell_key': cell.key,
                     'grouping_category': 'regular_fk',
                 },
-                'graph_type': {
-                    'type_id': graph_type,
+                'chart_type': {
+                    'type_id': chart_type,
                     'grouping_category': 'regular_fk',
                 },
                 'parameter': '',
             },
             json_load(field.from_python(
-                AbscissaInfo(cell=cell, graph_type=graph_type)
+                AbscissaInfo(cell=cell, chart_type=chart_type)
             )),
         )
 
@@ -1405,23 +1401,23 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         ).from_python
         cell = EntityCellRegularField.build(FakeOrganisation, 'creation_date')
 
-        graph_type1 = ReportGraph.Group.YEAR
+        chart_type1 = ReportChart.Group.YEAR
         self.assertDictEqual(
             {
                 'entity_cell': {
                     'cell_key': cell.key,
                     'grouping_category': 'regular_date',
                 },
-                'graph_type': {
-                    'type_id': graph_type1,
+                'chart_type': {
+                    'type_id': chart_type1,
                     'grouping_category': 'regular_date',
                 },
                 'parameter': '',
             },
-            json_load(from_python(AbscissaInfo(cell=cell, graph_type=graph_type1))),
+            json_load(from_python(AbscissaInfo(cell=cell, chart_type=chart_type1))),
         )
 
-        graph_type2 = ReportGraph.Group.RANGE
+        chart_type2 = ReportChart.Group.RANGE
         parameter = '5'
         self.assertDictEqual(
             {
@@ -1429,14 +1425,14 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
                     'cell_key': cell.key,
                     'grouping_category': 'regular_date',
                 },
-                'graph_type': {
-                    'type_id': graph_type2,
+                'chart_type': {
+                    'type_id': chart_type2,
                     'grouping_category': 'regular_date',
                 },
                 'parameter': parameter,
             },
             json_load(from_python(AbscissaInfo(
-                cell=cell, graph_type=graph_type2, parameter=parameter,
+                cell=cell, chart_type=chart_type2, parameter=parameter,
             ))),
         )
 
@@ -1446,21 +1442,21 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         )
         rtype = RelationType.objects.get(id=REL_SUB_HAS)
         cell = EntityCellRelation(model=FakeOrganisation, rtype=rtype)
-        graph_type = ReportGraph.Group.RELATION
+        chart_type = ReportChart.Group.RELATION
         self.assertDictEqual(
             {
                 'entity_cell': {
                     'cell_key': cell.key,
                     'grouping_category': 'rtype',
                 },
-                'graph_type': {
-                    'type_id': graph_type,
+                'chart_type': {
+                    'type_id': chart_type,
                     'grouping_category': 'rtype',
                 },
                 'parameter': '',
             },
             json_load(field.from_python(
-                AbscissaInfo(cell=cell, graph_type=graph_type)
+                AbscissaInfo(cell=cell, chart_type=chart_type)
             )),
         )
 
@@ -1474,21 +1470,21 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
 
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
         cell = EntityCellCustomField(cfield)
-        graph_type = ReportGraph.Group.CUSTOM_FK
+        chart_type = ReportChart.Group.CUSTOM_FK
         self.assertEqual(
             {
                 'entity_cell': {
                     'cell_key': cell.key,
                     'grouping_category': 'custom_enum',
                 },
-                'graph_type': {
-                    'type_id': graph_type,
+                'chart_type': {
+                    'type_id': chart_type,
                     'grouping_category': 'custom_enum',
                 },
                 'parameter': '',
             },
             json_load(field.from_python(
-                AbscissaInfo(cell=cell, graph_type=graph_type)
+                AbscissaInfo(cell=cell, chart_type=chart_type)
             )),
         )
 
@@ -1502,21 +1498,21 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
 
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
         cell = EntityCellCustomField(cfield)
-        graph_type = ReportGraph.Group.CUSTOM_DAY
+        chart_type = ReportChart.Group.CUSTOM_DAY
         self.assertDictEqual(
             {
                 'entity_cell': {
                     'cell_key': cell.key,
                     'grouping_category': 'custom_date',
                 },
-                'graph_type': {
-                    'type_id': graph_type,
+                'chart_type': {
+                    'type_id': chart_type,
                     'grouping_category': 'custom_date',
                 },
                 'parameter': '',
             },
             json_load(field.from_python(
-                AbscissaInfo(cell=cell, graph_type=graph_type))
+                AbscissaInfo(cell=cell, chart_type=chart_type))
             ),
         )
 
@@ -1555,7 +1551,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
 
     def test_clean_count(self):
         model = FakeOrganisation
-        aggr_id = ReportGraph.Aggregator.COUNT
+        aggr_id = ReportChart.Aggregator.COUNT
 
         field = OrdinateField(model=model, ordinate_constraints=ordinate_constraints)
         widget = field.widget
@@ -1572,7 +1568,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
     def test_clean_rfield_int(self):
         model = FakeOrganisation
         field_name = 'capital'
-        aggr_id = ReportGraph.Aggregator.SUM
+        aggr_id = ReportChart.Aggregator.SUM
 
         field = OrdinateField(model=model, ordinate_constraints=ordinate_constraints)
         ord_info = field.clean(self.formfield_value_ordinate(
@@ -1590,7 +1586,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
     def test_clean_rfield_decimal(self):
         model = FakeInvoiceLine
         field_name = 'quantity'
-        aggr_id = ReportGraph.Aggregator.AVG
+        aggr_id = ReportChart.Aggregator.AVG
 
         field = OrdinateField(model=model, ordinate_constraints=ordinate_constraints)
 
@@ -1655,7 +1651,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
             value=json_dump({
                 'aggregator': {
                     # 'aggr_id': constants.RGA_MIN,
-                    'aggr_id': ReportGraph.Aggregator.MIN,
+                    'aggr_id': ReportChart.Aggregator.MIN,
                 },
                 # 'entity_cell': {
                 #     'cell_key': ...,
@@ -1665,7 +1661,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertFormfieldError(
             field=field, codes=req_code, messages=req_msg,
             value=json_dump({
-                'aggregator': {'aggr_id': ReportGraph.Aggregator.MIN},
+                'aggregator': {'aggr_id': ReportChart.Aggregator.MIN},
                 'entity_cell': {
                     # 'cell_key': ...,
                 },
@@ -1674,7 +1670,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertFormfieldError(
             field=field, codes=req_code, messages=req_msg,
             value=self.formfield_value_ordinate(
-                aggr_id=ReportGraph.Aggregator.MIN,
+                aggr_id=ReportChart.Aggregator.MIN,
                 # cell=...
             ),
         )
@@ -1684,7 +1680,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertFormfieldError(
             field=field, codes=allow_code, messages=allow_msg,
             value=self.formfield_value_ordinate(
-                aggr_id=ReportGraph.Aggregator.SUM,
+                aggr_id=ReportChart.Aggregator.SUM,
                 # forbidden field:
                 cell=EntityCellRegularField.build(model, 'item'),
             ),
@@ -1692,7 +1688,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertFormfieldError(
             field=field, codes=allow_code, messages=allow_msg,
             value=self.formfield_value_ordinate(
-                aggr_id=ReportGraph.Aggregator.SUM,
+                aggr_id=ReportChart.Aggregator.SUM,
                 # field too deep:
                 cell=EntityCellRegularField.build(model, 'linked_invoice__total_vat'),
             ),
@@ -1703,7 +1699,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
     def test_clean_rfield_fields_config(self):
         model = FakeOrganisation
         field_name = 'capital'
-        aggr_id1 = ReportGraph.Aggregator.SUM
+        aggr_id1 = ReportChart.Aggregator.SUM
 
         FieldsConfig.objects.create(
             content_type=model,
@@ -1737,7 +1733,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertIsInstance(ord_info1, OrdinateInfo)
 
         # cell is None ---
-        aggr_id2 = ReportGraph.Aggregator.COUNT
+        aggr_id2 = ReportChart.Aggregator.COUNT
         init_ord_info2 = OrdinateInfo(aggr_id=aggr_id2)
         field.initial = init_ord_info2
         self.assertEqual(init_ord_info2, field.initial)
@@ -1746,7 +1742,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
 
     def test_clean_cfield_int(self):
         model = FakeContact
-        aggr_id = ReportGraph.Aggregator.MAX
+        aggr_id = ReportChart.Aggregator.MAX
         cfield = CustomField.objects.create(
             content_type=model,
             name='Hair length',
@@ -1782,7 +1778,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertFormfieldError(
             field=field,
             value=self.formfield_value_ordinate(
-                aggr_id=ReportGraph.Aggregator.SUM,
+                aggr_id=ReportChart.Aggregator.SUM,
                 cell=EntityCellCustomField(cfield_str),
             ),
             codes='ecellnotallowed',
@@ -1806,14 +1802,14 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertFormfieldError(
             field=field, codes=code, messages=msg,
             value=self.formfield_value_ordinate(
-                aggr_id=ReportGraph.Aggregator.SUM,
+                aggr_id=ReportChart.Aggregator.SUM,
                 cell=EntityCellCustomField(cfield),
             ),
         )
         self.assertFormfieldError(
             field=field, codes=code, messages=msg,
             value=self.formfield_value_ordinate(
-                aggr_id=ReportGraph.Aggregator.COUNT,
+                aggr_id=ReportChart.Aggregator.COUNT,
                 cell=EntityCellRegularField.build(FakeOrganisation, 'capital'),
             ),
         )
@@ -1836,14 +1832,14 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertFormfieldError(
             field=field, codes=code, messages=msg,
             value=self.formfield_value_ordinate(
-                aggr_id=ReportGraph.Aggregator.SUM,
+                aggr_id=ReportChart.Aggregator.SUM,
                 cell=EntityCellCustomField(cfield),
             ),
         )
         self.assertFormfieldError(
             field=field, codes=code, messages=msg,
             value=self.formfield_value_ordinate(
-                aggr_id=ReportGraph.Aggregator.COUNT,
+                aggr_id=ReportChart.Aggregator.COUNT,
                 cell=EntityCellRegularField.build(FakeOrganisation, 'capital'),
             ),
         )
@@ -1857,7 +1853,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
         self.assertFormfieldError(
             field=field, codes=code, messages=msg,
             value=self.formfield_value_ordinate(
-                aggr_id=ReportGraph.Aggregator.SUM,
+                aggr_id=ReportChart.Aggregator.SUM,
                 cell=EntityCellFunctionField.build(FakeContact, 'get_pretty_properties'),
             ),
         )
@@ -1865,7 +1861,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field, codes=code, messages=msg,
             value=json_dump({
                 'aggregator': {
-                    'aggr_id': ReportGraph.Aggregator.SUM,
+                    'aggr_id': ReportChart.Aggregator.SUM,
                     'aggr_category': 'not used',
                 },
                 'entity_cell': {
@@ -1878,7 +1874,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
             field=field, codes=code, messages=msg,
             value=json_dump({
                 'aggregator': {
-                    'aggr_id': ReportGraph.Aggregator.SUM,
+                    'aggr_id': ReportChart.Aggregator.SUM,
                     'aggr_category': 'not used',
                 },
                 'entity_cell': {
@@ -1922,7 +1918,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
             model=FakeOrganisation,
             ordinate_constraints=ordinate_constraints,
         )
-        aggr_id = ReportGraph.Aggregator.COUNT
+        aggr_id = ReportChart.Aggregator.COUNT
         self.assertDictEqual(
             {
                 'aggregator': {
@@ -1940,7 +1936,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
             ordinate_constraints=ordinate_constraints,
         )
         cell = EntityCellRegularField.build(FakeOrganisation, 'capital')
-        aggr_id = ReportGraph.Aggregator.AVG
+        aggr_id = ReportChart.Aggregator.AVG
         category = ACCFieldAggregation.type_id
         self.assertDictEqual(
             {
@@ -1968,7 +1964,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
             model=model, ordinate_constraints=ordinate_constraints,
         )
         cell = EntityCellCustomField(cfield)
-        aggr_id = ReportGraph.Aggregator.SUM
+        aggr_id = ReportChart.Aggregator.SUM
         category = ACCFieldAggregation.type_id
         self.assertDictEqual(
             {
@@ -1985,83 +1981,90 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
         )
 
 
-class GraphFetcherFieldTestCase(CremeTestCase):
-    def _build_graph(self):
+class ChartFetcherFieldTestCase(CremeTestCase):
+    def _build_chart(self):
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
 
-        return ReportGraph(user=user, name='Field Test', linked_report=report)
+        return ReportChart(name='Field Test', linked_report=report)
 
     def test_clean_empty_not_required(self):
         with self.assertNoException():
-            cleaned = GraphFetcherField(required=False).clean(None)
+            cleaned = ChartFetcherField(required=False).clean(None)
 
         self.assertIsNone(cleaned)
 
     def test_clean_empty_required(self):
-        field = GraphFetcherField()
+        field = ChartFetcherField()
         self.assertTrue(field.required)
         self.assertFormfieldError(
             field=field, value=None,
             codes='required', messages=_('This field is required.'),
         )
 
-    def test_graph_n_iterator01(self):
-        graph = self._build_graph()
+    def test_chart_n_iterator01(self):
+        chart = self._build_chart()
 
-        field = GraphFetcherField()
-        self.assertIsNone(field.graph)
+        field = ChartFetcherField()
+        self.assertIsNone(field.chart)
         self.assertEqual('|', field.choice_separator)
 
         choices_it1 = field.widget.choices
         self.assertIsInstance(choices_it1, FetcherChoiceIterator)
-        self.assertIsNone(choices_it1.graph)
+        self.assertIsNone(choices_it1.chart)
         self.assertEqual('|', choices_it1.separator)
         self.assertFalse([*choices_it1])
 
         # ---
-        field.graph = graph
-        self.assertEqual(graph, field.graph)
+        field.chart = chart
+        self.assertEqual(chart, field.chart)
 
         choices_it2 = field.widget.choices
-        self.assertEqual(graph, choices_it2.graph)
+        self.assertEqual(chart, choices_it2.chart)
 
         choices = [*choices_it2]
         self.assertInChoices(
-            value=f'{constants.RGF_NOLINK}|',
+            # value=f'{constants.RGF_NOLINK}|',
+            value=f'{SimpleChartFetcher.type_id}|',
             label=pgettext('reports-volatile_choice', 'None'),
             choices=choices,
         )
 
         fields_group = self.get_choices_group_or_fail(_('Fields'), choices)
         self.assertInChoices(
-            value=f'{constants.RGF_FK}|image',
+            # value=f'{constants.RGF_FK}|image',
+            value=f'{RegularFieldLinkedChartFetcher.type_id}|image',
             label=_('Photograph'),
             choices=fields_group,
         )
-        self.assertNotInChoices(f'{constants.RGF_FK}|is_user', fields_group)
+        # self.assertNotInChoices(f'{constants.RGF_FK}|is_user', fields_group)
+        self.assertNotInChoices(
+            f'{RegularFieldLinkedChartFetcher.type_id}|is_user', fields_group,
+        )
 
         relations_group = self.get_choices_group_or_fail(_('Relationships'), choices)
         self.assertInChoices(
-            value=f'{constants.RGF_RELATION}|{FAKE_REL_SUB_EMPLOYED_BY}',
+            # value=f'{constants.RGF_RELATION}|{FAKE_REL_SUB_EMPLOYED_BY}',
+            value=f'{RelationLinkedChartFetcher.type_id}|{FAKE_REL_SUB_EMPLOYED_BY}',
             label='is an employee of — employs',
             choices=relations_group,
         )
         self.assertNotInChoices(
-            f'{constants.RGF_RELATION}|{FAKE_REL_SUB_BILL_ISSUED}',
+            # f'{constants.RGF_RELATION}|{FAKE_REL_SUB_BILL_ISSUED}',
+            f'{RelationLinkedChartFetcher.type_id}|{FAKE_REL_SUB_BILL_ISSUED}',
             relations_group,
         )
 
-    def test_graph_n_iterator02(self):
+    def test_chart_n_iterator02(self):
         "Hidden field."
         FieldsConfig.objects.create(
             content_type=FakeContact,
             descriptions=[('image', {FieldsConfig.HIDDEN: True})],
         )
 
-        graph = self._build_graph()
+        chart = self._build_chart()
 
-        field = GraphFetcherField(graph=graph)
+        field = ChartFetcherField(chart=chart)
         choices = [*field.widget.choices]
         self.get_choices_group_or_fail(_('Relationships'), choices)
 
@@ -2071,41 +2074,45 @@ class GraphFetcherFieldTestCase(CremeTestCase):
                 self.fail(f'Group "{empty_group_name}" unexpectedly found.')
 
     def test_clean_ok(self):
-        graph = self._build_graph()
+        chart = self._build_chart()
 
-        field = GraphFetcherField(graph=graph)
-        self.assertEqual(graph, field.graph)
+        field = ChartFetcherField(chart=chart)
+        self.assertEqual(chart, field.chart)
 
-        # RGF_NOLINK ---
-        fetcher1a = field.clean(value=constants.RGF_NOLINK)
-        self.assertIsInstance(fetcher1a, SimpleGraphFetcher)
+        # No Link ---
+        # fetcher1a = field.clean(value=constants.RGF_NOLINK)
+        fetcher1a = field.clean(value=SimpleChartFetcher.type_id)
+        self.assertIsInstance(fetcher1a, SimpleChartFetcher)
         self.assertIsNone(fetcher1a.error)
 
-        fetcher1b = field.clean(value=f'{constants.RGF_NOLINK}|')
-        self.assertIsInstance(fetcher1b, SimpleGraphFetcher)
+        # fetcher1b = field.clean(value=f'{constants.RGF_NOLINK}|')
+        fetcher1b = field.clean(value=f'{SimpleChartFetcher.type_id}|')
+        self.assertIsInstance(fetcher1b, SimpleChartFetcher)
         self.assertIsNone(fetcher1b.error)
 
-        # RGF_FK ---
-        fetcher2 = field.clean(value=f'{constants.RGF_FK}|image')
-        self.assertIsInstance(fetcher2, RegularFieldLinkedGraphFetcher)
+        # FK link ---
+        # fetcher2 = field.clean(value=f'{constants.RGF_FK}|image')
+        fetcher2 = field.clean(value=f'{RegularFieldLinkedChartFetcher.type_id}|image')
+        self.assertIsInstance(fetcher2, RegularFieldLinkedChartFetcher)
         self.assertIsNone(fetcher2.error)
         rfield = fetcher2._field
         self.assertEqual('image',     rfield.name)
         self.assertEqual(FakeContact, rfield.model)
 
-        # RGF_RELATION ---
+        # Relation link ---
         fetcher3 = field.clean(
-            value=f'{constants.RGF_RELATION}|{FAKE_REL_SUB_EMPLOYED_BY}',
+            # value=f'{constants.RGF_RELATION}|{FAKE_REL_SUB_EMPLOYED_BY}',
+            value=f'{RelationLinkedChartFetcher.type_id}|{FAKE_REL_SUB_EMPLOYED_BY}',
         )
-        self.assertIsInstance(fetcher3, RelationLinkedGraphFetcher)
+        self.assertIsInstance(fetcher3, RelationLinkedChartFetcher)
         self.assertIsNone(fetcher3.error)
         self.assertEqual(FAKE_REL_SUB_EMPLOYED_BY, fetcher3._rtype.id)
 
-    def test_clean_ko01(self):
-        "type=RGF_NOLINK."
-        graph = self._build_graph()
-        field = GraphFetcherField(graph=graph)
-        value = f'{constants.RGF_NOLINK}|whatever'
+    def test_clean_error__no_link(self):
+        chart = self._build_chart()
+        field = ChartFetcherField(chart=chart)
+        # value = f'{constants.RGF_NOLINK}|whatever'
+        value = f'{SimpleChartFetcher.type_id}|whatever'
         self.assertFormfieldError(
             field=field, value=value, codes='invalid_choice',
             messages=_(
@@ -2113,23 +2120,23 @@ class GraphFetcherFieldTestCase(CremeTestCase):
             ) % {'value': value},
         )
 
-    def test_clean_ko02(self):
-        "type=RGF_FK."
+    def test_clean_error__fk(self):
         hidden_fname = 'image'
         FieldsConfig.objects.create(
             content_type=FakeContact,
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        graph = self._build_graph()
-        field = GraphFetcherField(graph=graph)
+        chart = self._build_chart()
+        field = ChartFetcherField(chart=chart)
 
         # Empty field
         code = 'invalid_choice'
         msg = _(
             'Select a valid choice. %(value)s is not one of the available choices.'
         )
-        value1 = constants.RGF_FK
+        # value1 = constants.RGF_FK
+        value1 = RegularFieldLinkedChartFetcher.type_id
         self.assertFormfieldError(
             field=field, value=value1,
             messages=msg % {'value': value1},
@@ -2137,7 +2144,8 @@ class GraphFetcherFieldTestCase(CremeTestCase):
         )
 
         # Unknown field
-        value2 = f'{constants.RGF_FK}|invalid'
+        # value2 = f'{constants.RGF_FK}|invalid'
+        value2 = f'{RegularFieldLinkedChartFetcher.type_id}|invalid'
         self.assertFormfieldError(
             field=field, value=value2,
             messages=msg % {'value': value2},
@@ -2145,7 +2153,8 @@ class GraphFetcherFieldTestCase(CremeTestCase):
         )
 
         # Invalid field (not FK)
-        value3 = f'{constants.RGF_FK}|last_name'
+        # value3 = f'{constants.RGF_FK}|last_name'
+        value3 = f'{RegularFieldLinkedChartFetcher.type_id}|last_name'
         self.assertFormfieldError(
             field=field, value=value3,
             messages=msg % {'value': value3},
@@ -2153,25 +2162,27 @@ class GraphFetcherFieldTestCase(CremeTestCase):
         )
 
         # Invalid field (not FK to CremeEntity)
-        value4 = f'{constants.RGF_FK}|sector'
+        # value4 = f'{constants.RGF_FK}|sector'
+        value4 = f'{RegularFieldLinkedChartFetcher.type_id}|sector'
         self.assertFormfieldError(
             field=field, value=value4,
             messages=msg % {'value': value4}, codes=code,
         )
 
         # Hidden field
-        value5 = f'{constants.RGF_FK}|{hidden_fname}'
+        # value5 = f'{constants.RGF_FK}|{hidden_fname}'
+        value5 = f'{RegularFieldLinkedChartFetcher.type_id}|{hidden_fname}'
         self.assertFormfieldError(
             field=field, value=value5,
             messages=msg % {'value': value5}, codes=code,
         )
 
-    def test_clean_ko03(self):
-        "type=RGF_RELATIONS."
-        graph = self._build_graph()
-        value = f'{constants.RGF_RELATION}|{FAKE_REL_SUB_BILL_ISSUED}'
+    def test_clean_error__relation(self):
+        chart = self._build_chart()
+        # value = f'{constants.RGF_RELATION}|{FAKE_REL_SUB_BILL_ISSUED}'
+        value = f'{RelationLinkedChartFetcher.type_id}|{FAKE_REL_SUB_BILL_ISSUED}'
         self.assertFormfieldError(
-            field=GraphFetcherField(graph=graph),
+            field=ChartFetcherField(chart=chart),
             value=value,
             codes='invalid_choice',
             messages=_(
@@ -2180,18 +2191,19 @@ class GraphFetcherFieldTestCase(CremeTestCase):
         )
 
     def test_separator01(self):
-        field = GraphFetcherField(choice_separator='#')
+        field = ChartFetcherField(choice_separator='#')
         self.assertEqual('#', field.choice_separator)
 
         self.assertEqual('#', field.widget.choices.separator)
 
         # ---
-        field.graph = self._build_graph()
+        field.chart = self._build_chart()
         choices_it = field.widget.choices
         self.assertEqual('#', choices_it.separator)
 
         fields_group = self.get_choices_group_or_fail(_('Fields'), [*choices_it])
-        value = f'{constants.RGF_FK}#image'
+        # value = f'{constants.RGF_FK}#image'
+        value = f'{RegularFieldLinkedChartFetcher.type_id}#image'
         self.assertInChoices(
             value=value,
             label=_('Photograph'),
@@ -2199,7 +2211,7 @@ class GraphFetcherFieldTestCase(CremeTestCase):
         )
 
         fetcher = field.clean(value=value)
-        self.assertIsInstance(fetcher, RegularFieldLinkedGraphFetcher)
+        self.assertIsInstance(fetcher, RegularFieldLinkedChartFetcher)
         self.assertIsNone(fetcher.error)
 
         rfield = fetcher._field
@@ -2207,52 +2219,55 @@ class GraphFetcherFieldTestCase(CremeTestCase):
         self.assertEqual(FakeContact, rfield.model)
 
     def test_separator02(self):
-        "Set graph then separator."
-        field = GraphFetcherField(graph=self._build_graph())
+        "Set chart then separator."
+        field = ChartFetcherField(chart=self._build_chart())
         field.choice_separator = '#'
         self.assertEqual('#', field.choice_separator)
         self.assertEqual('#', field.widget.choices.separator)
 
 
-class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
+class ChartInstanceBrickFormTestCase(BaseReportsTestCase):
     def test_init_n_clean(self):
         user = self.get_root_user()
-        graph = self._create_documents_rgraph(user)
+        chart = self._create_documents_chart(user)
 
-        form1 = GraphInstanceBrickForm(user=user, graph=graph)
+        form1 = ChartInstanceBrickForm(user=user, chart=chart)
 
         fetcher_f = form1.fields.get('fetcher')
-        self.assertIsInstance(fetcher_f, GraphFetcherField)
-        self.assertEqual(graph, fetcher_f.graph)
+        self.assertIsInstance(fetcher_f, ChartFetcherField)
+        self.assertEqual(chart, fetcher_f.chart)
 
         fk_name = 'linked_folder'
-        form2 = GraphInstanceBrickForm(
-            user=user, graph=graph,
-            data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
+        form2 = ChartInstanceBrickForm(
+            user=user, chart=chart,
+            # data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
+            data={'fetcher': f'{RegularFieldLinkedChartFetcher.type_id}|{fk_name}'},
         )
         self.assertTrue(form2.is_valid())
 
         ibci = form2.save()
         self.assertIsInstance(ibci, InstanceBrickConfigItem)
-        self.assertEqual(graph.id, ibci.entity_id)
-        self.assertEqual(constants.RGF_FK, ibci.get_extra_data('type'))
-        self.assertEqual(fk_name,          ibci.get_extra_data('value'))
+        self.assertEqual(chart.linked_report_id, ibci.entity_id)
+        # self.assertEqual(constants.RGF_FK, ibci.get_extra_data('type'))
+        self.assertEqual(RegularFieldLinkedChartFetcher.type_id, ibci.get_extra_data('type'))
+        self.assertEqual(fk_name, ibci.get_extra_data('value'))
+        self.assertUUIDEqual(chart.uuid, ibci.get_extra_data('chart'))
 
     def test_uniqueness01(self):
         user = self.get_root_user()
-        graph = self._create_documents_rgraph(user)
+        chart = self._create_documents_chart(user)
 
         fk_name = 'linked_folder'
-        RegularFieldLinkedGraphFetcher(
-            graph=graph,
-            value=fk_name,
+        RegularFieldLinkedChartFetcher(
+            chart=chart, value=fk_name,
         ).create_brick_config_item(
-            brick_class=ReportGraphChartInstanceBrick,
+            brick_class=ReportChartInstanceBrick,
         )
 
-        form1 = GraphInstanceBrickForm(
-            user=user, graph=graph,
-            data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
+        form1 = ChartInstanceBrickForm(
+            user=user, chart=chart,
+            # data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
+            data={'fetcher': f'{RegularFieldLinkedChartFetcher.type_id}|{fk_name}'},
         )
         self.assertFormInstanceErrors(
             form1,
@@ -2261,55 +2276,58 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
                 _(
                     'The instance block for «{chart}» with these parameters'
                     ' already exists!'
-                ).format(chart=graph),
+                ).format(chart=chart),
             ),
         )
 
-        form2 = GraphInstanceBrickForm(
-            user=user, graph=graph, data={'fetcher': constants.RGF_NOLINK},
+        form2 = ChartInstanceBrickForm(
+            # user=user, chart=chart, data={'fetcher': constants.RGF_NOLINK},
+            user=user, chart=chart, data={'fetcher': SimpleChartFetcher.type_id},
         )
         self.assertTrue(form2.is_valid())
 
     def test_uniqueness02(self):
-        "Not same graph."
+        "Not same chart."
         user = self.get_root_user()
-        graph1 = self._create_documents_rgraph(user)
-        graph2 = self._create_documents_rgraph(user)
+        chart1 = self._create_documents_chart(user)
+        chart2 = self._create_documents_chart(user)
 
         fk_name = 'linked_folder'
-        RegularFieldLinkedGraphFetcher(
-            graph=graph2,  # Not same graph => collision
+        RegularFieldLinkedChartFetcher(
+            chart=chart2,  # Not same chart => collision
             value=fk_name,
         ).create_brick_config_item(
-            brick_class=ReportGraphChartInstanceBrick
+            brick_class=ReportChartInstanceBrick
         )
 
-        form = GraphInstanceBrickForm(
-            user=user, graph=graph1,
-            data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
+        form = ChartInstanceBrickForm(
+            user=user, chart=chart1,
+            # data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
+            data={'fetcher': f'{RegularFieldLinkedChartFetcher.type_id}|{fk_name}'},
         )
         self.assertTrue(form.is_valid())
 
     def test_uniqueness03(self):
         "Not same brick class."
         user = self.get_root_user()
-        graph = self._create_documents_rgraph(user)
+        chart = self._create_documents_chart(user)
 
-        class OtherReportGraphBrick(ReportGraphChartInstanceBrick):
-            id = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
+        class OtherReportChartBrick(ReportChartInstanceBrick):
+            id = ReportChartInstanceBrick.generate_id('reports', 'other_chart')
 
         fk_name = 'linked_folder'
-        RegularFieldLinkedGraphFetcher(
-            graph=graph, value=fk_name,
+        RegularFieldLinkedChartFetcher(
+            chart=chart, value=fk_name,
         ).create_brick_config_item(
-            brick_class=OtherReportGraphBrick,
+            brick_class=OtherReportChartBrick,
         )
 
-        form = GraphInstanceBrickForm(
-            user=user, graph=graph,
-            data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
+        form = ChartInstanceBrickForm(
+            user=user, chart=chart,
+            # data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
+            data={'fetcher': f'{RegularFieldLinkedChartFetcher.type_id}|{fk_name}'},
         )
         self.assertTrue(form.is_valid())
 
 # TODO: test Report's forms
-# TODO: test ReportGraphForm
+# TODO: test ReportChartForm

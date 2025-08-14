@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Reports 2.7\n"
+"Project-Id-Version: Creme Reports 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-31 10:52+0200\n"
+"POT-Creation-Date: 2025-10-23 18:11+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -205,6 +205,9 @@ msgstr "Le type de relation est incompatible avec «{}»."
 msgid "{rtype} (Relationship)"
 msgstr "{rtype} (Relation)"
 
+msgid "Invalid volatile link; please contact your administrator."
+msgstr "Lien volatile invalide ; veuillez contacter votre administrateur."
+
 msgid "By values"
 msgstr "Par valeurs"
 
@@ -379,11 +382,11 @@ msgctxt "reports-date_filter"
 msgid "None"
 msgstr "Aucun"
 
-msgid "Invalid volatile link; please contact your administrator."
-msgstr "Lien volatile invalide ; veuillez contacter votre administrateur."
-
 msgid "Name of the chart"
 msgstr "Nom du graphique"
+
+msgid "Description"
+msgstr "Description"
 
 msgid "X axis (grouping)"
 msgstr "Axe X (groupage)"
@@ -399,6 +402,9 @@ msgstr "Axe Y (type)"
 
 msgid "Y axis (field)"
 msgstr "Axe Y (champ)"
+
+msgid "Plot type"
+msgstr "Type de graphique"
 
 msgid "Create a report chart"
 msgstr "Créer un graphique de rapport"
@@ -544,6 +550,37 @@ msgstr "Aperçu ({count} lignes)"
 msgid "Preview of the {count} first lines"
 msgstr "Aperçu des {count} premières lignes"
 
+msgid "Reload"
+msgstr "Recharger"
+
+# Already in creme_core
+msgid "Download"
+msgstr ""
+
+msgid "Scale"
+msgstr "Zoom"
+
+msgid "Type of chart"
+msgstr "Type de graphique"
+
+msgid "Select the type of visualisation for this chart"
+msgstr "Sélectionner le type de visualisation du graphique"
+
+msgid "Sorting"
+msgstr "Tri"
+
+msgid "Select the sort order"
+msgstr "Sélectionner l'ordre de tri"
+
+msgid "Ascending"
+msgstr "Ascendant"
+
+msgid "Descending"
+msgstr "Descendant"
+
+msgid "No values (or chart is not applicable here)"
+msgstr "Aucune valeur (ou le graphique n'est pas utilisable ici)"
+
 #, python-brace-format
 msgid "{count} Chart"
 msgstr "{count} Graphique"
@@ -567,21 +604,6 @@ msgstr "Supprimer ce graphique"
 msgid "Chart"
 msgstr "Graphique"
 
-msgid "Select the type of visualisation for this chart"
-msgstr "Sélectionner le type de visualisation du graphique"
-
-msgid "Sorting"
-msgstr "Tri"
-
-msgid "Select the sort order"
-msgstr "Sélectionner l'ordre de tri"
-
-msgid "Ascending"
-msgstr "Ascendant"
-
-msgid "Descending"
-msgstr "Descendant"
-
 #, python-format
 msgid "%(count)s configured block"
 msgid_plural "%(count)s configured blocks"
@@ -591,24 +613,8 @@ msgstr[1] "%(count)s blocs configurés"
 msgid "Create a block for this chart"
 msgstr "Créer un bloc pour ce graphique"
 
-msgid "No values (or chart is not applicable here)"
-msgstr "Aucune valeur (ou le graphique n'est pas utilisable ici)"
-
 msgid "No chart for the moment"
 msgstr "Aucun graphique pour le moment"
-
-msgid "Reload"
-msgstr "Recharger"
-
-# Already in creme_core
-msgid "Download"
-msgstr ""
-
-msgid "Scale"
-msgstr "Zoom"
-
-msgid "Type of chart"
-msgstr "Type de graphique"
 
 msgid "Download CSV"
 msgstr "Télécharger CSV"
@@ -637,14 +643,6 @@ msgstr "Aucun autre type de fiche ne référence ce type de fiche."
 
 msgid "Aggregated values"
 msgstr "Valeurs agrégées"
-
-#, python-format
-msgid "Invalid abscissa: %(error)s"
-msgstr "Abscisse invalide : %(error)s"
-
-#, python-format
-msgid "Invalid ordinate: %(error)s"
-msgstr "Ordonnée invalide : %(error)s"
 
 msgid "Export parameters"
 msgstr "Paramètres d'export"
@@ -681,8 +679,8 @@ msgid "Chart related to the report «%(report)s»"
 msgstr "Graphique lié au rapport «%(report)s»"
 
 #, python-brace-format
-msgid "Create an instance block for «{entity}»"
-msgstr "Créer un bloc d'instance pour «{entity}»"
+msgid "Create an instance block for «{chart}»"
+msgstr "Créer un bloc d'instance pour «{chart}»"
 
 msgid ""
 "When you create a block, it becomes available in the blocks configuration. "
@@ -691,6 +689,14 @@ msgstr ""
 "Quand vous créez un bloc, il devient disponible dans la configuration des "
 "blocs. Il peut être affiché sur l'Accueil, sur «Ma Page» & sur les vues "
 "détaillées des entités."
+
+#, python-brace-format
+msgid "Create a chart for «{entity}»"
+msgstr "Créer un graphique pour «{entity}»"
+
+#, python-brace-format
+msgid "Edit a chart for «{entity}»"
+msgstr "Modifier un graphique pour «{entity}»"
 
 #, python-brace-format
 msgid "Create a filter for «{model}» specific to Reports"
@@ -712,14 +718,6 @@ msgid "Fix your date filter"
 msgstr "Corrigez votre filtre temporel"
 
 #, python-brace-format
-msgid "Create a chart for «{entity}»"
-msgstr "Créer un graphique pour «{entity}»"
-
-#, python-brace-format
-msgid "Edit a chart for «{entity}»"
-msgstr "Modifier un graphique pour «{entity}»"
-
-#, python-brace-format
 msgid "Link of the column «{object}»"
 msgstr "Liaison de la colonne «{object}»"
 
@@ -729,6 +727,12 @@ msgstr "Lier"
 #, python-brace-format
 msgid "Edit columns of «{object}»"
 msgstr "Modifier les colonnes de «{object}»"
+
+#~ msgid "Invalid abscissa: %(error)s"
+#~ msgstr "Abscisse invalide : %(error)s"
+
+#~ msgid "Invalid ordinate: %(error)s"
+#~ msgstr "Ordonnée invalide : %(error)s"
 
 #~ msgid "View"
 #~ msgstr "Voir"

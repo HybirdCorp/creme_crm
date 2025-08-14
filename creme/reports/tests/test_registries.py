@@ -1,23 +1,13 @@
 from functools import partial
 
 from django.db.models import aggregates
-from django.utils.translation import gettext as _
 
-from creme.creme_core.models import CustomField, FakeContact, FakeOrganisation
+from creme.creme_core.models import CustomField, FakeOrganisation
 from creme.creme_core.tests.base import CremeTestCase
-from creme.reports.constants import RGF_FK
-from creme.reports.core.graph.fetcher import (
-    GraphFetcher,
-    RegularFieldLinkedGraphFetcher,
-    RelationLinkedGraphFetcher,
-    SimpleGraphFetcher,
-)
-from creme.reports.graph_fetcher_registry import GraphFetcherRegistry
 from creme.reports.report_aggregation_registry import (
     FieldAggregation,
     FieldAggregationRegistry,
 )
-from creme.reports.tests.base import Report, ReportGraph
 
 
 class FieldAggregationRegistryTestCase(CremeTestCase):
@@ -54,83 +44,3 @@ class FieldAggregationRegistryTestCase(CremeTestCase):
 
         self.assertIs(is_allowed(cf1), True)
         self.assertIs(is_allowed(cf2), False)
-
-
-class GraphFetcherRegistryTestCase(CremeTestCase):
-    def test_default_class(self):
-        registry = GraphFetcherRegistry(SimpleGraphFetcher)
-        self.assertEqual(SimpleGraphFetcher, registry.default_class)
-
-        class OtherSimpleGraphFetcher(GraphFetcher):
-            pass
-
-        registry.default_class = OtherSimpleGraphFetcher
-        self.assertEqual(OtherSimpleGraphFetcher, registry.default_class)
-
-    def test_register01(self):
-        user = self.get_root_user()
-        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
-        graph = ReportGraph(user=user, name='Field Test', linked_report=report)
-
-        registry = GraphFetcherRegistry(SimpleGraphFetcher)
-        self.assertFalse([*registry.fetcher_classes])
-        fetcher_dict = {
-            'type': RGF_FK,
-            'value': 'image',
-        }
-
-        with self.assertLogs(level='WARNING') as logs_manager1:
-            fetcher1 = registry.get(graph=graph, fetcher_dict=fetcher_dict)
-
-        self.assertIsInstance(fetcher1, SimpleGraphFetcher)
-        self.assertEqual(
-            _('Invalid volatile link; please contact your administrator.'),
-            fetcher1.error
-        )
-        self.assertIn(
-            'invalid ID "reports-fk" for fetcher (basic fetcher is used)',
-            logs_manager1.output[0]
-        )
-
-        # -----
-        registry.register(
-            RegularFieldLinkedGraphFetcher,
-            RelationLinkedGraphFetcher,
-        )
-        self.assertCountEqual(
-            [
-                RegularFieldLinkedGraphFetcher,
-                RelationLinkedGraphFetcher,
-            ],
-            [*registry.fetcher_classes]
-        )
-        fetcher2 = registry.get(graph=graph, fetcher_dict=fetcher_dict)
-        self.assertIsInstance(fetcher2, RegularFieldLinkedGraphFetcher)
-        self.assertIsNone(fetcher2.error)
-
-        # Invalid dict (no type) --
-        with self.assertLogs(level='WARNING') as logs_manager2:
-            fetcher3 = registry.get(graph=graph, fetcher_dict={'value': 'image'})
-
-        self.assertIsInstance(fetcher3, SimpleGraphFetcher)
-        self.assertEqual(
-            _('Invalid volatile link; please contact your administrator.'),
-            fetcher3.error
-        )
-        self.assertIn(
-            'no fetcher ID given (basic fetcher is used)',
-            logs_manager2.output[0]
-        )
-
-    def test_register02(self):
-        "Duplicates."
-        registry = GraphFetcherRegistry(SimpleGraphFetcher).register(
-            RegularFieldLinkedGraphFetcher,
-            RelationLinkedGraphFetcher,
-        )
-
-        class OtherFKGraphFetcher(RegularFieldLinkedGraphFetcher):
-            pass
-
-        with self.assertRaises(GraphFetcherRegistry.RegistrationError):
-            registry.register(OtherFKGraphFetcher)
