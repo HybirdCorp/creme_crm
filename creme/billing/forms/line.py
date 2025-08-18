@@ -29,8 +29,8 @@ from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms as core_forms
 from creme import billing, products
+from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.forms import widgets as core_widgets
-from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.models import Relation, Vat
 from creme.products.forms.fields import SubCategoryField
 
@@ -48,7 +48,7 @@ class _LineMultipleAddForm(core_forms.CremeForm):
         initial=constants.DEFAULT_QUANTITY,
         decimal_places=2,
     )
-    discount_value = forms.DecimalField(
+    discount_value = core_fields.DecimalPercentField(
         label=_('Discount'),
         min_value=constants.DEFAULT_DECIMAL,
         max_value=Decimal('100'),
@@ -93,7 +93,9 @@ class _LineMultipleAddForm(core_forms.CremeForm):
 
 
 class ProductLineMultipleAddForm(_LineMultipleAddForm):
-    items = MultiCreatorEntityField(label=_('Products'), model=products.get_product_model())
+    items = core_fields.MultiCreatorEntityField(
+        label=_('Products'), model=products.get_product_model(),
+    )
 
     blocks = core_forms.FieldBlockManager(
         {
@@ -112,7 +114,9 @@ class ProductLineMultipleAddForm(_LineMultipleAddForm):
 
 
 class ServiceLineMultipleAddForm(_LineMultipleAddForm):
-    items = MultiCreatorEntityField(label=_('Services'), model=products.get_service_model())
+    items = core_fields.MultiCreatorEntityField(
+        label=_('Services'), model=products.get_service_model(),
+    )
 
     blocks = core_forms.FieldBlockManager(
         {
