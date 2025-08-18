@@ -1061,8 +1061,8 @@ class WorkflowEngine:
                                         logger.exception('Error in the Workflow engine')
 
                 # NB: we ensure all the events emitted by the actions are dropped
-                #     So they won't trigger the engine during a potential other call
-                #     And so the engine ca be safely run several times
+                #     So they won't trigger the engine during a potential other call.
+                #     And so the engine can be safely run several times
                 #     (e.g. in mass import job, each time a CSV line has been managed).
                 engine._queue.pickup(start=self._start_index)
 
