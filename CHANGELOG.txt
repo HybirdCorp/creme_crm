@@ -15,7 +15,7 @@
         - The minimal version of MySQL is now '8.0.11'.
         - The minimal version of PostgreSQL is now '14'.
         - The minimal version of MariaDB is now '10.5' ;
-          the UUID fields may have to be manually converted if you use MariaDB (see the upgrade notes above).
+          the UUID fields may have to be manually converted if you use MariaDB 10.7+ (see the upgrade notes above).
         - The URL fields assume "https" by default ; set the setting 'FORMS_URLFIELD_ASSUME_HTTPS' if you prefer "http"
           (this setting will be removed with Django 6.0 -- & so Creme 2.9 or something like that).
     # A warning is now displayed if the settings 'SITE_DOMAIN' is not correctly defined.
@@ -61,12 +61,6 @@
       which is pre-selected in forms (Invoices, Quotes, Opportunities...).
     # In the notification box, the elapsed time from message creation is now updated each minute.
     # Apps :
-        * Activities :
-            - The JavaScript component 'FullCalendar' has been upgraded to the version "6.1.18".
-            - The CSS of the calendar sidebar has been improved; and it's now sticky.
-            - A new brick "My Calendar" is now available for the home page.
-            - In the calendar configuration, the visible hours range is added.
-              It can be different from "business hours" which are setting constraints to Activities.
         * Creme_config :
             - The buttons configuration can now be customised per role.
             - The property types have now a field "description" (it can be empty of course).
@@ -90,9 +84,16 @@
         * Documents :
             - A new field, automatically filled, has been added to Document: "file_size".
         * Activities :
+            - The calendar has been improved :
+                - The JavaScript component 'FullCalendar' has been upgraded to the version "6.1.18".
+                - The CSS of the sidebar has been improved; and it's now sticky.
+                - In the calendar configuration, the visible hours range is added.
+                  It can be different from "business hours" which are setting constraints to Activities.
+            - New bricks are now available :
+                - A "card" brick for the hat of the Activities' detail-view.
+                  It's used by default by the new installations.
+                - A brick "My Calendar" for the home page.
             - A field of 'Activity', "Fixed or floating?" (internal name: 'floating_type') is now visible.
-            - A "card" brick is now available for the hat of the Activities' detail-view.
-              It's used by default by the new installations.
         * Billing :
             - The number generation has been heavily reworked. The old number generation system
               took a prefix in settings, then generated numbers like "PREFIX15".
@@ -138,7 +139,7 @@
               (so you may have to update some roles if you have upgraded from Creme 2.6).
             - You cannot create Alert with a dynamic trigger date related to the field
               "Last modification" ('modified' in the code) anymore.
-              The existing Alerts are migrated to static trigger dates.
+              The existing Alerts (& which use this field) are migrated to static trigger dates.
         * Crudity :
             - BEWARE: the date format corresponds now to your server's language (i.e. 'settings.LANGUAGE_CODE').
 
