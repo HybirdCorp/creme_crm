@@ -47,6 +47,11 @@ from .models import ProjectStatus, TaskStatus
 
 logger = logging.getLogger(__name__)
 
+Contact = get_contact_model()
+Activity = get_activity_model()
+Project = get_project_model()
+ProjectTask = get_task_model()
+
 # UUIDs for instances which can be deleted
 UUID_PSTATUS_INV_TO_TENDER  = 'e0487a58-7c2a-45e9-a6da-f770c2f1bd53'
 UUID_PSTATUS_INITIALIZATION = 'c065000b-51a8-4f73-8585-64893d30770f'
@@ -60,6 +65,38 @@ UUID_PSTATUS_FINISHED       = 'a7d5caf2-c41c-4695-ab07-29300b2d19c1'
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
 
+    RELATION_TYPES = [
+        RelationType.objects.builder(
+            id=constants.REL_SUB_PROJECT_MANAGER,
+            predicate=_('is one of the leaders of this project'),
+            models=[Contact],
+        ).symmetric(
+            id=constants.REL_OBJ_PROJECT_MANAGER,
+            predicate=_('has as leader'),
+            models=[Project],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_LINKED_2_PTASK,
+            predicate=_('is related to the task of project'),
+            models=[Activity],
+            is_internal=True,
+        ).symmetric(
+            id=constants.REL_OBJ_LINKED_2_PTASK,
+            predicate=_('includes the activity'),
+            models=[ProjectTask],
+            minimal_display=True,
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_PART_AS_RESOURCE,
+            predicate=_('is a resource of'),
+            models=[Contact],
+            is_internal=True,
+        ).symmetric(
+            id=constants.REL_OBJ_PART_AS_RESOURCE,
+            predicate=_('has as a resource'),
+            models=[Activity],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.PROJECT_CREATION_CFORM,
         custom_forms.PROJECT_EDITION_CFORM,
@@ -147,12 +184,15 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.Contact  = get_contact_model()
-        self.Activity = get_activity_model()
-
-        self.Project     = get_project_model()
-        self.ProjectTask = get_task_model()
+        # self.Contact  = get_contact_model()
+        # self.Activity = get_activity_model()
+        #
+        # self.Project     = get_project_model()
+        # self.ProjectTask = get_task_model()
+        self.Contact  = Contact
+        self.Activity = Activity
+        self.Project     = Project
+        self.ProjectTask = ProjectTask
 
     def _already_populated(self):
         return RelationType.objects.filter(
@@ -170,37 +210,37 @@ class Populator(BasePopulator):
     def _populate_task_statuses(self):
         self._save_minions(self.TASK_STATUSES)
 
-    def _populate_relation_types(self):
-        create_rtype = RelationType.objects.smart_update_or_create
-        create_rtype(
-            (
-                constants.REL_SUB_PROJECT_MANAGER,
-                _('is one of the leaders of this project'),
-                [self.Contact],
-            ), (
-                constants.REL_OBJ_PROJECT_MANAGER,
-                _('has as leader'),
-                [self.Project],
-            ),
-        )
-        create_rtype(
-            (
-                constants.REL_SUB_LINKED_2_PTASK,
-                _('is related to the task of project'),
-                [self.Activity],
-            ), (
-                constants.REL_OBJ_LINKED_2_PTASK,
-                _('includes the activity'),
-                [self.ProjectTask],
-            ),
-            is_internal=True,
-            minimal_display=(False, True),
-        )
-        create_rtype(
-            (constants.REL_SUB_PART_AS_RESOURCE, _('is a resource of'),  [self.Contact]),
-            (constants.REL_OBJ_PART_AS_RESOURCE, _('has as a resource'), [self.Activity]),
-            is_internal=True,
-        )
+    # def _populate_relation_types(self):
+    #     create_rtype = RelationType.objects.smart_update_or_create
+    #     create_rtype(
+    #         (
+    #             constants.REL_SUB_PROJECT_MANAGER,
+    #             _('is one of the leaders of this project'),
+    #             [self.Contact],
+    #         ), (
+    #             constants.REL_OBJ_PROJECT_MANAGER,
+    #             _('has as leader'),
+    #             [self.Project],
+    #         ),
+    #     )
+    #     create_rtype(
+    #         (
+    #             constants.REL_SUB_LINKED_2_PTASK,
+    #             _('is related to the task of project'),
+    #             [self.Activity],
+    #         ), (
+    #             constants.REL_OBJ_LINKED_2_PTASK,
+    #             _('includes the activity'),
+    #             [self.ProjectTask],
+    #         ),
+    #         is_internal=True,
+    #         minimal_display=(False, True),
+    #     )
+    #     create_rtype(
+    #         (constants.REL_SUB_PART_AS_RESOURCE, _('is a resource of'),  [self.Contact]),
+    #         (constants.REL_OBJ_PART_AS_RESOURCE, _('has as a resource'), [self.Activity]),
+    #         is_internal=True,
+    #     )
 
     def _populate_header_filters(self):
         create_hf = HeaderFilter.objects.create_if_needed

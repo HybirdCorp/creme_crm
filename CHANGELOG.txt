@@ -3,6 +3,13 @@
   Developers side :
   -----------------
 
+    Non breaking changes :
+    ----------------------
+        # The declarative possibilities of 'creme_core.management.commands.creme_populate.BasePopulator'
+          have been extended; new class attributes are :
+             - BUTTONS
+             - RELATION_TYPES
+
     Breaking changes :
     ------------------
         # Deprecated stuffs which have been removed :

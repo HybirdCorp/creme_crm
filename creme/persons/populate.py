@@ -99,6 +99,71 @@ _Button = ButtonMenuItem.objects.proxy
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'documents']
 
+    RELATION_TYPES = [
+        RelationType.objects.builder(
+            id=constants.REL_SUB_EMPLOYED_BY, predicate=_('is an employee of'),
+            models=[Contact],
+        ).symmetric(
+            id=constants.REL_OBJ_EMPLOYED_BY, predicate=_('employs'),
+            models=[Organisation],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_CUSTOMER_SUPPLIER, predicate=_('is a customer of'),
+            models=[Contact, Organisation],
+        ).symmetric(
+            id=constants.REL_OBJ_CUSTOMER_SUPPLIER, predicate=_('is a supplier of'),
+            models=[Contact, Organisation],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_MANAGES, predicate=_('manages'),
+            models=[Contact],
+        ).symmetric(
+            id=constants.REL_OBJ_MANAGES, predicate=_('managed by'),
+            models=[Organisation],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_PROSPECT, predicate=_('is a prospect of'),
+            models=[Contact, Organisation],
+        ).symmetric(
+            id=constants.REL_OBJ_PROSPECT, predicate=_('has as prospect'),
+            models=[Contact, Organisation],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_SUSPECT, predicate=_('is a suspect of'),
+            models=[Contact, Organisation],
+        ).symmetric(
+            id=constants.REL_OBJ_SUSPECT, predicate=_('has as suspect'),
+            models=[Contact, Organisation],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_PARTNER, predicate=_('is a partner of'),
+            models=[Contact, Organisation],
+        ).symmetric(
+            id=constants.REL_OBJ_PARTNER, predicate=_('has as partner'),
+            models=[Contact, Organisation],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_INACTIVE, predicate=_('is an inactive customer of'),
+            models=[Contact, Organisation],
+        ).symmetric(
+            id=constants.REL_OBJ_INACTIVE, predicate=_('has as inactive customer'),
+            models=[Contact, Organisation],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_SUBSIDIARY, predicate=_('has as subsidiary'),
+            models=[Organisation],
+        ).symmetric(
+            id=constants.REL_OBJ_SUBSIDIARY, predicate=_('is a subsidiary of'),
+            models=[Organisation],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_COMPETITOR, predicate=_('is a competitor of'),
+            models=[Contact, Organisation],
+        ).symmetric(
+            id=constants.REL_OBJ_COMPETITOR, predicate=_('has as competitor'),
+            models=[Contact, Organisation],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.CONTACT_CREATION_CFORM,
         custom_forms.CONTACT_EDITION_CFORM,
@@ -246,47 +311,48 @@ class Populator(BasePopulator):
         self._save_minions(self.STAFF_SIZES)
 
     def _populate_relation_types(self):
-        Contact      = self.Contact
-        Organisation = self.Organisation
-        any_person = [Contact, Organisation]
-
-        create_rtype = RelationType.objects.smart_update_or_create
-        create_rtype(
-            (constants.REL_SUB_EMPLOYED_BY, _('is an employee of'), [Contact]),
-            (constants.REL_OBJ_EMPLOYED_BY, _('employs'),           [Organisation]),
-        )
-        create_rtype(
-            (constants.REL_SUB_CUSTOMER_SUPPLIER, _('is a customer of'), any_person),
-            (constants.REL_OBJ_CUSTOMER_SUPPLIER, _('is a supplier of'), any_person),
-        )
-        create_rtype(
-            (constants.REL_SUB_MANAGES, _('manages'),    [Contact]),
-            (constants.REL_OBJ_MANAGES, _('managed by'), [Organisation]),
-        )
-        create_rtype(
-            (constants.REL_SUB_PROSPECT, _('is a prospect of'), any_person),
-            (constants.REL_OBJ_PROSPECT, _('has as prospect'),  any_person),
-        )
-        create_rtype(
-            (constants.REL_SUB_SUSPECT, _('is a suspect of'), any_person),
-            (constants.REL_OBJ_SUSPECT, _('has as suspect'),  any_person),
-        )
-        create_rtype(
-            (constants.REL_SUB_PARTNER, _('is a partner of'), any_person),
-            (constants.REL_OBJ_PARTNER, _('has as partner'),  any_person),
-        )
-        create_rtype(
-            (constants.REL_SUB_INACTIVE, _('is an inactive customer of'), any_person),
-            (constants.REL_OBJ_INACTIVE, _('has as inactive customer'),   any_person),
-        )
-        create_rtype(
-            (constants.REL_SUB_SUBSIDIARY, _('has as subsidiary'),  [Organisation]),
-            (constants.REL_OBJ_SUBSIDIARY, _('is a subsidiary of'), [Organisation]),
-        )
-        create_rtype(
-            (constants.REL_SUB_COMPETITOR, _('is a competitor of'), any_person),
-            (constants.REL_OBJ_COMPETITOR, _('has as competitor'),  any_person),
-        )
+        # Contact      = self.Contact
+        # Organisation = self.Organisation
+        # any_person = [Contact, Organisation]
+        #
+        # create_rtype = RelationType.objects.smart_update_or_create
+        # create_rtype(
+        #     (constants.REL_SUB_EMPLOYED_BY, _('is an employee of'), [Contact]),
+        #     (constants.REL_OBJ_EMPLOYED_BY, _('employs'),           [Organisation]),
+        # )
+        # create_rtype(
+        #     (constants.REL_SUB_CUSTOMER_SUPPLIER, _('is a customer of'), any_person),
+        #     (constants.REL_OBJ_CUSTOMER_SUPPLIER, _('is a supplier of'), any_person),
+        # )
+        # create_rtype(
+        #     (constants.REL_SUB_MANAGES, _('manages'),    [Contact]),
+        #     (constants.REL_OBJ_MANAGES, _('managed by'), [Organisation]),
+        # )
+        # create_rtype(
+        #     (constants.REL_SUB_PROSPECT, _('is a prospect of'), any_person),
+        #     (constants.REL_OBJ_PROSPECT, _('has as prospect'),  any_person),
+        # )
+        # create_rtype(
+        #     (constants.REL_SUB_SUSPECT, _('is a suspect of'), any_person),
+        #     (constants.REL_OBJ_SUSPECT, _('has as suspect'),  any_person),
+        # )
+        # create_rtype(
+        #     (constants.REL_SUB_PARTNER, _('is a partner of'), any_person),
+        #     (constants.REL_OBJ_PARTNER, _('has as partner'),  any_person),
+        # )
+        # create_rtype(
+        #     (constants.REL_SUB_INACTIVE, _('is an inactive customer of'), any_person),
+        #     (constants.REL_OBJ_INACTIVE, _('has as inactive customer'),   any_person),
+        # )
+        # create_rtype(
+        #     (constants.REL_SUB_SUBSIDIARY, _('has as subsidiary'),  [Organisation]),
+        #     (constants.REL_OBJ_SUBSIDIARY, _('is a subsidiary of'), [Organisation]),
+        # )
+        # create_rtype(
+        #     (constants.REL_SUB_COMPETITOR, _('is a competitor of'), any_person),
+        #     (constants.REL_OBJ_COMPETITOR, _('has as competitor'),  any_person),
+        # )
+        super()._populate_relation_types()
 
         get_rtype = RelationType.objects.get
         get_rtype(pk=core_constants.REL_SUB_HAS).add_subject_ctypes(Contact, Organisation)

@@ -45,6 +45,7 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.models.button_menu import ButtonMenuItemProxy
 from creme.creme_core.models.creme_property import CremePropertyTypeProxy
+from creme.creme_core.models.relation import RelationTypeBuilder
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.dependence_sort import dependence_sort
@@ -72,6 +73,21 @@ class BasePopulator:
         #     subject_models=[Contact, Document],
         # ),
         # Notice: custom types are only built during the 1rst run
+    ]
+    RELATION_TYPES: list[RelationTypeBuilder] = [
+        # Example:
+        # RelationType.objects.proxy(
+        #     id=constants.REL_SUB_MY_RELATIONSHIP,
+        #     predicate=_('is ....'),
+        #     is_custom=True,
+        #     models=[Contact, Organisation],
+        #     properties=[constants.UUID_PROP_MY_PROPERTY],
+        #     forbidden_properties=[constants.UUID_PROP_OTHER_PROPERTY],
+        # ).symmetric(
+        #     id=object_id,
+        #     predicate=_('has ....'),
+        #     models=[Document],
+        # )
     ]
     JOBS: list[Job] = []
     SANDBOXES: list[Sandbox] = []
@@ -159,7 +175,12 @@ class BasePopulator:
                 ptype.update_or_create()
 
     def _populate_relation_types(self) -> None:
-        pass
+        for rtype in self.RELATION_TYPES:
+            if rtype.is_custom:
+                if self.already_populated:
+                    rtype.get_or_create()
+            else:
+                rtype.update_or_create()
 
     # TODO: declarative way with an attribute 'WORKFLOWS'
     #       BEWARE: a WorkflowProxy is mandatory to manage the attribute "content_type"

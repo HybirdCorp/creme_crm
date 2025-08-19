@@ -64,6 +64,17 @@ Act = commercial.get_act_model()
 ActObjectivePattern = commercial.get_pattern_model()
 Strategy = commercial.get_strategy_model()
 
+COMPLETE_GOAL_MODELS = {
+    model for model in creme_registry.iter_entity_models() if model is not Strategy
+}
+if apps.is_installed('creme.billing'):
+    from creme import billing
+    from creme.billing.core.line import line_registry
+
+    COMPLETE_GOAL_MODELS.discard(billing.get_credit_note_model())
+    COMPLETE_GOAL_MODELS.discard(billing.get_template_base_model())
+    COMPLETE_GOAL_MODELS.difference_update(line_registry)
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'products']
@@ -76,6 +87,26 @@ class Populator(BasePopulator):
             subject_models=[Contact],
             # is_custom=False,
             # is_copiable=True,
+        ),
+    ]
+    RELATION_TYPES = [
+        RelationType.objects.builder(
+            id=constants.REL_SUB_SOLD,
+            predicate=_('has sold'),
+            models=[Contact, Organisation],
+        ).symmetric(
+            id=constants.REL_OBJ_SOLD,
+            predicate=_('has been sold by'),
+            models=[Product, Service],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_COMPLETE_GOAL,
+            predicate=_('completes a goal of the commercial action'),
+            models=COMPLETE_GOAL_MODELS,
+        ).symmetric(
+            id=constants.REL_OBJ_COMPLETE_GOAL,
+            predicate=_('is completed thanks to'),
+            models=[Act],
         ),
     ]
     JOBS = [
@@ -149,34 +180,34 @@ class Populator(BasePopulator):
     def _populate_act_types(self):
         self._save_minions(self.ACT_TYPES)
 
-    def _populate_relation_types(self):
-        RelationType.objects.smart_update_or_create(
-            (constants.REL_SUB_SOLD, _('has sold'),         [self.Contact, self.Organisation]),
-            (constants.REL_OBJ_SOLD, _('has been sold by'), [self.Product, self.Service]),
-        )
-
-        complete_goal_models = {*creme_registry.iter_entity_models()}
-        complete_goal_models.discard(self.Strategy)
-        if apps.is_installed('creme.billing'):
-            from creme import billing
-            from creme.billing.core.line import line_registry
-
-            complete_goal_models.discard(billing.get_credit_note_model())
-            complete_goal_models.discard(billing.get_template_base_model())
-            complete_goal_models.difference_update(line_registry)
-
-        RelationType.objects.smart_update_or_create(
-            (
-                constants.REL_SUB_COMPLETE_GOAL,
-                _('completes a goal of the commercial action'),
-                complete_goal_models,
-            ),
-            (
-                constants.REL_OBJ_COMPLETE_GOAL,
-                _('is completed thanks to'),
-                [self.Act],
-            ),
-        )
+    # def _populate_relation_types(self):
+    #     RelationType.objects.smart_update_or_create(
+    #         (constants.REL_SUB_SOLD, _('has sold'),         [self.Contact, self.Organisation]),
+    #         (constants.REL_OBJ_SOLD, _('has been sold by'), [self.Product, self.Service]),
+    #     )
+    #
+    #     complete_goal_models = {*creme_registry.iter_entity_models()}
+    #     complete_goal_models.discard(self.Strategy)
+    #     if apps.is_installed('creme.billing'):
+    #         from creme import billing
+    #         from creme.billing.core.line import line_registry
+    #
+    #         complete_goal_models.discard(billing.get_credit_note_model())
+    #         complete_goal_models.discard(billing.get_template_base_model())
+    #         complete_goal_models.difference_update(line_registry)
+    #
+    #     RelationType.objects.smart_update_or_create(
+    #         (
+    #             constants.REL_SUB_COMPLETE_GOAL,
+    #             _('completes a goal of the commercial action'),
+    #             complete_goal_models,
+    #         ),
+    #         (
+    #             constants.REL_OBJ_COMPLETE_GOAL,
+    #             _('is completed thanks to'),
+    #             [self.Act],
+    #         ),
+    #     )
 
     def _populate_header_filters_for_act(self):
         HeaderFilter.objects.create_if_needed(

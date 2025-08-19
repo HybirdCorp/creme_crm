@@ -58,6 +58,10 @@ from .models import ActivitySubType, ActivityType, CalendarConfigItem, Status
 
 logger = logging.getLogger(__name__)
 
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+Activity = get_activity_model()
+
 # UUIDs for instances which can be deleted
 UUID_CUSTOMBRICK_COMPLEMENTARY = '3c995e5d-7457-44be-9de8-cba7f7422319'
 
@@ -85,6 +89,39 @@ UUID_SUBTYPE_UNAVAILABILITY_ILL = '09baec7a-b0ba-4c03-8981-84fc066d2970'
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
+    RELATION_TYPES = [
+        RelationType.objects.builder(
+            id=constants.REL_SUB_LINKED_2_ACTIVITY,
+            predicate=_('related to the activity'),
+            minimal_display=True,
+        ).symmetric(
+            id=constants.REL_OBJ_LINKED_2_ACTIVITY,
+            predicate=_('(activity) related to'),
+            models=[Activity],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_ACTIVITY_SUBJECT,
+            predicate=_('is subject of the activity'),
+            models=[Contact, Organisation],
+            is_internal=True,  # NB: avoid the disabling of this RelationType
+            minimal_display=True,
+        ).symmetric(
+            id=constants.REL_OBJ_ACTIVITY_SUBJECT,
+            predicate=_('(activity) has for subject'),
+            models=[Activity],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_PART_2_ACTIVITY,
+            predicate=_('participates in the activity'),
+            models=[Contact],
+            is_internal=True,
+            minimal_display=True,
+        ).symmetric(
+            id=constants.REL_OBJ_PART_2_ACTIVITY,
+            predicate=_('(activity) has as participant'),
+            models=[Activity],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.ACTIVITY_CREATION_CFORM,
         custom_forms.ACTIVITY_CREATION_FROM_CALENDAR_CFORM,
@@ -314,9 +351,12 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
-        self.Activity = get_activity_model()
+        # self.Contact      = persons.get_contact_model()
+        # self.Organisation = persons.get_organisation_model()
+        # self.Activity = get_activity_model()
+        self.Contact = Contact
+        self.Organisation = Organisation
+        self.Activity = Activity
 
     def _already_populated(self):
         return RelationType.objects.filter(
@@ -371,49 +411,49 @@ class Populator(BasePopulator):
         # Create default calendar configuration
         CalendarConfigItem.objects.get_or_create(role=None, superuser=False)
 
-    def _populate_relation_types(self):
-        Contact = self.Contact
-        Organisation = self.Organisation
-        Activity = self.Activity
-
-        create_rtype = RelationType.objects.smart_update_or_create
-        create_rtype(
-            (
-                constants.REL_SUB_LINKED_2_ACTIVITY,
-                _('related to the activity'),
-            ), (
-                constants.REL_OBJ_LINKED_2_ACTIVITY,
-                _('(activity) related to'),
-                [Activity],
-            ),
-            minimal_display=(True, False),
-        )
-        create_rtype(
-            (
-                constants.REL_SUB_ACTIVITY_SUBJECT,
-                _('is subject of the activity'),
-                [Contact, Organisation],
-            ), (
-                constants.REL_OBJ_ACTIVITY_SUBJECT,
-                _('(activity) has for subject'),
-                [Activity],
-            ),
-            is_internal=True,  # NB: avoid the disabling of this RelationType
-            minimal_display=(True, False),
-        )
-        create_rtype(
-            (
-                constants.REL_SUB_PART_2_ACTIVITY,
-                _('participates in the activity'),
-                [Contact],
-            ), (
-                constants.REL_OBJ_PART_2_ACTIVITY,
-                _('(activity) has as participant'),
-                [Activity],
-            ),
-            is_internal=True,
-            minimal_display=(True, False),
-        )
+    # def _populate_relation_types(self):
+    #     Contact = self.Contact
+    #     Organisation = self.Organisation
+    #     Activity = self.Activity
+    #
+    #     create_rtype = RelationType.objects.smart_update_or_create
+    #     create_rtype(
+    #         (
+    #             constants.REL_SUB_LINKED_2_ACTIVITY,
+    #             _('related to the activity'),
+    #         ), (
+    #             constants.REL_OBJ_LINKED_2_ACTIVITY,
+    #             _('(activity) related to'),
+    #             [Activity],
+    #         ),
+    #         minimal_display=(True, False),
+    #     )
+    #     create_rtype(
+    #         (
+    #             constants.REL_SUB_ACTIVITY_SUBJECT,
+    #             _('is subject of the activity'),
+    #             [Contact, Organisation],
+    #         ), (
+    #             constants.REL_OBJ_ACTIVITY_SUBJECT,
+    #             _('(activity) has for subject'),
+    #             [Activity],
+    #         ),
+    #         is_internal=True,  # NB: avoid the disabling of this RelationType
+    #         minimal_display=(True, False),
+    #     )
+    #     create_rtype(
+    #         (
+    #             constants.REL_SUB_PART_2_ACTIVITY,
+    #             _('participates in the activity'),
+    #             [Contact],
+    #         ), (
+    #             constants.REL_OBJ_PART_2_ACTIVITY,
+    #             _('(activity) has as participant'),
+    #             [Activity],
+    #         ),
+    #         is_internal=True,
+    #         minimal_display=(True, False),
+    #     )
 
     def _populate_entity_filters(self):
         Activity = self.Activity

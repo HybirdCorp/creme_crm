@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -41,6 +41,358 @@ from .entity import CremeEntity
 
 logger = logging.getLogger(__name__)
 
+_DEFAULT_IS_CUSTOM = False
+_DEFAULT_IS_INTERNAL = False
+_DEFAULT_IS_COPIABLE = True
+_DEFAULT_MIN_DISPLAY = False
+_DEFAULT_ENABLED = True
+
+
+class RelationTypeBuilder:
+    """This class is useful to create RelationType instances.
+
+    It's notably used in 'populate' scripts to get a declarative way for
+    creation, with the ability to manage the symmetric type & the
+    ManyToManyFields.
+
+    Note: the class stores models & not ContentTypes in order to avoid some
+          issues with ContentTypes are cached & can have different IDs in the
+          test DBs.
+
+    Hint: use RelationType.objects.builder().
+    """
+    _id: str
+    predicate: str
+    _is_internal: bool
+    _is_custom: bool
+    is_copiable: bool
+    minimal_display: bool
+    _enabled: bool
+    _models: set[type[CremeEntity]]
+    _properties: set[str]
+    _forbidden_properties: set[str]
+
+    @classmethod
+    def main(cls, *,
+             id: str, predicate: str,
+             is_custom: bool = _DEFAULT_IS_CUSTOM,
+             is_internal: bool = _DEFAULT_IS_INTERNAL,
+             is_copiable: bool = _DEFAULT_IS_COPIABLE,
+             minimal_display: bool = _DEFAULT_MIN_DISPLAY,
+             models: Iterable[type[CremeEntity]],
+             properties: Iterable[str],
+             forbidden_properties: Iterable[str],
+             enabled: bool = _DEFAULT_ENABLED,
+             ) -> RelationTypeBuilder:
+        """Constructor of the main instance.
+        Hint: you should call '.symmetric()' on the returned object to build the
+        2 RelationType instances correctly.
+
+        See RelationTypeManager.builder() for parameters.
+        """
+        proxy = cls()
+        proxy._sym = None
+
+        proxy._id = id
+        proxy.predicate = predicate
+        proxy._is_internal = is_internal
+        proxy._is_custom = is_custom
+        proxy.is_copiable = is_copiable
+        proxy.minimal_display = minimal_display
+        proxy._enabled = enabled
+        proxy._models = set(models)
+        # TODO: accept UUID instances too?
+        proxy._properties = set(properties)
+        proxy._forbidden_properties = set(forbidden_properties)
+
+        return proxy
+
+    def symmetric(self, *,
+                  id: str,
+                  predicate: str,
+                  is_copiable: bool = _DEFAULT_IS_COPIABLE,
+                  minimal_display: bool = _DEFAULT_MIN_DISPLAY,
+                  models: Iterable[type[CremeEntity]] = (),
+                  properties: Iterable[str] = (),
+                  forbidden_properties: Iterable[str] = (),
+                  ) -> RelationTypeBuilder:
+        """Constructor of the symmetric builder (see 'main()')."""
+        if self._sym is not None:
+            raise RuntimeError(
+                'RelationTypeProxy.symmetric() cannot be called several times'
+            )
+
+        self._sym = sym = type(self)()
+        sym._sym = self
+
+        sym._id = id
+        sym.predicate = predicate
+        sym._is_internal = self._is_internal
+        sym._is_custom = self._is_custom
+        sym.is_copiable = is_copiable
+        sym.minimal_display = minimal_display
+        sym.models = models
+        sym.properties = properties
+        sym.forbidden_properties = forbidden_properties
+        sym._enabled = self._enabled
+        sym._models = set(models)
+        sym._properties = set(properties)
+        sym._forbidden_properties = set(forbidden_properties)
+
+        return self
+
+    @property
+    def id(self) -> str:
+        """Get the value of the field 'RelationType.id' for the
+        underlying instance.
+        """
+        return self._id
+
+    @property
+    def enabled(self) -> bool:
+        """Get the value of the field 'RelationType.enabled' for the
+        underlying instance.
+        """
+        return self._enabled
+
+    @enabled.setter
+    def enabled(self, value: bool) -> None:
+        """Set the value of the field 'RelationType.enabled' for the
+        underlying instance.
+        """
+        self._enabled = value
+        if self._sym:
+            self._sym._enabled = value
+
+    @property
+    def is_custom(self) -> bool:
+        """Get the value of the field 'RelationType.is_custom' for the
+        underlying instance.
+        """
+        return self._is_custom
+
+    @is_custom.setter
+    def is_custom(self, value: bool) -> None:
+        """Set the value of the field 'RelationType.is_custom' for the
+        underlying instance.
+        """
+        self._is_custom = value
+        if self._sym:
+            self._sym._is_custom = value
+
+    @property
+    def is_internal(self) -> bool:
+        """Get the value of the field 'RelationType.is_internal' for the
+        underlying instance.
+        """
+        return self._is_internal
+
+    @is_internal.setter
+    def is_internal(self, value: bool) -> None:
+        """Set the value of the field 'RelationType.is_internal' for the
+        underlying instance.
+        """
+        self._is_internal = value
+        if self._sym:
+            self._sym._is_internal = value
+
+    @property
+    def symmetric_type(self) -> RelationTypeBuilder:
+        """Get the symmetric builder, which is used to create/update the
+        symmetric RelationType instance (see get_or_create/update_or_create()).
+        """
+        sym = self._sym
+        if sym is None:
+            raise RuntimeError(
+                "The RelationTypeProxy has no symmetric proxy yet. "
+                "Hint: call the method 'symmetric()'."
+            )
+
+        return sym
+
+    @property
+    def subject_models(self) -> Iterator[type[CremeEntity]]:
+        """Get the value of the field 'RelationType.subject_ctypes' for the
+        underlying instance, but as model classes.
+        """
+        yield from self._models
+
+    @property
+    def subject_ctypes(self) -> Iterator[ContentType]:
+        """Get the value of the field 'RelationType.subject_ctypes' for the
+        underlying instance.
+        """
+        get_ct = ContentType.objects.get_for_model
+        for model in self._models:
+            yield get_ct(model)
+
+    @property
+    def subject_properties(self) -> Iterator[CremePropertyType]:
+        """Get the value of the field 'RelationType.subject_properties' for the
+        underlying instance.
+        """
+        return CremePropertyType.objects.filter(uuid__in=self._properties)
+
+    @property
+    def subject_forbidden_properties(self) -> Iterator[CremePropertyType]:
+        """Get the value of the field 'RelationType.subject_forbidden_properties'
+        for the underlying instance.
+        """
+        return CremePropertyType.objects.filter(uuid__in=self._forbidden_properties)
+
+    def add_subject_models(self, *models: type[CremeEntity]) -> RelationTypeBuilder:
+        """Add some models to the ContentType constraints
+        (i.e. 'RelationType.subject_ctypes') of the underlying instance.
+
+        Note: model classes are used instead of ContentType instances (see class comment).
+        """
+        self._models.update(models)
+        return self
+
+    def add_subject_properties(self, *ptype_uuids: str) -> RelationTypeBuilder:
+        """Add some CremePropertyTypes to the allowed properties
+        (i.e. 'RelationType.subject_properties') of the underlying instance.
+
+        Note: UUID strings are used instead of CremePropertyType instances in
+        order to make lazy queries.
+        """
+        self._properties.update(ptype_uuids)
+        return self
+
+    def add_subject_forbidden_properties(self, *ptype_uuids: str) -> RelationTypeBuilder:
+        """Add some CremePropertyTypes to the forbidden properties
+        (i.e. 'RelationType.subject_forbidden_properties') of the underlying instance.
+
+        Note: UUID strings are used instead of CremePropertyType instances in
+        order to make lazy queries.
+        """
+        self._forbidden_properties.update(ptype_uuids)
+        return self
+
+    def remove_subject_models(self, *models: type[CremeEntity]) -> RelationTypeBuilder:
+        """Remove some models to the ContentType constraints
+        (i.e. 'RelationType.subject_ctypes') of the underlying instance.
+
+        Note: see add_subject_models().
+        """
+        self._models.difference_update(models)
+        return self
+
+    def remove_subject_properties(self, *ptype_uuids: str) -> RelationTypeBuilder:
+        """Remove some CremePropertyTypes to the allowed properties
+        (i.e. 'RelationType.subject_properties') of the underlying instance.
+
+        Note: add_subject_properties().
+        """
+        self._properties.difference_update(ptype_uuids)
+        return self
+
+    def remove_subject_forbidden_properties(self, *ptype_uuids: str) -> RelationTypeBuilder:
+        """Remove some CremePropertyTypes to the forbidden properties
+        (i.e. 'RelationType.subject_properties') of the underlying instance.
+
+        Note: add_subject_forbidden_properties().
+        """
+        self._forbidden_properties.difference_update(ptype_uuids)
+        return self
+
+    def _save_m2m(self, sub_rtype, obj_rtype):
+        sym = self.symmetric_type
+
+        sub_rtype.subject_ctypes.set(self.subject_ctypes)
+        obj_rtype.subject_ctypes.set(sym.subject_ctypes)
+
+        # TODO: error/log if a property is missing?
+        # TODO: regroup queries?
+        sub_rtype.subject_properties.set(self.subject_properties)
+        obj_rtype.subject_properties.set(sym.subject_properties)
+        sub_rtype.subject_forbidden_properties.set(self.subject_forbidden_properties)
+        obj_rtype.subject_forbidden_properties.set(sym.subject_forbidden_properties)
+
+    def get_or_create(self) -> tuple[RelationType, bool]:
+        """Get an existing RelationType instance by its ID, or create it if it
+        does not exist.
+        @return: A tuple with the RelationType instance & a boolean set to <True>
+                 if a creation has been performed.
+        """
+        sym = self.symmetric_type
+
+        get_or_create = RelationType.objects.get_or_create
+        defaults = {
+            'is_custom': self._is_custom,
+            'enabled': self._enabled,
+            'is_internal': self._is_internal,
+        }
+        sub_rtype, created = get_or_create(
+            id=self.id,
+            defaults={
+                **defaults,
+                'predicate': self.predicate,
+                'is_copiable': self.is_copiable,
+                'minimal_display': self.minimal_display,
+            },
+        )
+        if created:
+            obj_rtype = get_or_create(
+                id=sym.id,
+                defaults={
+                    **defaults,
+                    'predicate': sym.predicate,
+                    'is_copiable': sym.is_copiable,
+                    'minimal_display': sym.minimal_display,
+                    'symmetric_type': sub_rtype,
+                },
+            )[0]
+
+            sub_rtype.symmetric_type = obj_rtype
+            sub_rtype.save()
+
+            self._save_m2m(sub_rtype, obj_rtype)
+
+        return sub_rtype, created
+
+    def update_or_create(self) -> tuple[RelationType, bool]:
+        """Update an existing RelationType instance by its ID, or create it if
+        it does not exist.
+        @return: A tuple with the RelationType instance & a boolean set to <True>
+                 if a creation has been performed.
+        """
+        sym = self.symmetric_type
+
+        update_or_create = RelationType.objects.update_or_create
+        defaults = {
+            'is_custom': self._is_custom,
+            'enabled': self._enabled,
+            'is_internal': self._is_internal,
+        }
+        sub_rtype, created = update_or_create(
+            id=self.id,
+            defaults={
+                **defaults,
+                'predicate': self.predicate,
+                'is_copiable': self.is_copiable,
+                'minimal_display': self.minimal_display,
+            },
+        )
+        obj_rtype = update_or_create(
+            id=sym.id,
+            defaults={
+                **defaults,
+                'predicate': sym.predicate,
+                'is_copiable': sym.is_copiable,
+                'minimal_display': sym.minimal_display,
+                'symmetric_type': sub_rtype,
+            },
+        )[0]
+
+        if created:
+            sub_rtype.symmetric_type = obj_rtype
+            sub_rtype.save()
+
+        self._save_m2m(sub_rtype, obj_rtype)
+
+        return sub_rtype, created
+
 
 class RelationTypeManager(models.Manager):
     def compatible(self,
@@ -57,6 +409,7 @@ class RelationTypeManager(models.Manager):
 
         return types
 
+    # TODO: deprecate? <generate_pk==False> case in a first time?
     @atomic
     def smart_update_or_create(
         self,
@@ -64,10 +417,10 @@ class RelationTypeManager(models.Manager):
         object_desc: tuple,
         *,
         generate_pk: bool = False,
-        is_custom: bool = False,
-        is_internal: bool = False,
-        is_copiable: bool | tuple[bool, bool] = (True, True),
-        minimal_display: tuple[bool, bool] = (False, False),
+        is_custom: bool = _DEFAULT_IS_CUSTOM,
+        is_internal: bool = _DEFAULT_IS_INTERNAL,
+        is_copiable: bool | tuple[bool, bool] = (_DEFAULT_IS_COPIABLE, _DEFAULT_IS_COPIABLE),
+        minimal_display: tuple[bool, bool] = (_DEFAULT_MIN_DISPLAY, _DEFAULT_MIN_DISPLAY),
     ) -> tuple[RelationType, RelationType]:
         """Create or update 2 symmetric RelationTypes, with their constraints.
         @param subject_desc: Tuple describing the subject RelationType instance
@@ -168,6 +521,52 @@ class RelationTypeManager(models.Manager):
         return sub_relation_type, obj_relation_type
 
     smart_update_or_create.alters_data = True
+
+    def builder(self, *,
+                id: str, predicate: str,
+                is_custom: bool = _DEFAULT_IS_CUSTOM,
+                is_internal: bool = _DEFAULT_IS_INTERNAL,
+                is_copiable: bool = _DEFAULT_IS_COPIABLE,
+                minimal_display: bool = _DEFAULT_MIN_DISPLAY,
+                models: Iterable[type[CremeEntity]] = (),
+                properties: Iterable[str] = (),
+                forbidden_properties: Iterable[str] = (),
+                enabled=_DEFAULT_ENABLED,
+                ) -> RelationTypeBuilder:
+        """Get a builder to create RelationType instances easily.
+        Builders are used in 'populate' scripts to create RelationType in a
+        declarative way.
+
+        @param id: Value of the field "id" of the main side of the RelationType.
+        @param predicate: Value of the field "predicate" of the main side of
+               the RelationType.
+        @param is_custom: Value of the field "is_custom" of the main side of
+               the RelationType.
+        @param is_internal: Value of the field "is_internal" of the 2 sides of
+               the RelationType.
+        @param is_copiable: Value of the field "is_copiable" of the main side of
+               the RelationType.
+        @param minimal_display: Value of the field "minimal_display" of the
+               main side of the RelationType.
+        @param models: Value of the M2M field "subject_ctypes" of the main side
+               of the RelationType, but model classes are passed.
+        @param properties: Value of the M2M field "subject_properties" of the
+               main side of the RelationType, but UUID-strings are passed.
+        @param forbidden_properties: Value of the M2M field
+               "subject_forbidden_properties" of the main side of the
+               RelationType, but UUID-strings are passed.
+        @param enabled: Value of the field "enabled" of the 2 sides of the
+               RelationType.
+
+        @return A builder instance (of which you should call 'symmetric()' of course).
+        """
+        return RelationTypeBuilder.main(
+            id=id, predicate=predicate, models=models,
+            is_custom=is_custom, is_internal=is_internal,
+            is_copiable=is_copiable, minimal_display=minimal_display,
+            properties=properties, forbidden_properties=forbidden_properties,
+            enabled=enabled,
+        )
 
 
 class RelationManager(models.Manager):
@@ -327,23 +726,23 @@ class RelationType(CremeModel):
     )
 
     # If True, the relations with this type cannot be created/deleted directly by the users.
-    is_internal = models.BooleanField(default=False)
+    is_internal = models.BooleanField(default=_DEFAULT_IS_INTERNAL)
 
     # If True, the RelationType can ot be deleted (in creme_config).
-    is_custom = models.BooleanField(default=False)
+    is_custom = models.BooleanField(default=_DEFAULT_IS_CUSTOM)
 
     # If True, the relations with this type can be copied
     #  (ie when cloning or converting an entity)
-    is_copiable = models.BooleanField(default=True)
+    is_copiable = models.BooleanField(default=_DEFAULT_IS_COPIABLE)
 
     # A disabled type should not be proposed for adding (and a relationship with
     # this type should be visually marked as disabled in the UI).
-    enabled = models.BooleanField(_('Enabled?'), default=True, editable=False)
+    enabled = models.BooleanField(_('Enabled?'), default=_DEFAULT_ENABLED, editable=False)
 
     # Try to display the relationships of this type only once in the detail-views ?
     # ie: does not display them in the general relationships bricks when another
     #     brick manages this type.
-    minimal_display = models.BooleanField(default=False)
+    minimal_display = models.BooleanField(default=_DEFAULT_MIN_DISPLAY)
 
     predicate = models.CharField(_('Predicate'), max_length=100)
     symmetric_type = models.ForeignKey(
