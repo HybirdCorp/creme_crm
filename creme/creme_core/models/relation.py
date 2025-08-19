@@ -129,6 +129,7 @@ class RelationTypeManager(models.Manager):
                     'predicate': pred_object,
                     'is_copiable': is_copiable[1],
                     'minimal_display': minimal_display[1],
+                    'symmetric_type': sub_relation_type,
                 },
             )[0]
         else:
@@ -141,19 +142,17 @@ class RelationTypeManager(models.Manager):
                 predicate=pred_subject, is_custom=is_custom, is_internal=is_internal,
                 is_copiable=is_copiable[0], minimal_display=minimal_display[0],
             )
+            generate_string_id_and_save(model, [sub_relation_type], pk_subject)
+
             obj_relation_type = model(
                 predicate=pred_object,  is_custom=is_custom, is_internal=is_internal,
                 is_copiable=is_copiable[1], minimal_display=minimal_display[1],
+                symmetric_type=sub_relation_type,
             )
-
-            generate_string_id_and_save(model, [sub_relation_type], pk_subject)
             generate_string_id_and_save(model, [obj_relation_type], pk_object)
 
         sub_relation_type.symmetric_type = obj_relation_type
-        obj_relation_type.symmetric_type = sub_relation_type
-
         sub_relation_type.save()
-        obj_relation_type.save()
 
         # Many-to-Many fields ----------
         get_ct = ContentType.objects.get_for_model
