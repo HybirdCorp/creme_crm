@@ -331,6 +331,361 @@ class RelationTypeManagerTestCase(CremeTestCase):
             ContentType.objects.get_for_model(FakeContact).id
         ))
 
+    def test_proxy__update_or_create(self):
+        subject_id = 'test-subject_foobar'
+        subject_pred = 'is loving'
+        object_id = 'test-object_foobar'
+        object_pred  = 'is loved by'
+
+        proxy = RelationType.objects.proxy(
+            id=subject_id, predicate=subject_pred,
+        ).symmetric(id=object_id, predicate=object_pred)
+
+        self.assertEqual(proxy.id,        subject_id)
+        self.assertEqual(proxy.predicate, subject_pred)
+        self.assertFalse(proxy.is_internal)
+        self.assertFalse(proxy.is_custom)
+        self.assertTrue(proxy.is_copiable)
+        self.assertFalse(proxy.minimal_display)
+        self.assertTrue(proxy.enabled)
+        self.assertFalse([*proxy.subject_models])
+        self.assertFalse([*proxy.subject_ctypes])
+        # self.assertFalse([], [*proxy.object_models]) TODO?
+        self.assertFalse([*proxy.subject_properties])
+        # self.assertFalse([], [*proxy.object_properties]) TODO?
+        self.assertFalse([*proxy.subject_forbidden_properties])
+
+        sym_proxy = proxy.symmetric_type
+        self.assertEqual(sym_proxy.id,        object_id)
+        self.assertEqual(sym_proxy.predicate, object_pred)
+        self.assertFalse(sym_proxy.is_internal)
+        self.assertFalse(sym_proxy.is_custom)
+        self.assertTrue(sym_proxy.is_copiable)
+        self.assertFalse(sym_proxy.minimal_display)
+        self.assertTrue(sym_proxy.enabled)
+
+        self.assertIs(proxy, sym_proxy.symmetric_type)
+
+        rtype1 = proxy.update_or_create()
+        self.assertIsInstance(rtype1, RelationType)
+        self.assertEqual(subject_id, rtype1.pk)
+        self.assertEqual(object_id, rtype1.symmetric_type_id)
+
+        rtype1 = self.refresh(rtype1)
+        self.assertEqual(rtype1.id,        subject_id)
+        self.assertEqual(rtype1.predicate, subject_pred)
+        self.assertFalse(rtype1.is_internal)
+        self.assertFalse(rtype1.is_custom)
+        self.assertTrue(rtype1.is_copiable)
+        self.assertFalse(rtype1.minimal_display)
+        self.assertTrue(rtype1.enabled)
+
+        rtype2 = rtype1.symmetric_type
+        self.assertEqual(rtype2.id,        object_id)
+        self.assertEqual(rtype2.predicate, object_pred)
+        self.assertFalse(rtype2.is_internal)
+        self.assertFalse(rtype2.is_custom)
+        self.assertTrue(rtype2.is_copiable)
+        self.assertFalse(rtype2.minimal_display)
+        self.assertTrue(rtype2.enabled)
+
+        self.assertEqual(rtype1.symmetric_type, rtype2)
+        self.assertEqual(rtype2.symmetric_type, rtype1)
+
+        self.assertFalse([*rtype1.subject_models])
+        self.assertFalse(rtype1.subject_properties.all())
+        self.assertFalse(rtype1.subject_forbidden_properties.all())
+
+        self.assertFalse([*rtype2.subject_models])
+        self.assertFalse(rtype2.subject_properties.all())
+        self.assertFalse(rtype2.subject_forbidden_properties.all())
+
+    def test_proxy__update_or_create__constraints(self):
+        "Constraints for ContentTypes & CremePropertyTypes"
+        subject_id = 'test-subject_foobaz'
+        subject_pred = 'is liking'
+        object_id = 'test-object_foobaz'
+        object_pred  = 'is liked by'
+
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Test #1')
+        ptype2 = create_ptype(text='Test #2')
+        ptype3 = create_ptype(text='Test #3')
+        ptype4 = create_ptype(text='Test #4')
+        ptype5 = create_ptype(text='Test #5')
+        ptype6 = create_ptype(text='Test #6')
+
+        proxy = RelationType.objects.proxy(
+            id=subject_id, predicate=subject_pred, is_custom=True,
+            models=[FakeContact, FakeOrganisation],
+            properties=[str(ptype1.uuid), str(ptype2.uuid)],
+            forbidden_properties=[str(ptype4.uuid), str(ptype5.uuid)],
+        ).symmetric(
+            id=object_id, predicate=object_pred,
+            models=[FakeDocument],
+            properties=[str(ptype3.uuid)],
+            forbidden_properties=[str(ptype6.uuid)],
+        )
+
+        self.assertEqual(proxy.id,        subject_id)
+        self.assertEqual(proxy.predicate, subject_pred)
+        self.assertTrue(proxy.is_custom)
+        self.assertCountEqual([FakeContact, FakeOrganisation], [*proxy.subject_models])
+        self.assertCountEqual(
+            [FakeContact, FakeOrganisation],
+            [ct.model_class() for ct in proxy.subject_ctypes],
+        )
+        self.assertCountEqual([ptype1, ptype2], [*proxy.subject_properties])
+        self.assertCountEqual([ptype4, ptype5], [*proxy.subject_forbidden_properties])
+
+        self.assertTrue(proxy.symmetric_type.is_custom)
+
+        rtype1 = proxy.update_or_create()
+        self.assertEqual(rtype1.id,        subject_id)
+        self.assertEqual(rtype1.predicate, subject_pred)
+        self.assertTrue(rtype1.is_custom)
+
+        rtype2 = rtype1.symmetric_type
+        self.assertEqual(rtype2.id,        object_id)
+        self.assertEqual(rtype2.predicate, object_pred)
+        self.assertTrue(rtype2.is_custom)
+
+        self.assertCountEqual(
+            [FakeContact, FakeOrganisation], [*rtype1.subject_models],
+        )
+        self.assertCountEqual(
+            [ptype1, ptype2], [*rtype1.subject_properties.all()],
+        )
+        self.assertCountEqual(
+            [ptype4, ptype5], [*rtype1.subject_forbidden_properties.all()],
+        )
+
+        self.assertListEqual([FakeDocument], [*rtype2.subject_models])
+        self.assertListEqual([ptype3], [*rtype2.subject_properties.all()])
+        self.assertListEqual([ptype6], [*rtype2.subject_forbidden_properties.all()])
+
+    def test_proxy__disabled(self):
+        proxy = RelationType.objects.proxy(
+            id='test-subject_testproxy', predicate='knows',
+            enabled=False,  # <==
+        ).symmetric(id='test-object_testproxy', predicate='is known by')
+        self.assertFalse(proxy.enabled)
+
+        sym_proxy = proxy.symmetric_type
+        self.assertFalse(sym_proxy.enabled)
+
+        rtype1 = proxy.update_or_create()
+        self.assertFalse(rtype1.enabled)
+        self.assertFalse(rtype1.symmetric_type.enabled)
+
+        proxy.enabled = True
+        self.assertTrue(proxy.enabled)
+        self.assertTrue(sym_proxy.enabled)  # Synchronised
+
+        # ---
+        incomplete  = RelationType.objects.proxy(
+            id='test-subject_incomplete', predicate='I have no symmetric',
+        )
+        self.assertTrue(incomplete.enabled)
+
+        with self.assertNoException():
+            incomplete.enabled = False
+        self.assertFalse(incomplete.enabled)
+
+    def test_proxy__is_custom(self):
+        proxy = RelationType.objects.proxy(
+            id='test-subject_testproxy', predicate='knows',
+        ).symmetric(id='test-object_testproxy', predicate='is known by')
+        self.assertFalse(proxy.is_custom)
+
+        sym_proxy = proxy.symmetric_type
+        self.assertFalse(sym_proxy.is_custom)
+
+        proxy.is_custom = True
+        self.assertTrue(proxy.is_custom)
+        self.assertTrue(sym_proxy.is_custom)  # Synchronised
+
+        # ---
+        incomplete  = RelationType.objects.proxy(
+            id='test-subject_incomplete', predicate='I have no symmetric',
+        )
+        self.assertFalse(incomplete.is_custom)
+
+        with self.assertNoException():
+            incomplete.is_custom = True
+        self.assertTrue(incomplete.is_custom)
+
+    def test_proxy__is_internal(self):
+        proxy = RelationType.objects.proxy(
+            id='test-subject_testproxy', predicate='knows',
+            is_internal=True,  # <==
+        ).symmetric(id='test-object_testproxy', predicate='is known by')
+        self.assertTrue(proxy.is_internal)
+
+        sym_proxy = proxy.symmetric_type
+        self.assertTrue(sym_proxy.is_internal)
+
+        rtype1 = proxy.update_or_create()
+        self.assertTrue(rtype1.is_internal)
+        self.assertTrue(rtype1.symmetric_type.is_internal)
+
+        proxy.is_internal = False
+        self.assertFalse(proxy.is_internal)
+        self.assertFalse(sym_proxy.is_internal)  # Synchronised
+
+        # ---
+        incomplete  = RelationType.objects.proxy(
+            id='test-subject_incomplete', predicate='I have no symmetric',
+        )
+        self.assertFalse(incomplete.is_internal)
+
+        with self.assertNoException():
+            incomplete.is_internal = True
+        self.assertTrue(incomplete.is_internal)
+
+    def test_proxy__is_copiable(self):
+        proxy1 = RelationType.objects.proxy(
+            id='test-subject_copiable1', predicate='knows',
+            is_copiable=False,  # <==
+        ).symmetric(id='test-object_copiable1', predicate='is known by')
+        self.assertFalse(proxy1.is_copiable)
+        self.assertTrue(proxy1.symmetric_type.is_copiable)
+
+        rtype1 = proxy1.update_or_create()
+        self.assertFalse(rtype1.is_copiable)
+        self.assertTrue(rtype1.symmetric_type.is_copiable)
+
+        # ---
+        proxy2 = RelationType.objects.proxy(
+            id='test-subject_copiable2', predicate='knows well',
+        ).symmetric(
+            id='test-object_copiable2', predicate='is well known by',
+            is_copiable=False,  # <==
+        )
+        self.assertTrue(proxy2.is_copiable)
+        self.assertFalse(proxy2.symmetric_type.is_copiable)
+
+        rtype2 = proxy2.update_or_create()
+        self.assertTrue(rtype2.is_copiable)
+        self.assertFalse(rtype2.symmetric_type.is_copiable)
+
+    def test_proxy__minimal_display(self):
+        proxy1 = RelationType.objects.proxy(
+            id='test-subject_minimal_display1', predicate='knows',
+            minimal_display=True,  # <==
+        ).symmetric(id='test-object_minimal_display1', predicate='is known by')
+        self.assertTrue(proxy1.minimal_display)
+        self.assertFalse(proxy1.symmetric_type.minimal_display)
+
+        rtype1 = proxy1.update_or_create()
+        self.assertTrue(rtype1.minimal_display)
+        self.assertFalse(rtype1.symmetric_type.minimal_display)
+
+        # ---
+        proxy2 = RelationType.objects.proxy(
+            id='test-subject_copiable2', predicate='knows well',
+        ).symmetric(
+            id='test-object_copiable2', predicate='is well known by',
+            minimal_display=True,  # <==
+        )
+        self.assertFalse(proxy2.minimal_display)
+        self.assertTrue(proxy2.symmetric_type.minimal_display)
+
+        rtype2 = proxy2.update_or_create()
+        self.assertFalse(rtype2.minimal_display)
+        self.assertTrue(rtype2.symmetric_type.minimal_display)
+
+    def test_proxy__symmetric_errors(self):
+        proxy = RelationType.objects.proxy(
+            id='test-subject_err', predicate='knows',
+        )
+
+        with self.assertRaises(RuntimeError):
+            proxy.symmetric_type  # NOQA
+
+        # update_or_create() ---
+        with self.assertRaises(RuntimeError):
+            proxy.update_or_create()
+
+        # Call twice ---
+        proxy.symmetric(id='test-object_err', predicate='whatever')
+        with self.assertRaises(RuntimeError):
+            proxy.symmetric(id='test-object_err', predicate='is known by')
+
+    def test_proxy__edit_subject_models(self):
+        proxy = RelationType.objects.proxy(
+            id='test-subject_editconstr', predicate='Likes',
+            models=[FakeContact],
+        ).symmetric(
+            id='test-object_editconstr', predicate='Is liked by',
+        )
+
+        proxy.add_subject_models(FakeOrganisation, FakeDocument)
+        self.assertCountEqual(
+            [FakeContact, FakeOrganisation, FakeDocument],
+            [*proxy.subject_models],
+        )
+
+        proxy.remove_subject_models(FakeOrganisation, FakeContact)
+        self.assertListEqual([FakeDocument], [*proxy.subject_models])
+
+        sym = proxy.symmetric_type
+        sym.add_subject_models(FakeContact)
+        self.assertListEqual([FakeContact], [*sym.subject_models])
+
+    def test_proxy__edit_properties(self):
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Test #1')
+        ptype2 = create_ptype(text='Test #2')
+        ptype3 = create_ptype(text='Test #3')
+
+        proxy = RelationType.objects.proxy(
+            id='test-subject_editconstr',
+            predicate='Likes',
+            properties=[str(ptype1.uuid)],
+            # forbidden_properties=[str(ptype4.uuid), str(ptype5.uuid)],
+        ).symmetric(
+            id='test-object_editconstr', predicate='Is liked by',
+        )
+
+        proxy.add_subject_properties(str(ptype2.uuid), str(ptype3.uuid))
+        self.assertCountEqual(
+            [ptype1, ptype2, ptype3], [*proxy.subject_properties],
+        )
+
+        proxy.remove_subject_properties(str(ptype2.uuid), str(ptype1.uuid))
+        self.assertListEqual([ptype3], [*proxy.subject_properties])
+
+        sym = proxy.symmetric_type
+        sym.add_subject_properties(str(ptype2.uuid))
+        self.assertListEqual([ptype2], [*sym.subject_properties])
+
+    def test_proxy__edit_forbidden_properties(self):
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Test #1')
+        ptype2 = create_ptype(text='Test #2')
+        ptype3 = create_ptype(text='Test #3')
+
+        proxy = RelationType.objects.proxy(
+            id='test-subject_editconstr',
+            predicate='Likes',
+            forbidden_properties=[str(ptype1.uuid)],
+        ).symmetric(
+            id='test-object_editconstr', predicate='Is liked by',
+        )
+
+        proxy.add_subject_forbidden_properties(str(ptype2.uuid), str(ptype3.uuid))
+        self.assertCountEqual(
+            [ptype1, ptype2, ptype3], [*proxy.subject_forbidden_properties],
+        )
+
+        proxy.remove_subject_forbidden_properties(str(ptype2.uuid), str(ptype1.uuid))
+        self.assertListEqual([ptype3], [*proxy.subject_forbidden_properties])
+
+        sym = proxy.symmetric_type
+        sym.add_subject_forbidden_properties(str(ptype2.uuid))
+        self.assertListEqual([ptype2], [*sym.subject_forbidden_properties])
+
 
 class RelationTypeTestCase(CremeTestCase):
     def test_delete(self):

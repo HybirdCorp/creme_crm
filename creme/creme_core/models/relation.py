@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -40,6 +40,205 @@ from .creme_property import CremePropertyType
 from .entity import CremeEntity
 
 logger = logging.getLogger(__name__)
+
+
+class RelationTypeProxy:
+    @classmethod
+    def build_main(cls, *,
+                   id: str, predicate: str,
+                   is_custom: bool,
+                   is_internal: bool,
+                   is_copiable: bool,
+                   minimal_display: bool,
+                   models: Iterable[type[CremeEntity]],
+                   properties: Iterable[str],
+                   forbidden_properties: Iterable[str],
+                   enabled: bool,
+                   ) -> RelationTypeProxy:
+        proxy = cls()
+        proxy._sym = None
+
+        proxy._id = id
+        proxy.predicate = predicate
+        proxy._is_internal = is_internal
+        proxy._is_custom = is_custom
+        proxy.is_copiable = is_copiable
+        proxy.minimal_display = minimal_display
+        proxy._enabled = enabled
+        proxy._models = set(models)
+        # TODO: accept UUID instances? too?
+        proxy._properties = set(properties)
+        proxy._forbidden_properties = set(forbidden_properties)
+
+        return proxy
+
+    def symmetric(self, *,
+                  id: str,
+                  predicate: str,
+                  is_copiable: bool = True,
+                  minimal_display: bool = False,
+                  models: Iterable[type[CremeEntity]] = (),
+                  properties: Iterable[str] = (),
+                  forbidden_properties: Iterable[str] = (),
+                  ) -> RelationTypeProxy:
+        if self._sym is not None:
+            raise RuntimeError(
+                'RelationTypeProxy.symmetric() cannot be called several times'
+            )
+
+        self._sym = sym = type(self)()
+        sym._sym = self
+
+        # TODO: factorise
+        sym._id = id
+        sym.predicate = predicate
+        sym._is_internal = self._is_internal
+        sym._is_custom = self._is_custom
+        sym.is_copiable = is_copiable
+        sym.minimal_display = minimal_display
+        sym.models = models
+        sym.properties = properties
+        sym.forbidden_properties = forbidden_properties
+        sym._enabled = self._enabled
+        sym._models = set(models)
+        sym._properties = set(properties)
+        sym._forbidden_properties = set(forbidden_properties)
+
+        return self
+
+    @property
+    def id(self) -> str:
+        return self._id
+
+    @property
+    def enabled(self) -> bool:
+        return self._enabled
+
+    @enabled.setter
+    def enabled(self, value: bool) -> None:
+        self._enabled = value
+        if self._sym:
+            self._sym._enabled = value
+
+    @property
+    def is_custom(self) -> bool:
+        return self._is_custom
+
+    @is_custom.setter
+    def is_custom(self, value: bool) -> None:
+        self._is_custom = value
+        if self._sym:
+            self._sym._is_custom = value
+
+    @property
+    def is_internal(self) -> bool:
+        return self._is_internal
+
+    @is_internal.setter
+    def is_internal(self, value: bool) -> None:
+        self._is_internal = value
+        if self._sym:
+            self._sym._is_internal = value
+
+    @property
+    def symmetric_type(self) -> RelationTypeProxy:
+        """TODO"""
+        sym = self._sym
+        if sym is None:
+            raise RuntimeError(
+                "The RelationTypeProxy has no symmetric proxy yet. "
+                "Hint: call the method 'symmetric()'."
+            )
+
+        return sym
+
+    @property
+    def subject_models(self) -> Iterator[type[CremeEntity]]:
+        yield from self._models
+
+    @property
+    def subject_ctypes(self) -> Iterator[ContentType]:
+        get_ct = ContentType.objects.get_for_model
+        for model in self._models:
+            yield get_ct(model)
+
+    @property
+    def subject_properties(self) -> Iterator[CremePropertyType]:
+        return CremePropertyType.objects.filter(uuid__in=self._properties)
+
+    @property
+    def subject_forbidden_properties(self) -> Iterator[CremePropertyType]:
+        return CremePropertyType.objects.filter(uuid__in=self._forbidden_properties)
+
+    def add_subject_models(self, *models: type[CremeEntity]) -> RelationTypeProxy:
+        self._models.update(models)
+        return self
+
+    def add_subject_properties(self, *ptype_uuids) -> RelationTypeProxy:
+        self._properties.update(ptype_uuids)
+        return self
+
+    def add_subject_forbidden_properties(self, *ptype_uuids) -> RelationTypeProxy:
+        self._forbidden_properties.update(ptype_uuids)
+        return self
+
+    def remove_subject_models(self, *models) -> RelationTypeProxy:
+        self._models.difference_update(models)
+        return self
+
+    def remove_subject_properties(self, *ptype_uuids) -> RelationTypeProxy:
+        self._properties.difference_update(ptype_uuids)
+        return self
+
+    def remove_subject_forbidden_properties(self, *ptype_uuids) -> RelationTypeProxy:
+        self._forbidden_properties.difference_update(ptype_uuids)
+        return self
+
+    def update_or_create(self) -> RelationType:
+        """TODO"""
+        sym = self.symmetric_type
+
+        update_or_create = RelationType.objects.update_or_create
+        defaults = {
+            'is_custom': self._is_custom,
+            'enabled': self._enabled,
+            'is_internal': self._is_internal,
+        }
+        sub_rtype = update_or_create(
+            id=self.id,
+            defaults={
+                **defaults,
+                'predicate': self.predicate,
+                'is_copiable': self.is_copiable,
+                'minimal_display': self.minimal_display,
+            },
+        )[0]
+        obj_rtype = update_or_create(
+            id=sym.id,
+            defaults={
+                **defaults,
+                'predicate': sym.predicate,
+                'is_copiable': sym.is_copiable,
+                'minimal_display': sym.minimal_display,
+                'symmetric_type': sub_rtype,
+            },
+        )[0]
+
+        sub_rtype.symmetric_type = obj_rtype
+        sub_rtype.save()
+
+        # Many-to-Many fields ---
+        sub_rtype.subject_ctypes.set(self.subject_ctypes)
+        obj_rtype.subject_ctypes.set(sym.subject_ctypes)
+
+        # TODO: error/log if a property is missing?
+        # TODO: regroup queries?
+        sub_rtype.subject_properties.set(self.subject_properties)
+        obj_rtype.subject_properties.set(sym.subject_properties)
+        sub_rtype.subject_forbidden_properties.set(self.subject_forbidden_properties)
+        obj_rtype.subject_forbidden_properties.set(sym.subject_forbidden_properties)
+
+        return sub_rtype
 
 
 class RelationTypeManager(models.Manager):
@@ -168,6 +367,26 @@ class RelationTypeManager(models.Manager):
         return sub_relation_type, obj_relation_type
 
     smart_update_or_create.alters_data = True
+
+    def proxy(self, *,
+              id: str, predicate: str,
+              models: Iterable[type[CremeEntity]] = (),
+              is_custom: bool = False,
+              is_internal: bool = False,
+              is_copiable: bool = True,
+              minimal_display: bool = False,
+              properties: Iterable[str] = (),
+              forbidden_properties: Iterable[str] = (),
+              enabled=True,
+              ) -> RelationTypeProxy:
+        """TODO"""
+        return RelationTypeProxy.build_main(
+            id=id, predicate=predicate, models=models,
+            is_custom=is_custom, is_internal=is_internal,
+            is_copiable=is_copiable, minimal_display=minimal_display,
+            properties=properties, forbidden_properties=forbidden_properties,
+            enabled=enabled,
+        )
 
 
 class RelationManager(models.Manager):
