@@ -51,10 +51,23 @@ from .models import FolderCategory
 
 logger = logging.getLogger(__name__)
 
+Document = get_document_model()
+Folder = get_folder_model()
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
+    RELATION_TYPES = [
+        RelationType.objects.builder(
+            id=constants.REL_SUB_RELATED_2_DOC,
+            predicate=_('related to the document'),
+        ).symmetric(
+            id=constants.REL_OBJ_RELATED_2_DOC,
+            predicate=_('document related to'),
+            models=[Document],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.FOLDER_CREATION_CFORM,
         custom_forms.FOLDER_EDITION_CFORM,
@@ -71,8 +84,10 @@ class Populator(BasePopulator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.Document = get_document_model()
-        self.Folder   = get_folder_model()
+        # self.Document = get_document_model()
+        # self.Folder   = get_folder_model()
+        self.Document = Document
+        self.Folder   = Folder
 
         self.entities_category = None
 
@@ -123,11 +138,11 @@ class Populator(BasePopulator):
             },
         )
 
-    def _populate_relation_types(self):
-        RelationType.objects.smart_update_or_create(
-            (constants.REL_SUB_RELATED_2_DOC, _('related to the document')),
-            (constants.REL_OBJ_RELATED_2_DOC, _('document related to'),      [self.Document])
-        )
+    # def _populate_relation_types(self):
+    #     RelationType.objects.smart_update_or_create(
+    #         (constants.REL_SUB_RELATED_2_DOC, _('related to the document')),
+    #         (constants.REL_OBJ_RELATED_2_DOC, _('document related to'),      [self.Document])
+    #     )
 
     def _populate_entity_filters(self):
         EntityFilter.objects.smart_update_or_create(

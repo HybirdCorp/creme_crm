@@ -60,6 +60,34 @@ UUID_CBRICK_TEMPLATE = 'b1bf8a0a-26ef-4f05-a666-a328da6c52fd'
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'documents']
 
+    RELATION_TYPES = [
+        RelationType.objects.builder(
+            id=constants.REL_SUB_MAIL_RECEIVED,
+            predicate=_('(email) received by'),
+            models=[EntityEmail],
+        ).symmetric(
+            id=constants.REL_OBJ_MAIL_RECEIVED,
+            predicate=_('received the email'),
+            models=[Organisation, Contact],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_MAIL_SENT,
+            predicate=_('(email) sent by'),
+            models=[EntityEmail],
+        ).symmetric(
+            id=constants.REL_OBJ_MAIL_SENT,
+            predicate=_('sent the email'),
+            models=[Organisation, Contact],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_RELATED_TO,
+            predicate=_('(email) related to'),
+            models=[EntityEmail],
+        ).symmetric(
+            id=constants.REL_OBJ_RELATED_TO,
+            predicate=_('related to the email'),
+        ),
+    ]
     JOBS = [
         Job(type=creme_jobs.entity_emails_send_type),
         Job(type=creme_jobs.campaign_emails_send_type),
@@ -129,36 +157,36 @@ class Populator(BasePopulator):
     def _populate_folder_categories(self):
         self._save_minions(self.FOLDER_CATEGORIES)
 
-    def _populate_relation_types(self):
-        create_rtype = RelationType.objects.smart_update_or_create
-        create_rtype(
-            (
-                constants.REL_SUB_MAIL_RECEIVED,
-                _('(email) received by'),
-                [self.EntityEmail],
-            ),
-            (
-                constants.REL_OBJ_MAIL_RECEIVED,
-                _('received the email'),
-                [self.Organisation, self.Contact],
-            ),
-        )
-        create_rtype(
-            (
-                constants.REL_SUB_MAIL_SENT,
-                _('(email) sent by'),
-                [self.EntityEmail],
-            ),
-            (
-                constants.REL_OBJ_MAIL_SENT,
-                _('sent the email'),
-                [self.Organisation, self.Contact],
-            ),
-        )
-        create_rtype(
-            (constants.REL_SUB_RELATED_TO, _('(email) related to'),   [self.EntityEmail]),
-            (constants.REL_OBJ_RELATED_TO, _('related to the email'), []),
-        )
+    # def _populate_relation_types(self):
+    #     create_rtype = RelationType.objects.smart_update_or_create
+    #     create_rtype(
+    #         (
+    #             constants.REL_SUB_MAIL_RECEIVED,
+    #             _('(email) received by'),
+    #             [self.EntityEmail],
+    #         ),
+    #         (
+    #             constants.REL_OBJ_MAIL_RECEIVED,
+    #             _('received the email'),
+    #             [self.Organisation, self.Contact],
+    #         ),
+    #     )
+    #     create_rtype(
+    #         (
+    #             constants.REL_SUB_MAIL_SENT,
+    #             _('(email) sent by'),
+    #             [self.EntityEmail],
+    #         ),
+    #         (
+    #             constants.REL_OBJ_MAIL_SENT,
+    #             _('sent the email'),
+    #             [self.Organisation, self.Contact],
+    #         ),
+    #     )
+    #     create_rtype(
+    #         (constants.REL_SUB_RELATED_TO, _('(email) related to'),   [self.EntityEmail]),
+    #         (constants.REL_OBJ_RELATED_TO, _('related to the email'), []),
+    #     )
 
     def _populate_header_filters(self):
         create_hf = HeaderFilter.objects.create_if_needed

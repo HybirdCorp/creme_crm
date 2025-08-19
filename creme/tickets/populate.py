@@ -50,6 +50,9 @@ from .models import Criticity, Priority, Status
 
 logger = logging.getLogger(__name__)
 
+Ticket = get_ticket_model()
+TicketTemplate = get_tickettemplate_model()
+
 # UUIDs for instances which can be deleted
 UUID_PRIORITY_LOW      = '87599d36-8133-41b7-a382-399d5e96b160'
 UUID_PRIORITY_NORMAL   = '816cefa7-2f30-46a6-8baa-92e4647f44d3'
@@ -68,6 +71,16 @@ UUID_CRITICALITY_ERROR       = '3bd07632-f3ad-415e-bb33-95c723e46aa5'
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'activities']
 
+    RELATION_TYPES = [
+        RelationType.objects.builder(
+            id=constants.REL_SUB_LINKED_2_TICKET,
+            predicate=_('is linked to the ticket'),
+        ).symmetric(
+            id=constants.REL_OBJ_LINKED_2_TICKET,
+            predicate=_('(ticket) linked to the entity'),
+            models=[Ticket],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.TICKET_CREATION_CFORM,
         custom_forms.TICKET_EDITION_CFORM,
@@ -134,8 +147,10 @@ class Populator(BasePopulator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Ticket = get_ticket_model()
-        self.TicketTemplate = get_tickettemplate_model()
+        # self.Ticket = get_ticket_model()
+        # self.TicketTemplate = get_tickettemplate_model()
+        self.Ticket         = Ticket
+        self.TicketTemplate = TicketTemplate
 
     def _already_populated(self):
         return RelationType.objects.filter(
@@ -169,17 +184,18 @@ class Populator(BasePopulator):
         self._save_minions(self.CRITICALITY)
 
     def _populate_relation_types(self):
-        RelationType.objects.smart_update_or_create(
-            (
-                constants.REL_SUB_LINKED_2_TICKET,
-                _('is linked to the ticket'),
-            ),
-            (
-                constants.REL_OBJ_LINKED_2_TICKET,
-                _('(ticket) linked to the entity'),
-                [self.Ticket],
-            ),
-        )
+        # RelationType.objects.smart_update_or_create(
+        #     (
+        #         constants.REL_SUB_LINKED_2_TICKET,
+        #         _('is linked to the ticket'),
+        #     ),
+        #     (
+        #         constants.REL_OBJ_LINKED_2_TICKET,
+        #         _('(ticket) linked to the entity'),
+        #         [self.Ticket],
+        #     ),
+        # )
+        super()._populate_relation_types()
 
         if apps.is_installed('creme.activities'):
             logger.info(

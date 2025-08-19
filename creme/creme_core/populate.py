@@ -78,6 +78,13 @@ UUID_CURRENCY_CANADIAN_DOLLAR   = 'b6f7cef4-f4d3-48c0-8d81-7697ba2f7131'
 
 
 class Populator(BasePopulator):
+    RELATION_TYPES = [
+        RelationType.objects.builder(
+            id=constants.REL_SUB_HAS, predicate=_('owns'),
+        ).symmetric(
+            id=constants.REL_OBJ_HAS, predicate=_('belongs to'),
+        ),
+    ]
     JOBS = [
         Job(
             type=creme_jobs.sessions_cleaner_type,
@@ -321,11 +328,11 @@ class Populator(BasePopulator):
         }:
             create_vat(value=value, is_default=(value == DEFAULT_VAT), is_custom=False)
 
-    def _populate_relation_types(self):
-        RelationType.objects.smart_update_or_create(
-            (constants.REL_SUB_HAS, _('owns')),
-            (constants.REL_OBJ_HAS, _('belongs to')),
-        )
+    # def _populate_relation_types(self):
+    #     RelationType.objects.smart_update_or_create(
+    #         (constants.REL_SUB_HAS, _('owns')),
+    #         (constants.REL_OBJ_HAS, _('belongs to')),
+    #     )
 
     def _populate_menu_config(self):
         create_mitem = MenuConfigItem.objects.create

@@ -132,10 +132,80 @@ UUID_IBRICK_UNPAID_INVOICES_PER_MONTH = '9b9faf6f-0537-419f-842d-d9b3fc3cb321'
 
 _ButtonProxy = ButtonMenuItem.objects.proxy
 
+_LINE_MODELS = [*line_registry]
+assert _LINE_MODELS, "billing.populate has been imported before app config has been built"
+
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
 
+    RELATION_TYPES = [
+        RelationType.objects.builder(
+            id=constants.REL_SUB_BILL_ISSUED,
+            predicate=_('issued by'),
+            models=BILLING_MODELS,
+            is_internal=True,
+        ).symmetric(
+            id=constants.REL_OBJ_BILL_ISSUED,
+            predicate=_('has issued'),
+            models=[Organisation],
+            minimal_display=True,
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_BILL_RECEIVED,
+            predicate=_('received by'),
+            models=BILLING_MODELS,
+            is_internal=True,
+        ).symmetric(
+            id=constants.REL_OBJ_BILL_RECEIVED,
+            predicate=_('has received'),
+            models=[Organisation, Contact],
+            minimal_display=True,
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_HAS_LINE,
+            predicate=_('has the line'),
+            models=BILLING_MODELS,
+            is_internal=True,
+            minimal_display=True,
+        ).symmetric(
+            id=constants.REL_OBJ_HAS_LINE,
+            predicate=_('is the line of'),
+            models=_LINE_MODELS,
+            minimal_display=True,
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_LINE_RELATED_ITEM,
+            predicate=_('has the related item'),
+            models=_LINE_MODELS,
+            is_internal=True,
+        ).symmetric(
+            id=constants.REL_OBJ_LINE_RELATED_ITEM,
+            predicate=_('is the related item of'),
+            # [Product, Service],
+            models=[line_model.related_item_class() for line_model in _LINE_MODELS],
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_CREDIT_NOTE_APPLIED,
+            predicate=_('is used in the billing document'),
+            models=[CreditNote],
+            is_internal=True,
+            minimal_display=True,
+        ).symmetric(
+            id=constants.REL_OBJ_CREDIT_NOTE_APPLIED,
+            predicate=_('uses the credit note'),
+            minimal_display=True,
+        ),
+        RelationType.objects.builder(
+            id=constants.REL_SUB_INVOICE_FROM_QUOTE,
+            predicate=_('(Invoice) converted from the Quote'),
+            models=[Invoice],
+        ).symmetric(
+            id=constants.REL_OBJ_INVOICE_FROM_QUOTE,
+            predicate=_('(Quote) converted to the Invoice'),
+            models=[Quote],
+        ),
+    ]
     CUSTOM_FORMS = [
         custom_forms.INVOICE_CREATION_CFORM,
         custom_forms.INVOICE_EDITION_CFORM,
@@ -411,75 +481,76 @@ class Populator(BasePopulator):
         self._save_minions(self.SALES_ORDER_STATUSES)
 
     def _populate_relation_types(self):
-        line_models = [*line_registry]
-
-        create_rtype = RelationType.objects.smart_update_or_create
-        create_rtype(
-            (constants.REL_SUB_BILL_ISSUED, _('issued by'),  BILLING_MODELS),
-            (constants.REL_OBJ_BILL_ISSUED, _('has issued'), [self.Organisation]),
-            is_internal=True,
-            minimal_display=(False, True),
-        )
-        create_rtype(
-            (
-                constants.REL_SUB_BILL_RECEIVED,
-                _('received by'),
-                BILLING_MODELS,
-            ),
-            (
-                constants.REL_OBJ_BILL_RECEIVED,
-                _('has received'),
-                [self.Organisation, self.Contact],
-            ),
-            is_internal=True,
-            minimal_display=(False, True),
-        )
-        create_rtype(
-            (constants.REL_SUB_HAS_LINE, _('has the line'),   BILLING_MODELS),
-            (constants.REL_OBJ_HAS_LINE, _('is the line of'), line_models),
-            is_internal=True,
-            minimal_display=(True, True),
-        )
-        create_rtype(
-            (
-                constants.REL_SUB_LINE_RELATED_ITEM,
-                _('has the related item'),
-                line_models,
-            ),
-            (
-                constants.REL_OBJ_LINE_RELATED_ITEM,
-                _('is the related item of'),
-                # [Product, Service],
-                {line_model.related_item_class() for line_model in line_models},
-            ),
-            is_internal=True,
-        )
-        create_rtype(
-            (
-                constants.REL_SUB_CREDIT_NOTE_APPLIED,
-                _('is used in the billing document'),
-                [self.CreditNote],
-            ),
-            (
-                constants.REL_OBJ_CREDIT_NOTE_APPLIED,
-                _('uses the credit note'),
-                [self.Quote, self.SalesOrder, self.Invoice],
-            ),
-            is_internal=True,
-            minimal_display=(True, True),
-        )
-        create_rtype(
-            (
-                constants.REL_SUB_INVOICE_FROM_QUOTE,
-                _('(Invoice) converted from the Quote'),
-                [self.Invoice],
-            ),
-            (
-                constants.REL_OBJ_INVOICE_FROM_QUOTE,
-                _('(Quote) converted to the Invoice'),
-                [self.Quote],
-            ),
-        )
+        # line_models = [*line_registry]
+        #
+        # create_rtype = RelationType.objects.smart_update_or_create
+        # create_rtype(
+        #     (constants.REL_SUB_BILL_ISSUED, _('issued by'),  BILLING_MODELS),
+        #     (constants.REL_OBJ_BILL_ISSUED, _('has issued'), [self.Organisation]),
+        #     is_internal=True,
+        #     minimal_display=(False, True),
+        # )
+        # create_rtype(
+        #     (
+        #         constants.REL_SUB_BILL_RECEIVED,
+        #         _('received by'),
+        #         BILLING_MODELS,
+        #     ),
+        #     (
+        #         constants.REL_OBJ_BILL_RECEIVED,
+        #         _('has received'),
+        #         [self.Organisation, self.Contact],
+        #     ),
+        #     is_internal=True,
+        #     minimal_display=(False, True),
+        # )
+        # create_rtype(
+        #     (constants.REL_SUB_HAS_LINE, _('has the line'),   BILLING_MODELS),
+        #     (constants.REL_OBJ_HAS_LINE, _('is the line of'), line_models),
+        #     is_internal=True,
+        #     minimal_display=(True, True),
+        # )
+        # create_rtype(
+        #     (
+        #         constants.REL_SUB_LINE_RELATED_ITEM,
+        #         _('has the related item'),
+        #         line_models,
+        #     ),
+        #     (
+        #         constants.REL_OBJ_LINE_RELATED_ITEM,
+        #         _('is the related item of'),
+        #         # [Product, Service],
+        #         {line_model.related_item_class() for line_model in line_models},
+        #     ),
+        #     is_internal=True,
+        # )
+        # create_rtype(
+        #     (
+        #         constants.REL_SUB_CREDIT_NOTE_APPLIED,
+        #         _('is used in the billing document'),
+        #         [self.CreditNote],
+        #     ),
+        #     (
+        #         constants.REL_OBJ_CREDIT_NOTE_APPLIED,
+        #         _('uses the credit note'),
+        #         [self.Quote, self.SalesOrder, self.Invoice],
+        #     ),
+        #     is_internal=True,
+        #     minimal_display=(True, True),
+        # )
+        # create_rtype(
+        #     (
+        #         constants.REL_SUB_INVOICE_FROM_QUOTE,
+        #         _('(Invoice) converted from the Quote'),
+        #         [self.Invoice],
+        #     ),
+        #     (
+        #         constants.REL_OBJ_INVOICE_FROM_QUOTE,
+        #         _('(Quote) converted to the Invoice'),
+        #         [self.Quote],
+        #     ),
+        # )
+        super()._populate_relation_types()
 
         if apps.is_installed('creme.activities'):
             logger.info(
