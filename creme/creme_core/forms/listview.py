@@ -35,6 +35,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.core import enumerable
+from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.forms.base import CremeForm
 from creme.creme_core.forms.widgets import DatePickerMixin
 from creme.creme_core.models import Relation
@@ -49,7 +50,7 @@ NULL = 'NULL'
 
 class ListViewSearchWidget(Widget):
     """Base class for the list-view search-widget (displayed in the column
-    headers of the list-views to operate "quick" search.
+    headers of the list-views to operate "quick" search).
     """
     template_name = 'creme_core/listview/search-widgets/void.html'
 
@@ -606,20 +607,25 @@ class RegularRelatedField(ListViewSearchField):
     widget = EnumerableLVSWidget
 
     def __init__(self, *, cell, user, enumerable_registry=None, **kwargs):
-        field = cell.field_info[-1]
-
-        self.enumerator = LVSEnumerator(
-            user=user,
-            field=field,
-            registry=enumerable_registry
-        )
-
         super().__init__(cell=cell, user=user, **kwargs)
 
-        self.widget.enumerator = self.enumerator
+        field = cell.field_info[-1]
+        if field.get_tag(FieldTag.ENUMERABLE):
+            self.widget.enumerator = self.enumerator = LVSEnumerator(
+                user=user,
+                field=field,
+                registry=enumerable_registry,
+            )
+        else:
+            logger.warning(
+                'The field <%s> is not enumerable, you should define a specific '
+                'quick-search field.', field,
+            )
+            self.enumerator = None
+            self.widget = ListViewSearchWidget()
 
     def to_python(self, value):
-        if value:
+        if value and self.enumerator is not None:
             for choice in self.enumerator.choices(only=[value]):
                 pk = choice['value']
 
