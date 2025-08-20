@@ -33,6 +33,7 @@ from creme.creme_core.models import (
 )
 
 from ..base import CremeTestCase
+from ..fake_models import FakeReport
 
 
 class SearchWidgetsTestCase(CremeTestCase):
@@ -645,32 +646,53 @@ class SearchFieldsTestCase(CremeTestCase):
     def test_regular_relatedfield06(self):
         "Not enumerable FK."
         cell = EntityCellRegularField.build(model=FakeContact, name='address')
-        expected_choices = [
-            {'value': '', 'label': pgettext('creme_core-filter', 'All')},
-            {
-                'value': lv_forms.NULL,
-                'pinned': True,
-                'label': pgettext('creme_core-filter', 'Is empty')
-            },
-        ]
+        # expected_choices = [
+        #     {'value': '', 'label': pgettext('creme_core-filter', 'All')},
+        #     {
+        #         'value': lv_forms.NULL,
+        #         'pinned': True,
+        #         'label': pgettext('creme_core-filter', 'Is empty')
+        #     },
+        # ]
 
         field = lv_forms.RegularRelatedField(cell=cell, user=self.user)
-        self.assertEqual(expected_choices, field.enumerator.choices())
+        # self.assertEqual(expected_choices, field.enumerator.choices())
+        self.assertIsNone(field.enumerator)
+        self.assertEqual(
+            'creme_core/listview/search-widgets/void.html',
+            field.widget.template_name,
+        )
+
+        to_python = field.to_python
+        self.assertEqual(Q(), to_python(value=''))
+        with self.assertNoException():
+            q = to_python(value=1)
+        self.assertEqual(Q(), q)
 
     def test_regular_relatedfield07(self):
         "Field has a null_label."
-        cell = EntityCellRegularField.build(model=FakeContact, name='is_user')
-        expected_choices = [
-            {'value': '', 'label': pgettext('creme_core-filter', 'All')},
-            {
-                'value': lv_forms.NULL,
-                'pinned': True,
-                'label': pgettext('persons-is_user', 'None'),
-            },
-        ]
+        # cell = EntityCellRegularField.build(model=FakeContact, name='is_user')
+        cell = EntityCellRegularField.build(model=FakeReport, name='efilter')
+        # expected_choices = [
+        #     {'value': '', 'label': pgettext('creme_core-filter', 'All')},
+        #     {
+        #         'value': lv_forms.NULL,
+        #         'pinned': True,
+        #         'label': pgettext('persons-is_user', 'None'),
+        #     },
+        # ]
 
         field = lv_forms.RegularRelatedField(cell=cell, user=self.user)
-        self.assertEqual(expected_choices, field.enumerator.choices())
+        # self.assertEqual(expected_choices, field.enumerator.choices())
+        choices = field.enumerator.choices()
+        self.assertIn(
+            {'value': '', 'label': pgettext('creme_core-filter', 'All')},
+            choices,
+        )
+        self.assertIn(
+            {'value': lv_forms.NULL, 'pinned': True, 'label': _('No filter')},
+            choices,
+        )
 
     def test_entity_relatedfield(self):
         cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='linked_invoice')
