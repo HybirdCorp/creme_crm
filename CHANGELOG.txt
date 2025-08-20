@@ -18,6 +18,7 @@
     Non breaking changes :
     ----------------------
         # No quick-search widget is displayed for not enumerable FK/M2M without specific field registered.
+        # HeaderFilters still displayed fields which were tagged as not viewable.
         # Many methods have been marked with 'alters_data = True'.
 
 
