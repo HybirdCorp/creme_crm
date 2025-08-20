@@ -41,6 +41,7 @@ from creme.creme_core.models import (
     FakeImage,
     FakeMailingList,
     FakePosition,
+    FakeTodo,
     FieldsConfig,
     Language,
     Relation,
@@ -541,6 +542,14 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name=hidden)
         self.assertEqual(_('{} [hidden]').format(_('First name')), cell.title)
         self.assertIs(cell.is_excluded, True)
+
+    def test_not_viewable_field(self):
+        cell1 = EntityCellRegularField.build(model=FakeTodo, name='entity')
+        self.assertTrue(cell1.is_excluded)
+        self.assertEqual(_('{} [hidden]').format('entity'), cell1.title)
+
+        cell2 = EntityCellRegularField.build(model=FakeTodo, name='entity__user')
+        self.assertTrue(cell2.is_excluded)
 
     def test_errors(self):
         build = partial(EntityCellRegularField.build, model=FakeContact)
