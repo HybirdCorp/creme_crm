@@ -780,6 +780,11 @@
     visibility: visible;
 }
 
+.brick-tiles .brick-tile:hover .brick-tile-action.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .brick-tiles .brick-tile-action-title {
     text-transform: uppercase;
     white-space: nowrap;
