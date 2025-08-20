@@ -17,6 +17,7 @@
 
     Non breaking changes :
     ----------------------
+        # No quick-search widget is displayed for not enumerable FK/M2M without specific field registered.
         # Many methods have been marked with 'alters_data = True'.
 
 
