@@ -57,6 +57,7 @@ from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.utils.dates import date_2_dict
 from creme.creme_core.utils.meta import FieldInfo, is_date_field
 
+from ..field_tags import FieldTag
 # from . import EF_USER
 from . import (
     EF_REGULAR,
@@ -570,9 +571,12 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
     @property
     def error(self):
         try:
-            self.field_info  # NOQA
+            field_info = self.field_info
         except FieldDoesNotExist as e:
             return str(e)
+
+        if not all(field.get_tag(FieldTag.VIEWABLE) for field in field_info):
+            return f'{self._model.__name__}.{self._field_name} is not viewable'
 
         return self._check_operator(self._operator_id)
 
@@ -774,11 +778,15 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
     @staticmethod
     def _check_field(model, field_name):
         try:
-            finfo = FieldInfo(model, field_name)
+            field_info = FieldInfo(model, field_name)
         except FieldDoesNotExist as e:
             return str(e)
 
-        if not is_date_field(finfo[-1]):
+        # TODO: test
+        if not all(field.get_tag(FieldTag.VIEWABLE) for field in field_info):
+            return f'{model.__name__}.{field_name} is not viewable'
+
+        if not is_date_field(field_info[-1]):
             return f"'{field_name}' is not a date field"
 
     def description(self, user):
