@@ -141,29 +141,45 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertEqual([value],     handler._values)
 
     def test_property_error(self):
-        handler1 = RegularFieldConditionHandler(
-            efilter_type=EF_REGULAR,
-            model=FakeOrganisation,
-            field_name='invalid',
-            operator_id=operators.ICONTAINS,
-            values=['Corp'],
-        )
         self.assertEqual(
             "FakeOrganisation has no field named 'invalid'",
-            handler1.error,
-        )
-
-        # ---
-        handler2 = RegularFieldConditionHandler(
-            efilter_type=EF_REGULAR,
-            model=FakeOrganisation,
-            field_name='name',
-            operator_id=1234,  # <=
-            values=['Corp'],
+            RegularFieldConditionHandler(
+                efilter_type=EF_REGULAR,
+                model=FakeOrganisation,
+                field_name='invalid',
+                operator_id=operators.ICONTAINS,
+                values=['Corp'],
+            ).error,
         )
         self.assertEqual(
             "Operator ID '1234' is invalid",
-            handler2.error,
+            RegularFieldConditionHandler(
+                efilter_type=EF_REGULAR,
+                model=FakeOrganisation,
+                field_name='name',
+                operator_id=1234,  # <=
+                values=['Corp'],
+            ).error,
+        )
+        self.assertEqual(
+            'FakeOrganisation.header_filter_search_field is not viewable',
+            RegularFieldConditionHandler(
+                efilter_type=EF_REGULAR,
+                model=FakeOrganisation,
+                field_name='header_filter_search_field',  # Not viewable
+                operator_id=operators.ICONTAINS,
+                values=['Corp'],
+            ).error,
+        )
+        self.assertEqual(
+            'FakeContact.cremeentity_ptr__description is not viewable',
+            RegularFieldConditionHandler(
+                efilter_type=EF_REGULAR,
+                model=FakeContact,
+                field_name='cremeentity_ptr__description',  # Root not viewable
+                operator_id=operators.EQUALS,
+                values=['contact'],
+            ).error,
         )
 
     def test_applicable_on_entity_base(self):
@@ -1326,24 +1342,34 @@ class DateRegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
 
     def test_property_error(self):
         "<error> property."
-        handler1 = DateRegularFieldConditionHandler(
-            efilter_type=EF_REGULAR,
-            model=FakeOrganisation,
-            field_name='unknown',
-            date_range='previous_year',
-        )
         self.assertEqual(
             "FakeOrganisation has no field named 'unknown'",
-            handler1.error,
+            DateRegularFieldConditionHandler(
+                efilter_type=EF_REGULAR,
+                model=FakeOrganisation,
+                field_name='unknown',
+                date_range='previous_year',
+            ).error,
         )
-
-        handler2 = DateRegularFieldConditionHandler(
-            efilter_type=EF_REGULAR,
-            model=FakeOrganisation,
-            field_name='sector',
-            date_range='previous_year',
+        self.assertEqual(
+            "'sector' is not a date field",
+            DateRegularFieldConditionHandler(
+                efilter_type=EF_REGULAR,
+                model=FakeOrganisation,
+                field_name='sector',
+                date_range='previous_year',
+            ).error,
         )
-        self.assertEqual("'sector' is not a date field", handler2.error)
+        # TODO: need a not viewable date field in fake models.
+        # self.assertEqual(
+        #     'FakeOrganisation.header_filter_search_field is not viewable',
+        #     DateRegularFieldConditionHandler(
+        #         efilter_type=EF_REGULAR,
+        #         model=FakeOrganisation,
+        #         field_name='not_viewable_date_field',
+        #         date_range='previous_year',
+        #     ).error,
+        # )
 
     def test_applicable_on_entity_base(self):
         handler = DateRegularFieldConditionHandler(
