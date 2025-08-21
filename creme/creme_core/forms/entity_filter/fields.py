@@ -19,6 +19,7 @@
 # TODO: improve operators code and remove lots of hard-coded stuffs here
 #       (& in widgets)
 
+import logging
 from datetime import date
 from functools import partial
 
@@ -57,6 +58,8 @@ from creme.creme_core.utils.meta import is_date_field
 
 from ..fields import JSONField
 from . import widgets
+
+logger = logging.getLogger(__name__)
 
 
 def boolean_str(val):
@@ -204,8 +207,13 @@ class RegularFieldsConditionsField(_ConditionsField):
         field_choicetype = widgets.FieldConditionSelector.field_choicetype
 
         for condition in value:
+            error = condition.handler.error
+            if error:
+                logger.warning('The condition is invalid & so we ignored it: %s', error)
+                continue
+
             search_info = condition.value  # TODO: use condition.handler
-            operator_id = search_info['operator']
+            operator_id = search_info['operator']  # condition.handler.operator_id
             operator = self.efilter_registry.get_operator(operator_id)
 
             field = fields[condition.name][-1]
@@ -409,6 +417,11 @@ class DateFieldsConditionsField(_ConditionsField):
         fmt = self._format_date
 
         for condition in value:
+            error = condition.handler.error
+            if error:
+                logger.warning('The condition is invalid & so we ignored it: %s', error)
+                continue
+
             get = condition.value.get
             field = fields[condition.name][-1]
 

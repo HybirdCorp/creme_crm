@@ -376,6 +376,15 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             {'operator': operator, 'values': [value]}, condition.value,
         )
 
+        self.assertJSONEqual(
+            raw=field.from_python([condition]),
+            expected_data=[{
+                'field': {'name': name, 'type': 'string'},
+                'operator': {'id': operator, 'types': 'string'},
+                'value': value,
+            }],
+        )
+
     def test_initialize(self):
         "initialize() + filter_type."
         field = RegularFieldsConditionsField(
@@ -442,13 +451,13 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_isempty_condition(self):
         "ISEMPTY (true) -> boolean."
-        clean = RegularFieldsConditionsField(
+        field = RegularFieldsConditionsField(
             # model=FakeContact, efilter_registry=efilter_registry,
             model=FakeContact, efilter_type=efilter_registry.id,
-        ).clean
+        )
         operator = operators.ISEMPTY
         name = 'description'
-        condition = self.get_alone_element(clean(self.build_data({
+        condition = self.get_alone_element(field.clean(self.build_data({
             'operator': operator,
             'name':     name,
             'value':    True,
@@ -459,6 +468,25 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             {'operator': operator, 'values': [True]},
             condition.value,
         )
+
+        # TODO: need ordered set for FIELDTYPES_NULLABLE...
+        # self.assertJSONEqual(
+        #     raw=field.from_python([condition]),
+        #     expected_data=[{
+        #         'field': {'name': name, 'type': 'string'},
+        #         'operator': {
+        #             'id': operator,
+        #             'types': 'choices__null enum__null boolean__null user__null string fk__null',
+        #         },
+        #         'value': True,
+        #     }],
+        # )
+        initial = json_load(field.from_python([condition]))
+        self.assertIsList(initial, length=1)
+        initial0 = initial[0]
+        self.assertIsDict(initial0, length=3)
+        self.assertDictEqual({'name': name, 'type': 'string'}, initial0.get('field'))
+        self.assertIs(initial0.get('value'), True)
 
     def test_isnotempty_condition(self):
         "ISEMPTY (false) -> boolean."
@@ -481,13 +509,13 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_equals_boolean_condition(self):
-        clean = RegularFieldsConditionsField(
+        field = RegularFieldsConditionsField(
             # model=FakeOrganisation, efilter_registry=efilter_registry,
             model=FakeOrganisation, efilter_type=efilter_registry.id,
-        ).clean
+        )
         operator = operators.EQUALS
         name = 'subject_to_vat'
-        condition = self.get_alone_element(clean(self.build_data({
+        condition = self.get_alone_element(field.clean(self.build_data({
             'operator': operator, 'name': name, 'value': True,
         })))
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
@@ -495,6 +523,25 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         self.assertDictEqual(
             {'operator': operator, 'values': [True]}, condition.value,
         )
+
+        # TODO: need ordered set for FIELDTYPES_*...
+        # self.assertJSONEqual(
+        #     raw=field.from_python([condition]),
+        #     expected_data=[{
+        #         'field': {'name': name, 'type': 'boolean'},
+        #         'operator': {
+        #             'id': operator,
+        #             'types': '......',
+        #         },
+        #         'value': True,
+        #     }],
+        # )
+        initial = json_load(field.from_python([condition]))
+        self.assertIsList(initial, length=1)
+        initial0 = initial[0]
+        self.assertIsDict(initial0, length=3)
+        self.assertDictEqual({'name': name, 'type': 'boolean'}, initial0.get('field'))
+        self.assertIs(initial0.get('value'), True)
 
     def test_fk_subfield(self):
         "FK subfield."
@@ -959,6 +1006,26 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_fname,                         condition.name)
 
+    def test_invalid_field(self):
+        field = RegularFieldsConditionsField(
+            model=FakeOrganisation, efilter_type=efilter_registry.id,
+        )
+        condition = self.get_alone_element(field.clean(self.build_data({
+            'operator': operators.EQUALS, 'name': 'phone', 'value': True,
+        })))
+        condition.name = 'invalid'
+
+        with self.assertLogs(level='WARNING') as logs_manager:
+            with self.assertNoException():
+                raw_json = field.from_python([condition])
+        self.assertEqual('[]', raw_json)
+
+        self.assertIn(
+            "The condition is invalid & so we ignored it: "
+            "FakeOrganisation has no field named 'invalid'",
+            logs_manager.output[0],
+        )
+
 
 class DateFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_clean_invalid_data(self):
@@ -1375,6 +1442,25 @@ class DateFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
                 },
             ],
             decoded_value,
+        )
+
+    def test_invalid_field(self):
+        field = DateFieldsConditionsField()
+
+        condition = DateRegularFieldConditionHandler.build_condition(
+            model=FakeContact, field_name='created', date_range='current_year',
+        )
+        condition.name = 'invalid'
+
+        with self.assertLogs(level='WARNING') as logs_manager:
+            with self.assertNoException():
+                raw_json = field.from_python([condition])
+        self.assertEqual('[]', raw_json)
+
+        self.assertIn(
+            "The condition is invalid & so we ignored it: "
+            "FakeContact has no field named 'invalid'",
+            logs_manager.output[0],
         )
 
 
