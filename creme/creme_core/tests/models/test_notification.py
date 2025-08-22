@@ -368,24 +368,33 @@ class NotificationTestCase(CremeTestCase):
         old_count = Notification.objects.count()
         subject = 'Hi'
         body = 'there'
-        Notification.objects.send(
+        notifications = Notification.objects.send(
             users=[user],
             channel=constants.UUID_CHANNEL_ADMIN,
             content=SimpleNotifContent(subject=subject, body=body),
         )
+        self.assertIsList(notifications, length=1)
+
         self.assertEqual(old_count + 1, Notification.objects.count())
         notif = self.get_object_or_fail(
             Notification,
             user=user, channel__uuid=constants.UUID_CHANNEL_ADMIN,
         )
         self.assertEqual(SimpleNotifContent.id, notif.content_id)
-        self.assertDictEqual({'subject': subject, 'body': body}, notif.content_data)
+        exp_data = {'subject': subject, 'body': body}
+        self.assertDictEqual(exp_data, notif.content_data)
         self.assertIsNone(notif.discarded)
         self.assertEqual(Notification.Level.NORMAL, notif.level)
         self.assertEqual(OUTPUT_WEB,                notif.output)
         self.assertDictEqual({}, notif.extra_data)
 
         self.assertFalse(queue.refreshed_jobs)
+
+        notif0 = notifications[0]
+        self.assertIsInstance(notif0, Notification)
+        # self.assertEqual(notif.pk, notif0.pk)  # depends on data-base engine
+        self.assertEqual(SimpleNotifContent.id, notif0.content_id)
+        self.assertDictEqual(exp_data,          notif0.content_data)
 
     def test_manager_send02(self):
         "Two users, Channel instance, low priority, other outputs."
@@ -404,12 +413,13 @@ class NotificationTestCase(CremeTestCase):
         create_item(user=user2, outputs=[OUTPUT_EMAIL])
 
         level = Notification.Level.LOW
-        Notification.objects.send(
+        notifications = Notification.objects.send(
             users=[user1, user2],
             channel=channel,
             content=SimpleNotifContent(subject='*Subject*', body='*Body*'),
             level=level,
         )
+        self.assertIsList(notifications, length=2)
         self.assertEqual(old_count + 2, Notification.objects.count())
 
         notif1 = self.get_object_or_fail(Notification, user=user1, channel=channel)

@@ -223,9 +223,13 @@ class NotificationManager(models.Manager):
              content: notification.NotificationContent,
              level: Notification.Level | None = None,
              extra_data: dict | None = None,
-             ) -> None:
+             ) -> list[Notification]:
         """Create as much as needed Notification instances for some Users,
         by respecting their own configuration for the given channel.
+
+        @return The created Notification instances.
+                BEWARE: the IDs/PKs are only set on database engine which manage it
+                (currently only PostgreSQL); see the documentation of bulk_create().
         """
         if isinstance(channel, (str, uuid.UUID)):
             channel = NotificationChannel.objects.get_for_uuid(channel)
@@ -245,7 +249,7 @@ class NotificationManager(models.Manager):
         }
 
         level = level or self.model.Level.NORMAL
-        self.bulk_create([
+        notifications = self.bulk_create([
             self.model(
                 channel=channel, user=user, output=output, content=content,
                 level=level, extra_data=extra_data or {},
@@ -266,6 +270,10 @@ class NotificationManager(models.Manager):
         ):
             from .. import creme_jobs
             creme_jobs.notification_emails_sender_type.refresh_job()
+
+        return notifications
+
+    send.alters_data = True
 
 
 class Notification(models.Model):
