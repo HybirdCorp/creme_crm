@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -95,7 +95,7 @@ class NotificationContent:
 
     @classmethod
     def from_dict(cls, data: dict) -> NotificationContent:
-        """Build an instance from a dictionary (produced by <as_dict()>.
+        """Build an instance from a dictionary (produced by <as_dict()>).
         So it's a deserialization method.
         @raise DeserializationError
         """
