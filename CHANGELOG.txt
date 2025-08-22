@@ -17,6 +17,7 @@
 
     Non breaking changes :
     ----------------------
+        # The method 'creme_core.models.Notification.objects.send()' can set teh attribute 'extra_data' now.
         # No quick-search widget is displayed for not enumerable FK/M2M without specific field registered.
         # Fields which are stored in configuration then tagged as not viewable are now better
           managed by HeaderFilters & EntityFilters.

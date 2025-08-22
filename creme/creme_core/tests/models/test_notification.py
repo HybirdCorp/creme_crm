@@ -383,6 +383,7 @@ class NotificationTestCase(CremeTestCase):
         self.assertIsNone(notif.discarded)
         self.assertEqual(Notification.Level.NORMAL, notif.level)
         self.assertEqual(OUTPUT_WEB,                notif.output)
+        self.assertDictEqual({}, notif.extra_data)
 
         self.assertFalse(queue.refreshed_jobs)
 
@@ -484,6 +485,27 @@ class NotificationTestCase(CremeTestCase):
         self.get_object_or_fail(
             Notification, user=user, channel=channel, output=OUTPUT_EMAIL,
         )
+
+    def test_manager_send__extra_data(self):
+        user = self.get_root_user()
+        channel = NotificationChannel.objects.create(
+            name='My Channel', default_outputs=[OUTPUT_WEB],
+        )
+
+        old_count = Notification.objects.count()
+        extra_data = {'foo': 'bar'}
+        Notification.objects.send(
+            users=[user],
+            channel=channel,
+            content=SimpleNotifContent(subject='*Subject*', body='*Body*'),
+            extra_data=extra_data,
+        )
+        self.assertEqual(old_count + 1, Notification.objects.count())
+
+        notif = self.get_object_or_fail(
+            Notification, user=user, channel=channel, output=OUTPUT_WEB,
+        )
+        self.assertDictEqual(extra_data, notif.extra_data)
 
     def test_populate(self):
         sys_chan = self.get_object_or_fail(
