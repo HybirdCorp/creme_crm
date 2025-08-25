@@ -1,4 +1,4 @@
-__version__ = '2.7-rc3'
+__version__ = '2.7-rc4'
 
 
 def get_version():
