@@ -301,13 +301,15 @@
             * Persons :
                 - The model 'Address' gets new semantic fields (like ZipCodeField) which allow to
                   easily customise things (like the form field, the field printer etc...).
-            * Activities:
+            * Activities :
                 - A new 'FullCalendarBrick' base class for calendar bricks has been added.
                 - The JavaScript component 'creme.ActivityCalendar' has been improved :
                     - The flag 'headlessMode' has been added.
                     - The property 'allowEventOverlaps' (boolean or method) has been added.
                     - The property 'allowEventCreate' (boolean) has been added.
-            * Geolocation:
+            * Billing :
+                - The model 'PaymentInformation' got 2 new fields: 'uuid' & 'extra_data'.
+            * Geolocation :
                 - These URLs used in brick controllers (JavaScript) can be overridden in Python code now
                   (so it does not require to override an entire template) :
                     - DetailMapBrick.update_address_url
