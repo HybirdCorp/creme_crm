@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from uuid import uuid4
+
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
@@ -27,6 +29,9 @@ from creme.documents.models.fields import ImageEntityManyToManyField
 
 
 class EmailSignature(CremeModel):  # TODO: MinionModel?
+    uuid = models.UUIDField(
+        unique=True, editable=False, default=uuid4,
+    ).set_tags(viewable=False)
     name = models.CharField(
         _('Name'),
         max_length=100,

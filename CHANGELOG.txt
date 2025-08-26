@@ -309,6 +309,8 @@
                     - The property 'allowEventCreate' (boolean) has been added.
             * Billing :
                 - The model 'PaymentInformation' got 2 new fields: 'uuid' & 'extra_data'.
+            * Emails :
+                - The model 'EmailSignature' got a new field 'uuid'.
             * Geolocation :
                 - These URLs used in brick controllers (JavaScript) can be overridden in Python code now
                   (so it does not require to override an entire template) :
