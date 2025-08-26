@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2022  Hybird
+#    Copyright (C) 2020-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
 )
 from creme.creme_core.forms import CremeModelForm, FieldBlockManager
+from creme.creme_core.forms.widgets import PrettySelect
 from creme.creme_core.gui.custom_form import (
     CustomFormDescriptor,
     EntityCellCustomFormExtra,
@@ -274,7 +275,7 @@ class CustomFormGroupCreationForm(CustomFormGroupForm):
 
 
 class CustomFormExtraGroupCreationForm(CremeModelForm):
-    group = forms.ChoiceField(label=_('Group'))
+    group = forms.ChoiceField(label=_('Group'), widget=PrettySelect)
 
     class Meta:
         model = CustomFormConfigItem

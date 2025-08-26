@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2023  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,8 +21,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms.fields as core_fields
+import creme.creme_core.forms.widgets as core_widgets
 from creme.creme_core.forms import CremeModelForm, FieldBlockManager
-from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.gui.fields_config import fields_config_registry
 from creme.creme_core.models import CremeEntity, FieldsConfig
 
@@ -34,7 +34,7 @@ class FieldsConfigCreationForm(CremeModelForm):
             'The proposed types of resource have at least a field which can be '
             'configured (set hidden or set required).'
         ),
-        widget=DynamicSelect(attrs={'autocomplete': True}),
+        widget=core_widgets.DynamicSelect(attrs={'autocomplete': True}),
     )
 
     fields_config_registry = fields_config_registry
@@ -143,6 +143,7 @@ class FieldsConfigEditionForm(CremeModelForm):
                         REQUIRED if instance.is_fieldname_required(fname) else
                         ''
                     ),
+                    widget=core_widgets.PrettySelect,
                 )
             ))
 

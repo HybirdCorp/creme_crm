@@ -26,6 +26,7 @@ from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.forms.base import CremeModelForm
 from creme.creme_core.forms.fields import ReadonlyMessageField
+from creme.creme_core.forms.widgets import PrettySelect
 from creme.creme_core.gui.bulk_update import FieldOverrider
 
 from ..models import NumberGeneratorItem
@@ -103,6 +104,7 @@ class RegularNumberGeneratorItemEditionForm(NumberGeneratorItemEditionForm):
     reset = forms.ChoiceField(
         label=_('Reset the counter'),
         help_text=_('When the counter («{counter}» in the pattern) should be reset?'),
+        widget=PrettySelect,
         # choices=...  => See below
     )
     counter = forms.IntegerField(
