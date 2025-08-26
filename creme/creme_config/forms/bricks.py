@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -252,10 +252,12 @@ class BrickDetailviewLocationsCloningForm(base.CremeForm):
         label=_('Configuration to clone'),
         queryset=UserRole.objects.none(),
         empty_label=None,
+        widget=core_widgets.PrettySelect,
     )
     target = forms.ChoiceField(
         label=_('Role to configure'), required=False,
         help_text=_('If the target has already a configuration, it will be overridden'),
+        widget=core_widgets.PrettySelect,
     )
 
     def __init__(self, *args, **kwargs):

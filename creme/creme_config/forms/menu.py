@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2024  Hybird
+#    Copyright (C) 2021-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_config.forms.fields import MenuEntriesField
 from creme.creme_core.forms import CremeForm, CremeModelForm
+from creme.creme_core.forms.widgets import PrettySelect
 from creme.creme_core.gui.menu import ContainerEntry, menu_registry
 from creme.creme_core.models import MenuConfigItem, UserRole
 
@@ -136,7 +137,7 @@ class ContainerCreationForm(ContainerForm):
 
 # TODO: factorise
 class SpecialContainerAddingForm(CremeModelForm):
-    entry_id = forms.ChoiceField(label=_('Type of container'))
+    entry_id = forms.ChoiceField(label=_('Type of container'), widget=PrettySelect)
 
     class Meta(CremeModelForm.Meta):
         model = MenuConfigItem
