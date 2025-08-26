@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from uuid import uuid4
 
 from django.conf import settings
 from django.db import models
@@ -180,6 +181,9 @@ class PaymentTerms(MinionModel):
 
 
 class PaymentInformation(CremeModel):
+    uuid = models.UUIDField(
+        unique=True, editable=False, default=uuid4,
+    ).set_tags(viewable=False)
     name = models.CharField(_('Name'), max_length=200)
 
     bank_code = models.CharField(_('Bank code'), max_length=12, blank=True)
@@ -200,6 +204,10 @@ class PaymentInformation(CremeModel):
         related_name='PaymentInformationOrganisation_set',
         on_delete=models.CASCADE,
     )
+
+    # Can be used by third party code to store the data they want,
+    # without having to modify the code.
+    extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
 
     creation_label = _('Create a payment information')
     save_label     = _('Save the payment information')
