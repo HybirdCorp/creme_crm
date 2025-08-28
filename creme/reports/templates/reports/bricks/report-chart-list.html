@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% brick_header_action id='add' url='reports__create_graph'|url:object.id label=_('Create a new chart') enabled=user|has_perm_to_change:object.report %}
+    {% brick_header_action id='add' url='reports__create_graph'|url:object.id label=_('Create a new chart') enabled=user|has_perm_to_change:object %}
 {% endblock %}
 
 {% block brick_table_columns %}
