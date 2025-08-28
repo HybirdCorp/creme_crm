@@ -13,6 +13,8 @@
               (i.e. it allows you to access the list-views of a model).
               The existing roles are migrated to keep the old behaviour: they get
               list permissions for all models belonging to allowed apps.
+        * Billing :
+            - You can now export several Invoices or Quotes at once, as a .zip archive.
 
   Developers side :
   -----------------
@@ -191,6 +193,7 @@
                 - The content of the class attribute 'populate.Populator.BUTTONS' has changed
                   (it now contains 'ButtonMenuItem' instances).
             * Billing :
+               - The class 'actions.ExportAction' has been renamed '_ExportAction'.
                - These methods of 'populate.Populator' have been removed :
                     - _populate_buttons_config_for_*()
                     - _create_header_filter_for_line()

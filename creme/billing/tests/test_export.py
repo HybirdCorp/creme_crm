@@ -1,10 +1,12 @@
 from datetime import date
 from decimal import Decimal
 from functools import partial
+from io import BytesIO
 from json import dumps as json_dump
 from pathlib import Path
 from shutil import which
 from unittest import skipIf
+from zipfile import ZipFile
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -23,6 +25,7 @@ from creme.billing.models import (
     PaymentInformation,
     SettlementTerms,
 )
+from creme.creme_core.gui.actions import action_registry
 from creme.creme_core.models import FileRef, Vat
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.xlrd_utils import XlrdReader
@@ -34,6 +37,7 @@ from creme.products import get_product_model, get_service_model
 from creme.products.models import SubCategory
 from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
+from ..actions import BulkExportInvoiceAction, BulkExportQuoteAction
 from ..forms.export import ExporterLocalisationField
 from .base import (
     Address,
@@ -51,6 +55,7 @@ from .base import (
     skipIfCustomQuote,
     skipIfCustomServiceLine,
 )
+from .exporters.no_content_disposition import NoContentDispositionExportEngine
 from .fake_exporters import OnlyInvoiceExportEngine
 
 latex_not_installed = which('lualatex') is None or which('latexmk') is None
@@ -313,6 +318,7 @@ class ExporterLocalisationFieldTestCase(_BillingTestCase):
         )
 
 
+# TODO: split
 @skipIfCustomOrganisation
 class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @staticmethod
@@ -802,8 +808,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         ct = ContentType.objects.get_for_model(Invoice)
         self.assertGET403(reverse('billing__edit_exporter_config', args=(ct.id,)))
 
-    def test_export_error01(self):
-        "Bad CT."
+    def test_export_error__bad_ctype(self):
         user = self.login_as_root_and_get()
         orga = Organisation.objects.create(user=user, name='Laputa')
         self.assertGET404(self._build_export_url(orga))
@@ -811,8 +816,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         # TODO: test with a billing model but not managed
 
     @skipIfCustomQuote
-    def test_export_error02(self):
-        "Empty configuration."
+    def test_export_error__empty_configuration(self):
         user = self.login_as_root_and_get()
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
@@ -836,8 +840,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomQuote
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
-    def test_export_error03(self):
-        "Invalid configuration."
+    def test_export_error__invalid_configuration(self):
         user = self.login_as_root_and_get()
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
@@ -860,8 +863,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(BILLING_EXPORTERS=[
         'creme.billing.tests.fake_exporters.OnlyInvoiceExportEngine',
     ])
-    def test_export_error04(self):
-        "Incompatible CT."
+    def test_export_error__incompatible_ctype(self):
         user = self.login_as_root_and_get()
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
@@ -999,6 +1001,12 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         response = self.assertGET200(self._build_export_url(invoice), follow=True)
         self.assertEqual('application/pdf', response['Content-Type'])
+
+        from pypdf import PdfReader
+        with self.assertNoException():
+            pdf_reader = PdfReader(BytesIO(response.content))
+        self.assertEqual(1, pdf_reader.get_num_pages())
+        # TODO: improve test
 
     @skipIfCustomAddress
     @skipIfCustomProduct
@@ -1575,3 +1583,337 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             content_type=invoice.entity_type,
         ).update(engine_id=LatexExportEngine.id)
         self.assertGET403(self._build_export_url(invoice))
+
+
+@skipIfCustomOrganisation
+class BulkExportTestCase(_BillingTestCase):
+    @staticmethod
+    def _build_url(model):
+        return reverse(
+            'billing__bulk_export',
+            args=(ContentType.objects.get_for_model(model).id,),
+        )
+
+    @skipIfCustomInvoice
+    @skipIf(xhtml2pdf_not_installed, 'The lib "xhtml2pdf" is not installed.')
+    @override_settings(
+        BILLING_EXPORTERS=['creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine'],
+        BILLING_BULK_EXPORT_LIMIT=50,
+    )
+    def test_invoice__xhtml2pdf(self):
+        user = self.login_as_standard(
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[Invoice, Organisation],
+        )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
+        source, target = self.create_orgas(user=user)
+
+        existing_file_ref_ids = [*FileRef.objects.values_list('id', flat=True)]
+
+        create_invoice = partial(self.create_invoice, user=user, source=source, target=target)
+        invoice1 = create_invoice(name='Invoice #1')
+        invoice2 = create_invoice(name='Invoice #2')
+
+        ExporterConfigItem.objects.filter(
+            content_type=invoice1.entity_type,
+        ).update(
+            engine_id=Xhtml2pdfExportEngine.id,
+            flavour_id='FR/fr_FR/cappuccino',
+        )
+
+        response = self.assertGET200(
+            self._build_url(Invoice),
+            follow=True,
+            data={'id': [invoice1.id, invoice2.id]},
+        )
+        self.assertEqual('application/zip', response['Content-Type'])
+
+        with self.assertNoException():
+            zip_file = ZipFile(BytesIO(b''.join(response.streaming_content)))
+
+        name1 = f'{_("Invoice")}_{invoice1.id}.pdf'
+        self.assertCountEqual(
+            [name1, f'{_("Invoice")}_{invoice2.id}.pdf'],
+            zip_file.namelist(),
+        )
+
+        from pypdf import PdfReader
+        with self.assertNoException():
+            with zip_file.open(name1) as pdf_file1:
+                pdf_reader1 = PdfReader(pdf_file1)
+                num_pages1 = pdf_reader1.get_num_pages()
+        self.assertEqual(1, num_pages1)
+        # TODO complete pdf test
+
+        file_ref = self.get_alone_element(
+            FileRef.objects.exclude(id__in=existing_file_ref_ids)
+        )
+        self.assertEqual(user, file_ref.user)
+        self.assertEqual(f'{_("Invoices")}_X2.zip', file_ref.basename)
+        self.assertEqual(
+            _('Bulk export of {count} {model}').format(count=2, model=_('Invoices')),
+            file_ref.description,
+        )
+
+    @skipIfCustomQuote
+    @override_settings(
+        BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'],
+        BILLING_BULK_EXPORT_LIMIT=50,
+    )
+    def test_quote__xls(self):
+        user = self.login_as_standard(
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[Quote, Organisation],
+        )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
+        source, target = self.create_orgas(user=user)
+
+        existing_file_ref_ids = [*FileRef.objects.values_list('id', flat=True)]
+
+        create_quote = partial(self.create_quote, user=user, source=source, target=target)
+        quote1 = create_quote(name='Quote #1')
+        quote2 = create_quote(name='Quote #2')
+        quote3 = create_quote(name='Quote #3')
+
+        ExporterConfigItem.objects.filter(
+            content_type=quote1.entity_type,
+        ).update(engine_id=XLSExportEngine.id)
+
+        response = self.assertGET200(
+            self._build_url(Quote),
+            follow=True,
+            data={'id': [quote1.id, quote2.id, quote3.id]},
+        )
+        self.assertEqual('application/zip', response['Content-Type'])
+
+        with self.assertNoException():
+            zip_file = ZipFile(BytesIO(b''.join(response.streaming_content)))
+
+        name1 = f'{_("Quote")}_{quote1.id}.xls'
+        self.assertCountEqual(
+            [name1, f'{_("Quote")}_{quote2.id}.xls', f'{_("Quote")}_{quote3.id}.xls'],
+            zip_file.namelist(),
+        )
+
+        with self.assertNoException():
+            with zip_file.open(name1) as xls_file1:
+                xl_reader = XlrdReader(None, file_contents=xls_file1.read())
+
+        self.assertEqual(12, xl_reader.sheet.nrows)
+        # TODO: improve tests for content
+
+        file_ref = self.get_alone_element(
+            FileRef.objects.exclude(id__in=existing_file_ref_ids)
+        )
+        self.assertEqual(user, file_ref.user)
+        self.assertEqual(f'{_("Quotes")}_X3.zip', file_ref.basename)
+        self.assertEqual(
+            _('Bulk export of {count} {model}').format(count=3, model=_('Quotes')),
+            file_ref.description,
+        )
+
+    @skipIfCustomQuote
+    @override_settings(
+        BILLING_EXPORTERS=[
+            'creme.billing.tests.exporters.no_content_disposition.NoContentDispositionExportEngine'
+        ],
+        BILLING_BULK_EXPORT_LIMIT=50,
+    )
+    def test_warning__backend_no_content_disposition(self):
+        user = self.login_as_root_and_get()
+        source, target = self.create_orgas(user=user)
+
+        create_quote = partial(self.create_quote, user=user, source=source, target=target)
+        quote1 = create_quote(name='Quote #1')
+        quote2 = create_quote(name='Quote #2')
+
+        ExporterConfigItem.objects.filter(
+            content_type=quote1.entity_type,
+        ).update(engine_id=NoContentDispositionExportEngine.id)
+
+        with self.assertLogs(level='CRITICAL') as logs_manager:
+            response = self.assertGET200(
+                self._build_url(Quote),
+                follow=True,
+                data={'id': [quote1.id, quote2.id]},
+            )
+        self.assertIn(
+            'The export backend response has no Content-Disposition',
+            logs_manager.output[0],
+        )
+
+        with self.assertNoException():
+            zip_file = ZipFile(BytesIO(b''.join(response.streaming_content)))
+
+        self.assertCountEqual(
+            [f'{_("Quote")}_{quote1.id}', f'{_("Quote")}_{quote2.id}'],
+            zip_file.namelist(),
+        )
+
+    @override_settings(BILLING_BULK_EXPORT_LIMIT=5)
+    def test_error__list(self):
+        self.login_as_root()
+        url = self._build_url(Invoice)
+
+        # Empty ---
+        response1 = self.client.get(
+            url, follow=True,  # data={'id': [...]},
+        )
+        self.assertContains(response1, 'The list of IDs is empty', status_code=409)
+
+        # Too long ---
+        response2 = self.client.get(
+            url, follow=True, data={'id': [12, 13, 14, 15, 16, 17]},
+        )
+        self.assertContains(
+            response2,
+            'The length of the ID list cannot be greater than 5',
+            status_code=409,
+        )
+
+        # Bad type ---
+        response3 = self.client.get(
+            url, follow=True, data={'id': [12, 'not_int', 14]},
+        )
+        self.assertContains(response3, 'Some IDs are invalid', status_code=409)
+
+    def test_error__app_perms(self):
+        user = self.login_as_standard(allowed_apps=['persons'])  # 'billing'
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
+
+        response = self.client.get(
+            self._build_url(Invoice), follow=True, data={'id': [12, 14]},
+        )
+        self.assertContains(
+            response,
+            _('You are not allowed to access to the app: {}').format(_('Billing')),
+            status_code=403, html=True,
+        )
+
+    @skipIfCustomInvoice
+    @override_settings(BILLING_BULK_EXPORT_LIMIT=50)
+    def test_error__view_perms(self):
+        user = self.login_as_standard(
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[Invoice, Organisation],
+        )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
+
+        source, target = self.create_orgas(user=user)
+
+        create_invoice = partial(self.create_invoice, user=user, source=source, target=target)
+        invoice1 = create_invoice(name='Invoice #1')
+        invoice2 = create_invoice(name='Invoice #2')
+
+        invoice2.user = self.get_root_user()
+        invoice2.save()
+
+        response = self.client.get(
+            self._build_url(Invoice),
+            follow=True, data={'id': [invoice1.id, invoice2.id]},
+        )
+        self.assertContains(
+            response,
+            _('Some entities are invalid or not viewable'),
+            status_code=403,
+        )
+
+    @skipIfCustomInvoice
+    @override_settings(
+        # BILLING_EXPORTERS=['creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine'],
+        BILLING_BULK_EXPORT_LIMIT=50,
+    )
+    def test_error__empty_configuration(self):
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice')[0]
+
+        ExporterConfigItem.objects.filter(
+            content_type=invoice.entity_type,
+        ).update(
+            engine_id='',
+            flavour_id='',
+        )
+
+        response = self.client.get(
+            self._build_url(Invoice), follow=True, data={'id': [invoice.id]},
+        )
+        self.assertContains(
+            response,
+            _(
+                'The engine is not configured; '
+                'go to the configuration of the app «Billing».'
+            ),
+            status_code=409,
+            html=True,
+        )
+
+    @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
+    def test_error__invalid_configuration(self):
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice')[0]
+
+        ExporterConfigItem.objects.filter(
+            content_type=invoice.entity_type,
+        ).update(engine_id=LatexExportEngine.id)
+
+        response = self.client.get(
+            self._build_url(Invoice), follow=True, data={'id': [invoice.id]},
+        )
+        self.assertContains(
+            response,
+            _(
+                'The configured exporter is invalid; '
+                'go to the configuration of the app «Billing».'
+            ),
+            status_code=409,
+            html=True,
+        )
+
+    def test_error__not_billing_entity(self):
+        user = self.login_as_root_and_get()
+        contact = user.linked_contact
+        model = type(contact)
+
+        response = self.client.get(
+            self._build_url(model), follow=True, data={'id': [contact.id]},
+        )
+        self.assertContains(
+            response, 'This model is not allowed:', status_code=409,
+        )
+
+    def test_action_invoice(self):
+        self.assertIn(
+            BulkExportInvoiceAction,
+            action_registry.bulk_action_classes(model=Invoice),
+        )
+
+        self.assertEqual('billing-export_invoice', BulkExportInvoiceAction.id)
+        self.assertEqual(Invoice, BulkExportInvoiceAction.model)
+        self.assertEqual(1,       BulkExportInvoiceAction.bulk_min_count)
+        self.assertEqual(
+            settings.BILLING_BULK_EXPORT_LIMIT,
+            BulkExportInvoiceAction.bulk_max_count,
+        )
+
+        self.assertEqual(_('Download as zipped PDF'), BulkExportInvoiceAction.label)
+        self.assertEqual(
+            self._build_url(Invoice),
+            BulkExportInvoiceAction(user=self.get_root_user()).url,
+        )
+
+    def test_action_quote(self):
+        self.assertIn(
+            BulkExportQuoteAction,
+            action_registry.bulk_action_classes(model=Quote),
+        )
+
+        self.assertEqual('billing-export_quote', BulkExportQuoteAction.id)
+        self.assertEqual(Quote, BulkExportQuoteAction.model)
+        self.assertEqual(
+            settings.BILLING_BULK_EXPORT_LIMIT,
+            BulkExportQuoteAction.bulk_max_count,
+        )
+        self.assertEqual(
+            self._build_url(Quote),
+            BulkExportQuoteAction(user=self.get_root_user()).url,
+        )
