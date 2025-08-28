@@ -22,17 +22,18 @@ from collections.abc import Iterator
 
 
 class ReportChart:
-    def __init__(self, name: str, label: str, template: str | None = None):
+    # def __init__(self, name: str, label: str, template: str | None = None):
+    def __init__(self, name: str, label: str):
         self.name = name
         self.label = label
-        self.template: str = template or f'reports/plot/{name}.json'
+        # self.template: str = template or f'reports/plot/{name}.json'
 
     def props(self, graph, data):
         return {}
 
 
 class ReportBarChart(ReportChart):
-    template = 'reports/plot/barchart.json'
+    # template = 'reports/plot/barchart.json'
 
     def props(self, graph, data):
         return {
@@ -50,11 +51,12 @@ class ReportLineChart(ReportChart):
 
 
 class ReportPieChart(ReportChart):
-    template = 'reports/plot/piechart.json'
+    # template = 'reports/plot/piechart.json'
+    pass
 
 
 class ReportTubeChart(ReportChart):
-    template = 'reports/plot/tubechart.json'
+    # template = 'reports/plot/tubechart.json'
 
     def props(self, graph, data):
         return {
