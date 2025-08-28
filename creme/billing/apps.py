@@ -109,6 +109,9 @@ class BillingConfig(CremeAppConfig):
             actions.ExportQuoteAction,
             actions.GenerateInvoiceNumberAction,
             actions.GenerateCreditNoteNumberAction,
+        ).register_bulk_actions(
+            actions.BulkExportInvoiceAction,
+            actions.BulkExportQuoteAction,
         )
 
     def register_billing_number_generators(self):

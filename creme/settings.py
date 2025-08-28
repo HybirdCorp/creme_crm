@@ -1358,6 +1358,10 @@ BILLING_EXPORTERS = [
     #   https://wkhtmltopdf.org/  => uses Qt WebKit
 ]
 
+# Maximum number of Invoices/Quotes which can be downloaded at once as ZIP archive
+# (with the bulk-export action of their list-view)
+BILLING_BULK_EXPORT_LIMIT = 50
+
 # OPPORTUNITIES ----------------------------------------------------------------
 OPPORTUNITIES_OPPORTUNITY_MODEL = 'opportunities.Opportunity'
 OPPORTUNITIES_OPPORTUNITY_FORCE_NOT_CUSTOM = False
