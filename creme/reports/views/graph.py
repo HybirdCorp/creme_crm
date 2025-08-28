@@ -92,6 +92,9 @@ class GraphFetchSettingsBase(base.CheckedView):
         value = request.POST.get('sort', 'ASC')
         return Order.from_string(value)
 
+    def get_graph(self, request):
+        raise NotImplementedError
+
     def post(self, request, *args, **kwargs):
         try:
             chart: str = self.clean_chart(request)
