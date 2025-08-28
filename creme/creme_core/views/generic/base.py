@@ -24,7 +24,7 @@ from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models.query import QuerySet
+from django.db.models import Model, QuerySet
 from django.db.transaction import atomic
 from django.http import (
     Http404,
@@ -298,16 +298,25 @@ class ContentTypeRelatedMixin:
     ct_id_0_accepted: boolean (False by default). "True" indicates that the
                       ID retrieve if the URL can be "0" (& so get_ctype() will
                       returns <None> -- instead of a 404 error).
+    allowed_models: the list of accepted models (corresponding to the retrieved
+                    ContentType). <None> means all models are accepted.
     """
     ctype_id_url_kwarg: str = 'ct_id'
     ct_id_0_accepted: bool = False
+    allowed_models: list[Model] | None = None
 
     # NB: for linters only
     kwargs: dict
     related_ctype: ContentType
 
     def check_related_ctype(self, ctype: ContentType) -> None:
-        pass
+        allowed = self.allowed_models
+        if allowed is not None:
+            model = ctype.model_class()
+            if model not in allowed:
+                raise ConflictError(
+                    f'This model is not allowed: {model.__module__}.{model.__name__}'
+                )
 
     def get_ctype_id(self) -> str:
         return self.kwargs[self.ctype_id_url_kwarg]
@@ -347,7 +356,11 @@ class EntityCTypeRelatedMixin(ContentTypeRelatedMixin):
 
         model = ctype.model_class()
         if not issubclass(model, CremeEntity):
-            raise ConflictError(f'This model is not a entity model: {model}')
+            raise ConflictError(
+                f'This model is not a entity model: {model.__module__}.{model.__name__}'
+            )
+
+        super().check_related_ctype(ctype=ctype)
 
 
 class CustomFormMixin:

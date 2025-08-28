@@ -34,6 +34,11 @@ urlpatterns = [
         name='billing__edit_exporter_config',
     ),
     re_path(
+        r'^export/bulk/(?P<ct_id>\d+)[/]?$',
+        export.BulkExport.as_view(),
+        name='billing__bulk_export',
+    ),
+    re_path(
         r'^export/(?P<entity_id>\d+)[/]?$',
         export.Export.as_view(),
         name='billing__export',

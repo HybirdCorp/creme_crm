@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.urls.base import reverse
 from django.utils.translation import gettext
@@ -25,14 +27,13 @@ from creme import billing
 from creme.billing.core.number_generation import number_generator_registry
 from creme.billing.models import NumberGeneratorItem
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.gui.actions import UIAction
+from creme.creme_core.gui import actions
 
 Invoice = billing.get_invoice_model()
 Quote   = billing.get_quote_model()
 
 
-# TODO: rename _ExportAction
-class ExportAction(UIAction):
+class _ExportAction(actions.UIAction):
     type = 'redirect'
 
     label = _('Download')
@@ -48,17 +49,50 @@ class ExportAction(UIAction):
         return self.user.has_perm_to_view(self.instance)
 
 
-class ExportInvoiceAction(ExportAction):
-    id = ExportAction.generate_id('billing', 'export_invoice')
+class ExportInvoiceAction(_ExportAction):
+    id = _ExportAction.generate_id('billing', 'export_invoice')
     model = Invoice
 
 
-class ExportQuoteAction(ExportAction):
-    id = ExportAction.generate_id('billing', 'export_quote')
+class ExportQuoteAction(_ExportAction):
+    id = _ExportAction.generate_id('billing', 'export_quote')
     model = Quote
 
 
-class _GenerateNumberAction(UIAction):
+# ------------------------------------------------------------------------------
+class _BulkExportAction(actions.BulkEntityAction):
+    # id = actions.BulkEntityAction.generate_id('billing', ...)
+    # model = ...
+
+    # TODO: improve action system (<type = 'redirect'> ?)
+    type = 'billing-bulk-export'
+    url_name = 'billing__bulk_export'
+
+    label = _('Download as zipped PDF')
+    icon = 'download'
+
+    bulk_max_count = settings.BILLING_BULK_EXPORT_LIMIT
+
+    @property
+    def url(self):
+        return reverse(
+            self.url_name,
+            args=(ContentType.objects.get_for_model(self.model).id,),
+        )
+
+
+class BulkExportInvoiceAction(_BulkExportAction):
+    id = _BulkExportAction.generate_id('billing', 'export_invoice')
+    model = Invoice
+
+
+class BulkExportQuoteAction(_BulkExportAction):
+    id = _BulkExportAction.generate_id('billing', 'export_quote')
+    model = Quote
+
+
+# ------------------------------------------------------------------------------
+class _GenerateNumberAction(actions.UIAction):
     # id = UIAction.generate_id('billing', ....)
     type = 'billing-number'
     # model = ...
