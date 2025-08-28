@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2018-2024  Hybird
+    Copyright (C) 2018-2025  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -77,6 +77,36 @@ $(document).on('brick-setup-actions', '.creme_core-buttons-brick', function(e, b
     actions.registerAll(hatmenubarActions);
 });
 
+/* TODO: improve redirect to pass IDs instead?  */
+
+creme.billing.BulkExportAction = creme.component.Action.sub({
+    _init_: function(list, options) {
+        this._super_(creme.component.Action, '_init_', this._run, options);
+        this._list = list;
+    },
+
+    _run: function(options) {
+        options = $.extend({}, this.options(), options || {});
+
+        var self = this;
+        var selection = this._list.selectedRows();
+
+        if (selection.length < 1) {
+            /* TODO: useful with "bulk_min_count" check ?? */
+            creme.dialogs.warning(gettext('Please select at least a line in order to export.'))
+                         .onClose(function() {
+                             self.cancel();
+                          })
+                         .open();
+        } else {
+            self.done();
+            creme.utils.goTo(options.url, {id: selection});
+        }
+    }
+});
+
+/* TODO: end --------------- */
+
 $(document).on('listview-setup-actions', '.ui-creme-listview', function(e, actions) {
 //    actions.register('billing-invoice-number', function(url, options, data, e) {
     actions.register('billing-number', function(url, options, data, e) {
@@ -91,6 +121,10 @@ $(document).on('listview-setup-actions', '.ui-creme-listview', function(e, actio
         });
 
         return action;
+    });
+
+    actions.register('billing-bulk-export', function(url, options, data, e) {
+        return new creme.billing.BulkExportAction(this._list, {url: url});
     });
 });
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2024  Hybird
+#    Copyright (C) 2018-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,14 +25,13 @@ from creme import billing
 from creme.billing.core.number_generation import number_generator_registry
 from creme.billing.models import NumberGeneratorItem
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.gui.actions import UIAction
+from creme.creme_core.gui import actions
 
 Invoice = billing.get_invoice_model()
 Quote   = billing.get_quote_model()
 
 
-# TODO: rename _ExportAction
-class ExportAction(UIAction):
+class _ExportAction(actions.UIAction):
     type = 'redirect'
 
     label = _('Download')
@@ -48,16 +47,36 @@ class ExportAction(UIAction):
         return self.user.has_perm_to_view(self.instance)
 
 
-class ExportInvoiceAction(ExportAction):
-    id = ExportAction.generate_id('billing', 'export_invoice')
+class ExportInvoiceAction(_ExportAction):
+    id = _ExportAction.generate_id('billing', 'export_invoice')
     model = Invoice
 
 
-class ExportQuoteAction(ExportAction):
-    id = ExportAction.generate_id('billing', 'export_quote')
+class ExportQuoteAction(_ExportAction):
+    id = _ExportAction.generate_id('billing', 'export_quote')
     model = Quote
 
 
+# ------------------------------------------------------------------------------
+# TODO: test
+class BulkExportInvoiceAction(actions.BulkEntityAction):
+    id = actions.BulkEntityAction.generate_id('creme_core', 'export_invoice')
+
+    # type = 'redirect'
+    type = 'billing-bulk-export'
+    url_name = 'billing__bulk_export'
+
+    label = _('Download as zipped PDF')
+    icon = 'download'
+
+    # TODO:
+    #  - min 2 VS 1
+    #  - max in settings
+    # bulk_max_count = 2
+    # bulk_min_count = 2
+
+
+# ------------------------------------------------------------------------------
 # class GenerateNumberAction(UIAction):
 #     id = UIAction.generate_id('billing', 'generate_number')
 #     type = 'billing-invoice-number'
@@ -81,8 +100,8 @@ class ExportQuoteAction(ExportAction):
 #         return {
 #             'confirm': gettext('Do you really want to generate an invoice number?'),
 #         }
-class _GenerateNumberAction(UIAction):
-    id = UIAction.generate_id('billing', 'generate_number')
+class _GenerateNumberAction(actions.UIAction):
+    # id = actions.UIAction.generate_id('billing', 'generate_number')
     type = 'billing-number'
     # model = ...
 
@@ -122,10 +141,10 @@ class _GenerateNumberAction(UIAction):
 
 
 class GenerateInvoiceNumberAction(_GenerateNumberAction):
-    id = UIAction.generate_id('billing', 'invoice_number')
+    id = _GenerateNumberAction.generate_id('billing', 'invoice_number')
     model = Invoice
 
 
 class GenerateCreditNoteNumberAction(_GenerateNumberAction):
-    id = UIAction.generate_id('billing', 'creditnote_number')
+    id = _GenerateNumberAction.generate_id('billing', 'creditnote_number')
     model = billing.get_credit_note_model()
