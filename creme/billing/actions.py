@@ -25,14 +25,13 @@ from creme import billing
 from creme.billing.core.number_generation import number_generator_registry
 from creme.billing.models import NumberGeneratorItem
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.gui.actions import UIAction
+from creme.creme_core.gui import actions
 
 Invoice = billing.get_invoice_model()
 Quote   = billing.get_quote_model()
 
 
-# TODO: rename _ExportAction
-class ExportAction(UIAction):
+class _ExportAction(actions.UIAction):
     type = 'redirect'
 
     label = _('Download')
@@ -48,17 +47,37 @@ class ExportAction(UIAction):
         return self.user.has_perm_to_view(self.instance)
 
 
-class ExportInvoiceAction(ExportAction):
-    id = ExportAction.generate_id('billing', 'export_invoice')
+class ExportInvoiceAction(_ExportAction):
+    id = _ExportAction.generate_id('billing', 'export_invoice')
     model = Invoice
 
 
-class ExportQuoteAction(ExportAction):
-    id = ExportAction.generate_id('billing', 'export_quote')
+class ExportQuoteAction(_ExportAction):
+    id = _ExportAction.generate_id('billing', 'export_quote')
     model = Quote
 
 
-class _GenerateNumberAction(UIAction):
+# ------------------------------------------------------------------------------
+# TODO: test
+class BulkExportInvoiceAction(actions.BulkEntityAction):
+    id = actions.BulkEntityAction.generate_id('creme_core', 'export_invoice')
+
+    # type = 'redirect'
+    type = 'billing-bulk-export'
+    url_name = 'billing__bulk_export'
+
+    label = _('Download as zipped PDF')
+    icon = 'download'
+
+    # TODO:
+    #  - min 2 VS 1
+    #  - max in settings
+    # bulk_max_count = 2
+    # bulk_min_count = 2
+
+
+# ------------------------------------------------------------------------------
+class _GenerateNumberAction(actions.UIAction):
     # id = UIAction.generate_id('billing', ....)
     type = 'billing-number'
     # model = ...

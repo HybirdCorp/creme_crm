@@ -8,7 +8,6 @@ from django.core.exceptions import ValidationError
 from django.db.models import Max
 from django.forms import CharField, DateField
 from django.urls import reverse
-from django.utils.html import escape
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
@@ -1604,9 +1603,10 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         sector = FakeSector.objects.all()[0]
         response = self.client.get(self.build_inneredit_uri(sector, 'title'))
-        self.assertIn(
-            escape(f'This model is not a entity model: {FakeSector}'),
-            response.text,
+        self.assertContains(
+            response,
+            'This model is not a entity model: creme.creme_core.tests.fake_models.FakeSector',
+            status_code=409,
         )
 
     def test_regular_field_overrider(self):
