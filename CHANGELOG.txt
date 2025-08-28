@@ -531,7 +531,8 @@
                   It's now a 'PositiveSmallIntegerField', it has an attribute 'choices' & it's viewable.
                 - Some small changes have been made in the class 'views.buttons.UnsuccessfulPhoneCallCreation'.
             * Reports :
-                - In the field 'report.Field.name', the CustomFields are referenced by their UUID now (see types 'RFT_CUSTOM' & 'RFT_AGG_CUSTOM').
+                - In the field 'models.report.Field.name', the CustomFields are referenced by their UUID now (see types 'RFT_CUSTOM' & 'RFT_AGG_CUSTOM').
+                - In the class 'report_chart_registry.ReportChart', the useless attribute/parameter "template" has been removed.
             * Billing :
                 - The class 'actions.GenerateNumberAction' has been removed (use '_GenerateNumberAction' instead).
                 - In the brick classes 'CreditNotesBrick' & 'Received*Brick',
