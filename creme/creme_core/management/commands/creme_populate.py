@@ -69,6 +69,7 @@ class BasePopulator:
         #     text=_('is ....'),
         #     subject_models=[Contact, Document],
         # ),
+        # Notice: custom types are only built during the 1rst run
     ]
     JOBS: list[Job] = []
     SANDBOXES: list[Sandbox] = []
@@ -141,7 +142,8 @@ class BasePopulator:
                 )
 
             if ptype.is_custom:
-                ptype.get_or_create()
+                if not self.already_populated:
+                    ptype.get_or_create()
             else:
                 ptype.update_or_create()
 
