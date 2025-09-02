@@ -128,17 +128,20 @@ class CremePropertyTypeProxy:
 
         return saved_instance, True
 
-    def update_or_create(self) -> CremePropertyType:
+    def update_or_create(self) -> tuple[CremePropertyType, bool]:
         instance = deepcopy(self._instance)
 
         existing = type(instance).objects.filter(uuid=instance.uuid).first()
         if existing is not None:
             instance.pk = existing.pk
+            created = False
+        else:
+            created = True
 
         instance.save()
         instance.subject_ctypes.set(self.subject_ctypes)
 
-        return instance
+        return instance, created
 
 
 class CremePropertyTypeManager(models.Manager):
