@@ -244,11 +244,12 @@ class CremePropertyTypeTestCase(CremeTestCase):
         app_label = 'creme_core'
 
         # Create ---
-        ptype1 = CremePropertyType.objects.proxy(
+        ptype1, created1 = CremePropertyType.objects.proxy(
             uuid=uuid, text=text1, app_label=app_label, description=description1,
             is_custom=True, is_copiable=False,
             subject_models=[FakeContact, FakeOrganisation],
         ).update_or_create()
+        self.assertIs(created1, True)
         self.assertIsInstance(ptype1, CremePropertyType)
         self.assertIsNotNone(ptype1.pk)
         self.assertEqual(uuid, ptype1.uuid)
@@ -263,10 +264,11 @@ class CremePropertyTypeTestCase(CremeTestCase):
         # Update ---
         text2 = 'Is very cool'
         description2 = "Lookin' cool"
-        ptype2 = CremePropertyType.objects.proxy(
+        ptype2, created2 = CremePropertyType.objects.proxy(
             uuid=uuid, text=text2, app_label=app_label, description=description2,
             subject_models=[FakeContact, FakeActivity],
         ).update_or_create()
+        self.assertIs(created2, False)
         self.assertIsInstance(ptype2, CremePropertyType)
         self.assertEqual(ptype1.pk, ptype2.pk)
         self.assertEqual(uuid,  ptype2.uuid)
