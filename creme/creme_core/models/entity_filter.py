@@ -668,6 +668,8 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
         return cloned
 
+    clone.alters_data = True
+
     def delete(self, check_orphan=True, *args, **kwargs):
         if check_orphan:
             parents = {str(cond.filter) for cond in self._iter_parent_conditions()}
@@ -894,7 +896,7 @@ class EntityFilterCondition(models.Model):
 
         if self.filter_id is None:
             if model is None:
-                raise ValueError('{}.__init__(): pass a filter or model', type(self))
+                raise ValueError(f'{type(self)}.__init__(): pass a filter or model')
 
             self._model = model
 

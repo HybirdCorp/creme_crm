@@ -216,7 +216,9 @@ class Populator(BasePopulator):
 
         # Used in form
         create_hf(
-            pk='projects-hf_task', name=_('Task view'), model=self.ProjectTask,
+            pk=constants.DEFAULT_HFILTER_PTASK,
+            model=self.ProjectTask,
+            name=_('Task view'),
             cells_desc=[
                 (EntityCellRegularField, {'name': 'title'}),
                 (EntityCellRegularField, {'name': 'description'}),

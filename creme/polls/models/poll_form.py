@@ -282,6 +282,8 @@ class PollFormLine(CremeModel, _PollLine):
         self.conditions.all().delete()
         self.save()
 
+    disable.alters_data = True
+
     def get_edit_absolute_url(self):
         return reverse('polls__edit_form_line', args=(self.id,))
 

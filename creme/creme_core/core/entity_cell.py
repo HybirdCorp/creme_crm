@@ -40,6 +40,7 @@ from ..utils.db import populate_related
 from ..utils.html import render_limited_list
 from ..utils.meta import FieldInfo
 from ..utils.unicode_collation import collator
+from .field_tags import FieldTag
 from .function_field import (
     FunctionField,
     FunctionFieldDecimal,
@@ -439,13 +440,15 @@ class EntityCellRegularField(EntityCell):
         "Use build() instead of using this constructor directly."
         self._field_info = field_info
         self._printers = {}
-        is_excluded = FieldsConfig.LocalCache().is_fieldinfo_hidden(field_info)
 
         super().__init__(
             model=model,
             value=name,
             is_hidden=is_hidden,
-            is_excluded=is_excluded,
+            is_excluded=(
+                not all(field.get_tag(FieldTag.VIEWABLE) for field in field_info)
+                or FieldsConfig.LocalCache().is_fieldinfo_hidden(field_info)
+            ),
         )
 
     @classmethod

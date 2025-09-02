@@ -17,6 +17,7 @@ from creme.creme_core.models import (
     Language,
 )
 from creme.creme_core.utils.media import get_creme_media_url
+from creme.creme_core.views.generic.base import PermissionsMixin
 from creme.creme_core.views.testjs import js_testview_or_404
 
 # from .base import ViewsTestCase
@@ -42,6 +43,14 @@ class MiscViewsTestCase(CremeTestCase):
         f = BytesIO(b''.join(response.streaming_content))
         img = Image.open(f)
         self.assertEqual('PNG', img.format)
+
+    @override_settings(LOGIN_URL="/creme_login")
+    def test_get_login_uri(self):
+        mixin = PermissionsMixin()
+        request = RequestFactory().get('/')
+        mixin.request = request
+        with self.assertNoException():
+            mixin.get_login_uri()
 
     def test_about(self):
         self.login_as_root()

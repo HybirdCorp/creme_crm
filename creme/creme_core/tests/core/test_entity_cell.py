@@ -37,6 +37,7 @@ from creme.creme_core.models import (
     FakeDocument,
     FakeFolder,
     FakePosition,
+    FakeTodo,
     FieldsConfig,
     Relation,
     RelationType,
@@ -352,10 +353,22 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(_('{} [hidden]').format(_('First name')), cell.title)
         self.assertIs(cell.is_excluded, True)
 
+    def test_regular_field_not_viewable(self):
+        cell1 = EntityCellRegularField.build(model=FakeTodo, name='entity')
+        self.assertTrue(cell1.is_excluded)
+        self.assertEqual(_('{} [hidden]').format('entity'), cell1.title)
+
+        cell2 = EntityCellRegularField.build(model=FakeTodo, name='entity__user')
+        self.assertTrue(cell2.is_excluded)
+
     def test_regular_field_errors(self):
         build = partial(EntityCellRegularField.build, model=FakeContact)
-        self.assertIsNone(build(name='unknown_field'))
-        self.assertIsNone(build(name='user__unknownfield'))
+
+        with self.assertLogs(level='WARNING'):
+            self.assertIsNone(build(name='unknown_field'))
+
+        with self.assertLogs(level='WARNING'):
+            self.assertIsNone(build(name='user__unknownfield'))
 
     def test_customfield_int(self):
         self.assertEqual(_('Custom fields'), EntityCellCustomField.verbose_name)

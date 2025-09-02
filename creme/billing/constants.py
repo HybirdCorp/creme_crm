@@ -31,5 +31,7 @@ DEFAULT_HFILTER_QUOTE    = 'billing-hf_quote'
 DEFAULT_HFILTER_ORDER    = 'billing-hf_salesorder'
 DEFAULT_HFILTER_CNOTE    = 'billing-hf_creditnote'
 DEFAULT_HFILTER_TEMPLATE = 'billing-hf_template'
+DEFAULT_HFILTER_PLINE    = 'billing-hg_product_lines'  # TODO: fix "hf" + singular
+DEFAULT_HFILTER_SLINE    = 'billing-hg_service_lines'
 
 DEFAULT_QUANTITY = Decimal('1.00')

@@ -1,3 +1,29 @@
+== Version 2.6.12 ==
+
+  Users side :
+  ------------
+    # The migration from Creme 2.5 managed badly the classical "hat" bricks (Blocks) if
+      you edited/created some configurations of bricks.
+      UPGRADE NOTE: run the command "migrate" to fix the issue, even if you have
+      already migrated (a new migration "0156_v2_6_12__fix_hatbricks.py" should be performed).
+    # The code has been fixed to accept a settings 'LOGIN_URL' as an URL (it may be necessary to use a SSO).
+    # The style of edition buttons in tile brick was wrong when the action is disabled.
+    # Apps:
+        * Billing :
+            - No HeaderFilter for 'TemplateBase' was populated (only useful if you use recurrent documents).
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The method 'creme_core.models.Notification.objects.send()' can set teh attribute 'extra_data' now.
+        # No quick-search widget is displayed for not enumerable FK/M2M without specific field registered.
+        # Fields which are stored in configuration then tagged as not viewable are now better
+          managed by HeaderFilters & EntityFilters.
+        # Many methods have been marked with 'alters_data = True'.
+
+
 == Version 2.6.11 ==
 
   Users side :
