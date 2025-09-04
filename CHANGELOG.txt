@@ -99,6 +99,7 @@
                   (it now contains 'ButtonMenuItem' instances).
             * Billing :
                - The methods 'populate.Populator._populate_buttons_config_for_*()' has been removed.
+               - The module 'views.convert' has been renamed "conversion".
 
 
 == Version 2.7 ==

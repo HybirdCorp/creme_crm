@@ -149,7 +149,7 @@ class _ConvertToButton(Button):
     converter_registry = conversion.converter_registry
 
     def _target_name(self):
-        from .views.convert import Conversion
+        from .views.conversion import Conversion
 
         target_model = self.target_model
         for model_name, model_cls in Conversion.target_models.items():
