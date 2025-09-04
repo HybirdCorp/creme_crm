@@ -4,7 +4,7 @@ from creme.creme_core.conf.urls import Swappable, swap_manager
 
 from .. import billing
 from .views import (
-    convert,
+    conversion,
     credit_note,
     export,
     invoice,
@@ -64,7 +64,7 @@ urlpatterns = [
 
     re_path(
         r'^(?P<src_id>\d+)/convert[/]?$',
-        convert.Conversion.as_view(),
+        conversion.Conversion.as_view(),
         name='billing__convert',
     ),
 
