@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 17-06-2025 pour la version 2.7 de Creme
+:Version: 04-09-2025 pour la version 2.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2194,7 +2194,7 @@ Reste à déclarer notre action dans notre ``apps.py`` : ::
 
 **Un peu plus loin** : pour faire une action qui s'exécute sur plusieurs fiches,
 une classe d'action doit dériver de ``creme.creme_core.gui.actions.UIAction``
-et s'enregistre avec ``actions_registry.register_bulk_actions``.
+et s'enregistre avec ``action_registry.register_bulk_actions``.
 
 
 Envoyer des notifications
@@ -3662,7 +3662,7 @@ Liste des différents services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Vous pouvez personnaliser l'affichage des champs des modèles (vue détaillée,
-  vue en liste) grâce à ``creme.creme_core.gui.field_printers.field_printers_registry``.
+  vue en liste) grâce à ``creme.creme_core.gui.field_printers.field_printer_registry``.
 - Vous pouvez enregistrer des algorithmes de rappel par e-mail via
   ``creme.creme_core.core.reminder.reminder_registry``.
 - Vous pouvez enregistrer de nouvelles périodicité dans
