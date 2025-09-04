@@ -1,3 +1,5 @@
+== Version 2.7.1 Work in progress (not released -- this is a draft) ==
+
 == Version 2.7 ==
 
   UPGRADE NOTES :
