@@ -90,6 +90,18 @@
                     - The method 'models.AbstractProjectTask.clone_scope()' has been removed.
                 * Crudity :
                     - The constant 'SETTING_CRUDITY_SANDBOX_BY_USER' has been removed.
+        # In the class 'creme_core.bricks.StatisticsBrick', te attribute
+          'statistics_registry' has been renamed "statistic_registry".
+        # In the class 'creme_core.forms.fields.EntityCredsJSONField', the attribute
+          'quickforms_registry' has been renamed "quickform_registry".
+        # In the class 'creme_core.core.entity_cell.EntityCellActions' the constructor argument
+          'actions_registry' has been renamed "action_registry".
+        # In 'creme_core.views' :
+            - In the class 'generic.listview.EntitiesList':
+                - the attribute 'actions_registry' has been renamed "action_registry".
+                - the method 'get_actions_registry()' has been renamed "get_action_registry".
+            - In the class 'quick_forms.QuickCreation', the attribute
+             'quickforms_registry' has been renamed "quickform_registry".
         # Apps :
             * Persons :
                 - The content of the class attribute 'populate.Populator.BUTTONS' has changed

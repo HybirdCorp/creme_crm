@@ -446,7 +446,8 @@ class StatisticsBrick(Brick):
     )
     template_name = 'creme_core/bricks/statistics.html'
 
-    statistics_registry = statistics.statistic_registry
+    # statistics_registry = statistics.statistic_registry
+    statistic_registry = statistics.statistic_registry
 
     def home_display(self, context):
         has_perm = context['user'].has_perm
@@ -455,7 +456,8 @@ class StatisticsBrick(Brick):
             context,
             items=[
                 item
-                for item in self.statistics_registry
+                # for item in self.statistics_registry
+                for item in self.statistic_registry
                 if not item.perm or has_perm(item.perm)
             ],
         ))

@@ -367,7 +367,8 @@ class EntityCredsJSONField(JSONField):
         """
         super().__init__(**kwargs)
         self._credentials = credentials
-        self.quickforms_registry = quickforms_registry or quick_forms.quickform_registry
+        # self.quickforms_registry = quickforms_registry or quick_forms.quickform_registry
+        self.quickform_registry = quickforms_registry or quick_forms.quickform_registry
 
     def _check_entity_perms(self, entity, *args):
         user = self._user
@@ -401,7 +402,8 @@ class EntityCredsJSONField(JSONField):
         return entities
 
     def _has_quickform(self, model):
-        return self.quickforms_registry.get_form_class(model) is not None
+        # return self.quickforms_registry.get_form_class(model) is not None
+        return self.quickform_registry.get_form_class(model) is not None
 
 
 class GenericEntityField(EntityCredsJSONField):
