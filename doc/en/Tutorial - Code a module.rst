@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 25/06/2025 for Creme 2.7
+:Version: 04/09/2025 for Creme 2.7
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2121,7 +2121,7 @@ The last thing is to declare our action in our ``apps.py``: ::
 
 **Going a bit further** : to code an action managing several entities at once,
 an action class must inherit ``creme.creme_core.gui.actions.UIAction``
-and must be registered with ``actions_registry.register_bulk_actions``.
+and must be registered with ``action_registry.register_bulk_actions``.
 
 
 Sending notifications
@@ -3507,7 +3507,7 @@ List of different services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - You can customise the display of model fields (detailed view, list-view) with
-  ``creme.creme_core.gui.field_printers.field_printers_registry``.
+  ``creme.creme_core.gui.field_printers.field_printer_registry``.
 - You can register algorithms for email recalls with
   ``creme.creme_core.core.reminder.reminder_registry``.
 - You can register new periodicity in
