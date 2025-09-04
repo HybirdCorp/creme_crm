@@ -1124,6 +1124,12 @@ class Merge(MergeFormMixin, generic.CremeFormView):
 class Trash(generic.BricksView):
     template_name = 'creme_core/trash.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['ENTITIES_DELETION_ALLOWED'] = settings.ENTITIES_DELETION_ALLOWED
+
+        return context
+
 
 # TODO: disable the button "Empty the trash" while the job is active
 class TrashCleaning(generic.base.TitleMixin, generic.CheckedView):

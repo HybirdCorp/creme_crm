@@ -262,7 +262,7 @@ TEMPLATES = [
                 'creme.creme_core.context_processors.get_site_domain',
                 'creme.creme_core.context_processors.get_today',
                 'creme.creme_core.context_processors.get_world_settings',
-                'creme.creme_core.context_processors.get_entities_deletion_allowed',
+                # 'creme.creme_core.context_processors.get_entities_deletion_allowed',
                 'creme.creme_core.context_processors.get_css_theme',
                 'creme.creme_core.context_processors.get_bricks_manager',
                 'creme.creme_core.context_processors.get_fields_configs',

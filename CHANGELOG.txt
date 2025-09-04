@@ -5,6 +5,10 @@
 
     Non breaking changes :
     ----------------------
+        # Deprecations :
+            - The context processor "creme_core.context_processors.get_entities_deletion_allowed"
+              is now deprecated (it injected "ENTITIES_DELETION_ALLOWED" in contexts) ;
+              it has been removed from the default settings.
         # The declarative possibilities of 'creme_core.management.commands.creme_populate.BasePopulator'
           have been extended; new class attributes are :
              - BUTTONS
