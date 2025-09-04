@@ -29,11 +29,20 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
-    def populate(self):
-        already_populated = SettingValue.objects.exists_4_key(setting_keys.location_map_url_key)
+    SETTING_VALUES = [
+        SettingValue(
+            key=setting_keys.location_map_url_key,
+            value='https://www.google.com/maps/?q={search}',
+        ),
+    ]
 
-        if not already_populated:
-            SettingValue.objects.set_4_key(
-                setting_keys.location_map_url_key,
-                'https://www.google.com/maps/?q={search}'
-            )
+    # def populate(self):
+    #     already_populated = SettingValue.objects.exists_4_key(setting_keys.location_map_url_key)
+    #
+    #     if not already_populated:
+    #         SettingValue.objects.set_4_key(
+    #             setting_keys.location_map_url_key,
+    #             'https://www.google.com/maps/?q={search}'
+    #         )
+    def _already_populated(self):
+        return SettingValue.objects.exists_4_key(setting_keys.location_map_url_key)

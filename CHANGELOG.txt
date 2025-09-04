@@ -1,5 +1,15 @@
 == Version 2.7.1 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Apps :
+            * Mobile :
+                - The script 'populate' is easier to modify.
+
+
 == Version 2.7 ==
 
   UPGRADE NOTES :
