@@ -317,6 +317,7 @@ class _BillingTestCaseMixin:
         return orga
 
 
+@override_settings(ENTITIES_DELETION_ALLOWED=True)  # TODO: in CremeTestCase?
 class _BillingTestCase(_BillingTestCaseMixin,
                        base.ButtonTestCaseMixin,
                        base.MassImportBaseTestCaseMixin,
