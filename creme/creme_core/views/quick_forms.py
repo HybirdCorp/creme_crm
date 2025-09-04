@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,8 @@
 from django.http import Http404
 from django.utils.functional import cached_property
 
-from ..gui.quick_forms import quickform_registry
+# from ..gui.quick_forms import quickform_registry
+from ..gui import quick_forms
 from . import generic
 from .generic.base import EntityCTypeRelatedMixin
 from .utils import json_update_from_widget_response
@@ -31,11 +32,13 @@ class QuickCreation(EntityCTypeRelatedMixin, generic.EntityCreationPopup):
     # form_class = ...
     template_name = 'creme_core/generics/form/add-popup.html'
 
-    quickforms_registry = quickform_registry
+    # quickforms_registry = quickform_registry
+    quickform_registry = quick_forms.quickform_registry
 
     def get_form_class(self):
         model = self.model
-        form_class = self.quickforms_registry.get_form_class(model)
+        # form_class = self.quickforms_registry.get_form_class(model)
+        form_class = self.quickform_registry.get_form_class(model)
 
         if form_class is None:
             raise Http404(f'No form registered for model: {model}')

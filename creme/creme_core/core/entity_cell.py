@@ -33,6 +33,7 @@ from django.utils.html import escape
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from ..gui.actions import ActionRegistry
 from ..gui.view_tag import ViewTag
 from ..models import CremeEntity, CustomField, FieldsConfig, RelationType
 from ..models import fields as core_fields
@@ -406,15 +407,17 @@ class EntityCellActions(EntityCell):
     type_id = 'actions'
     verbose_name = _('Actions')
 
-    def __init__(self, model, actions_registry):
+    # def __init__(self, model, actions_registry):
+    def __init__(self, model, action_registry: ActionRegistry):
         """Constructor.
 
         @param model: see <EntityCell.model>.
-        @param actions_registry: Instance of 'creme.creme_core.gui.actions.ActionsRegistry'.
+        @param action_registry: Instance of 'creme.creme_core.gui.actions.ActionRegistry'.
                Used to get the actions related to the model.
         """
         super().__init__(model=model, value='entity_actions')
-        self.registry = actions_registry
+        # self.registry = actions_registry
+        self.registry = action_registry
 
     def _sort_actions(self, actions):
         collator_key = collator.sort_key

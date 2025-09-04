@@ -1281,7 +1281,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry_numeric(self):
         user = self.get_root_user()
-        field_printers_registry = FieldPrinterRegistry()
+        field_printer_registry = FieldPrinterRegistry()
 
         # Integer
         capital = 12345
@@ -1290,7 +1290,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         orga1 = create_orga(name='Hawk', capital=capital)
         orga2 = create_orga(name='God hand')
 
-        render_f = partial(field_printers_registry.get_field_value, user=user)
+        render_f = partial(field_printer_registry.get_field_value, user=user)
         self.assertEqual(str(capital), render_f(instance=orga1, field_name='capital'))
         self.assertEqual('',           render_f(instance=orga2, field_name='capital'))
 
@@ -1307,7 +1307,7 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_registry_textfield(self):
         "Test TexField: link => target='_blank'."
         user = self.get_root_user()
-        field_printers_registry = FieldPrinterRegistry()
+        field_printer_registry = FieldPrinterRegistry()
 
         hawk = FakeOrganisation.objects.create(
             user=user, name='Hawk',
@@ -1320,7 +1320,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             'www.hawk-troop.org'
             '</a>'
             '</p>',
-            field_printers_registry.get_field_value(
+            field_printer_registry.get_field_value(
                 instance=hawk, field_name='description', user=user, tag=ViewTag.HTML_DETAIL,
             ),
         )
@@ -1328,14 +1328,14 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_registry_booleanfield(self):
         "Boolean Field."
         user = self.get_root_user()
-        field_printers_registry = FieldPrinterRegistry()
+        field_printer_registry = FieldPrinterRegistry()
 
         create_contact = partial(FakeContact.objects.create, user=user)
         casca = create_contact(first_name='Casca', last_name='Mylove', is_a_nerd=False)
         judo  = create_contact(first_name='Judo',  last_name='Doe',    is_a_nerd=True)
 
         render_field = partial(
-            field_printers_registry.get_field_value,
+            field_printer_registry.get_field_value,
             user=user, field_name='is_a_nerd', tag=ViewTag.HTML_DETAIL,
         )
         self.assertEqual(
@@ -1354,7 +1354,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         "ForeignKey."
         user = self.get_root_user()
 
-        field_printers_registry = FieldPrinterRegistry(
+        field_printer_registry = FieldPrinterRegistry(
         ).register_model_field_type(
             type=models.ForeignKey,
             printer=FKPrinter(
@@ -1395,7 +1395,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         escaped_title = 'Warrior&lt;script&gt;'
 
         render_field = partial(
-            field_printers_registry.get_field_value,
+            field_printer_registry.get_field_value,
             user=user, instance=casca, tag=ViewTag.HTML_DETAIL
         )
 
@@ -1633,7 +1633,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         user = self.login_as_standard(allowed_apps=['creme_core'])
         self.add_credentials(user.role, own='*')
 
-        field_printers_registry = FieldPrinterRegistry()
+        field_printer_registry = FieldPrinterRegistry()
 
         create_img = FakeImage.objects.create
         casca_face = create_img(
@@ -1650,7 +1650,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
 
         render_field = partial(
-            field_printers_registry.get_field_value, user=user, tag=ViewTag.HTML_DETAIL,
+            field_printer_registry.get_field_value, user=user, tag=ViewTag.HTML_DETAIL,
         )
         self.assertHTMLEqual(
             f'<a href="{judo_face.get_absolute_url()}" target="_self">{judo_face}</a>',
