@@ -9,7 +9,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-  {% if ENTITIES_DELETION_ALLOWED %}
+{#  {% if ENTITIES_DELETION_ALLOWED %} #}
+  {% if display_header_button %}
     {% brick_header_action id='edit' url='creme_core__empty_trash'|url label=_('Empty the trash') icon='cancel' %}
   {% endif %}
 {% endblock %}

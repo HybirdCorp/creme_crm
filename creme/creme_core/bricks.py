@@ -429,6 +429,7 @@ class TrashBrick(QuerysetBrick):
         btc = self.get_template_context(
             context,
             CremeEntity.objects.filter(is_deleted=True),
+            display_header_button=settings.ENTITIES_DELETION_ALLOWED,
         )
         CremeEntity.populate_real_entities(btc['page'].object_list)
 
