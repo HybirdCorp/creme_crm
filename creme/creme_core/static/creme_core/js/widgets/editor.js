@@ -130,6 +130,14 @@ creme.widget.Editor = creme.widget.declare('ui-creme-editor', {
 
         editor.render();
 
+        this._onPreValidate = function() {
+            if (this._editor) {
+                this._editor.save();
+            }
+        }.bind(this);
+
+        element.on('html5-pre-validate', this._onPreValidate);
+
         creme.object.invoke(cb, element);
         element.addClass('widget-ready');
     },
@@ -138,6 +146,8 @@ creme.widget.Editor = creme.widget.declare('ui-creme-editor', {
         if (this._editor) {
             this._editor.remove();
         }
+
+        element.off('html5-pre-validate', this._onPreValidate);
     },
 
     editor: function(element) {
