@@ -9,6 +9,7 @@
 
     Non breaking changes :
     ----------------------
+        # TinyMCE did not work in popups: the textarea was not synced on submit.
         # Apps :
             * Mobile :
                 - The script 'populate' is easier to modify.
