@@ -247,7 +247,10 @@ creme.forms.validateHtml5Form = function(form, options) {
          noValidate: options.noValidate || form.is('[novalidate]')
     };
 
-    $('input, select, textarea, datalist, output', form).each(function() {
+    var inputs = $('input, select, textarea, datalist, output', form);
+
+    inputs.filter(':not([type="submit"])').trigger('html5-pre-validate', [options]);
+    inputs.each(function() {
         $.extend(errors, creme.forms.validateHtml5Field($(this), fieldOptions));
     });
 
