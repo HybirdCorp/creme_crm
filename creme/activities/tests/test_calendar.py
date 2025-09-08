@@ -2,6 +2,7 @@ from datetime import timedelta
 from functools import partial
 from io import StringIO
 from unittest.mock import patch
+from uuid import UUID
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.models import Session
@@ -44,6 +45,7 @@ class CalendarManagerTestCase(_ActivitiesTestCase):
         self.assertFalse(cal1.is_custom)
         self.assertFalse(cal1.is_public)
         self.assertTrue(cal1.color)
+        self.assertIsInstance(cal1.uuid, UUID)
 
         name2 = 'Default'
         color2 = '0f0f0f'

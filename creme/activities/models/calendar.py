@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import uuid
 from collections import defaultdict
 
 from django.db import models
@@ -133,6 +134,9 @@ class CalendarManager(models.Manager):
 
 
 class Calendar(CremeModel):
+    uuid = models.UUIDField(
+        unique=True, editable=False, default=uuid.uuid4,
+    ).set_tags(viewable=False)
     user = core_fields.CremeUserForeignKey(verbose_name=_('Calendar owner'))
     name = models.CharField(_('Name'), max_length=100)
     is_default = models.BooleanField(
