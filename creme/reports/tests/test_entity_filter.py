@@ -36,10 +36,12 @@ from .base import BaseReportsTestCase, Report
 
 class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
     def _create_rtype(self):
-        return RelationType.objects.smart_update_or_create(
-            ('test-subject_freelance', 'Is a freelance for', [FakeContact]),
-            ('test-object_freelance',  'Works with the freelance'),
-        )
+        return RelationType.objects.builder(
+            id='test-subject_freelance', predicate='Is a freelance for',
+            models=[FakeContact],
+        ).symmetric(
+            id='test-object_freelance', predicate='Works with the freelance',
+        ).get_or_create()[0]
 
     def test_clean_empty_required(self):
         field = ReportRelationSubfiltersConditionsField(required=True)
@@ -49,7 +51,7 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
         self.assertFormfieldError(field=field, messages=msg, codes='required', value='[]')
 
     def test_clean_incomplete_data_required(self):
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
         field = ReportRelationSubfiltersConditionsField(model=FakeContact)
         msg = _('This field is required.')
         self.assertFormfieldError(
@@ -60,7 +62,7 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
         )
 
     def test_unknown_filter(self):
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
         field = ReportRelationSubfiltersConditionsField(model=FakeContact)
         field.user = self.get_root_user()
         self.assertFormfieldError(
@@ -78,7 +80,8 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
         user = self.get_root_user()
         team = self.create_team('My team', user)
 
-        rtype1, rtype2 = self._create_rtype()
+        rtype1 = self._create_rtype()
+        rtype2 = rtype1.symmetric_type
 
         efilter1 = EntityFilter.objects.create(
             id='creme_core-contacts_filter',
@@ -155,7 +158,7 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
         user = self.get_root_user()
         other = self.create_user()
 
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
         efilter = EntityFilter.objects.create(
             id='creme_core-contacts_filter',
             name='Contact filter',
@@ -179,7 +182,7 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
     def test_forbidden_filter2(self):
         user = self.get_root_user()
 
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
         efilter = EntityFilter.objects.create(
             id='creme_core-contacts_filter',
             name='Contact filter',
@@ -202,9 +205,7 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
     def test_staff(self):
         user = self.login_as_super(is_staff=True)
         other_user = self.create_user(index=1)
-
-        rtype = self._create_rtype()[0]
-
+        rtype = self._create_rtype()
         efilter = EntityFilter.objects.create(
             id='reports-organisation_filter',
             name='Organisation filter (only reports)',
@@ -213,7 +214,6 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
             is_private=True,
             user=other_user,
         )
-
         field = ReportRelationSubfiltersConditionsField(
             model=FakeContact, user=user, efilter_type=EF_REPORTS,
         )
@@ -236,7 +236,7 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
             filter_type=EF_REPORTS,
         )
 
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
         rtype.enabled = False
         rtype.save()
 
@@ -262,7 +262,7 @@ class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
             filter_type=EF_REPORTS,
         )
 
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
         rtype.enabled = False
         rtype.save()
 
@@ -715,10 +715,11 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
     def test_create__relation_subfilters(self):
         user = self.login_as_root_and_get()
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('reports-subject_early_adopter', 'Is as early adopter of'),
-            ('reports-object_early_adopter',  'Is early adopted by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='reports-subject_early_adopter', predicate='Is as early adopter of',
+        ).symmetric(
+            id='reports-object_early_adopter', predicate='Is early adopted by',
+        ).get_or_create()[0]
         orga_efilter = EntityFilter.objects.create(
             id='creme_core-orga_filter',
             name='My Organisation filter',

@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 05-09-2025 pour la version 2.8 de Creme
+:Version: 03-10-2025 pour la version 2.8 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1395,29 +1395,44 @@ Puis ``beavers/populate.py`` : ::
     class Populator(BasePopulator):
         [...]
 
-        # Cette méthode est définie dans BasePopulator et appelée automatiquement
-        def _populate_relation_types(self):
-            Contact = persons.get_contact_model()
-
-            RelationType.objects.smart_update_or_create(
-                (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
-                (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
-            )
+        # Cet attribut est défini dans BasePopulator et est utilisé automatiquement
+        RELATION_TYPES = [
+            RelationType.objects.builder(
+                id=constants.REL_SUB_HAS_VET,
+                predicate=_('has veterinary'),
+                models=[Beaver],
+            ).symmetric(
+                id=constants.REL_OBJ_HAS_VET,
+                predicate=_('is the veterinary of'),
+                models=[Contact],
+            ),
+        ]
 
 
 **Notes** : nous avons mis des contraintes sur les types de fiche que l'ont peut relier
 (Beaver et Contact en l'occurrence). Nous pourrions aussi, si on créait un type de propriété
 «est un vétérinaire» (pour les Contacts), mettre une contrainte supplémentaire : ::
 
-        RelationType.objects.smart_update_or_create(
-            (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
-            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact], [VeterinaryPType]),
-        )
+        PROPERTY_TYPES = [
+            CremePropertyType.objects.proxy(
+                 uuid=constants.UUID_PROP_VETERINARY,
+                 app_label='my_app',
+                 text=_('is a veterinary'),
+                 subject_models=[Contact],
+            ),
+        ]
+        RELATION_TYPES = [
+            RelationType.objects.builder(
+                [...]
+            ).symmetric(
+                [...]
+                properties=[constants.UUID_PROP_VETERINARY],
+            ),
+        ]
 
 Les types de relations créés ne sont pas supprimables via l'interface de
-configuration (l'argument ``is_custom`` de
-``RelationType.objects.smart_update_or_create()`` étant par défaut à ``False``),
-ce qui est généralement ce qu'on veut.
+configuration (l'argument ``is_custom`` de ``RelationType.objects.builder()``
+étant par défaut à ``False``), ce qui est généralement ce qu'on veut.
 
 **Allons un peu loin** : dans certain cas, on veut contrôler finement la
 création et la suppression des relations ayant un certain type, à cause de
@@ -1427,11 +1442,10 @@ supprimer ces relations là. La solution consiste à déclarer ces types comme
 internes ; les vues de création et de suppression génériques des relations
 ignorent alors ces types : ::
 
-        RelationType.objects.smart_update_or_create(
-            (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
-            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
+        RelationType.objects.builder(
+            [...],
             is_internal=True,
-        )
+        ).symmetric([...])
 
 C'est alors à vous d'écrire le code de création et de suppression de ces types.
 Pour la création, classiquement, on créera la relation dans le formulaire de

@@ -228,12 +228,10 @@ class ReportGraphHandTestCase(CremeTestCase):
         "The RelationType is disabled."
         user = self.get_root_user()
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_disabled', '[disabled]'),
-            ('test-object_disabled',  'what ever'),
-        )[0]
-        rtype.enabled = False
-        rtype.save()
+        rtype = RelationType.objects.builder(
+            id='test-subject_disabled', predicate='[disabled]',
+            enabled=False,  # <==
+        ).symmetric(id='test-object_disabled', predicate='what ever').get_or_create()[0]
 
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(

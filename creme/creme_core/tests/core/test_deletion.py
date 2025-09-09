@@ -356,17 +356,14 @@ class EntityDeletionTestCase(CremeTestCase):
         entity2 = create_orga(name='Seele')
         entity3 = create_orga(name='Neo tokyo')
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_linked', 'is linked to'),
-            ('test-object_linked',  'is linked to'),
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_linked', predicate='is linked to',
             is_custom=True,
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_provides', 'provides'),
-            ('test-object_provides',  'provided by'),
-            is_custom=False,
-        )[0]
+        ).symmetric(id='test-object_linked', predicate='is linked to').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_provides', predicate='provides',
+        ).symmetric(id='test-object_provides',  predicate='provided by').get_or_create()[0]
+
         create_rel = partial(Relation.objects.create, user=user, subject_entity=entity1)
         rel1 = create_rel(type=rtype1, object_entity=entity2)
         rel2 = create_rel(type=rtype2, object_entity=entity3)
@@ -398,11 +395,12 @@ class EntityDeletionTestCase(CremeTestCase):
         entity1 = create_orga(name='Nerv', is_deleted=True)
         entity2 = create_orga(name='Seele')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_daughter', 'is a daughter of'),
-            ('test-object_daughter',  'has a daughter'),
-            is_internal=True,
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_daughter', predicate='is a daughter of',
+            is_internal=True,  # <==
+        ).symmetric(
+            id='test-object_daughter', predicate='has a daughter',
+        ).get_or_create()[0]
         rel = Relation.objects.create(
             user=user, type=rtype, subject_entity=entity1, object_entity=entity2,
         )

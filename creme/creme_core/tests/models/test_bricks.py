@@ -545,10 +545,11 @@ class BrickTestCase(CremeTestCase):
         )
 
     def test_relation_brick01(self):
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loved',  'is loved by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(
+            id='test-object_loved', predicate='is loved by',
+        ).get_or_create()[0]
 
         cfield = CustomField.objects.create(
             name='Size (cm)',
@@ -617,10 +618,12 @@ class BrickTestCase(CremeTestCase):
 
     def test_relation_brick02(self):
         "All ctypes configured + Relation instance."
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_rented', 'is rented by'),
-            ('test-object_rented',  'rents', [FakeContact, FakeOrganisation]),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_rented', predicate='is rented by',
+        ).symmetric(
+            id='test-object_rented', predicate='rents',
+            models=[FakeContact, FakeOrganisation],
+        ).get_or_create()[0]
         rbi = RelationBrickItem.objects.get_or_create(relation_type=rtype)[0]
         get_ct = ContentType.objects.get_for_model
 
@@ -639,10 +642,11 @@ class BrickTestCase(CremeTestCase):
         self.assertTrue(self.refresh(rbi).all_ctypes_configured)
 
     def test_relation_brick_errors(self):
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_rented', 'is rented by'),
-            ('test-object_rented',  'rents'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_rented', predicate='is rented by',
+        ).symmetric(
+            id='test-object_rented', predicate='rents',
+        ).get_or_create()[0]
         ct_contact = ContentType.objects.get_for_model(FakeContact)
         rbi = RelationBrickItem.objects.create(relation_type=rtype)
 
@@ -673,11 +677,12 @@ class BrickTestCase(CremeTestCase):
 
     def test_relationbrick_delete01(self):
         user = self.get_root_user()
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate',
             is_custom=False,
-        )[0]
+        ).symmetric(
+            id='test-objfoo', predicate='object_predicate',
+        ).get_or_create()[0]
         rbi = RelationBrickItem.objects.create(relation_type=rt)
 
         create_state = partial(BrickState.objects.create, user=user)
@@ -691,11 +696,10 @@ class BrickTestCase(CremeTestCase):
 
     def test_relationbrick_delete02(self):
         "Cannot delete because it is used."
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject predicate',
             is_custom=False,
-        )[0]
+        ).symmetric(id='test-objfoo', predicate='object predicate').get_or_create()[0]
         rbi = RelationBrickItem.objects.create(relation_type=rt)
 
         def try_delete(msg, locs):
@@ -754,14 +758,13 @@ class BrickTestCase(CremeTestCase):
         self.assertStillExists(loc4)
 
     def test_relation_brick_manager(self):
-        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loved',  'is loved by'),
-        )
-        rtype3 = RelationType.objects.smart_update_or_create(
-            ('test-subject_likes', 'likes'),
-            ('test-object_liked', 'is liked by'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(id='test-object_loved', predicate='is loved by').get_or_create()[0]
+        rtype2 = rtype1.symmetric_type
+        rtype3 = RelationType.objects.builder(
+            id='test-subject_likes', predicate='likes',
+        ).symmetric(id='test-object_liked', predicate='is liked by').get_or_create()[0]
 
         create_rbi = RelationBrickItem.objects.create
         rbi1 = create_rbi(relation_type=rtype1)

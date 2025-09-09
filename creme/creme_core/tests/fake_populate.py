@@ -5,42 +5,36 @@ from . import fake_constants, fake_custom_forms, fake_models
 
 # TODO: use fixture instead ?
 def populate():
-    create_rtype = RelationType.objects.smart_update_or_create
-    create_rtype(
-        (
-            fake_constants.FAKE_REL_SUB_EMPLOYED_BY,
-            'is an employee of',
-            [fake_models.FakeContact],
-        ), (
-            fake_constants.FAKE_REL_OBJ_EMPLOYED_BY,
-            'employs',
-            [fake_models.FakeOrganisation],
-        ),
-    )
-    create_rtype(
-        (
-            fake_constants.FAKE_REL_SUB_BILL_ISSUED,
-            'issued by',
-            [fake_models.FakeInvoice],
-        ), (
-            fake_constants.FAKE_REL_OBJ_BILL_ISSUED,
-            'has issued',
-            [fake_models.FakeOrganisation],
-        ),
-        is_internal=True
-    )
-    create_rtype(
-        (
-            fake_constants.FAKE_REL_SUB_BILL_RECEIVED,
-            'received by',
-            [fake_models.FakeInvoice],
-        ), (
-            fake_constants.FAKE_REL_OBJ_BILL_RECEIVED,
-            'has received',
-            [fake_models.FakeOrganisation, fake_models.FakeContact],
-        ),
-        is_internal=True
-    )
+    create_builder = RelationType.objects.builder
+    create_builder(
+        id=fake_constants.FAKE_REL_SUB_EMPLOYED_BY,
+        predicate='is an employee of',
+        models=[fake_models.FakeContact],
+    ).symmetric(
+        id=fake_constants.FAKE_REL_OBJ_EMPLOYED_BY,
+        predicate='employs',
+        models=[fake_models.FakeOrganisation],
+    ).get_or_create()
+    create_builder(
+        id=fake_constants.FAKE_REL_SUB_BILL_ISSUED,
+        predicate='issued by',
+        models=[fake_models.FakeInvoice],
+        is_internal=True,
+    ).symmetric(
+        id=fake_constants.FAKE_REL_OBJ_BILL_ISSUED,
+        predicate='has issued',
+        models=[fake_models.FakeOrganisation],
+    ).get_or_create()
+    create_builder(
+        id=fake_constants.FAKE_REL_SUB_BILL_RECEIVED,
+        predicate='received by',
+        models=[fake_models.FakeInvoice],
+        is_internal=True,
+    ).symmetric(
+        id=fake_constants.FAKE_REL_OBJ_BILL_RECEIVED,
+        predicate='has received',
+        models=[fake_models.FakeOrganisation, fake_models.FakeContact],
+    ).get_or_create()
 
     create_civ = fake_models.FakeCivility.objects.get_or_create
     create_civ(title='Madam',  shortcut='Mrs.')

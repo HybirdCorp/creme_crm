@@ -148,10 +148,11 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
         self.assertEqual(model1, field1.model)
 
         model2 = FakeOrganisation
-        rtype1 = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is a client of', [model1]),
-            ('creme_core-object_client', 'has a client',    [model2]),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is a client of', models=[model1],
+        ).symmetric(
+            id='creme_core-object_client', predicate='has a client', models=[model2],
+        ).get_or_create()[0]
         trigger1 = RelationAddingTrigger(
             subject_model=model1, rtype=rtype1, object_model=model2,
         )
@@ -171,11 +172,10 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
         field2 = RelationAddingTriggerField(model=model2)
         self.assertEqual(model2, field2.model)
 
-        rtype2 = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_concerned', 'is concerned by'),
-            ('creme_core-object_concerned', 'concerns'),
+        rtype2 = RelationType.objects.builder(
+            id='creme_core-subject_concerned', predicate='is concerned by',
             is_internal=True,
-        )[0]
+        ).symmetric(id='creme_core-object_concerned', predicate='concerns').get_or_create()[0]
         self.assertEqual(
             RelationAddingTrigger(
                 subject_model=model2, rtype=rtype2, object_model=FakeActivity,
@@ -237,10 +237,10 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
 
     def test_clean_forbidden_rtype(self):
         model = FakeContact
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is a client of', [FakeActivity]),  # Not model
-            ('creme_core-object_client', 'has a client'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is a client of',
+            models=[FakeActivity],  # Not <model>
+        ).symmetric(id='creme_core-object_client', predicate='has a client').get_or_create()[0]
         code = 'rtypenotallowed'
         self.assertFormfieldError(
             field=RelationAddingTriggerField(model=model),
@@ -252,12 +252,12 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
     def test_clean_disabled_rtype(self):
         model = FakeContact
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is a client of'),
-            ('creme_core-object_client', 'has a client'),
-        )[0]
-        rtype.enabled = False
-        rtype.save()
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is a client of',
+            enabled=False,
+        ).symmetric(
+            id='creme_core-object_client', predicate='has a client',
+        ).get_or_create()[0]
 
         code = 'rtypenotallowed'
         self.assertFormfieldError(
@@ -268,10 +268,9 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
         )
 
     def test_clean_ctype_errors(self):
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_concerned', 'is concerned by'),
-            ('creme_core-object_concerned', 'concerns'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_concerned', predicate='is concerned by',
+        ).symmetric(id='creme_core-object_concerned', predicate='concerns').get_or_create()[0]
         self.assertFormfieldError(
             field=RelationAddingTriggerField(model=FakeContact),
             value=json_dump({'rtype': rtype.id, 'ctype': self.UNUSED_PK}),
@@ -288,10 +287,12 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
     def test_clean_forbidden_ctype(self):
         subject_model = FakeContact
         object_model = FakeOrganisation
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is concerned by'),
-            ('creme_core-object_client',  'concerns', [FakeActivity]),  # Not object_model
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is concerned by',
+        ).symmetric(
+            id='creme_core-object_client', predicate='concerns',
+            models=[FakeActivity],  # Not <object_model>
+        ).get_or_create()[0]
         code = 'forbiddenctype'
         self.assertFormfieldError(
             field=RelationAddingTriggerField(model=subject_model),
@@ -497,10 +498,11 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
         field1 = FirstRelatedEntitySourceField(subject_source=subject_source1)
         self.assertEqual(subject_source1, field1.subject_source)
 
-        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is a client of', [model1]),
-            ('creme_core-object_client', 'has a client',    [model2]),
-        )
+        rtype1 = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is a client of', models=[model1],
+        ).symmetric(
+            id='creme_core-object_client', predicate='has a client', models=[model2],
+        ).get_or_create()[0]
         source1 = FirstRelatedEntitySource(
             subject_source=subject_source1, rtype=rtype1, object_model=model2,
         )
@@ -521,11 +523,10 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
         field2 = FirstRelatedEntitySourceField(subject_source=subject_source2)
         self.assertEqual(subject_source2, field2.subject_source)
 
-        rtype2 = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_concerned', 'is concerned by'),
-            ('creme_core-object_concerned', 'concerns'),
+        rtype2 = RelationType.objects.builder(
+            id='creme_core-subject_concerned', predicate='is concerned by',
             is_internal=True,
-        )[0]
+        ).symmetric(id='creme_core-object_concerned', predicate='concerns').get_or_create()[0]
         self.assertEqual(
             FirstRelatedEntitySource(
                 subject_source=subject_source2, rtype=rtype2, object_model=model1,
@@ -600,10 +601,10 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
 
     def test_clean_forbidden_rtype(self):
         subject_model = FakeContact
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is a client of', [FakeActivity]),  # Not subject_model
-            ('creme_core-object_client', 'has a client'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is a client of',
+            models=[FakeActivity],  # Not <subject_model>
+        ).symmetric(id='creme_core-object_client', predicate='has a client').get_or_create()[0]
         code = 'rtypenotallowed'
         self.assertFormfieldError(
             field=FirstRelatedEntitySourceField(
@@ -615,12 +616,9 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
         )
 
     def test_clean_disabled_rtype(self):
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is a client of'),
-            ('creme_core-object_client', 'has a client'),
-        )[0]
-        rtype.enabled = False
-        rtype.save()
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is a client of', enabled=False,
+        ).symmetric(id='creme_core-object_client', predicate='has a client').get_or_create()[0]
 
         code = 'rtypenotallowed'
         self.assertFormfieldError(
@@ -633,10 +631,9 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
         )
 
     def test_clean_ctype_errors(self):
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_concerned', 'is concerned by'),
-            ('creme_core-object_concerned', 'concerns'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_concerned', predicate='is concerned by',
+        ).symmetric(id='creme_core-object_concerned', predicate='concerns').get_or_create()[0]
         field = FirstRelatedEntitySourceField(
             subject_source=EditedEntitySource(model=FakeContact),
         )
@@ -656,10 +653,12 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
     def test_clean_forbidden_ctype(self):
         subject_model = FakeContact
         object_model = FakeOrganisation
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is concerned by'),
-            ('creme_core-object_client',  'concerns', [FakeActivity]),  # Not object_model
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is concerned by',
+        ).symmetric(
+            id='creme_core-object_client',  predicate='concerns',
+            models=[FakeActivity],  # Not <object_model>
+        ).get_or_create()[0]
         code = 'forbiddenctype'
         self.assertFormfieldError(
             field=FirstRelatedEntitySourceField(
@@ -781,10 +780,9 @@ class SourceFieldTestCase(CremeTestCase):
 
         # Clean ---
         orga = FakeOrganisation.objects.create(user=user, name='Acme')
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is concerned by'),
-            ('creme_core-object_client',  'concerns'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is concerned by',
+        ).symmetric(id='creme_core-object_client', predicate='concerns').get_or_create()[0]
         created_kind = 'created_entity'
         fixed_kind = 'fixed_entity'
         fk_kind = 'created_entity|entity_fk'
@@ -997,10 +995,9 @@ class PropertyAddingActionFormTestCase(CremeTestCase):
             subject_model, object_model,
         )
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is concerned by'),
-            ('creme_core-object_client',  'concerns'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is concerned by',
+        ).symmetric(id='creme_core-object_client', predicate='concerns').get_or_create()[0]
 
         wf = Workflow(
             title='My WF',
@@ -1085,17 +1082,13 @@ class RelationAddingActionFormTestCase(CremeTestCase):
         user = self.get_root_user()
         model = FakeOrganisation
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1, rtype2 = create_rtype(
-            ('test-subject_employee', 'is employed by'),
-            ('test-object_employee', 'has employee'),
-        )
-        rtype3 = create_rtype(
-            ('test-subject_concerns', 'concerns'),
-            ('test-object_concerns', 'is concerned by'),
-        )[0]
-        rtype3.enabled = False
-        rtype3.save()
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_employee', predicate='is employed by',
+        ).symmetric(id='test-object_employee', predicate='has employee').get_or_create()[0]
+        rtype2 = rtype1.symmetric_type
+        rtype3 = RelationType.objects.builder(
+            id='test-subject_concerns', predicate='concerns', enabled=False,
+        ).symmetric(id='test-object_concerns', predicate='is concerned by').get_or_create()[0]
 
         form = RelationAddingActionForm(
             user=user,
@@ -1142,10 +1135,9 @@ class RelationAddingActionFormTestCase(CremeTestCase):
 
     def test_clean(self):
         user = self.get_root_user()
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee', 'is employed by'),
-            ('test-object_employee', 'has employee'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_employee', predicate='is employed by',
+        ).symmetric(id='test-object_employee', predicate='has employee').get_or_create()[0]
         fixed_orga = FakeOrganisation.objects.create(user=user, name='Acme')
         created_model = FakeContact
         wf = Workflow(
@@ -1183,10 +1175,9 @@ class RelationAddingActionFormTestCase(CremeTestCase):
         user = self.get_root_user()
         created_model = FakeActivity
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee', 'is employed by', [FakeContact]),
-            ('test-object_employee', 'has employee'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_employee', predicate='is employed by', models=[FakeContact],
+        ).symmetric(id='test-object_employee', predicate='has employee').get_or_create()[0]
         fixed_orga = FakeOrganisation.objects.create(user=user, name='Acme')
 
         wf = Workflow(
@@ -1222,10 +1213,11 @@ class RelationAddingActionFormTestCase(CremeTestCase):
     def test_rtype_error__object_model(self):
         user = self.get_root_user()
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee', 'is employed by'),
-            ('test-object_employee', 'has employee', [FakeOrganisation]),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_employee', predicate='is employed by',
+        ).symmetric(
+            id='test-object_employee', predicate='has employee', models=[FakeOrganisation],
+        ).get_or_create()[0]
         fixed_img = FakeImage.objects.create(user=user, name='Image#1')
 
         wf = Workflow(
@@ -1260,10 +1252,9 @@ class RelationAddingActionFormTestCase(CremeTestCase):
 
     def test_rtype_error__same_subject_n_object(self):
         user = self.get_root_user()
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee', 'is employed by'),
-            ('test-object_employee', 'has employee'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_employee', predicate='is employed by',
+        ).symmetric(id='test-object_employee', predicate='has employee').get_or_create()[0]
         wf = Workflow(
             title='My WF', trigger=EntityCreationTrigger(model=FakeContact),
         )

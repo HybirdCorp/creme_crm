@@ -503,15 +503,14 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loves',  'is loved'),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_heals', 'has healed', [FakeOrganisation]),
-            ('test-object_heals',  'healed by',  [FakeContact]),
-        )[1]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(id='test-object_loves', predicate='is loved').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_heals', predicate='has healed', models=[FakeOrganisation],
+        ).symmetric(
+            id='test-object_heals', predicate='healed by', models=[FakeContact],
+        ).get_or_create()[0]
 
         form1 = FakeContactForm(user=user)
         fields = form1.fields
@@ -542,8 +541,8 @@ class CremeEntityFormTestCase(CremeTestCase):
 
                 'relation_types': self.formfield_value_multi_relation_entity(
                     (rtype1, contact),
-                    (rtype2, orga),
-                    (rtype2, orga),  # Duplicates
+                    (rtype2.symmetric_type, orga),
+                    (rtype2.symmetric_type, orga),  # Duplicates
                 ),
             },
         )
@@ -552,7 +551,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         subject = form2.save()
         self.assertEqual(2, subject.relations.count())
         self.assertHaveRelation(subject=subject, type=rtype1, object=contact)
-        self.assertHaveRelation(subject=subject, type=rtype2, object=orga)
+        self.assertHaveRelation(subject=subject, type=rtype2.symmetric_type, object=orga)
 
     def test_relations02(self):
         "Semi-fixed."
@@ -563,19 +562,18 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loves',  'is loved'),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_heals', 'has healed', [FakeOrganisation]),
-            ('test-object_heals',  'healed by',  [FakeContact]),
-        )[1]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(id='test-object_loves', predicate='is loved').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_heals', predicate='has healed', models=[FakeOrganisation],
+        ).symmetric(
+            id='test-object_heals', predicate='healed by', models=[FakeContact],
+        ).get_or_create()[0]
 
         create_strt = SemiFixedRelationType.objects.create
         sfrt1 = create_strt(
-            predicate='Healed by Oshino', relation_type=rtype2, real_object=orga,
+            predicate='Healed by Oshino', relation_type=rtype2.symmetric_type, real_object=orga,
         )
         sfrt2 = create_strt(
             predicate='Loves Hitagi', relation_type=rtype1, real_object=contact,
@@ -620,7 +618,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         subject = form2.save()
         self.assertEqual(2, subject.relations.count())
         self.assertHaveRelation(subject=subject, type=rtype1, object=contact)
-        self.assertHaveRelation(subject=subject, type=rtype2, object=orga)
+        self.assertHaveRelation(subject=subject, type=rtype2.symmetric_type, object=orga)
 
     def test_relations03(self):
         "Fixed & semi-fixed."
@@ -631,19 +629,18 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loves',  'is loved'),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_heals', 'has healed', [FakeOrganisation]),
-            ('test-object_heals',  'healed by',  [FakeContact]),
-        )[1]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(id='test-object_loves', predicate='is loved').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_heals', predicate='has healed', models=[FakeOrganisation],
+        ).symmetric(
+            id='test-object_heals', predicate='healed by', models=[FakeContact],
+        ).get_or_create()[0]
 
         create_strt = SemiFixedRelationType.objects.create
         sfrt1 = create_strt(
-            predicate='Healed by Oshino', relation_type=rtype2, real_object=orga,
+            predicate='Healed by Oshino', relation_type=rtype2.symmetric_type, real_object=orga,
         )
         sfrt2 = create_strt(
             predicate='Loves Hitagi', relation_type=rtype1, real_object=contact,
@@ -667,7 +664,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         subject = form.save()
         self.assertEqual(2, subject.relations.count())
         self.assertHaveRelation(subject=subject, type=rtype1, object=contact)
-        self.assertHaveRelation(subject=subject, type=rtype2, object=orga)
+        self.assertHaveRelation(subject=subject, type=rtype2.symmetric_type, object=orga)
 
     def test_relations04(self):
         "Forced Relations."
@@ -679,19 +676,18 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loves',  'is loved'),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_heals', 'has healed', [FakeOrganisation]),
-            ('test-object_heals',  'healed by',  [FakeContact]),
-        )[1]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(id='test-object_loves', predicate='is loved').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_heals', predicate='has healed', models=[FakeOrganisation],
+        ).symmetric(
+            id='test-object_heals', predicate='healed by', models=[FakeContact],
+        ).get_or_create()[0]
 
         fields1 = FakeContactForm(
             user=user,
-            forced_relations=[Relation(type=rtype2, object_entity=orga)],
+            forced_relations=[Relation(type=rtype2.symmetric_type, object_entity=orga)],
         ).fields
 
         with self.assertNoException():
@@ -700,7 +696,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertIn('relation_types', fields1)
         self.assertHTMLEqual(
             _('This relationship will be added: {predicate} «{entity}»').format(
-                predicate=rtype2.predicate,
+                predicate=rtype2.symmetric_type.predicate,
                 entity=orga,
             ),
             info_field.initial,
@@ -708,7 +704,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         # ---
         forced_relations = [
-            Relation(type=rtype2, object_entity=orga),
+            Relation(type=rtype2.symmetric_type, object_entity=orga),
             Relation(type=rtype1, object_entity=contact1),
         ]
         fields2 = FakeContactForm(user=user, forced_relations=forced_relations).fields
@@ -723,7 +719,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             ).format(
                 '<ul><li>{item1}</li><li>{item2}</li></ul>'.format(
                     item1=_('{predicate} «{entity}»').format(
-                        predicate=rtype2.predicate, entity=orga,
+                        predicate=rtype2.symmetric_type.predicate, entity=orga,
                     ),
                     item2=_('{predicate} «{entity}»').format(
                         predicate=rtype1.predicate, entity=contact1,
@@ -751,7 +747,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         subject = form.save()
         self.assertHaveRelation(subject=subject, type=rtype1, object=contact1)
         self.assertHaveRelation(subject=subject, type=rtype1, object=contact2)
-        self.assertHaveRelation(subject=subject, type=rtype2, object=orga)
+        self.assertHaveRelation(subject=subject, type=rtype2.symmetric_type, object=orga)
 
     @override_settings(FORMS_RELATION_FIELDS=False)
     def test_relations05(self):
@@ -759,10 +755,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.get_root_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_heals', 'has healed'),
-            ('test-object_heals',  'healed by'),
-        )[1]
+        rtype = RelationType.objects.builder(
+            id='test-subject_heals', predicate='has healed',
+        ).symmetric(id='test-object_heals', predicate='healed by').get_or_create()[0]
 
         form = FakeContactForm(
             user=user,
@@ -808,10 +803,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         self.assertFalse(user.has_perm_to_link(contact2))
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loves',  'is loved'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(id='test-object_loves', predicate='is loved').get_or_create()[0]
 
         create_strt = SemiFixedRelationType.objects.create
         sfrt1 = create_strt(
@@ -838,10 +832,9 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_heals', 'heals'),
-            ('test-object_heals',  'is healed by'),
-        )[1]
+        rtype = RelationType.objects.builder(
+            id='test-subject_heals', predicate='heals',
+        ).symmetric(id='test-object_heals', predicate='is healed by').get_or_create()[0]
 
         sfrt = SemiFixedRelationType.objects.create(
             predicate='Healed by Oshino', relation_type=rtype, real_object=orga,
@@ -886,10 +879,9 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_heals', 'heals'),
-            ('test-object_heals',  'is healed by'),
-        )[1]
+        rtype = RelationType.objects.builder(
+            id='test-subject_heals', predicate='heals',
+        ).symmetric(id='test-object_heals', predicate='is healed by').get_or_create()[0]
 
         data = {
             'first_name': 'Kanbaru',
@@ -921,10 +913,9 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_heals', 'heals'),
-            ('test-object_heals',  'is healed by'),
-        )[1]
+        rtype = RelationType.objects.builder(
+            id='test-subject_heals', predicate='heals',
+        ).symmetric(id='test-object_heals', predicate='is healed by').get_or_create()[0]
         sfrt = SemiFixedRelationType.objects.create(
             predicate='Healed by Oshino', relation_type=rtype, real_object=orga,
         )
@@ -974,10 +965,9 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_heals', 'heals'),
-            ('test-object_heals',  'is healed by'),
-        )[1]
+        rtype = RelationType.objects.builder(
+            id='test-subject_heals', predicate='heals',
+        ).symmetric(id='test-object_heals', predicate='is healed by').get_or_create()[0]
 
         data = {
             'first_name': 'Kanbaru',
@@ -1017,10 +1007,13 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.get_root_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_registered', 'has registered',      [FakeOrganisation]),
-            ('test-object_registered',  'has been registered', [FakeOrganisation]),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_registered', predicate='has registered',
+            models=[FakeOrganisation],
+        ).symmetric(
+            id='test-object_registered', predicate='has been registered',
+            models=[FakeOrganisation],
+        ).get_or_create()[0]
 
         SemiFixedRelationType.objects.create(
             predicate='has registered Oshino',
@@ -1065,15 +1058,20 @@ class CremeEntityFormTestCase(CremeTestCase):
         ptype1 = create_ptype(text='Is a captain')
         ptype2 = create_ptype(text='Is strong')
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_registered', 'registered',     [FakeContact], [ptype1]),
-            ('test-object_registered',  'has registered', [FakeOrganisation]),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_leads', 'leads',   [FakeContact], [ptype1, ptype2]),
-            ('test-object_leads',  'is lead', [FakeOrganisation]),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_registered', predicate='registered',
+            models=[FakeContact], properties=[ptype1],
+        ).symmetric(
+            id='test-object_registered', predicate='has registered',
+            models=[FakeOrganisation],
+        ).get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_leads', predicate='leads',
+            models=[FakeContact], properties=[ptype1, ptype2],
+        ).symmetric(
+            id='test-object_leads', predicate='is lead',
+            models=[FakeOrganisation],
+        ).get_or_create()[0]
 
         sfrt = SemiFixedRelationType.objects.create(
             predicate='Registered the Bebop',
@@ -1188,15 +1186,18 @@ class CremeEntityFormTestCase(CremeTestCase):
         ptype1 = create_ptype(text='Is a captain')
         ptype2 = create_ptype(text='Is a doctor')
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_pilots', 'pilots',        [FakeContact], [], [ptype1]),
-            ('test-object_pilots',  'is piloted by', [FakeOrganisation]),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_repairs', 'repairs',        [FakeContact], [], [ptype1, ptype2]),
-            ('test-object_repairs',  'is repaired by', [FakeOrganisation]),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_pilots', predicate='pilots', models=[FakeContact],
+            forbidden_properties=[ptype1],
+        ).symmetric(
+            id='test-object_pilots', predicate='is piloted by', models=[FakeOrganisation],
+        ).get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_repairs', predicate='repairs', models=[FakeContact],
+            forbidden_properties=[ptype1, ptype2],
+        ).symmetric(
+            id='test-object_repairs', predicate='is repaired by', models=[FakeOrganisation],
+        ).get_or_create()[0]
 
         sfrt = SemiFixedRelationType.objects.create(
             predicate='Pilots the Bebop',

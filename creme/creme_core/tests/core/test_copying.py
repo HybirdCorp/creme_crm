@@ -42,21 +42,20 @@ class CloningTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        cls.rtype1 = create_rtype(
-            ('test-subject_employs', 'employs'),
-            ('test-object_employs',  'is employed by'),
-        )[0]
-        cls.rtype2 = create_rtype(
-            ('test-subject_managed', 'is managed by'),
-            ('test-object_managed',  'manages'),
+        cls.rtype1 = RelationType.objects.builder(
+            id='test-subject_employs', predicate='employs',
+        ).symmetric(id='test-object_employs', predicate='is employed by').get_or_create()[0]
+        cls.rtype2 = RelationType.objects.builder(
+            id='test-subject_managed', predicate='is managed by',
             is_internal=True,
-        )[0]
-        cls.rtype3 = create_rtype(
-            ('test-subject_created', 'has been created by'),
-            ('test-object_created',  'has created'),
-            is_copiable=(False, False),
-        )[0]
+        ).symmetric(id='test-object_managed', predicate='manages').get_or_create()[0]
+        cls.rtype3 = RelationType.objects.builder(
+            id='test-subject_created', predicate='has been created by',
+            is_copiable=False,
+        ).symmetric(
+            id='test-object_created', predicate='has created',
+            is_copiable=False,
+        ).get_or_create()[0]
 
         create_ptype = CremePropertyType.objects.create
         cls.ptype1 = create_ptype(text='straightforward')
@@ -347,23 +346,27 @@ class CloningTestCase(CremeTestCase):
     def test_strong_relations_copier(self):
         user = self.get_root_user()
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype4 = create_rtype(
-            ('test-subject_ct_ok', 'CT OK', [FakeOrganisation, FakeContact]),
-            ('test-object_ct_ok',  'CT OK (symmetrical)'),
-        )[0]  # Subject constraint on ContentTypes is OK
-        rtype5 = create_rtype(
-            ('test-subject_ct_ko', 'CT KO', [FakeOrganisation]),
-            ('test-object_ct_ko', 'CT KO (symmetrical)'),
-        )[0]  # Subject constraint on ContentTypes is NOT OK
-        rtype6 = create_rtype(
-            ('test-subject_prop_1', 'Prop 1', [], [self.ptype1]),
-            ('test-object_prop_1',  'Prop 1 (symmetrical)'),
-        )[0]  # Subject constraint for Properties
-        rtype7 = create_rtype(
-            ('test-subject_prop_2', 'Prop 2', [], [self.ptype2]),
-            ('test-object_prop_2', 'Prop 2 (symmetrical)'),
-        )[0]  # Subject constraint for Properties
+        rtype4 = RelationType.objects.builder(
+            id='test-subject_ct_ok', predicate='CT OK',
+            models=[FakeOrganisation, FakeContact],
+        ).symmetric(
+            id='test-object_ct_ok', predicate='CT OK (symmetrical)',
+        ).get_or_create()[0]
+        rtype5 = RelationType.objects.builder(
+            id='test-subject_ct_ko', predicate='CT KO', models=[FakeOrganisation],
+        ).symmetric(
+            id='test-object_ct_ko', predicate='CT KO (symmetrical)',
+        ).get_or_create()[0]
+        rtype6 = RelationType.objects.builder(
+            id='test-subject_prop_1', predicate='Prop 1', properties=[self.ptype1],
+        ).symmetric(
+            id='test-object_prop_1', predicate='Prop 1 (symmetrical)',
+        ).get_or_create()[0]
+        rtype7 = RelationType.objects.builder(
+            id='test-subject_prop_2', predicate='Prop 2', properties=[self.ptype2],
+        ).symmetric(
+            id='test-object_prop_2', predicate='Prop 2 (symmetrical)',
+        ).get_or_create()[0]
 
         src = FakeOrganisation.objects.create(user=user, name='Planet express')
 

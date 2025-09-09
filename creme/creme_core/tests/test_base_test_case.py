@@ -858,33 +858,35 @@ class BaseTestCaseTestCase(CremeTestCase):
         entity2 = create_orga(name='DRF')
         entity3 = create_orga(name='Generator')
 
-        rtype11, rtype12 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is destroying'),
-            ('test-object_foobar',  'is destroyed by'),
-        )
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is destroying',
+        ).symmetric(
+            id='test-object_foobar', predicate='is destroyed by',
+        ).get_or_create()[0]
+        rtype2 = rtype1.symmetric_type
 
         create_rel = partial(Relation.objects.create, user=user)
-        create_rel(subject_entity=entity1, type=rtype11, object_entity=entity2)
-        create_rel(subject_entity=entity1, type=rtype12, object_entity=entity3)
+        create_rel(subject_entity=entity1, type=rtype1, object_entity=entity2)
+        create_rel(subject_entity=entity1, type=rtype2, object_entity=entity3)
 
         with self.assertNoException():
-            self.assertHaveRelation(entity1, rtype11, entity2)
+            self.assertHaveRelation(entity1, rtype1, entity2)
 
         with self.assertNoException():
-            self.assertHaveRelation(subject=entity1, type=rtype11, object=entity2)
+            self.assertHaveRelation(subject=entity1, type=rtype1, object=entity2)
 
         with self.assertNoException():
-            self.assertHaveRelation(subject=entity1.id, type=rtype11.id, object=entity2.id)
+            self.assertHaveRelation(subject=entity1.id, type=rtype1.id, object=entity2.id)
 
         with self.assertRaises(self.failureException) as cm1:
-            self.assertHaveRelation(entity1, rtype12, entity2)
+            self.assertHaveRelation(entity1, rtype2, entity2)
         self.assertEqual(
-            f'<{entity1}> is not related to <{entity2}> with type <{rtype12}>',
+            f'<{entity1}> is not related to <{entity2}> with type <{rtype2}>',
             str(cm1.exception),
         )
 
         with self.assertRaises(self.failureException):
-            self.assertHaveRelation(subject=entity1.id, type=rtype12.id, object=entity2.id)
+            self.assertHaveRelation(subject=entity1.id, type=rtype2.id, object=entity2.id)
 
     def test_assertHaveNoRelation(self):
         user = self.get_root_user()
@@ -894,33 +896,33 @@ class BaseTestCaseTestCase(CremeTestCase):
         entity2 = create_orga(name='DRF')
         entity3 = create_orga(name='Generator')
 
-        rtype11, rtype12 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is destroying'),
-            ('test-object_foobar',  'is destroyed by'),
-        )
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is destroying',
+        ).symmetric(id='test-object_foobar', predicate='is destroyed by').get_or_create()[0]
+        rtype2 = rtype1.symmetric_type
 
         create_rel = partial(Relation.objects.create, user=user)
-        create_rel(subject_entity=entity1, type=rtype11, object_entity=entity2)
-        create_rel(subject_entity=entity1, type=rtype12, object_entity=entity3)
+        create_rel(subject_entity=entity1, type=rtype1, object_entity=entity2)
+        create_rel(subject_entity=entity1, type=rtype2, object_entity=entity3)
 
         with self.assertNoException():
-            self.assertHaveNoRelation(entity1, rtype12, entity2)
+            self.assertHaveNoRelation(entity1, rtype2, entity2)
 
         with self.assertNoException():
-            self.assertHaveNoRelation(subject=entity1, type=rtype12, object=entity2)
+            self.assertHaveNoRelation(subject=entity1, type=rtype2, object=entity2)
 
         with self.assertNoException():
-            self.assertHaveNoRelation(subject=entity1.id, type=rtype12.id, object=entity2.id)
+            self.assertHaveNoRelation(subject=entity1.id, type=rtype2.id, object=entity2.id)
 
         with self.assertRaises(self.failureException) as cm1:
-            self.assertHaveNoRelation(entity1, rtype11, entity2)
+            self.assertHaveNoRelation(entity1, rtype1, entity2)
         self.assertEqual(
-            f'<{entity1}> is related to <{entity2}> with type <{rtype11}>',
+            f'<{entity1}> is related to <{entity2}> with type <{rtype1}>',
             str(cm1.exception),
         )
 
         with self.assertRaises(self.failureException):
-            self.assertHaveNoRelation(subject=entity1.id, type=rtype11.id, object=entity2.id)
+            self.assertHaveNoRelation(subject=entity1.id, type=rtype1.id, object=entity2.id)
 
     def test_get_alone_element(self):
         with self.assertNoException():
@@ -1003,10 +1005,13 @@ class BaseTestCaseTestCase(CremeTestCase):
         ptype2 = create_ptype(text='Hi-tech')
         ptype3 = create_ptype(text='Bio-tech')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            (type_id,     'is hiring',   (FakeContact, FakeOrganisation), [ptype1, ptype2]),
-            (sym_type_id, 'is hived by', (FakeContact,), [ptype3]),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id=type_id, predicate='is hiring',
+            models=[FakeContact, FakeOrganisation], properties=[ptype1, ptype2],
+        ).symmetric(
+            id=sym_type_id, predicate='is hived by',
+            models=[FakeContact], properties=[ptype3],
+        ).get_or_create()[0]
 
         with self.assertNoException():
             result = self.get_relationtype_or_fail(

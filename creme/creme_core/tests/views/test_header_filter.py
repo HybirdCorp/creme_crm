@@ -153,10 +153,9 @@ class HeaderFilterViewsTestCase(CremeTestCase):
 
         # GET ---
         ct = self.contact_ct
-        loves = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
-        )[0]
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(id='test-object_love', predicate='Is loved by').get_or_create()[0]
         customfield = CustomField.objects.create(
             name='Size (cm)',
             field_type=CustomField.INT,
@@ -342,13 +341,10 @@ class HeaderFilterViewsTestCase(CremeTestCase):
     def test_create__error__disabled_relationtype(self):
         self.login_as_root()
 
-        disabled_rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_disabled', 'disabled'),
-            ('test-object_disabled',  'whatever'),
-        )[0]
-        disabled_rtype.enabled = False
-        disabled_rtype.save()
-
+        disabled_rtype = RelationType.objects.builder(
+            id='test-subject_disabled', predicate='disabled',
+            enabled=False,  # <==
+        ).symmetric(id='test-object_disabled', predicate='whatever').get_or_create()[0]
         response = self.assertPOST200(
             self._build_add_url(self.contact_ct),
             data={'cells': f'relation-{disabled_rtype.id}'},
@@ -667,19 +663,17 @@ class HeaderFilterViewsTestCase(CremeTestCase):
     def test_edit__disabled_rtypes(self):
         self.login_as_root()
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_loves', 'is loving'),
-            ('test-object_loves',  'is loved by'),
-        )[0]
-        disabled_rtype1 = create_rtype(
-            ('test-subject_disabled1', 'disabled #1'),
-            ('test-object_disabled1',  'whatever #1'),
-        )[0]
-        disabled_rtype2 = create_rtype(
-            ('test-subject_disabled2', 'disabled #2'),
-            ('test-object_disabled2', 'whatever #2'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_loves', predicate='is loving',
+        ).symmetric(id='test-object_loves', predicate='is loved by').get_or_create()[0]
+        disabled_rtype1 = RelationType.objects.builder(
+            id='test-subject_disabled1', predicate='disabled #1',
+            enabled=False,
+        ).symmetric(id='test-object_disabled1', predicate='whatever #1').get_or_create()[0]
+        disabled_rtype2 = RelationType.objects.builder(
+            id='test-subject_disabled2', predicate='disabled #2',
+            enabled=False,
+        ).symmetric(id='test-object_disabled2', predicate='whatever #2').get_or_create()[0]
 
         build_cell = partial(EntityCellRelation, model=FakeContact)
         hf = HeaderFilter.objects.create_if_needed(
@@ -690,10 +684,6 @@ class HeaderFilterViewsTestCase(CremeTestCase):
                 build_cell(rtype=disabled_rtype1),
             ],
         )
-
-        for disabled in (disabled_rtype1, disabled_rtype2):
-            disabled.enabled = False
-            disabled.save()
 
         url = hf.get_edit_absolute_url()
         response1 = self.assertPOST200(

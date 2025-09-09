@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 05/09/2025 for Creme 2.8
+:Version: 03/10/2025 for Creme 2.8
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1347,32 +1347,50 @@ Then ``beavers/populate.py``: ::
     from creme import persons
 
     [...]
+    Contact = persons.get_contact_model()
+
 
     class Populator(BasePopulator):
         [...]
 
-        # This method is defined in BasePopulator & is called automatically
-        def _populate_relation_types(self):
-            Contact = persons.get_contact_model()
-
-            RelationType.objects.smart_update_or_create(
-                (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
-                (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
-            )
+        # This attribute is defined in BasePopulator & is used automatically
+        RELATION_TYPES = [
+            RelationType.objects.builder(
+                id=constants.REL_SUB_HAS_VET,
+                predicate=_('has veterinary'),
+                models=[Beaver],
+            ).symmetric(
+                id=constants.REL_OBJ_HAS_VET,
+                predicate=_('is the veterinary of'),
+                models=[Contact],
+            ),
+        ]
 
 
 **Notes** : we set constraints on entity types which can link (Beaver and
 Contact here). We could also, if we'd create a property type «is a veterinary»
 (for Contacts), set an additional constraint: ::
 
-        RelationType.objects.smart_update_or_create(
-            (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
-            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact], [VeterinaryPType]),
-        )
+        PROPERTY_TYPES = [
+            CremePropertyType.objects.proxy(
+                 uuid=constants.UUID_PROP_VETERINARY,
+                 app_label='my_app',
+                 text=_('is a veterinary'),
+                 subject_models=[Contact],
+            ),
+        ]
+        RELATION_TYPES = [
+            RelationType.objects.builder(
+                [...]
+            ).symmetric(
+                [...]
+                properties=[constants.UUID_PROP_VETERINARY],
+            ),
+        ]
 
 The created types of relationship cannot be deleted from the configuration UI
-(the argument ``is_custom`` of ``RelationType.objects.smart_update_or_create()``
-is ``False`` by default), which is generally a good thing.
+(the argument ``is_custom`` of ``RelationType.objects.builder()`` is ``False``
+by default), which is generally a good thing.
 
 **Going a bit further** : in some cases, we want to control precisely the
 creation and the deletion of the relationships with a given type, because of
@@ -1382,11 +1400,10 @@ relationships. The solution is to declare these types as internal ;
 the generic creation and deletion views for relationships ignore these kind of
 types: ::
 
-        RelationType.objects.smart_update_or_create(
-            (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
-            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
+        RelationType.objects.builder(
+            [...],
             is_internal=True,
-        )
+        ).symmetric([...])
 
 So you have to write the creation and deletion codes for these types.
 Typically, for the creation, we create the relationship in the creation form

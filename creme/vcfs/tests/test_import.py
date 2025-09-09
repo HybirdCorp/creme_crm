@@ -472,39 +472,46 @@ END:VCARD"""
         ptype01 = create_ptype(text='Is a fighter')
         ptype02 = create_ptype(text='Is big corp')
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype = create_rtype(
-            ('test-subject_showcases', 'showcases',       [Contact]),
-            ('test-object_showcases',  'is showcased by', [Organisation]),
-        )[0]
-        ct_incompatible_rtype = create_rtype(
-            ('test-subject_loves', 'is loving',   [Contact]),
-            ('test-object_loves',  'is loved by', [Contact]),
-        )[0]
-        internal_rtype = create_rtype(
-            ('test-subject_leads', 'is leading', [Contact]),
-            ('test-object_leads',  'is lead by', [Organisation]),
+        rtype = RelationType.objects.builder(
+            id='test-subject_showcases', predicate='showcases', models=[Contact],
+        ).symmetric(
+            id='test-object_showcases', predicate='is showcased by', models=[Organisation],
+        ).get_or_create()[0]
+        ct_incompatible_rtype = RelationType.objects.builder(
+            id='test-subject_loves', predicate='is loving', models=[Contact],
+        ).symmetric(
+            id='test-object_loves', predicate='is loved by', models=[Contact],
+        ).get_or_create()[0]
+        internal_rtype = RelationType.objects.builder(
+            id='test-subject_leads', predicate='is leading', models=[Contact],
             is_internal=True,
-        )[0]
-        rtype_with_subject_prop = create_rtype(
-            ('test-subject_fights', 'fights',       [Contact],      [ptype01]),
-            ('test-object_fights',  'is fought by', [Organisation]),
-        )[0]
-        rtype_with_object_prop = create_rtype(
-            ('test-subject_pawn', 'is an insignificant pawn of', [Contact]),
-            ('test-object_pawn',  'has pawn',                    [Organisation], [ptype02]),
-        )[0]
-        rtype_with_object_forb_prop = create_rtype(
-            ('test-subject_fan', 'is a fan of', [Contact]),
-            ('test-object_fan',  'has fan',                    [Organisation], [], [ptype02]),
-        )[0]
-
-        disabled_rtype = create_rtype(
-            ('test-subject_commands', 'is commanding',   [Contact]),
-            ('test-object_commands',  'is commanded by', [Organisation]),
-        )[0]
-        disabled_rtype.enabled = False
-        disabled_rtype.save()
+        ).symmetric(
+            id='test-object_leads', predicate='is lead by', models=[Organisation],
+        ).get_or_create()[0]
+        rtype_with_subject_prop = RelationType.objects.builder(
+            id='test-subject_fights', predicate='fights',
+            models=[Contact], properties=[ptype01],
+        ).symmetric(
+            id='test-object_fights', predicate='is fought by', models=[Organisation],
+        ).get_or_create()[0]
+        rtype_with_object_prop = RelationType.objects.builder(
+            id='test-subject_pawn', predicate='is an insignificant pawn of', models=[Contact],
+        ).symmetric(
+            id='test-object_pawn', predicate='has pawn',
+            models=[Organisation], properties=[ptype02],
+        ).get_or_create()[0]
+        rtype_with_object_forb_prop = RelationType.objects.builder(
+            id='test-subject_fan', predicate='is a fan of', models=[Contact],
+        ).symmetric(
+            id='test-object_fan', predicate='has fan',
+            models=[Organisation], properties=[ptype02],
+        ).get_or_create()[0]
+        disabled_rtype = RelationType.objects.builder(
+            id='test-subject_commands', predicate='is commanding', models=[Contact],
+            enabled=False,
+        ).symmetric(
+            id='test-object_commands', predicate='is commanded by', models=[Organisation],
+        ).get_or_create()[0]
 
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()

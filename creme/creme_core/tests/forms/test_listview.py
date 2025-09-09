@@ -1119,10 +1119,9 @@ class SearchFieldsTestCase(CremeTestCase):
 
     def test_relationfield(self):
         user = self.user
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_trains', 'trains'),
-            ('test-object_trains',  'trained by'),
-        )[1]
+        rtype = RelationType.objects.builder(
+            id='test-subject_trains', predicate='trains',
+        ).symmetric(id='test-object_trains', predicate='trained by').get_or_create()[0]
 
         create_contact = partial(FakeContact.objects.create, user=user)
         ryu   = create_contact(first_name='Ryu',   last_name='??')

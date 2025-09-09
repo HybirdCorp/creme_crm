@@ -3192,10 +3192,9 @@ class DateCustomFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
 class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
     def test_init__rtype_id(self):
         user = self.get_root_user()
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
 
         handler1 = RelationConditionHandler(
             efilter_type=EF_REGULAR,
@@ -3266,10 +3265,9 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
             handler3.entity  # NOQA
 
     def test_init__rtype_instance(self):
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
 
         handler = RelationConditionHandler(
             efilter_type=EF_REGULAR,
@@ -3448,10 +3446,9 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
     def test_build_condition(self):
         user = self.get_root_user()
 
-        loves, loved = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
 
         build_cond = partial(RelationConditionHandler.build_condition, model=FakeContact)
         condition1 = build_cond(rtype=loves, has=True)
@@ -3477,6 +3474,7 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIsNone(handler1._entity_uuid)
 
         # ---
+        loved = loves.symmetric_type
         condition2 = build_cond(rtype=loved, has=False, filter_type=EF_CREDENTIALS)
         self.assertEqual(loved.id, condition2.name)
         self.assertEqual(EF_CREDENTIALS, condition2.filter_type)
@@ -3522,10 +3520,9 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
         "get_q() not empty."
         user = self.get_root_user()
 
-        loves, loved = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
 
         create_contact = partial(FakeContact.objects.create, user=user)
         shinji = create_contact(last_name='Ikari',     first_name='Shinji')
@@ -3597,10 +3594,9 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
 
     def test_accept(self):
         user = self.get_root_user()
-        loves = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[0]
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
 
         create_contact = partial(FakeContact.objects.create, user=user)
         shinji = create_contact(last_name='Ikari',     first_name='Shinji')
@@ -3660,10 +3656,9 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
     def test_description(self):
         user = self.get_root_user()
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
 
         handler1 = RelationConditionHandler(
             efilter_type=EF_REGULAR, model=FakeOrganisation, rtype=rtype,
@@ -3703,10 +3698,9 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
     def test_description__exclude(self):
         user = self.get_root_user()
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_like', 'Is liking'),
-            ('test-object_like',  'Is liked by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_like', predicate='Is liking',
+        ).symmetric(id='test-object_like', predicate='is liked by').get_or_create()[0]
 
         handler1 = RelationConditionHandler(
             efilter_type=EF_REGULAR,
@@ -3754,10 +3748,9 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
     def test_relation_description__credentials(self):
         user = self.login_as_standard()
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
         entity = FakeContact.objects.create(
             user=self.get_root_user(),
             last_name='Ayanami', first_name='Rei',
@@ -3787,10 +3780,9 @@ class RelationConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertEqual('???', handler1.description(user))
 
         # ---
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_like', 'Is liking'),
-            ('test-object_like',  'Is liked by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_like', predicate='is liking',
+        ).symmetric(id='test-object_like', predicate='is liked by').get_or_create()[0]
         handler2 = RelationConditionHandler(
             efilter_type=EF_REGULAR,
             model=FakeContact,
@@ -4133,10 +4125,9 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertEqual(sub_efilter, subfilter)
 
     def test_init__rtype_instance(self):
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
 
         handler = RelationSubFilterConditionHandler(
             efilter_type=EF_REGULAR,
@@ -4252,10 +4243,9 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIsNone(formfield2.user)
 
     def test_build_condition(self):
-        loves, loved = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
 
         def build_filter(pk):
             return EntityFilter.objects.smart_update_or_create(
@@ -4296,6 +4286,7 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIs(handler1._exclude, False)
 
         # ---
+        loved = loves.symmetric_type
         sub_efilter2 = build_filter('test-filter01')
         condition2 = RelationSubFilterConditionHandler.build_condition(
             model=FakeContact, rtype=loved, has=False, subfilter=sub_efilter2,
@@ -4328,10 +4319,9 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
         "get_q() not empty."
         user = self.get_root_user()
 
-        loves, loved = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
 
         create_contact = partial(FakeContact.objects.create, user=user)
         shinji = create_contact(last_name='Ikari',     first_name='Shinji')
@@ -4377,10 +4367,9 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
     def test_description(self):
         user = self.get_root_user()
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
 
         sub_filter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter Ikari', model=FakeContact, is_custom=True,
@@ -4440,10 +4429,9 @@ class RelationSubFilterConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertEqual('???', handler1.description(user))
 
         # ---
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_love', predicate='is loving',
+        ).symmetric(id='test-object_love', predicate='is loved by').get_or_create()[0]
 
         handler2 = RelationSubFilterConditionHandler(
             efilter_type=EF_REGULAR,

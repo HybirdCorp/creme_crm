@@ -267,12 +267,12 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
     def test_edit_not_custom01(self):
         self._login_as_admin()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate', [FakeContact]),
-            ('test-objfoo', 'object_predicate'),
-            is_custom=False,
-            minimal_display=(False, True),
-        )[0]
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate', models=[FakeContact],
+            # is_custom=False,
+        ).symmetric(
+            id='test-objfoo', predicate='object_predicate', minimal_display=True,
+        ).get_or_create()[0]
 
         # Normal edition should not work
         self.assertGET404(self._build_edit_url(rt))
@@ -317,12 +317,12 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
     def test_edit_not_custom02(self):
         self._login_as_admin()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate', [FakeContact]),
-            is_custom=False,
-            minimal_display=(True, False),
-        )[0]
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='Subject predicate', minimal_display=True,
+            # is_custom=False,
+        ).symmetric(
+            id='test-objfoo', predicate='Object predicate', models=[FakeContact],
+        ).get_or_create()[0]
 
         url = self._build_edit_not_custom_url(rt)
         response1 = self.assertGET200(url)
@@ -358,36 +358,31 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
     def test_edit_not_custom__disabled(self):
         self._login_as_admin()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate', [FakeContact]),
-            is_custom=False,
-        )[0]
-        rt.enabled = False
-        rt.save()
-
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='Subject predicate', enabled=False,
+            # is_custom=False,
+        ).symmetric(
+            id='test-objfoo', predicate='Object predicate', models=[FakeContact],
+        ).get_or_create()[0]
         self.assertGET404(self._build_edit_not_custom_url(rt))
 
     def test_edit_not_custom__perm(self):
         self._login_as_basic()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate', [FakeContact]),
-            is_custom=False,
-        )[0]
-
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate',  # is_custom=False,
+        ).symmetric(
+            id='test-objfoo', predicate='Object predicate', models=[FakeContact],
+        ).get_or_create()[0]
         self.assertGET403(self._build_edit_not_custom_url(rt))
 
     def test_edit_custom(self):
         "Edit a custom type."
         self._login_as_admin()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-            is_custom=True,
-        )[0]
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='Subject predicate', is_custom=True,
+        ).symmetric(id='test-objfoo', predicate='Object predicate').get_or_create()[0]
         self.assertGET404(self._build_edit_not_custom_url(rt))
 
         url = self._build_edit_url(rt)
@@ -423,34 +418,27 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         "Edit a disabled type."
         self._login_as_admin()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-            is_custom=True,
-        )[0]
-        rt.enabled = False
-        rt.save()
-
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate',
+            is_custom=True, enabled=False,
+        ).symmetric(id='test-objfoo', predicate='Object predicate').get_or_create()[0]
         self.assertGET404(self._build_edit_url(rt))
 
     def test_edit_custom__perm(self):
         self._login_as_basic()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-            is_custom=True,
-        )[0]
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate', is_custom=True,
+        ).symmetric(id='test-objfoo', predicate='Object predicate').get_or_create()[0]
 
         self.assertGET403(self._build_edit_url(rt))
 
     def test_disable(self):
         self._login_as_admin()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subject_foo', 'subject_predicate'),
-            ('test-object_foo', 'object_predicate'),
-        )[0]
+        rt = RelationType.objects.builder(
+            id='test-subject_foo', predicate='Subject predicate',
+        ).symmetric(id='test-object_foo', predicate='Object predicate').get_or_create()[0]
 
         url = reverse('creme_config__disable_rtype', args=(rt.id,))
         self.assertGET405(url)
@@ -467,41 +455,31 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         "Disable internal type => error."
         self._login_as_admin()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subject_foo', 'subject_predicate'),
-            ('test-object_foo', 'object_predicate'),
+        rt = RelationType.objects.builder(
+            id='test-subject_foo', predicate='Subject predicate',
             is_internal=True,
-        )[0]
-
+        ).symmetric(id='test-object_foo', predicate='Object predicate').get_or_create()[0]
         self.assertPOST409(reverse('creme_config__disable_rtype', args=(rt.id,)))
 
     def test_disable__perm(self):
         self._login_as_basic()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subject_foo', 'subject_predicate'),
-            ('test-object_foo', 'object_predicate'),
-        )[0]
-
+        rt = RelationType.objects.builder(
+            id='test-subject_foo', predicate='subject_predicate',
+        ).symmetric(id='test-object_foo', predicate='Object predicate').get_or_create()[0]
         self.assertPOST403(reverse('creme_config__disable_rtype', args=(rt.id,)))
 
     def test_enable(self):
         self._login_as_admin()
 
-        rt, srt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-        )
-        rt.enabled = False
-        rt.save()
-        srt.enabled = False
-        srt.save()
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='Subject predicate', enabled=False,
+        ).symmetric(id='test-objfoo', predicate='Object predicate').get_or_create()[0]
 
         url = reverse('creme_config__enable_rtype', args=(rt.id,))
         self.assertGET405(url)
 
         self.assertPOST200(url)
-
         rt = self.refresh(rt)
         self.assertTrue(rt.enabled)
         self.assertTrue(rt.symmetric_type.enabled)
@@ -509,45 +487,38 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
     def test_delete__standard(self):
         self._login_as_admin()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-            is_custom=False,
-        )[0]
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='Subject predicate',  # is_custom=False,
+        ).symmetric(id='test-objfoo', predicate='Object predicate').get_or_create()[0]
         self.assertGET405(self.DEL_URL, data={'id': rt.id})
 
     def test_delete__custom(self):
         self._login_as_admin()
 
-        rt, srt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='Subject predicate',
             is_custom=True,
-        )
+        ).symmetric(id='test-objfoo', predicate='Object predicate').get_or_create()[0]
         self.assertPOST200(self.DEL_URL, data={'id': rt.id})
         self.assertDoesNotExist(rt)
-        self.assertDoesNotExist(srt)
+        self.assertDoesNotExist(rt.symmetric_type)
 
     def test_delete__perm(self):
         self._login_as_basic()
 
-        rt, srt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-            is_custom=True,
-        )
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate', is_custom=True,
+        ).symmetric(id='test-objfoo', predicate='object_predicate').get_or_create()[0]
         self.assertPOST403(self.DEL_URL, data={'id': rt.id})
         self.assertStillExists(rt)
-        self.assertStillExists(srt)
+        self.assertStillExists(rt.symmetric_type)
 
     def test_delete__used_by_relationships(self):
         user = self.login_as_root_and_get()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-subfoo', 'object_predicate'),
-            is_custom=True,
-        )[0]
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='Subject predicate', is_custom=True,
+        ).symmetric(id='test-subfoo', predicate='Object predicate').get_or_create()[0]
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='Subject inc.')
@@ -569,7 +540,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             ).format(
                 dependencies=_('{count} {model}').format(
                     count=2,
-                    model=smart_model_verbose_name(model=Relation, count=2)
+                    model=smart_model_verbose_name(model=Relation, count=2),
                 )
             ),
             response.text,
@@ -578,16 +549,12 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
     def test_delete__used_by_efilter(self):
         self.login_as_root()
 
-        rtype1, sym1 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foo', 'subject_predicate'),
-            ('test-object_foo', 'object_predicate'),
-            is_custom=True,
-        )
-        rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_bar', 'subject_predicate'),
-            ('test-object_bar', 'object_predicate'),
-            is_custom=True,
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_foo', predicate='Subject predicate #1', is_custom=True,
+        ).symmetric(id='test-object_foo', predicate='Object predicate #1').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_bar', predicate='Subject predicate #2', is_custom=True,
+        ).symmetric(id='test-object_bar', predicate='Object predicate #2').get_or_create()[0]
 
         build_cond = partial(
             condition_handler.RelationConditionHandler.build_condition,
@@ -605,7 +572,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         ).set_conditions(
-            [build_cond(rtype=sym1, has=False, filter_type=EF_CREDENTIALS)],
+            [build_cond(rtype=rtype1.symmetric_type, has=False, filter_type=EF_CREDENTIALS)],
             check_cycles=False, check_privacy=False,
         )
         EntityFilter.objects.smart_update_or_create(
@@ -643,11 +610,9 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
     def test_delete__used_by_efilter__subfilter(self):
         self.login_as_root()
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_foo', 'subject_predicate'),
-            ('test-object_foo', 'object_predicate'),
-            is_custom=True,
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_foo', predicate='Subject predicate', is_custom=True,
+        ).symmetric(id='test-object_foo', predicate='Object predicate').get_or_create()[0]
         sub_filter = EntityFilter.objects.smart_update_or_create(
             'creme_core-tests_views_rtype_sub',
             name='Corps', model=FakeOrganisation,
@@ -693,16 +658,12 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
     def test_delete__used_by_workflow__trigger(self):
         self.login_as_root()
 
-        rtype1, sym1 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foo', 'Subject predicate #1'),
-            ('test-object_foo', 'Object predicate #1'),
-            is_custom=True,
-        )
-        rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_bar', 'Subject predicate #2'),
-            ('test-object_bar', 'Object predicate #3'),
-            is_custom=True,
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_foo', predicate='Subject predicate #1', is_custom=True,
+        ).symmetric(id='test-object_foo', predicate='Object predicate #1').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_bar', predicate='Subject predicate #2', is_custom=True,
+        ).symmetric(id='test-object_bar', predicate='Object predicate #2').get_or_create()[0]
 
         wf1 = Workflow.objects.create(
             title='Flow #1',
@@ -726,7 +687,9 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             title='Flow #3',
             content_type=FakeOrganisation,
             trigger=workflows.RelationAddingTrigger(
-                subject_model=FakeOrganisation, rtype=sym1, object_model=FakeContact,
+                subject_model=FakeOrganisation,
+                rtype=rtype1.symmetric_type,
+                object_model=FakeContact,
             ),
             # conditions=...,
             # actions=[],
@@ -752,10 +715,9 @@ class SemiFixedRelationTypeTestCase(_RelationTypeBaseTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.loves = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is loving'),
-            ('test-object_foobar',  'is loved by'),
-        )[0]
+        cls.loves = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is loving',
+        ).symmetric(id='test-object_foobar', predicate='is loved by').get_or_create()[0]
 
         cls.iori = FakeContact.objects.create(
             user=cls.get_root_user(), first_name='Iori', last_name='Yoshizuki',

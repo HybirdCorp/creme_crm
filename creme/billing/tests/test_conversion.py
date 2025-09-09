@@ -476,53 +476,66 @@ class ConversionTestCase(_BillingTestCase):
         self.assertEqual(0, Relation.objects.count())
 
         quote, source, target = self.create_quote_n_orgas(user=user, name='My Quote')
-        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is loving',   (Quote, Invoice)),
-            ('test-object_foobar',  'is loved by', (Organisation,)),
-        )
-
-        self.assertTrue(rtype1.is_copiable)
-        self.assertTrue(rtype2.is_copiable)
-
-        Relation.objects.create(
-            user=user, type=rtype1, subject_entity=quote, object_entity=source,
-        )
-        self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
-        self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
-
-        rtype3, rtype4 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar_not_copiable', 'is loving', (Quote, Invoice)),
-            ('test-object_foobar_not_copiable',  'is loved by', (Organisation,)),
-            is_copiable=False,
-        )  # Not copiable
-        self.assertFalse(rtype3.is_copiable)
-        self.assertFalse(rtype4.is_copiable)
+        rtype  = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is loving', models=[Quote, Invoice],
+        ).symmetric(
+            id='test-object_foobar', predicate='is loved by', models=[Organisation],
+        ).get_or_create()[0]
+        self.assertTrue(rtype.is_copiable)
+        self.assertTrue(rtype.symmetric_type.is_copiable)
 
         Relation.objects.create(
-            user=user, type=rtype3, subject_entity=quote, object_entity=source,
+            user=user, type=rtype, subject_entity=quote, object_entity=source,
         )
-        self.assertEqual(1, Relation.objects.filter(type=rtype3).count())
-        self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype.symmetric_type).count())
 
-        rtype5, rtype6 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar_wrong_ctype', 'is loving',   (Quote,)),
-            ('test-object_foobar_wrong_ctype',  'is loved by', (Organisation,)),
-        )  # Not compatible with Invoice
+        not_copiable_rtype = RelationType.objects.builder(
+            id='test-subject_foobar_not_copiable', predicate='is loving',
+            models=[Quote, Invoice],
+            is_copiable=False,  # <==
+        ).symmetric(
+            id='test-object_foobar_not_copiable', predicate='is loved by',
+            models=[Organisation],
+            is_copiable=False,  # <==
+        ).get_or_create()[0]
+        self.assertFalse(not_copiable_rtype.is_copiable)
+        self.assertFalse(not_copiable_rtype.symmetric_type.is_copiable)
 
         Relation.objects.create(
-            user=user, type=rtype5, subject_entity=quote, object_entity=source,
+            user=user, type=not_copiable_rtype, subject_entity=quote, object_entity=source,
         )
-        self.assertEqual(1, Relation.objects.filter(type=rtype5).count())
-        self.assertEqual(1, Relation.objects.filter(type=rtype6).count())
+        self.assertEqual(1, Relation.objects.filter(type=not_copiable_rtype).count())
+        self.assertEqual(
+            1, Relation.objects.filter(type=not_copiable_rtype.symmetric_type).count(),
+        )
+
+        # Not compatible with Invoice
+        incompatible_rtype = RelationType.objects.builder(
+            id='test-subject_foobar_wrong_ctype', predicate='is loving', models=[Quote],
+        ).symmetric(
+            id='test-object_foobar_wrong_ctype', predicate='is loved by',
+            models=[Organisation],
+        ).get_or_create()[0]
+
+        Relation.objects.create(
+            user=user, type=incompatible_rtype, subject_entity=quote, object_entity=source,
+        )
+        self.assertEqual(1, Relation.objects.filter(type=incompatible_rtype).count())
+        self.assertEqual(
+            1, Relation.objects.filter(type=incompatible_rtype.symmetric_type).count()
+        )
 
         # Contact2 < ---- > Orga
         self._convert(200, quote, 'invoice')
-        self.assertEqual(2, Relation.objects.filter(type=rtype1).count())
-        self.assertEqual(2, Relation.objects.filter(type=rtype2).count())
-        self.assertEqual(1, Relation.objects.filter(type=rtype3).count())
-        self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
-        self.assertEqual(1, Relation.objects.filter(type=rtype5).count())
-        self.assertEqual(1, Relation.objects.filter(type=rtype6).count())
+
+        filter_rtype = Relation.objects.filter
+        self.assertEqual(2, filter_rtype(type=rtype).count())
+        self.assertEqual(2, filter_rtype(type=rtype.symmetric_type).count())
+        self.assertEqual(1, filter_rtype(type=not_copiable_rtype).count())
+        self.assertEqual(1, filter_rtype(type=not_copiable_rtype.symmetric_type).count())
+        self.assertEqual(1, filter_rtype(type=incompatible_rtype).count())
+        self.assertEqual(1, filter_rtype(type=incompatible_rtype.symmetric_type).count())
 
     def test_error_invalid_source(self):
         "Source is not a billing document."

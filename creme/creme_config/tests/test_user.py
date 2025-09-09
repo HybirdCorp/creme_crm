@@ -310,25 +310,32 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         rtype1 = self.get_object_or_fail(RelationType, id=REL_SUB_EMPLOYED_BY)
         rtype2 = self.get_object_or_fail(RelationType, id=REL_SUB_MANAGES)
-        rtype3 = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee_month', 'is the employee of the month for', [Contact]),
-            ('test-object_employee_month',  'has the employee of the month',    [Organisation]),
-        )[0]
-        rtype4 = RelationType.objects.smart_update_or_create(
-            ('test-subject_generic', 'generic as ***'),
-            ('test-object_generic',  'other side'),
-        )[0]
-        internal_rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee_year', 'is the employee of the year for', [Contact]),
-            ('test-object_employee_year',   'has the employee of the year', [Organisation]),
+        rtype3 = RelationType.objects.builder(
+            id='test-subject_employee_month', predicate='is the employee of the month for',
+            models=[Contact],
+        ).symmetric(
+            id='test-object_employee_month', predicate='has the employee of the month',
+            models=[Organisation],
+        ).get_or_create()[0]
+        rtype4 = RelationType.objects.builder(
+            id='test-subject_generic', predicate='generic as ***',
+        ).symmetric(id='test-object_generic', predicate='other side').get_or_create()[0]
+        internal_rtype = RelationType.objects.builder(
+            id='test-subject_employee_year', predicate='is the employee of the year for',
+            models=[Contact],
             is_internal=True,
-        )[0]
-        disabled_rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee_week', 'is the employee of the week for', [Contact]),
-            ('test-object_employee_week',   'has the employee of week year',  [Organisation]),
-        )[0]
-        disabled_rtype.enabled = False
-        disabled_rtype.save()
+        ).symmetric(
+            id='test-object_employee_year', predicate='has the employee of the year',
+            models=[Organisation],
+        ).get_or_create()[0]
+        disabled_rtype = RelationType.objects.builder(
+            id='test-subject_employee_week', predicate='is the employee of the week for',
+            models=[Contact],
+            enabled=False,
+        ).symmetric(
+            id='test-object_employee_week', predicate='has the employee of week year',
+            models=[Organisation],
+        ).get_or_create()[0]
 
         url = self.ADD_URL
         context = self.assertGET200(url).context
@@ -682,11 +689,14 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Internal relationships are forbidden."
         user = self.login_as_root_and_get()
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_config-subject_test_badrtype', 'Bad RType',     [Contact]),
-            ('creme_config-object_test_badrtype',  'Bad RType sym', [Organisation]),
+        rtype = RelationType.objects.builder(
+            id='creme_config-subject_test_badrtype', predicate='Bad RType',
+            models=[Contact],
             is_internal=True,  # <==
-        )[0]
+        ).symmetric(
+            id='creme_config-object_test_badrtype', predicate='Bad RType sym',
+            models=[Organisation],
+        ).get_or_create()[0]
 
         password = 'password'
         response = self.assertPOST200(
