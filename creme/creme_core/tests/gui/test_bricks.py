@@ -451,10 +451,9 @@ class BrickRegistryTestCase(CremeTestCase):
 
         brick_registry = BrickRegistry()
 
-        rtype1 = RelationType.objects.smart_update_or_create(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loved', 'is loved by'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(id='test-object_loved', predicate='is loved by').get_or_create()[0]
         rbi = RelationBrickItem.objects.create(relation_type=rtype1)
 
         create_cbci = CustomBrickConfigItem.objects.create
@@ -508,15 +507,12 @@ class BrickRegistryTestCase(CremeTestCase):
 
     def test_get_compatible_bricks02(self):
         "SpecificRelationsBrick."
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loved', 'is loved by'),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_hires', 'hires', [FakeOrganisation]),
-            ('test-object_hires', 'is hired by'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(id='test-object_loved', predicate='is loved by').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_hires', predicate='hires', models=[FakeOrganisation],
+        ).symmetric(id='test-object_hires', predicate='is hired by').get_or_create()[0]
 
         create_rbi = RelationBrickItem.objects.create
         create_rbi(relation_type=rtype2)
@@ -844,10 +840,9 @@ class BrickRegistryTestCase(CremeTestCase):
             id = SimpleBrick.generate_id('creme_core', 'test_get_bricks__relation')
             verbose_name = 'Testing purpose #1'
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loved', 'is loved by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(id='test-object_loved', predicate='is loved by').get_or_create()[0]
         rbi = RelationBrickItem.objects.create(relation_type=rtype)
 
         brick_registry = BrickRegistry()
@@ -1587,10 +1582,9 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_custom_brick02(self):
         "Relation + dependencies."
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employs', 'employs'),
-            ('test-object_employs', 'is employed by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_employs', predicate='employs',
+        ).symmetric(id='test-object_employs', predicate='is employed by').get_or_create()[0]
 
         cbci = CustomBrickConfigItem.objects.create(
             name='General', content_type=FakeOrganisation,
@@ -1801,18 +1795,16 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
     def test_specific_relations_brick01(self):
-        predicate = 'designed'
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_designed', predicate),
-            ('test-object_designed_by', 'is designed by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_designed', predicate='designed',
+        ).symmetric(id='test-object_designed_by', predicate='is designed by').get_or_create()[0]
         rbi = RelationBrickItem.objects.create(relation_type=rtype)
 
         brick = SpecificRelationsBrick(relationbrick_item=rbi)
         self.assertEqual((Relation,), brick.dependencies)
         self.assertEqual((rtype.id,), brick.relation_type_deps)
         self.assertEqual(
-            _('Relationship block: «{predicate}»').format(predicate=predicate),
+            _('Relationship block: «{predicate}»').format(predicate=rtype.predicate),
             brick.verbose_name,
         )
         self.assertEqual((), brick.target_ctypes)
@@ -1884,10 +1876,12 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_specific_relations_brick02(self):
         "ContentType constraints."
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_loves', 'loves', [FakeOrganisation, FakeContact]),
-            ('test-object_loved', 'is loved by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+            models=[FakeOrganisation, FakeContact],
+        ).symmetric(
+            id='test-object_loved', predicate='is loved by',
+        ).get_or_create()[0]
         rbi = RelationBrickItem.objects.get_or_create(relation_type=rtype)[0]
 
         brick = SpecificRelationsBrick(relationbrick_item=rbi)

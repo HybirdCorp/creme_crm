@@ -939,10 +939,11 @@ class EntityCellRelationTestCase(CremeTestCase):
     def test_several_related_entities(self):
         self.assertEqual(_('Relationships'), EntityCellRelation.verbose_name)
 
-        loved = RelationType.objects.smart_update_or_create(
-            ('test-object_loved', 'Is loved by'),
-            ('test-subject_loved', 'Is loving'),
-        )[0]
+        loved = RelationType.objects.builder(
+            id='test-object_loved', predicate='Is loved by',
+        ).symmetric(
+            id='test-subject_loved', predicate='Is loving',
+        ).get_or_create()[0]
         cell = EntityCellRelation(model=FakeContact, rtype=loved)
         self.assertIsInstance(cell, EntityCellRelation)
         self.assertEqual(FakeContact,     cell.model)
@@ -1042,10 +1043,9 @@ class EntityCellRelationTestCase(CremeTestCase):
             )
 
     def test_one_related_entity(self):
-        loved = RelationType.objects.smart_update_or_create(
-            ('test-object_loved', 'Is loved by'),
-            ('test-subject_loved', 'Is loving'),
-        )[0]
+        loved = RelationType.objects.builder(
+            id='test-object_loved', predicate='Is loved by',
+        ).symmetric(id='test-subject_loved', predicate='Is loving').get_or_create()[0]
         cell = EntityCellRelation(model=FakeContact, rtype=loved)
 
         user = self.get_root_user()
@@ -1073,12 +1073,10 @@ class EntityCellRelationTestCase(CremeTestCase):
     def test_disabled_type(self):
         self.assertEqual(_('Relationships'), EntityCellRelation.verbose_name)
 
-        hated = RelationType.objects.smart_update_or_create(
-            ('test-object_hated', 'Is hated by'),
-            ('test-subject_hated', 'Is hating'),
-        )[0]
-        hated.enabled = False
-        hated.save()
+        hated = RelationType.objects.builder(
+            id='test-object_hated', predicate='Is hated by',
+            enabled=False,
+        ).symmetric(id='test-subject_hated', predicate='Is hating').get_or_create()[0]
 
         cell = EntityCellRelation(model=FakeContact, rtype=hated)
         self.assertEqual(hated, cell.relation_type)
@@ -1090,19 +1088,16 @@ class EntityCellRelationTestCase(CremeTestCase):
     def test_populate_entities(self):
         user = self.get_root_user()
 
-        create_rt = RelationType.objects.smart_update_or_create
-        loved = create_rt(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love', 'Is loved by'),
-        )[1]
-        hated = create_rt(
-            ('test-subject_hate', 'Is hating'),
-            ('test-object_hate', 'Is hated by'),
-        )[1]
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(id='test-object_love', predicate='Is loved by').get_or_create()[0]
+        hates = RelationType.objects.builder(
+            id='test-subject_hate', predicate='Is hating',
+        ).symmetric(id='test-object_hate', predicate='Is hated by').get_or_create()[0]
 
         cells = [
-            EntityCellRelation(model=FakeContact, rtype=loved),
-            EntityCellRelation(model=FakeContact, rtype=hated),
+            EntityCellRelation(model=FakeContact, rtype=loves),
+            EntityCellRelation(model=FakeContact, rtype=hates),
         ]
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1112,9 +1107,9 @@ class EntityCellRelationTestCase(CremeTestCase):
         norio   = create_contact(first_name='Norio',   last_name='Kunato')
 
         create_rel = partial(Relation.objects.create, user=user)
-        create_rel(subject_entity=nagate,  type=loved, object_entity=izana)
-        create_rel(subject_entity=nagate,  type=hated, object_entity=norio)
-        create_rel(subject_entity=shizuka, type=loved, object_entity=norio)
+        create_rel(subject_entity=nagate,  type=loves, object_entity=izana)
+        create_rel(subject_entity=nagate,  type=hates, object_entity=norio)
+        create_rel(subject_entity=shizuka, type=loves, object_entity=norio)
 
         # NB: sometimes a query to get this CT is performed when the Relations
         # are retrieved. So we force the cache to be filled has he should be
@@ -1126,10 +1121,10 @@ class EntityCellRelationTestCase(CremeTestCase):
             )
 
         with self.assertNumQueries(0):
-            r1 = nagate.get_relations(loved.id,  real_obj_entities=True)
-            r2 = nagate.get_relations(hated.id,  real_obj_entities=True)
-            r3 = shizuka.get_relations(loved.id, real_obj_entities=True)
-            r4 = shizuka.get_relations(hated.id, real_obj_entities=True)
+            r1 = nagate.get_relations(loves.id,  real_obj_entities=True)
+            r2 = nagate.get_relations(hates.id,  real_obj_entities=True)
+            r3 = shizuka.get_relations(loves.id, real_obj_entities=True)
+            r4 = shizuka.get_relations(hates.id, real_obj_entities=True)
 
         with self.assertNumQueries(0):
             objs1 = [r.object_entity.get_real_entity() for r in r1]
@@ -1265,19 +1260,18 @@ class EntityCellTestCase(CremeTestCase):
             create_contact(first_name='Izana',   last_name='Shinatose'),
         ]
 
-        loved = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love', 'Is loved by'),
-        )[1]
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(id='test-object_love', predicate='Is loved by').get_or_create()[0]
         Relation.objects.create(
-            user=user, subject_entity=contacts[0], type=loved, object_entity=contacts[2],
+            user=user, subject_entity=contacts[0], type=loves, object_entity=contacts[2],
         )
 
         build_rfield = partial(EntityCellRegularField.build, model=FakeContact)
         cells = [
             build_rfield(name='last_name'),
             build_rfield(name='position'),
-            EntityCellRelation(model=FakeContact, rtype=loved),
+            EntityCellRelation(model=FakeContact, rtype=loves),
         ]
 
         # NB: sometimes a query to get this CT is performed when the Relations
@@ -1294,4 +1288,4 @@ class EntityCellTestCase(CremeTestCase):
             contacts[0].position  # NOQA
 
         with self.assertNumQueries(0):
-            contacts[0].get_relations(loved.id,  real_obj_entities=True)
+            contacts[0].get_relations(loves.id,  real_obj_entities=True)

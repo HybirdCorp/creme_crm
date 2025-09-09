@@ -470,10 +470,11 @@ class VisitTestCase(CremeTestCase):
             create_orga(name='ABebop inc.'),
         ]
 
-        piloted = RelationType.objects.smart_update_or_create(
-            ('test-subject_pilots', 'pilots'),
-            ('test-object_pilots',  'is piloted by'),
-        )[1]
+        piloted = RelationType.objects.builder(
+            id='test-subject_pilots', predicate='is piloted by',
+        ).symmetric(
+            id='test-object_pilots', predicate='pilots',
+        ).get_or_create()[0]
 
         create_contact = partial(FakeContact.objects.create, user=self.create_user())
         spike = create_contact(first_name='Spike',  last_name='Spiegel')
@@ -577,10 +578,11 @@ class VisitTestCase(CremeTestCase):
             create_orga(name='ABebop inc.'),
         ]
 
-        piloted = RelationType.objects.smart_update_or_create(
-            ('test-subject_pilots', 'pilots'),
-            ('test-object_pilots',  'is piloted by'),
-        )[1]
+        piloted = RelationType.objects.builder(
+            id='test-subject_pilots', predicate='is piloted by',
+        ).symmetric(
+            id='test-object_pilots', predicate='pilots',
+        ).get_or_create()[0]
 
         create_contact = partial(FakeContact.objects.create, user=self.create_user())
         spike = create_contact(first_name='Spike',  last_name='Spiegel')

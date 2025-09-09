@@ -51,15 +51,12 @@ class HeaderFilterManagerTestCase(CremeTestCase):
         "With cells & extra_data."
         user = self.get_root_user()
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        loves = create_rtype(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[0]
-        likes = create_rtype(
-            ('test-subject_like', 'Is liking'),
-            ('test-object_like',  'Is liked by'),
-        )[0]
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(id='test-object_love', predicate='Is loved by').get_or_create()[0]
+        likes = RelationType.objects.builder(
+            id='test-subject_like', predicate='Is liking',
+        ).symmetric(id='test-object_like', predicate='Is liked by').get_or_create()[0]
 
         extra_data = {'my_key': 'my_value'}
         hf = HeaderFilter.objects.create_if_needed(

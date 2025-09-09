@@ -80,15 +80,13 @@ class CloningTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Planet express')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-object_employs',  'is employed by'),
-            ('test-subject_employs', 'employs'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-object_employs', predicate='is employed by',
+        ).symmetric(
+            id='test-subject_employs', predicate='employs',
+        ).get_or_create()[0]
         Relation.objects.create(
-            user=user,
-            subject_entity=contact,
-            type=rtype,
-            object_entity=orga,
+            user=user, subject_entity=contact, type=rtype, object_entity=orga,
         )
 
         ptype = CremePropertyType.objects.create(text='straightforward')

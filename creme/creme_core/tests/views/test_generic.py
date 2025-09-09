@@ -422,22 +422,22 @@ class CreationTestCase(CremeTestCase):
         orga1 = create_orga(user=user, name='Bebop')
         orga2 = create_orga(user=user, name='Swordfish II')
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loves',  'is loved'),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_pilots', 'pilots',     [FakeContact]),
-            ('test-object_pilots',  'is piloted', [FakeOrganisation]),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(
+            id='test-object_loves',  predicate='is loved',
+        ).get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_pilots', predicate='pilots', models=[FakeContact],
+        ).symmetric(
+            id='test-object_pilots', predicate='is piloted', models=[FakeOrganisation],
+        ).get_or_create()[0]
 
-        disabled_rtype = create_rtype(
-            ('test-subject_disabled', 'disabled'),
-            ('test-object_disabled',  'what ever'),
-        )[0]
-        disabled_rtype.enabled = False
-        disabled_rtype.save()
+        disabled_rtype = RelationType.objects.builder(
+            id='test-subject_disabled', predicate='disabled', enabled=False
+        ).symmetric(
+            id='test-object_disabled', predicate='what ever',
+        ).get_or_create()[0]
 
         create_strt = SemiFixedRelationType.objects.create
         sfrt1 = create_strt(
@@ -731,23 +731,22 @@ class CreationTestCase(CremeTestCase):
         user1 = self.login_as_root_and_get()
         user2 = self.create_user()
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_bought', 'is bought by'),
-            ('test-object_bought',  'buys'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_bought', predicate='is bought by',
+        ).symmetric(
+            id='test-object_bought', predicate='buys',
+        ).get_or_create()[0]
         orga1 = FakeOrganisation.objects.create(user=user2)
 
         Workflow.objects.create(
             title='Created Organisations are cool',
             content_type=FakeOrganisation,
             trigger=workflows.EntityCreationTrigger(model=FakeOrganisation),
-            actions=[
-                workflows.RelationAddingAction(
-                    subject_source=workflows.CreatedEntitySource(model=FakeOrganisation),
-                    rtype=rtype.id,
-                    object_source=workflows.FixedEntitySource(entity=orga1),
-                )
-            ],
+            actions=[workflows.RelationAddingAction(
+                subject_source=workflows.CreatedEntitySource(model=FakeOrganisation),
+                rtype=rtype.id,
+                object_source=workflows.FixedEntitySource(entity=orga1),
+            )],
         )
 
         name = 'NERV'
@@ -1019,10 +1018,9 @@ class EditionTestCase(CremeTestCase):
         orga1 = create_orga(name='NERV')
         orga2 = create_orga(name='Seele')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_bought', 'is bought by'),
-            ('test-object_bought',  'buys'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_bought', predicate='is bought by',
+        ).symmetric(id='test-object_bought', predicate='buys').get_or_create()[0]
 
         suffix = ' Corp'
         source = workflows.EditedEntitySource(model=model)

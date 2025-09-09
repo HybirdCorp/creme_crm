@@ -936,10 +936,11 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
 
     def test_clean_rtype_error(self):
         model = FakeOrganisation
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is loving',   [FakeContact]),
-            ('test-object_foobar',  'is loved by', [FakeContact]),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is loving', models=[FakeContact],
+        ).symmetric(
+            id='test-object_foobar',  predicate='is loved by', models=[FakeContact],
+        ).get_or_create()[0]
 
         field = AbscissaField(
             model=model, abscissa_constraints=abscissa_constraints,
@@ -1355,10 +1356,9 @@ class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
         "Relation."
         field = AbscissaField(abscissa_constraints=abscissa_constraints)
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_likes', 'likes'),
-            ('test-object_likes',  'is liked by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_likes', predicate='likes',
+        ).symmetric(id='test-object_likes',  predicate='is liked by').get_or_create()[0]
 
         graph_type = ReportGraph.Group.RELATION
 

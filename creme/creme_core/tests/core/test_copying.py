@@ -42,21 +42,20 @@ class CloningTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        cls.rtype1 = create_rtype(
-            ('test-subject_employs', 'employs'),
-            ('test-object_employs',  'is employed by'),
-        )[0]
-        cls.rtype2 = create_rtype(
-            ('test-subject_managed', 'is managed by'),
-            ('test-object_managed',  'manages'),
+        cls.rtype1 = RelationType.objects.builder(
+            id='test-subject_employs', predicate='employs',
+        ).symmetric(id='test-object_employs', predicate='is employed by').get_or_create()[0]
+        cls.rtype2 = RelationType.objects.builder(
+            id='test-subject_managed', predicate='is managed by',
             is_internal=True,
-        )[0]
-        cls.rtype3 = create_rtype(
-            ('test-subject_created', 'has been created by'),
-            ('test-object_created',  'has created'),
-            is_copiable=(False, False),
-        )[0]
+        ).symmetric(id='test-object_managed', predicate='manages').get_or_create()[0]
+        cls.rtype3 = RelationType.objects.builder(
+            id='test-subject_created', predicate='has been created by',
+            is_copiable=False,
+        ).symmetric(
+            id='test-object_created', predicate='has created',
+            is_copiable=False,
+        ).get_or_create()[0]
 
         create_ptype = CremePropertyType.objects.create
         cls.ptype1 = create_ptype(text='straightforward')

@@ -37,10 +37,12 @@ class RelationChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
         # self.maxDiff = None
         user = self.login_as_root_and_get()
 
-        is_employee, has_employee = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee', 'is employed by'),
-            ('test-object_employee',  'has employee'),
-        )
+        is_employee = RelationType.objects.builder(
+            id='test-subject_employee', predicate='is employed by',
+        ).symmetric(
+            id='test-object_employee', predicate='has employee',
+        ).get_or_create()[0]
+        has_employee = is_employee.symmetric_type
 
         def add_employee(orga, contact):
             Relation.objects.safe_get_or_create(
@@ -108,14 +110,15 @@ class RelationChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
         # self.maxDiff = None
         user = self.login_as_root_and_get()
 
-        is_employee, has_employee = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee', 'is employed by'),
-            ('test-object_employee',  'has employee'),
-        )
-        is_client, has_client = RelationType.objects.smart_update_or_create(
-            ('test-subject_client', 'is client of'),
-            ('test-object_client',  'has client'),
-        )
+        is_employee = RelationType.objects.builder(
+            id='test-subject_employee', predicate='is employed by',
+        ).symmetric(id='test-object_employee', predicate='has employee').get_or_create()[0]
+        has_employee = is_employee.symmetric_type
+
+        is_client = RelationType.objects.builder(
+            id='test-subject_client', predicate='is client of',
+        ).symmetric(id='test-object_client', predicate='has client').get_or_create()[0]
+        has_client = is_client.symmetric_type
 
         def add_employee(orga, contact):
             Relation.objects.safe_get_or_create(
@@ -223,15 +226,14 @@ class RelationChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
         # self.maxDiff = None
         user = self.login_as_root_and_get()
 
-        is_employee, has_employee = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee', 'is employed by'),
-            ('test-object_employee',  'has employee'),
-        )
+        is_employee = RelationType.objects.builder(
+            id='test-subject_employee', predicate='is employed by',
+        ).symmetric(id='test-object_employee', predicate='has employee').get_or_create()[0]
+        has_employee = is_employee.symmetric_type
 
-        is_manager, has_manager = RelationType.objects.smart_update_or_create(
-            ('test-subject_manager', 'is managed by'),
-            ('test-object_manager',  'has manager'),
-        )
+        is_manager = RelationType.objects.builder(
+            id='test-subject_manager', predicate='is managed by',
+        ).symmetric(id='test-object_manager', predicate='has manager').get_or_create()[0]
 
         def add_employee(orga, contact):
             Relation.objects.safe_get_or_create(

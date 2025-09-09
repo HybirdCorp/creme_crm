@@ -2396,11 +2396,13 @@ class PropertiesConditionsFieldTestCase(_ConditionsFieldTestCase):
 
 
 class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
-    def _create_rtype(self):
-        return RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving', [FakeContact]),
-            ('test-object_love',  'Is loved by'),
-        )
+    def _create_rtype(self, **kwargs):
+        return RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving', models=[FakeContact],
+            **kwargs
+        ).symmetric(
+            id='test-object_love', predicate='Is loved by',
+        ).get_or_create()[0]
 
     def test_clean_empty_required(self):
         field = RelationsConditionsField(required=True)
@@ -2428,7 +2430,7 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_clean_invalid_data(self):
-        rt_id = self._create_rtype()[0].id
+        rt_id = self._create_rtype().id
         field = RelationsConditionsField(model=FakeContact)
         msg = _('Invalid format')
         self.assertFormfieldError(
@@ -2446,7 +2448,7 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean_incomplete_data_required(self):
         field = RelationsConditionsField(model=FakeContact)
-        rt_id = self._create_rtype()[0].id
+        rt_id = self._create_rtype().id
         msg = _('This field is required.')
         self.assertFormfieldError(
             field=field, messages=msg, codes='required',
@@ -2462,7 +2464,7 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_unknown_ct(self):
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
         self.assertFormfieldError(
             field=RelationsConditionsField(model=FakeContact),
             value=json_dump([{'rtype': rtype.id, 'has': True, 'ctype': 2121545}]),
@@ -2471,7 +2473,7 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_unknown_entity(self):
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
         ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFormfieldError(
             field=RelationsConditionsField(model=FakeContact),
@@ -2484,7 +2486,8 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_ok01(self):
         "No CT, no object entity."
-        rtype1, rtype2 = self._create_rtype()
+        rtype1 = self._create_rtype()
+        rtype2 = rtype1.symmetric_type
 
         with self.assertNumQueries(0):
             field = RelationsConditionsField(model=FakeContact)
@@ -2527,7 +2530,8 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_ok02(self):
         "Wanted CT + filter_type."
-        rtype1, rtype2 = self._create_rtype()
+        rtype1 = self._create_rtype()
+        rtype2 = rtype1.symmetric_type
 
         field = RelationsConditionsField(
             model=FakeContact, efilter_type=EF_CREDENTIALS,
@@ -2571,7 +2575,7 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_ok03(self):
         "Wanted entity."
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
         user = self.get_root_user()
 
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
@@ -2600,7 +2604,8 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_ok04(self):
         "Wanted CT + wanted entity."
-        rtype1, rtype2 = self._create_rtype()
+        rtype1 = self._create_rtype()
+        rtype2 = rtype1.symmetric_type
         user = self.get_root_user()
 
         ct_id = ContentType.objects.get_for_model(FakeContact).id
@@ -2625,7 +2630,7 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_ok05(self):
         "Wanted entity is deleted."
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
         user = self.get_root_user()
 
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
@@ -2665,7 +2670,7 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_ok06(self):
         "'model' property."
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
 
         with self.assertNumQueries(0):
             field = RelationsConditionsField()
@@ -2682,9 +2687,7 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
         self.assertDictEqual({'has': True}, condition.value)
 
     def test_disabled_rtype01(self):
-        rtype = self._create_rtype()[0]
-        rtype.enabled = False
-        rtype.save()
+        rtype = self._create_rtype(enabled=False)
 
         self.assertFormfieldError(
             field=RelationsConditionsField(model=FakeContact),
@@ -2697,9 +2700,7 @@ class RelationsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_disabled_rtype02(self):
         "Disabled RelationType is already used => still proposed."
-        rtype = self._create_rtype()[0]
-        rtype.enabled = False
-        rtype.save()
+        rtype = self._create_rtype(enabled=False)
 
         field = RelationsConditionsField(model=FakeContact)
         field.initialize(
@@ -2878,11 +2879,13 @@ class SubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
 
 
 class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
-    def _create_rtype(self):
-        return RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving', [FakeContact]),
-            ('test-object_love',  'Is loved by'),
-        )
+    def _create_rtype(self, **kwargs):
+        return RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving', models=[FakeContact],
+            **kwargs
+        ).symmetric(
+            id='test-object_love', predicate='Is loved by',
+        ).get_or_create()[0]
 
     def _create_subfilters(self):
         create_efilter = partial(
@@ -2904,7 +2907,7 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
         self.assertFormfieldError(field=field, messages=msg, codes='required', value='[]')
 
     def test_clean_incomplete_data_required(self):
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
         field = RelationSubfiltersConditionsField(model=FakeContact)
         msg = _('This field is required.')
         self.assertFormfieldError(
@@ -2915,7 +2918,7 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_unknown_filter(self):
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
         field = RelationSubfiltersConditionsField(model=FakeContact)
         field.user = self.get_root_user()
         self.assertFormfieldError(
@@ -2930,7 +2933,9 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_ok(self):
-        rtype1, rtype2 = self._create_rtype()
+        rtype1 = self._create_rtype()
+        rtype2 = rtype1.symmetric_type
+
         self._create_subfilters()
         user = self.get_root_user()
 
@@ -2977,7 +2982,7 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_filter_type(self):
         self._create_subfilters()
 
-        rtype = self._create_rtype()[0]
+        rtype = self._create_rtype()
         field = RelationSubfiltersConditionsField(
             model=FakeContact,
             user=self.get_root_user(),
@@ -3004,9 +3009,7 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
     def test_disabled_rtype01(self):
         self._create_subfilters()
 
-        rtype = self._create_rtype()[0]
-        rtype.enabled = False
-        rtype.save()
+        rtype = self._create_rtype(enabled=False)
 
         self.assertFormfieldError(
             field=RelationSubfiltersConditionsField(
@@ -3025,9 +3028,7 @@ class RelationSubfiltersConditionsFieldTestCase(_ConditionsFieldTestCase):
         "Disabled RelationType is already used => still proposed."
         self._create_subfilters()
 
-        rtype = self._create_rtype()[0]
-        rtype.enabled = False
-        rtype.save()
+        rtype = self._create_rtype(enabled=False)
 
         field = RelationSubfiltersConditionsField(
             model=FakeContact, user=self.get_root_user(),

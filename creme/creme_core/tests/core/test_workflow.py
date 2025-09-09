@@ -826,10 +826,9 @@ class WorkflowEngineTestCase(CremeTestCase):
         user1 = self.get_root_user()
         user2 = self.create_user()
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_bought', 'is bought by'),
-            ('test-object_bought',  'buys'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_bought', predicate='is bought by',
+        ).symmetric(id='test-object_bought', predicate='buys').get_or_create()[0]
         orga1 = FakeOrganisation.objects.create(user=user2, name='Acme')
 
         Workflow.objects.create(

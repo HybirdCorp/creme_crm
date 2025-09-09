@@ -869,10 +869,11 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_as_root()
         ctype = ContentType.objects.get_for_model(FakeOrganisation)
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_recruited', 'Has recruited'),
-            ('test-object_recruited',  'Has been recruited by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_recruited', predicate='Has recruited',
+        ).symmetric(
+            id='test-object_recruited', predicate='Has been recruited by',
+        ).get_or_create()[0]
         ptype = CremePropertyType.objects.create(text='Is secret')
         custom_field = CustomField.objects.create(
             name='Number of agents', content_type=ctype,
@@ -1293,10 +1294,11 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         "Change filter conditions + conditions on CustomField/Relation/CremeProperty."
         self.login_as_root()
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_recruited', 'Has been recruited by'),
-            ('test-object_recruited',  'Has recruited'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_recruited', predicate='Has been recruited',
+        ).symmetric(
+            id='test-object_recruited', predicate='Has recruited by',
+        ).get_or_create()[0]
         ptype = CremePropertyType.objects.create(text='Is nice')
         custom_field = CustomField.objects.create(
             name='Number of ties', content_type=FakeContact,

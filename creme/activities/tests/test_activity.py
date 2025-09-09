@@ -2705,10 +2705,9 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_dt = self.create_datetime
         today = create_dt(year=2019, month=8, day=26, hour=8)
 
-        rtype1 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is loving'),
-            ('test-object_foobar',  'is loved by'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is loving',
+        ).symmetric(id='test-object_foobar', predicate='is loved by').get_or_create()[0]
 
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
         create_activity = partial(
@@ -2774,10 +2773,9 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_dt = self.create_datetime
         today = create_dt(year=2019, month=8, day=26, hour=8)
 
-        rtype1 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is loving'),
-            ('test-object_foobar',  'is loved by'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is loving',
+        ).symmetric(id='test-object_foobar', predicate='is loved by').get_or_create()[0]
 
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
         create_activity = partial(
@@ -2848,10 +2846,9 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_dt = self.create_datetime
         today = create_dt(year=2019, month=8, day=26, hour=8)
 
-        rtype1 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is loving'),
-            ('test-object_foobar',  'is loved by'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is loving',
+        ).symmetric(id='test-object_foobar', predicate='is loved by').get_or_create()[0]
 
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         create_activity = partial(
@@ -2958,10 +2955,9 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_dt = self.create_datetime
         today = create_dt(year=2019, month=8, day=26, hour=8)
 
-        rtype1 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is loving'),
-            ('test-object_foobar',  'is loved by'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is loving',
+        ).symmetric(id='test-object_foobar', predicate='is loved by').get_or_create()[0]
 
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
         create_activity = partial(
