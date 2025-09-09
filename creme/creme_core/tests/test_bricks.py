@@ -293,18 +293,16 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         tenma = create_contact(first_name='Dr',   last_name='Tenma')
         uran  = create_contact(first_name='Uran', last_name='Ochanomizu')
 
-        rtype1 = RelationType.objects.smart_update_or_create(
-            ('test-subject_son',   'is the son of'),
-            ('test-object_father', 'is the father of'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_son', predicate='is the son of',
+        ).symmetric(id='test-object_father', predicate='is the father of').get_or_create()[0]
         Relation.objects.create(
             subject_entity=atom, type=rtype1, object_entity=tenma, user=user,
         )
 
-        rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_brother', 'is the brother of'),
-            ('test-object_sister',   'is the sister of'),
-        )[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_brother', predicate='is the brother of',
+        ).symmetric(id='test-object_sister', predicate='is the sister of').get_or_create()[0]
         Relation.objects.create(
             subject_entity=atom, type=rtype2, object_entity=uran, user=user,
         )
@@ -345,15 +343,12 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_root_and_get()
         rbrick_id = RelationsBrick.id
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_son',   'is the son of'),
-            ('test-object_father', 'is the father of'),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_brother', 'is the brother of'),
-            ('test-object_sister',   'is the sister of'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_son', predicate='is the son of',
+        ).symmetric(id='test-object_father', predicate='is the father of').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_brother', predicate='is the brother of',
+        ).symmetric(id='test-object_sister', predicate='is the sister of').get_or_create()[0]
         rbi = RelationBrickItem.objects.create(relation_type=rtype1)
 
         BrickDetailviewLocation.objects.create_for_model_brick(
@@ -420,16 +415,14 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_root_and_get()
         rbrick_id = RelationsBrick.id
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_son',   'is the son of'),
-            ('test-object_father', 'is the father of'),
-            minimal_display=(True, True),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_brother', 'is the brother of'),
-            ('test-object_sister',   'is the sister of'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_son', predicate='is the son of', minimal_display=True,
+        ).symmetric(
+            id='test-object_father', predicate='is the father of', minimal_display=True,
+        ).get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_brother', predicate='is the brother of',
+        ).symmetric(id='test-object_sister', predicate='is the sister of').get_or_create()[0]
         rbi = RelationBrickItem.objects.create(relation_type=rtype1)
 
         BrickDetailviewLocation.objects.create_for_model_brick(

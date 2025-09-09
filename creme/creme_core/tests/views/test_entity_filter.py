@@ -127,6 +127,13 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
             'rtype': rtype_id, 'has': False, 'ctype': ct_id, 'filter': efilter_id,
         }])
 
+    def _create_rtype(self):
+        return RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(
+            id='test-object_love',  predicate='Is loved by',
+        ).get_or_create()[0]
+
     def test_detailview__regular(self):
         user = self.login_as_root_and_get()
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -441,10 +448,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
             ],
         )
 
-        rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )
+        rtype = self._create_rtype()
         ptype = CremePropertyType.objects.create(text='Kawaii')
 
         create_cf = partial(CustomField.objects.create, content_type=ct)
@@ -510,7 +514,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
                 ),
                 'relationcondition': self._build_relations_data(rtype.id),
                 'relationsubfiltercondition': self._build_subfilters_data(
-                    rtype_id=srtype.id,
+                    rtype_id=rtype.symmetric_type_id,
                     ct_id=self.ct_contact.id,
                     efilter_id=relsubfilfer.id,
                 ),
@@ -572,7 +576,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
 
         condition = next(iter_conds)
         self.assertEqual(RelationSubFilterConditionHandler.type_id, condition.type)
-        self.assertEqual(srtype.id,                                 condition.name)
+        self.assertEqual(rtype.symmetric_type_id,                   condition.name)
         self.assertDictEqual(
             {'has': False, 'filter_id': relsubfilfer.id},
             condition.value,
@@ -974,10 +978,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         )
 
         # ---
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[0]
+        rtype = self._create_rtype()
         form2 = post({
             **data,
             'relationsubfiltercondition': self._build_subfilters_data(
@@ -1198,10 +1199,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
             'test-filter02', 'Filter 02', FakeContact, is_custom=True,
         )
 
-        rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
-        )
+        rtype = self._create_rtype()
         ptype = CremePropertyType.objects.create(text='Kawaii')
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct_contact)
@@ -1236,7 +1234,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
             cf_cond, datecf_cond,
             RelationConditionHandler.build_condition(model=FakeContact, rtype=rtype, has=True),
             RelationSubFilterConditionHandler.build_condition(
-                model=FakeContact, rtype=srtype, has=True, subfilter=relsubfilfer,
+                model=FakeContact, rtype=rtype.symmetric_type, has=True, subfilter=relsubfilfer,
             ),
             PropertyConditionHandler.build_condition(model=FakeContact, ptype=ptype, has=True),
             SubFilterConditionHandler.build_condition(subfilter),
@@ -1314,7 +1312,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
                 ),
                 'relationcondition': self._build_relations_data(rtype.id),
                 'relationsubfiltercondition': self._build_subfilters_data(
-                    rtype_id=srtype.id,
+                    rtype_id=rtype.symmetric_type_id,
                     ct_id=self.ct_orga.id,
                     efilter_id=relsubfilfer.id,
                 ),
@@ -1382,7 +1380,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
 
         condition = next(iter_conds)
         self.assertEqual(RelationSubFilterConditionHandler.type_id, condition.type)
-        self.assertEqual(srtype.id,                                 condition.name)
+        self.assertEqual(rtype.symmetric_type_id,                   condition.name)
         self.assertDictEqual(
             {'has': False, 'filter_id': relsubfilfer.id},
             condition.value,
@@ -1487,10 +1485,11 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
     def test_edit__cycle_error(self):
         self.login_as_root()
 
-        rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(
+            id='test-object_love', predicate='Is loved by',
+        ).get_or_create()[0]
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Filter 01', FakeContact, is_custom=True,
@@ -1705,11 +1704,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self.assertFormError(response1.context['form'], field=None, errors=msg)
 
         # ----
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
-        )[0]
-
+        rtype = self._create_rtype()
         efilter2.set_conditions([
             RelationSubFilterConditionHandler.build_condition(
                 model=FakeContact, rtype=rtype, has=True, subfilter=efilter1,
@@ -2109,25 +2104,19 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         "Can not delete if used as subfilter (for relations)."
         self.login_as_root()
 
-        srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[1]
-
-        efilter01 = EntityFilter.objects.smart_update_or_create(
-            'test-filter01', 'Filter01', FakeContact, is_custom=True,
+        rtype = self._create_rtype()
+        efilter1 = EntityFilter.objects.smart_update_or_create(
+            'test-filter1', 'Filter01', FakeContact, is_custom=True,
         )
         EntityFilter.objects.smart_update_or_create(
-            'test-filter02', 'Filter02', FakeContact, is_custom=True,
-            conditions=[
-                RelationSubFilterConditionHandler.build_condition(
-                    model=FakeContact, rtype=srtype, has=True, subfilter=efilter01,
-                ),
-            ],
+            'test-filter2', 'Filter02', FakeContact, is_custom=True,
+            conditions=[RelationSubFilterConditionHandler.build_condition(
+                model=FakeContact, rtype=rtype.symmetric_type, has=True, subfilter=efilter1,
+            )],
         )
 
-        self._delete(efilter01)
-        self.assertStillExists(efilter01)
+        self._delete(efilter1)
+        self.assertStillExists(efilter1)
 
     def test_delete__dependencies_error03(self):
         "Can not delete if used through some FK."
@@ -2182,11 +2171,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
     def test_get_content_types01(self):
         self.login_as_root()
 
-        rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )
-
+        rtype = self._create_rtype()
         response = self.assertGET200(self._build_get_ct_url(rtype))
 
         content = response.json()
@@ -2199,11 +2184,11 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
     def test_get_content_types02(self):
         self.login_as_root()
 
-        rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving',),
-            ('test-object_love',  'Is loved by', (FakeContact,))
-        )
-
+        rtype = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(
+            id='test-object_love',  predicate='Is loved by', models=[FakeContact],
+        ).get_or_create()[0]
         response = self.assertGET200(self._build_get_ct_url(rtype))
 
         ct = self.ct_contact

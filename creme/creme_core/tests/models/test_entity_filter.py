@@ -487,10 +487,9 @@ class EntityFiltersTestCase(CremeTestCase):
         ))
 
         ptype = CremePropertyType.objects.create(text='Kawaii')
-        hates = RelationType.objects.smart_update_or_create(
-            ('test-subject_hate', 'Is hating'),
-            ('test-object_hate',  'Is hated by'),
-        )[0]
+        hates = RelationType.objects.builder(
+            id='test-subject_hate', predicate='Is hating',
+        ).symmetric(id='test-object_hate', predicate='Is hated by').get_or_create()[0]
 
         cond1 = build_cond()
         cond2 = PropertyConditionHandler.build_condition(model=FakeContact, ptype=ptype, has=True)
@@ -2045,16 +2044,15 @@ class EntityFiltersTestCase(CremeTestCase):
         )
 
     def _aux_test_relations(self):
-        create_rtype = RelationType.objects.smart_update_or_create
-        self.loves, self.loved = create_rtype(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )
+        self.loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(id='test-object_love', predicate='Is loved by').get_or_create()[0]
+        self.loved = self.loves.symmetric_type
 
-        self.hates, self.hated = create_rtype(
-            ('test-subject_hate', 'Is hating'),
-            ('test-object_hate',  'Is hated by'),
-        )
+        self.hates = RelationType.objects.builder(
+            id='test-subject_hate', predicate='Is hating',
+        ).symmetric(id='test-object_hate', predicate='Is hated by').get_or_create()[0]
+        self.hated = self.hates.symmetric_type
 
         bebop = FakeOrganisation.objects.create(user=self.user, name='Bebop')
 
@@ -2150,15 +2148,12 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_relations05(self):
         "RelationType is deleted."
         # loves = self._aux_test_relations()
-        create_rtype = RelationType.objects.smart_update_or_create
-        loves, loved = create_rtype(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )
-        hates = create_rtype(
-            ('test-subject_hate', 'Is hating'),
-            ('test-object_hate',  'Is hated by'),
-        )[0]
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(id='test-object_love', predicate='Is loved by').get_or_create()[0]
+        hates = RelationType.objects.builder(
+            id='test-subject_hate', predicate='Is hating',
+        ).symmetric(id='test-object_hate', predicate='Is hated by').get_or_create()[0]
 
         # We want a condition with the same name as the one for loves
         subfilter = EntityFilter.objects.create(
@@ -2171,8 +2166,8 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter 01', model=FakeContact, is_custom=True,
             conditions=[
-                build(rtype=loves,      has=True, entity=self.contacts['rei']),
-                build(rtype=loved, has=True, ct=self.contact_ct),
+                build(rtype=loves, has=True, entity=self.contacts['rei']),
+                build(rtype=loves.symmetric_type, has=True, ct=self.contact_ct),
                 build(rtype=hates, has=True),
                 SubFilterConditionHandler.build_condition(subfilter),  # <= should not be deleted
             ],
@@ -2306,15 +2301,12 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_relations_subfilter04(self):
         "RelationType is deleted."
-        create_rtype = RelationType.objects.smart_update_or_create
-        loves = create_rtype(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[0]
-        hates = create_rtype(
-            ('test-subject_hate', 'Is hating'),
-            ('test-object_hate',  'Is hated by'),
-        )[0]
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(id='test-object_love', predicate='Is loved by').get_or_create()[0]
+        hates = RelationType.objects.builder(
+            id='test-subject_hate', predicate='Is hating',
+        ).symmetric(id='test-object_hate', predicate='Is hated by').get_or_create()[0]
 
         build_4_field = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
 

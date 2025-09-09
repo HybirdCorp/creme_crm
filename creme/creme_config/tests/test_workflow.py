@@ -46,10 +46,9 @@ class TriggerFieldTestCase(CremeTestCase):
         field = TriggerField(model=model)
         self.assertEqual(model, field.model)
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is concerned by'),
-            ('creme_core-object_client',  'concerns'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is concerned by',
+        ).symmetric(id='creme_core-object_client', predicate='concerns').get_or_create()[0]
         sub_values = {
             EntityCreationTrigger.type_id: '',
             EntityEditionTrigger.type_id: '',
@@ -415,10 +414,11 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
         title = 'Organisation workflow'
         url = self._build_create_wf_url(model)
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'has client',   [FakeOrganisation]),
-            ('creme_core-object_client',  'is client of', [FakeContact]),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='has client', models=[FakeOrganisation],
+        ).symmetric(
+            id='creme_core-object_client', predicate='is client of', models=[FakeContact],
+        ).get_or_create()[0]
 
         ptype = CremePropertyType.objects.create(text='Is cool')
 
@@ -739,10 +739,11 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
         model2 = FakeOrganisation
 
         ptype = CremePropertyType.objects.create(text='Is cool')
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is client of', [model1]),
-            ('creme_core-object_client',  'has client',   [model2]),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is client of', models=[model1],
+        ).symmetric(
+            id='creme_core-object_client', predicate='has client', models=[model2],
+        ).get_or_create()[0]
 
         source1 = SubjectEntitySource(model=model1)
         source2 = ObjectEntitySource(model=model2)
@@ -933,10 +934,9 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
         ptype1 = create_ptype(text='Is cool')
         ptype2 = create_ptype(text='Is so cool')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is concerned by'),
-            ('creme_core-object_client', 'concerns'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is concerned by',
+        ).symmetric(id='creme_core-object_client', predicate='concerns').get_or_create()[0]
         fixed = FakeOrganisation.objects.create(user=user, name='Acme')
 
         model = FakeContact
@@ -1009,10 +1009,9 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.create(text='Is cool')
-        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-            ('creme_core-subject_client', 'is concerned by'),
-            ('creme_core-object_client', 'concerns'),
-        )
+        rtype = RelationType.objects.builder(
+            id='creme_core-subject_client', predicate='is concerned by',
+        ).symmetric(id='creme_core-object_client', predicate='concerns').get_or_create()[0]
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         fixed1 = create_orga(name='Acme #1')
@@ -1029,7 +1028,7 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
                 ),
                 RelationAddingAction(
                     subject_source=EditedEntitySource(model=model),
-                    rtype=rtype1,
+                    rtype=rtype,
                     object_source=FixedEntitySource(entity=fixed1),
                 ),
             ],
@@ -1052,7 +1051,7 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
             subject_src_f = fields1['subject_source']
             object_src_f = fields1['object_source']
 
-        self.assertEqual(rtype1.id, rtype_f.initial)
+        self.assertEqual(rtype.id, rtype_f.initial)
         self.assertIn(
             'edited_entity', [kind_id for kind_id, _f in subject_src_f.fields_choices],
         )
@@ -1069,7 +1068,7 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
                 'subject_source': 'edited_entity',
                 'subject_source_edited_entity': '',
 
-                'rtype': rtype2.id,
+                'rtype': rtype.symmetric_type_id,
 
                 'object_source': 'fixed_entity',
                 'object_source_fixed_entity': json_dump({
@@ -1085,7 +1084,7 @@ class WorkflowTestCase(BrickTestCaseMixin, CremeTestCase):
                 ),
                 RelationAddingAction(
                     subject_source=EditedEntitySource(model=model),
-                    rtype=rtype2,
+                    rtype=rtype.symmetric_type,
                     object_source=FixedEntitySource(entity=fixed2),
                 ),
             ),

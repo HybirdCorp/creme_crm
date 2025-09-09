@@ -693,25 +693,32 @@ class ContactTestCase(_BaseTestCase):
 
         rtype1 = self.get_object_or_fail(RelationType, id=REL_SUB_EMPLOYED_BY)
         rtype2 = self.get_object_or_fail(RelationType, id=REL_SUB_MANAGES)
-        rtype3 = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee_month', 'is the employee of the month for', [Contact]),
-            ('test-object_employee_month',  'has the employee of the month',    [Organisation]),
-        )[0]
-        rtype4 = RelationType.objects.smart_update_or_create(
-            ('test-subject_generic', 'generic as ***'),
-            ('test-object_generic',  'other side'),
-        )[0]
-        internal_rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee_year', 'is the employee of the year for', [Contact]),
-            ('test-object_employee_year',   'has the employee of the year', [Organisation]),
+        rtype3 = RelationType.objects.builder(
+            id='test-subject_employee_month', predicate='is the employee of the month for',
+            models=[Contact],
+        ).symmetric(
+            id='test-object_employee_month', predicate='has the employee of the month',
+            models=[Organisation]
+        ).get_or_create()[0]
+        rtype4 = RelationType.objects.builder(
+            id='test-subject_generic', predicate='generic as ***',
+        ).symmetric(id='test-object_generic', predicate='other side').get_or_create()[0]
+        internal_rtype = RelationType.objects.builder(
+            id='test-subject_employee_year', predicate='is the employee of the year for',
+            models=[Contact],
             is_internal=True,
-        )[0]
-        disabled_rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employee_week', 'is the employee of the week for', [Contact]),
-            ('test-object_employee_week',   'has the employee of week year',  [Organisation]),
-        )[0]
-        disabled_rtype.enabled = False
-        disabled_rtype.save()
+        ).symmetric(
+            id='test-object_employee_year', predicate='has the employee of the year',
+            models=[Organisation],
+        ).get_or_create()[0]
+        disabled_rtype = RelationType.objects.builder(
+            id='test-subject_employee_week', predicate='is the employee of the week for',
+            models=[Contact],
+            enabled=False,
+        ).symmetric(
+            id='test-object_employee_week', predicate='has the employee of week year',
+            models=[Organisation],
+        ).get_or_create()[0]
 
         orga = Organisation.objects.create(user=user, name='Acme')
         url = self._build_addrelated_url(orga.id)
@@ -938,38 +945,49 @@ class ContactTestCase(_BaseTestCase):
         self.assertGET404(build_url(self.UNUSED_PK, REL_OBJ_EMPLOYED_BY))
         self.assertGET404(build_url(orga.id, 'IDONOTEXIST'))
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('persons-subject_test_rtype1', 'RType #1',     [Organisation]),
-            ('persons-object_test_rtype1',  'Rtype sym #1', [Contact]),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='persons-subject_test_rtype1', predicate='RType #1', models=[Organisation],
+        ).symmetric(
+            id='persons-object_test_rtype1', predicate='Rtype sym #1', models=[Contact],
+        ).get_or_create()[0]
         self.assertGET200(build_url(orga.id, rtype1.id))
 
-        rtype2 = create_rtype(
-            ('persons-subject_test_badrtype1', 'Bad RType #1',     [Organisation]),
-            ('persons-object_test_badrtype1',  'Bad RType sym #1', [Document]),  # <==
-        )[0]
+        rtype2 = RelationType.objects.builder(
+            id='persons-subject_test_badrtype1', predicate='Bad RType #1',
+            models=[Organisation],
+        ).symmetric(
+            id='persons-object_test_badrtype1', predicate='Bad RType sym #1',
+            models=[Document],  # <==
+        ).get_or_create()[0]
         self.assertGET409(build_url(orga.id, rtype2.id))
 
-        rtype3 = create_rtype(
-            ('persons-subject_test_badrtype2', 'Bad RType #2',     [Document]),  # <==
-            ('persons-object_test_badrtype2',  'Bad RType sym #2', [Contact]),
-        )[0]
+        rtype3 = RelationType.objects.builder(
+            id='persons-subject_test_badrtype2', predicate='Bad RType #2',
+            models=[Document],  # <==
+        ).symmetric(
+            id='persons-object_test_badrtype2', predicate='Bad RType sym #2',
+            models=[Contact],
+        ).get_or_create()[0]
         self.assertGET409(build_url(orga.id, rtype3.id))
 
-        rtype4 = create_rtype(
-            ('persons-subject_test_badrtype3', 'Bad RType #3',     [Organisation]),
-            ('persons-object_test_badrtype3',  'Bad RType sym #3', [Contact]),
+        rtype4 = RelationType.objects.builder(
+            id='persons-subject_test_badrtype3', predicate='Bad RType #3',
+            models=[Organisation],
             is_internal=True,  # <==
-        )[0]
+        ).symmetric(
+            id='persons-object_test_badrtype3', predicate='Bad RType sym #3',
+            models=[Contact],
+        ).get_or_create()[0]
         self.assertGET409(build_url(orga.id, rtype4.id))
 
-        rtype5 = create_rtype(
-            ('persons-subject_test_badrtype4', 'Bad RType #4',     [Organisation]),
-            ('persons-object_test_badrtype4',  'Bad RType sym #4', [Contact]),
-        )[0]
-        rtype5.enabled = False
-        rtype5.save()
+        rtype5 = RelationType.objects.builder(
+            id='persons-subject_test_badrtype4', predicate='Bad RType #4',
+            models=[Organisation],
+            enabled=False,
+        ).symmetric(
+            id='persons-object_test_badrtype4', predicate='Bad RType sym #4',
+            models=[Contact],
+        ).get_or_create()[0]
         self.assertGET409(build_url(orga.id, rtype5.id))
 
     @skipIfCustomOrganisation

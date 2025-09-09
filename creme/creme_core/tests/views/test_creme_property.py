@@ -421,10 +421,12 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login_as_root()
 
         ptype = CremePropertyType.objects.create(text='is a fighter', is_custom=True)
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'has killed', [FakeContact], [ptype]),
-            ('test-object_foobar',  'has been killed by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='has killed',
+            models=[FakeContact], properties=[str(ptype.uuid)],
+        ).symmetric(
+            id='test-object_foobar', predicate='has been killed by',
+        ).get_or_create()[0]
 
         response = self.assertPOST409(
             ptype.get_delete_absolute_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
@@ -446,10 +448,12 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login_as_root()
 
         ptype = CremePropertyType.objects.create(text='is pacifist', is_custom=True)
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'has killed', [FakeContact], [], [ptype]),
-            ('test-object_foobar',  'has been killed by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='has killed',
+            models=[FakeContact], forbidden_properties=[str(ptype.uuid)],
+        ).symmetric(
+            id='test-object_foobar', predicate='has been killed by',
+        ).get_or_create()[0]
 
         response = self.assertPOST409(
             ptype.get_delete_absolute_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest',

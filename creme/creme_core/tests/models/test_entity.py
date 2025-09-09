@@ -210,16 +210,16 @@ class EntityTestCase(CremeTestCase):
         )
 
     def _build_rtypes_n_ptypes(self):
-        create_rtype = RelationType.objects.smart_update_or_create
-        self.rtype1, self.rtype2 = create_rtype(
-            ('test-subject_loving', 'is loving'),
-            ('test-object_loving',  'is loved by'),
-        )
-        self.rtype3, self.rtype4 = create_rtype(
-            ('test-subject_hating', 'is hating'),
-            ('test-object_hating',  'is hated by'),
+        self.rtype1 = RelationType.objects.builder(
+            id='test-subject_loving', predicate='is loving',
+        ).symmetric(id='test-object_loving', predicate='is loved by').get_or_create()[0]
+        self.rtype2 = self.rtype1.symmetric_type
+
+        self.rtype3 = RelationType.objects.builder(
+            id='test-subject_hating', predicate='is hating',
             is_internal=True,
-        )
+        ).symmetric(id='test-object_hating', predicate='is hated by').get_or_create()[0]
+        self.rtype4 = self.rtype3.symmetric_type
 
         create_ptype = CremePropertyType.objects.create
         self.ptype01 = create_ptype(text='wears strange hats')

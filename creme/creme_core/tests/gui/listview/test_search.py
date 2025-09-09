@@ -673,10 +673,9 @@ class ListViewSearchTestCase(CremeTestCase):
         class MyRelationField(lv_forms.ListViewSearchField):
             pass
 
-        rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loved',  'is loved by'),
-        )[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(id='test-object_loved', predicate='is loved by').get_or_create()[0]
         cell2 = EntityCellRelation(model=FakeContact, rtype=rtype2)
 
         registry.register(rtype_id=rtype2.id, sfield_builder=MyRelationField)
