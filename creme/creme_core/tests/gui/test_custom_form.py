@@ -1458,15 +1458,14 @@ class FieldGroupListTestCase(CremeTestCase):
         orga1 = create_orga(user=user, name="'Turtle's lair'")
         orga2 = create_orga(user=user, name="'April's apartment")
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_sensei', 'has sensei'),
-            ('test-object_sensei', 'is the sensei of'),
-        )[0]
-        rtype2, sym_rtype2 = create_rtype(
-            ('test-subject_lives', 'lives in',       [FakeContact]),
-            ('test-object_lives',  'is occupied by', [FakeOrganisation]),
-        )
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_sensei', predicate='has sensei',
+        ).symmetric(id='test-object_sensei', predicate='is the sensei of').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_lives', predicate='lives in', models=[FakeContact],
+        ).symmetric(
+            id='test-object_lives', predicate='is occupied by', models=[FakeOrganisation],
+        ).get_or_create()[0]
 
         create_strt = SemiFixedRelationType.objects.create
         sfrt1 = create_strt(
@@ -1481,7 +1480,7 @@ class FieldGroupListTestCase(CremeTestCase):
         )
         create_strt(
             predicate='Do not use me',
-            relation_type=sym_rtype2,
+            relation_type=rtype2.symmetric_type,
             real_object=contact2,
         )
 
@@ -1590,10 +1589,9 @@ class FieldGroupListTestCase(CremeTestCase):
         user = self.get_root_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Technodrome')
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_leads', 'leads'),
-            ('test-object_leads',  'is lead by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_leads', predicate='leads',
+        ).symmetric(id='test-object_leads', predicate='is lead by').get_or_create()[0]
         forced_relations = [Relation(type=rtype, object_entity=orga)]
 
         fields_groups = self._build_basic_relations_groups()
@@ -1644,10 +1642,9 @@ class FieldGroupListTestCase(CremeTestCase):
         ptype = CremePropertyType.objects.create(text='Is bad')
 
         orga = FakeOrganisation.objects.create(user=user, name='Technodrome')
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_leads', 'leads', [], [ptype]),
-            ('test-object_leads',  'is lead by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_leads', predicate='leads', properties=[ptype],
+        ).symmetric(id='test-object_leads', predicate='is lead by').get_or_create()[0]
 
         fields_groups = self._build_basic_relations_groups()
         form_cls = fields_groups.form_class()

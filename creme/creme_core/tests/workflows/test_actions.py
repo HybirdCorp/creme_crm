@@ -237,10 +237,9 @@ class RelationAddingActionTestCase(CremeTestCase):
         self.assertEqual(_('Adding a relationship'), RelationAddingAction.verbose_name)
 
         # Instance ---
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_bought', 'is bought by'),
-            ('test-object_bought',  'buys'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_bought', predicate='is bought by',
+        ).symmetric(id='test-object_bought', predicate='buys').get_or_create()[0]
 
         source1 = SubjectEntitySource(model=FakeContact)
         source2 = ObjectEntitySource(model=FakeOrganisation)
@@ -311,10 +310,11 @@ class RelationAddingActionTestCase(CremeTestCase):
 
     def test_rtype_instance(self):
         user1 = self.get_root_user()
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_lead', 'leads',      [FakeContact]),
-            ('test-object_lead',  'is lead by', [FakeOrganisation]),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_lead', predicate='leads', models=[FakeContact],
+        ).symmetric(
+            id='test-object_lead', predicate='is lead by', models=[FakeOrganisation],
+        ).get_or_create()[0]
 
         orga = FakeOrganisation.objects.create(user=user1, name='Acme')
 
@@ -445,10 +445,12 @@ class RelationAddingActionTestCase(CremeTestCase):
     def test_ctype_constraints(self):
         user = self.get_root_user()
 
-        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_bought', 'is bought by'),
-            ('test-object_bought',  'buys'),
-        )
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_bought', predicate='is bought by',
+        ).symmetric(
+            id='test-object_bought', predicate='buys',
+        ).get_or_create()[0]
+        rtype2 = rtype1.symmetric_type
 
         source1 = SubjectEntitySource(model=FakeContact)
         source2 = ObjectEntitySource(model=FakeOrganisation)
@@ -540,10 +542,12 @@ class RelationAddingActionTestCase(CremeTestCase):
     def test_properties_constraints(self):
         user = self.get_root_user()
 
-        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_bought', 'is drawing the logo of', [FakeContact]),
-            ('test-object_bought',  'has artist',             [FakeOrganisation]),
-        )
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_bought', predicate='is drawing the logo of', models=[FakeContact],
+        ).symmetric(
+            id='test-object_bought', predicate='has artist', models=[FakeOrganisation],
+        ).get_or_create()[0]
+        rtype2 = rtype1.symmetric_type
 
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Is an artist')

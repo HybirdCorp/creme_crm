@@ -284,15 +284,12 @@ class TemplateBaseTestCase(_BillingTestCase):
         create_prop(type=ptype1)
         create_prop(type=ptype2)
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_ok', 'OK'),
-            ('test-object_ok',  'symmetric OK'),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_ko', 'KO', [TemplateBase]),
-            ('test-object_ko',  'symmetric KO'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_ok', predicate='OK',
+        ).symmetric(id='test-object_ok', predicate='symmetric OK').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_ko', predicate='KO', models=[TemplateBase],
+        ).symmetric(id='test-object_ko', predicate='symmetric KO').get_or_create()[0]
 
         user = self.get_root_user()
         related = Organisation.objects.create(user=user, name='Acme')

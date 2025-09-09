@@ -88,7 +88,8 @@ class BasePopulator:
         #     id=object_id,
         #     predicate=_('has ....'),
         #     models=[Document],
-        # )
+        # ),
+        # Notice: custom types are only built during the 1rst run
     ]
     JOBS: list[Job] = []
     SANDBOXES: list[Sandbox] = []
@@ -191,7 +192,7 @@ class BasePopulator:
     def _populate_relation_types(self) -> None:
         for rtype in self.RELATION_TYPES:
             if rtype.is_custom:
-                if self.already_populated:
+                if not self.already_populated:
                     rtype.get_or_create()
             else:
                 rtype.update_or_create()

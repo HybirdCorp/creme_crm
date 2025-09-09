@@ -280,22 +280,16 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         ptype3 = create_ptype(text='International').set_subject_ctypes(FakeOrganisation)
         ptype4 = create_ptype(text='Disabled', enabled=False)
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        employed = create_rtype(
-            ('test-subject_employed_by', 'is an employee of'),
-            ('test-object_employed_by',  'employs'),
-        )[0]
-        loves = create_rtype(
-            ('test-subject_loving', 'is loving'),
-            ('test-object_loving',  'is loved by'),
-        )[0]
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='is an employee of',
+        ).symmetric(id='test-object_employed_by', predicate='employs').get_or_create()[0]
+        loves = RelationType.objects.builder(
+            id='test-subject_loving', predicate='is loving',
+        ).symmetric(id='test-object_loving', predicate='is loved by').get_or_create()[0]
 
-        disabled_rtype = create_rtype(
-            ('test-subject_disabled', 'disabled'),
-            ('test-object_disabled',  'whatever'),
-        )[0]
-        disabled_rtype.enabled = False
-        disabled_rtype.save()
+        disabled_rtype = RelationType.objects.builder(
+            id='test-subject_disabled', predicate='disabled', enabled=False,
+        ).symmetric(id='test-object_disabled', predicate='whatever').get_or_create()[0]
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         shinji = FakeContact.objects.create(user=user, first_name='Shinji', last_name='Ikari')
@@ -609,10 +603,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         "Same Relation in fixed & dynamic fields at creation."
         user = self.login_as_root_and_get()
 
-        employed = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed_by', 'employed by'),
-            ('test-object_employed_by',  'employs'),
-        )[0]
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by',
+        ).symmetric(id='test-object_employed_by', predicate='employs').get_or_create()[0]
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
@@ -642,10 +635,13 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.create(text='Is rich')
-        employed, employs = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed_by', 'employed by', [FakeContact]),
-            ('test-object_employed_by',  'employs',     [FakeOrganisation], [ptype]),
-        )
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by', models=[FakeContact],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs',
+            models=[FakeOrganisation], properties=[ptype],
+        ).get_or_create()[0]
+        employs = employed.symmetric_type
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         nerv = create_orga(name='Nerv')  # No ptype
@@ -728,10 +724,13 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.create(text='Went bankrupt')
-        employed, employs = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed_by', 'employed by', [FakeContact]),
-            ('test-object_employed_by',  'employs',     [FakeOrganisation], [], [ptype]),
-        )
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by', models=[FakeContact],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs',
+            models=[FakeOrganisation], forbidden_properties=[ptype],
+        ).get_or_create()[0]
+        employs = employed.symmetric_type
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         nerv = create_orga(name='Nerv')
@@ -814,10 +813,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.create(text='Is a pilot')
-        employed = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed_by', 'employed by', [FakeContact], [ptype]),
-            ('test-object_employed_by',  'employs',     [FakeOrganisation]),
-        )[0]
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by',
+            models=[FakeContact], properties=[ptype],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
+        ).get_or_create()[0]
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
@@ -857,10 +858,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.create(text='Is a pilot')
-        employed = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed_by', 'employed by', [FakeContact], [ptype]),
-            ('test-object_employed_by',  'employs',     [FakeOrganisation]),
-        )[0]
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by',
+            models=[FakeContact], properties=[ptype],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
+        ).get_or_create()[0]
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
@@ -890,10 +893,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.create(text='Is a pilot')
-        employed = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed_by', 'employed by', [FakeContact], [ptype]),
-            ('test-object_employed_by',  'employs',     [FakeOrganisation]),
-        )[0]
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by',
+            models=[FakeContact], properties=[ptype],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
+        ).get_or_create()[0]
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
@@ -936,10 +941,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.create(text='Is a pilot')
-        employed = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed_by', 'employed by', [FakeContact], [ptype]),
-            ('test-object_employed_by',  'employs',     [FakeOrganisation]),
-        )[0]
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by',
+            models=[FakeContact], properties=[ptype],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
+        ).get_or_create()[0]
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         last_name = 'Ayanami'
         first_name = 'Rei'
@@ -968,10 +975,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.create(text='Hates big robots')
-        employed = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed_by', 'employed by', [FakeContact], [], [ptype]),
-            ('test-object_employed_by',  'employs',     [FakeOrganisation]),
-        )[0]
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by',
+            models=[FakeContact], forbidden_properties=[ptype],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
+        ).get_or_create()[0]
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         last_name = 'Ayanami'
         first_name = 'Rei'
@@ -1012,10 +1021,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         ptype1 = create_ptype(text='Hates big robots')
         ptype2 = create_ptype(text='Is a pilot')
 
-        employed = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed_by', 'employed by', [FakeContact], [], [ptype1]),
-            ('test-object_employed_by',  'employs',     [FakeOrganisation]),
-        )[0]
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by',
+            models=[FakeContact], forbidden_properties=[ptype1],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
+        ).get_or_create()[0]
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         last_name = 'Ayanami'
         first_name = 'Rei'
@@ -1042,10 +1053,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.create(text='Hates big robots')
-        employed = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed_by', 'employed by', [FakeContact], [], [ptype]),
-            ('test-object_employed_by',  'employs',     [FakeOrganisation]),
-        )[0]
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by',
+            models=[FakeContact], forbidden_properties=[ptype],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
+        ).get_or_create()[0]
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         last_name = 'Ayanami'
@@ -1090,10 +1103,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         ptype1 = create_ptype(text='Hates big robots')
         ptype2 = create_ptype(text='Is a pilot')
 
-        employed = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed_by', 'employed by', [FakeContact], [], [ptype1]),
-            ('test-object_employed_by',  'employs',     [FakeOrganisation]),
-        )[0]
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by',
+            models=[FakeContact], forbidden_properties=[ptype1],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
+        ).get_or_create()[0]
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         last_name = 'Ayanami'
@@ -1791,10 +1806,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
         self.add_credentials(user.role, own='*')
 
-        employed = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed_by', 'is an employee of'),
-            ('test-object_employed_by',  'employs'),
-        )[0]
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='is an employee of',
+        ).symmetric(id='test-object_employed_by', predicate='employs').get_or_create()[0]
         doc = self._build_csv_doc([('Ayanami', 'Rei', 'NERV')], user=user)
         response = self.assertPOST200(
             self._build_import_url(FakeContact),
@@ -1824,10 +1838,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         shinji = create_contact(first_name='Shinji', last_name='Ikari')
         gendo  = create_contact(first_name='Gendo',  last_name='Ikari')
 
-        loves = RelationType.objects.smart_update_or_create(
-            ('test-subject_loving', 'is loving'),
-            ('test-object_loving',  'is loved by'),
-        )[0]
+        loves = RelationType.objects.builder(
+            id='test-subject_loving', predicate='is loving',
+        ).symmetric(id='test-object_loving', predicate='is loved by').get_or_create()[0]
 
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Really cute in her suit')

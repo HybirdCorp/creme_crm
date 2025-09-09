@@ -65,10 +65,11 @@ class MassExportViewsTestCase(CremeTestCase):
             for name in ('Bebop', 'Swordfish')
         }
 
-        rtype_pilots = RelationType.objects.smart_update_or_create(
-            ('test-subject_pilots', 'pilots'),
-            ('test-object_pilots',  'is piloted by'),
-        )[0]
+        rtype_pilots = RelationType.objects.builder(
+            id='test-subject_pilots', predicate='pilots',
+        ).symmetric(
+            id='test-object_pilots', predicate='is piloted by',
+        ).get_or_create()[0]
 
         create_ptype = CremePropertyType.objects.create
         ptype_beautiful = create_ptype(text='is beautiful')

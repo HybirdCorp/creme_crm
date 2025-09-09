@@ -259,19 +259,16 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         orga = Organisation.objects.create(user=user, name='NHK')
         prop = CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
 
-        rtype = RelationType.objects.smart_update_or_create(
-            (
-                'commercial-subject_test_segment_delete',
-                'has produced',
-                [Organisation],
-                [old_ptype],
-            ),
-            (
-                'commercial-object_test_segment_delete',
-                'has been produced by',
-                [Organisation],
-            ),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='commercial-subject_test_segment_delete',
+            predicate='has produced',
+            models=[Organisation],
+            properties=[old_ptype],
+        ).symmetric(
+            id='commercial-object_test_segment_delete',
+            predicate='has been produced by',
+            models=[Organisation],
+        ).get_or_create()[0]
 
         segment2 = self._create_segment('Industry')
 
@@ -389,19 +386,16 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         orga = Organisation.objects.create(user=user, name='NHK')
         prop = CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
 
-        rtype = RelationType.objects.smart_update_or_create(
-            (
-                'commercial-subject_test_segment_delete7',
-                'has produced',
-                [Organisation],
-                [old_ptype],
-            ),
-            (
-                'commercial-object_test_segment_delete7',
-                'has been produced by',
-                [Organisation],
-            ),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='commercial-subject_test_segment_delete7',
+            predicate='has produced',
+            models=[Organisation],
+            properties=[old_ptype],
+        ).symmetric(
+            id='commercial-object_test_segment_delete7',
+            predicate='has been produced by',
+            models=[Organisation],
+        ).get_or_create()[0]
 
         segment2 = self.get_object_or_fail(MarketSegment, property_type=None)
         self.assertPOST200(

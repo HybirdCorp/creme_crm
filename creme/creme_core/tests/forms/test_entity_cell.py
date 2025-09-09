@@ -272,14 +272,12 @@ class EntityCellRelationsWidgetTestCase(CremeTestCase):
     def test_get_context2(self):
         model = FakeContact
 
-        loves = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[0]
-        likes = RelationType.objects.smart_update_or_create(
-            ('test-subject_like', 'Is liking'),
-            ('test-object_like',  'Is liked by'),
-        )[0]
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(id='test-object_love', predicate='Is loved by').get_or_create()[0]
+        likes = RelationType.objects.builder(
+            id='test-subject_like', predicate='Is liking',
+        ).symmetric(id='test-object_like', predicate='Is liked by').get_or_create()[0]
 
         choices = [
             (cell.key, cell) for cell in [
@@ -341,10 +339,9 @@ class EntityCellsWidgetTestCase(CremeTestCase):
 
     def test_context02(self):
         model = FakeContact
-        loves = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[0]
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(id='test-object_love', predicate='Is loved by').get_or_create()[0]
         cfield = CustomField.objects.create(
             name='Size (cm)',
             field_type=CustomField.INT,
@@ -936,12 +933,10 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             id=fake_constants.FAKE_REL_SUB_BILL_ISSUED,
         )
 
-        disabled_rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_disabled', 'disabled'),
-            ('test-object_disabled',  'whatever'),
-        )[0]
-        disabled_rtype.enabled = False
-        disabled_rtype.save()
+        disabled_rtype = RelationType.objects.builder(
+            id='test-subject_disabled', predicate='disabled',
+            enabled=False,
+        ).symmetric(id='test-object_disabled', predicate='whatever').get_or_create()[0]
 
         field1 = EntityCellsField(model=FakeContact)
 
@@ -1014,10 +1009,9 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
 
     def test_ok02(self):
         "All types of columns."
-        loves = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
-        )[0]
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(id='test-object_love', predicate='Is loved by').get_or_create()[0]
         customfield = CustomField.objects.create(
             name='Size (cm)', field_type=CustomField.INT, content_type=FakeContact,
         )

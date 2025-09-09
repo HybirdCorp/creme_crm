@@ -237,16 +237,18 @@ class RelationTypeManagerTestCase(CremeTestCase):
         orig_compat_ids = self.build_compatible_set()
         orig_internal_compat_ids = self.build_compatible_set(include_internals=True)
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype = create_rtype(
-            ('test-subject_foobar', 'manages',       [FakeContact]),
-            ('test-object_foobar',  'is managed by', [FakeOrganisation]),
-        )[0]
-        internal_rtype = create_rtype(
-            ('test-subject_foobar_2', 'manages internal',       [FakeContact]),
-            ('test-object_foobar_2',  'is managed by internal', [FakeOrganisation]),
+        rtype = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='manages', models=[FakeContact],
+        ).symmetric(
+            id='test-object_foobar', predicate='is managed by', models=[FakeOrganisation],
+        ).get_or_create()[0]
+        internal_rtype = RelationType.objects.builder(
+            id='test-subject_foobar_2', predicate='manages internal', models=[FakeContact],
             is_internal=True,
-        )[0]
+        ).symmetric(
+            id='test-object_foobar_2', predicate='is managed by internal',
+            models=[FakeOrganisation],
+        ).get_or_create()[0]
 
         compatibles_ids = self.build_compatible_set()
         self.assertEqual(len(orig_compat_ids) + 1, len(compatibles_ids))
@@ -281,18 +283,20 @@ class RelationTypeManagerTestCase(CremeTestCase):
         orig_compat_ids = self.build_compatible_set()
         orig_internal_compat_ids = self.build_compatible_set(include_internals=True)
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype = create_rtype(
-            ('test-subject_foobar', 'manages',       [FakeContact]),
-            ('test-object_foobar',  'is managed by', [FakeOrganisation]),
+        rtype = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='manages', models=[FakeContact],
             is_internal=True,
-        )[0]
+        ).symmetric(
+            id='test-object_foobar', predicate='is managed by', models=[FakeOrganisation],
+        ).get_or_create()[0]
 
-        internal_rtype = create_rtype(
-            ('test-subject_foobar_2', 'manages internal',       [FakeContact]),
-            ('test-object_foobar_2',  'is managed by internal', [FakeOrganisation]),
+        internal_rtype = RelationType.objects.builder(
+            id='test-subject_foobar_2', predicate='manages internal', models=[FakeContact],
             is_internal=True,
-        )[0]
+        ).symmetric(
+            id='test-object_foobar_2', predicate='is managed by internal',
+            models=[FakeOrganisation],
+        ).get_or_create()[0]
         self.assertEqual(orig_compat_ids, self.build_compatible_set())
 
         compatibles_ids = self.build_compatible_set(include_internals=True)
@@ -304,28 +308,27 @@ class RelationTypeManagerTestCase(CremeTestCase):
         orig_compat_ids = self.build_compatible_set()
         orig_internal_compat_ids = self.build_compatible_set(include_internals=True)
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype, sym_rtype = create_rtype(
-            ('test-subject_foobar', 'manages'),
-            ('test-object_foobar',  'is managed by'),
-        )
-        internal_rtype, internal_sym_rtype = create_rtype(
-            ('test-subject_foobar_2', 'manages internal'),
-            ('test-object_foobar_2',  'is managed by internal'),
+        rtype = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='manages',
+        ).symmetric(id='test-object_foobar', predicate='is managed by').get_or_create()[0]
+        internal_rtype = RelationType.objects.builder(
+            id='test-subject_foobar_2', predicate='manages internal',
             is_internal=True,
-        )
+        ).symmetric(
+            id='test-object_foobar_2', predicate='is managed by internal',
+        ).get_or_create()[0]
 
         compatibles_ids = self.build_compatible_set()
         self.assertEqual(len(orig_compat_ids) + 2, len(compatibles_ids))
         self.assertIn(rtype.id, compatibles_ids)
-        self.assertIn(sym_rtype.id, compatibles_ids)
+        self.assertIn(rtype.symmetric_type_id, compatibles_ids)
 
         compatibles_ids = self.build_compatible_set(include_internals=True)
         self.assertEqual(len(orig_internal_compat_ids) + 4, len(compatibles_ids))
-        self.assertIn(rtype.id,              compatibles_ids)
-        self.assertIn(sym_rtype.id,          compatibles_ids)
-        self.assertIn(internal_rtype.id,     compatibles_ids)
-        self.assertIn(internal_sym_rtype.id, compatibles_ids)
+        self.assertIn(rtype.id,                         compatibles_ids)
+        self.assertIn(rtype.symmetric_type_id,          compatibles_ids)
+        self.assertIn(internal_rtype.id,                compatibles_ids)
+        self.assertIn(internal_rtype.symmetric_type_id, compatibles_ids)
 
         self.assertTrue(rtype.is_compatible(
             ContentType.objects.get_for_model(FakeContact).id
@@ -425,13 +428,13 @@ class RelationTypeManagerTestCase(CremeTestCase):
         builder = RelationType.objects.builder(
             id=subject_id, predicate=subject_pred, is_custom=True,
             models=[FakeContact, FakeOrganisation],
-            properties=[str(ptype1.uuid), str(ptype2.uuid)],
-            forbidden_properties=[str(ptype4.uuid), str(ptype5.uuid)],
+            properties=[str(ptype1.uuid), ptype2],
+            forbidden_properties=[str(ptype4.uuid), ptype5],
         ).symmetric(
             id=object_id, predicate=object_pred,
             models=[FakeDocument],
-            properties=[str(ptype3.uuid)],
-            forbidden_properties=[str(ptype6.uuid)],
+            properties=[str(ptype3.uuid), ptype5],
+            forbidden_properties=[str(ptype6.uuid), ptype2],
         )
 
         self.assertEqual(builder.id,        subject_id)
@@ -468,8 +471,19 @@ class RelationTypeManagerTestCase(CremeTestCase):
         )
 
         self.assertListEqual([FakeDocument], [*rtype2.subject_models])
-        self.assertListEqual([ptype3], [*rtype2.subject_properties.all()])
-        self.assertListEqual([ptype6], [*rtype2.subject_forbidden_properties.all()])
+        self.assertCountEqual([ptype3, ptype5], [*rtype2.subject_properties.all()])
+        self.assertCountEqual([ptype6, ptype2], [*rtype2.subject_forbidden_properties.all()])
+
+    def test_builder__update_or_create__ptype_constraints_cache(self):
+        ptype = CremePropertyType.objects.create(text='Test #1')
+
+        builder = RelationType.objects.builder(
+            id='test-subject_foobaz', predicate='is liking', is_custom=True,
+            properties=[ptype],
+        ).symmetric(id='test-object_foobaz', predicate='is liked by')
+
+        with self.assertNumQueries(0):
+            self.assertListEqual([ptype], [*builder.subject_properties])
 
     def test_builder__update_or_create__disabled(self):
         builder = RelationType.objects.builder(
@@ -867,15 +881,13 @@ class RelationTypeManagerTestCase(CremeTestCase):
 
 class RelationTypeTestCase(CremeTestCase):
     def test_delete(self):
-        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is loving'),
-            ('test-object_foobar',  'is loved by'),
-        )
-        rtype1.delete()
+        rtype = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is loving',
+        ).symmetric(id='test-object_foobar', predicate='is loved by').get_or_create()[0]
 
-        get_rtype = RelationType.objects.get
-        self.assertRaises(RelationType.DoesNotExist, get_rtype, id=rtype1.id)
-        self.assertRaises(RelationType.DoesNotExist, get_rtype, id=rtype2.id)
+        rtype.delete()
+        self.assertDoesNotExist(rtype)
+        self.assertDoesNotExist(rtype.symmetric_type)
 
     def test_portable_key(self):
         rtype = RelationType.objects.builder(
@@ -894,29 +906,25 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertEqual(rtype, got_rtype)
 
     def test_is_not_internal_or_die__success(self):
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_disabled', 'is disabled'),
-            ('test-object_disabled',  'what ever'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_disabled', predicate='is disabled',
+        ).symmetric(id='test-object_disabled', predicate='what ever').get_or_create()[0]
 
         with self.assertNoException():
             rtype.is_not_internal_or_die()
 
     def test_is_not_internal_or_die__fail(self):
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_internal', 'is internal'),
-            ('test-object_internal',  'is internal too'),
-            is_internal=True,
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_internal', predicate='is internal', is_internal=True,
+        ).symmetric(id='test-object_internal', predicate='is internal too').get_or_create()[0]
 
         with self.assertRaises(ConflictError):
             self.refresh(rtype).is_not_internal_or_die()
 
     def test_is_enabled_or_die(self):
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_disabled', 'is disabled'),
-            ('test-object_disabled',  'what ever'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_disabled', predicate='is disabled',
+        ).symmetric(id='test-object_disabled', predicate='what ever').get_or_create()[0]
 
         with self.assertNoException():
             rtype.is_enabled_or_die()
@@ -928,10 +936,13 @@ class RelationTypeTestCase(CremeTestCase):
             self.refresh(rtype).is_enabled_or_die()
 
     def test_is_compatible(self):
-        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_manages', 'manages'),
-            ('test-object_manages',  'is managed by', [FakeContact, FakeOrganisation]),
-        )
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_manages', predicate='manages',
+        ).symmetric(
+            id='test-object_manages', predicate='is managed by',
+            models=[FakeContact, FakeOrganisation],
+        ).get_or_create()[0]
+        rtype2 = rtype1.symmetric_type
 
         # No constraint
         get_ct = ContentType.objects.get_for_model
@@ -959,10 +970,11 @@ class RelationTypeTestCase(CremeTestCase):
 
     def test_is_compatible__no_prefetch(self):
         "Queries (no prefetch)."
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_manages', 'manages',       [FakeContact]),
-            ('test-object_manages',  'is managed by', [FakeOrganisation]),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_manages', predicate='manages', models=[FakeContact],
+        ).symmetric(
+            id='test-object_manages', predicate='is managed by', models=[FakeOrganisation],
+        ).get_or_create()[0]
 
         contact_ct = ContentType.objects.get_for_model(FakeContact)
 
@@ -974,10 +986,11 @@ class RelationTypeTestCase(CremeTestCase):
 
     def test_is_compatible__prefetch(self):
         "Queries (prefetch)."
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_manages', 'manages',       [FakeContact]),
-            ('test-object_manages',  'is managed by', [FakeOrganisation]),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_manages', predicate='manages', models=[FakeContact],
+        ).symmetric(
+            id='test-object_manages', predicate='is managed by', models=[FakeOrganisation],
+        ).get_or_create()[0]
 
         contact_ct = ContentType.objects.get_for_model(FakeContact)
 
@@ -998,10 +1011,9 @@ class RelationManagerTestCase(CremeTestCase):
         cls.user = cls.get_root_user()
 
     def test_safe_create(self):
-        rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_challenge', 'challenges'),
-            ('test-object_challenge',  'is challenged by'),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_challenge', predicate='challenges',
+        ).symmetric(id='test-object_challenge', predicate='is challenged by').get_or_create()[0]
 
         user = self.user
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1014,13 +1026,13 @@ class RelationManagerTestCase(CremeTestCase):
         self.assertIsNone(res)
 
         rel = self.get_object_or_fail(Relation, type=rtype)
-        self.assertEqual(rtype.id,   rel.type_id)
-        self.assertEqual(ryuko.id,   rel.subject_entity_id)
-        self.assertEqual(satsuki.entity_type, rel.object_ctype)
-        self.assertEqual(satsuki.id, rel.object_entity_id)
-        self.assertEqual(satsuki,    rel.real_object)
-        self.assertEqual(user.id,    rel.user_id)
-        self.assertEqual(srtype,     rel.symmetric_relation.type)
+        self.assertEqual(rtype.id,             rel.type_id)
+        self.assertEqual(ryuko.id,             rel.subject_entity_id)
+        self.assertEqual(satsuki.entity_type,  rel.object_ctype)
+        self.assertEqual(satsuki.id,           rel.object_entity_id)
+        self.assertEqual(satsuki,              rel.real_object)
+        self.assertEqual(user.id,              rel.user_id)
+        self.assertEqual(rtype.symmetric_type, rel.symmetric_relation.type)
 
         # ---
         with self.assertNoException():
@@ -1029,10 +1041,9 @@ class RelationManagerTestCase(CremeTestCase):
             )
 
     def test_safe_get_or_create__user_instance(self):
-        rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_challenge', 'challenges'),
-            ('test-object_challenge',  'is challenged by'),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_challenge', predicate='challenges',
+        ).symmetric(id='test-object_challenge', predicate='is challenged by').get_or_create()[0]
 
         user = self.user
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1044,12 +1055,12 @@ class RelationManagerTestCase(CremeTestCase):
         )
         self.assertIsInstance(rel1, Relation)
         self.assertTrue(rel1.pk)
-        self.assertEqual(rtype.id,            rel1.type_id)
-        self.assertEqual(ryuko.id,            rel1.subject_entity_id)
-        self.assertEqual(satsuki.entity_type, rel1.object_ctype)
-        self.assertEqual(satsuki.id,          rel1.object_entity_id)
-        self.assertEqual(user.id,             rel1.user_id)
-        self.assertEqual(srtype,              rel1.symmetric_relation.type)
+        self.assertEqual(rtype.id,             rel1.type_id)
+        self.assertEqual(ryuko.id,             rel1.subject_entity_id)
+        self.assertEqual(satsuki.entity_type,  rel1.object_ctype)
+        self.assertEqual(satsuki.id,           rel1.object_entity_id)
+        self.assertEqual(user.id,              rel1.user_id)
+        self.assertEqual(rtype.symmetric_type, rel1.symmetric_relation.type)
 
         # ---
         with self.assertNoException():
@@ -1061,10 +1072,9 @@ class RelationManagerTestCase(CremeTestCase):
 
     def test_manager_safe_get_or_create__user_id(self):
         "Give user ID (not user instance)."
-        rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_challenge', 'challenges'),
-            ('test-object_challenge',  'is challenged by'),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_challenge', predicate='challenges',
+        ).symmetric(id='test-object_challenge', predicate='is challenged by').get_or_create()[0]
 
         user = self.user
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1076,11 +1086,11 @@ class RelationManagerTestCase(CremeTestCase):
         )
         self.assertIsInstance(rel1, Relation)
         self.assertTrue(rel1.pk)
-        self.assertEqual(rtype.id,   rel1.type_id)
-        self.assertEqual(ryuko.id,   rel1.subject_entity_id)
-        self.assertEqual(satsuki.id, rel1.object_entity_id)
-        self.assertEqual(user.id,    rel1.user_id)
-        self.assertEqual(srtype,     rel1.symmetric_relation.type)
+        self.assertEqual(rtype.id,             rel1.type_id)
+        self.assertEqual(ryuko.id,             rel1.subject_entity_id)
+        self.assertEqual(satsuki.id,           rel1.object_entity_id)
+        self.assertEqual(user.id,              rel1.user_id)
+        self.assertEqual(rtype.symmetric_type, rel1.symmetric_relation.type)
 
         # ---
         with self.assertNoException():
@@ -1092,15 +1102,12 @@ class RelationManagerTestCase(CremeTestCase):
 
     def test_safe_multi_save(self):
         "Create several relation."
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1, srtype1 = create_rtype(
-            ('test-subject_challenge', 'challenges'),
-            ('test-object_challenge',  'is challenged by'),
-        )
-        rtype2, srtype2 = create_rtype(
-            ('test-subject_foobar', 'loves'),
-            ('test-object_foobar',  'is loved by'),
-        )
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_challenge', predicate='challenges',
+        ).symmetric(id='test-object_challenge', predicate='is challenged by').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='loves',
+        ).symmetric(id='test-object_foobar', predicate='is loved by').get_or_create()[0]
 
         user = self.user
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1115,17 +1122,17 @@ class RelationManagerTestCase(CremeTestCase):
         self.assertEqual(2, count)
 
         rel1 = self.get_object_or_fail(Relation, type=rtype1)
-        self.assertEqual(ryuko.id,            rel1.subject_entity_id)
-        self.assertEqual(satsuki.entity_type, rel1.object_ctype)
-        self.assertEqual(satsuki.id,          rel1.object_entity_id)
-        self.assertEqual(user.id,             rel1.user_id)
-        self.assertEqual(srtype1,             rel1.symmetric_relation.type)
+        self.assertEqual(ryuko.id,              rel1.subject_entity_id)
+        self.assertEqual(satsuki.entity_type,   rel1.object_ctype)
+        self.assertEqual(satsuki.id,            rel1.object_entity_id)
+        self.assertEqual(user.id,               rel1.user_id)
+        self.assertEqual(rtype1.symmetric_type, rel1.symmetric_relation.type)
 
         rel2 = self.get_object_or_fail(Relation, type=rtype2)
-        self.assertEqual(ryuko.id,   rel2.subject_entity_id)
-        self.assertEqual(satsuki.id, rel2.object_entity_id)
-        self.assertEqual(user.id,    rel2.user_id)
-        self.assertEqual(srtype2,    rel2.symmetric_relation.type)
+        self.assertEqual(ryuko.id,              rel2.subject_entity_id)
+        self.assertEqual(satsuki.id,            rel2.object_entity_id)
+        self.assertEqual(user.id,               rel2.user_id)
+        self.assertEqual(rtype2.symmetric_type, rel2.symmetric_relation.type)
 
     def test_safe_multi_save__duplicates(self):
         "De-duplicates arguments."
@@ -1156,15 +1163,12 @@ class RelationManagerTestCase(CremeTestCase):
 
     def test_safe_multi_save__existing_relations(self):
         "Avoid creating existing relations."
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_challenge', 'challenges'),
-            ('test-object_challenge',  'is challenged by'),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_foobar', 'loves'),
-            ('test-object_foobar',  'is loved by'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_challenge', predicate='challenges',
+        ).symmetric(id='test-object_challenge', predicate='is challenged by').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='loves',
+        ).symmetric(id='test-object_foobar', predicate='is loved by').get_or_create()[0]
 
         user = self.user
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1204,15 +1208,12 @@ class RelationManagerTestCase(CremeTestCase):
 
     def test_safe_multi_save__check_existing(self):
         "Argument <check_existing>."
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_challenge', 'challenges'),
-            ('test-object_challenge',  'is challenged by'),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_foobar', 'loves'),
-            ('test-object_foobar',  'is loved by'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_challenge', predicate='challenges',
+        ).symmetric(id='test-object_challenge', predicate='is challenged by').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='loves',
+        ).symmetric(id='test-object_foobar', predicate='is loved by').get_or_create()[0]
 
         user = self.user
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1246,34 +1247,32 @@ class RelationTestCase(CremeTestCase):
     def test_create(self):
         user = self.user
 
-        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is loving'),
-            ('test-object_foobar',  'is loved by'),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is loving',
+        ).symmetric(id='test-object_foobar', predicate='is loved by').get_or_create()[0]
 
         with self.assertNoException():
             entity1 = CremeEntity.objects.create(user=user)
             entity2 = CremeEntity.objects.create(user=user)
 
             relation = Relation.objects.create(
-                user=user, type=rtype1, subject_entity=entity1, real_object=entity2,
+                user=user, type=rtype, subject_entity=entity1, real_object=entity2,
             )
 
         sym = relation.symmetric_relation
-        self.assertEqual(sym.type,           rtype2)
+        self.assertEqual(sym.type,           rtype.symmetric_type)
         self.assertEqual(sym.subject_entity, entity2)
         self.assertEqual(sym.object_entity,  entity1)
 
     def test_error(self):
         "BEWARE: don't do this ! Bad usage of Relations."
-        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is loving'),
-            ('test-object_foobar',  'is loved by'),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is loving',
+        ).symmetric(id='test-object_foobar', predicate='is loved by').get_or_create()[0]
 
         create_entity = partial(CremeEntity.objects.create, user=self.user)
         relation = Relation.objects.create(
-            user=self.user, type=rtype1,
+            user=self.user, type=rtype,
             subject_entity=create_entity(),
             object_entity=create_entity()
         )
@@ -1306,10 +1305,9 @@ class RelationTestCase(CremeTestCase):
         )
 
     def test_clean__no_constraint(self):
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loves',  'is loved by'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(id='test-object_loves', predicate='is loved by').get_or_create()[0]
 
         user = self.user
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1322,10 +1320,11 @@ class RelationTestCase(CremeTestCase):
             rel.clean()
 
     def test_clean__content_type_constraints(self):
-        rtype, sym_rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_loves', 'loves',       [FakeContact]),
-            ('test-object_loves',  'is loved by', [FakeContact]),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves', models=[FakeContact],
+        ).symmetric(
+            id='test-object_loves', predicate='is loved by', models=[FakeContact],
+        ).get_or_create()[0]
 
         user = self.user
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1352,7 +1351,7 @@ class RelationTestCase(CremeTestCase):
             messages=msg % {
                 'entity': orga,
                 'model': 'Test Organisation',
-                'predicate': sym_rtype.predicate,
+                'predicate': rtype.symmetric_type.predicate,
             },
         )
 
@@ -1377,10 +1376,13 @@ class RelationTestCase(CremeTestCase):
         ptype2 = create_ptype(text='Is cute')
         ptype3 = create_ptype(text='Is smart')
 
-        rtype, sym_rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_loves', 'loves',       [FakeContact], [ptype1, ptype2]),
-            ('test-object_loves',  'is loved by', [FakeContact], [ptype3]),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+            models=[FakeContact], properties=[ptype1, ptype2],
+        ).symmetric(
+            id='test-object_loves', predicate='is loved by',
+            models=[FakeContact], properties=[ptype3],
+        ).get_or_create()[0]
 
         user = self.user
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1422,7 +1424,7 @@ class RelationTestCase(CremeTestCase):
             messages=msg % {
                 'entity': satsuki,
                 'property': ptype3.text,
-                'predicate': sym_rtype.predicate,
+                'predicate': rtype.symmetric_type.predicate,
             },
         )
 
@@ -1441,11 +1443,11 @@ class RelationTestCase(CremeTestCase):
         ptype2 = create_ptype(text='Is cute')
         ptype3 = create_ptype(text='Is smart')
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype, sym_rtype = create_rtype(
-            ('test-subject_loves', 'loves',       [], [], [ptype2]),
-            ('test-object_loves',  'is loved by', [], [], [ptype3]),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves', forbidden_properties=[ptype2],
+        ).symmetric(
+            id='test-object_loves', predicate='is loved by', forbidden_properties=[ptype3],
+        ).get_or_create()[0]
 
         user = self.user
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1476,7 +1478,7 @@ class RelationTestCase(CremeTestCase):
             messages=msg % {
                 'entity': satsuki,
                 'property': ptype3.text,
-                'predicate': sym_rtype.predicate,
+                'predicate': rtype.symmetric_type.predicate,
             },
         )
 
@@ -1535,10 +1537,10 @@ class RelationTestCase(CremeTestCase):
     def test_clean_subject_entity__forbidden_properties(self):
         "Forbidden Property + argument 'property_types'."
         ptype = CremePropertyType.objects.create(text='Is not cute')
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_loved', 'is loved by', [], [], [ptype]),
-            ('test-object_loved',  'loves'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_loved', predicate='is loved by',
+            forbidden_properties=[ptype],
+        ).symmetric(id='test-object_loved', predicate='loves').get_or_create()[0]
 
         ryuko = FakeContact.objects.create(
             user=self.user, first_name='Ryuko', last_name='Matoi',

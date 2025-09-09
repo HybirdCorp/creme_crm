@@ -1250,17 +1250,15 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login_as_root()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate',
+        ).symmetric(id='test-objfoo', predicate='object_predicate').get_or_create()[0]
         rbi = RelationBrickItem.objects.create(relation_type=rtype)
         naru = FakeContact.objects.create(
             user=self.user, first_name='Naru', last_name='Narusegawa',
         )
         ibci = InstanceBrickConfigItem.objects.create(
-            brick_class_id=DetailviewInstanceBrick.id,
-            entity=naru,
+            brick_class_id=DetailviewInstanceBrick.id, entity=naru,
         )
 
         response = self.assertGET200(self._build_editdetail_url(ct))
@@ -2067,18 +2065,14 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_relationbrick(self):
         self.login_as_root()
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-        )[0]
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject predicate',
+        ).symmetric(id='test-objfoo', predicate='object predicate').get_or_create()[0]
         self.assertFalse(RelationBrickItem.objects.filter(relation_type=rt).exists())
 
-        disabled_rt = RelationType.objects.smart_update_or_create(
-            ('test-subbar', 'subject_disabled'),
-            ('test-objcar', 'object_disabled'),
-        )[0]
-        disabled_rt.enabled = False
-        disabled_rt.save()
+        disabled_rt = RelationType.objects.builder(
+            id='test-subbar', predicate='subject_disabled', enabled=False,
+        ).symmetric(id='test-objcar', predicate='object_disabled').get_or_create()[0]
 
         url = reverse('creme_config__create_rtype_brick')
         context = self.assertGET200(url).context
@@ -2101,13 +2095,13 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_relationbrick_add_cells(self):
         self.login_as_root()
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'Subject predicate'),
-            ('test-objfoo', 'Object predicate', [FakeContact, FakeOrganisation, FakeActivity]),
-        )[0]
-
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='Subject predicate',
+        ).symmetric(
+            id='test-objfoo', predicate='Object predicate',
+            models=[FakeContact, FakeOrganisation, FakeActivity],
+        ).get_or_create()[0]
         rb_item = RelationBrickItem.objects.create(relation_type=rt)
-
         url = self._build_rbrick_addctypes_wizard_url(rb_item)
 
         # Step 1 ---
@@ -2197,10 +2191,11 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_relationbrick_add_cells__contenttype_constraint(self):
         self.login_as_root()
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate', [FakeContact]),
-            ('test-objfoo', 'object_predicate',  [FakeOrganisation]),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate', models=[FakeContact],
+        ).symmetric(
+            id='test-objfoo', predicate='object_predicate', models=[FakeOrganisation],
+        ).get_or_create()[0]
         rb_item = RelationBrickItem.objects.create(relation_type=rtype)
 
         url = self._build_rbrick_addctypes_wizard_url(rb_item)
@@ -2230,10 +2225,11 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_relationbrick_add_cells__go_back(self):
         self.login_as_root()
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate', [FakeOrganisation]),
-            ('test-objfoo', 'object_predicate',  [FakeContact]),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate', models=[FakeOrganisation],
+        ).symmetric(
+            id='test-objfoo', predicate='object_predicate', models=[FakeContact],
+        ).get_or_create()[0]
         rb_item = RelationBrickItem.objects.create(relation_type=rtype)
 
         url = self._build_rbrick_addctypes_wizard_url(rb_item)
@@ -2263,26 +2259,21 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_relationbrick_add_cells__disabled_rtype(self):
         "Relation type is disabled => error."
         self.login_as_root()
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'Subject predicate'),
-            ('test-objfoo', 'Object predicate'),
-        )[0]
-        rt.enabled = False
-        rt.save()
-
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='Subject predicate', enabled=False,
+        ).symmetric(id='test-objfoo', predicate='Object predicate').get_or_create()[0]
         rb_item = RelationBrickItem.objects.create(relation_type=rt)
         self.assertGET409(self._build_rbrick_addctypes_wizard_url(rb_item))
 
     def test_relationbrick_edit_cells(self):
         self.login_as_root()
         ct = self.contact_ct
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-        )[0]
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate',
+        ).symmetric(id='test-objfoo', predicate='object_predicate').get_or_create()[0]
 
         rb_item = RelationBrickItem(relation_type=rt)
-        rb_item.set_cells(ct, ())
+        rb_item.set_cells(ct, [])
         rb_item.save()
 
         self.assertGET404(self._build_rbrick_editctype_url(rb_item, FakeOrganisation))
@@ -2329,12 +2320,11 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         "Validation errors with URLField & ForeignKey."
         self.login_as_root()
         rb_item = RelationBrickItem(
-            relation_type=RelationType.objects.smart_update_or_create(
-                ('test-subfoo', 'subject_predicate'),
-                ('test-objfoo', 'object_predicate'),
-            )[0],
+            relation_type=RelationType.objects.builder(
+                id='test-subfoo', predicate='subject_predicate',
+            ).symmetric(id='test-objfoo', predicate='object_predicate').get_or_create()[0],
         )
-        rb_item.set_cells(self.contact_ct, ())
+        rb_item.set_cells(self.contact_ct, [])
         rb_item.save()
 
         url = self._build_rbrick_editctype_url(rb_item, FakeContact)
@@ -2364,12 +2354,11 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         "Validation errors with M2M."
         self.login_as_root()
         rb_item = RelationBrickItem(
-            relation_type=RelationType.objects.smart_update_or_create(
-                ('test-subfoo', 'subject_predicate'),
-                ('test-objfoo', 'object_predicate'),
-            )[0],
+            relation_type=RelationType.objects.builder(
+                id='test-subfoo', predicate='subject_predicate',
+            ).symmetric(id='test-objfoo', predicate='object_predicate').get_or_create()[0],
         )
-        rb_item.set_cells(ContentType.objects.get_for_model(FakeEmailCampaign), ())
+        rb_item.set_cells(ContentType.objects.get_for_model(FakeEmailCampaign), [])
         rb_item.save()
 
         url = self._build_rbrick_editctype_url(rb_item, FakeEmailCampaign)
@@ -2391,18 +2380,15 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_relationbrick_edit_cells__first_column_error__rtype(self):
         "Validation errors with Relation."
         self.login_as_root()
-        create_rtype = RelationType.objects.smart_update_or_create
-        rt1 = create_rtype(
-            ('test-subfoo', 'subject_predicate1'),
-            ('test-objfoo', 'object_predicate2'),
-        )[0]
-        rt2 = create_rtype(
-            ('test-subbar', 'subject_predicate2'),
-            ('test-objbar', 'object_predicate2'),
-        )[0]
+        rt1 = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate1',
+        ).symmetric(id='test-objfoo', predicate='object_predicate2').get_or_create()[0]
+        rt2 = RelationType.objects.builder(
+            id='test-subbar', predicate='subject_predicate2',
+        ).symmetric(id='test-objbar', predicate='object_predicate2').get_or_create()[0]
 
         rb_item = RelationBrickItem(relation_type=rt1)
-        rb_item.set_cells(self.orga_ct, ())
+        rb_item.set_cells(self.orga_ct, [])
         rb_item.save()
 
         response = self.assertPOST200(
@@ -2418,10 +2404,9 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_relationbrick_edit_cells__fields_config(self):
         self.login_as_root()
         ct = self.contact_ct
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-        )[0]
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate',
+        ).symmetric(id='test-objfoo', predicate='object_predicate').get_or_create()[0]
 
         valid_fname = 'last_name'
         hidden_fname1 = 'phone'
@@ -2469,15 +2454,12 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         "Relation type is disabled => errors."
         self.login_as_root()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate1'),
-            ('test-objfoo', 'object_predicate2'),
-        )[0]
-        rt.enabled = False
-        rt.save()
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate1', enabled=False,
+        ).symmetric(id='test-objfoo', predicate='object_predicate2').get_or_create()[0]
 
         rb_item = RelationBrickItem(relation_type=rt)
-        rb_item.set_cells(self.orga_ct, ())
+        rb_item.set_cells(self.orga_ct, [])
         rb_item.save()
 
         self.assertGET409(
@@ -2489,10 +2471,9 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         ct = self.contact_ct
         rb_item = RelationBrickItem(
-            relation_type=RelationType.objects.smart_update_or_create(
-                ('test-subfoo', 'subject_predicate'),
-                ('test-objfoo', 'object_predicate'),
-            )[0],
+            relation_type=RelationType.objects.builder(
+                id='test-subfoo', predicate='subject_predicate',
+            ).symmetric(id='test-objfoo', predicate='object_predicate').get_or_create()[0],
         )
         rb_item.set_cells(ct, [EntityCellRegularField.build(FakeContact, 'first_name')])
         rb_item.save()
@@ -2509,11 +2490,9 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_delete_relationbrick(self):
         self.login_as_root()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-            is_custom=False,
-        )[0]
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate',  # NB: is_custom == False,
+        ).symmetric(id='test-objfoo', predicate='object_predicate').get_or_create()[0]
         rbi = RelationBrickItem.objects.create(relation_type=rt)
 
         create_state = partial(BrickState.objects.create, user=self.user)
@@ -2532,11 +2511,9 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         "Cannot delete because it is used."
         self.login_as_root()
 
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-            is_custom=False,
-        )[0]
+        rt = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate',  # NB: is_custom == False,
+        ).symmetric(id='test-objfoo', predicate='object_predicate').get_or_create()[0]
         rbi = RelationBrickItem.objects.create(relation_type=rt)
 
         url = reverse('creme_config__delete_rtype_brick')
@@ -2616,10 +2593,9 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login_as_root()
         ct = self.contact_ct
 
-        loves = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by'),
-        )[0]
+        loves = RelationType.objects.builder(
+            id='test-subject_love', predicate='Is loving',
+        ).symmetric(id='test-object_love',  predicate='Is loved by').get_or_create()[0]
         customfield = CustomField.objects.create(
             name='Size (cm)',
             field_type=CustomField.INT,

@@ -258,10 +258,9 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual((), columns_f.initial)
 
         # ---
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_loves', 'loves'),
-            ('test-object_loves',  'is loved'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_loves', predicate='loves',
+        ).symmetric(id='test-object_loves', predicate='is loved').get_or_create()[0]
 
         fname1 = 'last_name'
         fname2 = 'user'
@@ -1701,12 +1700,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         "With disabled RelationType."
         user = self.login_as_root_and_get()
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_disabled', '[disabled]'),
-            ('test-object_disabled',  'what ever'),
-        )[0]
-        rtype.enabled = False
-        rtype.save()
+        rtype = RelationType.objects.builder(
+            id='test-subject_disabled', predicate='[disabled]',
+            enabled=False,
+        ).symmetric(id='test-object_disabled', predicate='what ever').get_or_create()[0]
 
         report = self._create_simple_contacts_report(user=user)
 
@@ -2326,10 +2323,9 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         contact_report = Report.objects.create(
             user=user, ct=self.ct_contact, name='Report on contacts',
         )
-        rtype = RelationType.objects.smart_update_or_create(
-            ('reports-subject_obeys',   'obeys to'),
-            ('reports-object_commands', 'commands'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='reports-subject_obeys', predicate='obeys to',
+        ).symmetric(id='reports-object_commands', predicate='commands').get_or_create()[0]
 
         create_field = partial(
             Field.objects.create,

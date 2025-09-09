@@ -346,20 +346,21 @@ class ExportingTestCase(TransferBaseTestCase):
             name='Rating', field_type=CustomField.INT,
         )
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype01 = create_rtype(
-            ('test-subfoo', 'subject_predicate01'),
-            ('test-objfoo', 'object_predicate01'),
-        )[0]
-        rtype02 = create_rtype(
-            ('test-subbar', 'subject_predicate02'),
-            ('test-objbar', 'object_predicate02'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subfoo', predicate='subject_predicate01',
+        ).symmetric(
+            id='test-objfoo', predicate='object predicate01',
+        ).get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subbar', predicate='subject predicate02',
+        ).symmetric(
+            id='test-objbar', predicate='object predicate02',
+        ).get_or_create()[0]
 
-        rbi1 = RelationBrickItem.objects.create(relation_type=rtype01)
+        rbi1 = RelationBrickItem.objects.create(relation_type=rtype1)
 
         rbi2 = RelationBrickItem(
-            relation_type=rtype02,
+            relation_type=rtype2,
         ).set_cells(
             get_ct(FakeContact),
             [
@@ -384,7 +385,7 @@ class ExportingTestCase(TransferBaseTestCase):
             all_rbi_info01 = [
                 dumped_rbi
                 for dumped_rbi in rtype_bricks_info
-                if dumped_rbi['relation_type'] == rtype01.id
+                if dumped_rbi['relation_type'] == rtype1.id
             ]
 
         rbi_info01 = self.get_alone_element(all_rbi_info01)
@@ -396,7 +397,7 @@ class ExportingTestCase(TransferBaseTestCase):
             all_rbi_info02 = [
                 dumped_rbi
                 for dumped_rbi in rtype_bricks_info
-                if dumped_rbi['relation_type'] == rtype02.id
+                if dumped_rbi['relation_type'] == rtype2.id
             ]
 
         rbi_info02 = self.get_alone_element(all_rbi_info02)
@@ -1281,31 +1282,32 @@ class ExportingTestCase(TransferBaseTestCase):
 
         s_pk_fmt = 'creme_config_export-subject_test_export_relations_types_{}'.format
         o_pk_fmt = 'creme_config_export-object_test_export_relations_types_{}'.format
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1a, rtype1b = create_rtype(
-            (s_pk_fmt(1),  'loves',       (), [ptype1], [ptype3]),
-            (o_pk_fmt(1),  'is loved by', (), [ptype2], [ptype4]),
+        rtype1 = RelationType.objects.builder(
+            id=s_pk_fmt(1), predicate='loves',
+            properties=[ptype1], forbidden_properties=[ptype3],
             is_custom=True,
-            is_copiable=(True, False),
-            minimal_display=(False, True),
-        )
-        rtype2a, rtype2b = create_rtype(
-            (s_pk_fmt(2),  'like',        [FakeContact, FakeOrganisation]),
-            (o_pk_fmt(2),  'is liked by', [FakeDocument]),
+        ).symmetric(
+            id=o_pk_fmt(1), predicate='is loved by',
+            properties=[ptype2], forbidden_properties=[ptype4],
+            is_copiable=False, minimal_display=True,
+        ).get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id=s_pk_fmt(2), predicate='like', models=[FakeContact, FakeOrganisation],
             is_custom=True,
-            is_copiable=(False, True),
-            minimal_display=(True, False),
-        )
+            is_copiable=False,
+            minimal_display=True,
+        ).symmetric(
+            id=o_pk_fmt(2), predicate='is liked by', models=[FakeDocument],
+        ).get_or_create()[0]
 
-        rtype3a, rtype3b = create_rtype(
-            (s_pk_fmt(3),  'dislike',        [FakeContact, FakeOrganisation]),
-            (o_pk_fmt(3),  'is disliked by', [FakeDocument]),
+        RelationType.objects.builder(
+            id=s_pk_fmt(3), predicate='dislike',
+            models=[FakeContact, FakeOrganisation],
             is_custom=True,
-        )
-        rtype3a.enabled = False
-        rtype3a.save()
-        rtype3b.enabled = False
-        rtype3b.save()
+            enabled=False,  # <==
+        ).symmetric(
+            id=o_pk_fmt(3), predicate='is disliked by', models=[FakeDocument],
+        ).get_or_create()
 
         response = self.assertGET200(self.URL)
         content = response.json()
@@ -1316,7 +1318,7 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertEqual(2, len(loaded_rtypes))
 
         # --
-        rtype1_data = loaded_rtypes.get(rtype1a.id)
+        rtype1_data = loaded_rtypes.get(rtype1.id)
 
         with self.assertNoException():
             subject_ptypes1a = rtype1_data.pop('subject_properties')
@@ -1327,11 +1329,13 @@ class ExportingTestCase(TransferBaseTestCase):
 
         self.assertDictEqual(
             {
-                'id':          rtype1a.id, 'predicate':       rtype1a.predicate,
+                'id':          rtype1.id, 'predicate':       rtype1.predicate,
                 'is_copiable': True,       'minimal_display': False,
                 'symmetric': {
-                    'id':          rtype1b.id, 'predicate':       rtype1b.predicate,
-                    'is_copiable': False,      'minimal_display': True,
+                    'id': rtype1.symmetric_type_id,
+                    'predicate': rtype1.symmetric_type.predicate,
+                    'is_copiable': False,
+                    'minimal_display': True,
                 },
             },
             rtype1_data,
@@ -1342,7 +1346,7 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertEqual([str(ptype4.uuid)], object_forbidden_ptypes1a)
 
         # --
-        rtype2_data = loaded_rtypes.get(rtype2a.id)
+        rtype2_data = loaded_rtypes.get(rtype2.id)
 
         with self.assertNoException():
             subject_ctypes2a = {*rtype2_data.pop('subject_ctypes')}
@@ -1350,11 +1354,13 @@ class ExportingTestCase(TransferBaseTestCase):
 
         self.assertEqual(
             {
-                'id': rtype2a.id,     'predicate':       rtype2a.predicate,
+                'id': rtype2.id,     'predicate':       rtype2.predicate,
                 'is_copiable': False, 'minimal_display': True,
                 'symmetric': {
-                    'id':          rtype2b.id, 'predicate':       rtype2b.predicate,
-                    'is_copiable': True,       'minimal_display': False,
+                    'id': rtype2.symmetric_type_id,
+                    'predicate': rtype2.symmetric_type.predicate,
+                    'is_copiable': True,
+                    'minimal_display': False,
                 },
             },
             rtype2_data,

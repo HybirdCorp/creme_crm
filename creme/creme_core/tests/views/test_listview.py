@@ -148,6 +148,23 @@ class ListViewTestCase(CremeTestCase):
             f'Not query (which retrieve entities) found in {joined_sql}'
         )
 
+    def _create_rtype(self, index=0):
+        match index:
+            case 0:
+                return RelationType.objects.builder(
+                    id='test-subject_piloted', predicate='is piloted by',
+                ).symmetric(
+                    id='test-object_piloted', predicate='pilots'
+                ).get_or_create()[0]
+            case 1:
+                return RelationType.objects.builder(
+                    id='test-subject_repaired', predicate='is repaired by',
+                ).symmetric(
+                    id='test-object_repaired', predicate='repairs',
+                ).get_or_create()[0]
+            case _:
+                raise ValueError('Bad index')
+
     def _get_lv_node(self, response):
         page_tree = self.get_html_tree(response.content)
 
@@ -290,10 +307,7 @@ class ListViewTestCase(CremeTestCase):
         faye  = create_contact(first_name='Faye',  last_name='Valentine')
 
         # Relation
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_piloted', 'is piloted by'),
-            ('test-object_piloted',  'pilots'),
-        )[0]
+        rtype = self._create_rtype()
         Relation.objects.create(
             user=user, subject_entity=swordfish, type=rtype, object_entity=spike,
         )
@@ -460,10 +474,7 @@ class ListViewTestCase(CremeTestCase):
         spike = FakeContact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
 
         # Relation
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_piloted', 'is piloted by'),
-            ('test-object_piloted',  'pilots'),
-        )[0]
+        rtype = self._create_rtype()
         Relation.objects.create(
             user=user, subject_entity=swordfish, type=rtype, object_entity=spike,
         )
@@ -2125,10 +2136,7 @@ class ListViewTestCase(CremeTestCase):
         faye  = create_contact(first_name='Faye',  last_name='Spiegel')
         jet   = create_contact(first_name='Jet',   last_name='Black')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_piloted', 'is piloted by'),
-            ('test-object_piloted',  'pilots'),
-        )[0]
+        rtype = self._create_rtype()
         create_rel = partial(Relation.objects.create, user=user, type=rtype)
         create_rel(subject_entity=swordfish, object_entity=spike)
         create_rel(subject_entity=redtail,   object_entity=faye)
@@ -2183,15 +2191,8 @@ class ListViewTestCase(CremeTestCase):
         faye  = create_contact(first_name='Faye',  last_name='Spiegel')
         jet   = create_contact(first_name='Jet',   last_name='Black')
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_piloted', 'is piloted by'),
-            ('test-object_piloted',  'pilots'),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_repaired', 'is repaired by'),
-            ('test-object_repaired',  'repairs'),
-        )[0]
+        rtype1 = self._create_rtype(index=0)
+        rtype2 = self._create_rtype(index=1)
 
         create_rel = partial(Relation.objects.create, user=user)
         create_rel(subject_entity=swordfish, object_entity=spike, type=rtype1)
@@ -3572,10 +3573,7 @@ class ListViewTestCase(CremeTestCase):
         "Beware of DISTINCT with filter on relationships."
         user = self.login_as_standard(listable_models=[FakeContact])
 
-        pilots = RelationType.objects.smart_update_or_create(
-            ('test-subject_pilots', 'pilots'),
-            ('test-object_pilots',  'is piloted by'),
-        )[0]
+        rtype = self._create_rtype()
 
         cred_efilter = EntityFilter.objects.create(
             id='creme_core-test_listview01',
@@ -3585,7 +3583,7 @@ class ListViewTestCase(CremeTestCase):
             [
                 condition_handler.RelationConditionHandler.build_condition(
                     model=FakeContact,
-                    rtype=pilots,
+                    rtype=rtype,
                     filter_type=EF_CREDENTIALS,
                 ),
             ],
@@ -3611,7 +3609,7 @@ class ListViewTestCase(CremeTestCase):
         jet   = create_contact(first_name='Jet',    last_name='Black')
         ed    = create_contact(first_name='Edward', last_name='Wong')  # <== No Relation
 
-        create_rel = partial(Relation.objects.create, user=user, type=pilots)
+        create_rel = partial(Relation.objects.create, user=user, type=rtype)
         create_rel(subject_entity=spike, object_entity=swordfish)
         create_rel(subject_entity=jet,   object_entity=bebop)
         create_rel(subject_entity=jet,   object_entity=hammerhead)  # <== 2 Relations !!

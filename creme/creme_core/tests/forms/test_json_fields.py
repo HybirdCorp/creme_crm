@@ -82,31 +82,42 @@ class _JSONFieldBaseTestCase(CremeTestCase):
         if isinstance(object_forbidden_ptypes, CremePropertyType):
             object_forbidden_ptypes = (object_forbidden_ptypes,)
 
-        return RelationType.objects.smart_update_or_create(
-            ('test-subject_loves', 'is loving', (), subject_ptypes),
-            ('test-object_loves',  'loved by',  (), object_ptypes, object_forbidden_ptypes),
-        )
+        return RelationType.objects.builder(
+            id='test-subject_loves', predicate='is loving',
+            properties=subject_ptypes,
+        ).symmetric(
+            id='test-object_loves', predicate='loved by',
+            properties=object_ptypes,
+            forbidden_properties=object_forbidden_ptypes,
+        ).get_or_create()[0]
 
     @staticmethod
     def create_hates_rtype():
-        return RelationType.objects.smart_update_or_create(
-            ('test-subject_hates', 'is hating'),
-            ('test-object_hates',  'hated by'),
-        )
+        return RelationType.objects.builder(
+            id='test-subject_hates', predicate='is hating',
+        ).symmetric(
+            id='test-object_hates', predicate='hated by',
+        ).get_or_create()[0]
 
     @staticmethod
     def create_employed_rtype():
-        return RelationType.objects.smart_update_or_create(
-            ('test-subject_employed_by', 'is an employee of', [FakeContact]),
-            ('test-object_employed_by',  'employs',           [FakeOrganisation]),
-        )
+        return RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='is an employee of',
+            models=[FakeContact],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs',
+            models=[FakeOrganisation],
+        ).get_or_create()[0]
 
     @staticmethod
     def create_customer_rtype():
-        return RelationType.objects.smart_update_or_create(
-            ('test-subject_customer', 'is a customer of', [FakeContact, FakeOrganisation]),
-            ('test-object_customer',  'is a supplier of', [FakeContact, FakeOrganisation]),
-        )
+        return RelationType.objects.builder(
+            id='test-subject_customer', predicate='is a customer of',
+            models=[FakeContact, FakeOrganisation],
+        ).symmetric(
+            id='test-object_customer', predicate='is a supplier of',
+            models=[FakeContact, FakeOrganisation],
+        ).get_or_create()[0]
 
 
 class JSONFieldTestCase(_JSONFieldBaseTestCase):
@@ -1035,8 +1046,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         })
 
     def test_rtypes(self):
-        rtype1 = self.create_loves_rtype()[0]
-        rtype2 = self.create_hates_rtype()[0]
+        rtype1 = self.create_loves_rtype()
+        rtype2 = self.create_hates_rtype()
 
         with self.assertNumQueries(0):
             field = RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
@@ -1044,8 +1055,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertCountEqual([rtype1, rtype2], [*field.allowed_rtypes.all()])
 
     def test_rtypes_queryset(self):
-        rtype1 = self.create_loves_rtype()[0]
-        rtype2 = self.create_hates_rtype()[0]
+        rtype1 = self.create_loves_rtype()
+        rtype2 = self.create_hates_rtype()
 
         with self.assertNumQueries(0):
             field = RelationEntityField(
@@ -1055,7 +1066,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertCountEqual([rtype1, rtype2], [*field.allowed_rtypes.all()])
 
     def test_rtypes_queryset_changes(self):
-        rtype2 = self.create_hates_rtype()[0]
+        rtype2 = self.create_hates_rtype()
 
         field = RelationEntityField(
             allowed_rtypes=RelationType.objects.filter(
@@ -1064,7 +1075,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
         self.assertListEqual([rtype2], [*field.allowed_rtypes.all()])
 
-        rtype1 = self.create_loves_rtype()[0]
+        rtype1 = self.create_loves_rtype()
         self.assertCountEqual([rtype1, rtype2], [*field.allowed_rtypes.all()])
 
         rtype2.delete()
@@ -1074,8 +1085,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFalse(RelationEntityField().allowed_rtypes.all())
 
     def test_rtypes_property(self):
-        rtype1 = self.create_loves_rtype()[0]
-        rtype2 = self.create_hates_rtype()[0]
+        rtype1 = self.create_loves_rtype()
+        rtype2 = self.create_hates_rtype()
 
         field = RelationEntityField()
         self.assertTrue(isinstance(field.allowed_rtypes, QuerySet))
@@ -1149,12 +1160,11 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_not_allowed_rtype(self):
         contact = self.create_contact(user=self.get_root_user())
 
-        rtype1 = self.create_loves_rtype()[0]
-        rtype2 = self.create_hates_rtype()[0]
-        rtype3 = RelationType.objects.smart_update_or_create(
-            ('test-subject_friend', 'is friend of'),
-            ('test-object_friend', 'has friend'),
-        )[0]
+        rtype1 = self.create_loves_rtype()
+        rtype2 = self.create_hates_rtype()
+        rtype3 = RelationType.objects.builder(
+            id='test-subject_friend', predicate='is friend of',
+        ).symmetric(id='test-object_friend', predicate='has friend').get_or_create()[0]
 
         self.assertFormfieldError(
             field=RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id]),
@@ -1168,12 +1178,13 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_not_allowed_rtype_queryset(self):
         contact = self.create_contact(user=self.get_root_user())
 
-        rtype1 = self.create_loves_rtype()[0]
-        rtype2 = self.create_hates_rtype()[0]
-        rtype3 = RelationType.objects.smart_update_or_create(
-            ('test-subject_friend', 'is friend of'),
-            ('test-object_friend', 'has friend'),
-        )[0]
+        rtype1 = self.create_loves_rtype()
+        rtype2 = self.create_hates_rtype()
+        rtype3 = RelationType.objects.builder(
+            id='test-subject_friend', predicate='is friend of',
+        ).symmetric(
+            id='test-object_friend', predicate='has friend',
+        ).get_or_create()[0]
 
         self.assertFormfieldError(
             field=RelationEntityField(
@@ -1190,8 +1201,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         user = self.get_root_user()
         orga = self.create_orga(user=user)
 
-        rtype1 = self.create_employed_rtype()[1]
-        rtype2 = self.create_customer_rtype()[1]
+        rtype1 = self.create_employed_rtype().symmetric_type
+        rtype2 = self.create_customer_rtype().symmetric_type
 
         self.assertFormfieldError(
             field=RelationEntityField(user=user, allowed_rtypes=[rtype1.id, rtype2.id]),
@@ -1209,8 +1220,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_unknown_entity(self):
         orga = self.create_orga(user=self.get_root_user())
 
-        rtype1 = self.create_employed_rtype()[1]
-        rtype2 = self.create_customer_rtype()[1]
+        rtype1 = self.create_employed_rtype().symmetric_type
+        rtype2 = self.create_customer_rtype().symmetric_type
         ct_contact_id = ContentType.objects.get_for_model(FakeContact).id
         self.assertFormfieldError(
             field=RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id]),
@@ -1226,8 +1237,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_deleted_entity(self):
         user = self.get_root_user()
         orga = self.create_orga(user=user, is_deleted=True)
-        rtype1 = self.create_employed_rtype()[0]
-        rtype2 = self.create_customer_rtype()[0]
+        rtype1 = self.create_employed_rtype()
+        rtype2 = self.create_customer_rtype()
 
         field = RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
         field.user = user
@@ -1242,8 +1253,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_relation(self):
         user = self.get_root_user()
         contact = self.create_contact(user=user)
-        rtype1 = self.create_employed_rtype()[1]
-        rtype2 = self.create_customer_rtype()[1]
+        rtype1 = self.create_employed_rtype().symmetric_type
+        rtype2 = self.create_customer_rtype().symmetric_type
 
         with self.assertNumQueries(0):
             field = RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
@@ -1257,7 +1268,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_ctype_without_constraint(self):
         user = self.get_root_user()
         contact = self.create_contact(user=user)
-        rtype = self.create_loves_rtype()[0]
+        rtype = self.create_loves_rtype()
 
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
         self.assertTupleEqual(
@@ -1273,7 +1284,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         ptype2 = create_ptype(text='Is cute')
         ptype3 = create_ptype(text='Is smart')
 
-        rtype, sym_rtype = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))
+        rtype = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))
 
         # Does not have the property 'ptype2'
         contact = self.create_contact(user=user, ptypes=(ptype1, ptype3))
@@ -1287,7 +1298,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
             ) % {
                 'entity': contact,
                 'property': ptype2.text,
-                'predicate': sym_rtype.predicate,
+                'predicate': rtype.symmetric_type.predicate,
             },
         )
 
@@ -1299,7 +1310,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         ptype2 = create_ptype(text='Is cute')
         ptype3 = create_ptype(text='Is smart')
 
-        rtype = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))[0]
+        rtype = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))
 
         # Has all the properties
         contact = self.create_contact(user=user, ptypes=(ptype1, ptype2, ptype3))
@@ -1313,7 +1324,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_forbidden_properties_constraint_error(self):
         user = self.get_root_user()
         ptype = CremePropertyType.objects.create(text='Is not kind')
-        rtype, sym_rtype = self.create_loves_rtype(object_forbidden_ptypes=ptype)
+        rtype = self.create_loves_rtype(object_forbidden_ptypes=ptype)
         contact = self.create_contact(user=user, ptypes=ptype)
         self.assertFormfieldError(
             field=RelationEntityField(allowed_rtypes=[rtype.pk], user=user),
@@ -1324,7 +1335,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
             ) % {
                 'entity': contact,
                 'property': ptype.text,
-                'predicate': sym_rtype.predicate,
+                'predicate': rtype.symmetric_type.predicate,
             },
         )
 
@@ -1335,7 +1346,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         ptype1 = create_ptype(text='Is not kind')
         ptype2 = create_ptype(text='Is cute')
 
-        rtype = self.create_loves_rtype(object_forbidden_ptypes=ptype1)[0]
+        rtype = self.create_loves_rtype(object_forbidden_ptypes=ptype1)
 
         # Has no forbidden property
         contact = self.create_contact(user=user, ptypes=ptype2)
@@ -1350,7 +1361,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         "Perm checking OK."
         user = self.login_as_basic_user()
         contact = self.create_contact(user=user)
-        rtype = self.create_loves_rtype()[0]
+        rtype = self.create_loves_rtype()
 
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
         self.assertTupleEqual(
@@ -1362,7 +1373,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         "Perm checking KO."
         user = self.login_as_basic_user()
         contact = self.create_contact(user=self.get_root_user())
-        rtype = self.create_loves_rtype()[0]
+        rtype = self.create_loves_rtype()
         self.assertFormfieldError(
             field=RelationEntityField(allowed_rtypes=[rtype.id], user=user),
             value=self._build_data(rtype.id, contact),
@@ -1374,7 +1385,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_incomplete01(self):
         "Not required."
-        rtype = self.create_loves_rtype()[0]
+        rtype = self.create_loves_rtype()
         contact = self.create_contact(user=self.get_root_user())
 
         clean = RelationEntityField(required=False).clean
@@ -1385,7 +1396,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_incomplete02(self):
         "Required -> 'friendly' errors."
-        rtype = self.create_loves_rtype()[0]
+        rtype = self.create_loves_rtype()
         contact = self.create_contact(user=self.get_root_user())
 
         field = RelationEntityField(required=True)
@@ -1430,8 +1441,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         ])
 
     def test_rtypes(self):
-        rtype1 = self.create_loves_rtype()[0]
-        rtype2 = self.create_hates_rtype()[0]
+        rtype1 = self.create_loves_rtype()
+        rtype2 = self.create_hates_rtype()
 
         with self.assertNumQueries(0):
             field = MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
@@ -1439,8 +1450,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertCountEqual([rtype1, rtype2], [*field.allowed_rtypes.all()])
 
     def test_rtypes_queryset(self):
-        rtype1 = self.create_loves_rtype()[0]
-        rtype2 = self.create_hates_rtype()[0]
+        rtype1 = self.create_loves_rtype()
+        rtype2 = self.create_hates_rtype()
 
         with self.assertNumQueries(0):
             field = MultiRelationEntityField(
@@ -1452,7 +1463,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertCountEqual([rtype1, rtype2], [*field.allowed_rtypes.all()])
 
     def test_rtypes_queryset_changes(self):
-        rtype2 = self.create_hates_rtype()[0]
+        rtype2 = self.create_hates_rtype()
 
         field = MultiRelationEntityField(
             allowed_rtypes=RelationType.objects.filter(
@@ -1461,7 +1472,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
         self.assertListEqual([rtype2], [*field.allowed_rtypes.all()])
 
-        rtype1 = self.create_loves_rtype()[0]
+        rtype1 = self.create_loves_rtype()
         self.assertCountEqual([rtype1, rtype2], [*field.allowed_rtypes.all()])
 
         rtype2.delete()
@@ -1541,12 +1552,11 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact(user=user)
         orga    = self.create_orga(user=user)
 
-        rtype1 = self.create_loves_rtype()[0]
-        rtype2 = self.create_hates_rtype()[0]
-        rtype3 = RelationType.objects.smart_update_or_create(
-            ('test-subject_friend', 'is friend of'),
-            ('test-object_friend', 'has friend'),
-        )[0]
+        rtype1 = self.create_loves_rtype()
+        rtype2 = self.create_hates_rtype()
+        rtype3 = RelationType.objects.builder(
+            id='test-subject_friend', predicate='is friend of',
+        ).symmetric(id='test-object_friend', predicate='has friend').get_or_create()[0]
 
         self.assertFormfieldError(
             field=MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id]),
@@ -1565,12 +1575,13 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact(user=user)
         orga    = self.create_orga(user=user)
 
-        rtype1 = self.create_loves_rtype()[0]
-        rtype2 = self.create_hates_rtype()[0]
-        rtype3 = RelationType.objects.smart_update_or_create(
-            ('test-subject_friend', 'is friend of'),
-            ('test-object_friend', 'has friend'),
-        )[0]
+        rtype1 = self.create_loves_rtype()
+        rtype2 = self.create_hates_rtype()
+        rtype3 = RelationType.objects.builder(
+            id='test-subject_friend', predicate='is friend of',
+        ).symmetric(
+            id='test-object_friend', predicate='has friend',
+        ).get_or_create()[0]
 
         self.assertFormfieldError(
             field=MultiRelationEntityField(
@@ -1591,8 +1602,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact(user=user)
         orga    = self.create_orga(user=user)
 
-        rtype1 = self.create_employed_rtype()[1]
-        rtype2 = self.create_customer_rtype()[1]
+        rtype1 = self.create_employed_rtype().symmetric_type
+        rtype2 = self.create_customer_rtype().symmetric_type
 
         self.assertFormfieldError(
             field=MultiRelationEntityField(user=user, allowed_rtypes=[rtype2.id, rtype1.id]),
@@ -1612,8 +1623,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact(user=user)
         orga    = self.create_orga(user=user)
 
-        rtype1 = self.create_employed_rtype()[1]
-        rtype2 = self.create_customer_rtype()[1]
+        rtype1 = self.create_employed_rtype().symmetric_type
+        rtype2 = self.create_customer_rtype().symmetric_type
 
         self.assertFormfieldError(
             field=MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id]),
@@ -1629,8 +1640,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         user = self.get_root_user()
         contact = self.create_contact(user=user, is_deleted=True)
 
-        rtype1 = self.create_employed_rtype()[1]
-        rtype2 = self.create_customer_rtype()[1]
+        rtype1 = self.create_employed_rtype().symmetric_type
+        rtype2 = self.create_customer_rtype().symmetric_type
 
         field = MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
         field.user = user
@@ -1647,8 +1658,9 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact(user=user)
         orga    = self.create_orga(user=user)
 
-        rtype_employed, rtype_employs = self.create_employed_rtype()
-        rtype_supplier = self.create_customer_rtype()[1]
+        rtype_employed = self.create_employed_rtype()
+        rtype_employs = rtype_employed.symmetric_type
+        rtype_supplier = self.create_customer_rtype().symmetric_type
 
         with self.assertNumQueries(0):
             field = MultiRelationEntityField(
@@ -1689,8 +1701,9 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact(user=user)
         orga    = self.create_orga(user=user)
 
-        rtype_employed, rtype_employs = self.create_employed_rtype()
-        rtype_supplier = self.create_customer_rtype()[1]
+        rtype_employed = self.create_employed_rtype()
+        rtype_employs = rtype_employed.symmetric_type
+        rtype_supplier = self.create_customer_rtype().symmetric_type
 
         field = MultiRelationEntityField(
             allowed_rtypes=RelationType.objects.filter(
@@ -1714,7 +1727,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_ctype_without_constraint(self):
         user = self.get_root_user()
         contact = self.create_contact(user=user)
-        rtype = self.create_loves_rtype()[0]
+        rtype = self.create_loves_rtype()
 
         field = MultiRelationEntityField(allowed_rtypes=[rtype.id], user=user)
         self.assertListEqual(
@@ -1730,8 +1743,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         ptype2 = create_ptype(text='Is cute')
         ptype3 = create_ptype(text='Is smart')
 
-        rtype_constr    = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))[0]
-        rtype_no_constr = self.create_hates_rtype()[0]
+        rtype_constr    = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))
+        rtype_no_constr = self.create_hates_rtype()
 
         # Does not have the property 'ptype2'
         contact = self.create_contact(user=user, ptypes=(ptype1, ptype3))
@@ -1761,8 +1774,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         ptype2 = create_ptype(text='Is cute')
         ptype3 = create_ptype(text='Is smart')
 
-        rtype_constr    = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))[0]
-        rtype_no_constr = self.create_hates_rtype()[0]
+        rtype_constr    = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))
+        rtype_no_constr = self.create_hates_rtype()
 
         # Has all the properties
         contact = self.create_contact(user=user, ptypes=(ptype1, ptype3, ptype2))
@@ -1783,8 +1796,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         user = self.get_root_user()
         ptype = CremePropertyType.objects.create(text='Is not kind')
 
-        rtype_constr    = self.create_loves_rtype(object_forbidden_ptypes=[ptype])[0]
-        rtype_no_constr = self.create_hates_rtype()[0]
+        rtype_constr    = self.create_loves_rtype(object_forbidden_ptypes=[ptype])
+        rtype_no_constr = self.create_hates_rtype()
 
         contact = self.create_contact(user=user, ptypes=ptype)
         orga = self.create_orga(user=user)
@@ -1810,8 +1823,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         ptype1 = create_ptype(text='Is not kind')
         ptype2 = create_ptype(text='Is cute')
 
-        rtype_constr    = self.create_loves_rtype(object_forbidden_ptypes=ptype1)[0]
-        rtype_no_constr = self.create_hates_rtype()[0]
+        rtype_constr    = self.create_loves_rtype(object_forbidden_ptypes=ptype1)
+        rtype_no_constr = self.create_hates_rtype()
 
         # Has no forbidden properties
         contact = self.create_contact(user=user, ptypes=ptype2)
@@ -1831,7 +1844,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_incomplete01(self):
         "Not required."
         user = self.get_root_user()
-        rtype = self.create_loves_rtype()[0]
+        rtype = self.create_loves_rtype()
         contact = self.create_contact(user=user)
 
         clean = MultiRelationEntityField(
@@ -1855,7 +1868,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_incomplete02(self):
         "Required -> 'friendly' errors."
         user = self.get_root_user()
-        rtype = self.create_loves_rtype()[0]
+        rtype = self.create_loves_rtype()
         contact = self.create_contact(user=user)
 
         field = MultiRelationEntityField(
@@ -1886,8 +1899,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact(user=user)
         orga    = self.create_orga(user=user)
 
-        rtype1 = self.create_loves_rtype()[0]
-        rtype2 = self.create_hates_rtype()[0]
+        rtype1 = self.create_loves_rtype()
+        rtype2 = self.create_hates_rtype()
 
         field = MultiRelationEntityField(
             required=True, allowed_rtypes=[rtype1.id, rtype2.id],
@@ -1907,8 +1920,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact(user=user)
         orga    = self.create_orga(user=self.get_root_user())
 
-        rtype1 = self.create_loves_rtype()[0]
-        rtype2 = self.create_hates_rtype()[0]
+        rtype1 = self.create_loves_rtype()
+        rtype2 = self.create_hates_rtype()
 
         field = MultiRelationEntityField(required=True, allowed_rtypes=[rtype1.id, rtype2.id])
         field.user = user
@@ -1929,8 +1942,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         user = self.get_root_user()
         contact = self.create_contact(user=user)
         orga    = self.create_orga(user=user)
-        rtype1 = self.create_loves_rtype()[0]
-        rtype2 = self.create_hates_rtype()[0]
+        rtype1 = self.create_loves_rtype()
+        rtype2 = self.create_hates_rtype()
 
         field = MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
 
@@ -2324,7 +2337,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         ryuji   = create_contact(first_name='Ryuji',   last_name='Danma')
         azusa   = create_contact(first_name='Azusa',   last_name='Fuyutsuki')
 
-        rtype = self.create_employed_rtype()[0]
+        rtype = self.create_employed_rtype()
 
         create_rel = partial(
             Relation.objects.create, user=user, type=rtype

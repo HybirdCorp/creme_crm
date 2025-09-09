@@ -632,12 +632,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_disabled', '[disabled]'),
-            ('test-object_disabled',  'what ever'),
-        )[0]
-        rtype.enabled = False
-        rtype.save()
+        rtype = RelationType.objects.builder(
+            id='test-subject_disabled', predicate='[disabled]',
+            enabled=False,  # <==
+        ).symmetric(
+            id='test-object_disabled', predicate='what ever',
+        ).get_or_create()[0]
 
         response = self.assertPOST200(
             self._build_add_graph_url(report),
@@ -2617,10 +2617,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         tywin = create_contact(first_name='Tywin',  last_name='Lannister')
         ned   = create_contact(first_name='Eddard', last_name='Stark')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('reports-subject_obeys',   'obeys to', [FakeOrganisation]),
-            ('reports-object_commands', 'commands', [FakeContact]),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='reports-subject_obeys', predicate='obeys to', models=[FakeOrganisation],
+        ).symmetric(
+            id='reports-object_commands', predicate='commands', models=[FakeContact],
+        ).get_or_create()[0]
 
         create_rel = partial(Relation.objects.create, user=user, type=rtype)
         create_rel(subject_entity=lannisters, object_entity=tywin)

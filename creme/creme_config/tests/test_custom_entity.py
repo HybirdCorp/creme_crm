@@ -233,10 +233,11 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         ptype = CremePropertyType.objects.create(text='In wood')
         ptype.set_subject_ctypes(FakeContact, model)
 
-        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-            ('test-subject_design', 'has designed',   [model, FakeProduct]),
-            ('test-object_foobar',  'is designed by', [FakeContact]),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_design', predicate='has designed', models=[model, FakeProduct],
+        ).symmetric(
+            id='test-object_foobar', predicate='is designed by', models=[FakeContact],
+        ).get_or_create()[0]
 
         role = self.create_role(
             name='Devops',
@@ -306,8 +307,12 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertListEqual([FakeContact], [*self.refresh(ptype).subject_models])
 
-        self.assertListEqual([FakeProduct], [*self.refresh(rtype1).subject_models])
-        self.assertListEqual([FakeContact], [*self.refresh(rtype2).subject_models])
+        self.assertListEqual(
+            [FakeProduct], [*self.refresh(rtype).subject_models],
+        )
+        self.assertListEqual(
+            [FakeContact], [*self.refresh(rtype.symmetric_type).subject_models],
+        )
 
         self.assertListEqual(
             [FakeContact],

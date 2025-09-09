@@ -1033,10 +1033,9 @@ class HistoryRenderTestCase(CremeTestCase):
 
         hayao = FakeContact.objects.create(user=user, last_name='<i>Miyazaki</i>')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed', 'is employed'),
-            ('test-object_employed', 'employs'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_employed', predicate='is employed',
+        ).symmetric(id='test-object_employed', predicate='employs').get_or_create()[0]
         Relation.objects.create(
             user=user, subject_entity=hayao, object_entity=ghibli, type=rtype,
         )
@@ -1206,10 +1205,9 @@ class HistoryRenderTestCase(CremeTestCase):
         user = self.get_root_user()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-        rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_works', 'is <i>employed</i>'),
-            ('test-object_works',  'employs'),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_works', predicate='is <i>employed</i>',
+        ).symmetric(id='test-object_works', predicate='employs').get_or_create()[0]
         relation = Relation.objects.create(
             user=user, subject_entity=rei, object_entity=nerv, type=rtype,
         )
@@ -1234,7 +1232,7 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertHTMLEqual(
             html_format_str.format(_('%(predicate)s added to %(entity_link)s') % {
                 'predicate': f'<span class="relationship-predicate">'
-                             f'{srtype.predicate}'
+                             f'{rtype.symmetric_type.predicate}'
                              f'</span>',  # <==
                 'entity_link': f'<a href="{rei.get_absolute_url()}" target="_self">{rei}</a>',
             }),
@@ -1274,10 +1272,9 @@ class HistoryRenderTestCase(CremeTestCase):
         user = self.get_root_user()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-        rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_works', 'is <i>employed</i>'),
-            ('test-object_works',  'employs'),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_works', predicate='is <i>employed</i>',
+        ).symmetric(id='test-object_works', predicate='employs').get_or_create()[0]
         relation = Relation.objects.create(
             user=user, subject_entity=rei, object_entity=nerv, type=rtype,
         )
@@ -1304,7 +1301,7 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertHTMLEqual(
             html_format_str.format(_('%(predicate)s to %(entity_link)s removed') % {
                 'predicate': f'<span class="relationship-predicate">'
-                             f'{srtype.predicate}'
+                             f'{rtype.symmetric_type.predicate}'
                              f'</span>',  # <==
                 'entity_link': f'<a href="{rei.get_absolute_url()}" target="_self">{rei}</a>',
             }),
@@ -1345,15 +1342,12 @@ class HistoryRenderTestCase(CremeTestCase):
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_works', 'is employed'),
-            ('test-object_works',  'employs'),
-        )[0]
-        rtype2 = create_rtype(
-            ('test-subject_pilot', 'is pilot for'),
-            ('test-object_pilot',  'has pilot'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_works', predicate='is employed',
+        ).symmetric(id='test-object_works', predicate='employs').get_or_create()[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_pilot', predicate='is pilot for',
+        ).symmetric(id='test-object_pilot', predicate='has pilot').get_or_create()[0]
 
         create_rel = partial(
             Relation.objects.create,

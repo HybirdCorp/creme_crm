@@ -221,31 +221,31 @@ class GraphHandConstraintsTestCase(CremeTestCase):
     def test_relationship(self):
         constraint = GHCCRelation(model=FakeContact)
 
-        create_rtype = RelationType.objects.smart_update_or_create
-        rtype1 = create_rtype(
-            ('test-subject_likes', 'likes'),
-            ('test-object_likes',  'is liked by'),
-        )[0]
+        rtype1 = RelationType.objects.builder(
+            id='test-subject_likes', predicate='likes',
+        ).symmetric(id='test-object_likes', predicate='is liked by').get_or_create()[0]
         self.assertTrue(constraint.check_cell(EntityCellRelation(FakeContact, rtype1)))
 
-        rtype2 = create_rtype(
-            ('test-subject_loves', 'is loving',   [FakeContact]),
-            ('test-object_loves',  'is loved by', [FakeContact]),
-        )[0]
+        rtype2 = RelationType.objects.builder(
+            id='test-subject_loves', predicate='is loving', models=[FakeContact],
+        ).symmetric(
+            id='test-object_loves', predicate='is loved by', models=[FakeContact],
+        ).get_or_create()[0]
         self.assertTrue(constraint.check_cell(EntityCellRelation(FakeContact, rtype2)))
 
-        rtype3 = create_rtype(
-            ('test-subject_branch', 'has branch',     [FakeOrganisation]),
-            ('test-object_branch',  'is a branch of', [FakeOrganisation]),
-        )[0]
+        rtype3 = RelationType.objects.builder(
+            id='test-subject_branch', predicate='has branch', models=[FakeOrganisation],
+        ).symmetric(
+            id='test-object_branch', predicate='is a branch of',
+            models=[FakeOrganisation],
+        ).get_or_create()[0]
         self.assertFalse(constraint.check_cell(EntityCellRelation(FakeContact, rtype3)))
 
-        disabled_rtype = create_rtype(
-            ('test-subject_disabled', 'disabled'),
-            ('test-object_disabled',  'what ever'),
-        )[0]
-        disabled_rtype.enabled = False
-        disabled_rtype.save()
+        disabled_rtype = RelationType.objects.builder(
+            id='test-subject_disabled', predicate='disabled',
+            enabled=False,  # <==
+        ).symmetric(id='test-object_disabled', predicate='what ever').get_or_create()[0]
+
         self.assertFalse(
             constraint.check_cell(EntityCellRelation(FakeContact, disabled_rtype)),
         )

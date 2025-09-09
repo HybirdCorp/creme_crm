@@ -901,10 +901,9 @@ about this fantastic animation studio."""
             user=user.id, first_name=first_name, last_name=last_name,
         )
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed', 'is employed'),
-            ('test-object_employed', 'employs'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_employed', predicate='is employed',
+        ).symmetric(id='test-object_employed', predicate='employs').get_or_create()[0]
         Relation.objects.create(
             user=user, subject_entity=hayao, object_entity=ghibli, type=rtype,
         )
@@ -942,10 +941,9 @@ about this fantastic animation studio."""
         )
         self.assertNotEqual(hayao.modified, ghibli.modified)
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employed', 'is employed'),
-            ('test-object_employed', 'employs'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_employed', predicate='is employed',
+        ).symmetric(id='test-object_employed', predicate='employs').get_or_create()[0]
         Relation.objects.create(
             user=user, subject_entity=hayao, object_entity=ghibli, type=rtype,
         )
@@ -987,10 +985,11 @@ about this fantastic animation studio."""
         ghibli = self.create_old(FakeOrganisation, user=user, name='Ghibli')
         img = FakeImage.objects.create(user=user, name='Museum image')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_related_img', '(image) is used by'),
-            ('test-object_related_img',  'has related image'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_related_img', predicate='(image) is used by',
+        ).symmetric(
+            id='test-object_related_img', predicate='has related image',
+        ).get_or_create()[0]
         Relation.objects.create(
             user=user, subject_entity=img, object_entity=ghibli, type=rtype,
         )
@@ -1144,10 +1143,9 @@ about this fantastic animation studio."""
 
         old_count = HistoryLine.objects.count()
 
-        rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_works4', 'is employed'),
-            ('test-object_works4',  'employs'),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_employed', predicate='is employed',
+        ).symmetric(id='test-object_employed', predicate='employs').get_or_create()[0]
         relation = Relation.objects.create(
             user=user, subject_entity=rei, object_entity=nerv, type=rtype,
         )
@@ -1169,7 +1167,7 @@ about this fantastic animation studio."""
         self.assertEqual(str(nerv),         hline_sym.entity_repr)
         self.assertEqual(TYPE_SYM_RELATION, hline_sym.type)
         self.assertEqual(relation.created,  hline_sym.date)
-        self.assertListEqual([srtype.id], hline_sym.modifications)
+        self.assertListEqual([rtype.symmetric_type_id], hline_sym.modifications)
         self.assertIs(hline.line_type.is_about_relation, True)
 
         self.assertEqual(hline_sym.id, hline.related_line.id)
@@ -1182,11 +1180,14 @@ about this fantastic animation studio."""
         rei  = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         olds_ids = [*HistoryLine.objects.values_list('id', flat=True)]
 
-        rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_works5', 'is employed'),
-            ('test-object_works5',  'employs'),
+        rtype = RelationType.objects.builder(
+            id='test-subject_works5', predicate='is employed',
+        ).symmetric(
+            id='test-object_works5', predicate='employs',
+        ).get_or_create()[0]
+        Relation.objects.create(
+            user=user, subject_entity=nerv, object_entity=rei, type=rtype.symmetric_type,
         )
-        Relation.objects.create(user=user, subject_entity=nerv, object_entity=rei, type=srtype)
 
         hlines = [*HistoryLine.objects.exclude(id__in=olds_ids).order_by('id')]
         self.assertEqual(2, len(hlines))
@@ -1199,7 +1200,7 @@ about this fantastic animation studio."""
         hline_sym = hlines[-1]
         self.assertEqual(nerv.id,           hline_sym.entity.id)
         self.assertEqual(TYPE_SYM_RELATION, hline_sym.type)
-        self.assertEqual([srtype.id],       hline_sym.modifications)
+        self.assertListEqual([rtype.symmetric_type_id], hline_sym.modifications)
 
         self.assertEqual(hline_sym.id, hline.related_line.id)
 
@@ -1209,10 +1210,9 @@ about this fantastic animation studio."""
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         old_count = HistoryLine.objects.count()
 
-        rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_works4', 'is employed'),
-            ('test-object_works4',  'employs'),
-        )
+        rtype = RelationType.objects.builder(
+            id='test-subject_employed', predicate='is employed',
+        ).symmetric(id='test-object_employed', predicate='employs').get_or_create()[0]
         relation = Relation.objects.create(
             user=user, subject_entity=rei, object_entity=nerv, type=rtype,
         )
@@ -1238,7 +1238,7 @@ about this fantastic animation studio."""
         self.assertEqual(nerv,             hline_sym.entity.get_real_entity())
         self.assertEqual(str(nerv),        hline_sym.entity_repr)
         self.assertEqual(TYPE_SYM_REL_DEL, hline_sym.type)
-        self.assertListEqual([srtype.id], hline_sym.modifications)
+        self.assertListEqual([rtype.symmetric_type_id], hline_sym.modifications)
         self.assertIs(hline_sym.line_type.is_about_relation, True)
 
     def test_auxiliary_creation(self):
@@ -1658,10 +1658,9 @@ about this fantastic animation studio."""
         )
         ghibli = FakeOrganisation.objects.create(user=user, name='Ghibli')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_delline_works', 'is employed'),
-            ('test-object_delline_works',  'employs'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_employed', predicate='is employed',
+        ).symmetric(id='test-object_employed', predicate='employs').get_or_create()[0]
         Relation.objects.create(
             user=user, subject_entity=hayao, object_entity=ghibli, type=rtype,
         )
@@ -1751,10 +1750,9 @@ about this fantastic animation studio."""
         rei   = create_contact(first_name='Rei',   last_name='Ayanami')
         asuka = create_contact(first_name='Asuka', last_name='Langley')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employs', 'employs'),
-            ('test-object_employs',  'is employed'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_employed', predicate='is employed',
+        ).symmetric(id='test-object_employed', predicate='employs').get_or_create()[0]
         create_rel = partial(Relation.objects.create, user=user, subject_entity=nerv, type=rtype)
         create_rel(object_entity=rei)
         create_rel(object_entity=asuka)
@@ -1793,10 +1791,9 @@ about this fantastic animation studio."""
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
 
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_employs', 'employs'),
-            ('test-object_employs',  'is employed'),
-        )[0]
+        rtype = RelationType.objects.builder(
+            id='test-subject_employed', predicate='is employed',
+        ).symmetric(id='test-object_employed', predicate='employs').get_or_create()[0]
         Relation.objects.create(
             user=user, subject_entity=nerv, type=rtype, object_entity=rei,
         )

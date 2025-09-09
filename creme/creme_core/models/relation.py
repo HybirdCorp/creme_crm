@@ -61,6 +61,39 @@ class RelationTypeBuilder:
 
     Hint: use RelationType.objects.builder().
     """
+    class _PropertyTypesConstraints:
+        _ptypes: dict[str, CremePropertyType | None]
+
+        def __init__(self, properties: Iterable[str | CremePropertyType]) -> None:
+            self._ptypes = ptypes = {}
+
+            for p in properties:
+                if isinstance(p, CremePropertyType):
+                    ptypes[str(p.uuid)] = p
+                elif isinstance(p, str):
+                    ptypes[p] = None
+                else:
+                    raise ValueError('Accept CremePropertyType or uuid string')
+
+        def __iter__(self):
+            uuids = []
+            for ptype_uuid, ptype in self._ptypes.items():
+                if isinstance(ptype, CremePropertyType):
+                    yield ptype
+                else:
+                    uuids.append(ptype_uuid)
+
+            if uuids:
+                yield from CremePropertyType.objects.filter(uuid__in=uuids)
+
+        def add(self, *ptype_uuids: str) -> None:
+            for ptype_uuid in ptype_uuids:
+                self._ptypes[ptype_uuid] = None
+
+        def remove(self, *ptype_uuids: str) -> None:
+            for ptype_uuid in ptype_uuids:
+                del self._ptypes[ptype_uuid]
+
     _id: str
     predicate: str
     _is_internal: bool
@@ -69,8 +102,8 @@ class RelationTypeBuilder:
     minimal_display: bool
     _enabled: bool
     _models: set[type[CremeEntity]]
-    _properties: set[str]
-    _forbidden_properties: set[str]
+    _properties: _PropertyTypesConstraints
+    _forbidden_properties: _PropertyTypesConstraints
 
     @classmethod
     def main(cls, *,
@@ -80,8 +113,8 @@ class RelationTypeBuilder:
              is_copiable: bool = _DEFAULT_IS_COPIABLE,
              minimal_display: bool = _DEFAULT_MIN_DISPLAY,
              models: Iterable[type[CremeEntity]],
-             properties: Iterable[str],
-             forbidden_properties: Iterable[str],
+             properties: Iterable[str | CremePropertyType],
+             forbidden_properties: Iterable[str | CremePropertyType],
              enabled: bool = _DEFAULT_ENABLED,
              ) -> RelationTypeBuilder:
         """Constructor of the main instance.
@@ -102,8 +135,8 @@ class RelationTypeBuilder:
         proxy._enabled = enabled
         proxy._models = set(models)
         # TODO: accept UUID instances too?
-        proxy._properties = set(properties)
-        proxy._forbidden_properties = set(forbidden_properties)
+        proxy._properties = cls._PropertyTypesConstraints(properties)
+        proxy._forbidden_properties = cls._PropertyTypesConstraints(forbidden_properties)
 
         return proxy
 
@@ -113,8 +146,8 @@ class RelationTypeBuilder:
                   is_copiable: bool = _DEFAULT_IS_COPIABLE,
                   minimal_display: bool = _DEFAULT_MIN_DISPLAY,
                   models: Iterable[type[CremeEntity]] = (),
-                  properties: Iterable[str] = (),
-                  forbidden_properties: Iterable[str] = (),
+                  properties: Iterable[str | CremePropertyType] = (),
+                  forbidden_properties: Iterable[str | CremePropertyType] = (),
                   ) -> RelationTypeBuilder:
         """Constructor of the symmetric builder (see 'main()')."""
         if self._sym is not None:
@@ -136,8 +169,8 @@ class RelationTypeBuilder:
         sym.forbidden_properties = forbidden_properties
         sym._enabled = self._enabled
         sym._models = set(models)
-        sym._properties = set(properties)
-        sym._forbidden_properties = set(forbidden_properties)
+        sym._properties = self._PropertyTypesConstraints(properties)
+        sym._forbidden_properties = self._PropertyTypesConstraints(forbidden_properties)
 
         return self
 
@@ -231,14 +264,14 @@ class RelationTypeBuilder:
         """Get the value of the field 'RelationType.subject_properties' for the
         underlying instance.
         """
-        return CremePropertyType.objects.filter(uuid__in=self._properties)
+        yield from self._properties
 
     @property
     def subject_forbidden_properties(self) -> Iterator[CremePropertyType]:
         """Get the value of the field 'RelationType.subject_forbidden_properties'
         for the underlying instance.
         """
-        return CremePropertyType.objects.filter(uuid__in=self._forbidden_properties)
+        yield from self._forbidden_properties
 
     def add_subject_models(self, *models: type[CremeEntity]) -> RelationTypeBuilder:
         """Add some models to the ContentType constraints
@@ -256,7 +289,7 @@ class RelationTypeBuilder:
         Note: UUID strings are used instead of CremePropertyType instances in
         order to make lazy queries.
         """
-        self._properties.update(ptype_uuids)
+        self._properties.add(*ptype_uuids)
         return self
 
     def add_subject_forbidden_properties(self, *ptype_uuids: str) -> RelationTypeBuilder:
@@ -266,7 +299,7 @@ class RelationTypeBuilder:
         Note: UUID strings are used instead of CremePropertyType instances in
         order to make lazy queries.
         """
-        self._forbidden_properties.update(ptype_uuids)
+        self._forbidden_properties.add(*ptype_uuids)
         return self
 
     def remove_subject_models(self, *models: type[CremeEntity]) -> RelationTypeBuilder:
@@ -284,7 +317,7 @@ class RelationTypeBuilder:
 
         Note: add_subject_properties().
         """
-        self._properties.difference_update(ptype_uuids)
+        self._properties.remove(*ptype_uuids)
         return self
 
     def remove_subject_forbidden_properties(self, *ptype_uuids: str) -> RelationTypeBuilder:
@@ -293,7 +326,7 @@ class RelationTypeBuilder:
 
         Note: add_subject_forbidden_properties().
         """
-        self._forbidden_properties.difference_update(ptype_uuids)
+        self._forbidden_properties.remove(*ptype_uuids)
         return self
 
     def _save_m2m(self, sub_rtype, obj_rtype):

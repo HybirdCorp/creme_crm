@@ -26,6 +26,9 @@
              - BUTTONS
              - HEADER_FILTERS
              - RELATION_TYPES
+          Note: you should probably use 'RelationType.objects.builder()' instead of
+                'RelationType.objects.smart_update_or_create()' when it's possible,
+                because the last method will be removed in a futur version.
         # The models which can be used by EntityFilters (i.e. CremeEntity gets a
           ForeignKey/ManyToManyField to the model) should have a method 'portable_key()',
           & their default manager should have a method 'get_by_portable_key()'.
