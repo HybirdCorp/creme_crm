@@ -126,6 +126,15 @@ QUnit.test('creme.utils.isHTMLDataType', function(assert) {
     assert.equal(creme.utils.isHTMLDataType(12), false);
 });
 
+QUnit.parameterize('creme.utils.jQueryToMomentDateFormat', [
+    ['', ''],
+    ['d/m/y', 'D/M/YY'],
+    ['d/m/yy', 'D/M/YYYY'],
+    ['dd/mm/yy', 'DD/MM/YYYY']
+], function(source, expected, assert) {
+    assert.equal(creme.utils.jQueryToMomentDateFormat(source), expected);
+});
+
 /*
 QUnit.test('creme.utils.JSON.readScriptText', function(assert) {
     assert.equal('', creme.utils.JSON.readScriptText(''));
