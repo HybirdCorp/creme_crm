@@ -3,6 +3,7 @@
   Users side :
   ------------
     # Fix issue in merge view : the left & right value cannot be applied with the image selector.
+    # Fix tinymce in popups : the texterea is not synced on submit.
 
 
 == Version 2.6.12 ==
