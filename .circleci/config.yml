@@ -421,6 +421,14 @@ jobs:
           environment:
               KARMA_DJANGOSTATICS: ../project/<< pipeline.parameters.instance_directory >>/media/static
               KARMA_COVERAGEOUTPUT: artifacts/karma_coverage
+      - run:
+          name: Karma Tests (Fr)
+          working_directory: << pipeline.parameters.instance_directory >>
+          command: node_modules/.bin/karma start << pipeline.parameters.source_path >>/.circleci/.karma.conf.js
+          environment:
+              KARMA_DJANGOSTATICS: ../project/<< pipeline.parameters.instance_directory >>/media/static
+              KARMA_COVERAGEOUTPUT: artifacts/karma_coverage
+              KARMA_DJANGOLANG: fr
       - store_artifacts:
           path: artifacts/karma_coverage
 
