@@ -1,5 +1,7 @@
 == Version 2.7.1 Work in progress (not released -- this is a draft) ==
 
+  TODO: refresh .po files (creme_core)
+
   Users side :
   ------------
     # Fix issue in merge view : the left & right value cannot be applied with the image selector.

@@ -142,9 +142,11 @@ creme.notification.NotificationBox = creme.component.Component.sub({
 
     _humanizedTimeDelta: function(secondsTimedelta) {
         // TODO: use momentjs for this job
-        var minutesTimeDelta = Math.round(secondsTimedelta / 60);
+        var minutesTimeDelta = Math.floor(secondsTimedelta / 60);
 
-        if (minutesTimeDelta < 60) {
+        if (minutesTimeDelta < 1) {
+            return gettext('A few moments ago');
+        } else if (minutesTimeDelta < 60) {
             return ngettext(
                 '%d minute ago', '%d minutes ago', minutesTimeDelta
             ).format(minutesTimeDelta);
@@ -176,15 +178,16 @@ creme.notification.NotificationBox = creme.component.Component.sub({
             return;
         }
 
+        var self = this;
         var now = Date.now();
 
         $('.notification-item').each(function() {
             var item = $(this);
-            var created = item.data('created');
-            var label = this._humanizedTimeDelta(Math.round((now - created) / 1000));
+            var created = parseInt(item.data('created'));
+            var label = self._humanizedTimeDelta(Math.round((now - created) / 1000));
 
             item.find('.notification-created').text(label);
-        }.bind(this));
+        });
     },
 
     _updateItems: function(notifications) {

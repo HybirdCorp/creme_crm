@@ -140,7 +140,7 @@ QUnit.test('creme.NotificationBox (already active)', function() {
     this.assertRaises(function() {
         return new creme.notification.NotificationBox(element, {
             refreshUrl: 'mock/notifs/refresh',
-            discardUrl: 'mock/notids/all'
+            discardUrl: 'mock/notifs/all'
         });
     }, Error, 'Error: NotificationBox is already active');
 });
@@ -153,7 +153,7 @@ QUnit.test('creme.NotificationBox (initialData)', function() {
     this.withFrozenTime('2025-01-16T17:30:00', function() {
         var box = new creme.notification.NotificationBox(element, {
             refreshUrl: 'mock/notifs/refresh',
-            discardUrl: 'mock/notids/all'
+            discardUrl: 'mock/notifs/all'
         }).stopFetch();
 
         deepEqual(box.initialData(), this.defaultNotificationData());
@@ -200,7 +200,29 @@ QUnit.test('creme.NotificationBox (initialData)', function() {
     });
 });
 
-QUnit.test('creme.NotificationBox (fetch)', function() {
+QUnit.test('creme.NotificationBox (_humanizedTimeDelta)', function(assert) {
+    var element = $(this.createNotificationBoxHtml()).appendTo(this.qunitFixture());
+    var box = new creme.notification.NotificationBox(element, {
+        refreshUrl: 'mock/notifs/refresh',
+        discardUrl: 'mock/notifs/discard'
+    }).stopFetch();
+
+    equal(box._humanizedTimeDelta(0), gettext('A few moments ago'));
+    equal(box._humanizedTimeDelta(59), gettext('A few moments ago'));
+
+    equal(box._humanizedTimeDelta(60), ngettext('%d minute ago', '%d minutes ago', 1).format(1));
+    equal(box._humanizedTimeDelta(60 * 35 + 59), ngettext('%d minute ago', '%d minutes ago', 35).format(35));
+    equal(box._humanizedTimeDelta(60 * 60 - 1), ngettext('%d minute ago', '%d minutes ago', 59).format(59));
+
+    equal(box._humanizedTimeDelta(60 * 60), ngettext('More than %d hour ago', 'More than %d hours ago', 1).format(1));
+    equal(box._humanizedTimeDelta(60 * 60 * 7 + 35 * 60), ngettext('More than %d hour ago', 'More than %d hours ago', 7).format(7));
+    equal(box._humanizedTimeDelta(60 * 60 * 24 - 1), ngettext('More than %d hour ago', 'More than %d hours ago', 23).format(23));
+
+    equal(box._humanizedTimeDelta(60 * 60 * 24), ngettext('More than %d day ago', 'More than %d days ago', 1).format(1));
+    equal(box._humanizedTimeDelta(60 * 60 * 24 * 7), ngettext('More than %d day ago', 'More than %d days ago', 7).format(7));
+});
+
+QUnit.test('creme.NotificationBox (fetch)', function(assert) {
     var element = $(this.createNotificationBoxHtml()).appendTo(this.qunitFixture());
     var box = new creme.notification.NotificationBox(element, {
         refreshDelay: 150,
@@ -240,10 +262,11 @@ QUnit.test('creme.NotificationBox (fetch)', function() {
     }.bind(this), 350);
 });
 
-QUnit.test('creme.NotificationBox (fetch, update deltas)', function() {
+QUnit.test('creme.NotificationBox (fetch, update deltas calls)', function(assert) {
     var element = $(this.createNotificationBoxHtml({
         initialData: this.defaultNotificationData()
     })).appendTo(this.qunitFixture());
+
     var box = new creme.notification.NotificationBox(element, {
         deltaRefreshDelay: 150,
         refreshUrl: 'mock/notifs/refresh',
@@ -273,7 +296,65 @@ QUnit.test('creme.NotificationBox (fetch, update deltas)', function() {
     }, 450);
 });
 
-QUnit.test('creme.NotificationBox (fetch, error)', function() {
+QUnit.test('creme.NotificationBox (fetch, update deltas rendering)', function(assert) {
+    var element = $(this.createNotificationBoxHtml({
+        initialData: this.defaultNotificationData()
+    })).appendTo(this.qunitFixture());
+
+    var box;
+
+    this.withFrozenTime('2025-01-16T17:30:00', function() {
+        box = new creme.notification.NotificationBox(element, {
+            refreshUrl: 'mock/notifs/refresh',
+            discardUrl: 'mock/notifs/all'
+        }).stopFetch();
+    });
+
+    this.withFrozenTime('2025-01-16T18:00:00', function() {
+        // Fake date does not work in a timeout (I assume that it is not the same thread).
+        // So we need call the internal method.
+        box._updateDeltas();
+
+        this.equalHtml((
+            '<li class="notification-item notification-item-level1" data-id="1" data-created="${timestampA}">' +
+                '<span class="notification-channel">A</span>' +
+                '<span class="notification-subject">Subject #1</span>' +
+                '<span class="notification-created" title="${createdTitleA}">${deltaLabelA}</span>' +
+                '<div class="notification-body">Content #1</div>' +
+                '<button type="button" class="discard-notification">${discardLabel}</button>' +
+            '</li>' +
+            '<li class="notification-item notification-item-level2" data-id="2" data-created="${timestampB}">' +
+                '<span class="notification-channel">A</span>' +
+                '<span class="notification-subject">Subject #2</span>' +
+                '<span class="notification-created" title="${createdTitleB}">${deltaLabelB}</span>' +
+                '<div class="notification-body">Content #2</div>' +
+                '<button type="button" class="discard-notification">${discardLabel}</button>' +
+            '</li>' +
+            '<li class="notification-item notification-item-level2" data-id="3" data-created="${timestampC}">' +
+                '<span class="notification-channel">B</span>' +
+                '<span class="notification-subject">Subject #3</span>' +
+                '<span class="notification-created" title="${createdTitleC}">${deltaLabelC}</span>' +
+                '<div class="notification-body">Content #3</div>' +
+                '<button type="button" class="discard-notification">${discardLabel}</button>' +
+            '</li>'
+        ).template({
+            discardLabel: gettext('Validate'),
+            timestampA: Date.parse('2025-01-15T16:30:00'),
+            timestampB: Date.parse('2025-01-16T08:35:00'),
+            timestampC: Date.parse('2025-01-16T17:12:00'),
+            createdTitleA: new Date('2025-01-15T16:30:00').toLocaleString(),
+            createdTitleB: new Date('2025-01-16T08:35:00').toLocaleString(),
+            createdTitleC: new Date('2025-01-16T17:12:00').toLocaleString(),
+            deltaLabelA: ngettext('More than %d day ago', 'More than %d days ago', 1).format(1),
+            // 30 minutes later : 18h - 8h35 = More than 9 hours ago
+            deltaLabelB: ngettext('More than %d hour ago', 'More than %d hours ago', 9).format(9),
+            // 30 minutes later : 18h - 17h12 = More than 48 minutes ago
+            deltaLabelC: ngettext('%d minute ago', '%d minutes ago', 48).format(48)
+        }), element.find('.notification-items'));
+    }.bind(this));
+});
+
+QUnit.test('creme.NotificationBox (fetch, error)', function(assert) {
     var element = $(this.createNotificationBoxHtml({
         initialData: this.defaultNotificationData()
     })).appendTo(this.qunitFixture());
