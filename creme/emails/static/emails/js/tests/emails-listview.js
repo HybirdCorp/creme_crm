@@ -148,4 +148,84 @@ QUnit.test('creme.emails.ResendEMailsAction (ok)', function(assert) {
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
+QUnit.test('creme.emails.listview.actions (email-resend)', function(assert) {
+    var list = this.createDefaultListView().controller();
+    var registry = list.actionBuilders();
+
+    var builder = registry.get('email-resend');
+
+    assert.ok(Object.isFunc(builder));
+    var action = builder('mock/emails/resend', {
+        selection: ['3']
+    }).on(this.listviewActionListeners);
+
+    this.setListviewSelection(list, ['1', '2']);
+
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['1', '2'], list.selectedRows());
+
+    this.assertClosedDialog();
+
+    action.start();
+
+    this.assertOpenedDialog();
+    this.acceptConfirmDialog();
+
+    assert.deepEqual([
+        ['POST', {ids: '1,2,3'}]
+    ], this.mockBackendUrlCalls('mock/emails/resend'));
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([
+        ['POST', {
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
+            content: 1,
+            rows: ['10'],
+            selected_rows: ['1,2'],
+            q_filter: ['{}'],
+            ct_id: ['67'],
+            selection: ['multiple']}]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+QUnit.test('creme.emails.listview.actions (email-resend-selection)', function(assert) {
+    var list = this.createDefaultListView().controller();
+    var registry = list.actionBuilders();
+
+    var builder = registry.get('email-resend-selection');
+
+    assert.ok(Object.isFunc(builder));
+    var action = builder(
+        'mock/emails/resend'
+    ).on(this.listviewActionListeners);
+
+    this.setListviewSelection(list, ['1', '2', '3']);
+
+    assert.equal(3, list.selectedRowsCount());
+    assert.deepEqual(['1', '2', '3'], list.selectedRows());
+
+    this.assertClosedDialog();
+
+    action.start();
+
+    this.assertOpenedDialog();
+    this.acceptConfirmDialog();
+
+    assert.deepEqual([
+        ['POST', {ids: '1,2,3'}]
+    ], this.mockBackendUrlCalls('mock/emails/resend'));
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual([
+        ['POST', {
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
+            content: 1,
+            rows: ['10'],
+            selected_rows: ['1,2,3'],
+            q_filter: ['{}'],
+            ct_id: ['67'],
+            selection: ['multiple']}]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
 }(jQuery));
