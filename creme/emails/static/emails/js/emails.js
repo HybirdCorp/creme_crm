@@ -297,7 +297,7 @@ creme.emails.ResendEMailsAction = creme.component.Action.sub({
         var selection = list.selectedRows();
 
         if (Array.isArray(options.selection)) {
-            selection = selection.concat(options.selection);
+            selection = _.unique(selection.concat(options.selection));
         }
 
         if (selection.length < 1) {
