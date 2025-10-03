@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-18 20:16+0200\n"
+"POT-Creation-Date: 2025-10-02 14:52+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -131,6 +131,9 @@ msgstr "Voulez-vous vraiment cloner cette fiche ?"
 
 msgid "Chose the type of entity to create"
 msgstr "Choisir le type de fiche à créer"
+
+msgid "A few moments ago"
+msgstr "Il y a quelques instants"
 
 #, javascript-format
 msgid "%d minute ago"

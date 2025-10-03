@@ -1,3 +1,21 @@
+== Version 2.7.1 ==
+
+  Users side :
+  ------------
+    # In merge view, the left & right value could not be applied with the image selector.
+    # The display of time delta in notification panel has been fixed.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # TinyMCE did not work in popups: the textarea was not synced on submit.
+        # Apps :
+            * Mobile :
+                - The script 'populate' is easier to modify.
+
+
 == Version 2.7 ==
 
   UPGRADE NOTES :

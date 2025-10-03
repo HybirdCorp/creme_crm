@@ -37,10 +37,12 @@ class DocumentsConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Document, self.Folder)
 
-    def register_actions(self, actions_registry):
+    # def register_actions(self, actions_registry):
+    def register_actions(self, action_registry):
         from . import actions
 
-        actions_registry.register_instance_actions(
+        # actions_registry.register_instance_actions(
+        action_registry.register_instance_actions(
             actions.ExploreFolderAction,
             actions.DownloadAction,
         )
