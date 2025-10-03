@@ -276,6 +276,8 @@ QUnit.test('creme.forms.validateHtml5Form (no error)', function(assert) {
     var lastname = this.form.find('[name="lastname"]').on('html5-invalid', this.mockListener('lastname-invalid'));
     var email = this.form.find('[name="email"]').on('html5-invalid', this.mockListener('email-invalid'));
 
+    this.form.on('html5-pre-validate', 'input', this.mockListener('pre-validate'));
+
     lastname.val('Doe');
     email.val('john.doe@unknown.com');
 
@@ -291,7 +293,13 @@ QUnit.test('creme.forms.validateHtml5Form (no error)', function(assert) {
     deepEqual({
         'firstname-invalid': [['html5-invalid', [false]]],
         'lastname-invalid': [['html5-invalid', [false]]],
-        'email-invalid': [['html5-invalid', [false]]]
+        'email-invalid': [['html5-invalid', [false]]],
+        'pre-validate': [
+            ['html5-pre-validate', [{}]],
+            ['html5-pre-validate', [{}]],
+            ['html5-pre-validate', [{}]]
+            // ignore input[type="submit"] field
+        ]
     }, this.mockListenerJQueryCalls());
 });
 

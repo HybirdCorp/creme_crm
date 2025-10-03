@@ -1,3 +1,17 @@
+== Version 2.6.13 ==
+
+  Users side :
+  ------------
+    # In merge view, the left & right value could not be applied with the image selector.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # TinyMCE did not work in popups: the textarea was not synced on submit.
+
+
 == Version 2.6.12 ==
 
   Users side :
