@@ -1,4 +1,4 @@
-== Version 2.6.13 Work in progress (not released -- this is a draft) ==
+== Version 2.6.13 ==
 
   Users side :
   ------------
