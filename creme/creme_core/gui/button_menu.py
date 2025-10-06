@@ -73,8 +73,8 @@ class Button:
 
     # Permission string(s) ; an empty value means no permission is needed.
     # Example: <'myapp.add_mymodel'>
-    # BEWARE: you have to use the template context variable "button.is_allowed"
-    #         (computed from 'permissions' -- see 'is_allowed()' ) yourself !!
+    # BEWARE: you have to use the template context variable "button.permission_error"
+    #         (computed from 'permissions' -- see 'check_permissions()' ) yourself.
     permissions: str | Sequence[str] = ''
 
     def __eq__(self, other):

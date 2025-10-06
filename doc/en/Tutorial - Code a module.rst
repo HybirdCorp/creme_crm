@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 03/10/2025 for Creme 2.8
+:Version: 06/10/2025 for Creme 2.8
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1530,7 +1530,7 @@ Now we add the corresponding template,
     {% block brick_table_rows %}
         <tr>
             <td>
-                <h1 class="beavers-birthday beavers-birthday-label">{% trans 'Birthday' %}</h1>
+                <h1 class="beavers-birthday beavers-birthday-label">{% translate 'Birthday' %}</h1>
             </td>
             <td data-type="date">
                 <h1 class="beavers-birthday beavers-birthday-value">{{object.birthday}}</h1>
@@ -1538,7 +1538,7 @@ Now we add the corresponding template,
         </tr>
         <tr>
             <td>
-                <h1 class="beavers-age beavers-age-label">{% trans 'Age' %}</h1>
+                <h1 class="beavers-age beavers-age-label">{% translate 'Age' %}</h1>
             </td>
             <td>
                 <h1 class="beavers-age beavers-age-value">
@@ -1705,19 +1705,19 @@ Now we write the related template,
 ``beavers/templates/beavers/buttons/ticket.html``: ::
 
     {% load i18n creme_widgets %}
-    {% if button.is_allowed %}
+    {% if button.permission_error %}
+        <span class="menu_button menu-button-icon forbidden" title="{{button.permission_error}}">
+            {% widget_icon name='ticket' size='instance-button' label=_('Linked ticket') %}
+            {% translate 'Notify a veterinary' %}
+        </span>
+    {% else %}
         <a class="menu_button menu-button-icon" href="{% url 'beavers__create_ticket' object.id %}">
             {% widget_icon name='ticket' size='instance-button' label=_('Linked ticket') %}
-            {% trans 'Notify a veterinary' %}
+            {% translate 'Notify a veterinary' %}
         </a>
-    {% else %}
-        <span class="menu_button menu-button-icon forbidden" title="{% trans 'forbidden' %}">
-            {% widget_icon name='ticket' size='instance-button' label=_('Linked ticket') %}
-            {% trans 'Notify a veterinary' %}
-        </span>
     {% endif %}
 
-The variable ``button.is_allowed`` is filled thanks to the attribute ``permission``
+The variable ``button.permission_error`` is filled thanks to the attribute ``permissions``
 of our button ; we display an inactive button if the user is not allowed to use
 the view. Notice that the tag ``<a>`` references a URL which is not associated
 to a view (yet).
