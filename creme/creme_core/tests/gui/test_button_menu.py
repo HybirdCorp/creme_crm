@@ -24,29 +24,26 @@ class ButtonMenuTestCase(CremeTestCase):
 
         button = TestButton()
         self.assertIs(button.ok_4_display(entity=c), True)
-        # TODO: uncomment when 'is_allowed' is removed
-        # self.assertDictEqual(
-        #     {
-        #         'description': '',
-        #         'is_allowed': True,
-        #         'template_name': 'creme_core/buttons/place-holder.html',
-        #         'verbose_name': 'BUTTON',
-        #     },
-        #     button.get_context(entity=c, request=request),
-        # )
-
-        ctxt = button.get_context(entity=c, request=request)
-        self.assertIsDict(ctxt, length=4)
-        self.assertEqual('',                                     ctxt.get('description'))
-        self.assertEqual('creme_core/buttons/place-holder.html', ctxt.get('template_name'))
-        self.assertEqual('BUTTON',                               ctxt.get('verbose_name'))
-
-        is_allowed_func = ctxt.get('is_allowed')
-        self.assertTrue(callable(is_allowed_func))
-
-        with self.assertLogs(level='CRITICAL'):
-            is_allowed = is_allowed_func()
-        self.assertIs(is_allowed, True)
+        # ctxt = button.get_context(entity=c, request=request)
+        # self.assertIsDict(ctxt, length=4)
+        # self.assertEqual('',                                     ctxt.get('description'))
+        # self.assertEqual('creme_core/buttons/place-holder.html', ctxt.get('template_name'))
+        # self.assertEqual('BUTTON',                               ctxt.get('verbose_name'))
+        #
+        # is_allowed_func = ctxt.get('is_allowed')
+        # self.assertTrue(callable(is_allowed_func))
+        #
+        # with self.assertLogs(level='CRITICAL'):
+        #     is_allowed = is_allowed_func()
+        # self.assertIs(is_allowed, True)
+        self.assertDictEqual(
+            {
+                'description': '',
+                'template_name': 'creme_core/buttons/place-holder.html',
+                'verbose_name': 'BUTTON',
+            },
+            button.get_context(entity=c, request=request),
+        )
 
     def test_button__permissions(self):
         role = self.create_role(name='Role#1', allowed_apps=['documents', 'persons'])
@@ -78,36 +75,36 @@ class ButtonMenuTestCase(CremeTestCase):
         c = FakeContact(first_name='Casca', last_name='Mylove')
 
         request = FakeRequest(user=user)
-        button1 = TestButton01()
-        # TODO: uncomment when 'is_allowed' is removed
-        # self.assertDictEqual(
-        #     {
-        #         'description': TestButton01.description,
-        #         'is_allowed': False,
-        #         'template_name': TestButton01.template_name,
-        #         'verbose_name': TestButton01.verbose_name,
-        #     },
-        #     button1.get_context(entity=c, request=request),
-        # )
-        ctxt = button1.get_context(entity=c, request=request)
         msg = _('You are not allowed to access to the app: {}').format(_('Core'))
+        button1 = TestButton01()
 
-        with self.assertRaises(PermissionDenied) as cm1:
-            button1.check_permissions(entity=c, request=request)
-        self.assertEqual(msg, str(cm1.exception))
-
-        self.assertIsDict(ctxt, length=5)
-        self.assertEqual(TestButton01.description,   ctxt.get('description'))
-        self.assertEqual(TestButton01.template_name, ctxt.get('template_name'))
-        self.assertEqual(TestButton01.verbose_name,  ctxt.get('verbose_name'))
-        self.assertEqual(msg,                        ctxt.get('permission_error'))
-
-        is_allowed_func = ctxt.get('is_allowed')
-        self.assertTrue(callable(is_allowed_func))
-
-        with self.assertLogs(level='CRITICAL'):
-            is_allowed = is_allowed_func()
-        self.assertIs(is_allowed, False)
+        # ctxt = button1.get_context(entity=c, request=request)
+        #
+        # with self.assertRaises(PermissionDenied) as cm1:
+        #     button1.check_permissions(entity=c, request=request)
+        # self.assertEqual(msg, str(cm1.exception))
+        #
+        # self.assertIsDict(ctxt, length=5)
+        # self.assertEqual(TestButton01.description,   ctxt.get('description'))
+        # self.assertEqual(TestButton01.template_name, ctxt.get('template_name'))
+        # self.assertEqual(TestButton01.verbose_name,  ctxt.get('verbose_name'))
+        # self.assertEqual(msg,                        ctxt.get('permission_error'))
+        #
+        # is_allowed_func = ctxt.get('is_allowed')
+        # self.assertTrue(callable(is_allowed_func))
+        #
+        # with self.assertLogs(level='CRITICAL'):
+        #     is_allowed = is_allowed_func()
+        # self.assertIs(is_allowed, False)
+        self.assertDictEqual(
+            {
+                'description': TestButton01.description,
+                'template_name': TestButton01.template_name,
+                'verbose_name': TestButton01.verbose_name,
+                'permission_error': msg,
+            },
+            button1.get_context(entity=c, request=request),
+        )
 
         with self.assertNoException():
             TestButton02().check_permissions(entity=c, request=request)
