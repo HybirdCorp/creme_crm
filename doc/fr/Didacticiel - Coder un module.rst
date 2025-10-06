@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 04-09-2025 pour la version 2.7 de Creme
+:Version: 06-10-2025 pour la version 2.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1558,7 +1558,7 @@ On crée ensuite le *template* correspondant,
     {% block brick_table_rows %}
         <tr>
             <td>
-                <h1 class="beavers-birthday beavers-birthday-label">{% trans 'Birthday' %}</h1>
+                <h1 class="beavers-birthday beavers-birthday-label">{% translate 'Birthday' %}</h1>
             </td>
             <td data-type="date">
                 <h1 class="beavers-birthday beavers-birthday-value">{{object.birthday}}</h1>
@@ -1566,7 +1566,7 @@ On crée ensuite le *template* correspondant,
         </tr>
         <tr>
             <td>
-                <h1 class="beavers-age beavers-age-label">{% trans 'Age' %}</h1>
+                <h1 class="beavers-age beavers-age-label">{% translate 'Age' %}</h1>
             </td>
             <td>
                 <h1 class="beavers-age beavers-age-value">
@@ -1737,19 +1737,19 @@ Maintenant au tour du fichier *template* associé,
 ``beavers/templates/beavers/buttons/ticket.html``: ::
 
     {% load i18n creme_widgets %}
-    {% if button.is_allowed %}
+    {% if button.permission_error %}
+        <span class="menu_button menu-button-icon forbidden" title="{{button.permission_error}}">
+            {% widget_icon name='ticket' size='instance-button' label=_('Linked ticket') %}
+            {% translate 'Notify a veterinary' %}
+        </span>
+    {% else %}
         <a class="menu_button menu-button-icon" href="{% url 'beavers__create_ticket' object.id %}">
             {% widget_icon name='ticket' size='instance-button' label=_('Linked ticket') %}
-            {% trans 'Notify a veterinary' %}
+            {% translate 'Notify a veterinary' %}
         </a>
-    {% else %}
-        <span class="menu_button menu-button-icon forbidden" title="{% trans 'forbidden' %}">
-            {% widget_icon name='ticket' size='instance-button' label=_('Linked ticket') %}
-            {% trans 'Notify a veterinary' %}
-        </span>
     {% endif %}
 
-La variable ``button.is_allowed`` est renseignée grâce à l'attribut ``permission``
+La variable ``button.permission_error`` est renseignée grâce à l'attribut ``permissions``
 de notre bouton ; nous en faisons usage pour n'afficher qu'un bouton inactif si
 l'utilisateur n'a pas les droits suffisants. Notez que la balise ``<a>`` fait
 référence à une URL à laquelle nous n'avons pas (encore) associé de vue.
