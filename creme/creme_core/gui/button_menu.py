@@ -94,18 +94,18 @@ class Button:
 
     def get_context(self, *, entity: CremeEntity, request) -> dict:
         """Context used by the template system to render the button."""
-        is_allowed = True
-
-        def _get_is_allowed():  # TODO: to be removed in creme2.8
-            logger.critical(
-                'The template "%s" for the button <%s> is using the variable '
-                '"button.is_allowed"; use "button.permission_error" instead.',
-                self.template_name, type(self).__name__,
-            )
-            return is_allowed
+        # is_allowed = True
+        #
+        # def _get_is_allowed():
+        #     logger.critical(
+        #         'The template "%s" for the button <%s> is using the variable '
+        #         '"button.is_allowed"; use "button.permission_error" instead.',
+        #         self.template_name, type(self).__name__,
+        #     )
+        #     return is_allowed
 
         ctxt = {
-            'is_allowed': _get_is_allowed,
+            # 'is_allowed': _get_is_allowed,
 
             # 'id': self.id, # TODO?
             'verbose_name': self.verbose_name,
@@ -117,7 +117,7 @@ class Button:
             self.check_permissions(entity=entity, request=request)
         except (PermissionDenied, ConflictError) as e:
             ctxt['permission_error'] = str(e)
-            is_allowed = False
+            # is_allowed = False
 
         return ctxt
 
@@ -180,15 +180,14 @@ class ButtonRegistry:
                     f"Duplicated button's ID (or button registered twice): {button_id}"
                 )
 
-            # TODO: to be removed in creme2.8
-            if hasattr(button_cls, 'is_allowed'):
-                logger.critical(
-                    'The button class %s still defines a method "is_allowed()"; '
-                    'define the new method "check_permissions()" instead, '
-                    'and update the related template to use the variable '
-                    '"button.permission_error" instead of "button.is_allowed".',
-                    button_cls,
-                )
+            # if hasattr(button_cls, 'is_allowed'):
+            #     logger.critical(
+            #         'The button class %s still defines a method "is_allowed()"; '
+            #         'define the new method "check_permissions()" instead, '
+            #         'and update the related template to use the variable '
+            #         '"button.permission_error" instead of "button.is_allowed".',
+            #         button_cls,
+            #     )
 
         return self
 
