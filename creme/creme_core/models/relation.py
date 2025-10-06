@@ -785,6 +785,10 @@ class RelationType(CremeModel):
         'self', blank=True, null=True, on_delete=models.CASCADE,
     )
 
+    # Can be used by third party code to store the data they want,
+    # without having to modify the code.
+    extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
+
     objects = RelationTypeManager()
 
     creation_label = _('Create a type of relationship')
