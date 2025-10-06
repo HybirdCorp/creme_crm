@@ -33,6 +33,8 @@
           ForeignKey/ManyToManyField to the model) should have a method 'portable_key()',
           & their default manager should have a method 'get_by_portable_key()'.
           See the doc-string of 'CremeEntity.portable_key()' for more details.
+        # In 'creme_core.models', the models 'CremePropertyType' & 'RelationType'
+          get a JSON field "extra_data" which can be used by third party code.
         # App :
             * Activities :
                 - The model 'Calendar' got an 'uuid' field.
