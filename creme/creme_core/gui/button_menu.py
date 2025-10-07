@@ -130,10 +130,16 @@ class Button:
         """
         return ()
 
-    # TODO: pass 'request' too ? (see Restrict2SuperusersButton)
-    def ok_4_display(self, entity: CremeEntity) -> bool:
+    # def ok_4_display(self, entity: CremeEntity) -> bool:
+    #     """Can this button be displayed on this entity's detail-view?
+    #     @param entity: CremeEntity which detail-view is displayed.
+    #     @return True if the button can be displayed for 'entity'.
+    #     """
+    #     return True
+    def is_displayed(self, *, entity: CremeEntity, request) -> bool:
         """Can this button be displayed on this entity's detail-view?
         @param entity: CremeEntity which detail-view is displayed.
+        @param request: The current HttpRequest.
         @return True if the button can be displayed for 'entity'.
         """
         return True
@@ -189,6 +195,14 @@ class ButtonRegistry:
             #         button_cls,
             #     )
 
+            # TODO: remove in creme 3.0
+            if hasattr(button_cls, 'ok_4_display'):
+                logger.critical(
+                    'The button class %s still defines a method "ok_4_display()"; '
+                    'define the new method "is_displayed()" instead.',
+                    button_cls,
+                )
+
         return self
 
     def register_mandatory(self,
@@ -213,6 +227,14 @@ class ButtonRegistry:
         if not button_id:
             raise self.RegistrationError(
                 f'Button class with empty ID: {button_class}'
+            )
+
+        # TODO: remove in creme 3.0
+        if hasattr(button_class, 'ok_4_display'):
+            logger.critical(
+                'The button class %s still defines a method "ok_4_display()"; '
+                'define the new method "is_displayed()" instead.',
+                button_class,
             )
 
         classes = self._mandatory_classes
@@ -281,19 +303,26 @@ class ButtonRegistry:
     # def get_mandatory_button(self, button_id: str, model: type[CremeEntity]):
     #     pass
 
-    def get_buttons(self, id_list: Iterable[str], entity: CremeEntity) -> Iterator[Button]:
+    # def get_buttons(self, id_list: Iterable[str], entity: CremeEntity) -> Iterator[Button]:
+    def get_buttons(self, *,
+                    button_ids: Iterable[str],
+                    entity: CremeEntity,
+                    request,
+                    ) -> Iterator[Button]:
         """Generate the Buttons to be displayed on the detail-view of an entity.
         Deprecated buttons & buttons that should not be displayed for this entity
         are ignored.
-        @param id_list: Sequence of button IDs.
+        @param button_ids: IDs of Buttons we want to build.
         @param entity: CremeEntity instance.
+        @param request: Current HttpRequest.
         @yield creme_core.gui.button_menu.Button instances.
         """
         button_classes = self._button_classes
         mandatory_classes = self._mandatory_classes
         model = type(entity)
 
-        for button_id in id_list:
+        # for button_id in id_list:
+        for button_id in button_ids:
             button_cls = button_classes.get(button_id)
 
             if button_cls is None:
@@ -319,10 +348,12 @@ class ButtonRegistry:
                 )
                 continue
 
-            if button.ok_4_display(entity):
+            # if button.ok_4_display(entity):
+            if button.is_displayed(entity=entity, request=request):
                 yield button
 
-    def mandatory_buttons(self, entity: CremeEntity) -> Iterator[Button]:
+    # def mandatory_buttons(self, entity: CremeEntity) -> Iterator[Button]:
+    def mandatory_buttons(self, *, entity: CremeEntity, request) -> Iterator[Button]:
         """Get instances of all mandatory classes corresponding to an entity
         (based of its model).
         Instances are ordered by their priority (see <register_mandatory()>).
@@ -339,7 +370,8 @@ class ButtonRegistry:
         while heap:
             button = heappop(heap)[1]()
 
-            if button.ok_4_display(entity=entity):
+            # if button.ok_4_display(entity=entity):
+            if button.is_displayed(entity=entity, request=request):
                 yield button
 
 

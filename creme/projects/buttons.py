@@ -37,5 +37,6 @@ class CloseProjectButton(Button):
     def get_ctypes(self):
         return (Project,)
 
-    def ok_4_display(self, entity):
+    # def ok_4_display(self, entity):
+    def is_displayed(self, *, entity, request):
         return not entity.is_closed

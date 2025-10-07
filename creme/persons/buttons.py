@@ -48,7 +48,8 @@ class CrmButton(Button):
 
         return context
 
-    def ok_4_display(self, entity):
+    # def ok_4_display(self, entity):
+    def is_displayed(self, *, entity, request):
         # TODO: only one query ??
         already_linked_pk = Relation.objects.filter(
             type=self.relation_type_deps[0],
@@ -161,7 +162,8 @@ class TransformIntoUserButton(Button):
     template_name = 'persons/buttons/contact-as-user.html'
     permissions = auth.SUPERUSER_PERM
 
-    def ok_4_display(self, entity):
+    # def ok_4_display(self, entity):
+    def is_displayed(self, *, entity, request):
         return entity.is_user_id is None
 
     def get_ctypes(self):

@@ -1,5 +1,4 @@
 {% load i18n creme_widgets %}{% load blockjsondata from creme_core_tags %}
-{% if user.is_superuser %}
 {% if button.sandbox_uuid is None %}
 <a class="menu_button menu-button-icon" title="{{button.description}}" data-action="update" href="{% url 'creme_core__restrict_entity_2_superusers' %}">
     {% widget_icon name='security' size='instance-button' label=_('Confidentiality') %}
@@ -31,4 +30,4 @@
     {% widget_icon name='security' size='instance-button' label=_('Confidentiality') %}
     {% translate 'Restrict to superusers' %}
 </span>
-{% endif %}{% endif %}
+{% endif %}

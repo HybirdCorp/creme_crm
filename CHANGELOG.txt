@@ -120,10 +120,11 @@
                     - The constant 'SETTING_CRUDITY_SANDBOX_BY_USER' has been removed.
         # In the class 'creme_core.bricks.StatisticsBrick', te attribute
           'statistics_registry' has been renamed "statistic_registry".
-        # In the class 'creme_core.forms.fields.EntityCredsJSONField', the attribute
-          'quickforms_registry' has been renamed "quickform_registry".
         # In the class 'creme_core.core.entity_cell.EntityCellActions' the constructor argument
           'actions_registry' has been renamed "action_registry".
+        # In the class 'creme_core.forms.fields.EntityCredsJSONField', the attribute
+          'quickforms_registry' has been renamed "quickform_registry".
+        # The method 'creme_core.gui.button_menu.Button.ok_4_display()' has been replaced by the method 'is_displayed()'.
         # In 'creme_core.views' :
             - In the class 'generic.listview.EntitiesList':
                 - the attribute 'actions_registry' has been renamed "action_registry".
@@ -150,6 +151,15 @@
                - The module 'views.convert' has been renamed "conversion".
             * Commercial :
                 - The methods 'populate.Populator._populate_header_filters_for_*()' have been removed.
+
+    Internal breaking changes :
+    ---------------------------
+    (they should not cause problem if you have not deeply modified the source code of Creme)
+
+        # In the class 'creme_core.gui.button_menu.ButtonRegistry', the methods
+          'get_buttons()' & 'mandatory_buttons()' get keywords arguments only now,
+          an get a new mandatory argument "request".
+        # The method 'creme_core.bricks.ButtonsBrick._get_buttons()' get a new mandatory argument "request".
 
 
 == Version 2.7 ==

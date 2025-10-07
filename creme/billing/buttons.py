@@ -67,7 +67,8 @@ class GenerateNumberButton(Button):
             user=request.user, entity=entity,
         )
 
-    def ok_4_display(self, entity):
+    # def ok_4_display(self, entity):
+    def is_displayed(self, *, entity, request):
         return not entity.generate_number_in_create
 
 

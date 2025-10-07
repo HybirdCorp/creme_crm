@@ -30,11 +30,10 @@ from .creme_jobs.base import JobType
 from .gui import button_menu, statistics
 from .gui.bricks import Brick, BrickManager, QuerysetBrick
 from .gui.history import html_history_registry
-from .models import (
+from .models import (  # CremeUser
     ButtonMenuItem,
     CremeEntity,
     CremeProperty,
-    CremeUser,
     CustomField,
     EntityJobResult,
     Imprint,
@@ -60,13 +59,17 @@ class ButtonsBrick(Brick):
 
     button_registry = button_menu.button_registry
 
-    def _get_buttons(self, entity: CremeEntity, user: CremeUser) -> dict[str, button_menu.Button]:
+    # def _get_buttons(self, entity: CremeEntity, user: CremeUser) -> dict[str, Button]:
+    def _get_buttons(self, entity: CremeEntity, request) -> dict[str, button_menu.Button]:
         registry = self.button_registry
         # NB1: remember that dicts keep the order of insertion
         # NB2: we insert mandatory buttons at the beginning
         buttons = {
-            button.id: button for button in registry.mandatory_buttons(entity=entity)
+            # button.id: button for button in registry.mandatory_buttons(entity=entity)
+            button.id: button
+            for button in registry.mandatory_buttons(entity=entity, request=request)
         }
+        user = request.user
 
         if user.is_superuser:
             role_q = Q(superuser=True)
@@ -86,8 +89,12 @@ class ButtonsBrick(Brick):
         role_items = [*filter(role_predicate, items)]
 
         for button in registry.get_buttons(
-            id_list=[item.button_id for item in (role_items or items) if item.button_id],
+            # id_list=[item.button_id for item in (role_items or items) if item.button_id],
+            button_ids=[
+                item.button_id for item in (role_items or items) if item.button_id
+            ],
             entity=entity,
+            request=request,
         ):
             buttons[button.id] = button
 
@@ -112,10 +119,10 @@ class ButtonsBrick(Brick):
 
     def detailview_display(self, context):
         entity = context['object']
-        buttons = self._get_buttons(entity=entity, user=context['user'])
-        self._set_dependencies(buttons=buttons, model=type(entity))
-
         request = context['request']
+        # buttons = self._get_buttons(entity=entity, user=context['user'])
+        buttons = self._get_buttons(entity=entity, request=request)
+        self._set_dependencies(buttons=buttons, model=type(entity))
 
         return self._render(self.get_template_context(
             context,

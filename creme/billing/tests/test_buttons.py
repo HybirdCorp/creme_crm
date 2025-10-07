@@ -34,7 +34,8 @@ class ButtonsTestCase(_BillingTestCase):
         invoice = Invoice.objects.create(
             user=user, name='Invoice001', source=emitter, target=receiver,
         )
-        self.assertTrue(button.ok_4_display(invoice))
+        # self.assertTrue(button.ok_4_display(invoice))
+        self.assertTrue(button.is_displayed(entity=invoice, request=request))
 
         ctxt1 = button.get_context(entity=invoice, request=request)
         self.assertEqual(
@@ -44,7 +45,8 @@ class ButtonsTestCase(_BillingTestCase):
 
         # ---
         quote = Quote(user=user)
-        self.assertFalse(button.ok_4_display(quote))
+        # self.assertFalse(button.ok_4_display(quote))
+        self.assertFalse(button.is_displayed(entity=quote, request=request))
 
     def test_generate_number__emitter_is_managed(self):
         button = buttons.GenerateNumberButton()
@@ -86,7 +88,8 @@ class ButtonsTestCase(_BillingTestCase):
         request1 = self.build_request(user=user1)
 
         orga = Organisation.objects.create(user=self.get_root_user(), name='Acme')
-        self.assertTrue(button.ok_4_display(orga))
+        # self.assertTrue(button.ok_4_display(orga))
+        self.assertTrue(button.is_displayed(entity=orga, request=request1))
 
         ctxt = button.get_context(entity=orga, request=request1)
         self.assertEqual('billing__create_related_invoice', ctxt.get('url_name'))

@@ -25,7 +25,9 @@ class ButtonsTestCase(CremeTestCase):
         orga = Organisation.objects.create(user=user, name='Acme')
 
         button = button_class()
-        self.assertTrue(button.ok_4_display(orga))
+        # self.assertTrue(button.ok_4_display(orga))
+        request = self.build_request(user=user)
+        self.assertTrue(button.is_displayed(entity=orga, request=request))
 
         # Already linked
         Relation.objects.create(
@@ -34,7 +36,8 @@ class ButtonsTestCase(CremeTestCase):
             type_id=button.relation_type_deps[0],
             object_entity=managed_orga,
         )
-        self.assertFalse(button.ok_4_display(orga))
+        # self.assertFalse(button.ok_4_display(orga))
+        self.assertFalse(button.is_displayed(entity=orga, request=request))
 
     def test_become_error(self):
         "Cannot link a managed organisation with itself."
@@ -42,4 +45,7 @@ class ButtonsTestCase(CremeTestCase):
             Organisation.objects.filter_managed_by_creme().all()
         )
         button = buttons.BecomeCustomerButton()
-        self.assertFalse(button.ok_4_display(managed_orga))
+        # self.assertFalse(button.ok_4_display(managed_orga))
+        self.assertFalse(button.is_displayed(
+            entity=managed_orga, request=self.build_request(user=self.get_root_user())),
+        )

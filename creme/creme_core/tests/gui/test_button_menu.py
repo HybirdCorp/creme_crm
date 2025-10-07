@@ -23,7 +23,9 @@ class ButtonMenuTestCase(CremeTestCase):
         request = FakeRequest(user=user)
 
         button = TestButton()
-        self.assertIs(button.ok_4_display(entity=c), True)
+        # self.assertIs(button.ok_4_display(entity=c), True)
+        self.assertIs(button.is_displayed(entity=c, request=request), True)
+
         # ctxt = button.get_context(entity=c, request=request)
         # self.assertIsDict(ctxt, length=4)
         # self.assertEqual('',                                     ctxt.get('description'))
@@ -123,7 +125,8 @@ class ButtonMenuTestCase(CremeTestCase):
         class TestButton2(Button):
             id = Button.generate_id('creme_core', 'test_button_registry_2')
 
-            def ok_4_display(self, entity):
+            # def ok_4_display(self, entity):
+            def is_displayed(this, *, entity, request):
                 return False
 
         class TestButton3(Button):
@@ -133,7 +136,9 @@ class ButtonMenuTestCase(CremeTestCase):
             id = Button.generate_id('creme_core', 'test_button_registry_4')
 
         registry = ButtonRegistry()
-        registry.register(TestButton1, TestButton2, TestButton3, TestButton4)
+
+        with self.assertNoLogs():
+            registry.register(TestButton1, TestButton2, TestButton3, TestButton4)
 
         class DuplicatedTestButton(Button):
             id = TestButton1.id
@@ -148,14 +153,24 @@ class ButtonMenuTestCase(CremeTestCase):
 
         c = FakeContact(first_name='Casca', last_name='Mylove')
         buttons = [
+            # *registry.get_buttons(
+            #     [
+            #         TestButton3.id,
+            #         TestButton2.id,  # No because ok_4_display() returns False
+            #         'test_button_registry_invalid',
+            #         TestButton1.id,
+            #     ],
+            #     entity=c,
+            # ),
             *registry.get_buttons(
-                [
+                button_ids=[
                     TestButton3.id,
                     TestButton2.id,  # No because ok_4_display() returns False
                     'test_button_registry_invalid',
                     TestButton1.id,
                 ],
                 entity=c,
+                request=self.build_request(user=self.get_root_user()),
             ),
         ]
         self.assertIsList(buttons, length=2)
@@ -168,6 +183,16 @@ class ButtonMenuTestCase(CremeTestCase):
         button_item = all_button_items[0]
         self.assertIsInstance(button_item[1], Button)
         self.assertEqual(button_item[0], button_item[1].id)
+
+        # ---
+        class ProblematicTestButton(Button):
+            id = Button.generate_id('creme_core', 'test_problematic')
+
+            def ok_4_display(self, entity):
+                return False
+
+        with self.assertLogs(level='CRITICAL'):
+            registry.register(ProblematicTestButton)
 
     def test_registry__duplicated_id(self):
         class TestButton1(Button):
@@ -312,13 +337,22 @@ class ButtonMenuTestCase(CremeTestCase):
 
         with self.assertLogs(level='WARNING') as logs_manager:
             buttons = [
+                # *registry.get_buttons(
+                #     [
+                #         TestButton3.id,  # No because ctype is not allowed
+                #         TestButton2.id,
+                #         TestButton1.id,
+                #     ],
+                #     entity=c,
+                # ),
                 *registry.get_buttons(
-                    [
+                    button_ids=[
                         TestButton3.id,  # No because ctype is not allowed
                         TestButton2.id,
                         TestButton1.id,
                     ],
                     entity=c,
+                    request=self.build_request(user=user),
                 ),
             ]
 
@@ -404,13 +438,16 @@ class ButtonMenuTestCase(CremeTestCase):
             for button_cls, button in zip(expected_classes, buttons):
                 self.assertIsInstance(button, button_cls)
 
+        request = self.build_request(user=self.get_root_user())
         assertButtonsEqual(
             [TestButton1, TestButton2, TestButton3],
-            [*registry.mandatory_buttons(entity=FakeContact())],
+            # [*registry.mandatory_buttons(entity=FakeContact())],
+            [*registry.mandatory_buttons(entity=FakeContact(), request=request)],
         )
         assertButtonsEqual(
             [TestButton1, TestButton4, TestButton2, TestButton3],
-            [*registry.mandatory_buttons(entity=FakeOrganisation())],
+            # [*registry.mandatory_buttons(entity=FakeOrganisation())],
+            [*registry.mandatory_buttons(entity=FakeOrganisation(), request=request)],
         )
 
         self.assertIsNone(registry.get_button(TestButton2.id))
@@ -421,16 +458,26 @@ class ButtonMenuTestCase(CremeTestCase):
         # )
         assertButtonsEqual(
             [TestButton1, TestButton4, TestButton3],
+            # [*registry.get_buttons(
+            #     entity=FakeOrganisation(),
+            #     id_list=[TestButton1.id, TestButton4.id, TestButton3.id],
+            # )],
             [*registry.get_buttons(
                 entity=FakeOrganisation(),
-                id_list=[TestButton1.id, TestButton4.id, TestButton3.id],
+                button_ids=[TestButton1.id, TestButton4.id, TestButton3.id],
+                request=request,
             )],
         )
         assertButtonsEqual(
             [TestButton1, TestButton3],  # TestButton4 is ignored
+            # [*registry.get_buttons(
+            #     entity=FakeContact(),
+            #     id_list=[TestButton1.id, TestButton4.id, TestButton3.id],
+            # )],
             [*registry.get_buttons(
                 entity=FakeContact(),
-                id_list=[TestButton1.id, TestButton4.id, TestButton3.id],
+                button_ids=[TestButton1.id, TestButton4.id, TestButton3.id],
+                request=request,
             )],
         )
 
@@ -438,21 +485,25 @@ class ButtonMenuTestCase(CremeTestCase):
         registry.unregister_mandatory(TestButton2)
         assertButtonsEqual(
             [TestButton1, TestButton3],
-            [*registry.mandatory_buttons(entity=FakeContact())],
+            # [*registry.mandatory_buttons(entity=FakeContact())],
+            [*registry.mandatory_buttons(entity=FakeContact(), request=request)],
         )
         assertButtonsEqual(
             [TestButton1, TestButton4, TestButton3],
-            [*registry.mandatory_buttons(entity=FakeOrganisation())],
+            # [*registry.mandatory_buttons(entity=FakeOrganisation())],
+            [*registry.mandatory_buttons(entity=FakeOrganisation(), request=request)],
         )
 
         # Unregistering (Button with related model) ---
         registry.unregister_mandatory(TestButton3)
         assertButtonsEqual(
-            [TestButton1], [*registry.mandatory_buttons(entity=FakeContact())],
+            # [TestButton1], [*registry.mandatory_buttons(entity=FakeContact())],
+            [TestButton1], [*registry.mandatory_buttons(entity=FakeContact(), request=request)],
         )
         assertButtonsEqual(
             [TestButton1, TestButton4],
-            [*registry.mandatory_buttons(entity=FakeOrganisation())],
+            # [*registry.mandatory_buttons(entity=FakeOrganisation())],
+            [*registry.mandatory_buttons(entity=FakeOrganisation(), request=request)],
         )
 
     def test_registry_mandatory_buttons__empty_id(self):
@@ -527,11 +578,26 @@ class ButtonMenuTestCase(CremeTestCase):
         class TestButton(Button):
             id = Button.generate_id('creme_core', 'test_mandatory_button')
 
+            # def ok_4_display(this, entity):
+            def is_displayed(self, *, entity, request):
+                return False
+
+        with self.assertNoLogs():
+            registry = ButtonRegistry().register_mandatory(TestButton)
+
+        self.assertFalse(
+            # [*registry.mandatory_buttons(entity=FakeOrganisation())],
+            [*registry.mandatory_buttons(
+                entity=FakeOrganisation(), request=self.build_request(user=self.get_root_user()),
+            )],
+        )
+
+        # ---
+        class ProblematicTestButton(Button):
+            id = Button.generate_id('creme_core', 'test_problematic')
+
             def ok_4_display(this, entity):
                 return False
 
-        registry = ButtonRegistry().register_mandatory(TestButton)
-
-        self.assertFalse(
-            [*registry.mandatory_buttons(entity=FakeOrganisation())],
-        )
+        with self.assertLogs(level='CRITICAL'):
+            registry.register_mandatory(ProblematicTestButton)
