@@ -393,7 +393,7 @@ class MenuRegistry:
             # TODO: to be removed in creme2.8
             if hasattr(entry_cls, '_has_perm'):
                 logger.critical(
-                    'The class %s still defines a method "is_allowed()"; '
+                    'The class %s still defines a method "_has_perm()"; '
                     'define the new method "check_permissions()" instead.',
                     entry_cls,
                 )
