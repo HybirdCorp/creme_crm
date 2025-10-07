@@ -1,4 +1,4 @@
-{% load i18n %}{% load templatize from creme_core_tags %}{% url 'creme_core__password_reset_confirm' uidb64=uid token=token as rel_url %}{% templatize '{{protocol}}://{{domain}}{{rel_url}}' as url %}{% blocktrans with username=user.username %}Hi,
+{% load i18n %}{% load templatize from creme_core_tags %}{% url 'creme_core__password_reset_confirm' uidb64=uid token=token as rel_url %}{% templatize '{{protocol}}://{{domain}}{{rel_url}}' as url %}{% blocktranslate with username=user.username %}Hi,
 
 You receive this email because a reset of your password for {{software}} has been requested.
 
@@ -9,4 +9,4 @@ Here your username in case you forgot it too: {{username}}
 Thanks for show an interest in {{software}}.
 
 Your {{software}} administrator
-{% endblocktrans %}
+{% endblocktranslate %}

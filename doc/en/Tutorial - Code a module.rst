@@ -1545,7 +1545,7 @@ Now we add the corresponding template,
                   {% if not age %}
                     —
                   {% else %}
-                    {% blocktrans count year=age %}{{year}} year{% plural %}{{year}} years{% endblocktrans %}
+                    {% blocktranslate count year=age %}{{year}} year{% plural %}{{year}} years{% endblocktranslate %}
                   {% endif %}
                 </h1>
             </td>

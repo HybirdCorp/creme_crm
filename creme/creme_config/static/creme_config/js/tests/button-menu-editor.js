@@ -19,11 +19,11 @@ QUnit.module("creme.ButtonMenuEditor", new QUnitMixin(QUnitEventMixin,
         var html = (
             '<div class="buttonmenu-edit-widget" id="${id}">' +
                 '<div class="widget-available buttons-list instance-buttons">' +
-                    '<div class="buttons-list-header">{% trans "Available buttons" %}</div>' +
+                    '<div class="buttons-list-header">Available buttons</div>' +
                     '<div class="widget-container"></div>' +
                 '</div>' +
                 '<div class="widget-selected buttons-list instance-buttons">' +
-                    '<div class="buttons-list-header">{% trans "Selected buttons" %}</div>' +
+                    '<div class="buttons-list-header">Selected buttons</div>' +
                     '<div class="widget-container" style="width: 100px;height: 100px;"></div>' +
                 '</div>' +
             '</div>'
