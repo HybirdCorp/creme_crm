@@ -332,14 +332,12 @@ class VisitTestCase(CremeTestCase):
         first  = create_orga(first_name='Spike', last_name='Spiegel')
         second = create_orga(first_name='Jet',   last_name='Black')
 
-        hfilter = HeaderFilter.objects.create_if_needed(
-            pk='creme_core-visit_no_order',
+        hfilter = HeaderFilter.objects.proxy(
+            id='creme_core-visit_no_order',
             model=FakeContact,
             name='No order view',
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'languages'}),
-            ],
-        )
+            cells=[(EntityCellRegularField, 'languages')],
+        ).get_or_create()[0]
         response1 = self.client.get(
             self._build_visit_uri(FakeContact, sort='', hfilter=hfilter.pk),
             follow=True,
@@ -889,22 +887,22 @@ class VisitTestCase(CremeTestCase):
         self.assertGET404(build_uri(hfilter='unknown'))
 
         # HeaderFilter with bad ContentType
-        hfilter = HeaderFilter.objects.create_if_needed(
-            pk='creme_core-visit_contact',
+        hfilter = HeaderFilter.objects.proxy(
+            id='creme_core-visit_contact',
             model=FakeContact,
             name='Simple contact view',
-            cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
-        )
+            cells=[(EntityCellRegularField, 'last_name')],
+        ).get_or_create()[0]
         self.assertGET404(build_uri(hfilter=hfilter.id))
 
         # HeaderFilter is not allowed
-        private_hf = HeaderFilter.objects.create_if_needed(
-            pk='creme_core-visit_orga_private',
+        private_hf = HeaderFilter.objects.proxy(
+            id='creme_core-visit_orga_private',
             model=FakeOrganisation,
             name='Simple contact view',
             is_custom=True, user=self.create_user(), is_private=True,
-            cells_desc=[(EntityCellRegularField, {'name': 'email'})],
-        )
+            cells=[(EntityCellRegularField, 'email')],
+        ).get_or_create()[0]
         self.assertGET404(build_uri(hfilter=private_hf.id))
 
     def test_efilter_errors(self):

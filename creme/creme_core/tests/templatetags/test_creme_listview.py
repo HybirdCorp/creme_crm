@@ -104,9 +104,9 @@ class CremeListViewTagsTestCase(CremeTestCase):
         ctype = ContentType.objects.get_for_model(FakeMailingList)
         self.assertFalse(HeaderFilter.objects.filter(entity_type=ctype).first())
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test_hf-ml01', name='View', model=FakeMailingList,
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='test_hf-ml01', name='View', model=FakeMailingList, cells=[],
+        ).get_or_create()[0]
 
         hfilters = HeaderFilterList(
             content_type=ctype,
@@ -142,16 +142,20 @@ class CremeListViewTagsTestCase(CremeTestCase):
         ctype = ContentType.objects.get_for_model(FakeMailingList)
         self.assertFalse(HeaderFilter.objects.filter(entity_type=ctype).first())
 
-        create_hf = partial(HeaderFilter.objects.create_if_needed, model=FakeMailingList)
-        hf01 = create_hf(pk='test_hf-ml01', name='View')
-        hf02 = create_hf(pk='test_hf-ml02', name='My view',    user=user,       is_custom=True)
-        hf03 = create_hf(pk='test_hf-ml03', name='Other view', user=other_user, is_custom=True)
+        def create_hf(hf_id, **kwargs):
+            return HeaderFilter.objects.proxy(
+                id=f'test_hf-ml{hf_id}', model=FakeMailingList, cells=[], **kwargs
+            ).get_or_create()[0]
+
+        hf1 = create_hf(1, name='View')
+        hf2 = create_hf(2, name='My view',    user=user,       is_custom=True)
+        hf3 = create_hf(3, name='Other view', user=other_user, is_custom=True)
 
         hfilters = HeaderFilterList(
             content_type=ctype,
             user=user,
         )
-        hfilters.select_by_id(hf02.id)
+        hfilters.select_by_id(hf2.id)
 
         ctxt = listview_header_filters(
             model=FakeMailingList,
@@ -167,16 +171,16 @@ class CremeListViewTagsTestCase(CremeTestCase):
         self.assertIs(True, ctxt.get('deletion_allowed'))
         self.assertEqual('OK', ctxt.get('deletion_error'))
 
-        self.assertEqual(ctxt.get('selected'), hf02)
-        self.assertEqual([hf01],                 ctxt.get('global_header_filters'))
-        self.assertEqual([hf02],                 ctxt.get('my_header_filters'))
-        self.assertEqual([(other_user, [hf03])], ctxt.get('other_header_filters'))
+        self.assertEqual(ctxt.get('selected'), hf2)
+        self.assertEqual([hf1],                 ctxt.get('global_header_filters'))
+        self.assertEqual([hf2],                 ctxt.get('my_header_filters'))
+        self.assertEqual([(other_user, [hf3])], ctxt.get('other_header_filters'))
 
     def test_listview_header_filters__no_edition(self):
         user = self.create_user(role=self.get_regular_role())
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test_hf-ml01', name='View', model=FakeMailingList, is_custom=True,
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='test_hf-ml01', name='View', model=FakeMailingList, is_custom=True, cells=[],
+        ).get_or_create()[0]
 
         hfilters = HeaderFilterList(
             content_type=ContentType.objects.get_for_model(FakeMailingList),

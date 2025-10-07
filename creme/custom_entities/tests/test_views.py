@@ -311,11 +311,11 @@ class CustomEntityViewsTestCase(BrickTestCaseMixin,
         ce_type = self._enable_type(id=1, name='Shop', plural_name=plural_name)
         model = ce_type.entity_model
 
-        HeaderFilter.objects.create_if_needed(
-            pk='creme_core-hf_custom_entity_1',
+        HeaderFilter.objects.proxy(
+            id='creme_core-hf_custom_entity_1',
             name='Shop view', model=model, is_custom=False,
-            # cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
+            cells=[(EntityCellRegularField, 'name')],
+        ).get_or_create()
 
         create_entity = partial(model.objects.create, user=user)
         entity1 = create_entity(name='Happy fruits & vegetables')

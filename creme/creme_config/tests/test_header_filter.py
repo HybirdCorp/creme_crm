@@ -124,11 +124,11 @@ class HeaderFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         name = 'Contact view'
         field1 = 'first_name'
-        hfilter = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name=name,
+        hfilter = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name=name,
             model=FakeContact, is_custom=True,
-            cells_desc=[EntityCellRegularField.build(model=FakeContact, name=field1)],
-        )
+            cells=[(EntityCellRegularField, field1)],
+        ).get_or_create()[0]
 
         url = self._build_edit_url(hfilter)
         context1 = self.assertGET200(url).context
@@ -168,9 +168,9 @@ class HeaderFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         "Can not edit a HeaderFilter which belongs to another user."
         self.login_as_standard()
 
-        hfilter = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
+        hfilter = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
             model=FakeContact, is_custom=True,
-            user=self.create_user(1),
-        )
+            user=self.create_user(1), cells=[],
+        ).get_or_create()[0]
         self.assertGET403(self._build_edit_url(hfilter))

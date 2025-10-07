@@ -246,11 +246,11 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         existing_hf = HeaderFilter.objects.first()
-        custom_hf = HeaderFilter.objects.create_if_needed(
-            pk='creme_core-hf_customentity1', name='Building view',
-            model=model,
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-        )
+        custom_hf = HeaderFilter.objects.proxy(
+            id='creme_core-hf_customentity1', name='Building view',
+            model=model, is_custom=True,
+            cells=[(EntityCellRegularField, 'name')],
+        ).get_or_create()[0]
 
         existing_efilter = EntityFilter.objects.first()
         custom_efilter = EntityFilter.objects.smart_update_or_create(

@@ -343,29 +343,29 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         initial_fname1 = 'user'
         initial_fname2 = 'name'
         hidden_fname = 'sector'
-        hfilter_orga = HeaderFilter.objects.create_if_needed(
-            pk='test_hf', name='name', model=FakeOrganisation,
+        hfilter_orga = HeaderFilter.objects.proxy(
+            id='test_hf', name='name', model=FakeOrganisation,
             is_custom=True,
-            cells_desc=[
-                (EntityCellRegularField, {'name': initial_fname1}),
-                (EntityCellRegularField, {'name': initial_fname2}),
-                (EntityCellRegularField, {'name': hidden_fname}),
+            cells=[
+                (EntityCellRegularField, initial_fname1),
+                (EntityCellRegularField, initial_fname2),
+                (EntityCellRegularField, hidden_fname),
             ],
-        )
+        ).get_or_create()[0]
 
         FieldsConfig.objects.create(
             content_type=FakeOrganisation,
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        hfilter_orga_forbidden = HeaderFilter.objects.create_if_needed(
-            pk='test_hf_forbidden', name='name', model=FakeOrganisation,
+        hfilter_orga_forbidden = HeaderFilter.objects.proxy(
+            id='test_hf_forbidden', name='name', model=FakeOrganisation,
             is_custom=True, is_private=True, user=other_user,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'description'}),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'description'),
             ],
-        )
+        ).get_or_create()[0]
         hfilter_contact = HeaderFilter.objects.filter(
             entity_type=self.ct_contact, is_private=False,
         )[0]

@@ -119,15 +119,14 @@ class HeaderFilterManagerTestCase(CremeTestCase):
         tt_team = self.create_team('TeamTitan', user, teammate)
         a_team = self.create_team('A-Team', other_user)
 
-        cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
-
         def create_hf(id, **kwargs):
-            return HeaderFilter.objects.create_if_needed(
-                pk=f'test-hf_orga{id}',
+            return HeaderFilter.objects.proxy(
+                id=f'test-hf_orga{id}',
                 name=f'Orga view #{id}',
-                model=FakeOrganisation, cells_desc=cells,
+                model=FakeOrganisation,
+                cells=[(EntityCellRegularField, 'name')],
                 **kwargs
-            )
+            ).get_or_create()[0]
 
         hfilters = [
             create_hf(1),
@@ -563,10 +562,10 @@ class HeaderFilterTestCase(CremeTestCase):
         )
 
     def test_ct_cache(self):
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
-            model=FakeContact, is_custom=True,
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
+            model=FakeContact, is_custom=True, cells=[],
+        ).get_or_create()[0]
 
         with self.assertNumQueries(0):
             ContentType.objects.get_for_id(hf.entity_type_id)
@@ -765,13 +764,13 @@ class HeaderFilterTestCase(CremeTestCase):
     def test_populate_entities_fields01(self):
         "Regular fields: no FK."
         user = self.get_root_user()
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf', name='Contact view', model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'first_name'}),
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf', name='Contact view', model=FakeContact,
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
             ],
-        )
+        ).get_or_create()[0]
 
         pos = FakePosition.objects.create(title='Pilot')
         create_contact = partial(FakeContact.objects.create, user=user, position_id=pos.id)
@@ -789,15 +788,15 @@ class HeaderFilterTestCase(CremeTestCase):
     def test_populate_entities_fields02(self):
         "Regular fields: FK."
         user = self.get_root_user()
-        build = partial(EntityCellRegularField.build, model=FakeContact)
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf', name='Contact view', model=FakeContact,
-            cells_desc=[
-                build(name='last_name'), build(name='first_name'),
-                build(name='position'),
-                build(name='civility__title'),
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf', name='Contact view', model=FakeContact,
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
+                (EntityCellRegularField, 'position'),
+                (EntityCellRegularField, 'civility__title'),
             ],
-        )
+        ).get_or_create()[0]
 
         pos = FakePosition.objects.all()[0]
         civ = FakeCivility.objects.all()[0]
@@ -878,18 +877,19 @@ class HeaderFilterListTestCase(CremeTestCase):
 
     def test_filterlist01(self):
         user = self.get_root_user()
-        create_hf = partial(
-            HeaderFilter.objects.create_if_needed,
-            name='Orga view',
-            model=FakeOrganisation,
-            cells_desc=[
-                EntityCellRegularField.build(model=FakeOrganisation, name='name'),
-            ],
-        )
-        hf1 = create_hf(pk='test-hf_orga1')
-        hf2 = create_hf(pk='test-hf_orga2', user=user)
-        hf3 = create_hf(pk='test-hf_contact', model=FakeContact, name='Contact view')
-        hf4 = create_hf(pk='test-hf_orga3', user=self.create_user())
+
+        def create_hf(name='Orga view', model=FakeOrganisation, **kwargs):
+            return HeaderFilter.objects.proxy(
+                name=name,
+                model=model,
+                cells=[(EntityCellRegularField, 'name')],
+                **kwargs
+            ).get_or_create()[0]
+
+        hf1 = create_hf(id='test-hf_orga1')
+        hf2 = create_hf(id='test-hf_orga2', user=user)
+        hf3 = create_hf(id='test-hf_contact', model=FakeContact, name='Contact view')
+        hf4 = create_hf(id='test-hf_orga3', user=self.create_user())
 
         ct = self.orga_ct
         hfl = HeaderFilterList(ct, user)
@@ -913,15 +913,14 @@ class HeaderFilterListTestCase(CremeTestCase):
         tt_team = self.create_team('TeamTitan', user, teammate)
         a_team = self.create_team('A-Team', other_user)
 
-        cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
-
         def create_hf(id, **kwargs):
-            return HeaderFilter.objects.create_if_needed(
-                pk=f'test-hf_orga{id}',
+            return HeaderFilter.objects.proxy(
+                id=f'test-hf_orga{id}',
                 name=f'Orga view #{id}',
-                model=FakeOrganisation, cells_desc=cells,
+                model=FakeOrganisation,
+                cells=[(EntityCellRegularField, 'name')],
                 **kwargs
-            )
+            ).get_or_create()[0]
 
         hf01 = create_hf(1)
         hf02 = create_hf(2,  user=user)
@@ -951,15 +950,14 @@ class HeaderFilterListTestCase(CremeTestCase):
         user = self.login_as_super(is_staff=True)
         other_user = self.get_root_user()
 
-        cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
-
         def create_hf(hf_id, **kwargs):
-            return HeaderFilter.objects.create_if_needed(
-                pk=f'test-hf_orga{hf_id}',
+            return HeaderFilter.objects.proxy(
+                id=f'test-hf_orga{hf_id}',
                 name=f'Orga view #{hf_id}',
-                model=FakeOrganisation, cells_desc=cells,
+                model=FakeOrganisation,
+                cells=[(EntityCellRegularField, 'name')],
                 **kwargs
-            )
+            ).get_or_create()[0]
 
         hf1 = create_hf(1)
 

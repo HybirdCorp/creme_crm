@@ -76,50 +76,49 @@ def populate():
     create_todo_cat(name='Fix')
     create_todo_cat(name='Help wanted')
 
-    create_hf = HeaderFilter.objects.create_if_needed
-    create_hf(
-        pk='creme_core-hf_fakeimage', name='FakeImage view',
+    HeaderFilter.objects.proxy(
+        id='creme_core-hf_fakeimage', name='FakeImage view',
         model=fake_models.FakeImage,
-        cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-    )
-    create_hf(
-        pk=fake_constants.DEFAULT_HFILTER_FAKE_CONTACT,
+        cells=[(EntityCellRegularField, 'name')],
+    ).get_or_create()
+    HeaderFilter.objects.proxy(
+        id=fake_constants.DEFAULT_HFILTER_FAKE_CONTACT,
         name='FakeContact view',
         model=fake_models.FakeContact,
-        cells_desc=[
-            (EntityCellRegularField, {'name': 'last_name'}),
-            (EntityCellRegularField, {'name': 'first_name'}),
-            (EntityCellRegularField, {'name': 'email'}),
+        cells=[
+            (EntityCellRegularField, 'last_name'),
+            (EntityCellRegularField, 'first_name'),
+            (EntityCellRegularField, 'email'),
         ],
-    )
-    create_hf(
-        pk=fake_constants.DEFAULT_HFILTER_FAKE_ORGA,
+    ).get_or_create()
+    HeaderFilter.objects.proxy(
+        id=fake_constants.DEFAULT_HFILTER_FAKE_ORGA,
         name='FakeOrganisation view',
         model=fake_models.FakeOrganisation,
-        cells_desc=[
-            (EntityCellRegularField, {'name': 'name'}),
-            (EntityCellRegularField, {'name': 'phone'}),
+        cells=[
+            (EntityCellRegularField, 'name'),
+            (EntityCellRegularField, 'phone'),
         ],
-    )
-    create_hf(
-        pk=fake_constants.DEFAULT_HFILTER_FAKE_ACTIVITY,
+    ).get_or_create()
+    HeaderFilter.objects.proxy(
+        id=fake_constants.DEFAULT_HFILTER_FAKE_ACTIVITY,
         name='FakeActivity view',
         model=fake_models.FakeActivity,
-        cells_desc=[
-            (EntityCellRegularField, {'name': 'title'}),
-            (EntityCellRegularField, {'name': 'start'}),
+        cells=[
+            (EntityCellRegularField, 'title'),
+            (EntityCellRegularField, 'start'),
         ],
-    )
-    create_hf(
-        pk=fake_constants.DEFAULT_HFILTER_FAKE_INVLINE,
+    ).get_or_create()
+    HeaderFilter.objects.proxy(
+        id=fake_constants.DEFAULT_HFILTER_FAKE_INVLINE,
         name='FakeInvoiceLine view',
         model=fake_models.FakeInvoiceLine,
-        cells_desc=[
-            (EntityCellRegularField, {'name': 'linked_invoice'}),
-            (EntityCellRegularField, {'name': 'item'}),
-            (EntityCellRegularField, {'name': 'quantity'}),
+        cells=[
+            (EntityCellRegularField, 'linked_invoice'),
+            (EntityCellRegularField, 'item'),
+            (EntityCellRegularField, 'quantity'),
         ],
-    )
+    ).get_or_create()
     # NB: do not create for HeaderFilter for FakeMailingList (see views.test_header_filter)
 
     CustomFormConfigItem.objects.create_if_needed(
