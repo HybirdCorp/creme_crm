@@ -18,7 +18,7 @@
                 {% widget_icon ctype=ctype size='brick-list' class='workflow-config-type-icon' %} {{ctype}}
             </div>
             <div class="workflow-config-group-action">
-                {% blocktrans asvar creation_label %}Create a Workflow for «{{ctype}}»{% endblocktrans %}
+                {% blocktranslate asvar creation_label %}Create a Workflow for «{{ctype}}»{% endblocktranslate %}
                 {% brick_action id='add' url='creme_config__create_workflow'|url:ctype.id label=creation_label enabled=admin_perm %}
             </div>
         </div>

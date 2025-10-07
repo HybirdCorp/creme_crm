@@ -24,7 +24,7 @@
 
     {% if world_settings.password_reset_enabled %}
     <div class="lost-password">
-        <a href="{% url 'creme_core__reset_password' %}">{% trans 'You lost your password?' %}</a>
+        <a href="{% url 'creme_core__reset_password' %}">{% translate 'You lost your password?' %}</a>
     </div>
     {% endif %}
 {% endblock %}

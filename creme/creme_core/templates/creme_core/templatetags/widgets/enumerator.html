@@ -5,7 +5,7 @@
 {% else %}
     <a data-action="popover">
         {% if summary is None %}
-            {% blocktrans with count=length %}{{count}} items{% endblocktrans %}
+            {% blocktranslate with count=length %}{{count}} items{% endblocktranslate %}
         {% else %}
             {% format_string_brace_named summary count=length %}
         {% endif %}
