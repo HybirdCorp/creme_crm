@@ -5,7 +5,7 @@
 {% block brick_extra_class %}sketch-chart-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% trans "Chart" context "sketch-chart" as title_prefix %}{% templatize '{{title_prefix}} — {{verbose_name}}' as title %}
+    {% translate "Chart" context "sketch-chart" as title_prefix %}{% templatize '{{title_prefix}} — {{verbose_name}}' as title %}
     {% brick_header_title title=title icon='report' %}
 {% endblock %}
 
@@ -23,7 +23,7 @@
     <div class="brick-d3-content"></div>
     {% jsondata data class="sketch-chart-data" %}
     {% else %}
-    <div class="brick-d3-empty">{% trans 'No data available' %}</div>
+    <div class="brick-d3-empty">{% translate 'No data available' %}</div>
     {% endif %}
     {% if props %}{% jsondata props class="sketch-chart-props" %}{% endif %}
 {% endblock %}

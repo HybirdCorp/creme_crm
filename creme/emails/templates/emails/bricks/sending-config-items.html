@@ -33,7 +33,7 @@
         <td {% brick_table_data_status primary %}>{{item.name}}</td>
         <td>{{item.host}}</td>
         <td>{{item.username}}</td>
-        <td>{% if item.port %}{% print_field object=item field='port' %}{% else %}<span class="emails-campaign-default">{% trans 'Default port' %}</span>{% endif %}</td>
+        <td>{% if item.port %}{% print_field object=item field='port' %}{% else %}<span class="emails-campaign-default">{% translate 'Default port' %}</span>{% endif %}</td>
         <td>{% print_field object=item field='use_tls' %}</td>
         <td>{{item.default_sender|default:'—'}}</td>
         <td {% brick_table_data_status action %}>

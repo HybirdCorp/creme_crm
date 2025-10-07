@@ -21,7 +21,7 @@
     {% brick_table_column title=_('Related entity') %}
     {% endif %}
 
-    {% trans 'Created on' context 'commercial-approach' as creation_label %}
+    {% translate 'Created on' context 'commercial-approach' as creation_label %}
     {% brick_table_column_for_field ctype=objects_ctype field='creation_date' status='nowrap' title=creation_label %}
 
     {% brick_table_column_for_field ctype=objects_ctype field='description' title=_('Details') class='approaches-details' %}
