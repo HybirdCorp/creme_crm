@@ -601,15 +601,15 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         # Set a header filter in the session (should be kept)
         hfilter1 = HeaderFilter.objects.filter(entity_type=ct).first()
         self.assertIsNotNone(hfilter1)
-        hfilter2 = HeaderFilter.objects.create_if_needed(
-            pk='creme_core-tests_views_entity_filter_test_create03',
+        hfilter2 = HeaderFilter.objects.proxy(
+            id='creme_core-tests_views_entity_filter_test_create03',
             name='Ze last FakeContact view',
             model=FakeOrganisation,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'email'}),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'email'),
             ],
-        )
+        ).get_or_create()[0]
         self.assertGreater(hfilter2.name, hfilter1.name)
 
         response = self.assertPOST200(lv_url, data={'hfilter': hfilter2.id})
@@ -910,11 +910,11 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
 
         model = ce_type.entity_model
         # Avoid an error message ("no view...")
-        HeaderFilter.objects.create_if_needed(
-            pk='creme_core-userhf_creme_core-customeentity1-1',
+        HeaderFilter.objects.proxy(
+            id='creme_core-userhf_creme_core-customeentity1-1',
             name='Shop lite view', model=model,
-            cells_desc=[EntityCellRegularField.build(model=model, name='name')],
-        )
+            cells=[(EntityCellRegularField, 'name')],
+        ).get_or_create()
 
         ct = ContentType.objects.get_for_model(model)
         name = 'Acmes'
@@ -1956,11 +1956,11 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
 
         model = ce_type.entity_model
         # Avoid an error message ("no view...")
-        HeaderFilter.objects.create_if_needed(
-            pk='creme_core-userhf_creme_core-customeentity1-1',
+        HeaderFilter.objects.proxy(
+            id='creme_core-userhf_creme_core-customeentity1-1',
             name='Shop lite view', model=model,
-            cells_desc=[EntityCellRegularField.build(model=model, name='name')],
-        )
+            cells=[(EntityCellRegularField, 'name')],
+        ).get_or_create()
 
         source_efilter = EntityFilter.objects.smart_update_or_create(
             pk='creme_core-userfilter_creme_core-customeentity1-1',

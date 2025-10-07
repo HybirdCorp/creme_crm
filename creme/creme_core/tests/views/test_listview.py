@@ -740,21 +740,16 @@ class ListViewTestCase(CremeTestCase):
         faye  = create_contact(first_name='Faye',   last_name='Valentine', civility=miss)
         ed    = create_contact(first_name='Edward', last_name='Wong')
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact', name='Order02 view', model=FakeContact,
-        )
-
-        build_cell = partial(EntityCellRegularField.build, model=FakeContact)
-        cell_image    = build_cell(name='image')
-        cell_img_name = build_cell(name='image__name')
-        cell_civ      = build_cell(name='civility')
-        cell_civ_name = build_cell(name='civility__title')
-
-        hf.cells = [
-            build_cell(name='last_name'),
-            cell_image, cell_img_name, cell_civ, cell_civ_name,
-        ]
-        hf.save()
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'image'),
+                (EntityCellRegularField, 'image__name'),
+                (EntityCellRegularField, 'civility'),
+                (EntityCellRegularField, 'civility__title'),
+            ],
+        ).get_or_create()[0]
 
         url = FakeContact.get_lv_absolute_url()
 
@@ -3100,13 +3095,13 @@ class ListViewTestCase(CremeTestCase):
         contacts = [*FakeContact.objects.all()]
         self.assertEqual(expected_count, len(contacts))
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact', name='Order02 view', model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'first_name'}),
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
             ],
-        )
+        ).get_or_create()[0]
 
         def post(page_info=None):
             return self.assertPOST200(
@@ -3238,11 +3233,11 @@ class ListViewTestCase(CremeTestCase):
         ]
         self.assertEqual(expected_count, len(contacts))
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact', name='Order02 view', model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'first_name'}),
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
             ],
         )
 
@@ -3285,11 +3280,11 @@ class ListViewTestCase(CremeTestCase):
         for i in range(expected_count - count):
             create_contact(first_name='Gally', last_name=f'Tuned#{i:02}')
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact', name='Order02 view', model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'first_name'}),
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
             ],
         )
 
@@ -3338,11 +3333,11 @@ class ListViewTestCase(CremeTestCase):
         for i in range(expected_count - count):
             create_contact(first_name='Gally', last_name=f'Tuned#{i:02}')
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact', name='Order02 view', model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'first_name'}),
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
             ],
         )
 
@@ -3711,13 +3706,13 @@ class ListViewTestCase(CremeTestCase):
         )
 
         # No order -------------------------------------------------------------
-        hf2 = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact_no_order', name='Only details', model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'phone'}),
-                (EntityCellRegularField, {'name': 'mobile'}),
+        hf2 = HeaderFilter.objects.proxy(
+            id='test-hf_contact_no_order', name='Only details', model=FakeContact,
+            cells=[
+                (EntityCellRegularField, 'phone'),
+                (EntityCellRegularField, 'mobile'),
             ],
-        )
+        ).get_or_create()[0]
         response3 = self.assertPOST200(lv_url, data={'hfilter': hf2.id})
         assert_button_url(
             response3,

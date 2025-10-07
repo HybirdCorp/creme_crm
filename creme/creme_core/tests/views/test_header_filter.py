@@ -125,16 +125,16 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         setting_value.save()
 
         # Create a view to post the entity filter
-        HeaderFilter.objects.create_if_needed(
-            pk='creme_core-tests_views_header_filter_test_create02',
+        HeaderFilter.objects.proxy(
+            id='creme_core-tests_views_header_filter_test_create02',
             name='A FakeContact view',  # Starts with "A" => first
             model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'first_name'}),
-                (EntityCellRegularField, {'name': 'email'}),
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
+                (EntityCellRegularField, 'email'),
             ],
-        )
+        ).get_or_create()
 
         # Set a filter in the session (should be kept)
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -421,11 +421,11 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         self.login_as_root()
 
         field1 = 'first_name'
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
             model=FakeContact, is_custom=True,
-            cells_desc=[EntityCellRegularField.build(model=FakeContact, name=field1)],
-        )
+            cells=[(EntityCellRegularField, field1)],
+        ).get_or_create()[0]
 
         url = hf.get_edit_absolute_url()
         response = self.client.get(url)
@@ -473,11 +473,11 @@ class HeaderFilterViewsTestCase(CremeTestCase):
 
         name = 'Contact view'
         field1 = 'first_name'
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name=name,
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name=name,
             model=FakeContact, is_custom=False,
-            cells_desc=[EntityCellRegularField.build(model=FakeContact, name=field1)],
-        )
+            cells=[(EntityCellRegularField, field1)],
+        ).get_or_create()[0]
 
         url = hf.get_edit_absolute_url()
         self.assertGET200(url)
@@ -509,20 +509,20 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         "Cannot edit HeaderFilter that belongs to another user."
         self.login_as_standard()
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
-            model=FakeContact, is_custom=True, user=self.get_root_user(),
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view', model=FakeContact,
+            is_custom=True, user=self.get_root_user(), cells=[],
+        ).get_or_create()[0]
         self.assertGET403(hf.get_edit_absolute_url())
 
     def test_edit__error__app_credentials(self):
         "User do not have the app credentials."
         user = self.login_as_standard(allowed_apps=['documents'])
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
-            model=FakeContact, is_custom=True, user=user,
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
+            model=FakeContact, is_custom=True, user=user, cells=[],
+        ).get_or_create()[0]
         self.assertGET403(hf.get_edit_absolute_url())
 
     def test_edit__teammate(self):
@@ -530,10 +530,10 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         user = self.login_as_standard()
         my_team = self.create_team('TeamTitan', user)
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
-            model=FakeContact, is_custom=True, user=my_team,
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
+            model=FakeContact, is_custom=True, user=my_team, cells=[],
+        ).get_or_create()[0]
         self.assertGET200(hf.get_edit_absolute_url())
 
     def test_edit__error__not_teammate(self):
@@ -543,32 +543,32 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         my_team = self.create_team('TeamTitan')  # 'user' is not a teammate
         self.create_team('A-team', user)
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
-            model=FakeContact, is_custom=True, user=my_team,
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
+            model=FakeContact, is_custom=True, user=my_team, cells=[],
+        ).get_or_create()[0]
         self.assertGET403(hf.get_edit_absolute_url())
 
     def test_edit__error__forbidden_private(self):
         "Private filter -> cannot be edited by another user (even a super-user)."
         self.login_as_root()
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
             model=FakeContact, is_custom=True,
-            is_private=True, user=self.create_user(),
-        )
+            is_private=True, user=self.create_user(), cells=[],
+        ).get_or_create()[0]
         self.assertGET403(hf.get_edit_absolute_url())
 
     def test_edit__staff_user(self):
         "Staff users can edit all HeaderFilters + private filters must be assigned."
         self.login_as_super(is_staff=True)
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
             model=FakeContact, is_custom=True,
-            is_private=True, user=self.get_root_user(),
-        )
+            is_private=True, user=self.get_root_user(), cells=[],
+        ).get_or_create()[0]
         url = hf.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -592,10 +592,10 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         "Not custom filter cannot be private + callback URL."
         user = self.login_as_root_and_get()
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
-            model=FakeContact, is_custom=False,
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
+            model=FakeContact, is_custom=False, cells=[],
+        ).get_or_create()[0]
         url = hf.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -621,15 +621,14 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         valid_fname = 'last_name'
         hidden_fname1 = 'phone'
         hidden_fname2 = 'birthday'
-        build_cell = partial(EntityCellRegularField.build, model=FakeContact)
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
             model=FakeContact, is_custom=True,
-            cells_desc=[
-                build_cell(name=valid_fname),
-                build_cell(name=hidden_fname1),
+            cells=[
+                (EntityCellRegularField, valid_fname),
+                (EntityCellRegularField, hidden_fname1),
             ],
-        )
+        ).get_or_create()[0]
         FieldsConfig.objects.create(
             content_type=FakeContact,
             descriptions=[
@@ -798,10 +797,10 @@ class HeaderFilterViewsTestCase(CremeTestCase):
     def test_clone__apps_credentials(self):
         self.login_as_standard(allowed_apps=['persons'])
 
-        source_hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='A contact view', model=FakeContact,
-            cells_desc=[EntityCellRegularField.build(model=FakeContact, name='last_name')],
-        )
+        source_hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='A contact view', model=FakeContact,
+            cells=[(EntityCellRegularField, 'last_name')],
+        ).get_or_create()[0]
         self.assertGET403(reverse('creme_core__clone_hfilter', args=(source_hf.id,)))
 
     def test_clone__custom_entity(self):
@@ -851,11 +850,11 @@ class HeaderFilterViewsTestCase(CremeTestCase):
     def test_delete(self):
         self.login_as_root()
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
             model=FakeContact, is_custom=True,
-            cells_desc=[EntityCellRegularField.build(model=FakeContact, name='first_name')],
-        )
+            cells=[(EntityCellRegularField, 'first_name')],
+        ).get_or_create()[0]
         self.assertPOST200(self.DELETE_URL, follow=True, data={'id': hf.id})
         self.assertDoesNotExist(hf)
 
@@ -863,10 +862,10 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         "Not custom -> not deletable."
         self.login_as_root()
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
-            model=FakeContact, is_custom=False,
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
+            model=FakeContact, is_custom=False, cells=[],
+        ).get_or_create()[0]
         self.assertPOST403(self.DELETE_URL, data={'id': hf.id})
         self.assertStillExists(hf)
 
@@ -874,10 +873,10 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         "Belongs to another user."
         self.login_as_standard()
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
-            model=FakeContact, is_custom=True, user=self.get_root_user(),
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view', model=FakeContact,
+            is_custom=True, user=self.get_root_user(), cells=[],
+        ).get_or_create()[0]
         self.assertPOST403(self.DELETE_URL, data={'id': hf.id})
         self.assertStillExists(hf)
 
@@ -887,10 +886,10 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         user = self.login_as_standard(listable_models=[model])
         my_team = self.create_team('TeamTitan', user)
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
-            model=model, is_custom=True, user=my_team,
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
+            model=model, is_custom=True, user=my_team, cells=[],
+        ).get_or_create()[0]
         self.assertPOST200(self.DELETE_URL, data={'id': hf.id}, follow=True)
         self.assertDoesNotExist(hf)
 
@@ -901,10 +900,10 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         a_team = self.create_team('TeamTitan', self.get_root_user())
         self.create_team('A-team', user)
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
-            model=FakeContact, is_custom=True, user=a_team,
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
+            model=FakeContact, is_custom=True, user=a_team, cells=[],
+        ).get_or_create()[0]
         self.assertPOST403(self.DELETE_URL, data={'id': hf.id}, follow=True)
         self.assertStillExists(hf)
 
@@ -912,10 +911,10 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         "Logged as superuser."
         self.login_as_root()
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
-            model=FakeContact, is_custom=True, user=self.create_user(),
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view', model=FakeContact,
+            is_custom=True, user=self.create_user(), cells=[],
+        ).get_or_create()[0]
         self.assertPOST200(self.DELETE_URL, data={'id': hf.id}, follow=True)
         self.assertDoesNotExist(hf)
 
@@ -930,35 +929,35 @@ class HeaderFilterViewsTestCase(CremeTestCase):
     def test_hfilters_for_ctype02(self):
         user = self.login_as_root_and_get()
 
-        create_hf = HeaderFilter.objects.create_if_needed
-        name01 = 'ML view01'
-        name02 = 'ML view02'
-        name03 = 'ML view03'
+        name1 = 'ML view01'
+        name2 = 'ML view02'
+        name3 = 'ML view03'
         pk_fmt = 'tests-hf_ml{}'.format
-        hf01 = create_hf(
-            pk=pk_fmt(1), name=name01, model=FakeMailingList,  is_custom=False,
-        )
-        hf02 = create_hf(
-            pk=pk_fmt(2), name=name02, model=FakeMailingList,  is_custom=True,
-        )
-        create_hf(
-            pk='tests-hf_orga01', name='Orga view', model=FakeOrganisation, is_custom=True,
-        )
-        hf03 = create_hf(
-            pk=pk_fmt(3),  name=name03, model=FakeMailingList,  is_custom=True,
-            is_private=True, user=user,
-        )
-        create_hf(
-            pk=pk_fmt(4), name='Private', model=FakeMailingList, is_custom=True,
-            is_private=True, user=self.create_user(),
-        )
+        hf1 = HeaderFilter.objects.proxy(
+            id=pk_fmt(1), name=name1, model=FakeMailingList, cells=[],
+        ).get_or_create()[0]
+        hf2 = HeaderFilter.objects.proxy(
+            id=pk_fmt(2), name=name2, model=FakeMailingList, is_custom=True, cells=[],
+        ).get_or_create()[0]
+        HeaderFilter.objects.proxy(
+            id='tests-hf_orga01', name='Orga view', model=FakeOrganisation,
+            is_custom=True, cells=[],
+        ).get_or_create()
+        hf3 = HeaderFilter.objects.proxy(
+            id=pk_fmt(3),  name=name3, model=FakeMailingList,  is_custom=True,
+            is_private=True, user=user, cells=[],
+        ).get_or_create()[0]
+        HeaderFilter.objects.proxy(
+            id=pk_fmt(4), name='Private', model=FakeMailingList, is_custom=True,
+            is_private=True, user=self.create_user(), cells=[],
+        ).get_or_create()
 
         response = self.assertGET200(
             self._build_get4ctype_url(ContentType.objects.get_for_model(FakeMailingList))
         )
         self.assertListEqual(
-            [[hf01.id, name01], [hf02.id, name02], [hf03.id, name03]],
-            response.json()
+            [[hf1.id, name1], [hf2.id, name2], [hf3.id, name3]],
+            response.json(),
         )
 
     def test_hfilters_for_ctype03(self):

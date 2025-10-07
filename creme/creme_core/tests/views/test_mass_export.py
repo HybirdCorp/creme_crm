@@ -173,39 +173,37 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertGET404(build_url(hfilter_id='test-hf_contact-unknown'))
 
         # HeaderFilter with wrong content type
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact_test_invalid_hfilter01',
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact_test_invalid_hfilter01',
             name='Contact view', model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'created'}),
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'created'),
             ],
-        )
+        ).get_or_create()[0]
         self.assertGET404(build_url(ct_or_model=FakeEmailCampaign, hfilter_id=hf.id))
 
         # HeaderFilter is not allowed
-        private_hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact_test_invalid_hfilter02',
+        private_hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact_test_invalid_hfilter02',
             name='Private contact view', model=FakeContact,
             is_custom=True, user=self.create_user(), is_private=True,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'first_name'}),
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
             ],
-        )
+        ).get_or_create()[0]
         self.assertGET404(build_url(hfilter_id=private_hf.id))
 
     def test_export_error_invalid_efilter(self):
         user = self.login_as_root_and_get()
-        build_cell = EntityCellRegularField.build
-        HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact', name='Contact view',
-            model=FakeContact,
-            cells_desc=[
-                build_cell(model=FakeContact, name='last_name'),
-                build_cell(model=FakeContact, name='first_name'),
+        HeaderFilter.objects.proxy(
+            id='test-hf_contact', name='Contact view', model=FakeContact,
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
             ],
-        )
+        ).get_or_create()
 
         # EntityFilter does not exist
         self.assertGET404(self._build_contact_dl_url(efilter_id='test-unknown'))
@@ -373,13 +371,13 @@ class MassExportViewsTestCase(CremeTestCase):
     def test_list_view_export_datetime(self):
         user = self.login_as_root_and_get()
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact_test_export05', name='Contact view', model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'created'}),
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact_test_export05', name='Contact view', model=FakeContact,
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'created'),
             ],
-        )
+        ).get_or_create()[0]
 
         spike = FakeContact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
 
@@ -416,14 +414,14 @@ class MassExportViewsTestCase(CremeTestCase):
         create_contact(first_name='Jet',   last_name='Black',   image=jet_face)
         create_contact(first_name='Faye',  last_name='Valentine')
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact_test_export06', name='Contact view', model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'image'}),
-                (EntityCellRegularField, {'name': 'image__description'}),
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact_test_export06', name='Contact view', model=FakeContact,
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'image'),
+                (EntityCellRegularField, 'image__description'),
             ],
-        )
+        ).get_or_create()[0]
 
         response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
 
@@ -449,13 +447,13 @@ class MassExportViewsTestCase(CremeTestCase):
         camp1.mailing_lists.set([create_ml(name='ML#1'), create_ml(name='ML#2')])
         camp2.mailing_lists.set([create_ml(name='ML#3')])
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'mailing_lists__name'}),
+        hf = HeaderFilter.objects.proxy(
+            id='test_hf', name='Campaign view', model=FakeEmailCampaign,
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'mailing_lists__name'),
             ],
-        )
+        ).get_or_create()[0]
 
         response = self.assertGET200(self._build_dl_url(
             FakeEmailCampaign,
@@ -665,12 +663,13 @@ class MassExportViewsTestCase(CremeTestCase):
         for name, capital in (('Bebop', 1000), ('Swordfish', 20000), ('Redtail', None)):
             create_orga(name=name, capital=capital)
 
-        build = partial(EntityCellRegularField.build, model=FakeOrganisation)
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_orga', name='Organisation view',
-            model=FakeOrganisation,
-            cells_desc=[build(name='name'), build(name='capital')],
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_orga', name='Organisation view', model=FakeOrganisation,
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'capital'),
+            ],
+        ).get_or_create()[0]
 
         lv_url = FakeOrganisation.get_lv_absolute_url()
         response = self.assertGET200(
@@ -695,13 +694,14 @@ class MassExportViewsTestCase(CremeTestCase):
         create_pline(item='Bebop',     discount_unit=FakeInvoiceLine.Discount.PERCENT)
         create_pline(item='Swordfish', discount_unit=FakeInvoiceLine.Discount.AMOUNT)
 
-        build = partial(EntityCellRegularField.build, model=FakeInvoiceLine)
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_fakeinvoiceline', name='InvoiceLine view',
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_fakeinvoiceline', name='InvoiceLine view',
             model=FakeInvoiceLine,
-            cells_desc=[build(name='item'), build(name='discount_unit')],
-        )
-
+            cells=[
+                (EntityCellRegularField, 'item'),
+                (EntityCellRegularField, 'discount_unit'),
+            ],
+        ).get_or_create()[0]
         response = self.assertGET200(
             self._build_dl_url(
                 FakeInvoiceLine,
@@ -721,15 +721,15 @@ class MassExportViewsTestCase(CremeTestCase):
     def test_quick_search(self):
         user = self.login_as_root_and_get()
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact_test_quick_search', name='Contact view',
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact_test_quick_search', name='Contact view',
             model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'phone'}),
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'first_name'}),
+            cells=[
+                (EntityCellRegularField, 'phone'),
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
             ],
-        )
+        ).get_or_create()[0]
 
         create_contact = partial(FakeContact.objects.create, user=user)
         create_contact(first_name='Spike', last_name='Spiegel',   phone='123233')
@@ -753,15 +753,15 @@ class MassExportViewsTestCase(CremeTestCase):
     def test_sorting(self):
         user = self.login_as_root_and_get()
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact_test_sorting', name='Contact view',
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact_test_sorting', name='Contact view',
             model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'phone'}),
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'first_name'}),
+            cells=[
+                (EntityCellRegularField, 'phone'),
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
             ],
-        )
+        ).get_or_create()[0]
 
         create_contact = partial(FakeContact.objects.create, user=user)
         create_contact(first_name='Spike', last_name='Spiegel',   phone='123233')
@@ -799,13 +799,13 @@ class MassExportViewsTestCase(CremeTestCase):
         camp1.mailing_lists.set([ml1, ml2])
         camp2.mailing_lists.set([ml1])
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'mailing_lists'}),
+        hf = HeaderFilter.objects.proxy(
+            id='test_hf', name='Campaign view', model=FakeEmailCampaign,
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'mailing_lists'),
             ],
-        )
+        ).get_or_create()[0]
 
         response = self.assertGET200(self._build_dl_url(
             FakeEmailCampaign,
@@ -836,12 +836,10 @@ class MassExportViewsTestCase(CremeTestCase):
         c1.languages.set([l1])
         c2.languages.set([l2])
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test_hf', name='Not orderable view', model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'languages'}),
-            ],
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='test_hf', name='Not orderable view', model=FakeContact,
+            cells=[(EntityCellRegularField, 'languages')],
+        ).get_or_create()[0]
         response = self.assertGET200(self._build_contact_dl_url(
             hfilter_id=hf.id,
             # sort_key='regular_field-...',
