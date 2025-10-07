@@ -565,13 +565,12 @@ def verbose_models(models):
 def get_cloning_info(entity, user):
     url = entity.get_clone_absolute_url()
 
-    # TODO: remove in creme 2.8
-    if url == '':
-        logger.warning(
-            'The entity "%s" returns an empty cloning URL; it is now useless '
-            'with the cloning registry (just do not register this model).',
-            entity,
-        )
+    # if url == '':
+    #     logger.warning(
+    #         'The entity "%s" returns an empty cloning URL; it is now useless '
+    #         'with the cloning registry (just do not register this model).',
+    #         entity,
+    #     )
 
     cloner = entity_cloner_registry.get(model=type(entity))
     if cloner is None:
@@ -595,13 +594,12 @@ def get_cloning_info(entity, user):
 def get_deletion_info(entity, user):
     url = entity.get_delete_absolute_url()
 
-    # TODO: remove in creme 2.8
-    if url == '':
-        logger.warning(
-            'The entity "%s" returns an empty deletion URL; it is now useless '
-            'with the deletion registry (just do not register this model).',
-            entity,
-        )
+    # if url == '':
+    #     logger.warning(
+    #         'The entity "%s" returns an empty deletion URL; it is now useless '
+    #         'with the deletion registry (just do not register this model).',
+    #         entity,
+    #     )
 
     deletor = entity_deletor_registry.get(model=type(entity))
     if deletor is None:
