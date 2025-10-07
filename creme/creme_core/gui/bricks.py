@@ -780,13 +780,12 @@ class BrickRegistry:
             if setdefault(brick_id, brick_cls) is not brick_cls:
                 raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
 
-            # TODO: to be removed in creme2.8
-            if hasattr(brick_cls, 'has_perms'):
-                logger.critical(
-                    'The brick class %s still defines a method "has_perms()"; '
-                    'define the new method "check_permissions()" instead.',
-                    brick_cls,
-                )
+            # if hasattr(brick_cls, 'has_perms'):
+            #     logger.critical(
+            #         'The brick class %s still defines a method "has_perms()"; '
+            #         'define the new method "check_permissions()" instead.',
+            #         brick_cls,
+            #     )
 
         return self
 
