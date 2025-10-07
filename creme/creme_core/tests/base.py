@@ -941,10 +941,10 @@ class _CremeTestCase:
         return reverse('creme_core__merge_entities') + f'?id1={id1}&id2={id2}'
 
     @classmethod
-    def build_request(cls, *, user, url='/', data=None):
+    def build_request(cls, *, user=None, url='/', data=None):
         request = cls.request_factory.get(url, data=data)
         request.session = SessionBase()
-        request.user = user
+        request.user = user or cls.get_root_user()
 
         return request
 

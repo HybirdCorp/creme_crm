@@ -170,7 +170,7 @@ class ButtonMenuTestCase(CremeTestCase):
                     TestButton1.id,
                 ],
                 entity=c,
-                request=self.build_request(user=self.get_root_user()),
+                request=self.build_request(),
             ),
         ]
         self.assertIsList(buttons, length=2)
@@ -438,7 +438,7 @@ class ButtonMenuTestCase(CremeTestCase):
             for button_cls, button in zip(expected_classes, buttons):
                 self.assertIsInstance(button, button_cls)
 
-        request = self.build_request(user=self.get_root_user())
+        request = self.build_request()
         assertButtonsEqual(
             [TestButton1, TestButton2, TestButton3],
             # [*registry.mandatory_buttons(entity=FakeContact())],
@@ -588,7 +588,7 @@ class ButtonMenuTestCase(CremeTestCase):
         self.assertFalse(
             # [*registry.mandatory_buttons(entity=FakeOrganisation())],
             [*registry.mandatory_buttons(
-                entity=FakeOrganisation(), request=self.build_request(user=self.get_root_user()),
+                entity=FakeOrganisation(), request=self.build_request(),
             )],
         )
 

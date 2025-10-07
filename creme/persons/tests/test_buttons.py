@@ -47,5 +47,5 @@ class ButtonsTestCase(CremeTestCase):
         button = buttons.BecomeCustomerButton()
         # self.assertFalse(button.ok_4_display(managed_orga))
         self.assertFalse(button.is_displayed(
-            entity=managed_orga, request=self.build_request(user=self.get_root_user())),
+            entity=managed_orga, request=self.build_request()),
         )
