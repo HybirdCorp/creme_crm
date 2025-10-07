@@ -36,9 +36,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
                 f"{{% brick_import app='creme_core' name='{name}' as my_brick %}}"
                 f"{{% brick_display my_brick %}}"
             )
-            render = template.render(
-                RequestContext(self.build_request(user=self.get_root_user()))
-            )
+            render = template.render(RequestContext(self.build_request()))
 
         self.assertEqual(brick_str, render.strip())
 
@@ -94,7 +92,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             brick_str = '<div>FOOBARBAZ #3</div>'
 
         context = RequestContext(
-            self.build_request(user=self.get_root_user()),
+            self.build_request(),
             {
                 'my_brick1': FooBrick1(),
                 'my_bricks': [FooBrick2(), FooBrick3()],
@@ -131,7 +129,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             verbose_name = 'Testing purpose'
 
         context = RequestContext(
-            self.build_request(user=self.get_root_user()),
+            self.build_request(),
             {'my_brick': InvalidBrick()},
         )
 
@@ -153,9 +151,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             def detailview_display(this, context):
                 return this.brick_str
 
-        context = RequestContext(
-            self.build_request(user=self.get_root_user()), {'my_brick': FooBrick()}
-        )
+        context = RequestContext(self.build_request(), {'my_brick': FooBrick()})
 
         with self.assertNoException():
             render = Template(
@@ -184,7 +180,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             render = Template(
                 '{% load creme_bricks %}'
                 '{% brick_table_data_status foo bar %}'
-            ).render(RequestContext(self.build_request(user=self.get_root_user())))
+            ).render(RequestContext(self.build_request()))
 
         self.assertEqual(
             'data-table-foo-column data-table-bar-column',
@@ -198,7 +194,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
                 '{% brick_get_by_ids brick_id1 brick_id2 as bricks %}'
                 '{{bricks.0.verbose_name}}##{{bricks.1.verbose_name}}'
             ).render(RequestContext(
-                self.build_request(user=self.get_root_user()),
+                self.build_request(),
                 {
                     'brick_id1': HistoryBrick.id,
                     'brick_id2': StatisticsBrick.id,
