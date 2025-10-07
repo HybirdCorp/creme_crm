@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 06-10-2025 pour la version 2.8 de Creme
+:Version: 07-10-2025 pour la version 2.8 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1726,7 +1726,7 @@ une convention) : ::
         def get_ctypes(self):
             return (Beaver,)
 
-        def ok_4_display(self, entity):
+        def is_displayed(self, *, entity, request):
             return (str(entity.status.uuid) == UUID_STATUS_SICK)
 
         # def get_context(self, *, entity, request):
