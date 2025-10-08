@@ -138,7 +138,12 @@ class Populator(BasePopulator):
         custom_forms.EVENT_CREATION_CFORM,
         custom_forms.EVENT_EDITION_CFORM,
     ]
-    SEARCH = ['name', 'description', 'type__name']
+    # SEARCH = ['name', 'description', 'type__name']
+    SEARCH = [
+        SearchConfigItem.objects.builder(
+            model=Event, fields=['name', 'description', 'type__name'],
+        ),
+    ]
     EVENT_TYPES = [
         # is_custom=True => only created during the first execution
         EventType(uuid=UUID_EVENT_TYPE_SHOW,       name=_('Show')),
@@ -236,10 +241,10 @@ class Populator(BasePopulator):
     #         ],
     #     )
 
-    def _populate_search_config(self):
-        SearchConfigItem.objects.create_if_needed(
-            model=self.Event, fields=self.SEARCH,
-        )
+    # def _populate_search_config(self):
+    #     SearchConfigItem.objects.create_if_needed(
+    #         model=self.Event, fields=self.SEARCH,
+    #     )
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

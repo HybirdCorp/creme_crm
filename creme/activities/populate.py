@@ -169,7 +169,12 @@ class Populator(BasePopulator):
         ButtonMenuItem(button=buttons.AddMeetingButton,         order=11),
         ButtonMenuItem(button=buttons.AddPhoneCallButton,       order=12),
     ]
-    SEARCH = ['title', 'description', 'type__name']
+    # SEARCH = ['title', 'description', 'type__name']
+    SEARCH = [
+        SearchConfigItem.objects.builder(
+            model=Activity, fields=['title', 'description', 'type__name'],
+        ),
+    ]
     STATUSES = [
         Status(
             uuid=constants.UUID_STATUS_PLANNED,
@@ -530,10 +535,10 @@ class Populator(BasePopulator):
     #         ],
     #     )
 
-    def _populate_search_config(self):
-        SearchConfigItem.objects.create_if_needed(
-            model=self.Activity, fields=self.SEARCH,
-        )
+    # def _populate_search_config(self):
+    #     SearchConfigItem.objects.create_if_needed(
+    #         model=self.Activity, fields=self.SEARCH,
+    #     )
 
     def _populate_menu_config(self):
         create_mitem = MenuConfigItem.objects.create

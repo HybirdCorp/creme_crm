@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 07-10-2025 pour la version 2.8 de Creme
+:Version: 09-10-2025 pour la version 2.8 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -791,6 +791,11 @@ Puis créons un fichier : ``my_project/beavers/populate.py``. ::
                 ],
             ),
         ]
+        # La classe de base utilise cet attribut pour construire des instances
+        # de SearchConfigItem (voir la méthode '_populate_search_config()')
+        SEARCH = [
+            SearchConfigItem.objects.builder(model=Beaver, fields=['name']),
+        ]
 
         # Cette méthode permet de savoir si la commande a déjà été utilisée pour notre app.
         # Vous DEVEZ l'implémenter.
@@ -798,11 +803,6 @@ Puis créons un fichier : ``my_project/beavers/populate.py``. ::
             return HeaderFilter.objects.filter(
                 pk=constants.DEFAULT_HFILTER_BEAVER,
             ).exists()
-
-        # Cette méthode est définie par la classe mère 'BasePopulator' et est
-        # automatiquement appelée.
-        def _populate_search_config(self):
-            SearchConfigItem.objects.create_if_needed(Beaver, ['name'])
 
         # Cette méthode n'est appelée que la première fois que la commande est
         # utilisée pour cette app.

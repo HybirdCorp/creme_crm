@@ -127,10 +127,20 @@ class Populator(BasePopulator):
         custom_forms.TASK_CREATION_CFORM,
         custom_forms.TASK_EDITION_CFORM,
     ]
-    SEARCH = {
-        'PROJECT': ['name', 'description', 'status__name'],
-        'TASK': ['linked_project__name', 'duration', 'tstatus__name'],
-    }
+    # SEARCH = {
+    #     'PROJECT': ['name', 'description', 'status__name'],
+    #     'TASK': ['linked_project__name', 'duration', 'tstatus__name'],
+    # }
+    SEARCH = [
+        SearchConfigItem.objects.builder(
+            model=Project,
+            fields=['name', 'description', 'status__name'],
+        ),
+        SearchConfigItem.objects.builder(
+            model=ProjectTask,
+            fields=['linked_project__name', 'duration', 'tstatus__name'],
+        ),
+    ]
     PROJECT_STATUSES = [
         # is_custom=True => only created during the first execution
         ProjectStatus(
@@ -292,10 +302,10 @@ class Populator(BasePopulator):
     #         ],
     #     )
 
-    def _populate_search_config(self):
-        create_sci = SearchConfigItem.objects.create_if_needed
-        create_sci(model=self.Project,     fields=self.SEARCH['PROJECT'])
-        create_sci(model=self.ProjectTask, fields=self.SEARCH['TASK'])
+    # def _populate_search_config(self):
+    #     create_sci = SearchConfigItem.objects.create_if_needed
+    #     create_sci(model=self.Project,     fields=self.SEARCH['PROJECT'])
+    #     create_sci(model=self.ProjectTask, fields=self.SEARCH['TASK'])
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

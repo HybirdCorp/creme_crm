@@ -2453,11 +2453,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_as_root()
         role1 = self.create_role(name='Test')
 
-        SearchConfigItem.objects.create_if_needed(
-            model=FakeContact,
-            fields=['first_name', 'last_name'],
-            role=role1,
-        )
+        SearchConfigItem.objects.builder(
+            model=FakeContact, fields=['first_name', 'last_name'], role=role1,
+        ).get_or_create()
 
         old_count = SearchConfigItem.objects.count()
 
@@ -2481,12 +2479,12 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_as_root()
         role1 = self.create_role(name='Test')
 
-        SearchConfigItem.objects.create_if_needed(
+        SearchConfigItem.objects.builder(
             role=role1, model=FakeContact, fields=['first_name', 'last_name'],
-        )
-        SearchConfigItem.objects.create_if_needed(
-            role=role1, model=FakeOrganisation, fields=[], disabled=True,
-        )
+        ).get_or_create()
+        SearchConfigItem.objects.builder(
+            role=role1, model=FakeOrganisation, disabled=True,
+        ).get_or_create()
 
         old_count = SearchConfigItem.objects.count()
 

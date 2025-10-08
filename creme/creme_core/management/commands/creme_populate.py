@@ -47,6 +47,7 @@ from creme.creme_core.models.button_menu import ButtonMenuItemProxy
 from creme.creme_core.models.creme_property import CremePropertyTypeProxy
 from creme.creme_core.models.header_filter import HeaderFilterProxy
 from creme.creme_core.models.relation import RelationTypeBuilder
+from creme.creme_core.models.search import SearchConfigItemBuilder
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.dependence_sort import dependence_sort
@@ -116,6 +117,12 @@ class BasePopulator:
         # ButtonMenuItem.objects.proxy(button=MyButton3, order=8, role="superuser"),
         # ButtonMenuItem.objects.proxy(
         #     button=MyButton4, order=8, role=MY_ROLE_UUID, model=MyModel,
+        # ),
+    ]
+    SEARCH: list[SearchConfigItemBuilder] = [
+        # Example:
+        # SearchConfigItem.objects.builder(
+        #     model=MyModel, fields=['name', 'description'],
         # ),
     ]
 
@@ -251,7 +258,8 @@ class BasePopulator:
             create_cfci(descriptor=descriptor)
 
     def _populate_search_config(self) -> None:
-        pass
+        for sc_builder in self.SEARCH:
+            sc_builder.get_or_create()
 
     def _populate_setting_values(self) -> None:
         for svalue in self.SETTING_VALUES:

@@ -260,7 +260,13 @@ class Populator(BasePopulator):
             model=Contact,      button=LinkedOpportunityButton, order=1030,
         ),
     ]
-    SEARCH = ['name', 'made_sales', 'sales_phase__name', 'origin__name']
+    # SEARCH = ['name', 'made_sales', 'sales_phase__name', 'origin__name']
+    SEARCH = [
+        SearchConfigItem.objects.builder(
+            model=Opportunity,
+            fields=['name', 'made_sales', 'sales_phase__name', 'origin__name'],
+        ),
+    ]
     SALES_PHASES = [
         # is_custom=True => only created during the first execution
         SalesPhase(uuid=UUID_PHASE_FORTHCOMING, order=1, name=_('Forthcoming')),
@@ -615,10 +621,10 @@ class Populator(BasePopulator):
     #         ],
     #     )
 
-    def _populate_search_config(self):
-        SearchConfigItem.objects.create_if_needed(
-            model=self.Opportunity, fields=self.SEARCH,
-        )
+    # def _populate_search_config(self):
+    #     SearchConfigItem.objects.create_if_needed(
+    #         model=self.Opportunity, fields=self.SEARCH,
+    #     )
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

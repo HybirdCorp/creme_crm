@@ -1173,10 +1173,10 @@ class ExportingTestCase(TransferBaseTestCase):
             ],
         )
 
-        create_sci = SearchConfigItem.objects.create_if_needed
-        create_sci(model=FakeContact, fields=['last_name'], role=role)
-        create_sci(model=FakeOrganisation, fields=['name'], role='superuser')
-        create_sci(model=FakeDocument, fields=['title'], disabled=True)
+        sci_builder = SearchConfigItem.objects.builder
+        sci_builder(model=FakeContact, fields=['last_name'], role=role).get_or_create()
+        sci_builder(model=FakeOrganisation, fields=['name'], role='superuser').get_or_create()
+        sci_builder(model=FakeDocument, fields=['title'], disabled=True).get_or_create()
 
         response = self.assertGET200(self.URL)
         content = response.json()

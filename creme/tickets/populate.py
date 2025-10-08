@@ -122,9 +122,18 @@ class Populator(BasePopulator):
             model=persons.get_organisation_model(), button=buttons.Linked2TicketButton, order=1050,
         )
     ]
+    # SEARCH = [
+    #     'title', 'number', 'description',
+    #     'status__name', 'priority__name', 'criticity__name',
+    # ]
     SEARCH = [
-        'title', 'number', 'description',
-        'status__name', 'priority__name', 'criticity__name',
+        SearchConfigItem.objects.builder(
+            model=Ticket,
+            fields=[
+                'title', 'number', 'description',
+                'status__name', 'priority__name', 'criticity__name',
+            ],
+        ),
     ]
     STATUSES = [
         Status(
@@ -261,10 +270,10 @@ class Populator(BasePopulator):
     #         ],
     #     )
 
-    def _populate_search_config(self):
-        SearchConfigItem.objects.create_if_needed(
-            model=self.Ticket, fields=self.SEARCH,
-        )
+    # def _populate_search_config(self):
+    #     SearchConfigItem.objects.create_if_needed(
+    #         model=self.Ticket, fields=self.SEARCH,
+    #     )
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

@@ -333,12 +333,28 @@ class Populator(BasePopulator):
         _ButtonProxy(model=Organisation, button=buttons.AddSalesOrderButton, order=1011),
         _ButtonProxy(model=Organisation, button=buttons.AddInvoiceButton,    order=1012),
     ]
-    SEARCH = {
-        'INVOICE':     ['name', 'number', 'status__name'],
-        'QUOTE':       ['name', 'number', 'status__name'],
-        'CREDIT_NOTE': ['name', 'number', 'status__name'],
-        'SALES_ORDER': ['name', 'number', 'status__name'],
-    }
+    # SEARCH = {
+    #     'INVOICE':     ['name', 'number', 'status__name'],
+    #     'QUOTE':       ['name', 'number', 'status__name'],
+    #     'CREDIT_NOTE': ['name', 'number', 'status__name'],
+    #     'SALES_ORDER': ['name', 'number', 'status__name'],
+    # }
+    SEARCH = [
+        SearchConfigItem.objects.builder(
+            model=Invoice,    fields=['name', 'number', 'status__name'],
+        ),
+        SearchConfigItem.objects.builder(
+            model=CreditNote, fields=['name', 'number', 'status__name'],
+        ),
+        SearchConfigItem.objects.builder(
+            model=Quote,      fields=['name', 'number', 'status__name'],
+        ),
+        SearchConfigItem.objects.builder(
+            model=SalesOrder, fields=['name', 'number', 'status__name'],
+        ),
+        SearchConfigItem.objects.builder(model=ProductLine, disabled=True),
+        SearchConfigItem.objects.builder(model=ServiceLine, disabled=True),
+    ]
     CREDIT_NOTE_STATUSES = [
         CreditNoteStatus(
             uuid=constants.UUID_CNOTE_STATUS_DRAFT,
@@ -863,16 +879,16 @@ class Populator(BasePopulator):
     #     self._populate_header_filters_for_productline()
     #     self._populate_header_filters_for_serviceline()
 
-    def _populate_search_config(self):
-        create_sci = SearchConfigItem.objects.create_if_needed
-        fields = self.SEARCH
-        create_sci(model=self.Invoice,    fields=fields['INVOICE'])
-        create_sci(model=self.CreditNote, fields=fields['CREDIT_NOTE'])
-        create_sci(model=self.Quote,      fields=fields['QUOTE'])
-        create_sci(model=self.SalesOrder, fields=fields['SALES_ORDER'])
-
-        for model in (self.ProductLine, self.ServiceLine):
-            create_sci(model=model, fields=[], disabled=True)
+    # def _populate_search_config(self):
+    #     create_sci = SearchConfigItem.objects.create_if_needed
+    #     fields = self.SEARCH
+    #     create_sci(model=self.Invoice,    fields=fields['INVOICE'])
+    #     create_sci(model=self.CreditNote, fields=fields['CREDIT_NOTE'])
+    #     create_sci(model=self.Quote,      fields=fields['QUOTE'])
+    #     create_sci(model=self.SalesOrder, fields=fields['SALES_ORDER'])
+    #
+    #     for model in (self.ProductLine, self.ServiceLine):
+    #         create_sci(model=model, fields=[], disabled=True)
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

@@ -143,16 +143,36 @@ class Populator(BasePopulator):
             model=EntityEmail, button=buttons.EntityEmailLinkButton, order=1020,
         ),
     ]
-    SEARCH = {
-        'CAMPAIGN': ['name', 'mailing_lists__name'],
-        'MAILING_LIST': [
-            'name', 'children__name',
-            'contacts__first_name', 'contacts__last_name',
-            'organisations__name',
-        ],
-        'TEMPLATE': ['name', 'subject', 'body', 'attachments__title'],
-        'EMAIL': ['sender', 'recipient', 'subject'],
-    }
+    # SEARCH = {
+    #     'CAMPAIGN': ['name', 'mailing_lists__name'],
+    #     'MAILING_LIST': [
+    #         'name', 'children__name',
+    #         'contacts__first_name', 'contacts__last_name',
+    #         'organisations__name',
+    #     ],
+    #     'TEMPLATE': ['name', 'subject', 'body', 'attachments__title'],
+    #     'EMAIL': ['sender', 'recipient', 'subject'],
+    # }
+    SEARCH = [
+        SearchConfigItem.objects.builder(
+            model=EmailCampaign, fields=['name', 'mailing_lists__name'],
+        ),
+        SearchConfigItem.objects.builder(
+            model=MailingList,
+            fields=[
+                'name', 'children__name',
+                'contacts__first_name', 'contacts__last_name',
+                'organisations__name',
+            ],
+        ),
+        SearchConfigItem.objects.builder(
+            model=EmailTemplate,
+            fields=['name', 'subject', 'body', 'attachments__title'],
+        ),
+        SearchConfigItem.objects.builder(
+            model=EntityEmail, fields=['sender', 'recipient', 'subject'],
+        ),
+    ]
     FOLDER_CATEGORIES = [
         FolderCategory(
             uuid=constants.UUID_FOLDER_CAT_EMAILS,
@@ -255,12 +275,12 @@ class Populator(BasePopulator):
     #         ],
     #     )
 
-    def _populate_search_config(self):
-        create_sci = SearchConfigItem.objects.create_if_needed
-        create_sci(model=self.EmailCampaign, fields=self.SEARCH['CAMPAIGN'])
-        create_sci(model=self.MailingList,   fields=self.SEARCH['MAILING_LIST'])
-        create_sci(model=self.EmailTemplate, fields=self.SEARCH['TEMPLATE'])
-        create_sci(model=self.EntityEmail,   fields=self.SEARCH['EMAIL'])
+    # def _populate_search_config(self):
+    #     create_sci = SearchConfigItem.objects.create_if_needed
+    #     create_sci(model=self.EmailCampaign, fields=self.SEARCH['CAMPAIGN'])
+    #     create_sci(model=self.MailingList,   fields=self.SEARCH['MAILING_LIST'])
+    #     create_sci(model=self.EmailTemplate, fields=self.SEARCH['TEMPLATE'])
+    #     create_sci(model=self.EntityEmail,   fields=self.SEARCH['EMAIL'])
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

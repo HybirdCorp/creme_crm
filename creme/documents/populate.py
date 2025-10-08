@@ -96,12 +96,21 @@ class Populator(BasePopulator):
         custom_forms.DOCUMENT_CREATION_CFORM,
         custom_forms.DOCUMENT_EDITION_CFORM,
     ]
-    SEARCH = {
-        'FOLDER': ['title', 'description', 'category__name'],
-        'DOCUMENT': [
-            'title', 'description', 'linked_folder__title', 'categories__name',
-        ],
-    }
+    # SEARCH = {
+    #     'FOLDER': ['title', 'description', 'category__name'],
+    #     'DOCUMENT': [
+    #         'title', 'description', 'linked_folder__title', 'categories__name',
+    #     ],
+    # }
+    SEARCH = [
+        SearchConfigItem.objects.builder(
+            model=Folder, fields=['title', 'description', 'category__name'],
+        ),
+        SearchConfigItem.objects.builder(
+            model=Document,
+            fields=['title', 'description', 'linked_folder__title', 'categories__name'],
+        ),
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -206,10 +215,10 @@ class Populator(BasePopulator):
     #     self._populate_header_filters_for_document()
     #     self._populate_header_filters_for_folder()
 
-    def _populate_search_config(self):
-        create_sci = SearchConfigItem.objects.create_if_needed
-        create_sci(model=self.Folder,   fields=self.SEARCH['FOLDER'])
-        create_sci(model=self.Document, fields=self.SEARCH['DOCUMENT'])
+    # def _populate_search_config(self):
+    #     create_sci = SearchConfigItem.objects.create_if_needed
+    #     create_sci(model=self.Folder,   fields=self.SEARCH['FOLDER'])
+    #     create_sci(model=self.Document, fields=self.SEARCH['DOCUMENT'])
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

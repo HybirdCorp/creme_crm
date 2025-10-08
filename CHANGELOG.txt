@@ -21,11 +21,14 @@
             - The context processor "creme_core.context_processors.get_entities_deletion_allowed"
               is now deprecated (it injected "ENTITIES_DELETION_ALLOWED" in contexts) ;
               it has been removed from the default settings.
+            - The method 'creme_core.models.search.SearchConfigItemManager.create_if_needed()'
+              is deprecated; use the method 'builder()' instead.
         # The declarative possibilities of 'creme_core.management.commands.creme_populate.BasePopulator'
           have been extended; new class attributes are :
              - BUTTONS
              - HEADER_FILTERS
              - RELATION_TYPES
+             - SEARCH
           Note: you should probably use 'RelationType.objects.builder()' instead of
                 'RelationType.objects.smart_update_or_create()' when it's possible,
                 because the last method will be removed in a futur version.
@@ -118,7 +121,9 @@
                     - The method 'models.AbstractProjectTask.clone_scope()' has been removed.
                 * Crudity :
                     - The constant 'SETTING_CRUDITY_SANDBOX_BY_USER' has been removed.
-        # In the class 'creme_core.bricks.StatisticsBrick', te attribute
+        # In many apps, the attributes 'SEARCH' of Populator classes have changed
+          (because they implemented their own API before the new generic one).
+        # In the class 'creme_core.bricks.StatisticsBrick', the attribute
           'statistics_registry' has been renamed "statistic_registry".
         # In the class 'creme_core.core.entity_cell.EntityCellActions' the constructor argument
           'actions_registry' has been renamed "action_registry".

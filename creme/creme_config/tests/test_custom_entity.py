@@ -272,9 +272,9 @@ class CustomEntityConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             brick=PropertiesBrick, order=1, zone=BrickDetailviewLocation.LEFT, model=model,
         )
 
-        get_sci = SearchConfigItem.objects.create_if_needed
-        other_sci  = get_sci(model=FakeContact, fields=['first_name'])
-        custom_sci = get_sci(model=model,       fields=['name'])
+        sci_builder = SearchConfigItem.objects.builder
+        other_sci  = sci_builder(model=FakeContact, fields=['first_name']).get_or_create()[0]
+        custom_sci = sci_builder(model=model,       fields=['name']).get_or_create()[0]
 
         custom_wf = Workflow.objects.create(
             title='Custom type WF',

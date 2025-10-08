@@ -55,6 +55,11 @@ class Populator(BasePopulator):
         custom_forms.GENERATOR_CREATION_CFORM,
         custom_forms.GENERATOR_EDITION_CFORM,
     ]
+    SEARCH = [
+        SearchConfigItem.objects.builder(
+            model=RecurrentGenerator, fields=['name', 'description'],
+        ),
+    ]
 
     def _already_populated(self):
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_RGENERATOR).exists()
@@ -67,8 +72,8 @@ class Populator(BasePopulator):
     #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
     #     )
 
-    def _populate_search_config(self):
-        SearchConfigItem.objects.create_if_needed(RecurrentGenerator, ['name', 'description'])
+    # def _populate_search_config(self):
+    #     SearchConfigItem.objects.create_if_needed(RecurrentGenerator, ['name', 'description'])
 
     def _populate_menu_config(self):
         container = MenuConfigItem.objects.get_or_create(
