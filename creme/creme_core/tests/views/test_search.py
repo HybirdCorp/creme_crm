@@ -148,9 +148,14 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             reload_url,
         )
 
-        self.assertIsList(bricks, length=1)
+        # self.assertIsList(bricks, length=1)
+        self.assertIsDict(bricks, length=1)
 
-        brick = bricks[0]
+        main_bricks = bricks.get('main')
+        self.assertIsList(main_bricks, length=1)
+
+        # brick = bricks[0]
+        brick = main_bricks[0]
         self.assertIsInstance(brick, QuerysetBrick)
         self.assertIn(self.CONTACT_BRICKID, brick.id)
         self.assertEqual(
@@ -185,7 +190,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self._search('cox')
         context = response.context
 
-        self.assertGreaterEqual(len(context['bricks']), 2)
+        # self.assertGreaterEqual(len(context['bricks']), 2)
+        self.assertGreaterEqual(len(context['bricks']['main']), 2)
 
         tree = self.get_html_tree(response.content)
         brick_node1 = self.get_search_brick_node(tree, brick_id_prefix=self.CONTACT_BRICKID)

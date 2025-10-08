@@ -76,7 +76,8 @@ class Portal(PortalBricksMixin, generic.BricksView):
     bricks_reload_url_name = 'crudity__reload_actions_bricks'
 
     def get_bricks(self):
-        return self.get_portal_bricks()
+        # return self.get_portal_bricks()
+        return {'main': self.get_portal_bricks()}
 
 
 class ActionsRefreshing(RegistryMixin, generic.CheckedView):

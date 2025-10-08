@@ -11,6 +11,8 @@
     {% include 'creme_config/bricks/configurable-models.html' %}
 
     {% brick_import app='creme_config' name='settings' as settings_brick %}
-    {% brick_declare bricks %}
-    {% brick_display settings_brick bricks %}
+{#    {% brick_declare bricks %} #}
+    {% brick_declare bricks.main %}
+{#    {% brick_display settings_brick bricks %} #}
+    {% brick_display settings_brick bricks.main %}
 {% endblock %}

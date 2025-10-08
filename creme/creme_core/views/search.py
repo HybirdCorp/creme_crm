@@ -147,7 +147,8 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
         self.search_terms = None
 
     def get_bricks(self):
-        bricks = super().get_bricks()
+        # bricks = super().get_bricks()
+        bricks = []
 
         if not self.get_search_error():
             searcher = self.get_searcher()
@@ -160,7 +161,8 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
 
             bricks.extend(ResultBrick(model=model) for model in searcher.models)
 
-        return bricks
+        # return bricks
+        return {'main': bricks}
 
     def get_bricks_reload_url(self):
         return '{}?{}'.format(

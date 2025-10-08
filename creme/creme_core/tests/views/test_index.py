@@ -50,10 +50,18 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         bricks = context.get('bricks')
-        self.assertIsList(bricks, min_length=2)
-        self.assertIsInstance(bricks[0], Brick)
+        # self.assertIsList(bricks, min_length=2)
+        # self.assertIsInstance(bricks[0], Brick)
+        self.assertIsDict(bricks, length=1)
 
-        brick_ids = [b.id for b in bricks]
+        main_bricks = bricks.get('main')
+        self.assertIsList(main_bricks, min_length=2)
+
+        # self.assertIsInstance(bricks[0], Brick)
+        self.assertIsInstance(main_bricks[0], Brick)
+
+        # brick_ids = [b.id for b in bricks]
+        brick_ids = [b.id for b in main_bricks]
         i1 = self.assertIndex(StatisticsBrick.id, brick_ids)
         i2 = self.assertIndex(HistoryBrick.id,    brick_ids)
         self.assertLess(i1, i2)
@@ -75,9 +83,14 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertGET200(reverse('creme_core__home'))
         bricks = response.context.get('bricks')
-        self.assertEqual(len(bricks), 1)
+        # self.assertEqual(len(bricks), 1)
+        self.assertIsDict(bricks, length=1)
 
-        brick = bricks[0]
+        main_bricks = bricks.get('main')
+        self.assertIsList(main_bricks, length=1)
+
+        # brick = bricks[0]
+        brick = main_bricks[0]
         self.assertIsInstance(brick, StatisticsBrick)
         self.assertEqual(brick_id, brick.id)
 
@@ -98,9 +111,14 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertGET200(reverse('creme_core__home'))
         bricks = response.context.get('bricks')
-        self.assertEqual(len(bricks), 1)
+        # self.assertEqual(len(bricks), 1)
+        self.assertIsDict(bricks, length=1)
 
-        brick = bricks[0]
+        main_bricks = bricks.get('main')
+        self.assertIsList(main_bricks, length=1)
+
+        # brick = bricks[0]
+        brick = main_bricks[0]
         self.assertIsInstance(brick, StatisticsBrick)
         self.assertEqual(brick_id, brick.id)
 
@@ -138,9 +156,15 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             context.get('bricks_reload_url'),
         )
 
+        # bricks = context.get('bricks')
+        # self.assertIsList(bricks)
+        # self.assertIn(HistoryBrick, {b.__class__ for b in bricks})
         bricks = context.get('bricks')
-        self.assertIsList(bricks)
-        self.assertIn(HistoryBrick, {b.__class__ for b in bricks})
+        self.assertIsDict(bricks, length=1)
+
+        main_bricks = bricks.get('main')
+        self.assertIsList(main_bricks)
+        self.assertIn(HistoryBrick, {b.__class__ for b in main_bricks})
 
     def test_my_page__permissions(self):
         user = self.login_as_standard()

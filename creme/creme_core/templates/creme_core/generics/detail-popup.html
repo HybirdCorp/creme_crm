@@ -18,8 +18,10 @@
     {% endblock %}
 
     {% block main_content %}
-        {% brick_declare bricks %}
-        {% brick_display bricks %}
+{#        {% brick_declare bricks %} #}
+        {% brick_declare bricks.main %}
+{#        {% brick_display bricks %} #}
+        {% brick_display bricks.main %}
         {% brick_end %}
     {% endblock %}
 {% endblock %}

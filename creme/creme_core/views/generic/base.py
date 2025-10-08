@@ -419,11 +419,22 @@ class BricksMixin:
     def get_brick_ids(self) -> Iterable[str]:
         return ()
 
-    def get_bricks(self) -> list[Brick]:
-        return [*self.brick_registry.get_bricks(
-            brick_ids=[id_ for id_ in self.get_brick_ids() if id_],
-            user=self.request.user,
-        )]
+    # def get_bricks(self) -> list[Brick]:
+    #     return [*self.brick_registry.get_bricks(
+    #         brick_ids=[id_ for id_ in self.get_brick_ids() if id_],
+    #         user=self.request.user,
+    #     )]
+    def get_bricks(self) -> dict[str, list[Brick]]:
+        """Get a dictionary with groups of Bricks.
+        Groups are identified by strings, & can be used in templates to have
+        several zones (like 'top', left'...).
+        """
+        return {
+            'main': [*self.brick_registry.get_bricks(
+                brick_ids=[id_ for id_ in self.get_brick_ids() if id_],
+                user=self.request.user,
+            )],
+        }
 
     def get_bricks_reload_url(self) -> str:
         name = self.bricks_reload_url_name

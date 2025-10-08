@@ -26,7 +26,7 @@ from django.views.generic import DetailView
 
 from creme.creme_core.bricks import ButtonsBrick
 from creme.creme_core.core import imprint
-from creme.creme_core.gui.bricks import brick_registry
+from creme.creme_core.gui.bricks import Brick, brick_registry
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.gui.visit import EntityVisitor
@@ -41,7 +41,7 @@ from . import base
 logger = logging.getLogger(__name__)
 
 
-def detailview_bricks(user, entity, registry=brick_registry):
+def detailview_bricks(user, entity, registry=brick_registry) -> dict[str, list[Brick]]:
     is_superuser = user.is_superuser
     role = user.role
 
@@ -180,12 +180,11 @@ class EntityDetail(base.EntityModelMixin, CremeModelDetail):
         super().check_view_permissions(user=user)
         user.has_perm_to_access_or_die(self.get_checked_model()._meta.app_label)
 
-    # TODO: change BricksMixin.get_bricks() return type to <dict> ?
-    # TODO: add a system for mandatory Brick (& set ButtonsBrick as mandatory) in BricksMixin?
     def get_bricks(self):
         user = self.request.user
         entity = self.object
         bricks = detailview_bricks(user=user, entity=entity, registry=self.brick_registry)
+        # TODO: add a system for mandatory Bricks in BricksMixin?
         bricks['buttons'] = [*self.brick_registry.get_bricks(
             brick_ids=[ButtonsBrick.id], entity=entity, user=user,
         )]
