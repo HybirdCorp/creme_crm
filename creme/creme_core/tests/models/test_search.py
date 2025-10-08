@@ -18,8 +18,8 @@ from creme.creme_core.models import (
 from ..base import CremeTestCase
 
 
-class SearchConfigTestCase(CremeTestCase):
-    def test_manager_create_if_needed01(self):
+class SearchConfigItemManagerTestCase(CremeTestCase):
+    def test_create_if_needed(self):
         count = SearchConfigItem.objects.count()
         ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ct))
@@ -55,8 +55,7 @@ class SearchConfigTestCase(CremeTestCase):
         SearchConfigItem.objects.create_if_needed(FakeContact, ['first_name', 'last_name'])
         self.assertEqual(count + 1, SearchConfigItem.objects.count())
 
-    def test_manager_create_if_needed02(self):
-        "With a role."
+    def test_create_if_needed__role(self):
         count = SearchConfigItem.objects.count()
 
         role = self.get_regular_role()
@@ -79,8 +78,7 @@ class SearchConfigTestCase(CremeTestCase):
             str(sc_item),
         )
 
-    def test_manager_create_if_needed03(self):
-        "For superusers."
+    def test_create_if_needed__super_user(self):
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeOrganisation, ['name'], role='superuser',
         )
@@ -96,7 +94,7 @@ class SearchConfigTestCase(CremeTestCase):
             str(sc_item),
         )
 
-    def test_manager_create_if_needed04(self):
+    def test_create_if_needed__invalid_field(self):
         "Invalid fields."
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeContact, ['invalid_field', 'first_name'],
@@ -106,7 +104,7 @@ class SearchConfigTestCase(CremeTestCase):
             [*sc_item.cells],
         )
 
-    def test_manager_create_if_needed05(self):
+    def test_create_if_needed__invalid_subfield(self):
         "Invalid fields: no subfield."
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeContact, ['last_name__invalid', 'first_name'],
@@ -116,16 +114,125 @@ class SearchConfigTestCase(CremeTestCase):
             [*sc_item.cells],
         )
 
-    def test_manager_create_if_needed06(self):
-        "Disabled."
+    def test_create_if_needed__disabled(self):
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeOrganisation, [], disabled=True,
         )
         self.assertTrue(sc_item.disabled)
         self.assertFalse([*sc_item.cells])
 
-    def test_allfields01(self):
-        "True."
+    def test_iter_for_models__no_model(self):
+        user = self.get_root_user()
+
+        self.assertListEqual([], [*SearchConfigItem.objects.iter_for_models([], user)])
+
+    def test_iter_for_models__1_model__no_config(self):
+        "One model, no config in BD."
+        user = self.get_root_user()
+        self.assertFalse(
+            [*SearchConfigItem.objects.iter_for_models([FakeContact], user)],
+        )
+
+    def test_iter_for_models__1_model__1_config(self):
+        "One model, 1 config in DB."
+        user = self.get_root_user()
+
+        created_item = SearchConfigItem.objects.create_if_needed(
+            FakeContact, ['first_name', 'last_name'],
+        )
+
+        retrieved_item = self.get_alone_element(
+            SearchConfigItem.objects.iter_for_models([FakeContact], user)
+        )
+        self.assertEqual(created_item, retrieved_item)
+
+    def test_iter_for_models__1_model__2_configs(self):
+        "One model, 2 configs in DB."
+        create_role = self.create_role
+        role1 = create_role(name='Basic')
+        role2 = create_role(name='CEO')
+        role3 = create_role(name='Office lady')
+
+        user = self.create_user(role=role1)
+
+        create_sci = SearchConfigItem.objects.create_if_needed
+        create_sci(FakeContact, ['description'], role='superuser')
+        create_sci(FakeContact, ['first_name', 'last_name'])
+        create_sci(FakeContact, ['first_name'], role=role2)
+        created_item = create_sci(FakeContact, ['last_name'], role=role1)  # <===
+        create_sci(FakeContact, ['first_name', 'description'], role=role3)
+
+        retrieved_item = self.get_alone_element(
+            SearchConfigItem.objects.iter_for_models([FakeContact], user)
+        )
+        self.assertEqual(created_item, retrieved_item)
+
+    def test_iter_for_models__1_model__2_configs_other(self):
+        "One model, 2 configs in DB (other order)."
+        role = self.create_role(name='Test')
+        user = self.create_user(role=role)
+
+        create_sci = SearchConfigItem.objects.create_if_needed
+        sc_item = create_sci(FakeContact, ['last_name'], role=role)
+        create_sci(FakeContact, ['first_name', 'last_name'])
+        create_sci(FakeContact, ['description'], role='superuser')
+
+        self.assertEqual(
+            sc_item,
+            next(SearchConfigItem.objects.iter_for_models([FakeContact], user))
+        )
+
+    def test_iter_for_models__superuser(self):
+        "One model, 2 configs in DB (super-user)."
+        user = self.get_root_user()
+
+        create_role = self.create_role
+        role1 = create_role(name='CEO')
+        role2 = create_role(name='Office lady')
+
+        create_sci = SearchConfigItem.objects.create_if_needed
+        create_sci(FakeContact, ['first_name', 'last_name'])
+        create_sci(FakeContact, ['first_name'], role=role1)
+        sc_item = create_sci(FakeContact, ['last_name'], role='superuser')  # <==
+        create_sci(FakeContact, ['first_name', 'description'], role=role2)
+
+        self.assertEqual(
+            sc_item,
+            next(SearchConfigItem.objects.iter_for_models([FakeContact], user))
+        )
+
+    def test_iter_for_models__superuser__other(self):
+        "One model, 2 configs in DB (super-user) (other order)."
+        user = self.get_root_user()
+
+        create_sci = SearchConfigItem.objects.create_if_needed
+        sc_item = create_sci(FakeContact, ['last_name'], role='superuser')
+        create_sci(FakeContact, ['first_name', 'last_name'])
+
+        self.assertEqual(
+            sc_item,
+            next(SearchConfigItem.objects.iter_for_models([FakeContact], user))
+        )
+
+    def test_iter_for_models__2_models(self):
+        user = self.get_root_user()
+
+        create_sci = SearchConfigItem.objects.create_if_needed
+        create_sci(FakeContact, ['last_name'])
+        create_sci(FakeOrganisation, ['name'])
+
+        models = [FakeContact, FakeOrganisation]
+        self.assertListEqual(
+            models,
+            [
+                sci.content_type.model_class()
+                for sci in SearchConfigItem.objects.iter_for_models(models, user)
+            ],
+        )
+
+
+class SearchConfigItemTestCase(CremeTestCase):
+    def test_all_fields__true(self):
         sc_item = SearchConfigItem.objects.create_if_needed(FakeOrganisation, [])
         self.assertTrue(sc_item.all_fields)
         self.assertListEqual([], [*sc_item.cells])
@@ -138,8 +245,7 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertNotIn('sector', sfields)
         self.assertNotIn('address', sfields)
 
-    def test_allfields02(self):
-        "False."
+    def test_all_fields__false(self):
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeOrganisation, ['name', 'phone'],
         )
@@ -178,7 +284,7 @@ class SearchConfigTestCase(CremeTestCase):
     #     self.assertTrue(sc_item.all_fields)
     #     self.assertIsNone(sc_item.field_names)
 
-    def test_cells_property01(self):
+    def test_cells_property(self):
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeOrganisation, ['name', 'phone'],
         )
@@ -197,8 +303,7 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertListEqual([], sc_item.json_cells)
         self.assertTrue(sc_item.all_fields)
 
-    def test_cells_property02(self):
-        "No fields"
+    def test_cells_property__no_field(self):
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeOrganisation, ['name', 'phone'],
         )
@@ -213,7 +318,7 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertListEqual([cell], [*sc_item.cells])
         self.assertFalse(sc_item.all_fields)
 
-    def test_cells_property03(self):
+    def test_cells_property__invalid_fields(self):
         "Invalid fields generate None as cells."
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeOrganisation, ['name', 'phone'],
@@ -223,7 +328,7 @@ class SearchConfigTestCase(CremeTestCase):
         sc_item.save()
         self.assertListEqual([], self.refresh(sc_item).json_cells)
 
-    def test_cells_property04(self):
+    def test_cells_property__disabled(self):
         "Fields + disabled."
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeOrganisation, ['name', 'phone'], disabled=True,
@@ -277,115 +382,4 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertListEqual(
             [EntityCellRegularField.build(FakeContact, 'last_name')],
             [*self.refresh(sc_item).refined_cells],
-        )
-
-    def test_manager_get_for_models01(self):
-        "No model."
-        user = self.get_root_user()
-
-        self.assertListEqual([], [*SearchConfigItem.objects.iter_for_models([], user)])
-
-    def test_manager_get_for_models02(self):
-        "One model, no config in BD."
-        user = self.get_root_user()
-        self.assertFalse(
-            [*SearchConfigItem.objects.iter_for_models([FakeContact], user)],
-        )
-
-    def test_manager_get_for_models03(self):
-        "One model, 1 config in DB."
-        user = self.get_root_user()
-
-        created_item = SearchConfigItem.objects.create_if_needed(
-            FakeContact, ['first_name', 'last_name'],
-        )
-
-        retrieved_item = self.get_alone_element(
-            SearchConfigItem.objects.iter_for_models([FakeContact], user)
-        )
-        self.assertEqual(created_item, retrieved_item)
-
-    def test_manager_get_for_models04(self):
-        "One model, 2 configs in DB."
-        create_role = self.create_role
-        role1 = create_role(name='Basic')
-        role2 = create_role(name='CEO')
-        role3 = create_role(name='Office lady')
-
-        user = self.create_user(role=role1)
-
-        create_sci = SearchConfigItem.objects.create_if_needed
-        create_sci(FakeContact, ['description'], role='superuser')
-        create_sci(FakeContact, ['first_name', 'last_name'])
-        create_sci(FakeContact, ['first_name'], role=role2)
-        created_item = create_sci(FakeContact, ['last_name'], role=role1)  # <===
-        create_sci(FakeContact, ['first_name', 'description'], role=role3)
-
-        retrieved_item = self.get_alone_element(
-            SearchConfigItem.objects.iter_for_models([FakeContact], user)
-        )
-        self.assertEqual(created_item, retrieved_item)
-
-    def test_manager_get_for_models05(self):
-        "One model, 2 configs in DB (other order)."
-        role = self.create_role(name='Test')
-        user = self.create_user(role=role)
-
-        create_sci = SearchConfigItem.objects.create_if_needed
-        sc_item = create_sci(FakeContact, ['last_name'], role=role)
-        create_sci(FakeContact, ['first_name', 'last_name'])
-        create_sci(FakeContact, ['description'], role='superuser')
-
-        self.assertEqual(
-            sc_item,
-            next(SearchConfigItem.objects.iter_for_models([FakeContact], user))
-        )
-
-    def test_manager_get_for_models06(self):
-        "One model, 2 configs in DB (super-user)."
-        user = self.get_root_user()
-
-        create_role = self.create_role
-        role1 = create_role(name='CEO')
-        role2 = create_role(name='Office lady')
-
-        create_sci = SearchConfigItem.objects.create_if_needed
-        create_sci(FakeContact, ['first_name', 'last_name'])
-        create_sci(FakeContact, ['first_name'], role=role1)
-        sc_item = create_sci(FakeContact, ['last_name'], role='superuser')  # <==
-        create_sci(FakeContact, ['first_name', 'description'], role=role2)
-
-        self.assertEqual(
-            sc_item,
-            next(SearchConfigItem.objects.iter_for_models([FakeContact], user))
-        )
-
-    def test_manager_get_for_models07(self):
-        "One model, 2 configs in DB (super-user) (other order)."
-        user = self.get_root_user()
-
-        create_sci = SearchConfigItem.objects.create_if_needed
-        sc_item = create_sci(FakeContact, ['last_name'], role='superuser')
-        create_sci(FakeContact, ['first_name', 'last_name'])
-
-        self.assertEqual(
-            sc_item,
-            next(SearchConfigItem.objects.iter_for_models([FakeContact], user))
-        )
-
-    def test_manager_get_for_models08(self):
-        "2 models."
-        user = self.get_root_user()
-
-        create_sci = SearchConfigItem.objects.create_if_needed
-        create_sci(FakeContact, ['last_name'])
-        create_sci(FakeOrganisation, ['name'])
-
-        models = [FakeContact, FakeOrganisation]
-        self.assertListEqual(
-            models,
-            [
-                sci.content_type.model_class()
-                for sci in SearchConfigItem.objects.iter_for_models(models, user)
-            ],
         )
