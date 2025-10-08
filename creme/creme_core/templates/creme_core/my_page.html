@@ -13,7 +13,9 @@
         </div>
     </div>
 
-    {% brick_declare bricks %}
-    {% brick_display bricks render='home' %}
+{#    {% brick_declare bricks %} #}
+    {% brick_declare bricks.main %}
+{#    {% brick_display bricks render='home' %} #}
+    {% brick_display bricks.main render='home' %}
     {% brick_end %}
 {% endblock %}

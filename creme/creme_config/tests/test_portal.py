@@ -23,8 +23,12 @@ class PortalTestCase(CremeTestCase):
         self.assertIn('creme_core', (r.name for r in app_configs))
 
         bricks = get('bricks')
-        self.assertIsList(bricks)
-        self.assertIn(FakePortalBrick, [type(brick) for brick in bricks])
+        # self.assertIsList(bricks)
+        # self.assertIn(FakePortalBrick, [type(brick) for brick in bricks])
+        self.assertIsDict(bricks, length=1)
+        main_bricks = bricks.get('main')
+        self.assertIsList(main_bricks)
+        self.assertIn(FakePortalBrick, [type(brick) for brick in main_bricks])
 
     def test_portal02(self):
         self.login_as_standard()  # allowed_apps=['creme_config']

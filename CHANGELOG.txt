@@ -126,6 +126,11 @@
           'quickforms_registry' has been renamed "quickform_registry".
         # The method 'creme_core.gui.button_menu.Button.ok_4_display()' has been replaced by the method 'is_displayed()'.
         # In 'creme_core.views' :
+            - The method 'creme_core.views.generic.base.BricksMixin.get_bricks()' now returns
+              a dictionary instead of a list (to group Bricks per zone).
+              All inheriting views have been modified, & their related templates too
+              (typically "{% brick_declare bricks %}" became "{% brick_declare bricks.main %}").
+              Notice that reloading views still use a list (because zones have no meaning in reloading context).
             - In the class 'generic.listview.EntitiesList':
                 - the attribute 'actions_registry' has been renamed "action_registry".
                 - the method 'get_actions_registry()' has been renamed "get_action_registry".

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2024  Hybird
+#    Copyright (C) 2016-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -66,7 +66,7 @@ class JobDetail(generic.base.CallbackMixin, generic.CremeModelDetail):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         job = self.object
-        context['results_bricks'] = job.type.results_bricks
+        context['results_bricks'] = job.type.results_bricks  # TODO: dictionary instead?
         context['bricks_reload_url'] = reverse('creme_core__reload_job_bricks', args=(job.id,))
         context['list_url'] = self.get_list_url()
 

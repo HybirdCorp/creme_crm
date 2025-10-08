@@ -429,7 +429,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         )
 
         with self.assertNoException():
-            bricks = [*context['bricks']]
+            # bricks = [*context['bricks']]
+            bricks = [*context['bricks']['main']]
 
         self.assertTrue(bricks)
         models = set()
@@ -505,7 +506,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         get = response.context.get
         self.assertEqual(reverse('crudity__reload_actions_bricks'), get('bricks_reload_url'))
-        self.assertIsList(get('bricks'))  # TODO: improve
+        # self.assertIsList(get('bricks'))
+        self.assertIsDict(get('bricks'), length=1)  # TODO: improve
 
         self.assertFalse(FakePOP3.instances)
 
