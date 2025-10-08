@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from typing import TYPE_CHECKING, DefaultDict
@@ -42,7 +43,128 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+class SearchConfigItemBuilder:
+    """This class is useful to build SearchConfigItem instances in a
+    declarative way in 'populate' scripts.
+
+    The field 'SearchConfigItem.content_type' references an instance of
+    ContentType, but it safer to retrieve it as late as possible (because
+    in the context of unit tests the final ContentType instances can be
+    different from the initial ones).
+
+    The model fields (i.e. the ones used by the search) are also computed when
+    the instance is created.
+
+    Hint: use SearchConfigItem.objects.builder().
+    """
+    def __init__(self, *,
+                 model: type[CremeEntity],
+                 fields: Iterable[str],
+                 role: UserRole | str | None = None,
+                 disabled: bool = False,
+                 ):
+        """ Constructor.
+        @param model: CremeEntity type we want to search on.
+        @param fields: Name of the regular fields used bt the search.
+        @param role: Role related to the configuration we build.
+               - None: default configuration (no role, not superuser).
+               - UserRole instance for role (not superuser).
+               - UserRole instance UUID as string.
+               - The string "superuser" for superuser configuration.
+        @param disabled: Is the search disabled.
+        """
+        self.model = model
+        self.fields = [*fields]
+        self._role = role
+        self.disabled = disabled
+
+    # TODO: setter?
+    # TODO: refined_cells?
+    @property
+    def cells(self) -> Iterator[EntityCell]:
+        from ..core.entity_cell import EntityCellRegularField
+
+        model = self.model
+
+        for field_name in self.fields:
+            yield EntityCellRegularField.build(model=model, name=field_name)
+
+    @property
+    def content_type(self) -> ContentType:
+        return ContentType.objects.get_for_model(self.model)
+
+    @property
+    def is_default(self) -> bool:
+        return self._role is None
+
+    def _role_n_superuser(self) -> tuple[UserRole | None, bool]:
+        role = self._role
+        if role is None:
+            return None, False
+
+        if isinstance(role, str):
+            if role == 'superuser':
+                return None, True
+
+            return UserRole.objects.get(uuid=role), False
+
+        assert isinstance(role, UserRole)
+        return role, False
+
+    @property
+    def role(self) -> UserRole | None:
+        return self._role_n_superuser()[0]
+
+    @role.setter
+    def role(self, value: UserRole | str | None):
+        """ Setter.
+        @param value: Role related to the configuration we build.
+               - None: default configuration (no role, not superuser).
+               - UserRole instance for role (not superuser).
+               - UserRole instance UUID as string.
+               - The string "superuser" for superuser configuration.
+        """
+        self._role = value
+
+    @property
+    def superuser(self) -> bool:
+        return self._role == 'superuser'
+
+    def get_or_create(self) -> tuple[SearchConfigItem, bool]:
+        role, superuser = self._role_n_superuser()
+
+        return SearchConfigItem.objects.get_or_create(
+            content_type=ContentType.objects.get_for_model(self.model),
+            role=role,
+            superuser=superuser,
+            defaults={
+                'disabled': self.disabled,
+                'cells': [*self.cells],
+            },
+        )
+
+
 class SearchConfigItemManager(models.Manager):
+    def builder(self, *,
+                model: type[CremeEntity],
+                fields: Iterable[str] = (),
+                role: UserRole | str | None = None,
+                disabled: bool = False,
+                ) -> SearchConfigItemBuilder:
+        """ Get a builder for SearchConfigItem.
+        @param model: CremeEntity type we want to search on.
+        @param fields: Name of the regular fields used bt the search.
+        @param role: Role related to the configuration we build.
+               - None: default configuration (no role, not superuser).
+               - UserRole instance for role (not superuser).
+               - UserRole instance UUID as string.
+               - The string "superuser" for superuser configuration.
+        @param disabled: Is the search disabled.
+        """
+        return SearchConfigItemBuilder(
+            model=model, fields=fields, role=role, disabled=disabled,
+        )
+
     def create_if_needed(self,
                          model: type[CremeEntity],
                          fields: Iterable[str],
@@ -55,9 +177,15 @@ class SearchConfigItemManager(models.Manager):
         @param role: UserRole instance; or 'superuser'; or None, for default configuration.
         @param disabled: Boolean.
         """
+        warnings.warn(
+            'SearchConfigItemManager.create_if_needed() is deprecated; '
+            'use the method builder() instead.',
+            DeprecationWarning,
+        )
+
         from ..core.entity_cell import EntityCellRegularField
 
-        ct = ContentType.objects.get_for_model(model)  # TODO: accept ContentType instance ?
+        ct = ContentType.objects.get_for_model(model)
         superuser = False
 
         if role == 'superuser':
@@ -133,7 +261,7 @@ class SearchConfigItem(CremeModel):
         UserRole, verbose_name=_('Related role'),
         null=True, default=None, on_delete=models.CASCADE,
     )
-    # TODO: a UserRole for superusers instead ??
+    # TODO: a UserRole for superusers instead?
     superuser = models.BooleanField(
         'related to superusers', default=False, editable=False,
     )
@@ -143,7 +271,7 @@ class SearchConfigItem(CremeModel):
     )
 
     # Do not this field directly; use 'cells' property instead
-    json_cells = models.JSONField(editable=False, default=list)  # TODO: CellsField ?
+    json_cells = models.JSONField(editable=False, default=list)  # TODO: CellsField?
 
     objects = SearchConfigItemManager()
 
@@ -156,7 +284,7 @@ class SearchConfigItem(CremeModel):
         models.DateTimeField, models.DateField,
         models.FileField, models.ImageField,
         models.BooleanField, models.NullBooleanField,
-        DatePeriodField,  # TODO: JSONField ?
+        DatePeriodField,  # TODO: JSONField?
     ]
 
     class Meta:

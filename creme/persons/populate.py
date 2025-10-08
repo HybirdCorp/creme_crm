@@ -211,14 +211,6 @@ class Populator(BasePopulator):
         custom_forms.ORGANISATION_CREATION_CFORM,
         custom_forms.ORGANISATION_EDITION_CFORM,
     ]
-    SEARCH = {
-        'CONTACT': [
-            'last_name', 'first_name', 'phone', 'mobile', 'email',
-        ],
-        'ORGANISATION': [
-            'name', 'phone', 'email', 'sector__title', 'legal_form__title',
-        ],
-    }
     # BUTTONS = {
     #     'CONTACT': [
     #         # (class, order)
@@ -247,6 +239,24 @@ class Populator(BasePopulator):
         _Button(model=Organisation, button=buttons.BecomeInactiveButton,   order=1023),
         _Button(model=Organisation, button=buttons.BecomeSupplierButton,   order=1024),
         _Button(model=Organisation, button=buttons.AddLinkedContactButton, order=1025),
+    ]
+    # SEARCH = {
+    #     'CONTACT': [
+    #         'last_name', 'first_name', 'phone', 'mobile', 'email',
+    #     ],
+    #     'ORGANISATION': [
+    #         'name', 'phone', 'email', 'sector__title', 'legal_form__title',
+    #     ],
+    # }
+    SEARCH = [
+        SearchConfigItem.objects.builder(
+            model=Contact,
+            fields=['last_name', 'first_name', 'phone', 'mobile', 'email'],
+        ),
+        SearchConfigItem.objects.builder(
+            model=Organisation,
+            fields=['name', 'phone', 'email', 'sector__title', 'legal_form__title'],
+        ),
     ]
     DOC_CATEGORIES = [
         DocumentCategory(
@@ -490,10 +500,10 @@ class Populator(BasePopulator):
     #     self._populate_header_filters_for_contact()
     #     self._populate_header_filters_for_organisation()
 
-    def _populate_search_config(self):
-        create_sci = SearchConfigItem.objects.create_if_needed
-        create_sci(model=self.Contact,      fields=self.SEARCH['CONTACT'])
-        create_sci(model=self.Organisation, fields=self.SEARCH['ORGANISATION'])
+    # def _populate_search_config(self):
+    #     create_sci = SearchConfigItem.objects.create_if_needed
+    #     create_sci(model=self.Contact,      fields=self.SEARCH['CONTACT'])
+    #     create_sci(model=self.Organisation, fields=self.SEARCH['ORGANISATION'])
 
     def _populate_menu_config(self):
         directory_entry = MenuConfigItem.objects.get_or_create(

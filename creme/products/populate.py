@@ -133,14 +133,24 @@ class Populator(BasePopulator):
         custom_forms.SERVICE_CREATION_CFORM,
         custom_forms.SERVICE_EDITION_CFORM,
     ]
-    SEARCH = {
-        'PRODUCT': [
-            'name', 'description', 'category__name', 'sub_category__name',
-        ],
-        'SERVICE': [
-            'name', 'description', 'category__name', 'sub_category__name',
-        ],
-    }
+    # SEARCH = {
+    #     'PRODUCT': [
+    #         'name', 'description', 'category__name', 'sub_category__name',
+    #     ],
+    #     'SERVICE': [
+    #         'name', 'description', 'category__name', 'sub_category__name',
+    #     ],
+    # }
+    SEARCH = [
+        SearchConfigItem.objects.builder(
+            model=Product,
+            fields=['name', 'description', 'category__name', 'sub_category__name'],
+        ),
+        SearchConfigItem.objects.builder(
+            model=Service,
+            fields=['name', 'description', 'category__name', 'sub_category__name'],
+        ),
+    ]
     DOC_CATEGORIES = [
         DocumentCategory(
             uuid=constants.UUID_DOC_CAT_IMG_PRODUCT,
@@ -264,10 +274,10 @@ class Populator(BasePopulator):
     #         ],
     #     )
 
-    def _populate_search_config(self):
-        create_sci = SearchConfigItem.objects.create_if_needed
-        create_sci(model=self.Product, fields=self.SEARCH['PRODUCT'])
-        create_sci(model=self.Service, fields=self.SEARCH['SERVICE'])
+    # def _populate_search_config(self):
+    #     create_sci = SearchConfigItem.objects.create_if_needed
+    #     create_sci(model=self.Product, fields=self.SEARCH['PRODUCT'])
+    #     create_sci(model=self.Service, fields=self.SEARCH['SERVICE'])
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

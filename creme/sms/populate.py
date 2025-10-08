@@ -74,6 +74,13 @@ class Populator(BasePopulator):
         custom_forms.MESSAGINGLIST_CREATION_CFORM,
         custom_forms.MESSAGINGLIST_EDITION_CFORM,
     ]
+    SEARCH = [
+        SearchConfigItem.objects.builder(model=SMSCampaign, fields=['name']),
+        SearchConfigItem.objects.builder(model=MessagingList, fields=['name']),
+        SearchConfigItem.objects.builder(
+            model=MessageTemplate, fields=['name', 'subject', 'body'],
+        ),
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -108,11 +115,11 @@ class Populator(BasePopulator):
     #         cells_desc=[(EntityCellRegularField, {'name': 'name'})],
     #     )
 
-    def _populate_search_config(self):
-        create_sci = SearchConfigItem.objects.create_if_needed
-        create_sci(model=self.SMSCampaign,     fields=['name'])
-        create_sci(model=self.MessagingList,   fields=['name'])
-        create_sci(model=self.MessageTemplate, fields=['name', 'subject', 'body'])
+    # def _populate_search_config(self):
+    #     create_sci = SearchConfigItem.objects.create_if_needed
+    #     create_sci(model=self.SMSCampaign,     fields=['name'])
+    #     create_sci(model=self.MessagingList,   fields=['name'])
+    #     create_sci(model=self.MessageTemplate, fields=['name', 'subject', 'body'])
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

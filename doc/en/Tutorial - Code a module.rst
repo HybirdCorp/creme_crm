@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 07/10/2025 for Creme 2.8
+:Version: 09/10/2025 for Creme 2.8
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -767,6 +767,11 @@ Then we create a file : ``my_project/beavers/populate.py``. ::
                 ],
             ),
         ]
+        # The base class uses this attribute to build SearchConfigItem instances
+        # (see method '_populate_search_config()')
+        SEARCH = [
+            SearchConfigItem.objects.builder(model=Beaver, fields=['name']),
+        ]
 
         # This method allow to know if the command has already be run for our app.
         # You MUST implement it.
@@ -774,11 +779,6 @@ Then we create a file : ``my_project/beavers/populate.py``. ::
             return HeaderFilter.objects.filter(
                 pk=constants.DEFAULT_HFILTER_BEAVER,
             ).exists()
-
-        # This method is defined by the parent class 'BasePopulator' and is
-        # automatically called.
-        def _populate_search_config(self):
-            SearchConfigItem.objects.create_if_needed(Beaver, ['name'])
 
         # This method is only called the first time the command is run for this app.
         def _populate_menu_config(self):

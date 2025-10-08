@@ -179,13 +179,12 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add04(self):
         "Unique configuration (super-user)."
-        ct = self.ct_contact
-        SearchConfigItem.objects.create_if_needed(
-            FakeContact, role='superuser',
+        SearchConfigItem.objects.builder(
+            model=FakeContact, role='superuser',
             fields=['first_name', 'last_name'],
-        )
+        ).get_or_create()
 
-        response = self.assertGET200(self._build_add_url(ct))
+        response = self.assertGET200(self._build_add_url(self.ct_contact))
 
         with self.assertNoException():
             role_f = response.context['form'].fields['role']
@@ -309,7 +308,9 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         return sci
 
     def test_edit01(self):
-        sci = SearchConfigItem.objects.create_if_needed(FakeContact, fields=['last_name'])
+        sci = SearchConfigItem.objects.builder(
+            model=FakeContact, fields=['last_name'],
+        ).get_or_create()[0]
         self.assertIsNone(sci.role)
 
         url = self._build_edit_url(sci)
@@ -356,7 +357,9 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 (hidden_fname2, {FieldsConfig.HIDDEN: True}),
             ],
         )
-        sci = SearchConfigItem.objects.create_if_needed(model, fields=['first_name'])
+        sci = SearchConfigItem.objects.builder(
+            model=model, fields=['first_name'],
+        ).get_or_create()[0]
 
         url = self._build_edit_url(sci)
 
@@ -388,10 +391,10 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         hidden_fname1 = 'description'
         hidden_fname2 = 'position'
         hidden_sub_fname2 = hidden_fname2 + '__title'
-        sci = SearchConfigItem.objects.create_if_needed(
-            model,
+        sci = SearchConfigItem.objects.builder(
+            model=model,
             fields=['first_name', hidden_fname1, hidden_sub_fname2],
-        )
+        ).get_or_create()[0]
 
         FieldsConfig.objects.create(
             content_type=model,
@@ -411,22 +414,24 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_delete01(self):
-        sci = SearchConfigItem.objects.create_if_needed(
-            FakeContact, role=self.role, fields=['first_name', 'last_name'],
-        )
+        sci = SearchConfigItem.objects.builder(
+            model=FakeContact, role=self.role, fields=['first_name', 'last_name'],
+        ).get_or_create()[0]
         self.assertPOST200(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertDoesNotExist(sci)
 
     def test_delete02(self):
         "Superusers."
-        sci = SearchConfigItem.objects.create_if_needed(
-            FakeContact, role='superuser', fields=['first_name', 'last_name'],
-        )
+        sci = SearchConfigItem.objects.builder(
+            model=FakeContact, role='superuser', fields=['first_name', 'last_name'],
+        ).get_or_create()[0]
         self.assertPOST200(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertDoesNotExist(sci)
 
     def test_delete03(self):
         "Cannot delete the default configuration."
-        sci = SearchConfigItem.objects.create_if_needed(FakeContact, ['first_name', 'last_name'])
+        sci = SearchConfigItem.objects.builder(
+            model=FakeContact, fields=['first_name', 'last_name'],
+        ).get_or_create()[0]
         self.assertPOST409(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertStillExists(sci)

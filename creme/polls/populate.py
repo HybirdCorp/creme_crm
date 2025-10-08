@@ -89,6 +89,11 @@ class Populator(BasePopulator):
         custom_forms.PFORM_CREATION_CFORM,
         custom_forms.PFORM_EDITION_CFORM,
     ]
+    SEARCH = [
+        SearchConfigItem.objects.builder(model=PollForm,     fields=['name']),
+        SearchConfigItem.objects.builder(model=PollReply,    fields=['name']),
+        SearchConfigItem.objects.builder(model=PollCampaign, fields=['name']),
+    ]
     POLL_TYPES = [
         # is_custom=True => only created during the first execution
         PollType(uuid=UUID_POLL_TYPE_SURVEY,     name=_('Survey')),
@@ -147,11 +152,11 @@ class Populator(BasePopulator):
     #         ],
     #     )
 
-    def _populate_search_config(self):
-        create_sci = SearchConfigItem.objects.create_if_needed
-        create_sci(model=self.PollForm,     fields=['name'])
-        create_sci(model=self.PollReply,    fields=['name'])
-        create_sci(model=self.PollCampaign, fields=['name'])
+    # def _populate_search_config(self):
+    #     create_sci = SearchConfigItem.objects.create_if_needed
+    #     create_sci(model=self.PollForm,     fields=['name'])
+    #     create_sci(model=self.PollReply,    fields=['name'])
+    #     create_sci(model=self.PollCampaign, fields=['name'])
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

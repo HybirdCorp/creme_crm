@@ -159,11 +159,18 @@ class Populator(BasePopulator):
     BUTTONS = [
         ButtonMenuItem(button=buttons.CompleteGoalButton, order=60),
     ]
-    SEARCH = {
-        'ACT': ['name', 'expected_sales', 'cost', 'goal'],
-        'STRATEGY': ['name'],
-        'PATTERN': [],
-    }
+    # SEARCH = {
+    #     'ACT': ['name', 'expected_sales', 'cost', 'goal'],
+    #     'STRATEGY': ['name'],
+    #     'PATTERN': [],
+    # }
+    SEARCH = [
+        SearchConfigItem.objects.builder(
+            model=Act, fields=['name', 'expected_sales', 'cost', 'goal'],
+        ),
+        SearchConfigItem.objects.builder(model=Strategy, fields=['name']),
+        SearchConfigItem.objects.builder(model=ActObjectivePattern, disabled=True),
+    ]
     ACT_TYPES = [
         ActType(
             uuid=constants.UUID_ACT_TYPE_PHONE_CALLS,
@@ -269,16 +276,16 @@ class Populator(BasePopulator):
     #     self._populate_header_filters_for_strategy()
     #     self._populate_header_filters_for_pattern()
 
-    def _populate_search_config(self):
-        def create_sci(model, key):
-            fields = self.SEARCH[key]
-            SearchConfigItem.objects.create_if_needed(
-                model=model, fields=fields, disabled=not bool(fields),
-            )
-
-        create_sci(model=self.Act,                 key='ACT')
-        create_sci(model=self.Strategy,            key='STRATEGY')
-        create_sci(model=self.ActObjectivePattern, key='PATTERN')
+    # def _populate_search_config(self):
+    #     def create_sci(model, key):
+    #         fields = self.SEARCH[key]
+    #         SearchConfigItem.objects.create_if_needed(
+    #             model=model, fields=fields, disabled=not bool(fields),
+    #         )
+    #
+    #     create_sci(model=self.Act,                 key='ACT')
+    #     create_sci(model=self.Strategy,            key='STRATEGY')
+    #     create_sci(model=self.ActObjectivePattern, key='PATTERN')
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(

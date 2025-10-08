@@ -58,7 +58,10 @@ class Populator(BasePopulator):
         custom_forms.REPORT_CREATION_CFORM,
         custom_forms.REPORT_EDITION_CFORM,
     ]
-    SEARCH = ['name']
+    # SEARCH = ['name']
+    SEARCH = [
+        SearchConfigItem.objects.builder(model=Report, fields=['name']),
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -78,8 +81,8 @@ class Populator(BasePopulator):
     #         ],
     #     )
 
-    def _populate_search_config(self):
-        SearchConfigItem.objects.create_if_needed(model=self.Report, fields=self.SEARCH)
+    # def _populate_search_config(self):
+    #     SearchConfigItem.objects.create_if_needed(model=self.Report, fields=self.SEARCH)
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
