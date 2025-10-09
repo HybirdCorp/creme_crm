@@ -161,6 +161,9 @@
                - The module 'views.convert' has been renamed "conversion".
             * Commercial :
                 - The methods 'populate.Populator._populate_header_filters_for_*()' have been removed.
+            * Emails :
+                - The class attribute 'views.sending.SendingBricksReloading.allowed_bricks'
+                  has been replaced by the new attribute 'bricks'.
 
     Internal breaking changes :
     ---------------------------

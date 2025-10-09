@@ -833,8 +833,8 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         # Test delete campaign -------------------------------------------------
         camp.trash()
         self.assertPOST(302, camp.get_delete_absolute_url())
-        self.assertFalse(EmailCampaign.objects.exists())
-        self.assertFalse(EmailSending.objects.exists())
+        self.assertDoesNotExist(camp)
+        self.assertDoesNotExist(sending)
         self.assertFalse(LightWeightEmail.objects.exists())
 
     @skipIfCustomContact

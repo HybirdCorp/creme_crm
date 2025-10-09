@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -108,6 +108,18 @@ class SendingDetail(generic.RelatedToEntityDetail):
     pk_url_kwarg = 'sending_id'
     permissions = 'emails'
     bricks_reload_url_name = 'emails__reload_sending_bricks'
+    bricks = {
+        'top': [],
+        'left': [bricks.SendingBrick, bricks.SendingHTMLBodyBrick],
+        'right': [bricks.MailsBrick],
+        'bottom': [],
+    }
+
+    def get_bricks(self):
+        return {
+            zone: [brick_class() for brick_class in brick_classes]
+            for zone, brick_classes in self.bricks.items()
+        }
 
 
 # TODO: factorise with get_lightweight_mail_body()
@@ -132,12 +144,12 @@ class SendingBricksReloading(bricks_views.BricksReloading):
     permissions = 'emails'
     # check_bricks_permission = False
     sending_id_url_kwarg = 'sending_id'
-    # TODO: share with SendingDetail
-    allowed_bricks = {
-        bricks.SendingBrick.id:         bricks.SendingBrick,
-        bricks.SendingHTMLBodyBrick.id: bricks.SendingHTMLBodyBrick,
-        bricks.MailsBrick.id:           bricks.MailsBrick,
-    }
+    # allowed_bricks = {
+    #     bricks.SendingBrick.id:         bricks.SendingBrick,
+    #     bricks.SendingHTMLBodyBrick.id: bricks.SendingHTMLBodyBrick,
+    #     bricks.MailsBrick.id:           bricks.MailsBrick,
+    # }
+    bricks = SendingDetail.bricks
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -145,7 +157,12 @@ class SendingBricksReloading(bricks_views.BricksReloading):
 
     def get_bricks(self):
         bricks = []
-        allowed_bricks = self.allowed_bricks
+        # allowed_bricks = self.allowed_bricks
+        allowed_bricks = {
+            brick_cls.id: brick_cls
+            for brick_classes in self.bricks.values()
+            for brick_cls in brick_classes
+        }
 
         for brick_id in self.get_brick_ids():
             try:
