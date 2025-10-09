@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 
@@ -88,14 +88,14 @@ class Messages(generic.CremeModelDetailPopup):
     pk_url_kwarg = 'id'
     permissions = 'sms'
     bricks_reload_url_name = 'sms__reload_messages_brick'
+    bricks = [MessagesBrick]
 
     def check_instance_permissions(self, instance, user):
         user.has_perm_to_view_or_die(instance.campaign)
 
-    # TODO: bricks classes in a class attribute
     def get_bricks(self):
         # return [MessagesBrick()]
-        return {'main': [MessagesBrick()]}
+        return {'main': [brick_cls() for brick_cls in self.bricks]}
 
 
 # TODO: improve Message.delete() instead ?
@@ -122,14 +122,26 @@ def delete_message(request):
 class MessagesBrickReloading(BricksReloading):
     permissions = 'sms'
     sending_id_url_kwarg = 'sending_id'
+    bricks = Messages.bricks
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.sending = None
 
-    # TODO: use the (future) class attribute of Messages (see above)
     def get_bricks(self):
-        return [MessagesBrick()]
+        # return [MessagesBrick()]
+        bricks = []
+        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+
+        for brick_id in self.get_brick_ids():
+            try:
+                brick_cls = allowed_bricks[brick_id]
+            except KeyError as e:
+                raise Http404('Invalid brick ID') from e
+
+            bricks.append(brick_cls())
+
+        return bricks
 
     def get_bricks_context(self):
         context = super().get_bricks_context()
