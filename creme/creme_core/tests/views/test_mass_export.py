@@ -109,12 +109,11 @@ class MassExportViewsTestCase(CremeTestCase):
                 model=FakeContact, name='get_pretty_properties',
             ),
         ]
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact', name='Contact view',
-            model=FakeContact, cells_desc=cells,
-        )
 
-        return hf
+        return HeaderFilter.objects.proxy(
+            id='test-hf_contact', name='Contact view',
+            model=FakeContact, cells=cells,
+        ).get_or_create()[0]
 
     @staticmethod
     def _build_dl_url(ct_or_model, doc_type='csv', header=False,
@@ -596,10 +595,10 @@ class MassExportViewsTestCase(CremeTestCase):
             build_cell(name='creation_date'),
         ]
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_orga', name='Organisation view',
-            model=FakeOrganisation, cells_desc=cells,
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_orga', name='Organisation view',
+            model=FakeOrganisation, cells=cells,
+        ).get_or_create()[0]
 
         response = self.assertGET200(
             self._build_dl_url(

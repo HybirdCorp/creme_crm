@@ -131,19 +131,16 @@ class VisitTestCase(CremeTestCase):
         return f'{url}?{urlencode(kwargs)}'
 
     def _create_orga_hfilter(self, *fields):
-        return HeaderFilter.objects.create_if_needed(
-            pk='creme_core-visit',
+        return HeaderFilter.objects.proxy(
+            id='creme_core-visit',
             model=FakeOrganisation,
             name='Simple view',
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'phone'}),
-                *(
-                    (EntityCellRegularField, {'name': field_name})
-                    for field_name in fields
-                )
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'phone'),
+                *((EntityCellRegularField, field_name) for field_name in fields),
             ],
-        )
+        ).get_or_create()[0]
 
     def test_empty(self):
         self.login_as_root()

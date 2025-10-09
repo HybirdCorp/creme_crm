@@ -21,8 +21,11 @@
             - The context processor "creme_core.context_processors.get_entities_deletion_allowed"
               is now deprecated (it injected "ENTITIES_DELETION_ALLOWED" in contexts) ;
               it has been removed from the default settings.
-            - The method 'creme_core.models.search.SearchConfigItemManager.create_if_needed()'
-              is deprecated; use the method 'builder()' instead.
+            - In 'creme_core.models' :
+                - The method 'header_filter.HeaderFilterManager.create_if_needed()
+                 is deprecated; use the method 'proxy()' instead.
+                - The method 'search.SearchConfigItemManager.create_if_needed()'
+                  is deprecated; use the method 'builder()' instead.
         # The declarative possibilities of 'creme_core.management.commands.creme_populate.BasePopulator'
           have been extended; new class attributes are :
              - BUTTONS

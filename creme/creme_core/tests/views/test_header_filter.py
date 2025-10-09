@@ -675,14 +675,14 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         ).symmetric(id='test-object_disabled2', predicate='whatever #2').get_or_create()[0]
 
         build_cell = partial(EntityCellRelation, model=FakeContact)
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
             model=FakeContact, is_custom=True,
-            cells_desc=[
+            cells=[
                 build_cell(rtype=rtype1),
                 build_cell(rtype=disabled_rtype1),
             ],
-        )
+        ).get_or_create()[0]
 
         url = hf.get_edit_absolute_url()
         response1 = self.assertPOST200(
@@ -722,9 +722,9 @@ class HeaderFilterViewsTestCase(CremeTestCase):
                 func_field=function_field_registry.get(FakeContact, 'get_pretty_properties'),
             ),
         ]
-        source_hf = HeaderFilter.objects.create_if_needed(
-            pk=pk, name='A contact view', model=FakeContact, cells_desc=cells,
-        )
+        source_hf = HeaderFilter.objects.proxy(
+            id=pk, name='A contact view', model=FakeContact, cells=cells,
+        ).get_or_create()[0]
         self.assertFalse(source_hf.is_custom)
         self.assertFalse(source_hf.is_private)
 
@@ -819,10 +819,10 @@ class HeaderFilterViewsTestCase(CremeTestCase):
             EntityCellRegularField.build(model=model, name='name'),
             EntityCellFunctionField(model=model, func_field=ffield),
         ]
-        source_hf = HeaderFilter.objects.create_if_needed(
-            pk='creme_core-userhf_creme_core-customeentity1-1',
-            name='Source view', model=model, cells_desc=cells,
-        )
+        source_hf = HeaderFilter.objects.proxy(
+            id='creme_core-userhf_creme_core-customeentity1-1',
+            name='Source view', model=model, cells=cells,
+        ).get_or_create()[0]
 
         name = 'Cloned filter'
         self.assertNoFormError(self.client.post(

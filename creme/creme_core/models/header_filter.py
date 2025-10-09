@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from copy import deepcopy
 from typing import TYPE_CHECKING, Iterable
 from uuid import UUID
@@ -281,7 +282,6 @@ class HeaderFilterManager(models.Manager):
     def get_by_portable_key(self, key) -> HeaderFilter:
         return self.get(id=key)
 
-    # TODO: deprecate?
     def create_if_needed(
             self,
             pk: str,
@@ -300,6 +300,12 @@ class HeaderFilterManager(models.Manager):
               where 'class' is child class of EntityCell, & 'args' is a dict
               containing parameters for the build() method of the previous class.
         """
+        warnings.warn(
+            'HeaderFilterManager.create_if_needed() is deprecated; '
+            'use proxy() instead.',
+            DeprecationWarning,
+        )
+
         from ..core.entity_cell import EntityCell
 
         if user and user.is_staff:
