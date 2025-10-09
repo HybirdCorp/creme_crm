@@ -1,3 +1,4 @@
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.lorem_ipsum import COMMON_P
 from django.utils.translation import gettext as _
@@ -191,6 +192,7 @@ class MessageTemplateTestCase(CremeTestCase):
     #     self.assertEqual(template.subject, cloned_template.subject)
     #     self.assertEqual(template.body,    cloned_template.body)
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete(self):
         user = self.login_as_root_and_get()
         template = MessageTemplate.objects.create(

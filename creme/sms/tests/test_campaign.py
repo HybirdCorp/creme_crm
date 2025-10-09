@@ -1,5 +1,6 @@
 from functools import partial
 
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -214,6 +215,7 @@ class SMSCampaignTestCase(CremeTestCase):
     #     self.assertEqual(campaign.name, cloned_camp.name)
     #     self.assertCountEqual([mlist], campaign.lists.all())
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete(self):
         user = self.login_as_root_and_get()
         campaign = SMSCampaign.objects.create(user=user, name='camp')
