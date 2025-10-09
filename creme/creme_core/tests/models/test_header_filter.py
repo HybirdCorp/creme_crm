@@ -28,7 +28,7 @@ from ..base import CremeTestCase
 
 
 class HeaderFilterManagerTestCase(CremeTestCase):
-    def test_create_if_needed(self):
+    def test_create_if_needed(self):  # DEPRECATED
         name = 'Contact view'
         pk   = 'tests-hf_contact'
         hf = HeaderFilter.objects.create_if_needed(
@@ -47,7 +47,7 @@ class HeaderFilterManagerTestCase(CremeTestCase):
         self.assertFalse(hf.cells)
         self.assertListEqual([], hf.filtered_cells)
 
-    def test_create_if_needed__cells_n_extra(self):
+    def test_create_if_needed__cells_n_extra(self):  # DEPRECATED
         "With cells & extra_data."
         user = self.get_root_user()
 
@@ -85,7 +85,7 @@ class HeaderFilterManagerTestCase(CremeTestCase):
         )
         self.assertDictEqual(extra_data, hf.extra_data)
 
-    def test_create_if_needed__already_exists(self):
+    def test_create_if_needed__already_exists(self):  # DEPRECATED
         "Do not modify if it already exists."
         pk = 'tests-hf_contact'
         name = 'Contact view'
@@ -163,7 +163,7 @@ class HeaderFilterManagerTestCase(CremeTestCase):
         for hf in hfilters:
             self.assertIn(hf, filtered2)
 
-    def test_create_if_needed__errors(self):
+    def test_create_if_needed__errors(self):  # DEPRECATED
         user = self.get_root_user()
 
         # Private + no user => error
@@ -589,10 +589,9 @@ class HeaderFilterTestCase(CremeTestCase):
             build_rcell(name=fname1),
             EntityCellCustomField(customfield=cfield),
         ]
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf01', name='Contact view', model=FakeContact,
-            cells_desc=cells,
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf01', name='Contact view', model=FakeContact, cells=cells,
+        ).get_or_create()[0]
         self.assertListEqual(
             [
                 {'type': 'regular_field', 'value': fname1},
@@ -627,9 +626,9 @@ class HeaderFilterTestCase(CremeTestCase):
 
     def test_cells_property02(self):
         "None value are ignored."
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf01', name='Contact view', model=FakeContact,
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf01', name='Contact view', model=FakeContact, cells=[],
+        ).get_or_create()[0]
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell01 = build_cell(name='first_name')
@@ -648,13 +647,13 @@ class HeaderFilterTestCase(CremeTestCase):
     def test_cells_property_errors01(self):
         ffield_name = 'get_pretty_properties'
         rfield_name = 'last_name'
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf', name='Contact view', model=FakeContact,
-            cells_desc=[
-                (EntityCellFunctionField, {'name': ffield_name}),
-                (EntityCellRegularField,  {'name': rfield_name}),
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf', name='Contact view', model=FakeContact,
+            cells=[
+                (EntityCellFunctionField, ffield_name),
+                (EntityCellRegularField,  rfield_name),
             ],
-        )
+        ).get_or_create()[0]
 
         with self.assertNoException():
             deserialized1 = hf.json_cells
@@ -744,15 +743,15 @@ class HeaderFilterTestCase(CremeTestCase):
 
         rtype = self.get_object_or_fail(RelationType, id=REL_SUB_HAS)
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='tests-hf_contact', name='Contact view',
+        hf = HeaderFilter.objects.proxy(
+            id='tests-hf_contact', name='Contact view',
             model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': hidden}),
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, hidden),
                 EntityCellRelation(model=FakeContact, rtype=rtype),
             ],
-        )
+        ).get_or_create()[0]
         self.assertListEqual(
             [
                 EntityCellRegularField.build(FakeContact, 'last_name'),
@@ -826,10 +825,10 @@ class HeaderFilterTestCase(CremeTestCase):
         cell2 = EntityCellRegularField.build(model=FakeContact, name='first_name')
         cell2.value = 'invalid'
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf', name='Contact view',
-            model=FakeContact, cells_desc=[cell1, cell2],
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf', name='Contact view',
+            model=FakeContact, cells=[cell1, cell2],
+        ).get_or_create()[0]
 
         create_contact = partial(FakeContact.objects.create, user=user)
         contacts = [

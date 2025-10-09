@@ -1480,35 +1480,34 @@ class ExportingTestCase(TransferBaseTestCase):
             name='Rating', field_type=CustomField.INT, content_type=FakeContact,
         )
 
-        create_hf = HeaderFilter.objects.create_if_needed
-        hf1 = create_hf(
-            pk='creme_config_export-test_export_headerfilters01',
+        hf1 = HeaderFilter.objects.proxy(
+            id='creme_config_export-test_export_headerfilters01',
             model=FakeContact, name='Contact view',
             is_custom=True,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'first_name'}),
+            cells=[
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
                 EntityCellCustomField(cfield),
             ],
-        )
-        hf2 = create_hf(
-            pk='creme_config_export-test_export_headerfilters02',
+        ).get_or_create()[0]
+        hf2 = HeaderFilter.objects.proxy(
+            id='creme_config_export-test_export_headerfilters02',
             model=FakeOrganisation, name='Organisation view',
             is_custom=True,
             user=other_user,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': 'description'}),
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, 'description'),
             ],
-        )
-        hf3 = create_hf(
-            pk='creme_config_export-test_export_headerfilters03',
+        ).get_or_create()[0]
+        hf3 = HeaderFilter.objects.proxy(
+            id='creme_config_export-test_export_headerfilters03',
             model=FakeOrganisation, name='Private organisation view',
             is_custom=True,
             user=other_user, is_private=True,
-            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+            cells=[(EntityCellRegularField, 'name')],
             extra_data={'my_key': 'my_value'},
-        )
+        ).get_or_create()[0]
 
         response = self.assertGET200(self.URL)
         content = response.json()

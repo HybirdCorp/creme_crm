@@ -269,14 +269,14 @@ class ListViewTestCase(CremeTestCase):
 
     @staticmethod
     def _build_hf(*cells):
-        return HeaderFilter.objects.create_if_needed(
-            pk='test-hf_orga', name='Orga view',
+        return HeaderFilter.objects.proxy(
+            id='test-hf_orga', name='Orga view',
             model=FakeOrganisation,
-            cells_desc=[
+            cells=[
                 EntityCellRegularField.build(model=FakeOrganisation, name='name'),
                 *cells,
             ],
-        )
+        ).get_or_create()[0]
 
     def test_not_logged(self):
         url = self.url
@@ -799,14 +799,14 @@ class ListViewTestCase(CremeTestCase):
 
         fname = 'mailing_lists'
         func_field_name = 'get_pretty_properties'
-        HeaderFilter.objects.create_if_needed(
-            pk='test-hf_camp', name='Campaign view', model=FakeEmailCampaign,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'name'}),
-                (EntityCellRegularField, {'name': fname}),
-                (EntityCellFunctionField, {'name': func_field_name}),
+        HeaderFilter.objects.proxy(
+            id='test-hf_camp', name='Campaign view', model=FakeEmailCampaign,
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, fname),
+                (EntityCellFunctionField, func_field_name),
             ],
-        )
+        ).get_or_create()
 
         url = FakeEmailCampaign.get_lv_absolute_url()
         # We just check that it does not crash
@@ -902,14 +902,10 @@ class ListViewTestCase(CremeTestCase):
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell_civ   = build_cell(name='civility')
         cell_fname = build_cell(name='first_name')
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact', name='Order02 view', model=FakeContact,
-            cells_desc=[
-                cell_civ,
-                (EntityCellRegularField, {'name': 'last_name'}),
-                cell_fname,
-            ],
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells=[cell_civ, (EntityCellRegularField, 'last_name'), cell_fname],
+        ).get_or_create()[0]
 
         contacts = FakeContact.objects.filter(pk__in=(spike, faye, ed))
         url = FakeContact.get_lv_absolute_url()
@@ -991,15 +987,15 @@ class ListViewTestCase(CremeTestCase):
         create_contact(first_name='Edward', last_name='Wong',      address='A')
 
         cell = EntityCellRegularField.build(model=FakeContact, name='address')
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact', name='Order02 view', model=FakeContact,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'civility'}),
-                (EntityCellRegularField, {'name': 'last_name'}),
-                (EntityCellRegularField, {'name': 'first_name'}),
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells=[
+                (EntityCellRegularField, 'civility'),
+                (EntityCellRegularField, 'last_name'),
+                (EntityCellRegularField, 'first_name'),
                 cell,
             ],
-        )
+        ).get_or_create()[0]
 
         url = FakeContact.get_lv_absolute_url()
         # For the filter to prevent an issue when HeaderFiltersTestCase is run before this test
@@ -1075,14 +1071,14 @@ class ListViewTestCase(CremeTestCase):
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell1 = build_cell(name='birthday')
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact', name='Contact view', model=FakeContact,
-            cells_desc=[
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact', name='Contact view', model=FakeContact,
+            cells=[
                 cell1,
                 build_cell(name='last_name'),
                 build_cell(name='first_name'),
             ],
-        )
+        ).get_or_create()[0]
 
         # context = CaptureQueriesContext()
         # with context:
@@ -1744,14 +1740,14 @@ class ListViewTestCase(CremeTestCase):
 
         build_cell = partial(EntityCellRegularField.build, model=FakeInvoiceLine)
         du_cell = build_cell(name='discount_unit')
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_invoiceline', name='Line view', model=FakeInvoiceLine,
-            cells_desc=[
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_invoiceline', name='Line view', model=FakeInvoiceLine,
+            cells=[
                 build_cell(name='item'),
                 build_cell(name='discount'),
                 du_cell,
             ],
-        )
+        ).get_or_create()[0]
 
         url = FakeInvoiceLine.get_lv_absolute_url()
         response1 = self.assertGET200(url, data={'hfilter': hf.id})
@@ -1803,21 +1799,18 @@ class ListViewTestCase(CremeTestCase):
             first_name='Edward', last_name='Wong', image=img_ed,
         )
 
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact', name='Order02 view', model=FakeContact,
-        )
-
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell_image    = build_cell(name='image')
         cell_img_name = build_cell(name='image__name')
         cell_civ      = build_cell(name='civility')
         cell_civ_name = build_cell(name='civility__title')
-
-        hf.cells = [
-            build_cell(name='last_name'),
-            cell_image, cell_img_name, cell_civ, cell_civ_name,
-        ]
-        hf.save()
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells=[
+                build_cell(name='last_name'),
+                cell_image, cell_img_name, cell_civ, cell_civ_name,
+            ],
+        ).get_or_create()[0]
 
         url = FakeContact.get_lv_absolute_url()
 
@@ -1894,10 +1887,10 @@ class ListViewTestCase(CremeTestCase):
 
         build_cell = partial(EntityCellRegularField.build, model=FakeDocument)
         cell = build_cell(name='linked_folder__category')
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_doc', name='Doc view', model=FakeDocument,
-            cells_desc=[build_cell(name='title'), cell],
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_doc', name='Doc view', model=FakeDocument,
+            cells=[build_cell(name='title'), cell],
+        ).get_or_create()[0]
 
         response = self.assertPOST200(
             FakeDocument.get_lv_absolute_url(),
@@ -1947,10 +1940,10 @@ class ListViewTestCase(CremeTestCase):
 
         build_cell = partial(EntityCellRegularField.build, model=FakeDocument)
         cell = build_cell(name='linked_folder__parent')
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_doc', name='Doc view', model=FakeDocument,
-            cells_desc=[build_cell(name='title'), cell],
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_doc', name='Doc view', model=FakeDocument,
+            cells=[build_cell(name='title'), cell],
+        ).get_or_create()[0]
 
         response = self.assertPOST200(
             FakeDocument.get_lv_absolute_url(),
@@ -1971,11 +1964,11 @@ class ListViewTestCase(CremeTestCase):
         build_cell = partial(EntityCellRegularField.build, model=FakeEmailCampaign)
 
         cell_m2m = build_cell(name='mailing_lists')
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_camp', name='Campaign view',
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_camp', name='Campaign view',
             model=FakeEmailCampaign,
-            cells_desc=[build_cell(name='name'), cell_m2m],
-        )
+            cells=[build_cell(name='name'), cell_m2m],
+        ).get_or_create()[0]
 
         create_mlist = partial(FakeMailingList.objects.create, user=user)
         ml1 = create_mlist(name='Bebop staff')
@@ -2026,15 +2019,12 @@ class ListViewTestCase(CremeTestCase):
     def test_search_m2mfields02(self):
         "M2M to basic model."
         user = self.login_as_root_and_get()
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_img', name='Image view', model=FakeImage,
-        )
         build_cell = partial(EntityCellRegularField.build, model=FakeImage)
-
         cell_m2m = build_cell(name='categories')
-
-        hf.cells = [build_cell(name='name'), cell_m2m]
-        hf.save()
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_img', name='Image view', model=FakeImage,
+            cells=[build_cell(name='name'), cell_m2m],
+        ).get_or_create()[0]
 
         cat1, cat2 = FakeImageCategory.objects.all()[:2]
 
@@ -2080,15 +2070,12 @@ class ListViewTestCase(CremeTestCase):
     def test_search_m2mfields03(self):
         "M2M to basic model + sub-field."
         user = self.login_as_root_and_get()
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_img', name='Image view', model=FakeImage,
-        )
         build_cell = partial(EntityCellRegularField.build, model=FakeImage)
-
         cell_m2m = build_cell(name='categories__name')
-
-        hf.cells = [build_cell(name='name'), cell_m2m]
-        hf.save()
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_img', name='Image view', model=FakeImage,
+            cells=[build_cell(name='name'), cell_m2m],
+        ).get_or_create()[0]
 
         cat1, cat2 = FakeImageCategory.objects.all()[:2]
 
@@ -3172,10 +3159,10 @@ class ListViewTestCase(CremeTestCase):
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell2 = build_cell(name=ordering_fname)
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact', name='Order02 view', model=FakeContact,
-            cells_desc=[build_cell(name='last_name'), cell2],
-        )
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_contact', name='Order02 view', model=FakeContact,
+            cells=[build_cell(name='last_name'), cell2],
+        ).get_or_create()[0]
 
         def post(page_info=None):
             return self.assertPOST200(

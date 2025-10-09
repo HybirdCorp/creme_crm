@@ -949,23 +949,17 @@ class HeaderFiltersImporter(Importer):
         validated_data[HeaderFilter].update(d['id'] for d in self._data)
 
     def save(self):
-        create_hf = HeaderFilter.objects.create_if_needed
-
         for data in self._data:
-            model = data['model']
-
-            create_hf(
-                pk=data['id'],
-                model=model,
+            HeaderFilter.objects.proxy(
+                id=data['id'],
+                model=data['model'],
                 is_custom=True,
                 name=data['name'],
                 user=data['user'],
                 is_private=data['is_private'],
-                cells_desc=[
-                    cell_proxy.build_cell() for cell_proxy in data['cells']
-                ],
+                cells=[cell_proxy.build_cell() for cell_proxy in data['cells']],
                 extra_data=data['extra_data'],
-            )
+            ).get_or_create()
 
 
 # Entity Filters ---------------------------------------------------------------
