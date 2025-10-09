@@ -10,14 +10,41 @@
     </li>
 {% endblock %}
 
+{% block view_title %}
+    {{block.super}}
+
+{# TODO? {% brick_declare bricks.hat %} #}
+{# TODO? {% brick_declare bricks.buttons %} #}
+    {% brick_declare bricks.top %}
+    {% brick_declare bricks.left %}
+    {% brick_declare bricks.right %}
+    {% brick_declare bricks.bottom %}
+
+{#    {% brick_display bricks.hat %} #}
+{% endblock %}
+
+{% block detail_view_top %}
+    {% brick_display bricks.top %}
+{% endblock %}
+
 {% block detail_view_left %}
+{% comment %}
     {% brick_import app='emails' name='sending' as info_brick %}
     {% brick_import app='emails' name='sending_html_body' as body_brick %}
     {% brick_display info_brick %}
     {% brick_display body_brick %}
+{% endcomment %}
+    {% brick_display bricks.left %}
 {% endblock %}
 
 {% block detail_view_right %}
+{% comment %}
     {% brick_import app='emails' name='mails' as mails_brick %}
     {% brick_display mails_brick %}
+{% endcomment %}
+    {% brick_display bricks.right %}
+{% endblock %}
+
+{% block detail_view_bottom %}
+    {% brick_display bricks.bottom %}
 {% endblock %}
