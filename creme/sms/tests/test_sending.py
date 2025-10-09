@@ -154,7 +154,7 @@ class SendingsTestCase(CremeTestCase):
 
         self.assertGET404(self._build_add_url(nerv))
 
-    def test_reload_messages_brick01(self):
+    def test_reload_sending_bricks01(self):
         "Not super-user."
         user = self.login_as_standard(allowed_apps=['sms'])
         self.add_credentials(user.role, own=['VIEW'])
@@ -173,7 +173,7 @@ class SendingsTestCase(CremeTestCase):
         url = reverse('sms__reload_messages_brick', args=(sending.id,))
         # self.assertGET404(url)  # No brick ID  TODO: see
 
-        response = self.assertGET200(url)  # TODO: data={'brick_id': MessagesBrick.id}
+        response = self.assertGET200(url, data={'brick_id': MessagesBrick.id})
         self.assertEqual('application/json', response['Content-Type'])
 
         content = response.json()
@@ -203,7 +203,7 @@ class SendingsTestCase(CremeTestCase):
 
         self.assertGET403(
             reverse('sms__reload_messages_brick', args=(sending.id,)),
-            # data={'brick_id': MailsBrick.id}
+            data={'brick_id': MessagesBrick.id},
         )
 
     # TODO?
