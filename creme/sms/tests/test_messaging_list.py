@@ -2,6 +2,7 @@ from functools import partial
 from io import StringIO
 
 from django.contrib.contenttypes.models import ContentType
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
@@ -363,6 +364,7 @@ class MessagingListTestCase(CremeTestCase):
     #         [phone], cloned_mlist.recipient_set.values_list('phone', flat=True),
     #     )
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete(self):
         user = self.login_as_root_and_get()
         mlist = MessagingList.objects.create(user=user, name='List #1')
