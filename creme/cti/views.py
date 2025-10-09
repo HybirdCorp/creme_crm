@@ -67,6 +67,7 @@ class CTIOrganisationCreation(CTIPersonMixin, OrganisationCreation):
 
 class AnswerToACall(generic.BricksView):
     template_name = 'cti/respond_to_a_call.html'
+    bricks = [CallersBrick]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -74,6 +75,9 @@ class AnswerToACall(generic.BricksView):
 
     def get_bricks_reload_url(self):
         return reverse('cti__reload_callers_brick', args=(self.get_number(),))
+
+    def get_bricks(self):
+        return {'main': [brick_cls() for brick_cls in self.bricks]}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -92,9 +96,23 @@ class AnswerToACall(generic.BricksView):
 
 class CallersBrickReloading(BricksReloading):
     number_url_kwarg = 'number'
+    bricks = AnswerToACall.bricks
 
+    # TODO: factorise (sms, EmailSending)?
     def get_bricks(self):
-        return [CallersBrick()]
+        # return [CallersBrick()]
+        bricks = []
+        allowed_bricks = {brick_cls.id: brick_cls for brick_cls in self.bricks}
+
+        for brick_id in self.get_brick_ids():
+            try:
+                brick_cls = allowed_bricks[brick_id]
+            except KeyError as e:
+                raise Http404('Invalid brick ID') from e
+
+            bricks.append(brick_cls())
+
+        return bricks
 
     def get_bricks_context(self):
         context = super().get_bricks_context()

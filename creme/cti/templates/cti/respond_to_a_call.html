@@ -2,7 +2,11 @@
 {% load creme_bricks %}
 
 {% block content %}
+{% comment %}
     {% brick_import app='cti' name='callers' as callers_brick %}
     {% brick_display callers_brick %}
+{% endcomment %}
+    {% brick_declare bricks.main %}
+    {% brick_display bricks.main %}
     {% brick_end %}
 {% endblock %}

@@ -145,7 +145,10 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(brick_node, user.linked_contact)
 
         # Reload
-        response = self.assertGET200(reverse('cti__reload_callers_brick', args=(phone,)))
+        response = self.assertGET200(
+            reverse('cti__reload_callers_brick', args=(phone,)),
+            data={'brick_id': CallersBrick.id},
+        )
         content = response.json()
         self.assertIsList(content, length=1)
 
