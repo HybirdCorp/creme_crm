@@ -1,5 +1,14 @@
 == Version 2.7.2 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Emails :
+            - When an EntityEmail is created from the related emails' Brick ("Emails history")
+              on the detail-view of an entity, if this entity is not used as recipient
+              it's now linked to the email with a relationship "related to the email"
+              (& so the email appears in the Brick).
+
 
 == Version 2.7.1 ==
 
