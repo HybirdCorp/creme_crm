@@ -5,6 +5,7 @@ from django.conf import settings
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils import timezone as django_tz
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from parameterized import parameterized
@@ -1207,14 +1208,23 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfNotCremeUser
     def test_user_activation(self):
         self.login_as_root()
-        other_user = self.create_user()
 
+        other_user = self.create_user()
+        self.assertIs(other_user.is_active, True)
+        self.assertIsNone(other_user.deactivated_on)
+
+        # ---
         build_url = self._build_activation_url
         self.assertPOST200(build_url(other_user.id, activation=False))
-        self.assertFalse(self.refresh(other_user).is_active)
+        other_user = self.refresh(other_user)
+        self.assertFalse(other_user.is_active)
+        self.assertDatetimesAlmostEqual(other_user.deactivated_on, now())
 
+        # ---
         self.assertPOST200(build_url(other_user.id, activation=True))
-        self.assertTrue(self.refresh(other_user).is_active)
+        other_user = self.refresh(other_user)
+        self.assertTrue(other_user.is_active)
+        self.assertIsNone(other_user.deactivated_on)
 
     @skipIfNotCremeUser
     def test_user_activation_credentials(self):

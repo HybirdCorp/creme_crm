@@ -634,7 +634,7 @@ class UsersBrick(_ConfigAdminBrick):
         TIME_ZONE = settings.TIME_ZONE
         btc['display_tz'] = (
             any(user.time_zone != TIME_ZONE for user in page_users)
-            # All users are displayed if our page
+            # All users are displayed in our page
             if page.paginator.count == len(page_users) else
             User.objects.exclude(time_zone=TIME_ZONE).exists()
         )
