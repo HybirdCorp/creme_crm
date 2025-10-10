@@ -165,8 +165,12 @@
             * Commercial :
                 - The methods 'populate.Populator._populate_header_filters_for_*()' have been removed.
             * Emails :
+                - These Brick classes are not registered anymore (so they can only be reloaded by their specific view):
+                  SendingBrick, SendingHTMLBodyBrick, MailsBrick.
                 - The class attribute 'views.sending.SendingBricksReloading.allowed_bricks'
                   has been replaced by the new attribute 'bricks'.
+            * CTI :
+                - The class bricks.CallersBrick is not registered anymore (so it can only be reloaded by its specific view).
 
     Internal breaking changes :
     ---------------------------

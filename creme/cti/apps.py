@@ -28,10 +28,10 @@ class CTIConfig(CremeAppConfig):
     dependencies = ['creme.persons', 'creme.activities']
     credentials = CremeAppConfig.CRED_NONE
 
-    def register_bricks(self, brick_registry):
-        from . import bricks
-
-        brick_registry.register(bricks.CallersBrick)
+    # def register_bricks(self, brick_registry):
+    #     from . import bricks
+    #
+    #     brick_registry.register(bricks.CallersBrick)
 
     def register_fields_config(self, fields_config_registry):
         from creme import persons

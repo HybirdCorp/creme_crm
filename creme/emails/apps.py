@@ -60,7 +60,6 @@ class EmailsConfig(CremeAppConfig):
 
         brick_registry.register(
             bricks.EmailHTMLBodyBrick,
-            bricks.SendingHTMLBodyBrick,
             bricks.TemplateHTMLBodyBrick,
             bricks.MailingListsBrick,
             bricks.EmailRecipientsBrick,
@@ -70,8 +69,9 @@ class EmailsConfig(CremeAppConfig):
             bricks.ParentListsBrick,
             bricks.AttachmentsBrick,
             bricks.SendingsBrick,
-            bricks.SendingBrick,
-            bricks.MailsBrick,
+            # bricks.SendingBrick,
+            # bricks.SendingHTMLBodyBrick,
+            # bricks.MailsBrick,
             bricks.MailsHistoryBrick,
             bricks.MailPopupBrick,
             bricks.LwMailPopupBrick,
