@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-10 16:54+0200\n"
+"POT-Creation-Date: 2025-10-14 10:18+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -930,7 +930,7 @@ msgid "Listable resources"
 msgstr ""
 
 msgid "This types of entities can be listed as list-views."
-msgstr"Ces types de fiches peuvent être listés dans des vues en liste."
+msgstr "Ces types de fiches peuvent être listés dans des vues en liste."
 
 # Already in creme_core
 msgid "Exportable resources"
@@ -1777,6 +1777,9 @@ msgid ""
 msgstr ""
 "Les relations ne sont pas affichées dans le bloc «Relations» (vue détaillée "
 "de l'objet) quand quand elles sont déjà affichées par un autre bloc."
+
+msgid "View details"
+msgstr "Voir les détails"
 
 msgid "You cannot disable an internal type"
 msgstr "Vous ne pouvez pas désactiver un type interne"

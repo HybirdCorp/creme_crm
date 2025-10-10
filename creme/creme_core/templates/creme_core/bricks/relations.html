@@ -24,7 +24,7 @@
    {% for relation in relations %}{% with entity_obj=relation.real_object %}
      <tr>
          <td {% brick_table_data_status primary %}>
-             {% if forloop.first %}<span class="relationship-predicate{% if not rtype.enabled %} relationship-predicate-disabled{% endif %}">{{rtype.predicate}}</span>{% else %}&nbsp;{% endif %}
+             {% if forloop.first %}<a href="{{rtype.get_absolute_url}}" class="relationship-predicate{% if not rtype.enabled %} relationship-predicate-disabled{% endif %}">{{rtype.predicate}}</a>{% else %}&nbsp;{% endif %}
          </td>
          <td>{% widget_entity_hyperlink entity_obj user %}</td>
          <td {% brick_table_data_status action %}>

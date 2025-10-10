@@ -1,0 +1,55 @@
+{% extends 'creme_core/bricks/generic/hat-bar.html' %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+
+{% block brick_extra_class %}brick-hat brick-hat-bar creme_core-rtype-hat-bar{% endblock %}
+
+{% block brick_header %}{% endblock %}
+
+{% block brick_content %}
+{# {% with admin_perm=user|has_perm_to_admin:'creme_core' %} #}
+    <div class="hat-bar">
+        <div class="bar-icon">{% widget_icon name='relations' size='brick-hat-bar' label=_('Relationship type') %}</div>
+        <div class="bar-title">
+            <h1>
+              {% translate 'Relationship type' %} : {{object|capfirst}}
+              {% if not object.enabled %}<span class="bar-deleted-indicator">[{% translate 'Disabled' context 'creme_core-relation_type' %}]</span>{% endif %}
+            </h1>
+        </div>
+        <div class="bar-actions">
+         {% block buttons %}
+
+{% comment %}
+          {% block edit_button %}
+           {% if object.enabled %}
+             <div class='bar-action'>
+               {% if not admin_perm %}
+                 {% brick_bar_button action='edit' icon='edit' url='' label=_('You are not allowed to edit this property type') enabled=False %}
+               {% elif not object.is_custom %}
+                 {% brick_bar_button action='edit' icon='edit' url='' label=_('This property type cannot be edited') enabled=False %}
+               {% else %}
+                 {% brick_bar_button action='redirect' icon='edit' label=_('Edit this property type') url=object.get_edit_absolute_url %}
+               {% endif %}
+             </div>
+           {% endif %}
+          {% endblock %}
+
+          {% block delete_button %}
+            <div class='bar-action'>
+              {% if not admin_perm %}
+                {% brick_bar_button action='delete' icon='delete' url='' label=_('You are not allowed to delete this property type') enabled=False %}
+              {% elif not object.is_custom %}
+                {% brick_bar_button action='delete' icon='delete' url='' label=_('This property type cannot be deleted') enabled=False %}
+              {% elif object.properties_count %}
+                {% brick_bar_button action='delete' icon='delete' url='' label=_('This property type cannot be deleted because it is used') enabled=False %}
+              {% else %}
+                {% brick_bar_button action='creme_core-detailview-delete' label=_('Delete this property type') url=object.get_delete_absolute_url icon='delete' confirm=_('Do you really want to delete this property type?') %}
+              {% endif %}
+            </div>
+          {% endblock %}
+
+{% endcomment %}
+         {% endblock buttons %}
+        </div>
+    </div>
+{# {% endwith %} #}
+{% endblock %}

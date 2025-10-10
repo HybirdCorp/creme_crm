@@ -1,0 +1,37 @@
+{% extends 'creme_core/detailview.html' %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+
+{% block page_title %}«{{object.predicate}}» - {% endblock %}
+
+{% block body_classes %}{% if not object.enabled %}is_deleted{% endif %}{% endblock %}
+
+{% block global_buttons %}
+    <li>
+        <a class="menu_button menu-button-icon" href="{{object.get_lv_absolute_url}}">{% translate 'Go to the configuration of types' as list_label %}
+            {% widget_icon name='listview' size='global-button' label=list_label %} {{list_label}}
+        </a>
+    </li>
+
+{% comment %} TODO?
+    <li>
+        <a {% if user|has_perm_to_admin:'creme_config' %}class="menu_button menu-button-icon" href="{{object.get_create_absolute_url}}"{% else %}class="menu_button menu-button-icon forbidden is-disabled"{% endif %}>
+            {% widget_icon name='add' size='global-button' label=_('Create') %} {{object.creation_label}}
+        </a>
+    </li>
+{% endcomment %}
+{% endblock %}
+
+
+{% block view_title %}
+    {% brick_declare bricks.hat %}
+    {% brick_declare bricks.main %}
+
+    {% brick_display bricks.hat %}
+{% endblock %}
+
+{% block instance_buttons_container %}{% endblock %}
+
+{% block main_content %}
+    {% brick_display bricks.main %}
+    {% brick_end %}
+{% endblock %}

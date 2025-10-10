@@ -23,9 +23,9 @@
     {% brick_table_column title=_('Predicate')  class='relation-predicate' status='nowrap' %}
     {% brick_table_column title=_('Object(s)')  class='relation-object'    colspan=4 %}
     {% if custom %}
-      {% brick_table_column title=_('Actions') status='action' colspan=3 %}
+      {% brick_table_column title=_('Actions') status='action' colspan=4 %}
     {% else %}
-      {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+      {% brick_table_column title=_('Actions') status='action' colspan=3 %}
     {% endif %}
 {% endblock %}
 
@@ -47,6 +47,9 @@
         </td>
         <td class="relation-object-copiable">{% if not sym_type.is_copiable %}<span title="{% translate 'The relationships are not copied when the object entity is cloned' %}">{% translate 'No copy' %}</span>{% endif %}</td>
         <td class="relation-subject-display">{% if sym_type.minimal_display %}<span title="{% translate 'The relationships are not displayed in the «Relationships» block (detail-view of object) when they are already displayed by another block.' %}">{% translate 'Display once' %}</span>{% endif %}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='redirect' url=relation_type.get_absolute_url icon='view' label=_('View details') %}
+        </td>
         <td {% brick_table_data_status action %}>
           {% if relation_type.is_internal %}
             {% brick_table_action id='update' label=_('Disable') display='text' help_text=_('You cannot disable an internal type') enabled=False %}

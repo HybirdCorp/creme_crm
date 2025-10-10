@@ -25,7 +25,7 @@ Once a type is created, it is available in the configuration of detailed views (
     <div class="brick-list-item rtypebrick-config-item">
         <div class="rtypebrick-config-group rtypebrick-config-summary-group">
             <div class="rtypebrick-config-group-title{% if not brick_type.relation_type.enabled %} rtypebrick-config-group-title-disabled{% endif %}">
-                {{brick_type.relation_type}}
+                {% widget_hyperlink brick_type.relation_type %}
             </div>
             <div class="rtypebrick-config-group-constraints">
                 {% translate 'Available on detail views for:' %}&nbsp;{% widget_enumerator brick_type.relation_type.subject_ctypes.all|uca_sort threshold=10 empty=_('All types of entity') summary=_('{count} types of entity') %}
