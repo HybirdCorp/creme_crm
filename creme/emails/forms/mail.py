@@ -38,7 +38,7 @@ from creme.creme_core.models import FieldsConfig, Relation
 from creme.creme_core.utils.html import strip_html
 from creme.documents import get_document_model
 
-from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENT
+from .. import constants
 from ..creme_jobs import entity_emails_send_type
 
 logger = logging.getLogger(__name__)
@@ -219,21 +219,37 @@ class EntityEmailForm(core_forms.CremeEntityQuickForm):
 
             return email
 
+        entity = self.entity
+        entity_is_recipient = False
+        user_contact = self.user_contact
+        create_relation = partial(Relation.objects.create, user=user)
+
         with atomic():
             if get_data('send_me'):
                 create_n_send_mail(sender)
-
-            user_contact = self.user_contact
-            create_relation = partial(Relation.objects.create, user=user)
 
             for recipient in chain(cdata['c_recipients'], cdata['o_recipients']):
                 email = create_n_send_mail(recipient.email)
 
                 create_relation(
-                    subject_entity=email, type_id=REL_SUB_MAIL_SENT, object_entity=user_contact,
+                    subject_entity=email,
+                    type_id=constants.REL_SUB_MAIL_SENT,
+                    object_entity=user_contact,
                 )
                 create_relation(
-                    subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient,
+                    subject_entity=email,
+                    type_id=constants.REL_SUB_MAIL_RECEIVED,
+                    object_entity=recipient,
+                )
+
+                if recipient.id == entity.id:
+                    entity_is_recipient = True
+
+            if not entity_is_recipient:
+                create_relation(
+                    subject_entity=email,
+                    type_id=constants.REL_SUB_RELATED_TO,
+                    object_entity=entity,
                 )
 
         if sending_error:
