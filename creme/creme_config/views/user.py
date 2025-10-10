@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from django.forms.utils import ErrorList
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from django.utils.timezone import now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
@@ -159,6 +160,7 @@ class UserDeactivation(generic.CheckedView):
 
             if user_to_deactivate.is_active:
                 user_to_deactivate.is_active = False
+                user_to_deactivate.deactivated_on = now()
                 user_to_deactivate.save()
 
         return HttpResponse()
@@ -185,6 +187,7 @@ class UserActivation(generic.CheckedView):
 
             if not user_to_activate.is_active:
                 user_to_activate.is_active = True
+                user_to_activate.deactivated_on = None
 
                 try:
                     user_to_activate.clean()
