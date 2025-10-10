@@ -22,11 +22,13 @@ from creme.creme_core.models import (
     SemiFixedRelationType,
     Workflow,
 )
+from creme.creme_core.views.relation import RelationTypeInfoBrick
 
 from ..base import CremeTestCase
+from .base import BrickTestCaseMixin
 
 
-class RelationTypeViewsTestCase(CremeTestCase):
+class RelationTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     @staticmethod
     def _build_get_ctypes_url(rtype_id):
         return reverse('creme_core__ctypes_compatible_with_rtype', args=(rtype_id,))
@@ -126,6 +128,60 @@ class RelationTypeViewsTestCase(CremeTestCase):
             self._build_get_ctypes_url(rtype.id),
             data={'fields': ['id', 'unicode']},
         )
+
+    def test_detailview(self):
+        user = self.login_as_root_and_get()
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_customer', predicate='is a customer of',
+            models=[FakeContact],
+        ).symmetric(
+            id='test-object_customer', predicate='is a supplier of',
+            models=[FakeOrganisation],
+        ).get_or_create()[0]
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        linked_contact = create_contact(last_name='Vrataski', first_name='Rita')
+        # unlink_contact = create_contact(last_name='Kiriya',   first_name='Keiji')
+
+        orga = FakeOrganisation.objects.create(user=user, name='US Defense Force')
+
+        Relation.objects.create(
+            user=user, subject_entity=linked_contact, type=rtype, object_entity=orga,
+        )
+
+        response = self.assertGET200(rtype.get_absolute_url())
+        self.assertTemplateUsed(response, 'creme_core/detail/relation-type.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/rtype-info.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/related-entities.html')
+        # self.assertEqual(
+        #     reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
+        #     response.context.get('bricks_reload_url'),
+        # )
+
+        with self.assertNoException():
+            ctxt_rtype = response.context['object']
+        self.assertEqual(rtype, ctxt_rtype)
+
+        doc = self.get_html_tree(response.content)
+        self.get_brick_node(doc, RelationTypeInfoBrick)
+
+        # contacts_brick_node = self.get_brick_node(
+        #     doc, 'tagged-creme_core-fakecontact',
+        # )
+        # self.assertBrickHasNotClass(contacts_brick_node, 'is-empty')
+        # self.assertInstanceLink(contacts_brick_node, tagged_contact)
+        # self.assertNoInstanceLink(contacts_brick_node, untagged_contact)
+        # self.assertNoInstanceLink(contacts_brick_node, tagged_orga)
+        #
+        # orgas_brick_node = self.get_brick_node(
+        #     doc, 'tagged-creme_core-fakeorganisation',
+        # )
+        # self.assertInstanceLink(orgas_brick_node, tagged_orga)
+        # self.assertNoInstanceLink(orgas_brick_node, tagged_contact)
+        #
+        # self.assertNoBrick(doc, 'tagged-billing-fakeimage')
+        # self.assertNoBrick(doc, 'misc_tagged_entities')
 
 
 class RelationViewsTestCase(CremeTestCase):

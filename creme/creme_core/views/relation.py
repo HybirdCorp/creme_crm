@@ -34,13 +34,12 @@ from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..core.workflow import WorkflowEngine
 from ..forms import relation as rel_forms
+from ..gui.bricks import SimpleBrick
 from ..models import CremeEntity, Relation, RelationType
 from ..shortcuts import get_bulk_or_404
 from ..utils.content_type import entity_ctypes
+from . import generic
 from .decorators import jsonify
-from .generic import base
-from .generic.delete import CremeModelDeletion
-from .generic.listview import BaseEntitiesListPopup
 
 
 def _fields_values(instances, getters, range, sort_getter=None, user=None):
@@ -135,7 +134,7 @@ def json_rtype_ctypes(request, rtype_id):
     return _fields_values(content_types, getters, range, sort)
 
 
-class RelationsAdding(base.RelatedToEntityFormPopup):
+class RelationsAdding(generic.RelatedToEntityFormPopup):
     form_class = rel_forms.RelationsAddingForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     title = _('Relationships for «{entity}»')
@@ -194,7 +193,8 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
 
 
 # TODO: Factorise with add_properties_bulk and bulk_update?
-class RelationsBulkAdding(base.EntityCTypeRelatedMixin, base.CremeFormPopup):
+class RelationsBulkAdding(generic.base.EntityCTypeRelatedMixin,
+                          generic.CremeFormPopup):
     template_name = 'creme_core/generics/blockform/link-popup.html'
     form_class = rel_forms.RelationsBulkAddingForm
     title = _('Multiple adding of relationships')
@@ -243,7 +243,7 @@ class RelationsBulkAdding(base.EntityCTypeRelatedMixin, base.CremeFormPopup):
         return kwargs
 
 
-class RelationDeletion(CremeModelDeletion):
+class RelationDeletion(generic.CremeModelDeletion):
     model = Relation
 
     def check_instance_permissions(self, instance, user):
@@ -259,7 +259,7 @@ class RelationDeletion(CremeModelDeletion):
         return self.object.subject_entity.get_real_entity().get_absolute_url()
 
 
-class RelationFromFieldsDeletion(CremeModelDeletion):
+class RelationFromFieldsDeletion(generic.CremeModelDeletion):
     "Delete a Relation which we retrieve from the subject/object/type."
     model = Relation
 
@@ -315,9 +315,9 @@ class RelationFromFieldsDeletion(CremeModelDeletion):
     #     return self.object.subject_entity.get_real_entity().get_absolute_url()
 
 
-class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
-                                     base.EntityCTypeRelatedMixin,
-                                     BaseEntitiesListPopup):
+class RelationsObjectsSelectionPopup(generic.base.EntityRelatedMixin,
+                                     generic.base.EntityCTypeRelatedMixin,
+                                     generic.listview.BaseEntitiesListPopup):
     """Display an inner popup to select entities to link as relations' objects
     for a given subject entity.
 
@@ -524,3 +524,57 @@ def add_relations_with_same_type(request):
         )
 
     return HttpResponse(message, status=status)
+
+
+# RelationType detail-view -----------------------------------------------------
+class RelationTypeInfoBrick(SimpleBrick):
+    id = 'relation_type_info'
+    dependencies = '*'
+    read_only = True
+    template_name = 'creme_core/bricks/rtype-info.html'
+
+
+class RelationTypeDetail(generic.CremeModelDetail):
+    model = RelationType
+    # queryset = CremePropertyType.objects.prefetch_related('subject_ctypes')
+    template_name = 'creme_core/detail/relation-type.html'
+    pk_url_kwarg = 'rtype_id'
+    # bricks_reload_url_name = 'creme_core__reload_ptype_bricks'
+
+    def get_bricks(self):
+        # ptype = self.object
+        # ctypes = ptype.subject_ctypes.all()
+        main_bricks = [RelationTypeInfoBrick()]
+        # user = self.request.user
+        #
+        # if ctypes:
+        #     has_perm_to_access = user.has_perm_to_access
+        #
+        #     for ctype in ctypes:
+        #         brick = TaggedEntitiesBrick(ctype=ctype)
+        #         if not has_perm_to_access(ctype.app_label):
+        #             brick = ForbiddenBrick(
+        #                 id=brick.id,
+        #                 verbose_name=model_verbose_name_plural(ctype.model_class()),
+        #             )
+        #
+        #         main_bricks.append(brick)
+        #
+        #     main_bricks.append(TaggedMiscEntitiesBrick(excluded_ctypes=ctypes))
+        # else:
+        #     main_bricks.extend(
+        #         TaggedEntitiesBrick(ctype=ctype)
+        #         for ctype in entity_ctypes(
+        #             app_labels=None if user.is_superuser else user.role.allowed_apps,
+        #         )
+        #     )
+
+        return {
+            'hat': [],
+            # 'hat': [PropertyTypeBarHatBrick()],
+            'main': main_bricks,
+        }
+
+    # TODO
+    # def get_bricks_reload_url(self):
+    #     return reverse(self.bricks_reload_url_name, args=(self.object.id,))
