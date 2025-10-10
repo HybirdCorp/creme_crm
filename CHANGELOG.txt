@@ -2,6 +2,8 @@
 
   Users side :
   ------------
+    # A detail-view for RelationType has been created; an interesting feature is
+      the display of all entities linked by the concerned type, mixing all entity types.
     # Apps :
         * Creme_config :
             - The Users store now the date of their deactivation.

@@ -1,0 +1,51 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_ctype creme_perms creme_widgets %}
+{% load and_op url from creme_core_tags %}
+
+{% block brick_extra_class %}
+{{block.super}} creme_core-related-entities-brick{% if page.paginator.count == 0 %} is-empty{% endif %}
+{% endblock %}
+
+{% block brick_header_title %}
+  {% if ctype %}
+    {% widget_icon ctype=ctype size='brick-table' as ct_icon %}
+    {% brick_header_title title=ctype|ctype_counted_label:page.paginator.count icon=ct_icon %}
+  {% else %}
+    {% brick_header_title title=_('{count} Other entity') plural=_('{count} Other entities') empty=_('Other entities') %}
+  {% endif %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% comment %} TODO??
+  {% if ctype %}
+    {% blocktranslate with models=ctype|ctype_verbose_name_plural asvar help_text %}Remove all the properties related to the «{{models}}» which you are allowed to edit{% endblocktranslate %}
+    {% brick_header_action id='delete' url='creme_core__remove_properties'|url __ptype_id=object.id __ct_id=ctype.id label=_('Remove these properties') help_text=help_text %}
+  {% endif %}
+{% endcomment %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+{% with deletion_url='creme_core__delete_relation'|url %}
+  {% for relation in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>
+          {% if not ctype %}{% widget_icon ctype=relation.subject_entity.entity_type size='brick-table' %}{% endif %}
+          {% widget_entity_hyperlink entity=relation.subject_entity user=user %}
+          {{object.predicate}}
+          {% widget_entity_hyperlink entity=relation.real_object user=user %}
+        </td>
+        <td {% brick_table_data_status action %}>
+          {% if object.is_internal %}
+            {% brick_table_action id='delete' label=_('Cannot delete this relationship (internal type)') icon='unlink' enabled=False %}
+          {% else %}
+           {% with subject_unlink_perm=user|has_perm_to_unlink:relation.subject_entity object_unlink_perm=user|has_perm_to_unlink:relation.real_object %}
+            {% brick_table_action id='delete' url=deletion_url __id=relation.id label=_('Delete this relationship') icon='unlink' enabled=subject_unlink_perm|and_op:object_unlink_perm %}
+           {% endwith %}
+          {% endif %}
+        </td>
+    </tr>
+  {% endfor %}
+{% endwith %}
+{% endblock %}

@@ -22,11 +22,18 @@ from creme.creme_core.models import (
     SemiFixedRelationType,
     Workflow,
 )
+from creme.creme_core.utils.translation import smart_model_verbose_name
+from creme.creme_core.views.relation import (
+    RelatedMiscEntitiesBrick,
+    RelationTypeBarHatBrick,
+    RelationTypeInfoBrick,
+)
 
 from ..base import CremeTestCase
+from .base import BrickTestCaseMixin
 
 
-class RelationTypeViewsTestCase(CremeTestCase):
+class RelationTypeViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     @staticmethod
     def _build_get_ctypes_url(rtype_id):
         return reverse('creme_core__ctypes_compatible_with_rtype', args=(rtype_id,))
@@ -126,6 +133,322 @@ class RelationTypeViewsTestCase(CremeTestCase):
             self._build_get_ctypes_url(rtype.id),
             data={'fields': ['id', 'unicode']},
         )
+
+    def test_detailview__ctype_constraint__empty_misc(self):
+        user = self.login_as_root_and_get()
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_customer', predicate='is a customer of',
+            models=[FakeContact, FakeOrganisation],
+        ).symmetric(
+            id='test-object_customer', predicate='is a supplier of',
+            models=[FakeOrganisation],
+        ).get_or_create()[0]
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        linked_contact = create_contact(last_name='Vrataski', first_name='Rita')
+        not_linked_contact = create_contact(last_name='Kiriya', first_name='Keiji')
+
+        supplier = FakeOrganisation.objects.create(user=user, name='Pew pew tech')
+        linked_orga = FakeOrganisation.objects.create(user=user, name='US Defense Force')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=linked_contact, type=rtype, object_entity=supplier)
+        create_rel(subject_entity=linked_orga,    type=rtype, object_entity=supplier)
+
+        response = self.assertGET200(rtype.get_absolute_url())
+        self.assertTemplateUsed(response, 'creme_core/detail/relation-type.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/rtype-info.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/related-entities.html')
+        self.assertEqual(
+            reverse('creme_core__reload_rtype_bricks', args=(rtype.id,)),
+            response.context.get('bricks_reload_url'),
+        )
+
+        with self.assertNoException():
+            ctxt_rtype = response.context['object']
+        self.assertEqual(rtype, ctxt_rtype)
+
+        doc = self.get_html_tree(response.content)
+        self.get_brick_node(doc, RelationTypeBarHatBrick)
+        self.get_brick_node(doc, RelationTypeInfoBrick)
+
+        contacts_brick_node = self.get_brick_node(
+            doc, 'related-creme_core-fakecontact',
+        )
+        self.assertEqual(
+            _('{count} {model}').format(
+                count=1,
+                model=smart_model_verbose_name(model=FakeContact, count=1),
+            ),
+            self.get_brick_title(contacts_brick_node),
+        )
+        self.assertBrickHasNotClass(contacts_brick_node, 'is-empty')
+        self.assertInstanceLink(contacts_brick_node, linked_contact)
+        self.assertNoInstanceLink(contacts_brick_node, not_linked_contact)
+        self.assertNoInstanceLink(contacts_brick_node, linked_orga)
+
+        orgas_brick_node = self.get_brick_node(
+            doc, 'related-creme_core-fakeorganisation',
+        )
+        self.assertInstanceLink(orgas_brick_node, linked_orga)
+        self.assertNoInstanceLink(orgas_brick_node, linked_contact)
+
+        self.assertNoBrick(doc, 'related-creme_core-fakeimage')
+
+        misc_brick_node = self.get_brick_node(doc, 'misc_related_entities')
+        self.assertBrickHasClass(misc_brick_node, 'is-empty')
+        self.assertEqual(_('Other entities'), self.get_brick_title(misc_brick_node))
+
+    def test_detailview__ctype_constraint__misc(self):
+        "Misc brick."
+        user = self.login_as_root_and_get()
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_customer', predicate='is a customer of',
+            models=[FakeContact],  # FakeOrganisation
+        ).symmetric(
+            id='test-object_customer', predicate='is a supplier of',
+        ).get_or_create()[0]
+
+        linked_contact = FakeContact.objects.create(
+            user=user, last_name='Vrataski', first_name='Rita',
+        )
+
+        supplier = FakeOrganisation.objects.create(user=user, name='Pew pew tech')
+        linked_orga = FakeOrganisation.objects.create(user=user, name='US Defense Force')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=linked_contact, type=rtype, object_entity=supplier)
+        create_rel(subject_entity=linked_orga,    type=rtype, object_entity=supplier)
+
+        response = self.assertGET200(rtype.get_absolute_url())
+        doc = self.get_html_tree(response.content)
+
+        contacts_brick_node = self.get_brick_node(doc, 'related-creme_core-fakecontact')
+        self.assertInstanceLink(contacts_brick_node, linked_contact)
+        self.assertNoInstanceLink(contacts_brick_node, linked_orga)
+
+        misc_brick_node = self.get_brick_node(doc, RelatedMiscEntitiesBrick)
+        self.assertInstanceLink(misc_brick_node, linked_orga)
+        self.assertNoInstanceLink(misc_brick_node, linked_contact)
+
+        self.assertNoBrick(doc, 'related-creme_core-fakeorganisation')
+
+    def test_detailview__no_ctype_constraint(self):
+        user = self.login_as_root_and_get()
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_customer', predicate='is a customer of',
+            # models=[...],
+        ).symmetric(
+            id='test-object_customer', predicate='is a supplier of',
+            models=[FakeOrganisation],
+        ).get_or_create()[0]
+
+        linked_contact = FakeContact.objects.create(
+            user=user, last_name='Vrataski', first_name='Rita',
+        )
+        supplier = FakeOrganisation.objects.create(user=user, name='Pew pew tech')
+        Relation.objects.create(
+            user=user, subject_entity=linked_contact, type=rtype, object_entity=supplier,
+        )
+
+        response = self.assertGET200(rtype.get_absolute_url())
+        doc = self.get_html_tree(response.content)
+
+        contacts_brick_node = self.get_brick_node(
+            doc, 'related-creme_core-fakecontact',
+        )
+        self.assertBrickHasNotClass(contacts_brick_node, 'is-empty')
+        self.assertInstanceLink(contacts_brick_node, linked_contact)
+
+        orgas_brick_node = self.get_brick_node(
+            doc, 'related-creme_core-fakeorganisation',
+        )
+        self.assertBrickHasClass(orgas_brick_node, 'is-empty')
+
+        self.assertNoBrick(doc, 'misc_related_entities')
+
+    def test_detailview__no_app_perm__ctype_constraint(self):
+        user = self.login_as_standard(allowed_apps=['persons'])
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_customer', predicate='is a customer of',
+            models=[FakeContact],
+        ).symmetric(
+            id='test-object_customer', predicate='is a supplier of',
+        ).get_or_create()[0]
+
+        contact = FakeContact.objects.create(
+            user=self.get_root_user(),
+            last_name='Vrataski', first_name='Rita',
+        )
+        self.assertFalse(user.has_perm_to_view(contact))
+        self.assertFalse(user.has_perm_to_access('creme_core'))
+
+        supplier = FakeOrganisation.objects.create(user=user, name='Pew pew tech')
+        Relation.objects.create(
+            user=user, subject_entity=contact, type=rtype, object_entity=supplier,
+        )
+
+        response = self.assertGET200(rtype.get_absolute_url())
+        self.assertTemplateUsed(response, 'creme_core/bricks/generic/forbidden.html')
+
+        brick_node = self.get_brick_node(
+            tree=self.get_html_tree(response.content),
+            brick='related-creme_core-fakecontact',
+        )
+        self.assertBrickHasClass(brick_node=brick_node, css_class='brick-forbidden')
+        self.assertEqual(FakeContact._meta.verbose_name_plural, self.get_brick_title(brick_node))
+
+    def test_detailview__no_app_perm__no_ctype_constraint(self):
+        self.login_as_standard(allowed_apps=['persons'])
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_customer', predicate='is a customer of',
+            # models=[FakeContact],  # <==
+        ).symmetric(
+            id='test-object_customer', predicate='is a supplier of',
+        ).get_or_create()[0]
+
+        response = self.assertGET200(rtype.get_absolute_url())
+        self.assertNoBrick(
+            tree=self.get_html_tree(response.content),
+            brick_id='related-creme_core-fakecontact',
+        )
+
+    def test_reload_detailview_bricks__related_entities(self):
+        user = self.login_as_root_and_get()
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_customer', predicate='is a customer of',
+        ).symmetric(
+            id='test-object_customer', predicate='is a supplier of',
+            models=[FakeOrganisation],
+        ).get_or_create()[0]
+
+        linked_contact = FakeContact.objects.create(
+            user=user, last_name='Vrataski', first_name='Rita',
+        )
+        supplier = FakeOrganisation.objects.create(user=user, name='Pew pew tech')
+        Relation.objects.create(
+            user=user, subject_entity=linked_contact, type=rtype, object_entity=supplier
+        )
+
+        brick_id = 'related-creme_core-fakecontact'
+        url = reverse('creme_core__reload_rtype_bricks', args=(rtype.id,))
+        response = self.assertGET200(url, data={'brick_id': brick_id})
+
+        with self.assertNoException():
+            results = response.json()
+
+        self.assertIsList(results, length=1)
+
+        result = results[0]
+        self.assertIsList(result, length=2)
+        self.assertEqual(brick_id, result[0])
+
+        document = self.get_html_tree(result[1])
+        brick_node = self.get_brick_node(document, brick_id)
+        self.assertInstanceLink(brick_node, linked_contact)
+
+        # Errors ----
+        with self.assertLogs(level='WARNING') as log_cm1:
+            self.assertGET404(url, data={'brick_id': 'invalid_brickid'})
+        self.assertIn(
+            'the brick ID "invalid_brickid" has a bad length',
+            ''.join(log_cm1.output),
+        )
+
+        with self.assertLogs(level='WARNING') as log_cm2:
+            self.assertGET404(url, data={'brick_id': 'invalidprefix-creme_core-fakecontact'})
+        self.assertIn(
+            'the brick ID "invalidprefix-creme_core-fakecontact" has a bad prefix',
+            ''.join(log_cm2.output),
+        )
+
+        with self.assertLogs(level='WARNING') as log_cm3:
+            self.assertGET404(url, data={'brick_id': 'related-persons-invalidmodel'})
+        self.assertIn(
+            'the brick ID "related-persons-invalidmodel" has an invalid ContentType key',
+            ''.join(log_cm3.output),
+        )
+
+        with self.assertLogs(level='WARNING') as log_cm4:
+            self.assertGET404(url, data={'brick_id': 'related-persons-civility'})
+        self.assertIn(
+            'the brick ID "related-persons-civility" is not related to CremeEntity',
+            ''.join(log_cm4.output),
+        )
+
+    def test_reload_detailview_bricks__other_bricks(self):
+        "Hat/Info/Misc bricks."
+        user = self.login_as_root_and_get()
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_customer', predicate='is a customer of',
+        ).symmetric(
+            id='test-object_customer', predicate='is a supplier of',
+        ).get_or_create()[0]
+
+        linked_contact = FakeContact.objects.create(
+            user=user, last_name='Vrataski', first_name='Rita',
+        )
+        supplier = FakeOrganisation.objects.create(user=user, name='Pew pew tech')
+        Relation.objects.create(
+            user=user, subject_entity=linked_contact, type=rtype, object_entity=supplier
+        )
+
+        hat_brick_id = RelationTypeBarHatBrick.id
+        info_brick_id = RelationTypeInfoBrick.id
+        misc_brick_id = RelatedMiscEntitiesBrick.id
+
+        response = self.assertGET200(
+            reverse('creme_core__reload_rtype_bricks', args=(rtype.id,)),
+            data={'brick_id': [misc_brick_id, info_brick_id, hat_brick_id]},
+        )
+
+        with self.assertNoException():
+            result = response.json()
+
+        self.assertEqual(3, len(result))
+
+        doc1 = self.get_html_tree(result[0][1])
+        misc_brick_node = self.get_brick_node(doc1, misc_brick_id)
+        self.assertBrickHasNotClass(misc_brick_node, 'is-empty')
+        self.assertInstanceLink(misc_brick_node, linked_contact)
+
+        doc2 = self.get_html_tree(result[1][1])
+        self.get_brick_node(doc2, info_brick_id)
+
+        doc3 = self.get_html_tree(result[2][1])
+        self.get_brick_node(doc3, hat_brick_id)
+
+    def test_reload_detailview_bricks__permissions(self):
+        "No app permissions."
+        self.login_as_standard(allowed_apps=['persons'])
+        rtype = RelationType.objects.builder(
+            id='test-subject_customer', predicate='is a customer of',
+        ).symmetric(
+            id='test-object_customer', predicate='is a supplier of',
+        ).get_or_create()[0]
+
+        brick_id = 'related-creme_core-fakecontact'
+        response = self.assertGET200(
+            reverse('creme_core__reload_rtype_bricks', args=(rtype.id,)),
+            data={'brick_id': brick_id},
+            headers={'X-Requested-With': 'XMLHttpRequest'},
+        )
+
+        with self.assertNoException():
+            result = response.json()
+
+        brick_data = self.get_alone_element(result)
+        doc = self.get_html_tree(brick_data[1])
+        brick_node = self.get_brick_node(doc, brick_id)
+        self.assertBrickHasClass(brick_node=brick_node, css_class='brick-forbidden')
+        self.assertEqual(FakeContact._meta.verbose_name_plural, self.get_brick_title(brick_node))
 
 
 class RelationViewsTestCase(CremeTestCase):

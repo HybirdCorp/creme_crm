@@ -28,6 +28,7 @@ from django.db import IntegrityError, models
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -809,6 +810,13 @@ class RelationType(CremeModel):
         )
 
         return f'{self.predicate} — {symmetric_pred}'  # NB: — == "\xE2\x80\x94" == &mdash;
+
+    def get_absolute_url(self):
+        return reverse('creme_core__rtype', args=(self.id,))
+
+    @staticmethod
+    def get_lv_absolute_url():
+        return reverse('creme_config__rtypes')
 
     def add_subject_ctypes(self, *models: type[CremeEntity]) -> None:
         get_ct = ContentType.objects.get_for_model

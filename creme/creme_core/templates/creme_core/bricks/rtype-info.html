@@ -1,0 +1,78 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_widgets creme_bricks %}{% load print_field from creme_core_tags %}
+{% load app_verbose_name from creme_core_tags %}
+
+{% block brick_extra_class %}brick-kv-list creme_core-rtype-info-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('General information') icon='relations' %}
+{% endblock %}
+
+{% block brick_content %}
+<div class="brick-kv-group">
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Predicate' %}</div>
+        <div class="brick-kv-value">{% print_field object=object field='predicate' %}</div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Applies on entities with following types' %}</div>
+        <div class="brick-kv-value">
+            {% for ctype in object.subject_ctypes.all %}{% widget_join %}{% widget_ctype_hyperlink ctype=ctype user=user %}{% end_widget_join %}{% empty %}{% translate "No related type of resource" %}{% endfor %}
+        </div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Applies on entities with properties' %}</div>
+        <div class="brick-kv-value">
+            {% for ptype in object.subject_properties.all %}
+            {% widget_join %}
+            <a href="{{ptype.get_absolute_url}}"{% if not ptype.enabled %} class="is_deleted"{% endif %}{% if ptype.description %} title="{{ptype.description}}"{% endif %}>
+                {{ptype.text}}
+            </a>
+            {% end_widget_join %}{% empty %}{% translate "No constraint on properties" %}{% endfor %}
+        </div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Applies on entities without properties' %}</div>
+        <div class="brick-kv-value">
+            {% for ptype in object.subject_forbidden_properties.all %}
+            {% widget_join %}
+            <a href="{{ptype.get_absolute_url}}"{% if not ptype.enabled %} class="is_deleted"{% endif %}{% if ptype.description %} title="{{ptype.description}}"{% endif %}>
+                {{ptype.text}}
+            </a>
+            {% end_widget_join %}{% empty %}{% translate "No forbidden property" %}{% endfor %}
+        </div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Is an internal type' %}</div>
+        <div class="brick-kv-value">{% print_field object=object field='is_internal' %}</div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Is a custom type' %}</div>
+        <div class="brick-kv-value">{% print_field object=object field='is_custom' %}</div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Is copiable' %}</div>
+        <div class="brick-kv-value">{% print_field object=object field='is_copiable' %}</div>
+    </div>
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate "Display once on the subject's page" %}</div>
+        <div class="brick-kv-value">{% print_field object=object field='minimal_display' %}</div>
+    </div>
+{% comment %}
+    {% if object.app_label %}
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Created by the app' %}</div>
+        <div class="brick-kv-value">{{object.app_label|app_verbose_name}}</div>
+    </div>
+    {% endif %}
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate 'Statistics' %}</div>
+        <div class="brick-kv-value">{% blocktranslate count count=object.properties_count %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktranslate %}</div>
+    </div>
+{% endcomment %}
+    <div class="brick-kv-item">
+        <div class="brick-kv-key">{% translate "Symmetric type" %}</div>
+        <div class="brick-kv-value"><a href="{{object.symmetric_type.get_absolute_url}}">{{object.symmetric_type.predicate}}</a></div>
+    </div>
+</div>
+{% endblock %}

@@ -374,7 +374,6 @@ class TaggedEntitiesBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         ctype = self.ctype
-        # ptype = self.ptype
 
         return self._render(self.get_template_context(
             context,
@@ -394,7 +393,6 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
         self.excluded_ctypes = excluded_ctypes
 
     def detailview_display(self, context):
-        # ptype = self.ptype
         btc = self.get_template_context(
             context,
             CremeEntity.objects.filter(properties__type=context['object'])
@@ -452,7 +450,6 @@ class PropertyTypeDetail(generic.CremeModelDetail):
 
 
 class PropertyTypeBricksReloading(BricksReloading):
-    # check_bricks_permission = False
     ptype_id_url_kwarg = 'ptype_id'
 
     def __init__(self, **kwargs):

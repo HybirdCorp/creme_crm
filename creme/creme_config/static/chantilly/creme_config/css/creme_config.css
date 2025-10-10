@@ -824,7 +824,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-rtypebricks-brick td .rtypebrick-cell-item {
     font-weight: 600;
-    color: #22439f;
+/*    color: #22439f; */
 }
 
 .creme_config-rtypebricks-brick .brick-footer {
@@ -866,7 +866,10 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     align-self: center;
 }
 
-.creme_config-rtypebricks-brick .rtypebrick-config-group-title-disabled,
+.creme_config-rtypebricks-brick .rtypebrick-config-group-title-disabled  {
+    text-decoration: line-through;
+}
+
 .creme_config-semifixed-rtypes-brick .semifixed_rtype-predicate-disabled,
 .creme_config-semifixed-rtypes-brick .semifixed_rtype-rtype-disabled {
     text-decoration: line-through;

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-10 15:32+0200\n"
+"POT-Creation-Date: 2025-10-14 15:13+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3446,6 +3446,23 @@ msgstr[0] "%(count)s fiche avec cette propriété"
 msgstr[1] "%(count)s fiches avec cette propriété"
 
 #, python-brace-format
+msgid "{count} Other entity"
+msgstr "{count} Autre fiche"
+
+#, python-brace-format
+msgid "{count} Other entities"
+msgstr "{count} Autres fiches"
+
+msgid "Other entities"
+msgstr "Autres fiches"
+
+msgid "Cannot delete this relationship (internal type)"
+msgstr "Vous ne pouvez pas supprimer cette relation (type interne)"
+
+msgid "Delete this relationship"
+msgstr "Supprimer cette relation"
+
+#, python-brace-format
 msgid "{count} Relationship"
 msgstr "{count} Relation"
 
@@ -3459,14 +3476,36 @@ msgstr "Nouvelles relations"
 msgid "Action"
 msgstr "Action"
 
-msgid "Cannot delete this relationship (internal type)"
-msgstr "Vous ne pouvez pas supprimer cette relation (type interne)"
-
-msgid "Delete this relationship"
-msgstr "Supprimer cette relation"
-
 msgid "No relationship for the moment"
 msgstr "Aucune relation pour le moment"
+
+msgctxt "creme_core-relation_type"
+msgid "Disabled"
+msgstr "Désactivé"
+
+msgid "Applies on entities with properties"
+msgstr "S'applique aux fiches avec les propriétés"
+
+msgid "No constraint on properties"
+msgstr "Pas de contrainte sur les propriétés"
+
+msgid "Applies on entities without properties"
+msgstr "S'applique aux fiches sans ces propriétés"
+
+msgid "No forbidden property"
+msgstr "Aucune propriété interdite"
+
+msgid "Is an internal type"
+msgstr "Est un type interne"
+
+msgid "Is a custom type"
+msgstr "Est un type personnalisé"
+
+msgid "Display once on the subject's page"
+msgstr "Afficher une seule fois sur la page du sujet"
+
+msgid "Symmetric type"
+msgstr "Type symmétrique"
 
 #, python-format
 msgid "Configure the fields for «%(ctype)s»'"
@@ -3513,14 +3552,6 @@ msgstr "Modifier «%(object)s»"
 
 msgid "No related entity for the moment"
 msgstr "Aucune fiche liée pour le moment"
-
-#, python-brace-format
-msgid "{count} Other entity"
-msgstr "{count} Autre fiche"
-
-#, python-brace-format
-msgid "{count} Other entities"
-msgstr "{count} Autres fiches"
 
 #, python-format
 msgid ""
@@ -4741,19 +4772,6 @@ msgstr "Le type de source n'est pas compatible avec ce type de relation"
 #~ msgid "All users"
 #~ msgstr "Tous les utilisateurs"
 
-#~ msgid ""
-#~ "All users can see this filter, but only the owner can edit or delete it"
-#~ msgstr ""
-#~ "Ce filtre sera visible par tous les utilisateurs, mais seul le "
-#~ "propriétaire pourra le modifier ou le supprimer"
-
-#~ msgid ""
-#~ "The filter can not be deleted because of its dependencies "
-#~ "({dependencies})."
-#~ msgstr ""
-#~ "Le filtre ne peut être supprimé à cause de ses dépendances "
-#~ "({dependencies})."
-
 #~ msgid "«{object}» ({model})"
 #~ msgstr "«{object}» ({model})"
 
@@ -4768,13 +4786,6 @@ msgstr "Le type de source n'est pas compatible avec ce type de relation"
 
 #~ msgid "{entity}: <b>Permission denied</b>"
 #~ msgstr "{entity} : <b>Permission refusée</b>"
-
-#~ msgid ""
-#~ "«{entity}» can not be deleted because the deletion has been disabled by "
-#~ "the administrator."
-#~ msgstr ""
-#~ "«{entity}» ne peut être supprimé car la suppression a été désactivée par "
-#~ "l'administrateur."
 
 #~ msgid "You cannot edit/delete a system filter"
 #~ msgstr "Vous ne pouvez pas modifier/supprimer un filtre système"

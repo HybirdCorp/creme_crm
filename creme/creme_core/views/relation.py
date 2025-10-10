@@ -16,15 +16,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from collections import defaultdict
 from functools import partial
 from urllib.parse import urlencode
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import prefetch_related_objects
 from django.db.models.query_utils import FilteredRelation, Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404
+from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -34,13 +37,17 @@ from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..core.workflow import WorkflowEngine
 from ..forms import relation as rel_forms
+from ..gui import bricks
+from ..gui.bricks import ForbiddenBrick
 from ..models import CremeEntity, Relation, RelationType
+from ..models.utils import model_verbose_name_plural
 from ..shortcuts import get_bulk_or_404
 from ..utils.content_type import entity_ctypes
+from . import generic
+from .bricks import BricksReloading
 from .decorators import jsonify
-from .generic import base
-from .generic.delete import CremeModelDeletion
-from .generic.listview import BaseEntitiesListPopup
+
+logger = logging.getLogger(__name__)
 
 
 def _fields_values(instances, getters, range, sort_getter=None, user=None):
@@ -135,7 +142,7 @@ def json_rtype_ctypes(request, rtype_id):
     return _fields_values(content_types, getters, range, sort)
 
 
-class RelationsAdding(base.RelatedToEntityFormPopup):
+class RelationsAdding(generic.RelatedToEntityFormPopup):
     form_class = rel_forms.RelationsAddingForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     title = _('Relationships for «{entity}»')
@@ -194,7 +201,8 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
 
 
 # TODO: Factorise with add_properties_bulk and bulk_update?
-class RelationsBulkAdding(base.EntityCTypeRelatedMixin, base.CremeFormPopup):
+class RelationsBulkAdding(generic.base.EntityCTypeRelatedMixin,
+                          generic.CremeFormPopup):
     template_name = 'creme_core/generics/blockform/link-popup.html'
     form_class = rel_forms.RelationsBulkAddingForm
     title = _('Multiple adding of relationships')
@@ -243,7 +251,7 @@ class RelationsBulkAdding(base.EntityCTypeRelatedMixin, base.CremeFormPopup):
         return kwargs
 
 
-class RelationDeletion(CremeModelDeletion):
+class RelationDeletion(generic.CremeModelDeletion):
     model = Relation
 
     def check_instance_permissions(self, instance, user):
@@ -259,7 +267,7 @@ class RelationDeletion(CremeModelDeletion):
         return self.object.subject_entity.get_real_entity().get_absolute_url()
 
 
-class RelationFromFieldsDeletion(CremeModelDeletion):
+class RelationFromFieldsDeletion(generic.CremeModelDeletion):
     "Delete a Relation which we retrieve from the subject/object/type."
     model = Relation
 
@@ -315,9 +323,9 @@ class RelationFromFieldsDeletion(CremeModelDeletion):
     #     return self.object.subject_entity.get_real_entity().get_absolute_url()
 
 
-class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
-                                     base.EntityCTypeRelatedMixin,
-                                     BaseEntitiesListPopup):
+class RelationsObjectsSelectionPopup(generic.base.EntityRelatedMixin,
+                                     generic.base.EntityCTypeRelatedMixin,
+                                     generic.listview.BaseEntitiesListPopup):
     """Display an inner popup to select entities to link as relations' objects
     for a given subject entity.
 
@@ -524,3 +532,231 @@ def add_relations_with_same_type(request):
         )
 
     return HttpResponse(message, status=status)
+
+
+# RelationType detail-view -----------------------------------------------------
+class RelationTypeBarHatBrick(bricks.SimpleBrick):
+    id = 'relation_hat_bar'
+    dependencies = '*'
+    template_name = 'creme_core/bricks/rtype-hat-bar.html'
+
+
+class RelationTypeInfoBrick(bricks.SimpleBrick):
+    id = 'relation_type_info'
+    dependencies = '*'
+    read_only = True
+    template_name = 'creme_core/bricks/rtype-info.html'
+
+
+class RelatedEntitiesBrick(bricks.QuerysetBrick):
+    template_name = 'creme_core/bricks/related-entities.html'
+
+    id_prefix = 'related'
+
+    def __init__(self, ctype):
+        super().__init__()
+        self.ctype = ctype
+        self.id = f'{self.id_prefix}-{ctype.app_label}-{ctype.model}'
+        self.dependencies = (ctype.model_class(),)
+
+    @classmethod
+    def parse_brick_id(cls, brick_id) -> ContentType | None:
+        """Extract info from brick ID.
+
+        @param brick_id: e.g. "related-persons-contact".
+        @return A ContentType instance if valid, else None.
+        """
+        parts = brick_id.split('-')
+
+        if len(parts) != 3:
+            logger.warning('parse_brick_id(): the brick ID "%s" has a bad length', brick_id)
+            return None
+
+        if parts[0] != cls.id_prefix:
+            logger.warning('parse_brick_id(): the brick ID "%s" has a bad prefix', brick_id)
+            return None
+
+        try:
+            ctype = ContentType.objects.get_by_natural_key(parts[1], parts[2])
+        except ContentType.DoesNotExist:
+            logger.warning(
+                'parse_brick_id(): the brick ID "%s" has an invalid ContentType key',
+                brick_id,
+            )
+            return None
+
+        if not issubclass(ctype.model_class(), CremeEntity):
+            logger.warning(
+                'parse_brick_id(): the brick ID "%s" is not related to CremeEntity',
+                brick_id,
+            )
+            return None
+
+        return ctype
+
+    def detailview_display(self, context):
+        ctype = self.ctype
+
+        # TODO: RealEntityForeignKey for subject too?
+        btc = self.get_template_context(
+            context,
+            Relation.objects.filter(
+                subject_entity__entity_type=ctype,
+                type=context['object'],
+            ).order_by(
+                # NB: we order by:
+                #   - "subject_entity" which will be extended to
+                #     <subject_entity__header_filter_search_field>, for
+                #     alphabetical ordering of subject-entities.
+                #   - "id" to get a consistent ordering of entities between
+                #     different queries (it's important for pagination)
+                'subject_entity', 'id',
+            ).prefetch_related('real_object'),
+            ctype=ctype,  # If the model is inserted in the context,
+                          #  the template call it and create an instance...
+        )
+
+        relations = btc['page'].object_list
+        subjects = ctype.model_class().objects.in_bulk([r.subject_entity_id for r in relations])
+        for relation in relations:
+            relation.subject_entity = subjects[relation.subject_entity_id]
+
+        return self._render(btc)
+
+
+class RelatedMiscEntitiesBrick(bricks.QuerysetBrick):
+    id = 'misc_related_entities'
+    dependencies = (CremeEntity,)
+    template_name = 'creme_core/bricks/related-entities.html'
+
+    def __init__(self, excluded_ctypes):
+        super().__init__()
+        self.excluded_ctypes = excluded_ctypes
+
+    def detailview_display(self, context):
+        btc = self.get_template_context(
+            context,
+            Relation.objects.filter(
+                type=context['object'],
+            ).exclude(
+                subject_entity__entity_type__in=self.excluded_ctypes,
+            ).order_by(
+                # NB: see remark in RelatedEntitiesBrick about ordering
+                'subject_entity', 'id',
+            ).prefetch_related('subject_entity', 'real_object'),
+            ctype=None,
+        )
+
+        # Populate subjects with real entities
+        # TODO: RealEntityForeignKey for subject too?
+        relations = btc['page'].object_list
+        subjects = [r.subject_entity for r in relations]
+        CremeEntity.populate_real_entities(subjects)
+        subjects_per_ids = {
+            subject.id: subject.get_real_entity()
+            for subject in subjects
+        }
+        for relation in relations:
+            relation.subject_entity = subjects_per_ids[relation.subject_entity_id]
+
+        return self._render(btc)
+
+
+class RelationTypeDetail(generic.CremeModelDetail):
+    model = RelationType
+    queryset = RelationType.objects.prefetch_related('subject_ctypes')
+    template_name = 'creme_core/detail/relation-type.html'
+    pk_url_kwarg = 'rtype_id'
+    bricks_reload_url_name = 'creme_core__reload_rtype_bricks'
+
+    def get_bricks(self):
+        rtype = self.object
+        ctypes = rtype.subject_ctypes.all()
+        main_bricks = [RelationTypeInfoBrick()]
+        user = self.request.user
+
+        if ctypes:
+            has_perm_to_access = user.has_perm_to_access
+
+            for ctype in ctypes:
+                brick = RelatedEntitiesBrick(ctype=ctype)
+                if not has_perm_to_access(ctype.app_label):
+                    brick = ForbiddenBrick(
+                        id=brick.id,
+                        verbose_name=model_verbose_name_plural(ctype.model_class()),
+                    )
+
+                main_bricks.append(brick)
+
+            main_bricks.append(RelatedMiscEntitiesBrick(excluded_ctypes=ctypes))
+        else:
+            main_bricks.extend(
+                RelatedEntitiesBrick(ctype=ctype)
+                for ctype in entity_ctypes(
+                    app_labels=None if user.is_superuser else user.role.allowed_apps,
+                )
+            )
+
+        return {
+            'hat': [RelationTypeBarHatBrick()],
+            'main': main_bricks,
+        }
+
+    def get_bricks_reload_url(self):
+        return reverse(self.bricks_reload_url_name, args=(self.object.id,))
+
+
+class RelationTypeBricksReloading(BricksReloading):
+    rtype_id_url_kwarg = 'rtype_id'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.rtype = None
+
+    def get_bricks(self):
+        reloaded_bricks = []
+
+        for brick_id in self.get_brick_ids():
+            match brick_id:
+                case RelationTypeBarHatBrick.id:
+                    brick = RelationTypeBarHatBrick()
+                case RelationTypeInfoBrick.id:
+                    brick = RelationTypeInfoBrick()
+                case RelatedMiscEntitiesBrick.id:
+                    brick = RelatedMiscEntitiesBrick(
+                        excluded_ctypes=self.get_relation_type().subject_ctypes.all(),
+                    )
+                case _:
+                    ctype = RelatedEntitiesBrick.parse_brick_id(brick_id)
+                    if ctype is None:
+                        raise Http404(f'Invalid brick id "{brick_id}"')
+
+                    brick = RelatedEntitiesBrick(ctype=ctype)
+
+                    # TODO: factorise
+                    if not self.request.user.has_perm_to_access(ctype.app_label):
+                        brick = ForbiddenBrick(
+                            id=brick.id,
+                            verbose_name=model_verbose_name_plural(ctype.model_class()),
+                        )
+
+            reloaded_bricks.append(brick)
+
+        return reloaded_bricks
+
+    def get_bricks_context(self):
+        context = super().get_bricks_context()
+        context['object'] = self.get_relation_type()
+
+        return context
+
+    def get_relation_type(self):
+        rtype = self.rtype
+
+        if rtype is None:
+            self.rtype = rtype = get_object_or_404(
+                RelationType.objects.prefetch_related('subject_ctypes'),
+                id=self.kwargs[self.rtype_id_url_kwarg],
+            )
+
+        return rtype

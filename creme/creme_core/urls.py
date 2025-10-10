@@ -204,6 +204,18 @@ relation_patterns = [
         relation.json_entity_get,
         name='creme_core__entity_as_json',
     ),  # TODO: move to entity_patterns ?
+
+    # RelationType
+    re_path(
+        r'^type/(?P<rtype_id>[\w-]+)[/]?$',
+        relation.RelationTypeDetail.as_view(),
+        name='creme_core__rtype',
+    ),
+    re_path(
+        r'^type/(?P<rtype_id>[\w-]+)/reload_bricks[/]?$',
+        relation.RelationTypeBricksReloading.as_view(),
+        name='creme_core__reload_rtype_bricks',
+    ),
     re_path(
         r'^type/(?P<rtype_id>[\w-]+)/content_types/json[/]?$',
         relation.json_rtype_ctypes,
