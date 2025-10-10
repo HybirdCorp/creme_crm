@@ -429,6 +429,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
 
             ('user__is_active',      fs(field=_('Active?'))),
             ('user__date_joined',    fs(field=_('Date joined'))),
+            ('user__deactivated_on', fs(field=_('Deactivated on'))),
             ('user__displayed_name', fs(field=_('Displayed name'))),
             ('user__email',          fs(field=_('Email address'))),
             ('user__first_name',     fs(field=_('First name'))),
@@ -457,6 +458,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
 
                 ('user__is_active',      fs(field=_('Active?'))),
                 ('user__date_joined',    fs(field=_('Date joined'))),
+                ('user__deactivated_on', fs(field=_('Deactivated on'))),
                 ('user__displayed_name', fs(field=_('Displayed name'))),
                 ('user__email',          fs(field=_('Email address'))),
                 ('user__first_name',     fs(field=_('First name'))),
@@ -576,6 +578,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
 
                 ('user__is_active',      fs(user_lbl, _('Active?'))),
                 ('user__date_joined',    fs(user_lbl, _('Date joined'))),
+                ('user__deactivated_on', fs(user_lbl, _('Deactivated on'))),
                 ('user__displayed_name', fs(user_lbl, _('Displayed name'))),
                 ('user__email',          fs(user_lbl, _('Email address'))),
                 ('user__first_name',     fs(user_lbl, _('First name'))),
@@ -646,6 +649,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
 
                 ('user__is_active',      fs(user_lbl, _('Active?'))),
                 ('user__date_joined',    fs(user_lbl, _('Date joined'))),
+                ('user__deactivated_on', fs(user_lbl, _('Deactivated on'))),
                 ('user__displayed_name', fs(user_lbl, _('Displayed name'))),
                 ('user__email',          fs(user_lbl, _('Email address'))),
                 ('user__first_name',     fs(user_lbl, _('First name'))),

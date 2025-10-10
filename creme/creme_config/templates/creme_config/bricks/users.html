@@ -82,6 +82,8 @@
     {% brick_table_column_for_field ctype=objects_ctype field='time_zone' %}
     {% endif %}
 
+    {% brick_table_column_for_field ctype=objects_ctype field='deactivated_on' %}
+
     {% brick_table_column title=_('Actions') status='action' colspan=4 %}
 {% endblock %}
 
@@ -99,6 +101,7 @@
         <td class="user-last-login" data-type="datetime">{{user.last_login|default:'—'}}</td>
         <td class="user-joined" data-type="datetime">{{user.date_joined}}</td>
         {% if display_tz %}<td class="user-timezone">{{user.time_zone}}</td>{% endif %}
+        <td class="user-joined" data-type="datetime">{{user.deactivated_on|default:'—'}}</td>
         <td {% brick_table_data_status action %} class="user-activate">
             {% if user.is_active %}
                 {% brick_table_action id='update' url='creme_config__deactivate_user'|url:user.id label=_('Deactivate') display='text' enabled=admin_perm %}

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-08 12:53+0200\n"
+"POT-Creation-Date: 2025-10-10 15:32+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2019,6 +2019,9 @@ msgstr "Date d'inscription"
 
 msgid "Active?"
 msgstr "Actif ?"
+
+msgid "Deactivated on"
+msgstr "Désactivé le"
 
 msgid "Is staff?"
 msgstr "Est administrateur ?"

@@ -4,6 +4,7 @@
   ------------
     # Apps :
         * Creme_config :
+            - The Users store now the date of their deactivation.
             - The Roles get a new permission: listable models
               (i.e. it allows you to access the list-views of a model).
               The existing roles are migrated to keep the old behaviour: they get

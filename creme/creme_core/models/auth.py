@@ -995,6 +995,7 @@ class CremeUser(AbstractBaseUser):
 
     date_joined = models.DateTimeField(_('Date joined'), default=now)
     is_active = models.BooleanField(_('Active?'), default=True)
+    deactivated_on = models.DateTimeField(_('Deactivated on'), null=True, default=None)
 
     is_staff = models.BooleanField(
         _('Is staff?'), default=False
