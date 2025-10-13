@@ -896,7 +896,9 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLink(orgas_brick_node, tagged_orga)
         self.assertNoInstanceLink(orgas_brick_node, tagged_contact)
 
-        self.assertNoBrick(doc, 'tagged-billing-fakeimage')
+        empty_node = self.get_brick_node(doc, 'tagged-creme_core-fakeimage')
+        self.assertBrickHasClass(empty_node, 'is-empty')
+
         self.assertNoBrick(doc, 'misc_tagged_entities')
 
     def test_detailview__misc(self):
