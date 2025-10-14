@@ -10,7 +10,6 @@ def fill_deactivation_on(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('creme_core', '0172_v2_8__cremeuser_deactivated_on01'),
     ]

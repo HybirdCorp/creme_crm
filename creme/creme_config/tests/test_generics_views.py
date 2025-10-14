@@ -4,6 +4,7 @@ from django.apps import apps
 from django.db.models.deletion import PROTECT, SET_NULL
 from django.forms import CharField
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from parameterized import parameterized
@@ -100,7 +101,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 reverse('creme_config__model_portal', args=('persons', 'unexistingmodel'))
             )
 
-    def test_add01(self):
+    def test_creation(self):
         count = FakeCivility.objects.count()
 
         url = reverse('creme_config__create_instance', args=('creme_core', 'fake_civility'))
@@ -121,7 +122,11 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         civility = self.get_object_or_fail(FakeCivility, title=title)
         self.assertEqual(shortcut, civility.shortcut)
 
-    def test_add02(self):
+        now_value = now()
+        self.assertDatetimesAlmostEqual(civility.created, now_value)
+        self.assertDatetimesAlmostEqual(civility.modified, now_value)
+
+    def test_creation__order(self):
         count = FakeSector.objects.count()
 
         url = reverse('creme_config__create_instance', args=('creme_core', 'fake_sector'))
@@ -141,7 +146,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         sector = self.get_object_or_fail(FakeSector, title=title)
         self.assertEqual(count + 2, sector.order)  # order is set to max
 
-    def test_add03(self):
+    def test_creation__disabled(self):
         "Disabled creation (see creme.creme_core.apps.CremeCoreConfig.register_creme_config())."
         self.assertGET409(
             reverse(
@@ -150,7 +155,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             )
         )
 
-    def test_add04(self):
+    def test_creation__custom_url(self):
         "Not vanilla-URL (see creme.creme_core.apps.CremeCoreConfig.register_creme_config())."
         self.assertGET409(
             reverse(
@@ -168,7 +173,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             response.json(),
         )
 
-    def test_add01_from_widget(self):
+    def test_creation_from_widget(self):
         count = FakeCivility.objects.count()
 
         url = reverse(
@@ -193,7 +198,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(shortcut, civility.shortcut)
         self.assertWidgetResponse(response, civility)
 
-    def test_add02_from_widget(self):
+    def test_creation_from_widget__order(self):
         count = FakeSector.objects.count()
 
         url = reverse(
@@ -221,10 +226,13 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(count + 2, sector.order)  # order is set to max
         self.assertWidgetResponse(response, sector)
 
-    def test_edit01(self):
+    def test_edition(self):
         title = 'herr'
         shortcut = 'H.'
         civ = FakeCivility.objects.create(title=title, shortcut=shortcut)
+
+        old_date = self.create_datetime(year=2020, month=1, day=1)
+        FakeCivility.objects.filter(id=civ.id).update(created=old_date, modified=old_date)
 
         url = reverse(
             'creme_config__edit_instance',
@@ -245,9 +253,10 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         civ = self.refresh(civ)
         self.assertEqual(title,    civ.title)
         self.assertEqual(shortcut, civ.shortcut)
+        self.assertEqual(old_date, civ.created)
+        self.assertDatetimesAlmostEqual(civ.modified, now())
 
-    def test_edit02(self):
-        "Order not changed."
+    def test_edition__order_no_changed(self):
         count = FakeSector.objects.count()
         sector = FakeSector.objects.create(title='music', order=count + 1)
 
@@ -264,7 +273,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(title,        new_sector.title)
         self.assertEqual(sector.order, new_sector.order)
 
-    def test_edit03(self):
+    def test_edition__disabled(self):
         "Edition disabled (see creme.creme_core.apps.CremeCoreConfig.register_creme_config())."
         lf = FakeLegalForm.objects.create(title='Foundation')
         self.assertGET409(
@@ -274,7 +283,7 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             )
         )
 
-    def test_edit04(self):
+    def test_edition__custom_url(self):
         "Not vanilla-URL (see creme.creme_core.apps.CremeCoreConfig.register_creme_config())."
         position = FakePosition.objects.first()
 
