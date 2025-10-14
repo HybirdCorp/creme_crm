@@ -127,6 +127,11 @@
                     - The method 'models.AbstractProjectTask.clone_scope()' has been removed.
                 * Crudity :
                     - The constant 'SETTING_CRUDITY_SANDBOX_BY_USER' has been removed.
+        # In the abstract base Model 'creme_core.models.base.MinionModel', 2 auto datetime fields
+          have been added: "created" & "modified". If some of your models inherit this model, you'll
+          have to create a schema migration which adds these fields (you should also fill the fields
+          of the existing instances with an "epoch" value, see the file
+          "creme/activities/migrations/0034_v2_8__minions_created_n_modified01.py" as example).
         # In many apps, the attributes 'SEARCH' of Populator classes have changed
           (because they implemented their own API before the new generic one).
         # In the class 'creme_core.bricks.StatisticsBrick', the attribute

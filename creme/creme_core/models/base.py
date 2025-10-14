@@ -31,6 +31,7 @@ from django.dispatch import receiver
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from . import fields as core_fields
 from .file_ref import FileRef
 
 logger = logging.getLogger(__name__)
@@ -242,6 +243,12 @@ class MinionModel(CremeModel):
     """
     uuid = models.UUIDField(
         unique=True, editable=False, default=uuid.uuid4,
+    ).set_tags(viewable=False)
+
+    # Not viewable by users, For administrators currently.
+    created = core_fields.CreationDateTimeField(_('Creation date')).set_tags(viewable=False)
+    modified = core_fields.ModificationDateTimeField(
+        _('Last modification'),
     ).set_tags(viewable=False)
 
     # Used by creme_config (if is_custom is False, the instance cannot be deleted)
