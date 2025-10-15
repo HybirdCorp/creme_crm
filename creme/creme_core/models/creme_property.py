@@ -36,6 +36,7 @@ from django.utils.translation import gettext_lazy as _
 
 from .. import signals
 from ..utils.content_type import as_ctype
+from . import fields as core_fields
 from .base import CremeModel
 from .entity import CremeEntity
 
@@ -422,6 +423,9 @@ class CremePropertyType(CremeModel):
 
 
 class CremeProperty(CremeModel):
+    # Not viewable by users, For administrators currently.
+    created = core_fields.CreationDateTimeField()  # TODO .set_tags(viewable=False)?
+
     type = models.ForeignKey(
         CremePropertyType,
         verbose_name=_('Type of property'),

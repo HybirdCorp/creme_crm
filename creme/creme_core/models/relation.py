@@ -915,7 +915,7 @@ class Relation(CremeModel):
          our Contact & an Organisation with a RelationType which could be like
          <predicate="employs">
     """
-    created = creme_fields.CreationDateTimeField(_('Creation date')).set_tags(clonable=False)
+    created = creme_fields.CreationDateTimeField(_('Creation date'))  # .set_tags(clonable=False)
 
     user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 

@@ -47,9 +47,9 @@ from ..auth import EntityCredentials
 from ..core.setting_key import UserSettingValueManager
 from ..utils.content_type import as_ctype, as_model
 from ..utils.unicode_collation import collator
+from . import fields as core_fields
 from .custom_entity import CustomEntityType
 from .entity import CremeEntity
-from .fields import EntityCTypeForeignKey
 from .utils import model_verbose_name
 
 if TYPE_CHECKING:
@@ -102,6 +102,10 @@ class UserRole(models.Model):
     uuid = models.UUIDField(
         unique=True, editable=False, default=uuid.uuid4,
     ).set_tags(viewable=False)
+
+    # Not viewable by users, For administrators currently.
+    created = core_fields.CreationDateTimeField().set_tags(viewable=False)
+    modified = core_fields.ModificationDateTimeField().set_tags(viewable=False)
 
     # superior = ForeignKey('self', verbose_name=_('Superior'), null=True)
     # TODO: CTypeManyToManyField ?
@@ -425,7 +429,7 @@ class SetCredentials(models.Model):
             'based on values of fields or relationships for example.'
         ),
     )
-    ctype = EntityCTypeForeignKey(
+    ctype = core_fields.EntityCTypeForeignKey(
         verbose_name=_('Apply to a specific type'),
         # NB: NULL means "No specific type" (i.e. any kind of CremeEntity)
         null=True, blank=True,
@@ -994,6 +998,9 @@ class CremeUser(AbstractBaseUser):
     )
 
     date_joined = models.DateTimeField(_('Date joined'), default=now)
+    # Not viewable by users, For administrators currently.
+    modified = core_fields.ModificationDateTimeField().set_tags(viewable=False)
+
     is_active = models.BooleanField(_('Active?'), default=True)
     deactivated_on = models.DateTimeField(_('Deactivated on'), null=True, default=None)
 

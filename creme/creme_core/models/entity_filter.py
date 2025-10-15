@@ -327,6 +327,10 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     ).set_tags(viewable=False)
     name = models.CharField(max_length=100, verbose_name=_('Name'))
 
+    # Not viewable by users, For administrators currently.
+    created = core_fields.CreationDateTimeField().set_tags(viewable=False)
+    modified = core_fields.ModificationDateTimeField().set_tags(viewable=False)
+
     filter_type = models.CharField(
         max_length=TYPE_ID_MAX_LENGTH,
         editable=False, default=EF_REGULAR,

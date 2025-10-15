@@ -169,6 +169,16 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter.filter_type = registry2.id
         self.assertEqual(f'{name} [test]', str(efilter))
 
+    def test_created_n_modified(self):
+        efilter = EntityFilter.objects.create(
+            id='creme_core-test_created',
+            name='Agencies',
+            entity_type=FakeContact,
+        )
+        now_value = now()
+        self.assertDatetimesAlmostEqual(now_value, efilter.created)
+        self.assertDatetimesAlmostEqual(now_value, efilter.modified)
+
     def test_can_edit__root(self):
         root = self.get_root_user()
         other = self.user
