@@ -45,6 +45,8 @@
         # In 'creme_core.models', the models 'CremePropertyType' & 'RelationType'
           get a JSON field "extra_data" which can be used by third party code.
         # App :
+            * Persons :
+                - The model 'Address' got new fields: 'created', 'modified'.
             * Activities :
                 - The model 'Calendar' got new fields: 'uuid', 'created', 'modified'.
                 - The JavaScript component 'creme.ActivityCalendar' has been improved :
