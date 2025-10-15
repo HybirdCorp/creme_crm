@@ -64,8 +64,11 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(user,     memo.user)
         self.assertEqual(entity.id,             memo.entity_id)
         self.assertEqual(entity.entity_type_id, memo.entity_content_type_id)
-        self.assertDatetimesAlmostEqual(now(), memo.creation_date)
         self.assertEqual(content, str(memo))
+
+        now_value = now()
+        self.assertDatetimesAlmostEqual(now_value, memo.creation_date)
+        self.assertDatetimesAlmostEqual(now_value, memo.modification_date)
 
         self.assertEqual(1, Memo.objects.count())
 

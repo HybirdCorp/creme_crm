@@ -77,14 +77,17 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(entity.id,             action.entity_id)
         self.assertEqual(entity,                action.real_entity)
 
-        self.assertDatetimesAlmostEqual(now(), action.creation_date)
+        now_value = now()
+        self.assertDatetimesAlmostEqual(now_value, action.creation_date)
+        self.assertDatetimesAlmostEqual(now_value, action.modification_date)
+
         self.assertEqual(
             self.create_datetime(year=2010, month=12, day=24),
             action.deadline,
         )
-
         self.assertEqual(title, str(action))
 
+        # ---
         create_bdl = partial(
             BrickDetailviewLocation.objects.create_if_needed,
             model=FakeContact, zone=BrickDetailviewLocation.RIGHT,

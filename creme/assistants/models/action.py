@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,10 @@ class Action(core_models.CremeModel):
     )
     description = models.TextField(_('Source action'), blank=True)
 
-    creation_date = core_fields.CreationDateTimeField(_('Creation date'), editable=False)
+    creation_date = core_fields.CreationDateTimeField(_('Creation date'))
+    # Not viewable by users, For administrators currently.
+    modification_date = core_fields.ModificationDateTimeField().set_tags(viewable=False)
+
     expected_reaction = models.TextField(_('Target action'), blank=True)
     deadline = models.DateTimeField(_('Deadline'))
     validation_date = models.DateTimeField(

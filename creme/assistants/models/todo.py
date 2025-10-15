@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 import creme.creme_core.models as core_models
-import creme.creme_core.models.fields as creme_fields
+import creme.creme_core.models.fields as core_fields
 
 
 class ToDoManager(models.Manager):
@@ -31,7 +31,7 @@ class ToDoManager(models.Manager):
 
 
 class ToDo(core_models.CremeModel):
-    user = creme_fields.CremeUserForeignKey(
+    user = core_fields.CremeUserForeignKey(
         verbose_name=_('Owner user'), null=True, blank=True,
     ).set_null_label(pgettext_lazy('assistants-owner', '*auto*'))
     title = models.CharField(_('Title'), max_length=200)
@@ -41,17 +41,19 @@ class ToDo(core_models.CremeModel):
     reminded = models.BooleanField(_('Notification sent'), editable=False, default=False)
 
     description = models.TextField(_('Description'), blank=True)
-    creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
+    creation_date = core_fields.CreationDateTimeField(_('Creation date'))
+    # Not viewable by users, For administrators currently.
+    modification_date = core_fields.ModificationDateTimeField().set_tags(viewable=False)
     deadline = models.DateTimeField(_('Deadline'), blank=True, null=True)
 
     # TODO: rename "entity_ctype" for consistency?
-    entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
+    entity_content_type = core_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity = models.ForeignKey(
         core_models.CremeEntity,
         related_name='assistants_todos',
         editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
-    real_entity = creme_fields.RealEntityForeignKey(
+    real_entity = core_fields.RealEntityForeignKey(
         ct_field='entity_content_type', fk_field='entity',
     )
 
