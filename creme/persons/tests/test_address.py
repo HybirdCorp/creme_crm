@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 import creme.creme_core.forms.listview as lv_forms
@@ -109,7 +110,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(_('Save the address'), context.get('submit_label'))
 
         name = 'Address#1'
-        address_value = '21 jump street'
+        addr_value = '21 jump street'
         po_box = 'Popop'
         city = 'Atlantis'
         state = '??'
@@ -118,18 +119,22 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
         department = 'rucrazy'
 
         self._create_address(
-            orga, name, address_value, po_box, city, state, zipcode, country, department,
+            orga, name, addr_value, po_box, city, state, zipcode, country, department,
         )
 
         address = self.get_alone_element(Address.objects.filter(object_id=orga.id))
         self.assertEqual(name,       address.name)
-        self.assertEqual(address_value, address.address)
+        self.assertEqual(addr_value, address.address)
         self.assertEqual(po_box,     address.po_box)
         self.assertEqual(city,       address.city)
         self.assertEqual(state,      address.state)
         self.assertEqual(zipcode,    address.zipcode)
         self.assertEqual(country,    address.country)
         self.assertEqual(department, address.department)
+
+        now_value = now()
+        self.assertDatetimesAlmostEqual(address.created, now_value)
+        self.assertDatetimesAlmostEqual(address.modified, now_value)
 
         response = self.client.get(orga.get_absolute_url())
         brick_node = self.get_brick_node(

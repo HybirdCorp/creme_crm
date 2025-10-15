@@ -47,6 +47,11 @@ class CountryField(core_fields.SemanticCharField):
 # TODO: other SemanticCharField?
 class AbstractAddress(CremeModel):
     name = models.CharField(_('Name'), max_length=100, blank=True)
+
+    # Not viewable by users, For administrators currently.
+    created = core_fields.CreationDateTimeField().set_tags(viewable=False)
+    modified = core_fields.ModificationDateTimeField().set_tags(viewable=False)
+
     address = models.TextField(_('Address'), blank=True)
     po_box = models.CharField(
         _('PO box'), max_length=50, blank=True,
