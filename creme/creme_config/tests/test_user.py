@@ -385,6 +385,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(email,      user.email)
         self.assertEqual('',         user.displayed_name)
         self.assertTrue(user.check_password(password))
+        self.assertDatetimesAlmostEqual(now(), user.modified)
 
         contact = self.get_object_or_fail(
             Contact,

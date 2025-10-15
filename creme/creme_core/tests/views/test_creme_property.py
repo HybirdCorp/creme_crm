@@ -2,6 +2,7 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme.creme_core import workflows
@@ -702,7 +703,10 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotInChoices(value=ptype5.id, choices=choices)
 
         self.assertNoFormError(self.client.post(url, data={'types': [ptype1.id, ptype2.id]}))
-        self.assertCountEqual([ptype1, ptype2], [p.type for p in entity.properties.all()])
+
+        properties = entity.properties.all()
+        self.assertCountEqual([ptype1, ptype2], [p.type for p in properties])
+        self.assertDatetimesAlmostEqual(now(), properties[0].created)
 
         # ----------------------------------------------------------------------
         # One new and one old property

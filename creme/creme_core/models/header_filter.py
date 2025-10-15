@@ -413,6 +413,11 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
     """
     id = models.CharField(primary_key=True, max_length=100, editable=False)
     name = models.CharField(_('Name of the view'), max_length=100)
+
+    # Not viewable by users, For administrators currently.
+    created = core_fields.CreationDateTimeField().set_tags(viewable=False)
+    modified = core_fields.ModificationDateTimeField().set_tags(viewable=False)
+
     user = core_fields.CremeUserForeignKey(
         verbose_name=_('Owner user'), blank=True, null=True,
         help_text=_('If you assign an owner, only the owner can edit or delete the view'),

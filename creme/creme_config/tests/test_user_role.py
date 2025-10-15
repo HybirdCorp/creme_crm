@@ -4,6 +4,7 @@ from json import dumps as json_dump
 from django.contrib.contenttypes.models import ContentType
 from django.forms import BooleanField, CharField
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
@@ -283,6 +284,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         role = self.get_object_or_fail(UserRole, name=name)
         self.assertSetEqual({*apps},     role.allowed_apps)
         self.assertSetEqual({*adm_apps}, role.admin_4_apps)
+
+        now_value = now()
+        self.assertDatetimesAlmostEqual(now_value, role.created)
+        self.assertDatetimesAlmostEqual(now_value, role.modified)
 
         self.assertCountEqual([ct_contact, ct_doc], role.creatable_ctypes.all())
         self.assertCountEqual([ct_orga],            role.listable_ctypes.all())

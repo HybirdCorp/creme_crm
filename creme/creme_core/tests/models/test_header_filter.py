@@ -1,6 +1,7 @@
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme.creme_core.constants import REL_SUB_HAS
@@ -467,6 +468,14 @@ class HeaderFilterManagerTestCase(CremeTestCase):
 
 
 class HeaderFilterTestCase(CremeTestCase):
+    def test_dates(self):
+        hf = HeaderFilter.objects.create(
+            pk='tests-hf_contact', name='Contact view', entity_type=FakeContact,
+        )
+        now_value = now()
+        self.assertDatetimesAlmostEqual(now_value, hf.created)
+        self.assertDatetimesAlmostEqual(now_value, hf.modified)
+
     def test_cells(self):
         hf = HeaderFilter.objects.create(
             pk='tests-hf_contact', name='Contact view', entity_type=FakeContact,
