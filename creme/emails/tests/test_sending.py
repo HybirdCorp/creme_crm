@@ -727,6 +727,10 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(body,                        sending.body)
         self.assertEqual('',                          sending.body_html)
 
+        now_value = now()
+        self.assertDatetimesAlmostEqual(sending.created, now_value)
+        self.assertDatetimesAlmostEqual(sending.modified, now_value)
+
         mails = sending.mails_set.all()
         self.assertEqual(len(addresses), len(mails))
 
