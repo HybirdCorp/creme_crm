@@ -140,6 +140,11 @@ class Calendar(CremeModel):
     uuid = models.UUIDField(
         unique=True, editable=False, default=uuid.uuid4,
     ).set_tags(viewable=False)
+
+    # Not viewable by users, For administrators currently.
+    created = core_fields.CreationDateTimeField().set_tags(viewable=False)
+    modified = core_fields.ModificationDateTimeField().set_tags(viewable=False)
+
     user = core_fields.CremeUserForeignKey(verbose_name=_('Calendar owner'))
     name = models.CharField(_('Name'), max_length=100)
     is_default = models.BooleanField(

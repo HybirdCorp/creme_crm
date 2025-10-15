@@ -46,7 +46,7 @@
           get a JSON field "extra_data" which can be used by third party code.
         # App :
             * Activities :
-                - The model 'Calendar' got an 'uuid' field.
+                - The model 'Calendar' got new fields: 'uuid', 'created', 'modified'.
                 - The JavaScript component 'creme.ActivityCalendar' has been improved :
                     - The property 'rendererDelay' (number) has been added; Improve performances by limiting the calls
                       to the rendering methods. (see https://fullcalendar.io/docs/rerenderDelay)

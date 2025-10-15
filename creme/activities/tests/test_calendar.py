@@ -11,6 +11,7 @@ from django.core.management import call_command
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape
+from django.utils.timezone import now
 from django.utils.timezone import override as override_tz
 from django.utils.timezone import zoneinfo
 from django.utils.translation import gettext as _
@@ -1481,6 +1482,10 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertTrue(cal.is_default)
         self.assertTrue(cal.is_custom)
         self.assertFalse(cal.is_public)
+
+        now_value = now()
+        self.assertDatetimesAlmostEqual(cal.created, now_value)
+        self.assertDatetimesAlmostEqual(cal.modified, now_value)
 
     def test_config_creation__new_default(self):
         "Only one default."
