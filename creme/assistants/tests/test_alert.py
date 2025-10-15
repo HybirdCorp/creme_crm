@@ -715,10 +715,14 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(user, alert.user)
         self.assertIs(False, alert.reminded)
 
-        self.assertEqual(entity.id,                         alert.entity_id)
-        self.assertEqual(entity.entity_type_id,             alert.entity_content_type_id)
+        self.assertEqual(entity.id,             alert.entity_id)
+        self.assertEqual(entity.entity_type_id, alert.entity_content_type_id)
         self.assertEqual(trigger_date, alert.trigger_date)
         self.assertDictEqual({}, alert.trigger_offset)
+
+        now_value = now()
+        self.assertDatetimesAlmostEqual(now_value, alert.creation_date)
+        self.assertDatetimesAlmostEqual(now_value, alert.modification_date)
 
         self.assertEqual(title, str(alert))
 

@@ -113,9 +113,12 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(user, todo.user)
         self.assertEqual(entity.id,          todo.entity_id)
         self.assertEqual(entity.entity_type, todo.entity_content_type)
-        self.assertDatetimesAlmostEqual(now(), todo.creation_date)
         self.assertIsNone(todo.deadline)
         self.assertIs(todo.reminded, False)
+
+        now_value = now()
+        self.assertDatetimesAlmostEqual(now_value, todo.creation_date)
+        self.assertDatetimesAlmostEqual(now_value, todo.modification_date)
 
         self.assertEqual(1, ToDo.objects.count())
 

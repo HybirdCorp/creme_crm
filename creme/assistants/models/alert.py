@@ -41,6 +41,10 @@ class Alert(core_models.CremeModel):
     description = models.TextField(_('Description'), blank=True)
     is_validated = models.BooleanField(_('Validated'), editable=False, default=False)
 
+    # Not viewable by users, For administrators currently.
+    creation_date = core_fields.CreationDateTimeField().set_tags(viewable=False)
+    modification_date = core_fields.ModificationDateTimeField().set_tags(viewable=False)
+
     trigger_date = models.DateTimeField(_('Trigger date'), null=True, editable=False)
     trigger_offset = models.JSONField(default=dict, editable=False)
 
