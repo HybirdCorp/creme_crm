@@ -161,6 +161,10 @@ class EmailSending(CremeModel):
         PLANNED     = 3, pgettext_lazy('emails-sending', 'Planned'),
         ERROR       = 4, _('Error during sending'),
 
+    # Not viewable by users, For administrators currently.
+    created = core_fields.CreationDateTimeField().set_tags(viewable=False)
+    modified = core_fields.ModificationDateTimeField().set_tags(viewable=False)
+
     config_item = models.ForeignKey(
         EmailSendingConfigItem,
         verbose_name=_('SMTP server'), null=True, on_delete=models.SET_NULL,

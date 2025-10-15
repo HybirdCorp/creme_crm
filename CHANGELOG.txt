@@ -52,6 +52,8 @@
                       to the rendering methods. (see https://fullcalendar.io/docs/rerenderDelay)
             * Assistants :
                 - Some fields 'creation_date' & 'modification_date' have been added in models.
+            * Assistants :
+                - The model 'EmailSending' got new fields: 'created', 'modified'.
 
     Breaking changes :
     ------------------
