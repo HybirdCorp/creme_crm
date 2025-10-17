@@ -34,6 +34,7 @@ from creme.creme_core.models import (
     DeletionCommand,
     EntityFilter,
     EntityFilterCondition,
+    FakeActivity,
     FakeContact,
     FakeDocument,
     FakeOrganisation,
@@ -2221,6 +2222,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             admin_4_apps=['persons'],
             creatable_models=[FakeContact, FakeDocument],
             exportable_models=[FakeContact, FakeOrganisation],
+            listable_models=[FakeContact, FakeActivity],
         )
 
         efilter1 = EntityFilter.objects.create(
@@ -2288,6 +2290,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertCountEqual(
             [FakeContact, FakeOrganisation],
             [ct.model_class() for ct in role2.exportable_ctypes.all()],
+        )
+        self.assertCountEqual(
+            [FakeContact, FakeActivity],
+            [ct.model_class() for ct in role2.listable_ctypes.all()],
         )
 
         all_credentials = role2.credentials.order_by('id')

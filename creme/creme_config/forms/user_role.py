@@ -378,6 +378,7 @@ class UserRoleCloningForm(CremeModelForm):
 
         instance.creatable_ctypes.set(role_to_clone.creatable_ctypes.all())
         instance.exportable_ctypes.set(role_to_clone.exportable_ctypes.all())
+        instance.listable_ctypes.set(role_to_clone.listable_ctypes.all())
 
         for credentials in role_to_clone.credentials.order_by('id'):
             efilter = credentials.efilter
