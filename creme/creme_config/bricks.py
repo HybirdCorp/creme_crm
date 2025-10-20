@@ -58,6 +58,7 @@ from creme.creme_core.utils.string import smart_split
 from creme.creme_core.utils.unicode_collation import collator
 
 from . import constants
+from .models import AdminHistoryLine
 
 _PAGE_SIZE = 50
 User = get_user_model()
@@ -152,7 +153,7 @@ class SettingsBrick(QuerysetBrick):
 
 
 class WorldSettingsBrick(Brick):
-    id = QuerysetBrick.generate_id('creme_config', 'world_settings')
+    id = Brick.generate_id('creme_config', 'world_settings')
     verbose_name = _('Instance settings')
     dependencies = (WorldSettings,)
     template_name = 'creme_config/bricks/world-settings.html'
@@ -163,6 +164,57 @@ class WorldSettingsBrick(Brick):
             context,
             world_settings=WorldSettings.objects.instance(),
         ))
+
+
+# TODO: what about permissions (+ template)
+class AdminHistoryBrick(QuerysetBrick):
+    id = QuerysetBrick.generate_id('creme_config', 'admin_history')
+    verbose_name = _('History events')
+    dependencies = '*'
+    read_only = True
+    order_by = '-id'  # faster than '-date'
+    template_name = 'creme_config/bricks/admin-history.html'
+    configurable = False
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            AdminHistoryLine.objects.all(),
+        ))
+
+
+# TODO: what about permissions (+ template)
+class _ModelsAdminHistoryBrick(QuerysetBrick):
+    # id = Brick.generate_id('creme_config', 'admin_history')
+    verbose_name = _('History events')
+    dependencies = '*'
+    read_only = True
+    order_by = '-id'  # faster than '-date'
+    template_name = 'creme_config/bricks/admin-history.html'
+    configurable = False
+    models = []
+
+    def detailview_display(self, context):
+        get_ct = ContentType.objects.get_for_model
+
+        return self._render(self.get_template_context(
+            context,
+            # TODO: filter(content_type=get_ct(context['model']))
+            # AdminHistoryLine.objects.all(),
+            AdminHistoryLine.objects.filter(
+                content_type__in=map(get_ct, self.models),
+            ),
+        ))
+
+
+class UserAdminHistoryBrick(_ModelsAdminHistoryBrick):
+    id = _ModelsAdminHistoryBrick.generate_id('creme_config', 'user_admin_history')
+    models = [User]
+
+
+class PropertyTypeAdminHistoryBrick(_ModelsAdminHistoryBrick):
+    id = _ModelsAdminHistoryBrick.generate_id('creme_config', 'ptype_admin_history')
+    models = [core_models.CremePropertyType]
 
 
 class _ConfigAdminBrick(QuerysetBrick):

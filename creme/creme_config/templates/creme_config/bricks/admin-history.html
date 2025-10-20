@@ -1,0 +1,27 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-admin_history-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} History event') plural=_('{count} History events') empty=verbose_name icon='history' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='date' status='primary' %}
+    {% brick_table_column title=_('User') %}
+{% endblock %}
+
+{% block brick_table_rows %}
+  {% for h_event in page.object_list %}
+    <tr>
+        <td>{{h_event.date}}</td>
+        <td>TODO</td>
+    </tr>
+  {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No history event for the moment' %}
+{% endblock %}
+

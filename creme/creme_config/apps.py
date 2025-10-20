@@ -34,6 +34,8 @@ class CremeConfigConfig(CremeAppConfig):
         from .registry import config_registry
         self.populate_config_registry(config_registry)
 
+        from . import signals  # NOQA
+
     def populate_config_registry(self, config_registry):
         from creme.creme_core.apps import creme_app_configs
 

@@ -1,6 +1,7 @@
 from django.urls import include, re_path
 
 from .views import (
+    admin_history,
     bricks,
     button_menu,
     creme_property_type,
@@ -880,6 +881,11 @@ urlpatterns = [
         r'^portal/reload[/]?$',
         portal.PortalBricksReloading.as_view(),
         name='creme_config__reload_portal_bricks'
+    ),
+
+    re_path(
+        r'^admin_history/', admin_history.Portal.as_view(),
+        name='creme_config__admin_history',
     ),
 
     # General

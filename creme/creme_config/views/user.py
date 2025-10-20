@@ -79,7 +79,9 @@ class TeamCreation(BaseUserCreation):
 
 class Portal(ConfigPortal):
     template_name = 'creme_config/portals/user.html'
-    brick_classes = [bricks.UsersBrick, bricks.TeamsBrick]
+    brick_classes = [
+        bricks.UsersBrick, bricks.TeamsBrick, bricks.UserAdminHistoryBrick,
+    ]
 
 
 class BaseUserEdition(generic.CremeModelEditionPopup):
