@@ -183,7 +183,8 @@ class EntityFiltersTestCase(CremeTestCase):
         )
         KO = (
             False,
-            _('You are not allowed to view/edit/delete this filter (you are not the owner)'),
+            # _('You are not allowed to view/edit/delete this filter (you are not the owner)'),
+            _('You are not allowed to edit this filter (you are not the owner)'),
         )
         self.assertTupleEqual(
             KO, EntityFilter(entity_type=FakeContact, user=other, is_private=True).can_edit(root),
@@ -220,7 +221,8 @@ class EntityFiltersTestCase(CremeTestCase):
             EntityFilter(user=user, entity_type=FakeContact).can_edit(user),
         )
         self.assertTupleEqual(
-            (False, _('Only superusers can edit/delete this filter (no owner)')),
+            # (False, _('Only superusers can edit/delete this filter (no owner)')),
+            (False, _('Only superusers can edit this filter (no owner)')),
             EntityFilter(entity_type=FakeContact).can_edit(user),
         )
         self.assertTupleEqual(
@@ -241,6 +243,149 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertTupleEqual(
             (True, 'OK'),
             EntityFilter(entity_type=FakeContact).can_edit(user),
+        )
+
+    def test_can_delete__root(self):
+        root = self.get_root_user()
+        other = self.user
+        team1 = self.create_team('team A', other, root)
+        team2 = self.create_team('team B', other)
+        OK = (True, 'OK')
+        self.assertTupleEqual(
+            OK, EntityFilter(entity_type=FakeContact).can_delete(root),
+        )
+        self.assertTupleEqual(
+            OK, EntityFilter(entity_type=FakeContact, user=other).can_delete(root),
+        )
+        KO = (
+            False,
+            _('You are not allowed to delete this filter (you are not the owner)'),
+        )
+        self.assertTupleEqual(
+            KO,
+            EntityFilter(entity_type=FakeContact, user=other, is_private=True).can_delete(root),
+        )
+        self.assertTupleEqual(
+            OK, EntityFilter(entity_type=FakeContact, user=root, is_private=True).can_delete(root),
+        )
+        self.assertTupleEqual(
+            KO,
+            EntityFilter(entity_type=FakeContact, user=team2, is_private=True).can_delete(root),
+        )
+        self.assertTupleEqual(
+            OK,
+            EntityFilter(entity_type=FakeContact, user=team1, is_private=True).can_delete(root),
+        )
+
+        self.assertTupleEqual(
+            (False, _("This filter can't be deleted (system filter)")),
+            EntityFilter(entity_type=FakeContact, is_custom=False).can_delete(root),
+        )
+
+    def test_can_delete__staff(self):
+        staff = self.create_user(index=1, is_staff=True)
+        self.assertTrue(
+            EntityFilter(
+                entity_type=FakeContact, user=self.user, is_private=True,
+            ).can_delete(staff)[0],
+        )
+
+    def test_can_delete__regular_user(self):
+        from creme.documents import get_document_model
+
+        self.assertFalse(
+            SettingValue.objects.get_4_key(global_filters_edition_key).value
+        )
+
+        user = self.create_user(index=1, role=self.create_role(allowed_apps=['creme_core']))
+        self.assertTupleEqual(
+            (True, 'OK'),
+            EntityFilter(user=user, entity_type=FakeContact).can_delete(user),
+        )
+        self.assertTupleEqual(
+            (False, _('Only superusers can delete this filter (no owner)')),
+            EntityFilter(entity_type=FakeContact).can_delete(user),
+        )
+        self.assertTupleEqual(
+            (False, _('You are not allowed to access to this app')),
+            EntityFilter(entity_type=get_document_model()).can_delete(user),
+        )
+
+    def test_can_delete__regular_user__setting_value_true(self):
+        setting_value = SettingValue.objects.get_4_key(global_filters_edition_key)
+        setting_value.value = True
+        setting_value.save()
+
+        user = self.create_user(index=1, role=self.get_regular_role())
+        self.assertTupleEqual(
+            (True, 'OK'),
+            EntityFilter(user=user, entity_type=FakeContact).can_delete(user),
+        )
+        self.assertTupleEqual(
+            (True, 'OK'),
+            EntityFilter(entity_type=FakeContact).can_delete(user),
+        )
+
+    def test_can_view__root(self):
+        root = self.get_root_user()
+        other = self.user
+        team1 = self.create_team('team A', other, root)
+        team2 = self.create_team('team B', other)
+        OK = (True, 'OK')
+        self.assertTupleEqual(
+            OK, EntityFilter(entity_type=FakeContact).can_view(root),
+        )
+        self.assertTupleEqual(
+            OK, EntityFilter(entity_type=FakeContact, user=other).can_view(root),
+        )
+        KO = (
+            False,
+            _('You are not allowed to view this filter (you are not the owner)'),
+        )
+        self.assertTupleEqual(
+            KO,
+            EntityFilter(entity_type=FakeContact, user=other, is_private=True).can_view(root),
+        )
+        self.assertTupleEqual(
+            OK, EntityFilter(entity_type=FakeContact, user=root, is_private=True).can_view(root),
+        )
+        self.assertTupleEqual(
+            KO,
+            EntityFilter(entity_type=FakeContact, user=team2, is_private=True).can_view(root),
+        )
+        self.assertTupleEqual(
+            OK,
+            EntityFilter(entity_type=FakeContact, user=team1, is_private=True).can_view(root),
+        )
+
+    def test_can_view__staff(self):
+        staff = self.create_user(index=1, is_staff=True)
+        self.assertTrue(
+            EntityFilter(
+                entity_type=FakeContact, user=self.user, is_private=True,
+            ).can_view(staff)[0],
+        )
+
+    def test_can_view__regular_user(self):
+        from creme.documents import get_document_model
+
+        self.assertFalse(
+            SettingValue.objects.get_4_key(global_filters_edition_key).value
+        )
+
+        user = self.create_user(index=1, role=self.create_role(allowed_apps=['creme_core']))
+        self.assertTupleEqual(
+            (True, 'OK'),
+            EntityFilter(user=user, entity_type=FakeContact).can_view(user),
+        )
+        self.assertTupleEqual(
+            # (False, _('Only superusers can view this filter (no owner)')),
+            (True, 'OK'),
+            EntityFilter(entity_type=FakeContact).can_view(user),
+        )
+        self.assertTupleEqual(
+            (False, _('You are not allowed to access to this app')),
+            EntityFilter(entity_type=get_document_model()).can_view(user),
         )
 
     def test_manager_smart_update_or_create01(self):
