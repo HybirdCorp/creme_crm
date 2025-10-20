@@ -757,8 +757,11 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_inneredit_filter__private(self):
         "Private filter to another user -> cannot edit."
-        self.login_as_root()
-        other_user = self.create_user()
+        # self.login_as_root()
+        user = self.login_as_standard(allowed_apps=['reports', 'creme_core'])
+        self.add_credentials(role=user.role, all='*')
+        # other_user = self.create_user()
+        other_user = self.create_user(index=1)
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Mihana family', FakeContact,
@@ -788,6 +791,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             errors=_('The filter cannot be changed because it is private.'),
         )
         self.assertEqual(efilter, self.refresh(report).filter)
+
+        # Public filter => OK
+        efilter.is_private = False
+        efilter.save()
+        self.assertNoFormError(self.client.post(uri, data={f'override-{field_name}': ''}))
+        self.assertIsNone(self.refresh(report).filter)
 
     def test_report_inneredit_filter__set_required(self):
         user = self.login_as_root_and_get()
