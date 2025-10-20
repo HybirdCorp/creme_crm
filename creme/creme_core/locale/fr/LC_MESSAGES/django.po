@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-27 16:43+0100\n"
+"POT-Creation-Date: 2025-10-22 21:45+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2234,14 +2234,25 @@ msgstr "Filtre de fiche"
 msgid "Filters of Entity"
 msgstr "Filtres de fiche"
 
-msgid "This filter can't be edited/deleted"
-msgstr "Ce filtre ne peut être modifié/effacé"
+msgid "This filter can't be deleted (system filter)"
+msgstr "Ce filtre ne peut être supprimé (filtre système)"
 
 msgid "You are not allowed to access to this app"
 msgstr "Vous n'avez pas la permission d'accéder à cette application"
 
-msgid "You are not allowed to view/edit/delete this filter"
-msgstr "Vous n'avez pas la permission de voir/modifier/supprimer ce filtre"
+msgid "You are not allowed to delete this filter (you are not the owner)"
+msgstr ""
+"Vous n'avez pas la permission de supprimer ce filtre (il ne vous appartient "
+"pas)"
+
+msgid "You are not allowed to edit this filter (you are not the owner)"
+msgstr ""
+"Vous n'avez pas la permission de modifier ce filtre (il ne vous appartient "
+"pas)"
+
+msgid "You are not allowed to view this filter (you are not the owner)"
+msgstr ""
+"Vous n'avez pas la permission de voir ce filtre (il ne vous appartient pas)"
 
 msgid "A condition can not reference its own filter."
 msgstr "Une condition ne peut pas référencer son propre filtre."
@@ -4154,6 +4165,9 @@ msgstr "Veuillez entrer au moins {count} caractères"
 
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+#~ msgid "You are not allowed to view/edit/delete this filter"
+#~ msgstr "Vous n'avez pas la permission de voir/modifier/supprimer ce filtre"
 
 #~ msgid "You cannot edit/delete a system filter"
 #~ msgstr "Vous ne pouvez pas modifier/supprimer un filtre système"
