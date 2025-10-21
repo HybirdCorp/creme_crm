@@ -93,6 +93,7 @@ urlpatterns = [
         graph.GraphFetchSettings.as_view(),
         name='reports__update_graph_fetch_settings',
     ),
+    # DEPRECATED
     re_path(
         r'^graph/fetch/(?P<instance_brick_id>\d+)/settings/(?P<entity_id>\d+)[/]?$',
         graph.GraphFetchSettingsForInstance.as_view(),

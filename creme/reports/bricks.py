@@ -175,8 +175,9 @@ class ReportGraphChartInstanceBrick(ReportGraphMixin, core_bricks.InstanceBrick)
             graph=graph,
             data=data,
             settings_update_url=reverse(
-                'reports__update_graph_fetch_settings_for_instance',
-                args=(self.config_item.id, graph.id,)
+                # 'reports__update_graph_fetch_settings_for_instance',
+                # args=(self.config_item.id, graph.id,)
+                'reports__update_graph_fetch_settings', args=(graph.id,),
             ),
             charts=[chart for _, chart in report_chart_registry],
             props={
@@ -214,7 +215,7 @@ class ReportGraphChartInstanceBrick(ReportGraphMixin, core_bricks.InstanceBrick)
             graph=graph,
             data=data,
             error=error,
-            fetcher=self.fetcher
+            fetcher=self.fetcher,
         )
 
     def home_display(self, context):
