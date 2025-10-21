@@ -7,6 +7,16 @@
     # You can now see the detail-view of a public EntityFilter which belongs to another user.
       It fixes some issues for Reports with filters too.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Apps :
+            * Reports :
+                - The class-view 'views.graph.GraphFetchSettingsForInstance' is now deprecated.
+                  Its uses have been removed.
+
 
 == Version 2.6.13 ==
 

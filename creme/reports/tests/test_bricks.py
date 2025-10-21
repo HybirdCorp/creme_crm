@@ -5,6 +5,7 @@ from django.db.models.query_utils import Q
 from django.urls.base import reverse
 from django.utils.timezone import datetime, make_aware
 
+from creme.creme_core.models import FakeOrganisation
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.queries import QSerializer
 from creme.reports.bricks import (
@@ -411,35 +412,43 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
     def test_detailview_display__no_data(self, mock_brick_render):
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
-        instance = self._create_graph_instance_brick(graph)
+        ibci = self._create_graph_instance_brick(graph)
+        entity = FakeOrganisation.objects.create(user=user, name='Acme')
 
-        context = self.build_context(user=user, instance=graph)
+        context = self.build_context(user=user, instance=entity)
 
-        brick = ReportGraphChartInstanceBrick(instance)
+        brick = ReportGraphChartInstanceBrick(ibci)
         brick.detailview_display(context)
 
-        mock_brick_render.assert_called_once_with({
-            **context,
-            'graph': graph,
-            'data': [],
-            'settings_update_url': reverse(
-                'reports__update_graph_fetch_settings_for_instance',
-                args=(instance.id, graph.id,),
-            ),
-            'charts': [chart for _, chart in report_chart_registry],
-            'props': {
-                name: chart.props(graph, []) for name, chart in report_chart_registry
+        mock_brick_render.assert_called_once()
+        self.maxDiff = None
+        self.assertDictEqual(
+            {
+                **context,
+                'graph': graph,
+                'data': [],
+                'settings_update_url': reverse(
+                    # 'reports__update_graph_fetch_settings_for_instance',
+                    # args=(ibci.id, graph.id),
+                    'reports__update_graph_fetch_settings', args=(graph.id,),
+                ),
+                'charts': [chart for _, chart in report_chart_registry],
+                'props': {
+                    name: chart.props(graph, []) for name, chart in report_chart_registry
+                },
             },
-        })
+            mock_brick_render.call_args[0][0],
+        )
 
     def test_detailview_display(self, mock_brick_render):
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
-        instance = self._create_graph_instance_brick(graph)
+        ibci = self._create_graph_instance_brick(graph)
+        entity = FakeOrganisation.objects.create(user=user, name='Acme')
 
         create_fake_docs(user)
 
-        context = self.build_context(user=user, instance=graph)
+        context = self.build_context(user=user, instance=entity)
         data = [
             {
                 'x': '2022',
@@ -451,51 +460,65 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
             },
         ]
 
-        brick = ReportGraphChartInstanceBrick(instance)
+        brick = ReportGraphChartInstanceBrick(ibci)
         brick.detailview_display(context)
 
-        mock_brick_render.assert_called_once_with({
-            **context,
-            'graph': graph,
-            'data': data,
-            'settings_update_url': reverse(
-                'reports__update_graph_fetch_settings_for_instance',
-                args=(instance.id, graph.id,),
-            ),
-            'charts': [chart for _, chart in report_chart_registry],
-            'props': {
-                name: chart.props(graph, data) for name, chart in report_chart_registry
-            }
-        })
+        mock_brick_render.assert_called_once()
+        self.maxDiff = None
+        self.assertDictEqual(
+            {
+                **context,
+                'graph': graph,
+                'data': data,
+                # 'settings_update_url': reverse(
+                #     'reports__update_graph_fetch_settings_for_instance',
+                #     args=(ibci.id, graph.id),
+                # ),
+                'settings_update_url': reverse(
+                    'reports__update_graph_fetch_settings', args=(graph.id,),
+                ),
+                'charts': [chart for _, chart in report_chart_registry],
+                'props': {
+                    name: chart.props(graph, data) for name, chart in report_chart_registry
+                },
+            },
+            mock_brick_render.call_args[0][0],
+        )
 
     def test_home_display__no_data(self, mock_brick_render):
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
-        instance = self._create_graph_instance_brick(graph)
+        ibci = self._create_graph_instance_brick(graph)
 
         context = self.build_context(user=user)
 
-        brick = ReportGraphChartInstanceBrick(instance)
+        brick = ReportGraphChartInstanceBrick(ibci)
         brick.home_display(context)
 
-        mock_brick_render.assert_called_once_with({
-            **context,
-            'graph': graph,
-            'data': [],
-            'settings_update_url': reverse(
-                'reports__update_graph_fetch_settings_for_instance',
-                args=(instance.id, graph.id,),
-            ),
-            'charts': [chart for _, chart in report_chart_registry],
-            'props': {
-                name: chart.props(graph, []) for name, chart in report_chart_registry
+        mock_brick_render.assert_called_once()
+        self.maxDiff = None
+        self.assertDictEqual(
+            {
+                **context,
+                'graph': graph,
+                'data': [],
+                'settings_update_url': reverse(
+                    # 'reports__update_graph_fetch_settings_for_instance',
+                    # args=(ibci.id, graph.id),
+                    'reports__update_graph_fetch_settings', args=(graph.id,),
+                ),
+                'charts': [chart for _, chart in report_chart_registry],
+                'props': {
+                    name: chart.props(graph, []) for name, chart in report_chart_registry
+                },
             },
-        })
+            mock_brick_render.call_args[0][0],
+        )
 
     def test_home_display(self, mock_brick_render):
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
-        instance = self._create_graph_instance_brick(graph)
+        ibci = self._create_graph_instance_brick(graph)
 
         create_fake_docs(user)
 
@@ -511,28 +534,34 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
             },
         ]
 
-        brick = ReportGraphChartInstanceBrick(instance)
+        brick = ReportGraphChartInstanceBrick(ibci)
         brick.home_display(context)
 
-        mock_brick_render.assert_called_once_with({
-            **context,
-            'graph': graph,
-            'data': data,
-            'settings_update_url': reverse(
-                'reports__update_graph_fetch_settings_for_instance',
-                args=(instance.id, graph.id,),
-            ),
-            'charts': [chart for _, chart in report_chart_registry],
-            'props': {
-                name: chart.props(graph, data) for name, chart in report_chart_registry
+        mock_brick_render.assert_called_once()
+        self.maxDiff = None
+        self.assertDictEqual(
+            {
+                **context,
+                'graph': graph,
+                'data': data,
+                'settings_update_url': reverse(
+                    # 'reports__update_graph_fetch_settings_for_instance',
+                    # args=(ibci.id, graph.id),
+                    'reports__update_graph_fetch_settings', args=(graph.id,),
+                ),
+                'charts': [chart for _, chart in report_chart_registry],
+                'props': {
+                    name: chart.props(graph, data) for name, chart in report_chart_registry
+                },
             },
-        })
+            mock_brick_render.call_args[0][0],
+        )
 
     def test_home_display__colors(self, mock_brick_render):
         user = self.login_as_root_and_get()
         report = self._create_simple_documents_report(user=user)
         graph = self._create_documents_colors_rgraph(report)
-        instance = self._create_graph_instance_brick(graph)
+        ibci = self._create_graph_instance_brick(graph)
 
         create_fake_docs(user)
 
@@ -558,19 +587,25 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
             },
         ]
 
-        brick = ReportGraphChartInstanceBrick(instance)
+        brick = ReportGraphChartInstanceBrick(ibci)
         brick.home_display(context)
 
-        mock_brick_render.assert_called_once_with({
-            **context,
-            'graph': graph,
-            'data': data,
-            'settings_update_url': reverse(
-                'reports__update_graph_fetch_settings_for_instance',
-                args=(instance.id, graph.id,),
-            ),
-            'charts': [chart for _, chart in report_chart_registry],
-            'props': {
-                name: chart.props(graph, data) for name, chart in report_chart_registry
+        mock_brick_render.assert_called_once()
+        self.maxDiff = None
+        self.assertDictEqual(
+            {
+                **context,
+                'graph': graph,
+                'data': data,
+                'settings_update_url': reverse(
+                    # 'reports__update_graph_fetch_settings_for_instance',
+                    # args=(ibci.id, graph.id),
+                    'reports__update_graph_fetch_settings', args=(graph.id,),
+                ),
+                'charts': [chart for _, chart in report_chart_registry],
+                'props': {
+                    name: chart.props(graph, data) for name, chart in report_chart_registry
+                },
             },
-        })
+            mock_brick_render.call_args[0][0],
+        )

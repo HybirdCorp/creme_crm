@@ -3,6 +3,7 @@ from parameterized import parameterized
 
 # from creme.creme_core.auth.entity_credentials import EntityCredentials
 # from creme.creme_core.models import SetCredentials
+from creme.creme_core.models import FakeOrganisation
 from creme.reports.report_chart_registry import (
     ReportPieChart,
     report_chart_registry,
@@ -18,7 +19,7 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        # TODO : Use a fake registry instead.
+        # TODO: use a fake registry instead.
         report_chart_registry.register(
             ReportPieChart(name='fakepie', label='Fake Pie')
         )
@@ -26,7 +27,7 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
     def test_update_settings__missing_id(self):
         self.login_as_root()
         self.assertPOST404(
-            path=reverse('reports__update_graph_fetch_settings', args=(99999,)),
+            path=reverse('reports__update_graph_fetch_settings', args=(self.UNUSED_PK,)),
             data={'chart': 'fakepie'},
         )
 
@@ -47,17 +48,10 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
         with self.assertLogs(graph_views.logger, level='WARNING') as logs:
             response = self.assertPOST200(
                 path=reverse('reports__update_graph_fetch_settings', args=(graph.pk,)),
-                data={
-                    "sort": "DESC",
-                    "chart": 'fakepie',
-                }
+                data={'sort': 'DESC', 'chart': 'fakepie'},
             )
 
-        self.assertJSONEqual(response.content, {
-            "sort": "ASC",
-            "chart": None
-        })
-
+        self.assertJSONEqual(response.content, {'sort': 'ASC', 'chart': None})
         self.assertEqual([
             f'WARNING:creme.reports.views.graph:The ReportGraph id="{graph.id}" '
             'cannot be edited, so the settings are not saved.'
@@ -94,51 +88,43 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
         self.assertEqual(graph.asc, True)
         self.assertEqual(graph.chart, None)
 
+        data = {'sort': 'DESC', 'chart': 'fakepie'}
         response = self.assertPOST200(
             path=reverse('reports__update_graph_fetch_settings', args=(graph.pk,)),
-            data={
-                "sort": "DESC",
-                "chart": 'fakepie',
-            }
+            data=data,
         )
-
-        self.assertJSONEqual(response.content, {"sort": "DESC", "chart": "fakepie"})
+        self.assertJSONEqual(response.content, data)
 
         graph.refresh_from_db()
         self.assertEqual(graph.asc, False)
         self.assertEqual(graph.chart, 'fakepie')
 
+    # DEPRECATED
     def test_update_instance_settings__missing_id(self):
         user = self.login_as_root_and_get()
 
+        url_name = 'reports__update_graph_fetch_settings_for_instance'
+        UNUSED_PK = self.UNUSED_PK
         self.assertPOST404(
-            path=reverse('reports__update_graph_fetch_settings_for_instance', args=(99999, 88888)),
-            data={
-                "chart": "fakepie",
-            }
+            path=reverse(url_name, args=(UNUSED_PK, UNUSED_PK)),
+            data={'chart': 'fakepie'},
         )
 
+        entity = FakeOrganisation.objects.create(user=user, name='Acme')
         graph = self._create_documents_rgraph(user=user)
+        self.assertPOST404(
+            # path=reverse(url_name, args=(UNUSED_PK, graph.pk)),
+            path=reverse(url_name, args=(UNUSED_PK, entity.id)),
+            data={'chart': 'fakepie'},
+        )
+
         config = self._create_graph_instance_brick(graph)
-
         self.assertPOST404(
-            path=reverse(
-                'reports__update_graph_fetch_settings_for_instance', args=(99999, graph.pk)
-            ),
-            data={
-                "chart": "fakepie",
-            }
+            path=reverse(url_name, args=(config.pk, UNUSED_PK)),
+            data={'chart': 'fakepie'},
         )
 
-        self.assertPOST404(
-            path=reverse(
-                'reports__update_graph_fetch_settings_for_instance', args=(config.pk, 888888)
-            ),
-            data={
-                "chart": "fakepie",
-            }
-        )
-
+    # DEPRECATED
     @parameterized.expand([
         ({}, 'Chart value is missing'),
         ({"sort": "ASC"}, 'Chart value is missing'),
@@ -154,37 +140,40 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
     def test_update_instance_settings__invalid_argument(self, data, expected):
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
-        config = self._create_graph_instance_brick(graph)
+        ibci = self._create_graph_instance_brick(graph)
+        entity = FakeOrganisation.objects.create(user=user, name='Acme')
 
         response = self.assertPOST(
             400,
             path=reverse(
-                'reports__update_graph_fetch_settings_for_instance', args=(config.pk, graph.pk)
+                'reports__update_graph_fetch_settings_for_instance',
+                # args=(ibci.pk, graph.pk),
+                args=(ibci.id, entity.id),
             ),
             data=data
         )
 
         self.assertEqual(response.content.decode(), expected)
 
-    def test_update_instance_settings(self):
+    def test_update_instance_settings(self):  # DEPRECATED
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
-        config = self._create_graph_instance_brick(graph)
+        ibci = self._create_graph_instance_brick(graph)
+        entity = FakeOrganisation.objects.create(user=user, name='Acme')
 
         self.assertEqual(graph.asc, True)
         self.assertEqual(graph.chart, None)
 
+        data = {'sort': 'DESC', 'chart': 'fakepie'}
         response = self.assertPOST200(
             path=reverse(
-                'reports__update_graph_fetch_settings_for_instance', args=(config.pk, graph.pk,)
+                'reports__update_graph_fetch_settings_for_instance',
+                # args=(ibci.pk, graph.pk),
+                args=(ibci.pk, entity.id),
             ),
-            data={
-                "sort": "DESC",
-                "chart": 'fakepie',
-            },
+            data=data,
         )
-
-        self.assertJSONEqual(response.content, {"sort": "DESC", "chart": "fakepie"})
+        self.assertJSONEqual(response.content, data)
 
         graph.refresh_from_db()
         self.assertEqual(graph.asc, False)
