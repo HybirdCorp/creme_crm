@@ -16,6 +16,7 @@ from creme.creme_core.models import (
     FakeMailingList,
     FakeOrganisation,
     Language,
+    UserRole,
 )
 from creme.creme_core.utils import meta
 
@@ -326,6 +327,33 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(user1.id, FieldInfo(FakeContact, 'image__user_id')[1:].value_from(img))
 
     # TODO: test mtom1__mtom2
+
+    def test_jsonfield(self):
+        "After a slice."
+        FieldInfo = meta.FieldInfo
+        a_list = [{}, {"a": 1}, {"a": 2}]
+        other = {
+            "subfield": "Depth 2",
+            "a_list": a_list
+        }
+        extra_data = {
+            "subfield": "Depth 1",
+            "other": other,
+        }
+        rolo = UserRole(extra_data=extra_data)
+
+        self.assertEqual(extra_data, FieldInfo(UserRole, "extra_data").value_from(rolo))
+        self.assertEqual("Depth 1", FieldInfo(UserRole, "extra_data__subfield").value_from(rolo))
+        self.assertEqual(other, FieldInfo(UserRole, "extra_data__other").value_from(rolo))
+        self.assertEqual(
+            "Depth 2",
+            FieldInfo(UserRole, "extra_data__other__subfield").value_from(rolo),
+        )
+        self.assertEqual(a_list, FieldInfo(UserRole, "extra_data__other__a_list").value_from(rolo))
+        self.assertEqual(
+            [None, 1, 2],
+            FieldInfo(UserRole, "extra_data__other__a_list__a").value_from(rolo),
+        )
 
 
 class ModelFieldEnumeratorTestCase(CremeTestCase):

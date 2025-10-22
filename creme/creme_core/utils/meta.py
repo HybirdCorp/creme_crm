@@ -23,15 +23,22 @@
 
 from collections.abc import Callable
 from functools import partial
-from itertools import chain
-from typing import Type
+from itertools import chain, zip_longest
+from typing import Any, Type
 
 from django.core.exceptions import FieldDoesNotExist
 from django.core.validators import EMPTY_VALUES
-from django.db.models import DateField, Field, Model
+from django.db.models import DateField, Field, JSONField, Model
 
 from ..core.field_tags import FieldTag
 from .unicode_collation import collator
+
+
+def getitem(obj: dict | None, key: str) -> Any:
+    try:
+        return obj[key]
+    except (TypeError, KeyError):
+        return None
 
 
 class FieldInfo:
@@ -70,7 +77,7 @@ class FieldInfo:
     __slots__ = ('_model', '__fields', '__attnames')
 
     def __init__(self, model: type[Model], field_name: str):
-        """ Constructor.
+        """Constructor.
 
         @param model: Class inheriting django.db.models.Model.
         @param field_name: String representing a 'chain' of fields, e.g. 'book__author__name'.
@@ -80,28 +87,34 @@ class FieldInfo:
 
         self.__fields = fields
         self._model: type[Model] = model
-        self.__attnames = subfield_names = field_name.split('__')
+        # subfield_names = field_name.split('__')
+        self.__attnames = subfield_names = field_name.split("__")
 
         for subfield_name in subfield_names[:-1]:
             field = model._meta.get_field(subfield_name)
-            remote_field = getattr(field, 'remote_field', None)
+
+            if isinstance(field, JSONField):
+                fields.append(field)
+                break
+
+            remote_field = getattr(field, "remote_field", None)
 
             if remote_field is None:
                 raise FieldDoesNotExist(
                     f'"{subfield_name}" is not a ForeignKey/ManyToManyField, '
-                    f'so it cannot have a sub-field.'
+                    f"so it cannot have a sub-field."
                 )
 
             if field.name != subfield_name:
                 raise FieldDoesNotExist(
                     f'"{subfield_name}" will retrieve the low-level value of a ForeignKey, '
-                    f'so it cannot have a sub-field.'
+                    f"so it cannot have a sub-field."
                 )
 
             model = remote_field.model
             fields.append(field)
-
-        fields.append(model._meta.get_field(subfield_names[-1]))
+        else:
+            fields.append(model._meta.get_field(subfield_names[-1]))
 
     def __getitem__(self, idx: int | slice):
         if isinstance(idx, slice):
@@ -160,12 +173,20 @@ class FieldInfo:
 
         result = instance
 
-        for attname, subfield in zip(self.__attnames, self.__fields):
+        json_path_lookup_mode = False
+
+        for attname, subfield in zip_longest(self.__attnames, self.__fields):
             if result is None:
                 break
 
             if isinstance(result, list):
-                result = [getattr(elt, attname) for elt in result]
+                if json_path_lookup_mode:
+                    result = [getitem(elt, attname) for elt in result]
+                else:
+                    result = [getattr(elt, attname) for elt in result]
+            elif json_path_lookup_mode:
+                # result = getattr(result, subfield.name)
+                result = getitem(result, attname)
             else:
                 # NB: old code which does not need the 'get_m2m_values' hook
                 # result = getattr(result, attname)
@@ -177,6 +198,11 @@ class FieldInfo:
                     if subfield.many_to_many
                     else getattr(result, attname)
                 )
+
+            if isinstance(subfield, JSONField):
+                # the following attnames are part of a JSON path lookup
+                # For the next iterations, subfield values will be None (thanks to zip_longest).
+                json_path_lookup_mode = True
 
         return result
 
