@@ -1401,7 +1401,47 @@ class HistoryRenderTestCase(CremeTestCase):
             self.render_line(hline, user),
         )
 
-    def test_render_auxiliary_edition01(self):
+    def test_render_auxiliary_creation__invalid_ctype_id(self):
+        user = self.get_root_user()
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        address = FakeAddress.objects.create(
+            entity=gainax, country='Japan', city='Tokyo',
+        )
+
+        hline = self.get_hline()
+        self.assertEqual(history.TYPE_AUX_CREATION, hline.type)
+        # print(hline.value)
+
+        self.assertListEqual(
+            [
+                'Gainax',
+                ContentType.objects.get_for_model(FakeAddress).id,
+                address.id,
+                'Tokyo Japan',
+            ],
+            json.loads(hline.value),
+        )
+        hline.value = json.dumps([
+            'Gainax',
+            self.UNUSED_PK,  # <==
+            address.id,
+            'Tokyo Japan',
+        ])
+        hline.save()
+
+        self.assertHTMLEqual(
+            '<div class="history-line history-line-auxiliary_creation">'
+            '{title}'
+            '<div>'.format(
+                title=_('“%(auxiliary_ctype)s“ added: %(auxiliary_value)s') % {
+                    'auxiliary_ctype': '??',
+                    'auxiliary_value': escape(address),
+                },
+            ),
+            self.render_line(hline, user),
+        )
+
+    def test_render_auxiliary_edition(self):
         user = self.get_root_user()
 
         country = 'Japan'
@@ -1455,7 +1495,7 @@ class HistoryRenderTestCase(CremeTestCase):
             self.render_line(hline, user),
         )
 
-    def test_render_auxiliary_edition02(self):
+    def test_render_auxiliary_edition__entity(self):
         """FakeInvoiceLine:
         - an auxiliary + CremeEntity at the same time.
         - DecimalField.
@@ -1530,7 +1570,7 @@ class HistoryRenderTestCase(CremeTestCase):
             self.render_line(hline, user),
         )
 
-    def test_render_auxiliary_edition_m2m(self):
+    def test_render_auxiliary_edition__m2m(self):
         user = self.get_root_user()
         cat = FakeTodoCategory.objects.create(name='Very <b>Important</b>')
 
@@ -1579,6 +1619,66 @@ class HistoryRenderTestCase(CremeTestCase):
             self.render_line(hline, user),
         )
 
+    def test_render_auxiliary_edition__invalid_ctype_id(self):
+        user = self.get_root_user()
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        address = FakeAddress.objects.create(entity=gainax, country='Japan')
+
+        address = self.refresh(address)
+        address.department = 'Tokyo'
+        address.save()
+
+        hline = self.get_hline()
+        self.assertEqual(history.TYPE_AUX_EDITION, hline.type)
+        self.assertListEqual(
+            [
+                'Gainax',
+                [
+                    ContentType.objects.get_for_model(FakeAddress).id,
+                    address.id,
+                    'Tokyo Japan',
+                ],
+                ['department', 'Tokyo'],
+            ],
+            json.loads(hline.value),
+        )
+        hline.value = json.dumps([
+            'Gainax',
+            [
+                self.UNUSED_PK,  # <==
+                address.id,
+                'Tokyo Japan',
+            ],
+            ['department', 'Tokyo'],
+        ])
+        hline.save()
+        self.maxDiff = None
+        self.assertHTMLEqual(
+            '<div class="history-line history-line-auxiliary_edition'
+            ' history-line-collapsable history-line-collapsed">'
+            ' <div class="history-line-main">'
+            '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <div class="toggle-icon-container toggle-icon-collapse"'
+            '       title="{collapse_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <span class="history-line-title">{title}</span>'
+            ' </div>'
+            ' <ul class="history-line-details"></ul>'
+            '<div>'.format(
+                title=_('“%(auxiliary_ctype)s“ edited: %(auxiliary_value)s') % {
+                    'auxiliary_ctype': '??',
+                    'auxiliary_value': address,
+                },
+                expand_title=_('Expand'),
+                collapse_title=_('Close'),
+            ),
+            self.render_line(hline, user),
+        )
+
     def test_render_auxiliary_deletion(self):
         user = self.get_root_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
@@ -1597,6 +1697,45 @@ class HistoryRenderTestCase(CremeTestCase):
                 '<div>',
                 title=_('“%(auxiliary_ctype)s“ deleted: “%(auxiliary_value)s”') % {
                     'auxiliary_ctype': 'Test address',
+                    'auxiliary_value': address,
+                },
+            ),
+            self.render_line(hline, user),
+        )
+
+    def test_render_auxiliary_deletion__invalid_ctype_id(self):
+        user = self.get_root_user()
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        address = FakeAddress.objects.create(
+            entity=gainax, country='Japan', city='Tokyo',
+        )
+
+        address.delete()
+
+        hline = self.get_hline()
+        self.assertEqual(history.TYPE_AUX_DELETION, hline.type)
+        self.assertListEqual(
+            [
+                'Gainax',
+                ContentType.objects.get_for_model(FakeAddress).id,
+                'Tokyo Japan',
+            ],
+            json.loads(hline.value),
+        )
+
+        hline.value = json.dumps([
+            'Gainax',
+            self.UNUSED_PK,  # <==
+            'Tokyo Japan',
+        ])
+
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-auxiliary_deletion">'
+                '{title}'
+                '<div>',
+                title=_('“%(auxiliary_ctype)s“ deleted: “%(auxiliary_value)s”') % {
+                    'auxiliary_ctype': '??',
                     'auxiliary_value': address,
                 },
             ),
