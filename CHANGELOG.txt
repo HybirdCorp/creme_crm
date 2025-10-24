@@ -12,6 +12,7 @@
 
     Non breaking changes :
     ----------------------
+        # The rendering of HistoryLine is now more robust with 'ContentTypes' which have been removed.
         # Apps :
             * Reports :
                 - The class-view 'views.graph.GraphFetchSettingsForInstance' is now deprecated.
