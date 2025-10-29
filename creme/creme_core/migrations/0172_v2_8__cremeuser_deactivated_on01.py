@@ -10,6 +10,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cremeuser',
             name='deactivated_on',
-            field=models.DateTimeField(default=None, null=True, verbose_name='Deactivated on'),
+            field=models.DateTimeField(
+                default=None, null=True, verbose_name='Deactivated on', editable=False,
+            ),
         ),
     ]

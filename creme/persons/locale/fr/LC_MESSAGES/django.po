@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Persons 2.7\n"
+"Project-Id-Version: Creme Persons 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-25 10:58+0200\n"
+"POT-Creation-Date: 2025-11-03 17:08+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -312,14 +312,6 @@ msgstr ""
 msgid "Enter the same password as before, for verification."
 msgstr ""
 
-# Already in creme_core/creme_config
-msgid "Role"
-msgstr ""
-
-# Already in creme_config
-msgid "Superuser"
-msgstr ""
-
 msgid "The first name of the Contact will be updated."
 msgstr "Le prénom du contact sera mis à jour."
 
@@ -621,57 +613,6 @@ msgstr "Effectif de société"
 msgid "Organisation staff sizes"
 msgstr "Effectifs de société"
 
-msgid "Organisation logo"
-msgstr "Logo de société"
-
-msgid "Contact photograph"
-msgstr "Photo de contact"
-
-msgid "Madam"
-msgstr "Madame"
-
-msgid "Mrs."
-msgstr "Mme"
-
-msgid "Miss"
-msgstr "Mademoiselle"
-
-msgid "Ms."
-msgstr "Mlle"
-
-msgid "Mister"
-msgstr "Monsieur"
-
-msgid "Mr."
-msgstr "M"
-
-msgid "CEO"
-msgstr "PDG"
-
-msgid "Secretary"
-msgstr "Secrétaire"
-
-msgid "Technician"
-msgstr "Technicien"
-
-msgid "Food Industry"
-msgstr "Agroalimentaire"
-
-msgid "Industry"
-msgstr "Industrie"
-
-msgid "Software"
-msgstr "Logiciel"
-
-msgid "Telecom"
-msgstr "Télécom"
-
-msgid "Restoration"
-msgstr "Restauration"
-
-msgid "ReplaceByYourSociety"
-msgstr "RemplacezParVotreSociété"
-
 msgid "is an employee of"
 msgstr "est salarié de"
 
@@ -726,12 +667,6 @@ msgstr "est un concurrent de"
 msgid "has as competitor"
 msgstr "a pour concurrent"
 
-msgid "Me"
-msgstr "Moi"
-
-msgid "Managed by creme"
-msgstr "Gérée par creme"
-
 msgid "Contact view"
 msgstr "Vue de Contact"
 
@@ -740,6 +675,63 @@ msgstr "Vue de Société"
 
 msgid "Prospect/Suspect view"
 msgstr "Vue Prospect/Suspect"
+
+msgid "Organisation logo"
+msgstr "Logo de société"
+
+msgid "Contact photograph"
+msgstr "Photo de contact"
+
+msgid "Madam"
+msgstr "Madame"
+
+msgid "Mrs."
+msgstr "Mme"
+
+msgid "Miss"
+msgstr "Mademoiselle"
+
+msgid "Ms."
+msgstr "Mlle"
+
+msgid "Mister"
+msgstr "Monsieur"
+
+msgid "Mr."
+msgstr "M"
+
+msgid "CEO"
+msgstr "PDG"
+
+msgid "Secretary"
+msgstr "Secrétaire"
+
+msgid "Technician"
+msgstr "Technicien"
+
+msgid "Food Industry"
+msgstr "Agroalimentaire"
+
+msgid "Industry"
+msgstr "Industrie"
+
+msgid "Software"
+msgstr "Logiciel"
+
+msgid "Telecom"
+msgstr "Télécom"
+
+msgid "Restoration"
+msgstr "Restauration"
+
+msgid "ReplaceByYourSociety"
+msgstr "RemplacezParVotreSociété"
+
+msgid "Me"
+msgstr "Moi"
+
+msgid "Managed by creme"
+msgstr "Gérée par creme"
 
 msgid "+ Creation"
 msgstr ""

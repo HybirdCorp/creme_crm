@@ -11,9 +11,46 @@ from ..base import CremeTestCase
 WorldSettings = get_world_settings_model()
 
 
-class AuthViewsTestCase(CremeTestCase):
+class UserViewsTestCase(CremeTestCase):
+    def test_switch_role(self):
+        user = self.login_as_standard()
+        self.assertListEqual([user.role], [*user.roles.all()])
+
+        role2 = self.create_role(name='Engineer')
+        user.roles.add(role2)
+
+        url = reverse('creme_core__switch_role', args=(user.id, role2.id))
+        self.assertGET405(url)
+
+        self.assertPOST200(url)
+        self.assertEqual(role2, self.refresh(user).role)
+
+        # ---
+        role3 = self.create_role(name='Manager')
+        response2 = self.client.post(
+            reverse('creme_core__switch_role', args=(user.id, role3.id))
+        )
+        self.assertContains(
+            response2,
+            status_code=409, text=_('This role is not available for you'), html=True,
+        )
+
+    def test_switch_role__superuser(self):
+        user = self.login_as_root_and_get()
+        role = self.get_regular_role()
+
+        response = self.client.post(
+            reverse('creme_core__switch_role', args=(user.id, role.id))
+        )
+        self.assertContains(
+            response,
+            status_code=409, text=_('Superusers cannot switch their role'), html=True,
+        )
+
+
+class PasswordViewsTestCase(CremeTestCase):
     @override_settings(DEFAULT_FROM_EMAIL='admin@mycompagny.org')
-    def test_reset_password01(self):
+    def test_reset_password(self):
         "Feature is enabled."
         user = self.create_user()
 
@@ -112,7 +149,7 @@ class AuthViewsTestCase(CremeTestCase):
 
         self.assertTrue(self.refresh(user).check_password(password))
 
-    def test_reset_password02(self):
+    def test_reset_password__disabled(self):
         "Feature is disabled."
         self.create_user()
 
@@ -122,7 +159,7 @@ class AuthViewsTestCase(CremeTestCase):
         self.assertGET403(url)
         self.assertPOST403(url)
 
-    def test_change_own_password01(self):
+    def test_change_own_password(self):
         "Feature is enabled."
         self.login_as_root()
         user = self.get_root_user()
@@ -164,7 +201,7 @@ class AuthViewsTestCase(CremeTestCase):
             get_ctxt2('information_messages'),
         )
 
-    def test_change_own_password02(self):
+    def test_change_own_password__disabled(self):
         "Feature is disabled."
         self.login_as_root()
 
@@ -174,7 +211,7 @@ class AuthViewsTestCase(CremeTestCase):
         self.assertGET403(url)
         self.assertPOST403(url)
 
-    def test_change_own_password03(self):
+    def test_change_own_password__reset_disabled(self):
         "Feature 'reset password' is disabled."
         self.login_as_root()
 

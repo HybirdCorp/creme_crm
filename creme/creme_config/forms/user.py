@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,18 +18,17 @@
 
 from collections import defaultdict
 
+from django import forms
 from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model, password_validation
 from django.core.exceptions import ValidationError
-from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField
-from django.forms.widgets import PasswordInput
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_config.notification import PasswordChangeContent
 from creme.creme_core.constants import UUID_CHANNEL_ADMIN
 from creme.creme_core.forms import CremeForm, CremeModelForm
-from creme.creme_core.models import Notification, UserRole
+from creme.creme_core.models import Notification  # UserRole
 from creme.creme_core.models.fields import CremeUserForeignKey
 
 CremeUser = get_user_model()
@@ -42,37 +41,37 @@ class UserCreationForm(CremeModelForm):
         'password_mismatch': auth_forms.UserCreationForm.error_messages['password_mismatch'],
     }
 
-    password_1 = CharField(
+    password_1 = forms.CharField(
         label=_('Password'),
         strip=False,
-        widget=PasswordInput(attrs={'autocomplete': 'new-password'}),
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
         help_text=password_validation.password_validators_help_text_html(),
     )
-    password_2 = CharField(
+    password_2 = forms.CharField(
         label=_('Confirm password'),
         strip=False,
-        widget=PasswordInput(attrs={'autocomplete': 'new-password'}),
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
         help_text=_('Enter the same password as before, for verification.'),
     )
 
-    role = ModelChoiceField(
-        label=_('Role'), required=False, queryset=UserRole.objects.all(),
-    )
+    # role = forms.ModelChoiceField(
+    #     label=_('Role'), required=False, queryset=UserRole.objects.all(),
+    # )
 
     class Meta:
         model = CremeUser
         fields = (
-            'username',
-            'last_name', 'first_name', 'email', 'displayed_name',
-            'role',
+            'username', 'last_name', 'first_name', 'email', 'displayed_name',
+            # 'role',
+            'roles',
         )
         field_classes = {'username': auth_forms.UsernameField}
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # NB: browser can ignore <em> tag in <option>...
-        self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #
+    #     # NB: browser can ignore <em> tag in <option>...
+    #     self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
 
     # Derived from django.contrib.auth.forms.UserCreationForm
     def clean_username(self):
@@ -102,6 +101,16 @@ class UserCreationForm(CremeModelForm):
 
         return password2
 
+    def clean_roles(self):
+        roles = self.cleaned_data.get('roles')
+
+        if roles:
+            self.instance.role = roles[0]
+        else:
+            self.instance.is_superuser = True
+
+        return roles
+
     def _post_clean(self):
         super()._post_clean()
         # NB: some validators (like the "similarity" one) need 'self.instance' to
@@ -116,63 +125,94 @@ class UserCreationForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         instance = self.instance
-        # TODO: remove field CremeUser.is_superuser ??
-        instance.is_superuser = (instance.role is None)
+        # instance.is_superuser = (instance.role is None)
         instance.set_password(self.cleaned_data['password_1'])
+        super().save(*args, **kwargs)
 
-        return super().save(*args, **kwargs)
+        if instance.role:
+            instance.roles.add(instance.role)
+
+        return instance
 
 
 # TODO: factorise with UserCreationForm
 class UserEditionForm(CremeModelForm):
-    role = ModelChoiceField(
-        label=_('Role'), queryset=UserRole.objects.all(), required=False,
-    )
+    # role = forms.ModelChoiceField(
+    #     label=_('Role'), queryset=UserRole.objects.all(), required=False,
+    # )
 
     class Meta:
         model = CremeUser
-        fields = ('first_name', 'last_name', 'email', 'displayed_name', 'role')  # 'is_superuser'
+        fields = (
+            'first_name', 'last_name', 'email', 'displayed_name',
+            # 'role', 'is_superuser'
+            'roles',
+        )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #
+    #     # # NB: browser can ignore <em> tag in <option>...
+    #     # self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
 
-        # NB: browser can ignore <em> tag in <option>...
-        self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
+    # def clean(self):
+    #     cdata = super().clean()
+    #
+    #     if not self._errors:
+    #         instance = self.instance
+    #         instance.role = role = cdata['role']
+    #         instance.is_superuser = (role is None)
+    #
+    #     return cdata
+    def clean_roles(self):
+        roles = self.cleaned_data.get('roles')
+        instance = self.instance
 
-    def clean(self):
-        cdata = super().clean()
+        if roles:
+            instance.is_superuser = False
 
-        if not self._errors:
-            instance = self.instance
-            instance.role = role = cdata['role']
-            instance.is_superuser = (role is None)
+            # We keep the current active role if possible
+            if instance.role not in roles:
+                instance.role = roles[0]
+        else:
+            instance.is_superuser = True
+            instance.role = None
 
-        return cdata
+        return roles
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        instance.roles.set(self.cleaned_data['roles'])
+
+        return instance
 
 
-# NB: we cannot use django.contrib.auth.forms.AdminPasswordChangeForm, because it defines a 'user'
-#     attribute like us (but it corresponds to our 'user2edit' one, not our 'user' one)
+# NB: we cannot use django.contrib.auth.forms.AdminPasswordChangeForm, because
+#     it defines a 'user' attribute like us (but it corresponds to our
+#     'user2edit' one, not our 'user' one)
 class UserPasswordChangeForm(CremeForm):
     error_messages = {
         'password_mismatch': auth_forms.SetPasswordForm.error_messages['password_mismatch'],
         'password_incorrect': auth_forms.PasswordChangeForm.error_messages['password_incorrect'],
     }
 
-    old_password = CharField(
+    old_password = forms.CharField(
         label=_('Your old password'),
         strip=False,
-        widget=PasswordInput(attrs={'autocomplete': 'current-password', 'autofocus': True}),
+        widget=forms.PasswordInput(
+            attrs={'autocomplete': 'current-password', 'autofocus': True},
+        ),
     )
-    password_1 = CharField(
+    password_1 = forms.CharField(
         label=_('New password'),
         strip=False,
-        widget=PasswordInput(attrs={'autocomplete': 'new-password'}),
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
         help_text=password_validation.password_validators_help_text_html(),
     )
-    password_2 = CharField(
+    password_2 = forms.CharField(
         label=_('New password confirmation'),
         strip=False,
-        widget=PasswordInput(attrs={'autocomplete': 'new-password'}),
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
         help_text=_('Enter the same password as before, for verification.'),
     )
 
@@ -225,7 +265,7 @@ class UserPasswordChangeForm(CremeForm):
 
 
 class _TeamForm(CremeModelForm):
-    teammates = ModelMultipleChoiceField(
+    teammates = forms.ModelMultipleChoiceField(
         queryset=CremeUser.objects.filter(is_team=False, is_staff=False),
         label=_('Teammates'), required=False,
     )
@@ -257,7 +297,7 @@ class TeamEditionForm(_TeamForm):
 
 
 class UserAssignationForm(CremeForm):
-    to_user = ModelChoiceField(
+    to_user = forms.ModelChoiceField(
         label=_('Choose a user to transfer to'),
         queryset=CremeUser.objects.none(),
     )

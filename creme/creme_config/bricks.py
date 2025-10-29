@@ -598,7 +598,7 @@ class UsersBrick(_ConfigAdminBrick):
     search_fields = ['username', 'last_name', 'first_name', 'displayed_name']
 
     def detailview_display(self, context):
-        users = User.objects.filter(is_team=False)
+        users = User.objects.filter(is_team=False).prefetch_related('roles')
 
         if not context['user'].is_staff:
             users = users.exclude(is_staff=True)
@@ -638,6 +638,12 @@ class UsersBrick(_ConfigAdminBrick):
             if page.paginator.count == len(page_users) else
             User.objects.exclude(time_zone=TIME_ZONE).exists()
         )
+
+        # If some code has created users without using 'CremeUserManager.create_user()'
+        # the pool of roles could be inconsistent. Note that we have prefetched roles,
+        # so it won't perform queries if the pool is correct.
+        for user in page_users:
+            user.normalize_roles()
 
         return self._render(btc)
 

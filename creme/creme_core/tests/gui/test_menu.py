@@ -36,6 +36,7 @@ from creme.creme_core.menu import (
     MyPageEntry,
     QuickFormsEntries,
     RecentEntitiesEntry,
+    RoleSwitchEntry,
     TrashEntry,
 )
 from creme.creme_core.models import (
@@ -640,6 +641,51 @@ class MenuTestCase(CremeTestCase):
             entry.render(self._build_context(user=user)),
         )
 
+    def test_role_switch_entry(self):
+        entry = RoleSwitchEntry()
+
+        entry_id = 'creme_core-role_switch'
+        self.assertEqual(entry_id, entry.id)
+
+        entry_label = _('Available roles')
+        self.assertEqual(entry_label, entry.label)
+
+        # Superuser ---
+        self.assertHTMLEqual(
+            '<span class="ui-creme-navigation-title ui-creme-navigation-empty" />',
+            entry.render(self._build_context(user=self.get_root_user())),
+        )
+
+        # One role ---
+        role1 = self.create_role(name='CEO')
+        user = self.create_user(role=role1, roles=[role1])
+        self.assertHTMLEqual(
+            '<span class="ui-creme-navigation-title ui-creme-navigation-empty" />',
+            entry.render(self._build_context(user=user)),
+        )
+
+        # Two roles ---
+        role2 = self.create_role(name='Engineer')
+        user.roles.add(role2)
+        self.maxDiff = None
+        self.assertHTMLEqual(
+            '''
+<span class="ui-creme-navigation-title">{label}</span>
+<button disabled onclick="creme.utils.ajaxQuery('{url1}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">
+ <div class="marker-selected" />CEO
+</button>
+<button onclick="creme.utils.ajaxQuery('{url2}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">
+ <div class="marker-not-selected" />Engineer
+</button>
+            '''.format(   # NOQA
+                label=_('Available roles'),
+                url1=reverse('creme_core__switch_role', args=(user.id, role1.id)),
+                url2=reverse('creme_core__switch_role', args=(user.id, role2.id)),
+                home_url=reverse('creme_core__home'),
+            ),
+            entry.render(self._build_context(user=user)),
+        )
+
     def test_logout_entry(self):
         self.assertTrue(LogoutEntry.single_instance)
 
@@ -673,6 +719,7 @@ class MenuTestCase(CremeTestCase):
         assertInChildren(TrashEntry)
         assertInChildren(MyPageEntry)
         assertInChildren(MyJobsEntry)
+        assertInChildren(RoleSwitchEntry)
         assertInChildren(LogoutEntry)
 
         render = entry.render(self._build_context())

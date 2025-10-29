@@ -18,7 +18,11 @@
 
 import django.contrib.auth.views as auth_views
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
+from django.db.transaction import atomic
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
@@ -26,10 +30,41 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core import get_world_settings_model
 
-from .generic import base
+from ..core.exceptions import ConflictError
+from ..models import UserRole
+from . import generic
 
 
-class PasswordReset(base.SubmittableMixin, auth_views.PasswordResetView):
+# User -------------------------------------------------------------------------
+class RoleSwitch(generic.CheckedView):
+    user_id_url_kwarg = 'user_id'
+    role_id_url_kwarg = 'role_id'
+
+    @atomic
+    def post(self, request, *args, **kwargs):
+        user = get_object_or_404(
+            get_user_model().objects.select_for_update(),
+            id=kwargs[self.user_id_url_kwarg],
+        )
+        if user.is_superuser:
+            raise ConflictError(gettext('Superusers cannot switch their role'))
+
+        role_id = kwargs[self.role_id_url_kwarg]
+
+        if role_id != user.role_id:
+            role = get_object_or_404(UserRole, id=role_id)
+
+            if not user.roles.filter(id=role.id).exists():
+                raise ConflictError(gettext('This role is not available for you'))
+
+            user.role = role
+            user.save()
+
+        return HttpResponse()
+
+
+# Password ---------------------------------------------------------------------
+class PasswordReset(generic.base.SubmittableMixin, auth_views.PasswordResetView):
     extra_email_context = {
         'software': settings.SOFTWARE_LABEL,
     }
@@ -61,7 +96,7 @@ class PasswordResetDone(auth_views.PasswordResetDoneView):
     title = _('Reset your password (Step 2/4)')
 
 
-class PasswordResetConfirm(base.SubmittableMixin,
+class PasswordResetConfirm(generic.base.SubmittableMixin,
                            auth_views.PasswordResetConfirmView):
     template_name = 'creme_core/auth/password_reset/confirm.html'
     success_url = reverse_lazy('creme_core__password_reset_complete')
@@ -79,8 +114,8 @@ class PasswordResetComplete(auth_views.PasswordResetCompleteView):
     template_name = 'creme_core/auth/password_reset/complete.html'
 
 
-class OwnPasswordChange(base.CancellableMixin,
-                        base.SubmittableMixin,
+class OwnPasswordChange(generic.base.CancellableMixin,
+                        generic.base.SubmittableMixin,
                         auth_views.PasswordChangeView):
     template_name = 'creme_core/generics/form/edit.html'
     success_url = reverse_lazy('creme_core__own_password_change_done')

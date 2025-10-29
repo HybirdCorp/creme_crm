@@ -249,6 +249,7 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 
 /* Menu entries separators [END] */
 
+.ui-creme-navigation-item-id_creme_core-role_switch button,
 .ui-creme-navigation-item-id_creme_core-logout button {
     /* copy of <a> */
     display: block;
@@ -276,6 +277,40 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 
     font-weight: 400;
     color: #929ba9;
+}
+
+/* Role switch entry */
+.ui-creme-navigation li.ui-creme-navigation-activated li.ui-creme-navigation-item-id_creme_core-role_switch:hover {
+    background: #2a414b;
+}
+.ui-creme-navigation li.ui-creme-navigation-activated li.ui-creme-navigation-item-id_creme_core-role_switch button:hover {
+    background: #446978;
+}
+.ui-creme-navigation li.ui-creme-navigation-activated li.ui-creme-navigation-item-id_creme_core-role_switch button:disabled {
+    cursor: not-allowed;
+}
+.ui-creme-navigation li.ui-creme-navigation-activated li.ui-creme-navigation-item-id_creme_core-role_switch span.ui-creme-navigation-empty {
+    display: none;
+}
+.ui-creme-navigation li.ui-creme-navigation-activated li.ui-creme-navigation-item-id_creme_core-role_switch span.ui-creme-navigation-title {
+    border-top: 1px solid #a29d9d;
+    margin-top: 5px;
+    padding-top: 5px;
+}
+.ui-creme-navigation div.marker-selected,
+.ui-creme-navigation div.marker-not-selected {
+    display: inline-block;
+    margin-right: 3px;
+
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+}
+.ui-creme-navigation div.marker-selected  {
+    background: #ebebeb;
+}
+.ui-creme-navigation div.marker-not-selected {
+    border: 1px solid #ebebeb;
 }
 
 /* display or hide elements depending on screen width

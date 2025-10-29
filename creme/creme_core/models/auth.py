@@ -137,6 +137,7 @@ class UserRole(models.Model):
         app_label = 'creme_core'
         verbose_name = _('Role')
         verbose_name_plural = _('Roles')
+        ordering = ('name',)
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -904,20 +905,33 @@ class SetCredentials(models.Model):
 
 class CremeUserManager(BaseUserManager):
     def create_user(self,
-                    username,
-                    first_name,
-                    last_name,
-                    email,
-                    password=None,
-                    **extra_fields):
-        "Creates and saves a (Creme)User instance."
+                    username: str,
+                    first_name: str,
+                    last_name: str,
+                    email: str,
+                    password: str | None = None,
+                    role: UserRole | None = None,
+                    roles: Iterable[UserRole] = (),
+                    **extra_fields) -> CremeUser:
+        """Creates a (Creme)User instance in DB & returns it.
+
+        About 'role' & 'roles': to create a regular user, you just have to set
+        at least one of these arguments.
+        """
         if not username:
             raise ValueError('The given username must be set')
+
+        roles = [*roles]
+        if role:
+            roles.append(role)
+        elif roles:
+            role = roles[0]
 
         user = self.model(
             username=username,
             first_name=first_name, last_name=last_name,
             email=self.normalize_email(email),
+            role=role,
             **extra_fields
         )
 
@@ -925,17 +939,20 @@ class CremeUserManager(BaseUserManager):
         user.clean()
         user.save()
 
+        if roles:
+            user.roles.set(roles)
+
         return user
 
     create_user.alters_data = True
 
     def create_superuser(self,
-                         username,
-                         first_name,
-                         last_name,
-                         email,
-                         password=None,
-                         **extra_fields):
+                         username: str,
+                         first_name: str,
+                         last_name: str,
+                         email: str,
+                         password: str | None = None,
+                         **extra_fields) -> CremeUser:
         "Creates and saves a superuser."
         extra_fields['is_superuser'] = True
 
@@ -951,7 +968,7 @@ class CremeUserManager(BaseUserManager):
 
     # TODO: create_staff_user ??
 
-    def get_admin(self):
+    def get_admin(self) -> CremeUser:
         user_qs = self.get_queryset().order_by('id')
 
         return (
@@ -997,20 +1014,30 @@ class CremeUser(AbstractBaseUser):
         ),
     )
 
-    date_joined = models.DateTimeField(_('Date joined'), default=now)
+    date_joined = models.DateTimeField(_('Date joined'), default=now, editable=False)
     # Not viewable by users, For administrators currently.
     modified = core_fields.ModificationDateTimeField().set_tags(viewable=False)
 
     is_active = models.BooleanField(_('Active?'), default=True)
-    deactivated_on = models.DateTimeField(_('Deactivated on'), null=True, default=None)
+    deactivated_on = models.DateTimeField(
+        _('Deactivated on'), null=True, default=None, editable=False,
+    )
 
     is_staff = models.BooleanField(
-        _('Is staff?'), default=False
+        _('Is staff?'), default=False, editable=False,
     ).set_tags(viewable=False)
-    is_superuser = models.BooleanField(_('Is a superuser?'), default=False)
+    is_superuser = models.BooleanField(_('Is a superuser?'), default=False, editable=False)
     role = models.ForeignKey(
-        UserRole, verbose_name=_('Role'), null=True, on_delete=models.PROTECT,
+        UserRole, verbose_name=_('Role'), null=True, on_delete=models.PROTECT, editable=False,
     )
+    roles = models.ManyToManyField(
+        UserRole, verbose_name='Possible roles', related_name='+', blank=True,
+        help_text=_(
+            'A normal user must have at least one role.\n'
+            ' - A user with no role will be a SUPERUSER.\n'
+            ' - If you choose several roles, the user will be able to switch between them.'
+        )
+    ).set_tags(viewable=False)
 
     is_team = models.BooleanField(verbose_name=_('Is a team?'), default=False)
     teammates_set = models.ManyToManyField(
@@ -1038,7 +1065,7 @@ class CremeUser(AbstractBaseUser):
     # NB: do not use directly ; use the property 'settings'
     # TODO: JSONField ?
     json_settings = models.TextField(
-        editable=False, default='{}'
+        editable=False, default='{}',
     ).set_tags(viewable=False)
 
     objects = CremeUserManager()
@@ -1086,8 +1113,11 @@ class CremeUser(AbstractBaseUser):
             if self.displayed_name:
                 raise ValidationError('A team cannot have a displayed name.')
         else:
-            if self.is_superuser and self.role_id:
-                raise ValidationError('A superuser cannot have a role.')
+            if self.is_superuser:
+                if self.role_id:
+                    raise ValidationError('A superuser cannot have a role.')
+            elif not self.role_id:
+                raise ValidationError('A regular user must have a role.')
 
             # ---
             email = self.email
@@ -1566,6 +1596,19 @@ class CremeUser(AbstractBaseUser):
                 gettext('You are not allowed to view this entity: {}').format(
                     self._get_main_entity(entity).allowed_str(self),
                 )
+            )
+
+    def normalize_roles(self) -> None:
+        """Fix pool of roles which does not contain the current role.
+        (internal use).
+        Hint: prefetch 'roles' to avoid queries
+        """
+        role = self.role
+        if role and role not in self.roles.all():
+            self.roles.add(role)
+            logger.warning(
+                'The possible roles of the user "%s" did not contain '
+                'its current job (user has been fixed).', self.username,
             )
 
     def portable_key(self) -> str:

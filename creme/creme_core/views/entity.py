@@ -20,7 +20,6 @@ import json
 import logging
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
-# from itertools import islice
 from urllib.parse import urlencode
 
 from django.conf import settings

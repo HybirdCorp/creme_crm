@@ -21,6 +21,7 @@ from collections import OrderedDict
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext
@@ -440,7 +441,7 @@ class UserRoleDeletionForm(CremeModelForm):
         super().__init__(*args, **kwargs)
         self.role_to_delete = role_to_delete
 
-        if CremeUser.objects.filter(role=role_to_delete).exists():
+        if self._users_to_update().exists():
             self.fields['to_role'] = forms.ModelChoiceField(
                 label=_('Choose a role to transfer to'),
                 help_text=_(
@@ -457,20 +458,23 @@ class UserRoleDeletionForm(CremeModelForm):
                 ),
             )
 
+    def _users_to_update(self):
+        role_to_delete = self.role_to_delete
+        return CremeUser.objects.filter(Q(role=role_to_delete) | Q(roles=role_to_delete))
+
     def save(self, *args, **kwargs):
         instance = self.instance
         instance.instance_to_delete = self.role_to_delete
 
-        # TODO: check other FK ?
+        # TODO: check other FK/M2M ?
         replacement = self.cleaned_data.get('to_role')
         if replacement:
             instance.replacers = [
                 deletion.FixedValueReplacer(
-                    model_field=CremeUser._meta.get_field('role'),
-                    value=replacement,
-                )
+                    model_field=CremeUser._meta.get_field(fname), value=replacement,
+                ) for fname in ('role', 'roles')
             ]
-        instance.total_count = CremeUser.objects.filter(role=self.role_to_delete).count()
+        instance.total_count = self._users_to_update().distinct().count()
         instance.job = Job.objects.create(
             type_id=deletor_type.id,
             user=self.user,

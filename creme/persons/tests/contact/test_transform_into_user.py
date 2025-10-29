@@ -38,17 +38,18 @@ class TransformationIntoUserTestCase(_BaseTestCase):
 
         with self.assertNoException():
             fields = context1['form'].fields
-            role_f = fields['role']
+            # role_f = fields['role']
             email_f = fields['email']
 
         self.assertIn('username', fields)
         self.assertIn('displayed_name', fields)
         self.assertIn('password_1', fields)
         self.assertIn('password_2', fields)
+        self.assertIn('roles', fields)
         self.assertNotIn('last_name', fields)
         self.assertNotIn('first_name', fields)
 
-        self.assertEqual('*{}*'.format(_('Superuser')), role_f.empty_label)
+        # self.assertEqual('*{}*'.format(_('Superuser')), role_f.empty_label)
 
         self.assertTrue(email_f.required)
         self.assertEqual(email, email_f.initial)
@@ -69,6 +70,7 @@ class TransformationIntoUserTestCase(_BaseTestCase):
                 'password_1': password,
                 'password_2': password,
                 # 'role': ...
+                'roles': [],
                 'email': email,
             },
         )
@@ -91,6 +93,7 @@ class TransformationIntoUserTestCase(_BaseTestCase):
         self.assertFalse(contact_user.displayed_name)
         self.assertTrue(contact_user.is_superuser)
         self.assertIsNone(contact_user.role)
+        self.assertFalse(contact_user.roles.all())
         self.assertTrue(contact_user.check_password(password))
 
         self.assertRedirects(response2, contact.get_absolute_url())
@@ -123,7 +126,8 @@ class TransformationIntoUserTestCase(_BaseTestCase):
         with self.assertNoException():
             fields = response1.context['form'].fields
             email_f = fields['email']
-            role_f = fields['role']
+            # role_f = fields['role']
+            roles_f = fields['roles']
 
         self.assertTrue(email_f.required)
         self.assertEqual(
@@ -131,7 +135,8 @@ class TransformationIntoUserTestCase(_BaseTestCase):
             email_f.help_text,
         )
 
-        self.assertInChoices(value=role.id, label=role.name, choices=role_f.choices)
+        # self.assertInChoices(value=role.id, label=role.name, choices=role_f.choices)
+        self.assertInChoices(value=role.id, label=role.name, choices=roles_f.choices)
 
         # ---
         username = 'jet'
@@ -147,7 +152,8 @@ class TransformationIntoUserTestCase(_BaseTestCase):
                 'password_1': password,
                 'password_2': password,
                 'email': email,
-                'role': role.id,
+                # 'role': role.id,
+                'roles': [role.id],
             },
         ))
 
@@ -163,6 +169,7 @@ class TransformationIntoUserTestCase(_BaseTestCase):
         self.assertEqual(email,          contact_user.email)
         self.assertEqual(role,           contact_user.role)
         self.assertFalse(contact_user.is_superuser)
+        self.assertListEqual([role], [*contact_user.roles.all()])
 
     def test_transform_into_user__no_first_name(self):
         user = self.login_as_root_and_get()

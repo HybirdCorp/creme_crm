@@ -74,6 +74,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name':        'Role',
                 'verbose_name_plural': 'Roles',
+                'ordering': ('name',),
             },
         ),
         migrations.CreateModel(
@@ -105,9 +106,9 @@ class Migration(migrations.Migration):
                         ),
                     )
                 ),
-                ('date_joined', models.DateTimeField(default=now, verbose_name='Date joined')),
+                ('date_joined', models.DateTimeField(default=now, verbose_name='Date joined', editable=False)),
                 ('is_active', models.BooleanField(default=True, verbose_name='Active?')),
-                ('is_staff', models.BooleanField(default=False, verbose_name='Is staff?')),
+                ('is_staff', models.BooleanField(default=False, verbose_name='Is staff?', editable=False)),
                 ('is_superuser', models.BooleanField(default=False, verbose_name='Is a superuser?')),
                 ('is_team', models.BooleanField(default=False, verbose_name='Is a team?')),
                 (
