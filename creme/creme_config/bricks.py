@@ -1305,12 +1305,12 @@ class EntityFiltersBrick(PaginatedBrick):
 
         # NB: efilters[content_type.id][user.id] -> List[EntityFilter]
         efilters = defaultdict(lambda: defaultdict(list))
-        user_ids = set()
+        users = {}  # Dict[user_id, user]
 
         for efilter in core_models.EntityFilter.objects.filter(
             filter_type=self.filter_type,
             entity_type__in=[ctw.ctype for ctw in ctypes_wrappers],
-        ):
+        ).prefetch_related('user', 'user__teammates_set'):
             # TODO: templatetags instead? (+ reason in tooltip if forbidden)
             efilter.edition_url = reverse(self.edition_url_name, args=(efilter.id,))
             efilter.edition_perm = efilter.can_edit(user)[0]
@@ -1318,9 +1318,7 @@ class EntityFiltersBrick(PaginatedBrick):
 
             user_id = efilter.user_id
             efilters[efilter.entity_type_id][user_id].append(efilter)
-            user_ids.add(user_id)
-
-        users = get_user_model().objects.in_bulk(user_ids)
+            users[user_id] = efilter.user
 
         def efilter_key(efilter):
             return sort_key(efilter.name)
