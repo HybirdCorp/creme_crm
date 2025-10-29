@@ -127,6 +127,33 @@ class PasswordChangeEntry(menu.FixedURLEntry):
             ))
 
 
+# TODO: unit test?
+class RoleSwitchEntry(menu.MenuEntry):
+    """TODO"""
+    id = 'creme_core-role_switch'
+    label = _('Role switch')
+    # url_name = 'creme_core__trash'
+
+    def render(self, context):
+        from creme.creme_core.models import UserRole  # TODO: remove
+
+        # TODO: separator
+        # TODO: empty if superuser
+        # TODO: empty if one role
+        user = context['user']
+        role1 = UserRole.objects.first()  # TODO: user.roles.all()
+
+        # TODO: radiobutton
+        return format_html(
+            '<span class="ui-creme-navigation-title">{label}</span>'
+            '<a href="{url1}">ROLE1</a>'
+            '<a href="{url2}">ROLE2</a>',
+            label=_('Available roles'),
+            url1=reverse('creme_core__switch_role', args=(user.id, role1.id)),
+            url2='/',
+        )
+
+
 class CremeEntry(menu.ContainerEntry):
     """Special Entry 'Creme' with hard coded children."""
     id = 'creme_core-creme'
@@ -148,6 +175,7 @@ class CremeEntry(menu.ContainerEntry):
         MyPageEntry,
         MyJobsEntry,
         PasswordChangeEntry,
+        RoleSwitchEntry,
         menu.Separator1Entry,  # End of "user" group
         LogoutEntry,
     ]

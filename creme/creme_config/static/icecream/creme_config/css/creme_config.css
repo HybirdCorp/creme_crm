@@ -146,6 +146,16 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 /* Users brick */
 
+.creme_config-users-brick .user-role ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.creme_config-users-brick .user-role li:not(.active-role) {
+    color: grey;
+}
+
 .creme_config-users-brick td.user-password {
     white-space: nowrap;
 }

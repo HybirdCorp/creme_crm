@@ -127,7 +127,7 @@ class AuthTestCase(CremeTestCase):
         self.assertIsNone(set_creds.efilter)
         self.assertFalse(set_creds.forbidden)
 
-    def test_manager_smart_create_role(self):
+    def test_manager__smart_create_role(self):
         name = 'Leader'
         allowed_apps = ['creme_core', 'documents']
         admin_4_apps = ['documents']
@@ -163,9 +163,7 @@ class AuthTestCase(CremeTestCase):
 
     def test_user_str(self):
         user = CremeUser(
-            username='kirika',
-            first_name='Kirika',
-            last_name='Yumura',
+            username='kirika', first_name='Kirika', last_name='Yumura',
         )
         self.assertEqual('', user.displayed_name)
         self.assertEqual('Kirika Y.', str(user))
@@ -173,7 +171,7 @@ class AuthTestCase(CremeTestCase):
         user.displayed_name = dname = 'Kirika-chan'
         self.assertEqual(dname, str(user))
 
-    def test_clean_user(self):
+    def test_clean_user__email(self):
         user, other_user = self._create_users()
         user.email = other_user.email
 
@@ -194,7 +192,23 @@ class AuthTestCase(CremeTestCase):
         with self.assertNoException():
             user.clean()
 
-    def test_clean_superuser(self):
+    def test_clean_user__role(self):
+        user = CremeUser(
+            username='Kenji', email='kenji@century.jp',
+            first_name='Kenji', last_name='Gendou',
+            # password='password',
+            is_superuser=False,
+            # role=role,  <===
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            user.clean()
+
+        self.assertValidationError(
+            cm.exception, messages='A regular user must have a role.',
+        )
+
+    def test_clean_user__superuser(self):
         role = self.get_regular_role()
 
         user = CremeUser(
@@ -212,7 +226,7 @@ class AuthTestCase(CremeTestCase):
             cm.exception, messages='A superuser cannot have a role.',
         )
 
-    def test_clean_team01(self):
+    def test_clean_user__team__email(self):
         "Do not check email uniqueness with teams."
         team1 = CremeUser.objects.create(username='teamA', is_team=True)
         self.assertFalse(team1.email)
@@ -229,7 +243,7 @@ class AuthTestCase(CremeTestCase):
         with self.assertNoException():
             team2.clean()
 
-    def test_clean_team02(self):
+    def test_clean_user__team__role(self):
         "No role with teams."
         team = CremeUser(username='teamA', is_team=True, role=self.get_regular_role())
 
@@ -240,7 +254,7 @@ class AuthTestCase(CremeTestCase):
             cm.exception, messages='A team cannot have a role.',
         )
 
-    def test_clean_team03(self):
+    def test_clean_user__team__superuser(self):
         "Not superuser teams."
         team = CremeUser(username='teamA', is_team=True, is_superuser=True)
 
@@ -251,7 +265,7 @@ class AuthTestCase(CremeTestCase):
             cm.exception, messages='A team cannot be marked as superuser.',
         )
 
-    def test_clean_team04(self):
+    def test_clean_user__team__name(self):
         "No names."
         team1 = CremeUser(username='teamA', is_team=True, last_name='A')
         with self.assertRaises(ValidationError) as cm1:
@@ -276,8 +290,9 @@ class AuthTestCase(CremeTestCase):
             cm3.exception, messages='A team cannot have a displayed name.',
         )
 
-    def test_manager_create_user(self):
+    def test_manager__create_user(self):
         existing_user = self.create_user()
+        role = self.get_regular_role()
 
         username = 'kanna'
         first_name = 'Kanna'
@@ -288,6 +303,7 @@ class AuthTestCase(CremeTestCase):
             'last_name': last_name,
             'password': self.password,
             'email': existing_user.email,  # <===
+            'role': role,
         }
 
         with self.assertRaises(ValidationError) as cm:
@@ -313,9 +329,50 @@ class AuthTestCase(CremeTestCase):
         self.assertEqual(email,      user.email)
         self.assertTrue(user.check_password(self.password))
         self.assertFalse(user.is_superuser)
-        # TODO: role must not be None?!
+        self.assertEqual(role, user.role)
+        self.assertListEqual([role], [*user.roles.all()])
 
-    def test_manager_create_superuser(self):
+    def test_manager__create_user__roles(self):
+        role1 = self.get_regular_role()
+        role2 = self.create_role(name='CEO')
+        role3 = self.create_role(name='Engineer')
+
+        with self.assertNoException():
+            user = CremeUser.objects.create_user(
+                username='kanna',
+                first_name='Kanna',
+                last_name='Endo',
+                password=self.password,
+                email='kanna@20thcentury.jp',
+                role=role1,
+                roles=[role2, role3],
+            )
+
+        user = self.refresh(user)
+        self.assertFalse(user.is_superuser)
+        self.assertEqual(role1, user.role)
+        self.assertCountEqual([role1, role2, role3], [*user.roles.all()])
+
+    def test_manager__create_user__only_roles(self):
+        role1 = self.get_regular_role()
+        role2 = self.create_role(name='CEO')
+
+        with self.assertNoException():
+            user = CremeUser.objects.create_user(
+                username='kanna',
+                first_name='Kanna',
+                last_name='Endo',
+                password=self.password,
+                email='kanna@20thcentury.jp',
+                roles=[role1, role2],
+            )
+
+        user = self.refresh(user)
+        self.assertFalse(user.is_superuser)
+        self.assertEqual(role1, user.role)
+        self.assertCountEqual([role1, role2], [*user.roles.all()])
+
+    def test_manager__create_superuser(self):
         existing_user = self.create_user()
 
         username = 'kanna'
@@ -351,6 +408,8 @@ class AuthTestCase(CremeTestCase):
         self.assertEqual(email,      user.email)
         self.assertTrue(user.check_password(self.password))
         self.assertTrue(user.is_superuser)
+        self.assertIsNone(user.role)
+        self.assertFalse(user.roles.all())
 
     # TODO: test get_admin()
 
@@ -446,6 +505,45 @@ class AuthTestCase(CremeTestCase):
         with self.assertNoException():
             got_user = CremeUser.objects.get_by_portable_key(user_key)
         self.assertEqual(user, got_user)
+
+    def test_normalize_roles(self):
+        role1 = self.get_regular_role()
+        user = CremeUser.objects.create(
+            username='kanna',
+            first_name='Kanna',
+            last_name='Endo',
+            email='kanna@20thcentury.jp',
+            is_superuser=False,
+            role=role1,
+        )
+        self.assertFalse(user.roles.all())
+
+        role2 = self.create_role()
+        user.roles.add(role2)
+
+        with self.assertLogs(level='WARNING') as logs_manager:
+            user.normalize_roles()
+        self.assertCountEqual([role1, role2], user.roles.all())
+        self.assertIn(
+            f'The possible roles of the user "{user.username}" did not contain '
+            f'its current job (user has been fixed).',
+            logs_manager.output[0],
+        )
+
+        with self.assertNoLogs(level='WARNING'):
+            user.normalize_roles()
+
+    def test_normalize_roles__superuser(self):
+        user = CremeUser.objects.create(
+            username='kanna',
+            first_name='Kanna',
+            last_name='Endo',
+            email='kanna@20thcentury.jp',
+            is_superuser=True,
+        )
+
+        with self.assertNoLogs(level='WARNING'):
+            user.normalize_roles()
 
     def test_super_user01(self):
         self._create_users_n_contacts()
@@ -2258,7 +2356,7 @@ class AuthTestCase(CremeTestCase):
             str(enabled_cm.exception),
         )
 
-    def test_list_creds01(self):
+    def test_list_creds__regular_user(self):
         user = self.create_user()
         role = self._create_role('Coder', ['creme_core'], users=[user])  # 'persons'
 
@@ -2301,12 +2399,12 @@ class AuthTestCase(CremeTestCase):
 
         self.assertRaises(PermissionDenied, user.has_perm_to_list_or_die, FakeOrganisation)
 
-    def test_list_creds02(self):
+    def test_list_creds__superuser(self):
         user = self.build_user(is_superuser=True)
         self.assertTrue(user.has_perm('persons.list_contact'))
         self.assertTrue(user.has_perm_to_list(FakeContact))
 
-    def test_export_creds01(self):
+    def test_export_creds__regular_user(self):
         user = self.create_user()
         role = self._create_role('Coder', ['creme_core'], users=[user])  # 'persons'
 
@@ -2339,7 +2437,7 @@ class AuthTestCase(CremeTestCase):
 
         self.assertRaises(PermissionDenied, user.has_perm_to_export_or_die, FakeOrganisation)
 
-    def test_export_creds02(self):
+    def test_export_creds__superuser(self):
         user = self.build_user(is_superuser=True)
         self.assertTrue(user.has_perm('persons.export_contact'))
 
@@ -2630,9 +2728,9 @@ class AuthTestCase(CremeTestCase):
         self.assertSetEqual(ids_set, {u.id for u in teammates.values()})
 
         user3 = CremeUser.objects.create_user(
-            username='Kanna', email='kanna@century.jp',
+            username='kanna', email='kanna@century.jp',
             first_name='Kanna', last_name='Gendou',
-            password='uselesspw',
+            password='uselesspw', is_superuser=True,
         )
         team.teammates = [user, other, user3]
         self.assertEqual(3, len(team.teammates))

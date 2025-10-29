@@ -71,7 +71,7 @@
     {% brick_table_column_for_field ctype=objects_ctype field='username' status='primary' %}
     {% brick_table_column_for_field ctype=objects_ctype field='last_name' %}
     {% brick_table_column_for_field ctype=objects_ctype field='first_name' %}
-    {% brick_table_column_for_field ctype=objects_ctype field='role__name' title=_('Role') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='role__name' title=_('Roles') %}
     {% brick_table_column_for_field ctype=objects_ctype field='email' %}
     {% brick_table_column_for_field ctype=objects_ctype field='displayed_name' %}
     {% brick_table_column_for_field ctype=objects_ctype field='is_active' %}
@@ -94,7 +94,20 @@
         <td class="user-username" {% brick_table_data_status primary %}>{{user.username}}</td>
         <td class="user-lastname" >{{user.last_name}}</td>
         <td class="user-firstname" >{{user.first_name}}</td>
-        <td class="user-role">{% if user.role %}{{user.role}}{% else %}<em>{% if user.is_staff %}{% translate 'Staff' %}{% else %}{{superuser_label}}{% endif %}</em>{% endif %}</td>
+{#        <td class="user-role">{% if user.role %}{{user.role}}{% else %}<em>{% if user.is_staff %}{% translate 'Staff' %}{% else %}{{superuser_label}}{% endif %}</em>{% endif %}</td> #}
+        <td class="user-role">
+         {% if user.role %}
+          {% with roles=user.roles.all %}
+           {% if roles|length == 1 %}
+            {{user.role}}
+           {% else %}
+            <ul>{% for role in roles %}<li{% if role == user.role %} class="active-role"{% endif %}>{{role}}</li>{% endfor %}</ul>
+           {% endif %}
+          {% endwith %}
+         {% else %}
+            <em>{% if user.is_staff %}{% translate 'Staff' %}{% else %}{{superuser_label}}{% endif %}</em>
+         {% endif %}
+        </td>
         <td class="user-email">{{user.email}}</td>
         <td class="user-displayed">{{user.displayed_name|default:'—'}}</td>
         <td class="user-active">{{user.is_active|yesno:_('Yes,No')}}</td>

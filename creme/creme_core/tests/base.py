@@ -170,9 +170,13 @@ class _CremeTestCase:
         return user
 
     @classmethod
-    def create_user(cls, index=0, **kwargs):
+    def create_user(cls, index=0, *, roles=(), **kwargs):
         user = cls.build_user(index=index, **kwargs)
         user.save()
+
+        if roles:
+            assert user.role
+            user.roles.set(roles)
 
         return user
 
@@ -310,7 +314,7 @@ class _CremeTestCase:
             listable_models=listable_models,
             exportable_models=exportable_models,
         )
-        user = self.create_user(index=index, role=role, password=password)
+        user = self.create_user(index=index, role=role, password=password, roles=[role])
 
         logged = self.client.login(username=user.username, password=password)
         self.assertTrue(logged, 'Not logged in')
