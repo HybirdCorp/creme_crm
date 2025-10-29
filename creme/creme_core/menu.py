@@ -24,6 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -127,6 +128,51 @@ class PasswordChangeEntry(menu.FixedURLEntry):
             ))
 
 
+class RoleSwitchEntry(menu.MenuEntry):
+    """Menu entry rendering button to switch to another role."""
+    id = 'creme_core-role_switch'
+    label = _('Available roles')
+    url_name = 'creme_core__switch_role'
+
+    def render(self, context):
+        user = context['user']
+
+        if not user.is_superuser:
+            roles = [*user.roles.all()]
+            # TODO: user.normalize_roles(roles)?
+            if len(roles) >= 2:
+                selected_id = user.role_id
+                url_name = self.url_name
+                home_url = reverse('creme_core__home')
+
+                return format_html(
+                    '<span class="ui-creme-navigation-title">{label}</span>{roles}',
+                    label=self.label,
+                    roles=format_html_join(
+                        '\n',
+                        '''<button {attr} '''
+                        '''onclick="creme.utils.ajaxQuery('{url}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">'''  # NOQA
+                        '''<div class="marker-{marker_suffix}"></div>{role}'''
+                        '''</button>''',
+                        (
+                            {
+                                'attr': 'disabled' if role.id == selected_id else '',
+                                'url': reverse(url_name, args=(user.id, role.id)),
+                                'home_url': home_url,
+                                'marker_suffix': (
+                                    'selected' if role.id == selected_id else 'not-selected'
+                                ),
+                                'role': role,
+                            } for role in roles
+                        ),
+                    ),
+                )
+
+        return mark_safe(
+            '<span class="ui-creme-navigation-title ui-creme-navigation-empty" />'
+        )
+
+
 class CremeEntry(menu.ContainerEntry):
     """Special Entry 'Creme' with hard coded children."""
     id = 'creme_core-creme'
@@ -148,6 +194,7 @@ class CremeEntry(menu.ContainerEntry):
         MyPageEntry,
         MyJobsEntry,
         PasswordChangeEntry,
+        RoleSwitchEntry,
         menu.Separator1Entry,  # End of "user" group
         LogoutEntry,
     ]

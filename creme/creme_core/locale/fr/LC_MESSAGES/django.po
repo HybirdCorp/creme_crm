@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-20 16:08+0200\n"
+"POT-Creation-Date: 2025-11-03 17:01+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1862,6 +1862,9 @@ msgstr ""
 "Votre configuration interdit les non super-utilisateurs à changer leur "
 "propre mot de passe"
 
+msgid "Available roles"
+msgstr "Rôles disponibles"
+
 msgid "User"
 msgstr "Utilisateur"
 
@@ -2028,6 +2031,15 @@ msgstr "Est administrateur ?"
 
 msgid "Is a superuser?"
 msgstr "Est un super-utilisateur ?"
+
+msgid ""
+"A normal user must have at least one role.\n"
+" - A user with no role will be a SUPERUSER.\n"
+" - If you choose several roles, the user will be able to switch between them."
+msgstr ""
+"Un utilisateur normal doit avoir au moins un rôle.\n"
+" - Un utilisateur sans rôle sera un SUPER utilisateur.\n"
+" - Si vous choisissez plusieurs rôles, l'utilisateur pourra changer parmi eux."
 
 msgid "Is a team?"
 msgstr "Est une équipe ?"
@@ -2462,7 +2474,8 @@ msgstr "Vous n'avez pas la permission d'accéder à cette application"
 
 msgid "Only superusers can delete this filter (no owner)"
 msgstr ""
-"Seuls les super-utilisateurs peuvent supprimer ce filtre (pas de propriétaire)"
+"Seuls les super-utilisateurs peuvent supprimer ce filtre (pas de "
+"propriétaire)"
 
 msgid "You are not allowed to delete this filter (you are not the owner)"
 msgstr ""
@@ -2471,8 +2484,7 @@ msgstr ""
 
 msgid "Only superusers can edit this filter (no owner)"
 msgstr ""
-"Seuls les super-utilisateurs peuvent modifier ce filtre (pas de "
-"propriétaire)"
+"Seuls les super-utilisateurs peuvent modifier ce filtre (pas de propriétaire)"
 
 msgid "You are not allowed to edit this filter (you are not the owner)"
 msgstr ""
@@ -4344,6 +4356,12 @@ msgstr[1] ""
 
 msgid "(truncated cell)"
 msgstr "(cellule tronquée)"
+
+msgid "Superusers cannot switch their role"
+msgstr "Les super-utilisateur ne peuvent pas changer leur rôle"
+
+msgid "This role is not available for you"
+msgstr "Ce rôle n'est pas disponible pour vous"
 
 msgid "Reset your password (Step 1/4)"
 msgstr "Réinitialiser votre mot de passe (Étape 1/4)"

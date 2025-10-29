@@ -23,6 +23,12 @@ from .views import (
 )
 
 auth_patterns = [
+    re_path(
+        r'^user/(?P<user_id>\d+)/roles/switch/(?P<role_id>\d+)[/]?$',
+        auth.RoleSwitch.as_view(),
+        name='creme_core__switch_role',
+    ),
+
     # Lost password
     re_path(
         r'^password/reset[/]?$',

@@ -6,6 +6,8 @@
       the display of all entities linked by the concerned type, mixing all entity types.
     # Apps :
         * Creme_config :
+            - The regular Users can now have several roles. Only one role is active (to compute
+              the current permissions), but they can switch their current role to another one.
             - The Users store now the date of their deactivation.
             - The Roles get a new permission: listable models
               (i.e. it allows you to access the list-views of a model).
@@ -137,11 +139,14 @@
                     - The method 'models.AbstractProjectTask.clone_scope()' has been removed.
                 * Crudity :
                     - The constant 'SETTING_CRUDITY_SANDBOX_BY_USER' has been removed.
-        # In the abstract base Model 'creme_core.models.base.MinionModel', 2 auto datetime fields
-          have been added: "created" & "modified". If some of your models inherit this model, you'll
-          have to create a schema migration which adds these fields (you should also fill the fields
-          of the existing instances with an "epoch" value, see the file
-          "creme/activities/migrations/0034_v2_8__minions_created_n_modified01.py" as example).
+        # In 'creme_core.models' :
+            - In the abstract base Model 'base.MinionModel', 2 auto datetime fields
+              have been added: "created" & "modified". If some of your models inherit this model, you'll
+              have to create a schema migration which adds these fields (you should also fill the fields
+              of the existing instances with an "epoch" value, see the file
+              "creme/activities/migrations/0034_v2_8__minions_created_n_modified01.py" as example).
+            - The model 'UserRole' is now ordered by 'name' (it could break some unit tests).
+            - The method 'CremeUser.clean()' now raises more errors ("A regular user must have a role.").
         # In many apps, the attributes 'SEARCH' of Populator classes have changed
           (because they implemented their own API before the new generic one).
         # In the class 'creme_core.bricks.StatisticsBrick', the attribute
