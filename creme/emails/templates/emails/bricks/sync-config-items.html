@@ -43,7 +43,7 @@ BEWARE: these mailboxes must be dedicated to the synchronisation, because emails
         <td>{% print_field object=item field='type' %}</td>
         <td>{{item.default_user|default_if_none:'—'}}</td>
         <td>{{item.username}}</td>
-        <td>{% if item.port %}{% print_field object=item field='port' %}{% else %}<span class="emails-sync-default">{% trans 'Default port' %}</span>{% endif %}</td>
+        <td>{% if item.port %}{% print_field object=item field='port' %}{% else %}<span class="emails-sync-default">{% translate 'Default port' %}</span>{% endif %}</td>
         <td>{% print_field object=item field='use_ssl' %}</td>
         <td>{% print_field object=item field='keep_attachments' %}</td>
         <td {% brick_table_data_status action %}>

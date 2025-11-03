@@ -33,7 +33,8 @@ class EntityFilterTagsTestCase(CremeTestCase):
             }))
         self.assertEqual(
             escape(_(
-                'You are not allowed to view/edit/delete this filter '
+                # 'You are not allowed to view/edit/delete this filter '
+                'You are not allowed to view this filter '
                 '(you are not the owner)'
             )),
             render2,

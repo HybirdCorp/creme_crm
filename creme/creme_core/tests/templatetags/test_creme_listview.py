@@ -285,12 +285,14 @@ class CremeListViewTagsTestCase(CremeTestCase):
         )
         self.assertIs(False, ctxt.get('edition_allowed'))
         self.assertEqual(
-            _('Only superusers can edit/delete this filter (no owner)'),
+            # _('Only superusers can edit/delete this filter (no owner)'),
+            _('Only superusers can edit this filter (no owner)'),
             ctxt.get('edition_error'),
         )
 
         self.assertIs(False, ctxt.get('deletion_allowed'))
         self.assertEqual(
-            _('Only superusers can edit/delete this filter (no owner)'),
+            # _('Only superusers can edit/delete this filter (no owner)'),
+            _('Only superusers can delete this filter (no owner)'),
             ctxt.get('deletion_error'),
         )

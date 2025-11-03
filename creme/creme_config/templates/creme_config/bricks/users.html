@@ -10,7 +10,7 @@
 {% endcomment %}
 {% block brick_before %}
   {% if search_fields and not request|is_ajax %}
-    <div class="creme_config-users-brick-search">{% trans 'Filter the users' as search_label %}
+    <div class="creme_config-users-brick-search">{% translate 'Filter the users' as search_label %}
         {% widget_icon name='search' size='form-widget' label=search_label %}
         <input type="search" class="creme_config-users-brick-search-input" placeholder="{{search_label}}" title="{% blocktranslate with fields=search_fields|join:', ' %}Filter the displayed users. Fields used: {{fields}}.{% endblocktranslate %}" />
     </div>

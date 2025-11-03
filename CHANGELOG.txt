@@ -1,3 +1,29 @@
+== Version 2.7.2 ==
+
+  Users side :
+  ------------
+    # You can now see the detail-view of a public EntityFilter which belongs to another user.
+      It fixes some issues for Reports with filters too.
+    # Apps :
+        * Emails :
+            - When an EntityEmail is created from the related emails' Brick ("Emails history")
+              on the detail-view of an entity, if this entity is not used as recipient
+              it's now linked to the email with a relationship "related to the email"
+              (& so the email appears in the Brick).
+
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The rendering of HistoryLine is now more robust with 'ContentTypes' which have been removed.
+        # Apps :
+            * Reports :
+                - The class-view 'views.graph.GraphFetchSettingsForInstance' is now deprecated.
+                  Its uses have been removed.
+
+
 == Version 2.7.1 ==
 
   Users side :

@@ -604,6 +604,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_create01(self):
         """We create voluntarily duplicates (recipients that have same addresses
         than Contact/Organisation, MailingList that contain the same addresses)

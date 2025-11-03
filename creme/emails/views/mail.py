@@ -65,6 +65,7 @@ class EntityEmailCreation(generic.AddingInstanceToEntityPopup):
 
         get_object_or_404(RelationType, id=constants.REL_SUB_MAIL_SENT).is_enabled_or_die()
         get_object_or_404(RelationType, id=constants.REL_SUB_MAIL_RECEIVED).is_enabled_or_die()
+        get_object_or_404(RelationType, id=constants.REL_SUB_RELATED_TO).is_enabled_or_die()
 
 
 class EntityEmailWizard(EntityRelatedMixin, generic.EntityCreationWizardPopup):
