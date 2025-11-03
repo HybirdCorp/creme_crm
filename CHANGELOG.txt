@@ -1,7 +1,5 @@
 == Version 2.7.2 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .po (creme_core)
-
   Users side :
   ------------
     # You can now see the detail-view of a public EntityFilter which belongs to another user.
