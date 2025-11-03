@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.http.response import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
@@ -105,8 +106,7 @@ class GraphFetchSettingsBase(base.CheckedView):
             # TODO: does need we a 'default' chart value ??
             if (chart and chart != rgraph.chart) or order.asc != rgraph.asc:
                 type(rgraph).objects.filter(id=rgraph.id).update(
-                    asc=order.asc,
-                    chart=chart
+                    asc=order.asc, chart=chart,
                 )
         else:
             order = Order(rgraph.asc)
@@ -137,6 +137,11 @@ class GraphFetchSettings(base.EntityRelatedMixin, GraphFetchSettingsBase):
 
 class GraphFetchSettingsForInstance(base.EntityRelatedMixin, GraphFetchSettingsBase):
     def get_graph(self, request):
+        warnings.warn(
+            'The view GraphFetchSettingsForInstance is deprecated',
+            DeprecationWarning,
+        )
+
         entity = self.get_related_entity()
         brick_config = get_object_or_404(
             InstanceBrickConfigItem,

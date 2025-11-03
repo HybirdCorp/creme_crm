@@ -664,7 +664,12 @@ class HTMLAuxCreationExplainer(HistoryLineExplainer):
 
         # TODO: use aux_id to display an up-to-date value ??
         ct_id, aux_id, str_obj = self.hline.modifications
-        context['auxiliary_ctype'] = ContentType.objects.get_for_id(ct_id)
+        try:
+            ctype = ContentType.objects.get_for_id(ct_id)
+        except ContentType.DoesNotExist:
+            ctype = None
+
+        context['auxiliary_ctype'] = ctype
         context['auxiliary_value'] = str_obj
 
         return context
@@ -678,7 +683,10 @@ class _AuxiliaryEditionExplainer(HistoryLineExplainer):
 
         # TODO: use aux_id to display an up-to-date value ??
         ct_id, __aux_id, str_obj = modifications[0]
-        ctype = ContentType.objects.get_for_id(ct_id)
+        try:
+            ctype = ContentType.objects.get_for_id(ct_id)
+        except ContentType.DoesNotExist:
+            ctype = None
 
         self._aux_ctype = ctype
         self._aux_value = str_obj
@@ -687,7 +695,7 @@ class _AuxiliaryEditionExplainer(HistoryLineExplainer):
                 model_class=ctype.model_class(),
                 modifications=modifications[1:],
             ),
-        ]
+        ] if ctype else []
 
     def get_context(self):
         context = super().get_context()
@@ -714,7 +722,13 @@ class HTMLAuxDeletionExplainer(HistoryLineExplainer):
         context = super().get_context()
 
         ct_id, str_obj = self.hline.modifications
-        context['auxiliary_ctype'] = ContentType.objects.get_for_id(ct_id)
+
+        try:
+            ctype = ContentType.objects.get_for_id(ct_id)
+        except ContentType.DoesNotExist:
+            ctype = None
+
+        context['auxiliary_ctype'] = ctype
         context['auxiliary_value'] = str_obj
 
         return context
