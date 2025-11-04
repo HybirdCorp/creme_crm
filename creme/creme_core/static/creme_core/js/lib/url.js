@@ -134,6 +134,10 @@ window.RelativeURL.prototype = {
         return this._link.pathname + this._link.search + this._link.hash;
     },
 
+    endpoint: function() {
+        return this._link.host + this._link.pathname;
+    },
+
     username: function(username) {
         return this._property('username', username);
     },
