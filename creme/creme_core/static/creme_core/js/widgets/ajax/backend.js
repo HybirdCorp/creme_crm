@@ -138,6 +138,7 @@ creme.ajax.XHR = function(options) {
         responseXML:  null,
         status:       200,
         statusText:   'n/a',
+        responseURL:  null,
 
         getAllResponseHeaders: function() {},
         getResponseHeader: function() {},
@@ -212,10 +213,8 @@ function xhrEventLoadedPercent(event) {
  * Workaround because jqXHR does not expose upload property
  * https://github.com/jquery-form/form/blob/master/src/jquery.form.js#L401-L422
  */
-function progressXHR(listeners) {
+function progressXHR(xhr, options, listeners) {
     listeners = listeners || {};
-
-    var xhr = $.ajaxSettings.xhr();
 
     if (listeners.uploadProgress && xhr.upload) {
         xhr.upload.addEventListener('progress', function(event) {
@@ -234,6 +233,35 @@ function progressXHR(listeners) {
     return xhr;
 }
 
+function followRedirectXHR(xhr, options, listeners) {
+    xhr.addEventListener("readystatechange", function(event) {
+        if (xhr.readyState === XMLHttpRequest.HEADERS_RECEIVED) {
+            if (xhr.status >= 200 && xhr.status < 400 && xhr.responseURL) {
+                var responseURL = _.toRelativeURL(xhr.responseURL);
+                var requestURL = _.toRelativeURL(options.url);
+
+                if (responseURL.endpoint() !== requestURL.endpoint()) {
+                    creme.utils.goTo(xhr.responseURL);
+                }
+            }
+        }
+    });
+
+    return xhr;
+}
+
+function xhrBuilder(middlewares, options, listeners) {
+    return function() {
+        var xhr = $.ajaxSettings.xhr();
+
+        middlewares.forEach(function(middleware) {
+            xhr = middleware(xhr, options, listeners);
+        });
+
+        return xhr;
+    };
+}
+
 function xhrErrorMessage(xhr, textStatus, errorThrown) {
     if (textStatus === 'parseerror') {
         return "JSON parse error";
@@ -244,7 +272,6 @@ function xhrErrorMessage(xhr, textStatus, errorThrown) {
         });
     }
 };
-
 
 // TODO : Replace listeners by a Promise with 'uploadProgress' & 'progress' callbacks
 creme.ajax.jqueryAjaxSend = function(options, listeners) {
@@ -290,12 +317,18 @@ creme.ajax.jqueryAjaxSend = function(options, listeners) {
         error:    _onError
     }, options);
 
+    var middlewares = [];
+
     // uploadProgress callback needs a custom XHR instance to read the event.
     if (listeners.uploadProgress || listeners.progress) {
-        ajaxOptions.xhr = function() {
-            return progressXHR(listeners);
-        };
+        middlewares.push(progressXHR);
     }
+
+    if (options.redirect === 'follow') {
+        middlewares.push(followRedirectXHR);
+    }
+
+    ajaxOptions.xhr = xhrBuilder(middlewares, options, listeners);
 
     // When body is FormData we have to disable all post processing from jquery
     if (body instanceof FormData) {
