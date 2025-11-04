@@ -494,7 +494,6 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (headers)', [
     assert.deepEqual(ajaxCall.headers, expected.headers);
 });
 
-
 QUnit.parameterize('creme.ajax.jqueryAjaxSend (error callback)', [
     ['Wrong', {status: 400, statusText: 'error', responseText: "Wrong call!"}, {
         responseText: 'Wrong call!',
@@ -699,6 +698,55 @@ QUnit.parameterize('creme.ajax.jqueryAjaxSend (progress)', [
 
     assert.deepEqual(progressCb.calls().map(_progressEventData), [expected]);
     assert.deepEqual(uploadCb.calls().map(_progressEventData), [expected]);
+});
+
+QUnit.parameterize('creme.ajax.jqueryAjaxSend (redirect)', [
+    [{status: 200, redirect: false}, []],
+    [{status: 200, redirect: 'follow'}, []],
+    [{status: 200, redirect: 'follow', responseURL: 'mock/a'}, []],
+    [{status: 400, redirect: 'follow', responseURL: 'mock/a'}, []],
+    [{status: 200, redirect: 'follow', responseURL: 'mock/redirect'}, [
+        'mock/redirect'
+    ]]
+], function(state, expected, assert) {
+    var ajaxFaker = new FunctionFaker({
+        instance: $, method: 'ajax'
+    });
+
+    ajaxFaker.with(function() {
+        creme.ajax.jqueryAjaxSend({
+            url: 'mock/a',
+            redirect: state.redirect
+        });
+    });
+
+    // retrieve internal callbacks from the $.ajax call
+    var ajaxCall = ajaxFaker.calls()[0][0];
+    var xhr = ajaxCall.xhr();
+
+    // simulate xhr state during the "header received" event
+    Object.defineProperty(xhr, "status", {
+        value: state.status,
+        writable: false,
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(xhr, "responseURL", {
+        value: state.responseURL,
+        writable: false,
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(xhr, "readyState", {
+        value: XMLHttpRequest.HEADERS_RECEIVED,
+        writable: false,
+        enumerable: false,
+        configurable: true
+    });
+
+    xhr.dispatchEvent(new Event("readystatechange"));
+
+    assert.deepEqual(this.mockRedirectCalls(), expected);
 });
 
 }(jQuery));
