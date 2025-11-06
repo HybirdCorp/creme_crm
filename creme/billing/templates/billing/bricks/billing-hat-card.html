@@ -1,0 +1,98 @@
+{% extends 'creme_core/bricks/base/hat-card.html' %}
+{% load i18n creme_bricks creme_cells creme_ctype creme_perms creme_widgets %}
+{% load format_amount get_hidden_fields inner_edition_uri print_field from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} billing-card-brick{% endblock %}
+
+{% block card_intro_content %}{% endblock %}
+
+{% block card_title %}
+    {{block.super}}
+    {% if not object.is_deleted and not object.sandbox %}
+      {% cell_4_regularfield instance=object field="name" as name_cell %}
+      {% inner_edition_uri instance=object cells=name_cell as edition_uri %}
+      {% brick_card_action id='edit' url=edition_uri enabled=user|has_perm_to_change:object %}
+    {% endif %}
+{% endblock %}
+
+{% block card_indicators %}
+  {% if is_expiration_passed %}
+    <div class="business-card-indicator business-card-warning-indicator">{% translate 'Expiration date passed' %}</div>
+  {% endif %}
+{% endblock %}
+
+{% block card_secondary %}
+  {% with receiver=object.target emitter=object.source %}
+    <div class="card-related_persons">
+        <div class="card-receiver">
+            <span class="card-relation_type">{# TODO: factorise with target.html #}
+              {% if target.entity_type == 'PERSONS_ORGANISATION_MODEL'|ctype_for_swappable %}
+                {% translate 'Target organisation' context 'billing' %}
+              {% else %}
+                {% translate 'Target contact' context 'billing' %}
+              {% endif %}
+            </span>
+            {% widget_entity_hyperlink receiver user %}
+        </div>
+        <div class="card-emitter">
+            <span class="card-relation_type">{% translate 'Source organisation' context 'billing' %}</span>
+            {% widget_entity_hyperlink emitter user %}
+        </div>
+    </div>
+  {% endwith %}
+{% endblock %}
+
+{% block card_fields_title %}
+  {% translate 'Details' context 'billing-card' %}
+{% endblock %}
+
+{% block card_fields %}
+    <div class="card-info-field">
+        <span class='card-info-key'>{% translate 'Status' %}</span>
+        <span class='card-info-value'>
+            {% print_field object=object field='status' %}
+            {% brick_card_action_for_field instance=object field='status' user=user %}
+        </span>
+    </div>
+    <div class="card-info-field">
+        <span class='card-info-key'>{% translate 'Total without VAT' %}</span>
+        <span class='card-info-value'>
+            {{object.total_no_vat|format_amount:object.currency}}
+        </span>
+    </div>
+    <div class="card-info-field">
+        <span class='card-info-key'>{% translate 'Total with VAT' %}</span>
+        <span class='card-info-value'>
+            {{object.total_vat|format_amount:object.currency}}
+        </span>
+    </div>
+    {% get_hidden_fields object as hidden_fields %}
+    {% if 'issuing_date' not in hidden_fields %}
+     <div class="card-info-field">
+        <span class='card-info-key'>{% translate 'Issuing date' %}</span>
+        <span class='card-info-value'>
+            {{object.issuing_date|default:'—'}}
+            {% brick_card_action_for_field instance=object field='issuing_date' user=user %}
+        </span>
+     </div>
+    {% endif %}
+    {% if 'expiration_date' not in hidden_fields %}
+     <div class="card-info-field">
+        <span class='card-info-key'>{% translate 'Expiration date' %}</span>
+        <span class='card-info-value'>
+            {{object.expiration_date|default:'—'}}
+            {% brick_card_action_for_field instance=object field='expiration_date' user=user %}
+        </span>
+     </div>
+    {% endif %}
+{% endblock %}
+
+{% block card_summary_title %}
+  {% if summaries %}{{block.super}}{% endif %}
+{% endblock %}
+
+{% block card_summary %}
+  {% for summary_ctxt in summaries %}
+    {% if summary_ctxt.template_name %}{% include summary_ctxt.template_name with summary=summary_ctxt %}{% endif %}
+  {% endfor %}
+{% endblock %}

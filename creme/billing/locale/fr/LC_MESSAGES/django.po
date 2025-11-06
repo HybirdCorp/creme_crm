@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-05 18:01+0100\n"
+"POT-Creation-Date: 2025-11-07 18:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -53,6 +53,9 @@ msgstr[1] "{count} gagnés"
 msgctxt "billing-quote_stats"
 msgid "{count} in all"
 msgstr "{count} en tout"
+
+msgid "Card header block"
+msgstr "Bloc «carte de visite»"
 
 msgid "Product lines"
 msgstr "Lignes produit"
@@ -1247,6 +1250,17 @@ msgstr "Marquer pour suppression"
 msgid "Download as file (PDF/XLS…)"
 msgstr "Télécharger en tant que fichier (PDF/XLS…)"
 
+msgid "Expiration date passed"
+msgstr "Échéance dépassée"
+
+msgctxt "billing"
+msgid "Target contact"
+msgstr "Contact récepteur"
+
+msgctxt "billing-card"
+msgid "Details"
+msgstr "Détails"
+
 #, python-brace-format
 msgid "{count} Payment information"
 msgstr "{count} Information de paiement"
@@ -1336,6 +1350,28 @@ msgstr ""
 "pas de modèle configuré pour l'export ; voyez avec votre administrateur si "
 "vous voulez en ajouter un"
 
+msgid "Generated invoices"
+msgstr "Factures générées"
+
+#, python-format
+msgid "%(count)s Generated invoice"
+msgid_plural "%(count)s Generated invoices"
+msgstr[0] "%(count)s Facture générée"
+msgstr[1] "%(count)s Factures générées"
+
+msgid "See details"
+msgstr "Voir les détails"
+
+msgid "Linked Opportunity"
+msgstr "Opportunité reliée"
+
+msgid "Source Quote"
+msgstr "Devis source"
+
+msgctxt "billing-credit_note"
+msgid "Used by Invoice"
+msgstr "Utilisé par la Facture"
+
 msgid "Total (without tax) discounted"
 msgstr "Total HT remisé"
 
@@ -1416,10 +1452,6 @@ msgstr "Ajouter un ou plusieurs services"
 
 msgid "No service in this document"
 msgstr "Aucun service dans ce document"
-
-msgctxt "billing"
-msgid "Target contact"
-msgstr "Contact récepteur"
 
 msgid "Number generation"
 msgstr "Génération de numéro"

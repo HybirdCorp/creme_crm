@@ -193,15 +193,25 @@ class BillingConfig(CremeAppConfig):
         ).register_invalid_models(
             self.ProductLine, self.ServiceLine,
         ).register_hat(
-            self.CreditNote,   main_brick_cls=bricks.CreditNoteBarHatBrick,
+            self.CreditNote,
+            main_brick_cls=bricks.CreditNoteBarHatBrick,
+            secondary_brick_classes=[bricks.CreditNoteCardHatBrick],
         ).register_hat(
-            self.Invoice,      main_brick_cls=bricks.InvoiceBarHatBrick
+            self.Invoice,
+            main_brick_cls=bricks.InvoiceBarHatBrick,
+            secondary_brick_classes=[bricks.InvoiceCardHatBrick],
         ).register_hat(
-            self.Quote,        main_brick_cls=bricks.QuoteBarHatBrick,
+            self.Quote,
+            main_brick_cls=bricks.QuoteBarHatBrick,
+            secondary_brick_classes=[bricks.QuoteCardHatBrick],
         ).register_hat(
-            self.SalesOrder,   main_brick_cls=bricks.SalesOrderBarHatBrick,
+            self.SalesOrder,
+            main_brick_cls=bricks.SalesOrderBarHatBrick,
+            secondary_brick_classes=[bricks.SalesOrderCardHatBrick],
         ).register_hat(
-            self.TemplateBase, main_brick_cls=bricks.TemplateBaseBarHatBrick,
+            self.TemplateBase,
+            main_brick_cls=bricks.TemplateBaseBarHatBrick,
+            # secondary_brick_classes=[bricks.TemplateBaseCardHatBrick],
         )
 
     def register_bulk_update(self, bulk_update_registry):

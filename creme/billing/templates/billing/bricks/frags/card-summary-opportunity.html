@@ -1,0 +1,11 @@
+{% load i18n creme_widgets %}
+{% with opportunity=summary.opportunity %}
+<div class="card-info-field">
+    <div class="card-info-field">
+        <span class='card-info-key'>{% translate 'Linked Opportunity' %}</span>
+        <span class='card-info-value'>
+            {% if opportunity %}{% widget_entity_hyperlink opportunity user %}{% else %}—{% endif %}
+        </span>
+    </div>
+</div>
+{% endwith %}

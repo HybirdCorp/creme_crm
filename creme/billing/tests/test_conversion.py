@@ -3,7 +3,6 @@ from decimal import Decimal
 from functools import partial
 
 from django.db.models.query_utils import Q
-from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
@@ -54,17 +53,6 @@ from .base import (
 
 @skipIfCustomOrganisation
 class ConversionTestCase(_BillingTestCase):
-    def _convert(self, status_code, src, dest_type, is_ajax=False):
-        http_header = {}
-
-        if is_ajax:
-            http_header = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
-
-        return self.assertPOST(
-            status_code, reverse('billing__convert', args=(src.id,)),
-            data={'type': dest_type}, follow=True, **http_header
-        )
-
     def test_registry(self):
         user = self.login_as_root_and_get()
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
