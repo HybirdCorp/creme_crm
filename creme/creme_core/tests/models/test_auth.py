@@ -46,7 +46,7 @@ from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 from ..base import CremeTestCase, skipIfNotInstalled
 
 
-class AuthTestCase(CremeTestCase):
+class BaseAuthTestCase(CremeTestCase):
     password = 'password'
 
     def _create_users(self):
@@ -67,10 +67,6 @@ class AuthTestCase(CremeTestCase):
         )
 
     @staticmethod
-    def _ids_list(iterable):
-        return [e.id for e in iterable]
-
-    @staticmethod
     def _create_role(name, allowed_apps=(), admin_4_apps=(), set_creds=(), users=()):
         role = UserRole.objects.create(
             name=name, allowed_apps=allowed_apps, admin_4_apps=admin_4_apps,
@@ -87,47 +83,9 @@ class AuthTestCase(CremeTestCase):
 
         return role
 
-    def _build_contact_qs(self, *extra_contacts):
-        return FakeContact.objects.filter(
-            pk__in=[
-                self.contact1.id,
-                self.contact2.id,
-                *(c.id for c in extra_contacts),
-            ],
-        )
 
-    def test_populate(self):
-        user = self.get_root_user()
-        self.assertUUIDEqual(UUID_USER_ROOT, user.uuid)
-
-        sandbox = self.get_object_or_fail(Sandbox, uuid=constants.UUID_SANDBOX_SUPERUSERS)
-        self.assertIsNone(sandbox.role)
-        self.assertIsNone(sandbox.user)
-        self.assertEqual(OnlySuperusersType.id, sandbox.type_id)
-        self.assertIsInstance(sandbox.type, OnlySuperusersType)
-
-        # ---
-        role = UserRole.objects.order_by('id').first()
-        self.assertIsNotNone(role)
-        self.assertEqual(_('Regular user'), role.name)
-        self.assertFalse(role.admin_4_apps)
-
-        allowed_apps = role.allowed_apps
-        self.assertIn('creme_core', allowed_apps)
-        self.assertIn('creme_config', allowed_apps)
-
-        set_creds = self.get_alone_element(role.credentials.all())
-        self.assertTrue(set_creds.value & EntityCredentials.VIEW)
-        self.assertTrue(set_creds.value & EntityCredentials.CHANGE)
-        self.assertTrue(set_creds.value & EntityCredentials.DELETE)
-        self.assertTrue(set_creds.value & EntityCredentials.LINK)
-        self.assertTrue(set_creds.value & EntityCredentials.UNLINK)
-        self.assertEqual(SetCredentials.ESET_ALL, set_creds.set_type)
-        self.assertIsNone(set_creds.ctype)
-        self.assertIsNone(set_creds.efilter)
-        self.assertFalse(set_creds.forbidden)
-
-    def test_manager__smart_create_role(self):
+class UserRoleManagerTestCase(BaseAuthTestCase):
+    def test_smart_create_role(self):
         name = 'Leader'
         allowed_apps = ['creme_core', 'documents']
         admin_4_apps = ['documents']
@@ -161,136 +119,164 @@ class AuthTestCase(CremeTestCase):
             [ct.model_class() for ct in role.exportable_ctypes.all()],
         )
 
-    def test_user_str(self):
-        user = CremeUser(
-            username='kirika', first_name='Kirika', last_name='Yumura',
-        )
-        self.assertEqual('', user.displayed_name)
-        self.assertEqual('Kirika Y.', str(user))
 
-        user.displayed_name = dname = 'Kirika-chan'
-        self.assertEqual(dname, str(user))
+class UserRoleTestCase(BaseAuthTestCase):
+    def test_populate(self):
+        role = UserRole.objects.order_by('id').first()
+        self.assertIsNotNone(role)
+        self.assertEqual(_('Regular user'), role.name)
+        self.assertFalse(role.admin_4_apps)
 
-    def test_clean_user__email(self):
-        user, other_user = self._create_users()
-        user.email = other_user.email
+        allowed_apps = role.allowed_apps
+        self.assertIn('creme_core', allowed_apps)
+        self.assertIn('creme_config', allowed_apps)
 
-        with self.assertRaises(ValidationError) as cm:
-            user.clean()
+        set_creds = self.get_alone_element(role.credentials.all())
+        self.assertTrue(set_creds.value & EntityCredentials.VIEW)
+        self.assertTrue(set_creds.value & EntityCredentials.CHANGE)
+        self.assertTrue(set_creds.value & EntityCredentials.DELETE)
+        self.assertTrue(set_creds.value & EntityCredentials.LINK)
+        self.assertTrue(set_creds.value & EntityCredentials.UNLINK)
+        self.assertEqual(SetCredentials.ESET_ALL, set_creds.set_type)
+        self.assertIsNone(set_creds.ctype)
+        self.assertIsNone(set_creds.efilter)
+        self.assertFalse(set_creds.forbidden)
 
-        self.assertValidationError(
-            cm.exception,
-            messages={
-                'email': _('An active user with the same email address already exists.'),
-            },
-        )
+    def test_attributes(self):
+        role = UserRole(name='Normal')
+        self.assertEqual('', role.raw_allowed_apps)
+        self.assertSetEqual(set(), role.allowed_apps)
 
-        # ---
-        other_user.is_active = False
-        other_user.save()
+        self.assertEqual('', role.raw_admin_4_apps)
+        self.assertSetEqual(set(), role.admin_4_apps)
+
+        role.allowed_apps = ['creme_core', 'documents']
+        self.assertEqual({'creme_core', 'documents'}, role.allowed_apps)
+
+        role.admin_4_apps = ['creme_core', 'persons']
+        self.assertEqual({'creme_core', 'persons'}, role.admin_4_apps)
+
+        role.save()
+        role = self.refresh(role)
+        self.assertEqual({'creme_core', 'documents'}, role.allowed_apps)
+        self.assertEqual({'creme_core', 'persons'}, role.admin_4_apps)
+
+    def test_portable_key(self):
+        role = self.create_role()
+        with self.assertNoException():
+            role_key = role.portable_key()
+        self.assertIsInstance(role_key, str)
+        self.assertUUIDEqual(role.uuid, role_key)
 
         with self.assertNoException():
-            user.clean()
+            got_role = UserRole.objects.get_by_portable_key(role_key)
+        self.assertEqual(role, got_role)
 
-    def test_clean_user__role(self):
-        user = CremeUser(
-            username='Kenji', email='kenji@century.jp',
-            first_name='Kenji', last_name='Gendou',
-            # password='password',
-            is_superuser=False,
-            # role=role,  <===
+    def test_delete(self):
+        role = self._create_role(
+            'Coder', ['creme_core'],
+            set_creds=[
+                SetCredentials(value=EntityCredentials.CHANGE, set_type=SetCredentials.ESET_OWN),
+                SetCredentials(value=EntityCredentials.VIEW,   set_type=SetCredentials.ESET_ALL),
+            ],
+        )
+        self.assertEqual(2, SetCredentials.objects.filter(role=role).count())
+
+        role.delete()
+        self.assertFalse(UserRole.objects.filter(pk=role.id))
+        self.assertFalse(SetCredentials.objects.filter(role=role.id))
+
+    def test_delete__error(self):
+        "Can not delete a role linked to a user."
+        user = self.create_user()
+        role = self._create_role(
+            'Coder', ['creme_core'], users=[user],  # 'persons'
+            set_creds=[
+                SetCredentials(value=EntityCredentials.CHANGE, set_type=SetCredentials.ESET_OWN),
+                SetCredentials(value=EntityCredentials.VIEW,   set_type=SetCredentials.ESET_ALL),
+            ],
         )
 
-        with self.assertRaises(ValidationError) as cm:
-            user.clean()
+        self.assertRaises(ProtectedError, role.delete)
+        self.assertEqual(1, UserRole.objects.filter(pk=role.id).count())
+        self.assertEqual(2, SetCredentials.objects.filter(role=role).count())
 
-        self.assertValidationError(
-            cm.exception, messages='A regular user must have a role.',
+
+class SetCredentialsTestCase(BaseAuthTestCase):
+    def test_str(self):
+        self.assertEqual(
+            _('For “{set}“ it is allowed to: {perms}').format(
+                set=_('All entities'),
+                perms=_('nothing allowed'),
+            ),
+            str(SetCredentials(
+                # value=...,
+                set_type=SetCredentials.ESET_ALL,
+            ))
+        )
+        self.assertEqual(
+            _('For “{set}“ it is allowed to: {perms}').format(
+                set=_('All entities'),
+                perms=_('view'),
+            ),
+            str(SetCredentials(
+                value=EntityCredentials.VIEW,
+                set_type=SetCredentials.ESET_ALL,
+            )),
         )
 
-    def test_clean_user__superuser(self):
-        role = self.get_regular_role()
-
-        user = CremeUser(
-            username='Kenji', email='kenji@century.jp',
-            first_name='Kenji', last_name='Gendou',
-            # password='password',
-            is_superuser=True,
-            role=role,
+        self.assertEqual(
+            _('For “{set}“ it is forbidden to: {perms}').format(
+                set=_("User's own entities"),
+                perms=_('nothing forbidden'),
+            ),
+            str(SetCredentials(
+                # value=...,
+                set_type=SetCredentials.ESET_OWN,
+                forbidden=True,
+            )),
+        )
+        self.assertEqual(
+            _('For “{set}“ it is forbidden to: {perms}').format(
+                set=_("User's own entities"),
+                perms='{}, {}'.format(_('change'), _('delete')),
+            ),
+            str(SetCredentials(
+                value=EntityCredentials.CHANGE | EntityCredentials.DELETE,
+                set_type=SetCredentials.ESET_OWN,
+                forbidden=True,
+            )),
         )
 
-        with self.assertRaises(ValidationError) as cm:
-            user.clean()
-
-        self.assertValidationError(
-            cm.exception, messages='A superuser cannot have a role.',
+        self.assertEqual(
+            _('For “{set}“ of type “{type}” it is allowed to: {perms}').format(
+                set=_('All entities'),
+                type='Test Contact',
+                perms=_('link'),
+            ),
+            str(SetCredentials(
+                value=EntityCredentials.LINK,
+                set_type=SetCredentials.ESET_ALL,
+                ctype=FakeContact,
+            )),
+        )
+        self.assertEqual(
+            _('For “{set}“ of type “{type}” it is forbidden to: {perms}').format(
+                set=_("User's own entities"),
+                type='Test Organisation',
+                perms=_('unlink'),
+            ),
+            str(SetCredentials(
+                value=EntityCredentials.UNLINK,
+                set_type=SetCredentials.ESET_OWN,
+                ctype=FakeOrganisation,
+                forbidden=True,
+            )),
         )
 
-    def test_clean_user__team__email(self):
-        "Do not check email uniqueness with teams."
-        team1 = CremeUser.objects.create(username='teamA', is_team=True)
-        self.assertFalse(team1.email)
 
-        with self.assertNoException():
-            team1.clean()
-
-        team1.save()
-
-        # ---
-        team2 = CremeUser.objects.create(username='teamB', is_team=True)
-        self.assertFalse(team2.email)
-
-        with self.assertNoException():
-            team2.clean()
-
-    def test_clean_user__team__role(self):
-        "No role with teams."
-        team = CremeUser(username='teamA', is_team=True, role=self.get_regular_role())
-
-        with self.assertRaises(ValidationError) as cm:
-            team.clean()
-
-        self.assertValidationError(
-            cm.exception, messages='A team cannot have a role.',
-        )
-
-    def test_clean_user__team__superuser(self):
-        "Not superuser teams."
-        team = CremeUser(username='teamA', is_team=True, is_superuser=True)
-
-        with self.assertRaises(ValidationError) as cm:
-            team.clean()
-
-        self.assertValidationError(
-            cm.exception, messages='A team cannot be marked as superuser.',
-        )
-
-    def test_clean_user__team__name(self):
-        "No names."
-        team1 = CremeUser(username='teamA', is_team=True, last_name='A')
-        with self.assertRaises(ValidationError) as cm1:
-            team1.clean()
-        self.assertValidationError(
-            cm1.exception, messages='A team cannot have a last name.',
-        )
-
-        # ---
-        team2 = CremeUser(username='teamA', is_team=True, first_name='team')
-        with self.assertRaises(ValidationError) as cm2:
-            team2.clean()
-        self.assertValidationError(
-            cm2.exception, messages='A team cannot have a first name.',
-        )
-
-        # ---
-        team3 = CremeUser(username='teamA', is_team=True, displayed_name='The famous A team')
-        with self.assertRaises(ValidationError) as cm3:
-            team3.clean()
-        self.assertValidationError(
-            cm3.exception, messages='A team cannot have a displayed name.',
-        )
-
-    def test_manager__create_user(self):
+class CremeUserManagerTestCase(BaseAuthTestCase):
+    def test_create_user(self):
         existing_user = self.create_user()
         role = self.get_regular_role()
 
@@ -332,7 +318,7 @@ class AuthTestCase(CremeTestCase):
         self.assertEqual(role, user.role)
         self.assertListEqual([role], [*user.roles.all()])
 
-    def test_manager__create_user__roles(self):
+    def test_create_user__roles(self):
         role1 = self.get_regular_role()
         role2 = self.create_role(name='CEO')
         role3 = self.create_role(name='Engineer')
@@ -353,7 +339,7 @@ class AuthTestCase(CremeTestCase):
         self.assertEqual(role1, user.role)
         self.assertCountEqual([role1, role2, role3], [*user.roles.all()])
 
-    def test_manager__create_user__only_roles(self):
+    def test_create_user__only_roles(self):
         role1 = self.get_regular_role()
         role2 = self.create_role(name='CEO')
 
@@ -372,7 +358,7 @@ class AuthTestCase(CremeTestCase):
         self.assertEqual(role1, user.role)
         self.assertCountEqual([role1, role2], [*user.roles.all()])
 
-    def test_manager__create_superuser(self):
+    def test_create_superuser(self):
         existing_user = self.create_user()
 
         username = 'kanna'
@@ -413,7 +399,148 @@ class AuthTestCase(CremeTestCase):
 
     # TODO: test get_admin()
 
-    def test_user_attributes01(self):
+
+class CremeUserTestCase(BaseAuthTestCase):
+    def test_populate(self):
+        user = self.get_root_user()
+        self.assertUUIDEqual(UUID_USER_ROOT, user.uuid)
+
+        sandbox = self.get_object_or_fail(Sandbox, uuid=constants.UUID_SANDBOX_SUPERUSERS)
+        self.assertIsNone(sandbox.role)
+        self.assertIsNone(sandbox.user)
+        self.assertEqual(OnlySuperusersType.id, sandbox.type_id)
+        self.assertIsInstance(sandbox.type, OnlySuperusersType)
+
+    def test_str(self):
+        user = CremeUser(
+            username='kirika', first_name='Kirika', last_name='Yumura',
+        )
+        self.assertEqual('', user.displayed_name)
+        self.assertEqual('Kirika Y.', str(user))
+
+        user.displayed_name = dname = 'Kirika-chan'
+        self.assertEqual(dname, str(user))
+
+    def test_clean__email(self):
+        user, other_user = self._create_users()
+        user.email = other_user.email
+
+        with self.assertRaises(ValidationError) as cm:
+            user.clean()
+
+        self.assertValidationError(
+            cm.exception,
+            messages={
+                'email': _('An active user with the same email address already exists.'),
+            },
+        )
+
+        # ---
+        other_user.is_active = False
+        other_user.save()
+
+        with self.assertNoException():
+            user.clean()
+
+    def test_clean__role(self):
+        user = CremeUser(
+            username='Kenji', email='kenji@century.jp',
+            first_name='Kenji', last_name='Gendou',
+            # password='password',
+            is_superuser=False,
+            # role=role,  <===
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            user.clean()
+
+        self.assertValidationError(
+            cm.exception, messages='A regular user must have a role.',
+        )
+
+    def test_clean__superuser(self):
+        role = self.get_regular_role()
+
+        user = CremeUser(
+            username='Kenji', email='kenji@century.jp',
+            first_name='Kenji', last_name='Gendou',
+            # password='password',
+            is_superuser=True,
+            role=role,
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            user.clean()
+
+        self.assertValidationError(
+            cm.exception, messages='A superuser cannot have a role.',
+        )
+
+    def test_clean__team__email(self):
+        "Do not check email uniqueness with teams."
+        team1 = CremeUser.objects.create(username='teamA', is_team=True)
+        self.assertFalse(team1.email)
+
+        with self.assertNoException():
+            team1.clean()
+
+        team1.save()
+
+        # ---
+        team2 = CremeUser.objects.create(username='teamB', is_team=True)
+        self.assertFalse(team2.email)
+
+        with self.assertNoException():
+            team2.clean()
+
+    def test_clean__team__role(self):
+        "No role with teams."
+        team = CremeUser(username='teamA', is_team=True, role=self.get_regular_role())
+
+        with self.assertRaises(ValidationError) as cm:
+            team.clean()
+
+        self.assertValidationError(
+            cm.exception, messages='A team cannot have a role.',
+        )
+
+    def test_clean__team__superuser(self):
+        "Not superuser teams."
+        team = CremeUser(username='teamA', is_team=True, is_superuser=True)
+
+        with self.assertRaises(ValidationError) as cm:
+            team.clean()
+
+        self.assertValidationError(
+            cm.exception, messages='A team cannot be marked as superuser.',
+        )
+
+    def test_clean__team__name(self):
+        "No names."
+        team1 = CremeUser(username='teamA', is_team=True, last_name='A')
+        with self.assertRaises(ValidationError) as cm1:
+            team1.clean()
+        self.assertValidationError(
+            cm1.exception, messages='A team cannot have a last name.',
+        )
+
+        # ---
+        team2 = CremeUser(username='teamA', is_team=True, first_name='team')
+        with self.assertRaises(ValidationError) as cm2:
+            team2.clean()
+        self.assertValidationError(
+            cm2.exception, messages='A team cannot have a first name.',
+        )
+
+        # ---
+        team3 = CremeUser(username='teamA', is_team=True, displayed_name='The famous A team')
+        with self.assertRaises(ValidationError) as cm3:
+            team3.clean()
+        self.assertValidationError(
+            cm3.exception, messages='A team cannot have a displayed name.',
+        )
+
+    def test_attributes(self):
         user = self.create_user()
 
         full_name = _('{first_name} {last_name}.').format(
@@ -431,7 +558,7 @@ class AuthTestCase(CremeTestCase):
         self.assertEqual(theme[0], user.theme)
         self.assertEqual(theme, user.theme_info)
 
-    def test_user_attributes02(self):
+    def test_attributes__team(self):
         username1 = 'Teamee'
         team1 = CremeUser.objects.create(username=username1, is_team=True)
 
@@ -452,25 +579,6 @@ class AuthTestCase(CremeTestCase):
 
         self.assertEqual(_('{user} (team)').format(user=username2), str(team2))
 
-    def test_role_attributes(self):
-        role = UserRole(name='Normal')
-        self.assertEqual('', role.raw_allowed_apps)
-        self.assertSetEqual(set(), role.allowed_apps)
-
-        self.assertEqual('', role.raw_admin_4_apps)
-        self.assertSetEqual(set(), role.admin_4_apps)
-
-        role.allowed_apps = ['creme_core', 'documents']
-        self.assertEqual({'creme_core', 'documents'}, role.allowed_apps)
-
-        role.admin_4_apps = ['creme_core', 'persons']
-        self.assertEqual({'creme_core', 'persons'}, role.admin_4_apps)
-
-        role.save()
-        role = self.refresh(role)
-        self.assertEqual({'creme_core', 'documents'}, role.allowed_apps)
-        self.assertEqual({'creme_core', 'persons'}, role.admin_4_apps)
-
     @override_settings(
         THEMES=[
             ('this_theme_is_cool', 'Cool one'),
@@ -485,17 +593,6 @@ class AuthTestCase(CremeTestCase):
         self.assertEqual(theme, user.theme_info)
 
     def test_portable_key(self):
-        role = self.create_role()
-        with self.assertNoException():
-            role_key = role.portable_key()
-        self.assertIsInstance(role_key, str)
-        self.assertUUIDEqual(role.uuid, role_key)
-
-        with self.assertNoException():
-            got_role = UserRole.objects.get_by_portable_key(role_key)
-        self.assertEqual(role, got_role)
-
-        # ---
         user = self.create_user()
         with self.assertNoException():
             user_key = user.portable_key()
@@ -545,7 +642,74 @@ class AuthTestCase(CremeTestCase):
         with self.assertNoLogs(level='WARNING'):
             user.normalize_roles()
 
-    def test_super_user01(self):
+    def test_create_not_team(self):
+        user = self.create_user()
+        fake_team = CremeUser.objects.create(username='Teamee')
+
+        self.assertFalse(fake_team.is_team)
+
+        with self.assertRaises(ValueError):
+            fake_team.teammates = [user]
+
+        with self.assertRaises(ValueError):
+            fake_team.teammates  # NOQA
+
+    def test_create_team(self):
+        user, other = self._create_users()
+        team = CremeUser.objects.create(username='Teamee', is_team=True)
+
+        team.teammates = [user, other]
+        teammates = team.teammates
+        self.assertEqual(2, len(teammates))
+
+        team = self.refresh(team)
+        self.assertDictEqual({user.id: user, other.id: other}, team.teammates)
+
+        with self.assertNumQueries(0):  # Teammates are cached
+            team.teammates  # NOQA
+
+        self.assertTrue(all(isinstance(u, CremeUser) for u in teammates.values()))
+
+        ids_set = {user.id, other.id}
+        self.assertSetEqual(ids_set, {*teammates})
+        self.assertSetEqual(ids_set, {u.id for u in teammates.values()})
+
+        user3 = CremeUser.objects.create_user(
+            username='kanna', email='kanna@century.jp',
+            first_name='Kanna', last_name='Gendou',
+            password='uselesspw', is_superuser=True,
+        )
+        team.teammates = [user, other, user3]
+        self.assertEqual(3, len(team.teammates))
+
+        team.teammates = [other]
+        self.assertEqual(1, len(team.teammates))
+        self.assertDictEqual({other.id: other}, self.refresh(team).teammates)
+
+        with self.assertRaises(ValueError):
+            team.teams  # NOQA
+
+        # ---
+        team2 = CremeUser.objects.create(username='Team#2', is_team=True)
+        with self.assertRaises(ValueError):
+            team2.teammates = [team]
+
+
+class PermissionsTestCase(BaseAuthTestCase):
+    @staticmethod
+    def _ids_list(iterable):
+        return [e.id for e in iterable]
+
+    def _build_contact_qs(self, *extra_contacts):
+        return FakeContact.objects.filter(
+            pk__in=[
+                self.contact1.id,
+                self.contact2.id,
+                *(c.id for c in extra_contacts),
+            ],
+        )
+
+    def test_super_user(self):
         self._create_users_n_contacts()
         user = self.user
         user.is_superuser = True  # <====
@@ -607,7 +771,7 @@ class AuthTestCase(CremeTestCase):
             [contact1.id, contact2.id], self._ids_list(qs),
         )
 
-    def test_super_user02(self):
+    def test_super_user__not(self):
         user = self.build_user()
         self._create_role('Salesman', ['creme_core'], users=[user])
         self.assertFalse(user.has_perm(SUPERUSER_PERM))
@@ -637,7 +801,7 @@ class AuthTestCase(CremeTestCase):
         with self.assertNoException():
             user.has_perm_or_die(STAFF_PERM)
 
-    def test_role_esetall_view(self):
+    def test_all__view(self):
         "VIEW + ESET_ALL."
         self._create_users_n_contacts()
         user = self.user
@@ -728,7 +892,7 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(creds_filter(user, qs1, perm=EntityCredentials.LINK))
         self.assertFalse(creds_filter(user, qs1, perm=EntityCredentials.UNLINK))
 
-    def test_role_esetall_view__noappcreds(self):
+    def test_all__view__noappcreds(self):
         "App is not allowed -> no creds."
         self._create_users_n_contacts()
         user = self.user
@@ -760,7 +924,7 @@ class AuthTestCase(CremeTestCase):
         # Filtering ------------------------------------------------------------
         self.assertFalse(EntityCredentials.filter(user, self._build_contact_qs()))
 
-    def test_role_esetall_change(self):
+    def test_all__change(self):
         "CHANGE + ESET_ALL."
         self._create_users_n_contacts()
         user = self.user
@@ -797,7 +961,7 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(creds_filter(perm=EntityCredentials.LINK))
         self.assertFalse(creds_filter(perm=EntityCredentials.UNLINK))
 
-    def test_role_esetall_change__admincreds(self):
+    def test_all__change__admincreds(self):
         "CHANGE + ESET_ALL (no app creds, but app admin creds)."
         self._create_users_n_contacts()
         user = self.user
@@ -828,7 +992,7 @@ class AuthTestCase(CremeTestCase):
             self._ids_list(creds_filter(perm=EntityCredentials.CHANGE)),
         )
 
-    def test_role_esetall_delete(self):
+    def test_all__delete(self):
         "DELETE + ESET_ALL."
         self._create_users_n_contacts()
         user = self.user
@@ -865,7 +1029,7 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(creds_filter(perm=EntityCredentials.LINK))
         self.assertFalse(creds_filter(perm=EntityCredentials.UNLINK))
 
-    def test_role_esetall_link(self):
+    def test_all__link(self):
         "LINK + ESET_ALL."
         self._create_users_n_contacts()
         user = self.user
@@ -904,7 +1068,7 @@ class AuthTestCase(CremeTestCase):
         )
         self.assertFalse(creds_filter(perm=EntityCredentials.UNLINK))
 
-    def test_role_esetall_unlink(self):
+    def test_all__unlink(self):
         "UNLINK + ESET_ALL."
         self._create_users_n_contacts()
         user = self.user
@@ -941,7 +1105,7 @@ class AuthTestCase(CremeTestCase):
             self._ids_list(creds_filter(perm=EntityCredentials.UNLINK)),
         )
 
-    def test_role_esetown_view(self):
+    def test_own__view(self):
         "VIEW + ESET_OWN."
         self._create_users_n_contacts()
         user = self.user
@@ -980,7 +1144,7 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(creds_filter(perm=EntityCredentials.LINK))
         self.assertFalse(creds_filter(perm=EntityCredentials.UNLINK))
 
-    def test_role_esetown_view_n_change(self):
+    def test_own__view_n_change(self):
         "ESET_OWN + VIEW/CHANGE."
         self._create_users_n_contacts()
         user = self.user
@@ -1016,7 +1180,7 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(creds_filter(perm=EntityCredentials.LINK))
         self.assertFalse(creds_filter(perm=EntityCredentials.UNLINK))
 
-    def test_role_esetown_delete(self):
+    def test_own__delete(self):
         self._create_users_n_contacts()
         user = self.user
         self._create_role(
@@ -1050,7 +1214,7 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(creds_filter(perm=EntityCredentials.LINK))
         self.assertFalse(creds_filter(perm=EntityCredentials.UNLINK))
 
-    def test_role_esetown_link_n_unlink(self):
+    def test_own__link_n_unlink(self):
         "ESET_OWN + LINK/UNLINK."
         self._create_users_n_contacts()
         user = self.user
@@ -1086,7 +1250,7 @@ class AuthTestCase(CremeTestCase):
         self.assertListEqual(ids, self._ids_list(creds_filter(perm=EntityCredentials.LINK)))
         self.assertListEqual(ids, self._ids_list(creds_filter(perm=EntityCredentials.UNLINK)))
 
-    def test_role_multiset01(self):
+    def test_multiset__all_n_own(self):
         "ESET_ALL + ESET_OWN."
         self._create_users_n_contacts()
         user = self.user
@@ -1134,7 +1298,7 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(creds_filter(perm=EntityCredentials.LINK))
         self.assertFalse(creds_filter(perm=EntityCredentials.UNLINK))
 
-    def test_role_multiset02(self):
+    def test_multiset__own_n_all(self):
         "ESET_OWN + ESET_ALL (so ESET_OWN before)."
         self._create_users_n_contacts()
         user = self.user
@@ -1169,7 +1333,7 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(creds_filter(perm=EntityCredentials.LINK))
         self.assertFalse(creds_filter(perm=EntityCredentials.UNLINK))
 
-    def test_ct_credentials01(self):
+    def test_ct_credentials(self):
         self._create_users_n_contacts()
         user = self.user
         self._create_role(
@@ -1215,7 +1379,7 @@ class AuthTestCase(CremeTestCase):
             perm=EntityCredentials.VIEW,
         ))
 
-    def test_ct_credentials02(self):
+    def test_ct_credentials__error(self):
         "Cannot set CremeEntity."
         role = self._create_role('Coder', allowed_apps=['creme_core'])
         sc = SetCredentials(
@@ -1227,7 +1391,7 @@ class AuthTestCase(CremeTestCase):
         with self.assertRaises(ValueError):
             sc.save()
 
-    def test_role_forbidden01(self):
+    def test_forbidden__all(self):
         "ESET_ALL."
         self._create_users_n_contacts()
         user = self.user
@@ -1284,7 +1448,7 @@ class AuthTestCase(CremeTestCase):
             ))
         )
 
-    def test_role_forbidden02(self):
+    def test_forbidden__own_n_all_allowed(self):
         "ESET_OWN forbidden + ESET_ALL allowed."
         self._create_users_n_contacts()
         user = self.user
@@ -1344,7 +1508,7 @@ class AuthTestCase(CremeTestCase):
             ))
         )
 
-    def test_role_forbidden03(self):
+    def test_forbidden__own_n_also_allowed(self):
         "ESET_OWN forbidden & allowed."
         self._create_users_n_contacts()
         user = self.user
@@ -1374,7 +1538,7 @@ class AuthTestCase(CremeTestCase):
             )
         )
 
-    def test_role_forbidden04(self):
+    def test_forbidden__on_model__all_forbidden(self):
         "Permission on model (LINK on future instances) - ESET_ALL forbidden."
         user, other = self._create_users()
         LINK = EntityCredentials.LINK
@@ -1402,7 +1566,7 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(user.has_perm_to_link(FakeContact, owner=other))
         self.assertFalse(user.has_perm_to_link(FakeOrganisation, owner=other))
 
-    def test_role_forbidden05(self):
+    def test_forbidden__on_model__own_forbidden(self):
         "Permission on model (LINK on future instances) - ESET_OWN forbidden."
         user, other = self._create_users()
         LINK = EntityCredentials.LINK
@@ -1432,7 +1596,7 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(user.has_perm_to_link(FakeContact, owner=team))
         self.assertFalse(user.has_perm_to_link(FakeOrganisation, owner=team))
 
-    def test_credentials_with_filter01(self):
+    def test_with_efilter__check(self):
         "Check ESET_FILTER."
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth',
@@ -1465,7 +1629,7 @@ class AuthTestCase(CremeTestCase):
         with self.assertRaises(ValueError):
             sc4.save()
 
-    def test_credentials_with_filter02(self):
+    def test_with_efilter__one_filter(self):
         "ESET_FILTER x 1."
         self._create_users_n_contacts()
         user = self.user
@@ -1555,7 +1719,7 @@ class AuthTestCase(CremeTestCase):
                 as_model=FakeContact,
             )
 
-    def test_credentials_with_filter03(self):
+    def test_with_efilter__forbidden(self):
         "ESET_FILTER (forbidden)."
         self._create_users_n_contacts()
         user = self.user
@@ -1612,7 +1776,7 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(user.has_perm_to_view(contact1))
         self.assertFalse(user.has_perm_to_view(contact2))
 
-    def test_credentials_with_filter04(self):
+    def test_with_efilter__forbidden_n_all(self):
         "ESET_FILTER (forbidden) + ESET_ALL."
         self._create_users_n_contacts()
         user = self.user
@@ -1667,7 +1831,7 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(user.has_perm_to_view(contact2))
         self.assertFalse(user.has_perm_to_view(contact3))
 
-    def test_credentials_with_filter05(self):
+    def test_with_efilter__own_forbidden(self):
         "ESET_OWN (forbidden) + ESET_FILTER."
         self._create_users_n_contacts()
         user = self.user
@@ -1722,7 +1886,7 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(user.has_perm_to_view(contact2))
         self.assertTrue(user.has_perm_to_view(contact3))
 
-    def test_credentials_with_filter06(self):
+    def test_with_efilter__all(self):
         "ESET_FILTER + ESET_ALL (created AFTER)."
         self._create_users_n_contacts()
         user = self.user
@@ -1766,7 +1930,7 @@ class AuthTestCase(CremeTestCase):
             )
         )
 
-    def test_credentials_with_filter07(self):
+    def test_with_efilter__own(self):
         "ESET_FILTER + ESET_OWN."
         self._create_users_n_contacts()
         user = self.user
@@ -1821,7 +1985,7 @@ class AuthTestCase(CremeTestCase):
             )
         )
 
-    def test_credentials_with_filter08(self):
+    def test_with_efilter__2_efilters(self):
         "ESET_FILTER x 2."
         self._create_users_n_contacts()
         user = self.user
@@ -1899,7 +2063,7 @@ class AuthTestCase(CremeTestCase):
             ec_filter(self._build_contact_qs(contact3, contact4, contact5), perm=VIEW)
         )
 
-    def test_credentials_with_filter09(self):
+    def test_with_efilter__forbidden_x2(self):
         "ESET_FILTER (forbidden) x 2."
         self._create_users_n_contacts()
         user = self.user
@@ -1984,7 +2148,7 @@ class AuthTestCase(CremeTestCase):
             ec_filter(self._build_contact_qs(contact3, contact4, contact5), perm=VIEW)
         )
 
-    def test_credentials_with_filter10(self):
+    def test_with_efilter__allowed_n_forbidden(self):
         "ESET_FILTER x 2: allowed + forbidden."
         self._create_users_n_contacts()
         user = self.user
@@ -2066,7 +2230,7 @@ class AuthTestCase(CremeTestCase):
             ec_filter(self._build_contact_qs(contact3, contact4, contact5), perm=VIEW)
         )
 
-    def test_credentials_with_filter11(self):
+    def test_with_efilter__condition_on_user__equals(self):
         "ESET_FILTER on CremeEntity + <user> argument."
         self._create_users_n_contacts()
         user = self.user
@@ -2144,7 +2308,7 @@ class AuthTestCase(CremeTestCase):
 
         self.assertListEqual([contact1.id, contact3.id, orga1.id], ids_list)
 
-    def test_credentials_with_filter12(self):
+    def test_with_efilter__condition_on_user__equals_not(self):
         "<user> argument + forbidden."
         self._create_users_n_contacts()
         user = self.user
@@ -2442,7 +2606,7 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(user.has_perm('persons.export_contact'))
 
     # TODO: test extending apps
-    def test_app_creds01(self):
+    def test_app_creds(self):
         user = self.create_user()
         role = self._create_role('Salesman', users=[user])
 
@@ -2486,8 +2650,7 @@ class AuthTestCase(CremeTestCase):
             self.assertFalse(user.has_perm_to_access('documents'))
 
     # TODO: test extending apps
-    def test_app_creds02(self):
-        "Admin_4_apps."
+    def test_app_creds__admin(self):
         user = self.create_user()
         role = self._create_role('CEO', users=[user])
 
@@ -2561,8 +2724,7 @@ class AuthTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_app_creds03(self):
-        "Superuser."
+    def test_app_creds__superuser(self):
         user = self.build_user(is_superuser=True)
 
         self.assertTrue(user.has_perm_to_admin('creme_core'))
@@ -2665,89 +2827,7 @@ class AuthTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_delete01(self):
-        "Delete role."
-        role = self._create_role(
-            'Coder', ['creme_core'],
-            set_creds=[
-                SetCredentials(value=EntityCredentials.CHANGE, set_type=SetCredentials.ESET_OWN),
-                SetCredentials(value=EntityCredentials.VIEW,   set_type=SetCredentials.ESET_ALL),
-            ],
-        )
-        self.assertEqual(2, SetCredentials.objects.filter(role=role).count())
-
-        role.delete()
-        self.assertFalse(UserRole.objects.filter(pk=role.id))
-        self.assertFalse(SetCredentials.objects.filter(role=role.id))
-
-    def test_delete02(self):
-        "Can not delete a role linked to a user."
-        user = self.create_user()
-        role = self._create_role(
-            'Coder', ['creme_core'], users=[user],  # 'persons'
-            set_creds=[
-                SetCredentials(value=EntityCredentials.CHANGE, set_type=SetCredentials.ESET_OWN),
-                SetCredentials(value=EntityCredentials.VIEW,   set_type=SetCredentials.ESET_ALL),
-            ],
-        )
-
-        self.assertRaises(ProtectedError, role.delete)
-        self.assertEqual(1, UserRole.objects.filter(pk=role.id).count())
-        self.assertEqual(2, SetCredentials.objects.filter(role=role).count())
-
-    def test_create_team01(self):
-        user = self.create_user()
-        fake_team = CremeUser.objects.create(username='Teamee')
-
-        self.assertFalse(fake_team.is_team)
-
-        with self.assertRaises(ValueError):
-            fake_team.teammates = [user]
-
-        with self.assertRaises(ValueError):
-            fake_team.teammates  # NOQA
-
-    def test_create_team02(self):
-        user, other = self._create_users()
-        team = CremeUser.objects.create(username='Teamee', is_team=True)
-
-        team.teammates = [user, other]
-        teammates = team.teammates
-        self.assertEqual(2, len(teammates))
-
-        team = self.refresh(team)
-        self.assertDictEqual({user.id: user, other.id: other}, team.teammates)
-
-        with self.assertNumQueries(0):  # Teammates are cached
-            team.teammates  # NOQA
-
-        self.assertTrue(all(isinstance(u, CremeUser) for u in teammates.values()))
-
-        ids_set = {user.id, other.id}
-        self.assertSetEqual(ids_set, {*teammates})
-        self.assertSetEqual(ids_set, {u.id for u in teammates.values()})
-
-        user3 = CremeUser.objects.create_user(
-            username='kanna', email='kanna@century.jp',
-            first_name='Kanna', last_name='Gendou',
-            password='uselesspw', is_superuser=True,
-        )
-        team.teammates = [user, other, user3]
-        self.assertEqual(3, len(team.teammates))
-
-        team.teammates = [other]
-        self.assertEqual(1, len(team.teammates))
-        self.assertDictEqual({other.id: other}, self.refresh(team).teammates)
-
-        with self.assertRaises(ValueError):
-            team.teams  # NOQA
-
-        # ---
-        team2 = CremeUser.objects.create(username='Team#2', is_team=True)
-        with self.assertRaises(ValueError):
-            team2.teammates = [team]
-
-    def test_team_credentials01(self):
+    def test_team_credentials(self):
         user, other = self._create_users()
         self._create_role(
             'Worker', ['creme_core'],
@@ -2797,7 +2877,7 @@ class AuthTestCase(CremeTestCase):
 
         self.assertFalse(creds_filter(other, qs, perm=EntityCredentials.VIEW))
 
-    def test_team_credentials02(self):
+    def test_team_credentials__several_teams(self):
         "User in several teams."
         user, other = self._create_users()
         self._create_role(
@@ -2845,8 +2925,7 @@ class AuthTestCase(CremeTestCase):
         )  # Belongs to the teams
         self.assertFalse(creds_filter(user, qs, perm=EntityCredentials.CHANGE))
 
-    def test_has_perm_to01(self):
-        "Not real entity."
+    def test_has_perm_to__not_real_entity(self):
         user = self.create_user()
         self._create_role(
             'Worker', ['creme_config'],
@@ -2958,8 +3037,7 @@ class AuthTestCase(CremeTestCase):
             user1.has_perm_to_view(user2)
         self.assertIn('get_related_entity', str(cm.exception))
 
-    def test_has_perm_to_link01(self):
-        "Superuser."
+    def test_has_perm_to_link__superuser(self):
         user = self.build_user(is_superuser=True)
 
         # self.assertTrue(user.has_perm_to_link()) TODO ??
@@ -2973,7 +3051,7 @@ class AuthTestCase(CremeTestCase):
         with self.assertNoException():
             user.has_perm_to_link_or_die(ct)
 
-    def test_has_perm_to_link02(self):
+    def test_has_perm_to_link__no_perm(self):
         "No LINK perm at all."
         user, other_user = self._create_users()
         self._create_role(
@@ -3004,7 +3082,7 @@ class AuthTestCase(CremeTestCase):
             user.has_perm_to_link_or_die(ct)
         self.assertEqual(msg, str(ct_cm.exception))
 
-    def test_has_perm_to_link03(self):
+    def test_has_perm_to_link__all(self):
         "Can LINK all."
         user, other_user = self._create_users()
         self._create_role(
@@ -3025,7 +3103,7 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(has_perm_to_link(FakeOrganisation, owner=other_user))
         self.assertTrue(has_perm_to_link(FakeOrganisation, owner=team))
 
-    def test_has_perm_to_link04(self):
+    def test_has_perm_to_link__on_ctype(self):
         "With CT credentials -> has perm."
         user, other_user = self._create_users()
         ESET_ALL = SetCredentials.ESET_ALL
@@ -3046,7 +3124,7 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(has_perm_to_link(FakeOrganisation, owner=user))
         self.assertTrue(has_perm_to_link(FakeOrganisation, owner=other_user))
 
-    def test_has_perm_to_link05(self):
+    def test_has_perm_to_link__on_forbidden_ctype(self):
         "With CT credentials -> has not perm."
         user, other_user = self._create_users()
         ESET_ALL = SetCredentials.ESET_ALL
@@ -3070,7 +3148,7 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(has_perm_to_link(FakeContact, owner=user))
         self.assertTrue(has_perm_to_link(FakeContact, owner=other_user))
 
-    def test_has_perm_to_link06(self):
+    def test_has_perm_to_link__only_own(self):
         "Can link only own entities."
         user, other_user = self._create_users()
         self._create_role(
@@ -3102,7 +3180,7 @@ class AuthTestCase(CremeTestCase):
             self.assertFalse(has_perm_to_link(Contact, owner=user))
             self.assertFalse(has_perm_to_link(Contact, owner=other_user))
 
-    def test_has_perm_to_link07(self):
+    def test_has_perm_to_link__on_model(self):
         "Ignore filters when checking credentials on model."
         user = self.create_user()
 
@@ -3174,8 +3252,7 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(user.has_perm_to_link(contact))
         self.assertTrue(user.has_perm_to_unlink(contact))
 
-    def test_filter_entities01(self):
-        "Super user."
+    def test_filter_entities__superuser(self):
         self._create_users_n_contacts()
         user = self.user
         user.is_superuser = True  # <====
@@ -3203,7 +3280,7 @@ class AuthTestCase(CremeTestCase):
         with self.assertRaises(ValueError):
             EntityCredentials.filter(user, qs)
 
-    def test_filter_entities02(self):
+    def test_filter_entities__all(self):
         "ESET_ALL."
         self._create_users_n_contacts()
         user = self.user
@@ -3235,7 +3312,7 @@ class AuthTestCase(CremeTestCase):
             [e.get_real_entity() for e in qs2],
         )
 
-    def test_filter_entities03(self):
+    def test_filter_entities__own(self):
         "ESET_OWN + specific CT + team."
         self._create_users_n_contacts()
         user = self.user
@@ -3281,7 +3358,7 @@ class AuthTestCase(CremeTestCase):
         )
         self.assertFalse(filter_entities(user, qs, perm=EntityCredentials.DELETE))
 
-    def test_filter_entities04(self):
+    def test_filter_entities__forbidden_app(self):
         "No app credentials => models of this app are excluded."
         self._create_users_n_contacts()
         user = self.user
@@ -3308,7 +3385,7 @@ class AuthTestCase(CremeTestCase):
             [self.contact1, self.contact2], [e.get_real_entity() for e in qs2],
         )
 
-    def test_filter_entities05(self):
+    def test_filter_entities__as_model(self):
         "as_model."
         self._create_users_n_contacts()
         user = self.user
@@ -3337,7 +3414,7 @@ class AuthTestCase(CremeTestCase):
             {self.contact1, orga1}, {e.get_real_entity() for e in qs2},
         )
 
-    def test_filter_entities_with_filter01(self):
+    def test_filter_entities__efilter__entity_field(self):
         "One Filter with only one condition on a CremeEntity's field (allowed)."
         self._create_users_n_contacts()
         user = self.user
@@ -3393,7 +3470,7 @@ class AuthTestCase(CremeTestCase):
         )
         self.assertFalse(filter_entities(user, qs, perm=EntityCredentials.CHANGE))
 
-    def test_filter_entities_with_filter02(self):
+    def test_filter_entities__efilter__forbidden(self):
         "Only a forbidden Filter."
         self._create_users_n_contacts()
         user = self.user
@@ -3435,7 +3512,7 @@ class AuthTestCase(CremeTestCase):
             perm=VIEW,
         ))
 
-    def test_filter_entities_with_filter03(self):
+    def test_filter_entities__efilter__entity_field_forbidden(self):
         "One Filter with only CremeEntity field (forbidden)."
         self._create_users_n_contacts()
         user = self.user
@@ -3506,7 +3583,7 @@ class AuthTestCase(CremeTestCase):
             },
         )
 
-    def test_filter_entities_with_filter04(self):
+    def test_filter_entities__efilter__OR(self):
         "Several Filters: OR between conditions."
         self._create_users_n_contacts()
         user = self.user
@@ -3586,7 +3663,7 @@ class AuthTestCase(CremeTestCase):
             },
         )
 
-    def test_filter_entities_with_filter05(self):
+    def test_filter_entities__efilter__OR_n_forbidden(self):
         "Several Filters: OR between conditions (forbidden)."
         self._create_users_n_contacts()
         user = self.user
@@ -3667,7 +3744,7 @@ class AuthTestCase(CremeTestCase):
             }
         )
 
-    def test_filter_entities_with_filter06(self):
+    def test_filter_entities__efilter__entity_field_n_ctype(self):
         "Filter on CremeEntity fields for a specific CT anyway."
         self._create_users_n_contacts()
         user = self.user
@@ -3736,7 +3813,7 @@ class AuthTestCase(CremeTestCase):
     @skipIfNotInstalled('creme.documents')
     @skipIfCustomDocument
     @skipIfCustomFolder
-    def test_filter_entities_with_filter07(self):
+    def test_filter_entities__efilter__forbidden_app(self):
         "Do not raise exception for filter of forbidden apps."
         self._create_users_n_contacts()
         user = self.user
@@ -3791,7 +3868,7 @@ class AuthTestCase(CremeTestCase):
 
         self.assertListEqual([contact1.id, contact2.id], ids_list)
 
-    def test_filter_entities_with_filter_as_model01(self):
+    def test_filter_entities__efilter__as_model(self):
         self._create_users_n_contacts()
         user = self.user
         VIEW = EntityCredentials.VIEW
@@ -3870,8 +3947,7 @@ class AuthTestCase(CremeTestCase):
 
         self.assertListEqual([contact1.id, contact3.id], ids_list)
 
-    def test_sandbox01(self):
-        "Owned by super-users."
+    def test_sandbox__owned_by_superuser(self):
         self._create_users_n_contacts()
         user = self.user
         self._create_role(
@@ -3937,8 +4013,7 @@ class AuthTestCase(CremeTestCase):
             [e.get_real_entity() for e in filter_entities(super_user, entities_qs)],
         )
 
-    def test_sandbox02(self):
-        "Owned by a role."
+    def test_sandbox__owned_by_a_role(self):
         self._create_users_n_contacts()
         user = self.user
         other_user = self.other_user
@@ -4012,8 +4087,7 @@ class AuthTestCase(CremeTestCase):
             {e.get_real_entity() for e in filter_entities(other_user, entities_qs)},
         )
 
-    def test_sandbox03(self):
-        "Owned by a user."
+    def test_sandbox__owned_by_a_user(self):
         self._create_users_n_contacts()
         user = self.user
         other_user = self.other_user
@@ -4076,8 +4150,7 @@ class AuthTestCase(CremeTestCase):
             {e.get_real_entity() for e in filter_entities(other_user, entities_qs)},
         )
 
-    def test_sandbox04(self):
-        "Owned by a team."
+    def test_sandbox__owned_by_a_team(self):
         self._create_users_n_contacts()
         user = self.user
         other_user = self.other_user
@@ -4140,77 +4213,6 @@ class AuthTestCase(CremeTestCase):
         self.assertSetEqual(
             {contact1, contact2, orga1},
             {e.get_real_entity() for e in filter_entities(other_user, entities_qs)}
-        )
-
-    def test_credentials_str(self):
-        self.assertEqual(
-            _('For “{set}“ it is allowed to: {perms}').format(
-                set=_('All entities'),
-                perms=_('nothing allowed'),
-            ),
-            str(SetCredentials(
-                # value=...,
-                set_type=SetCredentials.ESET_ALL,
-            ))
-        )
-        self.assertEqual(
-            _('For “{set}“ it is allowed to: {perms}').format(
-                set=_('All entities'),
-                perms=_('view'),
-            ),
-            str(SetCredentials(
-                value=EntityCredentials.VIEW,
-                set_type=SetCredentials.ESET_ALL,
-            )),
-        )
-
-        self.assertEqual(
-            _('For “{set}“ it is forbidden to: {perms}').format(
-                set=_("User's own entities"),
-                perms=_('nothing forbidden'),
-            ),
-            str(SetCredentials(
-                # value=...,
-                set_type=SetCredentials.ESET_OWN,
-                forbidden=True,
-            )),
-        )
-        self.assertEqual(
-            _('For “{set}“ it is forbidden to: {perms}').format(
-                set=_("User's own entities"),
-                perms='{}, {}'.format(_('change'), _('delete')),
-            ),
-            str(SetCredentials(
-                value=EntityCredentials.CHANGE | EntityCredentials.DELETE,
-                set_type=SetCredentials.ESET_OWN,
-                forbidden=True,
-            )),
-        )
-
-        self.assertEqual(
-            _('For “{set}“ of type “{type}” it is allowed to: {perms}').format(
-                set=_('All entities'),
-                type='Test Contact',
-                perms=_('link'),
-            ),
-            str(SetCredentials(
-                value=EntityCredentials.LINK,
-                set_type=SetCredentials.ESET_ALL,
-                ctype=FakeContact,
-            )),
-        )
-        self.assertEqual(
-            _('For “{set}“ of type “{type}” it is forbidden to: {perms}').format(
-                set=_("User's own entities"),
-                type='Test Organisation',
-                perms=_('unlink'),
-            ),
-            str(SetCredentials(
-                value=EntityCredentials.UNLINK,
-                set_type=SetCredentials.ESET_OWN,
-                ctype=FakeOrganisation,
-                forbidden=True,
-            )),
         )
 
     def test_filtering_combo(self):
