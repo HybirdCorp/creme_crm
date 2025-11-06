@@ -22,7 +22,7 @@ from creme.persons.tests.base import (
     skipIfCustomOrganisation,
 )
 
-from ..bricks import CreditNotesBrick, ReceivedCreditNotesBrick
+from .. import bricks as billing_bricks
 from ..constants import (
     REL_SUB_BILL_ISSUED,
     REL_SUB_BILL_RECEIVED,
@@ -108,6 +108,42 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             render,
         )
 
+    def test_detailview(self):
+        user = self.login_as_root_and_get()
+
+        invoice, emitter, receiver = self.create_invoice_n_orgas(
+            user=user, name='Invoice0001', discount=0,
+        )
+        credit_note = self.create_credit_note(
+            user=user, name='Credit Note 001', source=emitter, target=receiver,
+        )
+
+        response1 = self.assertGET200(credit_note.get_absolute_url())
+        tree1 = self.get_html_tree(response1.content)
+        self.get_brick_node(tree1, brick=billing_bricks.ProductLinesBrick)
+        self.get_brick_node(tree1, brick=billing_bricks.ServiceLinesBrick)
+        self.get_brick_node(tree1, brick=billing_bricks.TargetBrick)
+        self.get_brick_node(tree1, brick=billing_bricks.TotalBrick)
+
+        hat_brick_node1 = self.get_brick_node(
+            tree1, brick=billing_bricks.CreditNoteCardHatBrick,
+        )
+        self.assertInstanceLink(hat_brick_node1, entity=emitter)
+        self.assertInstanceLink(hat_brick_node1, entity=receiver)
+        self.assertNoInstanceLink(hat_brick_node1, entity=invoice)
+
+        # Invoice is linked ---
+        Relation.objects.create(
+            object_entity=invoice, subject_entity=credit_note,
+            type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
+        )
+        response2 = self.assertGET200(credit_note.get_absolute_url())
+        hat_brick_node2 = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            brick=billing_bricks.CreditNoteCardHatBrick,
+        )
+        self.assertInstanceLink(hat_brick_node2, entity=invoice)
+
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_createview01(self):
@@ -151,7 +187,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(invoice.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            brick=CreditNotesBrick,
+            brick=billing_bricks.CreditNotesBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -993,7 +1029,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_brick(self):
         user = self.login_as_root_and_get()
         BrickDetailviewLocation.objects.create_if_needed(
-            brick=ReceivedCreditNotesBrick, order=600,
+            brick=billing_bricks.ReceivedCreditNotesBrick, order=600,
             zone=BrickDetailviewLocation.RIGHT, model=Organisation,
         )
 
@@ -1002,7 +1038,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         response1 = self.assertGET200(target.get_absolute_url())
         brick_node1 = self.get_brick_node(
             self.get_html_tree(response1.content),
-            brick=ReceivedCreditNotesBrick,
+            brick=billing_bricks.ReceivedCreditNotesBrick,
         )
         self.assertEqual(_('Received credit notes'), self.get_brick_title(brick_node1))
 
@@ -1017,7 +1053,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         response2 = self.assertGET200(target.get_absolute_url())
         brick_node2 = self.get_brick_node(
             self.get_html_tree(response2.content),
-            brick=ReceivedCreditNotesBrick,
+            brick=billing_bricks.ReceivedCreditNotesBrick,
         )
         self.assertBrickTitleEqual(
             brick_node2,

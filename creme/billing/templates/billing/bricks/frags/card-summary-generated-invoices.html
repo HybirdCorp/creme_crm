@@ -1,0 +1,25 @@
+{% load i18n creme_listview creme_widgets %}
+{% with paginator=summary.invoices.paginator %}
+<div class="card-info-field">
+    <div class="card-info-field">
+        <span class='card-info-key'>
+          {% if paginator.count == 0 %}
+            {% translate 'Generated invoices' %}
+          {% else %}
+            {% blocktranslate count count=paginator.count %}{{count}} Generated invoice{% plural %}{{count}} Generated invoices{% endblocktranslate %}
+          {% endif %}
+        </span>
+        <span class='card-info-value'>
+          {% if paginator.count == 0 %}
+            —
+          {% elif paginator.num_pages > 1 %}
+            <a href="{{summary.invoices.object_list.0.get_lv_absolute_url}}?{% listview_q_argument relations__type=summary.REL_SUB_INVOICE_FROM_QUOTE relations__object_entity=object.id %}">
+                {% translate 'See details' %}
+            </a>
+          {% else %}
+            {% for invoice in summary.invoices %}{% widget_join %}{% widget_entity_hyperlink invoice user %}{% end_widget_join %}{% endfor %}
+          {% endif %}
+        </span>
+    </div>
+</div>
+{% endwith %}

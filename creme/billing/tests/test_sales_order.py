@@ -7,14 +7,20 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.gui.view_tag import ViewTag
-from creme.creme_core.models import BrickDetailviewLocation, Currency, Vat
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    Currency,
+    Relation,
+    Vat,
+)
+from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import (
     skipIfCustomAddress,
     skipIfCustomOrganisation,
 )
 
-from ..bricks import ReceivedSalesOrdersBrick
+from .. import bricks as billing_bricks
 from ..constants import (
     REL_SUB_BILL_ISSUED,
     REL_SUB_BILL_RECEIVED,
@@ -86,22 +92,36 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             render,
         )
 
-    def test_detailview01(self):
+    def test_detailview(self):
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Organisation, SalesOrder, Invoice],
         )
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
-        order = self.create_salesorder_n_orgas(user=user, name='My order')[0]
+        order, emitter, receiver = self.create_salesorder_n_orgas(
+            user=user, name='My order 0001',
+        )
         response = self.assertGET200(order.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_sales_order.html')
+
+        tree = self.get_html_tree(response.content)
         self.assertConvertButtons(
-            response,
+            tree,
             [{'title': _('Convert to Invoice'), 'type': 'invoice', 'disabled': False}],
         )
+        self.get_brick_node(tree, brick=billing_bricks.ProductLinesBrick)
+        self.get_brick_node(tree, brick=billing_bricks.ServiceLinesBrick)
+        self.get_brick_node(tree, brick=billing_bricks.TargetBrick)
+        self.get_brick_node(tree, brick=billing_bricks.TotalBrick)
 
-    def test_detailview02(self):
+        hat_brick_node = self.get_brick_node(
+            tree, brick=billing_bricks.SalesOrderCardHatBrick,
+        )
+        self.assertInstanceLink(hat_brick_node, entity=emitter)
+        self.assertInstanceLink(hat_brick_node, entity=receiver)
+
+    def test_detailview__no_convert_to_invoice(self):
         "Cannot create invoice => convert button disabled."
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
@@ -112,9 +132,40 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         order = self.create_salesorder_n_orgas(user=user, name='My order')[0]
         response = self.assertGET200(order.get_absolute_url())
         self.assertConvertButtons(
-            response,
+            self.get_html_tree(response.content),
             [{'title': _('Convert to Invoice'), 'disabled': True}],
         )
+
+    @skipIfNotInstalled('creme.opportunities')
+    def test_detailview__linked_opportunity(self):
+        from creme.opportunities import get_opportunity_model
+        from creme.opportunities.constants import REL_SUB_LINKED_SALESORDER
+        from creme.opportunities.models import SalesPhase
+
+        user = self.login_as_root_and_get()
+        order, emitter, receiver = self.create_salesorder_n_orgas(
+            user=user, name='My order 0001',
+        )
+        opp = get_opportunity_model().objects.create(
+            user=user, name='Linked opp',
+            sales_phase=SalesPhase.objects.all()[0],
+            emitter=emitter, target=receiver,
+        )
+
+        Relation.objects.create(
+            subject_entity=order,
+            type_id=REL_SUB_LINKED_SALESORDER,
+            object_entity=opp,
+            user=user,
+        )
+
+        response = self.assertGET200(order.get_absolute_url())
+
+        hat_brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=billing_bricks.SalesOrderCardHatBrick,
+        )
+        self.assertInstanceLink(hat_brick_node, entity=opp)
 
     def test_createview01(self):
         user = self.login_as_root_and_get()
@@ -526,7 +577,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_brick(self):
         user = self.login_as_root_and_get()
         BrickDetailviewLocation.objects.create_if_needed(
-            brick=ReceivedSalesOrdersBrick, order=600,
+            brick=billing_bricks.ReceivedSalesOrdersBrick, order=600,
             zone=BrickDetailviewLocation.RIGHT, model=Organisation,
         )
 
@@ -535,7 +586,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         response1 = self.assertGET200(target.get_absolute_url())
         brick_node1 = self.get_brick_node(
             self.get_html_tree(response1.content),
-            brick=ReceivedSalesOrdersBrick,
+            brick=billing_bricks.ReceivedSalesOrdersBrick,
         )
         self.assertEqual(_('Received sales orders'), self.get_brick_title(brick_node1))
 
@@ -550,7 +601,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         response2 = self.assertGET200(target.get_absolute_url())
         brick_node2 = self.get_brick_node(
             self.get_html_tree(response2.content),
-            brick=ReceivedSalesOrdersBrick,
+            brick=billing_bricks.ReceivedSalesOrdersBrick,
         )
         self.assertBrickTitleEqual(
             brick_node2,

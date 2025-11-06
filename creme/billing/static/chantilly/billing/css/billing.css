@@ -8,6 +8,13 @@ ul.bline-error-list > li {
 
 /* Bricks */
 
+.billing-card-brick .card-related_persons {
+    font-size: 14px;
+}
+.billing-card-brick .card-related_persons a {
+    text-decoration: underline;
+}
+
 .billing-list-brick .brick-content {
     padding: 0;
 }

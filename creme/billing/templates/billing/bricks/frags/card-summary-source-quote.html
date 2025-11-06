@@ -1,0 +1,11 @@
+{% load i18n creme_widgets %}
+{% with quote=summary.quote %}
+<div class="card-info-field">
+    <div class="card-info-field">
+        <span class='card-info-key'>{% translate 'Source Quote' %}</span>
+        <span class='card-info-value'>
+            {% if quote %}{% widget_entity_hyperlink quote user %}{% else %}—{% endif %}
+        </span>
+    </div>
+</div>
+{% endwith %}

@@ -18,8 +18,10 @@ from creme.creme_core.models import (
     Currency,
     CustomFormConfigItem,
     FieldsConfig,
+    Relation,
     Vat,
 )
+from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.constants import REL_SUB_PROSPECT
 from creme.persons.tests.base import (
@@ -27,8 +29,8 @@ from creme.persons.tests.base import (
     skipIfCustomOrganisation,
 )
 
+from .. import bricks as billing_bricks
 from ..actions import ExportQuoteAction
-from ..bricks import ReceivedQuotesBrick
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from ..custom_forms import QUOTE_CREATION_CFORM
 from ..forms.base import BillingSourceSubCell, BillingTargetSubCell
@@ -97,6 +99,68 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             template.render(Context({**ctxt, 'tag': ViewTag.HTML_DETAIL})),
         )
 
+    def test_detailview(self):
+        user = self.login_as_root_and_get()
+
+        status = QuoteStatus.objects.filter(won=False)[0]
+        quote, emitter, receiver = self.create_quote_n_orgas(
+            user=user, name='My Quote', status=status,
+        )
+        url = quote.get_absolute_url()
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'billing/view_quote.html')
+
+        tree1 = self.get_html_tree(response1.content)
+        self.assertConvertButtons(
+            tree1,
+            [
+                {'title': _('Convert to Salesorder'), 'type': 'sales_order', 'disabled': False},
+                {'title': _('Convert to Invoice'),    'type': 'invoice',     'disabled': False},
+            ],
+        )
+
+        self.get_brick_node(tree1, brick=billing_bricks.ProductLinesBrick)
+        self.get_brick_node(tree1, brick=billing_bricks.ServiceLinesBrick)
+        self.get_brick_node(tree1, brick=billing_bricks.TargetBrick)
+        self.get_brick_node(tree1, brick=billing_bricks.TotalBrick)
+
+        hat_brick_node1 = self.get_brick_node(
+            tree1, brick=billing_bricks.QuoteCardHatBrick,
+        )
+        self.assertInstanceLink(hat_brick_node1, entity=emitter)
+        self.assertInstanceLink(hat_brick_node1, entity=receiver)
+
+        indicator_path = (
+            './/div[@class="business-card-indicator business-card-warning-indicator"]'
+        )
+        self.assertIsNone(hat_brick_node1.find(indicator_path))
+
+        # Expiration passed ---
+        quote.status = QuoteStatus.objects.filter(won=True)[0]
+        quote.save()
+        response2 = self.assertGET200(url)
+        hat_brick_node2 = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            brick=billing_bricks.QuoteCardHatBrick,
+        )
+        indicator_node = self.get_html_node_or_fail(hat_brick_node2, indicator_path)
+        self.assertEqual(_('Expiration date passed'), indicator_node.text.strip())
+
+    def test_detailview__generated_invoices(self):
+        user = self.login_as_root_and_get()
+
+        quote = self.create_quote_n_orgas(user=user, name='Quote 001')[0]
+
+        self._convert(200, quote, 'invoice')
+        invoice = self.get_alone_element(Invoice.objects.all())
+
+        response = self.assertGET200(quote.get_absolute_url())
+        hat_brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=billing_bricks.QuoteCardHatBrick,
+        )
+        self.assertInstanceLink(hat_brick_node, entity=invoice)
+
     def test_detailview__salesorder_creation_forbidden(self):
         "Cannot create Sales Orders => convert button disabled."
         user = self.login_as_standard(
@@ -105,14 +169,13 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
-        quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
+        quote = self.create_quote_n_orgas(user=user, name='My Quote 0001')[0]
         response = self.assertGET200(quote.get_absolute_url())
-        self.assertTemplateUsed(response, 'billing/view_quote.html')
         self.assertConvertButtons(
-            response,
+            self.get_html_tree(response.content),
             [
                 {'title': _('Convert to Salesorder'), 'disabled': True},
-                {'title': _('Convert to Invoice'),    'type': 'invoice',     'disabled': False},
+                {'title': _('Convert to Invoice'),    'type': 'invoice', 'disabled': False},
             ],
         )
 
@@ -124,16 +187,46 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
-        quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
+        quote = self.create_quote_n_orgas(user=user, name='Quote #0001')[0]
         response = self.assertGET200(quote.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_quote.html')
         self.assertConvertButtons(
-            response,
+            self.get_html_tree(response.content),
             [
                 {'title': _('Convert to Salesorder'), 'type': 'sales_order', 'disabled': False},
                 {'title': _('Convert to Invoice'), 'disabled': True},
             ],
         )
+
+    @skipIfNotInstalled('creme.opportunities')
+    def test_detailview__linked_opportunity(self):
+        from creme.opportunities import get_opportunity_model
+        from creme.opportunities.constants import REL_SUB_LINKED_QUOTE
+        from creme.opportunities.models import SalesPhase
+
+        user = self.login_as_root_and_get()
+        quote, emitter, receiver = self.create_quote_n_orgas(
+            user=user, name='My quote 0001',
+        )
+        opp = get_opportunity_model().objects.create(
+            user=user, name='Linked opp',
+            sales_phase=SalesPhase.objects.all()[0],
+            emitter=emitter, target=receiver,
+        )
+
+        Relation.objects.create(
+            subject_entity=quote,
+            type_id=REL_SUB_LINKED_QUOTE,
+            object_entity=opp,
+            user=user,
+        )
+
+        response = self.assertGET200(quote.get_absolute_url())
+        hat_brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=billing_bricks.QuoteCardHatBrick,
+        )
+        self.assertInstanceLink(hat_brick_node, entity=opp)
 
     @override_settings(SOFTWARE_LABEL='My CRM')
     def test_createview__source_not_managed(self):
@@ -1106,14 +1199,14 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.assertNotIn('billing_productline', query)
             self.assertNotIn('billing_serviceline', query)
 
-    def test_brick01(self):
+    def test_ReceivedQuotesBrick(self):
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
 
         response1 = self.assertGET200(target.get_absolute_url())
         brick_node1 = self.get_brick_node(
             self.get_html_tree(response1.content),
-            brick=ReceivedQuotesBrick,
+            brick=billing_bricks.ReceivedQuotesBrick,
         )
         self.assertEqual(_('Received quotes'), self.get_brick_title(brick_node1))
 
@@ -1128,7 +1221,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         response2 = self.assertGET200(target.get_absolute_url())
         brick_node2 = self.get_brick_node(
             self.get_html_tree(response2.content),
-            brick=ReceivedQuotesBrick,
+            brick=billing_bricks.ReceivedQuotesBrick,
         )
         self.assertBrickTitleEqual(
             brick_node2, count=1,
@@ -1149,7 +1242,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(quote.status.name, table_cells[2].text)
         # TODO: test table_cells[3]
 
-    def test_brick02(self):
+    def test_ReceivedQuotesBrick__hidden_expiration(self):
         "Field 'expiration_date' is hidden."
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
@@ -1171,7 +1264,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(target.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            brick=ReceivedQuotesBrick,
+            brick=billing_bricks.ReceivedQuotesBrick,
         )
         self.assertListEqual(
             [_('Name'), _('Status'), _('Total without VAT'), _('Action')],
@@ -1182,7 +1275,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(4, len(row.findall('.//td')))
 
     @override_settings(HIDDEN_VALUE='?')
-    def test_brick03(self):
+    def test_ReceivedQuotesBrick__forbidden(self):
         "No VIEW permission."
         user = self.login_as_standard(allowed_apps=['persons', 'billing'])
         self.add_credentials(user.role, own='*')
@@ -1199,7 +1292,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(target.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            brick=ReceivedQuotesBrick,
+            brick=billing_bricks.ReceivedQuotesBrick,
         )
         rows = self.get_brick_table_rows(brick_node)
         row = self.get_alone_element(rows)

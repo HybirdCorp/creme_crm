@@ -18,19 +18,23 @@
 
 from collections import defaultdict
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import FilteredRelation, Q
 from django.utils.translation import gettext_lazy as _
 
 import creme.persons.bricks as persons_bricks
 from creme import billing, persons
+from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.gui.bricks import (
     Brick,
     PaginatedBrick,
     QuerysetBrick,
     SimpleBrick,
 )
-from creme.creme_core.models import Relation, SettingValue
+from creme.creme_core.models import CremeEntity, Relation, SettingValue
+from creme.creme_core.utils.paginators import OnePagePaginator
 from creme.creme_core.utils.unicode_collation import collator
 
 from . import constants, function_fields
@@ -57,6 +61,7 @@ ProductLine = billing.get_product_line_model()
 ServiceLine = billing.get_service_line_model()
 
 
+# Hat bars ---------------------------------------------------------------------
 class BillingBarHatBrick(Brick):
     template_name = 'billing/bricks/billing-hat-bar.html'
     download_button = True
@@ -88,6 +93,213 @@ class TemplateBaseBarHatBrick(BillingBarHatBrick):
     download_button = False
 
 
+# Hat cards --------------------------------------------------------------------
+# TODO: move to creme core? (factorise with persons)
+class CardSummary:
+    dependencies: list[type[CremeEntity]] = []
+    relation_type_deps: list[str] = []
+    template_name = ''
+
+    def get_context(self, *, entity: CremeEntity, brick_context: dict) -> dict:
+        """Context used by the template system to render the summary."""
+        template_name = self.template_name
+        return {'template_name': template_name} if template_name else {}
+
+
+if apps.is_installed('creme.opportunities'):
+    import creme.opportunities.constants as opp_constants
+    from creme.opportunities import get_opportunity_model
+
+    Opportunity = get_opportunity_model()
+
+    class _LinkedOpportunitySummary(CardSummary):
+        dependencies = [Opportunity]
+        template_name = 'billing/bricks/frags/card-summary-opportunity.html'
+
+        # relation_type_deps = []
+        rtype_id = None  # OVERRIDE ME
+
+        def get_context(self, *, entity, brick_context):
+            context = super().get_context(entity=entity, brick_context=brick_context)
+
+            # TODO: manage several? internal type to limit to 1?
+            context['opportunity'] = Opportunity.objects.filter(
+                relations__type=self.rtype_id,
+                relations__object_entity=entity.id,
+            ).first()
+
+            return context
+
+    class InvoiceOpportunitySummary(_LinkedOpportunitySummary):
+        relation_type_deps = [opp_constants.REL_SUB_LINKED_INVOICE]
+        rtype_id = opp_constants.REL_OBJ_LINKED_INVOICE
+
+    class QuoteOpportunitySummary(_LinkedOpportunitySummary):
+        relation_type_deps = [opp_constants.REL_SUB_LINKED_QUOTE]
+        rtype_id = opp_constants.REL_OBJ_LINKED_QUOTE
+
+    class SalesOrderOpportunitySummary(_LinkedOpportunitySummary):
+        relation_type_deps = [opp_constants.REL_SUB_LINKED_SALESORDER]
+        rtype_id = opp_constants.REL_OBJ_LINKED_SALESORDER
+else:
+    class InvoiceOpportunitySummary(CardSummary):
+        pass
+
+    class QuoteOpportunitySummary(CardSummary):
+        pass
+
+    class SalesOrderOpportunitySummary(CardSummary):
+        pass
+
+
+class UsingInvoiceSummary(CardSummary):
+    dependencies = [Invoice]
+    relation_type_deps = [constants.REL_SUB_CREDIT_NOTE_APPLIED]
+    template_name = 'billing/bricks/frags/card-summary-using-invoice.html'
+
+    def get_context(self, *, entity, brick_context):
+        context = super().get_context(entity=entity, brick_context=brick_context)
+        context['invoice'] = Invoice.objects.filter(
+            relations__type=constants.REL_OBJ_CREDIT_NOTE_APPLIED,
+            relations__object_entity=entity.id,
+        ).first()
+
+        return context
+
+
+class SourceQuoteSummary(CardSummary):
+    dependencies = [Quote]
+    relation_type_deps = [constants.REL_SUB_INVOICE_FROM_QUOTE]
+    template_name = 'billing/bricks/frags/card-summary-source-quote.html'
+
+    def get_context(self, *, entity, brick_context):
+        context = super().get_context(entity=entity, brick_context=brick_context)
+        context['quote'] = Quote.objects.filter(
+            relations__type=constants.REL_OBJ_INVOICE_FROM_QUOTE,
+            relations__object_entity=entity.id,
+        ).first()
+
+        return context
+
+
+# TODO: factorise (persons.bricks.CommercialActsSummary ...)
+class InvoicesGeneratedFromQuoteSummary(CardSummary):
+    dependencies = [Invoice]
+    # TODO: what if RelationType.enable == False?
+    relation_type_deps = [constants.REL_OBJ_INVOICE_FROM_QUOTE]
+    template_name = 'billing/bricks/frags/card-summary-generated-invoices.html'
+
+    displayed_invoices_number = 5
+
+    def get_context(self, *, entity, brick_context):
+        context = super().get_context(entity=entity, brick_context=brick_context)
+        rtype_id = constants.REL_SUB_INVOICE_FROM_QUOTE
+        context['REL_SUB_INVOICE_FROM_QUOTE'] = rtype_id
+        context['invoices'] = OnePagePaginator(
+            EntityCredentials.filter(
+                user=brick_context['user'],
+                queryset=Invoice.objects.annotate(
+                    relations_w_person=FilteredRelation(
+                        'relations',
+                        condition=Q(relations__object_entity=entity.id),
+                    ),
+                ).filter(
+                    is_deleted=False,
+                    relations_w_person__type=rtype_id,
+                ),
+            ),
+            per_page=self.displayed_invoices_number,
+        ).page(1)
+
+        return context
+
+
+class _BillingCardHatBrick(SimpleBrick):
+    verbose_name = _('Card header block')
+    template_name = 'billing/bricks/billing-hat-card.html'
+    summaries = []
+
+    def __init__(self):
+        super().__init__()
+        # NB: we use sets to avoid duplicates
+        summaries = self.summaries
+        self.dependencies = [*{
+            *self.dependencies,
+            *(model for summary in summaries for model in summary.dependencies),
+        }]
+        self.relation_type_deps = [*{
+            *self.relation_type_deps,
+            *(rtype_id for summary in summaries for rtype_id in summary.relation_type_deps),
+        }]
+
+    def is_expiration_passed(self, entity, today):
+        return False
+
+    def get_template_context(self, context, **extra_kwargs):
+        context = super().get_template_context(context, **extra_kwargs)
+        entity = context['object']
+        context['summaries'] = [
+            summary_cls().get_context(entity=entity, brick_context=context)
+            for summary_cls in self.summaries
+        ]
+        context['is_expiration_passed'] = (
+            self.is_expiration_passed(entity=entity, today=context['today'].date())
+            if entity.expiration_date else
+            False
+        )
+
+        return context
+
+
+class CreditNoteCardHatBrick(_BillingCardHatBrick):
+    id = Brick._generate_hat_id('billing', 'credit_note_card')
+    dependencies = [CreditNote]
+    summaries = [
+        UsingInvoiceSummary,
+    ]
+
+
+class InvoiceCardHatBrick(_BillingCardHatBrick):
+    id = Brick._generate_hat_id('billing', 'invoice_card')
+    dependencies = [Invoice]
+    summaries = [
+        InvoiceOpportunitySummary,
+        SourceQuoteSummary,
+    ]
+
+    def is_expiration_passed(self, entity, today):
+        return entity.status.pending_payment and entity.expiration_date < today
+
+
+class QuoteCardHatBrick(_BillingCardHatBrick):
+    id = Brick._generate_hat_id('billing', 'quote_card')
+    dependencies = [Quote]
+    summaries = [
+        QuoteOpportunitySummary,
+        InvoicesGeneratedFromQuoteSummary,
+        # SalesOrderGeneratedFromQuoteSummary, TODO?
+    ]
+
+    def is_expiration_passed(self, entity, today):
+        return entity.status.won and entity.expiration_date < today
+
+
+class SalesOrderCardHatBrick(_BillingCardHatBrick):
+    id = Brick._generate_hat_id('billing', 'sales_order_card')
+    dependencies = [SalesOrder]
+    summaries = [
+        SalesOrderOpportunitySummary,
+        # InvoicesGeneratedFromSalesOrderSummary,  TODO?
+    ]
+
+
+# TODO? (TemplateBase is not registered as entity & so bricks cannot be configured by users)
+# class TemplateBaseCardHatBrick(_BillingCardHatBrick):
+#     id = Brick._generate_hat_id('billing', 'template_base_card')
+#     dependencies = [TemplateBase]
+
+
+# Other ------------------------------------------------------------------------
 class _LinesBrick(Brick):
     dependencies = (Relation, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     relation_type_deps = (constants.REL_SUB_HAS_LINE, )

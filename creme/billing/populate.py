@@ -33,6 +33,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRelation,
 )
 from creme.creme_core.core.entity_filter import condition_handler, operators
+from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
@@ -1023,7 +1024,12 @@ class Populator(BasePopulator):
             ]
         )
 
-    def _create_bricks_config(self, model, cbci: CustomBrickConfigItem, has_credit_notes=True):
+    def _create_bricks_config(self, *,
+                              model,
+                              cbci: CustomBrickConfigItem,
+                              card_brick: type[Brick] | None = None,
+                              has_credit_notes=True,
+                              ):
         TOP   = BrickDetailviewLocation.TOP
         RIGHT = BrickDetailviewLocation.RIGHT
 
@@ -1043,6 +1049,9 @@ class Populator(BasePopulator):
             {'brick': bricks.ProductLinesBrick, 'order': 10, 'zone': TOP},
             {'brick': bricks.ServiceLinesBrick, 'order': 20, 'zone': TOP},
         ]
+        if card_brick:
+            data.append({'brick': card_brick, 'order': 1, 'zone': BrickDetailviewLocation.HAT})
+
         if has_credit_notes:
             data.append({'brick': bricks.CreditNotesBrick, 'order': 30, 'zone': TOP})
 
@@ -1063,7 +1072,11 @@ class Populator(BasePopulator):
                 EntityCellRegularField.build(Invoice, 'buyers_order_number'),
             ),
         )
-        self._create_bricks_config(model=Invoice, cbci=cbci, has_credit_notes=True)
+        self._create_bricks_config(
+            model=Invoice, cbci=cbci,
+            card_brick=bricks.InvoiceCardHatBrick,
+            has_credit_notes=True,
+        )
 
     def _populate_bricks_config_for_quote(self):
         Quote = self.Quote
@@ -1076,7 +1089,11 @@ class Populator(BasePopulator):
                 EntityCellRegularField.build(Quote, 'acceptation_date'),
             ),
         )
-        self._create_bricks_config(model=Quote, cbci=cbci, has_credit_notes=True)
+        self._create_bricks_config(
+            model=Quote, cbci=cbci,
+            card_brick=bricks.QuoteCardHatBrick,
+            has_credit_notes=True,
+        )
 
     def _populate_bricks_config_for_order(self):
         SalesOrder = self.SalesOrder
@@ -1088,7 +1105,11 @@ class Populator(BasePopulator):
                 EntityCellRegularField.build(SalesOrder, 'status'),
             ),
         )
-        self._create_bricks_config(model=SalesOrder, cbci=cbci, has_credit_notes=True)
+        self._create_bricks_config(
+            model=SalesOrder, cbci=cbci,
+            card_brick=bricks.SalesOrderCardHatBrick,
+            has_credit_notes=True,
+        )
 
     def _populate_bricks_config_for_creditnote(self):
         CreditNote = self.CreditNote
@@ -1100,7 +1121,11 @@ class Populator(BasePopulator):
                 EntityCellRegularField.build(CreditNote, 'status'),
             ),
         )
-        self._create_bricks_config(model=CreditNote, cbci=cbci, has_credit_notes=False)
+        self._create_bricks_config(
+            model=CreditNote, cbci=cbci,
+            card_brick=bricks.CreditNoteCardHatBrick,
+            has_credit_notes=False,
+        )
 
     def _populate_bricks_config_for_templatebase(self):
         TemplateBase = self.TemplateBase

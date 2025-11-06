@@ -96,8 +96,8 @@ class _BillingTestCaseMixin:
         ):
             self.assertEqual(getattr(address1, f), getattr(address2, f))
 
-    def create_credit_note(self, *, name, source, target, currency=None,
-                           discount=Decimal(), user=None, status=None):
+    def create_credit_note(self, *, user, name, source, target, currency=None,
+                           discount=Decimal(), status=None):
         status = status or CreditNoteStatus.objects.all()[0]
         currency = currency or Currency.objects.all()[0]
         response = self.client.post(
@@ -951,19 +951,20 @@ class _BillingTestCase(_BillingTestCaseMixin,
                 j_result3.messages,
             )
 
-    def assertConvertButtons(self, response, expected):
+    def assertConvertButtons(self, html_tree, expected):
         found = []
 
         for button_node in self.iter_button_nodes(
-            self.get_instance_buttons_node(self.get_html_tree(response.content)),
+            self.get_instance_buttons_node(html_tree),
         ):
             if button_node.tag == 'a':
-                label, json_data = filter(None, (txt.strip() for txt in button_node.itertext()))
-                found.append({
-                    'label': label,
-                    'json_data': json_data,
-                    'disabled': ('is-disabled' in button_node.attrib.get('class').split()),
-                })
+                texts = [stripped for txt in button_node.itertext() if (stripped := txt.strip())]
+                if len(texts) == 2:
+                    found.append({
+                        'label': texts[0],
+                        'json_data': texts[1],
+                        'disabled': ('is-disabled' in button_node.attrib.get('class').split()),
+                    })
             else:
                 found.append({
                     'label': self.get_alone_element(
@@ -986,3 +987,14 @@ class _BillingTestCase(_BillingTestCaseMixin,
                     break
             else:
                 self.fail(f'The conversion button with title="{label}" has not been found.')
+
+    def _convert(self, status_code, src, dest_type, is_ajax=False):
+        http_header = {}
+
+        if is_ajax:
+            http_header = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        return self.assertPOST(
+            status_code, reverse('billing__convert', args=(src.id,)),
+            data={'type': dest_type}, follow=True, **http_header
+        )

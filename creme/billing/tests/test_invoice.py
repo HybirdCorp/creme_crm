@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
-from creme.billing import bricks
+from creme.billing import bricks as billing_bricks
 from creme.creme_core.forms import CreatorEntityField, ReadonlyMessageField
 from creme.creme_core.gui import actions
 from creme.creme_core.gui.view_tag import ViewTag
@@ -24,7 +24,10 @@ from creme.creme_core.models import (
     SettingValue,
     Vat,
 )
-from creme.creme_core.tests.base import CremeTransactionTestCase
+from creme.creme_core.tests.base import (
+    CremeTransactionTestCase,
+    skipIfNotInstalled,
+)
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils import currency_format
 from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
@@ -70,7 +73,7 @@ from .base import (
 @skipIfCustomOrganisation
 @skipIfCustomInvoice
 class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
-    def test_status01(self):
+    def test_status__default(self):
         statuses = [*InvoiceStatus.objects.all()]
         self.assertEqual(8, len(statuses))
 
@@ -92,7 +95,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         new_status2 = InvoiceStatus.objects.create(name='KO', is_default=False)
         self.assertTrue(self.refresh(new_status2).is_default)
 
-    def test_status02(self):
+    def test_status__validated(self):
         statuses = [*InvoiceStatus.objects.all()]
         self.assertEqual(8, len(statuses))
 
@@ -114,7 +117,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         new_status2 = InvoiceStatus.objects.create(name='KO', is_validated=False)
         self.assertTrue(self.refresh(new_status2).is_validated)
 
-    def test_status_render(self):
+    def test_status__render(self):
         user = self.get_root_user()
         status = InvoiceStatus.objects.create(name='OK', color='00FF00')
         invoice = Invoice(user=user, name='OK Invoice', status=status)
@@ -137,8 +140,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             render,
         )
 
-    def test_source_n_target01(self):
-        "Creation."
+    def test_source_n_target__creation(self):
         user = self.login_as_root_and_get()
         name = 'Invoice001'
         source, target = self.create_orgas(user=user)
@@ -168,12 +170,12 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         # ---
         response = self.assertGET200(invoice.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), brick=bricks.TargetBrick,
+            self.get_html_tree(response.content), brick=billing_bricks.TargetBrick,
         )
         self.assertInstanceLink(brick_node, source)
         self.assertInstanceLink(brick_node, target)
 
-    def test_source_n_target02(self):
+    def test_source_n_target__errors(self):
         "Errors at creation."
         user = self.get_root_user()
         source, target = self.create_orgas(user=user)
@@ -203,8 +205,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             invoice2.save()
         self.assertEqual(msg2, cm4.exception.message)
 
-    def test_source_n_target03(self):
-        "Edition."
+    def test_source_n_target__edition(self):
         user = self.get_root_user()
         name = 'Invoice001'
         source1, target1 = self.create_orgas(user=user)
@@ -235,7 +236,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveNoRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED, object=target1)
         self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED, object=target2)
 
-    def test_source_n_target04(self):
+    def test_source_n_target__several_saves(self):
         "Several save without refreshing."
         user = self.get_root_user()
         name = 'invoice001'
@@ -271,6 +272,95 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertHaveNoRelation(invoice, REL_SUB_BILL_RECEIVED, target2)
         self.assertHaveRelation(invoice, REL_SUB_BILL_RECEIVED, target3)
+
+    def test_detailview(self):
+        user = self.login_as_root_and_get()
+        SettingValue.objects.set_4_key(emitter_edition_key, True)
+
+        name = 'Invoice 001'
+        invoice, emitter, receiver = self.create_invoice_n_orgas(
+            user=user, name=name,
+            status=InvoiceStatus.objects.filter(pending_payment=False)[0],
+        )
+
+        url = invoice.get_absolute_url()
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'billing/view_invoice.html')
+
+        tree1 = self.get_html_tree(response1.content)
+        self.assertConvertButtons(tree1, [])
+
+        self.get_brick_node(tree1, brick=billing_bricks.ProductLinesBrick)
+        self.get_brick_node(tree1, brick=billing_bricks.ServiceLinesBrick)
+        self.get_brick_node(tree1, brick=billing_bricks.TargetBrick)
+        self.get_brick_node(tree1, brick=billing_bricks.TotalBrick)
+
+        hat_brick_node1 = self.get_brick_node(
+            tree1, brick=billing_bricks.InvoiceCardHatBrick,
+        )
+        self.assertInstanceLink(hat_brick_node1, entity=emitter)
+        self.assertInstanceLink(hat_brick_node1, entity=receiver)
+
+        indicator_path = (
+            './/div[@class="business-card-indicator business-card-warning-indicator"]'
+        )
+        self.assertIsNone(hat_brick_node1.find(indicator_path))
+
+        # Expiration passed ---
+        invoice.status = InvoiceStatus.objects.filter(pending_payment=True)[0]
+        invoice.save()
+        response2 = self.assertGET200(url)
+        hat_brick_node2 = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            brick=billing_bricks.InvoiceCardHatBrick,
+        )
+        indicator_node = self.get_html_node_or_fail(hat_brick_node2, indicator_path)
+        self.assertEqual(_('Expiration date passed'), indicator_node.text.strip())
+
+    @skipIfNotInstalled('creme.opportunities')
+    def test_detailview__linked_opportunity(self):
+        from creme.opportunities import get_opportunity_model
+        from creme.opportunities.constants import REL_SUB_LINKED_INVOICE
+        from creme.opportunities.models import SalesPhase
+
+        user = self.login_as_root_and_get()
+        invoice, emitter, receiver = self.create_invoice_n_orgas(
+            user=user, name='Invoice 0001',
+        )
+        opp = get_opportunity_model().objects.create(
+            user=user, name='Linked opp',
+            sales_phase=SalesPhase.objects.all()[0],
+            emitter=emitter, target=receiver,
+        )
+
+        Relation.objects.create(
+            subject_entity=invoice,
+            type_id=REL_SUB_LINKED_INVOICE,
+            object_entity=opp,
+            user=user,
+        )
+
+        response = self.assertGET200(invoice.get_absolute_url())
+        hat_brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=billing_bricks.InvoiceCardHatBrick,
+        )
+        self.assertInstanceLink(hat_brick_node, entity=opp)
+
+    def test_detailview__generated_invoices(self):
+        user = self.login_as_root_and_get()
+
+        quote = self.create_quote_n_orgas(user=user, name='Quote 001')[0]
+
+        self._convert(200, quote, 'invoice')
+        invoice = self.get_alone_element(Invoice.objects.all())
+
+        response = self.assertGET200(invoice.get_absolute_url())
+        hat_brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=billing_bricks.InvoiceCardHatBrick,
+        )
+        self.assertInstanceLink(hat_brick_node, entity=quote)
 
     def test_creationview(self):
         user = self.login_as_root_and_get()
@@ -382,7 +472,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         response1 = self.assertGET200(detail_url)
         pretty_brick_node = self.get_brick_node(
             self.get_html_tree(response1.content),
-            brick=bricks.BillingPrettyAddressBrick,
+            brick=billing_bricks.BillingPrettyAddressBrick,
         )
         self.assertEqual(_('Addresses'), self.get_brick_title(pretty_brick_node))
         self.assertBrickHasAction(
@@ -398,7 +488,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         # ---
         BrickDetailviewLocation.objects.create_if_needed(
-            brick=bricks.BillingDetailedAddressBrick,
+            brick=billing_bricks.BillingDetailedAddressBrick,
             order=600,
             zone=BrickDetailviewLocation.RIGHT,
             model=Invoice,
@@ -407,7 +497,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         response2 = self.assertGET200(detail_url)
         detailed_brick_node = self.get_brick_node(
             self.get_html_tree(response2.content),
-            brick=bricks.BillingDetailedAddressBrick,
+            brick=billing_bricks.BillingDetailedAddressBrick,
         )
         self.assertEqual(_('Addresses'), self.get_brick_title(detailed_brick_node))
         self.assertBrickHasAction(
@@ -489,7 +579,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             errors=link_error.format(target),
         )
 
-    def test_createview_payment_info01(self):
+    def test_createview_payment_info(self):
         "One PaymentInformation in the source => used automatically."
         user = self.login_as_root_and_get()
 
@@ -502,7 +592,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = self.create_invoice(user=user, name='Invoice001', source=source, target=target)
         self.assertEqual(pi, invoice.payment_info)
 
-    def test_createview_payment_info02(self):
+    def test_createview_payment_info__several(self):
         "Several PaymentInformation in the source => default one is used."
         user = self.login_as_root_and_get()
 
@@ -521,7 +611,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = self.create_invoice(user=user, name='Invoice001', source=source, target=target)
         self.assertEqual(pi2, invoice.payment_info)
 
-    def test_create_related01(self):
+    def test_create_related(self):
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
         url = reverse('billing__create_related_invoice', args=(target.id,))
@@ -576,8 +666,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED, object=target)
 
-    def test_create_related02(self):
-        "Not a super-user."
+    def test_create_related__not_superuser(self):
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice],
@@ -589,7 +678,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             reverse('billing__create_related_invoice', args=(target.id,)),
         )
 
-    def test_create_related03(self):
+    def test_create_related__creation_perm(self):
         "Creation creds are needed."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -602,7 +691,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             reverse('billing__create_related_invoice', args=(target.id,)),
         )
 
-    def test_create_related04(self):
+    def test_create_related__change_perm(self):
         "CHANGE creds are needed."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -898,7 +987,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFormError(post('150'), field='discount', errors=msg)
         self.assertFormError(post('-10'), field='discount', errors=msg)
 
-    def test_editview__payment_info01(self):
+    def test_editview__payment_info__no_one(self):
         user = self.login_as_root_and_get()
 
         source2 = Organisation.objects.create(user=user, name='Sega')
@@ -929,7 +1018,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNoFormError(response)
         self.assertIsNone(self.refresh(invoice).payment_info)
 
-    def test_editview__payment_info02(self):
+    def test_editview__payment_info__one(self):
         "One PaymentInformation in the source => used automatically."
         user = self.login_as_root_and_get()
 
@@ -955,7 +1044,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = self.refresh(invoice)
         self.assertEqual(pi, invoice.payment_info)
 
-    def test_editview__payment_info03(self):
+    def test_editview__payment_info__several(self):
         "Several PaymentInformation in the source => default one is used."
         user = self.login_as_root_and_get()
 
@@ -984,7 +1073,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = self.refresh(invoice)
         self.assertEqual(pi2, invoice.payment_info)
 
-    def test_inner_edit01(self):
+    def test_inner_edit(self):
         user = self.login_as_root_and_get()
 
         name = 'invoice001'
@@ -1004,8 +1093,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertGET404(build_uri('billing_address'))
         self.assertGET404(build_uri('shipping_address'))
 
-    def test_inner_edit02(self):
-        "Discount."
+    def test_inner_edit__discount(self):
         user = self.login_as_root_and_get()
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
@@ -1022,7 +1110,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
-    def test_get_lines01(self):
+    def test_get_lines(self):
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         self.assertFalse(invoice.get_lines(ProductLine))
@@ -1043,7 +1131,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
-    def test_get_lines02(self):
+    def test_get_lines__cache(self):
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         kwargs = {'user': user, 'related_document': invoice}
@@ -1121,7 +1209,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         # ---
         response = self.assertGET200(invoice.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), brick=bricks.TotalBrick,
+            self.get_html_tree(response.content), brick=billing_bricks.TotalBrick,
         )
 
         exc_total_node = self.get_html_node_or_fail(
@@ -1551,7 +1639,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomAddress
-    def test_mass_import__update01(self):
+    def test_mass_import__update__target_has_address(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_update(
             user=user,
@@ -1560,7 +1648,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomAddress
-    def test_mass_import__update02(self):
+    def test_mass_import__update__target_has_no_address(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_update(
             user=user,
@@ -1569,7 +1657,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomAddress
-    def test_mass_import__update_total01(self):
+    def test_mass_import__update_total__no_total(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_no_total(
             user=user,
@@ -1578,7 +1666,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             creation_number_help_text=False,
         )
 
-    def test_mass_import__update_total02(self):
+    def test_mass_import__update_total__error(self):
         user = self.login_as_root_and_get()
         doc = self._build_csv_doc([('Bill #1', 'Nerv', 'Acme', '300', '15')], user=user)
         response = self.assertPOST200(
@@ -1636,13 +1724,13 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             errors=_('You cannot compute totals in update mode.'),
         )
 
-    def test_mass_import__emitter_edition01(self):
+    def test_mass_import__emitter_edition(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_update__emitter_edition(
             user=user, model=Invoice, emitter_edition_ok=False,
         )
 
-    def test_mass_import__emitter_edition02(self):
+    def test_mass_import__emitter_edition__error(self):
         SettingValue.objects.set_4_key(emitter_edition_key, True)
 
         user = self.login_as_root_and_get()
@@ -1650,14 +1738,14 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             user=user, model=Invoice, emitter_edition_ok=True,
         )
 
-    def test_brick01(self):
+    def test_ReceivedInvoicesBrick(self):
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
 
         response1 = self.assertGET200(target.get_absolute_url())
         brick_node1 = self.get_brick_node(
             self.get_html_tree(response1.content),
-            brick=bricks.ReceivedInvoicesBrick,
+            brick=billing_bricks.ReceivedInvoicesBrick,
         )
         self.assertEqual(_('Received invoices'), self.get_brick_title(brick_node1))
 
@@ -1674,7 +1762,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         response2 = self.assertGET200(target.get_absolute_url())
         brick_node2 = self.get_brick_node(
             self.get_html_tree(response2.content),
-            brick=bricks.ReceivedInvoicesBrick,
+            brick=billing_bricks.ReceivedInvoicesBrick,
         )
         self.assertBrickTitleEqual(
             brick_node2,
@@ -1711,14 +1799,14 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         #   - Invoices
         #   - SettingValues "creme_core-display_currency_local_symbol"
         with self.assertNumQueries(6):
-            render = bricks.ReceivedInvoicesBrick().detailview_display(context)
+            render = billing_bricks.ReceivedInvoicesBrick().detailview_display(context)
 
         brick_node3 = self.get_brick_node(
-            self.get_html_tree(render), brick=bricks.ReceivedInvoicesBrick,
+            self.get_html_tree(render), brick=billing_bricks.ReceivedInvoicesBrick,
         )
         self.assertInstanceLink(brick_node3, entity=invoice)
 
-    def test_brick02(self):
+    def test_ReceivedInvoicesBrick__hidden_expiration(self):
         "Field 'expiration_date' is hidden."
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
@@ -1740,7 +1828,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(target.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            brick=bricks.ReceivedInvoicesBrick,
+            brick=billing_bricks.ReceivedInvoicesBrick,
         )
         self.assertListEqual(
             [_('Name'), _('Number'), _('Status'), _('Total without VAT'), _('Action')],
@@ -1751,7 +1839,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(5, len(row.findall('.//td')))
 
     @override_settings(HIDDEN_VALUE='?')
-    def test_brick03(self):
+    def test_ReceivedInvoicesBrick__forbidden(self):
         "No VIEW permission."
         user = self.login_as_standard(allowed_apps=['persons', 'billing'])
         self.add_credentials(user.role, own='*')
@@ -1768,7 +1856,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(target.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            brick=bricks.ReceivedInvoicesBrick,
+            brick=billing_bricks.ReceivedInvoicesBrick,
         )
         rows = self.get_brick_table_rows(brick_node)
         table_cells = self.get_alone_element(rows).findall('.//td')
