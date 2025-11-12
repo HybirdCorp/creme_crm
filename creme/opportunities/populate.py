@@ -258,7 +258,7 @@ class Populator(BasePopulator):
             create_rtype(
                 (
                     constants.REL_SUB_LINKED_SALESORDER,
-                    _('is associate with the opportunity'),
+                    _('is associated with the opportunity'),
                     [SalesOrder],
                 ), (
                     constants.REL_OBJ_LINKED_SALESORDER,

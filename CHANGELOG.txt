@@ -1,5 +1,6 @@
 == Version 2.7.3 Work in progress (not released -- this is a draft) ==
 
+  TODO: compile .po (opportunities)
 
 == Version 2.7.2 ==
 
