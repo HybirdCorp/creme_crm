@@ -58,8 +58,8 @@ class ActivityBarHatBrick(SimpleBrick):
     template_name = 'activities/bricks/activity-hat-bar.html'
 
 
-class ActivityCardHatBrick(Brick):
-    id = Brick._generate_hat_id('activities', 'activity_card')
+class ActivityCardHatBrick(SimpleBrick):
+    id = SimpleBrick._generate_hat_id('activities', 'activity_card')
     verbose_name = _('Card header block')
     # NB: Organisation is a hack in order to reload the SubjectsBrick when
     #     auto-subjects (see SETTING_AUTO_ORGA_SUBJECTS) is enabled.
@@ -72,14 +72,12 @@ class ActivityCardHatBrick(Brick):
 
     max_related_entities = 15
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         activity = context['object']
-        user = context['user']
 
         max_entities = self.max_related_entities
-
         participants_qs = EntityCredentials.filter(
-            user=user,
+            user=context['user'],
             queryset=Contact.objects.filter(
                 is_deleted=False,
                 relations__type=constants.REL_SUB_PART_2_ACTIVITY,
@@ -91,7 +89,7 @@ class ActivityCardHatBrick(Brick):
         if participants_count == max_entities:
             participants_count = participants_qs.count()
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             max_entities=max_entities,
 
@@ -104,7 +102,8 @@ class ActivityCardHatBrick(Brick):
                 for r in activity.get_subject_relations()
                 if not r.object_entity.is_deleted
             ],
-        ))
+            **extra_kwargs
+        )
 
 
 class ParticipantsBrick(QuerysetBrick):
@@ -459,14 +458,14 @@ class CalendarConfigItemsBrick(QuerysetBrick):
         return self._render(btc)
 
 
-class UnsuccessfulButtonConfigBrick(Brick):
-    id = Brick.generate_id('activities', 'unsuccessful_call_config')
+class UnsuccessfulButtonConfigBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('activities', 'unsuccessful_call_config')
     verbose_name = _('Configuration of the button «Create an unsuccessful phone call»')
     template_name = 'activities/bricks/unsuccessful-config.html'
     configurable = False
     # permissions = 'activities.can_admin' => useless because views check that.
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         svalues = SettingValue.objects.get_4_keys(
             {'key': setting_keys.unsuccessful_subtype_key},
             {'key': setting_keys.unsuccessful_title_key},
@@ -489,10 +488,11 @@ class UnsuccessfulButtonConfigBrick(Brick):
         except (Status.DoesNotExist, ValidationError):
             status = None
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             sub_type=sub_type,
             status=status,
             title=svalues[setting_keys.unsuccessful_title_key.id].value,
             duration=svalues[setting_keys.unsuccessful_duration_key.id].value,
-        ))
+            **extra_kwargs
+        )

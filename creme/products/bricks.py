@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2024  Hybird
+#    Copyright (C) 2014-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,28 +20,29 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme import products
-from creme.creme_core.gui.bricks import Brick
+from creme.creme_core.gui.bricks import SimpleBrick
 
 Product = products.get_product_model()
 Service = products.get_service_model()
 
 
-class ImagesBrick(Brick):
-    id = Brick.generate_id('products', 'images')
+class ImagesBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('products', 'images')
     verbose_name = _('Images of product/service')
     # dependencies  = (Document,) ??
     template_name = 'products/bricks/images.html'
     target_ctypes = (Product, Service)
     permissions = 'products'
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         entity = context['object']
-        pk = entity.id
-        return self._render(self.get_template_context(
+
+        return super().get_template_context(
             context,
             add_images_url=(
-                reverse('products__add_images_to_product', args=(pk,))
+                reverse('products__add_images_to_product', args=(entity.id,))
                 if isinstance(entity, Product) else
-                reverse('products__add_images_to_service', args=(pk,))
+                reverse('products__add_images_to_service', args=(entity.id,))
             ),
-        ))
+            **extra_kwargs
+        )

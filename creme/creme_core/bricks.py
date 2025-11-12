@@ -28,7 +28,7 @@ from .core import notification
 from .core.entity_cell import EntityCellCustomField
 from .creme_jobs.base import JobType
 from .gui import button_menu, statistics
-from .gui.bricks import Brick, BrickManager, QuerysetBrick
+from .gui.bricks import Brick, BrickManager, QuerysetBrick, SimpleBrick
 from .gui.history import html_history_registry
 from .models import (  # CremeUser
     ButtonMenuItem,
@@ -50,8 +50,8 @@ from .utils.content_type import entity_ctypes
 logger = logging.getLogger(__name__)
 
 
-class ButtonsBrick(Brick):
-    id = Brick.generate_id('creme_core', 'buttons')
+class ButtonsBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('creme_core', 'buttons')
     # dependencies => filled dynamically (see detailview_display()/_set_dependencies())
     verbose_name = 'Button menu'
     template_name = 'creme_core/bricks/buttons.html'
@@ -117,20 +117,34 @@ class ButtonsBrick(Brick):
         self.dependencies = [*deps]
         self.relation_type_deps = [*rtype_deps]
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         entity = context['object']
         request = context['request']
-        # buttons = self._get_buttons(entity=entity, user=context['user'])
         buttons = self._get_buttons(entity=entity, request=request)
         self._set_dependencies(buttons=buttons, model=type(entity))
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             buttons=[
                 button.get_context(entity=entity, request=request)
                 for button in buttons.values()
             ],
-        ))
+            **extra_kwargs
+        )
+
+    # def detailview_display(self, context):
+    #     entity = context['object']
+    #     request = context['request']
+    #     buttons = self._get_buttons(entity=entity, user=context['user'])
+    #     self._set_dependencies(buttons=buttons, model=type(entity))
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         buttons=[
+    #             button.get_context(entity=entity, request=request)
+    #             for button in buttons.values()
+    #         ],
+    #     ))
 
 
 class PropertiesBrick(QuerysetBrick):
@@ -266,8 +280,8 @@ class RelationsBrick(QuerysetBrick):
         ))
 
 
-class CustomFieldsBrick(Brick):
-    id = Brick.generate_id('creme_core', 'customfields')
+class CustomFieldsBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('creme_core', 'customfields')
     verbose_name = _('Custom fields')
     description = _(
         'Displays the values of the Custom Fields for the current entity. '
@@ -277,7 +291,7 @@ class CustomFieldsBrick(Brick):
     dependencies = (CustomField,)
     template_name = 'creme_core/bricks/custom-fields.html'
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         entity = context['object']
 
         # TODO: factorise with CremeEntity.get_custom_fields_n_values() ?
@@ -288,10 +302,27 @@ class CustomFieldsBrick(Brick):
         ]
         CremeEntity.populate_custom_values([entity], cfields)
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             cells=[EntityCellCustomField(cfield) for cfield in cfields],
-        ))
+            **extra_kwargs
+        )
+
+    # def detailview_display(self, context):
+    #     entity = context['object']
+    #
+    #     # TODO: factorise with CremeEntity.get_custom_fields_n_values() ?
+    #     cfields = [
+    #         cfield
+    #         for cfield in CustomField.objects.get_for_model(entity.entity_type).values()
+    #         if not cfield.is_deleted
+    #     ]
+    #     CremeEntity.populate_custom_values([entity], cfields)
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         cells=[EntityCellCustomField(cfield) for cfield in cfields],
+    #     ))
 
 
 class HistoryBrick(QuerysetBrick):
@@ -456,22 +487,38 @@ class StatisticsBrick(Brick):
     # statistics_registry = statistics.statistic_registry
     statistic_registry = statistics.statistic_registry
 
-    def home_display(self, context):
-        has_perm = context['user'].has_perm
+    def _get_items(self, user):
+        has_perm = user.has_perm
 
-        return self._render(self.get_template_context(
+        return [
+            item
+            for item in self.statistic_registry
+            if not item.perm or has_perm(item.perm)
+        ]
+
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
             context,
-            items=[
-                item
-                # for item in self.statistics_registry
-                for item in self.statistic_registry
-                if not item.perm or has_perm(item.perm)
-            ],
-        ))
+            items=self._get_items(user=context['user']),
+            **extra_kwargs
+        )
+
+    def home_display(self, context):
+        # has_perm = context['user'].has_perm
+        #
+        # return self._render(self.get_template_context(
+        #     context,
+        #     items=[
+        #         item
+        #         for item in self.statistics_registry
+        #         if not item.perm or has_perm(item.perm)
+        #     ],
+        # ))
+        return self._render(self.get_template_context(context))
 
 
-class JobBrick(Brick):
-    id = Brick.generate_id('creme_core', 'job')
+class JobBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('creme_core', 'job')
     dependencies = (Job,)
     verbose_name = _('Job')
     template_name = 'creme_core/bricks/job.html'
@@ -491,26 +538,48 @@ class JobBrick(Brick):
             self._reloading_info = {}
             logger.warning('Invalid reloading extra_data for JobBrick: %s', info)
 
-    def detailview_display(self, context):
-        job = context['job']
+    def get_template_context(self, context, **extra_kwargs):
+        job = context['job']  # TODO: unregister brick class + remove this line
 
         reloading_info = self._reloading_info
-
         if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
             list_url = context.get('list_url')
             self._reloading_info = {'list_url': list_url}
         else:
             list_url = reloading_info.get('list_url')
 
-        return self._render(self.get_template_context(
-            context, job=job,
+        return super().get_template_context(
+            context,
+            job=job,
             JOB_OK=Job.STATUS_OK,
             JOB_ERROR=Job.STATUS_ERROR,
             JOB_WAIT=Job.STATUS_WAIT,
             # PERIODIC=JobType.PERIODIC,
             NOT_PERIODIC=JobType.NOT_PERIODIC,
             list_url=list_url,
-        ))
+            **extra_kwargs
+        )
+
+    # def detailview_display(self, context):
+    #     job = context['job']
+    #
+    #     reloading_info = self._reloading_info
+    #
+    #     if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
+    #         list_url = context.get('list_url')
+    #         self._reloading_info = {'list_url': list_url}
+    #     else:
+    #         list_url = reloading_info.get('list_url')
+    #
+    #     return self._render(self.get_template_context(
+    #         context, job=job,
+    #         JOB_OK=Job.STATUS_OK,
+    #         JOB_ERROR=Job.STATUS_ERROR,
+    #         JOB_WAIT=Job.STATUS_WAIT,
+    #         # PERIODIC=JobType.PERIODIC,
+    #         NOT_PERIODIC=JobType.NOT_PERIODIC,
+    #         list_url=list_url,
+    #     ))
 
 
 class JobResultsBrick(QuerysetBrick):

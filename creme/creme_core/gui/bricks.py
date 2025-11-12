@@ -299,11 +299,18 @@ class ForbiddenBrick(Brick):
         self.verbose_name = verbose_name
         self.error = error
 
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
+            context, permissions_error=self.error, **extra_kwargs
+        )
+
     def detailview_display(self, context):
-        return self._render(self.get_template_context(context, permissions_error=self.error))
+        # return self._render(self.get_template_context(context, permissions_error=self.error))
+        return self._render(self.get_template_context(context))
 
     def home_display(self, context):
-        return self.detailview_display(context=context)
+        # return self.detailview_display(context=context)
+        return self._render(self.get_template_context(context))
 
 
 class VoidBrick(SimpleBrick):
@@ -483,7 +490,8 @@ class QuerysetBrick(PaginatedBrick):
         )
 
 
-class EntityBrick(Brick):
+# class EntityBrick(Brick):
+class EntityBrick(SimpleBrick):
     id = MODELBRICK_ID
     verbose_name = _('Information on the entity (generic)')
     description = _(
@@ -517,14 +525,24 @@ class EntityBrick(Brick):
     def _get_title(self, entity: CremeEntity, context) -> str:
         return gettext('Information «{model}»').format(model=entity.entity_type)
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         entity = context['object']
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             title=self._get_title(entity, context),
             cells=self._get_cells(entity, context),
-        ))
+            **extra_kwargs
+        )
+
+    # def detailview_display(self, context):
+    #     entity = context['object']
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         title=self._get_title(entity, context),
+    #         cells=self._get_cells(entity, context),
+    #     ))
 
 
 class SpecificRelationsBrick(QuerysetBrick):
@@ -635,7 +653,8 @@ class InstanceBrick(Brick):
         self.id = instance_brick_config_item.brick_id
 
 
-class CustomBrick(Brick):
+# class CustomBrick(Brick):
+class CustomBrick(SimpleBrick):
     """Brick which can be customised by the user to display information of an entity.
     It can display regular, custom & function fields, relationships...
     (see HeaderFilter & EntityCells)
@@ -676,13 +695,23 @@ class CustomBrick(Brick):
         self.verbose_name = custombrick_conf_item.name
         self.config_item = custombrick_conf_item
 
-    def detailview_display(self, context) -> str:
+    def get_template_context(self, context, **extra_kwargs):
         config_item = self.config_item
-        return self._render(self.get_template_context(
+
+        return super().get_template_context(
             context,
             config_item=config_item,
             cells=[*config_item.filtered_cells],
-        ))
+            **extra_kwargs
+        )
+
+    # def detailview_display(self, context) -> str:
+    #     config_item = self.config_item
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         config_item=config_item,
+    #         cells=[*config_item.filtered_cells],
+    #     ))
 
 
 class BrickManager:

@@ -23,7 +23,7 @@ from django.utils.functional import partition
 from django.utils.translation import gettext_lazy as _
 
 from creme import documents, emails, persons
-from creme.creme_core.gui.bricks import Brick, QuerysetBrick, SimpleBrick
+from creme.creme_core.gui.bricks import QuerysetBrick, SimpleBrick
 from creme.creme_core.models import Relation, RelationType
 
 from . import constants
@@ -55,7 +55,7 @@ class EntityEmailBarHatBrick(SimpleBrick):
     template_name = 'emails/bricks/mail-hat-bar.html'
 
 
-class _HTMLBodyBrick(Brick):
+class _HTMLBodyBrick(SimpleBrick):
     verbose_name = _('HTML body')
     template_name = 'emails/bricks/html-body.html'
 
@@ -64,11 +64,12 @@ class _HTMLBodyBrick(Brick):
             'creme_core__sanitized_html_field', args=(instance.id, 'body_html'),
         )
 
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
             context,
             body_url=self._get_body_url(context['object']),
-        ))
+            **extra_kwargs
+        )
 
 
 class EmailHTMLBodyBrick(_HTMLBodyBrick):

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,11 @@ from itertools import chain
 from django.utils.translation import gettext_lazy as _
 
 from creme import commercial
-from creme.creme_core.gui.bricks import Brick, PaginatedBrick, QuerysetBrick
+from creme.creme_core.gui.bricks import (
+    PaginatedBrick,
+    QuerysetBrick,
+    SimpleBrick,
+)
 from creme.creme_core.models import Relation, RelationType, SettingValue
 from creme.opportunities import get_opportunity_model
 from creme.opportunities.constants import REL_SUB_TARGETS
@@ -161,64 +165,68 @@ class EvaluatedOrgasBrick(QuerysetBrick):
         ))
 
 
-class AssetsMatrixBrick(Brick):
-    id = Brick.generate_id('commercial', 'assets_matrix')
+class AssetsMatrixBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('commercial', 'assets_matrix')
     verbose_name = _('Assets / Segments matrix')
     # dependencies  = (CommercialAsset,) #useless (custom reload view....)
     template_name = 'commercial/bricks/assets-matrix.html'
     configurable = False
     permissions = 'commercial'
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         # NB: credentials are OK : we are sure to use the custom reload view
         #     if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
-        return self._render(self.get_template_context(
+
+        return super().get_template_context(
             context,
             assets=strategy.get_assets_list(),
             segment_info=strategy.get_segment_descriptions_list(),
             totals=strategy.get_assets_totals(orga),
-        ))
+            **extra_kwargs
+        )
 
 
-class CharmsMatrixBrick(Brick):
-    id = Brick.generate_id('commercial', 'charms_matrix')
+class CharmsMatrixBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('commercial', 'charms_matrix')
     verbose_name = _('Charms / Segments matrix')
     # dependencies = (MarketSegmentCharm,) #useless (custom reload view....)
     template_name = 'commercial/bricks/charms-matrix.html'
     configurable = False
     permissions = 'commercial'
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         # NB: credentials are OK : we are sure to use the custom reload view
         #     if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
-        return self._render(self.get_template_context(
+
+        return super().get_template_context(
             context,
             charms=strategy.get_charms_list(),
             segment_info=strategy.get_segment_descriptions_list(),
             totals=strategy.get_charms_totals(orga),
-        ))
+            **extra_kwargs
+        )
 
 
-class AssetsCharmsMatrixBrick(Brick):
-    id = Brick.generate_id('commercial', 'assets_charms_matrix')
+class AssetsCharmsMatrixBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('commercial', 'assets_charms_matrix')
     verbose_name = _('Assets / Charms matrix')
     # dependencies = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
     template_name = 'commercial/bricks/assets-charms-matrix.html'
     configurable = False
     permissions = 'commercial'
 
-    def detailview_display(self, context):
-        # NB: credentials are OK : we are sure to use the custom reload view
-        #     if 'strategy' & 'orga' are in the context
-        strategy = context['strategy']
-        return self._render(self.get_template_context(
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
             context,
-            segment_info=strategy.get_segment_descriptions_list(),
-        ))
+            # NB: credentials are OK; we are sure to use the custom reload view
+            #     if 'strategy' is in the context
+            segment_info=context['strategy'].get_segment_descriptions_list(),
+            **extra_kwargs
+        )
 
 
 class ActObjectivesBrick(QuerysetBrick):
@@ -262,16 +270,15 @@ class RelatedOpportunitiesBrick(PaginatedBrick):
         ))
 
 
-class PatternComponentsBrick(Brick):
-    id = Brick.generate_id('commercial', 'pattern_components')
+class PatternComponentsBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('commercial', 'pattern_components')
     verbose_name = _('Components of an Objective Pattern')
     dependencies = (ActObjectivePatternComponent,)
     template_name = 'commercial/bricks/components.html'
     target_ctypes = (ActObjectivePattern,)
     permissions = 'commercial'
 
-    def detailview_display(self, context):
-        pattern = context['object']
+    def _get_flattened_tree(self, pattern):
         flattened_tree = []
 
         def explore_tree(components, deep):
@@ -282,6 +289,11 @@ class PatternComponentsBrick(Brick):
 
         explore_tree(pattern.get_components_tree(), 0)
 
-        return self._render(self.get_template_context(
-            context, components=flattened_tree,
-        ))
+        return flattened_tree
+
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
+            context,
+            components=self._get_flattened_tree(pattern=context['object']),
+            **extra_kwargs
+        )

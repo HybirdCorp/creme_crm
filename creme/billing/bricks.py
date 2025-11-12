@@ -62,15 +62,16 @@ ServiceLine = billing.get_service_line_model()
 
 
 # Hat bars ---------------------------------------------------------------------
-class BillingBarHatBrick(Brick):
+class BillingBarHatBrick(SimpleBrick):
     template_name = 'billing/bricks/billing-hat-bar.html'
     download_button = True
 
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
             context,
             download_button=self.download_button,
-        ))
+            **extra_kwargs
+        )
 
 
 class CreditNoteBarHatBrick(BillingBarHatBrick):
@@ -236,19 +237,21 @@ class _BillingCardHatBrick(SimpleBrick):
         return False
 
     def get_template_context(self, context, **extra_kwargs):
-        context = super().get_template_context(context, **extra_kwargs)
         entity = context['object']
-        context['summaries'] = [
-            summary_cls().get_context(entity=entity, brick_context=context)
-            for summary_cls in self.summaries
-        ]
-        context['is_expiration_passed'] = (
-            self.is_expiration_passed(entity=entity, today=context['today'].date())
-            if entity.expiration_date else
-            False
-        )
 
-        return context
+        return super().get_template_context(
+            context,
+            summaries=[
+                summary_cls().get_context(entity=entity, brick_context=context)
+                for summary_cls in self.summaries
+            ],
+            is_expiration_passed=(
+                self.is_expiration_passed(entity=entity, today=context['today'].date())
+                if entity.expiration_date else
+                False
+            ),
+            **extra_kwargs
+        )
 
 
 class CreditNoteCardHatBrick(_BillingCardHatBrick):
@@ -300,7 +303,7 @@ class SalesOrderCardHatBrick(_BillingCardHatBrick):
 
 
 # Other ------------------------------------------------------------------------
-class _LinesBrick(Brick):
+class _LinesBrick(SimpleBrick):
     dependencies = (Relation, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     relation_type_deps = (constants.REL_SUB_HAS_LINE, )
     target_ctypes = (CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
@@ -309,8 +312,8 @@ class _LinesBrick(Brick):
     line_model = Line
     line_edit_form_template = 'billing/bricks/frags/line-fields.html'
 
-    # TODO: factorise with views.line.multi_save_lines() ?
-    def detailview_display(self, context):
+    # TODO: factorise with <views.line.multi_save_lines()>?
+    def get_template_context(self, context, **extra_kwargs):
         from .views.line import LINE_FORMSET_PREFIX
 
         document = context['object']
@@ -318,7 +321,7 @@ class _LinesBrick(Brick):
         line_model = self.line_model
         lines = document.get_lines(line_model)
 
-        lineformset = line_forms.BaseLineEditionFormset(
+        line_formset = line_forms.BaseLineEditionFormset(
             line_model,
             user,
             related_document=document,
@@ -327,15 +330,17 @@ class _LinesBrick(Brick):
         )
         get_ct = ContentType.objects.get_for_model
         related_item_model = line_model.related_item_class()
-        return self._render(self.get_template_context(
+
+        return super().get_template_context(
             context,
-            ct_id=get_ct(line_model).id,  # TODO: templatetag instead ?
-            formset=lineformset,
+            ct_id=get_ct(line_model).id,  # TODO: templatetag instead?
+            formset=line_formset,
             item_count=len(lines),
-            related_item_ct=get_ct(related_item_model),  # TODO: templatetag instead ?
+            related_item_ct=get_ct(related_item_model),  # TODO: templatetag instead?
             related_item_label=related_item_model._meta.verbose_name,
             line_edit_form_template=self.line_edit_form_template,
-        ))
+            **extra_kwargs
+        )
 
 
 class ProductLinesBrick(_LinesBrick):
@@ -374,8 +379,8 @@ class CreditNotesBrick(PaginatedBrick):
         ))
 
 
-class TotalBrick(Brick):
-    id = Brick.generate_id('billing', 'total')
+class TotalBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('billing', 'total')
     dependencies = (
         ProductLine, ServiceLine,
         Relation,
@@ -387,11 +392,12 @@ class TotalBrick(Brick):
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
     permissions = 'billing'
 
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
             context,
             cell_class=getattr(settings, 'CSS_NUMBER_LISTVIEW', ''),
-        ))
+            **extra_kwargs
+        )
 
 
 class TargetBrick(SimpleBrick):
@@ -572,45 +578,50 @@ class BillingPrettyAddressBrick(persons_bricks.PrettyAddressesBrick):
     permissions = 'billing'
 
 
-class NumberGeneratorItemsBrick(Brick):
-    id = Brick.generate_id('billing', 'number_generators')
+class NumberGeneratorItemsBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('billing', 'number_generators')
     verbose_name = 'Number generation'
     template_name = 'billing/bricks/number-generators.html'
     dependencies = (NumberGeneratorItem,)
     # configurable = False
     # permissions = 'billing.can_admin' => auto by creme_config views
 
-    def detailview_display(self, context):
-        sort_key = collator.sort_key
+    class OrganisationWrapper:
+        def __init__(self, organisation, items):
+            self.organisation = organisation
 
-        class OrganisationWrapper:
-            def __init__(this, organisation, items):
-                this.organisation = organisation
-                items.sort(key=lambda item: sort_key(str(item.numbered_type)))
-                this.items = items
+            sort_key = collator.sort_key
+            items.sort(key=lambda item: sort_key(str(item.numbered_type)))
+            self.items = items
 
+    def _get_wrapped_organisations(self):
         items_per_orga = defaultdict(list)
         for item in NumberGeneratorItem.objects.all():
             items_per_orga[item.organisation_id].append(item)
 
-        return self._render(self.get_template_context(
+        Wrapper = self.OrganisationWrapper
+        return [
+            Wrapper(organisation=orga, items=items_per_orga[orga.id])
+            for orga in Organisation.objects.filter(id__in=items_per_orga.keys())
+        ]
+
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
             context,
-            organisations=[
-                OrganisationWrapper(organisation=orga, items=items_per_orga[orga.id])
-                for orga in Organisation.objects.filter(id__in=items_per_orga.keys())
-            ],
-        ))
+            organisations=self._get_wrapped_organisations(),
+            **extra_kwargs
+        )
 
 
-class BillingExportersBrick(Brick):
-    id = Brick.generate_id('billing', 'exporters')
+class BillingExportersBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('billing', 'exporters')
     verbose_name = _('Exporters')
     template_name = 'billing/bricks/exporters.html'
     dependencies = (ExporterConfigItem,)
     # configurable = False
     # permissions = 'billing.can_admin' => auto by creme_config views
 
-    def detailview_display(self, context):
+    def _get_config_items(self):
         items = [*ExporterConfigItem.objects.all()]
 
         sort_key = collator.sort_key
@@ -625,14 +636,16 @@ class BillingExportersBrick(Brick):
                 model=conf_item.content_type.model_class(),
             )
 
-        return self._render(self.get_template_context(
-            context,
-            config_items=items,
-        ))
+        return items
+
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
+            context, config_items=self._get_config_items(), **extra_kwargs
+        )
 
 
-class PersonsStatisticsBrick(Brick):
-    id = Brick.generate_id('billing', 'persons__statistics')
+class PersonsStatisticsBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('billing', 'persons__statistics')
     verbose_name = _('Billing statistics')
     description = _(
         'Displays some statistics concerning Invoices & Quotes:\n'
@@ -645,12 +658,14 @@ class PersonsStatisticsBrick(Brick):
     target_ctypes = (Organisation, Contact)
     permissions = 'billing'
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         person = context['object']
         user = context['user']
-        return self._render(self.get_template_context(
+
+        return super().get_template_context(
             context,
             total_pending=function_fields.get_total_pending(person, user),
             total_won_quote_last_year=function_fields.get_total_won_quote_last_year(person, user),
             total_won_quote_this_year=function_fields.get_total_won_quote_this_year(person, user),
-        ))
+            **extra_kwargs
+        )
