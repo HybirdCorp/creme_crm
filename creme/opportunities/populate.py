@@ -122,7 +122,7 @@ if apps.is_installed('creme.billing'):
     BILLING_RELATION_TYPES = [
         RelationType.objects.builder(
             id=constants.REL_SUB_LINKED_SALESORDER,
-            predicate=_('is associate with the opportunity'),
+            predicate=_('is associated with the opportunity'),
             models=[SalesOrder],
         ).symmetric(
             id=constants.REL_OBJ_LINKED_SALESORDER,
@@ -419,7 +419,7 @@ class Populator(BasePopulator):
         #     create_rtype(
         #         (
         #             constants.REL_SUB_LINKED_SALESORDER,
-        #             _('is associate with the opportunity'),
+        #             _('is associated with the opportunity'),
         #             [SalesOrder],
         #         ), (
         #             constants.REL_OBJ_LINKED_SALESORDER,
