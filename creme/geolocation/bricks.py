@@ -66,6 +66,7 @@ class _MapBrick(Brick):
 
         return choices
 
+    # TODO: rename "get_addresses_as_dictS" ?
     def get_addresses_as_dict(self, entity):
         return [
             {
@@ -76,7 +77,13 @@ class _MapBrick(Brick):
                                     .select_related('geoaddress')
         ]
 
-    def get_template_context(self, context: dict, **extra_kwargs) -> dict:
+    def get_api_key(self):
+        return ''
+
+    def get_map_settings(self):
+        return {}
+
+    def get_template_context(self, context, **extra_kwargs):
         return super().get_template_context(
             context,
             map_api_key=self.get_api_key(),
@@ -84,31 +91,41 @@ class _MapBrick(Brick):
             **extra_kwargs
         )
 
-    def get_api_key(self):
-        return ''
-
-    def get_map_settings(self):
-        return {}
-
 
 class _DetailMapBrick(_MapBrick):
     target_ctypes = (Contact, Organisation)
     update_address_url = reverse_lazy('geolocation__set_address_info')
 
-    def detailview_display(self, context):
-        entity = context['object']
+    def get_template_context(self, context, **extra_kwargs):
         addresses = [
             address
-            for address in self.get_addresses_as_dict(entity)
+            for address in self.get_addresses_as_dict(context['object'])
             if address.get('content')
         ]
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             addresses=addresses,
             geoaddresses=addresses,
             update_address_url=self.update_address_url,
-        ))
+            **extra_kwargs
+        )
+
+    def detailview_display(self, context):
+        # entity = context['object']
+        # addresses = [
+        #     address
+        #     for address in self.get_addresses_as_dict(entity)
+        #     if address.get('content')
+        # ]
+        #
+        # return self._render(self.get_template_context(
+        #     context,
+        #     addresses=addresses,
+        #     geoaddresses=addresses,
+        #     update_address_url=self.update_address_url,
+        # ))
+        return self._render(self.get_template_context(context))
 
 
 class GoogleDetailMapBrick(_DetailMapBrick):
@@ -140,14 +157,25 @@ class OpenStreetMapDetailMapBrick(_DetailMapBrick):
 class _FilteredMapBrick(_MapBrick):
     addresses_url = reverse_lazy('geolocation__addresses')
 
-    def home_display(self, context):
-        return self._render(self.get_template_context(
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
             context,
             address_filters=self.get_filter_choices(
                 context['user'], Contact, Organisation,
             ),
             addresses_url=self.addresses_url,
-        ))
+            **extra_kwargs
+        )
+
+    def home_display(self, context):
+        # return self._render(self.get_template_context(
+        #     context,
+        #     address_filters=self.get_filter_choices(
+        #         context['user'], Contact, Organisation,
+        #     ),
+        #     addresses_url=self.addresses_url,
+        # ))
+        return self._render(self.get_template_context(context))
 
 
 class GoogleFilteredMapBrick(_FilteredMapBrick):
@@ -182,6 +210,7 @@ class _NeighboursMapBrick(_MapBrick):
     dependencies = (Address, GeoAddress,)
     target_ctypes = (Contact, Organisation)
     neighbours_url = reverse_lazy('geolocation__neighbours')
+    detail_map = _DetailMapBrick  # TODO: "detail_map_brick"?
 
     # Specific use case
     #  Add a new "ungeolocatable"; the person brick will show an error message
@@ -190,10 +219,10 @@ class _NeighboursMapBrick(_MapBrick):
     #  reloaded and the address is asynchronously geocoded
     #  This brick is reloaded in the same time and the address has no info yet.
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         entity = context['object']
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             ref_addresses=self.get_addresses_as_dict(entity),
             address_filters=self.get_filter_choices(
@@ -202,7 +231,23 @@ class _NeighboursMapBrick(_MapBrick):
             radius=get_radius(),
             maps_blockid=self.detail_map.id,
             neighbours_url=self.neighbours_url,
-        ))
+            **extra_kwargs
+        )
+
+    def detailview_display(self, context):
+        # entity = context['object']
+        #
+        # return self._render(self.get_template_context(
+        #     context,
+        #     ref_addresses=self.get_addresses_as_dict(entity),
+        #     address_filters=self.get_filter_choices(
+        #         context['user'], Contact, Organisation,
+        #     ),
+        #     radius=get_radius(),
+        #     maps_blockid=self.detail_map.id,
+        #     neighbours_url=self.neighbours_url,
+        # ))
+        return self._render(self.get_template_context(context))
 
 
 class GoogleNeighboursMapBrick(_NeighboursMapBrick):

@@ -131,15 +131,12 @@ class EntityFilterMixin(FilterMixin):
         return self.efilter_registries[self.efilter_type]
 
 
-class EntityFilterBarHatBrick(bricks.Brick):
+class EntityFilterBarHatBrick(bricks.SimpleBrick):
     id = 'efilter_hat_bar'
     dependencies = [EntityFilter]
     template_name = 'creme_core/bricks/efilter-hat-bar.html'
 
-    def detailview_display(self, context):
-        efilter = context['object']
-        user = context['user']
-
+    def _get_edition_info(self, user, efilter):
         edition_allowed, edition_error = efilter.can_edit(user)
         edition_info = {
             'url': efilter.get_edit_absolute_url(),
@@ -148,6 +145,9 @@ class EntityFilterBarHatBrick(bricks.Brick):
         if not edition_allowed:
             edition_info['error'] = edition_error
 
+        return edition_info
+
+    def _get_deletion_info(self, user, efilter):
         deletion_allowed, deletion_error = efilter.can_delete(user)
         deletion_info = {
             'url': efilter.get_delete_absolute_url(),
@@ -156,11 +156,18 @@ class EntityFilterBarHatBrick(bricks.Brick):
         if not deletion_allowed:
             deletion_info['error'] = deletion_error
 
-        return self._render(self.get_template_context(
+        return deletion_info
+
+    def get_template_context(self, context, **extra_kwargs):
+        efilter = context['object']
+        user = context['user']
+
+        return super().get_template_context(
             context,
-            edition=edition_info,
-            deletion=deletion_info,
-        ))
+            edition=self._get_edition_info(user=user, efilter=efilter),
+            deletion=self._get_deletion_info(user=user, efilter=efilter),
+            **extra_kwargs
+        )
 
 
 class EntityFilterInfoBrick(bricks.SimpleBrick):

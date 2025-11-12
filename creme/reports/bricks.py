@@ -62,8 +62,8 @@ class ReportBarHatBrick(core_bricks.SimpleBrick):
     template_name = 'reports/bricks/report-hat-bar.html'
 
 
-class ReportFieldsBrick(core_bricks.Brick):
-    id = core_bricks.Brick.generate_id('reports', 'fields')
+class ReportFieldsBrick(core_bricks.SimpleBrick):
+    id = core_bricks.SimpleBrick.generate_id('reports', 'fields')
     verbose_name = _('Columns of the report')
     description = _(
         'Displays & edits the columns of a report.\n'
@@ -75,14 +75,15 @@ class ReportFieldsBrick(core_bricks.Brick):
     target_ctypes = (Report,)
     permissions = 'reports'
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         columns = context['object'].columns
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             columns=columns,
             expand=any(field.sub_report_id for field in columns),
-        ))
+            **extra_kwargs
+        )
 
 
 # class ReportGraphChartListBrick(ReportGraphMixin, core_bricks.QuerysetBrick):
@@ -375,7 +376,7 @@ class ReportChartInstanceBrick(ReportChartMixin, core_bricks.InstanceBrick):
             )
 
             data = self.merge_chart_data(
-                x, y, colors=chart.fetch_colormap(user)
+                x, y, colors=chart.fetch_colormap(user),
             )
         except ChartFetcher.IncompatibleContentType as e:
             error = str(e)
@@ -436,15 +437,15 @@ class ReportChartInstanceBrick(ReportChartMixin, core_bricks.InstanceBrick):
 #                 name: chart.props(graph, data) for name, chart in report_chart_registry
 #             }
 #         ))
-class ReportChartBrick(ReportChartMixin, core_bricks.Brick):
-    id = core_bricks.Brick.generate_id('reports', 'chart')
+class ReportChartBrick(ReportChartMixin, core_bricks.SimpleBrick):
+    id = core_bricks.SimpleBrick.generate_id('reports', 'chart')
     dependencies = (ReportChart,)
     verbose_name = _('Report chart')
     template_name = 'reports/bricks/report-chart.html'
     target_ctypes = (ReportChart,)
     permissions = 'reports'
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         chart = context['object']
         user = context['user']
         order = 'ASC' if chart.asc else 'DESC'
@@ -455,7 +456,7 @@ class ReportChartBrick(ReportChartMixin, core_bricks.Brick):
         )
         data = self.merge_chart_data(x, y, colors=chart.fetch_colormap(user))
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             chart=chart,
             data=data,
@@ -467,7 +468,8 @@ class ReportChartBrick(ReportChartMixin, core_bricks.Brick):
                 plot.name: plot.props(chart=chart, data=data)
                 for plot in plot_registry
             },
-        ))
+            **extra_kwargs
+        )
 
 
 class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):

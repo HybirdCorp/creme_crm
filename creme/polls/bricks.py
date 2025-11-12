@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2024  Hybird
+#    Copyright (C) 2012-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,6 @@ from django.utils.translation import ngettext
 
 from creme import persons, polls
 from creme.creme_core.gui.bricks import (
-    Brick,
     BrickDependencies,
     QuerysetBrick,
     SimpleBrick,
@@ -40,8 +39,8 @@ class PollFormBarHatBrick(SimpleBrick):
     template_name = 'polls/bricks/pform-hat-bar.html'
 
 
-class PollFormLinesBrick(Brick):
-    id = Brick.generate_id('polls', 'pollform_lines')
+class PollFormLinesBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('polls', 'pollform_lines')
     verbose_name = _('Form lines')
     dependencies = (PollFormLine,)
     template_name = 'polls/bricks/pform-lines.html'
@@ -86,39 +85,38 @@ class PollFormLinesBrick(Brick):
 
         return gettext('Questions')
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         pform = context['object']
         nodes = SectionTree(pform)
 
         PollFormLine.populate_conditions([node for node in nodes if not node.is_section])
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             nodes=nodes,
             title=self._build_title(nodes),
             style=NodeStyle(),
-        ))
+            **extra_kwargs
+        )
 
 
-class PollReplyLinesBrick(Brick):
-    id = Brick.generate_id('polls', 'pollreply_lines')
+class PollReplyLinesBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('polls', 'pollreply_lines')
     verbose_name = _('Reply lines')
     dependencies = (PollReplyLine,)
     template_name = 'polls/bricks/preply-lines.html'
     target_ctypes = (PollReply,)
     permissions = 'polls'
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         preply = context['object']
         nodes = ReplySectionTree(preply)
 
         nodes.set_conditions_flags()
 
-        return self._render(self.get_template_context(
-            context,
-            nodes=nodes,
-            style=NodeStyle(),
-        ))
+        return super().get_template_context(
+            context, nodes=nodes, style=NodeStyle(), **extra_kwargs
+        )
 
 
 class PollRepliesBrick(QuerysetBrick):

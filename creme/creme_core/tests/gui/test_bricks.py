@@ -87,11 +87,12 @@ class BrickRegistryTestCase(CremeTestCase):
 
     def test_register02(self):
         "2 classes at once."
-        class FoobarBrick(Brick):
+        # class FoobarBrick(Brick):
+        class FoobarBrick(SimpleBrick):
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context):
-                return self._render(self.get_template_context(context))
+            # def detailview_display(self, context):
+            #     return self._render(self.get_template_context(context))
 
         class FoobarBrick1(FoobarBrick):
             id = Brick.generate_id('creme_core', 'foobar_brick_1')
@@ -106,12 +107,13 @@ class BrickRegistryTestCase(CremeTestCase):
 
     def test_register03(self):
         "Duplicates."
-        class FoobarBrick1(Brick):
+        # class FoobarBrick1(Brick):
+        class FoobarBrick1(SimpleBrick):
             id = Brick.generate_id('creme_core', 'foobar_brick_1')
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context):
-                return self._render(self.get_template_context(context))
+            # def detailview_display(self, context):
+            #     return self._render(self.get_template_context(context))
 
         class FoobarBrick2(FoobarBrick1):
             pass
@@ -127,12 +129,13 @@ class BrickRegistryTestCase(CremeTestCase):
 
     def test_register04(self):
         "Empty ID."
-        class FoobarBrick(Brick):
+        # class FoobarBrick(Brick):
+        class FoobarBrick(SimpleBrick):
             # id = Brick.generate_id('creme_core', 'foobar_brick')  # NOPE
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context):
-                return self._render(self.get_template_context(context))
+            # def detailview_display(self, context):
+            #     return self._render(self.get_template_context(context))
 
         brick_registry = BrickRegistry()
 

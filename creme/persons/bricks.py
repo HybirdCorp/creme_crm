@@ -232,7 +232,8 @@ class OrganisationBarHatBrick(SimpleBrick):
 
 
 # TODO: move to core ?
-class _PersonsCardHatBrick(Brick):
+# class _PersonsCardHatBrick(Brick):
+class _PersonsCardHatBrick(SimpleBrick):
     intro_summary = LastActivityIntroSummary  # TODO: accept several summaries?
     summaries = [
         CommercialActsSummary,
@@ -254,17 +255,19 @@ class _PersonsCardHatBrick(Brick):
         }]
 
     def get_template_context(self, context, **extra_kwargs):
-        context = super().get_template_context(context, **extra_kwargs)
         entity = context['object']
-        context['intro_summary'] = self.intro_summary().get_context(
-            entity=entity, brick_context=context,
-        )
-        context['summaries'] = [
-            summary_cls().get_context(entity=entity, brick_context=context)
-            for summary_cls in self.summaries
-        ]
 
-        return context
+        return super().get_template_context(
+            context,
+            intro_summary=self.intro_summary().get_context(
+                entity=entity, brick_context=context,
+            ),
+            summaries=[
+                summary_cls().get_context(entity=entity, brick_context=context)
+                for summary_cls in self.summaries
+            ],
+            **extra_kwargs
+        )
 
 
 class ContactCardHatBrick(_PersonsCardHatBrick):
@@ -281,7 +284,7 @@ class ContactCardHatBrick(_PersonsCardHatBrick):
 
     max_related_organisations = 8
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         contact = context['object']
         user = context['user']
         managed_orgas = Organisation.objects.filter_managed_by_creme()
@@ -306,7 +309,7 @@ class ContactCardHatBrick(_PersonsCardHatBrick):
         managed, managed_count = retrieve_organisations_n_count(constants.REL_OBJ_MANAGES)
         employers, employers_count = retrieve_organisations_n_count(constants.REL_OBJ_EMPLOYED_BY)
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
 
             max_organisations=max_organisations,
@@ -328,7 +331,9 @@ class ContactCardHatBrick(_PersonsCardHatBrick):
             ).exists(),
 
             neglected_indicator=NeglectedContactIndicator(context, contact),
-        ))
+
+            **extra_kwargs
+        )
 
 
 class OrganisationCardHatBrick(_PersonsCardHatBrick):
@@ -348,7 +353,7 @@ class OrganisationCardHatBrick(_PersonsCardHatBrick):
 
     max_related_contacts = 15
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         organisation = context['object']
         user = context['user']
         managed_orgas = Organisation.objects.filter_managed_by_creme()
@@ -366,7 +371,7 @@ class OrganisationCardHatBrick(_PersonsCardHatBrick):
         managers, managers_count = retrieve_contacts_n_count(organisation.get_managers())
         employees, employees_count = retrieve_contacts_n_count(organisation.get_employees())
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             position_is_hidden=context['fields_configs'].get_for_model(
                 Contact
@@ -388,7 +393,9 @@ class OrganisationCardHatBrick(_PersonsCardHatBrick):
             employees=employees,
             employees_count=employees_count,
             REL_SUB_EMPLOYED_BY=constants.REL_SUB_EMPLOYED_BY,
-        ))
+
+            **extra_kwargs
+        )
 
 
 class _LinkedPeopleBrick(QuerysetBrick):
@@ -479,7 +486,7 @@ def _get_address_field_names():
     return field_names
 
 
-class _AddressesBrick(Brick):
+class _AddressesBrick(SimpleBrick):
     dependencies = (Address,)
     verbose_name = 'Addresses'
     target_ctypes: Sequence[type[CremeEntity]] = (Contact, Organisation)
@@ -528,9 +535,6 @@ class _AddressesBrick(Brick):
                 (fname, build_cell(name=fname)) for fname in _get_address_field_names()
             ),
         )
-
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(context))
 
 
 class DetailedAddressesBrick(_AddressesBrick):

@@ -43,6 +43,7 @@ from creme.creme_core.gui.bricks import (
     BrickManager,
     PaginatedBrick,
     QuerysetBrick,
+    SimpleBrick,
     brick_registry,
 )
 from creme.creme_core.gui.button_menu import button_registry
@@ -65,14 +66,11 @@ WorldSettings = get_world_settings_model()
 logger = logging.getLogger(__name__)
 
 
-class ExportButtonBrick(Brick):
-    id = Brick.generate_id('creme_config', 'transfer_buttons')
+class ExportButtonBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('creme_config', 'transfer_buttons')
     verbose_name = _('Export & import configuration')
     template_name = 'creme_config/bricks/transfer-buttons.html'
     configurable = False
-
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(context))
 
 
 class GenericModelBrick(QuerysetBrick):
@@ -151,18 +149,19 @@ class SettingsBrick(QuerysetBrick):
         ))
 
 
-class WorldSettingsBrick(Brick):
-    id = QuerysetBrick.generate_id('creme_config', 'world_settings')
+class WorldSettingsBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('creme_config', 'world_settings')
     verbose_name = _('Instance settings')
     dependencies = (WorldSettings,)
     template_name = 'creme_config/bricks/world-settings.html'
     configurable = False
 
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
             context,
             world_settings=WorldSettings.objects.instance(),
-        ))
+            **extra_kwargs
+        )
 
 
 class _ConfigAdminBrick(QuerysetBrick):
@@ -309,14 +308,14 @@ class FieldsConfigsBrick(PaginatedBrick):
         return self._render(btc)
 
 
-class CustomFieldsBrick(Brick):
-    id = Brick.generate_id('creme_config', 'custom_fields')
+class CustomFieldsBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('creme_config', 'custom_fields')
     verbose_name = 'Configuration of custom fields'
     dependencies = (core_models.CustomField,)
     template_name = 'creme_config/bricks/custom-fields.html'
     configurable = False
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         # NB: we wrap the ContentType instances instead of store extra data in
         #     them because the instances are stored in a global cache, so we do
         #     not want to mutate them.
@@ -356,11 +355,12 @@ class CustomFieldsBrick(Brick):
             for ct_id, ct_cfields in cfields_per_ct_id.items()
         ]
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             ctypes=ctypes,
             hide_deleted=hide_deleted,
-        ))
+            **extra_kwargs
+        )
 
 
 class CustomEnumsBrick(_ConfigAdminBrick):
@@ -1047,8 +1047,8 @@ class NotificationChannelConfigItemsBrick(_ConfigAdminBrick):
 
 
 # TODO: pagination for big number of roles?
-class ButtonMenuBrick(Brick):
-    id = Brick.generate_id('creme_config', 'button_menu')
+class ButtonMenuBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('creme_config', 'button_menu')
     verbose_name = 'Button menu configuration'
     dependencies = (core_models.ButtonMenuItem,)
     template_name = 'creme_config/bricks/button-menu.html'
@@ -1080,7 +1080,7 @@ class ButtonMenuBrick(Brick):
 
         return default_buttons, ctype_buttons
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         items = core_models.ButtonMenuItem.objects.order_by('order')
 
         base_default_buttons, base_ctypes_buttons = self._build_buttons_info(
@@ -1115,7 +1115,7 @@ class ButtonMenuBrick(Brick):
                     'ctypes': ctypes_buttons,
                 })
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             base_default_buttons=base_default_buttons,
             base_ctypes_buttons=base_ctypes_buttons,
@@ -1126,7 +1126,8 @@ class ButtonMenuBrick(Brick):
             all_roles_configured=(
                 superusers_buttons is not None and len(role_ids) == len(roles)
             ),
-        ))
+            **extra_kwargs
+        )
 
 
 class SearchConfigBrick(PaginatedBrick):
@@ -1225,8 +1226,8 @@ class UserRolesBrick(_ConfigAdminBrick):
         ))
 
 
-class UserSettingValuesBrick(Brick):
-    id = QuerysetBrick.generate_id('creme_config', 'user_setting_values')
+class UserSettingValuesBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('creme_config', 'user_setting_values')
     verbose_name = _('Setting values')
     # dependencies  = (User,) ??
     template_name = 'creme_config/bricks/user-setting-values.html'
@@ -1234,7 +1235,7 @@ class UserSettingValuesBrick(Brick):
 
     user_setting_key_registry = setting_key.user_setting_key_registry
 
-    def detailview_display(self, context):
+    def get_template_context(self, context, **extra_kwargs):
         # NB: credentials OK: user can only view his own settings
         u_settings = context['user'].settings
         sv_info_per_app = defaultdict(list)
@@ -1258,14 +1259,15 @@ class UserSettingValuesBrick(Brick):
             sv_info_per_app[skey.app_label].append(info)
             count += 1
 
-        return self._render(self.get_template_context(
+        return super().get_template_context(
             context,
             values_per_app=[
                 (app_label, get_app_config(app_label).verbose_name, svalues)
                 for app_label, svalues in sv_info_per_app.items()
             ],
             count=count,
-        ))
+            **extra_kwargs
+        )
 
 
 class EntityFiltersBrick(PaginatedBrick):

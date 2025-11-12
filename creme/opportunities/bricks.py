@@ -113,7 +113,7 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, persons_bricks._PersonsCard
         persons_bricks.CommercialActsSummary,
     ]
 
-    def detailview_display(self, context):
+    def _is_neglected(self, context):
         opportunity = context['object']
 
         # TODO: extract indicator
@@ -127,14 +127,18 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, persons_bricks._PersonsCard
         else:
             is_neglected = None
 
-        target = opportunity.target
+        return is_neglected
 
-        return self._render(self.get_template_context(
+    def get_template_context(self, context, **extra_kwargs):
+        target = context['object'].target
+
+        return super().get_template_context(
             context,
-            is_neglected=is_neglected,
+            is_neglected=self._is_neglected(context),
             target=target,
-            target_is_organisation=isinstance(target, Organisation),
-        ))
+            target_is_organisation=isinstance(target, Organisation),  # TODO: use templatetag?
+            **extra_kwargs
+        )
 
 
 class OpportunityBrick(EntityBrick):
@@ -340,8 +344,8 @@ class OppTotalBrick(SimpleBrick):
     permissions = 'opportunities'
 
 
-class OppTargetBrick(Brick):
-    id = Brick.generate_id('opportunities', 'target')
+class OppTargetBrick(SimpleBrick):
+    id = SimpleBrick.generate_id('opportunities', 'target')
     verbose_name = _('Target and source')
     description = _(
         'Displays the target & the source of the current Opportunity.\n'
@@ -364,14 +368,15 @@ class OppTargetBrick(Brick):
         if display_source:
             self.relation_type_deps += (constants.REL_OBJ_EMIT_ORGA,)
 
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(
+    def get_template_context(self, context, **extra_kwargs):
+        return super().get_template_context(
             context,
             # NB: we do not use .count() in order to use/fill the QuerySet
             #     cache ; it will probably be used several times in the same
             #     page (and if not, this query should be small).
             display_source=self.display_source,
-        ))
+            **extra_kwargs
+        )
 
 
 brick_classes: list[type[Brick]] = [
