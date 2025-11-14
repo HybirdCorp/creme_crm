@@ -206,7 +206,8 @@ class Brick:
         return f'brick-{self.id}'
 
     def _render(self, template_context) -> str:
-        return get_template(self.template_name).render(template_context)
+        # return get_template(self.template_name).render(template_context)
+        return get_template(template_context['template_name']).render(template_context)
 
     def _simple_detailview_display(self, context: dict) -> str:
         """Helper method to build a basic detailview_display() method for
@@ -231,6 +232,7 @@ class Brick:
                                 brick_id: str,
                                 brick_context: _BrickContext,
                                 **extra_kwargs) -> dict:
+        context['template_name'] = self.template_name
         context['brick_id'] = brick_id
         context['html_id'] = self.html_id
         context['verbose_name'] = self.verbose_name

@@ -158,7 +158,12 @@
           'actions_registry' has been renamed "action_registry".
         # In the class 'creme_core.forms.fields.EntityCredsJSONField', the attribute
           'quickforms_registry' has been renamed "quickform_registry".
-        # The method 'creme_core.gui.button_menu.Button.ok_4_display()' has been replaced by the method 'is_displayed()'.
+        # In 'creme_core.gui' :
+            - The method 'button_menu.Button.ok_4_display()' has been replaced by the method 'is_displayed()'.
+            - The method 'bricks.Brick._render()' uses now the "template_name" found in the passed
+              argument 'template_context', and not the attribute "template_name" directly anymore.
+              The attribute is now injected in this context by '_build_template_context()', & so you don't have
+              to change your code, excepted if you override 'self.template_name' after building the context.
         # In 'creme_core.views' :
             - The method 'creme_core.views.generic.base.BricksMixin.get_bricks()' now returns
               a dictionary instead of a list (to group Bricks per zone).
