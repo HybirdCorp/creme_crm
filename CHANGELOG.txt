@@ -209,6 +209,8 @@
                   has been replaced by the new attribute 'bricks'.
             * CTI :
                 - The class bricks.CallersBrick is not registered anymore (so it can only be reloaded by its specific view).
+            * SMS :
+                - The class 'bricks.MessagingListsBlock' has been renamed 'MessagingListsBrick'.
 
     Internal breaking changes :
     ---------------------------
