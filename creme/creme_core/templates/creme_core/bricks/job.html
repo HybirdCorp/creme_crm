@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} creme_core-job-brick{% endblock %}
 
 {% block brick_script %}{# TODO: in .js ?? #}
-    {% if not request|is_ajax and not job.is_finished %}
+  {% if not request|is_ajax and not job.is_finished %}
     <script type="text/javascript">
         $('.brick[data-brick-id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) {
             var jobs = new creme.jobs.BrickJobsMonitor(brick, {
@@ -14,7 +14,7 @@
             jobs.fetch();
         });
     </script>
-    {% endif %}
+  {% endif %}
 {% endblock %}
 
 {% block brick_header_title %}
@@ -22,21 +22,21 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if job.get_config_form_class %}
-        {% brick_header_action id='edit' url=job.get_edit_absolute_url label=_("Edit the job's configuration") %}
-    {% endif %}
+  {% if job.get_config_form_class %}
+    {% brick_header_action id='edit' url=job.get_edit_absolute_url label=_("Edit the job's configuration") %}
+  {% endif %}
 
-    {% if job.is_finished and job.user %}
-        {% brick_header_action id='update-redirect' url=job.get_delete_absolute_url type='delete' label=_('Delete the job') __back_url=list_url %}
-    {% endif %}
+  {% if job.is_finished and job.user %}
+    {% brick_header_action id='update-redirect' url=job.get_delete_absolute_url type='delete' label=_('Delete the job') __back_url=list_url %}
+  {% endif %}
 
-    {% if not job.user %}
-        {% if job.enabled %}
-            {% brick_header_action id='update' url='creme_core__disable_job'|url:job.id label=_('Disable') icon='cancel' enabled=user.is_superuser %}
-        {% else %}
-            {% brick_header_action id='update' url='creme_core__enable_job'|url:job.id  label=_('Enable')  icon='ok'     enabled=user.is_superuser %}
-        {% endif %}
-    {% endif %}
+  {% if not job.user %}
+   {% if job.enabled %}
+    {% brick_header_action id='update' url='creme_core__disable_job'|url:job.id label=_('Disable') icon='cancel' enabled=user.is_superuser %}
+   {% else %}
+    {% brick_header_action id='update' url='creme_core__enable_job'|url:job.id  label=_('Enable')  icon='ok'     enabled=user.is_superuser %}
+   {% endif %}
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_head %}{% endblock %}

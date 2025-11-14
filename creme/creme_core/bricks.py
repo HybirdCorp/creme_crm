@@ -539,8 +539,6 @@ class JobBrick(SimpleBrick):
             logger.warning('Invalid reloading extra_data for JobBrick: %s', info)
 
     def get_template_context(self, context, **extra_kwargs):
-        job = context['job']  # TODO: unregister brick class + remove this line
-
         reloading_info = self._reloading_info
         if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
             list_url = context.get('list_url')
@@ -550,7 +548,6 @@ class JobBrick(SimpleBrick):
 
         return super().get_template_context(
             context,
-            job=job,
             JOB_OK=Job.STATUS_OK,
             JOB_ERROR=Job.STATUS_ERROR,
             JOB_WAIT=Job.STATUS_WAIT,

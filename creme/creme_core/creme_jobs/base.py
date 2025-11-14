@@ -108,7 +108,7 @@ class JobType:
     @property
     def results_bricks(self) -> list[JobErrorsBrick]:
         from ..bricks import JobErrorsBrick
-        return [JobErrorsBrick()]
+        return [JobErrorsBrick()]  # TODO: yield?
 
     # NB: we do not use __call__ because we want to use instances of JobType
     #     in template (the Django template system tries 'foo()' when it

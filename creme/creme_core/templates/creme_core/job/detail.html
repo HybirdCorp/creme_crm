@@ -15,6 +15,29 @@
         </ul>
     </div>
 
+    {% brick_declare bricks.main %}
+    {% brick_display bricks.main %}
+    {% brick_end %}
+{% endblock %}
+
+{% comment %}
+{% extends BASE_HTML %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block page_title %}{{job}} - {% endblock %}
+
+{% block content %}
+    <div class="buttons-list global-buttons">
+        <ul>
+            <li>
+                <a class="menu_button menu-button-icon" href="{{list_url}}">{% translate 'List of jobs' as list_label %}
+                    {% widget_icon name='listview' size='global-button' label=list_label %}
+                    {{list_label}}
+                </a>
+            </li>
+        </ul>
+    </div>
+
     {% brick_import app='creme_core' name='job' as job_brick %}
     {% brick_declare results_bricks %}
 
@@ -23,3 +46,4 @@
 
     {% brick_end %}
 {% endblock %}
+{% endcomment %}

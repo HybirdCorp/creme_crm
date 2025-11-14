@@ -509,7 +509,7 @@ class CremeCoreConfig(CremeAppConfig):
             bricks.ImprintsBrick,
             bricks.TrashBrick,
             bricks.StatisticsBrick,
-            bricks.JobBrick,
+            # bricks.JobBrick,  # NB: has its own reloading view
             bricks.JobsBrick,
             bricks.MyJobsBrick,
             bricks.NotificationsBrick,
