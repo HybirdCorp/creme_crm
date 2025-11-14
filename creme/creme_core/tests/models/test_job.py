@@ -10,7 +10,7 @@ from creme.creme_core.utils.dates import dt_to_ISO8601
 from ..base import CremeTestCase
 
 
-class JobViewsTestCase(CremeTestCase):
+class JobTestCase(CremeTestCase):
     def test_refresh01(self):
         "No refresh needed."
         queue = get_queue()

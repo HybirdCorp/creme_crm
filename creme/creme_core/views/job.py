@@ -45,8 +45,10 @@ class MyJobs(generic.BricksView):
 class JobDetail(generic.base.CallbackMixin, generic.CremeModelDetail):
     model = Job
     template_name = 'creme_core/job/detail.html'
+    context_object_name = 'job'
     pk_url_kwarg = 'job_id'
     callback_url_argument = 'list_url'
+    bricks_reload_url_name = 'creme_core__reload_job_bricks'
 
     def check_instance_permissions(self, instance, user):
         jtype = instance.type
@@ -63,14 +65,18 @@ class JobDetail(generic.base.CallbackMixin, generic.CremeModelDetail):
     def get_list_url(self):
         return self.get_callback_url() or reverse('creme_core__my_jobs')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        job = self.object
-        context['results_bricks'] = job.type.results_bricks  # TODO: dictionary instead?
-        context['bricks_reload_url'] = reverse('creme_core__reload_job_bricks', args=(job.id,))
-        context['list_url'] = self.get_list_url()
+    def get_bricks(self):
+        return {'main': [JobBrick(), *self.object.type.results_bricks]}
 
-        return context
+    def get_context_data(self, **kwargs):
+        # context = super().get_context_data(**kwargs)
+        # job = self.object
+        # context['results_bricks'] = job.type.results_bricks
+        # context['bricks_reload_url'] = reverse('creme_core__reload_job_bricks', args=(job.id,))
+        # context['list_url'] = self.get_list_url()
+        #
+        # return context
+        return super().get_context_data(list_url=self.get_list_url(), **kwargs)
 
 
 class JobEdition(generic.CremeModelEditionPopup):

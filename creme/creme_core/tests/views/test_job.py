@@ -107,11 +107,15 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             context = response1.context
             cxt_job = context['job']
             cxt_url = context['list_url']
-            context['results_bricks']  # NOQA
-            context['bricks_reload_url']  # NOQA
+            # context['results_bricks']  # NOQA
+            reload_url = context['bricks_reload_url']
 
         self.assertEqual(job, cxt_job)
         self.assertEqual(self.MINE_URL, cxt_url)
+        self.assertEqual(
+            reverse('creme_core__reload_job_bricks', args=(job.id,)),
+            reload_url,
+        )
 
         tree1 = self.get_html_tree(response1.content)
         info_brick_node1 = self.get_brick_node(tree1, brick=JobBrick)
