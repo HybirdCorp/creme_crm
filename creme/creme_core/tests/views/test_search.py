@@ -46,7 +46,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         super().tearDownClass()
 
         del QuerysetBrick.page_size
-        assert QuerysetBrick.page_size  # In PaginatedBlock
+        assert QuerysetBrick.page_size  # In PaginatedBrick
 
         SearchConfigItem.objects.all().delete()
         SearchConfigItem.objects.bulk_create(cls._sci_backup)
