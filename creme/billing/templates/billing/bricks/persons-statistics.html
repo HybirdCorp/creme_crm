@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/base.html' %}
-{% load i18n %}
+{% load i18n creme_bricks %}
 {% load format_amount from creme_core_tags %}
 
 {% block brick_extra_class %}brick-kv-list billing-persons-stats-brick{% endblock %}
@@ -7,6 +7,8 @@
     {# version with groups as large as brick #}
     {% block brick_content_extra_class %}-kv-full-width-groups{% endblock %}
 {% endcomment %}
+
+{% block brick_header_title %}{% brick_header_title title=verbose_name icon='invoice' %}{% endblock %}
 
 {% block brick_content %}
 <div class='brick-kv-group'>
