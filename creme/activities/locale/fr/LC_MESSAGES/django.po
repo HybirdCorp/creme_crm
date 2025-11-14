@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Activities 2.7\n"
+"Project-Id-Version: Creme Activities 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-31 10:44+0200\n"
+"POT-Creation-Date: 2025-11-14 12:07+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -410,9 +410,6 @@ msgid "The duration is used to compute automatically the start of the call"
 msgstr ""
 "La durée est utilisée pour calculer automatiquement le début de l'appel"
 
-msgid "User"
-msgstr "Utilisateur"
-
 msgid ""
 "The activities on the deleted calendar will be moved to the selected one."
 msgstr ""
@@ -713,6 +710,27 @@ msgctxt "activities-plural"
 msgid "Status of activity"
 msgstr "Statuts d'activité"
 
+msgid "related to the activity"
+msgstr "relié à l'activité"
+
+msgid "(activity) related to"
+msgstr "(activité) relié à"
+
+msgid "is subject of the activity"
+msgstr "est sujet de l'activité"
+
+msgid "(activity) has for subject"
+msgstr "(activité) a pour sujet"
+
+msgid "participates in the activity"
+msgstr "participe à l'activité"
+
+msgid "(activity) has as participant"
+msgstr "(activité) a comme participant"
+
+msgid "Activity view"
+msgstr "Vue d'Activité"
+
 msgid "Unsuccessful call"
 msgstr "Appel non abouti"
 
@@ -817,32 +835,11 @@ msgstr "Vacances"
 msgid "Ill"
 msgstr "Malade"
 
-msgid "related to the activity"
-msgstr "relié à l'activité"
-
-msgid "(activity) related to"
-msgstr "(activité) relié à"
-
-msgid "is subject of the activity"
-msgstr "est sujet de l'activité"
-
-msgid "(activity) has for subject"
-msgstr "(activité) a pour sujet"
-
-msgid "participates in the activity"
-msgstr "participe à l'activité"
-
-msgid "(activity) has as participant"
-msgstr "(activité) a comme participant"
-
 msgid "Tasks"
 msgstr "Tâches"
 
 msgid "In which I participate"
 msgstr "Auxquelles je participe"
-
-msgid "Activity view"
-msgstr "Vue d'Activité"
 
 msgid "Activity complementary information"
 msgstr "Informations complémentaires sur l'activité"
@@ -1015,6 +1012,9 @@ msgstr "{count} Activité future pour moi"
 msgid "{count} Future activities for me"
 msgstr "{count} Activités futures pour moi"
 
+msgid "Future activities for me"
+msgstr "Activités futures pour moi"
+
 #, python-brace-format
 msgid "{count} Future related activity"
 msgstr "{count} Activité future liée"
@@ -1050,6 +1050,9 @@ msgstr "{count} Activité passée pour moi"
 #, python-brace-format
 msgid "{count} Past activities for me"
 msgstr "{count} Activités passées pour moi"
+
+msgid "Past activities for me"
+msgstr "Activités passées pour moi"
 
 #, python-brace-format
 msgid "{count} Past related activity"
@@ -1272,6 +1275,9 @@ msgstr "Modifier la configuration du calendrier"
 
 msgid "Create calendar configuration for a role"
 msgstr "Créer une configuration de calendrier pour un rôle"
+
+#~ msgid "User"
+#~ msgstr "Utilisateur"
 
 #~ msgctxt "activities"
 #~ msgid "Calendar"
