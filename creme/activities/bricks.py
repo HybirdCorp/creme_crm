@@ -156,7 +156,7 @@ class SubjectsBrick(QuerysetBrick):
     id = QuerysetBrick.generate_id('activities', 'subjects')
     verbose_name = _('Subjects')
 
-    dependencies = (Relation, Organisation)  # See ParticipantsBlock.dependencies
+    dependencies = (Relation, Organisation)  # See ParticipantsBrick.dependencies
     relation_type_deps = (constants.REL_OBJ_ACTIVITY_SUBJECT,)
 
     template_name = 'activities/bricks/subjects.html'
