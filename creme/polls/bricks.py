@@ -138,7 +138,7 @@ class PollRepliesBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             PollReply.objects.filter(pform=pform, is_deleted=False),
-            # TODO: reuse nodes (PollFormLinesBlock) to avoid a query
+            # TODO: reuse nodes (PollFormLinesBrick) to avoid a query
             propose_creation=pform.lines.exists(),
         ))
 
