@@ -269,9 +269,9 @@ class Brick:
             **extra_kwargs
         )
 
-        # NB:  not 'assert' (it causes problems with bricks in inner popups)
-        if not BrickManager.get(context).brick_is_registered(self):
-            logger.debug('Not registered brick: %s', self.id)
+        # # NB:  not 'assert' (it causes problems with bricks in inner popups)
+        # if not BrickManager.get(context).brick_is_registered(self):
+        #     logger.debug('Not registered brick: %s', self.id)
 
         if brick_context.update(template_context):
             session.setdefault(
