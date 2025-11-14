@@ -519,14 +519,29 @@ class PaymentInformationBrick(QuerysetBrick):
     def detailview_display(self, context):
         organisation = context['object']
 
-        if not organisation.is_managed and \
-           SettingValue.objects.get_4_key(payment_info_key, default=True).value:
-            return ''  # TODO: in template ? empty <table> ?
+        # if not organisation.is_managed and \
+        #    SettingValue.objects.get_4_key(payment_info_key, default=True).value:
+        #     return ''
+        #
+        # return self._render(self.get_template_context(
+        #     context,
+        #     PaymentInformation.objects.filter(organisation=organisation),
+        # ))
+        if (
+            organisation.is_managed
+            or not SettingValue.objects.get_4_key(payment_info_key, default=True).value
+        ):
+            btc = self.get_template_context(
+                context, PaymentInformation.objects.filter(organisation=organisation),
+            )
+        else:
+            btc = self.get_template_context(
+                context,
+                PaymentInformation.objects.none(),
+                template_name='creme_core/bricks/generic/void.html',
+            )
 
-        return self._render(self.get_template_context(
-            context,
-            PaymentInformation.objects.filter(organisation=organisation),
-        ))
+        return self._render(btc)
 
 
 class BillingPaymentInformationBrick(QuerysetBrick):

@@ -244,7 +244,7 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         pi_12.delete()
         self.assertIs(True, self.refresh(pi_11).is_default)
 
-    def test_orga_brick01(self):
+    def test_orga_brick__managed(self):
         user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='Sony', is_managed=True)
@@ -267,7 +267,7 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
             action_type='edit',
         )
 
-    def test_orga_brick02(self):
+    def test_orga_brick__not_managed(self):
         "Organisation is not managed."
         user = self.login_as_root_and_get()
 
@@ -277,12 +277,17 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         PaymentInformation.objects.create(organisation=orga, name='RIB sony')
 
         response = self.assertGET200(orga.get_absolute_url())
-        self.assertNoBrick(
+        # self.assertNoBrick(
+        #     self.get_html_tree(response.content),
+        #     brick_id=PaymentInformationBrick.id,
+        # )
+        brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            brick_id=PaymentInformationBrick.id,
+            brick=PaymentInformationBrick,
         )
+        self.assertIn('brick-void', brick_node.attrib.get('class', ''))
 
-    def test_orga_brick03(self):
+    def test_orga_brick__not_managed_n_displayed(self):
         "Organisation is not managed + Setting is False."
         user = self.login_as_root_and_get()
 
