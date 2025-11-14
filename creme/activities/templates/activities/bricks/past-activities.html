@@ -4,11 +4,11 @@
 {% block brick_extra_class %}{{block.super}} activities-past-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% if is_home %}
-        {% brick_header_title title=_('{count} Past activity for me') plural=_('{count} Past activities for me') empty=verbose_name icon='calendar' %}
-    {% else %}
-        {% brick_header_title title=_('{count} Past related activity') plural=_('{count} Past related activities') empty=verbose_name icon='calendar' %}
-    {% endif %}
+  {% if object %}
+    {% brick_header_title title=_('{count} Past related activity') plural=_('{count} Past related activities') empty=verbose_name icon='calendar' %}
+  {% else %}
+    {% brick_header_title title=_('{count} Past activity for me') plural=_('{count} Past activities for me') empty=_('Past activities for me') icon='calendar' %}
+  {% endif %}
 {% endblock %}
 
 {% block brick_list_empty %}

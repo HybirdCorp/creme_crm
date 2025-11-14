@@ -232,7 +232,7 @@ class _RelatedActivitiesBrick(QuerysetBrick):
             context,
             self._get_queryset_for_entity(context['user'].linked_contact, context)
                 .select_related('status', 'type'),
-            is_home=True,
+            # is_home=True,
         ))
 
 
@@ -393,7 +393,7 @@ class MyActivitiesCalendarBrick(FullCalendarBrick):
     def home_display(self, context):
         return self._render(self.get_template_context(
             context,
-            is_home=True,
+            # is_home=True,
             **self.get_calendar_context(context),
         ))
 

@@ -193,6 +193,8 @@
             * Activities :
                 - The content of the class attribute 'populate.Populator.BUTTONS' has changed
                   (it now contains 'ButtonMenuItem' instances).
+                - In the following Brick classes, "is_home" is not injected in the template's context anymore:
+                  FutureActivitiesBrick, PastActivitiesBrick, MyActivitiesCalendarBrick
             * Billing :
                - The class 'actions.ExportAction' has been renamed '_ExportAction'.
                - These methods of 'populate.Populator' have been removed :
