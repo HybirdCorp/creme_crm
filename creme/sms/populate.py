@@ -151,7 +151,7 @@ class Populator(BasePopulator):
 
                 {'order': 5},
                 {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
-                {'brick': bricks.MessagingListsBlock,    'order':  50},
+                {'brick': bricks.MessagingListsBrick,    'order':  50},
                 {'brick': core_bricks.PropertiesBrick,   'order': 450},
                 {'brick': core_bricks.RelationsBrick,    'order': 500},
 

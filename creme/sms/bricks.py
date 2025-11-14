@@ -44,7 +44,8 @@ class _RelatedEntitiesBrick(QuerysetBrick):
         return self._render(btc)
 
 
-class MessagingListsBlock(_RelatedEntitiesBrick):
+# class MessagingListsBlock(_RelatedEntitiesBrick):
+class MessagingListsBrick(_RelatedEntitiesBrick):
     id = QuerysetBrick.generate_id('sms', 'messaging_lists')
     verbose_name = _('Messaging lists')
     dependencies = (MessagingList,)
