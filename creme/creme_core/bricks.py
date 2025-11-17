@@ -517,66 +517,47 @@ class StatisticsBrick(Brick):
         return self._render(self.get_template_context(context))
 
 
-class JobBrick(SimpleBrick):
-    id = SimpleBrick.generate_id('creme_core', 'job')
-    dependencies = (Job,)
-    verbose_name = _('Job')
-    template_name = 'creme_core/bricks/job.html'
-    configurable = False
-
-    @Brick.reloading_info.setter
-    def reloading_info(self, info):
-        info_are_ok = False
-
-        if isinstance(info, dict):
-            info_are_ok = isinstance(info.get('list_url', ''), str)
-
-        if info_are_ok:
-            self._reloading_info = info
-        else:
-            # We do not leave 'None' (because it means 'first render').
-            self._reloading_info = {}
-            logger.warning('Invalid reloading extra_data for JobBrick: %s', info)
-
-    def get_template_context(self, context, **extra_kwargs):
-        reloading_info = self._reloading_info
-        if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
-            list_url = context.get('list_url')
-            self._reloading_info = {'list_url': list_url}
-        else:
-            list_url = reloading_info.get('list_url')
-
-        return super().get_template_context(
-            context,
-            JOB_OK=Job.STATUS_OK,
-            JOB_ERROR=Job.STATUS_ERROR,
-            JOB_WAIT=Job.STATUS_WAIT,
-            # PERIODIC=JobType.PERIODIC,
-            NOT_PERIODIC=JobType.NOT_PERIODIC,
-            list_url=list_url,
-            **extra_kwargs
-        )
-
-    # def detailview_display(self, context):
-    #     job = context['job']
-    #
-    #     reloading_info = self._reloading_info
-    #
-    #     if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
-    #         list_url = context.get('list_url')
-    #         self._reloading_info = {'list_url': list_url}
-    #     else:
-    #         list_url = reloading_info.get('list_url')
-    #
-    #     return self._render(self.get_template_context(
-    #         context, job=job,
-    #         JOB_OK=Job.STATUS_OK,
-    #         JOB_ERROR=Job.STATUS_ERROR,
-    #         JOB_WAIT=Job.STATUS_WAIT,
-    #         # PERIODIC=JobType.PERIODIC,
-    #         NOT_PERIODIC=JobType.NOT_PERIODIC,
-    #         list_url=list_url,
-    #     ))
+# class JobBrick(Brick):
+#     id = Brick.generate_id('creme_core', 'job')
+#     dependencies = (Job,)
+#     verbose_name = _('Job')
+#     template_name = 'creme_core/bricks/job.html'
+#     configurable = False
+#
+#     @Brick.reloading_info.setter
+#     def reloading_info(self, info):
+#         info_are_ok = False
+#
+#         if isinstance(info, dict):
+#             info_are_ok = isinstance(info.get('list_url', ''), str)
+#
+#         if info_are_ok:
+#             self._reloading_info = info
+#         else:
+#             # We do not leave 'None' (because it means 'first render').
+#             self._reloading_info = {}
+#             logger.warning('Invalid reloading extra_data for JobBrick: %s', info)
+#
+#     def detailview_display(self, context):
+#         job = context['job']
+#
+#         reloading_info = self._reloading_info
+#
+#         if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
+#             list_url = context.get('list_url')
+#             self._reloading_info = {'list_url': list_url}
+#         else:
+#             list_url = reloading_info.get('list_url')
+#
+#         return self._render(self.get_template_context(
+#             context, job=job,
+#             JOB_OK=Job.STATUS_OK,
+#             JOB_ERROR=Job.STATUS_ERROR,
+#             JOB_WAIT=Job.STATUS_WAIT,
+#             # PERIODIC=JobType.PERIODIC,
+#             NOT_PERIODIC=JobType.NOT_PERIODIC,
+#             list_url=list_url,
+#         ))
 
 
 class JobResultsBrick(QuerysetBrick):

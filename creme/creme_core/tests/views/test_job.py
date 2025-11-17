@@ -10,7 +10,6 @@ from django.utils.translation import ngettext
 
 from creme.creme_core.bricks import (
     EntityJobErrorsBrick,
-    JobBrick,
     JobErrorsBrick,
     JobsBrick,
     MyJobsBrick,
@@ -25,6 +24,7 @@ from creme.creme_core.creme_jobs import (
 from creme.creme_core.creme_jobs.base import JobType
 from creme.creme_core.models import EntityJobResult, FakeOrganisation, Job
 from creme.creme_core.utils.dates import dt_to_ISO8601
+from creme.creme_core.views.job import JobBarHatBrick, JobInfoBrick
 
 from ..base import CremeTestCase
 from .base import BrickTestCaseMixin
@@ -118,7 +118,10 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         tree1 = self.get_html_tree(response1.content)
-        info_brick_node1 = self.get_brick_node(tree1, brick=JobBrick)
+        self.get_brick_node(tree1, brick=JobBarHatBrick)
+
+        # info_brick_node1 = self.get_brick_node(tree1, brick=JobBrick)
+        info_brick_node1 = self.get_brick_node(tree1, brick=JobInfoBrick)
         info_buttons1 = self.get_brick_header_buttons(info_brick_node1)
         self.assertBrickHeaderHasNoButton(info_buttons1, job.get_edit_absolute_url())
         self.assertBrickHeaderHasNoButton(info_buttons1, job.get_delete_absolute_url())
@@ -137,7 +140,8 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response2 = self.assertGET200(url)
         info_brick_node2 = self.get_brick_node(
-            self.get_html_tree(response2.content), brick=JobBrick,
+            # self.get_html_tree(response2.content), brick=JobBrick,
+            self.get_html_tree(response2.content), brick=JobInfoBrick,
         )
         info_buttons2 = self.get_brick_header_buttons(info_brick_node2)
         # TODO: test back URL (assertBrickHeaderHasButton => get_button_or_fail())
@@ -196,7 +200,8 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTemplateUsed(response1, 'creme_core/job/detail.html')
 
         tree1 = self.get_html_tree(response1.content)
-        info_brick_node1 = self.get_brick_node(tree1, brick=JobBrick)
+        # info_brick_node1 = self.get_brick_node(tree1, brick=JobBrick)
+        info_brick_node1 = self.get_brick_node(tree1, brick=JobInfoBrick)
         info_buttons1 = self.get_brick_header_buttons(info_brick_node1)
         self.assertBrickHeaderHasButton(
             info_buttons1,
@@ -220,7 +225,8 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response2 = self.assertGET200(url)
         info_brick_node2 = self.get_brick_node(
-            self.get_html_tree(response2.content), brick=JobBrick,
+            # self.get_html_tree(response2.content), brick=JobBrick,
+            self.get_html_tree(response2.content), brick=JobInfoBrick,
         )
         info_buttons2 = self.get_brick_header_buttons(info_brick_node2)
         self.assertBrickHeaderHasButton(
@@ -873,23 +879,27 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         doc = self.get_html_tree(result[1])
         self.get_brick_node(doc, brick_id)
 
-    def test_reload01(self):
+    def test_reload__basic_errors(self):
         self.login_as_root()
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
-        self._aux_test_reload(job, JobBrick.id)
+        self._aux_test_reload(job, JobBarHatBrick.id)
+        # self._aux_test_reload(job, JobBrick.id)
+        self._aux_test_reload(job, JobInfoBrick.id)
         self._aux_test_reload(job, JobErrorsBrick.id)
 
-    def test_reload02(self):
+    def test_reload__entity_errors(self):
         user = self.login_as_root_and_get()
         job = self._create_batchprocess_job(user=user)
-        self._aux_test_reload(job, JobBrick.id)
+        # self._aux_test_reload(job, JobBrick.id)
+        self._aux_test_reload(job, JobInfoBrick.id)
         self._aux_test_reload(job, EntityJobErrorsBrick.id)
 
-    def test_reload03(self):
+    def test_reload__forbidden(self):
         self.login_as_standard()
         job = self._create_batchprocess_job(user=self.get_root_user())
         self.assertGET403(
             reverse('creme_core__reload_job_bricks', args=(job.id,)),
-            data={'brick_id': JobBrick.id},
+            # data={'brick_id': JobBrick.id},
+            data={'brick_id': JobInfoBrick.id},
         )

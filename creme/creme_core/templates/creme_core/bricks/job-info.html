@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=verbose_name %}{# TODO: change icon ? icon by job type ? #}
+    {% brick_header_title title=_('Information on the job') %}
 {% endblock %}
 
 {% block brick_header_actions %}
@@ -50,10 +50,12 @@
 {% endblock %}
 
 {% block brick_table_rows %}
+{% comment %}
     <tr>
         <td>{% translate 'Type' %}</td>
         <td>{{job.type}}</td>
     </tr>
+{% endcomment %}
     <tr>
         <td>{% translate 'App' %}</td>
         <td>{{job.type.app_config.verbose_name}}</td>
@@ -67,13 +69,13 @@
     <tr>
         <td>{% translate 'Description' %}</td>
         <td>
-        {% with description=job.description %}{# TODO: factorise #}
-            {% if description|length > 1 %}
-                <ul>{% for elt in description %}<li>{{elt}}</li>{% endfor %}</ul>
-            {% else %}
-                {{description.0}}
-            {% endif %}
-        {% endwith %}
+         {% with description=job.description %}{# TODO: factorise #}
+          {% if description|length > 1 %}
+            <ul>{% for elt in description %}<li>{{elt}}</li>{% endfor %}</ul>
+          {% else %}
+            {{description.0|default:'—'}}
+          {% endif %}
+         {% endwith %}
         </td>
     </tr>
     {% if job.type.periodic != NOT_PERIODIC %}
@@ -102,13 +104,13 @@
     <tr>
         <td>{% translate 'Statistics' %}</td>
         <td>
-        {% with stats=job.stats %}{# TODO: factorise #}
-            {% if stats|length > 1 %}
-                <ul>{% for stat in stats %}<li>{{stat}}</li>{% endfor %}</ul>
-            {% else %}
-                {{stats.0}}
-            {% endif %}
-        {% endwith %}
+         {% with stats=job.stats %}{# TODO: factorise #}
+          {% if stats|length > 1 %}
+            <ul>{% for stat in stats %}<li>{{stat}}</li>{% endfor %}</ul>
+          {% else %}
+            {{stats.0|default:'—'}}
+          {% endif %}
+         {% endwith %}
         </td>
     </tr>
     {% elif job.status == JOB_ERROR %}

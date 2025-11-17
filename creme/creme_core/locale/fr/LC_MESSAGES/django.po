@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-03 17:01+0100\n"
+"POT-Creation-Date: 2025-11-17 12:40+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -205,9 +205,6 @@ msgstr ""
 "Affiche plusieurs statistiques (ex: le nombre de clients), en fonction des "
 "apps installées.\n"
 "App : Cœur"
-
-msgid "Job"
-msgstr "Job"
 
 msgid "Results"
 msgstr "Résultats"
@@ -2039,7 +2036,8 @@ msgid ""
 msgstr ""
 "Un utilisateur normal doit avoir au moins un rôle.\n"
 " - Un utilisateur sans rôle sera un SUPER utilisateur.\n"
-" - Si vous choisissez plusieurs rôles, l'utilisateur pourra changer parmi eux."
+" - Si vous choisissez plusieurs rôles, l'utilisateur pourra changer parmi "
+"eux."
 
 msgid "Is a team?"
 msgstr "Est une équipe ?"
@@ -2761,6 +2759,9 @@ msgstr "Erreur"
 msgid "Completed successfully"
 msgstr "Terminé avec succès"
 
+msgid "Job"
+msgstr "Job"
+
 msgid ""
 "When a channel is required, users have to chose at least one output (in-app, "
 "email) in their personal configuration."
@@ -3284,19 +3285,8 @@ msgstr "Erreurs [le job n'est pas encore fini]"
 msgid "No error"
 msgstr "Aucune erreur"
 
-#, python-brace-format
-msgid "{count} Result"
-msgstr "{count} Résultat"
-
-#, python-brace-format
-msgid "{count} Results"
-msgstr "{count} Résultats"
-
-msgid "Results [job is not finished yet]"
-msgstr "Résultats [le job n'est pas encore fini]"
-
-msgid "No message"
-msgstr "Aucun message"
+msgid "Information on the job"
+msgstr "Informations sur le job"
 
 msgid "Edit the job's configuration"
 msgstr "Modifier la configuration du job"
@@ -3322,6 +3312,20 @@ msgstr "Chaque"
 
 msgid "Not run yet"
 msgstr "Pas encore exécuté"
+
+#, python-brace-format
+msgid "{count} Result"
+msgstr "{count} Résultat"
+
+#, python-brace-format
+msgid "{count} Results"
+msgstr "{count} Résultats"
+
+msgid "Results [job is not finished yet]"
+msgstr "Résultats [le job n'est pas encore fini]"
+
+msgid "No message"
+msgstr "Aucun message"
 
 #, python-brace-format
 msgid "{count} Job"

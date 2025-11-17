@@ -152,8 +152,10 @@
             - The method 'CremeUser.clean()' now raises more errors ("A regular user must have a role.").
         # In many apps, the attributes 'SEARCH' of Populator classes have changed
           (because they implemented their own API before the new generic one).
-        # In the class 'creme_core.bricks.StatisticsBrick', the attribute
-          'statistics_registry' has been renamed "statistic_registry".
+        # In 'creme_core.bricks' :
+            - In the class 'StatisticsBrick', the attribute 'statistics_registry'
+              has been renamed "statistic_registry".
+            - The class 'JobBrick' has been removed (see 'creme_core.views.job.JobInfoBrick' instead).
         # In the class 'creme_core.core.entity_cell.EntityCellActions' the constructor argument
           'actions_registry' has been renamed "action_registry".
         # In the class 'creme_core.forms.fields.EntityCredsJSONField', the attribute
