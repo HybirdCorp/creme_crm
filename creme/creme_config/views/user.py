@@ -31,13 +31,14 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
 
-from creme.creme_core.auth import SUPERUSER_PERM
+# from creme.creme_core.auth import SUPERUSER_PERM
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import lock
 from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import BrickStateExtraDataSetting
 
 from .. import bricks, constants
+from ..auth import user_config_perm
 from ..forms import user as user_forms
 from .base import ConfigPortal
 
@@ -48,7 +49,8 @@ class PasswordChange(generic.CremeModelEditionPopup):
     model = get_user_model()
     form_class = user_forms.UserPasswordChangeForm
     pk_url_kwarg = 'user_id'
-    permissions = SUPERUSER_PERM
+    # permissions = SUPERUSER_PERM
+    permissions = user_config_perm.as_perm
     title = _('Change password for «{object}»')
     title_for_own = _('Change your password')
 
@@ -64,7 +66,8 @@ class PasswordChange(generic.CremeModelEditionPopup):
 
 class BaseUserCreation(generic.CremeModelCreationPopup):
     model = get_user_model()
-    permissions = SUPERUSER_PERM
+    # permissions = SUPERUSER_PERM
+    permissions = user_config_perm.as_perm
 
 
 class UserCreation(BaseUserCreation):
@@ -85,7 +88,8 @@ class Portal(ConfigPortal):
 class BaseUserEdition(generic.CremeModelEditionPopup):
     model = get_user_model()
     pk_url_kwarg = 'user_id'
-    permissions = SUPERUSER_PERM
+    # permissions = SUPERUSER_PERM
+    permissions = user_config_perm.as_perm
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -138,7 +142,8 @@ class UserDeletion(BaseUserEdition):
 
 class UserDeactivation(generic.CheckedView):
     user_id_url_kwarg = 'user_id'
-    permissions = SUPERUSER_PERM
+    # permissions = SUPERUSER_PERM
+    permissions = user_config_perm.as_perm
 
     def post(self, request, **kwargs):
         user_id = self.kwargs[self.user_id_url_kwarg]
@@ -168,7 +173,8 @@ class UserDeactivation(generic.CheckedView):
 
 class UserActivation(generic.CheckedView):
     user_id_url_kwarg = 'user_id'
-    permissions = SUPERUSER_PERM
+    # permissions = SUPERUSER_PERM
+    permissions = user_config_perm.as_perm
 
     def post(self, request, **kwargs):
         user_id = self.kwargs[self.user_id_url_kwarg]

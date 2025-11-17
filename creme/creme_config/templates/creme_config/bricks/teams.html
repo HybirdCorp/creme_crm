@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
 {% load uca_sort url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-teams-brick{% endblock %}
@@ -9,7 +9,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% brick_header_action id='add' url='creme_config__create_team'|url label=_('New team') enabled=user.is_superuser %}
+{#    {% brick_header_action id='add' url='creme_config__create_team'|url label=_('New team') enabled=user.is_superuser %} #}
+    {% brick_header_action id='add' url='creme_config__create_team'|url label=_('New team') enabled=user|has_special_perm:user_config_perm %}
 {% endblock %}
 
 {% block brick_before_content %}
@@ -27,8 +28,9 @@ When an entity belongs to a team, each teammate has the same permissions on this
 {% endblock %}
 
 {% block brick_table_rows %}
-{% with admin_perm=user.is_superuser %}
-    {% for team in page.object_list %}
+{# {% with admin_perm=user.is_superuser %} #}
+{% with admin_perm=user|has_special_perm:user_config_perm %}
+  {% for team in page.object_list %}
     <tr>
         <td>{{team.username}}</td>
         <td>{% widget_enumerator team.teammates.values|uca_sort threshold=10 empty=_('No teammate') summary=_('{count} users') %}</td>
@@ -39,7 +41,7 @@ When an entity belongs to a team, each teammate has the same permissions on this
             {% brick_table_action id='edit' url='creme_config__delete_user'|url:team.id label=_('Delete this team') icon='delete' enabled=admin_perm %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
 {% endwith %}
 {% endblock %}
 

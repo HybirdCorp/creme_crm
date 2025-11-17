@@ -55,6 +55,14 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.UserSettingValuesBrick,
         )
 
+    def register_permissions(self, special_perm_registry):
+        from . import auth
+
+        special_perm_registry.register(
+            auth.user_config_perm,
+            auth.role_config_perm,
+        )
+
     def register_bricks(self, brick_registry):
         from . import bricks
 

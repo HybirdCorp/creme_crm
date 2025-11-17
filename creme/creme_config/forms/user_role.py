@@ -33,6 +33,7 @@ from creme.creme_core.apps import (
     extended_app_configs,
 )
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.auth.special import special_perm_registry
 from creme.creme_core.core import deletion
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
@@ -42,6 +43,7 @@ from creme.creme_core.core.entity_filter import (
 from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.forms import (
     CremeModelForm,
+    EnhancedMultipleChoiceField,
     FieldBlockManager,
     MultiEntityCTypeChoiceField,
 )
@@ -375,6 +377,7 @@ class UserRoleCloningForm(CremeModelForm):
         role_to_clone = self.role_to_clone
         instance.allowed_apps = role_to_clone.allowed_apps
         instance.admin_4_apps = role_to_clone.admin_4_apps
+        instance.special_permissions = role_to_clone.special_permissions.values()
         instance.save()
 
         instance.creatable_ctypes.set(role_to_clone.creatable_ctypes.all())
@@ -643,6 +646,43 @@ class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
             instance.exportable_ctypes.set(self.cleaned_data['exportable_ctypes'])
 
         return instance
+
+
+class UserRoleSpecialPermissionsStep(_UserRoleWizardFormStep):
+    special_perms = EnhancedMultipleChoiceField(
+        required=False, choices=(), label=_('Special permissions'),
+    )
+
+    class Meta(_UserRoleWizardFormStep.Meta):
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        perms_f = self.fields['special_perms']
+        sort_key = collator.sort_key
+        perms_f.choices = sorted(
+            (
+                {'value': perm.id, 'label': perm.verbose_name, 'help': perm.description}
+                for perm in special_perm_registry.permissions
+            ),
+            key=lambda t: sort_key(t['label'])
+        )
+        perms_f.initial = [*self.instance.special_permissions]
+
+    def clean(self):
+        cdata = super().clean()
+
+        if not self._errors:
+            self.instance.special_permissions = [
+                special_perm_registry.get_permission(perm_id)
+                for perm_id in self.cleaned_data['special_perms']
+            ]
+
+        return cdata
+
+    # def save(self, commit=True, *args, **kwargs):
+    #     return super().save(commit=commit, *args, **kwargs)
 
 
 class UserRoleCredentialsGeneralStep(CredentialsGeneralStep):

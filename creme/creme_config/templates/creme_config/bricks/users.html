@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets creme_config_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets creme_config_tags %}
 {% load is_ajax url from creme_core_tags %}
 
 {% comment %}
@@ -64,7 +64,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% brick_header_action id='add' url='creme_config__create_user'|url label=_('New user') enabled=user.is_superuser %}
+{#    {% brick_header_action id='add' url='creme_config__create_user'|url label=_('New user') enabled=user.is_superuser %} #}
+    {% brick_header_action id='add' url='creme_config__create_user'|url label=_('New user') enabled=user|has_special_perm:user_config_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -88,8 +89,9 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% with admin_perm=user.is_superuser %}{% translate 'Superuser' as superuser_label %}
-    {% for user in page.object_list %}
+{# {% with admin_perm=user.is_superuser %}{% translate 'Superuser' as superuser_label %} #}
+{% with admin_perm=user|has_special_perm:user_config_perm %}{% translate 'Superuser' as superuser_label %}
+  {% for user in page.object_list %}
     <tr{% if not user.is_active %} class="user-disabled"{% endif %}>
         <td class="user-username" {% brick_table_data_status primary %}>{{user.username}}</td>
         <td class="user-lastname" >{{user.last_name}}</td>
@@ -136,7 +138,7 @@
           {% endif %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
 {% endwith %}
 {% endblock %}
 

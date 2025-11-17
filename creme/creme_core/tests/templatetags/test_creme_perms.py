@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template
 
+from creme.creme_config.auth import role_config_perm, user_config_perm
 from creme.creme_core.models import FakeContact, FakeOrganisation
 
 from ..base import CremeTestCase, skipIfNotInstalled
@@ -227,5 +228,25 @@ class CremePermsTestCase(CremeTestCase):
                 "{{user|has_perm_to_admin:'persons'}}#"
                 "{{user|has_perm_to_admin:'creme_core'}}"
             ).render(Context({'user': user}))
+
+        self.assertEqual('True#False', render.strip())
+
+    def test_filter_has_perm_special(self):
+        user = self.create_user(
+            role=self.create_role(
+                name='Basic', special_permissions=[user_config_perm],
+            ),
+        )
+
+        with self.assertNoException():
+            render = Template(
+                '{% load creme_perms %}'
+                '{{user|has_special_perm:user_perm}}#'
+                '{{user|has_special_perm:role_perm}}'
+            ).render(Context({
+                'user': user,
+                'user_perm': user_config_perm,
+                'role_perm': role_config_perm,
+            }))
 
         self.assertEqual('True#False', render.strip())

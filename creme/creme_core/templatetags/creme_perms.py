@@ -69,3 +69,8 @@ def has_perm_to_access(user, app_label):
 @register.filter
 def has_perm_to_admin(user, app_label):
     return user.has_perm_to_admin(app_label)
+
+
+@register.filter
+def has_special_perm(user, special_perm):
+    return user.has_special_perm(special_perm)

@@ -4,6 +4,9 @@ from .entity_credentials import EntityCredentials  # NOQA
 SUPERUSER_PERM = '*superuser*'
 STAFF_PERM     = '*staff*'
 
+_SPECIAL_PREFIX = 'special#'
+
+# Model permissions
 _CREATION_PREFIX = 'add_'
 _LINK_PREFIX = 'link_'
 _LIST_PREFIX = 'list_'

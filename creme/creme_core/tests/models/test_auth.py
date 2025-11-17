@@ -10,9 +10,11 @@ from django.db.models.deletion import ProtectedError
 from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
+from creme.creme_config.auth import role_config_perm, user_config_perm
 from creme.creme_config.models import FakeConfigEntity
 from creme.creme_core import constants
 from creme.creme_core.auth import STAFF_PERM, SUPERUSER_PERM, EntityCredentials
+from creme.creme_core.auth.special import SpecialPermission
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     condition_handler,
@@ -142,6 +144,8 @@ class UserRoleTestCase(BaseAuthTestCase):
         self.assertIsNone(set_creds.efilter)
         self.assertFalse(set_creds.forbidden)
 
+        self.assertDictEqual({}, role.special_permissions)
+
     def test_attributes(self):
         role = UserRole(name='Normal')
         self.assertEqual('', role.raw_allowed_apps)
@@ -156,10 +160,22 @@ class UserRoleTestCase(BaseAuthTestCase):
         role.admin_4_apps = ['creme_core', 'persons']
         self.assertEqual({'creme_core', 'persons'}, role.admin_4_apps)
 
+        role.special_permissions = [user_config_perm, role_config_perm]
+        expected_perms = {
+            user_config_perm.id: user_config_perm,
+            role_config_perm.id: role_config_perm,
+        }
+        self.assertDictEqual(expected_perms, role.special_permissions)
+        self.assertEqual(
+            f'{user_config_perm.id}\n{role_config_perm.id}',
+            role.raw_special_perms,
+        )
+
         role.save()
         role = self.refresh(role)
         self.assertEqual({'creme_core', 'documents'}, role.allowed_apps)
         self.assertEqual({'creme_core', 'persons'}, role.admin_4_apps)
+        self.assertDictEqual(expected_perms, role.special_permissions)
 
     def test_portable_key(self):
         role = self.create_role()
@@ -800,6 +816,56 @@ class PermissionsTestCase(BaseAuthTestCase):
 
         with self.assertNoException():
             user.has_perm_or_die(STAFF_PERM)
+
+    def test_special_permissions(self):
+        user = self.build_user()
+        self.assertTrue(user.is_superuser)
+        self.assertTrue(user.has_perm(user_config_perm.as_perm))
+        self.assertTrue(user.has_special_perm(user_config_perm))
+        with self.assertNoException():
+            user.has_special_perm_or_die(user_config_perm)
+
+        user.is_superuser = False
+        user.role = self.create_role(name='Not user configurer')
+        self.assertFalse(user.has_special_perm(user_config_perm))
+        self.assertFalse(user.has_perm(user_config_perm.as_perm))
+
+        # Regular user but no the wanted perm ---
+        user.role = self.create_role(
+            name='Role configurer', special_permissions=[role_config_perm],
+        )
+        self.assertFalse(user.has_special_perm(user_config_perm))
+
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_special_perm_or_die(user_config_perm)
+        self.assertEqual(
+            _('You have not this special permission: «{}»').format(
+                user_config_perm.verbose_name,
+            ),
+            str(cm.exception),
+        )
+
+        self.assertFalse(user.has_perm(user_config_perm.as_perm))
+
+        # Regular user with the wanted perm ---
+        user.role = self.create_role(
+            name='User configurer',
+            special_permissions=[role_config_perm, user_config_perm],
+        )
+        self.assertTrue(user.has_special_perm(user_config_perm))
+        with self.assertNoException():
+            user.has_special_perm_or_die(user_config_perm)
+        self.assertTrue(user.has_perm(user_config_perm.as_perm))
+
+        # Error ---
+        unregistered = SpecialPermission(
+            id='my_app-unknown', verbose_name='?', description='??',
+        )
+        self.assertFalse(user.has_special_perm(unregistered))
+        with self.assertRaises(PermissionDenied):
+            user.has_special_perm_or_die(unregistered)
+        with self.assertLogs(level='WARNING'):
+            self.assertFalse(user.has_perm(unregistered.as_perm))
 
     def test_all__view(self):
         "VIEW + ESET_ALL."
