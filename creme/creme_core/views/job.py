@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -24,13 +26,17 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..auth import SUPERUSER_PERM
-from ..bricks import JobBrick
+# from ..bricks import JobBrick
 from ..core.exceptions import ConflictError
 from ..core.job import get_queue
+from ..creme_jobs.base import JobType
+from ..gui.bricks import SimpleBrick
 from ..http import CremeJsonResponse
 from ..models import Job
 from . import bricks as bricks_views
 from . import generic
+
+logger = logging.getLogger(__name__)
 
 
 class Jobs(generic.BricksView):
@@ -40,6 +46,52 @@ class Jobs(generic.BricksView):
 
 class MyJobs(generic.BricksView):
     template_name = 'creme_core/job/list-mine.html'
+
+
+# Detail-view ------------------------------------------------------------------
+class JobBarHatBrick(SimpleBrick):
+    id = 'job_hat_bar'
+    dependencies = (Job,)
+    template_name = 'creme_core/bricks/job-hat-bar.html'
+
+
+class JobInfoBrick(SimpleBrick):
+    id = 'job_info'
+    dependencies = (Job,)
+    template_name = 'creme_core/bricks/job-info.html'
+
+    @SimpleBrick.reloading_info.setter
+    def reloading_info(self, info):
+        info_are_ok = False
+
+        if isinstance(info, dict):
+            info_are_ok = isinstance(info.get('list_url', ''), str)
+
+        if info_are_ok:
+            self._reloading_info = info
+        else:
+            # We do not leave 'None' (because it means 'first render').
+            self._reloading_info = {}
+            logger.warning('Invalid reloading extra_data for JobBrick: %s', info)
+
+    def get_template_context(self, context, **extra_kwargs):
+        reloading_info = self._reloading_info
+        if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
+            list_url = context.get('list_url')
+            self._reloading_info = {'list_url': list_url}
+        else:
+            list_url = reloading_info.get('list_url')
+
+        return super().get_template_context(
+            context,
+            JOB_OK=Job.STATUS_OK,
+            JOB_ERROR=Job.STATUS_ERROR,
+            JOB_WAIT=Job.STATUS_WAIT,
+            # PERIODIC=JobType.PERIODIC,
+            NOT_PERIODIC=JobType.NOT_PERIODIC,
+            list_url=list_url,
+            **extra_kwargs
+        )
 
 
 class JobDetail(generic.base.CallbackMixin, generic.CremeModelDetail):
@@ -66,7 +118,10 @@ class JobDetail(generic.base.CallbackMixin, generic.CremeModelDetail):
         return self.get_callback_url() or reverse('creme_core__my_jobs')
 
     def get_bricks(self):
-        return {'main': [JobBrick(), *self.object.type.results_bricks]}
+        return {
+            'hat': [JobBarHatBrick()],
+            'main': [JobInfoBrick(), *self.object.type.results_bricks],
+        }
 
     def get_context_data(self, **kwargs):
         # context = super().get_context_data(**kwargs)
@@ -77,6 +132,59 @@ class JobDetail(generic.base.CallbackMixin, generic.CremeModelDetail):
         #
         # return context
         return super().get_context_data(list_url=self.get_list_url(), **kwargs)
+
+
+class JobBricksReloading(bricks_views.BricksReloading):
+    job_id_url_kwarg = 'job_id'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.job = None
+
+    def get_bricks(self):
+        job = self.get_job()
+        bricks = []
+        results_bricks = None
+
+        for brick_id in self.get_brick_ids():
+            if brick_id == JobBarHatBrick.id:
+                bricks.append(JobBarHatBrick())
+            # if brick_id == JobBrick.id:
+            elif brick_id == JobInfoBrick.id:
+                # bricks.append(JobBrick())
+                bricks.append(JobInfoBrick())
+            else:
+                if results_bricks is None:
+                    results_bricks = job.type.results_bricks
+
+                for err_brick in results_bricks:
+                    if brick_id == err_brick.id:
+                        bricks.append(err_brick)
+                        break
+                else:
+                    raise Http404('Invalid brick ID')
+
+        return bricks
+
+    def get_bricks_context(self):
+        context = super().get_bricks_context()
+        context['job'] = self.get_job()
+
+        return context
+
+    def get_job(self):
+        job = self.job
+
+        if job is None:
+            self.job = job = get_object_or_404(
+                Job,
+                id=self.kwargs[self.job_id_url_kwarg],
+            )
+            job.check_owner_or_die(self.request.user)
+
+        return job
+
+# Detail-view [end] ------------------------------------------------------------
 
 
 class JobEdition(generic.CremeModelEditionPopup):
@@ -209,50 +317,3 @@ class JobsInformation(generic.CheckedView):
 
     def get(self, *args, **kwargs):
         return self.response_class(self.get_jobs_info())
-
-
-class JobBricksReloading(bricks_views.BricksReloading):
-    job_id_url_kwarg = 'job_id'
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.job = None
-
-    def get_bricks(self):
-        job = self.get_job()
-        bricks = []
-        results_bricks = None
-
-        for brick_id in self.get_brick_ids():
-            if brick_id == JobBrick.id:
-                bricks.append(JobBrick())
-            else:
-                if results_bricks is None:
-                    results_bricks = job.type.results_bricks
-
-                for err_brick in results_bricks:
-                    if brick_id == err_brick.id:
-                        bricks.append(err_brick)
-                        break
-                else:
-                    raise Http404('Invalid brick ID')
-
-        return bricks
-
-    def get_bricks_context(self):
-        context = super().get_bricks_context()
-        context['job'] = self.get_job()
-
-        return context
-
-    def get_job(self):
-        job = self.job
-
-        if job is None:
-            self.job = job = get_object_or_404(
-                Job,
-                id=self.kwargs[self.job_id_url_kwarg],
-            )
-            job.check_owner_or_die(self.request.user)
-
-        return job

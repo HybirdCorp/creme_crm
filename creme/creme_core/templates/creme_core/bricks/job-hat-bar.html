@@ -1,0 +1,16 @@
+{% extends 'creme_core/bricks/generic/hat-bar.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-job-hat-bar{% endblock %}
+
+{% block brick_content %}
+    <div class="hat-bar">{# TODO: better icon? icon by job type? #}
+        <div class="bar-icon">{% widget_icon name='task' size='brick-hat-bar' label=_('Job') %}</div>
+        <div class="bar-title">
+            <h1>{% translate 'Job' %} : {{object|capfirst}}</h1>
+        </div>
+        <div class="bar-actions">
+           {% block buttons %}{# TODO: button to enable/disable/delete ? #}{% endblock buttons %}
+        </div>
+    </div>
+{% endblock %}
