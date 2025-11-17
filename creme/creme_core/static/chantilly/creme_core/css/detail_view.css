@@ -296,6 +296,7 @@
 
 .brick-hat-card .card-info-value {
     display: inline-flex;
+    flex-wrap: wrap;
     margin-left: 10px;
 
     vertical-align: top;
@@ -305,6 +306,7 @@
 }
 
 .brick-hat-card .card-intro .card-info-value {
+    display: inline;
     margin-left: 15px;
 
     font-size: 13px;

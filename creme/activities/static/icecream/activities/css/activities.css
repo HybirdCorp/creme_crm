@@ -271,6 +271,7 @@
 }
 
 .activities-activity-card-brick .card-info-fields .card-info-value {
+    display: inline;
     font-weight: 500;
     color: #666;
 }
