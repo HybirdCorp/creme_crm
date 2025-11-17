@@ -53,6 +53,7 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.documents.models import Document
 from creme.persons.models import Address, Contact, Organisation
 
+from ..auth import role_config_perm, user_config_perm
 from ..bricks import UserRolesBrick
 
 
@@ -72,9 +73,14 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     def _build_del_role_url(role):
         return reverse('creme_config__delete_role', args=(role.id,))
 
-    def login_not_as_superuser(self):
-        apps = ('creme_config',)
-        return self.login_as_standard(allowed_apps=apps, admin_4_apps=apps)
+    def login_with_role_perm(self):
+        return self.login_as_standard(special_permissions=[role_config_perm])
+
+    # def login_not_as_superuser(self):
+    #     apps = ('creme_config',)
+    #     return self.login_as_standard(allowed_apps=apps, admin_4_apps=apps)
+    def login_without_role_perm(self):
+        return self.login_as_standard(allowed_apps=('creme_config',))
 
     @parameterized.expand([False, True])
     def test_portal(self, superuser):
@@ -116,13 +122,14 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfNotInstalled('creme.activities')
     def test_creation__no_efilter(self):
         "No EntityFilter."
-        self.login_as_root()
+        # self.login_as_root()
+        self.login_with_role_perm()
         url = self.ROLE_CREATION_URL
         name = 'Basic role'
         apps = ['persons', 'documents']
         adm_apps = ['persons']
 
-        # Step 1
+        # Step 1 (name, apps)
         response1 = self.assertGET200(url)
         context1 = response1.context
         self.assertEqual(_('Next step'), context1.get('submit_label'))
@@ -151,7 +158,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response2)
 
-        # Step 2
+        # Step 2 (administrated apps)
         with self.assertNoException():
             adm_app_labels = response2.context['form'].fields['admin_4_apps'].choices
 
@@ -172,7 +179,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response3)
 
-        # Step 3
+        # Step 3 (creatable models)
         with self.assertNoException():
             creatable_ctypes = {*response3.context['form'].fields['creatable_ctypes'].ctypes}
 
@@ -196,7 +203,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response4)
 
-        # Step 4
+        # Step 4 (listable model)
         with self.assertNoException():
             listable_ctypes = response4.context['form'].fields['listable_ctypes'].ctypes
 
@@ -215,7 +222,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response5)
 
-        # Step 5
+        # Step 5 (exportable models)
         with self.assertNoException():
             exp_ctypes = response5.context['form'].fields['exportable_ctypes'].ctypes
 
@@ -234,11 +241,33 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response6)
 
-        # Step 6
-        context6 = response6.context
-
+        # Step 6 (special permissions)
         with self.assertNoException():
-            cred_ctypes = {*context6['form'].fields['ctype'].ctypes}
+            special_perm_choices = response6.context['form'].fields['special_perms'].choices
+
+        self.assertInChoices(
+            value=role_config_perm.id,
+            label=role_config_perm.verbose_name,
+            choices=special_perm_choices,
+        )
+        self.assertInChoices(
+            value=user_config_perm.id,
+            label=user_config_perm.verbose_name,
+            choices=special_perm_choices,
+        )
+
+        response7 = self.client.post(
+            url,
+            data={
+                step_key: '5',
+                '5-special_perms': [user_config_perm.id, role_config_perm.id],
+            },
+        )
+        self.assertNoFormError(response7)
+
+        # Step 7 (first credentials)
+        with self.assertNoException():
+            cred_ctypes = {*response7.context['form'].fields['ctype'].ctypes}
 
         self.assertIn(ct_contact, cred_ctypes)
         self.assertIn(get_ct(Organisation), cred_ctypes)
@@ -247,40 +276,37 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNotIn(get_ct(Activity), cred_ctypes)  # App not allowed
 
         set_type = SetCredentials.ESET_ALL
-        response6 = self.client.post(
+        response8 = self.client.post(
             url,
             data={
-                step_key: '5',
-                '5-can_change': True,
+                step_key: '6',
+                '6-can_change': True,
 
-                '5-set_type': set_type,
-                '5-ctype':    ct_contact.id,
+                '6-set_type': set_type,
+                '6-ctype':    ct_contact.id,
 
-                '5-forbidden': 'False',
+                '6-forbidden': 'False',
             },
         )
-        self.assertNoFormError(response6)
+        self.assertNoFormError(response8)
 
-        # Step 7
-        context6 = response6.context
-        self.assertEqual(_('Save the role'), context6.get('submit_label'))
+        # Step 8 (filter conditions)
+        context8 = response8.context
+        self.assertEqual(_('Save the role'), context8.get('submit_label'))
 
         with self.assertNoException():
-            fields6 = context6['form'].fields
-            label_field = fields6['no_filter_label']
+            fields8 = context8['form'].fields
+            label_field = fields8['no_filter_label']
 
-        self.assertEqual(1, len(fields6))
+        self.assertEqual(1, len(fields8))
 
         self.assertIsInstance(label_field, CharField)
         self.assertIsInstance(label_field.widget, Label)
         self.assertEqual(_('Conditions'), label_field.label)
-        self.assertEqual(
-            _('No filter, no condition.'),
-            label_field.initial
-        )
+        self.assertEqual(_('No filter, no condition.'), label_field.initial)
 
-        response7 = self.client.post(url, data={step_key: '6'})
-        self.assertNoFormError(response7)
+        response8 = self.client.post(url, data={step_key: '7'})
+        self.assertNoFormError(response8)
 
         role = self.get_object_or_fail(UserRole, name=name)
         self.assertSetEqual({*apps},     role.allowed_apps)
@@ -299,6 +325,11 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(set_type, creds.set_type)
         self.assertEqual(ct_contact, creds.ctype)
         self.assertFalse(creds.forbidden)
+
+        self.assertCountEqual(
+            [user_config_perm, role_config_perm],
+            role.special_permissions.values(),
+        )
 
     @skipIfNotInstalled('creme.persons')
     def test_creation__efilter(self):
@@ -345,22 +376,28 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         # Step 6 ---
+        response = self.client.post(
+            url, data={step_key: '5', '5-special_perms': []},
+        )
+        self.assertNoFormError(response)
+
+        # Step 7 ---
         ct_contact = ContentType.objects.get_for_model(Contact)
         set_type = SetCredentials.ESET_FILTER
         response = self.client.post(
             url,
             data={
-                step_key: '5',
-                '5-can_link': True,
+                step_key: '6',
+                '6-can_link': True,
 
-                '5-set_type': set_type,
-                '5-ctype':    ct_contact.id,
-                '5-forbidden': 'True',
+                '6-set_type': set_type,
+                '6-ctype':    ct_contact.id,
+                '6-forbidden': 'True',
             },
         )
         self.assertNoFormError(response)
 
-        # Step 6 ---
+        # Step 8 ---
         with self.assertNoException():
             fields6 = response.context['form'].fields
             name_f = fields6['name']
@@ -391,10 +428,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.client.post(
             url,
             data={
-                step_key: '6',
-                '6-name': filter_name,
-                '6-use_or': 'True',
-                '6-regularfieldcondition': json_dump([{
+                step_key: '7',
+                '7-name': filter_name,
+                '7-use_or': 'True',
+                '7-regularfieldcondition': json_dump([{
                     'field':    {'name': filter_field_name},
                     'operator': {'id': str(filter_operator_id)},
                     'value':    filter_field_value,
@@ -480,21 +517,27 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        # Step 5 ---
+        # Step 6 ---
+        response = self.client.post(
+            url, data={step_key: '5', '5-special_perms': []},
+        )
+        self.assertNoFormError(response)
+
+        # Step 7 ---
         set_type = SetCredentials.ESET_FILTER
         response = self.client.post(
             url,
             data={
-                step_key: '5',
-                '5-can_link': True,
+                step_key: '6',
+                '6-can_link': True,
 
-                '5-set_type': set_type,
-                '5-forbidden': 'False',
+                '6-set_type': set_type,
+                '6-forbidden': 'False',
             },
         )
         self.assertNoFormError(response)
 
-        # Step 6 ---
+        # Step 8 ---
         with self.assertNoException():
             fields6 = response.context['form'].fields
             fconds_f = fields6['regularfieldcondition']
@@ -509,10 +552,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.client.post(
             url,
             data={
-                step_key: '6',
-                '6-name': filter_name,
-                '6-use_or': 'True',
-                '6-regularfieldcondition': json_dump([{
+                step_key: '7',
+                '7-name': filter_name,
+                '7-use_or': 'True',
+                '7-regularfieldcondition': json_dump([{
                     'field':    {'name': filter_field_name},
                     'operator': {'id': str(filter_operator_id)},
                     'value':    filter_field_value,
@@ -545,12 +588,14 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     def test_creation__forbidden(self):
-        "Not super-user."
-        self.login_not_as_superuser()
+        "No role permission."
+        # self.login_not_as_superuser()
+        self.login_without_role_perm()
         self.assertGET403(self.ROLE_CREATION_URL)
 
     def test_add_credentials(self):
-        self.login_as_root()
+        # self.login_as_root()
+        self.login_with_role_perm()
         user = self.get_root_user()
 
         role = self.create_role(name='CEO', allowed_apps=['creme_core'])
@@ -694,8 +739,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(ct_contact.id,           creds.ctype_id)
 
     def test_add_credentials__not_superuser(self):
-        "Not super-user => error."
-        self.login_not_as_superuser()
+        "No role permission => error."
+        # self.login_not_as_superuser()
+        self.login_without_role_perm()
 
         role = self.create_role(name='CEO', allowed_apps=['persons'])
 
@@ -1141,7 +1187,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfNotInstalled('creme.persons')
     @skipIfNotInstalled('creme.activities')
     def test_edit_credentials(self):
-        self.login_as_root()
+        # self.login_as_root()
+        self.login_with_role_perm()
 
         role = self.create_role(name='CEO', allowed_apps=['persons'])
         creds = SetCredentials.objects.create(
@@ -1227,8 +1274,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(creds.forbidden)
 
     def test_edit_credentials__not_super_user(self):
-        "Not super-user => error."
-        self.login_not_as_superuser()
+        "No role permission => error."
+        # self.login_not_as_superuser()
+        self.login_without_role_perm()
         role = self.create_role(name='CEO')
         creds = SetCredentials.objects.create(
             role=role, set_type=SetCredentials.ESET_ALL, value=EntityCredentials.VIEW,
@@ -1877,7 +1925,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(efilter1.get_conditions(), fconds_f.initial)
 
     def test_delete_credentials(self):
-        self.login_as_root()
+        # self.login_as_root()
+        self.login_with_role_perm()
 
         role = self.create_role(name='CEO', allowed_apps=['persons'])
 
@@ -1897,7 +1946,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertStillExists(sc2)
 
     def test_delete_credentials__forbidden(self):
-        self.login_not_as_superuser()
+        # self.login_not_as_superuser()
+        self.login_without_role_perm()
 
         role = self.create_role(name='CEO')
         sc = SetCredentials.objects.create(
@@ -1909,9 +1959,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfNotInstalled('creme.documents')
     @skipIfNotInstalled('creme.activities')
     def test_edition(self):
-        self.login_as_root()
+        # self.login_as_root()
+        self.login_with_role_perm()
 
-        role = self.create_role(name='CEO', allowed_apps=['persons'], listable_models=[Contact])
+        role = self.create_role(
+            name='CEO', allowed_apps=['persons'], listable_models=[Contact],
+            special_permissions=[user_config_perm],
+        )
         SetCredentials.objects.create(
             role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
         )
@@ -1922,7 +1976,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = self._build_wizard_edit_url(role)
 
-        # Step 1 ---
+        # Step 1 (name, apps) ---
         response1 = self.assertGET200(url)
         self.assertTemplateUsed(
             response1, 'creme_core/generics/blockform/edit-wizard-popup.html',
@@ -1955,7 +2009,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response2)
 
-        # Step 2 ---
+        # Step 2 (administrated app) ---
         with self.assertNoException():
             adm_app_labels = response2.context['form'].fields['admin_4_apps'].choices
 
@@ -1976,7 +2030,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response3)
 
-        # Step 3 ---
+        # Step 3 (creatable models) ---
         with self.assertNoException():
             creatable_ctypes = {*response3.context['form'].fields['creatable_ctypes'].ctypes}
 
@@ -2000,7 +2054,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response4)
 
-        # Step 4 ---
+        # Step 4 (listable models) ---
         context4 = response4.context
 
         with self.assertNoException():
@@ -2016,17 +2070,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertListEqual([ct_contact], form4.initial.get('listable_ctypes'))
 
         response5 = self.client.post(
-            url,
-            data={
-                step_key: '3',
-                '3-listable_ctypes': [ct_orga.id],
-            },
+            url, data={step_key: '3', '3-listable_ctypes': [ct_orga.id]},
         )
         self.assertNoFormError(response5)
 
-        # Step 5 ---
+        # Step 5 (exportable models) ---
         context5 = response5.context
-        self.assertEqual(_('Save the modifications'), context5.get('submit_label'))
+        # self.assertEqual(_('Save the modifications'), context5.get('submit_label'))
 
         with self.assertNoException():
             exp_ctypes = context5['form'].fields['exportable_ctypes'].ctypes
@@ -2037,12 +2087,33 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(ct_doc, exp_ctypes)
         self.assertNotIn(get_ct(Activity), exp_ctypes)  # App not allowed
 
+        response6 = self.client.post(
+            url, data={step_key: '4', '4-exportable_ctypes': [ct_contact.id]},
+        )
+        self.assertNoFormError(response6)
+
+        # Step 6 (special permissions) ---
+        context6 = response6.context
+        self.assertEqual(_('Save the modifications'), context6.get('submit_label'))
+
+        with self.assertNoException():
+            perms_f = context6['form'].fields['special_perms']
+            perms_choices = perms_f.choices
+
+        self.assertInChoices(
+            value=user_config_perm.id,
+            label=user_config_perm.verbose_name,
+            choices=perms_choices,
+        )
+        self.assertInChoices(
+            value=role_config_perm.id,
+            label=role_config_perm.verbose_name,
+            choices=perms_choices,
+        )
+        self.assertListEqual([user_config_perm.id], [*perms_f.initial])
+
         self.assertNoFormError(self.client.post(
-            url,
-            data={
-                step_key: '4',
-                '4-exportable_ctypes': [ct_contact.id],
-            },
+            url, data={step_key: '5', '5-special_perms': [role_config_perm.id]},
         ))
 
         role = self.refresh(role)
@@ -2055,15 +2126,20 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertCountEqual([ct_contact],         role.exportable_ctypes.all())
         self.assertEqual(1, role.credentials.count())
 
-    def test_edition__not_superuser(self):
-        self.login_not_as_superuser()
+        self.assertListEqual([role_config_perm], [*role.special_permissions.values()])
+
+    # def test_edition__not_superuser(self):
+    def test_edition__forbidden(self):
+        # self.login_not_as_superuser()
+        self.login_without_role_perm()
 
         role = self.create_role(name='CEO')
         self.assertGET403(self._build_wizard_edit_url(role))
 
-    def test_delete__not_superuser(self):
-        "Not superuser -> error."
-        self.login_not_as_superuser()
+    def test_delete__forbidden(self):
+        "No role permission -> error."
+        # self.login_not_as_superuser()
+        self.login_without_role_perm()
 
         role = self.create_role(name='Test')
         url = self._build_del_role_url(role)
@@ -2072,8 +2148,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_delete__role_not_used(self):
         "Role is not used."
-        self.login_as_root()
-        user = self.get_root_user()
+        # user = self.login_as_root_and_get()
+        user = self.login_with_role_perm()
 
         role = self.create_role(name='CEO')
         creds = SetCredentials.objects.create(
@@ -2241,7 +2317,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(dcom)
 
     def test_clone(self):
-        self.login_as_root()
+        # self.login_as_root()
+        self.login_with_role_perm()
 
         role1 = self.create_role(
             name='CEO',
@@ -2250,6 +2327,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             creatable_models=[FakeContact, FakeDocument],
             exportable_models=[FakeContact, FakeOrganisation],
             listable_models=[FakeContact, FakeActivity],
+            special_permissions=[user_config_perm],
         )
 
         efilter1 = EntityFilter.objects.create(
@@ -2322,6 +2400,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             [FakeContact, FakeActivity],
             [ct.model_class() for ct in role2.listable_ctypes.all()],
         )
+        self.assertListEqual([user_config_perm.id], [*role2.special_permissions])
 
         all_credentials = role2.credentials.order_by('id')
         self.assertEqual(2, len(all_credentials))

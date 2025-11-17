@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
 {% load uca_sort url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-roles-brick{% endblock %}
@@ -9,7 +9,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% brick_header_action id='add' url='creme_config__create_role'|url label=_('New role') enabled=user.is_superuser %}
+{#    {% brick_header_action id='add' url='creme_config__create_role'|url label=_('New role') enabled=user.is_superuser %} #}
+    {% brick_header_action id='add' url='creme_config__create_role'|url label=_('New role') enabled=user|has_special_perm:role_config_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -19,12 +20,14 @@
     {% brick_table_column title=_('Creation credentials')       status='nowrap' class='role-creation-creds' %}
     {% brick_table_column title=_('List credentials')           status='nowrap' class='role-list-creds' %}
     {% brick_table_column title=_('Export credentials')         status='nowrap' class='role-export-creds' %}
+    {% brick_table_column title=_('Special permissions')        status='nowrap' class='role-special-perms' %}
     {% brick_table_column title=_('Entities credentials')       status='nowrap' class='role-creds' %}
     {% brick_table_column title=_('Actions') status='action' colspan=3 %}
 {% endblock %}
 
 {% block brick_table_rows %}
-{% with admin_perm=user.is_superuser %}{% url 'creme_config__remove_role_credentials' as rm_creds_url %}
+{# {% with admin_perm=user.is_superuser %}{% url 'creme_config__remove_role_credentials' as rm_creds_url %} #}
+{% with admin_perm=user|has_special_perm:role_config_perm %}{% url 'creme_config__remove_role_credentials' as rm_creds_url %}
   {% for role in page.object_list %}
     <tr>
         <td class="role-name">{{role.name}}</td>
@@ -33,6 +36,7 @@
         <td class="role-creation-creds">{% widget_enumerator role.creatable_ctypes.all|uca_sort threshold=2 summary=_('{count} types of entity') empty=_('No creation credential') %}</td>
         <td class="role-list-creds">{% widget_enumerator role.listable_ctypes.all|uca_sort threshold=2 summary=_('{count} types of entity') empty=_('No list credential') %}</td>
         <td class="role-export-creds">{% widget_enumerator role.exportable_ctypes.all|uca_sort threshold=2 summary=_('{count} types of entity') empty=_('No export credential') %}</td>
+        <td class="role-special-perms">{% widget_enumerator role.special_permissions.values|uca_sort threshold=2 summary=_('{count} permissions') empty=_('No special permission') %}</td>
         <td class="role-creds">
             <ul>
               {% for sc in role.credentials.all %}

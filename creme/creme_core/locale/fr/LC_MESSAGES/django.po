@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-17 12:40+0100\n"
+"POT-Creation-Date: 2025-11-19 18:38+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -205,12 +205,6 @@ msgstr ""
 "Affiche plusieurs statistiques (ex: le nombre de clients), en fonction des "
 "apps installées.\n"
 "App : Cœur"
-
-msgid "Results"
-msgstr "Résultats"
-
-msgid "Errors"
-msgstr "Erreurs"
 
 msgid "Jobs"
 msgstr "Jobs"
@@ -1798,6 +1792,12 @@ msgstr "Champ supprimé (avec id={id}) changé"
 msgid "“{field}” set"
 msgstr "“{field}” modifié"
 
+msgid "Results"
+msgstr "Résultats"
+
+msgid "Errors"
+msgstr "Erreurs"
+
 msgid "The batch processing is disabled because the custom type is deleted"
 msgstr ""
 "Le traitement par lots est désactivé car le type personnalisé est supprimé"
@@ -2079,6 +2079,9 @@ msgstr "{first_name} {last_name}."
 
 msgid "Forbidden (unspecified reason)"
 msgstr "Interdit (raison indéterminée)"
+
+msgid "You have not this special permission: «{}»"
+msgstr "Vous n'avez pas cette permission spéciale : «{}»"
 
 msgid "Invalid app \"{}\""
 msgstr "App invalide \"{}\""

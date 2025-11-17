@@ -30,6 +30,7 @@ from django.utils.timezone import get_current_timezone, make_aware
 from django.utils.translation import gettext as _
 
 from ..auth import EntityCredentials
+from ..auth.special import SpecialPermission
 from ..constants import ROOT_PASSWORD, ROOT_USERNAME
 from ..core.setting_key import SettingKey
 from ..global_info import clear_global_info
@@ -288,7 +289,8 @@ class _CremeTestCase:
     def login_as_super(self,
                        is_staff=False,
                        index: int = 0,
-                       password: str = 'test',
+                       # password: str = 'test',
+                       password: str = USER_PASSWORD,
                        ) -> CremeUser:
         user = self.create_user(index=index, is_staff=is_staff, password=password)
 
@@ -303,8 +305,10 @@ class _CremeTestCase:
                           creatable_models: Iterable[type[CremeEntity]] = (),
                           listable_models: Iterable[type[CremeEntity]] = (),
                           exportable_models: Iterable[type[CremeEntity]] = (),
+                          special_permissions: Iterable[SpecialPermission] = (),
                           index: int = 0,
-                          password: str = 'test',
+                          # password: str = 'test',
+                          password: str = USER_PASSWORD,
                           ) -> CremeUser:
         role = self.create_role(
             name='Basic',
@@ -313,6 +317,7 @@ class _CremeTestCase:
             creatable_models=creatable_models,
             listable_models=listable_models,
             exportable_models=exportable_models,
+            special_permissions=special_permissions,
         )
         user = self.create_user(index=index, role=role, password=password, roles=[role])
 

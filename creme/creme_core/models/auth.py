@@ -44,6 +44,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..auth import EntityCredentials
+from ..auth.special import SpecialPermission, special_perm_registry
 from ..core.setting_key import UserSettingValueManager
 from ..utils.content_type import as_ctype, as_model
 from ..utils.unicode_collation import collator
@@ -124,6 +125,8 @@ class UserRole(models.Model):
     raw_allowed_apps = models.TextField(default='')  # Use 'allowed_apps' property
     raw_admin_4_apps = models.TextField(default='')  # Use 'admin_4_apps' property
 
+    raw_special_perms = models.TextField(default='')  # Use 'special_permissions' property
+
     # Can be used by third party code to store the data they want,
     # without having to modify the code.
     extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
@@ -146,6 +149,8 @@ class UserRole(models.Model):
 
         self._admin_4_apps: set[str] | None = None
         self._extended_admin_4_apps: set[str] | None = None
+
+        self._special_perms: dict[str, SpecialPermission] | None = None
 
         self._creatable_ctypes_set: frozenset[int] | None = None
         self._exportable_ctypes_set: frozenset[int] | None = None
@@ -190,6 +195,22 @@ class UserRole(models.Model):
         """@param apps: Sequence of app labels (strings)."""
         self._allowed_apps = {*apps}
         self.raw_allowed_apps = '\n'.join(apps)
+
+    @property
+    def special_permissions(self) -> dict[str, SpecialPermission]:
+        if self._special_perms is None:
+            self._special_perms = {
+                perm_id: perm
+                for perm_id in self.raw_special_perms.split('\n')
+                if perm_id and (perm := special_perm_registry.get_permission(perm_id))
+            }
+
+        return self._special_perms
+
+    @special_permissions.setter
+    def special_permissions(self, perms: Iterable[SpecialPermission]) -> None:
+        self._special_perms = {perm.id: perm for perm in perms}
+        self.raw_special_perms = '\n'.join(self._special_perms.keys())
 
     @staticmethod
     def _build_extended_apps(apps: Iterable[str]) -> set[str]:
@@ -1316,6 +1337,17 @@ class CremeUser(AbstractBaseUser):
             else:
                 for perm in perm_list:
                     self.has_perm_or_die(perm, obj)
+
+    def has_special_perm(self, perm: SpecialPermission, /) -> bool:
+        return self.is_superuser or perm.id in self.role.special_permissions
+
+    def has_special_perm_or_die(self, perm: SpecialPermission, /) -> None:
+        if not self.has_special_perm(perm):
+            raise PermissionDenied(
+                gettext('You have not this special permission: «{}»').format(
+                    perm.verbose_name
+                )
+            )
 
     def has_perm_to_access(self, app_label: str, /) -> bool:
         return self.is_superuser or self.role.is_app_allowed_or_administrable(app_label)

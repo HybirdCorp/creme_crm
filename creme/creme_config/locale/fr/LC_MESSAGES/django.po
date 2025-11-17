@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-14 10:18+0200\n"
+"POT-Creation-Date: 2025-11-19 18:41+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,6 +18,20 @@ msgstr ""
 
 msgid "General configuration"
 msgstr "Configuration générale"
+
+msgid "User management"
+msgstr "Gestion des utilisateurs"
+
+msgid "Can create, edit & disable users, can change passwords"
+msgstr ""
+"Peut créer, modifier & désactiver des utilisateurs, peut changer les mots de "
+"passe"
+
+msgid "Role configuration"
+msgstr "Configuration des rôles"
+
+msgid "Can create & edit roles"
+msgstr "Peut créer & modifier des rôles"
 
 msgid "Export & import configuration"
 msgstr "Exporter & importer la configuration"
@@ -942,6 +956,9 @@ msgid ""
 msgstr ""
 "Ces types de fiches peuvent être téléchargés en tant que fichiers CSV/XLS "
 "(dans les vues en liste correspondantes)."
+
+msgid "Special permissions"
+msgstr "Permissions spéciales"
 
 msgid "First credentials: main information"
 msgstr "Premiers droits : informations principales"
@@ -2037,6 +2054,13 @@ msgstr "Pas de droit de liste"
 
 msgid "No export credential"
 msgstr "Pas de droit d'export"
+
+#, python-brace-format
+msgid "{count} permissions"
+msgstr "{count} permissions"
+
+msgid "No special permission"
+msgstr "Pas de permission spéciale"
 
 msgid "Edit these credentials"
 msgstr "Modifier ces droits"
@@ -3149,9 +3173,6 @@ msgstr "Modifier la configuration de l'instance"
 
 #~ msgid "New blocks configuration"
 #~ msgstr "Nouvelle configuration de blocs"
-
-#~ msgid "Home configuration"
-#~ msgstr "Configuration de l'accueil"
 
 #~ msgid "No configured portal for the moment"
 #~ msgstr "Aucun portail configuré pour le moment"

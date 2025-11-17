@@ -39,6 +39,7 @@ from .checks import (  # NB: it registers other checks too
 from .registry import CremeRegistry, creme_registry
 
 if TYPE_CHECKING:
+    from .auth.special import SpecialPermissionRegistry
     from .core.cloning import EntityClonerRegistry
     from .core.deletion import EntityDeletorRegistry
     from .core.download import FileFieldDownLoadRegistry
@@ -265,6 +266,7 @@ class CremeAppConfig(AppConfig):
 
     def all_apps_ready(self):
         if not self.MIGRATION_MODE:
+            from .auth.special import special_perm_registry
             from .core import (
                 cloning,
                 deletion,
@@ -298,6 +300,8 @@ class CremeAppConfig(AppConfig):
             )
 
             self.register_entity_models(creme_registry)
+
+            self.register_permissions(special_perm_registry)
 
             self.register_actions(actions.action_registry)
             self.register_bricks(bricks.brick_registry)
@@ -336,6 +340,9 @@ class CremeAppConfig(AppConfig):
             self.register_workflows(workflow.workflow_registry)
 
     def register_entity_models(self, creme_registry: CremeRegistry) -> None:
+        pass
+
+    def register_permissions(self, special_perm_registry: 'SpecialPermissionRegistry') -> None:
         pass
 
     def register_actions(self, action_registry: 'ActionRegistry') -> None:

@@ -25,7 +25,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.auth import SUPERUSER_PERM
+# from creme.creme_core.auth import SUPERUSER_PERM
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
     DeletionCommand,
@@ -36,6 +36,7 @@ from creme.creme_core.models import (
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
+from ..auth import role_config_perm
 from ..bricks import UserRolesBrick
 from ..forms import user_role as role_forms
 from .base import ConfigPortal
@@ -55,11 +56,13 @@ class RoleCreationWizard(generic.CremeModelCreationWizardPopup):
         role_forms.UserRoleCreatableCTypesStep,
         role_forms.UserRoleListableCTypesStep,
         role_forms.UserRoleExportableCTypesStep,
+        role_forms.UserRoleSpecialPermissionsStep,
         role_forms.UserRoleCredentialsGeneralStep,
         role_forms.UserRoleCredentialsFilterStep,
     ]
     model = UserRole
-    permissions = SUPERUSER_PERM
+    # permissions = SUPERUSER_PERM
+    permissions = role_config_perm.as_perm
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -97,7 +100,8 @@ class RoleCreationWizard(generic.CremeModelCreationWizardPopup):
 class RoleEditionWizard(generic.CremeModelEditionWizardPopup):
     model = UserRole
     pk_url_kwarg = 'role_id'
-    permissions = SUPERUSER_PERM
+    # permissions = SUPERUSER_PERM
+    permissions = role_config_perm.as_perm
 
     form_list = [
         role_forms.UserRoleAppsStep,
@@ -105,6 +109,7 @@ class RoleEditionWizard(generic.CremeModelEditionWizardPopup):
         role_forms.UserRoleCreatableCTypesStep,
         role_forms.UserRoleListableCTypesStep,
         role_forms.UserRoleExportableCTypesStep,
+        role_forms.UserRoleSpecialPermissionsStep,
     ]
 
     def done_save(self, form_list):
@@ -115,7 +120,8 @@ class RoleEditionWizard(generic.CremeModelEditionWizardPopup):
 class CredentialsAddingWizard(generic.CremeModelEditionWizardPopup):
     model = UserRole
     pk_url_kwarg = 'role_id'
-    permissions = SUPERUSER_PERM
+    # permissions = SUPERUSER_PERM
+    permissions = role_config_perm.as_perm
     title = _('Add credentials to «{object}»')
 
     class LastStep(role_forms.CredentialsFilterStep):
@@ -144,7 +150,8 @@ class CredentialsAddingWizard(generic.CremeModelEditionWizardPopup):
 class CredentialsEditionWizard(generic.CremeModelEditionWizardPopup):
     model = SetCredentials
     pk_url_kwarg = 'cred_id'
-    permissions = SUPERUSER_PERM
+    # permissions = SUPERUSER_PERM
+    permissions = role_config_perm.as_perm
     title = _('Edit credentials for «{role}»')
 
     form_list = [
@@ -165,7 +172,8 @@ class CredentialsEditionWizard(generic.CremeModelEditionWizardPopup):
 
 class CredentialsDeletion(generic.CheckedView):
     creds_id_arg = 'id'
-    permissions = SUPERUSER_PERM
+    # permissions = SUPERUSER_PERM
+    permissions = role_config_perm.as_perm
 
     @atomic
     def post(self, request, *args, **kwargs):
@@ -180,7 +188,8 @@ class CredentialsDeletion(generic.CheckedView):
 class RoleCloning(generic.CremeModelEditionPopup):
     model = UserRole
     pk_url_kwarg = 'role_id'
-    permissions = SUPERUSER_PERM
+    # permissions = SUPERUSER_PERM
+    permissions = role_config_perm.as_perm
     form_class = role_forms.UserRoleCloningForm
     template_name = 'creme_core/generics/blockform/add-popup.html'  # TODO: clone-popup.html
     title = _('Clone the role «{object}»')
@@ -197,7 +206,8 @@ class RoleCloning(generic.CremeModelEditionPopup):
 class RoleDeletion(generic.CremeModelEditionPopup):
     model = UserRole
     pk_url_kwarg = 'role_id'
-    permissions = SUPERUSER_PERM
+    # permissions = SUPERUSER_PERM
+    permissions = role_config_perm.as_perm
     form_class = role_forms.UserRoleDeletionForm
     template_name = 'creme_core/generics/blockform/delete-popup.html'
     job_template_name = 'creme_config/deletion-job-popup.html'

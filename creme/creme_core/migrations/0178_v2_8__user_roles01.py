@@ -14,8 +14,9 @@ class Migration(migrations.Migration):
                 to='creme_core.userrole', verbose_name='Possible roles',
                 blank=True, related_name='+',
                 help_text=(
-                    'If you choose several roles, the user will be able to switch between them.\n'
-                    'A user with no role will be a SUPERUSER.'
+                    'A normal user must have at least one role.\n'
+                    ' - A user with no role will be a SUPERUSER.\n'
+                    ' - If you choose several roles, the user will be able to switch between them.'
                 ),
             ),
         ),

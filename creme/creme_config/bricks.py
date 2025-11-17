@@ -58,6 +58,7 @@ from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.string import smart_split
 from creme.creme_core.utils.unicode_collation import collator
 
+from . import auth as config_auth
 from . import constants
 
 _PAGE_SIZE = 50
@@ -628,6 +629,7 @@ class UsersBrick(_ConfigAdminBrick):
             context, users,
             hide_inactive=hide_inactive,
             search_fields=[get_field(f_name).verbose_name for f_name in search_fields],
+            user_config_perm=config_auth.user_config_perm,
         )
         page = btc['page']
         page_users = page.object_list
@@ -658,6 +660,7 @@ class TeamsBrick(_ConfigAdminBrick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
             context, User.objects.filter(is_team=True),
+            user_config_perm=config_auth.user_config_perm,
         ))
 
 
@@ -1223,6 +1226,7 @@ class UserRolesBrick(_ConfigAdminBrick):
         return self._render(self.get_template_context(
             context,
             core_models.UserRole.objects.all(),
+            role_config_perm=config_auth.role_config_perm,
         ))
 
 

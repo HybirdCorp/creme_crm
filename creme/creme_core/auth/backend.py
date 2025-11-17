@@ -26,10 +26,12 @@ from . import (
     _EXPORT_PREFIX,
     _LINK_PREFIX,
     _LIST_PREFIX,
+    _SPECIAL_PREFIX,
     STAFF_PERM,
     SUPERUSER_PERM,
 )
 from .entity_credentials import EntityCredentials
+from .special import special_perm_registry
 
 
 class EntityBackend(ModelBackend):
@@ -56,6 +58,16 @@ class EntityBackend(ModelBackend):
             return EntityCredentials(user_obj, obj).has_perm(perm)
 
         if user_obj.role is not None:
+            if perm.startswith(_SPECIAL_PREFIX):
+                perm = special_perm_registry.get_permission(
+                    perm.removeprefix(_SPECIAL_PREFIX)
+                )
+                if perm is None:
+                    return False
+
+                user_obj.has_special_perm_or_die(perm)
+                return True
+
             app_label, dot, action_name = perm.partition('.')
 
             if not action_name:
