@@ -8,12 +8,7 @@ from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-from creme.creme_core.bricks import (
-    EntityJobErrorsBrick,
-    JobErrorsBrick,
-    JobsBrick,
-    MyJobsBrick,
-)
+from creme.creme_core.bricks import JobsBrick, MyJobsBrick
 # Should be a test queue
 from creme.creme_core.core.job import get_queue, job_type_registry
 from creme.creme_core.creme_jobs import (
@@ -22,6 +17,7 @@ from creme.creme_core.creme_jobs import (
     temp_files_cleaner_type,
 )
 from creme.creme_core.creme_jobs.base import JobType
+from creme.creme_core.gui.job import EntityJobErrorsBrick, JobErrorsBrick
 from creme.creme_core.models import EntityJobResult, FakeOrganisation, Job
 from creme.creme_core.utils.dates import dt_to_ISO8601
 from creme.creme_core.views.job import JobBarHatBrick, JobInfoBrick

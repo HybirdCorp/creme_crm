@@ -30,6 +30,7 @@ from django.utils.translation import ngettext
 from ..core.batch_process import BatchAction
 from ..core.paginator import FlowPaginator
 from ..core.workflow import WorkflowEngine
+from ..gui.job import EntityJobErrorsBrick
 from ..models import EntityCredentials, EntityFilter, EntityJobResult
 from ..models.utils import model_verbose_name
 from .base import JobProgress, JobType
@@ -145,7 +146,6 @@ class _BatchProcessType(JobType):
 
     @property
     def results_bricks(self):
-        from ..bricks import EntityJobErrorsBrick
         return [EntityJobErrorsBrick()]
 
     def get_description(self, job):

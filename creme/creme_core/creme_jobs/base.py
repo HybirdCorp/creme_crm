@@ -29,10 +29,10 @@ from django.utils.timezone import now
 
 from ..apps import CremeAppConfig
 from ..core.workflow import WorkflowEngine
+from ..gui.job import JobErrorsBrick
 from ..models import Job, JobResult
 
 if TYPE_CHECKING:
-    from ..bricks import JobErrorsBrick
     from ..forms.job import JobForm
 
 logger = logging.getLogger(__name__)
@@ -107,7 +107,6 @@ class JobType:
 
     @property
     def results_bricks(self) -> list[JobErrorsBrick]:
-        from ..bricks import JobErrorsBrick
         return [JobErrorsBrick()]  # TODO: yield?
 
     # NB: we do not use __call__ because we want to use instances of JobType

@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+import warnings
 from collections import defaultdict
 
 from django.conf import settings
@@ -35,11 +36,8 @@ from .models import (  # CremeUser
     CremeEntity,
     CremeProperty,
     CustomField,
-    EntityJobResult,
     Imprint,
     Job,
-    JobResult,
-    MassImportJobResult,
     Notification,
     Relation,
     RelationType,
@@ -560,68 +558,6 @@ class StatisticsBrick(Brick):
 #         ))
 
 
-class JobResultsBrick(QuerysetBrick):
-    id = QuerysetBrick.generate_id('creme_core', 'job_results')
-    verbose_name = _('Results')
-    dependencies = (JobResult,)
-    order_by = 'id'
-    template_name = 'creme_core/bricks/job-results.html'
-    configurable = False
-    page_size = 50
-
-    def _build_queryset(self, job):
-        return self.dependencies[0].objects.filter(job=job)
-
-    def _extra_context(self, job):
-        return {}
-
-    def detailview_display(self, context):
-        job = context['job']
-
-        return self._render(self.get_template_context(
-            context, self._build_queryset(job),
-            **self._extra_context(job)
-        ))
-
-
-class JobErrorsBrick(JobResultsBrick):
-    id = QuerysetBrick.generate_id('creme_core', 'job_errors')
-    verbose_name = _('Errors')
-    template_name = 'creme_core/bricks/job-errors.html'
-
-    def _build_queryset(self, job):
-        return super()._build_queryset(job).filter(messages__isnull=False)
-
-    def _extra_context(self, job):
-        return {'JOB_ERROR': Job.STATUS_ERROR}
-
-
-class EntityJobErrorsBrick(JobErrorsBrick):
-    id = QuerysetBrick.generate_id('creme_core', 'entity_job_errors')
-    # verbose_name = 'Entity job errors'
-    dependencies = (EntityJobResult,)
-    template_name = 'creme_core/bricks/entity-job-errors.html'
-
-    def _build_queryset(self, job):
-        return super()._build_queryset(job).prefetch_related('real_entity')
-
-
-class TrashCleanerJobErrorsBrick(EntityJobErrorsBrick):
-    id = QuerysetBrick.generate_id('creme_core', 'trash_cleaner_job_errors')
-    # verbose_name = 'Trash cleaner job errors'
-    template_name = 'creme_core/bricks/trash-cleaner-errors.html'
-
-
-class MassImportJobErrorsBrick(JobErrorsBrick):
-    id = QuerysetBrick.generate_id('creme_core', 'mass_import_job_errors')
-    # verbose_name  = 'Mass import job errors'
-    dependencies = (MassImportJobResult,)
-    template_name = 'creme_core/bricks/massimport-errors.html'
-
-    def _build_queryset(self, job):
-        return super()._build_queryset(job).prefetch_related('real_entity')
-
-
 class JobsBrick(QuerysetBrick):
     id = QuerysetBrick.generate_id('creme_core', 'jobs')
     verbose_name = _('Jobs')
@@ -680,3 +616,57 @@ class NotificationsBrick(QuerysetBrick):
             )
 
         return self._render(btc)
+
+
+def __getattr__(name):
+    if name == 'JobResultsBrick':
+        warnings.warn(
+            '"JobResultsBrick" has moved to <creme_core.gui.job>; '
+            'fix your import statement.',
+            DeprecationWarning,
+        )
+        from .gui.job import JobResultsBrick
+
+        return JobResultsBrick
+
+    if name == 'JobErrorsBrick':
+        warnings.warn(
+            '"JobErrorsBrick" has moved to <creme_core.gui.job>; '
+            'fix your import statement.',
+            DeprecationWarning,
+        )
+        from .gui.job import JobErrorsBrick
+
+        return JobErrorsBrick
+
+    if name == 'EntityJobErrorsBrick':
+        warnings.warn(
+            '"EntityJobErrorsBrick" has moved to <creme_core.gui.job>; '
+            'fix your import statement.',
+            DeprecationWarning,
+        )
+        from .gui.job import EntityJobErrorsBrick
+
+        return EntityJobErrorsBrick
+
+    if name == 'MassImportJobErrorsBrick':
+        warnings.warn(
+            '"MassImportJobErrorsBrick" has moved to <creme_core.creme_jobs.mass_import>; '
+            'fix your import statement.',
+            DeprecationWarning,
+        )
+        from .creme_jobs.mass_import import MassImportJobErrorsBrick
+
+        return MassImportJobErrorsBrick
+
+    if name == 'TrashCleanerJobErrorsBrick':
+        warnings.warn(
+            '"TrashCleanerJobErrorsBrick" has moved to <creme_core.creme_jobs.trash_cleaner>; '
+            'fix your import statement.',
+            DeprecationWarning,
+        )
+        from .creme_jobs.trash_cleaner import TrashCleanerJobErrorsBrick
+
+        return TrashCleanerJobErrorsBrick
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

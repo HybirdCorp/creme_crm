@@ -315,7 +315,8 @@ class _EntityEmailsSyncType(JobType):
 
     @property
     def results_bricks(self):
-        from creme.creme_core.bricks import JobResultsBrick
+        # from creme.creme_core.bricks import JobResultsBrick
+        from creme.creme_core.gui.job import JobResultsBrick
         return [JobResultsBrick()]
 
 
