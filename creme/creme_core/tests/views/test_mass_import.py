@@ -12,12 +12,16 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from creme.creme_core import workflows
-from creme.creme_core.bricks import JobErrorsBrick, MassImportJobErrorsBrick
 from creme.creme_core.constants import UUID_CHANNEL_JOBS
 from creme.creme_core.core.entity_filter import condition_handler
 from creme.creme_core.core.entity_filter.operators import EndsWithOperator
 from creme.creme_core.core.workflow import WorkflowConditions
-from creme.creme_core.creme_jobs import batch_process_type, mass_import_type
+from creme.creme_core.creme_jobs import batch_process_type
+from creme.creme_core.creme_jobs.mass_import import (
+    MassImportJobErrorsBrick,
+    mass_import_type,
+)
+from creme.creme_core.gui.job import JobErrorsBrick
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,

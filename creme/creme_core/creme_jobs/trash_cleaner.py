@@ -31,10 +31,17 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from ..core.deletion import entity_deletor_registry
 from ..core.exceptions import ConflictError
 from ..core.paginator import FlowPaginator
+from ..gui.job import EntityJobErrorsBrick
 from ..models import CremeEntity, EntityJobResult, TrashCleaningCommand
 from .base import JobProgress, JobType
 
 logger = logging.getLogger(__name__)
+
+
+class TrashCleanerJobErrorsBrick(EntityJobErrorsBrick):
+    id = EntityJobErrorsBrick.generate_id('creme_core', 'trash_cleaner_job_errors')
+    # verbose_name = 'Trash cleaner job errors'
+    template_name = 'creme_core/bricks/trash-cleaner-errors.html'
 
 
 class _TrashCleanerType(JobType):
@@ -52,8 +59,9 @@ class _TrashCleanerType(JobType):
         user = job.user
         cmd_qs = TrashCleaningCommand.objects.filter(job=job)
 
-        ctype_ids_qs = CremeEntity.objects.filter(is_deleted=True) \
-                                          .values_list('entity_type', flat=True)
+        ctype_ids_qs = CremeEntity.objects.filter(
+            is_deleted=True,
+        ).values_list('entity_type', flat=True)
 
         try:
             # NB: currently only supported by PostGreSQL
@@ -182,8 +190,8 @@ class _TrashCleanerType(JobType):
 
     @property
     def results_bricks(self):
-        from .. import bricks
-        return [bricks.TrashCleanerJobErrorsBrick()]
+        # from ..bricks import TrashCleanerJobErrorsBrick
+        return [TrashCleanerJobErrorsBrick()]
 
 
 trash_cleaner_type = _TrashCleanerType()

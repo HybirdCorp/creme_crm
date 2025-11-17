@@ -11,13 +11,13 @@ from django.utils.formats import date_format
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 
-from creme.creme_core.bricks import JobErrorsBrick
 from creme.creme_core.constants import UUID_CHANNEL_REMINDERS
 from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.core.function_field import function_field_registry
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.listview import TextLVSWidget
+from creme.creme_core.gui.job import JobErrorsBrick
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     BrickDetailviewLocation,

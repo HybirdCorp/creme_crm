@@ -28,6 +28,7 @@ from creme.documents import get_document_model
 
 from ..constants import UUID_CHANNEL_JOBS
 from ..forms.mass_import import form_factory, get_header
+from ..gui.job import JobErrorsBrick
 from ..models import MassImportJobResult, Notification
 from ..models.utils import model_verbose_name
 from ..notification import MassImportDoneContent
@@ -35,6 +36,16 @@ from ..utils.translation import smart_model_verbose_name
 from .base import JobProgress, JobType
 
 logger = logging.getLogger(__name__)
+
+
+class MassImportJobErrorsBrick(JobErrorsBrick):
+    id = JobErrorsBrick.generate_id('creme_core', 'mass_import_job_errors')
+    # verbose_name  = 'Mass import job errors'
+    dependencies = (MassImportJobResult,)
+    template_name = 'creme_core/bricks/massimport-errors.html'
+
+    def _build_queryset(self, job):
+        return super()._build_queryset(job).prefetch_related('real_entity')
 
 
 class _MassImportType(JobType):
@@ -85,7 +96,7 @@ class _MassImportType(JobType):
 
     @property
     def results_bricks(self):
-        from ..bricks import MassImportJobErrorsBrick
+        # from ..bricks import MassImportJobErrorsBrick
         return [MassImportJobErrorsBrick()]
 
     def get_description(self, job):

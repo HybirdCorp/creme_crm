@@ -29,6 +29,10 @@
             - The context processor "creme_core.context_processors.get_entities_deletion_allowed"
               is now deprecated (it injected "ENTITIES_DELETION_ALLOWED" in contexts) ;
               it has been removed from the default settings.
+            - In 'creme_core.bricks', these classes have been moved :
+                - 'JobResultsBrick', 'JobErrorsBrick' & 'EntityJobErrorsBrick' to 'creme_core.gui.job'.
+                - 'MassImportJobErrorsBrick' to 'creme_core.creme_jobs.mass_import'.
+                - 'TrashCleanerJobErrorsBrick' to 'creme_core.creme_jobs.trash_cleaner'.
             - In 'creme_core.models' :
                 - The method 'header_filter.HeaderFilterManager.create_if_needed()
                  is deprecated; use the method 'proxy()' instead.
