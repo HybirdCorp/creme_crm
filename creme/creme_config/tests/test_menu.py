@@ -179,7 +179,8 @@ class MenuEntriesTestCase(CremeTestCase):
         self.assertEqual('creme_config-roles',           entry.id)
         self.assertEqual(_('Roles and credentials'),     entry.label)
         self.assertEqual(reverse('creme_config__roles'), entry.url)
-        self.assertEqual('creme_config',                 entry.permissions)
+        # self.assertEqual('creme_config',                 entry.permissions)
+        self.assertEqual('special#creme_config-role',    entry.permissions)
 
     def test_property_types_entry(self):
         entry = PropertyTypesConfigEntry()
@@ -200,7 +201,8 @@ class MenuEntriesTestCase(CremeTestCase):
         self.assertEqual('creme_config-users',           entry.id)
         self.assertEqual(_('Users'),                     entry.label)
         self.assertEqual(reverse('creme_config__users'), entry.url)
-        self.assertEqual('creme_config',                 entry.permissions)
+        # self.assertEqual('creme_config',                 entry.permissions)
+        self.assertEqual('special#creme_config-user',    entry.permissions)
 
     def test_current_app_entry01(self):
         user = self.login_as_root_and_get()

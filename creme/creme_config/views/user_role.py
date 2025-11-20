@@ -46,6 +46,7 @@ logger = logging.getLogger(__name__)
 
 class Portal(ConfigPortal):
     template_name = 'creme_config/portals/user-role.html'
+    permissions = role_config_perm.as_perm
     brick_classes = [UserRolesBrick]
 
 

@@ -25,6 +25,7 @@ from django.utils.translation import pgettext_lazy
 from creme.creme_core import models
 from creme.creme_core.gui import menu
 
+from . import auth as config_auth
 from .registry import config_registry
 
 
@@ -185,12 +186,6 @@ class SearchConfigEntry(_ConfigURLEntry):
     url_name = 'creme_config__search'
 
 
-class RolesConfigEntry(_ConfigURLEntry):
-    id = 'creme_config-roles'
-    label = _('Roles and credentials')
-    url_name = 'creme_config__roles'
-
-
 class PropertyTypesConfigEntry(_ConfigURLEntry):
     id = 'creme_config-property_types'
     label = models.CremePropertyType._meta.verbose_name_plural
@@ -207,6 +202,14 @@ class UsersConfigEntry(_ConfigURLEntry):
     id = 'creme_config-users'
     label = _('Users')
     url_name = 'creme_config__users'
+    permissions = config_auth.user_config_perm.as_perm
+
+
+class RolesConfigEntry(_ConfigURLEntry):
+    id = 'creme_config-roles'
+    label = _('Roles and credentials')
+    url_name = 'creme_config__roles'
+    permissions = config_auth.role_config_perm.as_perm
 
 
 class EntityFiltersConfigEntry(_ConfigURLEntry):
