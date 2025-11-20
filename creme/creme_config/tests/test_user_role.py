@@ -1,12 +1,12 @@
 from functools import partial
 from json import dumps as json_dump
 
+# from parameterized import parameterized
 from django.contrib.contenttypes.models import ContentType
 from django.forms import BooleanField, CharField
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
-from parameterized import parameterized
 
 import creme.creme_core.bricks as core_bricks
 from creme.activities.models import Activity
@@ -82,14 +82,17 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     def login_without_role_perm(self):
         return self.login_as_standard(allowed_apps=('creme_config',))
 
-    @parameterized.expand([False, True])
-    def test_portal(self, superuser):
-        if superuser:
-            self.login_as_super()
-        else:
-            self.login_as_standard(admin_4_apps=['creme_config'])
+    # @parameterized.expand([False, True])
+    # def test_portal(self, superuser):
+    def test_portal(self):
+        # if superuser:
+        #     self.login_as_super()
+        # else:
+        #     self.login_as_standard(admin_4_apps=['creme_config'])
+        user = self.login_with_role_perm()
 
-        role = UserRole.objects.first()
+        # role = UserRole.objects.first()
+        role = user.role
         self.assertIsNotNone(role)
 
         response = self.assertGET200(reverse('creme_config__roles'))
@@ -104,7 +107,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertBrickTitleEqual(
             brick_node,
-            count=1 if superuser else 2,
+            # count=1 if superuser else 2,
+            count=2,
             title='{count} Role', plural_title='{count} Roles',
         )
         self.assertBrickHeaderHasButton(
@@ -116,6 +120,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             role.name,
             [n.text for n in brick_node.findall('.//td[@class="role-name"]')],
         )
+
+    def test_portal__forbidden(self):
+        self.login_without_role_perm()
+        self.assertGET403(reverse('creme_config__roles'))
 
     @skipIfNotInstalled('creme.persons')
     @skipIfNotInstalled('creme.documents')

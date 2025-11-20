@@ -88,12 +88,14 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         return self.login_as_standard(allowed_apps=('creme_config',))
 
     @skipIfNotCremeUser
-    @parameterized.expand([False, True])
-    def test_portal(self, superuser):
-        user = (
-            self.login_as_super() if superuser else
-            self.login_as_standard(admin_4_apps=['creme_config'])
-        )
+    # @parameterized.expand([False, True])
+    # def test_portal(self, superuser):
+    def test_portal(self):
+        # user = (
+        #     self.login_as_super() if superuser else
+        #     self.login_as_standard(admin_4_apps=['creme_config'])
+        # )
+        user = self.login_with_user_perm()
         User.objects.create(username='A-Team', is_team=True)
         User.objects.create(
             username='StaffMan', is_staff=True, first_name='Staff', last_name='Man',
@@ -130,6 +132,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             teams_brick_node,
             count=1, title='{count} Team', plural_title='{count} Teams',
         )
+
+    def test_portal__forbidden(self):
+        self.login_without_user_perm()
+        self.assertGET403(reverse('creme_config__users'))
 
     def test_portal__hide_inactive(self):
         user = self.login_as_root_and_get()

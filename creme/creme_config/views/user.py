@@ -45,6 +45,12 @@ from .base import ConfigPortal
 logger = logging.getLogger(__name__)
 
 
+class Portal(ConfigPortal):
+    template_name = 'creme_config/portals/user.html'
+    permissions = user_config_perm.as_perm
+    brick_classes = [bricks.UsersBrick, bricks.TeamsBrick]
+
+
 class PasswordChange(generic.CremeModelEditionPopup):
     model = get_user_model()
     form_class = user_forms.UserPasswordChangeForm
@@ -78,11 +84,6 @@ class TeamCreation(BaseUserCreation):
     form_class = user_forms.TeamCreationForm
     title = _('New team')
     submit_label = _('Save the team')
-
-
-class Portal(ConfigPortal):
-    template_name = 'creme_config/portals/user.html'
-    brick_classes = [bricks.UsersBrick, bricks.TeamsBrick]
 
 
 class BaseUserEdition(generic.CremeModelEditionPopup):
