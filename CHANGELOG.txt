@@ -2,6 +2,16 @@
 
   TODO: compile .po (opportunities)
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Apps :
+            * Creme_config :
+                - The CSS for 'brick.GenericModelBrick' has been improved when the related model has many fields.
+
+
 == Version 2.7.2 ==
 
   Users side :
