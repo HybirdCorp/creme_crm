@@ -1,5 +1,14 @@
 == Version 2.6.15 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Apps :
+            * Creme_config :
+                - The CSS for 'brick.GenericModelBrick' has been improved when the related model has many fields.
+
 
 == Version 2.6.14 ==
 
