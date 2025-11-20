@@ -5,6 +5,7 @@ from django.core.validators import MaxLengthValidator
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -664,23 +665,35 @@ class MenuTestCase(CremeTestCase):
             entry.render(self._build_context(user=user)),
         )
 
-        # Two roles ---
+        # Several roles ---
         role2 = self.create_role(name='Engineer')
-        user.roles.add(role2)
+        role3 = self.create_role(name='Project leader', deactivated_on=now())
+        user.roles.add(role2, role3)
         self.maxDiff = None
         self.assertHTMLEqual(
             '''
 <span class="ui-creme-navigation-title">{label}</span>
-<button disabled onclick="creme.utils.ajaxQuery('{url1}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">
- <div class="marker-selected" />CEO
+<button class="" disabled onclick="creme.utils.ajaxQuery('{url1}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">
+ <div class="marker-selected" />{role_label1}
 </button>
-<button onclick="creme.utils.ajaxQuery('{url2}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">
- <div class="marker-not-selected" />Engineer
+<button class="" onclick="creme.utils.ajaxQuery('{url2}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">
+ <div class="marker-not-selected" />{role_label2}
+</button>
+<button class="disabled-role" disabled onclick="creme.utils.ajaxQuery('{url3}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">
+ <div class="marker-not-selected" />{role_label3}
 </button>
             '''.format(   # NOQA
                 label=_('Available roles'),
+
+                role_label1=role1.name,
                 url1=reverse('creme_core__switch_role', args=(user.id, role1.id)),
+
+                role_label2=role2.name,
                 url2=reverse('creme_core__switch_role', args=(user.id, role2.id)),
+
+                role_label3=str(role3),
+                url3=reverse('creme_core__switch_role', args=(user.id, role3.id)),
+
                 home_url=reverse('creme_core__home'),
             ),
             entry.render(self._build_context(user=user)),

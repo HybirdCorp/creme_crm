@@ -22,10 +22,11 @@ from django import forms
 from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model, password_validation
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_config.notification import PasswordChangeContent
+from creme.creme_config import notification
 from creme.creme_core.constants import UUID_CHANNEL_ADMIN
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.models import Notification  # UserRole
@@ -67,11 +68,14 @@ class UserCreationForm(CremeModelForm):
         )
         field_classes = {'username': auth_forms.UsernameField}
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #
-    #     # NB: browser can ignore <em> tag in <option>...
-    #     self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # # NB: browser can ignore <em> tag in <option>...
+        # self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
+
+        roles_f = self.fields['roles']
+        roles_f.queryset = roles_f.queryset.filter(deactivated_on=None)
 
     # Derived from django.contrib.auth.forms.UserCreationForm
     def clean_username(self):
@@ -149,11 +153,17 @@ class UserEditionForm(CremeModelForm):
             'roles',
         )
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #
-    #     # # NB: browser can ignore <em> tag in <option>...
-    #     # self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # # NB: browser can ignore <em> tag in <option>...
+        # self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
+
+        roles_f = self.fields['roles']
+        roles_f.queryset = roles_f.queryset.filter(
+            Q(deactivated_on=None)
+            | Q(id__in=self.instance.roles.values_list('id', flat=True))
+        )
 
     # def clean(self):
     #     cdata = super().clean()
@@ -169,6 +179,9 @@ class UserEditionForm(CremeModelForm):
         instance = self.instance
 
         if roles:
+            if all(role.deactivated_on for role in roles):
+                raise ValidationError(gettext('Select at least one enabled role.'))
+
             instance.is_superuser = False
 
             # We keep the current active role if possible
@@ -181,8 +194,18 @@ class UserEditionForm(CremeModelForm):
         return roles
 
     def save(self, *args, **kwargs):
-        instance = super().save(*args, **kwargs)
-        instance.roles.set(self.cleaned_data['roles'])
+        instance = self.instance
+        roles = self.cleaned_data['roles']
+        if instance.role and instance.role.deactivated_on:
+            # NB: we are sure there is at least one active role (see clean_roles())
+            instance.role = next(role for role in roles if role.deactivated_on is None)
+            Notification.objects.send(
+                users=[instance], channel=UUID_CHANNEL_ADMIN,
+                content=notification.RoleSwitchContent(),
+            )
+
+        super().save(*args, **kwargs)
+        instance.roles.set(roles)
 
         return instance
 
@@ -258,9 +281,8 @@ class UserPasswordChangeForm(CremeForm):
 
         if self.user != user:
             Notification.objects.send(
-                users=[user],
-                channel=UUID_CHANNEL_ADMIN,
-                content=PasswordChangeContent(),
+                users=[user], channel=UUID_CHANNEL_ADMIN,
+                content=notification.PasswordChangeContent(),
             )
 
 

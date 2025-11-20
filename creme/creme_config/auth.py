@@ -10,5 +10,5 @@ user_config_perm = SpecialPermission(
 role_config_perm = SpecialPermission(
     id='creme_config-role',
     verbose_name=_('Role configuration'),
-    description=_('Can create & edit roles'),
+    description=_('Can create, edit & disable roles'),
 )

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-19 18:41+0100\n"
+"POT-Creation-Date: 2025-11-24 14:47+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -30,8 +30,8 @@ msgstr ""
 msgid "Role configuration"
 msgstr "Configuration des rôles"
 
-msgid "Can create & edit roles"
-msgstr "Peut créer & modifier des rôles"
+msgid "Can create, edit & disable roles"
+msgstr "Peut créer, modifier & désactiver des rôles"
 
 msgid "Export & import configuration"
 msgstr "Exporter & importer la configuration"
@@ -795,6 +795,9 @@ msgstr "Confirmation du mot de passe"
 msgid "Enter the same password as before, for verification."
 msgstr ""
 
+msgid "Select at least one enabled role."
+msgstr "Sélectionnez au moins un rôle activé."
+
 msgid "Your old password"
 msgstr "Votre ancien mot de passe"
 
@@ -1072,6 +1075,14 @@ msgstr ""
 
 msgid "Your password has been changed by a super-user."
 msgstr "Votre mot de passe a été changé par un super-utilisateur."
+
+msgid "Role switch"
+msgstr "Bascule de rôles"
+
+msgid ""
+"Your role has been switched to another role because it has been disabled."
+msgstr ""
+"Votre rôle a été basculé pour un autre rôle car il a été désactivé."
 
 msgid "Action"
 msgstr "Action"
@@ -2083,6 +2094,12 @@ msgstr ""
 msgid "New credentials"
 msgstr "Nouveaux droits"
 
+msgid "Activate"
+msgstr "Activer"
+
+msgid "Deactivate"
+msgstr "Désactiver"
+
 msgid "Edit this role"
 msgstr "Modifier ce rôle"
 
@@ -2118,12 +2135,6 @@ msgstr "Administrateur"
 
 msgid "Yes,No"
 msgstr "Oui,Non"
-
-msgid "Deactivate"
-msgstr "Désactiver"
-
-msgid "Activate"
-msgstr "Activer"
 
 msgid "Change the password"
 msgstr "Changer le mot de passe"
@@ -3023,6 +3034,23 @@ msgstr "Ajouter les droits"
 #, python-brace-format
 msgid "Edit credentials for «{role}»"
 msgstr "Modifier les droits de «{role}»"
+
+msgid "You can't deactivate the role of the current user."
+msgstr "Vous ne pouvez pas désactiver le rôle de l'utilisateur courant."
+
+#, python-brace-format
+msgid ""
+"This role cannot be deactivated because it is used by {count} user without "
+"secondary active role to switch on: {users}."
+msgid_plural ""
+"This role cannot be deactivated because it is used by {count} users without "
+"secondary active role to switch on: {users}."
+msgstr[0] ""
+"Le rôle ne peut pas être désactivé car il est utilisé par {count} utilisateur "
+"sans rôle secondaire activé sur lequel basculer : {users}"
+msgstr[1] ""
+"Le rôle ne peut pas être désactivé car il est utilisé par {count} "
+"utilisateurs sans rôle secondaire activé sur lequel basculer : {users}"
 
 #, python-brace-format
 msgid "Clone the role «{object}»"

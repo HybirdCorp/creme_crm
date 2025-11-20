@@ -108,6 +108,10 @@ class UserRole(models.Model):
     created = core_fields.CreationDateTimeField().set_tags(viewable=False)
     modified = core_fields.ModificationDateTimeField().set_tags(viewable=False)
 
+    deactivated_on = models.DateTimeField(
+        _('Deactivated on'), null=True, default=None, editable=False,
+    )
+
     # superior = ForeignKey('self', verbose_name=_('Superior'), null=True)
     # TODO: CTypeManyToManyField ?
     creatable_ctypes = models.ManyToManyField(
@@ -159,7 +163,9 @@ class UserRole(models.Model):
         self._setcredentials: list[SetCredentials] | None = None
 
     def __str__(self):
-        return self.name
+        return self.name if self.deactivated_on is None else gettext(
+            '{role} [deactivated]'
+        ).format(role=self.name)
 
     @property
     def admin_4_apps(self) -> set[str]:
@@ -233,11 +239,14 @@ class UserRole(models.Model):
         return self._extended_allowed_apps
 
     def is_app_administrable(self, app_name: str) -> bool:  # TODO: rename "app_label"
-        return app_name in self.extended_admin_4_apps
+        return self.deactivated_on is None and app_name in self.extended_admin_4_apps
 
     # TODO: rename "app_label"
     def is_app_allowed_or_administrable(self, app_name: str) -> bool:
-        return (app_name in self.extended_allowed_apps) or self.is_app_administrable(app_name)
+        return self.deactivated_on is None and (
+            (app_name in self.extended_allowed_apps)
+            or self.is_app_administrable(app_name)
+        )
 
     # TODO: rename app_labels
     def _build_apps_verbose(self, app_names: Iterable[str]) -> list[str]:
@@ -270,6 +279,9 @@ class UserRole(models.Model):
         @param ctype: ContentType of the model we want to create.
         @return True if the model can be created.
         """
+        if self.deactivated_on:
+            return False
+
         if self._creatable_ctypes_set is None:
             self._creatable_ctypes_set = frozenset(
                 self.creatable_ctypes.values_list('id', flat=True)
@@ -283,6 +295,9 @@ class UserRole(models.Model):
         @param ctype: ContentType of the model we want to export.
         @return True if the model can be exported.
         """
+        if self.deactivated_on:
+            return False
+
         if self._exportable_ctypes_set is None:
             self._exportable_ctypes_set = frozenset(
                 self.exportable_ctypes.values_list('id', flat=True)
@@ -295,6 +310,9 @@ class UserRole(models.Model):
         @param ctype: ContentType of the model we want to list.
         @return True if the model can be listed.
         """
+        if self.deactivated_on:
+            return False
+
         if self._listable_ctypes_set is None:
             self._listable_ctypes_set = frozenset(
                 self.listable_ctypes.values_list('id', flat=True)
