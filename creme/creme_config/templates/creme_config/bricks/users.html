@@ -103,7 +103,7 @@
            {% if roles|length == 1 %}
             {{user.role}}
            {% else %}
-            <ul>{% for role in roles %}<li{% if role == user.role %} class="active-role"{% endif %}>{{role}}</li>{% endfor %}</ul>
+            <ul>{% for role in roles %}<li class="{% if role == user.role %}active-role {% endif %}{% if role.deactivated_on %}disabled-role {% endif %}">{{role}}</li>{% endfor %}</ul>
            {% endif %}
           {% endwith %}
          {% else %}
@@ -118,11 +118,11 @@
         {% if display_tz %}<td class="user-timezone">{{user.time_zone}}</td>{% endif %}
         <td class="user-joined" data-type="datetime">{{user.deactivated_on|default:'—'}}</td>
         <td {% brick_table_data_status action %} class="user-activate">
-            {% if user.is_active %}
-                {% brick_table_action id='update' url='creme_config__deactivate_user'|url:user.id label=_('Deactivate') display='text' enabled=admin_perm %}
-            {% else %}
-                {% brick_table_action id='update' url='creme_config__activate_user'|url:user.id   label=_('Activate')   display='text' enabled=admin_perm %}
-            {% endif %}
+          {% if user.is_active %}
+            {% brick_table_action id='update' url='creme_config__deactivate_user'|url:user.id label=_('Deactivate') display='text' enabled=admin_perm %}
+          {% else %}
+            {% brick_table_action id='update' url='creme_config__activate_user'|url:user.id   label=_('Activate')   display='text' enabled=admin_perm %}
+          {% endif %}
         </td>
         <td {% brick_table_data_status action %} class="user-password">
             {% brick_table_action id='edit' url='creme_config__change_user_password'|url:user.id label=_('Change the password') icon='security' enabled=admin_perm %}

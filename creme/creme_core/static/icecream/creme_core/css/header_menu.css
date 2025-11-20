@@ -298,6 +298,9 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
     margin-top: 5px;
     padding-top: 5px;
 }
+.ui-creme-navigation-item-id_creme_core-role_switch .disabled-role {
+    text-decoration: line-through;
+}
 .ui-creme-navigation div.marker-selected,
 .ui-creme-navigation div.marker-not-selected {
     display: inline-block;

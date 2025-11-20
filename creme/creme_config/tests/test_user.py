@@ -44,7 +44,7 @@ from ..bricks import (
     UsersBrick,
     UserSettingValuesBrick,
 )
-from ..notification import PasswordChangeContent
+from ..notification import PasswordChangeContent, RoleSwitchContent
 
 
 def skipIfNotCremeUser(test_func):
@@ -464,9 +464,20 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login_as_root_and_get()
         role1 = self.create_role(name='Mangaka')
         role2 = self.create_role(name='Animator')  # NB: alphabetically first
+        role3 = self.create_role(name='Disabled', deactivated_on=now())
 
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
+        # ---
+        response1 = self.assertGET200(self.ADD_URL)
+        with self.assertNoException():
+            roles_choices = response1.context['form'].fields['roles'].choices
+
+        self.assertInChoices(value=role1.id, label=str(role1), choices=roles_choices)
+        self.assertInChoices(value=role2.id, label=str(role2), choices=roles_choices)
+        self.assertNotInChoices(value=role3.id, choices=roles_choices)
+
+        # ---
         username = 'dknut@eswat.ol'
         password = 'password'
         self.assertNoFormError(self.client.post(
@@ -890,7 +901,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(email,       deunan.email)
 
     @skipIfNotCremeUser
-    @skipIfCustomContact
     def test_edit_user__regular_user__several_roles(self):
         self.login_as_root()
 
@@ -927,6 +937,68 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(edited_user.is_superuser)
         self.assertCountEqual([role2, role3], [*edited_user.roles.all()])
         self.assertEqual(role2, edited_user.role)  # Previous has been kept
+
+    @skipIfNotCremeUser
+    def test_edit_user__regular_user__several_roles__deactivated(self):
+        self.login_as_root()
+
+        role1 = self.get_regular_role()
+        deactivated_on = now()
+        role2 = self.create_role(name='Mangaka', deactivated_on=deactivated_on)
+        role3 = self.create_role(name='Animator', deactivated_on=deactivated_on)
+        role4 = self.create_role(name='Musician ', deactivated_on=deactivated_on)
+
+        edited_user = User.objects.create_user(
+            username='deunan', first_name='Deunan', last_name='Knut',
+            email='d.knut@olympus.ol',
+            role=role2, roles=[role1, role3],
+        )
+
+        url = self._build_edit_url(edited_user.id)
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            form = response1.context['form']
+            roles_choices = form.fields['roles'].choices
+            initial_roles = form.initial['roles']
+
+        self.assertCountEqual([role1, role2, role3], initial_roles)
+        self.assertInChoices(value=role1.id, label=role1.name, choices=roles_choices)
+        self.assertInChoices(
+            value=role2.id, choices=roles_choices,
+            label=_('{role} [deactivated]').format(role=role2.name),
+        )
+        self.assertInChoices(value=role3.id, label=str(role3), choices=roles_choices)
+        self.assertNotInChoices(value=role4.id, choices=roles_choices)
+
+        # ----
+        data = {
+            'first_name': edited_user.first_name,
+            'last_name':  edited_user.last_name,
+            'email':      edited_user.email,
+        }
+        response2 = self.assertPOST200(url, data={**data, 'roles': [role2.id]})
+        self.assertFormError(
+            response2.context['form'],
+            field='roles', errors=_('Select at least one enabled role.'),
+        )
+
+        # ----
+        self.assertNoFormError(self.client.post(
+            url, follow=True, data={**data, 'roles': [role1.id, role2.id]},
+        ))
+
+        edited_user = self.refresh(edited_user)
+        self.assertFalse(edited_user.is_superuser)
+        self.assertCountEqual([role1, role2], [*edited_user.roles.all()])
+        self.assertEqual(role1, edited_user.role)  # Set an active role
+
+        admin_chan = self.get_object_or_fail(NotificationChannel, uuid=UUID_CHANNEL_ADMIN)
+        notif = self.get_object_or_fail(
+            Notification, user=edited_user, channel=admin_chan,
+        )
+        self.assertEqual(RoleSwitchContent.id, notif.content_id)
+        self.assertDictEqual({}, notif.content_data)
 
     @skipIfNotCremeUser
     def test_edit_user__superuser(self):
@@ -1351,8 +1423,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login_as_config_admin()
         self.login_without_user_perm()
         other_user = User.objects.create(username='deunan')
-        self.assertGET403(self._build_activation_url(other_user.id, activation=False))
-        self.assertGET403(self._build_activation_url(other_user.id, activation=True))
+        self.assertPOST403(self._build_activation_url(other_user.id, activation=False))
+        self.assertPOST403(self._build_activation_url(other_user.id, activation=True))
 
     @skipIfNotCremeUser
     def test_user_activation__errors(self):

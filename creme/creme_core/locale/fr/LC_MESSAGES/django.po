@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-19 18:38+0100\n"
+"POT-Creation-Date: 2025-11-24 14:57+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1886,6 +1886,9 @@ msgstr "Aucune fiche récemment visitée"
 msgid "Name"
 msgstr "Nom"
 
+msgid "Deactivated on"
+msgstr "Désactivé le"
+
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
@@ -1906,6 +1909,10 @@ msgstr "Rôle"
 
 msgid "Roles"
 msgstr "Rôles"
+
+#, python-brace-format
+msgid "{role} [deactivated]"
+msgstr "{role} [désactivé]"
 
 msgid "All entities"
 msgstr "Toutes les fiches"
@@ -2019,9 +2026,6 @@ msgstr "Date d'inscription"
 
 msgid "Active?"
 msgstr "Actif ?"
-
-msgid "Deactivated on"
-msgstr "Désactivé le"
 
 msgid "Is staff?"
 msgstr "Est administrateur ?"

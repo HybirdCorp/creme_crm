@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import QuerySet
 from django.db.models.deletion import ProtectedError
 from django.test.utils import override_settings
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme.creme_config.auth import role_config_perm, user_config_perm
@@ -128,6 +129,7 @@ class UserRoleTestCase(BaseAuthTestCase):
         self.assertIsNotNone(role)
         self.assertEqual(_('Regular user'), role.name)
         self.assertFalse(role.admin_4_apps)
+        self.assertIsNone(role.deactivated_on)
 
         allowed_apps = role.allowed_apps
         self.assertIn('creme_core', allowed_apps)
@@ -145,6 +147,14 @@ class UserRoleTestCase(BaseAuthTestCase):
         self.assertFalse(set_creds.forbidden)
 
         self.assertDictEqual({}, role.special_permissions)
+
+    def test_str(self):
+        name = 'Normal'
+        role = UserRole(name=name)
+        self.assertEqual(name, str(role))
+
+        role.deactivated_on = now()
+        self.assertEqual(_('{role} [deactivated]').format(role=name), str(role))
 
     def test_attributes(self):
         role = UserRole(name='Normal')
@@ -4403,3 +4413,41 @@ class PermissionsTestCase(BaseAuthTestCase):
             EntityCredentials.filter_entities(
                 user=user, queryset=qs2, perm=VIEW | CHANGE,
             )
+
+    def test_disabled_role(self):
+        role = self.create_role(
+            name='Coder',
+            allowed_apps=['creme_core'],
+            admin_4_apps=['creme_core'],
+            creatable_models=[FakeContact],
+            exportable_models=[FakeContact],
+            listable_models=[FakeContact],
+            deactivated_on=now(),
+        )
+        self.add_credentials(role, all='*')
+        user = self.create_user(role=role)
+
+        self.assertFalse(user.has_perm('creme_core'))
+        self.assertFalse(user.has_perm('creme_core.can_admin'))
+
+        self.assertFalse(user.has_perm_to_access('creme_core'))
+        self.assertFalse(user.has_perm_to_admin('creme_core'))
+        self.assertFalse(user.has_perm_to_create(FakeContact))
+        self.assertFalse(user.has_perm_to_export(FakeContact))
+        self.assertFalse(user.has_perm_to_list(FakeContact))
+
+        contact = FakeContact.objects.create(
+            user=user, first_name='Musashi', last_name='Miyamoto',
+        )
+        self.assertFalse(user.has_perm_to_view(contact))
+        self.assertFalse(user.has_perm_to_link(FakeContact))
+        self.assertFalse(user.has_perm_to_link(contact))
+        self.assertFalse(user.has_perm_to_change(contact))
+        self.assertFalse(user.has_perm_to_delete(contact))
+
+        self.assertFalse(EntityCredentials.filter_entities(
+            user=user, queryset=CremeEntity.objects.all(),
+        ))
+        self.assertFalse(EntityCredentials.filter(
+            user=user, queryset=FakeContact.objects.all(),
+        ))
