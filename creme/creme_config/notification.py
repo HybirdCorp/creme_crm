@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,3 +26,12 @@ class PasswordChangeContent(StringBaseContent):
 
     subject = _('Password change')
     body = html_body = _('Your password has been changed by a super-user.')
+
+
+class RoleSwitchContent(StringBaseContent):
+    id = StringBaseContent.generate_id('creme_config', 'role_switch')
+
+    subject = _('Role switch')
+    body = html_body = _(
+        'Your role has been switched to another role because it has been disabled.'
+    )

@@ -148,7 +148,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     text-decoration: line-through;
 }
 
-/* Users brick */
+/* Users & UserRoles bricks */
 
 .creme_config-users-brick .user-role ul {
     margin: 0;
@@ -159,11 +159,15 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 .creme_config-users-brick .user-role li:not(.active-role) {
     color: grey;
 }
+.creme_config-users-brick .user-role .disabled-role {
+    text-decoration: line-through;
+}
 
 .creme_config-users-brick td.user-password {
     white-space: nowrap;
 }
 
+.creme_config-roles-brick .brick-table-content>tbody>tr.role-disabled,
 .creme_config-users-brick .brick-table-content>tbody>tr.user-disabled {
     background: #ebebeb;
     color: grey;
@@ -173,7 +177,9 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     margin-bottom: 2px;
 }
 
-/* UserRoles brick */
+.creme_config-roles-brick .role-disabled span.enumerator-empty {
+    color: #aaa;
+}
 
 .creme_config-roles-brick .role-creds > ul {
     list-style: none;

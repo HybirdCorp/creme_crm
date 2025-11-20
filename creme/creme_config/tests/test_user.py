@@ -464,9 +464,20 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login_as_root_and_get()
         role1 = self.create_role(name='Mangaka')
         role2 = self.create_role(name='Animator')  # NB: alphabetically first
+        role3 = self.create_role(name='Disabled', deactivated_on=now())
 
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
+        # ---
+        response1 = self.assertGET200(self.ADD_URL)
+        with self.assertNoException():
+            roles_choices = response1.context['form'].fields['roles'].choices
+
+        self.assertInChoices(value=role1.id, label=str(role1), choices=roles_choices)
+        self.assertInChoices(value=role2.id, label=str(role2), choices=roles_choices)
+        self.assertNotInChoices(value=role3.id, choices=roles_choices)
+
+        # ---
         username = 'dknut@eswat.ol'
         password = 'password'
         self.assertNoFormError(self.client.post(
@@ -1351,8 +1362,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login_as_config_admin()
         self.login_without_user_perm()
         other_user = User.objects.create(username='deunan')
-        self.assertGET403(self._build_activation_url(other_user.id, activation=False))
-        self.assertGET403(self._build_activation_url(other_user.id, activation=True))
+        self.assertPOST403(self._build_activation_url(other_user.id, activation=False))
+        self.assertPOST403(self._build_activation_url(other_user.id, activation=True))
 
     @skipIfNotCremeUser
     def test_user_activation__errors(self):

@@ -128,6 +128,7 @@ class UserRoleTestCase(BaseAuthTestCase):
         self.assertIsNotNone(role)
         self.assertEqual(_('Regular user'), role.name)
         self.assertFalse(role.admin_4_apps)
+        self.assertIsNone(role.deactivated_on)
 
         allowed_apps = role.allowed_apps
         self.assertIn('creme_core', allowed_apps)

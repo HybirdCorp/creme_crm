@@ -15,6 +15,7 @@
               list permissions for all models belonging to allowed apps.
             - The Roles can now have special permissions.
               Two special permissions have been introduced : "User management" & "Role configuration".
+            - The Roles can now be disabled.
         * Billing :
             - Invoices, Quotes & Sales Order got a "card" hat-block, which is used by default by new installations.
             - You can now export several Invoices or Quotes at once, as a .zip archive.

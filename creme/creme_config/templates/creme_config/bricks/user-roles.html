@@ -22,14 +22,14 @@
     {% brick_table_column title=_('Export credentials')         status='nowrap' class='role-export-creds' %}
     {% brick_table_column title=_('Special permissions')        status='nowrap' class='role-special-perms' %}
     {% brick_table_column title=_('Entities credentials')       status='nowrap' class='role-creds' %}
-    {% brick_table_column title=_('Actions') status='action' colspan=3 %}
+    {% brick_table_column title=_('Actions') status='action' colspan=4 %}
 {% endblock %}
 
 {% block brick_table_rows %}
 {# {% with admin_perm=user.is_superuser %}{% url 'creme_config__remove_role_credentials' as rm_creds_url %} #}
 {% with admin_perm=user|has_special_perm:role_config_perm %}{% url 'creme_config__remove_role_credentials' as rm_creds_url %}
   {% for role in page.object_list %}
-    <tr>
+    <tr{% if role.deactivated_on %} class="role-disabled"{% endif %}>
         <td class="role-name">{{role.name}}</td>
         <td class="role-apps">{% widget_enumerator role.get_allowed_apps_verbose threshold=2 summary=_('{count} applications') empty=_('No allowed application') %}</td>
         <td class="role-admin-apps">{% widget_enumerator role.get_admin_4_apps_verbose threshold=2 summary=_('{count} applications') empty=_('No administrated application') %}</td>
@@ -57,6 +57,13 @@
               {% endfor %}
             </ul>
             {% brick_action id='edit' url='creme_config__add_credentials_to_role'|url:role.id icon='add' label=_('New credentials') display='both' enabled=admin_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+          {% if role.deactivated_on %}
+            {% brick_table_action id='update' url='creme_config__activate_role'|url:role.id   label=_('Activate')   display='text' enabled=admin_perm %}
+          {% elif role.id != user.role_id %}
+            {% brick_table_action id='update' url='creme_config__deactivate_role'|url:role.id label=_('Deactivate') display='text' enabled=admin_perm %}
+          {% endif %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url='creme_config__edit_role'|url:role.id label=_('Edit this role') enabled=admin_perm %}

@@ -121,4 +121,6 @@ class CremeConfigConfig(CremeAppConfig):
 
         notification_registry.register_content(
             content_cls=notification.PasswordChangeContent,
+        ).register_content(
+            content_cls=notification.RoleSwitchContent,
         )

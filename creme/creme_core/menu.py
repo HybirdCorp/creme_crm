@@ -150,13 +150,18 @@ class RoleSwitchEntry(menu.MenuEntry):
                     label=self.label,
                     roles=format_html_join(
                         '\n',
-                        '''<button {attr} '''
+                        '''<button class="{class}" {attr}'''
                         '''onclick="creme.utils.ajaxQuery('{url}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">'''  # NOQA
                         '''<div class="marker-{marker_suffix}"></div>{role}'''
                         '''</button>''',
                         (
                             {
-                                'attr': 'disabled' if role.id == selected_id else '',
+                                'class': 'disabled-role' if role.deactivated_on else '',
+                                'attr': (
+                                    'disabled '
+                                    if role.id == selected_id or role.deactivated_on else
+                                    ''
+                                ),
                                 'url': reverse(url_name, args=(user.id, role.id)),
                                 'home_url': home_url,
                                 'marker_suffix': (

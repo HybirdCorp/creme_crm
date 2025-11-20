@@ -108,6 +108,10 @@ class UserRole(models.Model):
     created = core_fields.CreationDateTimeField().set_tags(viewable=False)
     modified = core_fields.ModificationDateTimeField().set_tags(viewable=False)
 
+    deactivated_on = models.DateTimeField(
+        _('Deactivated on'), null=True, default=None, editable=False,
+    )
+
     # superior = ForeignKey('self', verbose_name=_('Superior'), null=True)
     # TODO: CTypeManyToManyField ?
     creatable_ctypes = models.ManyToManyField(

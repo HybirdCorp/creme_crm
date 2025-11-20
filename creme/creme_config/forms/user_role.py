@@ -373,11 +373,12 @@ class UserRoleCloningForm(CremeModelForm):
     def save(self, *args, **kwargs) -> UserRole:
         cdata = self.cleaned_data
         instance: UserRole = self.instance
-        # TODO UserRole.clone() ?
+        # TODO: UserRole.clone() ?
         role_to_clone = self.role_to_clone
         instance.allowed_apps = role_to_clone.allowed_apps
         instance.admin_4_apps = role_to_clone.admin_4_apps
         instance.special_permissions = role_to_clone.special_permissions.values()
+        # TODO: <instance.deactivated_on = now() if role_to_clone.deactivated_on else None> ?
         instance.save()
 
         instance.creatable_ctypes.set(role_to_clone.creatable_ctypes.all())
@@ -386,7 +387,7 @@ class UserRoleCloningForm(CremeModelForm):
 
         for credentials in role_to_clone.credentials.order_by('id'):
             efilter = credentials.efilter
-            # TODO SetCredentials.clone()
+            # TODO: SetCredentials.clone() ?
             SetCredentials.objects.create(
                 role=instance,
                 set_type=credentials.set_type,
