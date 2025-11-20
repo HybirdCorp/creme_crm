@@ -85,7 +85,11 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     color: #818485;
 }
 
-/* Search/Bricks config */
+/* Registered model config */
+
+.creme_config-configurable-model-brick .brick-content {
+    overflow-x: auto;
+}
 
 .creme_config-configurable-model-brick th.configmodel-column-order {
     width: 50px;
