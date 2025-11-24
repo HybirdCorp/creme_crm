@@ -1258,14 +1258,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             _('Password change'),
             content.get_subject(user=other_user),
         )
-        self.assertEqual(
-            _('Your password has been changed by a super-user.'),
-            content.get_body(user=other_user),
-        )
-        self.assertEqual(
-            _('Your password has been changed by a super-user.'),
-            content.get_html_body(user=other_user),
-        )
+        body = _('Your password has been changed by an administrator.')
+        self.assertEqual(body, content.get_body(user=other_user))
+        self.assertEqual(body, content.get_html_body(user=other_user))
 
     @skipIfNotCremeUser
     def test_change_password__forbidden(self):

@@ -25,7 +25,7 @@ class PasswordChangeContent(StringBaseContent):
     id = StringBaseContent.generate_id('creme_config', 'password_change')
 
     subject = _('Password change')
-    body = html_body = _('Your password has been changed by a super-user.')
+    body = html_body = _('Your password has been changed by an administrator.')
 
 
 class RoleSwitchContent(StringBaseContent):
