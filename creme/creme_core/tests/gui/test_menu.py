@@ -1,3 +1,6 @@
+from datetime import timedelta
+from functools import partial
+
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -11,7 +14,7 @@ from django.utils.translation import ngettext
 
 from creme.creme_core.forms.menu import MenuEntryForm
 from creme.creme_core.gui import quick_forms
-from creme.creme_core.gui.last_viewed import LastViewedItem
+# from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.menu import (
     ContainerEntry,
     CreationEntry,
@@ -47,6 +50,7 @@ from creme.creme_core.models import (
     FakeContact,
     FakeDocument,
     FakeOrganisation,
+    LastViewedEntity,
     MenuConfigItem,
 )
 
@@ -372,7 +376,7 @@ class MenuTestCase(CremeTestCase):
             FakeContactsEntry().render(self._build_context(user=user)),
         )
 
-    def test_container_entry01(self):
+    def test_container_entry(self):
         self.assertIs(ContainerEntry.single_instance, False)
         self.assertIs(ContainerEntry.accepts_children, True)
 
@@ -430,7 +434,7 @@ class MenuTestCase(CremeTestCase):
             entry02.render(ctxt).removeprefix(label),
         )
 
-    def test_container_entry02(self):
+    def test_container_entry__sequence(self):
         "MenuEntrySequence."
         class SubEntry1(MenuEntry):
             id = 'creme_core-test1'
@@ -483,8 +487,7 @@ class MenuTestCase(CremeTestCase):
 
         self.assertEqual('', entry.render(self._build_context()))
 
-    def test_separator1_entry01(self):
-        "Empty label."
+    def test_separator1_entry__empty_label(self):
         self.assertEqual(_('Add a separator'), Separator1Entry.creation_label)
         self.assertIs(Separator1Entry.single_instance, False)
 
@@ -496,8 +499,7 @@ class MenuTestCase(CremeTestCase):
 
         self.assertEqual('', entry.render(self._build_context()))
 
-    def test_separator1_entry02(self):
-        "With label."
+    def test_separator1_entry__label(self):
         label = 'My group'
         entry = Separator1Entry(data={'label': label})
         self.assertEqual(label, entry.label)
@@ -506,7 +508,7 @@ class MenuTestCase(CremeTestCase):
             entry.render(self._build_context()),
         )
 
-    def test_custom_url_entry01(self):
+    def test_custom_url_entry(self):
         label = 'Python'
         url = 'http://www.python.org'
 
@@ -552,7 +554,7 @@ class MenuTestCase(CremeTestCase):
             entry.render(self._build_context()),
         )
 
-    def test_custom_url_entry02(self):
+    def test_custom_url_entry__no_data(self):
         "No data."
         label = 'Python'
         entry = CustomURLEntry(data={'label': label})
@@ -565,8 +567,7 @@ class MenuTestCase(CremeTestCase):
             entry.render(self._build_context()),
         )
 
-    def test_custom_url_entry03(self):
-        "No url."
+    def test_custom_url_entry__no_url(self):
         label = 'Python'
         entry = CustomURLEntry(data={'label': label, 'foo': 'bar'})
         self.assertEqual(label, entry.label)
@@ -708,7 +709,7 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(reverse('creme_logout'), entry.url)
 
     @override_settings(SOFTWARE_LABEL='Creme')
-    def test_creme_entry01(self):
+    def test_creme_entry(self):
         self.assertTrue(CremeEntry.single_instance)
 
         label = 'Creme'
@@ -753,22 +754,44 @@ class MenuTestCase(CremeTestCase):
         self.assertGreater(len([*entry.children]), 1)
 
     @override_settings(SOFTWARE_LABEL='My amazing CRM')
-    def test_creme_entry02(self):
+    def test_creme_entry__other_label(self):
         self.assertEqual('My amazing CRM', CremeEntry().label)
 
-    def test_recent_entities_entry01(self):
+    @override_settings(LAST_ENTITIES_SIZE=10, LAST_ENTITIES_MENU_SIZE=2)
+    def test_recent_entities_entry(self):
         user = self.get_root_user()
         self.assertTrue(RecentEntitiesEntry.single_instance)
 
-        contact1 = user.linked_contact
-        contact2 = FakeContact.objects.create(
-            user=user, first_name='Kirika', last_name='Yumura',
-        )
+        create_contact = partial(FakeContact.objects.create, user=user)
+        contact1 = create_contact(first_name='Sherlock', last_name='Holmes')
+        contact2 = create_contact(first_name='John', last_name='Watson')
+        contact3 = create_contact(first_name='Mycroft', last_name='Holmes')
+        contact4 = create_contact(last_name='Moriarty')
 
-        ctxt = self._build_context()
-        request = ctxt['request']
-        LastViewedItem(request, contact1)
-        LastViewedItem(request, contact2)
+        # ctxt = self._build_context()
+        # request = ctxt['request']
+        # LastViewedItem(request, contact1)
+        # LastViewedItem(request, contact2)
+        create_last_viewed = partial(LastViewedEntity.objects.create, user=user)
+        lve1 = create_last_viewed(real_entity=contact1)
+        lve2 = create_last_viewed(real_entity=contact2)
+        lve3 = create_last_viewed(real_entity=contact3)
+        lve4 = create_last_viewed(real_entity=contact4)
+        lve_other = create_last_viewed(real_entity=contact1, user=self.create_user())
+
+        # entity=NULL after a deletion => should be ignored
+        LastViewedEntity(user=user, entity_ctype=FakeContact).save()
+
+        def offset_viewed(lve, delta):
+            LastViewedEntity.objects.filter(id=lve.id).update(viewed=now() - delta)
+
+        offset_viewed(lve1, delta=timedelta(minutes=10))
+        offset_viewed(lve2, delta=timedelta(minutes=8))
+        offset_viewed(lve3, delta=timedelta(minutes=5))
+        offset_viewed(lve4, delta=timedelta(minutes=3))
+        offset_viewed(lve_other, delta=timedelta(minutes=1))
+
+        contact4.trash()
 
         entry = RecentEntitiesEntry()
         self.assertEqual(0, entry.level)
@@ -779,27 +802,34 @@ class MenuTestCase(CremeTestCase):
         entry_label = _('Recent entities')
         self.assertEqual(entry_label, entry.label)
 
-        render = entry.render(ctxt)
+        # render = entry.render(ctxt)
+        render = entry.render(self._build_context())
         self.assertStartsWith(render, entry_label)
         self.assertHTMLEqual(
             f'<ul>'
+            f'  <li>'
+            f'    <a href="{contact3.get_absolute_url()}">'
+            f'      <span class="ui-creme-navigation-ctype">{contact3.entity_type}</span>'
+            f'      {contact3}'
+            f'    </a>'
+            f'  </li>'
             f'  <li>'
             f'    <a href="{contact2.get_absolute_url()}">'
             f'      <span class="ui-creme-navigation-ctype">{contact2.entity_type}</span>'
             f'      {contact2}'
             f'    </a>'
             f'  </li>'
-            f'  <li>'
-            f'    <a href="{contact1.get_absolute_url()}">'
-            f'      <span class="ui-creme-navigation-ctype">{contact1.entity_type}</span>'
-            f'      {contact1}'
-            f'    </a>'
-            f'  </li>'
+            # f'  <li>'
+            # f'    <a href="{contact1.get_absolute_url()}">'
+            # f'      <span class="ui-creme-navigation-ctype">{contact1.entity_type}</span>'
+            # f'      {contact1}'
+            # f'    </a>'
+            # f'  </li>'
             f'</ul>',
             render.removeprefix(entry_label),
         )
 
-    def test_recent_entities_entry02(self):
+    def test_recent_entities_entry__empty(self):
         entry = RecentEntitiesEntry()
 
         entry_label = _('Recent entities')
@@ -1485,8 +1515,7 @@ class MenuTestCase(CremeTestCase):
         with self.assertRaises(MenuRegistry.RegistrationError):
             registry.register(InvalidID)
 
-    def test_registry02(self):
-        "Container with children."
+    def test_registry__container_with_children(self):
         container_name = 'Contact'
         container_item = MenuConfigItem(
             id=1, entry_id=ContainerEntry.id,
@@ -1540,7 +1569,7 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(url,      children3.url)
         self.assertEqual(4,        children3.config_item_id)
 
-    def test_registry03(self):
+    def test_registry__container_without_children(self):
         "Container does not accept children."
         container_item = MenuConfigItem(id=1, entry_id=RecentEntitiesEntry.id)
         sub_item = MenuConfigItem(

@@ -4,6 +4,10 @@
   ------------
     # A detail-view for RelationType has been created; an interesting feature is
       the display of all entities linked by the concerned type, mixing all entity types.
+    # The management of recent entities has been rework. They are now stored in their own table
+      (their were stored in the user's session) & so their are shared between the different
+      sessions of a user. The setting value 'MAX_LAST_ITEMS' has been removed ;
+      use the new values 'LAST_ENTITIES_SIZE' & 'LAST_ENTITIES_MENU_SIZE' instead.
     # Apps :
         * Creme_config :
             - The regular Users can now have several roles. Only one role is active (to compute
@@ -173,6 +177,7 @@
               argument 'template_context', and not the attribute "template_name" directly anymore.
               The attribute is now injected in this context by '_build_template_context()', & so you don't have
               to change your code, excepted if you override 'self.template_name' after building the context.
+            - The module 'last_viewed' has been removed.
         # In 'creme_core.views' :
             - The method 'creme_core.views.generic.base.BricksMixin.get_bricks()' now returns
               a dictionary instead of a list (to group Bricks per zone).

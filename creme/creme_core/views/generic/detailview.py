@@ -27,13 +27,14 @@ from django.views.generic import DetailView
 from creme.creme_core.bricks import ButtonsBrick
 from creme.creme_core.core import imprint
 from creme.creme_core.gui.bricks import Brick, brick_registry
-from creme.creme_core.gui.last_viewed import LastViewedItem
+# from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.gui.visit import EntityVisitor
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CremeEntity,
     CremeModel,
+    LastViewedEntity,
 )
 
 from . import base
@@ -221,8 +222,13 @@ class EntityDetail(base.EntityModelMixin, CremeModelDetail):
         entity = super().get_object(*args, **kwargs)
         request = self.request
 
-        LastViewedItem(request, entity)
-        self.imprint_manager.create_imprint(entity=entity, user=request.user)
+        # LastViewedItem(request, entity)
+        user = request.user
+        if not entity.is_deleted:
+            # Deleted entities are ignored in render anyway
+            LastViewedEntity.objects.create(user=user, real_entity=entity)
+
+        self.imprint_manager.create_imprint(entity=entity, user=user)
 
         return entity
 
