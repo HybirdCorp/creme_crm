@@ -22,7 +22,7 @@ from creme.creme_core.gui.custom_form import (
     FieldGroup,
     FieldGroupList,
 )
-from creme.creme_core.gui.last_viewed import LastViewedItem
+# from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -34,6 +34,7 @@ from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
     Imprint,
+    LastViewedEntity,
     RelationType,
     SemiFixedRelationType,
     Workflow,
@@ -93,7 +94,7 @@ class DetailTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_basic(self):
         user = self.login_as_root_and_get()
-        self.assertFalse(LastViewedItem.get_all(self.FakeRequest(user)))
+        # self.assertFalse(LastViewedItem.get_all(self.FakeRequest(user)))
         self.assertFalse(Imprint.objects.all())
 
         fox = FakeContact.objects.create(user=user, first_name='Fox', last_name='McCloud')
@@ -107,11 +108,13 @@ class DetailTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNone(response.context['visitor'])
 
         # -----
-        last_item = self.get_alone_element(LastViewedItem.get_all(self.FakeRequest(user)))
-        self.assertEqual(fox.id,             last_item.pk)
-        self.assertEqual(fox.entity_type_id, last_item.ctype_id)
-        self.assertEqual(url,                last_item.url)
-        self.assertEqual(str(fox),           last_item.name)
+        # last_item = self.get_alone_element(LastViewedItem.get_all(self.FakeRequest(user)))
+        # self.assertEqual(fox.id,             last_item.pk)
+        # self.assertEqual(fox.entity_type_id, last_item.ctype_id)
+        # self.assertEqual(url,                last_item.url)
+        # self.assertEqual(str(fox),           last_item.name)
+        last_viewed = self.get_object_or_fail(LastViewedEntity, entity_id=fox.id)
+        self.assertEqual(user, last_viewed.user)
 
         # -----
         imprint = self.get_alone_element(Imprint.objects.all())
@@ -184,6 +187,21 @@ class DetailTestCase(BrickTestCaseMixin, CremeTestCase):
             status_code=403,
             html=True,
         )
+
+    def test_is_deleted(self):
+        user = self.login_as_root_and_get()
+
+        fox = FakeContact.objects.create(user=user, first_name='Fox', last_name='McCloud')
+        fox.trash()
+
+        response = self.assertGET200(fox.get_absolute_url())
+        self.assertTemplateUsed(response, 'creme_core/generics/view_entity.html')
+
+        html = self.get_html_tree(response.content)
+        body_node = self.get_html_node_or_fail(html, './/body')
+        self.assertIn('is_deleted', body_node.attrib.get('class').split(' '))
+
+        self.assertFalse(LastViewedEntity.objects.filter(entity_id=fox.id))
 
     def test_visitor_invalid(self):
         user = self.login_as_root_and_get()

@@ -721,8 +721,14 @@ BLOCK_SIZE = 10
 # Note: it is used by custom blocks (i.e. in detailed views) too.
 CELL_SIZE = 500
 
-# Maximum number of items in the menu entry "Recent entities"
-MAX_LAST_ITEMS = 9
+# # Maximum number of items in the menu entry "Recent entities"
+# MAX_LAST_ITEMS = 9
+# Recent entities:
+#  Number of recent entities kept in DB (per user).
+LAST_ENTITIES_SIZE = 20
+#  Maximum number of items in the menu entry "Recent entities".
+#  Must be smaller or equal than LAST_ENTITIES_SIZE
+LAST_ENTITIES_MENU_SIZE = 9
 
 # Used to replace contents which a user is not allowed to see.
 HIDDEN_VALUE = '??'

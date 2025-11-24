@@ -1,21 +1,20 @@
-from functools import partial
-from time import sleep
-
+# from functools import partial
+# from time import sleep
+#
+# from django.contrib.sessions.models import Session
+# from django.test.utils import override_settings
 from django.apps import apps
-from django.contrib.sessions.models import Session
-from django.test.utils import override_settings
 
 from creme.creme_core.forms import CremeEntityQuickForm, CremeModelForm
 from creme.creme_core.gui.fields_config import FieldsConfigRegistry
 from creme.creme_core.gui.icons import Icon, IconRegistry
-from creme.creme_core.gui.last_viewed import LastViewedItem
+# from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.mass_import import FormRegistry
 from creme.creme_core.gui.merge import _MergeFormRegistry
 from creme.creme_core.gui.quick_forms import QuickFormRegistry
 from creme.creme_core.gui.statistics import StatisticRegistry
 from creme.creme_core.gui.view_tag import ViewTag
-from creme.creme_core.models import (
-    CremeEntity,
+from creme.creme_core.models import (  # CremeEntity
     FakeContact,
     FakeEmailCampaign,
     FakeImage,
@@ -34,88 +33,88 @@ from ..fake_forms import (
 
 
 class GuiTestCase(CremeTestCase):
-    @override_settings(MAX_LAST_ITEMS=5)
-    def test_last_viewed_items(self):
-        self.login_as_root()
-        user = self.get_root_user()
+    # @override_settings(MAX_LAST_ITEMS=5)
+    # def test_last_viewed_items(self):
+    #     self.login_as_root()
+    #     user = self.get_root_user()
+    #
+    #     class FakeRequest:
+    #         def __init__(this):
+    #             user_id = str(user.id)
+    #             this.session = self.get_alone_element(
+    #                 d
+    #                 for d in (s.get_decoded() for s in Session.objects.all())
+    #                 if d.get('_auth_user_id') == user_id
+    #             )
+    #
+    #     def get_items():
+    #         return LastViewedItem.get_all(FakeRequest())
+    #
+    #     self.assertEqual(0, len(LastViewedItem.get_all(FakeRequest())))
+    #
+    #     create_contact = partial(FakeContact.objects.create, user=user)
+    #     contact01 = create_contact(first_name='Casca',    last_name='Mylove')
+    #     contact02 = create_contact(first_name='Puck',     last_name='Elfman')
+    #     contact03 = create_contact(first_name='Judo',     last_name='Doe')
+    #     contact04 = create_contact(first_name='Griffith', last_name='Femto')
+    #
+    #     self.assertGET200(contact01.get_absolute_url())
+    #     items = get_items()
+    #     self.assertEqual(1, len(items))
+    #     self.assertEqual(contact01.pk, items[0].pk)
+    #
+    #     # ---
+    #     self.assertGET200(contact02.get_absolute_url())
+    #     self.assertGET200(contact03.get_absolute_url())
+    #     self.assertGET200(contact04.get_absolute_url())
+    #     items = get_items()
+    #     self.assertEqual(4, len(items))
+    #     self.assertListEqual(
+    #         [contact04.pk, contact03.pk, contact02.pk, contact01.pk],
+    #         [i.pk for i in items],
+    #     )
+    #
+    #     # ---
+    #     sleep(1)
+    #     contact01.last_name = 'ILoveYou'
+    #     contact01.save()
+    #     self.assertGET200(FakeContact.get_lv_absolute_url())
+    #     old_item = get_items()[-1]
+    #     self.assertEqual(contact01.pk,   old_item.pk)
+    #     self.assertEqual(str(contact01), old_item.name)
+    #
+    #     # ---
+    #     self.assertGET200(contact02.get_absolute_url())
+    #     self.assertListEqual(
+    #         [contact02.pk, contact04.pk, contact03.pk, contact01.pk],
+    #         [i.pk for i in get_items()],
+    #     )
+    #
+    #     # ---
+    #     contact03.delete()
+    #     self.assertFalse(CremeEntity.objects.filter(pk=contact03.id))
+    #     self.assertGET200(FakeContact.get_lv_absolute_url())
+    #     items = get_items()
+    #     self.assertListEqual(
+    #         [contact02.pk, contact04.pk, contact01.pk],
+    #         [i.pk for i in items],
+    #     )
+    #
+    #     # ---
+    #     contact04.trash()
+    #     self.assertGET200(FakeContact.get_lv_absolute_url())
+    #     self.assertListEqual(
+    #         [contact02.pk, contact01.pk],
+    #         [i.pk for i in get_items()],
+    #     )
+    #
+    #     # ---
+    #     with override_settings(MAX_LAST_ITEMS=1):
+    #         self.assertGET200(FakeContact.get_lv_absolute_url())
+    #
+    #     self.assertListEqual([contact02.pk], [i.pk for i in get_items()])
 
-        class FakeRequest:
-            def __init__(this):
-                user_id = str(user.id)
-                this.session = self.get_alone_element(
-                    d
-                    for d in (s.get_decoded() for s in Session.objects.all())
-                    if d.get('_auth_user_id') == user_id
-                )
-
-        def get_items():
-            return LastViewedItem.get_all(FakeRequest())
-
-        self.assertEqual(0, len(LastViewedItem.get_all(FakeRequest())))
-
-        create_contact = partial(FakeContact.objects.create, user=user)
-        contact01 = create_contact(first_name='Casca',    last_name='Mylove')
-        contact02 = create_contact(first_name='Puck',     last_name='Elfman')
-        contact03 = create_contact(first_name='Judo',     last_name='Doe')
-        contact04 = create_contact(first_name='Griffith', last_name='Femto')
-
-        self.assertGET200(contact01.get_absolute_url())
-        items = get_items()
-        self.assertEqual(1, len(items))
-        self.assertEqual(contact01.pk, items[0].pk)
-
-        # ---
-        self.assertGET200(contact02.get_absolute_url())
-        self.assertGET200(contact03.get_absolute_url())
-        self.assertGET200(contact04.get_absolute_url())
-        items = get_items()
-        self.assertEqual(4, len(items))
-        self.assertListEqual(
-            [contact04.pk, contact03.pk, contact02.pk, contact01.pk],
-            [i.pk for i in items],
-        )
-
-        # ---
-        sleep(1)
-        contact01.last_name = 'ILoveYou'
-        contact01.save()
-        self.assertGET200(FakeContact.get_lv_absolute_url())
-        old_item = get_items()[-1]
-        self.assertEqual(contact01.pk,   old_item.pk)
-        self.assertEqual(str(contact01), old_item.name)
-
-        # ---
-        self.assertGET200(contact02.get_absolute_url())
-        self.assertListEqual(
-            [contact02.pk, contact04.pk, contact03.pk, contact01.pk],
-            [i.pk for i in get_items()],
-        )
-
-        # ---
-        contact03.delete()
-        self.assertFalse(CremeEntity.objects.filter(pk=contact03.id))
-        self.assertGET200(FakeContact.get_lv_absolute_url())
-        items = get_items()
-        self.assertListEqual(
-            [contact02.pk, contact04.pk, contact01.pk],
-            [i.pk for i in items],
-        )
-
-        # ---
-        contact04.trash()
-        self.assertGET200(FakeContact.get_lv_absolute_url())
-        self.assertListEqual(
-            [contact02.pk, contact01.pk],
-            [i.pk for i in get_items()],
-        )
-
-        # ---
-        with override_settings(MAX_LAST_ITEMS=1):
-            self.assertGET200(FakeContact.get_lv_absolute_url())
-
-        self.assertListEqual([contact02.pk], [i.pk for i in get_items()])
-
-    def test_statistics01(self):
+    def test_statistics(self):
         user = self.get_root_user()
 
         registry = StatisticRegistry()
@@ -134,8 +133,7 @@ class GuiTestCase(CremeTestCase):
         FakeContact.objects.create(user=user, first_name='Koyomi', last_name='Araragi')
         self.assertListEqual([fmt(FakeContact.objects.count())], stat.retrieve())
 
-    def test_statistics02(self):
-        "Priority."
+    def test_statistics__priority(self):
         id1 = 'persons-contacts'
         perm = 'creme_core'
         id2 = 'persons-organisations'
@@ -156,7 +154,7 @@ class GuiTestCase(CremeTestCase):
 
         self.assertEqual(perm, stats[1].perm)
 
-    def test_statistics03(self):
+    def test_statistics__priority_none(self):
         "Priority None/not None"
         id1 = 'persons-contacts'
         id2 = 'persons-organisations'
@@ -183,8 +181,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(id2, stats[3].id)
         self.assertEqual(id4, stats[4].id)
 
-    def test_statistics04(self):
-        "Duplicated ID."
+    def test_statistics__duplicated_id04(self):
         id1 = 'persons-contacts'
         id2 = 'persons-organisations'
         registry = StatisticRegistry(
@@ -197,7 +194,7 @@ class GuiTestCase(CremeTestCase):
         with self.assertRaises(ValueError):
             registry.register(id1, 'Images', lambda: FakeImage.objects.count())
 
-    def test_statistics_changepriority(self):
+    def test_statistics__change_priority(self):
         id1 = 'persons-contacts'
         id2 = 'persons-organisations'
         id3 = 'creme_core-images'
@@ -217,7 +214,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(id3, stats[1].id)
         self.assertEqual(id1, stats[2].id)
 
-    def test_statistics_remove(self):
+    def test_statistics__remove(self):
         id1 = 'persons-contacts'
         id2 = 'persons-organisations'
         id3 = 'creme_core-images'
@@ -236,8 +233,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(1,   len(stats))
         self.assertEqual(id2, stats[0].id)
 
-    def test_icon_registry01(self):
-        "get_4_model()"
+    def test_icon_registry__get_4_model(self):
         icon_reg = IconRegistry()
         icon_reg.register(FakeContact,      'images/contact_%(size)s.png')
         icon_reg.register(FakeOrganisation, 'images/organisation_%(size)s.png')
@@ -261,8 +257,7 @@ class GuiTestCase(CremeTestCase):
         self.assertIsInstance(icon4, Icon)
         self.assertIn('', icon4.url)
 
-    def test_icon_registry02(self):
-        "get_4_instance()"
+    def test_icon_registry__get_4_instance(self):
         icon_reg = IconRegistry()
         icon_reg.register(FakeContact,      'images/contact_%(size)s.png')
         icon_reg.register(FakeOrganisation, 'images/organisation_%(size)s.png')
@@ -291,8 +286,7 @@ class GuiTestCase(CremeTestCase):
         self.assertIn('icecream/images/organisation_22', icon3.url)
         self.assertEqual('Test Organisation', icon3.label)
 
-    def test_quickforms_registry01(self):
-        "Registration."
+    def test_quickforms__registry__register(self):
         registry = QuickFormRegistry()
 
         self.assertFalse([*registry.models])
@@ -326,8 +320,7 @@ class GuiTestCase(CremeTestCase):
         with self.assertRaises(registry.RegistrationError):
             registry.register(FakeEmailCampaign, CampaignQuickForm)
 
-    def test_quickforms_registry02(self):
-        "Un-registration."
+    def test_quickforms__registry__unregister(self):
         registry = QuickFormRegistry()
 
         with self.assertRaises(registry.UnRegistrationError) as cm:
@@ -346,7 +339,7 @@ class GuiTestCase(CremeTestCase):
 
         self.assertIsNone(registry.get_form_class(FakeContact))
 
-    def test_fields_config_registry01(self):
+    def test_fields_config_registry(self):
         registry = FieldsConfigRegistry()
         self.assertIs(registry.is_model_registered(FakeContact), False)
 
@@ -362,7 +355,7 @@ class GuiTestCase(CremeTestCase):
 
     @skipIfNotInstalled('creme.persons')
     @skipIfNotInstalled('creme.documents')
-    def test_fields_config_registry02(self):
+    def test_fields_config_registry__get_needing_apps(self):
         from creme.documents.models import Document
         from creme.persons.models import Contact
 
@@ -416,7 +409,7 @@ class GuiTestCase(CremeTestCase):
         with self.assertRaises(ValueError):
             [*ViewTag.smart_generator('unknown')]  # NOQA
 
-    def test_mass_import_registry01(self):
+    def test_mass_import_registry__regsiter(self):
         registry = FormRegistry()
 
         self.assertNotIn(FakeContact,      registry)
@@ -458,8 +451,7 @@ class GuiTestCase(CremeTestCase):
             str(cm_dup.exception),
         )
 
-    def test_mass_import_registry02(self):
-        "Un-registration."
+    def test_mass_import_registry__unregister(self):
         registry = FormRegistry().register(FakeContact)
 
         registry.unregister(FakeContact)
@@ -475,7 +467,7 @@ class GuiTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_merge_form_registry01(self):
+    def test_merge_form_registry__regsiter(self):
         registry = _MergeFormRegistry()
         self.assertListEqual([], [*registry.models])
         self.assertIsNone(registry.get(FakeContact))
@@ -502,7 +494,7 @@ class GuiTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_merge_form_registry02(self):
+    def test_merge_form_registry__unregister(self):
         registry = _MergeFormRegistry().register(
             FakeContact, get_merge_form_builder,
         ).register(

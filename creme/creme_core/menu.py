@@ -33,7 +33,7 @@ from . import get_world_settings_model
 from .auth import SUPERUSER_PERM
 from .forms.menu import FixedURLEntryForm
 from .gui import menu, quick_forms
-from .models import CremeEntity
+from .models import CremeEntity, LastViewedEntity
 from .utils.serializers import json_encode
 from .utils.unicode_collation import collator
 
@@ -332,9 +332,11 @@ class RecentEntitiesEntry(menu.MenuEntry):
     single_instance = True
 
     def render(self, context):
-        from .gui.last_viewed import LastViewedItem
-
-        lv_items = LastViewedItem.get_all(context['request'])
+        # from .gui.last_viewed import LastViewedItem
+        # lv_items = LastViewedItem.get_all(context['request'])
+        lv_items = LastViewedEntity.objects.filter(
+            user=context['user'], entity__is_deleted=False,
+        ).prefetch_related('real_entity')[:settings.LAST_ENTITIES_MENU_SIZE]
 
         if lv_items:
             li_tags = format_html_join(
@@ -346,8 +348,13 @@ class RecentEntitiesEntry(menu.MenuEntry):
                 '</a>'
                 '</li>',
                 (
-                    {'url': lvi.url, 'ctype': lvi.ctype, 'name': lvi.name}
-                    for lvi in lv_items
+                    # {'url': lvi.url, 'ctype': lvi.ctype, 'name': lvi.name}
+                    # for lvi in lv_items
+                    {
+                        'url': lve.real_entity.get_absolute_url(),
+                        'ctype': lve.entity_ctype,
+                        'name': str(lve.real_entity),
+                    } for lve in lv_items
                 ),
             )
         else:

@@ -269,3 +269,34 @@ def check_portable_keys(**kwargs):
         _check_model(model=model, depth=0)
 
     return warnings
+
+
+@register(Tags.settings)
+def check_last_entities(**kwargs):
+    errors = []
+
+    try:
+        LAST_ENTITIES_SIZE = int(settings.LAST_ENTITIES_SIZE)
+        LAST_ENTITIES_MENU_SIZE = int(settings.LAST_ENTITIES_MENU_SIZE)
+    except ValueError:
+        errors.append(Error(
+            'The settings LAST_ENTITIES_SIZE & LAST_ENTITIES_MENU_SIZE must be integers.',
+            obj='settings.py',
+            id='creme.E013',
+        ))
+    else:
+        if LAST_ENTITIES_MENU_SIZE < 1 or LAST_ENTITIES_SIZE < 1:
+            errors.append(Error(
+                'The settings LAST_ENTITIES_SIZE & LAST_ENTITIES_MENU_SIZE must be >= 1.',
+                obj='settings.py',
+                id='creme.E013',
+            ))
+        elif LAST_ENTITIES_MENU_SIZE > LAST_ENTITIES_SIZE:
+            errors.append(Error(
+                'The settings LAST_ENTITIES_MENU_SIZE must be small or equal than '
+                'LAST_ENTITIES_SIZE.',
+                obj='settings.py',
+                id='creme.E013',
+            ))
+
+    return errors
