@@ -4423,6 +4423,7 @@ class PermissionsTestCase(BaseAuthTestCase):
             exportable_models=[FakeContact],
             listable_models=[FakeContact],
             deactivated_on=now(),
+            special_permissions=[role_config_perm],
         )
         self.add_credentials(role, all='*')
         user = self.create_user(role=role)
@@ -4435,6 +4436,7 @@ class PermissionsTestCase(BaseAuthTestCase):
         self.assertFalse(user.has_perm_to_create(FakeContact))
         self.assertFalse(user.has_perm_to_export(FakeContact))
         self.assertFalse(user.has_perm_to_list(FakeContact))
+        self.assertFalse(user.has_special_perm(role_config_perm))
 
         contact = FakeContact.objects.create(
             user=user, first_name='Musashi', last_name='Miyamoto',
