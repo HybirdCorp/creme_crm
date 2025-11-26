@@ -515,6 +515,7 @@ class CremeCoreConfig(CremeAppConfig):
             bricks.HistoryBrick,
             bricks.ImprintsBrick,
             bricks.TrashBrick,
+            bricks.RecentEntitiesBrick,
             bricks.StatisticsBrick,
             bricks.JobsBrick,
             bricks.MyJobsBrick,

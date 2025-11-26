@@ -38,6 +38,7 @@ from .models import (  # CremeUser
     CustomField,
     Imprint,
     Job,
+    LastViewedEntity,
     Notification,
     Relation,
     RelationType,
@@ -470,6 +471,25 @@ class TrashBrick(QuerysetBrick):
         CremeEntity.populate_real_entities(btc['page'].object_list)
 
         return self._render(btc)
+
+
+class RecentEntitiesBrick(QuerysetBrick):
+    id = QuerysetBrick.generate_id('creme_core', 'recent_entities')
+    verbose_name = _('Recent entities')
+    dependencies = (LastViewedEntity,)
+    order_by = '-viewed'
+    template_name = 'creme_core/bricks/recent-entities.html'
+    page_size = QuerysetBrick.page_size * 2
+
+    def home_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            # TODO: factorise with <creme_core.menu.RecentEntitiesEntry> ?
+            LastViewedEntity.objects.filter(
+                user=context['user'],
+                entity__is_deleted=False,
+            ).prefetch_related('real_entity'),
+        ))
 
 
 class StatisticsBrick(Brick):

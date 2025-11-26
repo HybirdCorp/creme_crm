@@ -1,0 +1,23 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-recent_entities-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Recent entity') plural=_('{count} Recent entities') empty=verbose_name icon='view' %}
+{% endblock %}
+
+{% block brick_list_content %}
+  {% for lve in page.object_list %}
+    <div class="brick-list-item">
+      {% with entity=lve.real_entity %}
+        {% widget_icon instance=entity size='brick-list' class='ctype-icon' %}
+        {% widget_entity_hyperlink entity=entity user=user %}
+      {% endwith %}
+    </div>
+  {% endfor %}
+{% endblock %}
+
+{% block brick_list_empty %}
+    {% translate 'No recent entity for the moment' %}
+{% endblock %}

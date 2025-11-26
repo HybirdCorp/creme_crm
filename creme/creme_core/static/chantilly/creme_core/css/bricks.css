@@ -1436,6 +1436,26 @@ svg.icon {
 
 /* Specific relation brick - end */
 
+/* Recent entities brick */
+
+.creme_core-recent_entities-brick .brick-content {
+    display: flex;
+}
+
+.creme_core-recent_entities-brick .brick-content .brick-list-item {
+    margin: 5px;
+    padding: 5px;
+
+    border: 1px solid #d5ebf4;
+    border-radius: 10px;
+
+    background: #f3fcff;
+}
+
+.creme_core-recent_entities-brick .brick-content .brick-list-item a {
+    vertical-align: super;
+}
+
 /* Statistics brick */
 
 .creme_core-statistics-brick.brick .brick-table-content ul {
