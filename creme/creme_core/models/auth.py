@@ -1357,7 +1357,11 @@ class CremeUser(AbstractBaseUser):
                     self.has_perm_or_die(perm, obj)
 
     def has_special_perm(self, perm: SpecialPermission, /) -> bool:
-        return self.is_superuser or perm.id in self.role.special_permissions
+        if self.is_superuser:
+            return True
+
+        role = self.role
+        return role.deactivated_on is None and perm.id in role.special_permissions
 
     def has_special_perm_or_die(self, perm: SpecialPermission, /) -> None:
         if not self.has_special_perm(perm):
