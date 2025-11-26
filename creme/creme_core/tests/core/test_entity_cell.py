@@ -276,6 +276,7 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
         self.assertEqual(field_name,      cell.value)
         self.assertEqual(field_name,      cell.portable_value)
         self.assertEqual(_('First name'), cell.title)
+        self.assertEqual('',              cell.description)
         self.assertIs(cell.is_excluded, False)
         self.assertIs(cell.is_multiline, False)
 
@@ -298,6 +299,12 @@ class EntityCellRegularFieldTestCase(CremeTestCase):
         self.assertEqual(
             yoko.first_name,
             cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
+        )
+
+    def test_description(self):
+        self.assertEqual(
+            'The contact corresponds to a user of Creme',
+            EntityCellRegularField.build(model=FakeContact, name='is_user').description,
         )
 
     def test_date_field(self):
@@ -614,6 +621,7 @@ class EntityCellCustomFieldTestCase(CremeTestCase):
         self.assertEqual(str(cfield.uuid), cell1.portable_value)
 
         self.assertEqual(name, cell1.title)
+        self.assertEqual('',   cell1.description)
         self.assertEqual(f'custom_field-{cfield.id}',   cell1.key)
         self.assertEqual(f'custom_field-{cfield.uuid}', cell1.portable_key)
 
@@ -668,13 +676,16 @@ class EntityCellCustomFieldTestCase(CremeTestCase):
         # self.assertEqual(str(cfield.id), cell4.value)
 
     def test_decimal(self):
+        description = 'I am a very useful description'
         cfield = CustomField.objects.create(
             name='Weight',
             field_type=CustomField.FLOAT,
             content_type=FakeContact,
+            description=description,
         )
 
         cell = EntityCellCustomField(cfield)
+        self.assertEqual(description, cell.description)
         self.assertEqual(settings.CSS_NUMBER_LISTVIEW,         cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 

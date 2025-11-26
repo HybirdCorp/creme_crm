@@ -240,6 +240,10 @@ class EntityCell:
         raise NotImplementedError
 
     @property
+    def description(self) -> str:
+        return ''
+
+    @property
     def title(self) -> str:
         raise NotImplementedError
 
@@ -544,8 +548,12 @@ class EntityCellRegularField(EntityCell):
 
         return printer(entity, user)
 
+    @property
+    def description(self):
+        return str(self._field_info[-1].help_text)
+
     @cached_property
-    def title(self) -> str:
+    def title(self):
         return (
             str(self._field_info.verbose_name)
             if not self.is_excluded else
@@ -692,6 +700,10 @@ class EntityCellCustomField(EntityCell):
             [cell.custom_field for cell in cells],
         )  # NB: not itervalues()
 
+    @property
+    def description(self):
+        return self._customfield.description
+
     @cached_property
     def title(self):
         return (
@@ -701,6 +713,7 @@ class EntityCellCustomField(EntityCell):
         )
 
 
+# TODO: add an attribute FunctionField.description & use it?
 @CELLS_MAP
 class EntityCellFunctionField(EntityCell):
     type_id = 'function_field'

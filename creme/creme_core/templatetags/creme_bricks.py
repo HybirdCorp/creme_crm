@@ -750,6 +750,7 @@ def brick_tile_for_cell(cell, instance, user):
     return {
         'key':   cell.key,
         'label': cell.title,
+        'description': cell.description,
 
         'content':   content,
         'data_type': cell.data_type,

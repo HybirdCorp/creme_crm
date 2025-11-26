@@ -23,9 +23,9 @@
 {% endblock %}
 
 {% block brick_content %}
-    {% for cell in cells %}
-        {% brick_tile_for_cell cell object user %}
-    {% empty %}
-        {% translate 'It seems that all fields are hidden. Ask your administrator to fix the configuration.' %}
-    {% endfor %}
+  {% for cell in cells %}
+    {% brick_tile_for_cell cell object user %}
+  {% empty %}
+    {% translate 'It seems that all fields are hidden. Ask your administrator to fix the configuration.' %}
+  {% endfor %}
 {% endblock %}

@@ -13,26 +13,20 @@
 
 {% block brick_content %}
     {% block single_line_fields %}
-        {% for cell in cells %}
-            {% if not cell.is_multiline and not cell.is_base_field %}
-                {% brick_tile_for_cell cell object user %}
-            {% endif %}
-        {% endfor %}
+      {% for cell in cells %}
+        {% if not cell.is_multiline and not cell.is_base_field %}{% brick_tile_for_cell cell object user %}{% endif %}
+      {% endfor %}
     {% endblock %}
 
     {% block multi_line_fields %}
-        {% for cell in cells %}
-            {% if cell.is_multiline %}
-                {% brick_tile_for_cell cell object user %}
-            {% endif %}
-        {% endfor %}
+      {% for cell in cells %}
+        {% if cell.is_multiline %}{% brick_tile_for_cell cell object user %}{% endif %}
+      {% endfor %}
     {% endblock %}
 
     {% block base_fields %}
-        {% for cell in cells %}
-            {% if cell.is_base_field %}
-                {% brick_tile_for_cell cell object user %}
-            {% endif %}
-        {% endfor %}
+      {% for cell in cells %}
+        {% if cell.is_base_field %}{% brick_tile_for_cell cell object user %}{% endif %}
+      {% endfor %}
     {% endblock %}
 {% endblock %}
