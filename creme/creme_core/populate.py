@@ -405,15 +405,19 @@ class Populator(BasePopulator):
                     'brick': bricks.HistoryBrick, 'order': 8,
                     'zone': BrickDetailviewLocation.RIGHT,
                 },
-
             ],
         )
 
         create_bhl = BrickHomeLocation.objects.create
-        create_bhl(brick_id=bricks.StatisticsBrick.id, order=8)
-        create_bhl(brick_id=bricks.HistoryBrick.id,    order=10)
+        create_bhl(brick_id=bricks.RecentEntitiesBrick.id, order=1)
+        create_bhl(brick_id=bricks.StatisticsBrick.id,     order=8)
+        create_bhl(brick_id=bricks.HistoryBrick.id,        order=10)
 
         create_bml = BrickMypageLocation.objects.create
-        create_bml(brick_id=bricks.HistoryBrick.id, order=8, user=None)
-        assert self.root is not None
-        create_bml(brick_id=bricks.HistoryBrick.id, order=8, user=self.root)
+        create_bml(brick_id=bricks.RecentEntitiesBrick.id, order=1, user=None)
+        create_bml(brick_id=bricks.HistoryBrick.id,        order=8, user=None)
+
+        root = self.root
+        assert root is not None
+        create_bml(brick_id=bricks.RecentEntitiesBrick.id, order=1, user=root)
+        create_bml(brick_id=bricks.HistoryBrick.id,        order=8, user=root)

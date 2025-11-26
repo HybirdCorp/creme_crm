@@ -4,6 +4,7 @@ from json import dumps as json_dump
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import number_format
 
@@ -12,6 +13,7 @@ from creme.creme_core.bricks import (
     CustomFieldsBrick,
     HistoryBrick,
     PropertiesBrick,
+    RecentEntitiesBrick,
     RelationsBrick,
     StatisticsBrick,
 )
@@ -28,6 +30,7 @@ from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
     HistoryLine,
+    LastViewedEntity,
     Relation,
     RelationBrickItem,
     RelationType,
@@ -285,7 +288,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLink(brick_node2, ptype3)
         self.assertNoInstanceLink(brick_node2, ptype2)
 
-    def test_relations_brick01(self):
+    def test_relations_brick(self):
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -336,7 +339,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLink(brick_node2, uran)
         self.assertEqual('{}', brick_node2.attrib.get('data-brick-reloading-info'))
 
-    def test_relations_brick02(self):
+    def test_relations_brick__no_minimal_display(self):
         """With A SpecificRelationBrick; but the concerned relationship is minimal_display=False
         (so there is no RelationType to exclude).
         """
@@ -408,7 +411,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLink(l_rel_brick_node, tenma)
         self.assertInstanceLink(l_rel_brick_node, uran)
 
-    def test_relations_brick03(self):
+    def test_relations_brick__minimal_display(self):
         """With A SpecificRelationBrick; the concerned relationship is minimal_display=True,
         so the RelationType is excluded.
         """
@@ -547,8 +550,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
             self.get_brick_tile(brick_node2, f'custom_field-{cfield2.id}').text,
         )
 
-    def test_history_brick01(self):
-        "Detail-view."
+    def test_history_brick__deatilview(self):
         user = self.login_as_root_and_get()
         atom = FakeContact.objects.create(
             user=user, first_name='Atom', last_name='Tenma', phone='123456',
@@ -599,8 +601,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual('edition', edition_cls)
         self.assertEqual(2, len(edition_node.findall('.//li')))
 
-    def test_history_brick02(self):
-        "Home."
+    def test_history_brick__home(self):
         user = self.login_as_root_and_get()
 
         HistoryLine.objects.all().delete()
@@ -642,7 +643,42 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLink(brick_node2, atom)
         self.assertInstanceLink(brick_node2, tenma)
 
-    def test_statistics_brick01(self):
+    @override_settings(LAST_ENTITIES_SIZE=10)
+    def test_recent_entities_brick(self):
+        user = self.login_as_root_and_get()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        contact1 = create_contact(first_name='Sherlock', last_name='Holmes')
+        contact2 = create_contact(first_name='John', last_name='Watson')
+        contact3 = create_contact(first_name='Mycroft', last_name='Holmes')
+
+        orga = FakeOrganisation.objects.create(user=user, name='Moriarty corp')
+
+        create_lve = partial(LastViewedEntity.objects.create, user=user)
+        create_lve(real_entity=contact1)
+        create_lve(real_entity=orga)
+        create_lve(real_entity=contact2, user=self.create_user())
+        create_lve(real_entity=contact3)
+
+        contact3.trash()
+
+        response = self.assertGET200(reverse('creme_core__home'))
+        self.assertTemplateUsed(response, 'creme_core/bricks/recent-entities.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, brick=RecentEntitiesBrick)
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2,
+            title='{count} Recent entity',
+            plural_title='{count} Recent entities',
+        )
+        self.assertInstanceLink(brick_node=brick_node, entity=contact1)
+        self.assertInstanceLink(brick_node=brick_node, entity=orga)
+        self.assertNoInstanceLink(brick_node=brick_node, entity=contact2)
+        self.assertNoInstanceLink(brick_node=brick_node, entity=contact3)
+
+    def test_statistics_brick(self):
         user = self.login_as_standard()
 
         s_id1 = 'creme_core-fake_contacts'

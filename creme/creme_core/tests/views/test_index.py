@@ -5,7 +5,11 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.bricks import HistoryBrick, StatisticsBrick
+from creme.creme_core.bricks import (
+    HistoryBrick,
+    RecentEntitiesBrick,
+    StatisticsBrick,
+)
 from creme.creme_core.gui.bricks import Brick, brick_registry
 from creme.creme_core.models import BrickHomeLocation, BrickMypageLocation
 from creme.creme_core.views.index import Home, MyPage
@@ -38,7 +42,7 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         assert AppPermissionBrick.id not in MyPage.brick_registry._brick_classes
 
     @override_settings(SOFTWARE_LABEL='Creme')
-    def test_home01(self):
+    def test_home(self):
         self.login_as_root()
         response = self.assertGET200(reverse('creme_core__home'))
         self.assertTemplateUsed(response, 'creme_core/home.html')
@@ -62,15 +66,16 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # brick_ids = [b.id for b in bricks]
         brick_ids = [b.id for b in main_bricks]
-        i1 = self.assertIndex(StatisticsBrick.id, brick_ids)
-        i2 = self.assertIndex(HistoryBrick.id,    brick_ids)
-        self.assertLess(i1, i2)
+        i_recent = self.assertIndex(RecentEntitiesBrick.id, brick_ids)
+        i_stats = self.assertIndex(StatisticsBrick.id, brick_ids)
+        i_history = self.assertIndex(HistoryBrick.id,    brick_ids)
+        self.assertLess(i_recent, i_stats)
+        self.assertLess(i_stats, i_history)
 
         self.assertContains(response, _('Home') + ' - Creme', html=True)
 
     @override_settings(SOFTWARE_LABEL='My CRM')
-    def test_home02(self):
-        "Superuser bricks configuration."
+    def test_home__superuser_bricks_config(self):
         self.login_as_root()
 
         brick_id = StatisticsBrick.id
@@ -96,8 +101,7 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertContains(response, _('Home') + ' - My CRM', html=True)
 
-    def test_home03(self):
-        "Superuser bricks configuration."
+    def test_home__role_bricks_config(self):
         user = self.login_as_standard()
         role2 = self.create_role(name='Viewer')
 

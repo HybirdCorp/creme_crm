@@ -1502,6 +1502,22 @@ svg.icon {
 
 /* Specific relation brick - end */
 
+/* Recent entities brick */
+
+.creme_core-recent_entities-brick .brick-content {
+    display: flex;
+}
+
+.creme_core-recent_entities-brick .brick-content .brick-list-item {
+    margin: 5px;
+    padding: 5px;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+
+    background: #f9f9f9;
+}
+
 /* Statistics brick */
 
 .creme_core-statistics-brick.brick .brick-table-content ul {

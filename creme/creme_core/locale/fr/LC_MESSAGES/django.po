@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-24 14:57+0100\n"
+"POT-Creation-Date: 2025-11-26 16:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -193,6 +193,9 @@ msgstr ""
 
 msgid "Trash"
 msgstr "Corbeille"
+
+msgid "Recent entities"
+msgstr "Fiches récentes"
 
 msgid "Statistics"
 msgstr "Statistiques"
@@ -1877,9 +1880,6 @@ msgstr "Autre type de fiche"
 msgid "Create an entity of any type"
 msgstr "Créer une fiche de n'importe quel type"
 
-msgid "Recent entities"
-msgstr "Fiches récentes"
-
 msgid "No recently visited entity"
 msgstr "Aucune fiche récemment visitée"
 
@@ -3479,6 +3479,17 @@ msgid "%(count)s entity with this property"
 msgid_plural "%(count)s entities with this property"
 msgstr[0] "%(count)s fiche avec cette propriété"
 msgstr[1] "%(count)s fiches avec cette propriété"
+
+#, python-brace-format
+msgid "{count} Recent entity"
+msgstr "{count} Fiche récente"
+
+#, python-brace-format
+msgid "{count} Recent entities"
+msgstr "{count} Fiches récentes"
+
+msgid "No recent entity for the moment"
+msgstr "Aucune fiche récente pour le moment"
 
 #, python-brace-format
 msgid "{count} Other entity"
