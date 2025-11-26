@@ -367,6 +367,7 @@ else:
             blank=True, null=True, editable=False,
             related_name='+',
             on_delete=models.SET_NULL,
+            help_text='The contact corresponds to a user of Creme',
         ).set_tags(
             clonable=False, enumerable=False,
         ).set_null_label(pgettext_lazy('persons-is_user', 'None'))

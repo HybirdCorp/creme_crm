@@ -1736,6 +1736,7 @@ class Migration(migrations.Migration):
                             related_name='+', on_delete=models.SET_NULL,
                             blank=True, editable=False, to=settings.AUTH_USER_MODEL,
                             null=True, verbose_name='Related user',
+                            help_text='The contact corresponds to a user of Creme',
                         )
                     ),
                     (
