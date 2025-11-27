@@ -975,12 +975,23 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 /* CustomFields brick */
 
+/*
 .creme_config-customfields-brick td.cfields-config-name {
     width: 30%;
 }
-
 .creme_config-customfields-brick td.cfields-config-type {
     width: 100%;
+}
+*/
+.creme_config-customfields-brick td.cfields-config-name,
+.creme_config-customfields-brick td.cfields-config-type {
+    width: 25%;
+}
+
+.creme_config-customfields-brick td.cfields-config-name,
+.creme_config-customfields-brick td.cfields-config-type,
+.creme_config-customfields-brick td.cfields-config-description {
+    cursor: help;
 }
 
 .creme_config-customfields-brick .brick-content {
