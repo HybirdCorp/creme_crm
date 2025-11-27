@@ -3,7 +3,7 @@ from functools import partial
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import MaxLengthValidator
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -26,6 +26,7 @@ from creme.creme_core.gui.menu import (
     MenuRegistry,
     Separator0Entry,
     Separator1Entry,
+    TemplateEntry,
     creation_menu_registry,
     menu_registry,
 )
@@ -276,6 +277,85 @@ class MenuTestCase(CremeTestCase):
             permissions = ('creme_core', 'creme_config')
 
         self.assertHTMLEqual(expected, TestEntry02().render(ctxt))
+
+    def test_template_entry(self):
+        user = self.login_as_standard(admin_4_apps=['creme_config'])
+
+        class TestTemplateEntry(TemplateEntry):
+            template_name = 'creme_core/menu/link.html'
+            id = 'creme_core-test-template'
+            label = 'Template'
+            permissions = 'creme_config'
+
+        entry = TestTemplateEntry()
+        context = self._build_context(user=user)
+
+        self.assertEqual({
+            'label': 'Template',
+            'request': context,
+            'user': user,
+            'is_allowed': True,
+            'permission_error': "",
+        }, entry.get_context(context))
+
+        self.assertHTMLEqual(
+            '<a href="">Template</a>',
+            entry.render(context)
+        )
+
+    def test_template_entry__missing_template(self):
+        user = self.login_as_standard(admin_4_apps=['creme_config'])
+
+        class TestTemplateEntry(TemplateEntry):
+            id = 'creme_core-test-template'
+            label = 'Template'
+            permissions = 'creme_config'
+
+        entry = TestTemplateEntry()
+        context = self._build_context(user=user)
+
+        self.assertEqual({
+            'label': 'Template',
+            'request': context,
+            'user': user,
+            'is_allowed': True,
+            'permission_error': "",
+        }, entry.get_context(context))
+
+        with self.assertRaises(ImproperlyConfigured):
+            entry.render(context)
+
+    def test_template_entry__not_allowed(self):
+        user = self.login_as_standard()
+
+        class TestTemplateEntry(TemplateEntry):
+            template_name = 'creme_core/menu/link.html'
+            id = 'creme_core-test-template'
+            label = 'Template'
+            permissions = 'creme_config'
+
+        entry = TestTemplateEntry()
+        context = self._build_context(user=user)
+        permission_error = _('You are not allowed to access to the app: {}').format(
+            _('General configuration')
+        )
+
+        self.assertEqual({
+            'label': 'Template',
+            'request': context,
+            'user': user,
+            'is_allowed': False,
+            'permission_error': permission_error,
+        }, entry.get_context(context))
+
+        self.assertHTMLEqual(
+            f'''
+            <span class="ui-creme-navigation-text-entry forbidden" title="{permission_error}">
+            Template
+            </span>
+            ''',
+            entry.render(context)
+        )
 
     def test_creation_entry(self):
         self.assertIs(CreationEntry.single_instance, True)
@@ -658,50 +738,40 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(entry_label, entry.label)
 
         # Superuser ---
-        self.assertHTMLEqual(
-            '<span class="ui-creme-navigation-title ui-creme-navigation-empty" />',
-            entry.render(self._build_context(user=self.get_root_user())),
-        )
+        self.assertHTMLEqual('', entry.render(self._build_context(user=self.get_root_user())))
 
         # One role ---
         role1 = self.create_role(name='CEO')
         user = self.create_user(role=role1, roles=[role1])
-        self.assertHTMLEqual(
-            '<span class="ui-creme-navigation-title ui-creme-navigation-empty" />',
-            entry.render(self._build_context(user=user)),
-        )
+        self.assertHTMLEqual('', entry.render(self._build_context(user=user)))
 
         # Several roles ---
         role2 = self.create_role(name='Engineer')
         role3 = self.create_role(name='Project leader', deactivated_on=now())
         user.roles.add(role2, role3)
+
+        role2_url = reverse('creme_core__switch_role', args=(user.id, role2.id))
+        role2_props = {
+            "options": {
+                "redirectOnSuccess": reverse('creme_core__home')
+            }
+        }
+
         self.maxDiff = None
         self.assertHTMLEqual(
-            '''
-<span class="ui-creme-navigation-title">{label}</span>
-<button class="" disabled onclick="creme.utils.ajaxQuery('{url1}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">
- <div class="marker-selected" />{role_label1}
-</button>
-<button class="" onclick="creme.utils.ajaxQuery('{url2}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">
- <div class="marker-not-selected" />{role_label2}
-</button>
-<button class="disabled-role" disabled onclick="creme.utils.ajaxQuery('{url3}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">
- <div class="marker-not-selected" />{role_label3}
-</button>
-            '''.format(   # NOQA
-                label=_('Available roles'),
-
-                role_label1=role1.name,
-                url1=reverse('creme_core__switch_role', args=(user.id, role1.id)),
-
-                role_label2=role2.name,
-                url2=reverse('creme_core__switch_role', args=(user.id, role2.id)),
-
-                role_label3=str(role3),
-                url3=reverse('creme_core__switch_role', args=(user.id, role3.id)),
-
-                home_url=reverse('creme_core__home'),
-            ),
+            f'''
+<span class="ui-creme-navigation-title">{_("Available roles")}</span>
+<div class="ui-creme-navigation-text-entry">
+    <div class="marker-selected"></div>{role1}
+</div>
+<a data-action="update" href="{role2_url}">
+    <div class="marker-not-selected"></div>{role2}
+    {jsondata(role2_props)}
+</a>
+<div class="disabled-role ui-creme-navigation-text-entry">
+    <div class="marker-not-selected"></div>{role3}
+</div>
+            ''',
             entry.render(self._build_context(user=user)),
         )
 

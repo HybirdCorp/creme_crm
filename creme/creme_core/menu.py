@@ -23,8 +23,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -79,6 +78,7 @@ class TrashEntry(menu.TemplateEntry):
     template_name = 'creme_core/menu/trash.html'
     id = 'creme_core-trash'
     label = _('Trash')
+    single_instance = True
 
     def get_context(self, context):
         context = super().get_context(context)
@@ -107,54 +107,43 @@ class PasswordChangeEntry(menu.FixedURLEntry):
             ))
 
 
-class RoleSwitchEntry(menu.MenuEntry):
+class RoleSwitchEntry(menu.TemplateEntry):
     """Menu entry rendering button to switch to another role."""
+    template_name = 'creme_core/menu/role-switch.html'
     id = 'creme_core-role_switch'
     label = _('Available roles')
     url_name = 'creme_core__switch_role'
 
-    def render(self, context):
+    def get_context(self, context):
+        context = super().get_context(context)
         user = context['user']
 
+        actions = []
+
         if not user.is_superuser:
-            roles = [*user.roles.all()]
             # TODO: user.normalize_roles(roles)?
-            if len(roles) >= 2:
-                selected_id = user.role_id
-                url_name = self.url_name
-                home_url = reverse('creme_core__home')
+            roles = user.roles.all()
 
-                return format_html(
-                    '<span class="ui-creme-navigation-title">{label}</span>{roles}',
-                    label=self.label,
-                    roles=format_html_join(
-                        '\n',
-                        '''<button class="{class}" {attr}'''
-                        '''onclick="creme.utils.ajaxQuery('{url}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">'''  # NOQA
-                        '''<div class="marker-{marker_suffix}"></div>{role}'''
-                        '''</button>''',
-                        (
-                            {
-                                'class': 'disabled-role' if role.deactivated_on else '',
-                                'attr': (
-                                    'disabled '
-                                    if role.id == selected_id or role.deactivated_on else
-                                    ''
-                                ),
-                                'url': reverse(url_name, args=(user.id, role.id)),
-                                'home_url': home_url,
-                                'marker_suffix': (
-                                    'selected' if role.id == selected_id else 'not-selected'
-                                ),
-                                'role': role,
-                            } for role in roles
-                        ),
-                    ),
-                )
+            if len(roles) > 1:
+                switch_url_name = self.url_name
+                props = {
+                    "options": {
+                        "redirectOnSuccess": reverse("creme_core__home")
+                    }
+                }
 
-        return mark_safe(
-            '<span class="ui-creme-navigation-title ui-creme-navigation-empty" />'
-        )
+                actions = [
+                    {
+                        "label": str(role),
+                        "disabled": role.deactivated_on,
+                        "selected": role.id == user.role_id,
+                        "url": reverse(switch_url_name, args=(user.id, role.id)),
+                        "props": props
+                    } for role in roles
+                ]
+
+        context["roles"] = actions
+        return context
 
 
 class CremeEntry(menu.ContainerEntry):
