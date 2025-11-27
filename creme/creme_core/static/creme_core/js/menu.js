@@ -51,7 +51,21 @@ creme.menu.MenuActionBuilders = creme.action.DefaultActionBuilderRegistry.sub({
     },
 
     _build_update: function(url, options, data) {
-        return this._postQueryAction(url, options, data);
+        options = $.extend({
+            redirectOnSuccess: false
+        }, options || {});
+
+        var action = this._postQueryAction(url, options, data);
+
+        action.onDone(function(event, data) {
+            if (Object.isString(options.redirectOnSuccess)) {
+                creme.utils.goTo(options.redirectOnSuccess);
+            } else if (options.redirectOnSuccess === true) {
+                creme.utils.goTo(data);
+            }
+        });
+
+        return action;
     }
 });
 
