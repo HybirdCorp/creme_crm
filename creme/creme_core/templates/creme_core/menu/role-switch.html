@@ -1,0 +1,20 @@
+{% load jsondata from creme_core_tags %}
+{% if roles %}
+<span class="ui-creme-navigation-title{% if not roles %} ui-creme-navigation-empty{% endif %}">{{ label }}</span>
+{% for role in roles %}
+    {% if role.disabled %}
+<div class="disabled-role ui-creme-navigation-text-entry">
+    <div class="marker-not-selected"></div>{{ role.label }}
+</div>
+    {% elif role.selected %}
+<div class="ui-creme-navigation-text-entry">
+    <div class="marker-selected"></div>{{ role.label }}
+</div>
+    {% else %}
+<a data-action="update" href="{{ role.url }}">
+    <div class="marker-not-selected"></div>{{ role.label }}
+    {% jsondata role.props %}
+</a>
+    {% endif %}
+{% endfor %}
+{% endif %}
