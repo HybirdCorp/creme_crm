@@ -23,7 +23,11 @@ from collections import defaultdict
 from collections.abc import Iterable, Iterator, Sequence
 from functools import partial
 
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import (
+    ImproperlyConfigured,
+    PermissionDenied,
+    ValidationError,
+)
 from django.template.loader import get_template
 from django.urls import reverse_lazy as reverse
 from django.utils.html import format_html, mark_safe
@@ -248,10 +252,17 @@ class ListviewEntry(FixedURLEntry):
 
 
 class TemplateEntry(MenuEntry):
-    template_name = 'creme_core/menu/entry.html'
+    template_name = None
 
     def get_template(self, context):
         template_name = getattr(self, 'get_template_name', self.template_name)
+
+        if template_name is None:
+            raise ImproperlyConfigured(
+                "TemplateEntry requires either a definition of "
+                "'template_name' or an implementation of 'get_template_name()'"
+            )
+
         return get_template(template_name)
 
     def get_context(self, context):
