@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-24 15:13+0100\n"
+"POT-Creation-Date: 2025-11-27 14:39+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1081,8 +1081,7 @@ msgstr "Bascule de rôles"
 
 msgid ""
 "Your role has been switched to another role because it has been disabled."
-msgstr ""
-"Votre rôle a été basculé pour un autre rôle car il a été désactivé."
+msgstr "Votre rôle a été basculé pour un autre rôle car il a été désactivé."
 
 msgid "Action"
 msgstr "Action"
@@ -1339,6 +1338,9 @@ msgstr "Nouvelle configuration de champ personnalisé"
 msgid "Create a custom field"
 msgstr "Créer un champ personnalisé"
 
+msgid "Type"
+msgstr "Type"
+
 msgid "(required)"
 msgstr "(obligatoire)"
 
@@ -1349,6 +1351,9 @@ msgstr "Voir les choix (actuellement %(count)s)"
 #, python-format
 msgid "See & manage the choices (currently %(count)s)"
 msgstr "Voir & gérer les choix (actuellement %(count)s)"
+
+msgid "Description"
+msgstr "Description"
 
 msgid "Restore this custom field"
 msgstr "Restaurer ce champ personnalisé"
@@ -1443,9 +1448,6 @@ msgstr ""
 "personnalisés, relations…) à propos de la fiche courante. Une fois qu'un "
 "type a été créé, il est disponible dans la configuration de la vue détaillée "
 "correspondante."
-
-msgid "Type"
-msgstr "Type"
 
 #, python-brace-format
 msgid "{count} fields"
@@ -1647,9 +1649,6 @@ msgstr "{count} Canal"
 #, python-brace-format
 msgid "{count} Channels"
 msgstr "{count} Canaux"
-
-msgid "Description"
-msgstr "Description"
 
 msgid "Receive notifications on"
 msgstr "Recevoir les notifications sur"
@@ -3046,8 +3045,8 @@ msgid_plural ""
 "This role cannot be deactivated because it is used by {count} users without "
 "secondary active role to switch on: {users}."
 msgstr[0] ""
-"Le rôle ne peut pas être désactivé car il est utilisé par {count} utilisateur "
-"sans rôle secondaire activé sur lequel basculer : {users}"
+"Le rôle ne peut pas être désactivé car il est utilisé par {count} "
+"utilisateur sans rôle secondaire activé sur lequel basculer : {users}"
 msgstr[1] ""
 "Le rôle ne peut pas être désactivé car il est utilisé par {count} "
 "utilisateurs sans rôle secondaire activé sur lequel basculer : {users}"

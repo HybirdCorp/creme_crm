@@ -34,8 +34,8 @@
                 <tbody>
                   {% for cfield in ctw.cfields %}
                     <tr {% if cfield.is_deleted %}class="cfields-config-deleted"{% endif %}>
-                        <td class="cfields-config-name">{{cfield.name}}</td>
-                        <td class="cfields-config-type">
+                        <td class="cfields-config-name" title="{% translate 'Name' %}">{{cfield.name}}</td>
+                        <td class="cfields-config-type" title="{% translate 'Type' %}">
                             {{cfield.value_class.verbose_name}}{% if cfield.is_required %}&nbsp;<span class="cfields-config-required">{% translate '(required)' %}</span>{% endif %}
                             {% if cfield.is_enum %}
                               {% if cfield.is_deleted %}
@@ -45,6 +45,9 @@
                               {% endif %}
                               {% brick_table_action id='redirect' url='creme_config__custom_enums'|url:cfield.id label=enums_label type='view' display='both' %}
                             {% endif %}
+                        </td>
+                        <td class="cfields-config-description" title="{% translate 'Description' %}">
+                            {{cfield.description|default:'—'}}
                         </td>
                         <td {% brick_table_data_status action %}>
                           {% if cfield.is_deleted %}

@@ -40,8 +40,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         super().setUpClass()
         cls.root = cls.get_root_user()
 
-    def test_portal01(self):
-        "Do not hide deleted fields."
+    def test_portal__show_deleted_fields(self):
         self.login_as_root()
 
         cfield1 = CustomField.objects.create(
@@ -94,8 +93,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNotNone(choices_node(cfield2))
         self.assertIsNone(choices_node(cfield3))
 
-    def test_portal02(self):
-        "Hide deleted fields."
+    def test_portal__hide_deleted_fields(self):
         self.login_as_root()
         user = self.root
         brick_id = bricks.CustomFieldsBrick.id
@@ -135,7 +133,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             ],
         )
 
-    def test_add_ct01(self):
+    def test_add_ctype(self):
         self.login_as_standard(admin_4_apps=('creme_core',))
         self.assertFalse(CustomField.objects.all())
 
@@ -166,18 +164,21 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         name = 'Size'
         field_type = CustomField.INT
+        description = 'The size of the stuff'
         self.assertNoFormError(self.client.post(
             url,
             data={
                 'content_type': ct.id,
                 'name':         name,
                 'field_type':   field_type,
+                'description':   description,
             },
         ))
 
         cfield = self.get_alone_element(CustomField.objects.filter(content_type=ct))
-        self.assertEqual(name,       cfield.name)
-        self.assertEqual(field_type, cfield.field_type)
+        self.assertEqual(name,        cfield.name)
+        self.assertEqual(field_type,  cfield.field_type)
+        self.assertEqual(description, cfield.description)
         self.assertIs(cfield.is_required, False)
         self.assertIs(cfield.is_deleted, False)
 
@@ -190,7 +191,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotIn(ct, ctypes2)
         self.assertIn(ct_orga, ctypes2)
 
-    def test_add_ct02(self):
+    def test_add_ctype__required(self):
         self.login_as_root()
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -211,8 +212,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(field_type, cfield.field_type)
         self.assertIs(cfield.is_required, True)
 
-    def test_add_ct_error01(self):
-        "Empty choice list."
+    def test_add_ctype__error__empty_choices_list(self):
         self.login_as_root()
         ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(CustomField.objects.filter(content_type=ct))
@@ -234,8 +234,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             ),
         )
 
-    def test_add_ct_error02(self):
-        "Duplicated choices."
+    def test_add_ctype__error__duplicated_choice(self):
         self.login_as_root()
         response = self.assertPOST200(
             reverse('creme_config__create_first_ctype_custom_field'),
@@ -252,11 +251,11 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('The choice «{}» is duplicated.').format('Eva01'),
         )
 
-    def test_add_ct_error03(self):
+    def test_add_ctype__forbidden(self):
         self.login_as_standard()  # admin_4_apps=('creme_core',)
         self.assertGET403(reverse('creme_config__create_first_ctype_custom_field'))
 
-    def test_add01(self):
+    def test_add(self):
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         get_ct = ContentType.objects.get_for_model
@@ -304,7 +303,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             ],
         )
 
-    def test_add02(self):
+    def test_add__uniqueness(self):
         "content_type + name => unique together."
         self.login_as_root()
 
@@ -326,8 +325,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('There is already a custom field with this name.'),
         )
 
-    def test_add03(self):
-        "Empty list of choices."
+    def test_add__error__empty_choices_list(self):
         self.login_as_root()
 
         contact_ct = ContentType.objects.get_for_model(FakeContact)
@@ -347,8 +345,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             ),
         )
 
-    def test_add04(self):
-        "Duplicated choices."
+    def test_add__error__duplicated_choice(self):
         self.login_as_root()
 
         contact_ct = ContentType.objects.get_for_model(FakeContact)
@@ -366,7 +363,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('The choice «{}» is duplicated.').format('Eva01'),
         )
 
-    def test_edit01(self):
+    def test_edit(self):
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         name = 'nickname'
@@ -380,25 +377,35 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         url = reverse('creme_config__edit_custom_field', args=(cfield.id,))
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
+        self.assertEqual(
+            _('Edit «{object}»').format(object=cfield),
+            response.context.get('title')
+        )
 
-        context = response.context
-        self.assertEqual(_('Edit «{object}»').format(object=cfield), context.get('title'))
-
-        # ---
+        # Set name & is_required ---
         name = name.title()
         self.assertNoFormError(self.client.post(
-            url,
-            data={
-                'name': name,
-                'is_required': 'on',
-            },
+            url, data={'name': name, 'is_required': 'on'},
         ))
 
         cfield = self.refresh(cfield)
         self.assertEqual(name, cfield.name)
+        self.assertFalse(cfield.description)
         self.assertTrue(cfield.is_required)
 
-    def test_edit02(self):
+        # Set description ---
+        description = 'This is the description'
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'name': cfield.name,
+                'is_required': cfield.is_required,
+                'description': description,
+            },
+        ))
+        self.assertEqual(description, self.refresh(cfield).description)
+
+    def test_edit__uniqueness(self):
         "content_type + name => unique together."
         self.login_as_root()
 
@@ -420,7 +427,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('There is already a custom field with this name.'),
         )
 
-    def test_edit03(self):
+    def test_edit__deleted(self):
         "is_deleted == True  => error."
         self.login_as_root()
 
@@ -736,7 +743,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'id': cfield.id},
         )
 
-    def test_restore01(self):
+    def test_restore(self):
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -753,8 +760,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         cfield = self.assertStillExists(cfield)
         self.assertFalse(cfield.is_deleted)
 
-    def test_restore02(self):
-        "Not allowed."
+    def test_restore__forbidden(self):
         self.login_as_standard()  # admin_4_apps=('creme_core',)
 
         cfield = CustomField.objects.create(
@@ -807,7 +813,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_config__custom_enums', args=(cfield3.id,))
         )
 
-    def test_add_enum_values01(self):
+    def test_add_enum_values(self):
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -840,7 +846,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             ],
         )
 
-    def test_add_enum_values02(self):
+    def test_add_enum_values__duplicated_choice(self):
         "MULTI_ENUM + duplicated choice."
         self.login_as_root()
 
@@ -851,19 +857,19 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
-        eval01 = create_evalue(value='C')
+        eval1 = create_evalue(value='C')
         create_evalue(value='Java')
 
         url = reverse('creme_config__add_custom_enums', args=(cfield.id,))
         data = {
-            'choices': f'C++\n{eval01.value}',
+            'choices': f'C++\n{eval1.value}',
         }
 
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
             response1.context['form'],
             field='choices',
-            errors=_('The choice «{}» is duplicated.').format(eval01.value),
+            errors=_('The choice «{}» is duplicated.').format(eval1.value),
         )
 
         response2 = self.assertPOST200(
@@ -879,7 +885,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('The choice «{}» is duplicated.').format('Ocaml'),
         )
 
-    def test_add_enum_values03(self):
+    def test_add_enum_values__bad_type(self):
         "Not Enum type => error."
         self.login_as_root()
 
@@ -892,8 +898,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_config__add_custom_enums', args=(cfield.id,))
         )
 
-    def test_add_enum_values04(self):
-        "Not allowed."
+    def test_add_enum_values__forbidden(self):
         self.login_as_standard()
 
         cfield = CustomField.objects.create(
@@ -901,12 +906,11 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             name='Programming languages',
             field_type=CustomField.MULTI_ENUM,
         )
-
         self.assertGET403(
             reverse('creme_config__add_custom_enums', args=(cfield.id,))
         )
 
-    def test_add_enum_values05(self):
+    def test_add_enum_values__deleted(self):
         "Field is deleted."
         self.login_as_root()
 
@@ -920,7 +924,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_config__add_custom_enums', args=(cfield.id,))
         )
 
-    def test_add_enum_value01(self):
+    def test_add_enum_value(self):
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -963,7 +967,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             response.json()
         )
 
-    def test_add_enum_value02(self):
+    def test_add_enum_value__duplicated_choice(self):
         "MULTI_ENUM + duplicated choice."
         self.login_as_root()
 
@@ -987,7 +991,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('The choice «{}» is duplicated.').format(eval01.value),
         )
 
-    def test_add_enum_value03(self):
+    def test_add_enum_value__bad_type(self):
         "Not Enum type => error."
         self.login_as_root()
 
@@ -1000,8 +1004,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_config__add_custom_enum', args=(cfield.id,))
         )
 
-    def test_add_enum_value04(self):
-        "Not allowed."
+    def test_add_enum_value__forbidden(self):
         self.login_as_standard()
 
         cfield = CustomField.objects.create(
@@ -1013,7 +1016,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_config__add_custom_enum', args=(cfield.id,))
         )
 
-    def test_add_enum_value05(self):
+    def test_add_enum_value__deleted(self):
         "The field is deleted."
         self.login_as_root()
 
@@ -1031,7 +1034,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             status_code=409,
         )
 
-    def test_edit_enum_value01(self):
+    def test_edit_enum_value(self):
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         cfield = CustomField.objects.create(
@@ -1041,11 +1044,11 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
-        eval01 = create_evalue(value='C')
-        eval02 = create_evalue(value='ABC')
-        eval03 = create_evalue(value='Java')
+        eval1 = create_evalue(value='C')
+        eval2 = create_evalue(value='ABC')
+        eval3 = create_evalue(value='Java')
 
-        url = reverse('creme_config__edit_custom_enum', args=(eval02.id,))
+        url = reverse('creme_config__edit_custom_enum', args=(eval2.id,))
         self.assertGET200(url)
 
         value = 'Python'
@@ -1053,7 +1056,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoFormError(response)
 
         self.assertListEqual(
-            [eval01.value, value, eval03.value],
+            [eval1.value, value, eval3.value],
             [
                 cfev.value
                 for cfev in CustomFieldEnumValue.objects
@@ -1062,8 +1065,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             ],
         )
 
-    def test_edit_enum_value02(self):
-        "Not allowed."
+    def test_edit_enum_value__forbidden(self):
         self.login_as_standard()  # admin_4_apps=('creme_core',)
 
         cfield = CustomField.objects.create(
@@ -1076,7 +1078,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_config__edit_custom_enum', args=(evalue.id,))
         )
 
-    def test_edit_enum_value03(self):
+    def test_edit_enum_value__deleted(self):
         "Field is deleted."
         self.login_as_root()
 
@@ -1095,7 +1097,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             status_code=409,
         )
 
-    def test_delete_enum_value01(self):
+    def test_delete_enum_value__not_used(self):
         "ENUM not used."
         user = self.login_as_standard(admin_4_apps=('creme_core',))
 
@@ -1109,10 +1111,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
         create_evalue(value='C')
-        eval02 = create_evalue(value='bash')
+        eval2 = create_evalue(value='bash')
         create_evalue(value='sh')
 
-        url = reverse('creme_config__delete_custom_enum', args=(eval02.id,))
+        url = reverse('creme_config__delete_custom_enum', args=(eval2.id,))
         response = self.assertGET200(url)
         self.assertTemplateUsed(
             response,
@@ -1121,7 +1123,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         context = response.context
         self.assertEqual(
-            _('Replace & delete «{object}»').format(object=eval02.value),
+            _('Replace & delete «{object}»').format(object=eval2.value),
             context.get('title'),
         )
         self.assertEqual(_('Delete the choice'), context.get('submit_label'))
@@ -1138,8 +1140,8 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTemplateUsed(response, 'creme_config/deletion-job-popup.html')
 
         dcom = self.get_deletion_command_or_fail(CustomFieldEnumValue)
-        self.assertEqual(eval02,       dcom.instance_to_delete)
-        self.assertEqual(eval02.value, dcom.deleted_repr)
+        self.assertEqual(eval2,       dcom.instance_to_delete)
+        self.assertEqual(eval2.value, dcom.deleted_repr)
         self.assertFalse(dcom.replacers)
         self.assertEqual(0, dcom.total_count)
         self.assertEqual(0, dcom.updated_count)
@@ -1149,9 +1151,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(user, job.user)
 
         deletor_type.execute(job)
-        self.assertDoesNotExist(eval02)
+        self.assertDoesNotExist(eval2)
 
-    def test_delete_enum_value02(self):
+    def test_delete_enum_value__replacing(self):
         "ENUM used + replacing."
         self.login_as_root()
         user = self.root
@@ -1165,20 +1167,20 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         cfield2 = create_cfield(name='OS')
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield1)
-        eval1_01 = create_evalue(value='C')
-        eval1_02 = create_evalue(value='C99')
-        eval1_03 = create_evalue(value='lisp')
-        eval2_01 = create_evalue(value='Linux', custom_field=cfield2)
+        eval1_1 = create_evalue(value='C')
+        eval1_2 = create_evalue(value='C99')
+        eval1_3 = create_evalue(value='lisp')
+        eval2_1 = create_evalue(value='Linux', custom_field=cfield2)
 
         create_contact = partial(FakeContact.objects.create, user=user)
         linus   = create_contact(first_name='Linus',   last_name='Torvalds')
         richard = create_contact(first_name='Richard', last_name='Stallman')
 
         create_enum = partial(CustomFieldEnum.objects.create, custom_field=cfield1)
-        enum1 = create_enum(entity=linus, value=eval1_02)
-        enum2 = create_enum(entity=richard, value=eval1_03)
+        enum1 = create_enum(entity=linus, value=eval1_2)
+        enum2 = create_enum(entity=richard, value=eval1_3)
 
-        url = reverse('creme_config__delete_custom_enum', args=(eval1_02.id,))
+        url = reverse('creme_config__delete_custom_enum', args=(eval1_2.id,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -1188,18 +1190,18 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotIn('info', fields)
 
         self.assertInChoices(value='',          label='---------',    choices=choices)
-        self.assertInChoices(value=eval1_01.id, label=eval1_01.value, choices=choices)
-        self.assertInChoices(value=eval1_03.id, label=eval1_03.value, choices=choices)
-        self.assertNotInChoices(value=eval1_02.id, choices=choices)
-        self.assertNotInChoices(value=eval2_01.id, choices=choices)
+        self.assertInChoices(value=eval1_1.id, label=eval1_1.value, choices=choices)
+        self.assertInChoices(value=eval1_3.id, label=eval1_3.value, choices=choices)
+        self.assertNotInChoices(value=eval1_2.id, choices=choices)
+        self.assertNotInChoices(value=eval2_1.id, choices=choices)
 
-        response = self.client.post(url, data={'to_choice': eval1_01.id})
+        response = self.client.post(url, data={'to_choice': eval1_1.id})
         self.assertNoFormError(response)
 
         dcom = self.get_deletion_command_or_fail(CustomFieldEnumValue)
-        self.assertEqual(eval1_02, dcom.instance_to_delete)
+        self.assertEqual(eval1_2, dcom.instance_to_delete)
         self.assertListEqual(
-            [('fixed_value', CustomFieldEnum, 'value', eval1_01)],
+            [('fixed_value', CustomFieldEnum, 'value', eval1_1)],
             [
                 (r.type_id, r.model_field.model, r.model_field.name, r.get_value())
                 for r in dcom.replacers
@@ -1209,12 +1211,12 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(0, dcom.updated_count)
 
         deletor_type.execute(dcom.job)
-        self.assertDoesNotExist(eval1_02)
+        self.assertDoesNotExist(eval1_2)
 
-        self.assertEqual(eval1_03, self.refresh(enum2).value)
-        self.assertEqual(eval1_01, self.refresh(enum1).value)
+        self.assertEqual(eval1_3, self.refresh(enum2).value)
+        self.assertEqual(eval1_1, self.refresh(enum1).value)
 
-    def test_delete_enum_value03(self):
+    def test_delete_enum_value__replacing_with_null(self):
         "ENUM used + replacing by NULL."
         self.login_as_root()
         user = self.root
@@ -1226,17 +1228,17 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
-        eval1_01 = create_evalue(value='C')
+        eval1_1 = create_evalue(value='C')
         create_evalue(value='lisp')
 
         linus = FakeContact.objects.create(user=user, first_name='Linus', last_name='Torvalds')
 
         enum1 = CustomFieldEnum.objects.create(
-            entity=linus, custom_field=cfield, value=eval1_01,
+            entity=linus, custom_field=cfield, value=eval1_1,
         )
 
         response = self.client.post(
-            reverse('creme_config__delete_custom_enum', args=(eval1_01.id,)),
+            reverse('creme_config__delete_custom_enum', args=(eval1_1.id,)),
             # data={'to_choice': eval1_02.id}
         )
         self.assertNoFormError(response)
@@ -1246,11 +1248,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(1, dcom.total_count)
 
         deletor_type.execute(dcom.job)
-        self.assertDoesNotExist(eval1_01)
+        self.assertDoesNotExist(eval1_1)
         self.assertDoesNotExist(enum1)
 
-    def test_delete_enum_value04(self):
-        "Not allowed."
+    def test_delete_enum_value__forbidden(self):
         self.login_as_standard()  # admin_4_apps=('creme_core',)
 
         cfield = CustomField.objects.create(
@@ -1261,14 +1262,13 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
         create_evalue(value='C')
-        eval02 = create_evalue(value='bash')
+        eval2 = create_evalue(value='bash')
 
         self.assertGET403(
-            reverse('creme_config__delete_custom_enum', args=(eval02.id,))
+            reverse('creme_config__delete_custom_enum', args=(eval2.id,))
         )
 
-    def test_delete_enum_value05(self):
-        "Uniqueness."
+    def test_delete_enum_value__uniqueness(self):
         self.login_as_root()
         user = self.root
 
@@ -1281,8 +1281,8 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
-        eval01 = create_evalue(value='C')
-        eval02 = create_evalue(value='C89')
+        eval1 = create_evalue(value='C')
+        eval2 = create_evalue(value='C89')
         create_evalue(value='Java')
 
         job1 = Job.objects.create(type_id=deletor_type.id, user=user)
@@ -1298,10 +1298,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         dcom2 = DeletionCommand.objects.create(
             job=job1,
-            instance_to_delete=eval01,
+            instance_to_delete=eval1,
         )
 
-        url = reverse('creme_config__delete_custom_enum', args=(eval02.id,))
+        url = reverse('creme_config__delete_custom_enum', args=(eval2.id,))
         msg = _('A deletion process for a choice already exists.')
         self.assertContains(self.client.get(url), msg, status_code=409)
 
@@ -1319,7 +1319,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(dcom2)
         self.assertStillExists(dcom1)
 
-    def test_delete_enum_value06(self):
+    def test_delete_enum_value__deleted(self):
         "Field is deleted."
         self.login_as_root()
 
@@ -1334,7 +1334,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_config__delete_custom_enum', args=(evalue.id,))
         )
 
-    def test_delete_multi_enum01(self):
+    def test_delete_multi_enum__not_used(self):
         "MULTI_ENUM not used."
         self.login_as_standard(admin_4_apps=('creme_core',))
 
@@ -1346,10 +1346,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
         create_evalue(value='C')
-        eval02 = create_evalue(value='bash')
+        eval2 = create_evalue(value='bash')
         create_evalue(value='sh')
 
-        url = reverse('creme_config__delete_custom_enum', args=(eval02.id,))
+        url = reverse('creme_config__delete_custom_enum', args=(eval2.id,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -1363,15 +1363,15 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoFormError(response)
 
         dcom = self.get_deletion_command_or_fail(CustomFieldEnumValue)
-        self.assertEqual(eval02,       dcom.instance_to_delete)
-        self.assertEqual(eval02.value, dcom.deleted_repr)
+        self.assertEqual(eval2,       dcom.instance_to_delete)
+        self.assertEqual(eval2.value, dcom.deleted_repr)
         self.assertFalse(dcom.replacers)
         self.assertEqual(0, dcom.total_count)
 
         deletor_type.execute(dcom.job)
-        self.assertDoesNotExist(eval02)
+        self.assertDoesNotExist(eval2)
 
-    def test_delete_multi_enum02(self):
+    def test_delete_multi_enum__replacing(self):
         "MULTI_ENUM used + replacing."
         self.login_as_root()
         user = self.root
@@ -1385,10 +1385,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         cfield2 = create_cfield(name='OS')
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield1)
-        eval1_01 = create_evalue(value='C')
-        eval1_02 = create_evalue(value='C99')
-        eval1_03 = create_evalue(value='lisp')
-        eval2_01 = create_evalue(value='Linux', custom_field=cfield2)
+        eval1_1 = create_evalue(value='C')
+        eval1_2 = create_evalue(value='C99')
+        eval1_3 = create_evalue(value='lisp')
+        eval2_1 = create_evalue(value='Linux', custom_field=cfield2)
 
         create_contact = partial(FakeContact.objects.create, user=user)
         linus   = create_contact(first_name='Linus',   last_name='Torvalds')
@@ -1396,11 +1396,11 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         john    = create_contact(first_name='John',    last_name='Carmack')
 
         cf_memum = partial(CustomFieldMultiEnum, custom_field=cfield1)
-        cf_memum(entity=linus).set_value_n_save([eval1_02])
-        cf_memum(entity=richard).set_value_n_save([eval1_01, eval1_03])
-        cf_memum(entity=john).set_value_n_save([eval1_02, eval1_01])  # Beware of duplicates
+        cf_memum(entity=linus).set_value_n_save([eval1_2])
+        cf_memum(entity=richard).set_value_n_save([eval1_1, eval1_3])
+        cf_memum(entity=john).set_value_n_save([eval1_2, eval1_1])  # Beware of duplicates
 
-        url = reverse('creme_config__delete_custom_enum', args=(eval1_02.id,))
+        url = reverse('creme_config__delete_custom_enum', args=(eval1_2.id,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -1410,18 +1410,18 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotIn('info', fields)
 
         self.assertInChoices(value='',          label='---------',    choices=choices)
-        self.assertInChoices(value=eval1_01.id, label=eval1_01.value, choices=choices)
-        self.assertInChoices(value=eval1_03.id, label=eval1_03.value, choices=choices)
-        self.assertNotInChoices(value=eval1_02.id, choices=choices)
-        self.assertNotInChoices(value=eval2_01.id, choices=choices)
+        self.assertInChoices(value=eval1_1.id, label=eval1_1.value, choices=choices)
+        self.assertInChoices(value=eval1_3.id, label=eval1_3.value, choices=choices)
+        self.assertNotInChoices(value=eval1_2.id, choices=choices)
+        self.assertNotInChoices(value=eval2_1.id, choices=choices)
 
-        response = self.client.post(url, data={'to_choice': eval1_01.id})
+        response = self.client.post(url, data={'to_choice': eval1_1.id})
         self.assertNoFormError(response)
 
         dcom = self.get_deletion_command_or_fail(CustomFieldEnumValue)
-        self.assertEqual(eval1_02, dcom.instance_to_delete)
+        self.assertEqual(eval1_2, dcom.instance_to_delete)
         self.assertListEqual(
-            [('fixed_value', CustomFieldMultiEnum, 'value', eval1_01)],
+            [('fixed_value', CustomFieldMultiEnum, 'value', eval1_1)],
             [
                 (r.type_id, r.model_field.model, r.model_field.name, r.get_value())
                 for r in dcom.replacers
@@ -1430,22 +1430,22 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(2, dcom.total_count)
 
         deletor_type.execute(dcom.job)
-        self.assertDoesNotExist(eval1_02)
+        self.assertDoesNotExist(eval1_2)
 
         self.assertCountEqual(
-            [eval1_01, eval1_03],
-            [*self.refresh(richard).get_custom_value(cfield1).get_enumvalues()]
+            [eval1_1, eval1_3],
+            [*self.refresh(richard).get_custom_value(cfield1).get_enumvalues()],
         )
         self.assertCountEqual(
-            [eval1_01],
-            [*self.refresh(linus).get_custom_value(cfield1).get_enumvalues()]
+            [eval1_1],
+            [*self.refresh(linus).get_custom_value(cfield1).get_enumvalues()],
         )
         self.assertCountEqual(
-            [eval1_01],
-            [*self.refresh(john).get_custom_value(cfield1).get_enumvalues()]
+            [eval1_1],
+            [*self.refresh(john).get_custom_value(cfield1).get_enumvalues()],
         )
 
-    def test_reload_enum_brick01(self):
+    def test_reload_enum_brick(self):
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         cfield = CustomField.objects.create(
@@ -1455,9 +1455,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
-        eval01 = create_evalue(value='C')
-        eval02 = create_evalue(value='ABC')
-        eval03 = create_evalue(value='Java')
+        eval1 = create_evalue(value='C')
+        eval2 = create_evalue(value='ABC')
+        eval3 = create_evalue(value='Java')
 
         response = self.assertGET200(
             reverse('creme_config__reload_custom_enum_brick', args=(cfield.id,))
@@ -1481,12 +1481,11 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         values = {node.text for node in brick_node.findall('.//td')}
-        self.assertIn(eval01.value, values)
-        self.assertIn(eval02.value, values)
-        self.assertIn(eval03.value, values)
+        self.assertIn(eval1.value, values)
+        self.assertIn(eval2.value, values)
+        self.assertIn(eval3.value, values)
 
-    def test_reload_enum_brick02(self):
-        "Not allowed."
+    def test_reload_enum_brick__forbidden(self):
         self.login_as_standard()  # admin_4_apps=('creme_core',)
 
         cfield = CustomField.objects.create(

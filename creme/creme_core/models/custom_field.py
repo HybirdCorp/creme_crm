@@ -90,6 +90,10 @@ class CustomField(CremeModel):
         ),
     )
     is_deleted = models.BooleanField(_('Is deleted?'), default=False, editable=False)
+    description = models.TextField(
+        _('Description'), blank=True,
+        help_text=_('The description is notably used in forms to help user'),
+    )
     # default_value = CharField(_('Default value'), max_length=100, blank=True, null=True)
     # extra_args    = CharField(max_length=500, blank=True, null=True)
 
@@ -191,6 +195,7 @@ class CustomFieldValue(CremeModel):
         field = cls._get_formfield(
             label=custom_field.name,
             required=custom_field.is_required,
+            help_text=custom_field.description,
         )
         cls._build_formfield(custom_field, field, user)
         if custom_value:

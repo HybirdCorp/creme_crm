@@ -98,7 +98,7 @@ class CustomFieldManagerTestCase(CremeTestCase):
         self.assertDictEqual(cfields1, cfields3)
 
 
-class CustomFieldsTestCase(CremeTestCase):
+class CustomFieldTestCase(CremeTestCase):
     def assertValueEqual(self, *, cfield, entity, value):
         cf_value = self.get_object_or_fail(
             cfield.value_class,
@@ -113,7 +113,7 @@ class CustomFieldsTestCase(CremeTestCase):
             name='Arcadia',
         )
 
-    def test_int01(self) -> None:
+    def test_int(self) -> None:
         name = 'Length of ship'
         cfield: CustomField = CustomField.objects.create(
             name=name,
@@ -128,6 +128,7 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertIs(cfield.is_required, False)
         self.assertIs(cfield.is_deleted, False)
         self.assertEqual(name, str(cfield))
+        self.assertEqual('', cfield.description)
         self.assertEqual(CustomFieldInteger, cfield.value_class)
         self.assertEqual(_('Integer'), CustomFieldInteger.verbose_name)
 
@@ -148,14 +149,14 @@ class CustomFieldsTestCase(CremeTestCase):
         formfield1 = cfield.get_formfield(custom_value=cf_value, user=orga.user)
         self.assertIsInstance(formfield1, forms.IntegerField)
         self.assertFalse(formfield1.required)
+        self.assertFalse(formfield1.help_text)
         self.assertEqual(value, formfield1.initial)
 
         formfield2 = cfield.get_formfield(custom_value=None, user=orga.user)
         self.assertIsInstance(formfield2, forms.IntegerField)
         self.assertIsNone(formfield2.initial)
 
-    def test_int02(self) -> None:
-        "value_n_save()."
+    def test_int__set_value_n_save(self) -> None:
         cfield = CustomField.objects.create(
             name='Length of ship',
             field_type=CustomField.INT,
@@ -187,6 +188,7 @@ class CustomFieldsTestCase(CremeTestCase):
             field_type=CustomField.STR,
             content_type=FakeOrganisation,
             is_required=True,
+            description='Metric system bro',
         )
         self.assertEqual(CustomFieldString, cfield.value_class)
         self.assertEqual(_('Short string'), CustomFieldString.verbose_name)
@@ -209,6 +211,7 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertIsInstance(formfield, forms.CharField)
         self.assertTrue(formfield.required)
         self.assertEqual(value, formfield.initial)
+        self.assertEqual(cfield.description, formfield.help_text)
 
     def test_text(self):
         cfield = CustomField.objects.create(
@@ -325,7 +328,7 @@ by a man named Tochiro.
         formfield = cfield.get_formfield(custom_value=None, user=orga.user)
         self.assertIsInstance(formfield, forms.DateTimeField)
 
-    def test_bool01(self):
+    def test_bool(self):
         create_cfield = partial(
             CustomField.objects.create,
             field_type=CustomField.BOOL,
@@ -356,8 +359,7 @@ by a man named Tochiro.
         self.assertFalse(formfield.required)
 
     @toggle_history(enabled=False)
-    def test_bool02(self) -> None:
-        "set_value_n_save()."
+    def test_bool__set_value_n_save(self) -> None:
         cfield = CustomField.objects.create(
             name='Ship is armed?',
             field_type=CustomField.BOOL,
@@ -453,7 +455,7 @@ by a man named Tochiro.
         with self.assertNumQueries(0):
             cf_value.set_value_n_save(enum_value2.id)
 
-    def test_multi_enum01(self):
+    def test_multi_enum(self):
         cfield = CustomField.objects.create(
             name='Weapons',
             field_type=CustomField.MULTI_ENUM,
@@ -493,8 +495,7 @@ by a man named Tochiro.
             formfield.choices,
         )
 
-    def test_multi_enum02(self):
-        "set_value_n_save()."
+    def test_multi_enum__set_value_n_save(self):
         cfield = CustomField.objects.create(
             name='Weapons',
             field_type=CustomField.MULTI_ENUM,
