@@ -1,0 +1,15 @@
+{% load i18n %}
+{% if is_allowed %}
+<a class="ui-creme-navigation-trash-entry" href="{% url 'creme_core__trash' %}">
+    {{label}}
+    {% if entity_count > 0 %}
+    <span class="ui-creme-navigation-punctuation">(</span>
+        {% blocktranslate count counter=entity_count %}{{counter}} entity{% plural %}{{counter}} entities{% endblocktranslate %}
+    <span class="ui-creme-navigation-punctuation">)</span>
+    {% endif %}
+</a>
+{% else %}
+<span class="ui-creme-navigation-text-entry forbidden" title="{{ permission_error }}">
+    {{ label }}
+</span>
+{% endif %}
