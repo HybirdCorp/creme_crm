@@ -1879,12 +1879,6 @@ msgstr "Ma page"
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#, python-brace-format
-msgid "{count} entity"
-msgid_plural "{count} entities"
-msgstr[0] "{count} Fiche"
-msgstr[1] "{count} Fiches"
-
 msgid "Change password"
 msgstr "Changer de mot de passe"
 
@@ -4121,6 +4115,11 @@ msgstr "Nb / Page :"
 msgid "End"
 msgstr "Fin"
 
+msgid "%(counter)s entity"
+msgid_plural "%(counter)s entities"
+msgstr[0] "%(counter)s Fiche"
+msgstr[1] "%(counter)s Fiches"
+
 msgid "Send a system upgrade announcement"
 msgstr "Envoyer une annonce de mise à niveau système"
 
@@ -4901,6 +4900,12 @@ msgstr "Ajouter la relation «{predicate}» entre :"
 
 msgid "The source type is not compatible with this relationship type"
 msgstr "Le type de source n'est pas compatible avec ce type de relation"
+
+#, python-brace-format
+#~ msgid "{count} entity"
+#~ msgid_plural "{count} entities"
+#~ msgstr[0] "{count} Fiche"
+#~ msgstr[1] "{count} Fiches"
 
 #~ msgid "All users"
 #~ msgstr "Tous les utilisateurs"
