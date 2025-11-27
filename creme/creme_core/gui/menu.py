@@ -247,7 +247,41 @@ class ListviewEntry(FixedURLEntry):
         return get_url()
 
 
-class ActionEntry(MenuEntry):
+class TemplateEntry(MenuEntry):
+    template_name = 'creme_core/menu/entry.html'
+
+    def get_template(self, context):
+        template_name = getattr(self, 'get_template_name', self.template_name)
+        return get_template(template_name)
+
+    def get_context(self, context):
+        label = self.render_label(context)
+        user = context['user']
+
+        try:
+            self.check_permissions(user)
+            is_allowed = True
+            permission_error = ''
+        except PermissionDenied as e:
+            is_allowed = False
+            permission_error = str(e)
+
+        ctx = {
+            'label': label,
+            'request': context,
+            'user': user,
+            'is_allowed': is_allowed,
+            'permission_error': permission_error,
+        }
+
+        return ctx
+
+    def render(self, context):
+        ctx = self.get_context(context)
+        return self.get_template(ctx).render(ctx)
+
+
+class ActionEntry(TemplateEntry):
     template_name = 'creme_core/menu/action.html'
 
     form_class = menu_forms.ActionEntryForm
@@ -268,10 +302,6 @@ class ActionEntry(MenuEntry):
 
         raise ValueError(f'{self} has an empty URL name.')
 
-    def render(self, context):
-        ctx = self.get_context(context)
-        return self.get_template(ctx).render(ctx)
-
     def _get_prop(self, name, context):
         prop = getattr(self, f'get_{name}', None)
         return prop(context) if callable(prop) else getattr(self, name, None)
@@ -279,10 +309,11 @@ class ActionEntry(MenuEntry):
     def get_url(self, context):
         return self.url
 
-    def get_template(self, context):
-        return get_template(self._get_prop('template_name', context))
-
     def get_context(self, context):
+        context = super().get_context(context)
+        context['action'] = self.get_action_context(context)
+        return context
+
         label = self.render_label(context)
         user = context['user']
 

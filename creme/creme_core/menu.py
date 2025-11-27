@@ -27,7 +27,6 @@ from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import ngettext
 
 from . import get_world_settings_model
 from .auth import SUPERUSER_PERM
@@ -75,30 +74,18 @@ class LogoutEntry(menu.UpdateActionEntry):
     single_instance = True
 
 
-class TrashEntry(menu.FixedURLEntry):
+class TrashEntry(menu.TemplateEntry):
     """Menu entry rendering as a link to the Creme trash."""
+    template_name = 'creme_core/menu/trash.html'
     id = 'creme_core-trash'
     label = _('Trash')
-    url_name = 'creme_core__trash'
 
-    def render(self, context):
+    def get_context(self, context):
+        context = super().get_context(context)
+
         count = CremeEntity.objects.filter(is_deleted=True).count()
-
-        return format_html(
-            '<a href="{url}">'
-            '{label} '
-            '<span class="ui-creme-navigation-punctuation">(</span>'
-            '{count}'
-            '<span class="ui-creme-navigation-punctuation">)</span>'
-            '</a>',
-            url=self.url,
-            label=_('Trash'),
-            count=ngettext(
-                '{count} entity',
-                '{count} entities',
-                count,
-            ).format(count=count),
-        )
+        context["entity_count"] = count
+        return context
 
 
 class PasswordChangeEntry(menu.FixedURLEntry):

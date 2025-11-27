@@ -628,23 +628,24 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(entry_label, entry.label)
 
         entry_url = reverse('creme_core__trash')
-        self.assertEqual(entry_url, entry.url)
 
         FakeOrganisation.objects.create(user=user, name='Acme', is_deleted=True)
         count = CremeEntity.objects.filter(is_deleted=True).count()
         count_label = ngettext(
-            '{count} entity',
-            '{count} entities',
+            '%(counter)s entity',
+            '%(counter)s entities',
             count,
-        ).format(count=count)
+        ) % dict(counter=count)
         self.assertHTMLEqual(
-            f'<a href="{entry_url}">'
-            f'{entry_label} '
-            f'<span class="ui-creme-navigation-punctuation">(</span>'
-            f'{count_label}'
-            f'<span class="ui-creme-navigation-punctuation">)</span>'
-            f'</a>',
-            entry.render(self._build_context(user=user)),
+            f'''
+                <a class="ui-creme-navigation-trash-entry" href="{entry_url}">
+                    {entry_label}
+                    <span class="ui-creme-navigation-punctuation">(</span>
+                    {count_label}
+                    <span class="ui-creme-navigation-punctuation">)</span>
+                </a>
+            ''',
+            entry.render(self._build_context(user=user))
         )
 
     def test_role_switch_entry(self):
