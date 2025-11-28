@@ -799,6 +799,23 @@ class WorkflowRegistryTestCase(CremeTestCase):
         self.assertIsInstance(ffield6, EntityFKSourceField)
         self.assertEqual(ObjectEntitySource(model=FakeContact), ffield6.entity_source)
 
+    def test_internal_workflows(self):
+        class InternalTrigger(WorkflowTrigger):
+            pass
+
+        class InternalAction1(WorkflowAction):
+            pass
+
+        class InternalAction2(WorkflowAction):
+            pass
+
+        registry = WorkflowRegistry().register_internal_workflow(
+            trigger=InternalTrigger,
+            actions=[InternalAction1, InternalAction2],
+        )
+        self.assertIsInstance(registry, WorkflowRegistry)
+        # TODO: complete??
+
     def test_global(self):
         triggers = {*workflow_registry.trigger_classes}
         self.assertIn(EntityCreationTrigger, triggers)
@@ -1019,6 +1036,57 @@ class WorkflowEngineTestCase(CremeTestCase):
 
         self.assertHasProperty(entity=orga1, ptype=ptype)
         self.assertEqual(0, len(engine._queue))  # Meh
+
+    def test_internal_workflows(self):
+        user = self.get_root_user()
+        entity = FakeOrganisation.objects.create(user=user, name='Acme')
+        activated = 0
+        executed = 0
+
+        class InternalEvent(WorkflowEvent):
+            def __init__(this, orga):
+                this.orga = orga
+
+        class InternalTrigger(WorkflowTrigger):
+            event_class = InternalEvent
+
+            def _activate(this, event):
+                nonlocal activated
+
+                self.assertIsInstance(event, InternalEvent)
+                self.assertEqual(entity, event.orga)
+                activated += 1
+
+                return {'orga': event.orga}
+
+        class InternalAction1(WorkflowAction):
+            def execute(this, context, user=None):
+                nonlocal executed
+                executed += 1
+
+        class InternalAction2(WorkflowAction):
+            def execute(this, context, user=None):
+                nonlocal executed
+                executed += 2
+                self.assertEqual(entity, context.get('orga'))
+
+        # TODO: pass registry to Workflow, WorkflowEngine etc... instead
+        # TODO: registry in global registry in setUpClass (+unregister) ???
+        # registry = WorkflowRegistry().register_internal_workflow(
+        registry = workflow_registry.register_internal_workflow(
+            trigger_class=InternalTrigger,
+            action_classes=[InternalAction1, InternalAction2],
+        )
+        self.assertIsInstance(registry, WorkflowRegistry)
+
+        engine = WorkflowEngine.get_current()
+
+        with engine.run(user=None):
+            engine.append_event(InternalEvent(orga=entity))
+
+        self.assertEqual(1, activated)
+        self.assertEqual(3, executed)
+        # self.assert(......)
 
 
 class WorkflowEngineRollbackTestCase(CremeTransactionTestCase):

@@ -10,6 +10,7 @@ from django.utils.translation import gettext as _
 from parameterized import parameterized
 
 from creme.billing import bricks
+from creme.creme_core.core.workflow import EntityCreated, WorkflowEngine
 from creme.creme_core.models import FakeOrganisation, Vat  # Relation
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.models import Contact, Organisation
@@ -18,6 +19,7 @@ from creme.products.models import Product, Service, SubCategory
 from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
 from ..constants import REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM
+from ..workflows import LineUpdated
 from .base import (
     Invoice,
     ProductLine,
@@ -36,7 +38,37 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     def _build_msave_url(bdocument):
         return reverse('billing__multi_save_lines', args=(bdocument.id,))
 
-    def test_clean01(self):
+    @staticmethod
+    def _build_add2catalog_url(line):
+        return reverse('billing__add_to_catalog', args=(line.id,))
+
+    def test_event_line_updated(self):
+        user = self.login_as_root_and_get()
+        invoice1, emitter, receiver  = self.create_invoice_n_orgas(user=user, name='Invoice001')
+        line11 = ProductLine.objects.create(
+            user=user, related_document=invoice1, on_the_fly_item='Flyyyyy',
+        )
+        line12 = ServiceLine.objects.create(
+            user=user, related_document=invoice1, on_the_fly_item='Flyyyyy',
+        )
+
+        event11 = LineUpdated(line=line11)
+        event12 = LineUpdated(line=line12)
+        self.assertTrue(event11.inhibits(event12))
+
+        other_type_event = EntityCreated(entity=emitter)
+        self.assertFalse(event11.inhibits(other_type_event))
+
+        invoice2  = self.create_invoice(
+            user=user, name='Invoice002', source=emitter, target=receiver
+        )
+        line21 = ProductLine.objects.create(
+            user=user, related_document=invoice2, on_the_fly_item='Flyyyyy',
+        )
+        event21 = LineUpdated(line=line21)
+        self.assertFalse(event11.inhibits(event21))
+
+    def test_clean__percent(self):
         "Discount.PERCENT."
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice01', discount=0)[0]
@@ -57,7 +89,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         with self.assertNoException():
             ProductLine(discount=Decimal('50'), ** kwargs).clean()
 
-    def test_clean02(self):
+    def test_clean__line_amount(self):
         "Discount.LINE_AMOUNT."
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice01', discount=0)[0]
@@ -94,7 +126,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
                 **kwargs
             ).clean()
 
-    def test_clean03(self):
+    def test_clean__item_amount(self):
         "Discount.ITEM_AMOUNT."
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice01', discount=0)[0]
@@ -131,8 +163,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
                 **kwargs
             ).clean()
 
-    def test_clean04(self):
-        "With related item."
+    def test_clean__with_related_item(self):
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice01', discount=0)[0]
         product = self.create_product(user=user)
@@ -154,8 +185,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         with self.assertNoException():
             ProductLine(**kwargs).clean()
 
-    def test_clean05(self):
-        "On-the-fly item."
+    def test_clean__on_the_fly_item(self):
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice01', discount=0)[0]
         kwargs = {
@@ -176,7 +206,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             ProductLine(on_the_fly_item='Flyyy product', **kwargs).clean()
 
     @skipIfCustomProduct
-    def test_add_product_lines(self):
+    def test_add_lines__product(self):
         "Multiple adding."
         user = self.login_as_root_and_get()
 
@@ -240,7 +270,75 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             count=2, title='{count} Product', plural_title='{count} Products',
         )
 
-    def test_addlines_not_superuser(self):
+    @skipIfCustomService
+    def test_add_lines__service(self):
+        "Multiple adding."
+        user = self.login_as_root_and_get()
+
+        invoice = self.create_invoice_n_orgas(name='Invoice001', user=self.create_user())[0]
+        url = reverse('billing__create_service_lines', args=(invoice.id,))
+        self.assertGET200(url)
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add-popup.html')
+
+        context = response1.context
+        self.assertEqual(
+            _('Add one or more service to «{entity}»').format(entity=invoice),
+            context.get('title'),
+        )
+        self.assertEqual(_('Save the lines'), context.get('submit_label'))
+
+        # ---
+        with self.assertRaises(AssertionError):
+            invoice.get_lines(Service)
+
+        service1 = self.create_service(user=user)
+        service2 = self.create_service(user=user)
+        vat = Vat.objects.get_or_create(value=Decimal('19.6'))[0]
+        quantity = 2
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'items': self.formfield_value_multi_creator_entity(service1, service2),
+                'quantity':       quantity,
+                'discount_value': Decimal('10'),
+                'vat':            vat.id,
+            },
+        ))
+
+        invoice = self.refresh(invoice)  # Refresh lines cache
+        lines = invoice.get_lines(ServiceLine)
+        self.assertEqual(2, len(lines))
+
+        line0 = lines[0]
+        line1 = lines[1]
+        self.assertEqual(quantity, line0.quantity)
+        self.assertEqual(quantity, line1.quantity)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_HAS_LINE,          object=line0)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_HAS_LINE,          object=line1)
+        self.assertHaveRelation(subject=line0,   type=REL_SUB_LINE_RELATED_ITEM, object=service1)
+        self.assertHaveRelation(subject=line1,   type=REL_SUB_LINE_RELATED_ITEM, object=service2)
+
+        self.assertEqual(Decimal('21.6'),  invoice.total_no_vat)  # 2 * 5.4 + 2 * 5.4
+        self.assertEqual(Decimal('25.84'), invoice.total_vat)  # 21.6 * 1.196 = 25.84
+
+        self.assertEqual(Service, line0.related_item_class())
+
+        # ---
+        detail_url = invoice.get_absolute_url()
+        self.assertEqual(detail_url, line0.get_absolute_url())
+
+        response3 = self.assertGET200(detail_url)
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content),
+            brick=bricks.ServiceLinesBrick,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2, title='{count} Service', plural_title='{count} Services',
+        )
+
+    def test_add_lines__not_superuser(self):
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice],
@@ -251,7 +349,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertGET200(reverse('billing__create_product_lines', args=(invoice.id,)))
         self.assertGET200(reverse('billing__create_service_lines', args=(invoice.id,)))
 
-    def test_add_lines_link(self):
+    def test_add_lines__link(self):
         "LINK creds are needed."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -264,7 +362,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertGET403(reverse('billing__create_product_lines', args=(invoice.id,)))
         self.assertGET403(reverse('billing__create_service_lines', args=(invoice.id,)))
 
-    def test_addlines_bad_related(self):
+    def test_add_lines__bad_related(self):
         "Related is not a billing entity."
         user = self.login_as_root_and_get()
 
@@ -285,8 +383,12 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             unit_price=unit_price, unit='',
             vat_value=self.get_object_or_fail(Vat, value='0.0'),
         )
-        create_pline(related_document=quote)
-        create_pline(related_document=invoice)
+        # create_pline(related_document=quote)
+        # create_pline(related_document=invoice)
+        with WorkflowEngine.get_current().run(user=None):
+            create_pline(related_document=quote)
+            create_pline(related_document=invoice)
+
         self.assertEqual(Decimal('-50.0'), invoice.total_vat)
         self.assertEqual(Decimal('0'), quote.total_vat)
 
@@ -371,7 +473,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotIn(pline31, lines)
 
     @skipIfCustomProductLine
-    def test_delete_product_line01(self):
+    def test_delete_product_line(self):
         user = self.login_as_root_and_get()
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
@@ -389,76 +491,8 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFalse(self.refresh(invoice).get_lines(ProductLine))
         self.assertFalse(ProductLine.objects.exists())
 
-    @skipIfCustomService
-    def test_add_service_lines01(self):
-        "Multiple adding."
-        user = self.login_as_root_and_get()
-
-        invoice = self.create_invoice_n_orgas(name='Invoice001', user=self.create_user())[0]
-        url = reverse('billing__create_service_lines', args=(invoice.id,))
-        self.assertGET200(url)
-        response1 = self.assertGET200(url)
-        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add-popup.html')
-
-        context = response1.context
-        self.assertEqual(
-            _('Add one or more service to «{entity}»').format(entity=invoice),
-            context.get('title'),
-        )
-        self.assertEqual(_('Save the lines'), context.get('submit_label'))
-
-        # ---
-        with self.assertRaises(AssertionError):
-            invoice.get_lines(Service)
-
-        service1 = self.create_service(user=user)
-        service2 = self.create_service(user=user)
-        vat = Vat.objects.get_or_create(value=Decimal('19.6'))[0]
-        quantity = 2
-        self.assertNoFormError(self.client.post(
-            url,
-            data={
-                'items': self.formfield_value_multi_creator_entity(service1, service2),
-                'quantity':       quantity,
-                'discount_value': Decimal('10'),
-                'vat':            vat.id,
-            },
-        ))
-
-        invoice = self.refresh(invoice)  # Refresh lines cache
-        lines = invoice.get_lines(ServiceLine)
-        self.assertEqual(2, len(lines))
-
-        line0 = lines[0]
-        line1 = lines[1]
-        self.assertEqual(quantity, line0.quantity)
-        self.assertEqual(quantity, line1.quantity)
-        self.assertHaveRelation(subject=invoice, type=REL_SUB_HAS_LINE,          object=line0)
-        self.assertHaveRelation(subject=invoice, type=REL_SUB_HAS_LINE,          object=line1)
-        self.assertHaveRelation(subject=line0,   type=REL_SUB_LINE_RELATED_ITEM, object=service1)
-        self.assertHaveRelation(subject=line1,   type=REL_SUB_LINE_RELATED_ITEM, object=service2)
-
-        self.assertEqual(Decimal('21.6'),  invoice.total_no_vat)  # 2 * 5.4 + 2 * 5.4
-        self.assertEqual(Decimal('25.84'), invoice.total_vat)  # 21.6 * 1.196 = 25.84
-
-        self.assertEqual(Service, line0.related_item_class())
-
-        # ---
-        detail_url = invoice.get_absolute_url()
-        self.assertEqual(detail_url, line0.get_absolute_url())
-
-        response3 = self.assertGET200(detail_url)
-        brick_node = self.get_brick_node(
-            self.get_html_tree(response3.content),
-            brick=bricks.ServiceLinesBrick,
-        )
-        self.assertBrickTitleEqual(
-            brick_node,
-            count=2, title='{count} Service', plural_title='{count} Services',
-        )
-
     @skipIfCustomProductLine
-    def test_related_document01(self):
+    def test_related_document(self):
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
 
@@ -470,7 +504,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProduct
     @skipIfCustomProductLine
-    def test_related_item01(self):
+    def test_related_item(self):
         user = self.login_as_root_and_get()
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
@@ -489,7 +523,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(product, p)
 
     @skipIfCustomProductLine
-    def test_related_item02(self):
+    def test_related_item__on_the_fly_product(self):
         user = self.login_as_root_and_get()
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
@@ -505,7 +539,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertIsNone(p)
 
     @skipIfCustomProductLine
-    def test_related_item03(self):
+    def test_related_item__cache(self):
         # Fill caches
         Vat.objects.default()
         ContentType.objects.get_for_model(ProductLine)
@@ -591,7 +625,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     #     )
 
     @skipIfCustomProductLine
-    def test_multiple_delete01(self):
+    def test_multiple_delete(self):
         user = self.login_as_root_and_get()
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001', discount=0)[0]
@@ -627,7 +661,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(expected_total, invoice.total_vat)
 
     @skipIfCustomProductLine
-    def test_multiple_delete02(self):
+    def test_multiple_delete__forbidden(self):
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Organisation]
@@ -651,7 +685,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertEqual(2, ProductLine.objects.filter(pk__in=ids).count())
 
-    def test_delete_vat01(self):
+    def test_delete_vat(self):
         self.login_as_root()
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
@@ -665,7 +699,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertDoesNotExist(vat)
 
     @skipIfCustomProductLine
-    def test_delete_vat02(self):
+    def test_delete_vat__blocked(self):
         user = self.login_as_root_and_get()
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
@@ -690,17 +724,13 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertGET404(self._build_import_url(ServiceLine))
         self.assertGET404(self._build_import_url(ProductLine))
 
-    @staticmethod
-    def _build_add2catalog_url(line):
-        return reverse('billing__add_to_catalog', args=(line.id,))
-
-    def test_convert_on_the_fly_line_to_real_item_error(self):
+    def test_add_to_catalog__error(self):
         "Entity is not a line."
         user = self.login_as_root_and_get()
         self.assertGET404(self._build_add2catalog_url(user.linked_contact))
 
     @skipIfCustomProductLine
-    def test_convert_on_the_fly_line_to_real_item01(self):
+    def test_add_to_catalog__product(self):
         "Convert on the fly product."
         user = self.login_as_root_and_get()
 
@@ -742,7 +772,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomServiceLine
-    def test_convert_on_the_fly_line_to_real_item02(self):
+    def test_add_to_catalog__service(self):
         "Convert on the fly service."
         user = self.login_as_root_and_get()
 
@@ -779,7 +809,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomProductLine
-    def test_convert_on_the_fly_line_to_real_item03(self):
+    def test_add_to_catalog__no_product_creation_perm(self):
         "On-the-fly + product creation + no creation creds."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -801,7 +831,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFalse(Product.objects.exists())
 
     @skipIfCustomServiceLine
-    def test_convert_on_the_fly_line_to_real_item04(self):
+    def test_add_to_catalog__no_service_creation_perm(self):
         "On-the-fly + service creation + no creation creds."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -823,7 +853,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFalse(Service.objects.exists())
 
     @skipIfCustomProductLine
-    def test_convert_on_the_fly_line_to_real_item05(self):
+    def test_add_to_catalog__already_related_product(self):
         "Already related item product line."
         user = self.login_as_root_and_get()
 
@@ -850,7 +880,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(1, Product.objects.count())
 
     @skipIfCustomServiceLine
-    def test_convert_on_the_fly_line_to_real_item06(self):
+    def test_add_to_catalog__already_related_service(self):
         "Already related item service line."
         user = self.login_as_root_and_get()
 
@@ -1162,7 +1192,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomProductLine
-    def test_multi_save_lines__validation_errors01(self):
+    def test_multi_save_lines__validation_errors__no_saved_line(self):
         "No saved line."
         user = self.login_as_root_and_get()
 
@@ -1204,7 +1234,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomProductLine
-    def test_multi_save_lines__validation_errors02(self):
+    def test_multi_save_lines__validation_errors__non_field_error(self):
         "Edited line + non field error."
         user = self.login_as_root_and_get()
 
@@ -1257,7 +1287,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomProductLine
-    def test_multiple_save_lines__order(self):
+    def test_multi_save_lines__order(self):
         user = self.login_as_root_and_get()
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
@@ -1474,7 +1504,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
-    def test_discount01(self):
+    def test_discount__no_discount(self):
         "No discount."
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
@@ -1505,7 +1535,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
-    def test_discount02(self):
+    def test_discount__percent(self):
         "Discount.PERCENT."
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
@@ -1533,7 +1563,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
-    def test_discount03(self):
+    def test_discount__line_amount(self):
         "Discount.LINE_AMOUNT."
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
@@ -1563,7 +1593,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
-    def test_discount04(self):
+    def test_discount__item_amount(self):
         "DISCOUNT_ITEM_AMOUNT."
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
@@ -1592,7 +1622,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(Decimal('51.00'), service_line.get_price_exclusive_of_tax())
 
     @skipIfCustomProductLine
-    def test_discount05(self):
+    def test_discount__document_s_discount(self):
         "Document's discount."
         user = self.login_as_root_and_get()
         invoice1, source, target = self.create_invoice_n_orgas(

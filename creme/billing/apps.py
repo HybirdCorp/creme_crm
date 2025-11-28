@@ -479,3 +479,12 @@ class BillingConfig(CremeAppConfig):
             func=lambda: [SalesOrder.objects.count()],
             perm='billing', priority=24,
         )
+
+    # TODO
+    def register_workflows(self, workflow_registry):
+        from . import workflows
+
+        workflow_registry.register_internal_workflow(
+            trigger_class=workflows.LineUpdateTrigger,
+            action_classes=[workflows.TotalUpdateAction],
+        )

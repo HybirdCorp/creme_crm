@@ -7,6 +7,7 @@ from django.template import Context, Template
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -16,6 +17,7 @@ from creme.creme_core.models import (
     Relation,
     Vat,
 )
+# from creme.creme_core.tests.base import AssertWorkflowEventsAreProcessed
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import (
     skipIfCustomAddress,
@@ -146,6 +148,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
+    # @AssertWorkflowEventsAreProcessed()
     def test_creation__smaller_total(self):
         "Credit note total < billing document total where the credit note is applied."
         user = self.login_as_root_and_get()
@@ -157,17 +160,21 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             ProductLine.objects.create,
             user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
         )
-        create_line(
-            related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
-        )
-        create_line(
-            related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal('200'),
-        )
+        with run_workflow_engine(user=user):
+            create_line(
+                related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
+            )
+            create_line(
+                related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal('200'),
+            )
+        self.assertEqual(Decimal('300'), self.refresh(invoice).total_no_vat)
 
         credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
-        create_line(
-            related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('299'),
-        )
+
+        with run_workflow_engine(user=user):
+            create_line(
+                related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('299'),
+            )
 
         # TODO: the credit note must be valid
         #    - Status OK (not out of date or consumed)

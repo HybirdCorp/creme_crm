@@ -267,6 +267,6 @@ class Line(CremeEntity):
         else:
             super().save(*args, **kwargs)
 
-        # TODO: problem, if several lines are added/edited at once, lots of
-        #  useless queries (workflow engine ??)
-        self.related_document.save()  # Update totals
+        # # TODO: problem, if several lines are added/edited at once, lots of
+        # #  useless queries (workflow engine ??)
+        # self.related_document.save()  # Update totals

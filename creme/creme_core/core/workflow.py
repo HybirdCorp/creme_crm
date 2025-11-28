@@ -743,6 +743,7 @@ class WorkflowRegistry:
         self._source_classes = {}
         self._action_classes = {}
         self._trigger_classes = {}
+        self._internal_workflows = []  # TODO: type
 
     @classmethod
     def checked_type_id(cls, registrable_cls) -> str:
@@ -960,6 +961,47 @@ class WorkflowRegistry:
 
         return self
 
+    # Internal workflows ---
+    # TODO: types
+    # TODO: tests
+    def register_internal_workflow(self, *, trigger_class, action_classes):
+        # TODO: move to global?
+        # TODO: complete
+        class InternalWorkflow:
+            def __init__(this, *, trigger, actions):
+                this.id = 0  # TODO: in register?
+                # this.uuid = 0  # TODO: in register?
+                this.title = 'INTERNAL'  # TODO: in register?
+                this.trigger = trigger
+                this.conditions = WorkflowConditions()
+                this.actions = actions
+
+            def __repr__(self):
+                return (
+                    f'InternalWorkflow('
+                    # f'title="{self.title}", '  TODO?
+                    # f'uuid="{self.uuid}", '  TODO?
+                    # f'content_type={self.content_type.model}, '
+                    f'trigger={self.trigger}, '
+                    f'actions={self.actions}'
+                    f')'
+                )
+
+        self._internal_workflows.append(InternalWorkflow(
+            trigger=trigger_class(),
+            actions=[action_cls() for action_cls in action_classes],
+        ))
+
+        return self
+
+    # TODO: unregister()
+
+    # TODO: types
+    # TODO: tests
+    def build_internal_workflows(self):  # TODO: rename (iter/get?)?
+        yield from self._internal_workflows
+        # return []  TODO: copy?
+
 
 workflow_registry = WorkflowRegistry()
 
@@ -1027,12 +1069,18 @@ class WorkflowEngine:
                 logger.debug('WorkflowEngine: inspecting %s events', len(events))
 
                 engine._is_executing_actions = True
-                workflows = engine._workflows
+                # workflows = engine._workflows
+                # TODO: method
+                workflows = [
+                    *engine._workflows,
+                    *workflow_registry.build_internal_workflows(),
+                ]
 
                 for event in events:
                     for workflow in workflows:
                         trigger = workflow.trigger
                         ctxt = trigger.activate(event)
+                        # print('=>', event, workflow, ctxt)
 
                         if ctxt:
                             logger.debug(

@@ -31,8 +31,10 @@ from creme.creme_core.models import Relation
 from creme.creme_core.models.utils import assign_2_charfield
 
 from . import constants
+from .core.line import line_registry
 from .core.number_generation import number_generator_registry
 from .models import Base, NumberGeneratorItem
+from .workflows import LineUpdated
 
 Organisation = persons.get_organisation_model()
 
@@ -176,8 +178,22 @@ def manage_linked_credit_notes(sender, instance, **kwargs):
         and (kwargs.get('created') is None or instance.symmetric_relation is not None)
     ):
         instance.real_object.save()
+        # TODO:
+        # WorkflowEngine.get_current().append_event(
+        #     LineUpdated(billing_entity=instance.real_object)
+        # )
 
 
+# NB: <sender=Line> does not work
+@receiver(signals.post_save, dispatch_uid='billing-manage_line_update')
+def manage_line_update(sender, instance, **kwargs):
+    "The calculated totals (Invoice, Quote...) have to be refreshed."
+    if issubclass(sender, tuple(line_registry)):
+        WorkflowEngine.get_current().append_event(LineUpdated(line=instance))
+        # print('SIGNAL', instance)
+
+
+# TODO: UPDATE THIS + remove "_avoid_billing_total_update" hack if possible (multiple transaction?)
 # TODO: problem, if several lines are deleted at once, lots of useless queries (workflow engine ??)
 @receiver(signals.post_delete, sender=Relation, dispatch_uid='billing-manage_line_deletion')
 def manage_line_deletion(sender, instance, **kwargs):
