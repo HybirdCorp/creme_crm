@@ -28,7 +28,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         super().setUpTestData()
         cls.user = cls.create_user()
 
-    def test_extractor_total_with_vat(self):
+    def test_extractor__total_with_vat(self):
         extractor = TotalWithVatExtractor(total_no_vat_index=1, vat_index=2)
         self.assertEqual(0, extractor._total_no_vat_index)
         self.assertEqual(1, extractor._vat_index)
@@ -53,7 +53,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         self.assertEqual(Decimal('100.0'),  pline.unit_price)
         self.assertEqual(vat,               pline.vat_value)
 
-    def test_extractor_total_with_vat_errors(self):
+    def test_extractor__total_with_vat__errors(self):
         extractor = TotalWithVatExtractor(
             total_no_vat_index=1, vat_index=2, create_vat=True,
         )
@@ -106,7 +106,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
             errors4,
         )
 
-    def test_extractor_total_without_vat(self):
+    def test_extractor__total_without_vat(self):
         extractor = TotalWithoutVatExtractor(total_vat_index=1, vat_index=2)
         self.assertEqual(0, extractor._total_vat_index)
         self.assertEqual(1, extractor._vat_index)
@@ -131,7 +131,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         self.assertEqual(Decimal('200.0'),  pline.unit_price)
         self.assertEqual(vat,               pline.vat_value)
 
-    def test_extractor_total_without_vat_errors(self):
+    def test_extractor__total_without_vat__errors(self):
         extractor = TotalWithoutVatExtractor(
             total_vat_index=1, vat_index=2, create_vat=True,
         )
@@ -184,7 +184,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
             errors4,
         )
 
-    def test_extractor_vat(self):
+    def test_extractor__vat(self):
         extractor = VatExtractor(total_no_vat_index=1, total_vat_index=2)
         self.assertEqual(0, extractor._total_no_vat_index)
         self.assertEqual(1, extractor._total_vat_index)
@@ -209,7 +209,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         self.assertEqual(Decimal('300.0'),  pline.unit_price)
         self.assertEqual(vat,               pline.vat_value)
 
-    def test_extractor_vat_errors(self):
+    def test_extractor__vat__errors(self):
         extractor = VatExtractor(total_no_vat_index=1, total_vat_index=2)
 
         # Invalid Total without VAT ---
@@ -236,7 +236,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
             errors2,
         )
 
-    def test_extractor_extractor_total_with_vat__vat_creation01(self):
+    def test_extractor__total_with_vat__vat_creation(self):
         extractor = TotalWithVatExtractor(
             total_no_vat_index=1, vat_index=2,
             create_vat=True,
@@ -258,8 +258,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         vat_obj = self.get_object_or_fail(Vat, value=Decimal(vat))
         self.assertEqual(vat_obj, pline.vat_value)
 
-    def test_extractor_extractor_total_with_vat__vat_creation02(self):
-        "Not allowed."
+    def test_extractor__total_with_vat__vat_creation__forbidden(self):
         extractor = TotalWithVatExtractor(total_no_vat_index=1, vat_index=2)
         self.assertFalse(extractor.create_vat)
 
@@ -283,7 +282,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         )
         self.assertFalse(Vat.objects.filter(value=Decimal(vat)).exists())
 
-    def test_extractor_extractor_total_without_vat__vat_creation01(self):
+    def test_extractor__total_without_vat__vat_creation(self):
         extractor = TotalWithoutVatExtractor(
             total_vat_index=1, vat_index=2,
             create_vat=True,
@@ -305,8 +304,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         vat_obj = self.get_object_or_fail(Vat, value=Decimal(vat))
         self.assertEqual(vat_obj, pline.vat_value)
 
-    def test_extractor_extractor_total_without_vat__vat_creation02(self):
-        "Not allowed."
+    def test_extractor__total_without_vat__vat_creation__forbidden(self):
         extractor = TotalWithoutVatExtractor(total_vat_index=1, vat_index=2)
         self.assertFalse(extractor.create_vat)
 
@@ -330,7 +328,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         )
         self.assertFalse(Vat.objects.filter(value=Decimal(vat)).exists())
 
-    def test_extractor_extractor_vat__vat_creation01(self):
+    def test_extractor__vat__vat_creation(self):
         extractor = VatExtractor(
             total_no_vat_index=1, total_vat_index=2,
             create_vat=True,
@@ -352,8 +350,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         vat_obj = self.get_object_or_fail(Vat, value=Decimal(vat))
         self.assertEqual(vat_obj, pline.vat_value)
 
-    def test_extractor_extractor_vat__vat_creation02(self):
-        "Not allowed."
+    def test_extractor__vat__vat_creation__forbidden(self):
         extractor = VatExtractor(total_no_vat_index=1, total_vat_index=2)
         self.assertFalse(extractor.create_vat)
 
@@ -377,11 +374,11 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         )
         self.assertFalse(Vat.objects.filter(value=Decimal(vat)).exists())
 
-    def test_field_no_total(self):
+    def test_field__no_total(self):
         field = TotalsExtractorField(choices=self.choices)
         self.assertIsNone(field.clean({'mode': MODE_NO_TOTAL}))
 
-    def test_field_total_no_vat_n_vat(self):
+    def test_field__total_no_vat_n_vat(self):
         field1 = TotalsExtractorField(choices=self.choices)
 
         with self.assertNoException():
@@ -405,7 +402,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         self.assertEqual(1, extractor2._total_no_vat_index)
         self.assertEqual(0, extractor2._vat_index)
 
-    def test_field_total_vat_n_vat(self):
+    def test_field__total_vat_n_vat(self):
         field1 = TotalsExtractorField(choices=self.choices)
 
         with self.assertNoException():
@@ -429,7 +426,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         self.assertEqual(1, extractor2._total_vat_index)
         self.assertEqual(0, extractor2._vat_index)
 
-    def test_field_totals(self):
+    def test_field__totals(self):
         field1 = TotalsExtractorField(choices=self.choices)
 
         with self.assertNoException():
@@ -453,7 +450,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         self.assertEqual(1, extractor2._total_vat_index)
         self.assertEqual(0, extractor2._total_no_vat_index)
 
-    def test_field_invalid_mode(self):
+    def test_field__invalid_mode(self):
         field = TotalsExtractorField(choices=self.choices)
 
         self.assertFormfieldError(
@@ -481,7 +478,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
             },
         )
 
-    def test_field_invalid_index(self):
+    def test_field__invalid_index(self):
         field = TotalsExtractorField(choices=self.choices)
         self.assertFormfieldError(
             field=field,
@@ -511,7 +508,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
             messages='Invalid index',
         )
 
-    def test_field_required_choices(self):
+    def test_field__required_choices(self):
         field = TotalsExtractorField(choices=self.choices)
         msg_fmt = _('You have to select a column for «%(field)s».')
         self.assertFormfieldError(
@@ -542,7 +539,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
             messages=msg_fmt % {'field': _('Total with VAT')},
         )
 
-    def test_field_empty_not_required(self):
+    def test_field__empty_not_required(self):
         field = TotalsExtractorField(choices=self.choices, required=False)
 
         with self.assertNoException():
@@ -555,7 +552,7 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         (MODE_COMPUTE_TOTAL_NO_VAT, 'total_vat_column_index',    'vat_column_index'),
         (MODE_COMPUTE_VAT,          'total_no_vat_column_index', 'total_vat_column_index'),
     ])
-    def test_field_vat_creation(self, mode, index1, index2):
+    def test_field__vat_creation(self, mode, index1, index2):
         field = TotalsExtractorField(choices=self.choices)
         self.assertIs(field.can_create_vat, False)
         beware = _('Beware: you are not allowed to create new VAT values')

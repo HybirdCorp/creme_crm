@@ -362,7 +362,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertInstanceLink(hat_brick_node, entity=quote)
 
-    def test_creationview(self):
+    def test_create(self):
         user = self.login_as_root_and_get()
 
         # GET ---
@@ -421,7 +421,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=target, type=REL_SUB_CUSTOMER_SUPPLIER, object=source)
 
     @skipIfCustomAddress
-    def test_creationview__with_address(self):
+    def test_create__with_address(self):
         user = self.login_as_root_and_get()
 
         name = 'Invoice001'
@@ -511,7 +511,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             action_type='edit',
         )
 
-    def test_creationview__contact_target(self):
+    def test_create__contact_target(self):
         "Workflow for Contact too."
         user = self.login_as_root_and_get()
 
@@ -529,7 +529,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(orga, invoice.source)
         self.assertEqual(contact, invoice.target)
 
-    def test_creationview__error(self):
+    def test_create__error(self):
         "Credentials errors with Organisation."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'], creatable_models=[Invoice],
@@ -579,7 +579,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             errors=link_error.format(target),
         )
 
-    def test_createview_payment_info(self):
+    def test_create__payment_info(self):
         "One PaymentInformation in the source => used automatically."
         user = self.login_as_root_and_get()
 
@@ -592,7 +592,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = self.create_invoice(user=user, name='Invoice001', source=source, target=target)
         self.assertEqual(pi, invoice.payment_info)
 
-    def test_createview_payment_info__several(self):
+    def test_create__payment_info__several(self):
         "Several PaymentInformation in the source => default one is used."
         user = self.login_as_root_and_get()
 
@@ -744,7 +744,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertTrue(export_action.is_enabled)
         self.assertTrue(export_action.is_visible)
 
-    def test_editview(self):
+    def test_edit(self):
         user = self.login_as_root_and_get()
         SettingValue.objects.set_4_key(emitter_edition_key, True)
 
@@ -839,7 +839,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertDoesNotExist(original_b_addr)
         self.assertDoesNotExist(original_s_addr)
 
-    def test_editview__source_edition_forbidden(self):
+    def test_edit__source_edition_forbidden(self):
         user = self.login_as_root_and_get()
         SettingValue.objects.set_4_key(emitter_edition_key, True)
 
@@ -907,7 +907,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
-    def test_editview__user_change(self):
+    def test_edit__user_change(self):
         "User changes => lines user changes."
         user = self.login_as_root_and_get()
 
@@ -960,8 +960,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             ],  # Refresh
         )
 
-    def test_editview__discount_error(self):
-        "Error on discount."
+    def test_edit__discount_error(self):
         user = self.login_as_root_and_get()
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')
         url = invoice.get_edit_absolute_url()
@@ -987,7 +986,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFormError(post('150'), field='discount', errors=msg)
         self.assertFormError(post('-10'), field='discount', errors=msg)
 
-    def test_editview__payment_info__no_one(self):
+    def test_edit__payment_info__no_one(self):
         user = self.login_as_root_and_get()
 
         source2 = Organisation.objects.create(user=user, name='Sega')
@@ -1018,7 +1017,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNoFormError(response)
         self.assertIsNone(self.refresh(invoice).payment_info)
 
-    def test_editview__payment_info__one(self):
+    def test_edit__payment_info__one(self):
         "One PaymentInformation in the source => used automatically."
         user = self.login_as_root_and_get()
 
@@ -1044,7 +1043,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = self.refresh(invoice)
         self.assertEqual(pi, invoice.payment_info)
 
-    def test_editview__payment_info__several(self):
+    def test_edit__payment_info__several(self):
         "Several PaymentInformation in the source => default one is used."
         user = self.login_as_root_and_get()
 

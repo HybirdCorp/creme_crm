@@ -167,7 +167,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertInstanceLink(hat_brick_node, entity=opp)
 
-    def test_createview01(self):
+    def test_create(self):
         user = self.login_as_root_and_get()
         self.assertGET200(reverse('billing__create_order'))
 
@@ -306,7 +306,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         source, target = self.create_orgas(user=user)
         self.assertGET403(self._build_related_creation_url(target))
 
-    def test_editview(self):
+    def test_edit(self):
         user = self.login_as_root_and_get()
 
         name = 'my sales order'
@@ -412,7 +412,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomAddress
-    def test_mass_import_update(self):
+    def test_mass_import__update(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_update(
             user=user, model=SalesOrder, status_model=SalesOrderStatus,

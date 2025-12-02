@@ -84,14 +84,14 @@ else:
 
 
 class ExporterLocalisationFieldTestCase(_BillingTestCase):
-    def test_clean_empty_required(self):
+    def test_clean__empty__required(self):
         field = ExporterLocalisationField(required=True)
         msg = _('This field is required.')
         code = 'required'
         self.assertFormfieldError(field=field, messages=msg, codes=code, value=None)
         self.assertFormfieldError(field=field, messages=msg, codes=code, value='')
 
-    def test_clean_empty_not_required(self):
+    def test_clean__empty__not_required(self):
         field = ExporterLocalisationField(required=False)
 
         with self.assertNoException():
@@ -99,7 +99,7 @@ class ExporterLocalisationFieldTestCase(_BillingTestCase):
 
         self.assertIsNone(None, value)
 
-    def test_clean01(self):
+    def test_clean__ok(self):
         manager = BillingExportEngineManager([
             'creme.billing.tests.fake_exporters.OnlyInvoiceExportEngine'
         ])
@@ -126,7 +126,7 @@ class ExporterLocalisationFieldTestCase(_BillingTestCase):
             })),
         )
 
-    def test_ok_agnostic(self):
+    def test_clean__ok_agnostic(self):
         manager = BillingExportEngineManager([
             'creme.billing.exporters.xls.XLSExportEngine',
             'creme.billing.tests.fake_exporters.OnlyInvoiceExportEngine',
@@ -154,7 +154,7 @@ class ExporterLocalisationFieldTestCase(_BillingTestCase):
             })),
         )
 
-    def test_clean_invalid_data_type_main(self):
+    def test_clean__invalid_data_type_main(self):
         field = ExporterLocalisationField(required=False)
         code = 'invalidtype'
         msg = _('Invalid type')
@@ -163,7 +163,7 @@ class ExporterLocalisationFieldTestCase(_BillingTestCase):
         )
         self.assertFormfieldError(field=field, messages=msg, codes=code, value='[]')
 
-    def test_clean_invalid_format(self):
+    def test_clean__invalid_format(self):
         field = ExporterLocalisationField(required=False)
         code = 'invalidformat'
         msg = _('Invalid format')
@@ -182,7 +182,7 @@ class ExporterLocalisationFieldTestCase(_BillingTestCase):
             }),
         )
 
-    def test_clean_invalid_key_required(self):
+    def test_clean__invalid_key_required(self):
         field = ExporterLocalisationField()
         country_msg = 'The country is required.'
         self.assertFormfieldError(
@@ -246,7 +246,7 @@ class ExporterLocalisationFieldTestCase(_BillingTestCase):
             messages=_('Invalid format'),
         )
 
-    def test_clean_empty_country_not_required(self):
+    def test_clean__empty_country_not_required(self):
         field = ExporterLocalisationField(required=False)
         self.assertIsNone(
             field.clean(
@@ -260,7 +260,7 @@ class ExporterLocalisationFieldTestCase(_BillingTestCase):
             )
         )
 
-    def test_clean_error(self):
+    def test_clean__error(self):
         manager = BillingExportEngineManager([
             'creme.billing.tests.fake_exporters.OnlyInvoiceExportEngine',
         ])
@@ -279,7 +279,7 @@ class ExporterLocalisationFieldTestCase(_BillingTestCase):
             codes='invalidlocalisation',
         )
 
-    def test_initial01(self):
+    def test_initial__latex(self):
         manager = BillingExportEngineManager([
             'creme.billing.exporters.latex.LatexExportEngine',
         ])
@@ -298,7 +298,7 @@ class ExporterLocalisationFieldTestCase(_BillingTestCase):
             },
         )
 
-    def test_initial02(self):
+    def test_initial__custom(self):
         manager = BillingExportEngineManager([
             'creme.billing.tests.fake_exporters.OnlyInvoiceExportEngine',
         ])

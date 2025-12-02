@@ -122,7 +122,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFalse(wf_invoice_contact.is_custom)
 
     @skipIfNotInstalled('creme.activities')
-    def test_populate_activities(self):
+    def test_populate__activities(self):
         # Contribution to activities
         from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 
@@ -133,7 +133,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(Contact).id).exists())
 
     @skipIfCustomOrganisation
-    def test_brick_orga01(self):
+    def test_bricks_for_organisation(self):
         user = self.login_as_root_and_get()
 
         sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.payment_info_key.id)
@@ -154,7 +154,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertTemplateUsed(response, payment_info_tlpt)
 
     @skipIfCustomOrganisation
-    def test_brick_orga02(self):
+    def test_bricks_for_organisation__managed(self):
         "Managed organisation."
         user = self.login_as_root_and_get()
 
@@ -174,8 +174,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertTemplateUsed(response, payment_info_tlpt)
 
     @skipIfCustomOrganisation
-    def test_brick_orga03(self):
-        "Statistics."
+    def test_bricks_for_organisation__statistics(self):
         user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='NERV')
