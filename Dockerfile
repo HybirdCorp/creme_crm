@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.3
 
-FROM python:3.10-slim-bookworm as creme-demo
+FROM python:3.13-slim-trixie as creme-demo
 
 SHELL ["/bin/bash", "-c"]
 
