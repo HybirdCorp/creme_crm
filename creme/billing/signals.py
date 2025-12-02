@@ -167,7 +167,14 @@ def handle_replace_statuses(sender, model_field, replacing_instance, **kwargs):
 )
 def manage_linked_credit_notes(sender, instance, **kwargs):
     "The calculated totals of Invoices have to be refreshed."
-    if instance.type_id == constants.REL_SUB_CREDIT_NOTE_APPLIED:
+    if (
+        instance.type_id == constants.REL_SUB_CREDIT_NOTE_APPLIED
+        # NB:
+        #  - <created is None> means deletion
+        #  - <instance.symmetric_relation is None> means the relation will
+        #     be saved again when completed, so we avoid a useless total computing
+        and (kwargs.get('created') is None or instance.symmetric_relation is not None)
+    ):
         instance.real_object.save()
 
 

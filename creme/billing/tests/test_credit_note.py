@@ -169,9 +169,10 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('299'),
         )
 
-        # TODO: the credit note must be valid : Status OK (not out of date or consumed),
-        #                                       Target = Billing document's target
-        #                                       currency = billing document's currency
+        # TODO: the credit note must be valid
+        #    - Status OK (not out of date or consumed)
+        #    - Target = Billing document's target
+        #    - currency = billing document's currency
         # These rules must be applied with q filter on list view before selection
         Relation.objects.create(
             object_entity=invoice, subject_entity=credit_note,

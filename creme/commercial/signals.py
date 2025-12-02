@@ -38,7 +38,12 @@ if apps.is_installed('creme.activities'):
         post_save, sender=Relation, dispatch_uid='commercial-manage_opp_as_activity_subject',
     )
     def post_save_relation_opp_subject_activity(sender, instance, **kwargs):
-        if instance.type_id == REL_OBJ_ACTIVITY_SUBJECT:
+        if (
+            instance.type_id == REL_OBJ_ACTIVITY_SUBJECT
+            # NB: when a Relation is created, it is saved twice in order to set the link
+            #     with its symmetric instance
+            and instance.symmetric_relation_id is not None
+        ):
             object_entity = instance.object_entity
             get_ct = ContentType.objects.get_for_model
 
