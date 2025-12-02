@@ -33,6 +33,7 @@ from ..auth import EntityCredentials
 from ..auth.special import SpecialPermission
 from ..constants import ROOT_PASSWORD, ROOT_USERNAME
 from ..core.setting_key import SettingKey
+from ..core.workflow import WorkflowEngine
 from ..global_info import clear_global_info
 from ..gui.icons import get_icon_by_name, get_icon_size_px
 from ..management.commands.creme_populate import Command as PopulateCommand
@@ -98,6 +99,30 @@ class _AssertNoExceptionContext:
             )
 
         return True
+
+
+class AssertWorkflowEventsAreProcessed(ContextDecorator):
+    """Fails if the event queue is not empty at the end.
+
+    Decorator exemple:
+        class FoobarTestCase(CremeTestCase):
+            @AssertWorkflowEventsAreProcessed()
+            def test_foobar(self):
+               ...
+
+    Context manager exemple:
+        class FoobarTestCase(CremeTestCase):
+            def test_foobar(self):
+                with AssertWorkflowEventsAreProcessed():
+                    ...
+    """
+    def __enter__(self):
+        pass
+
+    def __exit__(self, *exc):
+        events = WorkflowEngine.get_current()._queue.pickup()
+        if events:
+            raise AssertionError(f'Some workflow events have not been managed: {events}')
 
 
 class _CremeTestCase:
