@@ -421,7 +421,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual('QU-0001', quote.number)
 
     @skipIfCustomSalesOrder
-    def test_create_order01(self):
+    def test_create_order(self):
         order_status = SalesOrderStatus.objects.filter(is_default=False).first()
         tpl = self._create_templatebase(SalesOrder, status_uuid=order_status.uuid)
 

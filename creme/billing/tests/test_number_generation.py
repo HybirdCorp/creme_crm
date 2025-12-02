@@ -620,7 +620,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
             ) % {'limit_value': 1},
         )
 
-    def test_generation_view__invoice01(self):
+    def test_generation__invoice__managed_emitter(self):
         "Emitter Organisation is managed."
         user = self.login_as_root_and_get()
 
@@ -658,7 +658,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
         # Already generated ---
         self.assertPOST409(url, follow=True)
 
-    def test_generation_view__invoice02(self):
+    def test_generation__invoice__issuing_date(self):
         "Issuing date not overridden."
         user = self.login_as_root_and_get()
 
@@ -677,7 +677,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertTrue(invoice.number)
         self.assertEqual(issuing_date, invoice.issuing_date)
 
-    def test_generation_view__invoice03(self):
+    def test_generation__invoice__emitter_not_managed(self):
         "Emitter Organisation is not managed."
         user = self.login_as_root_and_get()
 
@@ -690,7 +690,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertPOST404(self._build_number_generation_url(invoice), follow=True)
 
-    def test_generation_view__quote(self):
+    def test_generation__quote(self):
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -727,7 +727,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
         quote.save()
         self.assertEqual(number, self.refresh(quote).number)
 
-    def test_generation_view__salesorder(self):
+    def test_generation__salesorder(self):
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -757,7 +757,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
             html=True,
         )
 
-    def test_generation_view__creditnote(self):
+    def test_generation__creditnote(self):
         "Managed Organisation."
         user = self.login_as_root_and_get()
 
@@ -783,7 +783,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertPOST200(self._build_number_generation_url(cnote))
         self.assertEqual('CN-0001', self.refresh(cnote).number)
 
-    def test_generation_view__bad_type(self):
+    def test_generation__bad_type(self):
         user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='Acme')
@@ -795,7 +795,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
             html=True,
         )
 
-    def test_generation_view__not_registered_type(self):
+    def test_generation__not_registered_type(self):
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -859,8 +859,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
             NumberGeneratorItem(organisation=orga, numbered_type=TemplateBase).description,
         )
 
-    def test_invoice_creation__emitter_not_managed01(self):
-        "Number is not filled."
+    def test_invoice_creation__emitter_not_managed__number_not_filled(self):
         user = self.login_as_root_and_get()
 
         response = self.assertGET200(reverse('billing__create_invoice'))
@@ -874,16 +873,14 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice 001')[0]
         self.assertEqual('', invoice.number)
 
-    def test_invoice_creation__emitter_not_managed02(self):
-        "Number is filled."
+    def test_invoice_creation__emitter_not_managed__number_filled(self):
         user = self.login_as_root_and_get()
 
         number = 'INV0001'
         invoice = self.create_invoice_n_orgas(user=user, name='Inv#1', number=number)[0]
         self.assertEqual(number, invoice.number)
 
-    def test_invoice_creation__managed_emitter01(self):
-        "Edition is allowed."
+    def test_invoice_creation__managed_emitter__edition_is_allowed(self):
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -896,8 +893,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertEqual(number, invoice.number)
 
-    def test_invoice_creation__managed_emitter02(self):
-        "Edition is forbidden."
+    def test_invoice_creation__managed_emitter__edition_is_forbidden(self):
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -945,8 +941,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertEqual('', invoice.number)
 
-    def test_quote_creation__managed_emitter01(self):
-        "Edition is allowed."
+    def test_quote_creation__managed_emitter__edition_is_allowed(self):
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -959,8 +954,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertEqual(number, invoice.number)
 
-    def test_quote_creation__managed_emitter02(self):
-        "Edition is forbidden."
+    def test_quote_creation__managed_emitter__edition_is_forbidden(self):
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -1056,8 +1050,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
             errors=_('The number is set as not editable by the configuration.'),
         )
 
-    def test_inner_edition__allowed01(self):
-        "Emitter is managed."
+    def test_inner_edition__allowed__emitter_is_managed(self):
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -1089,8 +1082,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNoFormError(self.client.post(uri, data={form_field_name: number}))
         self.assertEqual(number, self.refresh(quote).number)
 
-    def test_inner_edition__allowed02(self):
-        "Emitter is not managed."
+    def test_inner_edition__allowed__emitter_is_not_managed(self):
         user = self.login_as_root_and_get()
 
         quote, source, __target = self.create_quote_n_orgas(user=user, name='Order001')
@@ -1169,8 +1161,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.assertStillExists(orga1)
             self.assertDoesNotExist(orga2)
 
-    def test_merge__one_managed_organisation01(self):
-        "First one is managed."
+    def test_merge_organisations__first_is_managed(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -1189,8 +1180,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
             generators1, NumberGeneratorItem.objects.filter(organisation=orga1),
         )
 
-    def test_merge__one_managed_organisation02(self):
-        "Second one is managed."
+    def test_merge_organisations__second_is_managed(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -1209,7 +1199,7 @@ class NumberGenerationTestCase(BrickTestCaseMixin, _BillingTestCase):
             generators2, NumberGeneratorItem.objects.filter(organisation=orga2),
         )
 
-    def test_merge__two_managed_organisations(self):
+    def test_merge_organisations__2_managed(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)

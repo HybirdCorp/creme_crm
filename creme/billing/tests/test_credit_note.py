@@ -50,11 +50,11 @@ from .base import (
 @skipIfCustomCreditNote
 class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @staticmethod
-    def _build_editcomment_url(credit_note):
+    def _build_edit_comment_url(credit_note):
         return reverse('billing__edit_cnote_comment', args=(credit_note.id,))
 
     @staticmethod
-    def _build_deleterelated_url(credit_note, invoice):
+    def _build_delete_related_url(credit_note, invoice):
         return reverse('billing__delete_related_cnote', args=(credit_note.id, invoice.id))
 
     def assertInvoiceTotalToPay(self, invoice, total):
@@ -146,7 +146,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_createview01(self):
+    def test_creation__smaller_total(self):
         "Credit note total < billing document total where the credit note is applied."
         user = self.login_as_root_and_get()
         self.assertGET200(reverse('billing__create_cnote'))
@@ -198,14 +198,14 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertInstanceLink(brick_node, entity=credit_note)
         self.assertBrickHasAction(
             brick_node,
-            url=self._build_editcomment_url(credit_note),
+            url=self._build_edit_comment_url(credit_note),
             action_type='edit',
         )
         # TODO: complete (hidden fields, no view permission)
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_createview02(self):
+    def test_creation__greater_total(self):
         "Credit note total > document billing total where the credit note is applied."
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
@@ -235,8 +235,8 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_createview03(self):
-        "Credit note in a negative Invoice -> a bigger negative Invoice"
+    def test_creation__negative_total(self):
+        "Credit note in a negative Invoice -> a bigger negative Invoice."
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
 
@@ -377,7 +377,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_addrelated_view(self):
+    def test_link(self):
         "Attach credit note to existing invoice."
         user = self.login_as_root_and_get()
         create_line = partial(
@@ -436,14 +436,14 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         # Check invoice view (bug in block_credit_note.html)
         self.assertGET200(invoice.get_absolute_url())
 
-    def test_addrelated_view_no_invoice(self):
+    def test_link__no_invoice(self):
         "Cannot attach credit note to invalid invoice."
         self.login_as_root()
         self.assertGET404(reverse('billing__link_to_cnotes', args=(12445,)))
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_addrelated_view_not_same_currency(self):
+    def test_link__not_same_currency(self):
         "Cannot attach credit note in US Dollar to invoice in Euro."
         user = self.login_as_root_and_get()
         create_line = partial(
@@ -496,8 +496,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_addrelated_view_already_linked(self):
-        "Cannot attach credit note in US Dollar to invoice in Euro."
+    def test_link__already_linked(self):
         user = self.login_as_root_and_get()
         create_line = partial(
             ProductLine.objects.create,
@@ -560,8 +559,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_addrelated_view_already_not_same_target(self):
-        "Cannot attach credit note in US Dollar to invoice in Euro."
+    def test_link__already_not_same_target(self):
         user = self.login_as_root_and_get()
         create_line = partial(
             ProductLine.objects.create,
@@ -606,7 +604,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 300)
 
     @skipIfCustomInvoice
-    def test_addrelated_view_notsuperuser(self):
+    def test_link__regular_user(self):
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Invoice],
@@ -617,7 +615,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertGET200(reverse('billing__link_to_cnotes', args=(invoice.id,)))
 
     @skipIfCustomInvoice
-    def test_addrelated_view_linkcredentials(self):
+    def test_link__credentials(self):
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Invoice],
@@ -628,7 +626,14 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         self.assertGET403(reverse('billing__link_to_cnotes', args=(invoice.id,)))
 
-    def test_editview(self):
+    @skipIfCustomInvoice
+    def test_link__bad_related_type(self):
+        "No related to a compatible billing entity."
+        user = self.login_as_root_and_get()
+        orga = FakeOrganisation.objects.create(user=user, name='Foo')
+        self.assertGET404(reverse('billing__link_to_cnotes', args=(orga.id,)))
+
+    def test_edition(self):
         user = self.login_as_root_and_get()
 
         cnote, source, target  = self.create_credit_note_n_orgas(user=user, name='credit Note 001')
@@ -679,15 +684,8 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=cnote, type=REL_SUB_BILL_RECEIVED, object=target)
 
     @skipIfCustomInvoice
-    def test_addrelated_view_badrelated(self):
-        "No related to a compatible billing entity"
-        user = self.login_as_root_and_get()
-        orga = FakeOrganisation.objects.create(user=user, name='Foo')
-        self.assertGET404(reverse('billing__link_to_cnotes', args=(orga.id,)))
-
-    @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_deleterelated_view(self):
+    def test_delete_related(self):
         user = self.login_as_root_and_get()
         create_line = partial(
             ProductLine.objects.create,
@@ -722,7 +720,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertInvoiceTotalToPay(invoice, 50)
 
-        url = self._build_deleterelated_url(credit_note, invoice)
+        url = self._build_delete_related_url(credit_note, invoice)
         self.assertGET405(url)
 
         response = self.assertPOST200(url, follow=True)
@@ -735,7 +733,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_deleterelated_view_not_exists(self):
+    def test_delete_related__does_not_exist(self):
         user = self.login_as_root_and_get()
         create_line = partial(
             ProductLine.objects.create,
@@ -762,7 +760,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertInvoiceTotalToPay(invoice, 100)
 
-        self.assertPOST404(self._build_deleterelated_url(credit_note, invoice), follow=True)
+        self.assertPOST404(self._build_delete_related_url(credit_note, invoice), follow=True)
 
         self.assertFalse(
             Relation.objects.filter(object_entity=invoice, subject_entity=credit_note),
@@ -771,7 +769,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
-    def test_deleterelated_view_not_allowed(self):
+    def test_delete_related__forbidden(self):
         user = self.login_as_root_and_get()
         create_line = partial(
             ProductLine.objects.create,
@@ -812,7 +810,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.client.login(username=other.username, password=self.USER_PASSWORD)
 
         self.assertPOST403(
-            self._build_deleterelated_url(credit_note, invoice), follow=True,
+            self._build_delete_related_url(credit_note, invoice), follow=True,
         )
 
         self.assertEqual(
@@ -823,7 +821,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertInvoiceTotalToPay(invoice, 50)
 
-    def test_editcomment01(self):
+    def test_edit_comment(self):
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=CreditNote,
@@ -832,7 +830,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
 
-        url = self._build_editcomment_url(credit_note)
+        url = self._build_edit_comment_url(credit_note)
         response = self.assertGET200(url)
         self.assertTemplateUsed(
             response, 'creme_core/generics/blockform/edit-popup.html',
@@ -847,7 +845,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNoFormError(self.client.post(url, data={'comment': comment}))
         self.assertEqual(comment, self.refresh(credit_note).comment)
 
-    def test_editcomment02(self):
+    def test_edit_comment__hidden(self):
         "'comment' is hidden."
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
@@ -856,10 +854,9 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
-        self.assertGET409(self._build_editcomment_url(credit_note))
+        self.assertGET409(self._build_edit_comment_url(credit_note))
 
-    def test_editcomment03(self):
-        "Not super-user."
+    def test_edit_comment__regular_user(self):
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[CreditNote],
@@ -867,9 +864,9 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
-        self.assertGET200(self._build_editcomment_url(credit_note))
+        self.assertGET200(self._build_edit_comment_url(credit_note))
 
-    def test_editcomment04(self):
+    def test_edit_comment__change_perm(self):
         "CHANGE permission is needed."
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
@@ -878,7 +875,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.add_credentials(user.role, all=['VIEW', 'LINK'])  # Not 'CHANGE'
 
         credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
-        self.assertGET403(self._build_editcomment_url(credit_note))
+        self.assertGET403(self._build_edit_comment_url(credit_note))
 
     @skipIfCustomAddress
     @skipIfCustomServiceLine

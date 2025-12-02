@@ -229,7 +229,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertInstanceLink(hat_brick_node, entity=opp)
 
     @override_settings(SOFTWARE_LABEL='My CRM')
-    def test_createview__source_not_managed(self):
+    def test_create__source_not_managed(self):
         "Source is not managed + no number given."
         user = self.login_as_root_and_get()
 
@@ -276,7 +276,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         quote2, source2, target2 = self.create_quote_n_orgas(user=user, name='My Quote Two')
         self.assertHaveRelation(subject=target2, type=REL_SUB_PROSPECT, object=source2)
 
-    def test_createview__source_managed(self):
+    def test_create__source_managed(self):
         "Source is managed + no number given + other default status."
         user = self.login_as_root_and_get()
         status = QuoteStatus.objects.create(name='OK', is_default=True)
@@ -317,7 +317,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=target2, type=REL_SUB_PROSPECT, object=source)
         self.assertEqual('QUO-0002', quote2.number)
 
-    def test_createview__contact_target(self):
+    def test_create__contact_target(self):
         "Workflow for Contact too."
         user = self.login_as_root_and_get()
 
@@ -332,7 +332,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         # NB: workflow
         self.assertHaveRelation(subject=contact, type=REL_SUB_PROSPECT, object=orga)
 
-    def test_createview__no_number_field(self):
+    def test_create__no_number_field(self):
         "The field 'number' is not in the form."
         self.login_as_root()
 
@@ -370,14 +370,14 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertNotIn('number', fields)
 
-    def test_createview__no_default_status(self):
+    def test_create__no_default_status(self):
         self.login_as_root()
         QuoteStatus.objects.update(is_default=False)
 
         response = self.assertGET200(reverse('billing__create_quote'))
         self.assertIsNone(self.get_form_or_fail(response).initial.get('status'))
 
-    def test_create_related01(self):
+    def test_create_related(self):
         user = self.login_as_root_and_get()
         default_status = self.get_object_or_fail(QuoteStatus, is_default=True)
 
@@ -430,7 +430,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_RECEIVED, object=target)
 
-    def test_create_related02(self):
+    def test_create_related__regular_user(self):
         "Not a super-user + other default status."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -472,7 +472,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             reverse('billing__create_related_quote', args=(target.id,)),
         )
 
-    def test_createview_related__no_default_status(self):
+    def test_create_related__no_default_status(self):
         user = self.login_as_root_and_get()
         QuoteStatus.objects.update(is_default=False)
 
@@ -482,7 +482,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertIsNone(self.get_form_or_fail(response).initial.get('status'))
 
-    def test_editview01(self):
+    def test_edit(self):
         user = self.login_as_root_and_get()
 
         name = 'my quote'
@@ -498,7 +498,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         name = name.title()
         currency = Currency.objects.create(
-            name='Marsian dollar', local_symbol='M$',
+            name='Martian dollar', local_symbol='M$',
             international_symbol='MUSD', is_custom=True,
         )
         status = QuoteStatus.objects.all()[1]
@@ -534,7 +534,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_RECEIVED, object=target)
 
-    def test_editview__change_related_organisations01(self):
+    def test_edit__change_related_organisations(self):
         "Change source/target + perms."
         user = self.login_as_standard(
             allowed_apps=('persons', 'billing'),
@@ -581,8 +581,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveNoRelation(subject=quote, type=REL_SUB_BILL_ISSUED,   object=source1)
         self.assertHaveNoRelation(subject=quote, type=REL_SUB_BILL_RECEIVED, object=target1)
 
-    def test_editview__change_related_organisations02(self):
-        "Change source/target + perms: unlinkable but not changed."
+    def test_edit__not_linkable_organisations(self):
+        "Change source/target + perms: not linkable but not changed."
         user = self.login_as_standard(
             allowed_apps=('persons', 'billing'),
             creatable_models=[Quote],
@@ -616,7 +616,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_RECEIVED, object=target)
 
-    def test_editview__emitter_edition_forbidden(self):
+    def test_edit__emitter_edition_forbidden(self):
         "SettingValue is ignored."
         user = self.login_as_root_and_get()
 
@@ -709,11 +709,11 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomAddress
-    def test_mass_import__no_total01(self):
+    def test_mass_import__no_total(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_no_total(user=user, model=Quote, status_model=QuoteStatus)
 
-    def test_mass_import__no_total02(self):
+    def test_mass_import__no_total__managed_emitter(self):
         "Source is managed + edition is allowed."
         user = self.login_as_root_and_get()
 
@@ -818,7 +818,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             user=user, model=Quote, status_model=QuoteStatus,
         )
 
-    def test_mass_import__number_not_editable01(self):
+    def test_mass_import__number_not_editable(self):
         "Source is managed + edition is forbidden."
         user = self.login_as_root_and_get()
         count = Quote.objects.count()
@@ -910,7 +910,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             j_error.messages,
         )
 
-    def test_mass_import__number_not_editable02(self):
+    def test_mass_import__number_not_editable__update_mode(self):
         "Source is managed + edition is forbidden (update mode)."
         user = self.login_as_root_and_get()
 
