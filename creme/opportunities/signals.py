@@ -69,7 +69,14 @@ if apps.is_installed('creme.billing'):
         post_delete, sender=Relation, dispatch_uid='opportunities-manage_current_quote_removing',
     )
     def _handle_current_quote_set(sender, instance, **kwargs):
-        if instance.type_id == constants.REL_SUB_CURRENT_DOC:
+        if (
+            instance.type_id == constants.REL_SUB_CURRENT_DOC
+            # NB:
+            #  - <created is None> means deletion
+            #  - <instance.symmetric_relation is None> means the relation will
+            #     be saved again when completed, so we avoid a useless sales computing
+            and (kwargs.get('created') is None or instance.symmetric_relation is not None)
+        ):
             doc = instance.subject_entity.get_real_entity()
 
             if isinstance(doc, Quote) and use_current_quote():
