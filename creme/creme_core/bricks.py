@@ -40,6 +40,7 @@ from .models import (  # CremeUser
     Job,
     LastViewedEntity,
     Notification,
+    PinnedEntity,
     Relation,
     RelationType,
 )
@@ -489,6 +490,28 @@ class RecentEntitiesBrick(QuerysetBrick):
                 user=context['user'],
                 entity__is_deleted=False,
             ).prefetch_related('real_entity'),
+        ))
+
+
+class PinnedEntitiesBrick(QuerysetBrick):
+    id = QuerysetBrick.generate_id('creme_core', 'pinned_entities')
+    verbose_name = _('Pinned entities')
+    description = _(
+        'Even if the pinned entities are the same as the ones in the menu, '
+        'this block allows you to unpin entities which you cannot view anymore.\n'
+        'App: Core'
+    )
+    dependencies = (PinnedEntity,)
+    order_by = '-created'
+    template_name = 'creme_core/bricks/pinned-entities.html'
+
+    def home_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            PinnedEntity.objects.filter(
+                user=context['user'],
+            ).prefetch_related('real_entity'),
+            # TODO: message if max pins is reached?
         ))
 
 

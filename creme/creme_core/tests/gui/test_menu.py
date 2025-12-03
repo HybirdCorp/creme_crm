@@ -757,8 +757,65 @@ class MenuTestCase(CremeTestCase):
     def test_creme_entry__other_label(self):
         self.assertEqual('My amazing CRM', CremeEntry().label)
 
+    # def test_recent_entities_entry01(self):
+    #     user = self.get_root_user()
+    #     self.assertTrue(RecentEntitiesEntry.single_instance)
+    #
+    #     contact1 = user.linked_contact
+    #     contact2 = FakeContact.objects.create(
+    #         user=user, first_name='Kirika', last_name='Yumura',
+    #     )
+    #
+    #     ctxt = self._build_context()
+    #     request = ctxt['request']
+    #     LastViewedItem(request, contact1)
+    #     LastViewedItem(request, contact2)
+    #
+    #     entry = RecentEntitiesEntry()
+    #     self.assertEqual(0, entry.level)
+    #
+    #     entry_id = 'creme_core-recent_entities'
+    #     self.assertEqual(entry_id, entry.id)
+    #
+    #     entry_label = _('Recent entities')
+    #     self.assertEqual(entry_label, entry.label)
+    #
+    #     render = entry.render(ctxt)
+    #     self.assertStartsWith(render, entry_label)
+    #     self.assertHTMLEqual(
+    #         f'<ul>'
+    #         f'  <li>'
+    #         f'    <a href="{contact2.get_absolute_url()}">'
+    #         f'      <span class="ui-creme-navigation-ctype">{contact2.entity_type}</span>'
+    #         f'      {contact2}'
+    #         f'    </a>'
+    #         f'  </li>'
+    #         f'  <li>'
+    #         f'    <a href="{contact1.get_absolute_url()}">'
+    #         f'      <span class="ui-creme-navigation-ctype">{contact1.entity_type}</span>'
+    #         f'      {contact1}'
+    #         f'    </a>'
+    #         f'  </li>'
+    #         f'</ul>',
+    #         render.removeprefix(entry_label),
+    #     )
+    #
+    # def test_recent_entities_entry02(self):
+    #     entry = RecentEntitiesEntry()
+    #
+    #     entry_label = _('Recent entities')
+    #     self.assertEqual(entry_label, entry.label)
+    #
+    #     render = entry.render(self._build_context())
+    #     self.assertStartsWith(render, entry_label)
+    #     self.assertHTMLEqual(
+    #         '<ul>'
+    #         '   <li><span class="ui-creme-navigation-text-entry">{}</span></li>'
+    #         '</ul>'.format(escape(_('No recently visited entity'))),
+    #         render.removeprefix(entry_label),
+    #     )
     @override_settings(LAST_ENTITIES_SIZE=10, LAST_ENTITIES_MENU_SIZE=2)
-    def test_recent_entities_entry(self):
+    def test_quick_access_entry__recent_entities(self):
         user = self.get_root_user()
         self.assertTrue(RecentEntitiesEntry.single_instance)
 
@@ -768,10 +825,6 @@ class MenuTestCase(CremeTestCase):
         contact3 = create_contact(first_name='Mycroft', last_name='Holmes')
         contact4 = create_contact(last_name='Moriarty')
 
-        # ctxt = self._build_context()
-        # request = ctxt['request']
-        # LastViewedItem(request, contact1)
-        # LastViewedItem(request, contact2)
         create_last_viewed = partial(LastViewedEntity.objects.create, user=user)
         lve1 = create_last_viewed(real_entity=contact1)
         lve2 = create_last_viewed(real_entity=contact2)
@@ -799,10 +852,9 @@ class MenuTestCase(CremeTestCase):
         entry_id = 'creme_core-recent_entities'
         self.assertEqual(entry_id, entry.id)
 
-        entry_label = _('Recent entities')
+        entry_label = _('Quick access')
         self.assertEqual(entry_label, entry.label)
 
-        # render = entry.render(ctxt)
         render = entry.render(self._build_context())
         self.assertStartsWith(render, entry_label)
         self.assertHTMLEqual(
@@ -829,7 +881,7 @@ class MenuTestCase(CremeTestCase):
             render.removeprefix(entry_label),
         )
 
-    def test_recent_entities_entry__empty(self):
+    def test_quick_access_entry__recent_entities__empty(self):
         entry = RecentEntitiesEntry()
 
         entry_label = _('Recent entities')

@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/base.html' %}
 {% load i18n creme_bricks creme_ctype creme_perms creme_widgets %}
-{% load get_cloning_info get_deletion_info url from creme_core_tags %}
+{% load get_cloning_info get_deletion_info has_max_pins is_pinned url from creme_core_tags %}
 
 {% block brick_extra_class %}brick-hat brick-hat-card{% endblock %}
 
@@ -95,6 +95,20 @@
                   </div>
                  {% endif %}
                 {% endwith %}
+               {% endblock %}
+
+               {% block pin_button %}
+                <div class='card-action'>
+                  {% if object|is_pinned:user %}
+                    {% brick_card_button action='update' icon='pin' url='creme_core__unpin_entity'|url:object.id label=_('Unpin') %}
+                  {% else %}
+                    {% if user|has_max_pins %}
+                      {% brick_card_button action='update' icon='pin' url='' label=_('Pin') help_text=_('You already have the maximum of pinned entities') enabled=False %}
+                    {% else %}
+                      {% brick_card_button action='update' icon='pin' url='creme_core__pin_entity'|url:object.id label=_('Pin') help_text=_('Pin this entity to put it in the menu entry «Quick access»') %}
+                    {% endif %}
+                  {% endif %}
+                </div>
                {% endblock %}
 
                {% block clone_button %}

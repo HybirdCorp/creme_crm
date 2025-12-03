@@ -16,6 +16,7 @@ from .views import (
     mass_export,
     mass_import,
     notification,
+    pinned_entity,
     quick_forms,
     relation,
     search,
@@ -155,6 +156,17 @@ entity_patterns = [
         name='creme_core__select_entity_for_merge',
     ),
     re_path(r'^merge[/]?$', entity.Merge.as_view(), name='creme_core__merge_entities'),
+
+    re_path(
+        r'^pin/(?P<entity_id>\d+)[/]?$',
+        pinned_entity.EntityPinning.as_view(),
+        name='creme_core__pin_entity',
+    ),
+    re_path(
+        r'^unpin/(?P<entity_id>\d+)[/]?$',
+        pinned_entity.EntityUnPinning.as_view(),
+        name='creme_core__unpin_entity',
+    ),
 
     re_path(
         r'^restrict_to_superusers[/]?$',

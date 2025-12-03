@@ -4,6 +4,7 @@ from functools import partial
 from json import loads as json_load
 
 from django.template import Context, Template, TemplateSyntaxError
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -18,6 +19,7 @@ from creme.creme_core.models import (
     FakeTicket,
     FieldsConfig,
     Language,
+    PinnedEntity,
 )
 from creme.creme_core.utils.html import escapejson
 
@@ -1091,3 +1093,54 @@ class CremeCoreTagsTestCase(CremeTestCase):
             f'>{_("Delete")}</a>',
             render3.strip(),
         )
+
+    @override_settings(PINNED_ENTITIES_SIZE=5)
+    def test_is_pinned(self):
+        user = self.get_root_user()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        contact1 = create_contact(first_name='Edward', last_name='Elric')
+        contact2 = create_contact(first_name='Alphonse', last_name='Elric')
+
+        PinnedEntity.objects.create(user=user, real_entity=contact1)
+
+        with self.assertNumQueries(2):
+            with self.assertNoException():
+                render = Template(
+                    '{% load creme_core_tags %}'
+                    '{{contact1|is_pinned:user}}#{{contact2|is_pinned:user}}'
+                    '#{{contact1|is_pinned:user}}'
+                ).render(Context({
+                    'user': user,
+                    'contact1': contact1,
+                    'contact2': contact2,
+                }))
+
+        self.assertEqual('True#False#True', render.strip())
+
+    @override_settings(PINNED_ENTITIES_SIZE=2)
+    def test_has_max_pins(self):
+        user1 = self.get_root_user()
+        user2 = self.create_user()
+
+        create_contact = partial(FakeContact.objects.create, user=user1)
+        contact1 = create_contact(first_name='Edward', last_name='Elric')
+        contact2 = create_contact(first_name='Alphonse', last_name='Elric')
+
+        create_pinned = PinnedEntity.objects.create
+        create_pinned(real_entity=contact1, user=user1)
+        create_pinned(real_entity=contact2, user=user1)
+        create_pinned(real_entity=contact1, user=user2)
+
+        with self.assertNoException():
+            render = Template(
+                '{% load creme_core_tags %}'
+                '{{user1|has_max_pins}}#{{user2|has_max_pins}}'
+            ).render(Context({
+                'user1': user1,
+                'user2': user2,
+                'contact1': contact1,
+                'contact2': contact2,
+            }))
+
+        self.assertEqual('True#False', render.strip())

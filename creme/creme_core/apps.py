@@ -482,7 +482,8 @@ class CremeCoreConfig(CremeAppConfig):
 
         menu_registry.register(
             menu.CremeEntry,
-            menu.RecentEntitiesEntry,
+            # menu.RecentEntitiesEntry,
+            menu.QuickAccessEntry,
             menu.JobsEntry,
             menu.QuickFormsEntries,
             menu.EntitiesCreationEntry,
@@ -516,6 +517,7 @@ class CremeCoreConfig(CremeAppConfig):
             bricks.ImprintsBrick,
             bricks.TrashBrick,
             bricks.RecentEntitiesBrick,
+            bricks.PinnedEntitiesBrick,
             bricks.StatisticsBrick,
             bricks.JobsBrick,
             bricks.MyJobsBrick,
