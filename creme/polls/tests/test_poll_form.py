@@ -154,6 +154,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
             [
                 reverse('polls__form_stats', args=(pform.id,)),
                 pform.get_edit_absolute_url(),
+                reverse('creme_core__pin_entity', args=(pform.id,)),
                 pform.get_clone_absolute_url(),
                 pform.get_delete_absolute_url(),
             ],

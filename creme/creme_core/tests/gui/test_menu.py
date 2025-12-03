@@ -30,7 +30,7 @@ from creme.creme_core.gui.menu import (
     creation_menu_registry,
     menu_registry,
 )
-from creme.creme_core.menu import (
+from creme.creme_core.menu import (  # RecentEntitiesEntry,
     CremeEntry,
     EntitiesCreationEntry,
     HomeEntry,
@@ -38,8 +38,8 @@ from creme.creme_core.menu import (
     LogoutEntry,
     MyJobsEntry,
     MyPageEntry,
+    QuickAccessEntry,
     QuickFormsEntries,
-    RecentEntitiesEntry,
     RoleSwitchEntry,
     TrashEntry,
 )
@@ -52,6 +52,7 @@ from creme.creme_core.models import (
     FakeOrganisation,
     LastViewedEntity,
     MenuConfigItem,
+    PinnedEntity,
 )
 
 from .. import fake_forms
@@ -757,10 +758,101 @@ class MenuTestCase(CremeTestCase):
     def test_creme_entry__other_label(self):
         self.assertEqual('My amazing CRM', CremeEntry().label)
 
+    # def test_recent_entities_entry01(self):
+    #     user = self.get_root_user()
+    #     self.assertTrue(RecentEntitiesEntry.single_instance)
+    #
+    #     contact1 = user.linked_contact
+    #     contact2 = FakeContact.objects.create(
+    #         user=user, first_name='Kirika', last_name='Yumura',
+    #     )
+    #
+    #     ctxt = self._build_context()
+    #     request = ctxt['request']
+    #     LastViewedItem(request, contact1)
+    #     LastViewedItem(request, contact2)
+    #
+    #     entry = RecentEntitiesEntry()
+    #     self.assertEqual(0, entry.level)
+    #
+    #     entry_id = 'creme_core-recent_entities'
+    #     self.assertEqual(entry_id, entry.id)
+    #
+    #     entry_label = _('Recent entities')
+    #     self.assertEqual(entry_label, entry.label)
+    #
+    #     render = entry.render(ctxt)
+    #     self.assertStartsWith(render, entry_label)
+    #     self.assertHTMLEqual(
+    #         f'<ul>'
+    #         f'  <li>'
+    #         f'    <a href="{contact2.get_absolute_url()}">'
+    #         f'      <span class="ui-creme-navigation-ctype">{contact2.entity_type}</span>'
+    #         f'      {contact2}'
+    #         f'    </a>'
+    #         f'  </li>'
+    #         f'  <li>'
+    #         f'    <a href="{contact1.get_absolute_url()}">'
+    #         f'      <span class="ui-creme-navigation-ctype">{contact1.entity_type}</span>'
+    #         f'      {contact1}'
+    #         f'    </a>'
+    #         f'  </li>'
+    #         f'</ul>',
+    #         render.removeprefix(entry_label),
+    #     )
+    #
+    # def test_recent_entities_entry02(self):
+    #     entry = RecentEntitiesEntry()
+    #
+    #     entry_label = _('Recent entities')
+    #     self.assertEqual(entry_label, entry.label)
+    #
+    #     render = entry.render(self._build_context())
+    #     self.assertStartsWith(render, entry_label)
+    #     self.assertHTMLEqual(
+    #         '<ul>'
+    #         '   <li><span class="ui-creme-navigation-text-entry">{}</span></li>'
+    #         '</ul>'.format(escape(_('No recently visited entity'))),
+    #         render.removeprefix(entry_label),
+    #     )
+    def test_quick_access_entry__empty(self):
+        entry = QuickAccessEntry()
+        self.assertTrue(QuickAccessEntry.single_instance)
+
+        entry_label = _('Quick access')
+        self.assertEqual(entry_label, entry.label)
+
+        render = entry.render(self._build_context())
+        self.assertStartsWith(render, entry_label)
+        # self.maxDiff = None
+        self.assertHTMLEqual(
+            f'<ul>'
+            f'  <li class="ui-creme-navigation-item-id_creme_core-separator1'
+            f'      ui-creme-navigation-item-level1'
+            f'      ui-creme-navigation-item-type_creme_core-separator1">'
+            f'   <span class="ui-creme-navigation-title">{escape(_("Recent entities"))}</span>'
+            f'  </li>'
+            f'  <li class="ui-creme-navigation-item-id_ ui-creme-navigation-item-level1">'
+            f'   <span class="ui-creme-navigation-text-entry">'
+            f'     {escape(_("No recently visited entity"))}'
+            f'   </span>'
+            f'  </li>'
+            f'  <li class="ui-creme-navigation-item-id_creme_core-separator1'
+            f'      ui-creme-navigation-item-level1'
+            f'      ui-creme-navigation-item-type_creme_core-separator1">'
+            f'   <span class="ui-creme-navigation-title">{escape(_("Pinned entities"))}</span>'
+            f'  </li>'
+            f'  <li class="ui-creme-navigation-item-id_ ui-creme-navigation-item-level1">'
+            f'   <span class="ui-creme-navigation-text-entry">'
+            f'   {escape(_("No pinned entity"))}'
+            f'   </span>'
+            f'</ul>',
+            render.removeprefix(entry_label),
+        )
+
     @override_settings(LAST_ENTITIES_SIZE=10, LAST_ENTITIES_MENU_SIZE=2)
-    def test_recent_entities_entry(self):
+    def test_quick_access_entry__recent_entities(self):
         user = self.get_root_user()
-        self.assertTrue(RecentEntitiesEntry.single_instance)
 
         create_contact = partial(FakeContact.objects.create, user=user)
         contact1 = create_contact(first_name='Sherlock', last_name='Holmes')
@@ -768,10 +860,6 @@ class MenuTestCase(CremeTestCase):
         contact3 = create_contact(first_name='Mycroft', last_name='Holmes')
         contact4 = create_contact(last_name='Moriarty')
 
-        # ctxt = self._build_context()
-        # request = ctxt['request']
-        # LastViewedItem(request, contact1)
-        # LastViewedItem(request, contact2)
         create_last_viewed = partial(LastViewedEntity.objects.create, user=user)
         lve1 = create_last_viewed(real_entity=contact1)
         lve2 = create_last_viewed(real_entity=contact2)
@@ -793,54 +881,109 @@ class MenuTestCase(CremeTestCase):
 
         contact4.trash()
 
-        entry = RecentEntitiesEntry()
+        entry = QuickAccessEntry()
         self.assertEqual(0, entry.level)
 
         entry_id = 'creme_core-recent_entities'
         self.assertEqual(entry_id, entry.id)
 
-        entry_label = _('Recent entities')
-        self.assertEqual(entry_label, entry.label)
-
-        # render = entry.render(ctxt)
+        entry_label = _('Quick access')
         render = entry.render(self._build_context())
         self.assertStartsWith(render, entry_label)
+        # self.maxDiff = None
         self.assertHTMLEqual(
             f'<ul>'
-            f'  <li>'
+            f'  <li class="ui-creme-navigation-item-id_creme_core-separator1'
+            f'      ui-creme-navigation-item-level1'
+            f'      ui-creme-navigation-item-type_creme_core-separator1">'
+            f'   <span class="ui-creme-navigation-title">{escape(_("Recent entities"))}</span>'
+            f'  </li>'
+            f'  <li class="ui-creme-navigation-item-id_creme_core-recent_entity-link'
+            f'      ui-creme-navigation-item-level1">'
             f'    <a href="{contact3.get_absolute_url()}">'
             f'      <span class="ui-creme-navigation-ctype">{contact3.entity_type}</span>'
             f'      {contact3}'
             f'    </a>'
             f'  </li>'
-            f'  <li>'
+            f'  <li class="ui-creme-navigation-item-id_creme_core-recent_entity-link'
+            f'      ui-creme-navigation-item-level1">'
             f'    <a href="{contact2.get_absolute_url()}">'
             f'      <span class="ui-creme-navigation-ctype">{contact2.entity_type}</span>'
             f'      {contact2}'
             f'    </a>'
             f'  </li>'
-            # f'  <li>'
+            # f'  <li class="...">'
             # f'    <a href="{contact1.get_absolute_url()}">'
             # f'      <span class="ui-creme-navigation-ctype">{contact1.entity_type}</span>'
             # f'      {contact1}'
             # f'    </a>'
             # f'  </li>'
+            f'  <li class="ui-creme-navigation-item-id_creme_core-separator1'
+            f'      ui-creme-navigation-item-level1'
+            f'      ui-creme-navigation-item-type_creme_core-separator1">'
+            f'   <span class="ui-creme-navigation-title">{escape(_("Pinned entities"))}</span>'
+            f'  </li>'
+            f'  <li class="ui-creme-navigation-item-id_ ui-creme-navigation-item-level1">'
+            f'   <span class="ui-creme-navigation-text-entry">'
+            f'   {escape(_("No pinned entity"))}'
+            f'   </span>'
+            f'  </li>'
             f'</ul>',
             render.removeprefix(entry_label),
         )
 
-    def test_recent_entities_entry__empty(self):
-        entry = RecentEntitiesEntry()
+    @override_settings(PINNED_ENTITIES_SIZE=3)
+    def test_quick_access_entry__pinned_entities(self):
+        user1 = self.get_root_user()
+        user2 = self.create_user()
 
-        entry_label = _('Recent entities')
-        self.assertEqual(entry_label, entry.label)
+        create_contact = partial(FakeContact.objects.create, user=user1)
+        contact1 = create_contact(first_name='Sherlock', last_name='Holmes')
+        contact2 = create_contact(first_name='John', last_name='Watson', is_deleted=True)
+        contact3 = create_contact(first_name='Mycroft', last_name='Holmes')
 
-        render = entry.render(self._build_context())
+        create_pinned = PinnedEntity.objects.create
+        create_pinned(real_entity=contact1, user=user1)
+        create_pinned(real_entity=contact2, user=user1)
+        create_pinned(real_entity=contact3, user=user2)
+
+        entry_label = _('Quick access')
+
+        render = QuickAccessEntry().render(self._build_context())
         self.assertStartsWith(render, entry_label)
+        self.maxDiff = None
         self.assertHTMLEqual(
-            '<ul>'
-            '   <li><span class="ui-creme-navigation-text-entry">{}</span></li>'
-            '</ul>'.format(escape(_('No recently visited entity'))),
+            f'<ul>'
+            f'  <li class="ui-creme-navigation-item-id_creme_core-separator1'
+            f'      ui-creme-navigation-item-level1'
+            f'      ui-creme-navigation-item-type_creme_core-separator1">'
+            f'   <span class="ui-creme-navigation-title">{escape(_("Recent entities"))}</span>'
+            f'  </li>'
+            f'  <li class="ui-creme-navigation-item-id_ ui-creme-navigation-item-level1">'
+            f'   <span class="ui-creme-navigation-text-entry">'
+            f'     {escape(_("No recently visited entity"))}'
+            f'   </span>'
+            f'  </li>'
+            f'  <li class="ui-creme-navigation-item-id_creme_core-separator1'
+            f'      ui-creme-navigation-item-level1'
+            f'      ui-creme-navigation-item-type_creme_core-separator1">'
+            f'   <span class="ui-creme-navigation-title">{escape(_("Pinned entities"))}</span>'
+            f'  </li>'
+            f'  <li class="ui-creme-navigation-item-id_creme_core-pinned_entity-link'
+            f'      ui-creme-navigation-item-level1">'
+            f'    <a href="{contact1.get_absolute_url()}" class="">'
+            f'      <span class="ui-creme-navigation-ctype">{contact1.entity_type}</span>'
+            f'      {contact1}'
+            f'    </a>'
+            f'  </li>'
+            f'  <li class="ui-creme-navigation-item-id_creme_core-pinned_entity-link'
+            f'      ui-creme-navigation-item-level1">'
+            f'    <a href="{contact2.get_absolute_url()}" class="is_deleted">'
+            f'      <span class="ui-creme-navigation-ctype">{contact2.entity_type}</span>'
+            f'      {contact2}'
+            f'    </a>'
+            f'  </li>'
+            f'</ul>',
             render.removeprefix(entry_label),
         )
 
@@ -1571,27 +1714,33 @@ class MenuTestCase(CremeTestCase):
 
     def test_registry__container_without_children(self):
         "Container does not accept children."
-        container_item = MenuConfigItem(id=1, entry_id=RecentEntitiesEntry.id)
+        # container_item = MenuConfigItem(id=1, entry_id=RecentEntitiesEntry.id)
+        container_item = MenuConfigItem(id=1, entry_id=QuickAccessEntry.id)
         sub_item = MenuConfigItem(
             id=2, entry_id=FakeContactsEntry.id, parent_id=container_item.id,
         )
-        registry = MenuRegistry().register(RecentEntitiesEntry, FakeContactsEntry)
+        # registry = MenuRegistry().register(RecentEntitiesEntry, FakeContactsEntry)
+        registry = MenuRegistry().register(QuickAccessEntry, FakeContactsEntry)
 
         entry = self.get_alone_element(
             registry.get_entries([container_item, sub_item])
         )
-        self.assertIsInstance(entry, RecentEntitiesEntry)
+        # self.assertIsInstance(entry, RecentEntitiesEntry)
+        self.assertIsInstance(entry, QuickAccessEntry)
         self.assertFalse([*entry.children])
 
     def test_registry_unregister(self):
         registry = MenuRegistry().register(
-            CremeEntry, RecentEntitiesEntry, FakeContactsEntry,
+            # CremeEntry, RecentEntitiesEntry, FakeContactsEntry,
+            CremeEntry, QuickAccessEntry, FakeContactsEntry,
         )
 
-        registry.unregister(RecentEntitiesEntry, FakeContactsEntry)
+        # registry.unregister(RecentEntitiesEntry, FakeContactsEntry)
+        registry.unregister(QuickAccessEntry, FakeContactsEntry)
         entry_classes = {*registry.entry_classes}
         self.assertIn(CremeEntry, entry_classes)
-        self.assertNotIn(RecentEntitiesEntry, entry_classes)
+        # self.assertNotIn(RecentEntitiesEntry, entry_classes)
+        self.assertNotIn(QuickAccessEntry, entry_classes)
         self.assertNotIn(FakeContactsEntry,   entry_classes)
 
         # ---
@@ -1612,4 +1761,5 @@ class MenuTestCase(CremeTestCase):
         self.assertIn(CremeEntry,            entry_classes)
         self.assertIn(QuickFormsEntries,     entry_classes)
         self.assertIn(EntitiesCreationEntry, entry_classes)
-        self.assertIn(RecentEntitiesEntry,   entry_classes)
+        # self.assertIn(RecentEntitiesEntry,   entry_classes)
+        self.assertIn(QuickAccessEntry,   entry_classes)

@@ -39,6 +39,7 @@ from .notification import (  # NOQA
     NotificationChannel,
     NotificationChannelConfigItem,
 )
+from .pinned_entity import PinnedEntity  # NOQA
 from .relation import Relation, RelationType, SemiFixedRelationType  # NOQA
 from .search import SearchConfigItem  # NOQA
 from .setting_value import SettingValue  # NOQA

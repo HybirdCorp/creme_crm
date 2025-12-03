@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-27 14:42+0100\n"
+"POT-Creation-Date: 2025-12-08 13:10+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -196,6 +196,18 @@ msgstr "Corbeille"
 
 msgid "Recent entities"
 msgstr "Fiches récentes"
+
+msgid "Pinned entities"
+msgstr "Fiches épinglées"
+
+msgid ""
+"Even if the pinned entities are the same as the ones in the menu, this block "
+"allows you to unpin entities which you cannot view anymore.\n"
+"App: Core"
+msgstr ""
+"Même si les fiches épinglées sont les mêmes que dans le menu, ce bloc vous "
+"permet de désépingler les fiches que vous ne pouvez plus voir.\n"
+"App : Cœur"
 
 msgid "Statistics"
 msgstr "Statistiques"
@@ -1880,8 +1892,14 @@ msgstr "Autre type de fiche"
 msgid "Create an entity of any type"
 msgstr "Créer une fiche de n'importe quel type"
 
+msgid "Quick access"
+msgstr "Accès rapide"
+
 msgid "No recently visited entity"
 msgstr "Aucune fiche récemment visitée"
+
+msgid "No pinned entity"
+msgstr "Aucine fiche épinglée"
 
 msgid "Name"
 msgstr "Nom"
@@ -2814,6 +2832,9 @@ msgstr "Créer une notification"
 msgid "Send the notification"
 msgstr "Envoyer la notification"
 
+msgid "Pinned on"
+msgstr "Épinglée le"
+
 msgid "Predicate"
 msgstr "Prédicat"
 
@@ -3153,6 +3174,18 @@ msgstr "%(software)s > Réinitialisation de votre mot de passe"
 msgid "Strategic summary"
 msgstr "Résumé stratégique"
 
+msgid "Unpin"
+msgstr "Désépingler"
+
+msgid "Pin"
+msgstr "Épingler"
+
+msgid "You already have the maximum of pinned entities"
+msgstr "Vous avez déjà le maximum de fiches épinglées"
+
+msgid "Pin this entity to put it in the menu entry «Quick access»"
+msgstr "Épinglez cette fiche pour la mettre dans l'entrée de menu «Accès rapide»"
+
 #, python-format
 msgid "Cloning is forbidden (%(error)s)"
 msgstr "Clonage interdit (%(error)s)"
@@ -3261,6 +3294,9 @@ msgstr "Assignée à"
 
 msgid "Entity in the trash"
 msgstr "Fiche dans la corbeille"
+
+msgid "Pinned"
+msgstr "Épinglé"
 
 msgid "You are not allowed to view this block"
 msgstr "Vous n'avez pas la permission de voir ce bloc"
@@ -3429,6 +3465,23 @@ msgid "No notification for the moment"
 msgstr "Aucune notification pour le moment"
 
 #, python-brace-format
+msgid "{count} Pinned entity"
+msgstr "{count} Fiche épinglée"
+
+#, python-brace-format
+msgid "{count} Pinned entities"
+msgstr "{count} Fiches épinglées"
+
+msgid "Action"
+msgstr "Action"
+
+msgid "Unpin this entity"
+msgstr "Désépingler cette fiche"
+
+msgid "No pinned entity for the moment"
+msgstr "Aucune fiche épinglée pour le moment"
+
+#, python-brace-format
 msgid "{count} Property"
 msgstr "{count} Propriété"
 
@@ -3523,9 +3576,6 @@ msgstr "{count} Relations"
 
 msgid "New relationships"
 msgstr "Nouvelles relations"
-
-msgid "Action"
-msgstr "Action"
 
 msgid "No relationship for the moment"
 msgstr "Aucune relation pour le moment"
@@ -4658,6 +4708,12 @@ msgstr "Type de fichier inconnu ; veuillez contacter votre administrateur."
 
 msgid "Announce a system upgrade to users"
 msgstr "Annoncer une mise à niveau système aux utilisateurs"
+
+#, python-brace-format
+msgid "You cannot have more than {count} pinned entity"
+msgid_plural "You cannot have more than {count} pinned entities"
+msgstr[0] "Vous ne pouvez pas avoir plus que {count} fiche épinglée"
+msgstr[1] "Vous ne pouvez pas avoir plus que {count} fiches épinglées"
 
 #, python-brace-format
 msgid "Relationships for «{entity}»"

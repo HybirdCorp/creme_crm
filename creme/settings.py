@@ -730,6 +730,17 @@ LAST_ENTITIES_SIZE = 20
 #  Must be smaller or equal than LAST_ENTITIES_SIZE
 LAST_ENTITIES_MENU_SIZE = 9
 
+# Maximum number of entities which can be pinned by a user.
+# BEWARE:
+#  - Do not set a big value because pinned entities are displayed as menu entries
+#    (& you do not want a huge menu).
+#  - If you decrease the value previously used, users could get too much pinned
+#    entities in DataBase. The menu will limit the number of displayed entries
+#    with the setting value, but some extra SQL queries will be performed to check
+#    if an entity is pinned (extra pinned entities will have to be unpinned to
+#    remove these queries).
+PINNED_ENTITIES_SIZE = 9
+
 # Used to replace contents which a user is not allowed to see.
 HIDDEN_VALUE = '??'
 

@@ -46,6 +46,7 @@ from ..gui.field_printers import field_printer_registry
 from ..gui.view_tag import ViewTag
 from ..http import is_ajax
 from ..models import CremeEntity, FieldsConfig, Relation
+from ..models.pinned_entity import PinnedEntities
 from ..models.utils import model_verbose_name
 from ..utils import bool_as_html
 from ..utils.currency_format import currency
@@ -547,6 +548,16 @@ def get_hidden_fields(context, entity_or_ctype: CremeEntity | ContentType) -> fr
         if isinstance(entity_or_ctype, ContentType) else
         type(entity_or_ctype)
     ).hidden_field_names
+
+
+@register.filter
+def is_pinned(entity, user):
+    return PinnedEntities.get_for_user(user).is_pinned(entity)
+
+
+@register.filter
+def has_max_pins(user):
+    return PinnedEntities.get_for_user(user).max_is_reached
 
 
 # NB: in Creme section because it uses an encoder which could be creme-specific

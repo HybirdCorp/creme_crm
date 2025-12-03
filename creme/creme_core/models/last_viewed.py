@@ -89,7 +89,7 @@ class LastViewedEntityManager(models.Manager):
 class LastViewedEntity(models.Model):
     """Store the more recent entities a user has viewed (i.e. the user went
     to their detail-view).
-    It's used by the menu entry "Recent entities".
+    It's used by the menu entry "Quick access" (section "Recent entities").
     """
     entity_ctype = core_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity = models.ForeignKey(

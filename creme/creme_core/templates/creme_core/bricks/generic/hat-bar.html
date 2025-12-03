@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/base.html' %}
 {% load i18n creme_bricks creme_ctype creme_perms creme_widgets %}
-{% load get_cloning_info get_deletion_info url from creme_core_tags %}
+{% load get_cloning_info get_deletion_info has_max_pins is_pinned url from creme_core_tags %}
 
 {% block brick_extra_class %}brick-hat brick-hat-bar{% endblock %}
 
@@ -18,6 +18,7 @@
               {% elif object.sandbox %}
                 <span class="bar-sandboxed-indicator">[{{object.sandbox.type.verbose_name}}]</span>
               {% endif %}
+              {% if object|is_pinned:user %}<span class="bar-pinned-indicator">[{% translate 'Pinned' %}]</span>{% endif %}
             </h1>
         </div>
         <div class="bar-actions">
@@ -31,6 +32,20 @@
             </div>
            {% endif %}
            {% endwith %}
+          {% endblock %}
+
+          {% block pin_button %}
+           <div class='bar-action'>
+             {% if object|is_pinned:user %}
+               {% brick_bar_button action='update' icon='pin' url='creme_core__unpin_entity'|url:object.id label=_('Unpin') %}
+             {% else %}
+               {% if user|has_max_pins %}
+                 {% brick_bar_button action='update' icon='pin' url='' label=_('Pin') help_text=_('You already have the maximum of pinned entities') enabled=False %}
+               {% else %}
+                 {% brick_bar_button action='update' icon='pin' url='creme_core__pin_entity'|url:object.id label=_('Pin') help_text=_('Pin this entity to put it in the menu entry «Quick access»') %}
+               {% endif %}
+             {% endif %}
+           </div>
           {% endblock %}
 
           {% block clone_button %}

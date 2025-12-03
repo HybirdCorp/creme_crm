@@ -384,7 +384,8 @@ class Populator(BasePopulator):
         create_mitem(entry_id=Separator1Entry.id, parent=creations, order=200)
         create_mitem(entry_id=menu.EntitiesCreationEntry.id, parent=creations, order=201)
 
-        create_mitem(entry_id=menu.RecentEntitiesEntry.id, order=1020)
+        # create_mitem(entry_id=menu.RecentEntitiesEntry.id, order=1020)
+        create_mitem(entry_id=menu.QuickAccessEntry.id, order=1020)
 
     def _populate_buttons_config(self):
         if not ButtonMenuItem.objects.filter(content_type=None).exists():
@@ -415,9 +416,11 @@ class Populator(BasePopulator):
 
         create_bml = BrickMypageLocation.objects.create
         create_bml(brick_id=bricks.RecentEntitiesBrick.id, order=1, user=None)
+        create_bml(brick_id=bricks.PinnedEntitiesBrick.id, order=2, user=None)
         create_bml(brick_id=bricks.HistoryBrick.id,        order=8, user=None)
 
         root = self.root
         assert root is not None
         create_bml(brick_id=bricks.RecentEntitiesBrick.id, order=1, user=root)
+        create_bml(brick_id=bricks.PinnedEntitiesBrick.id, order=2, user=root)
         create_bml(brick_id=bricks.HistoryBrick.id,        order=8, user=root)

@@ -45,7 +45,8 @@ from creme.creme_core.gui.custom_form import (
     EntityCellCustomFormSpecial,
 )
 from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
-from creme.creme_core.menu import CremeEntry, RecentEntitiesEntry
+# RecentEntitiesEntry
+from creme.creme_core.menu import CremeEntry, QuickAccessEntry
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -610,7 +611,8 @@ class ImportingTestCase(TransferBaseTestCase):
             # Existing Role
             {
                 'order': 1,
-                'id': RecentEntitiesEntry.id,
+                # 'id': RecentEntitiesEntry.id,
+                'id': QuickAccessEntry.id,
                 'role': str(role1.uuid),
             }, {
                 'order': 2,
@@ -625,7 +627,8 @@ class ImportingTestCase(TransferBaseTestCase):
             # New Role
             {
                 'order': 2,
-                'id': RecentEntitiesEntry.id,
+                # 'id': RecentEntitiesEntry.id,
+                'id': QuickAccessEntry.id,
                 'role': role_uid2,
             }, {
                 'order': 3,
@@ -711,7 +714,8 @@ class ImportingTestCase(TransferBaseTestCase):
         role1_items = MenuConfigItem.objects.filter(parent=None, role=role1)
         self.assertEqual(2, len(role1_items))
 
-        self.assertEqual(RecentEntitiesEntry.id, role1_items[0].entry_id)
+        # self.assertEqual(RecentEntitiesEntry.id, role1_items[0].entry_id)
+        self.assertEqual(QuickAccessEntry.id, role1_items[0].entry_id)
 
         role1_item2 = role1_items[1]
         self.assertEqual(ContainerEntry.id, role1_item2.entry_id)
@@ -727,7 +731,8 @@ class ImportingTestCase(TransferBaseTestCase):
         role2_items = MenuConfigItem.objects.filter(parent=None, role=role2)
         self.assertEqual(2, len(role2_items))
 
-        self.assertEqual(RecentEntitiesEntry.id, role2_items[0].entry_id)
+        # self.assertEqual(RecentEntitiesEntry.id, role2_items[0].entry_id)
+        self.assertEqual(QuickAccessEntry.id, role2_items[0].entry_id)
 
         role2_item2 = role2_items[1]
         self.assertEqual(ContainerEntry.id, role2_item2.entry_id)
