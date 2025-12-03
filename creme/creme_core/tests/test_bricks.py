@@ -12,6 +12,7 @@ from creme.creme_core.bricks import (
     ButtonsBrick,
     CustomFieldsBrick,
     HistoryBrick,
+    PinnedEntitiesBrick,
     PropertiesBrick,
     RecentEntitiesBrick,
     RelationsBrick,
@@ -31,6 +32,7 @@ from creme.creme_core.models import (
     FakeOrganisation,
     HistoryLine,
     LastViewedEntity,
+    PinnedEntity,
     Relation,
     RelationBrickItem,
     RelationType,
@@ -677,6 +679,36 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLink(brick_node=brick_node, entity=orga)
         self.assertNoInstanceLink(brick_node=brick_node, entity=contact2)
         self.assertNoInstanceLink(brick_node=brick_node, entity=contact3)
+
+    @override_settings(PINNED_ENTITIES_SIZE=10)
+    def test_pinned_entities_brick(self):
+        user = self.login_as_root_and_get()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        contact1 = create_contact(first_name='Sherlock', last_name='Holmes')
+        contact2 = create_contact(first_name='John', last_name='Watson')
+
+        orga = FakeOrganisation.objects.create(user=user, name='Moriarty corp')
+
+        create_pinned = PinnedEntity.objects.create
+        create_pinned(real_entity=contact1, user=user)
+        create_pinned(real_entity=orga, user=user)
+        create_pinned(real_entity=contact2, user=self.create_user())
+
+        response = self.assertGET200(reverse('creme_core__my_page'))
+        self.assertTemplateUsed(response, 'creme_core/bricks/pinned-entities.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, brick=PinnedEntitiesBrick)
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2,
+            title='{count} Pinned entity',
+            plural_title='{count} Pinned entities',
+        )
+        self.assertInstanceLink(brick_node=brick_node, entity=contact1)
+        self.assertInstanceLink(brick_node=brick_node, entity=orga)
+        self.assertNoInstanceLink(brick_node=brick_node, entity=contact2)
 
     def test_statistics_brick(self):
         user = self.login_as_standard()

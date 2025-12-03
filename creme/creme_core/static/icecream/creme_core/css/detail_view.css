@@ -155,6 +155,18 @@
 
 /* Card brick */
 
+.brick.brick-hat-card {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    background: none;
+}
+
+.brick-hat-card .brick-content {
+    padding: 0;
+}
+
 .brick-hat-card .hat-card {
     display: flex;
     min-height: 200px;
@@ -377,6 +389,12 @@
     font-size: 13px;
 }
 
+.brick-hat-card .business-card-indicator.business-card-pinned-indicator {
+    margin-left: 7px;
+    background: #ff5ce6;
+    font-size: 13px;
+}
+
 .brick-hat-card .next-action-value .next-action-type {
     font-size: 13px;
     margin-right: 5px;
@@ -434,6 +452,10 @@
     display: inline-block;
 }
 
+.brick-hat-card .card-action + .card-action {
+    margin-left: 5px;
+}
+
 .brick-hat-card .card-history {
     border-top: 1px solid #ccc;
     padding-top: 10px;
@@ -470,18 +492,6 @@
 .brick-hat-card .history-info-value a {
     color: #333;
     font-weight: 600;
-}
-
-.brick.brick-hat-card {
-    border: 0;
-    margin: 0;
-    padding: 0;
-    box-shadow: none;
-    background: none;
-}
-
-.brick-hat-card .brick-content {
-    padding: 0;
 }
 
 .brick-hat-card .card-icon > div {

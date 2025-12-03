@@ -1,0 +1,36 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_widgets %}
+{% load print_field url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-pinned_entities-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Pinned entity') plural=_('{count} Pinned entities') empty=verbose_name icon='pin' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Entity') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='created' data_type='date' %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+  {% for pinned in page.object_list %}
+    <tr>
+        <td>
+          {% with entity=pinned.real_entity %}
+            {% widget_icon instance=entity size='brick-list' class='ctype-icon' %}
+            {% widget_entity_hyperlink entity=entity user=user %}
+          {% endwith %}
+        </td>
+        <td data-type="date">{% print_field object=pinned field='created' %}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url='creme_core__unpin_entity'|url:pinned.entity_id label=_('Unpin this entity') icon='cancel' %}
+        </td>
+    </tr>
+  {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No pinned entity for the moment' %}
+{% endblock %}

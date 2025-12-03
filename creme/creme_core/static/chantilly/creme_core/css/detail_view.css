@@ -355,6 +355,12 @@
     font-size: 13px;
 }
 
+.brick-hat-card .business-card-indicator.business-card-pinned-indicator {
+    margin-left: 7px;
+    background: #ff5ce6;
+    font-size: 13px;
+}
+
 .brick-hat-card .next-action-value .next-action-type {
     font-size: 13px;
     margin-right: 5px;

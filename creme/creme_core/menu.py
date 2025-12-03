@@ -34,6 +34,7 @@ from .auth import SUPERUSER_PERM
 from .forms.menu import FixedURLEntryForm
 from .gui import menu, quick_forms
 from .models import CremeEntity, LastViewedEntity
+from .models.pinned_entity import PinnedEntities
 from .utils.serializers import json_encode
 from .utils.unicode_collation import collator
 
@@ -324,47 +325,134 @@ class EntitiesCreationEntry(menu.MenuEntry):
         )
 
 
-class RecentEntitiesEntry(menu.MenuEntry):
-    """Entry displaying links to detail-views recently consulted."""
-    id = 'creme_core-recent_entities'
-    label = _('Recent entities')
+# class RecentEntitiesEntry(menu.MenuEntry):
+#     """Entry displaying links to detail-views recently consulted."""
+#     id = 'creme_core-recent_entities'
+#     label = _('Recent entities')
+#     level = 0
+#     single_instance = True
+#
+#     def render(self, context):
+#         from .gui.last_viewed import LastViewedItem
+#
+#         lv_items = LastViewedItem.get_all(context['request'])
+#
+#         if lv_items:
+#             li_tags = format_html_join(
+#                 '\n',
+#                 '<li>'
+#                 '<a href="{url}">'
+#                 '<span class="ui-creme-navigation-ctype">{ctype}</span>'
+#                 '{name}'
+#                 '</a>'
+#                 '</li>',
+#                 (
+#                     {'url': lvi.url, 'ctype': lvi.ctype, 'name': lvi.name}
+#                     for lvi in lv_items
+#                 ),
+#             )
+#         else:
+#             li_tags = format_html(
+#                 '<li><span class="ui-creme-navigation-text-entry">{}</span></li>',
+#                 gettext('No recently visited entity'),
+#             )
+#
+#         return format_html(
+#             '{label}<ul>{li_tags}</ul>',
+#             label=self.render_label(context),
+#             li_tags=li_tags,
+#         )
+class QuickAccessEntry(menu.ContainerEntry):
+    """Entry displaying links to detail-views recently consulted & to pinned entities."""
+    id = 'creme_core-recent_entities'  # TODO: change + data migration
+    label = _('Quick access')
     level = 0
     single_instance = True
+    accepts_children = False
+
+    class RecentEntitiesEntries(menu.MenuEntrySequence):
+        # id = 'creme_core-recent_entities'
+        label = 'Recent entities'
+
+        class RecentEntityEntry(menu.MenuEntry):
+            id = 'creme_core-recent_entity-link'
+
+            def __init__(self, last_viewed_entity):
+                super().__init__()
+                self.url = last_viewed_entity.real_entity.get_absolute_url()
+                self.ctype = last_viewed_entity.entity_ctype
+                self.label = str(last_viewed_entity.real_entity)
+
+            def render(self, context):
+                return format_html(
+                    '<a href="{url}">'
+                    '<span class="ui-creme-navigation-ctype">{ctype}</span>'
+                    '{label}'
+                    '</a>',
+                    url=self.url, label=self.label, ctype=self.ctype,
+                )
+
+        def __init__(self, user, **kwargs):
+            super().__init__(**kwargs)
+            self.user = user
+
+        def __iter__(self):
+            last_viewed_entities = LastViewedEntity.objects.filter(
+                user=self.user, entity__is_deleted=False,
+            ).prefetch_related('real_entity')[:settings.LAST_ENTITIES_MENU_SIZE]
+
+            if last_viewed_entities:
+                for lve in last_viewed_entities:
+                    yield self.RecentEntityEntry(last_viewed_entity=lve)
+            else:
+                yield menu.MenuEntry(data={'label': _('No recently visited entity')})
+
+    class PinnedEntitiesEntries(menu.MenuEntrySequence):  # TODO: factorise
+        # id = 'creme_core-pinned_entities'
+        label = 'Pinned entities'
+
+        class PinnedEntityEntry(menu.MenuEntry):
+            id = 'creme_core-pinned_entity-link'
+
+            def __init__(self, pinned_entity):
+                super().__init__()
+                entity = pinned_entity.real_entity
+                self.url = entity.get_absolute_url()
+                self.ctype = pinned_entity.entity_ctype
+                self.label = str(entity)
+                self.is_deleted = entity.is_deleted
+
+            def render(self, context):
+                return format_html(
+                    '<a href="{url}" class="{cls}">'
+                    '<span class="ui-creme-navigation-ctype">{ctype}</span>'
+                    '{label}'
+                    '</a>',
+                    url=self.url, label=self.label, ctype=self.ctype,
+                    cls='is_deleted' if self.is_deleted else '',
+                )
+
+        def __init__(self, user, **kwargs):
+            super().__init__(**kwargs)
+            self.user = user
+
+        def __iter__(self):
+            pinned_entities = [*PinnedEntities.get_for_user(self.user)]
+            if pinned_entities:
+                for pinned in pinned_entities:
+                    yield self.PinnedEntityEntry(pinned_entity=pinned)
+            else:
+                yield menu.MenuEntry(data={'label': _('No pinned entity')})
 
     def render(self, context):
-        # from .gui.last_viewed import LastViewedItem
-        # lv_items = LastViewedItem.get_all(context['request'])
-        lv_items = LastViewedEntity.objects.filter(
-            user=context['user'], entity__is_deleted=False,
-        ).prefetch_related('real_entity')[:settings.LAST_ENTITIES_MENU_SIZE]
+        user = context['user']
+        # NB: se set children in render() which is ugly, but we need user to
+        #     compute sub-entries.
+        self._children = [
+            menu.Separator1Entry(data={'label': _('Recent entities')}),
+            self.RecentEntitiesEntries(user=user),
+            menu.Separator1Entry(data={'label': _('Pinned entities')}),
+            self.PinnedEntitiesEntries(user=user),
+        ]
 
-        if lv_items:
-            li_tags = format_html_join(
-                '\n',
-                '<li>'
-                '<a href="{url}">'
-                '<span class="ui-creme-navigation-ctype">{ctype}</span>'
-                '{name}'
-                '</a>'
-                '</li>',
-                (
-                    # {'url': lvi.url, 'ctype': lvi.ctype, 'name': lvi.name}
-                    # for lvi in lv_items
-                    {
-                        'url': lve.real_entity.get_absolute_url(),
-                        'ctype': lve.entity_ctype,
-                        'name': str(lve.real_entity),
-                    } for lve in lv_items
-                ),
-            )
-        else:
-            li_tags = format_html(
-                '<li><span class="ui-creme-navigation-text-entry">{}</span></li>',
-                gettext('No recently visited entity'),
-            )
-
-        return format_html(
-            '{label}<ul>{li_tags}</ul>',
-            label=self.render_label(context),
-            li_tags=li_tags,
-        )
+        return super().render(context)

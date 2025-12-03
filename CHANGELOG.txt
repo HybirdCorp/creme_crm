@@ -10,6 +10,10 @@
       use the new values 'LAST_ENTITIES_SIZE' & 'LAST_ENTITIES_MENU_SIZE' instead.
       A block "Recent entities" is now available for Home; it displays more
       entities than the menu entry.
+    # A user can now pin its favorite entities (up to 9 in the default configuration,
+      see 'settings.PINNED_ENTITIES_SIZE'). Pinned entities are displayed in the new
+      menu entry "Quick access" which displayed the recent entities too.
+      A block "Pinned entities" is now available for Home.
     # Apps :
         * Creme_config :
             - The regular Users can now have several roles. Only one role is active (to compute
@@ -181,6 +185,7 @@
               The attribute is now injected in this context by '_build_template_context()', & so you don't have
               to change your code, excepted if you override 'self.template_name' after building the context.
             - The module 'last_viewed' has been removed.
+        # The class 'creme_core.menu.RecentEntitiesEntry' has been replaced by 'QuickAccessEntry'.
         # In 'creme_core.views' :
             - The method 'creme_core.views.generic.base.BricksMixin.get_bricks()' now returns
               a dictionary instead of a list (to group Bricks per zone).
@@ -192,7 +197,10 @@
                 - the method 'get_actions_registry()' has been renamed "get_action_registry".
             - In the class 'quick_forms.QuickCreation', the attribute
              'quickforms_registry' has been renamed "quickform_registry".
-        # There is no "back" button in the template "creme_core/detailview.html" anymore.
+        # In 'creme_core/templates' :
+            - There is no "back" button in the template "creme_core/detailview.html" anymore.
+            - Beware if you have overridden 'creme_core/bricks/frags/hat-card-title-indicators.html'
+              because the new "Pinned" indicator has been added in it.
         # Apps :
             * Reports :
                 - The entity model 'ReportGraph' has been replaced by the new simple model 'ReportChart'

@@ -215,6 +215,10 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
     transition: all 150ms ease-in;
 } /* animated transitions out of the hover state */
 
+.ui-creme-navigation a.is_deleted {
+    text-decoration: line-through;
+}
+
 /* Menu separators */
 
 .ui-creme-navigation li.ui-creme-navigation-item-id_creme_core-separator0 {

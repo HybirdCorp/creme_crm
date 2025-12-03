@@ -1,6 +1,7 @@
-{% load i18n %}
+{% load i18n %}{% load is_pinned from creme_core_tags %}
 {% if object.is_deleted %}
 <div class='business-card-indicator business-card-deleted-indicator'>{% translate 'Entity in the trash' %}</div>
 {% elif object.sandbox %}
 <div class='business-card-indicator business-card-sandboxed-indicator'>{{object.sandbox.type.verbose_name}}</div>
 {% endif %}
+{% if object|is_pinned:user %}<div class='business-card-indicator business-card-pinned-indicator'>{% translate 'Pinned' %}</div>{% endif %}
