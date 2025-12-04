@@ -100,7 +100,7 @@
                {% block clone_button %}
                  {% get_cloning_info entity=object user=user as cloning %}
                  {% if cloning.enabled %}
-                  <div class='bar-action'>
+                  <div class='card-action'>
                     {% if cloning.error %}
                       {% blocktranslate asvar clone_button_help with error=cloning.error %}Cloning is forbidden ({{error}}){% endblocktranslate %}
                       {% brick_card_button action='' label=_('Clone') help_text=clone_button_help url='#' icon='clone' enabled=False %}
