@@ -1010,6 +1010,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render3.strip(),
         )
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_get_deletion_info(self):
         user = self.get_root_user()
         ticket = FakeTicket.objects.create(user=user, title='Golden ticket')
