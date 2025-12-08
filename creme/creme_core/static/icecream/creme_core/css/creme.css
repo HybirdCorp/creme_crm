@@ -453,10 +453,20 @@ div.hat-bar {
     padding-right: 30px;
 }
 
+/*
 .hat-bar .bar-title h1 {
+    display: flex;
+
     margin: 0;
     margin-top: 10px;
+
     font-size: 1.8em;
+}
+*/
+.hat-bar h1.bar-title {
+    margin-top: 10px;
+
+    font-size: 23px;
 }
 
 .hat-bar .bar-actions {
@@ -487,6 +497,7 @@ div.hat-bar {
     cursor: pointer;
 }
 
+/*
 .bar-deleted-indicator {
     font-size: 0.8em;
     color: #888;
@@ -497,6 +508,35 @@ div.hat-bar {
     font-size: 0.8em;
     color: #a15ed0;
     font-weight: 600;
+}
+*/
+.hat-bar .bar-indicators {
+    display: flex;
+    flex-flow: column;
+    flex-wrap: wrap;
+    column-gap: 5px;
+    justify-content: space-around;
+
+    margin-left: 10px;
+}
+.hat-bar .bar-indicator {
+    padding: 1px 3px;
+
+    background: green; /* Override this! */
+    border-radius: 8px;
+
+    font-size: 13px;
+    color: white;
+    font-weight: 600;
+}
+.hat-bar .bar-indicators .bar-indicator.bar-deleted-indicator {
+    background: #414141;
+}
+.hat-bar .bar-indicators .bar-indicator.bar-sandboxed-indicator {
+    background: #a15ed0;
+}
+.hat-bar .bar-indicators .bar-indicator.bar-pinned-indicator {
+    background: #ff5ce6;
 }
 
 /* Title bar - [end] */
