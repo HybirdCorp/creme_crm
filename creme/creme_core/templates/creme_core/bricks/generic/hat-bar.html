@@ -10,16 +10,16 @@
  {% with edit_perm=user|has_perm_to_change:object delete_perm=user|has_perm_to_delete:object %}
     <div class="hat-bar">
         <div class="bar-icon">{% block icon %}{% widget_icon instance=object size='brick-hat-bar' %}{% endblock %}</div>
-        <div class="bar-title">
-            <h1>
-              {% block title %}{{object|ctype_for_instance|capfirst}} : {{object|capfirst}}{% endblock %}
-              {% if object.is_deleted %}
-                <span class="bar-deleted-indicator">[{% translate 'Entity in the trash' %}]</span>
-              {% elif object.sandbox %}
-                <span class="bar-sandboxed-indicator">[{{object.sandbox.type.verbose_name}}]</span>
-              {% endif %}
-              {% if object|is_pinned:user %}<span class="bar-pinned-indicator">[{% translate 'Pinned' %}]</span>{% endif %}
-            </h1>
+        <h1 class="bar-title">{% block title %}{{object|ctype_for_instance|capfirst}} : {{object|capfirst}}{% endblock %}</h1>
+        <div class="bar-indicators">
+            {% if object.is_deleted %}
+              <span class="bar-indicator bar-deleted-indicator">{% translate 'Entity in the trash' %}</span>
+            {% elif object.sandbox %}
+              <span class="bar-indicator bar-sandboxed-indicator">{{object.sandbox.type.verbose_name}}</span>
+            {% endif %}
+            {% if object|is_pinned:user %}
+              <span class="bar-indicator bar-pinned-indicator">{% translate 'Pinned' %}</span>
+            {% endif %}
         </div>
         <div class="bar-actions">
          {% block buttons %}
