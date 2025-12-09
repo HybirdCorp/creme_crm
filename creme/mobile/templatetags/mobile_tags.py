@@ -40,16 +40,12 @@ Organisation = get_organisation_model()
 @register.simple_tag
 def mobile_location_map_url(address):
     url = SettingValue.objects.value_4_key(setting_keys.location_map_url_key)
-    geoaddress = getattr(address, 'geoaddress', None)
-    data = {
-        'search': str(address).replace(' ', '+'),
-    }
+    data = {'search': str(address).replace(' ', '+')}
 
+    geoaddress = getattr(address, 'geoaddress', None)
     if geoaddress is not None:
-        data.update(
-            lat=geoaddress.latitude or '',
-            lng=geoaddress.longitude or '',
-        )
+        data['lat'] = geoaddress.latitude or ''
+        data['lng'] = geoaddress.longitude or ''
 
     return url.format(**data)
 
