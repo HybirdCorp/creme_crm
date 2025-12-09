@@ -764,8 +764,8 @@ class SetCredentials(models.Model):
                 queryset=queryset, perm=perm,
             )
 
-        # TODO: use int.bit_count() with Python 3.10
-        if bin(perm).count('1') > 1:
+        # if bin(perm).count('1') > 1:
+        if perm.bit_count() > 1:
             raise ValueError(
                 'filter_entities() does not (yet) manage permissions '
                 'combination when the argument "as_model" is None.',
