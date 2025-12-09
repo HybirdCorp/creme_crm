@@ -67,13 +67,14 @@ def skipIfNotInstalled(app_name):
 
 
 class OverrideSettingValueContext(ContextDecorator):
-    """Overrides SettingKey value for tests"""
+    """Overrides SettingKey value for tests."""
     def __init__(self, key, value):
         self.key = key
         self.value = value
 
     def __enter__(self):
-        self._previous = SettingValue.objects.get_4_key(self.key).value
+        # self._previous = SettingValue.objects.get_4_key(self.key).value
+        self._previous = SettingValue.objects.get_4_key(self.key, default=None).value
         SettingValue.objects.set_4_key(self.key, self.value)
 
     def __exit__(self, *exc):

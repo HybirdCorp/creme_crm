@@ -7,6 +7,8 @@
 
     Non breaking changes :
     ----------------------
+        # The context manager 'creme_core.tests.base.OverrideSettingValueContext'
+          did not work when the SettingValue does not exist in DB.
         # Apps :
             * Creme_config :
                 - The CSS for 'brick.GenericModelBrick' has been improved when the related model has many fields.

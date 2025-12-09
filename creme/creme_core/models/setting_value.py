@@ -80,7 +80,7 @@ class SettingValueManager(models.Manager):
         """Get the SettingValue value or default if not filled.
 
         @param key: A SettingKey instance, or an ID of SettingKey (string).
-        @param default: (optional) If given & the SettingValue does not exist,
+        @param default: (optional) If given & the SettingValue does not exist.
         """
         try:
             return self.get_4_key(key, default=default).value
@@ -96,7 +96,8 @@ class SettingValueManager(models.Manager):
                BEWARE: you should probably just use the "value" attribute of this dummy object
                (it's not a true SettingValue instance -- see 'DummySettingValue').
         @return: A SettingValue instance.
-        @raise: SettingValue.DoesNotExist.
+        @raise: SettingValue.DoesNotExist if the SettingValue does not exist &
+                no default value has been given.
         @raise: KeyError if the SettingKey is not registered.
         """
         return next(iter(self.get_4_keys({'key': key, **kwargs}).values()))
