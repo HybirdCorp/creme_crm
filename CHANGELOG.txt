@@ -201,6 +201,7 @@
             - In the class 'quick_forms.QuickCreation', the attribute
              'quickforms_registry' has been renamed "quickform_registry".
         # In 'creme_core/templates' :
+            - In "creme_core/base.html", the CSS class "main_content" of the main <div> has been removed (use "main-content" instead).
             - There is no "back" button in the template "creme_core/detailview.html" anymore.
             - Beware if you have overridden 'creme_core/bricks/frags/hat-card-title-indicators.html'
               because the new "Pinned" indicator has been added in it.
