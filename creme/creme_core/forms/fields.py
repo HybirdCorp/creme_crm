@@ -1996,7 +1996,7 @@ class EnhancedMultipleChoiceField(fields.MultipleChoiceField):
         @param kwargs: See <MultipleChoiceField>.
         """
         self._raw_choices = None  # Backup of the choices, in order to build iterator.
-        self._initial = None
+        # self._initial = None
         self._forced_values = frozenset(forced_values)
 
         if iterator is not None:
@@ -2030,21 +2030,26 @@ class EnhancedMultipleChoiceField(fields.MultipleChoiceField):
         self._forced_values = frozenset(values or ())
         self.choices = self._raw_choices
 
-    @property
-    def initial(self):
-        result = set()
+    # @property
+    # def initial(self):
+    #     result = set()
+    #
+    #     initial = self._initial
+    #     if initial is not None:
+    #         result.update(initial)
+    #
+    #     result.update(self._forced_values)
+    #
+    #     return result
+    #
+    # @initial.setter
+    # def initial(self, value):
+    #     self._initial = value
+    def prepare_value(self, value):
+        prepared = {*value} if value else set()
+        prepared.update(self._forced_values)
 
-        initial = self._initial
-        if initial is not None:
-            result.update(initial)
-
-        result.update(self._forced_values)
-
-        return result
-
-    @initial.setter
-    def initial(self, value):
-        self._initial = value
+        return prepared
 
 
 class EnhancedModelChoiceIterator(mforms.ModelChoiceIterator):
@@ -2099,7 +2104,7 @@ class EnhancedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):
         @param iterator: Class with the interface of <EnhancedModelChoiceIterator>.
         @param kwargs: See <ModelMultipleChoiceField>.
         """
-        self._initial = None
+        # self._initial = None
         self._forced_values = frozenset(forced_values)
 
         if iterator is not None:
@@ -2126,20 +2131,20 @@ class EnhancedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):
         self._forced_values = frozenset(values or ())
         self.widget.choices = self.choices
 
-    @property
-    def initial(self):
-        result = set()
-        initial = self._initial
-        if initial is not None:
-            result.update(initial)
-
-        result.update(self._forced_values)
-
-        return result
-
-    @initial.setter
-    def initial(self, value):
-        self._initial = value
+    # @property
+    # def initial(self):
+    #     result = set()
+    #     initial = self._initial
+    #     if initial is not None:
+    #         result.update(initial)
+    #
+    #     result.update(self._forced_values)
+    #
+    #     return result
+    #
+    # @initial.setter
+    # def initial(self, value):
+    #     self._initial = value
 
 
 class PropertyTypeChoiceIterator(EnhancedModelChoiceIterator):

@@ -176,8 +176,11 @@
             - The class 'JobBrick' has been removed (see 'creme_core.views.job.JobInfoBrick' instead).
         # In the class 'creme_core.core.entity_cell.EntityCellActions' the constructor argument
           'actions_registry' has been renamed "action_registry".
-        # In the class 'creme_core.forms.fields.EntityCredsJSONField', the attribute
-          'quickforms_registry' has been renamed "quickform_registry".
+        # In 'creme_core.forms.fields' :
+            - The attribute 'EntityCredsJSONField.quickforms_registry'
+              has been renamed "quickform_registry".
+            - In the classes 'EnhancedMultipleChoiceField' & 'EnhancedModelMultipleChoiceField',
+              the attribute 'initial' is not a set anymore (the value you assign is not changed).
         # In 'creme_core.gui' :
             - The method 'button_menu.Button.ok_4_display()' has been replaced by the method 'is_displayed()'.
             - The method 'bricks.Brick._render()' uses now the "template_name" found in the passed
