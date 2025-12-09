@@ -121,7 +121,8 @@ def get_radius():
 
 
 def get_google_api_key():
-    return SettingValue.objects.value_4_key(setting_keys.google_api_key, default='') or ''
+    # return SettingValue.objects.value_4_key(setting_keys.google_api_key, default='') or ''
+    return SettingValue.objects.value_4_key(setting_keys.google_api_key, default='')
 
 
 def use_entity_icon():
