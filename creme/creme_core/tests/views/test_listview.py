@@ -1,5 +1,6 @@
 import re
 from datetime import date, timedelta
+from decimal import Decimal
 from functools import partial
 from json import dumps as json_dump
 from random import shuffle
@@ -11,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils.formats import number_format
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
@@ -2882,6 +2884,85 @@ class ListViewTestCase(CremeTestCase):
             self._get_lv_table_node(self._get_lv_node(response)),
             cell.key
         )
+
+    def test_aggregation(self):
+        user = self.login_as_root_and_get()
+
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_invoice', name='Invoice view with aggregation',
+            model=FakeInvoice,
+            cells=[
+                EntityCellRegularField.build(model=FakeInvoice, name='name'),
+                EntityCellRegularField.build(model=FakeInvoice, name='total_vat'),
+            ],
+        ).get_or_create()[0]
+
+        create_invoice = partial(FakeInvoice.objects.create, user=user)
+        create_invoice(name='Invoice #1', total_vat=Decimal('1100.24')),
+        create_invoice(name='Invoice #2', total_vat=Decimal('2200.30')),
+
+        response = self.assertGET200(
+            FakeInvoice.get_lv_absolute_url(), data={'hfilter': hf.id},
+        )
+        table_node = self._get_lv_table_node(self._get_lv_node(response))
+
+        tbody_node = self.get_html_node_or_fail(table_node, './/tbody')
+        first_tr_node = tbody_node.find('tr')
+        self.assertIsNotNone(first_tr_node)
+        self.assertIn('lv-row-aggregation', first_tr_node.attrib.get('class').split())
+
+        name_td_node = self.get_html_node_or_fail(
+            first_tr_node, './/td[@data-column-key="regular_field-name"]',
+        )
+        self.assertFalse([*name_td_node])
+
+        total_td_node = self.get_html_node_or_fail(
+            first_tr_node, './/td[@data-column-key="regular_field-total_vat"]',
+        )
+        # See code about aggregator_registry in fake_apps.py
+        agg_ul_node = self.get_html_node_or_fail(total_td_node, './/ul')
+        li_nodes = agg_ul_node.findall('.//li')
+        self.assertEqual(2, len(li_nodes))
+
+        msg_fmt = _('{aggregation_label}: {aggregation_value}').format
+        self.assertEqual(
+            msg_fmt(
+                aggregation_label='Sum',
+                aggregation_value=number_format(Decimal('3300.54'), force_grouping=True),
+            ),
+            li_nodes[0].text,
+        )
+        self.assertEqual(
+            msg_fmt(
+                aggregation_label='Average',
+                aggregation_value=number_format(Decimal('1650.27'), force_grouping=True),
+            ),
+            li_nodes[1].text,
+        )
+
+    def test_aggregation__no_cell_to_aggregate(self):
+        user = self.login_as_root_and_get()
+
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_invoice', name='Invoice view with aggregation',
+            model=FakeInvoice,
+            cells=[
+                EntityCellRegularField.build(model=FakeInvoice, name='name'),
+                # EntityCellRegularField.build(model=FakeInvoice, name='total_vat'),
+            ],
+        ).get_or_create()[0]
+
+        FakeInvoice.objects.create(user=user, name='Invoice #1', total_vat=1100),
+
+        response = self.assertGET200(
+            FakeInvoice.get_lv_absolute_url(), data={'hfilter': hf.id},
+        )
+        table_node = self._get_lv_table_node(self._get_lv_node(response))
+
+        tbody_node = self.get_html_node_or_fail(table_node, './/tbody')
+        first_tr_node = tbody_node.find('tr')
+        self.assertIsNotNone(first_tr_node)
+        self.assertNotIn('lv-row-aggregation', first_tr_node.attrib.get('class').split())
 
     def _build_orgas(self, user=None):
         count = FakeOrganisation.objects.count()

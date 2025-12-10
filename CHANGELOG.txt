@@ -30,6 +30,8 @@
         * Billing :
             - Invoices, Quotes & Sales Order got a "card" hat-block, which is used by default by new installations.
             - You can now export several Invoices or Quotes at once, as a .zip archive.
+            - In list-views, the columns for "Total with VAT" & "Total without VAT" display the
+              Sum & Average values for these fields (on all entities related to the list).
 
   Developers side :
   -----------------

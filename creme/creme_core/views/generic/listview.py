@@ -129,6 +129,8 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     search_field_registry: lv_gui.ListViewSearchFieldRegistry = lv_gui.search_field_registry
     search_form_class: type[ListViewSearchForm] = ListViewSearchForm
 
+    aggregator_registry: lv_gui.ListViewAggregatorRegistry = lv_gui.aggregator_registry
+
     default_headerfilter_id: str | None = None
     default_entityfilter_id: str | None = None
 
@@ -311,6 +313,14 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         #  (see listview_td_action_for_cell)
         # TODO: regroup registries ??
         context['cell_sorter_registry'] = self.get_cell_sorter_registry()
+
+        context['aggregations'] = (
+            {} if self.is_popup_view else
+            self.aggregator_registry.aggregation_for_cells(
+                queryset=self.queryset,
+                cells=self.header_filters.selected.filtered_cells,
+            )
+        )
 
         return context
 

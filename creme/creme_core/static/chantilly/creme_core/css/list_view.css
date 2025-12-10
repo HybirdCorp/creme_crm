@@ -654,10 +654,20 @@
     border-right:  1px solid #e1e9ec;
 }
 
+.listview tbody tr.lv-row-aggregation {
+    background: #f1fbff;
+    color: #7c96a0;
+}
+.listview tbody tr.lv-row-aggregation td.choices {
+    border-right: none;
+}
+
+/* Commented 12 december 2025 because it seemed too generic & was annoying with aggregation <ul>
 .listview tbody td ul {
     margin: 3px;
     text-align: left;
 }
+*/
 
 .listview tfoot tr td table tr td {
     border: 0;

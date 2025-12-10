@@ -1,5 +1,5 @@
 {% load i18n creme_cells creme_ctype creme_listview creme_query creme_widgets %}
-{% load get_by_index get_entity_html_attrs not_op from creme_core_tags %}
+{% load get_by_index get_entity_html_attrs get_value not_op from creme_core_tags %}
 
 {% with cells=header_filters.selected.filtered_cells %}
 {# TODO: replace it by a div after complete refactor of button/link bindings #}
@@ -113,8 +113,27 @@
     </thead>
     <tbody>
      {% block lv_content_rows %}
+      {% if aggregations %}
+        <tr class="lv-row lv-row-aggregation odd">
+            {% if is_selection_multiple %}<td class="choices">&nbsp;</td>{% endif %}
+            {% for cell in cells %}
+              {% if cell.type_id == 'actions' %}
+               <td class="lv-actions actions"><span class="lv-aggregation-title">{% translate 'Statistics' %}</span></td>
+              {% else %}
+               <td class="lv-cell lv-cell-content lv-column cl_lv{% if cell.is_hidden %} lv-cell-hidden{% endif %} {{cell.listview_css_class}}" data-column-key="{{cell.key}}"{% if cell.is_hidden %} style="display:none;"{% endif %}>
+                 {% with agg_results=aggregations|get_value:cell.key %}
+                   {% if agg_results %}<ul class="aggregation-results">{% for agg_result in agg_results %}<li>{{agg_result.render}}</li>{% endfor %}</ul>{% endif %}
+                 {% endwith %}
+               </td>
+               {% if not is_popup_view %}
+                <td class="lv-cell lv-cell-action lv-column cl_lv"{% if cell.is_hidden %} style="display:none;"{% endif %}>&nbsp;</td>
+               {% endif %}
+              {% endif %}
+            {% endfor %}
+        </tr>
+      {% endif %}
       {% for entity in page_obj.object_list %}
-        <tr class="lv-row {% if is_selection_enabled %}selectable{% endif %}{% cycle ' odd' '' %}" {% get_entity_html_attrs entity %}>
+        <tr class="lv-row{% if is_selection_enabled %} selectable{% endif %}{% cycle ' odd' '' %}" {% get_entity_html_attrs entity %}>
             {% if is_selection_multiple %}<td class="choices"><input name="select_one" value="{{entity.pk}}" type="checkbox" /></td>{% endif %}
             <td style="display:none;"><input type="hidden" name="entity_id" value="{{entity.pk}}" /></td>
             {% for cell in cells %}
