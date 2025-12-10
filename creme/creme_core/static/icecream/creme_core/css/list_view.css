@@ -809,6 +809,16 @@
     text-align: center;
 }
 
+.listview tbody tr.lv-row-aggregation td.lv-actions {
+    border-left: none;
+}
+.listview tbody tr.lv-row-aggregation .actions .lv-aggregation-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #444;
+}
+
 /* TODO : enable this CSS if sorted column highlight is needed */
 /*
 .listview tbody td.sorted {
@@ -828,10 +838,12 @@
 }
 */
 
-.listview tbody td ul{
-    text-align:left;
+/* Commented 12 december 2025 because it seemed too generic & was annoying with aggregation <ul>
+.listview tbody td ul {
+    text-align: left;
     margin: 3px;
 }
+*/
 
 .listview tfoot tr td table tr td {
     border: 0;

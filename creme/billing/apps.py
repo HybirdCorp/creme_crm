@@ -114,6 +114,18 @@ class BillingConfig(CremeAppConfig):
             actions.BulkExportQuoteAction,
         )
 
+    def register_aggregators(self, aggregator_registry):
+        for model in [self.Invoice, self.Quote, self.SalesOrder, self.CreditNote]:
+            aggregator_registry.model(model).add_aggregator(
+                field='total_vat', label='Σ', function='Sum',
+            ).add_aggregator(
+                field='total_vat', label='μ', function='Avg',
+            ).add_aggregator(
+                field='total_no_vat', label='Σ', function='Sum',
+            ).add_aggregator(
+                field='total_no_vat', label='μ', function='Avg',
+            )
+
     def register_billing_number_generators(self):
         from . import number_generators
         from .core.number_generation import number_generator_registry
