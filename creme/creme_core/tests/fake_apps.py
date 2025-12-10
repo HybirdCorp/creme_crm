@@ -22,7 +22,7 @@ def ready():
     from ..gui.custom_form import customform_descriptor_registry
     from ..gui.fields_config import fields_config_registry
     from ..gui.icons import icon_registry
-    from ..gui.listview import smart_columns_registry
+    from ..gui.listview import aggregator_registry, smart_columns_registry
     from ..gui.mass_import import import_form_registry
     from ..gui.menu import menu_registry
     from ..gui.merge import merge_form_registry
@@ -149,6 +149,12 @@ def ready():
         fake_models.FakeContact,      fake_forms.FakeContactQuickForm
     ).register(
         fake_models.FakeOrganisation, fake_forms.FakeOrganisationQuickForm
+    )
+
+    aggregator_registry.model(fake_models.FakeInvoice).add_aggregator(
+        field='total_vat', label='Sum', function='Sum',
+    ).add_aggregator(
+        field='total_vat', label='Average', function='Avg',
     )
 
     smart_columns_registry.register_model(

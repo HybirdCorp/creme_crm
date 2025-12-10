@@ -61,6 +61,7 @@ if TYPE_CHECKING:
     from .gui.field_printers import FieldPrinterRegistry
     from .gui.fields_config import FieldsConfigRegistry
     from .gui.icons import IconRegistry
+    from .gui.listview.aggregator import ListViewAggregatorRegistry
     from .gui.listview.search import ListViewSearchFieldRegistry
     from .gui.listview.smart_columns import SmartColumnsRegistry
     from .gui.mass_import import FormRegistry  # TODO: rename ?
@@ -304,6 +305,7 @@ class CremeAppConfig(AppConfig):
             self.register_permissions(special_perm_registry)
 
             self.register_actions(actions.action_registry)
+            self.register_aggregators(listview.aggregator_registry)
             self.register_bricks(bricks.brick_registry)
             self.register_bulk_update(bulk_update.bulk_update_registry)
             self.register_buttons(button_menu.button_registry)
@@ -346,6 +348,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_actions(self, action_registry: 'ActionRegistry') -> None:
+        pass
+
+    def register_aggregators(self, aggregator_registry: 'ListViewAggregatorRegistry') -> None:
         pass
 
     def register_bricks(self, brick_registry: 'BrickRegistry') -> None:

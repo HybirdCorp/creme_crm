@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-08 13:10+0100\n"
+"POT-Creation-Date: 2025-12-11 16:55+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1813,6 +1813,10 @@ msgstr "Résultats"
 msgid "Errors"
 msgstr "Erreurs"
 
+#, python-brace-format
+msgid "{aggregation_label}: {aggregation_value}"
+msgstr "{aggregation_label} : {aggregation_value}"
+
 msgid "The batch processing is disabled because the custom type is deleted"
 msgstr ""
 "Le traitement par lots est désactivé car le type personnalisé est supprimé"
@@ -3184,7 +3188,8 @@ msgid "You already have the maximum of pinned entities"
 msgstr "Vous avez déjà le maximum de fiches épinglées"
 
 msgid "Pin this entity to put it in the menu entry «Quick access»"
-msgstr "Épinglez cette fiche pour la mettre dans l'entrée de menu «Accès rapide»"
+msgstr ""
+"Épinglez cette fiche pour la mettre dans l'entrée de menu «Accès rapide»"
 
 #, python-format
 msgid "Cloning is forbidden (%(error)s)"
