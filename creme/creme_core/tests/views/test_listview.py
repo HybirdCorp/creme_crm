@@ -294,7 +294,7 @@ class ListViewTestCase(CremeTestCase):
             html=True,
         )
 
-    def test_content01(self):
+    def test_content(self):
         user = self.login_as_standard(listable_models=[FakeOrganisation])
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -391,8 +391,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertEqual(2, orgas_page.paginator.count)
         self._assertFastCount(queries_context.captured_sql)
 
-    def test_content02(self):
-        "FieldsConfig."
+    def test_content__fields_config(self):
         user = self.login_as_root_and_get()
 
         valid_fname = 'name'
@@ -414,7 +413,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertIn(bebop.name, content)
         self.assertNotIn(bebop.url_site, content, '"url_site" not hidden')
 
-    def test_content_template(self):
+    def test_content__template(self):
         "Use reload template (content=1)."
         self.login_as_root()
         url = self.url
@@ -433,7 +432,7 @@ class ListViewTestCase(CremeTestCase):
         )
         self.assertTemplateUsed(response, 'creme_core/listview/content.html')
 
-    def test_content_popup_template(self):
+    def test_content__popup__template(self):
         self.login_as_root()
         ct_id = self.ctype.id
 
@@ -463,7 +462,7 @@ class ListViewTestCase(CremeTestCase):
         )
         self.assertTemplateUsed(response4, 'creme_core/listview/content.html')
 
-    def test_content_popup_viewtag(self):
+    def test_content__popup__viewtag(self):
         user = self.login_as_root_and_get()
         ct_id = self.ctype.id
 
@@ -568,7 +567,7 @@ class ListViewTestCase(CremeTestCase):
 
         self.assertGET404(self.url, data={'selection': 'unknown'})
 
-    def test_ordering_regularfield(self):
+    def test_ordering__regular_field(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -607,7 +606,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertEqual('regular_field-name', state.sort_cell_key)
         self.assertEqual('DESC', state.sort_order)
 
-    def test_ordering_regularfield_invalid_order(self):
+    def test_ordering__regular_field__invalid_order(self):
         self.login_as_root()
         self._build_hf()
 
@@ -620,7 +619,7 @@ class ListViewTestCase(CremeTestCase):
                 },
             )
 
-    def test_ordering_regularfield_GET(self):
+    def test_ordering__regular_field__GET(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -660,7 +659,7 @@ class ListViewTestCase(CremeTestCase):
         state = ListViewState.get_state(self.client, url=self.url)
         self.assertIsNone(state)
 
-    def test_ordering_regularfield_transient(self):
+    def test_ordering__regular_field__transient(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -726,7 +725,7 @@ class ListViewTestCase(CremeTestCase):
             [line[1] for line in sorted(lines, key=lambda e: e[0])],
         )
 
-    def test_ordering_regularfield_fk(self):
+    def test_ordering__regular_field__fk(self):
         "Sort by ForeignKey."
         user = self.login_as_root_and_get()
 
@@ -790,31 +789,8 @@ class ListViewTestCase(CremeTestCase):
         post('regular_field-civility__title', False, faye, spike)
         post('regular_field-civility__title', True, spike, faye)
 
-    def test_ordering_unsortable_fields(self):
-        "Un-sortable fields: ManyToMany, FunctionFields."
-        user = self.login_as_root_and_get()
-
-        # Bug on ORM with M2M happens only if there is at least one entity
-        FakeEmailCampaign.objects.create(user=user, name='Camp01')
-
-        fname = 'mailing_lists'
-        func_field_name = 'get_pretty_properties'
-        HeaderFilter.objects.proxy(
-            id='test-hf_camp', name='Campaign view', model=FakeEmailCampaign,
-            cells=[
-                (EntityCellRegularField, 'name'),
-                (EntityCellRegularField, fname),
-                (EntityCellFunctionField, func_field_name),
-            ],
-        ).get_or_create()
-
-        url = FakeEmailCampaign.get_lv_absolute_url()
-        # We just check that it does not crash
-        self.assertPOST200(url, data={'sort_key': f'regular_field-{fname}'})
-        self.assertPOST200(url, data={'sort_key': f'function_field-{func_field_name}'})
-
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
-    def test_ordering_regularfield_fastmode(self):
+    def test_ordering__regular_field__fast_mode(self):
         "Ordering = '-fieldname'."
         user = self.login_as_root_and_get()
         self.assertTrue('-start', FakeActivity._meta.ordering[0])
@@ -854,8 +830,31 @@ class ListViewTestCase(CremeTestCase):
             r'.creme_core_fakeactivity.\..cremeentity_ptr_id. DESC( NULLS LAST)?$'
         )
 
+    def test_ordering__unsortable_fields(self):
+        "Un-sortable fields: ManyToMany, FunctionFields."
+        user = self.login_as_root_and_get()
+
+        # Bug on ORM with M2M happens only if there is at least one entity
+        FakeEmailCampaign.objects.create(user=user, name='Camp01')
+
+        fname = 'mailing_lists'
+        func_field_name = 'get_pretty_properties'
+        HeaderFilter.objects.proxy(
+            id='test-hf_camp', name='Campaign view', model=FakeEmailCampaign,
+            cells=[
+                (EntityCellRegularField, 'name'),
+                (EntityCellRegularField, fname),
+                (EntityCellFunctionField, func_field_name),
+            ],
+        ).get_or_create()
+
+        url = FakeEmailCampaign.get_lv_absolute_url()
+        # We just check that it does not crash
+        self.assertPOST200(url, data={'sort_key': f'regular_field-{fname}'})
+        self.assertPOST200(url, data={'sort_key': f'function_field-{func_field_name}'})
+
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
-    def test_ordering_default(self):
+    def test_ordering__default(self):
         user = self.login_as_root_and_get()
         self.assertEqual(('last_name', 'first_name'), FakeContact._meta.ordering)
 
@@ -885,7 +884,7 @@ class ListViewTestCase(CremeTestCase):
             r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
         )
 
-    def test_ordering_merge_column_and_default(self):
+    def test_ordering__merge_column_and_default(self):
         self.assertEqual(('last_name', 'first_name'), FakeContact._meta.ordering)
         user = self.login_as_root_and_get()
 
@@ -968,7 +967,7 @@ class ListViewTestCase(CremeTestCase):
             entries=contacts.order_by('-first_name', 'last_name'),
         )
 
-    def test_ordering_related_column(self):
+    def test_ordering__related_column(self):
         user = self.login_as_root_and_get()
 
         self.assertEqual(('last_name', 'first_name'), FakeContact._meta.ordering)
@@ -1023,7 +1022,7 @@ class ListViewTestCase(CremeTestCase):
             r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
         )
 
-    def test_ordering_customfield_column(self):
+    def test_ordering__customfield_column(self):
         "Custom field ordering is ignored in current implementation."
         user = self.login_as_root_and_get()
 
@@ -1061,7 +1060,7 @@ class ListViewTestCase(CremeTestCase):
             entries=FakeOrganisation.objects.order_by('name'),
         )
 
-    def _aux_test_ordering_fastmode(self):
+    def _aux_test_ordering_fast_mode(self):
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1118,9 +1117,8 @@ class ListViewTestCase(CremeTestCase):
         return main_sql[0]
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
-    def test_ordering_fastmode_01(self):
-        "Fast mode=OFF."
-        sql = self._aux_test_ordering_fastmode()
+    def test_ordering__fast_mode__off(self):
+        sql = self._aux_test_ordering_fast_mode()
         self.assertRegex(
             sql,
             r'ORDER BY '
@@ -1131,9 +1129,8 @@ class ListViewTestCase(CremeTestCase):
         )
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=2)
-    def test_ordering_fastmode_02(self):
-        "Fast mode=ON."
-        sql = self._aux_test_ordering_fastmode()
+    def test_ordering__fast_mode__on(self):
+        sql = self._aux_test_ordering_fast_mode()
         self.assertRegex(
             sql,
             r'ORDER BY'
@@ -1262,7 +1259,7 @@ class ListViewTestCase(CremeTestCase):
 
         self.assertEqual(2, response.context['page_obj'].paginator.count)
 
-    def test_qfilter_GET01(self):
+    def test_qfilter__GET(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1292,7 +1289,7 @@ class ListViewTestCase(CremeTestCase):
         # TODO
         # self._assertNoDistinct(context.captured_sql)
 
-    def test_qfilter_GET02(self):
+    def test_qfilter__GET__invalid(self):
         user = self.login_as_root_and_get()
         bebop = FakeOrganisation.objects.create(user=user, name='Bebop')
 
@@ -1304,7 +1301,7 @@ class ListViewTestCase(CremeTestCase):
         )
         self.assertCountOccurrences(bebop.name, content, count=1)
 
-    def test_qfilter_POST(self):
+    def test_qfilter__POST(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1401,7 +1398,7 @@ class ListViewTestCase(CremeTestCase):
         PAGE_SIZES=[10, 25],
         DEFAULT_PAGE_SIZE_IDX=1,
     )
-    def test_search_regularfields01(self):
+    def test_search__regular_fields__str(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1478,7 +1475,7 @@ class ListViewTestCase(CremeTestCase):
 
         self._assertFastCount(context.captured_sql)
 
-    def test_search_regularfields02(self):
+    def test_search__regular_fields__bool(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1516,7 +1513,7 @@ class ListViewTestCase(CremeTestCase):
         # TODO
         # self._assertNoDistinct(context.captured_sql)
 
-    def test_search_regularfields03(self):
+    def test_search__regular_fields__fk(self):
         "ForeignKey (NULL or not)."
         user = self.login_as_root_and_get()
 
@@ -1562,7 +1559,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(nerv,  orgas_set)
         self.assertIn(seele,    orgas_set)
 
-    def test_search_regularfields04(self):
+    def test_search__regular_fields__boolean(self):
         "BooleanField (NULL or not)."
         user = self.login_as_root_and_get()
 
@@ -1606,7 +1603,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(bebop, orgas_set)
         self.assertNotIn(seele, orgas_set)
 
-    def test_search_datefields(self):
+    def test_search__date_fields(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1668,7 +1665,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertIn(redtail.name,   content4)
         self.assertIn(dragons.name,   content4)
 
-    def test_search_datetimefields(self):
+    def test_search__datetime_fields(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1729,7 +1726,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(sf_alpha.name,   content)
         self.assertNotIn(redtail.name,    content)
 
-    def test_search_field_with_choices(self):
+    def test_search__field_with_choices(self):
         user = self.login_as_root_and_get()
 
         invoice = FakeInvoice.objects.create(user=user, name='Invoice #1')
@@ -1776,7 +1773,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertCountOccurrences(line3.item, content2, count=1)
         self.assertNotIn(line2.item, content2)
 
-    def test_search_fk01(self):
+    def test_search__fk(self):
         user = self.login_as_root_and_get()
 
         create_civ = FakeCivility.objects.create
@@ -1865,7 +1862,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(faye.last_name,  content)
         self.assertIn(ed.last_name,       content)
 
-    def test_search_fk02(self):
+    def test_search__fk__sub_fk(self):
         "Search on a subfield which is a FK too."
         user = self.login_as_root_and_get()
 
@@ -1919,7 +1916,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(doc3.title, content)
         self.assertIn(doc4.title, content)
 
-    def test_search_fk03(self):
+    def test_search__fk__sub_fk_on_entity(self):
         "Search on a subfield which is a FK on CremeEntity."
         user = self.login_as_root_and_get()
 
@@ -1958,7 +1955,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(doc3.title, content)
         self.assertNotIn(doc4.title, content)
 
-    def test_search_m2mfields01(self):
+    def test_search__m2m__entity(self):
         "M2M to CremeEntity model."
         user = self.login_as_root_and_get()
         build_cell = partial(EntityCellRegularField.build, model=FakeEmailCampaign)
@@ -2016,7 +2013,7 @@ class ListViewTestCase(CremeTestCase):
         content = search('staff')
         self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2 !!
 
-    def test_search_m2mfields02(self):
+    def test_search__m2m__minion(self):
         "M2M to basic model."
         user = self.login_as_root_and_get()
         build_cell = partial(EntityCellRegularField.build, model=FakeImage)
@@ -2067,7 +2064,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(img2.name, content)
         self.assertIn(img3.name,    content)
 
-    def test_search_m2mfields03(self):
+    def test_search__m2m__sub_field(self):
         "M2M to basic model + sub-field."
         user = self.login_as_root_and_get()
         build_cell = partial(EntityCellRegularField.build, model=FakeImage)
@@ -2104,7 +2101,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertIn(img2.name,    content)
         self.assertNotIn(img3.name, content)
 
-    def test_search_relations01(self):
+    def test_search__relations(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2159,7 +2156,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-    def test_search_relations02(self):
+    def test_search__relations__2_searches(self):
         "2 searches at the same time."
         user = self.login_as_root_and_get()
 
@@ -2203,8 +2200,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(swordfish.name, content)
         self.assertNotIn(redtail.name,   content)
 
-    def test_search_customfield01(self):
-        "INT."
+    def test_search__custom_field__int(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2252,8 +2248,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(redtail.name, content2)
         self.assertNotIn(dragons.name, content2)
 
-    def test_search_customfield02(self):
-        "INT & STR."
+    def test_search__custom_field__int_n_str(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2295,8 +2290,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertIn(redtail,      orgas_set)
         self.assertNotIn(dragons,   orgas_set)
 
-    def test_search_customfield03(self):
-        "INT & INT."
+    def test_search__custom_field__int_x2(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2341,8 +2335,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertIn(redtail,      orgas_set)
         self.assertNotIn(dragons,   orgas_set)
 
-    def test_search_customfield04(self):
-        "ENUM."
+    def test_search__custom_field__enum(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2410,8 +2403,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(redtail,   orgas_set)
         self.assertIn(dragons,      orgas_set)
 
-    def test_search_customfield05(self):
-        "MULTI_ENUM."
+    def test_search__custom_field__multi_enum(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2479,8 +2471,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(valkyrie, orgas_set)
         self.assertIn(dragons,     orgas_set)
 
-    def test_search_customfield06(self):
-        "2 x ENUM."
+    def test_search__custom_field__enum_x2(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2551,8 +2542,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(redtail,   orgas_set)
         self.assertIn(dragons,      orgas_set)
 
-    def test_search_customfield07(self):
-        "2 x MULTI_ENUM"
+    def test_search__custom_field__multi_enum_x2(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2623,8 +2613,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(eva02,     orgas_set)
         self.assertIn(valkyrie,     orgas_set)
 
-    def test_search_customfield08(self):
-        "DATETIME."
+    def test_search__custom_field__datetime(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2687,8 +2676,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-    def test_search_customfield09(self):
-        "2 x DATETIME."
+    def test_search__custom_field__datetime_x2(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2764,8 +2752,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(hammerhead.name, content)
         self.assertNotIn(dragons.name,    content)
 
-    def test_search_customfield10(self):
-        "BOOL."
+    def test_search__custom_field__bool(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2832,7 +2819,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(bebop.name,     content2)
         self.assertNotIn(swordfish.name, content2)
 
-    def test_search_functionfield01(self):
+    def test_search__function_field(self):
         "PropertiesField."
         user = self.login_as_root_and_get()
 
@@ -2878,7 +2865,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertNotIn(bebop,  orgas_set)
         self.assertNotIn(eva01,  orgas_set)
 
-    def test_search_functionfield02(self):
+    def test_search__function_field__no_search(self):
         "Can not search on this FunctionField."
         user = self.login_as_root_and_get()
 
@@ -2915,7 +2902,7 @@ class ListViewTestCase(CremeTestCase):
         PAGE_SIZES=[10, 25, 200],
         DEFAULT_PAGE_SIZE_IDX=0,
     )
-    def test_pagination_slow01(self):
+    def test_pagination__slow(self):
         "Paginator with only OFFSET (small number of lines)."
         user = self.login_as_root_and_get()
         organisations = self._build_orgas(user=user)
@@ -2976,7 +2963,7 @@ class ListViewTestCase(CremeTestCase):
         PAGE_SIZES=[10],
         DEFAULT_PAGE_SIZE_IDX=0,
     )
-    def test_pagination_slow02(self):
+    def test_pagination__slow__saved_page(self):
         "Page is saved."
         user = self.login_as_root_and_get()
         organisations = self._build_orgas(user=user)
@@ -3012,7 +2999,7 @@ class ListViewTestCase(CremeTestCase):
         PAGE_SIZES=[10, 25],
         DEFAULT_PAGE_SIZE_IDX=0,
     )
-    def test_pagination_fast01(self):
+    def test_pagination__fast__organisation(self):
         "Paginator with 'keyset' (big number of lines)."
         user = self.login_as_root_and_get()
         organisations = self._build_orgas(user=user)
@@ -3066,7 +3053,7 @@ class ListViewTestCase(CremeTestCase):
         PAGE_SIZES=[10, 50],
         DEFAULT_PAGE_SIZE_IDX=0,
     )
-    def test_pagination_fast02(self):
+    def test_pagination__fast__contact(self):
         "ContentType = Contact."
         user = self.login_as_root_and_get()
         rows = 10
@@ -3136,7 +3123,7 @@ class ListViewTestCase(CremeTestCase):
         PAGE_SIZES=[10, 25],
         DEFAULT_PAGE_SIZE_IDX=1,
     )
-    def test_pagination_fast03(self):
+    def test_pagination__fast__order(self):
         "Set an ORDER."
         user = self.login_as_root_and_get()
         rows = 10
@@ -3201,7 +3188,7 @@ class ListViewTestCase(CremeTestCase):
         PAGE_SIZES=[10],
         DEFAULT_PAGE_SIZE_IDX=0,
     )
-    def test_pagination_fast04(self):
+    def test_pagination__fast__offset(self):
         "Field key duplicates => use OFFSET too."
         user = self.login_as_root_and_get()
         rows = 10
@@ -3254,7 +3241,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertEqual(0, idx11)
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[5, 10])
-    def test_pagination_fast05(self):
+    def test_pagination__fast__errors(self):
         "Errors => page 1."
         user = self.login_as_root_and_get()
         rows = 5
@@ -3307,7 +3294,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertFalse(page.has_previous())
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[5, 10])
-    def test_pagination_fast06(self):
+    def test_pagination__fast__last_page(self):
         "LastPage => last page."
         user = self.login_as_root_and_get()
         rows = 5
@@ -3355,7 +3342,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertTrue(last_page.has_previous())
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[10])
-    def test_pagination_fast07(self):
+    def test_pagination__fast__save_page(self):
         "Page is saved."
         user = self.login_as_root_and_get()
         organisations = self._build_orgas(user=user)
@@ -3383,7 +3370,7 @@ class ListViewTestCase(CremeTestCase):
         self.assertIndex(organisations[10], page2a.object_list)
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=14, PAGE_SIZES=[10])
-    def test_pagination_fast08(self):
+    def test_pagination__fast__transition(self):
         "Change paginator class slow => fast (so saved page info are not compatible)."
         user = self.login_as_root_and_get()
         self._build_orgas(user=user)
@@ -3407,7 +3394,7 @@ class ListViewTestCase(CremeTestCase):
         page1_fast = post()
         self.assertHasAttr(page1_fast, 'next_page_info')  # Means fast mode
 
-    def test_listview_popup_GET(self):
+    def test_listview_popup__GET(self):
         # user = self.login_as_root_and_get()
         user = self.login_as_standard(listable_models=[FakeOrganisation])
         self.add_credentials(user.role, own=['VIEW'])
@@ -3442,7 +3429,7 @@ class ListViewTestCase(CremeTestCase):
 
         self.assertEqual(1, response.context['page_obj'].paginator.count)
 
-    def test_listview_popup_POST(self):
+    def test_listview_popup__POST(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -3490,7 +3477,7 @@ class ListViewTestCase(CremeTestCase):
         )
 
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
-    def test_credentials_with_filter01(self):
+    def test_credentials_with_filter__no_fast_count(self):
         "Fast count is not possible."
         user = self.login_as_standard(listable_models=[FakeOrganisation])
         self.add_credentials(user.role, own='*')
@@ -3551,7 +3538,7 @@ class ListViewTestCase(CremeTestCase):
             self.fail(f'No slow count message found in {logs_manager.output}')
 
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
-    def test_credentials_with_filter02(self):
+    def test_credentials_with_filter__distinct(self):
         "Beware of DISTINCT with filter on relationships."
         user = self.login_as_standard(listable_models=[FakeContact])
 
@@ -3645,7 +3632,7 @@ class ListViewTestCase(CremeTestCase):
         else:
             self.fail('No mass-import button found.')
 
-    def test_visitor_button01(self):
+    def test_visitor_button(self):
         user = self.login_as_root_and_get()
         self.maxDiff = None
 
@@ -3739,7 +3726,7 @@ class ListViewTestCase(CremeTestCase):
             },
         )
 
-    def test_visitor_button02(self):
+    def test_visitor_button__custom_view(self):
         "Custom list-view."
         user = self.login_as_root_and_get()
 
