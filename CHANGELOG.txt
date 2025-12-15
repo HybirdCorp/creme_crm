@@ -2,6 +2,14 @@
 
   TODO: compile .po (opportunities)
 
+  UPGRADE NOTES :
+    - Do not forget to tun the command "generatemedia".
+
+  Users side :
+  ------------
+    # Some styling issue in list-view with hidden cells in last position
+     (like 'billing' ones) have been fixed.
+
   Developers side :
   -----------------
 

@@ -72,12 +72,12 @@
             {% if is_selection_multiple %}<th class="choices"><input name="select_all" value="all" type="checkbox" title="{% translate 'Select all' %}"/></th>{% endif %}
             {% for cell in cells %}
              {% if cell.is_hidden %}
-              <th style="display:none;"></th>
+              <th class="lv-column-hidden" style="display:none;"></th>
              {% elif cell.type_id == 'actions' %}
               <th class="actions">{% listview_header_actions cell=cell user=user %}</th>
              {% else %}{# NB: TMP - this header currently adds the css class cell.listview_css_class until semantic information is provided in the template context #}
               {# TODO: should this header also add the cell.header_listview_css_class ? #}
-              <th data-column-key="{{cell.key}}" class="lv-column{% if cell.key == list_view_state.sort_cell_key %} sorted{% if list_view_state.sort_order == 'DESC' %} reverse{% endif %}{% endif %}{% if cell|cell_is_sortable:cell_sorter_registry %} sortable{% endif %} cl_lv {{cell.listview_css_class}}"
+              <th data-column-key="{{cell.key}}" class="lv-column{% if cell.key == list_view_state.sort_cell_key %} sorted{% if list_view_state.sort_order == 'DESC' %} reverse{% endif %}{% endif %}{% if cell|cell_is_sortable:cell_sorter_registry %} sortable{% endif %} cl_lv{% if cell.is_hidden %} lv-cell-hidden{% endif %} {{cell.listview_css_class}}"
                   colspan="{{cell|listview_column_colspan:is_popup_view}}">
                   <button type="button" {% if cell|cell_is_sortable:cell_sorter_registry %}title="{% blocktranslate with col_title=cell.title %}Sort by {{col_title}}{% endblocktranslate %}"{% else %}disabled="true"{% endif %}>
                       <div>
@@ -96,7 +96,7 @@
             {% if is_selection_multiple %}<th class="choices">&nbsp;</th>{% endif %}
             {% for cell in cells %}
              {% if cell.is_hidden %}
-              <th style="display:none;"></th>
+              <th class="lv-column-hidden" style="display:none;"></th>
              {% elif cell.type_id == 'actions' %}
               <th class="actions" colspan="{{cell|listview_column_colspan:is_popup_view}}">
                   <span class='lv-search-title'>{% translate 'Quick search' %}</span>
@@ -122,7 +122,7 @@
               {% if cell.type_id == 'actions' %}
                <td class="lv-actions actions">{% listview_entity_actions cell=cell instance=entity user=user %}</td>
               {% else %}
-               <td class="lv-cell lv-cell-content{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %} lv-column cl_lv {{cell.listview_css_class}}" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
+               <td class="lv-cell lv-cell-content{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %} lv-column cl_lv{% if cell.is_hidden %} lv-cell-hidden{% endif %} {{cell.listview_css_class}}" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
                    {% cell_render cell=cell instance=entity user=user tag=view_tag as cell_content %}
                    {% with data_type=cell.data_type %}
                    <div class="lv-cell-value{% if cell.is_multiline %} lv-cell-multiline-value{% endif %}{% if not cell_content %} lv-cell-empty-value{% endif %}" {% if data_type %}data-type="{{data_type}}"{% endif %}>
@@ -131,7 +131,7 @@
                    {% endwith %}
                </td>
                {% if not is_popup_view %}
-                <td class="lv-cell lv-cell-action{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %} lv-column cl_lv" {% if cell.is_hidden %}style="display:none;"{% endif %}>
+                <td class="lv-cell lv-cell-action{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %} lv-column cl_lv{% if cell.is_hidden %} lv-cell-hidden{% endif %}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
                    {% listview_td_action_for_cell cell=cell instance=entity user=user %}
                 </td>
                {% endif %}
