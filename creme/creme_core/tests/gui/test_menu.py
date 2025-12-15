@@ -15,6 +15,7 @@ from django.utils.translation import ngettext
 from creme.creme_core.forms.menu import MenuEntryForm
 from creme.creme_core.gui import quick_forms
 from creme.creme_core.gui.menu import (
+    ActionEntry,
     ContainerEntry,
     CreationEntry,
     CreationMenuRegistry,
@@ -356,6 +357,173 @@ class MenuTestCase(CremeTestCase):
             ''',
             entry.render(context)
         )
+
+    def test_action_entry(self):
+        user = self.login_as_standard(admin_4_apps=['creme_config'])
+
+        class TestActionEntry(ActionEntry):
+            id = 'creme_core-test-action_a'
+            action = 'action_a'
+            url_name = 'creme_core__home'
+            label = 'Action A'
+            description = 'Description A'
+            permissions = 'creme_config'
+            classes = ('ui-action-a', 'has-a')
+            icon_name = 'add'
+            icon_title = 'Icon A'
+
+            def get_action_data(self, context):
+                return {
+                    "a": 12
+                }
+
+            def get_action_options(self, context):
+                return {
+                    "b": True
+                }
+
+        entry = TestActionEntry()
+        context = self._build_context(user=user)
+
+        icon = entry._get_icon(entry.icon_name, entry.icon_title, context)
+        self.assertIsNotNone(icon)
+
+        props = {
+            'data': {'a': 12}, 'options': {'b': True}
+        }
+
+        entry_context = entry.get_context(context)
+        entry_action_context = entry_context.pop('action')
+
+        self.assertEqual({
+            'label': 'Action A',
+            'request': context,
+            'user': user,
+            'is_allowed': True,
+            'permission_error': '',
+        }, entry_context)
+
+        self.assertIsNotNone(entry_action_context.pop('icon'))
+        self.assertEqual({
+            'id': 'action_a',
+            'url': reverse('creme_core__home'),
+            'icon_name': 'add',
+            'icon_title': 'Icon A',
+            'classes': ('ui-action-a', 'has-a'),
+            'description': 'Description A',
+            'props': props,
+        }, entry_action_context)
+
+        self.assertHTMLEqual(
+            f'''
+            <a data-action="action_a" class="ui-creme-navigation-action-entry ui-action-a has-a"
+               title="Description A" href="{reverse('creme_core__home')}">
+                {icon.render()}Action A
+                {jsondata(props)}
+            </a>
+            ''',
+            entry.render(context)
+        )
+
+    def test_action_entry__not_allowed(self):
+        user = self.login_as_standard()
+
+        class TestActionEntry(ActionEntry):
+            id = 'creme_core-test-action_a'
+            action = 'action_a'
+            url_name = 'creme_core__home'
+            label = 'Action A'
+            description = 'Description A'
+            permissions = 'creme_config'
+            classes = ('ui-action-a', 'has-a')
+            icon_name = 'add'
+            icon_title = 'Icon A'
+
+        entry = TestActionEntry()
+        context = self._build_context(user=user)
+        permission_error = _('You are not allowed to access to the app: {}').format(
+            _('General configuration')
+        )
+
+        icon = entry._get_icon(entry.icon_name, permission_error, context)
+
+        entry_context = entry.get_context(context)
+        entry_action_context = entry_context.pop('action')
+
+        self.assertEqual({
+            'label': 'Action A',
+            'request': context,
+            'user': user,
+            'is_allowed': False,
+            'permission_error': permission_error,
+        }, entry_context)
+
+        self.assertIsNotNone(entry_action_context.pop('icon'))
+        self.assertEqual({
+            'id': 'action_a',
+            'url': reverse('creme_core__home'),
+            'icon_name': 'add',
+            'icon_title': 'Icon A',
+            'classes': ('ui-action-a', 'has-a'),
+            'description': 'Description A',
+            'props': {
+                'data': {}, 'options': {}
+            },
+        }, entry_action_context)
+
+        self.assertHTMLEqual(
+            f'''
+            <span class="ui-creme-navigation-text-entry forbidden ui-action-a has-a"
+                  title="{permission_error}">
+            {icon.render()}Action A
+            </span>
+            ''',
+            entry.render(context)
+        )
+
+    def test_action_entry__unknown_icon(self):
+        user = self.login_as_standard(admin_4_apps=['creme_config'])
+
+        class TestActionEntry(ActionEntry):
+            id = 'creme_core-test-action_a'
+            url_name = 'creme_core__home'
+            label = 'Action A'
+            description = 'Description A'
+            permissions = 'creme_config'
+            icon_name = 'unknown_icon_for_test'
+            icon_title = 'Icon A'
+
+        entry = TestActionEntry()
+        context = self._build_context(user=user)
+
+        action_context = entry.get_context(context)['action']
+        self.assertEqual(action_context['icon'].url, '')
+
+    def test_action_entry__no_icon(self):
+        user = self.login_as_standard(admin_4_apps=['creme_config'])
+
+        class TestActionEntry(ActionEntry):
+            id = 'creme_core-test-action_a'
+            url_name = 'creme_core__home'
+            label = 'Action A'
+            description = 'Description A'
+            permissions = 'creme_config'
+
+        entry = TestActionEntry()
+        context = self._build_context(user=user)
+
+        action_context = entry.get_context(context)['action']
+        self.assertIsNone(action_context['icon'])
+
+    def test_action_entry__no_url(self):
+        user = self.login_as_standard()
+        context = self._build_context(user=user)
+
+        class TestActionEntry(ActionEntry):
+            id = 'creme_core-test-action'
+
+        entry = TestActionEntry()
+        self.assertEqual(entry.get_action_context(context)['url'], '')
 
     def test_creation_entry(self):
         self.assertIs(CreationEntry.single_instance, True)

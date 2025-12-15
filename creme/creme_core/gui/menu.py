@@ -308,14 +308,24 @@ class ActionEntry(TemplateEntry):
     @property
     def url(self) -> str:
         url_name = self.url_name
-        if url_name:
-            return reverse(url_name)
-
-        raise ValueError(f'{self} has an empty URL name.')
+        return reverse(url_name) if url_name else ''
 
     def _get_prop(self, name, context):
         prop = getattr(self, f'get_{name}', None)
         return prop(context) if callable(prop) else getattr(self, name, None)
+
+    def _get_icon(self, name, title, context) -> BaseIcon:
+        if not self.icon_name:
+            return
+
+        if not context.get('is_allowed'):
+            title = context.get('permission_error') or title
+
+        theme = context['user'].theme_info[0]
+        return get_icon_by_name(
+            name=name, label=title, theme=theme,
+            size_px=get_icon_size_px(theme=theme, size='header-menu'),
+        )
 
     def get_url(self, context):
         return self.url
@@ -325,51 +335,22 @@ class ActionEntry(TemplateEntry):
         context['action'] = self.get_action_context(context)
         return context
 
-        label = self.render_label(context)
-        user = context['user']
-
-        try:
-            self.check_permissions(user)
-            is_allowed = True
-            permission_error = ''
-        except PermissionDenied as e:
-            is_allowed = False
-            permission_error = str(e)
-
-        ctx = {
-            'label': label,
-            'request': context,
-            'user': user,
-            'is_allowed': is_allowed,
-            'permission_error': permission_error,
-        }
-
-        ctx['action'] = self.get_action_context(ctx)
-        return ctx
-
     def get_action_context(self, context):
         prop = partial(self._get_prop, context=context)
+        description = prop('description') or prop('label')
+        icon_title = prop('icon_title') or description
+        icon_name = prop('icon_name')
 
         return {
             'id': self.action,
             'url': prop('url'),
-            'icon_name': self.icon_name,
-            'icon_title': self.icon_title or self.label,
-            'icon': self.get_action_icon(context),
+            'icon_name': icon_name,
+            'icon_title': icon_title,
+            'icon': self._get_icon(icon_name, icon_title, context),
             'classes': prop('classes'),
-            'description': prop('description') or prop('label'),
+            'description': description,
             'props': self.get_action_props(context),
         }
-
-    def get_action_icon(self, context) -> BaseIcon:
-        if not self.icon_name:
-            return
-
-        theme = context['user'].theme_info[0]
-        return get_icon_by_name(
-            name=self.icon_name, label=self.icon_title or self.label, theme=theme,
-            size_px=get_icon_size_px(theme=theme, size='header-menu'),
-        )
 
     def get_action_props(self, context):
         return {
