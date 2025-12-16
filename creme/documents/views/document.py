@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,20 +17,30 @@
 ################################################################################
 
 from functools import partial
+from os import path
+from zipfile import ZipFile
 
-from django.core.exceptions import ValidationError
+from django.conf import settings
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.transaction import atomic
+from django.http import HttpResponseRedirect
+from django.template.defaultfilters import filesizeformat
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme import documents
 from creme.creme_core import auth
+from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms.validators import validate_linkable_model
-from creme.creme_core.models import Relation
+from creme.creme_core.models import FileRef, Relation
 from creme.creme_core.utils import ellipsis
+from creme.creme_core.utils.file_handling import FileCreator
+from creme.creme_core.utils.secure_filename import secure_filename
+from creme.creme_core.utils.translation import smart_model_verbose_name
 from creme.creme_core.views import generic
 
 from .. import constants, custom_forms
-from ..constants import DEFAULT_HFILTER_DOCUMENT
 from ..models import FolderCategory
 
 Folder = documents.get_folder_model()
@@ -160,4 +170,73 @@ class DocumentEdition(generic.EntityEdition):
 
 class DocumentsList(generic.EntitiesList):
     model = Document
-    default_headerfilter_id = DEFAULT_HFILTER_DOCUMENT
+    default_headerfilter_id = constants.DEFAULT_HFILTER_DOCUMENT
+
+
+class BulkDownload(generic.base.CheckedView):
+    permissions = 'documents'
+
+    def get_ids(self, request):
+        raw_ids = request.GET.getlist('id')
+
+        if not raw_ids:
+            raise ConflictError('The list of IDs is empty')
+
+        try:
+            cleaned_ids = {int(i) for i in raw_ids}
+        except ValueError as e:
+            raise ConflictError('Some IDs are invalid: {e}') from e
+
+        return cleaned_ids
+
+    def get(self, request, *args, **kwargs):
+        ids = self.get_ids(request)
+        user = request.user
+
+        documents = EntityCredentials.filter(
+            user=user, queryset=Document.objects.filter(id__in=ids),
+        )
+
+        if len(documents) != len(ids):
+            raise PermissionDenied(gettext('Some documents are invalid or not viewable'))
+
+        limit = settings.DOCUMENTS_BULK_DOWNLOAD_MAX_SIZE
+        sizes_sum = sum(doc.file_size for doc in documents)
+        if sizes_sum > limit:
+            raise ConflictError(
+                gettext(
+                    'The total size of these files is {size} which is greater than '
+                    'the allowed limit ({limit}).'
+                ).format(
+                    size=filesizeformat(sizes_sum),
+                    limit=filesizeformat(limit),
+                )
+            )
+
+        count = len(documents)
+        # TODO: add date in the file name?
+        basename = secure_filename(f'{Document._meta.verbose_name_plural}_X{count}.zip')
+        final_path = FileCreator(
+            dir_path=path.join(settings.MEDIA_ROOT, 'documents'),
+            name=basename,
+        ).create()
+
+        # NB: we create the FileRef instance as soon as possible to get the
+        #     smallest duration when a crash causes a file which have to be
+        #     removed by hand (not cleaned by the Cleaner job).
+        file_ref = FileRef.objects.create(
+            user=user,
+            filedata=f'documents/{path.basename(final_path)}',
+            basename=basename,
+            description=gettext('Bulk download of {count} {model}').format(
+                count=count,
+                model=smart_model_verbose_name(model=Document, count=count),
+            ),
+        )
+
+        with ZipFile(final_path, 'w') as archive:
+            for doc in documents:
+                doc_path = doc.filedata.path
+                archive.write(filename=doc_path, arcname=path.basename(doc_path))
+
+        return HttpResponseRedirect(file_ref.get_download_absolute_url())

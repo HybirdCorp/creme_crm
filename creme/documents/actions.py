@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2021  Hybird
+#    Copyright (C) 2018-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 from django.utils.translation import gettext_lazy as _
 
 from creme import documents
-from creme.creme_core.gui.actions import UIAction
+from creme.creme_core.gui.actions import BulkEntityAction, UIAction
 
 Folder   = documents.get_folder_model()
 Document = documents.get_document_model()
@@ -68,3 +68,14 @@ class DownloadAction(UIAction):
     @property
     def is_enabled(self):
         return self.user.has_perm_to_view(self.instance)
+
+
+class BulkDownloadAction(BulkEntityAction):
+    id = BulkEntityAction.generate_id('documents', 'bulk_download')
+
+    # TODO: improve action system (<type = 'redirect'>?)
+    type = 'documents-bulk-download'
+    url_name = 'documents__bulk_download'
+
+    label = _('Download as .zip')
+    icon = 'download'

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Documents 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-30 18:36+0100\n"
+"POT-Creation-Date: 2026-01-13 17:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -27,6 +27,9 @@ msgstr "Télécharger"
 
 msgid "Download the file"
 msgstr "Télécharger le fichier"
+
+msgid "Download as .zip"
+msgstr "Télécharger en tant que .zip"
 
 msgid "Documents"
 msgstr "Documents"
@@ -180,6 +183,18 @@ msgstr "Catégories de document"
 msgid "MIME types"
 msgstr "Types MIME"
 
+msgid "related to the document"
+msgstr "concerne le document"
+
+msgid "document related to"
+msgstr "document concerné par"
+
+msgid "Folder view"
+msgstr "Vue de Classeur"
+
+msgid "Document view"
+msgstr "Vue de Document"
+
 msgid "Documents related to entities"
 msgstr "Documents crées à partir des fiches"
 
@@ -188,18 +203,6 @@ msgstr "Classeur contenant tous les documents créés à partir des fiches"
 
 msgid "Images"
 msgstr "Images"
-
-msgid "related to the document"
-msgstr "concerne le document"
-
-msgid "document related to"
-msgstr "document concerné par"
-
-msgid "Document view"
-msgstr "Vue de Document"
-
-msgid "Folder view"
-msgstr "Vue de Classeur"
 
 #, python-brace-format
 msgid "{count} Child Folder"
@@ -276,6 +279,21 @@ msgstr ""
 #, python-brace-format
 msgid "New document for «{entity}»"
 msgstr "Ajout de document à «{entity}»"
+
+msgid "Some documents are invalid or not viewable"
+msgstr "Certains documents sont invalides ou non visibles"
+
+#, python-brace-format
+msgid ""
+"The total size of these files is {size} which is greater than the allowed "
+"limit ({limit})."
+msgstr ""
+"La taille totale de ces fichiers est {size}, qui est plus grande que la "
+"limite autorisée ({limit})."
+
+#, python-brace-format
+msgid "Bulk download of {count} {model}"
+msgstr "Téléchargement groupé de {count} {model}"
 
 #, python-brace-format
 msgid "List of sub-folders for «{parent}»"
