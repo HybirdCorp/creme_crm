@@ -1293,6 +1293,10 @@ DOCUMENTS_DOCUMENT_MODEL = 'documents.Document'
 DOCUMENTS_FOLDER_FORCE_NOT_CUSTOM   = False
 DOCUMENTS_DOCUMENT_FORCE_NOT_CUSTOM = False
 
+# Maximum cumulated size (byte) of Documents which can be downloaded at once
+# as ZIP archive (with the bulk-download action of their list-view)
+DOCUMENTS_BULK_DOWNLOAD_MAX_SIZE = 1024**3
+
 # PERSONS ----------------------------------------------------------------------
 PERSONS_ADDRESS_MODEL      = 'persons.Address'
 PERSONS_CONTACT_MODEL      = 'persons.Contact'

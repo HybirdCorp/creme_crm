@@ -45,6 +45,8 @@ class DocumentsConfig(CremeAppConfig):
         action_registry.register_instance_actions(
             actions.ExploreFolderAction,
             actions.DownloadAction,
+        ).register_bulk_actions(
+            actions.BulkDownloadAction,
         )
 
     def register_bricks(self, brick_registry):

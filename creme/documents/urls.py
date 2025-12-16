@@ -6,6 +6,12 @@ from creme.creme_core.conf.urls import Swappable, swap_manager
 from .views import document, folder, quick_forms
 
 urlpatterns = [
+    re_path(
+        r'^download/bulk[/]?$',
+        document.BulkDownload.as_view(),
+        name='documents__bulk_download',
+    ),
+
     *swap_manager.add_group(
         documents.folder_model_is_custom,
         Swappable(
