@@ -62,8 +62,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(parent_folder, folder.parent_folder)
         self.assertEqual(category,      folder.category)
 
-    def test_createview01(self):
-        "No parent folder."
+    def test_creation_view__no_parent_folder(self):
         user = self.login_as_root_and_get()
         url = self.ADD_URL
         response = self.assertGET200(url)
@@ -89,8 +88,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertIsNone(folder.parent_folder)
         self.assertIsNone(folder.category)
 
-    def test_createview02(self):
-        "Parent folder."
+    def test_creation_view__parent_folder(self):
         user = self.login_as_root_and_get()
         url = self.ADD_URL
 
@@ -123,8 +121,8 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(parent,      folder.parent_folder)
         self.assertEqual(other_cat,   folder.category)
 
-    def test_createview03(self):
-        "Parent folder's' category is copied if no category"
+    def test_creation_view__no_category(self):
+        "Parent folder's' category is copied if no category."
         user = self.login_as_root_and_get()
 
         category = FolderCategory.objects.all()[0]
@@ -149,7 +147,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         folder = self.get_object_or_fail(Folder, title=title)
         self.assertEqual(category, folder.category)
 
-    def test_create_child01(self):
+    def test_create_child(self):
         user = self.login_as_root_and_get()
 
         create_folder = partial(Folder.objects.create, user=user, parent_folder=None)
@@ -186,8 +184,8 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(description, folder.description)
         self.assertEqual(parent,      folder.parent_folder)
 
-    def test_create_child02(self):
-        "Link credentials needed"
+    def test_create_child__link_perms(self):
+        "Link credentials needed."
         user = self.login_as_standard(
             allowed_apps=['documents'], creatable_models=[Folder],
         )
@@ -211,7 +209,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         sc.save()
         self.assertGET200(url)
 
-    def test_create_child03(self):
+    def test_create_child__creation_perms(self):
         "Creation credentials needed."
         user = self.login_as_standard(allowed_apps=['documents'])
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
@@ -219,14 +217,14 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         parent = Folder.objects.create(user=user, title='Parent folder')
         self.assertGET403(reverse('documents__create_folder', args=(parent.id,)))
 
-    def test_create_child04(self):
+    def test_create_child__bad_related(self):
         "Not related to a Folder."
         user = self.login_as_root_and_get()
 
         orga = FakeOrganisation.objects.create(user=user, name='I am not a folder')
         self.assertGET404(reverse('documents__create_folder', args=(orga.id,)))
 
-    def test_create_child_popup01(self):
+    def test_create_child__popup(self):
         user = self.login_as_root_and_get()
 
         create_folder = partial(Folder.objects.create, user=user, parent_folder=None)
@@ -259,8 +257,8 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(description, folder.description)
         self.assertEqual(parent,      folder.parent_folder)
 
-    def test_create_child_popup02(self):
-        "Link credentials needed"
+    def test_create_child__popup__link_perms(self):
+        "Link credentials needed."
         user = self.login_as_standard(
             allowed_apps=['documents'], creatable_models=[Folder],
         )
@@ -284,7 +282,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         sc.save()
         self.assertGET200(url)
 
-    def test_create_child_popup03(self):
+    def test_create_child__popup__creation_perms(self):
         "Creation credentials needed."
         user = self.login_as_standard(allowed_apps=['documents'])
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
@@ -292,14 +290,14 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         parent = Folder.objects.create(user=user, title='Parent folder')
         self.assertGET403(reverse('documents__create_child_folder', args=(parent.id,)))
 
-    def test_create_child_popup04(self):
-        "Not related to a Folder"
+    def test_create_child__popup__bad_related(self):
+        "Not related to a Folder."
         user = self.login_as_root_and_get()
 
         orga = FakeOrganisation.objects.create(user=user, name='I am not a folder')
         self.assertGET404(reverse('documents__create_child_folder', args=(orga.id,)))
 
-    def test_editview01(self):
+    def test_edition_view(self):
         user = self.login_as_root_and_get()
         title = 'Test folder'
         description = 'Test description'
@@ -336,7 +334,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(parent,      folder.parent_folder)
         self.assertEqual(category,    folder.category)
 
-    def test_editview02(self):
+    def test_edition_view__self_parented(self):
         "A folder cannot be its own parent."
         user = self.login_as_root_and_get()
         folder = Folder.objects.create(
@@ -362,7 +360,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             errors=_('«%(entity)s» violates the constraints.') % {'entity': folder},
         )
 
-    def test_editview03(self):
+    def test_edition_view__parent_cycle(self):
         "A folder cannot be the parent of one of its parents."
         user = self.login_as_root_and_get()
         create_folder = partial(
@@ -391,7 +389,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
         self.assertIsNone(self.refresh(folder1).parent_folder)
 
-    def test_inneredit_parent01(self):
+    def test_inneredit_parent(self):
         user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
@@ -428,7 +426,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(folder2, folder1.parent_folder)
         self.assertEqual(cat1,    folder1.category)
 
-    def test_inneredit_parent02(self):
+    def test_inneredit__parent__no_category(self):
         "The category of the parent is copied if there is none."
         user = self.login_as_root_and_get()
         cat = FolderCategory.objects.all()[0]
@@ -450,7 +448,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(folder2, folder1.parent_folder)
         self.assertEqual(cat,     folder1.category)
 
-    def test_inneredit_parent03(self):
+    def test_inneredit__parent__loops(self):
         "Loops."
         user = self.login_as_root_and_get()
 
@@ -481,7 +479,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             errors=_('«%(entity)s» violates the constraints.') % {'entity': folder1},
         )
 
-    def test_inneredit_parent04(self):
+    def test_inneredit__parent__initial(self):
         "Initial not None."
         user = self.login_as_root_and_get()
 
@@ -499,7 +497,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         self.assertEqual(folder1.id, parent_f.initial)
 
-    def test_inneredit_parent05(self):
+    def test_inneredit__parent__required(self):
         "Configured as required."
         user = self.login_as_root_and_get()
 
@@ -519,7 +517,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         self.assertTrue(parent_f.required)
 
-    def test_bulkedit_parent(self):
+    def test_bulkedit__parent(self):
         user = self.login_as_root_and_get()
 
         create_folder = partial(
@@ -560,7 +558,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(folder2, self.refresh(folder3).parent_folder)
         self.assertEqual(folder3, self.refresh(folder4).parent_folder)
 
-    def test_listview01(self):
+    def test_listview(self):
         user = self.login_as_root_and_get()
         category = FolderCategory.objects.all()[0]
 
@@ -588,7 +586,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         with self.assertRaises(KeyError):
             context['list_sub_title']  # NOQA
 
-    def test_listview02(self):
+    def test_listview__parent(self):
         "With parent constraint."
         user = self.login_as_root_and_get()
         cat = FolderCategory.objects.all()[0]
@@ -786,7 +784,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertInstanceLink(brick_node2, child2)
         self.assertNoInstanceLink(brick_node2, child3)
 
-    def test_merge01(self):
+    def test_merge(self):
         user = self.login_as_root_and_get()
 
         create_folder = partial(Folder.objects.create, user=user)
@@ -847,7 +845,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         self.assertCountEqual([doc1, doc2], merged_folder.document_set.all())
 
-    def test_merge02(self):
+    def test_merge__parented(self):
         "One folder is the parent of the other one."
         user = self.login_as_root_and_get()
 
