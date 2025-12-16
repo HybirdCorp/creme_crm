@@ -1020,6 +1020,8 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.sketch',        'sketch/js/chart/groupbarchart.js'),
     ('creme.sketch',        'sketch/js/chart/stackbarchart.js'),
 
+    ('creme.documents',     'documents/js/documents.js'),
+
     ('creme.persons',       'persons/js/persons.js'),
 
     ('creme.activities',    'activities/js/activities.js'),
@@ -1292,6 +1294,10 @@ DOCUMENTS_DOCUMENT_MODEL = 'documents.Document'
 
 DOCUMENTS_FOLDER_FORCE_NOT_CUSTOM   = False
 DOCUMENTS_DOCUMENT_FORCE_NOT_CUSTOM = False
+
+# Maximum cumulated size (byte) of Documents which can be downloaded at once
+# as ZIP archive (with the bulk-download action of their list-view)
+DOCUMENTS_BULK_DOWNLOAD_MAX_SIZE = 1024**3
 
 # PERSONS ----------------------------------------------------------------------
 PERSONS_ADDRESS_MODEL      = 'persons.Address'

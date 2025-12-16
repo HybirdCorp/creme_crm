@@ -1,13 +1,16 @@
 import filecmp
 from decimal import Decimal
 from functools import partial
-from os.path import exists, join
+from io import BytesIO
+from os.path import basename, exists, join
 from pathlib import Path
 from unittest import skipIf
+from zipfile import ZipFile
 
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.template.defaultfilters import filesizeformat
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -22,6 +25,7 @@ from creme.creme_core.models import (
     BrickDetailviewLocation,
     CremeEntity,
     FakeOrganisation,
+    FileRef,
     HeaderFilter,
     RelationType,
 )
@@ -29,7 +33,7 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons import get_contact_model
 from creme.persons.tests.base import skipIfCustomContact
 
-from ..actions import DownloadAction
+from ..actions import BulkDownloadAction, DownloadAction
 from ..bricks import LinkedDocsBrick
 from ..constants import REL_SUB_RELATED_2_DOC, UUID_FOLDER_RELATED2ENTITIES
 from ..models import DocumentCategory, FolderCategory, MimeType
@@ -655,6 +659,150 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
         self.assertTrue(download_action.is_enabled)
         self.assertTrue(download_action.is_visible)
+
+    @override_settings(DOCUMENTS_BULK_DOWNLOAD_MAX_SIZE=1_000)
+    def test_bulk_download(self):
+        user = self.login_as_standard(
+            allowed_apps=['documents'], creatable_models=[Document],
+        )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
+
+        existing_file_ref_ids = [*FileRef.objects.values_list('id', flat=True)]
+
+        folder = Folder.objects.create(user=user, title='My docs')
+        content1 = 'Doc1:\n The content which is so interesting'
+        file_obj1 = self.build_filedata(content1)
+        doc1 = self._create_doc(user=user, title='Doc #1', folder=folder, file_obj=file_obj1)
+        doc2 = self._create_doc(user=user, title='Doc #2', folder=folder)
+        self._create_doc(user=user, title='Doc #3', folder=folder)
+
+        response = self.assertGET200(
+            reverse('documents__bulk_download'),
+            follow=True,
+            data={'id': [doc1.id, doc2.id]},
+        )
+        self.assertEqual('application/zip', response['Content-Type'])
+
+        with self.assertNoException():
+            zip_file = ZipFile(BytesIO(b''.join(response.streaming_content)))
+
+        name1 = basename(doc1.filedata.path)
+        self.assertCountEqual(
+            [name1, basename(doc2.filedata.path)], zip_file.namelist(),
+        )
+
+        with self.assertNoException():
+            with zip_file.open(name1) as doc_file1:
+                self.assertEqual(content1.encode(), doc_file1.read())
+
+        file_ref = self.get_alone_element(
+            FileRef.objects.exclude(id__in=existing_file_ref_ids)
+        )
+        self.assertEqual(user, file_ref.user)
+
+        verbose_name = _('Documents')
+        self.assertEqual(f'{verbose_name}_X2.zip', file_ref.basename)
+        self.assertEqual(
+            _('Bulk download of {count} {model}').format(count=2, model=verbose_name),
+            file_ref.description,
+        )
+
+    def test_bulk_download__ids_errors(self):
+        self.login_as_root()
+        url = reverse('documents__bulk_download')
+
+        # Empty ---
+        response1 = self.client.get(
+            url, follow=True,  # data={'id': [...]},
+        )
+        self.assertContains(response1, 'The list of IDs is empty', status_code=409)
+
+        # Bad type ---
+        response3 = self.client.get(
+            url, follow=True, data={'id': [12, 'not_int', 14]},
+        )
+        self.assertContains(response3, 'Some IDs are invalid', status_code=409)
+
+    def test_bulk_download__app_perms(self):
+        user = self.login_as_standard(allowed_apps=['persons'])  # 'documents'
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
+
+        response = self.client.get(
+            reverse('documents__bulk_download'), follow=True, data={'id': [12, 14]},
+        )
+        self.assertContains(
+            response,
+            _('You are not allowed to access to the app: {}').format(_('Documents')),
+            status_code=403, html=True,
+        )
+
+    def test_bulk_download__view_perms(self):
+        user = self.login_as_standard(
+            allowed_apps=['documents'],
+            creatable_models=[Document],
+        )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
+
+        folder = Folder.objects.create(user=user, title='My docs')
+        doc1 = self._create_doc(user=user, title='Doc #1', folder=folder)
+        doc2 = self._create_doc(user=user, title='Doc #2', folder=folder)
+
+        doc2.user = self.get_root_user()
+        doc2.save()
+
+        response = self.client.get(
+            reverse('documents__bulk_download'),
+            follow=True, data={'id': [doc1.id, doc2.id]},
+        )
+        self.assertContains(
+            response,
+            _('Some documents are invalid or not viewable'),
+            status_code=403,
+        )
+
+    @override_settings(DOCUMENTS_BULK_DOWNLOAD_MAX_SIZE=100)
+    def test_bulk_download__size_limit(self):
+        user = self.login_as_root_and_get()
+
+        content1 = 'Doc1:\n the content which is so interesting, but which will be too big.'
+        content2 = 'Doc2:\n this content is very very very interesting too (or not)'
+        self.assertGreater(len(content1) + len(content2), 100)
+
+        file_obj1 = self.build_filedata(content1)
+        file_obj2 = self.build_filedata(content2)
+        doc1 = self._create_doc(user=user, title='Doc #1', file_obj=file_obj1)
+        doc2 = self._create_doc(user=user, title='Doc #2', file_obj=file_obj2)
+
+        response = self.client.get(
+            reverse('documents__bulk_download'),
+            follow=True,
+            data={'id': [doc1.id, doc2.id]},
+        )
+        self.assertContains(
+            response,
+            _(
+                'The total size of these files is {size} which is greater than '
+                'the allowed limit ({limit}).'
+            ).format(
+                size=filesizeformat(132),
+                limit=filesizeformat(100),
+            ),
+            status_code=409,
+        )
+
+    def test_bulk_download_action(self):
+        self.assertIn(
+            BulkDownloadAction,
+            actions.action_registry.bulk_action_classes(model=Document),
+        )
+
+        self.assertEqual('documents-bulk_download', BulkDownloadAction.id)
+        self.assertEqual(1,                         BulkDownloadAction.bulk_min_count)
+        self.assertEqual(_('Download as .zip'),     BulkDownloadAction.label)
+        self.assertEqual(
+            reverse('documents__bulk_download'),
+            BulkDownloadAction(user=self.get_root_user()).url,
+        )
 
     def test_delete_category(self):
         "Set to null."
