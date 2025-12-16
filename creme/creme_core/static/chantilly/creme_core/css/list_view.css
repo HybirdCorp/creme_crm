@@ -364,7 +364,8 @@
     cursor: pointer;
 }
 
-.listview thead th:last-child {
+/* .listview thead th:last-child { */
+.listview thead th:nth-last-child(1 of :not(.lv-column-hidden)) {
     border-right: 1px solid #e1e9ec;
 }
 

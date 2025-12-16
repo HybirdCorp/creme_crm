@@ -259,7 +259,8 @@
     vertical-align: top;
 
     border-left: 0 !important;
-    border-right: 0 !important;
+/*    border-right: 0 !important; */
+    border-right: 0;
 
     color: #222;
 }
@@ -882,9 +883,12 @@
 }
 
 /* right border fix for header rows, and body rows */
-.listview thead .lv-columns-header th:last-child,
-.listview thead .lv-search-header th:last-child,
-.listview > tbody > tr > td:last-child {
+/*.listview thead .lv-columns-header th:last-child, */
+.listview thead .lv-columns-header th:nth-last-child(1 of :not(.lv-column-hidden)),
+/* .listview thead .lv-search-header th:last-child, */
+.listview thead .lv-search-header th:nth-last-child(1 of :not(.lv-column-hidden)),
+/*.listview > tbody > tr > td:last-child { */
+.listview > tbody > tr > td:nth-last-child(1 of :not(.lv-cell-hidden)) {
     border-right: 1px solid rgba(84, 130, 149, 0.3);
 }
 

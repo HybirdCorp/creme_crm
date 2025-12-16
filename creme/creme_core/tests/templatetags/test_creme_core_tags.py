@@ -5,6 +5,7 @@ from json import loads as json_load
 
 # from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template, TemplateSyntaxError
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -1134,6 +1135,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render3.strip(),
         )
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_get_deletion_info(self):
         user = self.get_root_user()
         ticket = FakeTicket.objects.create(user=user, title='Golden ticket')

@@ -1,3 +1,27 @@
+== Version 2.7.3 ==
+
+  UPGRADE NOTES :
+    - Do not forget to tun the command "generatemedia".
+
+  Users side :
+  ------------
+    # Some styling issue in list-view with hidden cells in last position
+      (like 'billing' ones) have been fixed.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Some methods have been added to the class
+          'creme_core.gui.listview.smart_columns.SmartColumnsRegistry' to unregister things.
+        # The context manager 'creme_core.tests.base.OverrideSettingValueContext'
+          did not work when the SettingValue does not exist in DB.
+        # Apps :
+            * Creme_config :
+                - The CSS for 'brick.GenericModelBrick' has been improved when the related model has many fields.
+
+
 == Version 2.7.2 ==
 
   Users side :

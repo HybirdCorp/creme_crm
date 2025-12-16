@@ -84,30 +84,89 @@ class _ModelSmartColumnsRegistry:
 
         return rtype
 
-    def register_function_field(self, func_field_name: str) -> _ModelSmartColumnsRegistry:
-        self._cells.append((EntityCellFunctionField, func_field_name))
-        return self
-
     def register_field(self, field_name: str) -> _ModelSmartColumnsRegistry:
+        """Register a field by its name."""
         self._cells.append((EntityCellRegularField, field_name))
         return self
 
+    def register_function_field(self, func_field_name: str) -> _ModelSmartColumnsRegistry:
+        """Register a function field by its name."""
+        self._cells.append((EntityCellFunctionField, func_field_name))
+        return self
+
     def register_relationtype(self, rtype_id: str) -> _ModelSmartColumnsRegistry:
+        """Register a RelationType by its ID."""
         self._cells.append((EntityCellRelation, rtype_id))
         return self
 
+    def _unregister(self, cell_type, cell_name, error_message) -> _ModelSmartColumnsRegistry:
+        try:
+            self._cells.remove((cell_type, cell_name))
+        except ValueError as e:
+            raise ValueError(error_message.format(cell_name)) from e
+
+        return self
+
+    def unregister_field(self, field_name: str) -> _ModelSmartColumnsRegistry:
+        """Unregister a field by its name."""
+        return self._unregister(
+            cell_type=EntityCellRegularField, cell_name=field_name,
+            error_message='The field "{}" in not registered.',
+        )
+
+    def unregister_function_field(self, func_field_name: str) -> _ModelSmartColumnsRegistry:
+        """Unregister a function field by its name."""
+        return self._unregister(
+            cell_type=EntityCellFunctionField, cell_name=func_field_name,
+            error_message='The function field "{}" in not registered.',
+        )
+
+    def unregister_relationtype(self, rtype_id: str) -> _ModelSmartColumnsRegistry:
+        """Unregister a RelationType by its ID."""
+        return self._unregister(
+            cell_type=EntityCellRelation, cell_name=rtype_id,
+            error_message='The relation type "{}" in not registered.',
+        )
+
 
 class SmartColumnsRegistry:
-    def __init__(self) -> None:
-        self._model_registries: \
-            DefaultDict[type[CremeEntity], _ModelSmartColumnsRegistry] \
-            = defaultdict(_ModelSmartColumnsRegistry)
+    """Registry to indicate with EntityCells should be selected by default by
+    the form for HeaderFilters (because these columns are often selected for
+    this model).
+
+    Example:
+        registry = SmartColumnsRegistry()
+        registry.register_model(
+            Contact
+        ).register_field('last_name').register_field('first_name')
+        registry.register_model(
+            Organisation
+        ).register_field('name').register_relationtype(REL_SUB_PROVIDER)
+
+    Hint: you'll probably use <CremeAppConfig.register_smart_columns()>.
+    """
+    _model_registries: DefaultDict[type[CremeEntity], _ModelSmartColumnsRegistry]
+
+    def __init__(self):
+        self._model_registries = defaultdict(_ModelSmartColumnsRegistry)
 
     def get_cells(self, model: type[CremeEntity]) -> list[EntityCell]:
+        """Get the "smart" cells for a given model."""
         return self._model_registries[model]._get_cells(model)
 
+    # TODO: rename just "model" (because it's used to retrieve existing too)
     def register_model(self, model: type[CremeEntity]) -> _ModelSmartColumnsRegistry:
+        """Get the sub-registry containing the registered cells for a given model.
+        Useful to register & unregister cells by chaining with:
+         - [un]register_field()
+         - [un]register_function_field()
+         - [un]register_relationtype()
+        """
         return self._model_registries[model]
+
+    def clear_model(self, model: type[CremeEntity]) -> None:
+        """Remove the sub-registry related to a madel (& so all related cells)."""
+        del self._model_registries[model]
 
 
 smart_columns_registry = SmartColumnsRegistry()
