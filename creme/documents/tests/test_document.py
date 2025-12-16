@@ -146,7 +146,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'pdf'))
-    def test_createview01(self):
+    def test_creation_view(self):
         user = self.login_as_root_and_get()
 
         self.assertFalse(Document.objects.exists())
@@ -206,8 +206,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         b''.join(response.streaming_content)
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'png', 'py'))
-    def test_createview02(self):
-        "Forbidden extension."
+    def test_creation_view__forbidden_extension(self):
         user = self.login_as_root_and_get()
 
         ext = 'php'
@@ -233,7 +232,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         b''.join(response.streaming_content)
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'png', 'py'))
-    def test_createview03(self):
+    def test_creation_view__double_extension(self):
         "Double extension (bugfix)."
         user = self.login_as_root_and_get()
 
@@ -258,8 +257,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         # Avoid <ResourceWarning: unclosed file...>
         b''.join(response.streaming_content)
 
-    def test_createview04(self):
-        "No extension."
+    def test_creation_view__no_extension(self):
         user = self.login_as_root_and_get()
 
         title = 'My doc'
@@ -280,8 +278,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         # Avoid <ResourceWarning: unclosed file...>
         b''.join(response.streaming_content)
 
-    def test_createview05(self):
-        "No title."
+    def test_creation_view__no_title(self):
         user = self.login_as_root_and_get()
 
         ext = settings.ALLOWED_EXTENSIONS[0]
@@ -307,8 +304,8 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(file_name, doc.title)
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'png'))
-    def test_createview06(self):
-        "Upload image + capital extension (bugfix)."
+    def test_creation_view__uppercase_extension(self):
+        "Uploaded image + upper-case extension (bugfix)."
         user = self.login_as_root_and_get()
 
         with open(
@@ -332,7 +329,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         self.assertTupleEqual((22, 22), size)
 
-    def test_detailview(self):
+    def test_detail_view(self):
         user = self.login_as_root_and_get()
 
         create_cat = DocumentCategory.objects.create
@@ -362,12 +359,12 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             ],
         )
 
-    def test_editview(self):
+    def test_edition_view(self):
         user = self.login_as_root_and_get()
 
         title = 'Test doc'
         description = 'Test description'
-        content = 'Yes I am the content (DocumentTestCase.test_editview)'
+        content = 'Yes I am the content (DocumentTestCase.test_edition_view)'
         doc = self._create_doc(
             user=user,
             title=title,
@@ -407,7 +404,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         self.assertRedirects(response, doc.get_absolute_url())
 
-    def test_add_related_document01(self):
+    def test_add_related_document(self):
         user = self.login_as_root_and_get()
         root_folder = self.get_object_or_fail(Folder, uuid=UUID_FOLDER_RELATED2ENTITIES)
 
@@ -471,7 +468,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertInstanceLink(brick_node, doc1)
         self.assertInstanceLink(brick_node, doc2)
 
-    def test_add_related_document02(self):
+    def test_add_related_document__creation_perms(self):
         "Creation credentials."
         user = self.login_as_standard(allowed_apps=['documents', 'creme_core'])
         self.add_credentials(user.role, all='*')
@@ -479,7 +476,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         entity = CremeEntity.objects.create(user=user)
         self.assertGET403(self._build_addrelated_url(entity))
 
-    def test_add_related_document03(self):
+    def test_add_related_document__link_perms(self):
         "Link credentials."
         user = self.login_as_standard(
             allowed_apps=['documents', 'creme_core'],
@@ -521,7 +518,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             ),
         )
 
-    def test_add_related_document04(self):
+    def test_add_related_document__link_perms_on_related(self):
         "Link credentials with related entity are needed."
         user = self.login_as_standard(
             allowed_apps=['documents', 'creme_core'],
@@ -537,7 +534,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         url = self._build_addrelated_url(orga)
         self.assertGET403(url)
 
-    def test_add_related_document05(self):
+    def test_add_related_document__view_perms(self):
         "View credentials."
         user = self.login_as_standard(
             allowed_apps=['documents', 'creme_core'],
@@ -550,7 +547,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertFalse(user.has_perm_to_view(orga))
         self.assertGET403(self._build_addrelated_url(orga))
 
-    def test_add_related_document06(self):
+    def test_add_related_document__long_folder_name(self):
         "The Folder containing all the Documents related to the entity has a too long name."
         user = self.login_as_root_and_get()
 
@@ -586,7 +583,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertStartsWith(title, f'{entity.id}_AAAAAAA')
         self.assertEndsWith(title, '…')
 
-    def test_add_related_document07(self):
+    def test_add_related_document__folder_name_collision(self):
         "Collision with Folder titles."
         user = self.login_as_root_and_get()
         entity = CremeEntity.objects.create(user=user)
@@ -680,7 +677,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertIsNone(folder.category)
 
     @skipIfCustomContact
-    def test_field_printers_fk01(self):
+    def test_field_printers__fk__image(self):
         "Field printer with FK on Image."
         user = self.login_as_root_and_get()
 
@@ -715,7 +712,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
 
     @skipIfCustomContact
-    def test_field_printers_fk02(self):
+    def test_field_printers__fk__image__perms(self):
         "Field printer with FK on Image + credentials."
         Contact = get_contact_model()
 
@@ -764,7 +761,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
 
     @skipIfCustomContact
-    def test_field_printers_fk03(self):
+    def test_field_printers__fk__not_image(self):
         "Document is not an Image."
         user = self.login_as_root_and_get()
 
@@ -781,8 +778,8 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
     @skipIf(skip_product_test, '"Product" model is not available.')
     @override_settings(HIDDEN_VALUE='XXX', CELL_SIZE=20)
-    def test_field_printers_m2m(self):
-        "Field printer with FK on Image."
+    def test_field_printers__m2m(self):
+        "Field printer with M2M on Image."
         from creme.products import get_product_model
         from creme.products.models import SubCategory
 
@@ -882,7 +879,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
 @skipIfCustomDocument
 @skipIfCustomFolder
 class DocumentQuickWidgetTestCase(_DocumentsTestCase):
-    def test_add_csv_doc01(self):
+    def test_add_csv_doc(self):
         user = self.login_as_root_and_get()
 
         self.assertFalse(Document.objects.exists())
@@ -925,18 +922,17 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         with doc.filedata.open('r') as f:
             self.assertEqual([content], f.readlines())
 
-    def test_add_csv_doc02(self):
-        "Not super-user."
+    def test_add_csv_doc__regular_user(self):
         self.login_as_standard(allowed_apps=['documents'], creatable_models=[Document])
         self.assertGET200(reverse('documents__create_document_from_widget'))
 
-    def test_add_csv_doc03(self):
+    def test_add_csv_doc__creation_perms(self):
         "Creation permission needed."
         self.login_as_standard(allowed_apps=['documents'])
         self.assertGET403(reverse('documents__create_document_from_widget'))
 
     @override_settings(ALLOWED_EXTENSIONS=('png', 'pdf'))
-    def test_add_image_doc01(self):
+    def test_add_image_doc(self):
         user = self.login_as_root_and_get()
 
         url = reverse('documents__create_image_popup')
@@ -983,8 +979,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         )
 
     @override_settings(ALLOWED_EXTENSIONS=('png', 'pdf'))
-    def test_add_image_doc02(self):
-        "Not an image file."
+    def test_add_image_doc__not_image_file(self):
         user = self.login_as_root_and_get()
 
         folder = Folder.objects.all()[0]
