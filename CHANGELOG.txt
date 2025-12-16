@@ -1,4 +1,4 @@
-== Version 2.7.3 Work in progress (not released -- this is a draft) ==
+== Version 2.7.3 ==
 
   UPGRADE NOTES :
     - Do not forget to tun the command "generatemedia".
@@ -6,7 +6,7 @@
   Users side :
   ------------
     # Some styling issue in list-view with hidden cells in last position
-     (like 'billing' ones) have been fixed.
+      (like 'billing' ones) have been fixed.
 
   Developers side :
   -----------------
