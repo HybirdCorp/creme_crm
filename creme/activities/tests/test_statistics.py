@@ -13,8 +13,7 @@ from .base import Activity, _ActivitiesTestCase, skipIfCustomActivity
 
 
 class StatisticsTestCase(_ActivitiesTestCase):
-    def test_average_per_month01(self):
-        "Empty."
+    def test_average_per_month__empty(self):
         self.assertListEqual(
             [
                 _('No meeting since one year'),
@@ -24,8 +23,7 @@ class StatisticsTestCase(_ActivitiesTestCase):
         )
 
     @skipIfCustomActivity
-    def test_average_per_month02(self):
-        "1 meeting per month."
+    def test_average_per_month__1_meeting_per_month(self):
         now_value = now()
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         create_activity = partial(
@@ -57,7 +55,7 @@ class StatisticsTestCase(_ActivitiesTestCase):
         )
 
     @skipIfCustomActivity
-    def test_average_per_month03(self):
+    def test_average_per_month__15_meetings_per_month(self):
         "1.5 meeting per month."
         now_value = now()
         sub_type1 = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
@@ -104,7 +102,7 @@ class StatisticsTestCase(_ActivitiesTestCase):
         )
 
     @skipIfCustomActivity
-    def test_average_per_month04(self):
+    def test_average_per_month__05_phone_call_per_month(self):
         "0.5 phone call per month."
         now_value = now()
         create_activity = partial(Activity.objects.create, user=self.get_root_user())

@@ -45,19 +45,19 @@ class ActivityRangeFieldTestCase(CremeTestCase):
         self.assertNotEqual(build_range(busy=False),   act_range)
         self.assertNotEqual(build_range(start=None),   act_range)
 
-    def test_clean_empty_required(self):
+    def test_clean__empty__required(self):
         field = ActivityRangeField(required=True)
         msg = _('This field is required.')
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
 
-    def test_clean_empty_not_required(self):
+    def test_clean__empty__not_required(self):
         field = ActivityRangeField(required=False)
         self.assertIsNone(field.clean([]))
         self.assertIsNone(field.clean(['']))
         self.assertIsNone(field.clean(['', '']))
 
-    def test_clean_complete(self):
+    def test_clean__complete(self):
         field = ActivityRangeField()
 
         DWOT = DateWithOptionalTimeField.DateWithOptionalTime
@@ -76,7 +76,7 @@ class ActivityRangeFieldTestCase(CremeTestCase):
             ]),
         )
 
-    def test_clean_partial_datetime(self):
+    def test_clean__partial_datetime(self):
         field = ActivityRangeField()
 
         DWOT = DateWithOptionalTimeField.DateWithOptionalTime
@@ -95,7 +95,7 @@ class ActivityRangeFieldTestCase(CremeTestCase):
             ]),
         )
 
-    def test_clean_partial_not_required(self):
+    def test_clean__partial__not_required(self):
         field = ActivityRangeField(required=False)
         DWOT = DateWithOptionalTimeField.DateWithOptionalTime
         self.assertEqual(
@@ -390,7 +390,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertFalse(activity.is_all_day)
         self.assertFalse(activity.busy)
 
-    def test_start_computed_end_all_day01(self):
+    def test_start_computed_end_all_day(self):
         user = self.login_as_root_and_get()
 
         atype = ActivityType.objects.create(
@@ -432,7 +432,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertTrue(activity.is_all_day)
         self.assertEqual(Activity.FloatingType.NARROW, activity.floating_type)
 
-    def test_start_computed_end_all_day02(self):
+    def test_start_computed_end_all_day__not_round(self):
         "Duration is not a round number of days."
         user = self.login_as_root_and_get()
 
