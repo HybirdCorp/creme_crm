@@ -53,7 +53,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         'minutes_colselect':     0,
     }
 
-    def test_import01(self):
+    def test_import(self):
         user = self.login_as_root_and_get()
 
         url = self._build_import_url(Activity)
@@ -211,7 +211,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_import02(self):
+    def test_import__participants_n_subjects(self):
         """Static user participants (+ calendars), dynamic participants with
         search on first_name/last_name.
         Dynamic subjects without creation.
@@ -363,7 +363,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertHaveRelation(subject=user_contact, type=PARTICIPATES, object=act4)
 
     @skipIfCustomContact
-    def test_import03(self):
+    def test_import__participants__last_name_first_name(self):
         "Dynamic participants with cell splitting & pattern '$last_name $first_name'."
         user = self.login_as_root_and_get()
 
@@ -475,7 +475,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertHaveRelation(act5, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
 
     @skipIfCustomContact
-    def test_import04(self):
+    def test_import__participants__civility(self):
         "Another cell splitting type: pattern '$civility $first_name $last_name'."
         user = self.login_as_root_and_get()
 
@@ -517,7 +517,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertHaveRelation(subject=act1, type=constants.REL_OBJ_PART_2_ACTIVITY, object=aoi)
 
     @skipIfCustomOrganisation
-    def test_import05(self):
+    def test_import__participants__search_n_create(self):
         "Dynamic participants with search on first_name/last_name + creation."
         user = self.login_as_root_and_get()
 
@@ -558,7 +558,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         )
 
     @skipIfCustomContact
-    def test_import06(self):
+    def test_import__participants__split_n_create(self):
         "Dynamic participants with cell splitting + creation."
         user = self.login_as_root_and_get()
 
@@ -597,7 +597,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         oga = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertHaveRelation(subject=task, type=constants.REL_OBJ_PART_2_ACTIVITY, object=oga)
 
-    def test_import07(self):
+    def test_import__participants__creation_perms(self):
         "Search on first_name/last_name + not creation credentials."
         user = self.login_as_activities_user(
             allowed_apps=('documents',),
@@ -631,8 +631,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.get_object_or_fail(Activity, title=title)
         self.assertFalse(Contact.objects.filter(first_name=first_name, last_name=last_name))
 
-    def test_import08(self):
-        "Property creation (regular post creation handler should be called)"
+    def test_import__property(self):
+        "Property creation (regular post creation handler should be called)."
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.create(text='Has been imported')
@@ -659,7 +659,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertHasProperty(entity=act, ptype=ptype)
 
     @skipIfCustomContact
-    def test_import_errors(self):
+    def test_import__errors__link_perms(self):
         "Link credentials for user's Contact."
         user = self.login_as_activities_user(
             allowed_apps=('documents',),
@@ -700,7 +700,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_import_subjects01(self):
+    def test_import__subjects__contact_fallback(self):
         """Subject: Contact is searched if Organisation is not found.
         No creation asked.
         """
@@ -808,7 +808,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             jr_error.messages,
         )
 
-    def test_import_subjects02(self):
+    def test_import__subjects__creation(self):
         "Subject: creation."
         user = self.login_as_root_and_get()
 
@@ -837,7 +837,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             subject=orga, type=constants.REL_SUB_ACTIVITY_SUBJECT, object=task,
         )
 
-    def test_import_subjects03(self):
+    def test_import__subjects__creation_perms(self):
         "Subject: creation credentials."
         user = self.login_as_activities_user(
             allowed_apps=('documents',),
@@ -867,7 +867,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertFalse(Organisation.objects.filter(name__icontains=name))
 
     @skipIfCustomOrganisation
-    def test_import_subjects04(self):
+    def test_import__subjects__view_perms(self):
         "Subject: view credentials."
         user = self.login_as_activities_user(
             allowed_apps=('documents',), creatable_models=[Activity, Document],
@@ -1038,7 +1038,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         )
 
     @skipIfCustomContact
-    def test_participants_multicol_extractor01(self):
+    def test_participants_multicol_extractor(self):
         user = self.login_as_root_and_get()
 
         # -----
@@ -1092,8 +1092,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         )
 
     @skipIfCustomContact
-    def test_participants_multicol_extractor02(self):
-        "View credentials."
+    def test_participants_multicol_extractor__view_perms(self):
         user = self.login_as_activities_user()
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
@@ -1108,8 +1107,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertFalse(err_msg)
 
     @skipIfCustomContact
-    def test_participants_multicol_extractor03(self):
-        "Link credentials."
+    def test_participants_multicol_extractor__link_perms(self):
         user = self.login_as_activities_user()
         self.add_credentials(user.role, own=['VIEW', 'LINK'], all=['VIEW'])
 
@@ -1141,7 +1139,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertEqual([aoi], contacts)
         self.assertFalse(err_msg)
 
-    def test_participants_multicol_extractor04(self):
+    def test_participants_multicol_extractor__creation(self):
         "Creation if not found."
         user = self.login_as_root_and_get()
 
@@ -1164,7 +1162,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         )
 
     @skipIfCustomContact
-    def test_participants_singlecol_extractor01(self):
+    def test_participants_singlecol_extractor(self):
         "SplitColumnParticipantsExtractor."
         user = self.login_as_root_and_get()
         ext = SplitColumnParticipantsExtractor(1, '#', _pattern_FL)
@@ -1209,7 +1207,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         )
 
     @skipIfCustomContact
-    def test_participants_singlecol_extractor02(self):
+    def test_participants_singlecol_extractor__perms(self):
         "SplitColumnParticipantsExtractor + credentials"
         user = self.login_as_activities_user()
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
@@ -1224,7 +1222,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertFalse(err_msg)
 
     @skipIfCustomContact
-    def test_participants_singlecol_extractor03(self):
+    def test_participants_singlecol_extractor__creation(self):
         "Creation if not found + civility."
         user = self.login_as_root_and_get()
         ext = SplitColumnParticipantsExtractor(1, '#', _pattern_CFL, create_if_unfound=True)
@@ -1264,8 +1262,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertEqual(mister, furuichi.civility)
 
     @skipIfCustomContact
-    def test_subjects_extractor01(self):
-        "Link credentials."
+    def test_subjects_extractor__link_perms(self):
         user = self.login_as_activities_user(
             allowed_apps=('documents',),
             creatable_models=[Activity, Document],
@@ -1301,8 +1298,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertFalse(err_msg)
 
     @skipIfCustomContact
-    def test_subjects_extractor02(self):
-        "Limit."
+    def test_subjects_extractor__limit(self):
         user = self.login_as_root_and_get()
         ext = SubjectsExtractor(1, '#')
 
@@ -1329,8 +1325,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         )
 
     @skipIfNotInstalled('creme.tickets')
-    def test_subjects_extractor03(self):
-        "Other ContentType."
+    def test_subjects_extractor__other_ctype(self):
         from creme.tickets.models import Criticity, Priority, Ticket
 
         rtype = self.get_object_or_fail(RelationType, pk=constants.REL_OBJ_ACTIVITY_SUBJECT)

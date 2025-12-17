@@ -13,7 +13,7 @@ from .base import Activity, _ActivitiesTestCase, skipIfCustomActivity
 
 
 @skipIfCustomActivity
-class ActivityCreatePopupTestCase(_ActivitiesTestCase):
+class ActivityCreationPopupTestCase(_ActivitiesTestCase):
     ACTIVITY_POPUP_CREATION_URL = reverse('activities__create_activity_popup')
     TITLE = 'Meeting activity'
 
@@ -34,21 +34,20 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         ({'start': 'invalid', 'end': 'invalid'}, 404),
         ({'start': '2010-01-01T16:35:00', 'end': 'invalid'}, 404),
     ])
-    def test_render_invalid_param(self, data, status_code):
+    def test_invalid_parameter(self, data, status_code):
         self.login_as_root()
 
         response = self.client.get(self.ACTIVITY_POPUP_CREATION_URL, data=data)
         self.assertEqual(response.status_code, status_code)
 
-    def test_render_not_superuser(self):
-        "Not super-user."
+    def test_regular_user(self):
         self.login_as_activities_user(creatable_models=[Activity])
         self.assertGET200(
             self.ACTIVITY_POPUP_CREATION_URL,
             data={'start': '2010-01-01T16:35:00'},
         )
 
-    def test_render_not_allowed(self):
+    def test_creation_perm(self):
         "Creation perm is needed."
         self.login_as_activities_user()
         self.assertGET403(
@@ -85,7 +84,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         ('2010-01-01T23:16:00', date(2010, 1, 1), time(23, 16)),
         ('2010-01-01T00:00:00', date(2010, 1, 1), None),
     ])
-    def test_render_start_only(self, start_iso, start_date, start_time):
+    def test_start_only(self, start_iso, start_date, start_time):
         self.login_as_root()
 
         response = self.assertGET200(
@@ -101,7 +100,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertIsNone(get_initial(self.EXTRA_END_KEY))
         self.assertFalse(get_initial('is_all_day'))
 
-    def test_render_start_n_end(self):
+    def test_start_n_end(self):
         self.login_as_root()
 
         response = self.assertGET200(
@@ -119,11 +118,11 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         )
         self.assertEqual(
             (date(2010, 1, 1), time(18, 35)),
-            get_initial(self.EXTRA_END_KEY)
+            get_initial(self.EXTRA_END_KEY),
         )
         self.assertFalse(get_initial('is_all_day'))
 
-    def test_render_start_all_day(self):
+    def test_start_all_day(self):
         self.login_as_root()
 
         response = self.assertGET200(
@@ -142,7 +141,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertIsNone(get_initial(self.EXTRA_END_KEY))
         self.assertTrue(get_initial('is_all_day'))
 
-    def test_error_no_participant(self):
+    def test_error__no_participant(self):
         "No participant given."
         user = self.login_as_root_and_get()
 
@@ -164,7 +163,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             field=None, errors=_('No participant'),
         )
 
-    def test_error_my_participation_no_calendar(self):
+    def test_error__my_participation_no_calendar(self):
         "Selected myself as participant without calendar."
         user = self.login_as_root_and_get()
         response = self.assertPOST200(
@@ -190,7 +189,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
 
     def test_my_participation(self):
         user = self.login_as_root_and_get()
-        response = self.assertPOST200(
+        self.assertNoFormError(self.client.post(
             self.ACTIVITY_POPUP_CREATION_URL,
             data=self.build_submit_data(
                 user,
@@ -205,9 +204,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
                     f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk
                 }
             ),
-        )
-
-        self.assertNoFormError(response)
+        ))
 
         self.assertEqual(1, Activity.objects.count())
         activity = self.get_object_or_fail(Activity, title=self.TITLE)
@@ -232,7 +229,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             is_custom=True,
         )
 
-        response = self.assertPOST200(
+        self.assertNoFormError(self.client.post(
             self.ACTIVITY_POPUP_CREATION_URL,
             data=self.build_submit_data(
                 user,
@@ -246,8 +243,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
                     f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
                 }
             ),
-        )
-        self.assertNoFormError(response)
+        ))
 
         self.assertEqual(1, Activity.objects.count())
         activity = self.get_object_or_fail(Activity, title=self.TITLE)
@@ -266,7 +262,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         "Check that the DST transition works for all-day meetings."
         user = self.login_as_root_and_get()
 
-        response = self.assertPOST200(
+        self.assertNoFormError(self.client.post(
             self.ACTIVITY_POPUP_CREATION_URL,
             data=self.build_submit_data(
                 user,
@@ -277,8 +273,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
                     f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
                 }
             ),
-        )
-        self.assertNoFormError(response)
+        ))
 
         activity = self.get_object_or_fail(Activity, title=self.TITLE)
         create_today_dt = partial(

@@ -72,7 +72,7 @@ class UtilsTestCase(_ActivitiesTestCase):
             raise ValidationError(collisions)
 
     @skipIfCustomContact
-    def test_collision01(self):
+    def test_collision(self):
         user = self.login_as_root_and_get()
 
         sub_type1 = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
@@ -196,7 +196,7 @@ class UtilsTestCase(_ActivitiesTestCase):
 @skipIfCustomActivity
 class ICalEncoderTestCase(_ActivitiesTestCase):
     @override_tz('Europe/Paris')
-    def test_encode_activity01(self):
+    def test_encode_activity__paris(self):
         user = self.get_root_user()
         create_dt = self.create_datetime
 
@@ -228,7 +228,7 @@ class ICalEncoderTestCase(_ActivitiesTestCase):
         )
 
     @override_tz('Europe/London')
-    def test_encode_activity02(self):
+    def test_encode_activity__london(self):
         user = self.get_root_user()
         create_dt = self.create_datetime
 
@@ -262,7 +262,7 @@ class ICalEncoderTestCase(_ActivitiesTestCase):
             encoder.encode_activity(activity, tz=get_current_timezone()),
         )
 
-    def test_ZoneinfoToVtimezone01(self):
+    def test_ZoneinfoToVtimezone__paris(self):
         tz = zoneinfo.ZoneInfo('Europe/Paris')
         self.assertEqual(
             """BEGIN:VTIMEZONE
@@ -313,7 +313,7 @@ END:VTIMEZONE""",
             ),
         )
 
-    def test_ZoneinfoToVtimezone02(self):
+    def test_ZoneinfoToVtimezone__london(self):
         tz = zoneinfo.ZoneInfo('Europe/London')
         self.assertEqual(
             """BEGIN:VTIMEZONE

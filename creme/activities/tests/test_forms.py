@@ -144,7 +144,7 @@ class DateWithOptionalTimeFieldTestCase(CremeTestCase):
         )
         self.assertNotEqual(DWOT(date=date(year=2023, month=6, day=22)), o1)
 
-    def test_clean_complete(self):
+    def test_clean__complete(self):
         field = DateWithOptionalTimeField()
 
         self.assertEqual(
@@ -155,27 +155,27 @@ class DateWithOptionalTimeFieldTestCase(CremeTestCase):
             field.clean([self.formfield_value_date(2020, 12, 8), '18:44:00']),
         )
 
-    def test_clean_empty_required(self):
+    def test_clean__empty__required(self):
         field = DateWithOptionalTimeField(required=True)
         code = 'required'
         msg = Field.default_error_messages[code]
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
 
-    def test_clean_empty_not_required(self):
+    def test_clean__empty__not_required(self):
         field = DateWithOptionalTimeField(required=False)
         self.assertIsNone(field.clean([]))
         self.assertIsNone(field.clean(['']))
         self.assertIsNone(field.clean(['', '']))
 
-    def test_clean_only_date(self):
+    def test_clean__only_date(self):
         field = DateWithOptionalTimeField()
         self.assertEqual(
             field.DateWithOptionalTime(date=date(year=2020, month=11, day=9)),
             field.clean([self.formfield_value_date(2020, 11, 9)]),
         )
 
-    def test_required_property01(self):
+    def test_required_property__false(self):
         field = DateWithOptionalTimeField()
         field.required = False
 
@@ -184,7 +184,7 @@ class DateWithOptionalTimeFieldTestCase(CremeTestCase):
 
         self.assertIsNone(res)
 
-    def test_required_property02(self):
+    def test_required_property__true(self):
         field = DateWithOptionalTimeField(required=False)
         field.required = True
 
@@ -281,7 +281,7 @@ class UserParticipationFieldTestCase(CremeTestCase):
 
 
 class ParticipatingUsersFieldTestCase(CremeTestCase):
-    def test_clean_empty(self):
+    def test_clean__empty(self):
         user = self.get_root_user()
         field = ParticipatingUsersField(user=user, required=False)
         # self.assertFalse(field.clean([]))
@@ -318,7 +318,7 @@ class ParticipatingUsersFieldTestCase(CremeTestCase):
             ) % {'value': staff_user.id},
         )
 
-    def test_clean_teammate(self):
+    def test_clean__teammate(self):
         user1 = self.login_as_root_and_get()
         user2 = self.create_user(0)
         user3 = self.create_user(1)
