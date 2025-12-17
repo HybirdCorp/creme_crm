@@ -339,6 +339,8 @@ INSTALLED_CREME_APPS = [
     # CREME OPTIONAL APPS (can be safely commented) #
     # -----------------------------------------------
 
+    'creme.editor',
+
     # Manages Activities entities:
     #   - they represent meetings, phone calls, tasks...
     #   - have participants (Contacts) & subjects.
@@ -841,6 +843,9 @@ CREME_OPT_CSS = [  # APPS
 
     ('creme.geolocation', 'geolocation/css/leaflet-1.9.4.css'),
     ('creme.geolocation', 'geolocation/css/geolocation.css'),
+
+    ('creme.editor', 'editor/css/tinymce-oxide.css'),
+    ('creme.editor', 'editor/css/tinymce.css'),
 ]
 
 CREME_I18N_JS = [
@@ -866,7 +871,7 @@ CREME_LIB_JS = [
     'creme_core/js/lib/momentjs/moment-2.29.4.js',
     'creme_core/js/lib/momentjs/locale/en-us.js',
     'creme_core/js/lib/momentjs/locale/fr-fr.js',
-    'creme_core/js/lib/editor/tinymce.3.4.9.js',
+    # 'creme_core/js/lib/editor/tinymce.3.4.9.js',
     'creme_core/js/lib/Sortable/Sortable-1.15.6.js',
     'creme_core/js/lib/select2/select2-4.0.13.full.js',
     'creme_core/js/lib/select2/i18n/en.js',
@@ -989,6 +994,7 @@ CREME_OPTLIB_JS = [
     ('creme.geolocation', 'geolocation/js/lib/leaflet-1.9.4.js'),
     ('creme.sketch', 'sketch/js/lib/d3-7.8.5.js'),
     ('creme.sketch', 'sketch/js/lib/filesaver-2.0.4.js'),
+    ('creme.editor', 'editor/js/lib/tinymce-bundle-8.3.1.js'),
 ]
 
 CREME_OPT_JS = [  # OPTIONAL APPS
@@ -1057,6 +1063,9 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.geolocation',   'geolocation/js/geolocation-google.js'),
     ('creme.geolocation',   'geolocation/js/geolocation-leaflet.js'),
     ('creme.geolocation',   'geolocation/js/brick.js'),
+
+    ('creme.editor',        'editor/js/form/tinymceditor.js'),
+    ('creme.editor',        'editor/js/editor.js'),
 ]
 
 TEST_CREME_LIB_JS = [

@@ -1,0 +1,23 @@
+{
+    "name": "tinymce",
+    "version": "8.3.1",
+    "license": "GPL-3.0-only",
+    "engines": {
+        "node": "^20.0.0"
+    },
+    "scripts": {
+        "build": "webpack --config webpack.config.js"
+    },
+    "dependencies": {
+        "css-loader": "*",
+        "fs-extra": "*",
+        "html-webpack-plugin": "*",
+        "jquery": "3.7.1",
+        "mini-css-extract-plugin": "*",
+        "tinymce": "^8.3.1",
+        "@tinymce/tinymce-jquery": "*",
+        "webpack": "*",
+        "webpack-cli": "*",
+        "terser-webpack-plugin": "*"
+    }
+}

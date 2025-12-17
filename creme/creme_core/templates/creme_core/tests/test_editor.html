@@ -5,8 +5,12 @@
 {% block test_content %}
     <ul>
         <li>
-            <h4>Tiny MCE</h4>
-            <textarea widget="ui-creme-editor" class="ui-creme-editor ui-creme-widget widget-auto" basepath="tiny_mce"></textarea>
+            <h4>Tiny MCE (simple)</h4>
+            <textarea class="ui-creme-widget ui-creme-tinymceditor widget-auto" widget="ui-creme-tinymceditor" data-toolbar="simple"></textarea>
+        </li>
+        <li>
+            <h4>Tiny MCE (full)</h4>
+            <textarea class="ui-creme-widget ui-creme-tinymceditor widget-auto" widget="ui-creme-tinymceditor"></textarea>
         </li>
     </ul>
 {% endblock %}
