@@ -73,12 +73,20 @@
           ForeignKey/ManyToManyField to the model) should have a method 'portable_key()',
           & their default manager should have a method 'get_by_portable_key()'.
           See the doc-string of 'CremeEntity.portable_key()' for more details.
-        # In 'creme_core.models':
+        # In 'creme_core.gui' :
+             - New 'menu.TemplateEntry' that allows usage of Django template for rendering.
+             - New 'menu.ActionEntry' helper entry to build custom action links.
+        # In 'creme_core.models' :
              - The models 'CremePropertyType' & 'RelationType' get a JSON field
                "extra_data" which can be used by third party code.
              - The models 'EntityFilter', 'HeaderFilter' & 'UserRole' got fields "created" & "modified".
              - The models 'CremeProperty' got a field "created".
              - The models 'CremeUser' got a field "modified".
+        # In Javascript :
+             - 'creme.ajax.jqueryAjaxSend' now support the option `{redirect: 'follow'}` : Enables page redirection
+               to the XMLHttpRequest 'responseURL' (if different from the current url).
+             - Add 'creme.menu.MenuActionBuilders' action registry for menu; Use 'setup-menu-actions' to register
+               custom actions.
         # App :
             * Persons :
                 - The model 'Address' got new fields: 'created', 'modified'.
