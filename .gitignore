@@ -36,6 +36,7 @@ artifacts/*
 node_modules/
 .coverage-karma/
 .eslint.*
+**/dist/*
 
 # environment variables
 .env

@@ -25,7 +25,7 @@ class EmailsConfig(CremeAppConfig):
     default = True
     name = 'creme.emails'
     verbose_name = _('Emails')
-    dependencies = ['creme.persons', 'creme.documents']
+    dependencies = ['creme.persons', 'creme.documents', 'creme.editor']
 
     def all_apps_ready(self):
         from creme import emails

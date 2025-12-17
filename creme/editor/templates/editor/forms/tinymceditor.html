@@ -1,0 +1,9 @@
+<textarea class="ui-creme-widget ui-creme-tinymceditor{% if creme_widget_auto %} widget-auto{% endif %}"
+          widget="ui-creme-tinymceditor"
+          {% if editor_upload_url %}data-upload="{{ editor_upload_url }}"{% endif %}
+          data-toolbar="{{ editor_toolbar }}"
+          data-height="fit-rows"
+          name="{{ widget.name }}"
+          {% include "django/forms/widgets/attrs.html" %}>
+{% if widget.value %}{{ widget.value }}{% endif %}
+</textarea>

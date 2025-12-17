@@ -24,7 +24,7 @@ from creme.creme_core.forms import (
     FieldBlockManager,
     MultiCreatorEntityField,
 )
-from creme.creme_core.forms.widgets import TinyMCEEditor
+from creme.editor.forms import TinyMCEEditor
 from creme.documents import get_document_model
 
 

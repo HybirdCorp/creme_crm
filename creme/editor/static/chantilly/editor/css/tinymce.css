@@ -1,0 +1,10 @@
+.tox .tox-notification--in,
+.tox .tox-promotion,
+.tox .tox-statusbar__help-label,
+.tox .tox-tbtn[title="Get all features"],
+.tox .tox-toolbar__overflow [href*="get-tiny"] {
+  display: none !important;
+}
+.tox .tox-statusbar__branding {
+  display: none !important;
+}

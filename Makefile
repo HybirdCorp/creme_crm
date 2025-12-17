@@ -171,7 +171,6 @@ lint: isort-check flake8
 .PHONY: format
 format: isort-fix
 
-
 ## Collect the messages to translate for the entire project or the given app directories
 .PHONY: gettext-collect
 gettext-collect:
