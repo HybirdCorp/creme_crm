@@ -1,5 +1,9 @@
 {% load i18n %}
-{% if is_allowed %}
+{% if permission_error %}
+<span class="ui-creme-navigation-text-entry forbidden" title="{{ permission_error }}">
+    {{ label }}
+</span>
+{% else %}
 <a class="ui-creme-navigation-trash-entry" href="{% url 'creme_core__trash' %}">
     {{label}}
     {% if entity_count > 0 %}
@@ -8,8 +12,4 @@
     <span class="ui-creme-navigation-punctuation">)</span>
     {% endif %}
 </a>
-{% else %}
-<span class="ui-creme-navigation-text-entry forbidden" title="{{ permission_error }}">
-    {{ label }}
-</span>
 {% endif %}

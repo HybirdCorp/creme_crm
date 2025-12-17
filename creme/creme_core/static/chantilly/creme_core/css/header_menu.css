@@ -298,36 +298,39 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 }
 
 /* Role switch entry */
+
+/* Ugly hack to disable the hover state because we don't have customizable CSS classes at item level */
 .ui-creme-navigation li.ui-creme-navigation-activated li.ui-creme-navigation-item-id_creme_core-role_switch:hover {
     background: #2a414b;
 }
-.ui-creme-navigation li.ui-creme-navigation-activated li.ui-creme-navigation-item-id_creme_core-role_switch button:hover {
+.ui-creme-navigation li .ui-creme-navigation-item-id_creme_core-role_switch a:hover {
     background: #446978;
 }
-.ui-creme-navigation li.ui-creme-navigation-activated li.ui-creme-navigation-item-id_creme_core-role_switch button:disabled {
+.ui-creme-navigation li .ui-creme-navigation-item-id_creme_core-role_switch .disabled-role {
     cursor: not-allowed;
 }
-.ui-creme-navigation li.ui-creme-navigation-activated li.ui-creme-navigation-item-id_creme_core-role_switch span.ui-creme-navigation-empty {
+.ui-creme-navigation li .ui-creme-navigation-item-id_creme_core-role_switch span.ui-creme-navigation-empty {
     display: none;
 }
-.ui-creme-navigation li.ui-creme-navigation-activated li.ui-creme-navigation-item-id_creme_core-role_switch span.ui-creme-navigation-title {
+.ui-creme-navigation li .ui-creme-navigation-item-id_creme_core-role_switch .ui-creme-navigation-title {
     border-top: 1px solid #a29d9d;
     margin-top: 5px;
-    padding-top: 5px;
+    padding-top: 10px;
 }
 .ui-creme-navigation-item-id_creme_core-role_switch .disabled-role {
     text-decoration: line-through;
+    color: 1px solid #929ba9;
 }
 .ui-creme-navigation div.marker-selected,
 .ui-creme-navigation div.marker-not-selected {
     display: inline-block;
-    margin-right: 3px;
+    margin-right: 5px;
 
     width: 10px;
     height: 10px;
     border-radius: 5px;
 }
-.ui-creme-navigation div.marker-selected  {
+.ui-creme-navigation div.marker-selected {
     background: #ebebeb;
 }
 .ui-creme-navigation div.marker-not-selected {
