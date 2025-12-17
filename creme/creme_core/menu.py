@@ -82,9 +82,7 @@ class TrashEntry(menu.TemplateEntry):
 
     def get_context(self, context):
         context = super().get_context(context)
-
-        count = CremeEntity.objects.filter(is_deleted=True).count()
-        context["entity_count"] = count
+        context["entity_count"] = CremeEntity.objects.filter(is_deleted=True).count()
         return context
 
 
@@ -112,37 +110,18 @@ class RoleSwitchEntry(menu.TemplateEntry):
     template_name = 'creme_core/menu/role-switch.html'
     id = 'creme_core-role_switch'
     label = _('Available roles')
-    url_name = 'creme_core__switch_role'
 
     def get_context(self, context):
         context = super().get_context(context)
         user = context['user']
-
-        actions = []
 
         if not user.is_superuser:
             # TODO: user.normalize_roles(roles)?
             roles = user.roles.all()
 
             if len(roles) > 1:
-                switch_url_name = self.url_name
-                props = {
-                    "options": {
-                        "redirectOnSuccess": reverse("creme_core__home")
-                    }
-                }
+                context["roles"] = [(role, role.id == user.role_id) for role in roles]
 
-                actions = [
-                    {
-                        "label": str(role),
-                        "disabled": role.deactivated_on,
-                        "selected": role.id == user.role_id,
-                        "url": reverse(switch_url_name, args=(user.id, role.id)),
-                        "props": props
-                    } for role in roles
-                ]
-
-        context["roles"] = actions
         return context
 
 

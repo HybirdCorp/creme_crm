@@ -1,19 +1,21 @@
-{% load jsondata from creme_core_tags %}
+{% load blockjsondata from creme_core_tags %}
 {% if roles %}
 <span class="ui-creme-navigation-title{% if not roles %} ui-creme-navigation-empty{% endif %}">{{ label }}</span>
-{% for role in roles %}
-    {% if role.disabled %}
+{% for role, selected in roles %}
+    {% if role.deactivated_on %}
 <div class="disabled-role ui-creme-navigation-text-entry">
-    <div class="marker-not-selected"></div>{{ role.label }}
+    <div class="marker-not-selected"></div>{{ role }}
 </div>
-    {% elif role.selected %}
+    {% elif selected %}
 <div class="ui-creme-navigation-text-entry">
-    <div class="marker-selected"></div>{{ role.label }}
+    <div class="marker-selected"></div>{{ role }}
 </div>
     {% else %}
-<a data-action="update" href="{{ role.url }}">
-    <div class="marker-not-selected"></div>{{ role.label }}
-    {% jsondata role.props %}
+<a data-action="update" href="{% url 'creme_core__switch_role' user.id role.id %}">
+    <div class="marker-not-selected"></div>{{ role }}
+    {% blockjsondata %}
+    {"options":{"redirectOnSuccess":"{% url 'creme_core__home' %}"}}
+    {% endblockjsondata %}
 </a>
     {% endif %}
 {% endfor %}

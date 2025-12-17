@@ -252,10 +252,10 @@ class ListviewEntry(FixedURLEntry):
 
 
 class TemplateEntry(MenuEntry):
-    template_name = None
+    template_name = 'creme_core.gui.menu.TemplateEntry'
 
     def get_template(self, context):
-        template_name = getattr(self, 'get_template_name', self.template_name)
+        template_name = context['template_name']
 
         if template_name is None:
             raise ImproperlyConfigured(
@@ -271,18 +271,16 @@ class TemplateEntry(MenuEntry):
 
         try:
             self.check_permissions(user)
-            is_allowed = True
             permission_error = ''
         except PermissionDenied as e:
-            is_allowed = False
             permission_error = str(e)
 
         ctx = {
             'label': label,
             'request': context,
             'user': user,
-            'is_allowed': is_allowed,
             'permission_error': permission_error,
+            'template_name': self.template_name
         }
 
         return ctx
@@ -318,8 +316,7 @@ class ActionEntry(TemplateEntry):
         if not self.icon_name:
             return
 
-        if not context.get('is_allowed'):
-            title = context.get('permission_error') or title
+        title = context.get('permission_error') or title
 
         theme = context['user'].theme_info[0]
         return get_icon_by_name(

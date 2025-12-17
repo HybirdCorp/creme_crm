@@ -332,10 +332,10 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
     height: 10px;
     border-radius: 5px;
 }
-.ui-creme-navigation div.marker-selected  {
+.ui-creme-navigation div.marker-selected {
     background: #ebebeb;
 }
-.ui-creme-navigation div.marker-not-selected  {
+.ui-creme-navigation div.marker-not-selected {
     border: 1px solid #ebebeb;
 }
 
