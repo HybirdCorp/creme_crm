@@ -3,8 +3,9 @@ from functools import partial
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
+from django.template import TemplateDoesNotExist
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape
@@ -295,8 +296,8 @@ class MenuTestCase(CremeTestCase):
             'label': 'Template',
             'request': context,
             'user': user,
-            'is_allowed': True,
             'permission_error': "",
+            'template_name': 'creme_core/menu/link.html'
         }, entry.get_context(context))
 
         self.assertHTMLEqual(
@@ -319,11 +320,11 @@ class MenuTestCase(CremeTestCase):
             'label': 'Template',
             'request': context,
             'user': user,
-            'is_allowed': True,
             'permission_error': "",
+            'template_name': 'creme_core.gui.menu.TemplateEntry',
         }, entry.get_context(context))
 
-        with self.assertRaises(ImproperlyConfigured):
+        with self.assertRaises(TemplateDoesNotExist):
             entry.render(context)
 
     def test_template_entry__not_allowed(self):
@@ -345,8 +346,8 @@ class MenuTestCase(CremeTestCase):
             'label': 'Template',
             'request': context,
             'user': user,
-            'is_allowed': False,
             'permission_error': permission_error,
+            'template_name': 'creme_core/menu/link.html',
         }, entry.get_context(context))
 
         self.assertHTMLEqual(
@@ -399,8 +400,8 @@ class MenuTestCase(CremeTestCase):
             'label': 'Action A',
             'request': context,
             'user': user,
-            'is_allowed': True,
             'permission_error': '',
+            'template_name': 'creme_core/menu/action.html',
         }, entry_context)
 
         self.assertIsNotNone(entry_action_context.pop('icon'))
@@ -454,8 +455,8 @@ class MenuTestCase(CremeTestCase):
             'label': 'Action A',
             'request': context,
             'user': user,
-            'is_allowed': False,
             'permission_error': permission_error,
+            'template_name': 'creme_core/menu/action.html',
         }, entry_context)
 
         self.assertIsNotNone(entry_action_context.pop('icon'))
