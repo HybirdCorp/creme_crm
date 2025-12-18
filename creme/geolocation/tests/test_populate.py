@@ -48,8 +48,8 @@ class CSVPopulatorTestCase(CremeTestCase):
         mapper = populator._mapper(['name', 'value', 'code'])
         self.assertDictEqual({'name': 'A', 'code': 15}, mapper(['A', 11200, 15]))
 
-    def test_columns_defaults(self):
-        """ default column exists in file header """
+    def test_columns__defaults(self):
+        """Default column exists in file header."""
         populator = MockCSVPopulator(['name', 'code', 'value'], defaults={'value': 8})
         self.assertListEqual(populator.columns, ['name', 'code', 'value'])
 
@@ -57,8 +57,8 @@ class CSVPopulatorTestCase(CremeTestCase):
         self.assertDictEqual({'name': 'A', 'code': 15, 'value': 11200}, mapper(['A', 11200, 15]))
         self.assertDictEqual({'name': 'B', 'code': 28, 'value': 8},     mapper(['B', None,  28]))
 
-    def test_columns_constants(self):
-        """ default column doesn't exist in file header """
+    def test_columns__constants(self):
+        """Default column doesn't exist in file header."""
         populator = MockCSVPopulator(['name', 'code', 'value'], defaults={'value': 8})
         self.assertListEqual(populator.columns, ['name', 'code', 'value'])
 
@@ -66,7 +66,7 @@ class CSVPopulatorTestCase(CremeTestCase):
         self.assertDictEqual({'name': 'A', 'code': 15, 'value': 8}, mapper(['A', 15]))
         self.assertDictEqual({'name': 'B', 'code': 28, 'value': 8}, mapper(['B', 28]))
 
-    def test_columns_missing_columns(self):
+    def test_columns__missing_columns(self):
         populator = MockCSVPopulator(['name', 'code', 'other', 'value'])
         self.assertListEqual(populator.columns, ['name', 'code', 'other', 'value'])
 
@@ -147,7 +147,7 @@ class CSVPopulatorTestCase(CremeTestCase):
         )
         self.assertListEqual(populator.mock_chunk_errors, [])
 
-    def test_populate_from_missing_file(self):
+    def test_populate__missing_file(self):
         populator = MockCSVPopulator(['name', 'code'])
         name = 'unknown'
 
@@ -156,7 +156,7 @@ class CSVPopulatorTestCase(CremeTestCase):
 
         self.assertIn(f'Unable to open CSV data from {name}', str(error.exception))
 
-    def test_populate_from_invalid_file(self):
+    def test_populate__invalid_file(self):
         columns = ['name', 'code']
         populator = MockCSVPopulator([*columns])
 
@@ -170,7 +170,7 @@ class CSVPopulatorTestCase(CremeTestCase):
             f"Following columns are missing and haven't got any default value: {columns}",
         )
 
-    def test_populate_from_invalid_protocol(self):
+    def test_populate__invalid_protocol(self):
         populator = MockCSVPopulator(['name', 'code'])
         url = 'unknown://creme/geolocation/populate.py'
 
@@ -182,7 +182,7 @@ class CSVPopulatorTestCase(CremeTestCase):
             f'Unable to open CSV data from {url} : unsupported protocol.'
         )
 
-    def test_populate_from_file(self):
+    def test_populate__file(self):
         populator = MockCSVPopulator(['name', 'code'])
         populator.populate(str(
             Path(settings.CREME_ROOT) / 'geolocation' / 'tests' / 'data' / 'valid.csv'
@@ -197,7 +197,7 @@ class CSVPopulatorTestCase(CremeTestCase):
             ],
         )
 
-    def test_populate_from_invalid_zip_file(self):
+    def test_populate__invalid_zip_file(self):
         populator = MockCSVPopulator(['name', 'code'])
         url = Path(settings.CREME_ROOT) / 'geolocation' / 'tests' / 'data' / 'not_archive.csv.zip'
 
@@ -209,7 +209,7 @@ class CSVPopulatorTestCase(CremeTestCase):
             f'Unable to open CSV data from {url} : File is not a zip file'
         )
 
-    def test_populate_from_zip_file(self):
+    def test_populate__zip_file(self):
         populator = MockCSVPopulator(['name', 'code'])
         populator.populate(str(
             Path(settings.CREME_ROOT) / 'geolocation' / 'tests' / 'data' / 'valid.csv.zip'
@@ -224,7 +224,7 @@ class CSVPopulatorTestCase(CremeTestCase):
             ],
         )
 
-    def test_populate_from_http(self):
+    def test_populate__http(self):
         populator = MockCSVPopulator(['name', 'code'])
 
         csv_file = open(
@@ -249,7 +249,7 @@ class CSVPopulatorTestCase(CremeTestCase):
             ],
         )
 
-    def test_populate_from_http_zip(self):
+    def test_populate__http_zip(self):
         populator = MockCSVPopulator(['name', 'code'])
 
         zip_file = open(
@@ -311,7 +311,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
     def assertTown(self, town, **kwargs):
         self.assertModelInstance(town, Town, **kwargs)
 
-    def test_populate_does_not_exist(self):
+    def test_populate__does_not_exist(self):
         self.assertEqual(0, Town.objects.count())
 
         self.command.import_town_database(
@@ -339,7 +339,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
             slug='saint-bonnet-sur-gironde', longitude=-0.666667, latitude=45.35,
         )
 
-    def test_populate_exists_updated(self):
+    def test_populate__exists_updated(self):
         Town.objects.create(zipcode='01190', name='Ozan', slug='ozan', longitude=0.0, latitude=0.0)
         self.assertEqual(1, Town.objects.count())
 
@@ -368,7 +368,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
             slug='saint-bonnet-sur-gironde', longitude=-0.666667, latitude=45.35,
         )
 
-    def test_populate_invalid_ignored(self):
+    def test_populate__invalid_ignored(self):
         self.command.import_town_database(
             [self.HEADER, self.OZAN, self.PERON, self.INVALID, self.ACOUA],
             {'country': 'FRANCE'},
@@ -391,7 +391,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_create_geoaddress_no_town(self):
+    def test_create_geoaddress__no_town(self):
         user = self.login_as_root_and_get()
 
         self.assertEqual(0, GeoAddress.objects.count())
@@ -432,7 +432,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_create_geoaddress_with_town(self):
+    def test_create_geoaddress__with_town(self):
         user = self.login_as_root_and_get()
         self.command.import_town_database(
             [self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET],

@@ -32,7 +32,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
 
         self.orga = Organisation.objects.create(name='Orga 1', user=self.user)
 
-    def test_create(self):
+    def test_create_address(self):
         town = self.marseille2
         address = self.create_address(
             self.orga,
@@ -50,7 +50,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             status=GeoAddress.Status.PARTIAL,
         )
 
-    def test_cache(self):
+    def test_create_address__cache(self):
         town = self.marseille2
         address = self.create_address(
             self.orga,
@@ -60,7 +60,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         with self.assertNumQueries(0):
             _ = address.geoaddress
 
-    def test_create_empty_address(self):
+    def test_create_address__empty(self):
         address = Address.objects.create(owner=self.orga)
         self.assertGeoAddress(
             address.geoaddress,
@@ -70,7 +70,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             status=GeoAddress.Status.UNDEFINED,
         )
 
-    def test_create_zipcode(self):
+    def test_create_address__zipcode(self):
         town1 = self.marseille2
         create_address = partial(Address.objects.create, owner=self.orga)
         address = create_address(zipcode=town1.zipcode)
@@ -92,7 +92,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             status=GeoAddress.Status.PARTIAL,
         )
 
-    def test_create_zipcode_duplicate_towns(self):
+    def test_create_address__zipcode__duplicated(self):
         town1 = self.marseille1
         town2 = self.marseille2
         town3 = self.aubagne
@@ -137,7 +137,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             status=GeoAddress.Status.PARTIAL,
         )
 
-    def test_create_unknown_zipcode(self):
+    def test_create_address__zipcode__unknown(self):
         address = Address.objects.create(owner=self.orga, zipcode='12100')
         self.assertGeoAddress(
             address.geoaddress,
@@ -147,7 +147,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             status=GeoAddress.Status.UNDEFINED,
         )
 
-    def test_create_city(self):
+    def test_create_address__city(self):
         town1 = self.marseille1
         create_address = partial(Address.objects.create, owner=self.orga)
         address = create_address(city=town1.name)
@@ -169,7 +169,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             status=GeoAddress.Status.PARTIAL,
         )
 
-    def test_create_unknown_city(self):
+    def test_create_address__city__unknown(self):
         address = Address.objects.create(owner=self.orga, city='Unknown')
         self.assertGeoAddress(
             address.geoaddress,
@@ -202,7 +202,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             status=GeoAddress.Status.PARTIAL,
         )
 
-    def test_update_unknown_city(self):
+    def test_update_city__unknown(self):
         town = self.marseille1
         address = Address.objects.create(owner=self.orga, city=town.name)
         self.assertGeoAddress(
@@ -261,7 +261,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             status=GeoAddress.Status.UNDEFINED,
         )
 
-    def test_populate_address_no_town(self):
+    def test_populate_address__no_town(self):
         address = Address.objects.create(owner=self.orga, address='La Major')
 
         GeoAddress.objects.all().delete()
@@ -353,7 +353,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         GeoAddress.populate_geoaddresses(addresses)
         self.assertEqual(GeoAddress.objects.count(), 5)
 
-    def test_populate_addresses_update(self):
+    def test_populate_addresses__update(self):
         town1 = self.marseille1
         town2 = self.marseille2
         town3 = self.aubagne
@@ -472,7 +472,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             status=GeoAddress.Status.UNDEFINED,
         )
 
-    def test_dispose_on_address_delete(self):
+    def test_address_deletion(self):
         town = self.marseille2
         address = Address.objects.create(
             owner=self.orga,
@@ -485,7 +485,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         address.delete()
         self.assertEqual(GeoAddress.objects.count(), 0)
 
-    def test_dispose_on_address_delete_no_geoaddress(self):
+    def test_address_deletion__no_geoaddress(self):
         town = self.marseille2
         address = Address.objects.create(
             owner=self.orga,
@@ -556,7 +556,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         )
 
     @skipIfCustomContact
-    def test_neighbours_with_same_owner(self):
+    def test_neighbours__same_owner(self):
         contact = Contact.objects.create(last_name='Contact 1', user=self.user)
 
         town1 = self.marseille1
@@ -589,7 +589,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         )  # ignore aubagne, same owner !
 
     @skipIfCustomContact
-    def test_neighbours_with_empty_coordinates(self):
+    def test_neighbours__empty_coordinates(self):
         contact = Contact.objects.create(last_name='Contact 1', user=self.user)
         town = self.marseille1
 
@@ -614,11 +614,11 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         self.assertFalse(address.geoaddress.neighbours(distance=1000))
         self.assertFalse(address.geoaddress.neighbours(distance=10000))
 
-    def test_town_unicode(self):
+    def test_town__unicode(self):
         self.assertEqual('13001 Marseille FRANCE', str(self.marseille1))
         self.assertEqual('13002 Marseille FRANCE', str(self.marseille2))
 
-    def test_town_search(self):
+    def test_town__search(self):
         town1 = self.marseille1
         town2 = self.marseille2
         town3 = self.aubagne
@@ -653,7 +653,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         self.assertIsNone(Town.search(create_address(zipcode='unknown')))
         self.assertIsNone(Town.search(create_address(city='unknown')))
 
-    def test_town_search_all(self):
+    def test_town__search__all(self):
         town1 = self.marseille1
         town2 = self.marseille2
         town3 = self.aubagne

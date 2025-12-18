@@ -58,7 +58,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     @OverrideSettingValueContext(setting_keys.use_entity_icon_key, False)
-    def test_address_as_dict_empty_billing_shipping(self):
+    def test_address_as_dict__empty_billing_shipping(self):
         user = self.get_root_user()
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
@@ -115,7 +115,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     @OverrideSettingValueContext(setting_keys.use_entity_icon_key, False)
-    def test_address_as_dict_empty(self):
+    def test_address_as_dict__empty(self):
         user = self.get_root_user()
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
@@ -147,7 +147,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     @OverrideSettingValueContext(setting_keys.use_entity_icon_key, False)
-    def test_address_as_dict_missing_geoaddress01(self):
+    def test_address_as_dict__missing_geoaddress(self):
         user = self.get_root_user()
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
@@ -185,7 +185,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     @OverrideSettingValueContext(setting_keys.use_entity_icon_key, False)
-    def test_address_as_dict_missing_geoaddress02(self):
+    def test_address_as_dict__missing_geoaddress__select_related(self):
         "With select_related."
         user = self.get_root_user()
 
