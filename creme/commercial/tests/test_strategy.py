@@ -81,12 +81,11 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         self.assertCountEqual(strategies, strategies_page.object_list)
 
-    def test_segment_add(self):
+    def test_segment_descr_creation(self):
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
 
-        url = reverse('commercial__create_segment_desc', args=(strategy.id,))
-
+        url = self._build_add_segmentdesc_url(strategy)
         context = self.assertGET200(url).context
         self.assertEqual(
             _('New market segment for «{entity}»').format(entity=strategy),
@@ -134,7 +133,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             plural_title='{count} Market segments',
         )
 
-    def test_segment_create01(self):
+    def test_segment_descr_creation__name_collision(self):
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
 
@@ -172,7 +171,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             field='name', errors=_('A segment with this name already exists'),
         )
 
-    def test_segment_create02(self):
+    def test_segment_descr_creation__property_collision(self):
         "Collision with property type name."
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
@@ -215,7 +214,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         place = 'Description about place'
         price = 'Description about price'
         promotion = 'Description about promotion'
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 'segment':   industry.id,
@@ -224,8 +223,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
                 'price':     price,
                 'promotion': promotion,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         description = self.get_alone_element(strategy02.segment_info.all())
         self.assertEqual(industry,  description.segment)
@@ -234,7 +232,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(price,     description.price)
         self.assertEqual(promotion, description.promotion)
 
-    def test_segment_edit01(self):
+    def test_segment_descr_edition(self):
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         name = 'Industry'
@@ -273,7 +271,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(promotion, description.promotion)
         self.assertIn(name, description.segment.property_type.text)
 
-    def test_segment_edit02(self):
+    def test_segment_desc_edition__no_name_change(self):
         "No name change => no collision"
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
@@ -295,8 +293,8 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(name, segment.name)
         self.assertIn(name,    segment.property_type.text)
 
-    def test_segment_edit03(self):
-        "Segment with no property type"
+    def test_segment_desc_edition__no_ptype(self):
+        "Segment with no property type."
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         segment = MarketSegment.objects.filter(property_type=None)[0]
@@ -536,7 +534,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_view_evaluated_orga01(self):
+    def test_view_evaluated_orga__unrelated(self):
         "Unrelated organisation."
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
@@ -544,8 +542,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertGET404(reverse('commercial__orga_evaluation', args=(strategy.id, orga.id)))
 
     @skipIfCustomOrganisation
-    def test_view_evaluated_orga02(self):
-        "Not super-user."
+    def test_view_evaluated_orga__regular_user(self):
         user = self.login_as_standard(allowed_apps=['commercial', 'persons'])
         self.add_credentials(user.role, all=['VIEW'])
 
@@ -558,8 +555,8 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_view_evaluated_orga03(self):
-        "Must see the Strategy"
+    def test_view_evaluated_orga__view_perms__strategy(self):
+        "View credentials for Strategy."
         user = self.login_as_standard(allowed_apps=['commercial', 'persons'])
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -576,8 +573,8 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_view_evaluated_orga04(self):
-        "Must see the Organisation"
+    def test_view_evaluated_orga__view_perms__organisation(self):
+        "View credentials for Organisation."
         user = self.login_as_standard(allowed_apps=['commercial', 'persons'])
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -668,7 +665,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score3.pk)
 
     @skipIfCustomOrganisation
-    def test_set_asset_score01(self):
+    def test_set_asset_score(self):
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         segment_desc = self._create_segment_desc(strategy, 'Industry')
@@ -688,12 +685,12 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual([(score, 3)], strategy.get_assets_totals(orga))
 
     @skipIfCustomOrganisation
-    def test_set_asset_score02(self):
+    def test_set_asset_score__several_segments(self):
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
 
-        segment_desc01 = self._create_segment_desc(strategy, 'Industry')
-        segment_desc02 = self._create_segment_desc(strategy, 'People')
+        segment_desc1 = self._create_segment_desc(strategy, 'Industry')
+        segment_desc2 = self._create_segment_desc(strategy, 'People')
 
         create_asset = partial(CommercialAsset.objects.create, strategy=strategy)
         asset01 = create_asset(name='Capital')
@@ -702,10 +699,10 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         orga = Organisation.objects.create(user=user, name='Nerv')
         strategy.evaluated_orgas.add(orga)
 
-        self.assertEqual(1, strategy.get_asset_score(orga, asset01, segment_desc01))
-        self.assertEqual(1, strategy.get_asset_score(orga, asset01, segment_desc02))
-        self.assertEqual(1, strategy.get_asset_score(orga, asset02, segment_desc01))
-        self.assertEqual(1, strategy.get_asset_score(orga, asset02, segment_desc02))
+        self.assertEqual(1, strategy.get_asset_score(orga, asset01, segment_desc1))
+        self.assertEqual(1, strategy.get_asset_score(orga, asset01, segment_desc2))
+        self.assertEqual(1, strategy.get_asset_score(orga, asset02, segment_desc1))
+        self.assertEqual(1, strategy.get_asset_score(orga, asset02, segment_desc2))
 
         self.assertEqual([(2, 3), (2, 3)], strategy.get_assets_totals(orga))
 
@@ -713,16 +710,16 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         score12 = 4
         score21 = 3
         score22 = 2
-        self._set_asset_score(strategy, orga, asset01, segment_desc01, score11)
-        self._set_asset_score(strategy, orga, asset01, segment_desc02, score12)
-        self._set_asset_score(strategy, orga, asset02, segment_desc01, score21)
-        self._set_asset_score(strategy, orga, asset02, segment_desc02, score22)
+        self._set_asset_score(strategy, orga, asset01, segment_desc1, score11)
+        self._set_asset_score(strategy, orga, asset01, segment_desc2, score12)
+        self._set_asset_score(strategy, orga, asset02, segment_desc1, score21)
+        self._set_asset_score(strategy, orga, asset02, segment_desc2, score22)
 
         strategy = self.refresh(strategy)  # (cache....)
-        self.assertEqual(score11, strategy.get_asset_score(orga, asset01, segment_desc01))
-        self.assertEqual(score12, strategy.get_asset_score(orga, asset01, segment_desc02))
-        self.assertEqual(score21, strategy.get_asset_score(orga, asset02, segment_desc01))
-        self.assertEqual(score22, strategy.get_asset_score(orga, asset02, segment_desc02))
+        self.assertEqual(score11, strategy.get_asset_score(orga, asset01, segment_desc1))
+        self.assertEqual(score12, strategy.get_asset_score(orga, asset01, segment_desc2))
+        self.assertEqual(score21, strategy.get_asset_score(orga, asset02, segment_desc1))
+        self.assertEqual(score22, strategy.get_asset_score(orga, asset02, segment_desc2))
 
         self.assertListEqual(
             [(score11 + score21, 1), (score12 + score22, 3)],
@@ -730,7 +727,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_set_charm_score01(self):
+    def test_set_charm_score(self):
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         segment_desc = self._create_segment_desc(strategy, 'Industry')
@@ -750,7 +747,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertListEqual([(score, 3)], strategy.get_charms_totals(orga))
 
     @skipIfCustomOrganisation
-    def test_set_charm_score02(self):
+    def test_set_charm_score__several_segments(self):
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         segment_desc01 = self._create_segment_desc(strategy, 'Industry')
@@ -865,7 +862,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
         self.assertEqual(1, MarketSegmentCategory.objects.count())
 
-    def test_delete01(self):
+    def test_delete(self):
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         self.assertEqual(1, Strategy.objects.count())
@@ -874,7 +871,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertDoesNotExist(strategy)
 
     @skipIfCustomOrganisation
-    def test_delete02(self):
+    def test_delete__related_items(self):
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         segment_desc = self._create_segment_desc(strategy, 'Industry')
@@ -907,7 +904,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(0, MarketSegmentCharmScore.objects.count())
         self.assertEqual(0, MarketSegmentCategory.objects.count())
 
-    def test_segment_unlink01(self):
+    def test_segment_unlink(self):
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         segment_desc = self._create_segment_desc(strategy, 'People')
@@ -924,7 +921,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(2, MarketSegment.objects.count())
 
     @skipIfCustomOrganisation
-    def test_segment_unlink02(self):
+    def test_segment_unlink__scores(self):
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
 
