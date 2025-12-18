@@ -175,6 +175,11 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
         return c
 
+    def _get_meeting_subtype(self):
+        return self.get_object_or_fail(
+            ActivitySubType, uuid=act_constants.UUID_SUBTYPE_MEETING_OTHER,
+        )
+
     def test_contact_hat_card_brick(self):
         user = self.login_as_root_and_get()
         c = Contact.objects.create(user=user, first_name='Lawrence', last_name='Kraft')
@@ -216,8 +221,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         #  - neglected indicator
 
     @skipIfCustomActivity
-    def test_contact_hat_card_brick_activities01(self):
-        "Empty."
+    def test_contact_hat_card_brick_activities__empty(self):
         user = self.login_as_root_and_get()
         c = Contact.objects.create(user=user, first_name='Lawrence', last_name='Kraft')
         now_value = now()
@@ -253,13 +257,8 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         )
         # TODO: test empty?
 
-    def _get_meeting_subtype(self):
-        return self.get_object_or_fail(
-            ActivitySubType, uuid=act_constants.UUID_SUBTYPE_MEETING_OTHER,
-        )
-
     @skipIfCustomActivity
-    def test_contact_hat_card_brick_activities02(self):
+    def test_contact_hat_card_brick_activities__filled(self):
         user = self.login_as_standard(allowed_apps=['persons', 'activities'])
         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
@@ -635,7 +634,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self.assertNoInstanceLink(brick_node, act2)
         self.assertInstanceLink(brick_node, act3)
 
-    def test_pretty_addresses_brick01(self):
+    def test_pretty_addresses_brick(self):
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user)
 
@@ -650,7 +649,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self._assertNoAction(brick_node, 'persons__create_billing_address', c)
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
 
-    def test_pretty_addresses_brick02(self):
+    def test_pretty_addresses_brick__no_shipping(self):
         "No shipping address set."
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user, shipping_address=False)
@@ -664,7 +663,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self._assertNoAction(brick_node, 'persons__create_billing_address', c)
         self._assertAction(brick_node, 'persons__create_shipping_address', c)
 
-    def test_pretty_addresses_brick03(self):
+    def test_pretty_addresses_brick__no_billing(self):
         "No billing address set."
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user, billing_address=False)
@@ -678,7 +677,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self._assertAction(brick_node, 'persons__create_billing_address', c)
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
 
-    def test_pretty_addresses_brick04(self):
+    def test_pretty_addresses_brick__no_address(self):
         "No address set."
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(
@@ -690,7 +689,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self.assertIsNotNone(msg_node)
         self.assertEqual(_('No address for the moment'), msg_node.text.strip())
 
-    def test_pretty_addresses_brick05(self):
+    def test_pretty_addresses_brick__hidden__sub_field(self):
         "With field config on sub-field."
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
@@ -710,7 +709,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
             country_in=False, address_type='shipping',
         )
 
-    def test_pretty_addresses_brick06(self):
+    def test_pretty_addresses_brick__hidden__billing(self):
         "With field config on 'billing_address' FK field."
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
@@ -729,7 +728,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self._assertNoAction(brick_node, 'persons__create_billing_address', c)
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
 
-    def test_pretty_addresses_brick07(self):
+    def test_pretty_addresses_brick__hidden__shipping(self):
         "With field config on 'shipping_address' FK field."
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
@@ -761,7 +760,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
         self._assertAction(brick_node, 'persons__create_address', c)
 
-    def test_detailed_addresses_brick01(self):
+    def test_detailed_addresses_brick(self):
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user)
 
@@ -781,7 +780,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self._assertNoAction(brick_node, 'persons__create_billing_address', c)
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
 
-    def test_detailed_addresses_brick02(self):
+    def test_detailed_addresses_brick__no_shipping(self):
         "No shipping address set."
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user, shipping_address=False)
@@ -800,7 +799,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self._assertNoAction(brick_node, 'persons__create_billing_address', c)
         self._assertAction(brick_node, 'persons__create_shipping_address', c)
 
-    def test_detailed_addresses_brick03(self):
+    def test_detailed_addresses_brick__no_billing(self):
         "No billing address set."
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user, billing_address=False)
@@ -819,7 +818,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self._assertAction(brick_node, 'persons__create_billing_address', c)
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
 
-    def test_detailed_addresses_brick04(self):
+    def test_detailed_addresses_brick__no_address(self):
         "No address set."
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(
@@ -836,7 +835,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self.assertIsNotNone(msg_node)
         self.assertEqual(_('No address for the moment'), msg_node.text.strip())
 
-    def test_detailed_addresses_brick05(self):
+    def test_detailed_addresses_brick__hidden__sub_field(self):
         "With field config on sub-field."
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
@@ -861,7 +860,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
             address_type='shipping', country_in=False,
         )
 
-    def test_detailed_addresses_brick06(self):
+    def test_detailed_addresses_brick__hidden__billing(self):
         "With field config on 'billing_address' FK field."
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
@@ -885,7 +884,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self._assertNoAction(brick_node, 'persons__create_billing_address', c)
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
 
-    def test_detailed_addresses_brick07(self):
+    def test_detailed_addresses_brick__hidden__shipping(self):
         "With field config on 'shipping_address' FK field."
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
@@ -927,7 +926,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
         self._assertAction(brick_node, 'persons__create_address', c)
 
-    def test_managers_brick01(self):
+    def test_managers_brick(self):
         user = self.login_as_root_and_get()
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -1008,7 +1007,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         fconf.save()
         self.assertListEqual([c2.phone], get_phones(get_brick_node()))
 
-    def test_managers_brick02(self):
+    def test_managers_brick__not_viewable(self):
         user = self.login_as_persons_user()
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -1103,10 +1102,15 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
     @staticmethod
     def _get_neglected_orgas():
-        neglected_orgas_block = bricks.NeglectedOrganisationsBrick()
-        return neglected_orgas_block._get_neglected(now())
+        brick = bricks.NeglectedOrganisationsBrick()
+        return brick._get_neglected(now())
 
-    def test_neglected_brick01(self):
+    def _get_meeting_subtype(self):
+        return self.get_object_or_fail(
+            ActivitySubType, uuid=act_constants.UUID_SUBTYPE_MEETING_OTHER,
+        )
+
+    def test_neglected_brick(self):
         user = self.user
         bricks.NeglectedOrganisationsBrick()
 
@@ -1114,39 +1118,34 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         self.assertTrue(mng_orga.is_managed)
         self.assertFalse(self._get_neglected_orgas())
 
-        customer01 = Organisation.objects.create(user=user, name='orga02')
+        customer1 = Organisation.objects.create(user=user, name='orga02')
         self.assertFalse(self._get_neglected_orgas())
 
         rtype_customer = RelationType.objects.get(pk=constants.REL_SUB_CUSTOMER_SUPPLIER)
         create_rel = partial(Relation.objects.create, user=user)
-        create_rel(subject_entity=customer01, object_entity=mng_orga, type=rtype_customer)
+        create_rel(subject_entity=customer1, object_entity=mng_orga, type=rtype_customer)
         self.assertListEqual(
-            [customer01.id], [orga.id for orga in self._get_neglected_orgas()],
+            [customer1.id], [orga.id for orga in self._get_neglected_orgas()],
         )
 
-        customer02 = Organisation.objects.create(user=user, name='orga03')
+        customer2 = Organisation.objects.create(user=user, name='orga03')
         create_rel(
-            subject_entity=customer02, object_entity=mng_orga,
+            subject_entity=customer2, object_entity=mng_orga,
             type=RelationType.objects.get(pk=constants.REL_SUB_PROSPECT),
         )
-        self.assertCountEqual([customer01, customer02], self._get_neglected_orgas())
+        self.assertCountEqual([customer1, customer2], self._get_neglected_orgas())
 
-        create_rel(subject_entity=customer02, object_entity=mng_orga, type=rtype_customer)
+        create_rel(subject_entity=customer2, object_entity=mng_orga, type=rtype_customer)
         self.assertEqual(2, len(self._get_neglected_orgas()))
 
-    def _get_meeting_subtype(self):
-        return self.get_object_or_fail(
-            ActivitySubType, uuid=act_constants.UUID_SUBTYPE_MEETING_OTHER,
-        )
-
     @skipIfCustomActivity
-    def test_neglected_brick02(self):
+    def test_neglected_brick__future_activity(self):
         user = self.user
         mng_orga = Organisation.objects.all()[0]
         user_contact = user.linked_contact
 
-        customer01 = self._build_customer_orga(mng_orga, 'Konoha')
-        customer02 = self._build_customer_orga(mng_orga, 'Suna')
+        customer1 = self._build_customer_orga(mng_orga, 'Konoha')
+        customer2 = self._build_customer_orga(mng_orga, 'Suna')
         self.assertEqual(2, len(self._get_neglected_orgas()))
 
         tomorrow = now() + timedelta(days=1)  # So in the future
@@ -1161,7 +1160,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         get_rtype = RelationType.objects.get
         create_rel = partial(Relation.objects.create, user=user, object_entity=meeting)
         create_rel(
-            subject_entity=customer02,
+            subject_entity=customer2,
             type=get_rtype(pk=act_constants.REL_SUB_ACTIVITY_SUBJECT),
         )
         self.assertEqual(2, len(self._get_neglected_orgas()))
@@ -1171,12 +1170,12 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
             type=get_rtype(pk=act_constants.REL_SUB_PART_2_ACTIVITY),
         )
         self.assertListEqual(
-            [customer01.id],
+            [customer1.id],
             [orga.id for orga in self._get_neglected_orgas()],
         )
 
     @skipIfCustomActivity
-    def test_neglected_brick03(self):
+    def test_neglected_brick__past_activity(self):
         "Past activity => organisation is still neglected."
         user = self.user
         mng_orga = Organisation.objects.all()[0]
@@ -1201,7 +1200,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
     @skipIfCustomContact
     @skipIfCustomActivity
-    def test_neglected_brick04(self):
+    def test_neglected_brick__one_linked_to_customer(self):
         "A people linked to customer is linked to a future activity."
         user = self.user
         mng_orga = Organisation.objects.all()[0]
@@ -1242,7 +1241,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
     @skipIfCustomContact
     @skipIfCustomActivity
-    def test_neglected_brick05(self):
+    def test_neglected_brick__2_linked_to_customer(self):
         "2 people linked to customer are linked to a future activity."
         user = self.user
         mng_orga = Organisation.objects.all()[0]
@@ -1305,7 +1304,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
     @skipIfCustomContact
     @skipIfCustomActivity
-    def test_neglected_brick06(self):
+    def test_neglected_brick__not_managed(self):
         "Future activity, but not with managed organisation!"
         user = self.user
         mng_orga = Organisation.objects.all()[0]
@@ -1339,8 +1338,8 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         )
         self.assertEqual(1, len(self._get_neglected_orgas()))
 
-    def test_neglected_brick07(self):
-        "Inactive customers are not counted"
+    def test_neglected_brick__inactive_customers(self):
+        "Inactive customers are not counted."
         mng_orga = Organisation.objects.all()[0]
         customer01 = self._build_customer_orga(mng_orga, 'Konoha')
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
@@ -1350,7 +1349,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         )
         self.assertListEqual([customer01], [*self._get_neglected_orgas()])
 
-    def test_neglected_brick08(self):
+    def test_neglected_brick__deleted_customers(self):
         "Deleted customers are not counted."
         mng_orga = Organisation.objects.all()[0]
         customer = self._build_customer_orga(mng_orga, 'Konoha')
@@ -1362,7 +1361,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         entity.created -= timedelta(days=days_delta)
         return entity
 
-    def test_neglected_indicator01(self):
+    def test_neglected_indicator__young_label(self):
         "Young entity => special label."
         contact = self._oldify(
             Contact.objects.create(user=self.user, first_name='Gaara', last_name='???'),
@@ -1371,8 +1370,8 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         indicator = bricks.NeglectedContactIndicator(context={'today': now()}, contact=contact)
         self.assertEqual(_('Never contacted'), indicator.label)
 
-    def test_neglected_indicator02(self):
-        "regular label for neglected."
+    def test_neglected_indicator__regular_label(self):
+        "Regular label for neglected."
         user = self.user
         contact = self._oldify(
             Contact.objects.create(user=user, first_name='Gaara', last_name='???'),
@@ -1400,8 +1399,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         )
         self.assertEqual(_('Not contacted since 15 days'), indicator.label)
 
-    def test_neglected_indicator03(self):
-        "Not neglected"
+    def test_neglected_indicator__not_neglected(self):
         user = self.user
         contact = self._oldify(
             Contact.objects.create(user=self.user, first_name='Gaara', last_name='???'),
@@ -1429,7 +1427,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         )
         self.assertFalse(indicator.label)
 
-    def test_neglected_indicator04(self):
+    def test_neglected_indicator__user_contacts(self):
         "User-contacts are ignored."
         user = self.user
         contact = self._oldify(user.linked_contact, days_delta=16)

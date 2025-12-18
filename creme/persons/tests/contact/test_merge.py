@@ -16,7 +16,7 @@ from ..base import (
 @skipIfCustomContact
 class ContactMergeTestCase(_BaseTestCase):
     @skipIfCustomAddress
-    def test_merge_addresses01(self):
+    def test_merge_addresses(self):
         user = self.login_as_root_and_get()
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -173,7 +173,7 @@ class ContactMergeTestCase(_BaseTestCase):
         self.assertEqual('Merged department 2', shipping_address.department)
 
     @skipIfCustomAddress
-    def test_merge_addresses02(self):
+    def test_merge_addresses__empty(self):
         "Merging addresses -> empty addresses."
         user = self.login_as_root_and_get()
 
@@ -291,7 +291,7 @@ class ContactMergeTestCase(_BaseTestCase):
         self.assertFalse(merged_ship_addr.city)
 
     @skipIfCustomAddress
-    def test_merge_addresses03(self):
+    def test_merge_addresses__required(self):
         "FieldsConfig.REQUIRED => validation on not empty addresses only."
         user = self.login_as_root_and_get()
 
@@ -370,7 +370,7 @@ class ContactMergeTestCase(_BaseTestCase):
         self.assertEqual(addr_value, merged_bill_addr.address)
         self.assertEqual(city,       merged_bill_addr.city)
 
-    def test_merge_user_contact01(self):
+    def test_merge_user_contact(self):
         "Merge 1 Contact which represents a user with another Contact."
         user = self.login_as_root_and_get()
 
@@ -421,7 +421,7 @@ class ContactMergeTestCase(_BaseTestCase):
         self.assertEqual(first_name1, user.first_name)
         self.assertEqual(last_name2,  user.last_name)
 
-    def test_merge_user_contact02(self):
+    def test_merge_user_contact__swap(self):
         "Merge 1 Contact with another one which represents a user (entity swap)."
         user = self.login_as_root_and_get()
 
@@ -489,7 +489,7 @@ class ContactMergeTestCase(_BaseTestCase):
         self.assertEqual(user,        contact02.is_user)
         self.assertEqual(first_name1, contact02.first_name)
 
-    def test_merge_user_contact03(self):
+    def test_merge_user_contact__2_users(self):
         "Cannot merge 2 Contacts that represent 2 users."
         user = self.login_as_root_and_get()
 

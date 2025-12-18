@@ -59,7 +59,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoFormError(response)
 
-    def test_info_names01(self):
+    def test_info_names(self):
         self.assertSetEqual(
             {
                 'name', 'address', 'po_box', 'zipcode', 'city',
@@ -68,7 +68,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
             {*Address.info_field_names()},
         )
 
-    def test_info_names02(self):
+    def test_info_names__hidden(self):
         FieldsConfig.objects.create(
             content_type=Address,
             descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
@@ -98,7 +98,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual('', address.country)
 
     @skipIfCustomOrganisation
-    def test_createview(self):
+    def test_creation(self):
         orga = self.login_n_create_orga()
         self.assertFalse(Address.objects.filter(object_id=orga.id).exists())
 
@@ -150,7 +150,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(country,    fields)
 
     @skipIfCustomOrganisation
-    def test_create_billing01(self):
+    def test_creation__billing(self):
         orga = self.login_n_create_orga()
 
         url = reverse('persons__create_billing_address', args=(orga.id,))
@@ -188,7 +188,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(address, self.refresh(orga).billing_address)
 
     @skipIfCustomOrganisation
-    def test_create_billing02(self):
+    def test_creation__billing__hidden(self):
         "FK is hidden"
         orga = self.login_n_create_orga()
 
@@ -199,7 +199,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET409(reverse('persons__create_billing_address', args=(orga.id,)))
 
     @skipIfCustomOrganisation
-    def test_create_shipping(self):
+    def test_creation__shipping(self):
         orga = self.login_n_create_orga()
         url = reverse('persons__create_shipping_address', args=(orga.id,))
 
@@ -229,7 +229,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(address, self.refresh(orga).shipping_address)
 
     @skipIfCustomOrganisation
-    def test_editview01(self):
+    def test_edition(self):
         orga = self.login_n_create_orga()
 
         name = 'Address#1'
@@ -277,8 +277,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(country, address.country)
 
     @skipIfCustomOrganisation
-    def test_editview02(self):
-        "Billing address"
+    def test_edition__billing(self):
         orga = self.login_n_create_orga()
 
         name = 'Address#1'
@@ -314,8 +313,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(_('Billing address'), address.name)
 
     @skipIfCustomOrganisation
-    def test_editview03(self):
-        "Shipping address"
+    def test_edition__shipping(self):
         orga = self.login_n_create_orga()
 
         name = 'Address#1'
@@ -351,7 +349,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(_('Shipping address'), address.name)
 
     @skipIfCustomOrganisation
-    def test_deleteview(self):
+    def test_deletion(self):
         orga = self.login_n_create_orga()
 
         self._create_address(
@@ -380,7 +378,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertTrue(Address(address='21 jump street', country='Yeeeha'))
 
-    def test_str01(self):
+    def test_str(self):
         address_value = '21 jump street'
         po_box = 'Popop'
         zipcode = '424242'
@@ -419,7 +417,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
             str(Address(po_box=po_box, state=state, country=country)),
         )
 
-    def test_str02(self):
+    def test_str__hidden(self):
         FieldsConfig.objects.create(
             content_type=Address,
             descriptions=[
@@ -611,7 +609,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
     #                                 .filter(to_python(value=AddressFKField.FILLED))
     #            )
     #     )
-    def test_search_field01(self):
+    def test_search_field(self):
         user = self.login_as_root_and_get()
 
         field = AddressFKField(
@@ -650,7 +648,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
                         .filter(to_python(value='towel')),
         )
 
-    def test_search_field02(self):
+    def test_search_field__hidden(self):
         "Ignore hidden fields."
         user = self.login_as_root_and_get()
 

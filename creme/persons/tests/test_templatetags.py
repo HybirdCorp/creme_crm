@@ -17,7 +17,7 @@ Organisation = persons.get_organisation_model()
 
 
 class PersonsTagsTestCase(_BaseTestCase):
-    def test_persons_pretty_address01(self):
+    def test_persons_pretty_address__address_n_pobox(self):
         "<address> & <po_box> fields."
         address1 = Address(address='742 Evergreen Terrace')
         address2 = Address(po_box='123456')
@@ -42,7 +42,7 @@ class PersonsTagsTestCase(_BaseTestCase):
             render.strip(),
         )
 
-    def test_persons_pretty_address02(self):
+    def test_persons_pretty_address__zipcode_n_city(self):
         "Zip code & city."
         address1 = Address(zipcode='123')
         address2 = Address(city='Springfield')
@@ -65,7 +65,7 @@ class PersonsTagsTestCase(_BaseTestCase):
             render.strip(),
         )
 
-    def test_persons_pretty_address03(self):
+    def test_persons_pretty_address__address_n_city(self):
         "Address & City."
         address = Address(address='742 Evergreen Terrace', city='Springfield')
 
@@ -127,7 +127,7 @@ class PersonsTagsTestCase(_BaseTestCase):
             render.strip(),
         )
 
-    def test_persons_contact_first_employer01(self):
+    def test_persons_contact_first_employer(self):
         user = self.get_root_user()
         contact = Contact.objects.create(user=user, first_name='Homer', last_name='Simpson')
 
@@ -171,8 +171,7 @@ class PersonsTagsTestCase(_BaseTestCase):
 
         self.assertEqual(str(orga2), render3.strip())
 
-    def test_persons_contact_first_employer02(self):
-        "Deleted organisations."
+    def test_persons_contact_first_employer__deleted_organisations(self):
         user = self.get_root_user()
         contact = Contact.objects.create(user=user, first_name='Homer', last_name='Simpson')
 
@@ -203,8 +202,7 @@ class PersonsTagsTestCase(_BaseTestCase):
 
         self.assertEqual('', render2.strip())
 
-    def test_persons_contact_first_employer03(self):
-        "Not viewable organisations."
+    def test_persons_contact_first_employer__not_viewable_organisations(self):
         user = self.login_as_persons_user()
         other_user = self.get_root_user()
         contact = Contact.objects.create(user=user, first_name='Homer', last_name='Simpson')
@@ -259,7 +257,7 @@ class PersonsTagsTestCase(_BaseTestCase):
 
         self.assertEqual(str(orga4), render3.strip())
 
-    def test_persons_addresses_formblock_fields01(self):
+    def test_persons_addresses_formblock_fields__1_fk_1_field(self):
         "1 FK, 1 field."
         user = self.get_root_user()
 
@@ -300,7 +298,7 @@ class PersonsTagsTestCase(_BaseTestCase):
             render,
         )
 
-    def test_persons_addresses_formblock_fields02(self):
+    def test_persons_addresses_formblock_fields__2_fk_2_fields(self):
         "2 FKs, 2 fields."
         user = self.get_root_user()
 

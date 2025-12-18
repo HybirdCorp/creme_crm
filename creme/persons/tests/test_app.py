@@ -114,7 +114,7 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
     #     workflow.transform_target_into_customer(source, target, user)
     #     self.assertHaveRelation(subject=target, type=type_id, object=source)
 
-    def test_user_contact_menu_entry01(self):
+    def test_user_contact_menu_entry(self):
         user = self.login_as_persons_user()
         url = user.linked_contact.get_absolute_url()
         self.assertEqual(url, user.get_absolute_url())
@@ -141,7 +141,7 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
         else:
             self.fail(f'No user entry found in {creme_children}.')
 
-    def test_user_contact_menu_entry02(self):
+    def test_user_contact_menu_entry__forbidden(self):
         user = self.login_as_standard()
 
         self.assertHTMLEqual(
@@ -152,8 +152,7 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
             }),
         )
 
-    def test_user_contact_menu_entry03(self):
-        "Is staff."
+    def test_user_contact_menu_entry__is_staff(self):
         user = self.login_as_super(is_staff=True)
         self.assertFalse(user.get_absolute_url())
 
