@@ -61,7 +61,7 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, OpportunitiesBaseTestCase)
     }
 
     @skipIfCustomContact
-    def test_mass_import01(self):
+    def test_mass_import(self):
         user = self.login_as_root_and_get()
 
         count = Opportunity.objects.count()
@@ -178,8 +178,8 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, OpportunitiesBaseTestCase)
         opp5 = self.get_object_or_fail(Opportunity, name='Opp05')
         self.assertEqual(sp5, opp5.sales_phase)
 
-    def test_mass_import02(self):
-        "SalesPhase creation forbidden by the user."
+    def test_mass_import__no_sales_phase_creation(self):
+        "SalesPhase creation not wanted."
         user = self.login_as_root_and_get()
 
         count = Opportunity.objects.count()
@@ -244,7 +244,7 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, OpportunitiesBaseTestCase)
             job.stats,
         )
 
-    def test_mass_import03(self):
+    def test_mass_import__required_sales_phase(self):
         "SalesPhase is required."
         user = self.login_as_root_and_get()
 
@@ -281,7 +281,7 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, OpportunitiesBaseTestCase)
             field='sales_phase', errors=_('This field is required.'),
         )
 
-    def test_mass_import04(self):
+    def test_mass_import__no_person_creation(self):
         "Creation of Organisation/Contact is not wanted."
         user = self.login_as_root_and_get()
 
@@ -338,8 +338,8 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, OpportunitiesBaseTestCase)
         # self.assertEqual(0, form.imported_objects_count)
 
     @override_settings(MAX_JOBS_PER_USER=2)
-    def test_mass_import05(self):
-        "Creation credentials for Organisation & SalesPhase are forbidden."
+    def test_mass_import__no_organisation_n_phase_creation(self):
+        "Creation for Organisation & SalesPhase are forbidden."
         user = self.login_as_standard(
             allowed_apps=['persons', 'documents', 'opportunities'],
             creatable_models=[Opportunity, get_document_model()],  # Not Organisation
@@ -403,8 +403,7 @@ class MassImportTestCase(MassImportBaseTestCaseMixin, OpportunitiesBaseTestCase)
         ))
 
     @skipIfCustomOrganisation
-    def test_mass_import06(self):
-        "Update."
+    def test_mass_import__update(self):
         user = self.login_as_root_and_get()
 
         opp1, target1, emitter = self._create_opportunity_n_organisations(user=user)

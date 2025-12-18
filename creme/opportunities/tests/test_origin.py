@@ -10,7 +10,7 @@ from .base import Opportunity, Organisation, skipIfCustomOpportunity
 
 class OriginTestCase(CremeTestCase):
     @skipIfCustomOpportunity
-    def test_delete01(self):
+    def test_delete__set_null(self):
         "Set to NULL."
         user = self.login_as_root_and_get()
         origin = Origin.objects.create(name='Web site')
@@ -36,7 +36,7 @@ class OriginTestCase(CremeTestCase):
         self.assertIsNone(opp.origin)
 
     @skipIfCustomOpportunity
-    def test_delete02(self):
+    def test_delete__replaced(self):
         "Set to another value."
         user = self.login_as_root_and_get()
 

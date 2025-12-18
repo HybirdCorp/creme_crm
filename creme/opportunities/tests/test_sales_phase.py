@@ -82,7 +82,7 @@ class SalesPhaseTestCase(CremeTestCase):
         self.assertEqual(2, refresh(sp3).order)
         self.assertEqual(4, refresh(sp4).order)
 
-    def test_delete01(self):
+    def test_delete__not_used(self):
         self.login_as_root()
 
         sp = SalesPhase.objects.create(name='Forthcoming', order=1)
@@ -96,7 +96,7 @@ class SalesPhaseTestCase(CremeTestCase):
         self.assertDoesNotExist(sp)
 
     @skipIfCustomOpportunity
-    def test_delete02(self):
+    def test_delete__used(self):
         user = self.login_as_root_and_get()
 
         sp = SalesPhase.objects.create(name='Forthcoming', order=1)

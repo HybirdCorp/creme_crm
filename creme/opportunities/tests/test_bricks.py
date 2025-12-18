@@ -55,7 +55,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
             self.get_brick_title(brick_node),
         )
 
-    def test_target01(self):
+    def test_target__emitter_shown(self):
         "Source is displayed."
         user = self.login_as_root_and_get()
         opp, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
@@ -70,7 +70,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         self.assertInstanceLink(brick_node, target)
         self.assertInstanceLink(brick_node, emitter)
 
-    def test_target02(self):
+    def test_target__emitter_hidden(self):
         "Source is not displayed."
         user = self.login_as_root_and_get()
         opp, target, emitter = self._create_opportunity_n_organisations(
@@ -88,7 +88,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         self.assertNoInstanceLink(brick_node, emitter)
 
     @skipIfCustomContact
-    def test_hat_card01(self):
+    def test_hat_card(self):
         "All contacts can be displayed."
         user = self.login_as_root_and_get()
 
@@ -140,7 +140,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         self.assertNoInstanceLink(brick_node, contact5)
 
     @skipIfCustomContact
-    def test_hat_card02(self):
+    def test_hat_card__too_many_contacts(self):
         "Too many contacts to display."
         user = self.login_as_root_and_get()
 
@@ -300,7 +300,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         self.assertNoInstanceLink(brick_node, contact5)
 
     # TODO: test title (several cases)
-    def test_targeting01(self):
+    def test_targeting(self):
         user = self.login_as_root_and_get()
 
         opp1, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
@@ -333,7 +333,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         self.assertEqual(6, len(table_cells1))
         # TODO: test content
 
-    def test_targeting02(self):
+    def test_targeting__hidden_estimated_sales(self):
         "Field 'Estimated sales' is hidden."
         user = self.login_as_root_and_get()
 
@@ -365,7 +365,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         self.assertEqual(5, len(rows[0].findall('.//td')))
         # TODO: test content
 
-    def test_targeting03(self):
+    def test_targeting__hidden_made_sales(self):
         "Field 'Made sales' is hidden."
         user = self.login_as_root_and_get()
 
