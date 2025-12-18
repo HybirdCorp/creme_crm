@@ -66,7 +66,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
             return self._get_created_pcalls(existing_pcall_ids).get()
 
     @skipIfCustomActivity
-    def test_start_activity01(self):
+    def test_start_activity__past(self):
         "Start & end are past."
         user = self.login_as_root_and_get()
 
@@ -90,7 +90,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
     @skipIfCustomActivity
-    def test_start_activity02(self):
+    def test_start_activity__future(self):
         "Start & end are in the future."
         user = self.login_as_root_and_get()
 
@@ -109,7 +109,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(old_end, meeting.end)
 
     @skipIfCustomActivity
-    def test_start_activity03(self):
+    def test_start_activity__floating_time(self):
         "Floating time activity."
         user = self.login_as_root_and_get()
         now_val = now()
@@ -138,7 +138,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(Activity.FloatingType.NARROW, meeting.floating_type)
 
     @skipIfCustomActivity
-    def test_start_activity04(self):
+    def test_start_activity__floating(self):
         "Floating activity."
         user = self.login_as_root_and_get()
 
@@ -154,8 +154,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(Activity.FloatingType.NARROW, f_act.floating_type)
 
     @skipIfCustomActivity
-    def test_start_activity05(self):
-        "Not allowed."
+    def test_start_activity__forbidden(self):
         user = self.login_as_mobile_user()
         self.add_credentials(user.role, all='!CHANGE')
 
@@ -167,8 +166,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertPOST403(self._build_start_url(meeting), follow=True)
 
     @skipIfCustomActivity
-    def test_start_activity06(self):
-        "Not super-user."
+    def test_start_activity__regular_user(self):
         user = self.login_as_mobile_user()
         self.add_credentials(user.role, all=['CHANGE'])
 
@@ -180,7 +178,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertPOST200(self._build_start_url(meeting), follow=True)
 
     @skipIfCustomActivity
-    def test_stop_activity01(self):
+    def test_stop_activity(self):
         user = self.login_as_root_and_get()
 
         meeting = self._create_meeting(
@@ -200,7 +198,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertRedirects(response, self.PORTAL_URL)
 
     @skipIfCustomActivity
-    def test_stop_activity02(self):
+    def test_stop_activity__future_start(self):
         "Start is in the future => error"
         user = self.login_as_root_and_get()
 
@@ -212,8 +210,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertPOST409(self._build_stop_url(meeting))
 
     @skipIfCustomActivity
-    def test_stop_activity03(self):
-        "Not allowed."
+    def test_stop_activity__forbidden(self):
         user = self.login_as_mobile_user()
         self.add_credentials(user.role, all='!CHANGE')
 
@@ -225,8 +222,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertPOST403(self._build_stop_url(meeting))
 
     @skipIfCustomActivity
-    def test_stop_activity04(self):
-        "Not super-user."
+    def test_stop_activity__regular_user(self):
         user = self.login_as_mobile_user()
         self.add_credentials(user.role, all=['CHANGE'])
 
@@ -238,7 +234,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertPOST200(self._build_stop_url(meeting), follow=True)
 
     @skipIfCustomActivity
-    def test_activities_portal01(self):
+    def test_activities_portal(self):
         user = self.login_as_root_and_get()
         contact = user.linked_contact
         other_contact = Contact.objects.create(user=user, first_name='Gally', last_name='Alita')
@@ -327,7 +323,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertContains(response, tom2.title)
 
     @skipIfCustomActivity
-    def test_activities_portal02(self):
+    def test_activities_portal__truncated(self):
         "Floating count when truncated."
         user = self.login_as_root_and_get()
         contact1 = user.linked_contact
@@ -367,7 +363,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertFalse(pcalls)
 
     @skipIfCustomContact
-    def test_phone_call_panel01(self):
+    def test_phone_call_panel__contact(self):
         "Create with the number of a contact."
         user = self.login_as_root_and_get()
 
@@ -411,7 +407,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(user.linked_contact.id, user_contact_id)
 
     @skipIfCustomOrganisation
-    def test_phone_call_panel02(self):
+    def test_phone_call_panel__organisation(self):
         "Create with the number of an organisation."
         user = self.login_as_root_and_get()
 
@@ -449,7 +445,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomActivity
-    def test_phone_call_panel03(self):
+    def test_phone_call_panel__update(self):
         "Update an existing phone call."
         user = self.login_as_root_and_get()
         contact = user.linked_contact
@@ -492,8 +488,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
     @skipIfCustomOrganisation
     @skipIfCustomActivity
-    def test_phone_call_panel04(self):
-        "Not allowed."
+    def test_phone_call_panel__forbidden(self):
         user = self.login_as_mobile_user()
 
         pcall = self._create_pcall(
@@ -512,8 +507,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
     @skipIfCustomOrganisation
     @skipIfCustomActivity
-    def test_phone_call_panel05(self):
-        "Not super-user."
+    def test_phone_call_panel__regular_user(self):
         user = self.login_as_mobile_user()
         self.add_credentials(user.role, all=['VIEW'], model=Activity)
         self.add_credentials(user.role, all=['VIEW'], model=Organisation)
@@ -533,7 +527,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
     @skipIfCustomActivity
-    def test_phone_call_wf_done01(self):
+    def test_phone_call_wf_done(self):
         user = self.login_as_root_and_get()
         contact = user.linked_contact
 
@@ -552,8 +546,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertPOST404(reverse('mobile__pcall_wf_done', args=(meeting.id,)))
 
     @skipIfCustomActivity
-    def test_phone_call_wf_done02(self):
-        "Not allowed."
+    def test_phone_call_wf__done__forbidden(self):
         user = self.login_as_mobile_user()
         pcall = self._create_pcall(
             user=user, title='Phone call#1', participant=user.linked_contact,
@@ -564,8 +557,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
     @skipIfCustomActivity
-    def test_phone_call_wf_done03(self):
-        "Not usper-user."
+    def test_phone_call_wf__done__regular_user(self):
         user = self.login_as_mobile_user()
         self.add_credentials(user.role, all=['CHANGE'], model=Activity)
 
@@ -578,7 +570,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
     @skipIfCustomActivity
-    def test_phone_call_wf_failed01(self):
+    def test_phone_call_wf__failed__update(self):
         "Existing Phone call (with no minutes)."
         user = self.login_as_root_and_get()
 
@@ -613,7 +605,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(start, pcall.end)
 
     @skipIfCustomActivity
-    def test_phone_call_wf_failed02(self):
+    def test_phone_call_wf__failed__bad_type(self):
         "Not a Phone call => error."
         user = self.login_as_root_and_get()
 
@@ -624,7 +616,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
     @skipIfCustomActivity
     @override_settings(SOFTWARE_LABEL='My CRM')
-    def test_phone_call_wf_failed03(self):
+    def test_phone_call_wf__failed__create__contact(self):
         "Phone call is created (with contact)."
         user = self.login_as_root_and_get()
         other_user = self.create_user()
@@ -671,19 +663,8 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
             [get_cal(user), get_cal(other_user)], pcall.calendars.all(),
         )
 
-    def test_phone_call_wf_failed04(self):
-        "Second participant == first participant."
-        user = self.login_as_root_and_get()
-        self.assertPOST409(
-            self.WF_FAILED_URL,
-            data={
-                'call_start': '2014-04-18T16:17:28.0Z',
-                'person_id':  str(user.linked_contact.id),
-            },
-        )
-
     @skipIfCustomOrganisation
-    def test_phone_call_wf_failed05(self):
+    def test_phone_call_wf__failed__create__organisation(self):
         "Phone call is created (with organisation)."
         user = self.login_as_root_and_get()
         pcall_ids = self._existing_pcall_ids()
@@ -707,8 +688,19 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
             [r.real_object for r in pcall.get_subject_relations()],
         )
 
+    def test_phone_call_wf__failed__error(self):
+        "Second participant == first participant."
+        user = self.login_as_root_and_get()
+        self.assertPOST409(
+            self.WF_FAILED_URL,
+            data={
+                'call_start': '2014-04-18T16:17:28.0Z',
+                'person_id':  str(user.linked_contact.id),
+            },
+        )
+
     @skipIfCustomActivity
-    def test_phone_call_wf_postponed01(self):
+    def test_phone_call_wf__postponed__update(self):
         user = self.login_as_root_and_get()
 
         contact = user.linked_contact
@@ -765,7 +757,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
     @skipIfCustomContact
     @override_settings(SOFTWARE_LABEL='My CRM')
-    def test_phone_call_wf_postponed02(self):
+    def test_phone_call_wf__postponed__create(self):
         "Phone calls are created (with contact)."
         user = self.login_as_root_and_get()
         pcall_ids = self._existing_pcall_ids()
@@ -842,7 +834,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
     @skipIfCustomActivity
-    def test_phone_call_wf_lasted5min01(self):
+    def test_phone_call_wf__lasted5min__update(self):
         user = self.login_as_root_and_get()
 
         pcall = self._create_pcall(
@@ -872,8 +864,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual('', pcall.minutes)
 
     @skipIfCustomActivity
-    def test_phone_call_wf_lasted5min02(self):
-        "Bad date format."
+    def test_phone_call_wf__lasted5min__bad_date_format(self):
         user = self.login_as_root_and_get()
 
         pcall = self._create_pcall(
@@ -891,7 +882,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
     @skipIfCustomActivity
     @override_settings(SOFTWARE_LABEL='My CRM')
-    def test_phone_call_wf_lasted5min03(self):
+    def test_phone_call_wf__lasted5min__create(self):
         "Phone call is created (with contact)."
         user = self.login_as_root_and_get()
         other_contact = Contact.objects.create(user=user, first_name='Gally', last_name='Alita')
@@ -931,7 +922,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
             pcall.title,
         )
 
-    def test_phone_call_wf_lasted5min04(self):
+    def test_phone_call_wf__lasted5min__error(self):
         "Second participant == first participant."
         user = self.login_as_root_and_get()
         self.assertPOST409(
@@ -943,7 +934,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
     @skipIfCustomActivity
-    def test_phone_call_wf_lasted5min05(self):
+    def test_phone_call_wf__lasted5min__short(self):
         "call_start + 5 minutes > now()"
         user = self.login_as_root_and_get()
 
@@ -969,7 +960,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertDatetimesAlmostEqual(now(), pcall.end)
 
     @skipIfCustomActivity
-    def test_phone_call_wf_just_done01(self):
+    def test_phone_call_wf__just_done__update(self):
         user = self.login_as_root_and_get()
         contact = user.linked_contact
 
@@ -999,7 +990,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertDatetimesAlmostEqual(start, pcall.start)
         self.assertDatetimesAlmostEqual(now(), pcall.end)
 
-        # ------
+        # Bad type ---
         meeting = self._create_meeting(user=user, title='Meeting#1', participant=contact)
         self.assertPOST404(
             url,
@@ -1011,7 +1002,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
     @skipIfCustomActivity
     @override_settings(SOFTWARE_LABEL='My CRM')
-    def test_phone_call_wf_just_done02(self):
+    def test_phone_call_wf__just_done__create(self):
         user = self.login_as_root_and_get()
         other_contact = Contact.objects.create(user=user, first_name='Gally', last_name='Alita')
         pcall_ids = self._existing_pcall_ids()
@@ -1041,11 +1032,11 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
                 person=other_contact,
                 software='My CRM',
             ),
-            pcall.title
+            pcall.title,
         )
 
     @skipIfCustomActivity
-    def test_phone_call_wf_just_done03(self):
+    def test_phone_call_wf__just_done__minutes(self):
         "Concatenate old & new minutes."
         user = self.login_as_root_and_get()
         contact = user.linked_contact
