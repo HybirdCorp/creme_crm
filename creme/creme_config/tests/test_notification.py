@@ -100,7 +100,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login_as_standard(admin_4_apps=['creme_core'])
         self.assertGET403(reverse('creme_config__create_notif_channel'))
 
-    def test_edit_channel01(self):
+    def test_edit_channel__custom(self):
         self.login_as_root()
 
         chan = NotificationChannel.objects.create(
@@ -154,7 +154,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(chan.deleted)
         self.assertTrue(chan.uuid)
 
-    def test_edit_channel02(self):
+    def test_edit_channel__not_custom(self):
         "Not custom + default outputs."
         self.login_as_root()
 
@@ -181,8 +181,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual([OUTPUT_EMAIL], chan.default_outputs)
         self.assertTrue(chan.required)
 
-    def test_edit_channel_error01(self):
-        "Not super_user."
+    def test_edit_channel__forbidden(self):
         self.login_as_standard(admin_4_apps=['creme_core'])
 
         chan = NotificationChannel.objects.create(
@@ -190,8 +189,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertGET403(reverse('creme_config__edit_notif_channel', args=(chan.id,)))
 
-    def test_edit_channel_error02(self):
-        "Deleted channel."
+    def test_edit_channel__deleted_channel(self):
         self.login_as_root()
 
         chan = NotificationChannel.objects.create(
@@ -199,7 +197,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertGET404(reverse('creme_config__edit_notif_channel', args=(chan.id,)))
 
-    def test_edit_set_required01(self):
+    def test_set_required__set_false(self):
         "Custom; True => False."
         user = self.login_as_root_and_get()
 
@@ -240,7 +238,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(self.refresh(chan2).required)  # Not edited of course
         self.assertListEqual([], self.refresh(item).outputs)
 
-    def test_edit_set_required02(self):
+    def test_set_required__set_true__1_user(self):
         "Custom; False => True (one user's configuration must be updated)."
         user1 = self.login_as_root_and_get()
         user2 = self.create_user()
@@ -288,7 +286,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual([OUTPUT_EMAIL], self.refresh(item12).outputs)
         self.assertListEqual([],             self.refresh(item21).outputs)
 
-    def test_edit_set_required03(self):
+    def test_set_required__set_true__2_users(self):
         "Custom; False => True (2 users' configuration must be updated)."
         user1 = self.login_as_root_and_get()
         user2 = self.create_user()
@@ -317,14 +315,19 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
             required_f.help_text,
         )
 
-    def test_edit_set_required04(self):
+    def test_set_required__not_custom__staff(self):
         "Not custom (is_staff=True)."
         self.login_as_super(is_staff=True)
         chan = self.get_object_or_fail(NotificationChannel, uuid=UUID_CHANNEL_SYSTEM)
         self.assertGET200(self._build_required_url(chan))
 
-    def test_edit_set_required_error01(self):
-        "Not super_user."
+    def test_set_required__not_custom__not_staff(self):
+        "Not custom (is_staff=False)."
+        self.login_as_root()
+        chan = self.get_object_or_fail(NotificationChannel, uuid=UUID_CHANNEL_SYSTEM)
+        self.assertGET403(self._build_required_url(chan))
+
+    def test_set_required__forbidden(self):
         self.login_as_standard(admin_4_apps=['creme_core'])
 
         chan = NotificationChannel.objects.create(
@@ -332,8 +335,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertGET403(self._build_required_url(chan))
 
-    def test_edit_set_required_error02(self):
-        "Deleted channel."
+    def test_set_required__deleted_channel(self):
         self.login_as_root()
 
         chan = NotificationChannel.objects.create(
@@ -342,13 +344,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertGET404(self._build_required_url(chan))
 
-    def test_edit_set_required_error03(self):
-        "Not custom (is_staff=False)."
-        self.login_as_root()
-        chan = self.get_object_or_fail(NotificationChannel, uuid=UUID_CHANNEL_SYSTEM)
-        self.assertGET403(self._build_required_url(chan))
-
-    def test_delete_channel01(self):
+    def test_delete_channel__no_notification(self):
         "No linked notification."
         self.login_as_root()
 
@@ -369,7 +365,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST200(url, data=data)
         self.assertDoesNotExist(chan)
 
-    def test_delete_channel02(self):
+    def test_delete_channel__1_notification(self):
         "With one linked notification."
         user = self.login_as_root_and_get()
 
@@ -401,7 +397,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(chan)
         self.assertStillExists(notif)
 
-    def test_delete_channel03(self):
+    def test_delete_channel__2_notifications(self):
         "With 2 linked notifications."
         user = self.login_as_root_and_get()
 
@@ -423,8 +419,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
             status_code=409,
         )
 
-    def test_delete_channel_error01(self):
-        "No custom channel."
+    def test_delete_channel__not_custom_channel(self):
         self.login_as_root()
 
         chan = NotificationChannel.objects.create(
@@ -433,8 +428,7 @@ class NotificationChannelTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertPOST409(reverse('creme_config__delete_notif_channel'), data={'id': chan.id})
 
-    def test_delete_channel_error02(self):
-        "No super-user."
+    def test_delete_channel__forbidden(self):
         self.login_as_standard(admin_4_apps=['creme_core'])
 
         chan = NotificationChannel.objects.create(
@@ -488,7 +482,7 @@ class NotificationChannelConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertFalse(NotificationChannelConfigItem.objects.filter(user=root))
 
-    def test_edit01(self):
+    def test_edition__already_exists(self):
         "Item already exists."
         user = self.login_as_standard()
         custom_chan = NotificationChannel.objects.create(
@@ -528,7 +522,7 @@ class NotificationChannelConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
         ))
         self.assertListEqual([OUTPUT_EMAIL], self.refresh(item).outputs)
 
-    def test_edit02(self):
+    def test_edition__does_not_exist(self):
         "Item does not exist (should not happen in real cases)."
         user = self.login_as_standard()
         custom_chan = NotificationChannel.objects.create(
@@ -544,8 +538,7 @@ class NotificationChannelConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertListEqual([OUTPUT_WEB], item.outputs)
 
-    def test_edit03(self):
-        "Required channel."
+    def test_edition__required_channel(self):
         user = self.login_as_standard()
         custom_chan = NotificationChannel.objects.create(
             name='My Channel', required=True, default_outputs=[OUTPUT_WEB],
@@ -561,8 +554,7 @@ class NotificationChannelConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertTrue(output_f.required)
 
-    def test_edit04(self):
-        "Deleted channel."
+    def test_edition__deleted_channel(self):
         user = self.login_as_standard()
         custom_chan = NotificationChannel.objects.create(
             name='My Channel', default_outputs=[OUTPUT_WEB], deleted=now(),

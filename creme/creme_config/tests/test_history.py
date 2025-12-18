@@ -20,7 +20,7 @@ class HistoryConfigTestCase(CremeTestCase):
             response.context.get('bricks_reload_url'),
         )
 
-    def test_add01(self):
+    def test_add(self):
         self.assertFalse(HistoryConfigItem.objects.exists())
 
         rtype1 = RelationType.objects.builder(
@@ -54,8 +54,7 @@ class HistoryConfigTestCase(CremeTestCase):
             [item.relation_type.id for item in HistoryConfigItem.objects.all()],
         )
 
-    def test_add02(self):
-        "No duplicates."
+    def test_add__no_duplicate(self):
         rtype1 = RelationType.objects.builder(
             id='test-subject_foo', predicate='fooes',
         ).symmetric(id='test-object_foo', predicate='fooed').get_or_create()[0]

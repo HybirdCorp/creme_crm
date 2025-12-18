@@ -35,7 +35,7 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.get_brick_node(self.get_html_tree(response.content), brick=WorldSettingsBrick)
 
     @override_settings(MENU_ICON_MAX_SIZE=4092)
-    def test_edit_menu_icon01(self):
+    def test_edit_menu_icon(self):
         self.login_as_root()
 
         self.assertEqual(1, WorldSettings.objects.count())
@@ -101,7 +101,7 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(Path(path2).exists())  # TODO: delete the file?
 
     @override_settings(MENU_ICON_MAX_SIZE=3145728)
-    def test_edit_menu_icon02(self):
+    def test_edit_menu_icon__resized(self):
         "Image resized if too big."
         self.login_as_root()
 
@@ -131,7 +131,7 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
                 size2 = img_fd2.size
         self.assertEqual((36, 11), size2)
 
-    def test_edit_menu_icon03(self):
+    def test_edit_menu_icon__too_large(self):
         "Image file too large."
         self.login_as_root()
 
@@ -156,7 +156,7 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
                 ),
             )
 
-    def test_edit_menu_icon04(self):
+    def test_edit_menu_icon__not_image(self):
         "Reject not image."
         self.login_as_root()
 
@@ -182,7 +182,7 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
             ),
         )
 
-    def test_edit_menu_icon05(self):
+    def test_edit_menu_icon__check_type(self):
         "Check image type."
         self.login_as_root()
 
@@ -212,12 +212,11 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual((22, 22), img_size)
         self.assertEqual('PNG',    img_format)
 
-    def test_edit_menu_icon_error01(self):
-        "Not superuser."
+    def test_edit_menu_icon__regular_user(self):
         self.login_as_standard(admin_4_apps=['creme_core'])
         self.assertGET403(reverse('creme_config__edit_world_setting', args=('menu_icon',)))
 
-    def test_edit_menu_icon_error02(self):
+    def test_edit_invalid_field(self):
         "Invalid field name."
         self.login_as_root()
         self.assertGET404(reverse('creme_config__edit_world_setting', args=('invalid',)))

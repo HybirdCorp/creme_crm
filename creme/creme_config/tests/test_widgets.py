@@ -59,7 +59,7 @@ class ButtonMenuEditionWidgetTestCase(CremeTestCase):
 
 
 class MenuEditionWidgetTestCase(CremeTestCase):
-    def test_init01(self):
+    def test_init__default(self):
         "Default parameters."
         widget = MenuEditionWidget()
         self.assertListEqual([],  widget.extra_entry_creators)
@@ -84,7 +84,7 @@ class MenuEditionWidgetTestCase(CremeTestCase):
             widget.get_context(name=name, value='[]', attrs=None),
         )
 
-    def test_init02(self):
+    def test_init__parameters(self):
         "With parameters."
         creator = MenuEntriesField.EntryCreator(
             label='Create a separator', entry_class=Separator1Entry,

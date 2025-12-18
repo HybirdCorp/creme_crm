@@ -563,8 +563,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             self._build_adddetail_url(self.contact_ct)
         )
 
-    def test_clone_role_config01(self):
-        "Role to role."
+    def test_clone_role_config__role_to_role(self):
         self.login_as_root()
         self.assertFalse(BrickDetailviewLocation.objects.filter(superuser=True))
 
@@ -663,8 +662,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ],
         )
 
-    def test_clone_role_config02(self):
-        "Superuser to role."
+    def test_clone_role_config__superuser_to_role(self):
         self.login_as_root()
         role = self.get_regular_role()
 
@@ -731,8 +729,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ],
         )
 
-    def test_clone_role_config03(self):
-        "Role to superuser."
+    def test_clone_role_config__role_to_superuser(self):
         self.login_as_root()
         role = self.get_regular_role()
 
@@ -773,7 +770,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ],
         )
 
-    def test_clone_role_config04(self):
+    def test_clone_role_config__override__role(self):
         "Override existing configuration (role)."
         self.login_as_root()
         self.assertFalse(BrickDetailviewLocation.objects.filter(superuser=True))
@@ -845,7 +842,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             BrickDetailviewLocation.objects.filter(role=None, superuser=False).count(),
         )
 
-    def test_clone_role_config05(self):
+    def test_clone_role_config__override__superuser(self):
         "Override existing configuration (superuser)."
         self.login_as_root()
         self.assertFalse(BrickDetailviewLocation.objects.filter(superuser=True))

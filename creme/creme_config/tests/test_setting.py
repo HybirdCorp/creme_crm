@@ -146,7 +146,7 @@ class SettingTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(url, data={'value': email}))
         self.assertEqual(email, self.refresh(sv).value)
 
-    def test_edit_hidden01(self):
+    def test_edit_hidden__value_is_true(self):
         "Hidden => not editable (value=True)"
         self.login_as_root()
 
@@ -161,7 +161,7 @@ class SettingTestCase(CremeTestCase):
         sv.save()
         self.assertGET409(self._build_edit_url(sv))
 
-    def test_edit_hidden02(self):
+    def test_edit_hidden__value_is_false(self):
         "Hidden => not editable (value=False)."
         self.login_as_root()
 
@@ -176,7 +176,7 @@ class SettingTestCase(CremeTestCase):
         sv.save()
         self.assertGET409(self._build_edit_url(sv))
 
-    def test_edit_blank01(self):
+    def test_edit_blank__string(self):
         self.login_as_root()
 
         sk = SettingKey(
@@ -196,7 +196,7 @@ class SettingTestCase(CremeTestCase):
         self.assertEqual('', sv.json_value)
         self.assertEqual('', sv.value)
 
-    def test_edit_blank02(self):
+    def test_edit_blank__int(self):
         self.login_as_root()
 
         sk = SettingKey(
@@ -223,7 +223,7 @@ class SettingTestCase(CremeTestCase):
         self.assertIsNone(sv.json_value)
         self.assertIsNone(sv.value)
 
-    def test_edit_app_perm01(self):
+    def test_edit_app_perm(self):
         self.login_as_standard(admin_4_apps=['creme_core'])
 
         sk = SettingKey(
@@ -237,7 +237,7 @@ class SettingTestCase(CremeTestCase):
         sv.save()
         self.assertGET200(self._build_edit_url(sv))
 
-    def test_edit_app_perm02(self):
+    def test_edit_app_perm__error(self):
         "No app perm => error."
         self.login_as_standard()
 

@@ -120,8 +120,7 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertEqual(data_id2, data_id)
         self.assertIsInstance(exporter, TestExporter02)
 
-    def test_register02(self):
-        "Collision."
+    def test_register__collision(self):
         registry = ExportersRegistry()
         data_id = 'my_exporter'
 
@@ -136,7 +135,7 @@ class ExportingTestCase(TransferBaseTestCase):
                 def dump_instance(self, instance):
                     return [{'value': 2}]
 
-    def test_register03(self):
+    def test_register__priority__after(self):
         "Priority (stronger after)."
         registry = ExportersRegistry()
         data_id = 'my_exporter'
@@ -156,7 +155,7 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertEqual(data_id, item[0])
         self.assertIsInstance(item[1], TestExporter02)
 
-    def test_register04(self):
+    def test_register__priority__before(self):
         "Priority (stronger before)."
         registry = ExportersRegistry()
         data_id = 'my_exporter'
@@ -176,7 +175,7 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertEqual(data_id, item[0])
         self.assertIsInstance(item[1], TestExporter01)
 
-    def test_unregister01(self):
+    def test_unregister(self):
         registry = ExportersRegistry()
         data_id1 = 'exp1'
         data_id2 = 'exp2'
@@ -193,8 +192,7 @@ class ExportingTestCase(TransferBaseTestCase):
         item = self.get_alone_element(registry)
         self.assertEqual(data_id2, item[0])
 
-    def test_unregister02(self):
-        "Un-register before."
+    def test_unregister__before(self):
         registry = ExportersRegistry()
         data_id1 = 'exp1'
         data_id2 = 'exp2'
@@ -462,7 +460,7 @@ class ExportingTestCase(TransferBaseTestCase):
             cbci_info.get('cells'),
         )
 
-    def test_detail_bricks01(self):
+    def test_detail_bricks__default(self):
         "Default detail-views config."
         self.login_as_super(is_staff=True)
 
@@ -525,7 +523,7 @@ class ExportingTestCase(TransferBaseTestCase):
             ],
         )
 
-    def test_detail_bricks02(self):
+    def test_detail_bricks__ctype(self):
         "CT config."
         self.login_as_super(is_staff=True)
 
@@ -600,7 +598,7 @@ class ExportingTestCase(TransferBaseTestCase):
             [binfo for binfo in contact_bricks_info if binfo['zone'] == LEFT],
         )
 
-    def test_detail_bricks03(self):
+    def test_detail_bricks__role(self):
         "CT config per role."
         self.login_as_super(is_staff=True)
         role = self.create_role(name='Test')
@@ -665,7 +663,7 @@ class ExportingTestCase(TransferBaseTestCase):
             [binfo for binfo in contact_bricks_info if binfo['zone'] == RIGHT],
         )
 
-    def test_detail_bricks04(self):
+    def test_detail_bricks__superusers(self):
         "CT config for superusers."
         self.login_as_super(is_staff=True)
 
@@ -697,7 +695,7 @@ class ExportingTestCase(TransferBaseTestCase):
             [binfo for binfo in contact_bricks_info if binfo['zone'] == LEFT],
         )
 
-    def test_home_bricks01(self):
+    def test_home_bricks(self):
         self.login_as_super(is_staff=True)
 
         existing_locs = [*BrickHomeLocation.objects.all()]
@@ -711,7 +709,7 @@ class ExportingTestCase(TransferBaseTestCase):
             content.get('home_bricks'),
         )
 
-    def test_home_bricks02(self):
+    def test_home_bricks__role(self):
         "Config per role."
         self.login_as_super(is_staff=True)
         norole_brick_ids = {*BrickHomeLocation.objects.values_list('brick_id', flat=True)}
@@ -744,8 +742,8 @@ class ExportingTestCase(TransferBaseTestCase):
             role_brick_ids,
         )
 
-    def test_home_bricks03(self):
-        "Config for super_user."
+    def test_home_bricks__superusers(self):
+        "Config for superusers."
         self.login_as_super(is_staff=True)
         nosuper_brick_ids = {*BrickHomeLocation.objects.values_list('brick_id', flat=True)}
 
@@ -790,8 +788,7 @@ class ExportingTestCase(TransferBaseTestCase):
             content.get('mypage_bricks'),
         )
 
-    def test_instance_bricks01(self):
-        "Detail view."
+    def test_instance_bricks__detailview(self):
         self.login_as_super(is_staff=True)
 
         naru = FakeContact.objects.create(
@@ -846,8 +843,7 @@ class ExportingTestCase(TransferBaseTestCase):
             [binfo for binfo in contact_bricks_info if binfo['zone'] == RIGHT],
         )
 
-    def test_instance_bricks02(self):
-        "Home view."
+    def test_instance_bricks__home(self):
         self.login_as_super(is_staff=True)
 
         naru = FakeContact.objects.create(
@@ -893,7 +889,7 @@ class ExportingTestCase(TransferBaseTestCase):
             ],
         )
 
-    def test_instance_bricks03(self):
+    def test_instance_bricks__my_page(self):
         "<My page> view."
         self.login_as_super(is_staff=True)
 
@@ -1746,7 +1742,7 @@ class ExportingTestCase(TransferBaseTestCase):
             loaded_efilters.get(ef3.id),
         )
 
-    def test_customforms01(self):
+    def test_customforms(self):
         self.login_as_super(is_staff=True)
 
         response = self.assertGET200(self.URL)
@@ -1776,7 +1772,7 @@ class ExportingTestCase(TransferBaseTestCase):
             loaded_cforms.get(descriptor_id),
         )
 
-    def test_customforms02(self):
+    def test_customforms__roles(self):
         self.login_as_super(is_staff=True)
         role = self.create_role(name='Test')
 
@@ -1906,8 +1902,7 @@ class ExportingTestCase(TransferBaseTestCase):
             loaded_cforms.get(descriptor_id),
         )
 
-    def test_customforms03(self):
-        "Extra cells."
+    def test_customforms__extra_cells(self):
         self.login_as_super(is_staff=True)
 
         desc = fake_custom_forms.FAKEACTIVITY_CREATION_CFORM

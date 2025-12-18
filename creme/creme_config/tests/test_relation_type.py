@@ -82,7 +82,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             response.context.get('bricks_reload_url'),
         )
 
-    def test_create(self):
+    def test_creation(self):
         self._login_as_admin()
         url = self.ADD_URL
 
@@ -122,7 +122,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertFalse(sym_type.subject_properties.all())
         self.assertFalse(sym_type.subject_forbidden_properties.all())
 
-    def test_create__property_constaints(self):
+    def test_creation__property_constraints(self):
         "Property types (mandatory & forbidden)."
         self._login_as_admin()
 
@@ -204,7 +204,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             [forbidden_pt_obj], sym_type.subject_forbidden_properties.all(),
         )
 
-    def test_create__minimal_display_subject(self):
+    def test_creation__minimal_display__subject(self):
         self._login_as_admin()
 
         subject_pred = 'loves'
@@ -228,7 +228,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertFalse(sym_type.is_copiable)
         self.assertFalse(sym_type.minimal_display)
 
-    def test_create__minimal_display_object(self):
+    def test_creation__minimal_display__object(self):
         self._login_as_admin()
 
         subject_pred = 'loves'
@@ -252,7 +252,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertFalse(sym_type.is_copiable)
         self.assertTrue(sym_type.minimal_display)
 
-    def test_create__perm(self):
+    def test_creation__forbidden(self):
         self._login_as_basic()
         url = self.ADD_URL
         self.assertGET403(url)
@@ -264,7 +264,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
             },
         )
 
-    def test_edit_not_custom01(self):
+    def test_edition__not_custom(self):
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
@@ -314,7 +314,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
 
         self.assertFalse(rt.symmetric_type.minimal_display)
 
-    def test_edit_not_custom02(self):
+    def test_edition__not_custom__other_values(self):
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
@@ -355,7 +355,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertFalse(sym_rt.is_internal)
         self.assertListEqual([FakeContact], [*sym_rt.subject_models])
 
-    def test_edit_not_custom__disabled(self):
+    def test_edition__not_custom__disabled(self):
         self._login_as_admin()
 
         rt = RelationType.objects.builder(
@@ -366,7 +366,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         ).get_or_create()[0]
         self.assertGET404(self._build_edit_not_custom_url(rt))
 
-    def test_edit_not_custom__perm(self):
+    def test_edition__not_custom__forbidden(self):
         self._login_as_basic()
 
         rt = RelationType.objects.builder(
@@ -376,7 +376,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         ).get_or_create()[0]
         self.assertGET403(self._build_edit_not_custom_url(rt))
 
-    def test_edit_custom(self):
+    def test_edition__custom(self):
         "Edit a custom type."
         self._login_as_admin()
 
@@ -414,7 +414,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertEqual(subject_pred, rel_type.predicate)
         self.assertEqual(object_pred,  rel_type.symmetric_type.predicate)
 
-    def test_edit_custom__disabled(self):
+    def test_edition__custom__disabled(self):
         "Edit a disabled type."
         self._login_as_admin()
 
@@ -424,7 +424,7 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         ).symmetric(id='test-objfoo', predicate='Object predicate').get_or_create()[0]
         self.assertGET404(self._build_edit_url(rt))
 
-    def test_edit_custom__perm(self):
+    def test_edition__custom__forbidden(self):
         self._login_as_basic()
 
         rt = RelationType.objects.builder(

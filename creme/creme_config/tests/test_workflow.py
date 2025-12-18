@@ -77,14 +77,14 @@ class TriggerFieldTestCase(CremeTestCase):
             field.clean((RelationAddingTrigger.type_id, sub_values)),
         )
 
-    def test_empty_required(self):
+    def test_empty__required(self):
         field = TriggerField(required=True)
         msg = _('This field is required.')
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
         self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
         self.assertFormfieldError(field=field, messages=msg, codes='required', value='[]')
 
-    def test_empty_not_required(self):
+    def test_empty__not_required(self):
         field = TriggerField(required=False)
         self.assertIsNone(field.clean(None))
         self.assertIsNone(field.clean((None, None)))

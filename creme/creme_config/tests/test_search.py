@@ -59,7 +59,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         return ctypes[0]
 
-    def test_portal01(self):
+    def test_portal(self):
         ctype = self._get_first_entity_ctype()
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ctype))
 
@@ -85,7 +85,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(sci.superuser)
         self.assertTrue(sci.all_fields)
 
-    def test_portal02(self):
+    def test_portal__build_missing_configurations(self):
         "Missing default configurations are built, even when configs for users exist."
         ctype = self._get_first_entity_ctype()
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ctype))
@@ -98,7 +98,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             content_type=ctype, role=None, superuser=False,
         )
 
-    def test_add01(self):
+    def test_add(self):
         role = self.role
         ct = self.ct_contact
         self.assertFalse(
@@ -145,7 +145,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             [*sc_item.cells],
         )
 
-    def test_add02(self):
+    def test_add__superusers(self):
         "Other CT, superusers."
         ct = self.ct_orga
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ct, superuser=True))
@@ -158,7 +158,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertTrue(sc_item.all_fields)
 
-    def test_add03(self):
+    def test_add__uniqueness(self):
         "Unique configuration."
         role = self.role
         ct = self.ct_contact
@@ -177,7 +177,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInChoices(value=role2.id, label=str(role2), choices=choices)
         self.assertNotInChoices(value=role.id, choices=choices)
 
-    def test_add04(self):
+    def test_add__uniqueness__superusers(self):
         "Unique configuration (super-user)."
         SearchConfigItem.objects.builder(
             model=FakeContact, role='superuser',
@@ -191,8 +191,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertIsNone(role_f.empty_label)
 
-    def test_add_regular_fields_errors01(self):
-        "Forbidden fields."
+    def test_add_regular_fields__forbidden_fields(self):
         url = self._build_add_url(self.ct_contact)
 
         def post(field_name, msg_fmt=None):
@@ -215,7 +214,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         post('image__user')
         post('image__user__username')
 
-    def test_add_regular_fields_errors02(self):
+    def test_add_regular_fields__choices(self):
         "Fields with 'choices' are not valid."
         field_name = 'discount_unit'
         model_field = FakeInvoiceLine._meta.get_field(field_name)
@@ -231,7 +230,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('This value is invalid: %(value)s') % {'value': field_name},
         )
 
-    def test_add_regular_fields_errors03(self):
+    def test_add_regular_fields__date_period(self):
         "Exclude DatePeriodField."
         field_name = 'periodicity'
         response = self.assertPOST200(
@@ -271,8 +270,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             [*sc_item.cells],
         )
 
-    def test_add_custom_fields_errors(self):
-        "Forbidden types."
+    def test_add_custom_fields__forbidden_types(self):
         ct = self.ct_orga
 
         def post(cfield):
@@ -307,7 +305,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         return sci
 
-    def test_edit01(self):
+    def test_edition(self):
         sci = SearchConfigItem.objects.builder(
             model=FakeContact, fields=['last_name'],
         ).get_or_create()[0]
@@ -333,20 +331,19 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         sci = self._edit_config(url, sci, fname1, fname2)
         self.assertFalse(sci.disabled)
 
-    def test_edit02(self):
+    def test_edition__role(self):
         "Other CT + role + exclude BooleanField."
         sci = SearchConfigItem.objects.create(content_type=self.ct_orga, role=self.role)
         self._edit_config(self._build_edit_url(sci), sci, 'name', 'description')
 
-    def test_edit_disabled(self):
+    def test_edition__disabled(self):
         sci = SearchConfigItem.objects.create(content_type=self.ct_contact)
         url = self._build_edit_url(sci)
 
         sci = self._edit_config(url, sci, 'last_name', disabled='on')
         self.assertTrue(sci.disabled)
 
-    def test_edit_fields_config01(self):
-        "With FieldsConfig."
+    def test_edition__fields_config(self):
         model = FakeContact
         hidden_fname1 = 'position'
         hidden_fname2 = 'description'  # NB: in CremeEntity
@@ -385,7 +382,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             [c.key for c in self.refresh(sci).cells],
         )
 
-    def test_edit_fields_config02(self):
+    def test_edition__fields_config__selected_hidden(self):
         "With FieldsConfig + selected hidden fields."
         model = FakeContact
         hidden_fname1 = 'description'
@@ -413,22 +410,21 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             [c.key for c in self.refresh(sci).cells],
         )
 
-    def test_delete01(self):
+    def test_deletion(self):
         sci = SearchConfigItem.objects.builder(
             model=FakeContact, role=self.role, fields=['first_name', 'last_name'],
         ).get_or_create()[0]
         self.assertPOST200(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertDoesNotExist(sci)
 
-    def test_delete02(self):
-        "Superusers."
+    def test_deletion__superusers(self):
         sci = SearchConfigItem.objects.builder(
             model=FakeContact, role='superuser', fields=['first_name', 'last_name'],
         ).get_or_create()[0]
         self.assertPOST200(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertDoesNotExist(sci)
 
-    def test_delete03(self):
+    def test_deletion__default(self):
         "Cannot delete the default configuration."
         sci = SearchConfigItem.objects.builder(
             model=FakeContact, fields=['first_name', 'last_name'],

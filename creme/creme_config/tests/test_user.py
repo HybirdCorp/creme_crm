@@ -1816,7 +1816,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         user_setting_key_registry.register(*skeys)
         self._registered_skey.extend(skeys)
 
-    def test_user_settings01(self):
+    def test_portal(self):
         self.login_as_root()
         response = self.assertGET200(reverse('creme_config__user_settings'))
         self.assertTemplateUsed(response, 'creme_config/user-settings.html')
@@ -1848,7 +1848,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.get_brick_node(doc, brick=NotificationChannelConfigItemsBrick)
         self.get_brick_node(doc, brick=UserSettingValuesBrick)
 
-    def test_user_settings02(self):
+    def test_portal__no_user_name_change(self):
         self.login_as_root()
         world_settings = get_world_settings_model().objects.get()
         world_settings.user_name_change_enabled = False
@@ -2033,7 +2033,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
     def _build_edit_user_svalue_url(setting_key):
         return reverse('creme_config__edit_user_setting', args=(setting_key.id,))
 
-    def test_edit_user_setting_value01(self):
+    def test_edit_user_setting_value(self):
         user = self.login_as_root_and_get()
         sk = UserSettingKey(
             id='creme_config-test_edit_user_setting_value01',
@@ -2061,7 +2061,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertIs(True, self.refresh(user).settings.get(sk))
 
-    def test_edit_user_setting_value02(self):
+    def test_edit_user_setting_value__hidden(self):
         "hidden=True => error."
         self.login_as_root()
         sk = UserSettingKey(
@@ -2074,7 +2074,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self._register_key(sk)
         self.assertGET409(self._build_edit_user_svalue_url(sk))
 
-    def test_edit_user_setting_value03(self):
+    def test_edit_user_setting_value__not_blank(self):
         "Not blank + STRING."
         self.login_as_root()
         sk = UserSettingKey(
@@ -2092,7 +2092,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
             field='value', errors=_('This field is required.'),
         )
 
-    def test_edit_user_setting_value04(self):
+    def test_edit_user_setting_value__blank__string(self):
         "Blank + STRING."
         user = self.login_as_root_and_get()
         sk = UserSettingKey(
@@ -2117,7 +2117,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertGET200(url)
 
-    def test_edit_user_setting_value05(self):
+    def test_edit_user_setting_value__blank__int(self):
         "Blank + INT."
         user = self.login_as_root_and_get()
         sk = UserSettingKey(
