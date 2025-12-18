@@ -27,7 +27,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
             **kwargs
         )
 
-    def test_graph_create(self):
+    def test_graph_creation(self):
         user = self.login_as_root_and_get()
 
         url = reverse('graphs__create_graph')
@@ -47,7 +47,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.get_brick_node(tree, brick=RootNodesBrick)
         self.get_brick_node(tree, brick=OrbitalRelationTypesBrick)
 
-    def test_graph_edit(self):
+    def test_graph_edition(self):
         user = self.login_as_root_and_get()
 
         name = 'Nodz-a-lapalooza'
@@ -78,7 +78,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(graph1, graphs)
         self.assertIn(graph2, graphs)
 
-    def test_relation_types01(self):
+    def test_relation_types(self):
         user = self.login_as_root_and_get()
 
         graph = Graph.objects.create(user=user, name='Graph01')
@@ -130,7 +130,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
             [rtype2.id], [rt.id for rt in graph.orbital_relation_types.all()],
         )
 
-    def test_relation_types02(self):
+    def test_relation_types__forbidden(self):
         self.login_as_graphs_user()
 
         graph = Graph.objects.create(user=self.get_root_user(), name='Graph01')
@@ -224,7 +224,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST200(url, data=data, follow=True)
         self.assertDoesNotExist(rnode)
 
-    def test_edit_rootnode01(self):
+    def test_edit_rootnode(self):
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
@@ -267,7 +267,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertCountEqual([rtype1, rtype2], rnode.relation_types.all())
 
-    def test_edit_rootnode02(self):
+    def test_edit_rootnode__disabled_selected(self):
         "Disabled relation types are already selected => still proposed."
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
@@ -293,8 +293,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(rtype1.id, rtype_ids)
         self.assertIn(disabled_rtype.id, rtype_ids)
 
-    def test_delete_rootnode01(self):
-        "Not superuser."
+    def test_delete_rootnode(self):
         user = self.login_as_graphs_user()
         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
@@ -309,7 +308,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertDoesNotExist(rnode)
 
-    def test_delete_rootnode02(self):
+    def test_delete_rootnode__edition_perms(self):
         "Not superuser + cannot change Graph => error."
         user = self.login_as_graphs_user()
         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
