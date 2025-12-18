@@ -101,7 +101,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         entity_emails_send_type.execute(job or self._get_job())
 
     @skipIfCustomContact
-    def test_createview(self):
+    def test_creation(self):
         user = self.login_as_root_and_get()
 
         queue = get_queue()
@@ -200,7 +200,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual([], queue.refreshed_jobs)
 
     @skipIfCustomContact
-    def test_createview__related_entity(self):
+    def test_creation__related_entity(self):
         "Entity is not used as recipient => linked with RelationType REL_SUB_RELATED_TO."
         user = self.login_as_root_and_get()
         entity = MailingList.objects.create(user=user, name='ML1')
@@ -226,7 +226,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertHaveRelation(subject=email, type=REL_SUB_RELATED_TO, object=entity)
 
     @skipIfCustomOrganisation
-    def test_createview__attachments(self):
+    def test_creation__attachments(self):
         user = self.login_as_root_and_get()
 
         recipient = 'contact@venusgate.jp'
@@ -313,7 +313,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
     @skipIfCustomContact
-    def test_createview__required_customfield(self):
+    def test_creation__required_customfield(self):
         user = self.login_as_root_and_get()
 
         create_cf = partial(CustomField.objects.create, content_type=EntityEmail)
@@ -336,7 +336,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertTrue(cf2_f.required)
 
     @skipIfCustomContact
-    def test_createview__empty_body01(self):
+    def test_creation__empty_body01(self):
         "HTML body is empty => automatically filled from body."
         user = self.login_as_root_and_get()
 
@@ -381,7 +381,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
     @skipIfCustomContact
-    def test_createview__empty_body02(self):
+    def test_creation__empty_body02(self):
         "Body is empty => automatically filled from HTML body."
         user = self.login_as_root_and_get()
 
@@ -431,7 +431,7 @@ better &amp; lighter than the previous one.
         )
 
     @skipIfCustomContact
-    def test_createview__empty_body03(self):
+    def test_creation__empty_body03(self):
         "Both bodies are empty => error."
         user = self.login_as_root_and_get()
 
@@ -462,7 +462,7 @@ better &amp; lighter than the previous one.
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_createview__error_invalid_address(self):
+    def test_creation__error_invalid_address(self):
         "Invalid email address."
         user = self.login_as_root_and_get()
 
@@ -505,7 +505,7 @@ better &amp; lighter than the previous one.
         )
 
     @skipIfCustomContact
-    def test_createview__no_address01(self):
+    def test_creation__no_address01(self):
         "Related contact has no emails address."
         user = self.login_as_root_and_get()
 
@@ -522,7 +522,7 @@ better &amp; lighter than the previous one.
         )
 
     @skipIfCustomOrganisation
-    def test_createview__no_address02(self):
+    def test_creation__no_address02(self):
         "Related organisation has no email address."
         user = self.login_as_root_and_get()
 
@@ -540,7 +540,7 @@ better &amp; lighter than the previous one.
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_createview__no_link_perm(self):
+    def test_creation__no_link_perm(self):
         "Credentials problem."
         user = self.login_as_emails_user()
         other_user = self.get_root_user()
@@ -607,7 +607,7 @@ better &amp; lighter than the previous one.
             errors=_('Some entities are not linkable: {}').format(orga01),
         )
 
-    def test_createview__no_recipient(self):
+    def test_creation__no_recipient(self):
         user = self.login_as_root_and_get()
         c = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
         response = self.assertPOST200(
@@ -629,7 +629,7 @@ better &amp; lighter than the previous one.
         )
 
     @skipIfCustomContact
-    def test_createview__fieldsconfig01(self):
+    def test_creation__fieldsconfig01(self):
         "FieldsConfig: Contact.email is hidden."
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
@@ -674,7 +674,7 @@ better &amp; lighter than the previous one.
         )
 
     @skipIfCustomOrganisation
-    def test_createview__fieldsconfig02(self):
+    def test_creation__fieldsconfig02(self):
         "FieldsConfig: Organisation.email is hidden."
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
@@ -719,7 +719,7 @@ better &amp; lighter than the previous one.
         )
 
     @skipIfCustomContact
-    def test_createview__sending_error(self):
+    def test_creation__sending_error(self):
         "Mail sending error."
         user = self.login_as_root_and_get()
 
@@ -760,7 +760,7 @@ better &amp; lighter than the previous one.
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_createview__no_creation_perm(self):
+    def test_creation__no_creation_perm(self):
         "No creation credentials."
         user = self.login_as_emails_user(
             creatable_models=(Contact, Organisation)  # No EntityEmail
@@ -772,7 +772,7 @@ better &amp; lighter than the previous one.
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_createview__empty_email(self):
+    def test_creation__empty_email(self):
         "Empty email address."
         user = self.login_as_root_and_get()
 
@@ -809,7 +809,7 @@ better &amp; lighter than the previous one.
 
     @parameterized.expand([REL_SUB_MAIL_SENT, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])
     @skipIfCustomContact
-    def test_createview__disabled_rtype(self, rtype_id):
+    def test_creation__disabled_rtype(self, rtype_id):
         user = self.login_as_root_and_get()
         contact = Contact.objects.create(
             user=user,
@@ -827,7 +827,7 @@ better &amp; lighter than the previous one.
             rtype.enabled = True
             rtype.save()
 
-    def test_createview__is_staff(self):
+    def test_creation__is_staff(self):
         self.login_as_super(is_staff=True)
         contact = Contact.objects.create(
             user=self.get_root_user(),
@@ -839,7 +839,7 @@ better &amp; lighter than the previous one.
 
     @skipIfCustomEmailTemplate
     @skipIfCustomContact
-    def test_create_from_template01(self):
+    def test_creation_from_template(self):
         user = self.login_as_root_and_get()
 
         body_format      = 'Hi {} {}, nice to meet you !'.format
@@ -935,8 +935,7 @@ better &amp; lighter than the previous one.
         self.assertEqual(ini_get('body'),           email.body)
 
     @skipIfCustomContact
-    def test_create_from_template02(self):
-        "Not super-user."
+    def test_creation_from_template__regular_user(self):
         user = self.login_as_emails_user()
         self.add_credentials(user.role, all=['VIEW', 'LINK'])
 
@@ -947,7 +946,7 @@ better &amp; lighter than the previous one.
         self.assertGET200(self._build_send_from_template_url(contact))
 
     @skipIfCustomContact
-    def test_create_from_template03(self):
+    def test_creation_from_template__creation_perms(self):
         "Creation permission needed."
         user = self.login_as_emails_user(creatable_models=[])
         self.add_credentials(user.role, all=['VIEW', 'LINK'])
@@ -959,7 +958,7 @@ better &amp; lighter than the previous one.
         self.assertGET403(self._build_send_from_template_url(contact))
 
     @skipIfCustomContact
-    def test_create_from_template04(self):
+    def test_creation_from_template__link_perms(self):
         "LINK permission needed."
         user = self.login_as_emails_user()
         self.add_credentials(user.role, all=['VIEW'])  # 'LINK'
@@ -972,7 +971,7 @@ better &amp; lighter than the previous one.
 
     @parameterized.expand([REL_SUB_MAIL_SENT, REL_SUB_MAIL_RECEIVED])
     @skipIfCustomContact
-    def test_create_from_template_disabled_rtype(self, rtype_id):
+    def test_creation_from_template__disabled_rtype(self, rtype_id):
         user = self.login_as_root_and_get()
         contact = Contact.objects.create(
             user=user,
@@ -990,8 +989,7 @@ better &amp; lighter than the previous one.
             rtype.enabled = True
             rtype.save()
 
-    def test_link_to_emails01(self):
-        "Contact."
+    def test_link_to_emails__contact(self):
         user = self.login_as_root_and_get()
         contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
         email1 = self._create_email(user=user)
@@ -1030,7 +1028,7 @@ better &amp; lighter than the previous one.
         self.assertHaveRelation(subject=contact, type=REL_OBJ_MAIL_RECEIVED, object=email1)
         self.assertHaveRelation(subject=contact, type=REL_OBJ_RELATED_TO,    object=email2)
 
-    def test_link_to_emails02(self):
+    def test_link_to_emails__invoice(self):
         "Invoice => only one relation type proposed."
         user = self.login_as_root_and_get()
         invoice = FakeInvoice.objects.create(user=user, name='Swords & shields')
@@ -1044,8 +1042,7 @@ better &amp; lighter than the previous one.
             [rtype.id for rtype in allowed_rtypes],
         )
 
-    def test_link_to_emails03(self):
-        "Disabled relation types."
+    def test_link_to_emails__disabled_rtypes(self):
         user = self.login_as_root_and_get()
 
         url = self._build_link_emails_url(
@@ -1075,7 +1072,7 @@ better &amp; lighter than the previous one.
                 rtype.enabled = True
                 rtype.save()
 
-    def test_link_to_emails04(self):
+    def test_link_to_emails__incompatible_rtypes(self):
         "Incompatible relation types (property types constraints)."
         user = self.login_as_root_and_get()
 
@@ -1149,7 +1146,7 @@ better &amp; lighter than the previous one.
         self.assertIsNotNone(subject_td)
         self.assertEqual(email.subject, subject_td.text)
 
-    def test_listview01(self):
+    def test_listview(self):
         user = self.login_as_root_and_get()
         self._create_emails(user=user)
 
@@ -1196,7 +1193,7 @@ better &amp; lighter than the previous one.
         self.assertTrue(resend_action.is_enabled)
         self.assertTrue(resend_action.is_visible)
 
-    def test_get_sanitized_html_field01(self):
+    def test_get_sanitized_html_field__empty(self):
         "Empty body."
         user = self.login_as_root_and_get()
         email = self._create_email(user=user, body_html='')
@@ -1209,7 +1206,7 @@ better &amp; lighter than the previous one.
         self.assertEqual('', response.text)
         self.assertEqual('SAMEORIGIN', response.get('X-Frame-Options'))
 
-    def test_get_sanitized_html_field02(self):
+    def test_get_sanitized_html_field__filled(self):
         user = self.login_as_root_and_get()
         email = self._create_email(
             user=user,
@@ -1238,7 +1235,7 @@ better &amp; lighter than the previous one.
         )
         # TODO: improve sanitization test (other tags, css...)
 
-    def test_resend01(self):
+    def test_resend(self):
         user = self.login_as_root_and_get()
         NOT_SENT = EntityEmail.Status.NOT_SENT
         email1 = self._create_email(user=user, status=NOT_SENT)
@@ -1261,7 +1258,7 @@ better &amp; lighter than the previous one.
         self.assertEqual(SENT, self.refresh(email1).status)
         self.assertEqual(SENT, self.refresh(email2).status)
 
-    def test_resend02(self):
+    def test_resend__errors(self):
         self.login_as_root()
 
         url = reverse('emails__resend_emails')
@@ -1351,7 +1348,7 @@ better &amp; lighter than the previous one.
         self._send_mails(job)
         self.assertFalse(mail.outbox)
 
-    def test_refresh_job01(self):
+    def test_refresh_job(self):
         "Mail is restored + have to be sent => refresh the job."
         user = self.login_as_root_and_get()
         job = self._get_job()
@@ -1369,7 +1366,7 @@ better &amp; lighter than the previous one.
         self.assertEqual(1, len(jobs))
         self.assertEqual(job, jobs[0][0])
 
-    def test_refresh_job02(self):
+    def test_refresh_job__useless(self):
         "Mail is restored + do not have to be sent => do not refresh the job."
         user = self.login_as_root_and_get()
 

@@ -143,7 +143,7 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
             plural_title='{count} Configured servers for campaigns',
         )
 
-    def test_creation01(self):
+    def test_creation(self):
         self.login_as_emails_admin()
 
         url = reverse('emails__create_sending_config_item')
@@ -211,7 +211,7 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
             },
         )
 
-    def test_creation02(self):
+    def test_creation__empty_username(self):
         "No TLS, empty username, sender."
         self.login_as_emails_admin()
 
@@ -243,12 +243,12 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(sender,   item.default_sender)
         self.assertIs(item.use_tls, False)
 
-    def test_creation03(self):
+    def test_creation__forbidden(self):
         "No admin credentials."
         self.login_as_emails_user()
         self.assertGET403(reverse('emails__create_sending_config_item'))
 
-    def test_edition01(self):
+    def test_edition__default_port(self):
         "No TLS, default port."
         self.login_as_emails_admin()
 
@@ -304,7 +304,7 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertIsNone(item.port)
         self.assertFalse(item.use_tls)
 
-    def test_edition02(self):
+    def test_edition__port(self):
         "Port is set."
         self.login_as_emails_admin()
 
@@ -336,7 +336,7 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(port, item.port)
         self.assertTrue(item.use_tls)
 
-    def test_edition03(self):
+    def test_edition__forbidden(self):
         "No admin credentials."
         self.login_as_emails_user()
 
@@ -347,7 +347,7 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
         self.assertGET403(item.get_edit_absolute_url())
 
-    def test_password_edition01(self):
+    def test_password_edition(self):
         self.login_as_emails_admin()
 
         item = EmailSendingConfigItem.objects.create(
@@ -383,7 +383,7 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertNoFormError(response2)
         self.assertEqual(password, self.refresh(item).password)
 
-    def test_password_edition02(self):
+    def test_password_edition__empty(self):
         "Set empty password."
         self.login_as_emails_admin()
 
@@ -402,7 +402,7 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertNoFormError(response)
         self.assertEqual('', self.refresh(item).password)
 
-    def test_password_edition03(self):
+    def test_password_edition__forbidden(self):
         "No admin credentials."
         self.login_as_emails_user()
 
@@ -413,7 +413,7 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
         self.assertGET403(self._build_password_edition_url(item))
 
-    def test_deletion01(self):
+    def test_deletion(self):
         self.login_as_emails_admin()
 
         item = EmailSendingConfigItem.objects.create(
@@ -429,7 +429,7 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertPOST200(url, data=data)
         self.assertDoesNotExist(item)
 
-    def test_deletion02(self):
+    def test_deletion__forbidden(self):
         "No admin credentials."
         self.login_as_emails_user()
 
@@ -488,7 +488,7 @@ class SendingConfigFieldTestCase(CremeTestCase):
             conf1,
         )
 
-    def test_ok01(self):
+    def test_ok(self):
         item1 = self.item1
         item2 = self.item2
         field = SendingConfigField()
@@ -507,7 +507,7 @@ class SendingConfigFieldTestCase(CremeTestCase):
             field.clean([item1.id, sender]),
         )
 
-    def test_ok02(self):
+    def test_ok__init(self):
         sender = 'spike@mydomain.org'
         item = self.item2
         self.assertEqual(
@@ -605,7 +605,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_create01(self):
+    def test_creation(self):
         """We create voluntarily duplicates (recipients that have same addresses
         than Contact/Organisation, MailingList that contain the same addresses)
         EmailSending should not contain duplicates.
@@ -842,8 +842,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertFalse(LightWeightEmail.objects.exists())
 
     @skipIfCustomContact
-    def test_create02(self):
-        "Test template."
+    def test_creation__template(self):
         user = self.login_as_root_and_get()
         item = EmailSendingConfigItem.objects.create(
             name='Config #1',
@@ -972,7 +971,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @override_settings(EMAILCAMPAIGN_SLEEP_TIME=0.1)
-    def test_create03(self):
+    def test_creation__job(self):
         "Job + outbox."
         item = EmailSendingConfigItem.objects.create(
             name='Config #1',
@@ -1077,8 +1076,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             Notification.objects.filter(user=user, channel__uuid=UUID_CHANNEL_JOBS)
         )
 
-    def test_create04(self):
-        "Test deferred."
+    def test_creation__deferred(self):
         user = self.login_as_root_and_get()
         item = EmailSendingConfigItem.objects.create(
             name='Config #1',
@@ -1145,8 +1143,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             field='sending_date', errors=msg,
         )
 
-    def test_create05(self):
-        "Test deferred (today)."
+    def test_creation__deferred__today(self):
         user = self.login_as_root_and_get()
         item = EmailSendingConfigItem.objects.create(
             name='Config #1',
@@ -1185,8 +1182,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         self.assertDatetimesAlmostEqual(sending_date, sending.sending_date, seconds=60)
 
-    def test_create06(self):
-        "Body with variables."
+    def test_creation__body_with_varibales(self):
         user = self.login_as_root_and_get()
         item = EmailSendingConfigItem.objects.create(
             name='Config #1',
@@ -1228,14 +1224,14 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
         self.assertEqual(1, len(message.attachments))
 
-    def test_create07(self):
+    def test_creation__error(self):
         "No related to a campaign => error."
         user = self.login_as_root_and_get()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         self.assertGET404(self._build_add_url(nerv))
 
-    def test_edit01(self):
+    def test_edition(self):
         user = self.login_as_root_and_get()
 
         item = EmailSendingConfigItem.objects.create(
@@ -1289,7 +1285,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             config_f3 = context3['form'].fields['config']
         self.assertListEqual([item.id, sender], config_f3.initial)
 
-    def test_edit02(self):
+    def test_edition__error(self):
         "State is DONE => error."
         user = self.login_as_root_and_get()
 
@@ -1303,8 +1299,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
         self.assertGET409(sending.get_edit_absolute_url())
 
-    def test_view_lw_email01(self):
-        "Not super-user"
+    def test_view_lw_email__regular_user(self):
         user = self.login_as_emails_user()
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -1332,7 +1327,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         response = self.assertGET200(reverse('emails__view_lw_mail', args=(lw_mail.id,)))
         self.assertEqual(_('Details of the email'), response.context.get('title'))
 
-    def test_view_lw_email02(self):
+    def test_view_lw_email__error(self):
         "Cannot view the campaign => error."
         user = self.login_as_emails_user()
         self.add_credentials(user.role, own=['VIEW'])
@@ -1388,8 +1383,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             brick_node, url=sending2.get_absolute_url(), action_type='redirect',
         )
 
-    def test_reload_sending_bricks01(self):
-        "Not super-user."
+    def test_reload_sending_bricks__regular_user(self):
         user = self.login_as_emails_user()
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -1419,7 +1413,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         # TODO: test other bricks
 
-    def test_reload_sending_bricks02(self):
+    def test_reload_sending_bricks__view_perm(self):
         "Can not see the campaign."
         user = self.login_as_emails_user()
         self.add_credentials(user.role, own=['VIEW'])
@@ -1438,7 +1432,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             data={'brick_id': MailsBrick.id},
         )
 
-    def test_reload_sending_bricks03(self):
+    def test_reload_sending_bricks__app_perm(self):
         "No app perm."
         self.login_as_standard()  # No 'emails'
         self.assertGET403(
@@ -1467,7 +1461,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     #     self.assertGET404(build_uri(sending, 'type'))
     #     self.assertGET404(build_uri(sending, 'sending_date'))
 
-    def test_next_wakeup01(self):
+    def test_next_wakeup__several_deferred(self):
         "Several deferred sendings."
         user = self.login_as_root_and_get()
         job = self._get_job()
@@ -1486,7 +1480,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertIsNotNone(wakeup)
         self.assertDatetimesAlmostEqual(sending1.sending_date, wakeup)
 
-    def test_next_wakeup02(self):
+    def test_next_wakeup__deferred_past(self):
         "A deferred sending with passed sending_date."
         user = self.login_as_root_and_get()
         job = self._get_job()
@@ -1528,7 +1522,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             content2.get_html_body(user=user),
         )
 
-    def test_campaign_sent_content_error(self):
+    def test_campaign_sent_content__error(self):
         "Campaign does not exist anymore."
         user = self.get_root_user()
         content = CampaignSentContent.from_dict({'instance': self.UNUSED_PK})
@@ -1537,7 +1531,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(body, content.get_html_body(user=user))
 
     @skipIfCustomContact
-    def test_job01(self):
+    def test_job__deferred(self):
         "Deferred => notification."
         user = self.login_as_root_and_get()
         item = EmailSendingConfigItem.objects.create(
@@ -1573,8 +1567,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertDictEqual({'instance': camp.id}, notif.content_data)
 
     @skipIfCustomContact
-    def test_job02(self):
-        "Deleted campaign."
+    def test_job__deleted_campaign(self):
         user = self.login_as_root_and_get()
         job = self._get_job()
         item = EmailSendingConfigItem.objects.create(
@@ -1616,8 +1609,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertFalse(django_mail.outbox)
 
     @skipIfCustomContact
-    def test_job03(self):
-        "Deleted config."
+    def test_job__deleted_config(self):
         user = self.login_as_root_and_get()
         job = self._get_job()
         item = EmailSendingConfigItem.objects.create(
@@ -1662,7 +1654,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(EmailSending.State.ERROR, self.refresh(sending).state)
         # TODO: error in job results
 
-    def test_refresh_job01(self):
+    def test_refresh_job__work(self):
         "Restore campaign with sending which has to be sent."
         user = self.login_as_root_and_get()
         job = self._get_job()
@@ -1685,7 +1677,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(1, len(jobs))
         self.assertEqual(job, jobs[0][0])
 
-    def test_refresh_job02(self):
+    def test_refresh_job__no_work(self):
         "Restore campaign with sending which does not have to be sent."
         user = self.login_as_root_and_get()
         camp = EmailCampaign.objects.create(user=user, name='camp01', is_deleted=True)
