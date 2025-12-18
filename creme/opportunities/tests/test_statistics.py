@@ -19,14 +19,13 @@ from .base import (
 
 @skipIfCustomOpportunity
 class StatisticsTestCase(OpportunitiesBaseTestCase):
-    def test_current_year01(self):
-        "Empty."
+    def test_current_year__empty(self):
         self.assertListEqual(
             [],
             CurrentYearStatistics(Opportunity, Organisation)()
         )
 
-    def test_current_year02(self):
+    def test_current_year__several_managed(self):
         "Several managed organisation + only won."
         user = self.login_as_root_and_get()
         statf = CurrentYearStatistics(Opportunity, Organisation)
@@ -101,7 +100,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
             statf(),
         )
 
-    def test_current_year03(self):
+    def test_current_year__lost(self):
         "Lost opportunities."
         user = self.get_root_user()
 
@@ -144,7 +143,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
             CurrentYearStatistics(opp_model=Opportunity, orga_model=Organisation)(),
         )
 
-    def test_current_year04(self):
+    def test_current_year__since_year_start(self):
         "Since 1rst january."
         user = self.get_root_user()
 
@@ -188,7 +187,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
             CurrentYearStatistics(Opportunity, Organisation)(),
         )
 
-    def test_current_year05(self):
+    def test_current_year__hidden_closing_date(self):
         "closing_date is hidden."
         user = self.get_root_user()
 
