@@ -1882,7 +1882,7 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
         #     It would not be useful if we reset ID sequences...
         Vat.objects.get_or_create(id=1, value=Decimal('0.0'))
 
-    def test_delete01(self):
+    def test_delete(self):
         user = self.user
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')
         product_line = ProductLine.objects.create(
@@ -1913,7 +1913,7 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
         self.assertDoesNotExist(b_addr)
         self.assertDoesNotExist(s_addr)
 
-    def test_delete02(self):
+    def test_delete__protected(self):
         "Can't be deleted."
         user = self.user
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')

@@ -504,8 +504,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         engine2 = Xhtml2pdfExportEngine(Organisation)
         self.assertFalse([*engine2.flavours])
 
-    def test_exporter_manager01(self):
-        "Empty."
+    def test_exporter_manager__empty(self):
         manager = BillingExportEngineManager([])
         self.assertFalse([*manager.engine_classes])
 
@@ -518,7 +517,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             model=Invoice,
         ))
 
-    def test_exporter_manager02(self):
+    def test_exporter_manager__class(self):
         "Pass class directly."
         manager = BillingExportEngineManager([
             'creme.billing.exporters.latex.LatexExportEngine',
@@ -563,7 +562,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         'creme.billing.exporters.latex.LatexExportEngine',
         'creme.billing.exporters.xls.XLSExportEngine',
     ])
-    def test_exporter_manager03(self):
+    def test_exporter_manager__settings(self):
         "Default argument => use settings."
         manager = BillingExportEngineManager()
 
@@ -575,8 +574,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertIsInstance(engine2, XLSExportEngine)
         self.assertEqual(Quote, engine2.model)
 
-    def test_exporter_manager04(self):
-        "Invalid class."
+    def test_exporter_manager__invalid_class(self):
         engine = BillingExportEngineManager([
             'creme.billing.exporters.latex.LatexExportEngine',
             'creme.billing.tests.fake_exporters.NotExporter',
@@ -630,7 +628,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
         'creme.billing.exporters.xls.XLSExportEngine',
     ])
-    def test_configuration_edition01(self):
+    def test_configuration_edition(self):
         self.login_as_standard(admin_4_apps=['billing'])
 
         ct = ContentType.objects.get_for_model(Invoice)
@@ -694,8 +692,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(BILLING_EXPORTERS=[
         'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
     ])
-    def test_configuration_edition02(self):
-        "Initial values."
+    def test_configuration_edition__initial_values(self):
         self.login_as_standard(admin_4_apps=['billing'])
 
         ct = ContentType.objects.get_for_model(Invoice)
@@ -736,7 +733,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('billing-xhtml2pdf|FR/fr_FR/cappuccino', exporter_f.initial)
 
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
-    def test_configuration_edition__invalid_initial01(self):
+    def test_configuration_edition__invalid_initial__flavour(self):
         "Invalid initial value (flavour)."
         self.login_as_root()
 
@@ -759,7 +756,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(BILLING_EXPORTERS=[
         'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
     ])
-    def test_configuration_edition__invalid_initial02(self):
+    def test_configuration_edition__invalid_initial__engine(self):
         "Invalid initial value (engine)."
         self.login_as_root()
 
@@ -1535,7 +1532,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIf(latex_not_installed, '"lualatex" and "latexmk" are not installed.')
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
     @skipIfCustomInvoice
-    def test_export_latex_credentials01(self):
+    def test_export_latex_credentials__emitter(self):
         "Source credentials."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -1561,7 +1558,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIf(latex_not_installed, '"lualatex" and "latexmk" are not installed.')
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
     @skipIfCustomInvoice
-    def test_export_latex_credentials02(self):
+    def test_export_latex_credentials__receiver(self):
         "Target credentials."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
