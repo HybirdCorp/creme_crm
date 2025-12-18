@@ -274,7 +274,7 @@ class ModelRelativeDatePeriodFieldTestCase(AssistantsTestCase):
             mrperiod1,
         )
 
-    def test_ok01(self):
+    def test_ok__days_after(self):
         "Field <FakeOrganisation.creation_date> + days + after."
         field_name = 'creation_date'
         offset = ModelRelativeDatePeriodField(model=FakeOrganisation).clean(
@@ -290,7 +290,7 @@ class ModelRelativeDatePeriodFieldTestCase(AssistantsTestCase):
             offset,
         )
 
-    def test_ok02(self):
+    def test_ok__minutes_before(self):
         "Field <FakeOrganisation.created> + minutes + before."
         field_name = 'created'
         offset = ModelRelativeDatePeriodField(model=FakeOrganisation).clean(
@@ -606,7 +606,7 @@ class AbsoluteOrRelativeDatetimeFieldTestCase(AssistantsTestCase):
         self.assertCountEqual(filters, [*field.modelfield_filters])
         self.assertCountEqual(filters, field.fields_choices[1][1].modelfield_filters)
 
-    def test_empty_required(self):
+    def test_empty__required(self):
         field = AbsoluteOrRelativeDatetimeField(model=FakeOrganisation)
         self.assertTrue(field.required)
 
@@ -615,7 +615,7 @@ class AbsoluteOrRelativeDatetimeFieldTestCase(AssistantsTestCase):
         self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
         self.assertFormfieldError(field=field, messages=msg, codes='required', value='[]')
 
-    def test_empty_not_required(self):
+    def test_empty__not_required(self):
         field = AbsoluteOrRelativeDatetimeField(model=FakeOrganisation, required=False)
         self.assertFalse(field.required)
 
