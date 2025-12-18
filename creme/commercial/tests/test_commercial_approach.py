@@ -170,8 +170,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         cfci.save()
 
     @skipIfCustomActivity
-    def test_create_from_activity01(self):
-        "No subjects."
+    def test_create_from_activity__no_subject(self):
         self._add_approach_extra_cell()
 
         user = self.user
@@ -215,7 +214,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     @skipIfCustomContact
     @skipIfCustomActivity
-    def test_create_from_activity02(self):
+    def test_create_from_activity__subjects(self):
         self._add_approach_extra_cell()
 
         user = self.user
@@ -324,7 +323,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         orga.delete()
         self.assertDoesNotExist(comapp)
 
-    def test_get_approaches01(self):
+    def test_get_approaches__not_related(self):
         "Related to entity."
         user = self.user
 
@@ -340,7 +339,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
             [commapp1], [*CommercialApproach.get_approaches(nerv.id)]
         )
 
-    def test_get_approaches02(self):
+    def test_get_approaches__related(self):
         "Not related to entity."
         user = self.user
 
@@ -365,7 +364,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     @skipIfCustomContact
     @skipIfCustomOpportunity
-    def test_brick01(self):
+    def test_brick(self):
         ApproachesBrick.page_size = 5  # TODO: ugly (page_size has a brick instance attribute ?)
 
         sv = SettingValue.objects.get(key_id=orga_approaches_key.id)
@@ -428,8 +427,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(commapp3.title, titles)
         self.assertIn(commapp4.title, titles)
 
-    def test_brick02(self):
-        "Home."
+    def test_brick__home(self):
         BrickHomeLocation.objects.create(brick_id=ApproachesBrick.id, order=100)
 
         response = self.assertGET200(reverse('creme_core__home'))
@@ -461,7 +459,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     @override_settings(SOFTWARE_LABEL='My CRM')
-    def test_job01(self):
+    def test_job__neglected(self):
         "Customer has no CommercialApproach."
         self._send_mails()
         self.assertFalse(mail.outbox)
@@ -494,7 +492,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfCustomOrganisation
-    def test_job02(self):
+    def test_job__not_neglected(self):
         "A Commercial Approach is linked to the customer."
         mngd_orga, customer = self._build_orgas()
 
@@ -508,7 +506,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(mail.outbox)
 
     @skipIfCustomOrganisation
-    def test_job03(self):
+    def test_job__old_approach(self):
         "The linked Commercial Approach is too old."
         mngd_orga, customer = self._build_orgas()
 
@@ -527,7 +525,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     @skipIfCustomContact
-    def test_job04(self):
+    def test_job__linked_to_manager(self):
         "A Commercial Approach is linked to a manager."
         mngd_orga, customer = self._build_orgas()
 
@@ -551,7 +549,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     @skipIfCustomContact
-    def test_job05(self):
+    def test_job__linked_to_employee(self):
         "A Commercial Approach is linked to an employee."
         mngd_orga, customer = self._build_orgas()
 
@@ -575,7 +573,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     @skipIfCustomOpportunity
-    def test_job06(self):
+    def test_job__linked_to_opportunity(self):
         "A Commercial Approach is linked to an Opportunity."
         mngd_orga, customer = self._build_orgas()
 
@@ -595,7 +593,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(mail.outbox)
 
     @skipIfCustomOrganisation
-    def test_job07(self):
+    def test_job__ignored__organisations(self):
         "Ignore the managed organisations which are customer of another managed organisation."
         mngd_orga, customer = self._build_orgas()
 
@@ -606,7 +604,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(mail.outbox)
 
     @skipIfCustomOrganisation
-    def test_job08(self):
+    def test_job__error(self):
         "Sending error."
         self._build_orgas()
 

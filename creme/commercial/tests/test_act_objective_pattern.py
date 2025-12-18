@@ -111,7 +111,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(3, patterns_page.paginator.count)
         self.assertCountEqual(patterns, patterns_page.object_list)
 
-    def test_add_root_pattern_component01(self):
+    def test_add_root_pattern_component(self):
         "No parent component, no counted relation."
         pattern = self._create_pattern()
 
@@ -149,7 +149,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             brick_node, count=1, title='{count} Objective', plural_title='{count} Objectives',
         )
 
-    def test_add_root_pattern_component02(self):
+    def test_add_root_pattern_component__counted_relation(self):
         "Counted relation (no parent component)."
         pattern = self._create_pattern()
         name = 'Called contacts'
@@ -169,7 +169,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(ct,   component.ctype)
         self.assertIsNone(component.filter)
 
-    def test_add_root_pattern_component03(self):
+    def test_add_root_pattern_component__counted_relation__filter(self):
         "Counted relation with filter (no parent component)."
         pattern = self._create_pattern()
         name = 'Called contacts'
@@ -193,7 +193,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(ct,      component.ctype)
         self.assertEqual(efilter, component.filter)
 
-    def test_add_child_pattern_component01(self):
+    def test_add_child_pattern_component(self):
         "Parent component."
         pattern = self._create_pattern()
         comp01 = ActObjectivePatternComponent.objects.create(
@@ -256,7 +256,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             brick_node, count=3, title='{count} Objective', plural_title='{count} Objectives',
         )
 
-    def test_add_parent_pattern_component01(self):
+    def test_add_parent_pattern_component(self):
         pattern = self._create_pattern()
         comp01 = ActObjectivePatternComponent.objects.create(
             name='Sent mails', pattern=pattern, success_rate=5,
@@ -298,7 +298,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertIsNone(parent.parent)
         self.assertEqual(child.parent, parent)
 
-    def test_add_parent_pattern_component02(self):
+    def test_add_parent_pattern_component__already_parented(self):
         pattern = self._create_pattern()
 
         create_comp = partial(ActObjectivePatternComponent.objects.create, pattern=pattern)
@@ -414,16 +414,15 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             data={'id': comp.id},
         )
 
-    def test_delete_pattern_component01(self):
+    def test_delete_pattern_component(self):
         pattern = self._create_pattern()
-        comp01 = ActObjectivePatternComponent.objects.create(
+        comp = ActObjectivePatternComponent.objects.create(
             name='Signed opportunities', pattern=pattern, success_rate=20,
         )
+        self.assertNoFormError(self._delete_comp(comp), status=302)
+        self.assertDoesNotExist(comp)
 
-        self.assertNoFormError(self._delete_comp(comp01), status=302)
-        self.assertDoesNotExist(comp01)
-
-    def test_delete_pattern_component02(self):
+    def test_delete_pattern_component__children(self):
         pattern = self._create_pattern()
         create_comp = partial(
             ActObjectivePatternComponent.objects.create,
