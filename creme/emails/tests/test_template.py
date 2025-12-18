@@ -14,12 +14,12 @@ from .base import EmailTemplate, _EmailsTestCase, skipIfCustomEmailTemplate
 
 
 @skipIfCustomEmailTemplate
-class TemplatesTestCase(BrickTestCaseMixin, DocumentsTestCaseMixin, _EmailsTestCase):
+class TemplateTestCase(BrickTestCaseMixin, DocumentsTestCaseMixin, _EmailsTestCase):
     @staticmethod
     def _build_rm_attachment_url(template):
         return reverse('emails__remove_attachment_from_template', args=(template.id,))
 
-    def test_createview01(self):
+    def test_creation(self):
         user = self.login_as_root_and_get()
 
         url = reverse('emails__create_template')
@@ -63,8 +63,7 @@ class TemplatesTestCase(BrickTestCaseMixin, DocumentsTestCaseMixin, _EmailsTestC
             iframe_node.attrib.get('src'),
         )
 
-    def test_createview02(self):
-        "Attachments."
+    def test_creation__attachments(self):
         user = self.login_as_root_and_get()
 
         file_obj1 = self.build_filedata('Content #1')
@@ -110,8 +109,7 @@ class TemplatesTestCase(BrickTestCaseMixin, DocumentsTestCaseMixin, _EmailsTestC
         self.assertInstanceLink(brick_node, doc1)
         self.assertInstanceLink(brick_node, doc2)
 
-    def test_createview03(self):
-        "Validation error."
+    def test_creation__error(self):
         user = self.login_as_root_and_get()
 
         response = self.assertPOST200(
@@ -135,7 +133,7 @@ class TemplatesTestCase(BrickTestCaseMixin, DocumentsTestCaseMixin, _EmailsTestC
             form, field='body_html', errors=error_msg % {'vars': 'foobar_var'},
         )
 
-    def test_editview01(self):
+    def test_edition(self):
         user = self.login_as_root_and_get()
 
         file_obj = self.build_filedata('My Content')
@@ -176,8 +174,7 @@ class TemplatesTestCase(BrickTestCaseMixin, DocumentsTestCaseMixin, _EmailsTestC
         self.assertEqual(body_html, template.body_html)
         self.assertListEqual([doc], [*template.attachments.all()])
 
-    def test_editview02(self):
-        "Validation errors."
+    def test_edition__error(self):
         user = self.login_as_root_and_get()
 
         template = EmailTemplate.objects.create(
@@ -211,7 +208,7 @@ class TemplatesTestCase(BrickTestCaseMixin, DocumentsTestCaseMixin, _EmailsTestC
             response.context['page_obj']  # NOQA
 
     @skipIfCustomDocument
-    def test_add_attachments01(self):
+    def test_add_attachments(self):
         user = self.login_as_root_and_get()
 
         template = EmailTemplate.objects.create(
@@ -244,13 +241,13 @@ class TemplatesTestCase(BrickTestCaseMixin, DocumentsTestCaseMixin, _EmailsTestC
         self.assertNoFormError(response)
         self.assertCountEqual([doc1, doc2], template.attachments.all())
 
-    def test_add_attachments02(self):
+    def test_add_attachments__bad_type(self):
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Acme')
         self.assertGET404(reverse('emails__add_attachments_to_template', args=(orga.id,)))
 
     @skipIfCustomDocument
-    def test_delete_attachments01(self):
+    def test_delete_attachments(self):
         user = self.login_as_emails_user(
             allowed_apps=['documents'],
             creatable_models=[Document],
@@ -277,7 +274,7 @@ class TemplatesTestCase(BrickTestCaseMixin, DocumentsTestCaseMixin, _EmailsTestC
         self.assertEqual([doc2], [*template.attachments.all()])
 
     @skipIfCustomDocument
-    def test_delete_attachments02(self):
+    def test_delete_attachments__edition_perm(self):
         "Not allowed to change the template."
         user = self.login_as_emails_user(
             allowed_apps=['documents'],

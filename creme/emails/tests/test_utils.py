@@ -98,7 +98,7 @@ class UtilsTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
         self.assertIsInstance(rend_image1.mime, MIMEImage)
         self.assertEqual(img1, rend_image1.entity)
 
-    def test_sender01(self):
+    def test_sender(self):
         user = self.login_as_root_and_get()
         self.assertFalse(django_mail.outbox)
 
@@ -130,7 +130,7 @@ class UtilsTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
         self.assertBodiesEqual(message, body=body, body_html=body_html)
         self.assertEqual(1, len(message.attachments))
 
-    def test_sender02(self):
+    def test_sender__signature(self):
         "Signature (with images)."
         user = self.login_as_root_and_get()
 

@@ -6,7 +6,7 @@ from creme.emails.core.validators import TemplateVariablesValidator
 
 
 class ValidatorsTestCase(CremeTestCase):
-    def test_template_variables01(self):
+    def test_template_variables(self):
         v = TemplateVariablesValidator(['first_name', 'last_name'])
 
         with self.assertNoException():
@@ -33,7 +33,7 @@ class ValidatorsTestCase(CremeTestCase):
             v.help_text,
         )
 
-    def test_template_variables02(self):
+    def test_template_variables__allowed_variables(self):
         "Other variables, Property <allowed_variables>"
         v = TemplateVariablesValidator()
         v.allowed_variables = ['name', 'nick_name']
