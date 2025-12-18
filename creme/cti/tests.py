@@ -71,7 +71,7 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn('<a class="cti-phonecall" onclick="creme.cti.phoneCall', html)
 
     @skipIfCustomContact
-    def test_add_phonecall01(self):
+    def test_add_phonecall(self):
         user = self.login_as_root_and_get()
 
         atype = self.get_object_or_fail(ActivityType, uuid=a_constants.UUID_TYPE_PHONECALL)
@@ -98,16 +98,14 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
 
     @skipIfCustomActivity
-    def test_add_phonecall02(self):
-        "No contact."
+    def test_add_phonecall__no_contact(self):
         self.login_as_root()
 
         self.assertPOST404(self.ADD_PCALL_URL, data={'entity_id': str(self.UNUSED_PK)})
         self.assertFalse(Activity.objects.filter(type__uuid=a_constants.UUID_TYPE_PHONECALL))
 
     @skipIfCustomOrganisation
-    def test_add_phonecall03(self):
-        "Organisation."
+    def test_add_phonecall__organisation(self):
         user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='Gunsmith Cats')
@@ -120,7 +118,7 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertHaveRelation(orga, type=a_constants.REL_SUB_LINKED_2_ACTIVITY, object=pcall)
 
     @skipIfCustomContact
-    def test_respond_to_a_call01(self):
+    def test_respond_to_a_call__contact(self):
         "Contact."
         user = self.login_as_root_and_get()
 
@@ -161,7 +159,7 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(l_brick_node, user.linked_contact)
 
     @skipIfCustomContact
-    def test_respond_to_a_call02(self):
+    def test_respond_to_a_call__other_field(self):
         "Contact's other field (mobile)."
         user = self.login_as_root_and_get()
 
@@ -174,8 +172,7 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotContains(response, str(user.linked_contact))
 
     @skipIfCustomOrganisation
-    def test_respond_to_a_call03(self):
-        "Organisation."
+    def test_respond_to_a_call__organisation(self):
         user = self.login_as_root_and_get()
 
         phone = '558899'
@@ -187,7 +184,7 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_respond_to_a_call04(self):
+    def test_respond_to_a_call__all_fields_hidden(self):
         """FieldsConfig: all fields are hidden."""
         self.login_as_root()
 
@@ -207,7 +204,7 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET409(self.RESPOND_URL, data={'number': '558899'})
 
     @skipIfCustomContact
-    def test_respond_to_a_call05(self):
+    def test_respond_to_a_call__some_hidden_fields(self):
         """FieldsConfig: some fields are hidden."""
         user = self.login_as_root_and_get()
 
@@ -278,7 +275,7 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     @skipIfCustomActivity
-    def test_create_phonecall01(self):
+    def test_create_phonecall(self):
         user = self.login_as_root_and_get()
 
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
@@ -303,7 +300,7 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
 
     @skipIfCustomActivity
-    def test_create_phonecall02(self):
+    def test_create_phonecall__logged_contact(self):
         user = self.login_as_root_and_get()
         contact = user.linked_contact
 
@@ -318,7 +315,7 @@ class CTITestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(phone_call.calendars.filter(pk=calendar.id).exists())
 
     @skipIfCustomActivity
-    def test_create_phonecall03(self):
+    def test_create_phonecall__contact_user(self):
         user = self.login_as_root_and_get()
         other_user = self.create_user()
         other_user_contact = other_user.linked_contact
