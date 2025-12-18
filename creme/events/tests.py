@@ -116,7 +116,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertEqual(_('Results'), self.get_brick_title(brick_node))
 
-    def test_createview01(self):
+    def test_creation(self):
         user = self.login_as_root_and_get()
         self.assertGET200(self.ADD_URL)
 
@@ -128,7 +128,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(self.create_datetime(2010, 11, 3), event.start_date)
         self.assertIsNone(event.end_date)
 
-    def test_createview02(self):
+    def test_creation__end(self):
         "End data, hours."
         user = self.login_as_root_and_get()
 
@@ -152,7 +152,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             event.end_date,
         )
 
-    def test_createview03(self):
+    def test_creation__dates_error(self):
         "start > end."
         user = self.login_as_root_and_get()
         etype = EventType.objects.all()[1]
@@ -172,7 +172,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('The end date must be after the start date.'),
         )
 
-    def test_createview04(self):
+    def test_creation__hidden_end(self):
         "FieldsConfig: end is hidden."
         user = self.login_as_root_and_get()
 
@@ -193,7 +193,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertIsNone(event.end_date)
 
-    def test_editview(self):
+    def test_edition(self):
         user = self.login_as_root_and_get()
 
         name = 'Eclipse'
@@ -251,7 +251,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(action.is_visible)
         self.assertTrue(action.is_enabled)
 
-    def test_stats01(self):
+    def test_stats__empty(self):
         user = self.login_as_root_and_get()
 
         event = self._create_event(user=user, name='Eclipse')
@@ -270,7 +270,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual([0] * 4, stats_list)
 
     @skipIfCustomContact
-    def test_stats02(self):
+    def test_stats__filled(self):
         user = self.login_as_root_and_get()
         event = self._create_event(user=user, name='Eclipse')
 
@@ -318,7 +318,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @skipIfCustomContact
-    def test_set_invitation_status01(self):
+    def test_set_invitation_status__no_answer(self):
         user = self.login_as_root_and_get()
 
         event = self._create_event(user=user, name='Eclipse')
@@ -350,7 +350,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(0, stats['visitors_count'])
 
     @skipIfCustomContact
-    def test_set_invitation_status02(self):
+    def test_set_invitation_status__accepted(self):
         user = self.login_as_root_and_get()
 
         event = self._create_event(user=user, name='Eclipse')
@@ -371,7 +371,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(0, stats['refused_count'])
 
     @skipIfCustomContact
-    def test_set_invitation_status03(self):
+    def test_set_invitation_status__refused(self):
         user = self.login_as_root_and_get()
 
         event = self._create_event(user=user, name='Eclipse')
@@ -390,7 +390,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(0, stats['refused_count'])
 
     @skipIfCustomContact
-    def test_set_invitation_status04(self):
+    def test_set_invitation_status__accepted_then_refused(self):
         user = self.login_as_root_and_get()
 
         event = self._create_event(user=user, name='Eclipse')
@@ -410,7 +410,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(0, stats['refused_count'])
 
     @skipIfCustomContact
-    def test_set_invitation_status05(self):
+    def test_set_invitation_status__refused_then_accepted(self):
         user = self.login_as_root_and_get()
 
         event = self._create_event(user=user, name='Eclipse')
@@ -424,8 +424,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(0, stats['refused_count'])
 
     @skipIfCustomContact
-    def test_set_invitation_status06(self):
-        "Credentials errors."
+    def test_set_invitation_status__forbidden(self):
         user = self.login_as_standard(allowed_apps=['persons', 'events'])
         other_user = self.get_root_user()
         self.add_credentials(user.role, all='!LINK', own='*')
@@ -463,7 +462,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @skipIfCustomContact
-    def test_set_presence_status01(self):
+    def test_set_presence_status__come(self):
         user = self.login_as_root_and_get()
 
         event = self._create_event(user=user, name='Eclipse')
@@ -492,7 +491,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertHaveNoRelation(casca, type=constants.REL_SUB_NOT_CAME_EVENT, object=event)
 
     @skipIfCustomContact
-    def test_set_presence_status02(self):
+    def test_set_presence_status__come_then_not_come(self):
         user = self.login_as_root_and_get()
 
         event = self._create_event(user=user, name='Eclipse')
@@ -510,7 +509,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertHaveNoRelation(casca, type=constants.REL_SUB_NOT_CAME_EVENT, object=event)
 
     @skipIfCustomContact
-    def test_set_presence_status03(self):
+    def test_set_presence_status__not_come_then_come(self):
         user = self.login_as_root_and_get()
 
         event = self._create_event(user=user, name='Eclipse')
@@ -525,8 +524,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertHaveNoRelation(casca, type=constants.REL_SUB_NOT_CAME_EVENT, object=event)
 
     @skipIfCustomContact
-    def test_set_presence_status04(self):
-        "Credentials errors."
+    def test_set_presence_status__forbidden(self):
         user = self.login_as_standard(allowed_apps=['persons', 'events'])
         other_user = self.get_root_user()
         self.add_credentials(user.role, all='!LINK', own='*')
@@ -590,7 +588,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         ]
 
     @skipIfCustomContact
-    def test_link_contacts01(self):
+    def test_link_contacts__1_contact(self):
         user = self.login_as_root_and_get()
 
         event = self._create_event(user=user, name='Eclipse')
@@ -623,7 +621,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertRedirects(response2, cb_url)
 
     @skipIfCustomContact
-    def test_link_contacts02(self):
+    def test_link_contacts__several_contacts(self):
         user = self.login_as_root_and_get()
         event = self._create_event(user=user, name='Eclipse')
 
@@ -706,7 +704,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @skipIfCustomContact
-    def test_link_contacts03(self):
+    def test_link_contacts__duplicate(self):
         user = self.login_as_root_and_get()
 
         event = self._create_event(user=user, name='Eclipse')
@@ -729,7 +727,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @skipIfCustomContact
-    def test_link_contacts04(self):
+    def test_link_contacts__link_perms(self):
         "Link credentials error."
         user = self.login_as_standard(allowed_apps=['persons', 'events'])
         self.add_credentials(user.role, own='!LINK')
@@ -809,8 +807,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomOpportunity
-    def test_related_opportunity01(self):
-        "Contact is not related to an Organisation."
+    def test_related_opportunity__contact_not_related_to_organisation(self):
         user = self.login_as_root_and_get()
 
         name = 'Opp01'
@@ -858,8 +855,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomOpportunity
-    def test_related_opportunity02(self):
-        "Contact is related to an Organisation."
+    def test_related_opportunity__contact_related_to_organisation(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -919,7 +915,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomOpportunity
-    def test_related_opportunity03(self):
+    def test_related_opportunity__hidden_description(self):
         """Opportunity.description is hidden."""
         user = self.login_as_root_and_get()
 
@@ -954,7 +950,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     @skipIfCustomOpportunity
-    def test_related_opportunity04(self):
+    def test_related_opportunity__regular_user(self):
         "Not super-user."
         user = self.login_as_standard(
             allowed_apps=['persons', 'opportunities', 'events'],
@@ -970,7 +966,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     @skipIfCustomOpportunity
-    def test_related_opportunity05(self):
+    def test_related_opportunity__creation_perms(self):
         "Creation permission needed."
         user = self.login_as_standard(
             allowed_apps=['persons', 'opportunities', 'events'],
@@ -986,7 +982,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     @skipIfCustomOpportunity
-    def test_related_opportunity06(self):
+    def test_related_opportunity__link_perms(self):
         "LINK permission is needed."
         user = self.login_as_standard(
             allowed_apps=['persons', 'opportunities', 'events'],
@@ -1002,7 +998,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     @skipIfCustomOpportunity
-    def test_related_opportunity07(self):
+    def test_related_opportunity__view_perms(self):
         "Contact must be viewable."
         user = self.login_as_standard(
             allowed_apps=['persons', 'opportunities', 'events'],
