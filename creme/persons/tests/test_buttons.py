@@ -39,7 +39,7 @@ class ButtonsTestCase(CremeTestCase):
         # self.assertFalse(button.ok_4_display(orga))
         self.assertFalse(button.is_displayed(entity=orga, request=request))
 
-    def test_become_error(self):
+    def test_become__error(self):
         "Cannot link a managed organisation with itself."
         managed_orga = self.get_alone_element(
             Organisation.objects.filter_managed_by_creme().all()

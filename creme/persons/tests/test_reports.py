@@ -42,7 +42,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomReport
     # @skipIfCustomRGraph
     # def test_report_graph_fetcher01(self):
-    def test_report_chart_fetcher01(self):
+    def test_report_chart_fetcher__user_contact(self):
         "Contact-user."
         user = self.login_as_root_and_get()
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)
@@ -148,7 +148,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomReport
     # @skipIfCustomRGraph
     # def test_report_graph_fetcher02(self):
-    def test_report_chart_fetcher02(self):
+    def test_report_chart_fetcher__regular_contact(self):
         "Basic Contact (is_user=None)."
         user = self.login_as_root_and_get()
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)
@@ -200,7 +200,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomReport
     # @skipIfCustomRGraph
     # def test_report_graph_fetcher03(self):
-    def test_report_chart_fetcher03(self):
+    def test_report_chart_fetcher__not_contact(self):
         "Entity is not even a Contact."
         user = self.login_as_root_and_get()
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)

@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
+from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.gui.field_printers import field_printer_registry
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
@@ -141,7 +142,7 @@ class ContactTestCase(_BaseTestCase):
         with self.assertNoException():
             contact2.clean()
 
-    def test_createview(self):
+    def test_creation(self):
         user = self.login_as_root_and_get()
 
         url = reverse('persons__create_contact')
@@ -170,7 +171,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertRedirects(response, contact.get_absolute_url())
 
     @skipIfCustomAddress
-    def test_createview_with_addresses(self):
+    def test_creation__addresses(self):
         user = self.login_as_root_and_get()
 
         first_name = 'Spike'
@@ -218,9 +219,9 @@ class ContactTestCase(_BaseTestCase):
         self.assertContains(response2, s_address)
 
     @skipIfCustomAddress
-    def test_createview_with_addresses_errors01(self):
-        """Validation error (custom model validation on Address
-        -- for swapped or hooked models) ; field error.
+    def test_creation__addresses__model_validation__field_error(self):
+        """Validation error (custom model validation on Address -- for swapped
+        or hooked models); field error.
         """
         user = self.login_as_root_and_get()
         error_msg = 'Please fill the city too'
@@ -281,8 +282,8 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(b_city,    billing_address.city)
 
     @skipIfCustomAddress
-    def test_createview_with_addresses_errors02(self):
-        "Validation error (custom model validation...) ; non field-error."
+    def test_creation__addresses__model_validation__non_field_error(self):
+        "Validation error (custom model validation...); non field-error."
         user = self.login_as_root_and_get()
         error_msg = 'Please fill the city too'
 
@@ -320,7 +321,7 @@ class ContactTestCase(_BaseTestCase):
             Address.clean = original_clean
 
     @skipIfCustomAddress
-    def test_createview_with_addresses_errors03(self):
+    def test_creation__addresses__form_error(self):
         "Custom address which raises field error."
         user = self.login_as_root_and_get()
         error_msg = 'Please fill the city too'
@@ -363,7 +364,7 @@ class ContactTestCase(_BaseTestCase):
             )
 
             # ---
-            response2 = self.client.post(
+            self.assertNoFormError(self.client.post(
                 url,
                 follow=True,
                 data={
@@ -371,8 +372,7 @@ class ContactTestCase(_BaseTestCase):
 
                     'billing_address-city': b_city,
                 },
-            )
-            self.assertNoFormError(response2)
+            ))
         finally:
             AddressesGroup.sub_form_class = original_form
 
@@ -384,7 +384,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(b_address, billing_address.address)
         self.assertEqual(b_city,    billing_address.city)
 
-    def test_editview01(self):
+    def test_edition(self):
         user = self.login_as_root_and_get()
         first_name = 'Faye'
         contact = Contact.objects.create(
@@ -413,7 +413,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertRedirects(response, contact.get_absolute_url())
 
     @skipIfCustomAddress
-    def test_editview_with_addresses(self):
+    def test_edition__addresses(self):
         "Edit addresses."
         user = self.login_as_root_and_get()
 
@@ -466,7 +466,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(state,   contact.billing_address.state)
         self.assertEqual(country, contact.shipping_address.country)
 
-    def test_editview_is_user01(self):
+    def test_edition__is_user(self):
         "Contact is a user => sync."
         user = self.login_as_root_and_get()
         contact = self.get_object_or_fail(Contact, is_user=user)
@@ -516,7 +516,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(last_name,  user.last_name)
         self.assertEqual(email,      user.email)
 
-    def test_editview_is_user02(self):
+    def test_edition__is_user__hidden_email(self):
         "Contact is a user + field 'email' is hidden (crashed)."
         user = self.login_as_root_and_get()
         contact = self.get_object_or_fail(Contact, is_user=user)
@@ -562,7 +562,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(last_name,  user.last_name)
         self.assertEqual(email,      user.email)  # <= no change
 
-    def test_is_user01(self):
+    def test_is_user(self):
         "Property 'linked_contact'."
         user = self.create_user()
 
@@ -583,7 +583,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertHasAttr(user, 'get_absolute_url')
         self.assertEqual(contact.get_absolute_url(), user.get_absolute_url())
 
-    def test_is_user02(self):
+    def test_is_user__errors(self):
         """Contact.clean() + integrity of User."""
         user = self.login_as_root_and_get()
         contact = user.linked_contact
@@ -649,7 +649,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertNotIn(vicious, contacts_set)
 
     @skipIfCustomOrganisation
-    def test_create_linked_contact01(self):
+    def test_linked_contact_creation__fixed_rtype(self):
         "RelationType fixed."
         user = self.login_as_root_and_get()
 
@@ -687,7 +687,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(last_name, contact.last_name)
 
     @skipIfCustomOrganisation
-    def test_create_linked_contact02(self):
+    def test_linked_contact_creation__not_fixed_rtype(self):
         "RelationType not fixed."
         user = self.login_as_root_and_get()
 
@@ -758,7 +758,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertHaveRelation(subject=orga, type=REL_OBJ_EMPLOYED_BY, object=contact)
 
     @skipIfCustomOrganisation
-    def test_create_linked_contact_property_constraint01(self):
+    def test_linked_contact_creation__property_constraint__object(self):
         "Mandatory object's properties."
         user = self.login_as_root_and_get()
 
@@ -792,7 +792,7 @@ class ContactTestCase(_BaseTestCase):
 
     @skipIfCustomOrganisation
     @override_settings(FORMS_RELATION_FIELDS=True)
-    def test_create_linked_contact_property_constraint02(self):
+    def test_linked_contact_creation__property_constraint__subject(self):
         "Mandatory subject's properties."
         user = self.login_as_root_and_get()
 
@@ -831,7 +831,7 @@ class ContactTestCase(_BaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_create_linked_contact_property_constraint03(self):
+    def test_linked_contact_creation__property_constraint__forbidden(self):
         "Forbidden object's properties."
         user = self.login_as_root_and_get()
 
@@ -863,7 +863,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertHaveRelation(subject=contact, type=rtype.id, object=orga)
 
     @skipIfCustomOrganisation
-    def test_create_linked_contact_error01(self):
+    def test_linked_contact_creation__link_perms(self):
         "No LINK credentials."
         user = self.login_as_persons_user(creatable_models=[Contact])
         self.add_credentials(user.role, own='!LINK')
@@ -911,7 +911,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertFormError(response2.context['form'], field='user', errors=msg)
 
     @skipIfCustomOrganisation
-    def test_create_linked_contact_error02(self):
+    def test_linked_contact_creation__view_perms(self):
         "Cannot VIEW the organisation."
         user = self.login_as_persons_user(creatable_models=[Contact])
         self.add_credentials(user.role, all='*', model=Contact)  # Not Organisation
@@ -930,7 +930,7 @@ class ContactTestCase(_BaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_create_linked_contact_error03(self):
+    def test_linked_contact_creation__link_perms_organisation(self):
         "Cannot LINK the organisation."
         user = self.login_as_persons_user(creatable_models=[Contact])
         self.add_credentials(user.role, all='*',     model=Contact)
@@ -943,7 +943,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertGET403(self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY))
 
     @skipIfCustomOrganisation
-    def test_create_linked_contact_error04(self):
+    def test_linked_contact_creation__invalid_rtypes(self):
         "Misc errors."
         user = self.login_as_root_and_get()
         orga = Organisation.objects.create(user=user, name='Acme')
@@ -999,7 +999,7 @@ class ContactTestCase(_BaseTestCase):
 
     @skipIfCustomOrganisation
     @override_settings(FORMS_RELATION_FIELDS=True)
-    def test_create_linked_contact_error05(self):
+    def test_linked_contact_creation__missing_properties(self):
         "Mandatory properties."
         user = self.login_as_root_and_get()
 
@@ -1074,7 +1074,7 @@ class ContactTestCase(_BaseTestCase):
 
     @skipIfCustomOrganisation
     @override_settings(FORMS_RELATION_FIELDS=True)
-    def test_create_linked_contact_error06(self):
+    def test_linked_contact_creation__forbidden_properties(self):
         "Forbidden properties (object constraint)."
         user = self.login_as_root_and_get()
 
@@ -1225,20 +1225,26 @@ class ContactTestCase(_BaseTestCase):
         self.assertDoesNotExist(naruto)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete_is_user01(self):
+    def test_delete_is_user(self):
         "Can not delete if the Contact corresponds to a user."
-        user = self.login_as_root_and_get()
+        self.login_as_root()
+        user = self.create_user()
         contact = user.linked_contact
+
+        with self.assertRaises(SpecificProtectedError):
+            contact.trash()
+
+        Contact.objects.filter(id=contact.id).update(is_deleted=True)
         self.assertPOST409(contact.get_delete_absolute_url(), follow=True)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete_is_user02(self):
+    def test_trash_is_user(self):
         "Can not trash if the Contact corresponds to a user."
-        user = self.login_as_root_and_get()
-        contact = user.linked_contact
-        self.assertPOST409(contact.get_delete_absolute_url(), follow=True)
+        self.login_as_root()
+        user = self.create_user()
+        self.assertPOST409(user.linked_contact.get_delete_absolute_url(), follow=True)
 
-    def test_delete_civility01(self):
+    def test_delete_civility__set_null(self):
         "Set to NULL."
         user = self.login_as_root_and_get()
         captain = Civility.objects.create(title='Captain')
@@ -1258,7 +1264,7 @@ class ContactTestCase(_BaseTestCase):
         harlock = self.assertStillExists(harlock)
         self.assertIsNone(harlock.civility)
 
-    def test_delete_civility02(self):
+    def test_delete_civility__replace(self):
         "Set to another value."
         user = self.login_as_root_and_get()
         civ2 = Civility.objects.first()
@@ -1283,7 +1289,7 @@ class ContactTestCase(_BaseTestCase):
         harlock = self.assertStillExists(harlock)
         self.assertEqual(civ2, harlock.civility)
 
-    def test_delete_position01(self):
+    def test_delete_position__set_null(self):
         "Set to NULL."
         user = self.login_as_root_and_get()
         captain = Position.objects.create(title='Captain')
@@ -1304,7 +1310,7 @@ class ContactTestCase(_BaseTestCase):
         harlock = self.assertStillExists(harlock)
         self.assertIsNone(harlock.position)
 
-    def test_delete_position02(self):
+    def test_delete_position__replace(self):
         "Set to another value."
         user = self.login_as_root_and_get()
         pos2 = Position.objects.first()
@@ -1329,7 +1335,7 @@ class ContactTestCase(_BaseTestCase):
         harlock = self.assertStillExists(harlock)
         self.assertEqual(pos2, harlock.position)
 
-    def test_delete_sector01(self):
+    def test_delete_sector__set_null(self):
         "Set to NULL."
         user = self.login_as_root_and_get()
         piracy = Sector.objects.create(title='Piracy')
@@ -1350,7 +1356,7 @@ class ContactTestCase(_BaseTestCase):
         harlock = self.assertStillExists(harlock)
         self.assertIsNone(harlock.sector)
 
-    def test_delete_sector02(self):
+    def test_delete_sector__replace(self):
         "Set to another value."
         user = self.login_as_root_and_get()
         sector2 = Sector.objects.first()
@@ -1455,7 +1461,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertStillExists(deunan)
         self.assertEqual(user, self.assertStillExists(briareos).user)
 
-    def test_fk_user_printer01(self):
+    def test_fk_user_printer(self):
         user = self.create_user()
 
         deunan = Contact.objects.create(user=user, first_name='Deunan', last_name='Knut')
@@ -1480,8 +1486,7 @@ class ContactTestCase(_BaseTestCase):
             render_field(field_name='user', user=user, tag=ViewTag.TEXT_PLAIN),
         )
 
-    def test_fk_user_printer02(self):
-        "Team."
+    def test_fk_user_printer__team(self):
         user = self.create_user()
 
         eswat = self.create_team('eswat')
@@ -1494,7 +1499,7 @@ class ContactTestCase(_BaseTestCase):
             ),
         )
 
-    def test_fk_user_printer03(self):
+    def test_fk_user_printer__not_viewable(self):
         "Cannot see the contact => fallback to user + no <a>."
         user = self.login_as_persons_user()
         other_user = self.get_root_user()

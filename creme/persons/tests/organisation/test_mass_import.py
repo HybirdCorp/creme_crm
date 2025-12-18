@@ -55,7 +55,7 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
     }
 
     @skipIfCustomAddress
-    def test_mass_import01(self):
+    def test_mass_import(self):
         user = self.login_as_root_and_get()
 
         name1 = 'Nerv'
@@ -116,7 +116,7 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
         )
 
     @skipIfCustomAddress
-    def test_mass_import02(self):
+    def test_mass_import__update(self):
         "Update (with address)."
         user = self.login_as_root_and_get()
 
@@ -172,7 +172,7 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(city2, addr2.city)
 
     @skipIfCustomAddress
-    def test_mass_import03(self):
+    def test_mass_import__hidden_address__sub_field(self):
         "FieldsConfig on Address sub-field."
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
@@ -205,7 +205,7 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
         self.assertFalse(billing_address.po_box)
 
     @skipIfCustomAddress
-    def test_mass_import04(self):
+    def test_mass_import__hidden_address__fk(self):
         "FieldsConfig on 'billing_address' FK field."
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(

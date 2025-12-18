@@ -308,7 +308,7 @@ class TransformationIntoUserTestCase(_BaseTestCase):
             'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
         }],
     )
-    def test_transform_into_user__password_similarity01(self):
+    def test_transform_into_user__password_similarity__form_fields(self):
         "Similarity with field in form."
         user = self.login_as_root_and_get()
         contact = Contact.objects.create(
@@ -350,7 +350,7 @@ class TransformationIntoUserTestCase(_BaseTestCase):
             'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
         }],
     )
-    def test_transform_into_user__password_similarity02(self):
+    def test_transform_into_user__password_similarity__model_fields(self):
         "Similarity with field not in form."
         user = self.login_as_root_and_get()
         first_name = 'Spike'

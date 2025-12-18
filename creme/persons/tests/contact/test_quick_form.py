@@ -26,8 +26,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
         ct = ContentType.objects.get_for_model(Contact)
         return reverse('creme_core__quick_form', args=(ct.id,))
 
-    def test_quickform01(self):
-        "1 Contact."
+    def test_quick_form__1_contact(self):
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -69,7 +68,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
         self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
     @skipIfCustomOrganisation
-    def test_quickform02(self):
+    def test_quick_form__1_organisation_created(self):
         "1 Contact & 1 Organisation created."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         count = Contact.objects.count()
@@ -104,8 +103,8 @@ class ContactQuickFormTestCase(_BaseTestCase):
         self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=created_orga)
 
     @skipIfCustomOrganisation
-    def test_quickform03(self):
-        "1 Contact created and link with an existing Organisation"
+    def test_quick_form__link_with_existing_organisation(self):
+        "1 Contact created and link with an existing Organisation."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         count = Contact.objects.count()
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
@@ -139,7 +138,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
         self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=orga1)
         self.assertHaveNoRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=orga2)
 
-    def test_quickform04(self):
+    def test_quick_form__cannot_create_organisation(self):
         "No permission to create Organisation."
         user = self.login_as_persons_user(creatable_models=[Contact])  # <== not 'Organisation'
         self.add_credentials(user.role, all=['VIEW', 'LINK'])
@@ -179,8 +178,8 @@ class ContactQuickFormTestCase(_BaseTestCase):
         self.assertEqual(contact_count, Contact.objects.count())
         self.assertEqual(orga_count, Organisation.objects.count())
 
-    def test_quickform05(self):
-        "No permission to link Organisation"
+    def test_quick_form__cannot_link_organisation(self):
+        "No permission to link Organisation."
         user = self.login_as_persons_user(creatable_models=[Contact])
         self.add_credentials(user.role, all=['VIEW'])
         self.add_credentials(user.role, all=['LINK'], model=Contact)
@@ -217,7 +216,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
         self.assertEqual(orga_count, Organisation.objects.count())
         self.assertFalse(Relation.objects.filter(subject_entity=contact))
 
-    def test_quickform06(self):
+    def test_quick_form__cannot_link_contacts(self):
         "No permission to link Contact in general."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         self.add_credentials(user.role, all=['VIEW'])
@@ -234,7 +233,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
             orga_f.initial,
         )
 
-    def test_quickform07(self):
+    def test_quick_form__cannot_link_others_contacts(self):
         "No permission to link Contact with a specific owner."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         self.add_credentials(user.role, all=['VIEW'])
@@ -271,7 +270,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
         self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
     @skipIfCustomOrganisation
-    def test_quickform08(self):
+    def test_quick_form__several_organisations_found(self):
         "Multiple Organisations found."
         user = self.login_as_root_and_get()
 
@@ -296,7 +295,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_quickform09(self):
+    def test_quick_form__several_organisations_found__1_linkable(self):
         "Multiple Organisations found, only one linkable (so we use it)."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         self.add_credentials(user.role, all=['VIEW'], own=['LINK'])
@@ -325,7 +324,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
         self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=orga1)
 
     @skipIfCustomOrganisation
-    def test_quickform10(self):
+    def test_quick_form__several_organisations_found__no_linkable(self):
         "Multiple Organisations found, but none of them is linkable."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         self.add_credentials(user.role, all=['VIEW'], own=['LINK'])
@@ -350,34 +349,8 @@ class ContactQuickFormTestCase(_BaseTestCase):
             field='organisation', errors=_('No linkable Organisation found.'),
         )
 
-    def test_quickform11(self):
-        "Have to create an Organisations, but can not link to it."
-        user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
-        self.add_credentials(user.role, all=['VIEW'], own=['LINK'])
-        self.add_credentials(user.role, all=['LINK'], model=Contact)
-
-        orga_name = 'Bebop'
-        self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
-
-        response = self.client.post(
-            self._build_quickform_url(),
-            data={
-                'user':         self.get_root_user().id,
-                'first_name':   'Faye',
-                'last_name':    'Valentine',
-                'organisation': orga_name,
-            },
-        )
-        self.assertFormError(
-            self.get_form_or_fail(response),
-            field=None,
-            errors=_(
-                'You are not allowed to link with the «{models}» of this user.'
-            ).format(models=_('Organisations')),
-        )
-
     @skipIfCustomOrganisation
-    def test_quickform12(self):
+    def test_quick_form__several_organisations_found__1_not_deleted(self):
         "Multiple Organisations found, only one is not deleted (so we use it)."
         user = self.login_as_root_and_get()
 
@@ -403,3 +376,29 @@ class ContactQuickFormTestCase(_BaseTestCase):
             Contact, first_name=first_name, last_name=last_name,
         )
         self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=orga2)
+
+    def test_quick_form__cannot_link_created_organisation(self):
+        "Have to create an Organisations, but can not link to it."
+        user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
+        self.add_credentials(user.role, all=['VIEW'], own=['LINK'])
+        self.add_credentials(user.role, all=['LINK'], model=Contact)
+
+        orga_name = 'Bebop'
+        self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
+
+        response = self.client.post(
+            self._build_quickform_url(),
+            data={
+                'user':         self.get_root_user().id,
+                'first_name':   'Faye',
+                'last_name':    'Valentine',
+                'organisation': orga_name,
+            },
+        )
+        self.assertFormError(
+            self.get_form_or_fail(response),
+            field=None,
+            errors=_(
+                'You are not allowed to link with the «{models}» of this user.'
+            ).format(models=_('Organisations')),
+        )

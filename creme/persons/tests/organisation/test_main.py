@@ -60,7 +60,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertEqual(count + 1, size1.order)
         self.assertEqual(count + 2, size2.order)
 
-    def test_createview01(self):
+    def test_creation(self):
         user = self.login_as_root_and_get()
 
         url = reverse('persons__create_organisation')
@@ -90,7 +90,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertRedirects(response, orga.get_absolute_url())
 
     @skipIfCustomAddress
-    def test_createview02(self):
+    def test_creation__addresses(self):
         "With addresses, creation date."
         user = self.login_as_root_and_get()
 
@@ -146,7 +146,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertContains(response, s_address)
 
     @skipIfCustomAddress
-    def test_createview03(self):
+    def test_creation__adresses__hidden_sub_fields(self):
         "FieldsConfig on Address sub-fields."
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
@@ -203,7 +203,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertFalse(billing_address.po_box)
 
     @skipIfCustomAddress
-    def test_createview04(self):
+    def test_creation__adresses__hidden_fk(self):
         "FieldsConfig on 'billing_address' FK field."
         self.login_as_root()
         FieldsConfig.objects.create(
@@ -221,7 +221,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertNotIn('billing_address-po_box',  fields)
 
     @skipIfCustomAddress
-    def test_editview01(self):
+    def test_edition(self):
         user = self.login_as_root_and_get()
 
         name = 'Bebop'
@@ -475,7 +475,7 @@ class OrganisationTestCase(_BaseTestCase):
 
         self.assertListEqual([c2, c1], [*orga1.get_managers()])
 
-    def test_leads_customers01(self):
+    def test_leads_customers__empty(self):
         user = self.login_as_root_and_get()
 
         self._build_managed_orga(user=user)
@@ -497,7 +497,7 @@ class OrganisationTestCase(_BaseTestCase):
             title,
         )
 
-    def test_leads_customers02(self):
+    def test_leads_customers__managed(self):
         user = self.login_as_root_and_get()
 
         mng_orga = self._build_managed_orga(user=user)
@@ -531,7 +531,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertIn(fsf,  orgas_set)
         self.assertNotIn(evil, orgas_set)
 
-    def test_leads_customers03(self):
+    def test_leads_customers__not_managed(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -548,7 +548,7 @@ class OrganisationTestCase(_BaseTestCase):
         response = self.client.get(reverse('persons__leads_customers'))
         self.assertEqual(0, response.context['page_obj'].paginator.count)
 
-    def test_leads_customers_disabled_rtypes01(self):
+    def test_leads_customers__disabled_rtype__no_suspect(self):
         self.login_as_root()
 
         rtype = self.get_object_or_fail(
@@ -575,7 +575,7 @@ class OrganisationTestCase(_BaseTestCase):
             title,
         )
 
-    def test_leads_customers_disabled_rtypes02(self):
+    def test_leads_customers__disabled_rtype__no_prospect(self):
         self.login_as_root()
 
         rtype = self.get_object_or_fail(
@@ -602,7 +602,7 @@ class OrganisationTestCase(_BaseTestCase):
             title,
         )
 
-    def test_leads_customers_disabled_rtypes03(self):
+    def test_leads_customers__disabled_rtype__only_customer(self):
         self.login_as_root()
 
         rtypes = [
@@ -630,7 +630,7 @@ class OrganisationTestCase(_BaseTestCase):
             title,
         )
 
-    def test_leads_customers_disabled_rtypes04(self):
+    def test_leads_customers__disabled_rtypes(self):
         self.login_as_root()
 
         rtypes = [
@@ -651,7 +651,7 @@ class OrganisationTestCase(_BaseTestCase):
                 rtype.enabled = True
                 rtype.save()
 
-    def test_create_customer01(self):
+    def test_create_customer(self):
         user = self.login_as_root_and_get()
 
         managed1 = self.get_object_or_fail(Organisation, is_managed=True)
@@ -720,8 +720,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertHaveRelation(subject=orga2, type=constants.REL_SUB_SUSPECT, object=managed1)
         self.assertHaveNoRelation(subject=orga2, type=constants.REL_SUB_SUSPECT, object=managed2)
 
-    def test_create_customer02(self):
-        "Not super-user."
+    def test_create_customer__regular_user(self):
         user = self.login_as_persons_user(creatable_models=[Organisation])
         self.add_credentials(user.role, all='!LINK', own='*')
 
@@ -775,13 +774,13 @@ class OrganisationTestCase(_BaseTestCase):
         orga = self.get_object_or_fail(Organisation, name=name)
         self.assertHaveRelation(subject=orga, type=constants.REL_SUB_SUSPECT, object=managed2)
 
-    def test_create_customer03(self):
+    def test_create_customer__forbidden(self):
         "Can never link."
         user = self.login_as_standard(creatable_models=[Organisation])
         self.add_credentials(user.role, all='!LINK')
         self.assertPOST403(reverse('persons__create_customer'))
 
-    def test_create_customer_disabled_rtype01(self):
+    def test_create_customer__disabled_rtype__no_suspect(self):
         self.login_as_root()
 
         rtype = self.get_object_or_fail(
@@ -821,7 +820,7 @@ class OrganisationTestCase(_BaseTestCase):
             value=constants.REL_SUB_SUSPECT, choices=rtypes_f.choices,
         )
 
-    def test_create_customer_disabled_rtype02(self):
+    def test_create_customer__disabled_rtypes(self):
         self.login_as_root()
 
         rtypes = [
@@ -843,7 +842,7 @@ class OrganisationTestCase(_BaseTestCase):
                 rtype.save()
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete01(self):
+    def test_delete(self):
         user = self.login_as_root_and_get()
         orga01 = Organisation.objects.create(user=user, name='Nerv')
         url = orga01.get_delete_absolute_url()
@@ -858,7 +857,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertDoesNotExist(orga01)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete02(self):
+    def test_delete__one_managed(self):
         "Cannot delete the last managed organisation."
         self.login_as_root()
 
@@ -867,7 +866,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertStillExists(managed_orga)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete03(self):
+    def test_delete__several_managed(self):
         "A managed organisation can be deleted if it's not the last one."
         user = self.login_as_root_and_get()
 
@@ -883,7 +882,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertPOST200(url, follow=True)
         self.assertDoesNotExist(managed_orga)
 
-    def test_delete_sector01(self):
+    def test_delete_sector__set_null(self):
         "Set to NULL."
         user = self.login_as_root_and_get()
         hunting = Sector.objects.create(title='Bounty hunting')
@@ -902,7 +901,7 @@ class OrganisationTestCase(_BaseTestCase):
         bebop = self.assertStillExists(bebop)
         self.assertIsNone(bebop.sector)
 
-    def test_delete_sector02(self):
+    def test_delete_sector__replace(self):
         "Set to another value."
         user = self.login_as_root_and_get()
         sector2 = Sector.objects.first()
@@ -925,7 +924,7 @@ class OrganisationTestCase(_BaseTestCase):
         bebop = self.assertStillExists(bebop)
         self.assertEqual(sector2, bebop.sector)
 
-    def test_delete_legal_form01(self):
+    def test_delete_legal_form__set_null(self):
         "Set to NULL."
         user = self.login_as_root_and_get()
         band = LegalForm.objects.create(title='Bounty hunting band')
@@ -944,7 +943,7 @@ class OrganisationTestCase(_BaseTestCase):
         bebop = self.assertStillExists(bebop)
         self.assertIsNone(bebop.legal_form)
 
-    def test_delete_legal_form02(self):
+    def test_delete_legal_form__replace(self):
         "Set to another value."
         user = self.login_as_root_and_get()
         lform2 = LegalForm.objects.first()
@@ -967,7 +966,7 @@ class OrganisationTestCase(_BaseTestCase):
         bebop = self.assertStillExists(bebop)
         self.assertEqual(lform2, bebop.legal_form)
 
-    def test_delete_staff_size01(self):
+    def test_delete_staff_size__set_null(self):
         "Set to NULL."
         user = self.login_as_root_and_get()
         size = StaffSize.objects.create(size='4 and a dog')
@@ -986,7 +985,7 @@ class OrganisationTestCase(_BaseTestCase):
         bebop = self.assertStillExists(bebop)
         self.assertIsNone(bebop.staff_size)
 
-    def test_delete_staff_size02(self):
+    def test_delete_staff_size__replace(self):
         "Set to another value."
         user = self.login_as_root_and_get()
         size2 = StaffSize.objects.first()
@@ -1008,7 +1007,7 @@ class OrganisationTestCase(_BaseTestCase):
         bebop = self.assertStillExists(bebop)
         self.assertEqual(size2, bebop.staff_size)
 
-    def test_set_orga_as_managed01(self):
+    def test_set_orga_as_managed(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -1046,15 +1045,14 @@ class OrganisationTestCase(_BaseTestCase):
             errors=_('«%(entity)s» violates the constraints.') % {'entity': orga1},
         )
 
-    def test_set_orga_as_managed02(self):
-        "Not super-user."
+    def test_set_orga_as_managed__regular_user(self):
         self.login_as_persons_user(
             allowed_apps=['creme_core'],
             admin_4_apps=['creme_core'],
         )
         self.assertGET200(reverse('persons__orga_set_managed'))
 
-    def test_set_orga_as_managed03(self):
+    def test_set_orga_as_managed__admin_perm(self):
         "Admin permission needed."
         self.login_as_persons_user(
             allowed_apps=['creme_core'],

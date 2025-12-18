@@ -16,7 +16,7 @@ from ..base import (
 @skipIfCustomOrganisation
 class OrganisationMergeTestCase(_BaseTestCase):
     @skipIfCustomAddress
-    def test_merge01(self):
+    def test_merge__addresses(self):
         "Merging addresses."
         user = self.login_as_root_and_get()
 
@@ -188,7 +188,7 @@ class OrganisationMergeTestCase(_BaseTestCase):
         self.assertDoesNotExist(ship_addr02)
 
     @skipIfCustomAddress
-    def test_merge02(self):
+    def test_merge__addresses__no_existing(self):
         "Merging addresses (no existing address)."
         user = self.login_as_root_and_get()
 
@@ -263,7 +263,7 @@ class OrganisationMergeTestCase(_BaseTestCase):
         self.assertIsNone(orga01.shipping_address)
 
     @skipIfCustomAddress
-    def test_merge03(self):
+    def test_merge__addresses__one_exists(self):
         "Merging addresses (existing address for one Organisation)."
         user = self.login_as_root_and_get()
 
@@ -345,7 +345,7 @@ class OrganisationMergeTestCase(_BaseTestCase):
         self.assertFalse(merged_bill_addr.city)
 
     @skipIfCustomAddress
-    def test_merge04(self):
+    def test_merge__hidden__address_sub_field(self):
         "FieldsConfig on Address sub-field."
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
@@ -368,7 +368,7 @@ class OrganisationMergeTestCase(_BaseTestCase):
         self.assertNotIn('billaddr_po_box', fields)  # Exclusion by configuration
 
     @skipIfCustomAddress
-    def test_merge05(self):
+    def test_merge__hidden__billing_address(self):
         "FieldsConfig on 'billing_address' FK field."
         user = self.login_as_root_and_get()
 
@@ -407,7 +407,7 @@ class OrganisationMergeTestCase(_BaseTestCase):
         self.assertNoFormError(response)
 
     @skipIfCustomAddress
-    def test_merge06(self):
+    def test_merge__hidden__shipping_address(self):
         "FieldsConfig on 'shipping_address' FK field."
         user = self.login_as_root_and_get()
 
@@ -429,7 +429,7 @@ class OrganisationMergeTestCase(_BaseTestCase):
         self.assertNotIn('shipaddr_city',   fields)
         self.assertNotIn('shipaddr_po_box', fields)
 
-    def test_merge07(self):
+    def test_merge__managed__first(self):
         "The first organisation is managed."
         user = self.login_as_root_and_get()
 
@@ -457,7 +457,7 @@ class OrganisationMergeTestCase(_BaseTestCase):
         self.assertEqual(orga02.name, orga01.name)
         self.assertTrue(orga01.is_managed)
 
-    def test_merge08(self):
+    def test_merge__managed__second(self):
         "The second organisation is managed => swapped."
         user = self.login_as_root_and_get()
 
@@ -472,7 +472,7 @@ class OrganisationMergeTestCase(_BaseTestCase):
 
         self.assertEqual(orga02.name, initial_name)
 
-    def test_merge09(self):
+    def test_merge__managed__both(self):
         "The 2 organisations are managed => no swap."
         user = self.login_as_root_and_get()
 
