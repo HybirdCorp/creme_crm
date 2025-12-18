@@ -44,8 +44,7 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             )
         ]
 
-    def test_portal01(self):
-        "Super-user."
+    def test_portal__superuser(self):
         self.login_as_root()
 
         response = self.assertGET200(reverse('creme_config__efilters'))
@@ -60,8 +59,7 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             self.assertIn(FakeContact._meta.verbose_name, ct_labels)
 
     @skipIfNotInstalled('creme.documents')
-    def test_portal02(self):
-        "Not super-user."
+    def test_portal__regular_user(self):
         from creme import documents
 
         self.login_as_standard(allowed_apps=('documents',))
@@ -76,15 +74,14 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @override_settings(FILTERS_INITIAL_PRIVATE=False)
-    def test_create01(self):
-        "Check app credentials."
+    def test_creation(self):
         user = self.login_as_standard(allowed_apps=('documents',))
 
         ct = ContentType.objects.get_for_model(FakeContact)
-
         uri = self._build_add_url(ct)
         self.assertGET403(uri)
 
+        # ---
         role = user.role
         role.allowed_apps = ['documents', 'creme_core']
         role.save()
@@ -102,11 +99,12 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertIs(form.initial.get('is_private'), False)
 
+        # ---
         name = 'Filter 01'
         operator = operators.IEQUALS
         field_name = 'last_name'
         value = 'Ikari'
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             uri,
             data={
                 'name': name,
@@ -117,8 +115,7 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                     value=value,
                 ),
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         efilter = self.get_object_or_fail(EntityFilter, name=name)
         self.assertEqual(ct, efilter.entity_type)
@@ -131,12 +128,11 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(field_name,                           condition.name)
         self.assertDictEqual(
-            {'operator': operator, 'values': [value]},
-            condition.value,
+            {'operator': operator, 'values': [value]}, condition.value,
         )
 
     @override_settings(FILTERS_INITIAL_PRIVATE=True)
-    def test_create02(self):
+    def test_creation__initial(self):
         self.login_as_standard()
 
         context = self.assertGET200(
@@ -148,7 +144,7 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertIs(form.initial.get('is_private'), True)
 
-    def test_edit01(self):
+    def test_edition(self):
         self.login_as_root()
 
         name = 'My filter'
@@ -210,7 +206,7 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             condition.value,
         )
 
-    def test_edit__belongs_to_other(self):
+    def test_edition__belongs_to_other(self):
         "Can not edit Filter that belongs to another user."
         self.login_as_standard(allowed_apps=('creme_core',))
 
@@ -219,7 +215,7 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertGET403(self._build_edit_url(efilter))
 
-    def test_edit__not_regular(self):
+    def test_edition__not_regular(self):
         self.login_as_root()
 
         efilter = EntityFilter.objects.create(

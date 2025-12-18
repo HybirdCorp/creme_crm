@@ -32,8 +32,7 @@ class HeaderFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             )
         ]
 
-    def test_portal01(self):
-        "Super-user."
+    def test_portal__superuser(self):
         self.login_as_root()
 
         response = self.assertGET200(reverse('creme_config__hfilters'))
@@ -48,8 +47,7 @@ class HeaderFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             self.assertIn(FakeContact._meta.verbose_name, ct_labels)
 
     @skipIfNotInstalled('creme.documents')
-    def test_portal02(self):
-        "Not super-user."
+    def test_portal__regular_user(self):
         from creme import documents
 
         self.login_as_standard(allowed_apps=('documents',))
@@ -64,8 +62,7 @@ class HeaderFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @override_settings(FILTERS_INITIAL_PRIVATE=False)
-    def test_create01(self):
-        "Check app credentials."
+    def test_creation(self):
         user = self.login_as_standard(allowed_apps=('documents',))
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -110,7 +107,7 @@ class HeaderFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @override_settings(FILTERS_INITIAL_PRIVATE=True)
-    def test_create02(self):
+    def test_creation__initial(self):
         self.login_as_standard()
 
         response = self.assertGET200(
@@ -119,7 +116,7 @@ class HeaderFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         form = self.get_form_or_fail(response)
         self.assertIs(form.initial.get('is_private'), True)
 
-    def test_edit01(self):
+    def test_edition(self):
         self.login_as_root()
 
         name = 'Contact view'
@@ -164,7 +161,7 @@ class HeaderFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             hfilter.cells,
         )
 
-    def test_edit02(self):
+    def test_edition__forbidden(self):
         "Can not edit a HeaderFilter which belongs to another user."
         self.login_as_standard()
 

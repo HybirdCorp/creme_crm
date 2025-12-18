@@ -55,7 +55,7 @@ class RegistryTestCase(CremeTestCase):
         registry.get_app_registry('documents', create=True)
         self.assertEqual(2, len([*registry.apps()]))
 
-    def test_register_model01(self):
+    def test_register_model(self):
         user = self.create_user()
 
         registry = _ConfigRegistry()
@@ -118,7 +118,7 @@ class RegistryTestCase(CremeTestCase):
             ),
         )
 
-    def test_register_model02(self):
+    def test_register_model__other_model(self):
         "Another model ; get_app()/get_model_conf() ; no 'name_in_url' argument."
         user = self.create_user()
         registry = _ConfigRegistry()
@@ -157,7 +157,7 @@ class RegistryTestCase(CremeTestCase):
             ),
         )
 
-    def test_register_model03(self):
+    def test_register_model__name_in_url(self):
         "Change name_in_url."
         user = self.create_user()
 
@@ -188,7 +188,7 @@ class RegistryTestCase(CremeTestCase):
         with self.assertRaises(ValueError):
             registry.register_model(FakeSector, 'my-sector')  # Invalid char '-'
 
-    def test_register_model04(self):
+    def test_register_model__forms(self):
         "Register specific forms."
         registry = _ConfigRegistry()
 
@@ -215,7 +215,7 @@ class RegistryTestCase(CremeTestCase):
         self.assertIsSubclass(model_config.editor.form_class, CivEditionForm)
         self.assertIsSubclass(model_config.deletor.form_class, CivDeletionForm)
 
-    def test_register_model05(self):
+    def test_register_model__urls(self):
         "Register specific URLs."
         user = self.create_user()
         registry = _ConfigRegistry()
@@ -266,8 +266,7 @@ class RegistryTestCase(CremeTestCase):
             ),
         )
 
-    def test_register_model06(self):
-        "Disable edition forms."
+    def test_register_model__disable_form__edition(self):
         user1 = self.create_user(index=0)
         user2 = self.create_user(index=1)
         registry = _ConfigRegistry()
@@ -304,8 +303,7 @@ class RegistryTestCase(CremeTestCase):
         )
         self.assertIsNone(editor.get_url(instance=civ1, user=user2))
 
-    def test_register_model07(self):
-        "Disable creation forms."
+    def test_register_model__disable_form__creation(self):
         user1 = self.create_user(index=0)
         user2 = self.create_user(index=1)
         registry = _ConfigRegistry()
@@ -339,8 +337,7 @@ class RegistryTestCase(CremeTestCase):
             editor.get_url(civ, user=user1),
         )
 
-    def test_register_model08(self):
-        "Disable deletion forms."
+    def test_register_model__disable_form__deletion(self):
         user1 = self.create_user(index=0)
         user2 = self.create_user(index=1)
         registry = _ConfigRegistry()
@@ -377,7 +374,7 @@ class RegistryTestCase(CremeTestCase):
         )
         self.assertIsNone(deletor.get_url(instance=civ1, user=user2))
 
-    def test_register_model09(self):
+    def test_register_model__brick(self):
         "Register specific Brick."
         registry = _ConfigRegistry()
 
@@ -402,7 +399,7 @@ class RegistryTestCase(CremeTestCase):
         model_config.brick_cls = SectorBrick_V2
         self.assertIsInstance(model_config.get_brick(), SectorBrick_V2)
 
-    def test_register_model10(self):
+    def test_register_model__duplicates(self):
         "Duplicated registration."
         registry = _ConfigRegistry()
 
@@ -411,7 +408,7 @@ class RegistryTestCase(CremeTestCase):
         with self.assertRaises(RegistrationError):
             registry.register_model(FakeCivility)
 
-    def test_unregister_model01(self):
+    def test_unregister_model(self):
         registry = _ConfigRegistry()
         registry.register_model(FakeCivility)
         registry.register_model(FakeSector)
@@ -480,7 +477,7 @@ class RegistryTestCase(CremeTestCase):
             [type(brick) for brick in registry.get_app_registry('creme_core').bricks],
         )
 
-    def test_register_app_brick__error01(self):
+    def test_register_app_brick__error__empty_id(self):
         class NoIDTestUserBrick(SimpleBrick):
             id = ''
 
@@ -491,7 +488,7 @@ class RegistryTestCase(CremeTestCase):
 
         self.assertStartsWith(str(cm.exception), 'App config brick class with empty ID:')
 
-    def test_register_app_brick__error02(self):
+    def test_register_app_brick__error__no_render(self):
         "No method detailview_display()."
         class TestBrick(Brick):
             id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error02')
@@ -506,7 +503,7 @@ class RegistryTestCase(CremeTestCase):
             'App config brick class has no detailview_display() method: '
         )
 
-    def test_register_app_brick__error03(self):
+    def test_register_app_brick__error__duplicated_id(self):
         "Duplicated ID."
         class TestBrick1(SimpleBrick):
             id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error03')
@@ -530,7 +527,7 @@ class RegistryTestCase(CremeTestCase):
             str(cm.exception), 'App config brick class with duplicated ID: '
         )
 
-    def test_register_app_brick__error04(self):
+    def test_register_app_brick__error__in_global(self):
         "Brick registered in global registry."
         class TestBrick1(SimpleBrick):
             id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error04_1')
@@ -549,7 +546,7 @@ class RegistryTestCase(CremeTestCase):
 
         self.assertListEqual([TestBrick1], brick_classes)
 
-    def test_unregister_app_brick__error01(self):
+    def test_unregister_app_brick__error__empty_id(self):
         class NoIDTestUserBrick(SimpleBrick):
             id = ''
 
@@ -568,7 +565,7 @@ class RegistryTestCase(CremeTestCase):
 
         self.assertStartsWith(str(cm.exception), 'App config brick class with empty ID:')
 
-    def test_unregister_app_brick__error02(self):
+    def test_unregister_app_brick__error__duplicates(self):
         class TestUserBrick1(SimpleBrick):
             id = SimpleBrick.generate_id('creme_config', 'test_unregister_app_bricks__error02_1')
 
@@ -635,7 +632,7 @@ class RegistryTestCase(CremeTestCase):
             [*map(type, registry.get_user_bricks(self.get_root_user()))],
         )
 
-    def test_unregister_user_bricks__error01(self):
+    def test_unregister_user_bricks__error__empty_id(self):
         class NoIDTestUserBrick(SimpleBrick):
             id = ''
 
@@ -646,7 +643,7 @@ class RegistryTestCase(CremeTestCase):
 
         self.assertStartsWith(str(cm.exception), 'User brick class with empty ID:')
 
-    def test_unregister_user_bricks__error02(self):
+    def test_unregister_user_bricks__error__duplicates(self):
         class TestUserBrick1(SimpleBrick):
             id = SimpleBrick.generate_id('creme_config', 'test_unregister_user_bricks__error02_1')
 
@@ -741,8 +738,7 @@ class RegistryTestCase(CremeTestCase):
             brick = registry.get_user_brick(user=user, brick_id=TestUserBrick2.id)
         self.assertIsInstance(brick, VoidBrick)
 
-    def test_register_userbricks_error01(self):
-        "Empty ID."
+    def test_register_userbricks_error__empty_id(self):
         class TestUserBrick(SimpleBrick):
             # id = ...
             pass
@@ -752,7 +748,7 @@ class RegistryTestCase(CremeTestCase):
         with self.assertRaises(registry.RegistrationError):
             registry.register_user_bricks(TestUserBrick)
 
-    def test_register_userbricks_error02(self):
+    def test_register_userbricks_error__invalid_id(self):
         "ID not found."
         class TestUserBrick1(SimpleBrick):
             id = SimpleBrick.generate_id('creme_config', 'test_register_userbricks_error02')
@@ -800,8 +796,7 @@ class RegistryTestCase(CremeTestCase):
             [TestPortalBrick2.id], [b.id for b in registry.portal_bricks],
         )
 
-    def test_register_portal_bricks__error01(self):
-        "Empty ID."
+    def test_register_portal_bricks__error__empty_id(self):
         class NoIDBrick(SimpleBrick):
             id = ''
 
@@ -812,8 +807,7 @@ class RegistryTestCase(CremeTestCase):
 
         self.assertStartsWith(str(cm.exception), 'Portal brick class with empty ID:')
 
-    def test_register_portal_bricks__error02(self):
-        "Duplicated ID."
+    def test_register_portal_bricks__error__duplicated_id(self):
         class TestPortalBrick1(SimpleBrick):
             id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks__error02')
 
@@ -828,7 +822,7 @@ class RegistryTestCase(CremeTestCase):
 
         self.assertStartsWith(str(cm.exception), 'Portal brick class with duplicated ID:')
 
-    def test_register_portal_bricks__error03(self):
+    def test_register_portal_bricks__error__in_global(self):
         "Brick registered in global registry."
         class TestPortalBrick(SimpleBrick):
             id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks__error03')
@@ -843,7 +837,7 @@ class RegistryTestCase(CremeTestCase):
 
         self.assertFalse(bricks)
 
-    def test_unregister_portal_bricks__error01(self):
+    def test_unregister_portal_bricks__error__empty_id(self):
         "Empty ID."
         class NoIDBrick(SimpleBrick):
             id = ''
@@ -855,7 +849,7 @@ class RegistryTestCase(CremeTestCase):
 
         self.assertStartsWith(str(cm.exception), 'Portal brick class with empty ID:')
 
-    def test_unregister_portal_bricks__error02(self):
+    def test_unregister_portal_bricks__error__invalid_id(self):
         "ID not found."
         class TestPortalBrick1(SimpleBrick):
             id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks__error02_1')
@@ -875,7 +869,7 @@ class RegistryTestCase(CremeTestCase):
             'Portal brick class with invalid ID (already unregistered?):',
         )
 
-    def test_app_registry_is_empty01(self):
+    def test_app_registry__is_empty__models(self):
         "Use models."
         registry = _ConfigRegistry(
             brick_registry=BrickRegistry(),
@@ -887,7 +881,7 @@ class RegistryTestCase(CremeTestCase):
         registry.register_model(FakeCivility)
         self.assertIs(False, app_registry.is_empty)
 
-    def test_app_registry_is_empty02(self):
+    def test_app_registry__is_empty__bricks(self):
         "Use bricks."
         class TestBrick(SimpleBrick):
             id = SimpleBrick.generate_id('creme_config', 'test_app_registry_is_empty02')
@@ -907,7 +901,7 @@ class RegistryTestCase(CremeTestCase):
         registry.register_app_bricks('creme_core', TestBrick)
         self.assertFalse(app_registry.is_empty)
 
-    def test_app_registry_is_empty03(self):
+    def test_app_registry__is_empty__setting_keys(self):
         "Use SettingKeys."
         sk1 = SettingKey(
             id='creme_core-test_sk_string',
@@ -945,8 +939,7 @@ class RegistryTestCase(CremeTestCase):
         skey_registry.register(sk3)
         self.assertIs(False, app_registry.is_empty)
 
-    def test_get_model_creation_info01(self):
-        "Not registered model."
+    def test_get_model_creation_info__not_registered_model(self):
         user = self.login_as_root_and_get()
         registry = _ConfigRegistry()
 
@@ -954,8 +947,7 @@ class RegistryTestCase(CremeTestCase):
         self.assertIs(False, allowed)
         self.assertIsNone(url)
 
-    def test_get_model_creation_info02(self):
-        "Registered model."
+    def test_get_model_creation_info__registered_model(self):
         user = self.login_as_root_and_get()
 
         registry = _ConfigRegistry()
@@ -978,8 +970,7 @@ class RegistryTestCase(CremeTestCase):
         self.assertIs(False, allowed)
         self.assertEqual(creation_url, url)
 
-    def test_get_model_creation_info03(self):
-        "Not super-user."
+    def test_get_model_creation_info__regular_user(self):
         user = self.login_as_standard(admin_4_apps=['creme_core'])
 
         registry = _ConfigRegistry()
@@ -988,7 +979,7 @@ class RegistryTestCase(CremeTestCase):
         url, allowed = registry.get_model_creation_info(model=FakeCivility, user=user)
         self.assertTrue(allowed)
 
-    def test_get_model_creation_info04(self):
+    def test_get_model_creation_info__specific_creation_url(self):
         "Specific creation URL."
         user = self.login_as_root_and_get()
 
@@ -999,14 +990,13 @@ class RegistryTestCase(CremeTestCase):
         self.assertFalse(allowed)
         self.assertIsNone(url)
 
-    def test_get_model_creation_info05(self):
-        "Enable function OK."
+    def test_get_model_creation_info__enable_function__true(self):
         user = self.login_as_root_and_get()
 
         registry = _ConfigRegistry()
         registry.register_model(FakeCivility).creation(enable_func=lambda user: True)
 
-        url, allowed = registry.get_model_creation_info(model=FakeCivility, user=user)
+        url, _allowed = registry.get_model_creation_info(model=FakeCivility, user=user)
         self.assertEqual(
             reverse(
                 'creme_config__create_instance_from_widget',
@@ -1015,14 +1005,13 @@ class RegistryTestCase(CremeTestCase):
             url,
         )
 
-    def test_get_model_creation_info06(self):
-        "Enable function KO."
+    def test_get_model_creation_info__enable_function__false(self):
         user = self.login_as_root_and_get()
 
         registry = _ConfigRegistry()
         registry.register_model(FakeCivility).creation(enable_func=lambda user: False)
 
-        url, allowed = registry.get_model_creation_info(model=FakeCivility, user=user)
+        url, _allowed = registry.get_model_creation_info(model=FakeCivility, user=user)
         self.assertIsNone(url)
 
     def test_global_registry(self):

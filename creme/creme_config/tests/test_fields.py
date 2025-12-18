@@ -73,7 +73,7 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
         sector = FakeSector.objects.first()
         self.assertEqual(sector, field.clean(str(sector.id)))
 
-    def test_empty_required(self):
+    def test_empty__required(self):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
         self.assertTrue(field.required)
         self.assertFormfieldError(
@@ -83,7 +83,7 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
             codes='required',
         )
 
-    def test_empty_not_required(self):
+    def test_empty__not_required(self):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all(), required=False)
         self.assertFalse(field.required)
         self.assertIsNone(field.clean(''))
@@ -120,7 +120,7 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
         render_str = field.widget.render('sector', None)
         self.assertNotIn(self.ADD_URL, render_str)
 
-    def test_actions_admin_no_creatable(self):
+    def test_actions_admin__no_creatable(self):
         field = CreatorModelChoiceField(queryset=FakePosition.objects.all())
         field.user = self.create_user(
             index=1,
@@ -137,8 +137,7 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
         )
         self.assertNotIn(str(FakePosition.creation_label), render_str)
 
-    def test_queryset01(self):
-        "No action."
+    def test_queryset__no_action(self):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
 
         with self.assertNoException():
@@ -152,8 +151,7 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
             choices,
         )
 
-    def test_queryset02(self):
-        "With action."
+    def test_queryset__with_action(self):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
         field.user = self.admin
 
@@ -175,8 +173,7 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
         for sector in FakeSector.objects.all():
             self.assertIn(str(sector), render_str)
 
-    def test_filtered_queryset01(self):
-        "No action."
+    def test_filtered_queryset__no_action(self):
         pk = FakeSector.objects.first().pk
         field = CreatorModelChoiceField(queryset=FakeSector.objects.filter(pk=pk))
 
@@ -191,8 +188,7 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
             choices,
         )
 
-    def test_filtered_queryset02(self):
-        "With action."
+    def test_filtered_queryset__with_action(self):
         first = FakeSector.objects.all()[0]
         second = FakeSector.objects.exclude(title=first.title)[0]
         field = CreatorModelChoiceField(queryset=FakeSector.objects.filter(pk=first.pk))
@@ -203,8 +199,7 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
         self.assertIn(first.title, render_str)
         self.assertNotIn(second.title, render_str)
 
-    def test_queryset_property01(self):
-        "No action."
+    def test_queryset_property__no_action(self):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.none())
 
         self.assertHasNoAttr(field.widget, 'actions')
@@ -221,8 +216,7 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
             [*field.choices],
         )
 
-    def test_queryset_property02(self):
-        "With action"
+    def test_queryset_property__with_action(self):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.none())
         field.user = self.admin
 
@@ -288,7 +282,7 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
         self.assertHTMLEqual(expected, widget.render(name, 1))
         self.assertHTMLEqual(expected, widget.render(name, 1, attrs={}))
 
-    def test_render_url_n_allowed_disabled(self):
+    def test_render_url_n_allowed__disabled(self):
         widget = CreatorModelChoiceWidget(
             choices=[(1, 'A'), (2, 'B')],
             creation_url=self.ADD_URL,
@@ -333,7 +327,7 @@ class CreatorEnumerableModelChoiceFieldTestCase(_ConfigFieldTestCase):
         sector = FakeSector.objects.first()
         self.assertEqual(sector, field.clean(str(sector.id)))
 
-    def test_empty_required(self):
+    def test_empty__required(self):
         field = CreatorEnumerableModelChoiceField(model=FakeContact, field_name='sector')
         self.assertTrue(field.required)
         self.assertFormfieldError(
@@ -343,7 +337,7 @@ class CreatorEnumerableModelChoiceFieldTestCase(_ConfigFieldTestCase):
             codes='required',
         )
 
-    def test_empty_not_required(self):
+    def test_empty__not_required(self):
         field = CreatorEnumerableModelChoiceField(
             model=FakeContact, field_name='sector', required=False,
         )
@@ -433,7 +427,7 @@ class CreatorModelMultipleChoiceFieldTestCase(_ConfigFieldTestCase):
         self.assertTrue(field.widget.creation_allowed)
         self.assertEqual(FakeSector.creation_label, field.widget.creation_label)
 
-    def test_actions_admin_not_creatable(self):
+    def test_actions_admin__not_creatable(self):
         admin = self.admin
 
         field = CreatorModelMultipleChoiceField(queryset=FakePosition.objects.all())
@@ -473,8 +467,7 @@ class CreatorModelMultipleChoiceFieldTestCase(_ConfigFieldTestCase):
         render_str = field.widget.render('sector', None)
         self.assertIn(str(FakeSector.creation_label), render_str)
 
-    def test_filtered_queryset_no_action(self):
-        "No action."
+    def test_filtered_queryset__no_action(self):
         first_sector = FakeSector.objects.first()
         field = CreatorModelMultipleChoiceField(
             queryset=FakeSector.objects.filter(pk=first_sector.pk),
@@ -486,8 +479,7 @@ class CreatorModelMultipleChoiceFieldTestCase(_ConfigFieldTestCase):
         render_str = field.widget.render('position', None)
         self.assertNotIn(str(FakeSector.creation_label), render_str)
 
-    def test_filtered_queryset(self):
-        "With action."
+    def test_filtered_queryset__with_action(self):
         user = self.login_as_root_and_get()
         first_sector = FakeSector.objects.first()
 
@@ -761,7 +753,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
             MenuEntriesField.EntryCreator(Separator1Entry).label,
         )
 
-    def test_attributes01(self):
+    def test_attributes__setters(self):
         class EmptyLabelEntry(MenuEntry):  # Should be ignored
             id = 'creme_core-empty_label'
             model = FakeSector
@@ -811,7 +803,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
         self.assertNotInChoices(value=ContainerEntry.id,    choices=choices_list)
         self.assertNotInChoices(value=EmptyLabelEntry.id,   choices=choices_list)
 
-    def test_attributes02(self):
+    def test_attributes__init(self):
         my_registry = MenuRegistry().register(
             ContainerEntry, Separator1Entry,
             FakeContactsEntry, FakeContactCreationEntry,
@@ -924,7 +916,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
             field2.widget.regular_entry_choices,
         )
 
-    def test_ok01(self):
+    def test_ok(self):
         field = MenuEntriesField(
             menu_registry=MenuRegistry().register(
                 FakeContactsEntry, FakeContactCreationEntry,
@@ -938,7 +930,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
         self.assertIsInstance(cleaned[0], FakeContactCreationEntry)
         self.assertIsInstance(cleaned[1], FakeContactsEntry)
 
-    def test_ok02(self):
+    def test_ok__special_entry(self):
         "Special Entry with label."
         field = MenuEntriesField()
         label = 'My group'
@@ -951,7 +943,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
         self.assertIsInstance(entry, Separator1Entry)
         self.assertEqual(label, entry.label)
 
-    def test_ok03(self):
+    def test_ok__extra_data(self):
         "Entry with extra-data."
         field = MenuEntriesField()
         label = 'Wikipedia'
@@ -966,7 +958,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
         self.assertEqual(label, entry.label)
         self.assertEqual(url,   entry.url)
 
-    def test_ok04(self):
+    def test_ok__extra_data__custom_entry(self):
         "Entry with extra-data (custom entry)."
         class TestEntryForm(MenuEntryForm):
             count = forms.IntegerField(label='Count')
@@ -1000,12 +992,12 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
         self.assertEqual(label, entry.label)
         self.assertEqual(count, entry.count)
 
-    def test_empty_not_required(self):
+    def test_empty__not_required(self):
         field = MenuEntriesField(required=False)
         self.assertListEqual([], field.clean(''))
         self.assertListEqual([], field.clean('[]'))
 
-    def test_empty_required(self):
+    def test_empty__required(self):
         self.assertFormfieldError(
             field=MenuEntriesField(required=True),
             value='',
@@ -1034,8 +1026,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
         )
         # TODO: complete ??
 
-    def test_invalid_data01(self):
-        "Missing Id."
+    def test_invalid_data__missing_id(self):
         self.assertFormfieldError(
             field=MenuEntriesField(),
             value=json_dump([{'notid': 'foobar'}]),
@@ -1043,7 +1034,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
             codes='invalid_data',
         )
 
-    def test_invalid_data02(self):
+    def test_invalid_data__extra_data(self):
         "Invalid label/extra-data."
         field = MenuEntriesField()
         label = 'Wikipedia'
@@ -1092,7 +1083,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
             codes='invalid_data',
         )
 
-    def test_invalid_data03(self):
+    def test_invalid_data__extra_data__custom_entry(self):
         "Invalid extra-data (custom entry)."
         class TestDataForm(CremeForm):
             count = forms.IntegerField(label='Count')
@@ -1121,8 +1112,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
             codes='invalid_data',
         )
 
-    def test_invalid_entry_id01(self):
-        "Not registered class."
+    def test_invalid_entry_id__not_registered_class(self):
         field = MenuEntriesField(
             menu_registry=MenuRegistry().register(FakeContactsEntry),
         )
@@ -1136,8 +1126,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
             codes='invalid_data',
         )
 
-    def test_invalid_entry_id02(self):
-        "Excluded class."
+    def test_invalid_entry_id__excluded_class(self):
         field = MenuEntriesField(
             menu_registry=MenuRegistry().register(
                 FakeContactsEntry, FakeContactCreationEntry,
@@ -1154,8 +1143,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
             codes='invalid_data',
         )
 
-    def test_invalid_entry_id03(self):
-        "Not registered extra class."
+    def test_invalid_entry_id__not_registered_extra_class(self):
         field = MenuEntriesField(
             menu_registry=MenuRegistry().register(FakeContactsEntry),
         )
@@ -1172,8 +1160,7 @@ class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
             codes='invalid_data',
         )
 
-    def test_invalid_entry_id04(self):
-        "Invalid level."
+    def test_invalid_entry_id__invalid_level(self):
         field = MenuEntriesField()
 
         entry_id = ContainerEntry.id
@@ -1218,7 +1205,7 @@ class BricksConfigFieldTestCase(_ConfigFieldTestCase):
         self.assertIsNot(field._choices, field_copy._choices)
         self.assertIsNot(field._valid_choices, field_copy._valid_choices)
 
-    def test_clean_invalid_json(self):
+    def test_clean__invalid_json(self):
         self.assertFormfieldError(
             field=BricksConfigField(choices=self.choices),
             value='TEST',
@@ -1226,10 +1213,8 @@ class BricksConfigFieldTestCase(_ConfigFieldTestCase):
             codes='invalid',
         )
 
-    @parameterized.expand([
-        [""], [None],
-    ])
-    def test_clean_required(self, value):
+    @parameterized.expand([[''], [None]])
+    def test_clean__required(self, value):
         self.assertFormfieldError(
             field=BricksConfigField(choices=self.choices),
             value=value,
@@ -1243,7 +1228,7 @@ class BricksConfigFieldTestCase(_ConfigFieldTestCase):
         [json_dump(["not a dict"])],
         [json_dump({"top": "lot a list"})],
     ])
-    def test_clean_invalid_not_a_dict_of_lists(self, value):
+    def test_clean__invalid_not_a_dict_of_lists(self, value):
         self.assertFormfieldError(
             field=BricksConfigField(choices=self.choices),
             value=value,
@@ -1251,7 +1236,7 @@ class BricksConfigFieldTestCase(_ConfigFieldTestCase):
             codes='invalid_format',
         )
 
-    def test_clean_invalid_choices(self):
+    def test_clean__invalid_choices(self):
         error_fmt = _('Select a valid choice. %(value)s is not one of the available choices.')
         self.assertFormfieldError(
             field=BricksConfigField(choices=self.choices),
@@ -1260,7 +1245,7 @@ class BricksConfigFieldTestCase(_ConfigFieldTestCase):
             codes=['invalid_choice'] * 2,
         )
 
-    def test_clean_duplicates(self):
+    def test_clean__duplicates(self):
         class TestBrick:
             def __init__(self, verbose_name):
                 self.verbose_name = verbose_name
@@ -1278,7 +1263,7 @@ class BricksConfigFieldTestCase(_ConfigFieldTestCase):
             codes=['duplicated_brick'] * 2,
         )
 
-    def test_clean_empty_config(self):
+    def test_clean__empty_config(self):
         self.assertFormfieldError(
             field=BricksConfigField(choices=self.choices),
             value=json_dump({'top': [], 'left': []}),
@@ -1286,7 +1271,7 @@ class BricksConfigFieldTestCase(_ConfigFieldTestCase):
             codes='required',
         )
 
-    def test_clean_ok(self):
+    def test_clean__ok(self):
         field = BricksConfigField(choices=self.choices)
         self.assertDictEqual(
             {'top': [1], 'left': [2, 3], 'right': [], 'bottom': []},

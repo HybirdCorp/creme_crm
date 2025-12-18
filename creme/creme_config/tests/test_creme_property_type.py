@@ -47,7 +47,7 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.fail(f'No property <{text}>')
 
-    def test_create01(self):
+    def test_creation(self):
         self.login_as_root()
 
         url = self.ADD_URL
@@ -68,7 +68,7 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual('', prop_type.description)
         self.assertFalse(prop_type.subject_ctypes.all())
 
-    def test_create02(self):
+    def test_creation__ctype_constraint(self):
         "ContentTypes as constraints + not superuser."
         self.login_as_standard(admin_4_apps=['creme_core'])
 
@@ -90,12 +90,11 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(description, prop_type.description)
         self.assertCountEqual(models, [*prop_type.subject_models])
 
-    def test_create03(self):
-        "Not allowed."
+    def test_creation__forbidden(self):
         self.login_as_standard()
         self.assertGET403(self.ADD_URL)
 
-    def test_edit(self):
+    def test_edition__custom_type(self):
         "Edit a custom type."
         self.login_as_root()
 
@@ -129,8 +128,8 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(pt.is_custom)
         self.assertListEqual([FakeOrganisation], [*pt.subject_models])
 
-    def test_edit_error01(self):
-        "Edit a not custom type."
+    def test_edition__not_custom_type(self):
+        "Edit a not custom type => error."
         self.login_as_root()
 
         pt = CremePropertyType.objects.create(
@@ -138,8 +137,8 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         ).set_subject_ctypes(FakeContact)
         self.assertGET404(self._build_edit_url(pt))
 
-    def test_edit_error02(self):
-        "Edit a disabled type."
+    def test_edition__disabled_type(self):
+        "Edit a disabled type => error."
         self.login_as_root()
 
         pt = CremePropertyType.objects.create(

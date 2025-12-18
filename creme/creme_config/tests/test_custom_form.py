@@ -60,7 +60,7 @@ from ..constants import BRICK_STATE_SHOW_CFORMS_DETAILS
 
 
 class CustomFormCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
-    def test_regularfields01(self):
+    def test_regularfields(self):
         field = CustomFormCellsField(model=FakeOrganisation)
         self.assertListEqual([], field.non_hiddable_cells)
 
@@ -81,7 +81,7 @@ class CustomFormCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase)
             field.clean(value),
         )
 
-    def test_regularfields02(self):
+    def test_regularfields__ignored_cells(self):
         "With ignored cells."
         model = FakeOrganisation
         field = CustomFormCellsField(model=model)
@@ -336,7 +336,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_config__create_custom_form', args=('invalid',))
         )
 
-    def test_form_deletion01(self):
+    def test_form_deletion__superuser(self):
         "Super-user's form."
         self.login_as_root()
         cfci = CustomFormConfigItem.objects.create(
@@ -348,7 +348,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST200(url, data={'id': cfci.id})
         self.assertDoesNotExist(cfci)
 
-    def test_form_deletion02(self):
+    def test_form_deletion__role(self):
         "Role's form."
         self.login_as_root()
         cfci = CustomFormConfigItem.objects.create(
@@ -358,7 +358,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST200(reverse('creme_config__delete_custom_form'), data={'id': cfci.id})
         self.assertDoesNotExist(cfci)
 
-    def test_form_deletion03(self):
+    def test_form_deletion__default(self):
         "Default form => error."
         self.login_as_root()
         cfci = self.get_object_or_fail(
@@ -369,7 +369,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST409(reverse('creme_config__delete_custom_form'), data={'id': cfci.id})
         self.assertStillExists(cfci)
 
-    def test_form_resetting01(self):
+    def test_form_resetting(self):
         self.login_as_root()
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
@@ -412,7 +412,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         cfci = self.assertStillExists(cfci)
         self.assertListEqual(old_json_groups, cfci.json_groups)
 
-    def test_form_resetting02(self):
+    def test_form_resetting__role(self):
         "Role, extra group allowed."
         self.login_as_root()
         role = self.role
@@ -443,7 +443,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertListEqual(default_json_groups, self.refresh(role_cfci).json_groups)
 
-    def test_group_edition01(self):
+    def test_group_edition(self):
         self.login_as_root()
 
         cfci = self.get_object_or_fail(
@@ -538,7 +538,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             self.refresh(cfci).groups_as_dicts(),
         )
 
-    def test_group_edition02(self):
+    def test_group_edition__extra_cells(self):
         "Other group (id=1), extra cells."
         self.login_as_root()
 
@@ -617,8 +617,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             cfci.groups_as_dicts(),
         )
 
-    def test_group_edition03(self):
-        "Layout is not modified."
+    def test_group_edition__layout_not_modified(self):
         self.login_as_root()
 
         cfci = self.get_object_or_fail(
@@ -660,7 +659,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             self.refresh(cfci).groups_as_dicts()[0]['layout'],
         )
 
-    def test_group_edition04(self):
+    def test_group_edition__no_relation_field(self):
         "Edition form => no <properties>/<relations> fields."
         self.login_as_root()
         prop_cell = EntityCellCustomFormSpecial(
@@ -699,7 +698,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(prop_cell, ignored_cells2)
         self.assertIn(rel_cell, ignored_cells2)
 
-    def test_group_edition05(self):
+    def test_group_edition__non_hiddable(self):
         "Non hiddable fields (because already selected)."
         self.login_as_root()
         desc = FAKEORGANISATION_CREATION_CFORM
@@ -739,8 +738,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             non_hiddable_cells,
         )
 
-    def test_group_edition_error01(self):
-        "Invalid groups."
+    def test_group_edition__invalid_groups(self):
         self.login_as_root()
 
         cfci = self.get_object_or_fail(
@@ -773,8 +771,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             html=True,
         )
 
-    def test_group_edition_error02(self):
-        "Not registered id."
+    def test_group_edition__not_registered_id(self):
         self.login_as_root()
 
         descriptor_id = 'creme_core-invalid'
@@ -789,8 +786,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             html=True,
         )
 
-    def test_group_edition_error03(self):
-        "Bad type of cell."
+    def test_group_edition__bad_cell_type(self):
         self.login_as_root()
 
         base_cell_keys = [
@@ -826,7 +822,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         'place',  # Used field
         'created',  # Not editable field
     ])
-    def test_group_edition_regularfields_error(self, fname):
+    def test_group_edition__regular_field_errors(self, fname):
         self.login_as_root()
 
         cfci = self.get_object_or_fail(
@@ -848,7 +844,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('This value is invalid: %(value)s') % {'value': fname},
         )
 
-    def test_group_edition_customfield(self):
+    def test_group_edition__customfield(self):
         self.login_as_root()
 
         create_cfield = partial(
@@ -897,7 +893,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             cfci.groups_as_dicts()[1],
         )
 
-    def test_group_edition_customfield_error(self):
+    def test_group_edition__customfield__error(self):
         "Used custom field."
         self.login_as_root()
 
@@ -953,7 +949,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('This value is invalid: %(value)s') % {'value': cfields[0].id},
         )
 
-    def test_group_edition_extrafield(self):
+    def test_group_edition__extrafield(self):
         self.login_as_root()
 
         cfci = self.get_object_or_fail(
@@ -1009,7 +1005,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             cfci.groups_as_dicts()[1],
         )
 
-    def test_group_edition_extrafield_error(self):
+    def test_group_edition__extrafield__error(self):
         "Used extra field."
         self.login_as_root()
 
@@ -1035,7 +1031,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('This value is invalid: %(value)s') % {'value': 'fakeactivity_start'},
         )
 
-    def test_group_edition_specialfield01(self):
+    def test_group_edition__specialfield__remaining_regular(self):
         "Remaining regular fields."
         self.login_as_root()
 
@@ -1067,7 +1063,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             cfci.groups_as_dicts()[0],
         )
 
-    def test_group_edition_specialfield02(self):
+    def test_group_edition__specialfield__remaining_custom(self):
         "Remaining custom fields."
         self.login_as_root()
 
@@ -1124,7 +1120,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             cfci.groups_as_dicts()[2],
         )
 
-    def test_group_edition_specialfield_error(self):
+    def test_group_edition__specialfield__error(self):
         "Used special field."
         self.login_as_root()
 
@@ -1150,7 +1146,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('This value is invalid: %(value)s') % {'value': 'customfields'},
         )
 
-    def test_group_edition_extra_group(self):
+    def test_group_edition__extra_group(self):
         "Extra group has no cells => no error when computing ignored cells."
         self.login_as_root()
 
@@ -1177,7 +1173,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             'creme_config__edit_custom_form_group', args=(cfci.id, 0)
         ))
 
-    def test_group_creation_regularfields01(self):
+    def test_group_creation__regular_fields(self):
         self.login_as_root()
 
         group_name1 = 'Required fields'
@@ -1257,8 +1253,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             self.refresh(cfci).groups_as_dicts(),
         )
 
-    def test_group_creation_regularfields02(self):
-        "Empty group."
+    def test_group_creation__regular_fields__empty_group(self):
         self.login_as_root()
 
         cfci = self.get_object_or_fail(
@@ -1285,7 +1280,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(group_name3, dict_group['name'])
         self.assertListEqual([], dict_group['cells'])
 
-    def test_group_creation_customfields(self):
+    def test_group_creation__custom_fields(self):
         self.login_as_root()
 
         create_cfield = partial(
@@ -1348,7 +1343,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('This value is invalid: %(value)s') % {'value': cfields[1].id},
         )
 
-    def test_group_creation_customfields_error(self):
+    def test_group_creation__custom_fields__error(self):
         "CustomField for another ContentType."
         self.login_as_root()
 
@@ -1373,7 +1368,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('This value is invalid: %(value)s') % {'value': cfield.id},
         )
 
-    def test_group_creation_properties(self):
+    def test_group_creation__properties(self):
         "Edition form => no <properties>/<relations> fields."
         self.login_as_root()
         prop_cell = EntityCellCustomFormSpecial(
@@ -1412,7 +1407,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(prop_cell, ignored_cells2)
         self.assertIn(rel_cell, ignored_cells2)
 
-    def test_extra_group01(self):
+    def test_extra_group(self):
         "Adding extra group."
         self.login_as_root()
 
@@ -1476,7 +1471,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_config__add_custom_form_group', args=(cfci.id,))
         )
 
-    def test_extra_group02(self):
+    def test_extra_group__error(self):
         "Descriptor without extra group class."
         self.login_as_root()
 
@@ -1513,7 +1508,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             [dict_group['name'] for dict_group in dict_groups],
         )
 
-    def test_group_deletion_error(self):
+    def test_group_deletion__error(self):
         "Invalid ID."
         self.login_as_root()
         cfci = self.get_object_or_fail(
@@ -1530,7 +1525,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             html=True,
         )
 
-    def test_delete_cell01(self):
+    def test_delete_cell(self):
         self.login_as_root()
         desc = FAKEACTIVITY_CREATION_CFORM
         cfci = self.get_object_or_fail(
@@ -1565,7 +1560,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertPOST404(url, data=data)  # Cell is not used anymore
 
-    def test_delete_cell02(self):
+    def test_delete_cell__extra_group(self):
         "Extra group has no cells => no error when searching ignored cells."
         self.login_as_root()
 
@@ -1616,7 +1611,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertEqual(layout, self.refresh(cfci).groups_as_dicts()[group_id]['layout'])
 
-    def test_group_set_layout_extra_group(self):
+    def test_group_set_layout__extra_group(self):
         self.login_as_root()
 
         desc = FAKEORGANISATION_CREATION_CFORM
@@ -1866,8 +1861,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual(['General'], [g.name for g in orga_item.groups])
         self.assertListEqual([], orga_item.errors)
 
-    def test_brick_error01(self):
-        "Missing regular field."
+    def test_brick__missing_regular_field(self):
         desc = CustomFormDescriptor(
             id='test-fakeactivity_creation',
             model=FakeActivity,
@@ -1904,8 +1898,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             act_item1.errors,
         )
 
-    def test_brick_error02(self):
-        "Missing required custom-field."
+    def test_brick__missing_required_custom_field(self):
         customfield = CustomField.objects.create(
             content_type=FakeOrganisation,
             name='Rate', field_type=CustomField.INT, is_required=True,
@@ -1943,8 +1936,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             act_item1.errors,
         )
 
-    def test_brick_error03(self):
-        "Missing required extra field."
+    def test_brick__missing_required_extra_field(self):
         desc = CustomFormDescriptor(
             id='test-fakeactivity_creation',
             model=FakeActivity,
@@ -1996,7 +1988,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
     def get_brick_data(self, user):
         return self.get_brick_state(user).get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS)
 
-    def test_brick_show_details01(self):
+    def test_brick_show_details__2_ctypes(self):
         "Show 2 different ContentTypes."
         self.login_as_root()
         user = self.get_root_user()
@@ -2032,8 +2024,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST404(url, data={ct_key: ct_id1})
         self.assertPOST404(url, data={action_key: 'invalid', ct_key: ct_id1})
 
-    def test_brick_show_details02(self):
-        "Show then hide a ContentType."
+    def test_brick_show_details__show_then_hide__ctype(self):
         self.login_as_root()
         user = self.get_root_user()
         url = self.DETAILS_URL
@@ -2055,8 +2046,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST200(url, data={action_key: HIDE, ct_key: ct_id1})
         self.assertIsNone(self.get_brick_data(user))
 
-    def test_brick_show_details03(self):
-        "Show & hide item."
+    def test_brick_show_details__show_then_hide__item(self):
         self.login_as_root()
         user = self.get_root_user()
         url = self.DETAILS_URL
@@ -2115,7 +2105,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             self.get_brick_data(user),
         )
 
-    def test_brick_show_details04(self):
+    def test_brick_show_details__hide_ctype(self):
         "Hide a whole ContentType with items."
         self.login_as_root()
         user = self.get_root_user()
@@ -2136,7 +2126,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST200(url, data={action_key: 'hide', 'ct_id': ct_id})
         self.assertIsNone(self.get_brick_data(user))
 
-    def test_brick_show_details05(self):
+    def test_brick_show_details__hide_empty(self):
         "Hide but configuration is empty."
         self.login_as_root()
         user = self.get_root_user()

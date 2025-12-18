@@ -6,7 +6,7 @@ from creme.creme_core.tests.fake_bricks import FakePortalBrick
 
 
 class PortalTestCase(CremeTestCase):
-    def test_portal01(self):
+    def test_portal(self):
         self.login_as_standard(allowed_apps=['creme_config'])
         response = self.assertGET200(reverse('creme_config__portal'))
         self.assertTemplateUsed(response, 'creme_config/portal.html')
@@ -30,11 +30,11 @@ class PortalTestCase(CremeTestCase):
         self.assertIsList(main_bricks)
         self.assertIn(FakePortalBrick, [type(brick) for brick in main_bricks])
 
-    def test_portal02(self):
+    def test_portal__forbidden(self):
         self.login_as_standard()  # allowed_apps=['creme_config']
         self.assertGET403(reverse('creme_config__portal'))
 
-    def test_reload_portal_bricks01(self):
+    def test_reload_portal_bricks(self):
         self.login_as_standard(allowed_apps=['creme_config'])
 
         brick = FakePortalBrick()
@@ -48,7 +48,7 @@ class PortalTestCase(CremeTestCase):
         # ---
         self.assertGET404(url, data={'brick_id': 'invalid'})
 
-    def test_reload_portal_bricks02(self):
+    def test_reload_portal_bricks__forbidden(self):
         self.login_as_standard()  # allowed_apps=['creme_config']
 
         self.assertGET403(

@@ -45,7 +45,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             if ct.id not in used_ct_ids
         ])
 
-    def test_portal01(self):
+    def test_portal(self):
         self.login_as_root()
         self._create_fconf()
 
@@ -66,7 +66,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             url=self.WIZARD_URL, label=_('New fields configuration'),
         )
 
-    def test_portal02(self):
+    def test_portal__all_configured(self):
         "All CTypes are already configured."
         self._configure_all_models()
         self.login_as_root()
@@ -74,7 +74,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(reverse('creme_config__fields'))
         self.assertNotContains(response, self.WIZARD_URL)
 
-    def test_portal_errors(self):
+    def test_portal__errors(self):
         self.login_as_root()
 
         self._create_fconf(FakeSector)
@@ -94,7 +94,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             error_node.text,
         )
 
-    def test_edit01(self):
+    def test_edition(self):
         self.login_as_root()
 
         get_field = FakeContact._meta.get_field
@@ -184,8 +184,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual('required', phone_f3.initial)
         self.assertEqual('hidden',   birthday_f3.initial)
 
-    def test_edit02(self):
-        "Not super-user."
+    def test_edition__regular_user(self):
         user = self.login_as_standard()
 
         fconf = self._create_fconf()
@@ -198,8 +197,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         role.save()
         self.assertGET200(url)
 
-    def test_edit03(self):
-        "Model not registered."
+    def test_edition__model_not_registered(self):
         self.login_as_root()
 
         self.assertFalse(fields_config_registry.is_model_registered(FakeActivity))
