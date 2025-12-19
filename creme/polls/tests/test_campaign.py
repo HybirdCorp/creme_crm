@@ -27,7 +27,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
         ptype = CremePropertyType.objects.create(text=f'is from segment "{label}"')
         return MarketSegment.objects.create(name=label, property_type=ptype)
 
-    def test_detailview01(self):
+    def test_detailview(self):
         user = self.login_as_root_and_get()
         camp = PollCampaign.objects.create(user=user, name='Camp#1')
         response = self.assertGET200(camp.get_absolute_url())
@@ -42,7 +42,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
             _('Filled form replies'), self.get_brick_title(brick_node),
         )
 
-    def test_detailview02(self):
+    def test_detailview__some_replies(self):
         user = self.login_as_root_and_get()
         camp = PollCampaign.objects.create(user=user, name='Camp', expected_count=2)
         pform = PollForm.objects.create(user=user, name='Form')
@@ -76,7 +76,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
         self.get_html_node_or_fail(brick_node2, './/td[@class="brick-table-data-valid"]')
 
-    def test_createview01(self):
+    def test_creation(self):
         user = self.login_as_root_and_get()
         self.assertFalse(PollCampaign.objects.all())
 
@@ -111,7 +111,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(segment, camp.segment)
         self.assertEqual(expected_count, camp.expected_count)
 
-    def test_editview01(self):
+    def test_edition(self):
         user = self.login_as_root_and_get()
         name = 'camp#1'
         camp = PollCampaign.objects.create(user=user, name=name)
@@ -169,7 +169,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     @skipIfCustomPollForm
     @skipIfCustomPollReply
-    def test_create_preply01(self):
+    def test_create_replies(self):
         "Create several replies linked to the campaign."
         user = self.login_as_root_and_get()
         pform, camp = self._create_pform_n_campaign(user=user)
@@ -194,7 +194,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     @skipIfCustomPollForm
     @skipIfCustomPollReply
-    def test_create_preplies_from_campaign(self):
+    def test_create_replies_from_campaign(self):
         "Create several replies linked to a given campaign."
         user = self.login_as_root_and_get()
         pform, camp = self._create_pform_n_campaign(user=user)
@@ -230,7 +230,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     @skipIfCustomPollForm
     @skipIfCustomPollReply
-    def test_create_preplies_from_campaign__not_super_user(self):
+    def test_create_replies_from_campaign__not_super_user(self):
         user = self.login_as_polls_user(creatable_models=[PollReply])
         self.add_credentials(user.role, all='*')
 
@@ -239,7 +239,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     @skipIfCustomPollForm
     @skipIfCustomPollReply
-    def test_create_preplies_from_campaign__creation_perms(self):
+    def test_create_replies_from_campaign__creation_perms(self):
         "Creation credentials are needed."
         user = self.login_as_polls_user()  # creatable_models=[PollReply]
         self.add_credentials(user.role, all='*')
@@ -249,7 +249,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     @skipIfCustomPollForm
     @skipIfCustomPollReply
-    def test_create_preply_from_campaign__link_perms(self):
+    def test_create_replies_from_campaign__link_perms(self):
         "LINK credentials are needed."
         user = self.login_as_polls_user(creatable_models=[PollReply])
         self.add_credentials(user.role, all='!LINK')
