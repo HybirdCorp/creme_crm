@@ -20,37 +20,6 @@ class PollFormLineConditionsFieldTestCase(CremeTestCase):
             for t in info
         ])
 
-    def test_clean_empty_required(self):
-        field = PollFormLineConditionsField()
-        code = 'required'
-        msg = Field.default_error_messages[code]
-        self.assertFormfieldError(field=field, messages=msg, codes=code, value=None)
-        self.assertFormfieldError(field=field, messages=msg, codes=code, value='')
-        self.assertFormfieldError(field=field, messages=msg, codes=code, value=[])
-
-    def test_clean_empty_not_required(self):
-        field = PollFormLineConditionsField(required=False)
-        self.assertNoException(field.clean, None)
-
-    def test_clean_invalid_data_type(self):
-        field = PollFormLineConditionsField()
-        self.assertFormfieldError(
-            field=field, value='[', codes='invalidformat', messages=_('Invalid format'),
-        )
-
-        type_code = 'invalidtype'
-        type_msg = _('Invalid type')
-        self.assertFormfieldError(
-            field=field, messages=type_msg, codes=type_code, value='"this is a string"',
-        )
-        self.assertFormfieldError(
-            field=field, messages=type_msg, codes=type_code, value='"{}"',
-        )
-        self.assertFormfieldError(
-            field=field, codes=type_code, messages=type_msg,
-            value='{"foobar":{"operator": "3", "name": "first_name"}}',
-        )
-
     def _create_lines(self):
         user = self.get_root_user()
         self.pform = pform = PollForm.objects.create(user=user, name='Form#1')
@@ -77,8 +46,39 @@ class PollFormLineConditionsFieldTestCase(CremeTestCase):
 
         return line1, line2
 
+    def test_clean__empty__required(self):
+        field = PollFormLineConditionsField()
+        code = 'required'
+        msg = Field.default_error_messages[code]
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value='')
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=[])
+
+    def test_clean__empty__not_required(self):
+        field = PollFormLineConditionsField(required=False)
+        self.assertNoException(field.clean, None)
+
+    def test_clean__invalid_data_type(self):
+        field = PollFormLineConditionsField()
+        self.assertFormfieldError(
+            field=field, value='[', codes='invalidformat', messages=_('Invalid format'),
+        )
+
+        type_code = 'invalidtype'
+        type_msg = _('Invalid type')
+        self.assertFormfieldError(
+            field=field, messages=type_msg, codes=type_code, value='"this is a string"',
+        )
+        self.assertFormfieldError(
+            field=field, messages=type_msg, codes=type_code, value='"{}"',
+        )
+        self.assertFormfieldError(
+            field=field, codes=type_code, messages=type_msg,
+            value='{"foobar":{"operator": "3", "name": "first_name"}}',
+        )
+
     @skipIfCustomPollForm
-    def test_clean_invalid_source01(self):
+    def test_clean__invalid_source(self):
         line1, line2 = self._create_lines()
         self.assertFormfieldError(
             field=PollFormLineConditionsField(sources=[line1]),
@@ -88,7 +88,7 @@ class PollFormLineConditionsFieldTestCase(CremeTestCase):
         )
 
     @skipIfCustomPollForm
-    def test_clean_invalid_source02(self):
+    def test_clean__invalid_source__not_enum(self):
         "Only ENUM & MULTI_ENUM for now."
         line1, line2 = self._create_lines()
         line3 = PollFormLine.objects.create(
@@ -104,7 +104,7 @@ class PollFormLineConditionsFieldTestCase(CremeTestCase):
         )
 
     @skipIfCustomPollForm
-    def test_clean_invalid_choice(self):
+    def test_clean__invalid_choice(self):
         line1, line2 = self._create_lines()
         self.assertFormfieldError(
             field=PollFormLineConditionsField(sources=[line1]),
@@ -114,7 +114,7 @@ class PollFormLineConditionsFieldTestCase(CremeTestCase):
         )
 
     @skipIfCustomPollForm
-    def test_ok01(self):
+    def test_ok(self):
         line1, line2 = self._create_lines()
 
         with self.assertNumQueries(0):
@@ -130,7 +130,7 @@ class PollFormLineConditionsFieldTestCase(CremeTestCase):
         self.assertEqual('1',                          condition.raw_answer)
 
     @skipIfCustomPollForm
-    def test_ok02(self):
+    def test_ok__several_conditions(self):
         "Several conditions, sources property."
         line1, line2 = self._create_lines()
 
