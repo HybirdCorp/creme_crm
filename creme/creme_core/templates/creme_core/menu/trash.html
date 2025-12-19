@@ -1,14 +1,14 @@
 {% load i18n %}
-{% if permission_error %}
-<span class="ui-creme-navigation-text-entry forbidden" title="{{ permission_error }}">
-    {{ label }}
+{% if entry.permission_error %}
+<span class="ui-creme-navigation-text-entry forbidden" title="{{ entry.permission_error }}">
+    {{ entry.label }}
 </span>
 {% else %}
 <a class="ui-creme-navigation-trash-entry" href="{% url 'creme_core__trash' %}">
-    {{label}}
-    {% if entity_count > 0 %}
+    {{ entry.label }}
+    {% if entry.entity_count > 0 %}
     <span class="ui-creme-navigation-punctuation">(</span>
-        {% blocktranslate count counter=entity_count %}{{counter}} entity{% plural %}{{counter}} entities{% endblocktranslate %}
+        {% blocktranslate count counter=entry.entity_count %}{{counter}} entity{% plural %}{{counter}} entities{% endblocktranslate %}
     <span class="ui-creme-navigation-punctuation">)</span>
     {% endif %}
 </a>

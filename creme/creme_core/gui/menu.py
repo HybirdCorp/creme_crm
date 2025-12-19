@@ -265,9 +265,9 @@ class TemplateEntry(MenuEntry):
 
         return get_template(template_name)
 
-    def get_context(self, context):
-        label = self.render_label(context)
-        user = context['user']
+    def get_context(self, request):
+        label = self.render_label(request)
+        user = request['user']
 
         try:
             self.check_permissions(user)
@@ -275,19 +275,19 @@ class TemplateEntry(MenuEntry):
         except PermissionDenied as e:
             permission_error = str(e)
 
-        ctx = {
+        return {
             'label': label,
-            'request': context,
-            'user': user,
             'permission_error': permission_error,
             'template_name': self.template_name
         }
 
-        return ctx
-
-    def render(self, context):
-        ctx = self.get_context(context)
-        return self.get_template(ctx).render(ctx)
+    def render(self, request):
+        context = self.get_context(request)
+        return self.get_template(context).render({
+            'user': request['user'],
+            'request': request,
+            'entry': context,
+        })
 
 
 class ActionEntry(TemplateEntry):
@@ -312,13 +312,11 @@ class ActionEntry(TemplateEntry):
         prop = getattr(self, f'get_{name}', None)
         return prop(context) if callable(prop) else getattr(self, name, None)
 
-    def _get_icon(self, name, title, context) -> BaseIcon:
+    def _get_icon(self, name, title, user) -> BaseIcon:
         if not self.icon_name:
             return
 
-        title = context.get('permission_error') or title
-
-        theme = context['user'].theme_info[0]
+        theme = user.theme_info[0]
         return get_icon_by_name(
             name=name, label=title, theme=theme,
             size_px=get_icon_size_px(theme=theme, size='header-menu'),
@@ -327,15 +325,19 @@ class ActionEntry(TemplateEntry):
     def get_url(self, context):
         return self.url
 
-    def get_context(self, context):
-        context = super().get_context(context)
-        context['action'] = self.get_action_context(context)
-        return context
+    def get_context(self, request):
+        user = request['user']
 
-    def get_action_context(self, context):
+        entry = super().get_context(request)
+        entry['action'] = self.get_action_context(entry, user)
+
+        return entry
+
+    def get_action_context(self, context, user):
         prop = partial(self._get_prop, context=context)
         description = prop('description') or prop('label')
-        icon_title = prop('icon_title') or description
+        permission_error = context.get('permission_error')
+        icon_title = permission_error or prop('icon_title') or description
         icon_name = prop('icon_name')
 
         return {
@@ -343,7 +345,7 @@ class ActionEntry(TemplateEntry):
             'url': prop('url'),
             'icon_name': icon_name,
             'icon_title': icon_title,
-            'icon': self._get_icon(icon_name, icon_title, context),
+            'icon': self._get_icon(icon_name, icon_title, user=user),
             'classes': prop('classes'),
             'description': description,
             'props': self.get_action_props(context),

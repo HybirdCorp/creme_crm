@@ -112,17 +112,17 @@ class RoleSwitchEntry(menu.TemplateEntry):
     label = _('Available roles')
 
     def get_context(self, context):
-        context = super().get_context(context)
         user = context['user']
+        entry = super().get_context(context)
 
         if not user.is_superuser:
             # TODO: user.normalize_roles(roles)?
             roles = user.roles.all()
 
             if len(roles) > 1:
-                context["roles"] = [(role, role.id == user.role_id) for role in roles]
+                entry["roles"] = [(role, role.id == user.role_id) for role in roles]
 
-        return context
+        return entry
 
 
 class CremeEntry(menu.ContainerEntry):
