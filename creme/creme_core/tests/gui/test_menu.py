@@ -294,10 +294,35 @@ class MenuTestCase(CremeTestCase):
 
         self.assertEqual({
             'label': 'Template',
-            'request': context,
-            'user': user,
             'permission_error': "",
-            'template_name': 'creme_core/menu/link.html'
+            'template_name': 'creme_core/menu/link.html',
+        }, entry.get_context(context))
+
+        self.assertHTMLEqual(
+            '<a href="">Template</a>',
+            entry.render(context)
+        )
+
+    def test_template_entry__override_template(self):
+        user = self.login_as_standard(admin_4_apps=['creme_config'])
+
+        class TestTemplateEntry(TemplateEntry):
+            id = 'creme_core-test-template'
+            label = 'Template'
+            permissions = 'creme_config'
+
+            def get_context(self, context):
+                context = super().get_context(context)
+                context['template_name'] = 'creme_core/menu/link.html'
+                return context
+
+        entry = TestTemplateEntry()
+        context = self._build_context(user=user)
+
+        self.assertEqual({
+            'label': 'Template',
+            'permission_error': "",
+            'template_name': 'creme_core/menu/link.html',
         }, entry.get_context(context))
 
         self.assertHTMLEqual(
@@ -318,8 +343,6 @@ class MenuTestCase(CremeTestCase):
 
         self.assertEqual({
             'label': 'Template',
-            'request': context,
-            'user': user,
             'permission_error': "",
             'template_name': 'creme_core.gui.menu.TemplateEntry',
         }, entry.get_context(context))
@@ -344,8 +367,6 @@ class MenuTestCase(CremeTestCase):
 
         self.assertEqual({
             'label': 'Template',
-            'request': context,
-            'user': user,
             'permission_error': permission_error,
             'template_name': 'creme_core/menu/link.html',
         }, entry.get_context(context))
@@ -386,8 +407,8 @@ class MenuTestCase(CremeTestCase):
         entry = TestActionEntry()
         context = self._build_context(user=user)
 
-        icon = entry._get_icon(entry.icon_name, entry.icon_title, context)
-        self.assertIsNotNone(icon)
+        expected_icon = entry._get_icon(entry.icon_name, entry.icon_title, user)
+        self.assertIsNotNone(expected_icon)
 
         props = {
             'data': {'a': 12}, 'options': {'b': True}
@@ -398,8 +419,6 @@ class MenuTestCase(CremeTestCase):
 
         self.assertEqual({
             'label': 'Action A',
-            'request': context,
-            'user': user,
             'permission_error': '',
             'template_name': 'creme_core/menu/action.html',
         }, entry_context)
@@ -419,7 +438,7 @@ class MenuTestCase(CremeTestCase):
             f'''
             <a data-action="action_a" class="ui-creme-navigation-action-entry ui-action-a has-a"
                title="Description A" href="{reverse('creme_core__home')}">
-                {icon.render()}Action A
+                {expected_icon.render()}Action A
                 {jsondata(props)}
             </a>
             ''',
@@ -446,15 +465,13 @@ class MenuTestCase(CremeTestCase):
             _('General configuration')
         )
 
-        icon = entry._get_icon(entry.icon_name, permission_error, context)
+        expected_icon = entry._get_icon(entry.icon_name, permission_error, user)
 
         entry_context = entry.get_context(context)
         entry_action_context = entry_context.pop('action')
 
         self.assertEqual({
             'label': 'Action A',
-            'request': context,
-            'user': user,
             'permission_error': permission_error,
             'template_name': 'creme_core/menu/action.html',
         }, entry_context)
@@ -464,7 +481,7 @@ class MenuTestCase(CremeTestCase):
             'id': 'action_a',
             'url': reverse('creme_core__home'),
             'icon_name': 'add',
-            'icon_title': 'Icon A',
+            'icon_title': permission_error,
             'classes': ('ui-action-a', 'has-a'),
             'description': 'Description A',
             'props': {
@@ -476,7 +493,7 @@ class MenuTestCase(CremeTestCase):
             f'''
             <span class="ui-creme-navigation-text-entry forbidden ui-action-a has-a"
                   title="{permission_error}">
-            {icon.render()}Action A
+            {expected_icon.render()}Action A
             </span>
             ''',
             entry.render(context)
@@ -524,7 +541,7 @@ class MenuTestCase(CremeTestCase):
             id = 'creme_core-test-action'
 
         entry = TestActionEntry()
-        self.assertEqual(entry.get_action_context(context)['url'], '')
+        self.assertEqual(entry.get_context(context)['action']['url'], '')
 
     def test_creation_entry(self):
         self.assertIs(CreationEntry.single_instance, True)
