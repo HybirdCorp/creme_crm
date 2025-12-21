@@ -2,7 +2,7 @@
 {% with action=entry.action %}
 {% if entry.permission_error %}
 <span class="ui-creme-navigation-text-entry forbidden {{action.classes|join:' '}}" title="{{ entry.permission_error|default:action.description }}">
-    {{ action.icon.render }}{{ entry.label }}
+    {% if action.icon %}{{ action.icon.render }}{% endif %}{{ entry.label }}
 </span>
 {% else %}
 <a {% if action.id %}data-action="{{ action.id }}"{% endif %}
