@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -70,7 +70,6 @@ class LogoutEntry(menu.UpdateActionEntry):
     label = _('Log out')
     url_name = 'creme_logout'
     follow_redirect = True
-    single_instance = True
 
 
 class TrashEntry(menu.TemplateEntry):
@@ -78,7 +77,6 @@ class TrashEntry(menu.TemplateEntry):
     template_name = 'creme_core/menu/trash.html'
     id = 'creme_core-trash'
     label = _('Trash')
-    single_instance = True
 
     def get_context(self, context):
         context = super().get_context(context)
@@ -117,10 +115,7 @@ class RoleSwitchEntry(menu.TemplateEntry):
 
         if not user.is_superuser:
             # TODO: user.normalize_roles(roles)?
-            roles = user.roles.all()
-
-            if len(roles) > 1:
-                entry["roles"] = [(role, role.id == user.role_id) for role in roles]
+            entry["roles"] = user.roles.all()
 
         return entry
 
