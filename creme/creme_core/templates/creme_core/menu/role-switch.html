@@ -1,12 +1,12 @@
 {% load blockjsondata from creme_core_tags %}
-{% if entry.roles %}
+{% if entry.roles|length > 1 %}
 <span class="ui-creme-navigation-title{% if not entry.roles %} ui-creme-navigation-empty{% endif %}">{{ entry.label }}</span>
-{% for role, selected in entry.roles %}
+{% for role in entry.roles %}
     {% if role.deactivated_on %}
 <div class="disabled-role ui-creme-navigation-text-entry">
     <div class="marker-not-selected"></div>{{ role }}
 </div>
-    {% elif selected %}
+    {% elif role.id == user.role_id %}
 <div class="ui-creme-navigation-text-entry">
     <div class="marker-selected"></div>{{ role }}
 </div>

@@ -63,7 +63,6 @@ from ..base import CremeTestCase
 from ..fake_menu import FakeContactCreationEntry, FakeContactsEntry
 
 
-# from creme.creme_core.gui.last_viewed import LastViewedItem
 class MenuTestCase(CremeTestCase):
     maxDiff = None
 
@@ -281,7 +280,9 @@ class MenuTestCase(CremeTestCase):
         self.assertHTMLEqual(expected, TestEntry02().render(ctxt))
 
     def test_template_entry(self):
-        user = self.login_as_standard(admin_4_apps=['creme_config'])
+        user = self.create_user(
+            role=self.create_role(admin_4_apps=['creme_config'])
+        )
 
         class TestTemplateEntry(TemplateEntry):
             template_name = 'creme_core/menu/link.html'
@@ -304,7 +305,9 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_template_entry__override_template(self):
-        user = self.login_as_standard(admin_4_apps=['creme_config'])
+        user = self.create_user(
+            role=self.create_role(admin_4_apps=['creme_config'])
+        )
 
         class TestTemplateEntry(TemplateEntry):
             id = 'creme_core-test-template'
@@ -331,12 +334,15 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_template_entry__missing_template(self):
-        user = self.login_as_standard(admin_4_apps=['creme_config'])
+        user = self.create_user(
+            role=self.create_role(admin_4_apps=['creme_config'])
+        )
 
         class TestTemplateEntry(TemplateEntry):
             id = 'creme_core-test-template'
             label = 'Template'
             permissions = 'creme_config'
+            template_name = 'unknown.html'
 
         entry = TestTemplateEntry()
         context = self._build_context(user=user)
@@ -344,14 +350,14 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual({
             'label': 'Template',
             'permission_error': "",
-            'template_name': 'creme_core.gui.menu.TemplateEntry',
+            'template_name': 'unknown.html',
         }, entry.get_context(context))
 
         with self.assertRaises(TemplateDoesNotExist):
             entry.render(context)
 
     def test_template_entry__not_allowed(self):
-        user = self.login_as_standard()
+        user = self.create_user(role=self.create_role())
 
         class TestTemplateEntry(TemplateEntry):
             template_name = 'creme_core/menu/link.html'
@@ -381,7 +387,9 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_action_entry(self):
-        user = self.login_as_standard(admin_4_apps=['creme_config'])
+        user = self.create_user(
+            role=self.create_role(admin_4_apps=['creme_config'])
+        )
 
         class TestActionEntry(ActionEntry):
             id = 'creme_core-test-action_a'
@@ -394,14 +402,10 @@ class MenuTestCase(CremeTestCase):
             icon_name = 'add'
             icon_title = 'Icon A'
 
-            def get_action_data(self, context):
+            def get_action_props(self, context):
                 return {
-                    "a": 12
-                }
-
-            def get_action_options(self, context):
-                return {
-                    "b": True
+                    "data": {"a": 12},
+                    "options": {"b": True}
                 }
 
         entry = TestActionEntry()
@@ -427,8 +431,6 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual({
             'id': 'action_a',
             'url': reverse('creme_core__home'),
-            'icon_name': 'add',
-            'icon_title': 'Icon A',
             'classes': ('ui-action-a', 'has-a'),
             'description': 'Description A',
             'props': props,
@@ -446,7 +448,7 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_action_entry__not_allowed(self):
-        user = self.login_as_standard()
+        user = self.create_user(role=self.create_role())
 
         class TestActionEntry(ActionEntry):
             id = 'creme_core-test-action_a'
@@ -480,13 +482,9 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual({
             'id': 'action_a',
             'url': reverse('creme_core__home'),
-            'icon_name': 'add',
-            'icon_title': permission_error,
             'classes': ('ui-action-a', 'has-a'),
             'description': 'Description A',
-            'props': {
-                'data': {}, 'options': {}
-            },
+            'props': {},
         }, entry_action_context)
 
         self.assertHTMLEqual(
@@ -500,7 +498,9 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_action_entry__unknown_icon(self):
-        user = self.login_as_standard(admin_4_apps=['creme_config'])
+        user = self.create_user(
+            role=self.create_role(admin_4_apps=['creme_config'])
+        )
 
         class TestActionEntry(ActionEntry):
             id = 'creme_core-test-action_a'
@@ -518,7 +518,9 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(action_context['icon'].url, '')
 
     def test_action_entry__no_icon(self):
-        user = self.login_as_standard(admin_4_apps=['creme_config'])
+        user = self.create_user(
+            role=self.create_role(admin_4_apps=['creme_config'])
+        )
 
         class TestActionEntry(ActionEntry):
             id = 'creme_core-test-action_a'
@@ -534,7 +536,7 @@ class MenuTestCase(CremeTestCase):
         self.assertIsNone(action_context['icon'])
 
     def test_action_entry__no_url(self):
-        user = self.login_as_standard()
+        user = self.create_user()
         context = self._build_context(user=user)
 
         class TestActionEntry(ActionEntry):
@@ -883,8 +885,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_trash_entry(self):
         user = self.get_root_user()
-        self.assertTrue(TrashEntry.single_instance)
-
         entry = TrashEntry()
 
         entry_id = 'creme_core-trash'
@@ -901,7 +901,8 @@ class MenuTestCase(CremeTestCase):
             '%(counter)s entity',
             '%(counter)s entities',
             count,
-        ) % dict(counter=count)
+        ) % {"counter": count}
+
         self.assertHTMLEqual(
             f'''
                 <a class="ui-creme-navigation-trash-entry" href="{entry_url}">
@@ -962,8 +963,6 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_logout_entry(self):
-        self.assertTrue(LogoutEntry.single_instance)
-
         entry = LogoutEntry()
         url = reverse('creme_logout')
         label = _('Log out')
@@ -973,7 +972,6 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(url, entry.url)
 
         props = {
-            "data": {},
             "options": {
                 "followRedirect": True,
                 "redirectOnSuccess": False,
