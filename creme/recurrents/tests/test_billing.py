@@ -202,26 +202,35 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
         self.assertEqual(1, len(new_entities))
 
     @skipIfCustomInvoice
-    def test_create_invoice01(self):
+    def test_creation__invoice(self):
         self._aux_test_create(Invoice, InvoiceStatus)
 
     @skipIfCustomInvoice
-    def test_create_invoice02(self):
+    def test_creation__invoice__addresses(self):
         self._aux_test_create(Invoice, InvoiceStatus, target_has_addresses=True)
 
     @skipIfCustomQuote
-    def test_create_quote(self):
+    def test_creation__quote(self):
         self._aux_test_create(Quote, QuoteStatus)
 
     @skipIfCustomSalesOrder
-    def test_create_order(self):
+    def test_creation__order(self):
         self._aux_test_create(SalesOrder, SalesOrderStatus)
 
     @skipIfCustomCreditNote
-    def test_create_note(self):
+    def test_creation__note(self):
         self._aux_test_create(CreditNote, CreditNoteStatus)
 
-    def test_create_credentials01(self):
+    @skipIfCustomQuote
+    def test_creation__app_perms(self):
+        self.login_as_standard(
+            allowed_apps=['persons'],  # Not 'recurrents'
+            creatable_models=[RecurrentGenerator, Quote],
+        )
+
+        self.assertGET403(self.ADD_URL)
+
+    def test_creation__creation_perms__generated_models(self):
         "Creation credentials for generated models."
         user = self.login_as_standard(
             allowed_apps=['persons', 'recurrents'],
@@ -274,17 +283,7 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
         self.assertNoWizardFormError(response)
 
     @skipIfCustomQuote
-    def test_create_credentials02(self):
-        "App credentials."
-        self.login_as_standard(
-            allowed_apps=['persons'],  # Not 'recurrents'
-            creatable_models=[RecurrentGenerator, Quote],
-        )
-
-        self.assertGET403(self.ADD_URL)
-
-    @skipIfCustomQuote
-    def test_create_credentials03(self):
+    def test_creation__creation_perms__generator(self):
         "Creation credentials for generator."
         self.login_as_standard(
             allowed_apps=['persons', 'recurrents'],
