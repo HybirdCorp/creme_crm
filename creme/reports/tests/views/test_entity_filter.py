@@ -23,271 +23,14 @@ from creme.creme_core.views.entity_filter import (
     EntityFilterInfoBrick,
     EntityFilterParentsBrick,
 )
-
-from ..bricks import ReportEntityFiltersBrick
-from ..constants import EF_REPORTS
-from ..core.entity_filter import (
+from creme.reports.bricks import ReportEntityFiltersBrick
+from creme.reports.constants import EF_REPORTS
+from creme.reports.core.entity_filter import (
     ReportRelationSubFilterConditionHandler,
     ReportRelationSubfiltersConditionsField,
     ReportSubFilterConditionHandler,
 )
-from .base import BaseReportsTestCase, Report
-
-
-class ReportRelationSubfiltersConditionsFieldTestCase(BaseReportsTestCase):
-    def _create_rtype(self):
-        return RelationType.objects.builder(
-            id='test-subject_freelance', predicate='Is a freelance for',
-            models=[FakeContact],
-        ).symmetric(
-            id='test-object_freelance', predicate='Works with the freelance',
-        ).get_or_create()[0]
-
-    def test_clean_empty_required(self):
-        field = ReportRelationSubfiltersConditionsField(required=True)
-        msg = _('This field is required.')
-        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
-        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
-        self.assertFormfieldError(field=field, messages=msg, codes='required', value='[]')
-
-    def test_clean_incomplete_data_required(self):
-        rtype = self._create_rtype()
-        field = ReportRelationSubfiltersConditionsField(model=FakeContact)
-        msg = _('This field is required.')
-        self.assertFormfieldError(
-            field=field, messages=msg, codes='required', value=json_dump([{'rtype': rtype.id}]),
-        )
-        self.assertFormfieldError(
-            field=field, messages=msg, codes='required', value=json_dump([{'has': True}]),
-        )
-
-    def test_unknown_filter(self):
-        rtype = self._create_rtype()
-        field = ReportRelationSubfiltersConditionsField(model=FakeContact)
-        field.user = self.get_root_user()
-        self.assertFormfieldError(
-            field=field,
-            value=json_dump([{
-                'rtype': rtype.id, 'has': False,
-                'ctype': ContentType.objects.get_for_model(FakeContact).id,
-                'filter': '3213213543',  # <==
-            }]),
-            messages=_('This filter is invalid.'),
-            codes='invalidfilter',
-        )
-
-    def test_ok(self):
-        user = self.get_root_user()
-        team = self.create_team('My team', user)
-
-        rtype1 = self._create_rtype()
-        rtype2 = rtype1.symmetric_type
-
-        efilter1 = EntityFilter.objects.create(
-            id='creme_core-contacts_filter',
-            name='Contact filter',
-            entity_type=FakeContact,
-        )
-        efilter2 = EntityFilter.objects.create(
-            id='reports-organisation_filter1',
-            name='Organisation filter (only reports)',
-            entity_type=FakeOrganisation,
-            filter_type=EF_REPORTS,
-            is_private=True,
-            user=user,
-        )
-        efilter3 = EntityFilter.objects.create(
-            id='reports-organisation_filter2',
-            name='Team filter (only reports)',
-            entity_type=FakeOrganisation,
-            filter_type=EF_REPORTS,
-            is_private=True,
-            user=team,
-        )
-
-        with self.assertNumQueries(0):
-            field = ReportRelationSubfiltersConditionsField(model=FakeContact)
-            field.user = user
-
-        field.efilter_type = EF_REPORTS
-
-        conditions = field.clean(json_dump([
-            {
-                'rtype': rtype1.id,
-                'has': True,
-                'ctype': efilter1.entity_type_id,
-                'filter': efilter1.id,
-            }, {
-                'rtype': rtype2.id,
-                'has': False,
-                'ctype': efilter2.entity_type_id,
-                'filter': efilter2.id,
-            }, {
-                'rtype': rtype2.id,
-                'has': False,
-                'ctype': efilter3.entity_type_id,
-                'filter': efilter3.id,
-            },
-        ]))
-        self.assertEqual(3, len(conditions))
-
-        type_id = ReportRelationSubFilterConditionHandler.type_id
-        condition1 = conditions[0]
-        self.assertEqual(type_id,    condition1.type)
-        self.assertEqual(rtype1.id,  condition1.name)
-        self.assertEqual(EF_REPORTS, condition1.filter_type)
-        self.assertDictEqual(
-            {'has': True, 'filter_id': efilter1.id},
-            condition1.value,
-        )
-
-        condition2 = conditions[1]
-        self.assertEqual(type_id,   condition2.type)
-        self.assertEqual(rtype2.id, condition2.name)
-        self.assertDictEqual(
-            {'has': False, 'filter_id': efilter2.id},
-            condition2.value,
-        )
-
-        self.assertDictEqual(
-            {'has': False, 'filter_id': efilter3.id},
-            conditions[2].value,
-        )
-
-    def test_forbidden_filter1(self):
-        user = self.get_root_user()
-        other = self.create_user()
-
-        rtype = self._create_rtype()
-        efilter = EntityFilter.objects.create(
-            id='creme_core-contacts_filter',
-            name='Contact filter',
-            entity_type=FakeContact,
-            is_private=True,
-            user=other,
-        )
-
-        field = ReportRelationSubfiltersConditionsField(model=FakeContact, user=user)
-        self.assertFormfieldError(
-            field=field,
-            value=json_dump([{
-                'rtype': rtype.id, 'has': False,
-                'ctype': efilter.entity_type_id,
-                'filter': efilter.id,
-            }]),
-            messages=_('This filter is invalid.'),
-            codes='invalidfilter',
-        )
-
-    def test_forbidden_filter2(self):
-        user = self.get_root_user()
-
-        rtype = self._create_rtype()
-        efilter = EntityFilter.objects.create(
-            id='creme_core-contacts_filter',
-            name='Contact filter',
-            entity_type=FakeContact,
-            filter_type=EF_CREDENTIALS
-        )
-
-        field = ReportRelationSubfiltersConditionsField(model=FakeContact, user=user)
-        self.assertFormfieldError(
-            field=field,
-            value=json_dump([{
-                'rtype': rtype.id, 'has': False,
-                'ctype': efilter.entity_type_id,
-                'filter': efilter.id,
-            }]),
-            messages=_('This filter is invalid.'),
-            codes='invalidfilter',
-        )
-
-    def test_staff(self):
-        user = self.login_as_super(is_staff=True)
-        other_user = self.create_user(index=1)
-        rtype = self._create_rtype()
-        efilter = EntityFilter.objects.create(
-            id='reports-organisation_filter',
-            name='Organisation filter (only reports)',
-            entity_type=FakeOrganisation,
-            filter_type=EF_REPORTS,
-            is_private=True,
-            user=other_user,
-        )
-        field = ReportRelationSubfiltersConditionsField(
-            model=FakeContact, user=user, efilter_type=EF_REPORTS,
-        )
-
-        condition = self.get_alone_element(field.clean(json_dump([{
-            'rtype': rtype.id,
-            'has': True,
-            'ctype': efilter.entity_type_id,
-            'filter': efilter.id,
-        }])))
-        self.assertDictEqual(
-            {'has': True, 'filter_id': efilter.id}, condition.value,
-        )
-
-    def test_disabled_rtype01(self):
-        efilter = EntityFilter.objects.create(
-            id='creme_core-contacts_filter',
-            name='Contact filter',
-            entity_type=FakeContact,
-            filter_type=EF_REPORTS,
-        )
-
-        rtype = self._create_rtype()
-        rtype.enabled = False
-        rtype.save()
-
-        self.assertFormfieldError(
-            field=ReportRelationSubfiltersConditionsField(
-                model=FakeContact, user=self.get_root_user(),
-            ),
-            value=json_dump([{
-                'rtype': rtype.id, 'has': True,
-                'ctype': efilter.entity_type_id,
-                'filter': efilter.id,
-            }]),
-            messages=_('This type of relationship type is invalid with this model.'),
-            codes='invalidrtype',
-        )
-
-    def test_disabled_rtype02(self):
-        "Disabled RelationType is already used => still proposed."
-        efilter = EntityFilter.objects.create(
-            id='creme_core-contacts_filter',
-            name='Contact filter',
-            entity_type=FakeContact,
-            filter_type=EF_REPORTS,
-        )
-
-        rtype = self._create_rtype()
-        rtype.enabled = False
-        rtype.save()
-
-        field = ReportRelationSubfiltersConditionsField(
-            model=FakeContact, user=self.get_root_user(), efilter_type=EF_REPORTS,
-        )
-
-        ct = ContentType.objects.get_for_model(FakeContact)
-        field.initialize(
-            ctype=ct,
-            conditions=[
-                ReportRelationSubFilterConditionHandler.build_condition(
-                    model=FakeContact, rtype=rtype, subfilter=efilter,
-                ),
-            ],
-        )
-        efilter_id = efilter.id
-        condition = self.get_alone_element(field.clean(json_dump([{
-            'rtype': rtype.id, 'has': True, 'ctype': ct.id, 'filter': efilter_id,
-        }])))
-        self.assertEqual(ReportRelationSubFilterConditionHandler.type_id, condition.type)
-        self.assertEqual(rtype.id, condition.name)
-        self.assertDictEqual(
-            {'has': True, 'filter_id': efilter_id}, condition.value,
-        )
+from creme.reports.tests.base import BaseReportsTestCase, Report
 
 
 class EntityFilterTestCase(test_base.BrickTestCaseMixin,
@@ -313,14 +56,6 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
             'operator': {'id': str(operator)},
             'value':    value,
         }])
-
-    def test_str(self):
-        efilter = EntityFilter(
-            name='Filter for reports',
-            entity_type=FakeContact,
-            filter_type=EF_REPORTS,
-        )
-        self.assertEqual(f'{efilter.name} [{_("Report")}]', str(efilter))
 
     def test_portal(self):
         apps = ['creme_core', 'reports', 'persons']
@@ -479,7 +214,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         brick_node = self.get_brick_node(document, brick_id)
         self.assertInstanceLink(brick_node, parent_filter)
 
-    def test_detailview__permissions01(self):
+    def test_detailview__no_report_perms(self):
         self.login_as_standard(allowed_apps=['creme_core'])  # 'reports'
         efilter = EntityFilter.objects.create(
             pk='reports-test_filter_detailview_perm01', name='My Filter',
@@ -494,7 +229,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
             data={'brick_id': EntityFilterParentsBrick.id},
         )
 
-    def test_detailview__permissions02(self):
+    def test_detailview__no_core_perms(self):
         self.login_as_standard(allowed_apps=['reports'])  # 'creme_core'
         efilter = EntityFilter.objects.create(
             pk='reports-test_filter_detailview_perm02', name='My Filter',
@@ -503,15 +238,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         )
         self.assertGET403(efilter.get_absolute_url())
 
-    def test_create__permissions01(self):
-        self.login_as_standard(allowed_apps=['reports'])
-        self.assertGET403(self._build_add_url(FakeContact))
-
-    def test_create__permissions02(self):
-        self.login_as_standard(allowed_apps=['creme_core'])
-        self.assertGET403(self._build_add_url(FakeContact))
-
-    def test_create(self):
+    def test_creation(self):
         self.login_as_standard(allowed_apps=['reports', 'creme_core'])
 
         url = self._build_add_url(FakeContact)
@@ -565,7 +292,15 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
             condition.value,
         )
 
-    def test_create__subfilters(self):
+    def test_creation__no_core_perms(self):
+        self.login_as_standard(allowed_apps=['reports'])
+        self.assertGET403(self._build_add_url(FakeContact))
+
+    def test_creation__no_reports_perms(self):
+        self.login_as_standard(allowed_apps=['creme_core'])
+        self.assertGET403(self._build_add_url(FakeContact))
+
+    def test_creation__subfilters(self):
         user = self.login_as_root_and_get()
         other_user = self.create_user()
         my_team = self.create_team('My team', user, other_user)
@@ -677,7 +412,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
 
         self.assertEqual(public_report_efilter.id, condition.name)
 
-    def test_create__subfilters_staff(self):
+    def test_creation__subfilters_staff(self):
         self.login_as_super(is_staff=True)
         other_user = self.create_user(index=1)
 
@@ -712,7 +447,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
             choices=sub_filters_choices,
         )
 
-    def test_create__relation_subfilters(self):
+    def test_creation__relation_subfilters(self):
         user = self.login_as_root_and_get()
 
         rtype = RelationType.objects.builder(
@@ -777,10 +512,9 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
             condition.value,
         )
 
-    def test_edit(self):
+    def test_edition(self):
         user = self.login_as_standard(
-            allowed_apps=['reports', 'creme_core'],
-            listable_models=[Report],
+            allowed_apps=['reports', 'creme_core'], listable_models=[Report],
         )
 
         efilter = EntityFilter.objects.create(
@@ -855,7 +589,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
 
         self.assertRedirects(response2, callback_url)
 
-    def test_edit__subfilters(self):
+    def test_edition__subfilters(self):
         self.login_as_root()
 
         sub_efilter1 = EntityFilter.objects.create(
@@ -899,7 +633,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
 
         self.assertEqual([sub_efilter1.id], sub_filters_f.initial)
 
-    def test_edit_popup(self):
+    def test_edition__popup(self):
         user = self.login_as_standard(allowed_apps=['reports', 'creme_core'])
 
         efilter = EntityFilter.objects.create(
@@ -964,7 +698,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
             condition.value,
         )
 
-    def test_edit__private(self):
+    def test_edition__private(self):
         self.login_as_root()
         other = self.create_user()
 
@@ -979,7 +713,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         self.assertGET403(efilter.get_edit_absolute_url())
         self.assertGET403(self._build_edit_popup_url(efilter))
 
-    def test_edit__permissions01(self):
+    def test_edition__no_core_perms(self):
         self.login_as_standard(allowed_apps=['reports'])
         efilter = EntityFilter.objects.create(
             id='reports-test_edit__permissions01',
@@ -990,7 +724,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         self.assertGET403(efilter.get_edit_absolute_url())
         self.assertGET403(self._build_edit_popup_url(efilter))
 
-    def test_edit__permissions02(self):
+    def test_edition__no_reports_perms(self):
         self.login_as_standard(allowed_apps=['creme_core'])
         efilter = EntityFilter.objects.create(
             id='reports-test_edit__permissions02',
@@ -1000,7 +734,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         )
         self.assertGET403(efilter.get_edit_absolute_url())
 
-    def test_delete(self):
+    def test_deletion(self):
         user = self.login_as_standard(
             allowed_apps=['reports', 'creme_core'], listable_models=[Report],
         )
@@ -1019,7 +753,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         self.assertDoesNotExist(efilter)
         self.assertRedirects(response, reverse('reports__list_reports'))
 
-    def test_delete__not_custom(self):
+    def test_deletion__not_custom(self):
         "Not custom -> can not delete."
         self.login_as_root()
 
@@ -1033,7 +767,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         self.assertPOST403(efilter.get_delete_absolute_url(), follow=True)
         self.assertStillExists(efilter)
 
-    def test_delete__permissions01(self):
+    def test_deletion__no_core_perms(self):
         self.login_as_standard(allowed_apps=['reports'])  # 'creme_core'
 
         efilter = EntityFilter.objects.create(
@@ -1045,7 +779,7 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         self.assertPOST403(efilter.get_delete_absolute_url(), follow=True)
         self.assertStillExists(efilter)
 
-    def test_delete__permissions02(self):
+    def test_deletion__no_reports_perms(self):
         self.login_as_standard(allowed_apps=['creme_core'])  # 'reports'
 
         efilter = EntityFilter.objects.create(

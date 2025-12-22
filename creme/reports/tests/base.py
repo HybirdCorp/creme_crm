@@ -116,6 +116,19 @@ class BaseReportsTestCase(CremeTestCase):
 
         cls.ADD_URL = reverse('reports__create_report')
 
+    def login_as_basic_user(self, **kwargs):
+        user = self.login_as_standard(
+            allowed_apps=('creme_core', 'reports'),
+            **kwargs
+        )
+        self.add_credentials(user.role, own=['VIEW'])
+
+        return user
+
+    @staticmethod
+    def _build_add_chart_url(report):
+        return reverse('reports__create_chart', args=(report.id,))
+
     def assertListviewURL(self, url, model, expected_q=None, expected_efilter_id=None):
         q_serializer = QSerializer()
         parsed_url = urlparse(url)
@@ -146,6 +159,13 @@ class BaseReportsTestCase(CremeTestCase):
             self.assertEqual([expected_efilter_id], GET_params.pop('filter', None))
 
         self.assertFalse(GET_params)  # All valid parameters have been removed
+
+    def _create_cf_int(self):
+        return CustomField.objects.create(
+            content_type=self.ct_contact,
+            name='Size (cm)',
+            field_type=CustomField.INT,
+        )
 
     # def _create_graph_instance_brick(self, graph, fetcher=RGF_NOLINK, **kwargs):
     #     self.assertNoFormError(self.client.post(
@@ -207,6 +227,20 @@ class BaseReportsTestCase(CremeTestCase):
 
         return report
 
+    def _create_image_report(self, user):
+        img_report = Report.objects.create(
+            user=user, name='Report on images', ct=self.ct_image,
+        )
+
+        create_field = partial(
+            Field.objects.create,
+            report=img_report, selected=False, sub_report=None, type=constants.RFT_FIELD,
+        )
+        create_field(name='name',        order=1)
+        create_field(name='description', order=2)
+
+        return img_report
+
     def _create_simple_organisations_report(self, user, name='Orga report', efilter=None):
         report = Report.objects.create(
             user=user, name=name, ct=FakeOrganisation, filter=efilter,
@@ -214,6 +248,20 @@ class BaseReportsTestCase(CremeTestCase):
         Field.objects.create(report=report, name='name', type=constants.RFT_FIELD, order=1)
 
         return report
+
+    def _build_orga_report(self, user):  # TODO: useful ??
+        orga_report = Report.objects.create(
+            user=user, name='Report on organisations', ct=self.ct_orga,
+        )
+
+        create_field = partial(
+            Field.objects.create, report=orga_report,
+            selected=False, sub_report=None, type=constants.RFT_FIELD,
+        )
+        create_field(name='name',              order=1)
+        create_field(name='legal_form__title', order=2)
+
+        return orga_report
 
     def get_field_or_fail(self, report, field_name):
         try:
