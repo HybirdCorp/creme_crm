@@ -1,6 +1,5 @@
 from datetime import timedelta
 from functools import partial
-from unittest import skipIf
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
@@ -19,29 +18,10 @@ from creme.creme_core.templatetags.creme_date import timedelta_pprint
 from creme.creme_core.tests.base import CremeTestCase
 from creme.persons import get_contact_model
 
-from . import (
-    constants,
-    get_ticket_model,
-    get_tickettemplate_model,
-    ticket_model_is_custom,
-    tickettemplate_model_is_custom,
-)
-from .bricks import TicketBrick
-from .models import Criticity, Priority, Status, TicketNumber
-
-skip_ticket_tests = ticket_model_is_custom()
-skip_tickettemplate_tests = tickettemplate_model_is_custom()
-
-Ticket = get_ticket_model()
-TicketTemplate = get_tickettemplate_model()
-
-
-def skipIfCustomTicket(test_func):
-    return skipIf(skip_ticket_tests, 'Custom Ticket model in use')(test_func)
-
-
-def skipIfCustomTicketTemplate(test_func):
-    return skipIf(skip_tickettemplate_tests, 'Custom TicketTemplate model in use')(test_func)
+from .. import constants
+from ..bricks import TicketBrick
+from ..models import Criticity, Priority, Status, TicketNumber
+from .base import Ticket, TicketTemplate, skipIfCustomTicket
 
 
 @skipIfCustomTicket
@@ -167,7 +147,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertIsNotNone(closing_date)
         self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
 
-    def test_detailview01(self):
+    def test_detail_view(self):
         user = self.login_as_root_and_get()
 
         title = 'Test ticket'
@@ -214,11 +194,11 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             self.get_brick_tile(brick_node, 'function_field-get_resolving_duration').text,
         )
 
-    def test_detailview02(self):
+    def test_detail_view__invalid(self):
         self.login_as_root()
         self.assertGET404(reverse('tickets__view_ticket', args=(self.UNUSED_PK,)))
 
-    def test_createview01(self):
+    def test_creation(self):
         user = self.login_as_root_and_get()
 
         self.assertEqual(0, Ticket.objects.count())
@@ -324,7 +304,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
         self.assertEqual('?', funf(ticket, user).render(ViewTag.HTML_LIST))
 
-    def test_editview01(self):
+    def test_edition(self):
         user = self.login_as_root_and_get()
 
         ticket = Ticket.objects.create(
@@ -368,7 +348,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
 
         self.assertRedirects(response, ticket.get_absolute_url())
 
-    def test_editview02(self):
+    def test_edition__closed_status(self):
         user = self.login_as_root_and_get()
 
         title = 'Test ticket'
@@ -408,7 +388,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         ffield = function_field_registry.get(Ticket, 'get_resolving_duration')(ticket, user)
         self.assertTrue(ffield.render(ViewTag.HTML_LIST))
 
-    def test_editview03(self):
+    def test_edition__closed_status__custom(self):
         "Custom closing status."
         user = self.login_as_root_and_get()
 
@@ -447,7 +427,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         ffield = function_field_registry.get(Ticket, 'get_resolving_duration')(ticket, user)
         self.assertTrue(ffield.render(ViewTag.HTML_LIST))
 
-    def test_listview01(self):
+    def test_listview__empty(self):
         self.login_as_root()
 
         response = self.assertGET200(Ticket.get_lv_absolute_url())
@@ -458,7 +438,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertEqual(1, tickets_page.number)
         self.assertFalse(tickets_page.paginator.count)
 
-    def test_listview02(self):
+    def test_listview__filled(self):
         user = self.login_as_root_and_get()
 
         Ticket.objects.create(
@@ -478,7 +458,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertEqual(1, tickets_page.paginator.count)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_deleteview(self):
+    def test_deletion(self):
         user = self.login_as_root_and_get()
 
         ticket = Ticket.objects.create(
@@ -760,153 +740,4 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             create_ticket(
                 status=get_status(uuid=constants.UUID_STATUS_CLOSED),
             ).get_html_attrs(context),
-        )
-
-
-@skipIfCustomTicketTemplate
-class TicketTemplateTestCase(CremeTestCase):
-    def create_template(self, *, user, title, description='description', status=None):
-        status = status or Status.objects.get(uuid=constants.UUID_STATUS_OPEN)
-
-        return TicketTemplate.objects.create(
-            user=user,
-            title=title,
-            description=description,
-            status=status,
-            priority=Priority.objects.all()[0],
-            criticity=Criticity.objects.all()[0],
-        )
-
-    def test_detailview(self):
-        user = self.login_as_root_and_get()
-        self.assertGET200(self.create_template(user=user, title='Title').get_absolute_url())
-
-    def test_edit(self):
-        user = self.login_as_root_and_get()
-
-        title = 'Title'
-        description = 'Description ...'
-        template = self.create_template(user=user, title=title, description=description)
-        url = template.get_edit_absolute_url()
-
-        self.assertGET200(url)
-
-        title += '_edited'
-        description = '_edited'
-        status = Status.objects.create(name='My status')
-        priority = Priority.objects.create(name='My priority')
-        criticity = Criticity.objects.create(name='My criticity')
-        response = self.client.post(
-            url, follow=True,
-            data={
-                'user':        user.id,
-                'title':       title,
-                'description': description,
-                'status':      status.id,
-                'priority':    priority.id,
-                'criticity':   criticity.id,
-            },
-        )
-        self.assertNoFormError(response)
-
-        template = self.refresh(template)
-        self.assertEqual(title,       template.title)
-        self.assertEqual(description, template.description)
-        self.assertEqual(status,      template.status)
-        self.assertEqual(priority,    template.priority)
-        self.assertEqual(criticity,   template.criticity)
-
-    def test_listview(self):
-        user = self.login_as_root_and_get()
-
-        self.create_template(user=user, title='Title01')
-        self.create_template(user=user, title='Title02')
-        self.assertGET200(TicketTemplate.get_lv_absolute_url())
-
-    @skipIfCustomTicket
-    def test_create_entity01(self):
-        user = self.login_as_root_and_get()
-        template = self.create_template(
-            user=user, title='Title',
-            status=Status.objects.get(uuid=constants.UUID_STATUS_OPEN),
-        )
-
-        with self.assertNoException():
-            ticket = template.create_entity()
-
-        self.assertIn(template.title, ticket.title)
-        self.assertEqual(template.description, ticket.description)
-        self.assertEqual(template.status,      ticket.status)
-        self.assertEqual(template.priority,    ticket.priority)
-        self.assertEqual(template.criticity,   ticket.criticity)
-        self.assertFalse(ticket.closing_date)
-
-    @skipIfCustomTicket
-    def test_create_entity02(self):
-        "status=CLOSED_PK."
-        user = self.login_as_root_and_get()
-        template = self.create_template(
-            user=user, title='Title',
-            status=Status.objects.get(uuid=constants.UUID_STATUS_CLOSED),
-        )
-
-        with self.assertNoException():
-            ticket = template.create_entity()
-
-        self.assertIn(template.title, ticket.title)
-        self.assertEqual(template.description, ticket.description)
-        self.assertEqual(template.status,      ticket.status)
-        self.assertEqual(template.priority,    ticket.priority)
-        self.assertEqual(template.criticity,   ticket.criticity)
-        self.assertTrue(ticket.closing_date)
-
-    @skipIfCustomTicket
-    def test_create_entity03(self):
-        "Several generations -> 'title' column must be unique."
-        user = self.login_as_root_and_get()
-
-        self.assertFalse(Ticket.objects.count())
-
-        template = self.create_template(user=user, title='Title')
-
-        with self.assertNoException():
-            template.create_entity()
-            template.create_entity()
-
-        self.assertEqual(2, Ticket.objects.count())
-
-    @skipIfCustomTicket
-    def test_create_entity04(self):
-        "Custom closing status."
-        user = self.login_as_root_and_get()
-
-        status = Status.objects.create(
-            name='Alternative closed',
-            is_closed=True,
-        )
-        template = self.create_template(user=user, title='Title', status=status)
-
-        with self.assertNoException():
-            ticket = template.create_entity()
-
-        self.assertIn(template.title, ticket.title)
-        self.assertEqual(template.description, ticket.description)
-        self.assertEqual(template.status,      ticket.status)
-        self.assertEqual(template.priority,    ticket.priority)
-        self.assertEqual(template.criticity,   ticket.criticity)
-        self.assertTrue(ticket.closing_date)
-
-    def test_multi_delete(self):
-        "Should not delete."
-        user = self.login_as_root_and_get()
-
-        template01 = self.create_template(user=user, title='Title01')
-        template02 = self.create_template(user=user, title='Title02')
-        self.assertPOST409(
-            reverse('creme_core__delete_entities'),
-            data={'ids': f'{template01.id},{template02.id},'},
-        )
-        self.assertEqual(
-            2,
-            TicketTemplate.objects.filter(pk__in=[template01.id, template02.id]).count(),
         )
