@@ -127,7 +127,7 @@ class VcfImportTestCase(DocumentsTestCaseMixin, CremeTestCase):
         form = self.get_form_or_fail(response)
         self.assertIn('value="1"', str(form['vcf_step']))
 
-    def test_parsing_vcf00(self):
+    def test_parsing_vcf__names_not_separated(self):
         "First & last names not separated."
         user = self.login_as_root_and_get()
 
@@ -149,7 +149,7 @@ class VcfImportTestCase(DocumentsTestCaseMixin, CremeTestCase):
         self.assertEqual(first_name, first_name_f.initial)
         self.assertEqual(last_name, last_name_f.initial)
 
-    def test_parsing_vcf01(self):  # TODO: use BDAY
+    def test_parsing_vcf__contact_with_details(self):  # TODO: use BDAY
         "Contact with details & address."
         user = self.login_as_root_and_get()
 
@@ -239,8 +239,7 @@ END:VCARD"""
         self.assertEqual(region, adr_value.region)
         self.assertEqual(region, fields['homeaddr_region'].initial)
 
-    def test_parsing_vcf02(self):
-        "Organisation."
+    def test_parsing_vcf__organisation(self):
         user = self.login_as_root_and_get()
 
         name = 'Negima'
@@ -299,8 +298,8 @@ END:VCARD"""
         self.assertEqual(country, adr.country)
         self.assertEqual(country, fields['workaddr_country'].initial)
 
-    def test_parsing_vcf03(self):
-        "Address without type ; VCF tags are lower case."
+    def test_parsing_vcf__address_without_type(self):
+        "Address without type; VCF tags are lower case."
         user = self.login_as_root_and_get()
 
         box = '852'
@@ -345,8 +344,7 @@ end:vcard"""
         self.assertEqual(fields['url_site'].help_text, help_prefix + vobj.url.value)
 
     @skipIfCustomOrganisation
-    def test_parsing_vcf04(self):
-        "Existing Organisation."
+    def test_parsing_vcf__existing_organisation(self):
         user = self.login_as_root_and_get()
 
         name = 'Negima'
@@ -364,7 +362,7 @@ END:VCARD"""
         form = self.get_form_or_fail(response)
         self.assertEqual(form['organisation'].field.initial, orga.id)
 
-    def test_parsing_vcf05(self):
+    def test_parsing_vcf__multi_line(self):
         "Multi line, escape chars."
         user = self.login_as_root_and_get()
 
@@ -405,7 +403,7 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_add_contact_vcf00(self):
+    def test_add_contact_vcf(self):
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -465,7 +463,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_add_contact_vcf01(self):
+    def test_add_contact_vcf__organisation_creation__error(self):
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.create
@@ -565,7 +563,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_add_contact_vcf02(self):
+    def test_add_contact_vcf__sector(self):
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -625,7 +623,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_add_contact_vcf03(self):
+    def test_add_contact_vcf__organisation_creation(self):
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -695,7 +693,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_add_contact_vcf04(self):
+    def test_add_contact_vcf__existing_organisation__no_update(self):
         "Related organisation exists & is not updated."
         user = self.login_as_root_and_get()
 
@@ -770,7 +768,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomAddress
-    def test_add_contact_vcf05(self):
+    def test_add_contact_vcf__address(self):
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -833,7 +831,7 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_add_contact_vcf06(self):
+    def test_add_contact_vcf__addresses(self):
         user = self.login_as_root_and_get()
         contact_count = Contact.objects.count()
         address_count = Address.objects.count()
@@ -924,7 +922,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_add_contact_vcf07(self):
+    def test_add_contact_vcf__existing_organisaion__update(self):
         user = self.login_as_root_and_get()
         contact_count = Contact.objects.count()
 
@@ -1000,7 +998,7 @@ END:VCARD"""
         self.assertEqual(url_site, orga.url_site)
 
     @skipIfCustomContact
-    def test_add_contact_vcf08(self):
+    def test_add_contact_vcf__organisation_not_selected(self):
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -1056,7 +1054,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_add_contact_vcf09(self):
+    def test_add_contact_vcf__missing_update_data(self):
         user = self.login_as_root_and_get()
 
         name = 'Negima'
@@ -1098,8 +1096,7 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_add_contact_vcf10(self):
-        "Organisation with existing Address."
+    def test_add_contact_vcf__organisation_with_existing_address(self):
         user = self.login_as_root_and_get()
 
         name = 'Robotic club'
@@ -1200,7 +1197,7 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_add_contact_vcf11(self):
+    def test_add_contact_vcf__existing_organisation__add_address(self):
         user = self.login_as_root_and_get()
 
         name = 'Astronomy club'
@@ -1274,7 +1271,7 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_add_contact_vcf12(self):
+    def test_add_contact_vcf__image__not_used(self):
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -1363,7 +1360,7 @@ END:VCARD"""
         self.assertEqual(url_site, contact.url_site)
 
     @skipIfCustomContact
-    def test_add_contact_vcf13(self):
+    def test_add_contact_vcf__civility_initialized(self):
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -1413,7 +1410,7 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_vcf_with_image01(self):
+    def test_vcf_with_image__embedded_image(self):
         "Raw image embedded in the file."
         user = self.login_as_root_and_get()
 
@@ -1467,7 +1464,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @override_settings(VCF_IMAGE_MAX_SIZE=10_000_000)
-    def test_vcf_with_image02(self):
+    def test_vcf_with_image__link(self):
         "Link to an image."
         user = self.login_as_root_and_get()
 
@@ -1530,7 +1527,7 @@ END:VCARD"""
                 self.assertTupleEqual((200, 200), img.size)
 
     @skipIfCustomContact
-    def test_vcf_with_image03(self):
+    def test_vcf_with_image__not_found(self):
         "Referenced image cannot be found."
         user = self.login_as_root_and_get()
 
@@ -1585,7 +1582,7 @@ END:VCARD"""
         self.assertEqual(image_count, Document.objects.count())
 
     @override_settings(VCF_IMAGE_MAX_SIZE=10240)  # (10 kB)
-    def test_vcf_with_image04(self):
+    def test_vcf_with_image__too_large(self):
         "Referenced image is too large."
         user = self.login_as_root_and_get()
 
@@ -1638,7 +1635,7 @@ END:VCARD"""
         )
         self.assertEqual(image_count, Document.objects.count())
 
-    def test_vcf_with_image05(self):
+    def test_vcf_with_image__invalid_base64(self):
         "Invalid base64 data."
         user = self.login_as_root_and_get()
 
@@ -1667,7 +1664,7 @@ END:VCARD"""
         with self.assertNoException():
             response2.context['form'].errors['image_encoded']  # NOQA
 
-    def test_vcf_with_image06(self):
+    def test_vcf_with_image__invalid_data(self):
         "Invalid image data."
         user = self.login_as_root_and_get()
 
@@ -1696,7 +1693,7 @@ END:VCARD"""
         )
 
     @skipIfCustomContact
-    def test_fields_config_hidden01(self):
+    def test_fields_config__hidden__contact(self):
         "Hide some regular Contact fields."
         user = self.login_as_root_and_get()
 
@@ -1760,7 +1757,7 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_fields_config_hidden02(self):
+    def test_fields_config__hidden__organisation_n_address(self):
         "Hide some regular Organisation & Address fields."
         user = self.login_as_root_and_get()
 
@@ -1867,7 +1864,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomAddress
-    def test_fields_config_hidden03(self):
+    def test_fields_config__hidden__contact_billing_address(self):
         "Hide Contact.billing_address."
         user = self.login_as_root_and_get()
 
@@ -1918,7 +1915,7 @@ ORG:Corporate\nEND:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_fields_config_hidden04(self):
+    def test_fields_config__hidden__organisation_billing_address(self):
         "Hide Organisation.billing_address."
         user = self.login_as_root_and_get()
 
@@ -1970,7 +1967,7 @@ END:VCARD"""
         self.assertIsNone(orga.billing_address)
 
     @skipIfCustomContact
-    def test_fields_config_hidden05(self):
+    def test_fields_config__hidden__contact_image(self):
         "Hide <Contact.image>."
         user = self.login_as_root_and_get()
         image_count = Document.objects.count()
@@ -2016,7 +2013,7 @@ END:VCARD"""
         self.assertIsNone(contact.image)
 
     @skipIfCustomContact
-    def test_fields_config_required_contact(self):
+    def test_fields_config__required__contact(self):
         user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
@@ -2043,7 +2040,7 @@ END:VCARD"""
         self.assertTrue(email_f.required)
 
     @skipIfCustomContact
-    def test_fields_config_required_contact_image01(self):
+    def test_fields_config__required__contact_image__no_data_in_file(self):
         "No image data => visible image field."
         user = self.login_as_root_and_get()
         image = self._create_image(user=user)
@@ -2090,7 +2087,7 @@ END:VCARD"""
         self.assertEqual(image.id, asuna.image_id)
 
     @skipIfCustomContact
-    def test_fields_config_required_contact_image02(self):
+    def test_fields_config__required__contact_image__data_in_file(self):
         "Image data => no explicit image field."
         user = self.login_as_root_and_get()
 
@@ -2153,7 +2150,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_fields_config_required_organisation01(self):
+    def test_fields_config__required__organisation__present_field__creation(self):
         "Field is already in the form; Organisation is created."
         user = self.login_as_root_and_get()
 
@@ -2207,7 +2204,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_fields_config_required_organisation02(self):
+    def test_fields_config__required__organisation__present_field__update(self):
         "Field is already in the form; Organisation already exists."
         user = self.login_as_root_and_get()
 
@@ -2258,7 +2255,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_fields_config_required_organisation03(self):
+    def test_fields_config__required__organisation__added_field__creation(self):
         "Field not in the base form (must be added); Organisation is created."
         user = self.login_as_root_and_get()
 
@@ -2313,7 +2310,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_fields_config_required_organisation04(self):
+    def test_fields_config__required__organisation__added_field__update(self):
         "Field not in the base form (must be added); Organisation is updated."
         user = self.login_as_root_and_get()
 
@@ -2371,7 +2368,7 @@ END:VCARD"""
         self.assertEqual(sector2, self.refresh(orga).sector)
 
     @skipIfCustomContact
-    def test_fields_config_required_address01(self):
+    def test_fields_config__required__address__not_filled(self):
         "Addresses not filled."
         user = self.login_as_root_and_get()
 
@@ -2419,7 +2416,7 @@ END:VCARD"""
         self.assertIsNone(asuna.billing_address)
 
     @skipIfCustomContact
-    def test_fields_config_required_address02(self):
+    def test_fields_config__required__address__filled(self):
         "Addresses are filled (+ field name must be remapped on VCF name)."
         user = self.login_as_root_and_get()
 
@@ -2474,7 +2471,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_fields_config_required_address03(self):
+    def test_fields_config__required__address__existing_orga_without_address(self):
         "Existing organisation without address."
         user = self.login_as_root_and_get()
 
@@ -2545,7 +2542,7 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_fields_config_required_address04(self):
+    def test_fields_config__required__address__existing_orga_with_address(self):
         "Organisation with existing address."
         user = self.login_as_root_and_get()
 
@@ -2624,7 +2621,7 @@ END:VCARD"""
         self.assertEqual(department,    getattr(address, req_fname))
 
     @skipIfCustomContact
-    def test_customfields01(self):
+    def test_custom_fields__required__contact(self):
         "Required custom-fields on Contact must be used."
         user = self.login_as_root_and_get()
 
@@ -2681,7 +2678,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_customfields02(self):
+    def test_custom_fields__required__organisation(self):
         "Required custom-fields on Organisations must be used."
         user = self.login_as_root_and_get()
 
@@ -2745,8 +2742,8 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_customfields03(self):
-        "Required custom-fields on Organisations must be used (organisation already exists."
+    def test_custom_fields__required__organisation__update(self):
+        "Required custom-fields on Organisations must be used (organisation already exists)."
         user = self.login_as_root_and_get()
 
         cfield = CustomField.objects.create(
