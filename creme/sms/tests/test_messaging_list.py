@@ -145,7 +145,7 @@ class MessagingListTestCase(CremeTestCase):
         csvfile.close()
 
     @skipIfCustomContact
-    def test_ml_contacts01(self):
+    def test_add_contacts(self):
         user = self.login_as_standard(allowed_apps=('sms', 'persons'))
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
@@ -187,14 +187,14 @@ class MessagingListTestCase(CremeTestCase):
         self.assertEqual(len(recipients) - 1, len(contacts))
         self.assertNotIn(contact_to_del, contacts)
 
-    def test_ml_contacts03(self):
+    def test_add_contacts__bad_type(self):
         "Not a MailingList."
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(self._build_addcontact_url(orga))
 
     @skipIfCustomContact
-    def test_ml_contacts02(self):
+    def test_add_contacts__hidden_field(self):
         "The field 'mobile' is hidden."
         user = self.login_as_root_and_get()
         mlist = MessagingList.objects.create(user=user, name='ml01')
@@ -206,7 +206,7 @@ class MessagingListTestCase(CremeTestCase):
         self.assertGET409(self._build_addcontact_url(mlist))
 
     @skipIfCustomContact
-    def test_ml_contacts_filter01(self):
+    def test_add_contacts__filter__all(self):
         "'All' filter."
         user = self.login_as_root_and_get()
         mlist = MessagingList.objects.create(user=user, name='ml01')
@@ -233,7 +233,7 @@ class MessagingListTestCase(CremeTestCase):
         self.assertCountEqual(contacts, mlist.contacts.all())
 
     @skipIfCustomContact
-    def test_ml_contacts_filter02(self):
+    def test_add_contacts__filter__regular(self):
         "With a real EntityFilter."
         user = self.login_as_root_and_get()
         create_contact = partial(Contact.objects.create, user=user)
@@ -283,14 +283,14 @@ class MessagingListTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(url, data={'filters': efilter.id}))
         self.assertCountEqual(recipients[:2], mlist.contacts.all())
 
-    def test_ml_contacts_filter03(self):
+    def test_add_contacts__filter__bad_type(self):
         "Not a MailingList."
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(self._build_addcontactfilter_url(orga))
 
     @skipIfCustomContact
-    def test_ml_contacts_filter04(self):
+    def test_add_contacts__filter__hidden_field(self):
         "The field 'mobile' is hidden."
         user = self.login_as_root_and_get()
         mlist = MessagingList.objects.create(user=user, name='ml01')
@@ -301,7 +301,7 @@ class MessagingListTestCase(CremeTestCase):
         self.assertGET409(self._build_addcontactfilter_url(mlist))
 
     @skipIfCustomContact
-    def test_ml_contacts_rm(self):
+    def test_remove_contacts(self):
         "Not allowed to change the list."
         user = self.login_as_standard(allowed_apps=('sms', 'persons'))
         self.add_credentials(user.role, all=['VIEW', 'LINK'])

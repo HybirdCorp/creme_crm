@@ -30,11 +30,11 @@ from .base import (
 @skipIfCustomMessagingList
 class SendingsTestCase(CremeTestCase):
     @staticmethod
-    def _build_add_url(campaign):
+    def _build_sending_creation_url(campaign):
         return reverse('sms__create_sending', args=(campaign.id,))
 
     @skipIfCustomContact
-    def test_create01(self):
+    def test_creation(self):
         user = self.login_as_root_and_get()
         # We create voluntarily duplicates (recipients that have same addresses
         # than Contact, MessagingLists that contain the same addresses)
@@ -87,7 +87,7 @@ class SendingsTestCase(CremeTestCase):
 
         old_hlines_count = HistoryLine.objects.count()
 
-        url = self._build_add_url(camp)
+        url = self._build_sending_creation_url(camp)
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(
@@ -147,15 +147,14 @@ class SendingsTestCase(CremeTestCase):
         # self.assertFalse(Sending.objects.exists())
         # self.assertFalse(Message.objects.exists())
 
-    def test_create02(self):
+    def test_creation__bad_type(self):
         "No related to a campaign => error."
         user = self.login_as_root_and_get()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        self.assertGET404(self._build_add_url(nerv))
+        self.assertGET404(self._build_sending_creation_url(nerv))
 
-    def test_reload_sending_bricks01(self):
-        "Not super-user."
+    def test_reload_sending_bricks(self):
         user = self.login_as_standard(allowed_apps=['sms'])
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -185,7 +184,7 @@ class SendingsTestCase(CremeTestCase):
         self.assertIn(f' id="brick-{MessagesBrick.id}"', brick_data[1])
         self.assertIn(f' data-brick-id="{MessagesBrick.id}"', brick_data[1])
 
-    def test_reload_sending_bricks02(self):
+    def test_reload_sending_bricks__view_perm(self):
         "Can not see the campaign."
         user = self.login_as_standard(allowed_apps=['sms'])
         self.add_credentials(user.role, own=['VIEW'])
