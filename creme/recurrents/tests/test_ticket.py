@@ -65,7 +65,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
         return date_period_registry.get_period('weeks', 1)
 
     @skipIfCustomTicketTemplate
-    def test_createview(self):
+    def test_creation(self):
         user = self.user
         url = reverse('recurrents__create_generator')
         self.assertGET200(url)
@@ -148,7 +148,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
         job, _data = self.get_alone_element(queue.refreshed_jobs)
         self.assertEqual(self._get_job(), job)
 
-    def test_editview01(self):
+    def test_edition(self):
         user = self.user
 
         tpl1 = self._create_ticket_template(title='TicketTemplate #1')
@@ -200,7 +200,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
 
         self.assertEqual(1, len(queue.refreshed_jobs))
 
-    def test_editview02(self):
+    def test_edition__last_generation_filled(self):
         "last_generation has been filled => cannot edit first_generation"
         user = self.user
 
@@ -259,7 +259,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
 
     @skipIfCustomTicket
     @skipIfCustomTicketTemplate
-    def test_job01(self):
+    def test_job__past_first_generation(self):
         "first_generation in the past + (no generation yet -- i.e. last_generation is None)."
         self.assertFalse(Ticket.objects.all())
         now_value = now()
@@ -299,7 +299,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
 
     @skipIfCustomTicket
     @skipIfCustomTicketTemplate
-    def test_job02(self):
+    def test_job__last_generation__too_close(self):
         "last_generation is not far enough."
         tpl = self._create_ticket_template()
         now_value = now()
@@ -322,7 +322,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
 
     @skipIfCustomTicket
     @skipIfCustomTicketTemplate
-    def test_job03(self):
+    def test_job__last_generation__ok(self):
         "last_generation is far enough."
         tpl = self._create_ticket_template()
         now_value = now().replace(microsecond=0)  # MySQL does not record microseconds...
