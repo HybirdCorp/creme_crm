@@ -21,7 +21,7 @@ from .base import RecurrentGenerator, RecurrentsTestCase, skipIfCustomGenerator
 if apps.is_installed('creme.tickets'):
     from creme.tickets import get_ticket_model, get_tickettemplate_model
     from creme.tickets.models import Criticity, Priority, Status
-    from creme.tickets.tests import (
+    from creme.tickets.tests.base import (
         skipIfCustomTicket,
         skipIfCustomTicketTemplate,
     )
