@@ -61,8 +61,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             sub_cat.save()
 
     @skipIfCustomProduct
-    def test_detailview01(self):
-        "No image."
+    def test_detailview__no_image(self):
         user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.all()[0]
@@ -92,8 +91,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertEqual(_('No image for the moment'), msg_node.text)
 
     @skipIfCustomProduct
-    def test_detailview02(self):
-        "With image."
+    def test_detailview__images(self):
         user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.all()[0]
@@ -130,7 +128,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         )
 
     @skipIfCustomProduct
-    def test_createview01(self):
+    def test_creation(self):
         user = self.login_as_root_and_get()
 
         self.assertEqual(0, Product.objects.count())
@@ -190,7 +188,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertRedirects(response3, product.get_absolute_url())
 
     @skipIfCustomProduct
-    def test_createview02(self):
+    def test_creation__images(self):
         "Images + credentials."
         user = self.login_as_basic_user(Product)
 
@@ -240,7 +238,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertCountEqual([img_1, img_2], product.images.all())
 
     @skipIfCustomProduct
-    def test_editview(self):
+    def test_edition(self):
         user = self.login_as_root_and_get()
 
         name = 'Eva00'
@@ -308,24 +306,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertEqual(2, products_page.paginator.count)
         self.assertCountEqual(products, products_page.object_list)
 
-    def test_delete_category01(self):
-        self.login_as_root()
-
-        cat = Category.objects.create(name='Mecha', description='Mechanical devices')
-        sub_cat = SubCategory.objects.create(
-            name='Eva', description='Fake gods', category=cat,
-        )
-
-        response = self.client.post(reverse(
-            'creme_config__delete_instance',
-            args=('products', 'subcategory', sub_cat.id),
-        ))
-        self.assertNoFormError(response)
-
-        job = self.get_deletion_command_or_fail(SubCategory).job
-        job.type.execute(job)
-        self.assertDoesNotExist(sub_cat)
-
     def _build_product_cat_subcat(self, user):
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
         sub_cat = SubCategory.objects.create(
@@ -340,8 +320,25 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
         return product, cat, sub_cat
 
+    def test_delete_sub_category__not_used(self):
+        self.login_as_root()
+
+        cat = Category.objects.create(name='Mecha', description='Mechanical devices')
+        sub_cat = SubCategory.objects.create(
+            name='Eva', description='Fake gods', category=cat,
+        )
+
+        self.assertNoFormError(self.client.post(reverse(
+            'creme_config__delete_instance',
+            args=('products', 'subcategory', sub_cat.id),
+        )))
+
+        job = self.get_deletion_command_or_fail(SubCategory).job
+        job.type.execute(job)
+        self.assertDoesNotExist(sub_cat)
+
     @skipIfCustomProduct
-    def test_delete_category02(self):
+    def test_delete_sub_category__used(self):
         user = self.login_as_root_and_get()
 
         product, cat, sub_cat = self._build_product_cat_subcat(user=user)
@@ -355,7 +352,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             errors=_('Deletion is not possible.'),
         )
 
-    def test_delete_category03(self):
+    def test_delete_category__used(self):
         user = self.login_as_root_and_get()
 
         product, cat, sub_cat = self._build_product_cat_subcat(user=user)
@@ -470,7 +467,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
         self.assertIsInstance(type_f, SubCategoryField)
 
-    def test_add_images01(self):
+    def test_add_images(self):
         user = self.login_as_basic_user(Product)
 
         create_image = partial(
@@ -532,7 +529,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             errors=_('«%(entity)s» violates the constraints.') % {'entity': img_1},
         )
 
-    def test_add_images02(self):
+    def test_add_images__bad_type(self):
         "Related is not a Product."
         user = self.login_as_root_and_get()
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
@@ -620,7 +617,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertFalse([*product.images.all()])
         self.assertHasProperty(entity=product, ptype=ptype)
 
-    def test_mass_import01(self):
+    def test_mass_import__default_categories(self):
         "Categories not in CSV."
         user = self.login_as_root_and_get()
 
@@ -710,7 +707,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertEqual(len(lines), len(results))
         self._assertNoResultError(results)
 
-    def test_mass_import02(self):
+    def test_mass_import__import_categories__no_creation(self):
         "Categories in CSV; no creation."
         user = self.login_as_root_and_get()
         count = Product.objects.count()
@@ -858,7 +855,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             jr_errors[2].messages
         )
 
-    def test_mass_import03(self):
+    def test_mass_import__import_categories__creation(self):
         "Categories in CSV; creation of Category/SubCategory."
         user = self.login_as_root_and_get()
         count = Product.objects.count()
@@ -956,7 +953,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertEqual(len(lines), len(results))
         self._assertNoResultError(results)
 
-    def test_mass_import04(self):
+    def test_mass_import__import_categories__creation_forbidden(self):
         "Categories in CSV; want to create Category but not it is allowed."
         user = self.login_as_standard(
             allowed_apps=['products', 'documents'],

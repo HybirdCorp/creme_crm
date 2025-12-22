@@ -44,7 +44,7 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
             label=_('Add images'),
         )
 
-    def test_createview(self):
+    def test_creation(self):
         user = self.login_as_root_and_get()
         self.assertEqual(0, Service.objects.count())
 
@@ -86,7 +86,7 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertRedirects(response, service.get_absolute_url())
         self.assertTemplateUsed(response, 'products/view_service.html')
 
-    def test_editview(self):
+    def test_edition(self):
         user = self.login_as_root_and_get()
 
         name = 'Eva washing'
