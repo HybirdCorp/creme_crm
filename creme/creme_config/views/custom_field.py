@@ -57,16 +57,46 @@ class FirstCTypeCustomFieldCreation(base.ConfigModelCreation):
     title = _('New custom field configuration')
 
 
-class CustomFieldCreation(EntityCTypeRelatedMixin,
-                          base.ConfigModelCreation):
+# class CustomFieldCreation(EntityCTypeRelatedMixin,
+#                           base.ConfigModelCreation):
+#     model = CustomField
+#     form_class = cf_forms.CustomFieldCreationForm
+#
+#     def get_form_kwargs(self):
+#         kwargs = super().get_form_kwargs()
+#         kwargs['ctype'] = self.get_ctype()
+#
+#         return kwargs
+#
+#     def get_title(self):
+#         return gettext('New custom field for «{model}»').format(
+#             model=self.get_ctype(),
+#         )
+class CustomFieldCreationWizard(EntityCTypeRelatedMixin,
+                                base.ConfigModelCreationWizard):
+    form_list = [
+        cf_forms.CustomFieldMainStep,
+        cf_forms.CustomFieldConstraintsStep,
+    ]
     model = CustomField
-    form_class = cf_forms.CustomFieldCreationForm
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['ctype'] = self.get_ctype()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.custom_field = CustomField()
 
-        return kwargs
+    def done_save(self, form_list):
+        for form in form_list:
+            form.save()
+
+    def get_form_instance(self, step):
+        instance = self.custom_field
+        instance.content_type = self.get_ctype()  # TODO: only step 0?
+
+        # We fill the instance with the previous step (so recursively all
+        # previous should be used)
+        self.validate_previous_steps(step)
+
+        return instance
 
     def get_title(self):
         return gettext('New custom field for «{model}»').format(

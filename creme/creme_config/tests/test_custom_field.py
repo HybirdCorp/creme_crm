@@ -1,6 +1,7 @@
 from datetime import date
 from functools import partial
 
+from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -16,6 +17,13 @@ from creme.creme_core.core.entity_filter import (
 )
 from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.creme_jobs import deletor_type
+from creme.creme_core.forms.custom_field import (
+    DateMakerField,
+    DecimalMakerField,
+    IntegerMakerField,
+    StringMakerField,
+)
+from creme.creme_core.gui.custom_field import IntegerMaker, NoneMaker
 from creme.creme_core.models import (
     BrickState,
     CremeEntity,
@@ -34,12 +42,7 @@ from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 
-class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.root = cls.get_root_user()
-
+class CustomFieldsPortalTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_portal__show_deleted_fields(self):
         self.login_as_root()
 
@@ -94,8 +97,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNone(choices_node(cfield3))
 
     def test_portal__hide_deleted_fields(self):
-        self.login_as_root()
-        user = self.root
+        user = self.login_as_root_and_get()
         brick_id = bricks.CustomFieldsBrick.id
 
         state = BrickState(user=user, brick_id=brick_id)
@@ -133,7 +135,38 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             ],
         )
 
-    def test_add_ctype(self):
+    def test_brick_hide_deleted_cfields(self):
+        user = self.login_as_root_and_get()
+
+        def get_state():
+            return BrickState.objects.get_for_brick_id(
+                user=user, brick_id=bricks.CustomFieldsBrick.id,
+            )
+
+        self.assertIsNone(get_state().pk)
+
+        url = reverse('creme_config__custom_fields_brick_hide_deleted')
+        self.assertGET405(url)
+
+        # ---
+        self.assertPOST200(url, data={'value': 'true'})
+        state1 = get_state()
+        self.assertIsNotNone(state1.pk)
+        self.assertIs(
+            state1.get_extra_data(BRICK_STATE_HIDE_DELETED_CFIELDS),
+            True
+        )
+
+        # ---
+        self.assertPOST200(url, data={'value': '0'})
+        self.assertIs(
+            get_state().get_extra_data(BRICK_STATE_HIDE_DELETED_CFIELDS),
+            False
+        )
+
+
+class CustomFieldFirstForModelCreationTestCase(CremeTestCase):
+    def test_int(self):
         self.login_as_standard(admin_4_apps=('creme_core',))
         self.assertFalse(CustomField.objects.all())
 
@@ -171,7 +204,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'content_type': ct.id,
                 'name':         name,
                 'field_type':   field_type,
-                'description':   description,
+                'description':  description,
             },
         ))
 
@@ -191,7 +224,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotIn(ct, ctypes2)
         self.assertIn(ct_orga, ctypes2)
 
-    def test_add_ctype__required(self):
+    def test_required(self):
         self.login_as_root()
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -212,7 +245,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(field_type, cfield.field_type)
         self.assertIs(cfield.is_required, True)
 
-    def test_add_ctype__error__empty_choices_list(self):
+    def test_enum__empty_choices_list(self):
         self.login_as_root()
         ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(CustomField.objects.filter(content_type=ct))
@@ -234,7 +267,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             ),
         )
 
-    def test_add_ctype__error__duplicated_choice(self):
+    def test_enum__duplicated_choice(self):
         self.login_as_root()
         response = self.assertPOST200(
             reverse('creme_config__create_first_ctype_custom_field'),
@@ -251,59 +284,562 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('The choice «{}» is duplicated.').format('Eva01'),
         )
 
-    def test_add_ctype__forbidden(self):
+    def test_forbidden(self):
         self.login_as_standard()  # admin_4_apps=('creme_core',)
         self.assertGET403(reverse('creme_config__create_first_ctype_custom_field'))
 
-    def test_add(self):
+
+class CustomFieldCreationTestCase(CremeTestCase):
+    # def test_creation(self):
+    #     self.login_as_standard(admin_4_apps=('creme_core',))
+    #
+    #     get_ct = ContentType.objects.get_for_model
+    #     contact_ct = get_ct(FakeContact)
+    #     orga_ct    = get_ct(FakeOrganisation)
+    #
+    #     name = 'Eva'
+    #     create_cf = CustomField.objects.create
+    #     create_cf(content_type=contact_ct, field_type=CustomField.BOOL, name='Operational?')
+    #     # Same name but not same CT:
+    #     create_cf(content_type=orga_ct, field_type=CustomField.INT,  name=name)
+    #
+    #     url = reverse('creme_config__create_custom_field', args=(contact_ct.id,))
+    #     context = self.assertGET200(url).context
+    #     self.assertEqual(
+    #         _('New custom field for «{model}»').format(model='Test Contact'),
+    #         context.get('title'),
+    #     )
+    #     self.assertEqual(_('Save the custom field'), context.get('submit_label'))
+    #
+    #     field_type = CustomField.ENUM
+    #     self.assertNoFormError(self.client.post(
+    #         url,
+    #         data={
+    #             'name':        name,
+    #             'field_type':  field_type,
+    #             'enum_values': 'Eva01\nEva02\nEva03',
+    #         },
+    #     ))
+    #
+    #     cfields = CustomField.objects.filter(content_type=contact_ct).order_by('id')
+    #     self.assertEqual(2, len(cfields))
+    #
+    #     cfield2 = cfields[1]
+    #     self.assertEqual(name, cfield2.name)
+    #     self.assertFalse(cfield2.is_required)
+    #     self.assertEqual(field_type, cfield2.field_type)
+    #     self.assertEqual(
+    #         ['Eva01', 'Eva02', 'Eva03'],
+    #         [
+    #             cfev.value
+    #             for cfev in CustomFieldEnumValue.objects
+    #                                             .filter(custom_field=cfield2)
+    #                                             .order_by('id')
+    #         ],
+    #     )
+    def test_int__no_default_value(self):
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         get_ct = ContentType.objects.get_for_model
         contact_ct = get_ct(FakeContact)
         orga_ct    = get_ct(FakeOrganisation)
 
-        name = 'Eva'
+        name = 'Size (m)'
         create_cf = CustomField.objects.create
         create_cf(content_type=contact_ct, field_type=CustomField.BOOL, name='Operational?')
-        # Same name but not same CT:
+        # Same name but not same ContentType
         create_cf(content_type=orga_ct, field_type=CustomField.INT,  name=name)
 
         url = reverse('creme_config__create_custom_field', args=(contact_ct.id,))
+        step_key = 'custom_field_creation_wizard-current_step'
+
+        # Step 1 (name, type, ...)
         context = self.assertGET200(url).context
         self.assertEqual(
             _('New custom field for «{model}»').format(model='Test Contact'),
             context.get('title'),
         )
-        self.assertEqual(_('Save the custom field'), context.get('submit_label'))
+        self.assertEqual(_('Next step'), context.get('submit_label'))
 
-        field_type = CustomField.ENUM
-        self.assertNoFormError(self.client.post(
+        # TODO: improve first creation test too
+        with self.assertNoException():
+            fields1 = context['form'].fields
+            name_f = fields1['name']
+            description_f = fields1['description']
+            type_choices = fields1['field_type'].choices
+
+        self.assertTrue(name_f.required)
+        self.assertFalse(description_f.required)
+
+        self.assertInChoices(
+            value=CustomField.INT, label=_('Integer'), choices=type_choices,
+        )
+        self.assertInChoices(
+            value=CustomField.DATE, label=_('Date'), choices=type_choices,
+        )
+        self.assertInChoices(
+            value=CustomField.ENUM, label=_('Choice list'), choices=type_choices,
+        )
+        self.assertInChoices(
+            value=CustomField.MULTI_ENUM, label=_('Multiple choice list'), choices=type_choices,
+        )
+
+        field_type = CustomField.INT
+        response2 = self.client.post(
             url,
             data={
-                'name':        name,
-                'field_type':  field_type,
-                'enum_values': 'Eva01\nEva02\nEva03',
+                step_key: '0',
+                '0-name': name,
+                '0-field_type': field_type,
             },
+        )
+        self.assertNoFormError(response2)
+
+        # Step 2 (constraints)
+        self.assertEqual(_('Save the custom field'), response2.context.get('submit_label'))
+
+        with self.assertNoException():
+            fields2 = response2.context['form'].fields
+            is_required_f = fields2['is_required']
+
+        self.assertFalse(is_required_f.initial)
+        self.assertCountEqual(['is_required', 'default_value'], fields2.keys())
+
+        self.assertNoFormError(self.client.post(
+            url, data={step_key: '1'},  # '1-default_value': ''
         ))
 
         cfields = CustomField.objects.filter(content_type=contact_ct).order_by('id')
         self.assertEqual(2, len(cfields))
 
-        cfield2 = cfields[1]
-        self.assertEqual(name, cfield2.name)
-        self.assertFalse(cfield2.is_required)
-        self.assertEqual(field_type, cfield2.field_type)
+        cfield = cfields[1]
+        self.assertEqual(name, cfield.name)
+        self.assertFalse(cfield.is_required)
+        self.assertFalse(cfield.description)
+        self.assertEqual(field_type, cfield.field_type)
+        self.assertIsInstance(cfield.default_value_maker, NoneMaker)
+
+    def test_int__default_value(self):
+        "Default value, required, description."
+        self.login_as_root()
+
+        ct = ContentType.objects.get_for_model(FakeContact)
+        CustomField.objects.create(
+            content_type=ct, field_type=CustomField.BOOL, name='Operational?',
+        )
+        url = reverse('creme_config__create_custom_field', args=(ct.id,))
+        step_key = 'custom_field_creation_wizard-current_step'
+
+        # Step 1
+        name = 'Size'
+        field_type = CustomField.INT
+        response2 = self.client.post(
+            url,
+            data={
+                step_key: '0',
+                '0-name': name,
+                '0-field_type': field_type,
+            },
+        )
+        self.assertNoFormError(response2)
+
+        # Step 2
+        with self.assertNoException():
+            def_val_f = response2.context['form'].fields['default_value']
+
+        self.assertEqual(_('Default value'), def_val_f.label)
+        self.assertFalse(def_val_f.initial)
+        self.assertIsInstance(def_val_f, IntegerMakerField)
+        self.assertFalse(def_val_f.required)
+
+        def_val = 42
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                step_key: '1',
+                '1-is_required': 'on',
+                '1-default_value': def_val,
+            },
+        ))
+
+        cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
+        self.assertTrue(cfield.is_required)
+
+        maker = cfield.default_value_maker
+        self.assertIsInstance(maker, IntegerMaker)
+        self.assertEqual(def_val, maker.make())
+
+    def test_decimal(self):
+        self.login_as_root()
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        response = self.client.post(
+            reverse('creme_config__create_custom_field', args=(ct.id,)),
+            data={
+                'custom_field_creation_wizard-current_step': '0',
+                '0-name': 'Power',
+                '0-field_type': CustomField.FLOAT,
+            },
+        )
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            def_val_f = response.context['form'].fields['default_value']
+
+        self.assertIsInstance(def_val_f, DecimalMakerField)
+        self.assertEqual(_('Default value'), def_val_f.label)
+        self.assertFalse(def_val_f.required)
+        self.assertIsNone(def_val_f.initial)
+
+    def test_bool(self):
+        self.login_as_root()
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        url = reverse('creme_config__create_custom_field', args=(ct.id,))
+        step_key = 'custom_field_creation_wizard-current_step'
+
+        # Step 1
+        name = 'Operational?'
+        field_type = CustomField.BOOL
+        response2 = self.client.post(
+            url,
+            data={
+                step_key: '0',
+                '0-name': name,
+                '0-field_type': field_type,
+            },
+        )
+        self.assertNoFormError(response2)
+
+        # Step 2
+        with self.assertNoException():
+            def_val_f = response2.context['form'].fields['default_value']
+
+        self.assertEqual(_('Default value'), def_val_f.label)
+        self.assertIsNone(def_val_f.initial)
+        self.assertIsInstance(def_val_f, forms.BooleanField)
+
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                step_key: '1',
+                '1-default_value': 'true',
+            },
+        ))
+        cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
+        self.assertIs(cfield.default_value_maker.make(), True)
+
+    def test_str(self):
+        self.login_as_root()
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        response = self.client.post(
+            reverse('creme_config__create_custom_field', args=(ct.id,)),
+            data={
+                'custom_field_creation_wizard-current_step': '0',
+                '0-name': 'Nickname',
+                '0-field_type': CustomField.STR,
+            },
+        )
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            def_val_f = response.context['form'].fields['default_value']
+
+        self.assertIsInstance(def_val_f, StringMakerField)
+        self.assertEqual(_('Default value'), def_val_f.label)
+        self.assertFalse(def_val_f.required)
+        self.assertIsNone(def_val_f.initial)
+        self.assertEqual(100, def_val_f.max_length)
+
+    def test_text(self):
+        self.login_as_root()
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        response = self.client.post(
+            reverse('creme_config__create_custom_field', args=(ct.id,)),
+            data={
+                'custom_field_creation_wizard-current_step': '0',
+                '0-name': 'Extra info',
+                '0-field_type': CustomField.TEXT,
+            },
+        )
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            def_val_f = response.context['form'].fields['default_value']
+
+        self.assertIsInstance(def_val_f, StringMakerField)
+        self.assertEqual(_('Default value'), def_val_f.label)
+        self.assertFalse(def_val_f.required)
+        self.assertIsNone(def_val_f.initial)
+        self.assertIsNone(def_val_f.max_length)
+
+    def test_date(self):
+        self.login_as_root()
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        url = reverse('creme_config__create_custom_field', args=(ct.id,))
+        step_key = 'custom_field_creation_wizard-current_step'
+
+        # Step 1
+        name = 'First fight'
+        response2 = self.client.post(
+            url,
+            data={
+                step_key: '0',
+                '0-name': name,
+                '0-field_type': CustomField.DATE,
+            },
+        )
+        self.assertNoFormError(response2)
+
+        # Step 2
+        with self.assertNoException():
+            def_val_f = response2.context['form'].fields['default_value']
+
+        self.assertEqual(_('Default value'), def_val_f.label)
+        self.assertFalse(def_val_f.required)
+        self.assertIsInstance(def_val_f, DateMakerField)
+
+        self.assertNoFormError(self.client.post(
+            url, data={step_key: '1'},
+        ))
+        cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
+        self.assertIsInstance(cfield.default_value_maker, NoneMaker)
+
+    def test_datetime(self):
+        self.login_as_root()
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        url = reverse('creme_config__create_custom_field', args=(ct.id,))
+        step_key = 'custom_field_creation_wizard-current_step'
+
+        # Step 1
+        name = 'First fight'
+        response2 = self.client.post(
+            url,
+            data={
+                step_key: '0',
+                '0-name': name,
+                '0-field_type': CustomField.DATETIME,
+            },
+        )
+        self.assertNoFormError(response2)
+
+        # Step 2
+        with self.assertNoException():
+            def_val_f = response2.context['form'].fields['default_value']
+
+        self.assertEqual(_('Default value'), def_val_f.label)
+        self.assertFalse(def_val_f.required)
+        # self.assertIsInstance(def_val_f, DatetimeMakerField)
+
+        # self.assertNoFormError(self.client.post(
+        #     url, data={step_key: '1'},
+        # ))
+        # cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
+        # self.assertIsInstance(cfield.default_value_maker, NoneMaker)
+
+    def test_enum(self):
+        self.login_as_root()
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        url = reverse('creme_config__create_custom_field', args=(ct.id,))
+        step_key = 'custom_field_creation_wizard-current_step'
+
+        # Step 1
+        name = 'EVA'
+        response2 = self.client.post(
+            url,
+            data={
+                step_key: '0',
+                '0-name': name,
+                '0-field_type': CustomField.ENUM,
+            },
+        )
+        self.assertNoFormError(response2)
+
+        # Step 2
+        with self.assertNoException():
+            fields2 = response2.context['form'].fields
+            enum_values_f = fields2['enum_values']
+
+        self.assertNotIn('default_value', fields2)
+
+        self.assertIsInstance(enum_values_f, forms.CharField)
+        self.assertEqual(_('Available choices'), enum_values_f.label)
+        self.assertTrue(enum_values_f.required)
+
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                step_key: '1', '1-enum_values': 'Eva01\nEva02\nEva03',
+            },
+        ))
+        cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
+        self.assertIsInstance(cfield.default_value_maker, NoneMaker)
         self.assertEqual(
             ['Eva01', 'Eva02', 'Eva03'],
-            [
-                cfev.value
-                for cfev in CustomFieldEnumValue.objects
-                                                .filter(custom_field=cfield2)
-                                                .order_by('id')
-            ],
+            [*CustomFieldEnumValue.objects.filter(custom_field=cfield)
+                                          .order_by('id')
+                                          .values_list('value', flat=True)],
         )
 
-    def test_add__uniqueness(self):
+    # TODO: add Minion.is_default before?
+    # def test_enum__default_value(self):
+    #     self.login_as_root()
+    #
+    #     ct = ContentType.objects.get_for_model(FakeOrganisation)
+    #     url = reverse('creme_config__create_custom_field', args=(ct.id,))
+    #     step_key = 'custom_field_creation_wizard-current_step'
+    #     name = 'EVA'
+    #     self.assertNoFormError(self.client.post(
+    #         url,
+    #         data={
+    #             step_key: '0',
+    #             '0-name': name,
+    #             '0-field_type': CustomField.ENUM,
+    #         },
+    #     ))
+    #     self.assertNoFormError(self.client.post(
+    #         url,
+    #         data={
+    #             step_key: '1',
+    #             '1-default_value': 'Eva02',
+    #             '1-enum_values': 'Eva01\nEva02\nEva03',
+    #         },
+    #     ))
+    #     cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
+    #     enum_values = dict(
+    #         CustomFieldEnumValue.objects.filter(custom_field=cfield)
+    #                                     .values_list('value', 'id')
+    #     )
+    #     self.assertCountEqual(['Eva01', 'Eva02', 'Eva03'], enum_values.keys())
+    #     self.assertEqual(enum_values['Eva02'], cfield.default_value)
+
+    def test_enum__empty_choices_list(self):
+        self.login_as_root()
+
+        ct = ContentType.objects.get_for_model(FakeContact)
+        # response = self.assertPOST200(
+        #     reverse('creme_config__create_custom_field', args=(ct.id,)),
+        #     data={
+        #         'name':        'Eva',
+        #         'field_type':  CustomField.ENUM,
+        #         'enum_values': '',
+        #     },
+        # )
+        # self.assertFormError(
+        #     self.get_form_or_fail(response),
+        #     field=None,
+        #     errors=_(
+        #         'The choices list must not be empty if you choose the type "Choice list".'
+        #     ),
+        # )
+        url = reverse('creme_config__create_custom_field', args=(ct.id,))
+        step_key = 'custom_field_creation_wizard-current_step'
+
+        # Step 1
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                step_key: '0',
+                '0-name': 'EVA',
+                '0-field_type': CustomField.ENUM,
+            },
+        ))
+
+        # Step 2
+        response2 = self.assertPOST200(
+            url, data={step_key: '1', '1-enum_values': ' \n \n '},
+        )
+        self.assertFormError(
+            self.get_form_or_fail(response2),
+            field='enum_values',
+            errors=_('This field is required.'),
+        )
+
+    def test_enum__duplicated_choice(self):
+        self.login_as_root()
+
+        ct = ContentType.objects.get_for_model(FakeContact)
+        # response = self.assertPOST200(
+        #     reverse('creme_config__create_custom_field', args=(ct.id,)),
+        #     data={
+        #         'name':        'Eva',
+        #         'field_type':  CustomField.ENUM,
+        #         'enum_values': 'Eva01\nEva02\nEva01',
+        #     }
+        # )
+        # self.assertFormError(
+        #     self.get_form_or_fail(response),
+        #     field='enum_values',
+        #     errors=_('The choice «{}» is duplicated.').format('Eva01'),
+        # )
+        url = reverse('creme_config__create_custom_field', args=(ct.id,))
+        step_key = 'custom_field_creation_wizard-current_step'
+
+        # Step 1
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                step_key: '0',
+                '0-name': 'EVA',
+                '0-field_type': CustomField.ENUM,
+            },
+        ))
+
+        # Step 2
+        response2 = self.assertPOST200(
+            url, data={step_key: '1', '1-enum_values': 'Eva01\nEva02\nEva01'},
+        )
+        self.assertFormError(
+            self.get_form_or_fail(response2),
+            field='enum_values',
+            errors=_('The choice «{}» is duplicated.').format('Eva01'),
+        )
+
+    def test_multi_enum(self):
+        self.login_as_root()
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        url = reverse('creme_config__create_custom_field', args=(ct.id,))
+        step_key = 'custom_field_creation_wizard-current_step'
+
+        # Step 1
+        name = 'Weapon'
+        response2 = self.client.post(
+            url,
+            data={
+                step_key: '0',
+                '0-name': name,
+                '0-field_type': CustomField.MULTI_ENUM,
+            },
+        )
+        self.assertNoFormError(response2)
+
+        # Step 2
+        with self.assertNoException():
+            fields2 = response2.context['form'].fields
+            enum_values_f = fields2['enum_values']
+
+        self.assertNotIn('default_value', fields2)
+        self.assertEqual(_('Available choices'), enum_values_f.label)
+
+        self.assertNoFormError(self.client.post(
+            url, data={step_key: '1', '1-enum_values': 'Progressive knife\nRifle'},
+        ))
+
+        cfield = self.get_object_or_fail(CustomField, content_type=ct, name=name)
+        self.assertIsInstance(cfield.default_value_maker, NoneMaker)
+        self.assertCountEqual(
+            ['Progressive knife', 'Rifle'],
+            [*CustomFieldEnumValue.objects.filter(custom_field=cfield)
+                                  .values_list('value', flat=True)],
+        )
+
+    def test_error__uniqueness(self):
         "content_type + name => unique together."
         self.login_as_root()
 
@@ -312,11 +848,19 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         CustomField.objects.create(content_type=ct, name=name, field_type=CustomField.FLOAT)
 
         field_type = CustomField.INT
+        # response = self.assertPOST200(
+        #     reverse('creme_config__create_custom_field', args=(ct.id,)),
+        #     data={
+        #         'name':       name,
+        #         'field_type': field_type,
+        #     },
+        # )
         response = self.assertPOST200(
             reverse('creme_config__create_custom_field', args=(ct.id,)),
             data={
-                'name':       name,
-                'field_type': field_type,
+                'custom_field_creation_wizard-current_step': '0',
+                '0-name':       name,
+                '0-field_type': field_type,
             },
         )
         self.assertFormError(
@@ -325,45 +869,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('There is already a custom field with this name.'),
         )
 
-    def test_add__error__empty_choices_list(self):
-        self.login_as_root()
 
-        contact_ct = ContentType.objects.get_for_model(FakeContact)
-        response = self.assertPOST200(
-            reverse('creme_config__create_custom_field', args=(contact_ct.id,)),
-            data={
-                'name':        'Eva',
-                'field_type':  CustomField.ENUM,
-                'enum_values': '',
-            }
-        )
-        self.assertFormError(
-            self.get_form_or_fail(response),
-            field=None,
-            errors=_(
-                'The choices list must not be empty if you choose the type "Choice list".'
-            ),
-        )
-
-    def test_add__error__duplicated_choice(self):
-        self.login_as_root()
-
-        contact_ct = ContentType.objects.get_for_model(FakeContact)
-        response = self.assertPOST200(
-            reverse('creme_config__create_custom_field', args=(contact_ct.id,)),
-            data={
-                'name':        'Eva',
-                'field_type':  CustomField.ENUM,
-                'enum_values': 'Eva01\nEva02\nEva01',
-            }
-        )
-        self.assertFormError(
-            self.get_form_or_fail(response),
-            field='enum_values',
-            errors=_('The choice «{}» is duplicated.').format('Eva01'),
-        )
-
-    def test_edit(self):
+class CustomFieldEditionTestCase(CremeTestCase):
+    def test_simple(self):
+        "Fields: name, is_required, description."
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         name = 'nickname'
@@ -379,7 +888,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(
             _('Edit «{object}»').format(object=cfield),
-            response.context.get('title')
+            response.context.get('title'),
         )
 
         # Set name & is_required ---
@@ -405,7 +914,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         ))
         self.assertEqual(description, self.refresh(cfield).description)
 
-    def test_edit__uniqueness(self):
+    def test_error__uniqueness(self):
         "content_type + name => unique together."
         self.login_as_root()
 
@@ -427,7 +936,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('There is already a custom field with this name.'),
         )
 
-    def test_edit__deleted(self):
+    def test_error__deleted(self):
         "is_deleted == True  => error."
         self.login_as_root()
 
@@ -445,7 +954,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             status_code=409,
         )
 
-    def test_delete(self):
+
+class CustomFieldsDeletionTestCase(CremeTestCase):
+    def test_deletion(self):
         user = self.login_as_standard(admin_4_apps=('creme_core',))
 
         create_cf = partial(CustomField.objects.create, content_type=FakeContact)
@@ -488,7 +999,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertStillExists(enum3)
 
-    def test_delete__used_by_entities(self):
+    def test_deletion__used_by_entities(self):
         "Try to delete definitely, but related value."
         user = self.login_as_standard(admin_4_apps=('creme_core',))
 
@@ -525,7 +1036,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(eval11)
         self.assertStillExists(enum1)
 
-    def test_delete__used_by_efilter(self):
+    def test_deletion__used_by_efilter(self):
         self.login_as_root()
 
         create_cf = partial(
@@ -591,7 +1102,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(cfield1)
         self.assertStillExists(efilter1)
 
-    def test_delete__used_by_efilter__date(self):
+    def test_deletion__used_by_efilter__date(self):
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -627,7 +1138,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             response.text,
         )
 
-    def test_delete__used_by_workflow(self):
+    def test_deletion__used_by_workflow(self):
         self.login_as_root()
 
         create_cf = partial(
@@ -693,7 +1204,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(cfield1)
         self.assertStillExists(wf1)
 
-    def test_delete__used_by_workflow__date(self):
+    def test_deletion__used_by_workflow__date(self):
         self.login_as_root()
 
         model = FakeContact
@@ -728,7 +1239,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             response.text,
         )
 
-    def test_delete__no_app_perms(self):
+    def test_deletion__no_app_perms(self):
         "Not allowed."
         self.login_as_standard()  # admin_4_apps=('creme_core',)
 
@@ -743,7 +1254,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'id': cfield.id},
         )
 
-    def test_restore(self):
+    def test_restoration(self):
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -760,7 +1271,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         cfield = self.assertStillExists(cfield)
         self.assertFalse(cfield.is_deleted)
 
-    def test_restore__forbidden(self):
+    def test_restoration__forbidden(self):
         self.login_as_standard()  # admin_4_apps=('creme_core',)
 
         cfield = CustomField.objects.create(
@@ -775,6 +1286,8 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'id': cfield.id},
         )
 
+
+class CustomFieldEnumValuesTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_enum_values_detail(self):
         self.login_as_standard(admin_4_apps=('creme_core',))
 
@@ -1155,8 +1668,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_enum_value__replacing(self):
         "ENUM used + replacing."
-        self.login_as_root()
-        user = self.root
+        user = self.login_as_root_and_get()
 
         create_cfield = partial(
             CustomField.objects.create,
@@ -1218,8 +1730,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_enum_value__replacing_with_null(self):
         "ENUM used + replacing by NULL."
-        self.login_as_root()
-        user = self.root
+        user = self.login_as_root_and_get()
 
         cfield = CustomField.objects.create(
             content_type=FakeContact,
@@ -1269,9 +1780,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_delete_enum_value__uniqueness(self):
-        self.login_as_root()
-        user = self.root
-
+        user = self.login_as_root_and_get()
         self.assertFalse(DeletionCommand.objects.first())
 
         cfield = CustomField.objects.create(
@@ -1373,8 +1882,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_multi_enum__replacing(self):
         "MULTI_ENUM used + replacing."
-        self.login_as_root()
-        user = self.root
+        user = self.login_as_root_and_get()
 
         create_cfield = partial(
             CustomField.objects.create,
@@ -1495,34 +2003,4 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertGET403(
             reverse('creme_config__reload_custom_enum_brick', args=(cfield.id,))
-        )
-
-    def test_brick_hide_deleted_cfields(self):
-        self.login_as_root()
-        user = self.root
-
-        def get_state():
-            return BrickState.objects.get_for_brick_id(
-                user=user, brick_id=bricks.CustomFieldsBrick.id,
-            )
-
-        self.assertIsNone(get_state().pk)
-
-        url = reverse('creme_config__custom_fields_brick_hide_deleted')
-        self.assertGET405(url)
-
-        # ---
-        self.assertPOST200(url, data={'value': 'true'})
-        state1 = get_state()
-        self.assertIsNotNone(state1.pk)
-        self.assertIs(
-            state1.get_extra_data(BRICK_STATE_HIDE_DELETED_CFIELDS),
-            True
-        )
-
-        # ---
-        self.assertPOST200(url, data={'value': '0'})
-        self.assertIs(
-            get_state().get_extra_data(BRICK_STATE_HIDE_DELETED_CFIELDS),
-            False
         )

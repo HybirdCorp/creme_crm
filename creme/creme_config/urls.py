@@ -341,9 +341,14 @@ custom_fields_patterns = [
         name='creme_config__create_first_ctype_custom_field',
     ),
 
+    # re_path(
+    #     r'^add/(?P<ct_id>\d+)[/]?$',
+    #     custom_field.CustomFieldCreation.as_view(),
+    #     name='creme_config__create_custom_field',
+    # ),
     re_path(
-        r'^add/(?P<ct_id>\d+)[/]?$',
-        custom_field.CustomFieldCreation.as_view(),
+        r'^wizard/(?P<ct_id>\d+)[/]?$',
+        custom_field.CustomFieldCreationWizard.as_view(),
         name='creme_config__create_custom_field',
     ),
     re_path(
