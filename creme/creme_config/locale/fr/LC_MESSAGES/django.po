@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-27 14:39+0100\n"
+"POT-Creation-Date: 2025-12-30 13:17+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -371,28 +371,6 @@ msgstr "Nom (pluriel)"
 msgid "{model} view"
 msgstr "Vue de {model}"
 
-msgid "Type of field"
-msgstr "Type du champ"
-
-msgid "Available choices"
-msgstr "Choix disponibles"
-
-msgid ""
-"Give the possible choices (one per line) if you choose the type \"Choice list"
-"\"."
-msgstr ""
-"Mettez les choix possibles (un par ligne) si vous avez choisi le type  "
-"\"Liste de choix\"."
-
-msgid ""
-"The choices list must not be empty if you choose the type \"Choice list\"."
-msgstr ""
-"La liste de choix ne doit pas être vide si vous choisissez un type \"Liste "
-"de choix\""
-
-msgid "The choice «{}» is duplicated."
-msgstr "le choix «{}» est en double."
-
 msgid ""
 "The other custom fields for this type of resource will be chosen by editing "
 "the configuration"
@@ -400,8 +378,31 @@ msgstr ""
 "Les autres champs personnalisés de ce type de ressource seront choisis en "
 "modifiant la configuration"
 
+msgid "Type of field"
+msgstr "Type du champ"
+
 msgid "There is already a custom field with this name."
 msgstr "Il y a déjà un champ personnalisé avec ce nom."
+
+msgid "The choice «{}» is duplicated."
+msgstr "le choix «{}» est en double."
+
+msgid "Constraints"
+msgstr "Contraintes"
+
+msgid "Default value"
+msgstr "Valeur par défaut"
+
+msgid "The default value is used as initial value in the creation forms"
+msgstr ""
+"La valeur par défaut est utilisée comme valeur initiale dans les formulaires "
+"de création"
+
+msgid "Available choices"
+msgstr "Choix disponibles"
+
+msgid "Give the possible choices (one per line)"
+msgstr "Rentrez les choix possibles (un par ligne)"
 
 msgid "New choice"
 msgstr "Nouveau choix"
@@ -1351,6 +1352,13 @@ msgstr "Voir les choix (actuellement %(count)s)"
 #, python-format
 msgid "See & manage the choices (currently %(count)s)"
 msgstr "Voir & gérer les choix (actuellement %(count)s)"
+
+#, python-format
+msgid "Default value: %(value)s"
+msgstr "Valeur par défault : %(value)s"
+
+msgid "No default value"
+msgstr "Pas de valeur par défaut"
 
 msgid "Description"
 msgstr "Description"
@@ -3104,6 +3112,19 @@ msgstr "Cette action est invalide (rafraîchissez votre page)"
 
 msgid "Edit the instance's settings"
 msgstr "Modifier la configuration de l'instance"
+
+#~ msgid ""
+#~ "Give the possible choices (one per line) if you choose the type \"Choice "
+#~ "list\"."
+#~ msgstr ""
+#~ "Mettez les choix possibles (un par ligne) si vous avez choisi le type  "
+#~ "\"Liste de choix\"."
+
+#~ msgid ""
+#~ "The choices list must not be empty if you choose the type \"Choice list\"."
+#~ msgstr ""
+#~ "La liste de choix ne doit pas être vide si vous choisissez un type "
+#~ "\"Liste de choix\""
 
 #~ msgid "Properties constraint"
 #~ msgstr "Contrainte sur les propriétés"

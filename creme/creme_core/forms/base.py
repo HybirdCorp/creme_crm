@@ -533,9 +533,12 @@ class CustomFieldsMixin:
         fields = self.fields
         user = self.user
         build_name = self._build_customfield_name
+        creation_mode = self.instance.pk is None
 
         for cfield, cvalue in self._customs:
-            fields[build_name(cfield)] = cfield.get_formfield(cvalue, user=user)
+            fields[build_name(cfield)] = formfield = cfield.get_formfield(cvalue, user=user)
+            if creation_mode:
+                formfield.initial = cfield.default_value_maker.make()
 
     def _get_customfields_n_values(self, only_required):
         return self.instance.get_custom_fields_n_values(only_required=only_required)

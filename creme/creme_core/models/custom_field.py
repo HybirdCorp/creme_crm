@@ -31,6 +31,7 @@ from django.utils.timezone import localtime
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from ..core.value_maker import ValueMaker, value_maker_registry
 from ..global_info import get_per_request_cache
 from ..utils.content_type import as_ctype
 from .base import CremeModel
@@ -81,7 +82,12 @@ class CustomField(CremeModel):
     uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
     name = models.CharField(_('Field name'), max_length=100)
     content_type = CTypeForeignKey(verbose_name=_('Related type'))
+
     field_type = models.PositiveSmallIntegerField(_('Field type'))  # See INT, FLOAT etc...
+    # default_value = models.JSONField(_('Default value'), blank=True, null=True, editable=False)
+    # NB: use the getter/setter "default_value_maker" instead of using this field directly
+    json_default_value_maker = models.JSONField(default=dict, editable=False)
+
     is_required = models.BooleanField(
         _('Is required?'), default=False,
         help_text=_(
@@ -94,8 +100,6 @@ class CustomField(CremeModel):
         _('Description'), blank=True,
         help_text=_('The description is notably used in forms to help user'),
     )
-    # default_value = CharField(_('Default value'), max_length=100, blank=True, null=True)
-    # extra_args    = CharField(max_length=500, blank=True, null=True)
 
     objects = CustomFieldManager()
 
@@ -124,6 +128,17 @@ class CustomField(CremeModel):
     @property
     def value_class(self) -> type[CustomFieldValue]:
         return _TABLES[self.field_type]
+
+    @property
+    def default_value_maker(self) -> ValueMaker:
+        """The default value maker can be used to build the default value of the
+        custom field in an entity creation form.
+        """
+        return value_maker_registry.get_maker(self.json_default_value_maker)
+
+    @default_value_maker.setter
+    def default_value_maker(self, value: ValueMaker) -> None:
+        self.json_default_value_maker = value.to_dict()
 
     def get_formfield(self, custom_value, user=None):
         return self.value_class.get_formfield(self, custom_value, user=user)
@@ -203,6 +218,10 @@ class CustomFieldValue(CremeModel):
 
         return field
 
+    @classmethod
+    def get_default_value_formfield(cls, **kwargs) -> forms.Field | None:
+        return None
+
     def set_value_n_save(self, value) -> None:
         if self.value != value:
             self.value = value
@@ -260,6 +279,14 @@ class CustomFieldString(CustomFieldValue):
     def _get_formfield(**kwargs):
         return forms.CharField(**kwargs)
 
+    @classmethod
+    def get_default_value_formfield(cls, **kwargs):
+        from creme.creme_core.forms.value_maker import StringMakerField
+        return StringMakerField(**{
+            **kwargs,
+            'max_length': cls._meta.get_field('value').max_length,
+        })
+
 
 class CustomFieldText(CustomFieldValue):
     value = models.TextField()
@@ -275,6 +302,11 @@ class CustomFieldText(CustomFieldValue):
             widget=forms.Textarea,
             **kwargs
         )
+
+    @classmethod
+    def get_default_value_formfield(cls, **kwargs):
+        from creme.creme_core.forms.value_maker import StringMakerField
+        return StringMakerField(**kwargs)
 
 
 class CustomFieldURL(CustomFieldValue):
@@ -304,6 +336,11 @@ class CustomFieldInteger(CustomFieldValue):
     def _get_formfield(**kwargs):
         return forms.IntegerField(**kwargs)
 
+    @classmethod
+    def get_default_value_formfield(cls, **kwargs):
+        from creme.creme_core.forms.value_maker import IntegerMakerField
+        return IntegerMakerField(**kwargs)
+
 
 # TODO: rename CustomFieldDecimal
 class CustomFieldFloat(CustomFieldValue):
@@ -330,6 +367,11 @@ class CustomFieldFloat(CustomFieldValue):
             **kwargs
         )
 
+    @classmethod
+    def get_default_value_formfield(cls, **kwargs):
+        from creme.creme_core.forms.value_maker import DecimalMakerField
+        return DecimalMakerField(**kwargs)
+
 
 class CustomFieldDateTime(CustomFieldValue):
     value = models.DateTimeField()
@@ -347,6 +389,11 @@ class CustomFieldDateTime(CustomFieldValue):
     def _get_formfield(**kwargs):
         return forms.DateTimeField(**kwargs)
 
+    @classmethod
+    def get_default_value_formfield(cls, **kwargs):
+        from creme.creme_core.forms.value_maker import DateTimeMakerField
+        return DateTimeMakerField(**kwargs)
+
 
 class CustomFieldDate(CustomFieldValue):
     value = models.DateField()
@@ -359,6 +406,11 @@ class CustomFieldDate(CustomFieldValue):
     @staticmethod
     def _get_formfield(**kwargs):
         return forms.DateField(**kwargs)
+
+    @classmethod
+    def get_default_value_formfield(cls, **kwargs):
+        from creme.creme_core.forms.value_maker import DateMakerField
+        return DateMakerField(**kwargs)
 
     def __str__(self):
         value = self.value
@@ -386,6 +438,11 @@ class CustomFieldBoolean(CustomFieldValue):
             if required else
             forms.NullBooleanField(**kwargs)
         )
+
+    @classmethod
+    def get_default_value_formfield(cls, **kwargs):
+        from creme.creme_core.forms.value_maker import BooleanMakerField
+        return BooleanMakerField(**kwargs)
 
     def set_value_n_save(self, value):
         # Boolean default value is False
@@ -431,6 +488,10 @@ class CustomFieldEnum(CustomFieldValue):
         )
 
         return CreatorCustomEnumerableChoiceField(**kwargs)
+
+    # TODO: Minion.is_default before (to be consistent)?
+    # @classmethod
+    # def get_default_value_formfield(cls, **kwargs):
 
     @classmethod
     def _get_4_entities(cls, entities, cfields):

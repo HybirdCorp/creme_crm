@@ -1089,6 +1089,11 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     text-decoration: line-through;
 }
 
+.creme_config-customfields-brick .cfields-config-default-empty {
+    font-style: italic;
+    color: #AAA;
+}
+
 /* EntityFilters, HeaderFilters, Workflows bricks */
 
 .creme_config-workflows-brick .workflow-config-item,

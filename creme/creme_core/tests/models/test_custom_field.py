@@ -14,6 +14,19 @@ from creme.creme_config.forms.fields import (
     CustomMultiEnumChoiceField,
 )
 from creme.creme_core.core.history import toggle_history
+from creme.creme_core.core.value_maker import (
+    IntegerMaker,
+    NoneMaker,
+    StringMaker,
+)
+from creme.creme_core.forms.value_maker import (
+    BooleanMakerField,
+    DateMakerField,
+    DateTimeMakerField,
+    DecimalMakerField,
+    IntegerMakerField,
+    StringMakerField,
+)
 from creme.creme_core.models import (
     CremeEntity,
     CustomField,
@@ -130,19 +143,13 @@ class CustomFieldTestCase(CremeTestCase):
         self.assertEqual(name, str(cfield))
         self.assertEqual('', cfield.description)
         self.assertEqual(CustomFieldInteger, cfield.value_class)
-        self.assertEqual(_('Integer'), CustomFieldInteger.verbose_name)
+        self.assertIsInstance(cfield.default_value_maker, NoneMaker)
 
-        self.assertEqual(
-            'customfieldinteger',
-            CustomFieldInteger.get_related_name(),
-        )
-
+        # ---
         orga = self._create_orga()
         value = 1562
         cf_value = CustomFieldInteger.objects.create(
-            custom_field=cfield,
-            entity=orga,
-            value=value,
+            custom_field=cfield, entity=orga, value=value,
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=value)
 
@@ -156,6 +163,27 @@ class CustomFieldTestCase(CremeTestCase):
         self.assertIsInstance(formfield2, forms.IntegerField)
         self.assertIsNone(formfield2.initial)
 
+    def test_int__value_class(self):
+        self.assertEqual(_('Integer'), CustomFieldInteger.verbose_name)
+        self.assertEqual(
+            'customfieldinteger', CustomFieldInteger.get_related_name(),
+        )
+
+        # ---
+        def_val_field1 = CustomFieldInteger.get_default_value_formfield()
+        self.assertIsInstance(def_val_field1, IntegerMakerField)
+        self.assertIsNone(def_val_field1.label)
+        self.assertTrue(def_val_field1.required)
+
+        # ---
+        label = 'Default value'
+        def_val_field2 = CustomFieldInteger.get_default_value_formfield(
+            label=label, required=False,
+        )
+        self.assertIsInstance(def_val_field2, IntegerMakerField)
+        self.assertEqual(label, def_val_field2.label)
+        self.assertFalse(def_val_field2.required)
+
     def test_int__set_value_n_save(self) -> None:
         cfield = CustomField.objects.create(
             name='Length of ship',
@@ -165,9 +193,7 @@ class CustomFieldTestCase(CremeTestCase):
         orga = self._create_orga()
 
         cf_value: CustomFieldInteger = CustomFieldInteger.objects.create(
-            custom_field=cfield,
-            entity=orga,
-            value=456,
+            custom_field=cfield, entity=orga, value=456,
         )
 
         value = cf_value.value + 1
@@ -182,6 +208,17 @@ class CustomFieldTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             cf_value.set_value_n_save(value)
 
+    def test_int__default_value(self):
+        def_value = 42
+        cfield = CustomField.objects.create(
+            name='Length of ship',
+            field_type=CustomField.INT, content_type=FakeOrganisation,
+            default_value_maker=IntegerMaker.from_dict({'value': def_value}),
+        )
+
+        cfield = self.refresh(cfield)
+        self.assertEqual(IntegerMaker(def_value), cfield.default_value_maker)
+
     def test_str(self):
         cfield = CustomField.objects.create(
             name='Length of ship',
@@ -191,19 +228,11 @@ class CustomFieldTestCase(CremeTestCase):
             description='Metric system bro',
         )
         self.assertEqual(CustomFieldString, cfield.value_class)
-        self.assertEqual(_('Short string'), CustomFieldString.verbose_name)
-
-        self.assertEqual(
-            'customfieldstring',
-            CustomFieldString.get_related_name()
-        )
 
         orga = self._create_orga()
         value = '1562 m'
         cf_value = CustomFieldString.objects.create(
-            custom_field=cfield,
-            entity=orga,
-            value=value,
+            custom_field=cfield, entity=orga, value=value,
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=value)
 
@@ -212,6 +241,37 @@ class CustomFieldTestCase(CremeTestCase):
         self.assertTrue(formfield.required)
         self.assertEqual(value, formfield.initial)
         self.assertEqual(cfield.description, formfield.help_text)
+
+    def test_str__value_class(self):
+        self.assertEqual(_('Short string'), CustomFieldString.verbose_name)
+        self.assertEqual('customfieldstring', CustomFieldString.get_related_name())
+
+        # ---
+        def_val_field1 = CustomFieldString.get_default_value_formfield()
+        self.assertIsInstance(def_val_field1, StringMakerField)
+        self.assertIsNone(def_val_field1.label)
+        self.assertTrue(def_val_field1.required)
+        self.assertEqual(100, def_val_field1.max_length)
+
+        # ---
+        label = 'Default value'
+        def_val_field2 = CustomFieldString.get_default_value_formfield(
+            label=label, required=False,
+        )
+        self.assertIsInstance(def_val_field2, StringMakerField)
+        self.assertEqual(label, def_val_field2.label)
+        self.assertFalse(def_val_field2.required)
+
+    def test_str__default_value(self):
+        def_value = 'Hello world'
+        cfield = CustomField.objects.create(
+            name='Hello sentence',
+            field_type=CustomField.STR, content_type=FakeContact,
+            default_value_maker=StringMaker.from_dict({'value': def_value}),
+        )
+
+        cfield = self.refresh(cfield)
+        self.assertEqual(StringMaker(def_value), cfield.default_value_maker)
 
     def test_text(self):
         cfield = CustomField.objects.create(
@@ -227,15 +287,32 @@ class CustomFieldTestCase(CremeTestCase):
 by a man named Tochiro.
 '''
         cf_value = CustomFieldText.objects.create(
-            custom_field=cfield,
-            entity=orga,
-            value=value,
+            custom_field=cfield, entity=orga, value=value,
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=value)
 
         formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
         self.assertIsInstance(formfield,        forms.CharField)
         self.assertIsInstance(formfield.widget, forms.Textarea)
+
+    def test_text__value_class(self):
+        self.assertEqual(_('Long text'), CustomFieldText.verbose_name)
+        self.assertEqual('customfieldtext', CustomFieldText.get_related_name())
+
+        # ---
+        def_val_field1 = CustomFieldText.get_default_value_formfield()
+        self.assertIsInstance(def_val_field1, StringMakerField)
+        self.assertIsNone(def_val_field1.label)
+        self.assertTrue(def_val_field1.required)
+
+        # ---
+        label = 'Default value'
+        def_val_field2 = CustomFieldText.get_default_value_formfield(
+            label=label, required=False,
+        )
+        self.assertIsInstance(def_val_field2, StringMakerField)
+        self.assertEqual(label, def_val_field2.label)
+        self.assertFalse(def_val_field2.required)
 
     def test_url(self):
         cfield = CustomField.objects.create(
@@ -245,13 +322,12 @@ by a man named Tochiro.
         )
         self.assertEqual(CustomFieldURL, cfield.value_class)
         self.assertEqual(_('URL (link)'), CustomFieldURL.verbose_name)
+        self.assertIsNone(CustomFieldURL.get_default_value_formfield())
 
         orga = self._create_orga()
         value = 'www.hybird.org'
         cf_value = CustomFieldURL.objects.create(
-            custom_field=cfield,
-            entity=orga,
-            value=value,
+            custom_field=cfield, entity=orga, value=value,
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=value)
 
@@ -271,9 +347,7 @@ by a man named Tochiro.
         orga = self._create_orga()
         value1 = '1562.50'
         cf_value = CustomFieldFloat.objects.create(
-            custom_field=cfield,
-            entity=orga,
-            value=value1,
+            custom_field=cfield, entity=orga, value=value1,
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=Decimal(value1))
 
@@ -284,6 +358,25 @@ by a man named Tochiro.
         formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
         self.assertIsInstance(formfield, forms.DecimalField)
 
+    def test_decimal__value_class(self):
+        self.assertEqual(_('Decimal'), CustomFieldFloat.verbose_name)
+        self.assertEqual('customfieldfloat', CustomFieldFloat.get_related_name())
+
+        # ---
+        def_val_field1 = CustomFieldFloat.get_default_value_formfield()
+        self.assertIsInstance(def_val_field1, DecimalMakerField)
+        self.assertIsNone(def_val_field1.label)
+        self.assertTrue(def_val_field1.required)
+
+        # ---
+        label = 'Default value'
+        def_val_field2 = CustomFieldFloat.get_default_value_formfield(
+            label=label, required=False,
+        )
+        self.assertIsInstance(def_val_field2, DecimalMakerField)
+        self.assertEqual(label, def_val_field2.label)
+        self.assertFalse(def_val_field2.required)
+
     def test_date(self):
         user = self.create_user()
         cfield = CustomField.objects.create(
@@ -292,7 +385,6 @@ by a man named Tochiro.
             content_type=FakeOrganisation,
         )
         self.assertEqual(CustomFieldDate, cfield.value_class)
-        self.assertEqual(_('Date'), CustomFieldDate.verbose_name)
 
         orga = FakeOrganisation.objects.create(user=user, name='Arcadia')
         value = date(year=2058, month=2, day=15)
@@ -306,6 +398,25 @@ by a man named Tochiro.
         formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
         self.assertIsInstance(formfield, forms.DateField)
 
+    def test_date__value_class(self):
+        self.assertEqual(_('Date'), CustomFieldDate.verbose_name)
+        self.assertEqual('customfielddate', CustomFieldDate.get_related_name())
+
+        # ---
+        def_val_field1 = CustomFieldDate.get_default_value_formfield()
+        self.assertIsInstance(def_val_field1, DateMakerField)
+        self.assertIsNone(def_val_field1.label)
+        self.assertTrue(def_val_field1.required)
+
+        # ---
+        label = 'Default value'
+        def_val_field2 = CustomFieldDate.get_default_value_formfield(
+            label=label, required=False,
+        )
+        self.assertIsInstance(def_val_field2, DateMakerField)
+        self.assertEqual(label, def_val_field2.label)
+        self.assertFalse(def_val_field2.required)
+
     def test_datetime(self):
         user = self.get_root_user()
         cfield = CustomField.objects.create(
@@ -314,19 +425,35 @@ by a man named Tochiro.
             content_type=FakeOrganisation,
         )
         self.assertEqual(CustomFieldDateTime, cfield.value_class)
-        self.assertEqual(_('Date and time'), CustomFieldDateTime.verbose_name)
 
         orga = FakeOrganisation.objects.create(user=user, name='Arcadia')
-        value = self.create_datetime(year=2058, month=2, day=15, hour=18, minute=32)
+        dt = self.create_datetime(year=2058, month=2, day=15, hour=18, minute=32)
         CustomFieldDateTime.objects.create(
-            custom_field=cfield,
-            entity=orga,
-            value=value,
+            custom_field=cfield, entity=orga, value=dt,
         )
-        self.assertValueEqual(cfield=cfield, entity=orga, value=value)
+        self.assertValueEqual(cfield=cfield, entity=orga, value=dt)
 
         formfield = cfield.get_formfield(custom_value=None, user=orga.user)
         self.assertIsInstance(formfield, forms.DateTimeField)
+
+    def test_datetime__value_class(self):
+        self.assertEqual(_('Date and time'), CustomFieldDateTime.verbose_name)
+        self.assertEqual('customfielddatetime', CustomFieldDateTime.get_related_name())
+
+        # ---
+        def_val_field1 = CustomFieldDateTime.get_default_value_formfield()
+        self.assertIsInstance(def_val_field1, DateTimeMakerField)
+        self.assertIsNone(def_val_field1.label)
+        self.assertTrue(def_val_field1.required)
+
+        # ---
+        label = 'Default value'
+        def_val_field2 = CustomFieldDateTime.get_default_value_formfield(
+            label=label, required=False,
+        )
+        self.assertIsInstance(def_val_field2, DateTimeMakerField)
+        self.assertEqual(label, def_val_field2.label)
+        self.assertFalse(def_val_field2.required)
 
     def test_bool(self):
         create_cfield = partial(
@@ -336,7 +463,6 @@ by a man named Tochiro.
         )
         cfield1 = create_cfield(name='Ship is armed?')
         self.assertEqual(CustomFieldBoolean, cfield1.value_class)
-        self.assertEqual(_('Boolean (2 values: Yes/No)'), CustomFieldBoolean.verbose_name)
 
         orga = self._create_orga()
         value = True
@@ -358,6 +484,22 @@ by a man named Tochiro.
         self.assertIsInstance(formfield, forms.BooleanField)
         self.assertFalse(formfield.required)
 
+    def test_bool__value_class(self):
+        self.assertEqual(_('Boolean (2 values: Yes/No)'), CustomFieldBoolean.verbose_name)
+        self.assertEqual(
+            'customfieldboolean', CustomFieldBoolean.get_related_name(),
+        )
+
+        # ---
+        def_val_field1 = CustomFieldBoolean.get_default_value_formfield()
+        self.assertIsInstance(def_val_field1, BooleanMakerField)
+        self.assertIsNone(def_val_field1.label)
+
+        # ---
+        label = 'Default value'
+        def_val_field2 = CustomFieldBoolean.get_default_value_formfield(label=label)
+        self.assertEqual(label, def_val_field2.label)
+
     @toggle_history(enabled=False)
     def test_bool__set_value_n_save(self) -> None:
         cfield = CustomField.objects.create(
@@ -368,9 +510,7 @@ by a man named Tochiro.
         orga = self._create_orga()
 
         cf_value: CustomFieldBoolean = CustomFieldBoolean.objects.create(
-            custom_field=cfield,
-            entity=orga,
-            value=False,
+            custom_field=cfield, entity=orga, value=False,
         )
 
         with self.assertNumQueries(1):
@@ -393,7 +533,7 @@ by a man named Tochiro.
         with self.assertNumQueries(0):
             cf_value.set_value_n_save(None)
 
-    def test_enum01(self):
+    def test_enum(self):
         cfield = CustomField.objects.create(
             name='Type of ship',
             field_type=CustomField.ENUM,
@@ -422,7 +562,7 @@ by a man named Tochiro.
         self.assertEqual(cfield,    formfield.custom_field)
         self.assertFalse(formfield.required)
 
-    def test_enum02(self):
+    def test_enum__set_value_n_save(self):
         "set_value_n_save()."
         cfield = CustomField.objects.create(
             name='Type of ship',
@@ -569,9 +709,7 @@ by a man named Tochiro.
 
         def create_value(entity, value):
             return CustomFieldInteger.objects.create(
-                custom_field=cfield,
-                entity=entity,
-                value=value,
+                custom_field=cfield, entity=entity, value=value,
             )
 
         cf_value1 = create_value(orga1, 1562)
@@ -671,7 +809,7 @@ by a man named Tochiro.
         )
         self.assertIsNone(orga.get_custom_value(cfield))
 
-    def test_get_custom_values_map01(self):
+    def test_get_custom_values_map(self):
         create_cfield = partial(
             CustomField.objects.create,
             field_type=CustomField.INT,
@@ -715,7 +853,7 @@ by a man named Tochiro.
             values_map,
         )
 
-    def test_get_custom_values_map02(self):
+    def test_get_custom_values_map__several_types(self):
         "Several types of fields."
         create_cfield = partial(
             CustomField.objects.create,

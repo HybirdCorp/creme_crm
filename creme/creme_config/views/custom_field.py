@@ -51,22 +51,66 @@ from ..forms import custom_field as cf_forms
 from . import base
 
 
-class FirstCTypeCustomFieldCreation(base.ConfigModelCreation):
+# class FirstCTypeCustomFieldCreation(base.ConfigModelCreation):
+#     model = CustomField
+#     form_class = cf_forms.FirstCustomFieldCreationForm
+#     title = _('New custom field configuration')
+class CustomFieldFirstCreationWizard(base.ConfigModelCreationWizard):
+    form_list = [
+        cf_forms.CustomFieldMainStep,
+        cf_forms.CustomFieldConstraintsStep,
+    ]
     model = CustomField
-    form_class = cf_forms.FirstCustomFieldCreationForm
     title = _('New custom field configuration')
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.custom_field = CustomField()
 
-class CustomFieldCreation(EntityCTypeRelatedMixin,
-                          base.ConfigModelCreation):
+    def get_form_instance(self, step):
+        # We fill the instance with the previous step (so recursively all
+        # previous should be used)
+        self.validate_previous_steps(step)
+
+        return self.custom_field
+
+
+# class CustomFieldCreation(EntityCTypeRelatedMixin,
+#                           base.ConfigModelCreation):
+#     model = CustomField
+#     form_class = cf_forms.CustomFieldCreationForm
+#
+#     def get_form_kwargs(self):
+#         kwargs = super().get_form_kwargs()
+#         kwargs['ctype'] = self.get_ctype()
+#
+#         return kwargs
+#
+#     def get_title(self):
+#         return gettext('New custom field for «{model}»').format(
+#             model=self.get_ctype(),
+#         )
+class CustomFieldCreationWizard(EntityCTypeRelatedMixin,
+                                base.ConfigModelCreationWizard):
+    form_list = [
+        cf_forms.CustomFieldMainStep,
+        cf_forms.CustomFieldConstraintsStep,
+    ]
     model = CustomField
-    form_class = cf_forms.CustomFieldCreationForm
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['ctype'] = self.get_ctype()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.custom_field = CustomField()
 
-        return kwargs
+    def get_form_instance(self, step):
+        instance = self.custom_field
+        instance.content_type = self.get_ctype()  # TODO: only step 0?
+
+        # We fill the instance with the previous step (so recursively all
+        # previous should be used)
+        self.validate_previous_steps(step)
+
+        return instance
 
     def get_title(self):
         return gettext('New custom field for «{model}»').format(
