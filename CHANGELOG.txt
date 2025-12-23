@@ -26,7 +26,9 @@
             - The Roles can now have special permissions.
               Two special permissions have been introduced : "User management" & "Role configuration".
             - The Roles can now be disabled.
-            - The CustomFields can now get a description, which is used as help text in forms.
+            - The CustomFields can now get:
+                - a description, which is used as help text in forms.
+                - a default value, which is used as initial value in creation forms.
         * Billing :
             - Invoices, Quotes & Sales Order got a "card" hat-block, which is used by default by new installations.
             - You can now export several Invoices or Quotes at once, as a .zip archive.
@@ -258,6 +260,12 @@
           'get_buttons()' & 'mandatory_buttons()' get keywords arguments only now,
           an get a new mandatory argument "request".
         # The method 'creme_core.bricks.ButtonsBrick._get_buttons()' get a new mandatory argument "request".
+        # Apps :
+            * Creme_config :
+                - In 'forms.custom_field', these classes have been removed:
+                  CustomFieldBaseForm, FirstCustomFieldCreationForm, CustomFieldCreationForm.
+                - In 'views.custom_field' these view-classes have been removed:
+                  FirstCTypeCustomFieldCreation, CustomFieldCreation.
 
 
 == Version 2.7 ==

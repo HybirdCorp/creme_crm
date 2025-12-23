@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-11 16:55+0100\n"
+"POT-Creation-Date: 2025-12-30 13:25+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -685,6 +685,12 @@ msgstr "Valeur"
 
 msgid "Enter a valid HTML color."
 msgstr "Saisissez une couleur HTML valide."
+
+msgid "Yes"
+msgstr "Oui"
+
+msgid "No"
+msgstr "Non"
 
 #, python-brace-format
 msgid "The model «{key}» is invalid"
@@ -1504,6 +1510,21 @@ msgstr ""
 "Vous n'avez pas la permission de relier avec les «{models}» de cet "
 "utilisateur."
 
+msgid "No default value"
+msgstr "Pas de valeur par défaut"
+
+msgid "Fixed date"
+msgstr "Date fixe"
+
+msgid "Today (dynamic)"
+msgstr "Aujourd'hui (dynamique)"
+
+msgid "Fixed date and time"
+msgstr "Date et heure fixes"
+
+msgid "Now (dynamic)"
+msgstr "Maintenant (dynamique)"
+
 msgid "Clear"
 msgstr "Effacer"
 
@@ -1709,12 +1730,6 @@ msgstr ""
 #, python-brace-format
 msgid "Download «{file}»"
 msgstr "Télécharger «{file}»"
-
-msgid "Yes"
-msgstr "Oui"
-
-msgid "No"
-msgstr "Non"
 
 msgid "Seconds: {}"
 msgstr "Secondes : {}"

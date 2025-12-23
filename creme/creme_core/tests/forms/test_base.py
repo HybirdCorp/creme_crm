@@ -12,6 +12,7 @@ from creme.creme_config.forms.fields import (
     CreatorCustomEnumerableChoiceField,
     CustomMultiEnumChoiceField,
 )
+from creme.creme_core.core.value_maker import IntegerMaker
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.forms.enumerable import EnumerableChoice
 from creme.creme_core.forms.widgets import Label
@@ -250,7 +251,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertEqual(last_name,  contact.last_name)
         self.assertIsNotNone(contact.id)
 
-    def test_customfields01(self):
+    def test_custom_fields(self):
         user = self.get_root_user()
 
         create_cf = partial(
@@ -337,8 +338,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         self.assertEqual(150, cf_value.value)
 
-    def test_customfields02(self):
-        "Required."
+    def test_custom_fields__required(self):
         user = self.get_root_user()
 
         cfield = CustomField.objects.create(
@@ -356,8 +356,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertIsInstance(cfield_f, forms.IntegerField)
         self.assertTrue(cfield_f.required)
 
-    def test_customfields03(self):
-        "Required + Boolean."
+    def test_custom_fields__required__boolean(self):
         user = self.get_root_user()
 
         cfield = CustomField.objects.create(
@@ -376,7 +375,36 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertNotIsInstance(cfield_f, forms.NullBooleanField)
         self.assertFalse(cfield_f.required)
 
-    def test_properties01(self):
+    def test_custom_fields__default_value(self):
+        user = self.get_root_user()
+
+        def_value = 42
+        cfield = CustomField.objects.create(
+            name='Size',
+            content_type=FakeContact,
+            field_type=CustomField.INT,
+            default_value_maker=IntegerMaker(def_value),
+        )
+        field_name = f'custom_field-{cfield.id}'
+
+        # Creation ---
+        fields1 = FakeContactForm(user=user).fields
+
+        with self.assertNoException():
+            cfield_f1 = fields1[field_name]
+        self.assertIsInstance(cfield_f1, forms.IntegerField)
+        self.assertEqual(def_value, cfield_f1.initial)
+
+        # Edition ---
+        instance = FakeContact.objects.create(user=user, first_name='Kanbaru', last_name='Suruga')
+        fields2 = FakeContactForm(user=user, instance=instance).fields
+
+        with self.assertNoException():
+            cfield_f2 = fields2[field_name]
+        self.assertIsInstance(cfield_f2, forms.IntegerField)
+        self.assertIsNone(cfield_f2.initial)
+
+    def test_properties(self):
         user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.create
@@ -430,7 +458,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             {ptype01, ptype03}, {p.type for p in contact.properties.all()}
         )
 
-    def test_properties02(self):
+    def test_properties__forced__ids(self):
         "Forced CremePropertyTypes (IDs)."
         user = self.get_root_user()
 
@@ -452,7 +480,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertIndex((ptype02.id, True),  choices)
         self.assertIndex((ptype03.id, False), choices)
 
-    def test_properties03(self):
+    def test_properties__forced__instances(self):
         "Forced CremePropertyTypes (instances)."
         user = self.get_root_user()
 
@@ -475,7 +503,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertIndex((ptype03.id, False), choices)
 
     @override_settings(FORMS_RELATION_FIELDS=False)
-    def test_properties04(self):
+    def test_properties__forced__no_field(self):
         "Forced CremePropertyTypes + no <properties> field."
         user = self.get_root_user()
 
@@ -491,11 +519,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertFalse(form.errors)
 
         contact = form.save()
-        self.assertListEqual(
-            [ptype], [p.type for p in contact.properties.all()]
-        )
+        self.assertListEqual([ptype], [p.type for p in contact.properties.all()])
 
-    def test_relations01(self):
+    def test_relations(self):
         user = self.get_root_user()
 
         contact = FakeContact.objects.create(
@@ -527,8 +553,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertEqual(_('Relationships'), relation_group.label)
 
         self.assertListEqual(
-            ['relation_types'],
-            [bf.name for bf in relation_group.bound_fields],
+            ['relation_types'], [bf.name for bf in relation_group.bound_fields],
         )
 
         # ---
@@ -553,8 +578,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertHaveRelation(subject=subject, type=rtype1, object=contact)
         self.assertHaveRelation(subject=subject, type=rtype2.symmetric_type, object=orga)
 
-    def test_relations02(self):
-        "Semi-fixed."
+    def test_relations__semi_fixed(self):
         user = self.get_root_user()
 
         contact = FakeContact.objects.create(
@@ -620,8 +644,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertHaveRelation(subject=subject, type=rtype1, object=contact)
         self.assertHaveRelation(subject=subject, type=rtype2.symmetric_type, object=orga)
 
-    def test_relations03(self):
-        "Fixed & semi-fixed."
+    def test_relations__fixed_n_semi_fixed(self):
         user = self.get_root_user()
 
         contact = FakeContact.objects.create(
@@ -666,7 +689,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertHaveRelation(subject=subject, type=rtype1, object=contact)
         self.assertHaveRelation(subject=subject, type=rtype2.symmetric_type, object=orga)
 
-    def test_relations04(self):
+    def test_relations__forced(self):
         "Forced Relations."
         user = self.get_root_user()
 
@@ -750,7 +773,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertHaveRelation(subject=subject, type=rtype2.symmetric_type, object=orga)
 
     @override_settings(FORMS_RELATION_FIELDS=False)
-    def test_relations05(self):
+    def test_relations__forced__no_block(self):
         "Forced Relations (no <relations> block)."
         user = self.get_root_user()
 
@@ -766,7 +789,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertNotIn('rtypes_info', form.fields)
 
     @override_settings(FORMS_RELATION_FIELDS=False)
-    def test_no_relations_fields01(self):
+    def test_no_relations_field(self):
         "FORMS_RELATION_FIELDS == False."
         user = self.get_root_user()
 
@@ -776,7 +799,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertNotIn('semifixed_rtypes', fields)
         self.assertNotIn('rtypes_info',      fields)
 
-    def test_no_relations_fields02(self):
+    def test_no_relations_field__edition(self):
         "Edition => no relations/properties field."
         user = self.get_root_user()
 
@@ -790,7 +813,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertNotIn('semifixed_rtypes', fields)
         self.assertNotIn('rtypes_info',      fields)
 
-    def test_relations_credentials01(self):
+    def test_relations_credentials(self):
         user = self.login_as_standard(creatable_models=[FakeContact])
         self.add_credentials(user.role, own='*')
 
@@ -824,7 +847,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertInChoices(value=sfrt1.id, label=sfrt1.predicate, choices=sf_choices)
         self.assertNotInChoices(value=sfrt2.id, choices=sf_choices)
 
-    def test_relations_credentials02(self):
+    def test_relations_credentials__label_if_forbidden(self):
         "Label if we cannot link the future entity."
         user = self.login_as_standard(creatable_models=[FakeContact])
         self.add_credentials(user.role, own=['VIEW', 'CHANGE', 'LINK'])
@@ -872,7 +895,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         subject = form2.save()
         self.assertFalse(subject.relations.count())
 
-    def test_relations_credentials03(self):
+    def test_relations_credentials__link_perms(self):
         "Link credentials on the created entity."
         user = self.login_as_standard(creatable_models=[FakeContact])
         self.add_credentials(user.role, all=['VIEW'], own=['VIEW', 'LINK'])
@@ -906,7 +929,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         subject = form2.save()
         self.assertHaveRelation(subject=subject, type=rtype, object=orga)
 
-    def test_relations_credentials04(self):
+    def test_relations_credentials__link_perms__semi_fixed(self):
         "Link credentials on the created entity (semi-fixed version)."
         user = self.login_as_standard(creatable_models=[FakeContact])
         self.add_credentials(user.role, all=['VIEW'], own=['VIEW', 'LINK'])
@@ -943,7 +966,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         subject = form2.save()
         self.assertHaveRelation(subject=subject, type=rtype, object=orga)
 
-    def test_relations_credentials05(self):
+    def test_relations_credentials__empty(self):
         "No link credentials on the created entity but no relation wanted."
         user = self.login_as_standard(creatable_models=[FakeContact])
         self.add_credentials(user.role, all=['VIEW'], own=['VIEW', 'LINK'])
@@ -958,7 +981,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         self.assertFalse(form.errors)
 
-    def test_relations_credentials06(self):
+    def test_relations_credentials__link_perms__forced(self):
         "Link credentials on the created entity + forced relationships."
         user = self.login_as_standard(creatable_models=[FakeContact])
         self.add_credentials(user.role, all=['VIEW'], own=['VIEW', 'LINK'])
@@ -969,10 +992,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             id='test-subject_heals', predicate='heals',
         ).symmetric(id='test-object_heals', predicate='is healed by').get_or_create()[0]
 
-        data = {
-            'first_name': 'Kanbaru',
-            'last_name': 'Suruga',
-        }
+        data = {'first_name': 'Kanbaru', 'last_name': 'Suruga'}
         forced_relations = [Relation(type=rtype, object_entity=orga)]
 
         # KO ---
@@ -1002,7 +1022,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         subject = form2.save()
         self.assertHaveRelation(subject=subject, type=rtype, object=orga)
 
-    def test_relations_error01(self):
+    def test_relations_error__ctype_constraint(self):
         "ContentType constraint error."
         user = self.get_root_user()
 
@@ -1048,7 +1068,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
 
     @override_settings(FORMS_RELATION_FIELDS=True)
-    def test_relations_error02(self):
+    def test_relations_error__ptype_constraint(self):
         "Property constraint errors."
         user = self.get_root_user()
 
@@ -1176,7 +1196,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
 
     @override_settings(FORMS_RELATION_FIELDS=True)
-    def test_relations_error03(self):
+    def test_relations_error__ptype_constraint__forbidden(self):
         "Forbidden property constraint errors."
         user = self.get_root_user()
 

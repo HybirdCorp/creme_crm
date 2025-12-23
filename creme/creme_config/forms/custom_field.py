@@ -27,8 +27,9 @@ from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms.fields as core_fields
 from creme.creme_core.core.deletion import FixedValueReplacer
+from creme.creme_core.core.value_maker import NoneMaker
 from creme.creme_core.creme_jobs import deletor_type
-from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.forms import CremeModelForm, FieldBlockManager
 from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models import DeletionCommand, Job
 from creme.creme_core.models.custom_field import (
@@ -37,65 +38,233 @@ from creme.creme_core.models.custom_field import (
     CustomFieldEnumValue,
 )
 
-# TODO: User friendly order in choices fields
 
-
-class CustomFieldBaseForm(CremeModelForm):
+# class CustomFieldBaseForm(CremeModelForm):
+#     field_type = forms.TypedChoiceField(
+#         label=_('Type of field'), coerce=int,
+#         choices=[(i, klass.verbose_name) for i, klass in _TABLES.items()],
+#     )
+#     enum_values = forms.CharField(
+#         widget=Textarea(),
+#         label=_('Available choices'),
+#         required=False,
+#         help_text=_(
+#             'Give the possible choices (one per line) '
+#             'if you choose the type "Choice list".'
+#         ),
+#     )
+#
+#     error_messages = {
+#         'empty_list': _(
+#             'The choices list must not be empty '
+#             'if you choose the type "Choice list".'
+#         ),
+#         'duplicated_choice': _('The choice «{}» is duplicated.'),
+#     }
+#
+#     class Meta(CremeModelForm.Meta):
+#         model = CustomField
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self._choices = ()
+#
+#     def clean(self):
+#         cdata = super().clean()
+#
+#         if cdata.get('field_type') in (CustomField.ENUM, CustomField.MULTI_ENUM):
+#             str_choices = cdata['enum_values'].strip()
+#
+#             if not str_choices:
+#                 raise ValidationError(
+#                     self.error_messages['empty_list'], code='empty_list',
+#                 )
+#
+#             choices = str_choices.splitlines()
+#
+#             max_choice, max_count = Counter(choices).most_common(1)[0]
+#             if max_count > 1:
+#                 self.add_error(
+#                     'enum_values',
+#                     self.error_messages['duplicated_choice'].format(max_choice),
+#                 )
+#
+#             self._choices = choices
+#
+#         return cdata
+#
+#     def save(self):
+#         instance = super().save()
+#         choices = self._choices
+#
+#         if choices:
+#             create_enum_value = partial(
+#                 CustomFieldEnumValue.objects.create, custom_field=instance,
+#             )
+#
+#             for enum_value in choices:
+#                 create_enum_value(value=enum_value)
+#
+#         return instance
+#
+# class FirstCustomFieldCreationForm(CustomFieldBaseForm):
+#     content_type = core_fields.EntityCTypeChoiceField(
+#         label=_('Related resource'),
+#         help_text=_(
+#             'The other custom fields for this type of resource will be chosen '
+#             'by editing the configuration'
+#         ),
+#         widget=DynamicSelect({'autocomplete': True}),
+#     )
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#
+#         used_ct_ids = {
+#             *CustomField.objects
+#                         .exclude(is_deleted=True)
+#                         .values_list('content_type_id', flat=True)
+#         }
+#         ct_field = self.fields['content_type']
+#         ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
+#
+# class CustomFieldCreationForm(CustomFieldBaseForm):
+#     error_messages = {
+#         **CustomFieldBaseForm.error_messages,
+#         'duplicated_name': _('There is already a custom field with this name.'),
+#     }
+#
+#     class Meta(CustomFieldBaseForm.Meta):
+#         exclude = ('content_type',)
+#
+#     def __init__(self, ctype, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.ct = ctype
+#
+#     def clean_name(self):
+#         name = self.cleaned_data['name']
+#
+#         if CustomField.objects.filter(content_type=self.ct, name=name).exists():
+#             raise ValidationError(
+#                 self.error_messages['duplicated_name'], code='duplicated_name',
+#             )
+#
+#         return name
+#
+#     def save(self):
+#         self.instance.content_type = self.ct
+#         return super().save()
+class CustomFieldMainStep(CremeModelForm):
+    content_type = core_fields.EntityCTypeChoiceField(
+        label=_('Related resource'),
+        help_text=_(
+            'The other custom fields for this type of resource will be chosen '
+            'by editing the configuration'
+        ),
+        widget=DynamicSelect({'autocomplete': True}),
+    )
     field_type = forms.TypedChoiceField(
         label=_('Type of field'), coerce=int,
         choices=[(i, klass.verbose_name) for i, klass in _TABLES.items()],
     )
-    enum_values = forms.CharField(
-        widget=Textarea(),
-        label=_('Available choices'),
-        required=False,
-        help_text=_(
-            'Give the possible choices (one per line) '
-            'if you choose the type "Choice list".'
-        ),
-    )
 
     error_messages = {
-        'empty_list': _(
-            'The choices list must not be empty '
-            'if you choose the type "Choice list".'
-        ),
-        'duplicated_choice': _('The choice «{}» is duplicated.'),
+        'duplicated_name': _('There is already a custom field with this name.'),
     }
 
     class Meta(CremeModelForm.Meta):
         model = CustomField
+        exclude = ('is_required',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if self.instance.content_type_id:
+            del self.fields['content_type']
+        else:
+            used_ct_ids = {
+                *CustomField.objects
+                            .exclude(is_deleted=True)
+                            .values_list('content_type_id', flat=True)
+            }
+            ct_field = self.fields['content_type']
+            ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
+
+    def clean_name(self):
+        name = self.cleaned_data['name']
+
+        if CustomField.objects.filter(
+            content_type=self.instance.content_type, name=name,
+        ).exists():
+            raise ValidationError(
+                self.error_messages['duplicated_name'], code='duplicated_name',
+            )
+
+        return name
+
+    def save(self, commit=False, *args, **kwargs):
+        return super().save(*args, **kwargs) if commit else self.instance
+
+
+class CustomFieldConstraintsStep(CremeModelForm):
+    class Meta(CremeModelForm.Meta):
+        model = CustomField
+        fields = ('is_required',)
+
+    error_messages = {
+        'duplicated_choice': _('The choice «{}» is duplicated.'),
+    }
+    blocks = FieldBlockManager({
+        'id': 'main', 'label': _('Constraints'), 'fields': '*',
+    })
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        default_value_f = self.instance.value_class.get_default_value_formfield(
+            label=_('Default value'), required=False,
+            help_text=_('The default value is used as initial value in the creation forms'),
+        )
+        if default_value_f:
+            self.fields['default_value'] = default_value_f
+
+        # TODO: extensible constraint system?
         self._choices = ()
+        if self.instance.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
+            # TODO: need better widget
+            self.fields['enum_values'] = forms.CharField(
+                widget=Textarea(),
+                label=_('Available choices'),
+                help_text=_('Give the possible choices (one per line)'),
+            )
 
     def clean(self):
         cdata = super().clean()
 
-        if cdata.get('field_type') in (CustomField.ENUM, CustomField.MULTI_ENUM):
-            str_choices = cdata['enum_values'].strip()
+        if not self._errors:
+            self.instance.default_value = cdata.get('default_value') or None
 
-            if not str_choices:
-                raise ValidationError(
-                    self.error_messages['empty_list'], code='empty_list',
-                )
+            enum_values = cdata.get('enum_values')
+            if enum_values:
+                choices = enum_values.splitlines()
 
-            choices = str_choices.splitlines()
+                max_choice, max_count = Counter(choices).most_common(1)[0]
+                if max_count > 1:
+                    self.add_error(
+                        'enum_values',
+                        self.error_messages['duplicated_choice'].format(max_choice),
+                    )
 
-            max_choice, max_count = Counter(choices).most_common(1)[0]
-            if max_count > 1:
-                self.add_error(
-                    'enum_values',
-                    self.error_messages['duplicated_choice'].format(max_choice),
-                )
-
-            self._choices = choices
+                self._choices = choices
 
         return cdata
 
-    def save(self):
-        instance = super().save()
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        maker = self.cleaned_data.get('default_value')
+        if maker is not None:
+            instance.default_value_maker = maker
+
+        super().save(*args, **kwargs)
         choices = self._choices
 
         if choices:
@@ -109,56 +278,6 @@ class CustomFieldBaseForm(CremeModelForm):
         return instance
 
 
-class FirstCustomFieldCreationForm(CustomFieldBaseForm):
-    content_type = core_fields.EntityCTypeChoiceField(
-        label=_('Related resource'),
-        help_text=_(
-            'The other custom fields for this type of resource will be chosen '
-            'by editing the configuration'
-        ),
-        widget=DynamicSelect({'autocomplete': True}),
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        used_ct_ids = {
-            *CustomField.objects
-                        .exclude(is_deleted=True)
-                        .values_list('content_type_id', flat=True)
-        }
-        ct_field = self.fields['content_type']
-        ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
-
-
-class CustomFieldCreationForm(CustomFieldBaseForm):
-    error_messages = {
-        **CustomFieldBaseForm.error_messages,
-        'duplicated_name': _('There is already a custom field with this name.'),
-    }
-
-    class Meta(CustomFieldBaseForm.Meta):
-        exclude = ('content_type',)
-
-    def __init__(self, ctype, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.ct = ctype
-
-    def clean_name(self):
-        name = self.cleaned_data['name']
-
-        if CustomField.objects.filter(content_type=self.ct, name=name).exists():
-            raise ValidationError(
-                self.error_messages['duplicated_name'], code='duplicated_name',
-            )
-
-        return name
-
-    def save(self):
-        self.instance.content_type = self.ct
-        return super().save()
-
-
 class CustomFieldEditionForm(CremeModelForm):
     # TODO: factorise
     error_messages = {
@@ -169,18 +288,37 @@ class CustomFieldEditionForm(CremeModelForm):
         model = CustomField
         fields = ('name', 'is_required', 'description')
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = self.instance
+        default_value_f = instance.value_class.get_default_value_formfield(
+            label=_('Default value'), required=False,
+            help_text=_('The default value is used as initial value in the creation forms'),
+            initial=instance.default_value_maker,
+        )
+        if default_value_f:
+            self.fields['default_value'] = default_value_f
+
     def clean_name(self):
         name = self.cleaned_data['name']
         instance = self.instance
 
-        if CustomField.objects.filter(content_type=instance.content_type, name=name)\
-                              .exclude(id=instance.id)\
-                              .exists():
+        if CustomField.objects.filter(
+            content_type=instance.content_type, name=name,
+        ).exclude(id=instance.id).exists():
             raise ValidationError(
                 self.error_messages['duplicated_name'], code='duplicated_name',
             )
 
         return name
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        instance.default_value_maker = self.cleaned_data.get('default_value') or NoneMaker()
+
+        super().save(*args, **kwargs)
+
+        return instance
 
 
 class BaseCustomEnumAddingForm(CremeModelForm):
@@ -317,8 +455,7 @@ class CustomEnumDeletionForm(CremeModelForm):
             value=choice_to_delete,
         ).count()
         instance.job = Job.objects.create(
-            type_id=deletor_type.id,
-            user=self.user,
+            type_id=deletor_type.id, user=self.user,
         )
 
         return super().save(*args, **kwargs)

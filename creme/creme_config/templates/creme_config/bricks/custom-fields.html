@@ -46,6 +46,11 @@
                               {% brick_table_action id='redirect' url='creme_config__custom_enums'|url:cfield.id label=enums_label type='view' display='both' %}
                             {% endif %}
                         </td>
+                        <td class="cfields-config-default">
+                          {% with default_value=cfield.default_value_maker.render %}
+                            {% if default_value %}{% blocktranslate with value=default_value|linebreaksbr %}Default value: {{value}}{% endblocktranslate %}{% else %}<span class="cfields-config-default-empty">{% translate 'No default value' %}</span>{% endif %}
+                          {% endwith %}
+                        </td>
                         <td class="cfields-config-description" title="{% translate 'Description' %}">
                             {{cfield.description|default:'—'}}
                         </td>
