@@ -1,0 +1,7 @@
+{% if entry.permission_error %}
+<span class="ui-creme-navigation-text-entry forbidden" title="{{ entry.permission_error }}">
+    {{ entry.label }}
+</span>
+{% else %}
+<a href="{{ entry.url }}">{{ entry.label }}</a>
+{% endif %}
