@@ -1,5 +1,11 @@
 == Version 2.7.4 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Creme_config :
+            - In configuration for CustomFields, the models were not ordered by name as usual.
+
 
 == Version 2.7.3 ==
 
