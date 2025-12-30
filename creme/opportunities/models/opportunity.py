@@ -83,10 +83,12 @@ class AbstractOpportunity(core_models.CremeEntity):
         _('Reference'), max_length=100, blank=True,
     ).set_tags(optional=True)
 
-    estimated_sales = models.PositiveIntegerField(
+    # estimated_sales = models.PositiveIntegerField(
+    estimated_sales = core_fields.PositiveIntegerMoneyField(
         _('Estimated sales'), blank=True, null=True,
     ).set_tags(optional=True)
-    made_sales = models.PositiveIntegerField(
+    # made_sales = models.PositiveIntegerField(
+    made_sales = core_fields.PositiveIntegerMoneyField(
         _('Made sales'), blank=True, null=True,
     ).set_tags(optional=True)
     currency = models.ForeignKey(

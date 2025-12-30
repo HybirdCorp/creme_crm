@@ -40,7 +40,7 @@ from creme.creme_core.forms.widgets import (
     PrettySelect,
 )
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.models.fields import MoneyField
+from creme.creme_core.models import fields as core_fields
 from creme.creme_core.utils.unicode_collation import collator
 
 from ..constants import AbscissaGroup, OrdinateAggregator
@@ -707,7 +707,10 @@ class ChartForm(CremeModelForm):
             for cell in cell_constraint.cells(ordinate_f.not_hiddable_cell_keys)
             if (
                 isinstance(cell, EntityCellRegularField)
-                and isinstance(cell.field_info[-1], MoneyField)
+                and isinstance(
+                    cell.field_info[-1],
+                    (core_fields.MoneyField, core_fields.PositiveIntegerMoneyField)
+                )
             )
         ]
         if money_fields:

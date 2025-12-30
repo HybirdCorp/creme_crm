@@ -729,6 +729,30 @@ else:
 
         # NB: no get_lv_absolute_url(()  (see views.test_header_filter)
 
+    class FakeOpportunity(CremeEntity):
+        name = models.CharField('Name', max_length=100)
+
+        estimated_sales = core_fields.PositiveIntegerMoneyField(
+            'Estimated sales', blank=True, null=True,
+        )  # .set_tags(optional=True)
+        # We already have PositiveIntegerField in fake models
+        made_sales = models.IntegerField(
+            'Made sales', blank=True, null=True,
+        )  # .set_tags(optional=True)
+        # TODO?
+        #  chance_to_win = core_fields.IntegerPercentField(
+        #      'Chance to win', blank=True, null=True,
+        #  ).set_tags(optional=True)
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = 'Test Opportunity'
+            verbose_name_plural = 'Test Opportunities'
+            ordering = ('name',)
+
+        def __str__(self):
+            return self.name
+
     class FakeReport(CremeEntity):
         name = models.CharField(_('Name'), max_length=100)
         ctype = core_fields.EntityCTypeForeignKey(verbose_name=_('Entity type'))
