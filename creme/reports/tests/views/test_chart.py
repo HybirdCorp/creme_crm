@@ -17,6 +17,7 @@ from creme.creme_core.models import (
     RelationType,
 )
 from creme.creme_core.tests import fake_constants
+from creme.creme_core.tests.fake_models import FakeOpportunity
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.reports.bricks import InstanceBricksInfoBrick, ReportChartBrick
 from creme.reports.core.chart import AbscissaInfo
@@ -777,8 +778,7 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         self.assertEqual(chart_type,                   chart.abscissa_type)
         self.assertIsNone(chart.abscissa_parameter)
 
-    def test_edition__other_ctype(self):
-        "Another ContentType."
+    def test_edition__money_field(self):
         user = self.login_as_root_and_get()
         chart = self._create_invoice_report_n_chart(user=user)
         url = self._build_edit_url(chart)
@@ -821,6 +821,33 @@ class ReportChartViewsTestCase(BrickTestCaseMixin,
         self.assertIsNone(chart.abscissa_parameter)
         self.assertEqual(ReportChart.Aggregator.AVG, chart.ordinate_type)
         self.assertEqual('regular_field-total_vat',  chart.ordinate_cell_key)
+
+    def test_edition__integer_money_field(self):
+        user = self.login_as_root_and_get()
+        report = Report.objects.create(
+            user=user, name='All opportunities of the current year',
+            ct=FakeOpportunity,
+        )
+        chart = ReportChart.objects.create(
+            linked_report=report,
+            name='Sum of current year estimated sales / month',
+            abscissa_cell_value='created',
+            abscissa_type=ReportChart.Group.MONTH,
+            ordinate_type=ReportChart.Aggregator.SUM,
+            ordinate_cell_key='regular_field-estimated_sales',
+        )
+        response = self.assertGET200(self._build_edit_url(chart))
+
+        with self.assertNoException():
+            ordinate_f = response.context['form'].fields['ordinate']
+
+        self.assertEqual(
+            _(
+                'If you use a field related to money, the entities should use the same '
+                'currency or the result will be wrong. Concerned fields are: {}'
+            ).format('Estimated sales'),
+            ordinate_f.help_text,
+        )
 
     def test_edition__fieldsconfig(self):
         user = self.login_as_root_and_get()

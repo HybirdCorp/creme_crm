@@ -115,7 +115,12 @@ class FileSizeField(models.PositiveIntegerField):
     pass
 
 
+# TODO: rename?
 class MoneyField(models.DecimalField):
+    pass
+
+
+class PositiveIntegerMoneyField(models.PositiveIntegerField):
     pass
 
 

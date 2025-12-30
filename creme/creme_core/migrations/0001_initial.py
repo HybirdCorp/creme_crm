@@ -2033,6 +2033,35 @@ class Migration(migrations.Migration):
                 bases=('creme_core.cremeentity',),
             ),
             migrations.CreateModel(
+                name='FakeOpportunity',
+                fields=[
+                    (
+                        'cremeentity_ptr',
+                        models.OneToOneField(
+                            parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                            to='creme_core.CremeEntity', on_delete=models.CASCADE,
+                        )
+                    ),
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    (
+                        'estimated_sales',
+                        core_fields.PositiveIntegerMoneyField(
+                            verbose_name='Estimated sales', null=True, blank=True,
+                        )
+                    ),
+                    (
+                        'made_sales',
+                        models.IntegerField(verbose_name='Made sales', null=True, blank=True)
+                    ),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test Opportunity',
+                    'verbose_name_plural': 'Test Opportunities',
+                },
+                bases=('creme_core.cremeentity',),
+            ),
+            migrations.CreateModel(
                 name='FakeReport',
                 fields=[
                     (
