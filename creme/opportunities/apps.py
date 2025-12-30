@@ -54,6 +54,17 @@ class OpportunitiesConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Opportunity)
 
+    def register_aggregators(self, aggregator_registry):
+        aggregator_registry.model(self.Opportunity).add_aggregator(
+            field='estimated_sales', label='Σ', function='Sum',
+        ).add_aggregator(
+            field='estimated_sales', label='μ', function='Avg',
+        ).add_aggregator(
+            field='made_sales', label='Σ', function='Sum',
+        ).add_aggregator(
+            field='made_sales', label='μ', function='Avg',
+        )
+
     def register_bricks(self, brick_registry):
         from . import bricks
 
