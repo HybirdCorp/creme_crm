@@ -112,7 +112,6 @@ class UserRole(models.Model):
         _('Deactivated on'), null=True, default=None, editable=False,
     )
 
-    # superior = ForeignKey('self', verbose_name=_('Superior'), null=True)
     # TODO: CTypeManyToManyField ?
     creatable_ctypes = models.ManyToManyField(
         ContentType, verbose_name=_('Creatable resources'),
