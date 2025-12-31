@@ -38,7 +38,7 @@ class ExtractorTestCase(CremeTestCase):
         super().setUpClass()
         cls.user = cls.build_user()
 
-    def test_extract01(self):
+    def test_extract(self):
         user = self.user
         default_value = '??'
         extractor = RegularFieldExtractor(
@@ -55,7 +55,7 @@ class ExtractorTestCase(CremeTestCase):
         line3 = ['', 'Hamilton']
         self.assertEqual((default_value, None), extractor.extract_value(line3, user))
 
-    def test_extract02(self):
+    def test_extract__cast(self):
         "Other index, casting."
         user = self.user
         default_value = 42
@@ -76,7 +76,7 @@ class ExtractorTestCase(CremeTestCase):
             extractor.extract_value(line3, user),
         )
 
-    def test_extract03(self):
+    def test_extract__sub_field(self):
         "Sub-field search."
         user = self.user
         extractor = RegularFieldExtractor(
@@ -120,7 +120,7 @@ class ExtractorTestCase(CremeTestCase):
             err_msg4,
         )
 
-    def test_extract04(self):
+    def test_extract__sub_field__creation_form(self):
         "Sub-field search + creation form class."
         class FakeSectorForm(CremeModelForm):
             class Meta:
@@ -161,7 +161,7 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         super().setUpClass()
         cls.user = cls.build_user()
 
-    def test_extract01(self):
+    def test_extract(self):
         user = self.user
         cfield = CustomField.objects.create(
             name='Hobby',
@@ -193,8 +193,7 @@ class CustomFieldExtractorTestCase(CremeTestCase):
             (default_value, None), extractor.extract_value(line3, user),
         )
 
-    def test_extract02(self):
-        "Validation."
+    def test_extract__validation(self):
         user = self.user
         cfield = CustomField.objects.create(
             name='Size',
@@ -223,7 +222,7 @@ class CustomFieldExtractorTestCase(CremeTestCase):
             extractor.extract_value(line3, user)
         )
 
-    def test_extract_enum01(self):
+    def test_extract__enum__creation(self):
         "create_if_unfound == True."
         user = self.user
         cfield = CustomField.objects.create(
@@ -263,7 +262,7 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         self.assertEqual(cfield, eval3.custom_field)
         self.assertEqual(line3[2], eval3.value)
 
-    def test_extract_enum02(self):
+    def test_extract__enum__no_creation(self):
         "create_if_unfound == False + empty default value."
         user = self.user
         cfield = CustomField.objects.create(
@@ -304,7 +303,7 @@ class CustomFieldExtractorTestCase(CremeTestCase):
             extractor.extract_value(line2, user)
         )
 
-    def test_extract_enum03(self):
+    def test_extract__enum__no_creation__default(self):
         "create_if_unfound == False + default value."
         cfield = CustomField.objects.create(
             name='Hobby',
@@ -339,7 +338,7 @@ class CustomFieldExtractorTestCase(CremeTestCase):
             extractor.extract_value(line, self.user),
         )
 
-    def test_extract_enum04(self):
+    def test_extract__enum__dupliactes(self):
         "Search + duplicates."
         cfield = CustomField.objects.create(
             name='Hobby',
@@ -366,7 +365,7 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         eval_id, err_msg = extractor.extract_value(line, user=self.user)
         self.assertIsNone(err_msg)
 
-    def test_extract_menum01(self):
+    def test_extract__multi_enum(self):
         user = self.user
         cfield = CustomField.objects.create(
             name='Hobby',

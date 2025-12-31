@@ -73,7 +73,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(is_updatable(field=get_field('address')))  # Editable = False
         self.assertFalse(is_updatable(field=get_field('email')))  # Excluded field
 
-    def test_is_regular_field_updatable_inheritance(self):
+    def test_is_regular_field_updatable__inheritance(self):
         is_updatable = partial(
             self.bulk_update_registry
                 .register(FakeContact)
@@ -90,7 +90,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(is_updatable(field=get_field('modified')))
         self.assertFalse(is_updatable(field=get_field('is_deleted')))
 
-    def test_is_regular_field_updatable_unique01(self):
+    def test_is_regular_field_updatable__unique(self):
         is_updatable = partial(
             self.bulk_update_registry
                 .register(FakeActivity)
@@ -104,7 +104,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertTrue(is_updatable(field=title_f, exclude_unique=False))
         self.assertFalse(is_updatable(field=title_f))
 
-    def test_is_regular_field_updatable_unique02(self):
+    def test_is_regular_field_updatable__unique__file_fields(self):
         "FileFields are considered unique."
         is_updatable = partial(
             self.bulk_update_registry
@@ -117,7 +117,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertTrue(is_updatable(field=filedata_f, exclude_unique=False))
         self.assertFalse(is_updatable(field=filedata_f, exclude_unique=True))
 
-    def test_is_regular_field_updatable_many2many(self):
+    def test_is_regular_field_updatable__many2many(self):
         self.assertTrue(
             self.bulk_update_registry.register(FakeImage).is_regular_field_updatable(
                 model=FakeImage,
@@ -151,7 +151,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             config.overrider_classes,
         )
 
-    def test_overriders_duplicate01(self):
+    def test_overriders__duplicate__same_call(self):
         "Field overridden several times => error."
         registry = self.bulk_update_registry
         overridden = 'image'
@@ -172,7 +172,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_overriders_duplicate02(self):
+    def test_overriders__duplicate__different_calls(self):
         "Field overridden several times => error."
         registry = self.bulk_update_registry
         overridden = 'image'
@@ -194,7 +194,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_overriders_excluded01(self):
+    def test_overriders__excluded(self):
         "Field excluded + overridden => error."
         registry = self.bulk_update_registry
         overridden = 'image'
@@ -212,7 +212,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_overriders_excluded02(self):
+    def test_overriders__excluded__after(self):
         "Field excluded + overridden => error (exclude() is called after) ."
         registry = self.bulk_update_registry
         overridden = 'image'
@@ -286,7 +286,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             registry.config(FakeActivity).regular_fields(),
         )
 
-    def test_regular_fields_include_unique(self):
+    def test_regular_fields__include_unique(self):
         get_field = FakeActivity._meta.get_field
         self.assertCountEqual(
             [
@@ -321,7 +321,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             [cf_1], [*registry.config(FakeContact).custom_fields],
         )
 
-    def test_custom_fields_deleted(self):
+    def test_custom_fields__deleted(self):
         registry = self.bulk_update_registry
         registry.register(FakeContact)
 
@@ -431,8 +431,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 #        self.assertEqual(_ContactInnerEditForm, status(Contact).get_form('last_name'))
 #        self.assertEqual(_SubContactInnerEdit,  status(SubContact).get_form('last_name'))
 
-    def test_inner_uri01(self):
-        "Regular field."
+    def test_inner_uri__regular_field(self):
         user = self.get_root_user()
         model = FakeContact
         instance = model.objects.create(
@@ -465,7 +464,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             registry.inner_uri(instance=instance, cells=[cell1, cell2]),
         )
 
-    def test_inner_uri02(self):
+    def test_inner_uri__error(self):
         "Not inner-editable field."
         user = self.get_root_user()
         model = FakeContact
@@ -480,8 +479,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         cell = entity_cell.EntityCellRegularField.build(model=model, name=fname)
         self.assertIsNone(registry.inner_uri(instance=instance, cells=[cell]))
 
-    def test_inner_uri03(self):
-        "Custom field."
+    def test_inner_uri__custom_field(self):
         user = self.get_root_user()
         model = FakeContact
 
@@ -502,7 +500,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             registry.inner_uri(instance=instance, cells=[cell]),
         )
 
-    def test_build_form_class_model_not_registered(self):
+    def test_build_form_class__model_not_registered(self):
         registry = self.bulk_update_registry
         # registry.register(FakeOrganisation) NOPE
 
@@ -526,7 +524,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
                 cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
             )
 
-    def test_build_form_class_no_cell(self):
+    def test_build_form_class__no_cell(self):
         registry = self.bulk_update_registry
         registry.register(FakeOrganisation)
 
@@ -538,7 +536,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_build_form_class_not_editable_cell_type(self):
+    def test_build_form_class__not_editable_cell_type(self):
         model = FakeOrganisation
         registry = self.bulk_update_registry
         registry.register(model)
@@ -556,7 +554,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_build_form_class_1_regular_field(self):
+    def test_build_form_class__1_regular_field(self):
         registry = self.bulk_update_registry
         registry.register(FakeOrganisation)
 
@@ -591,7 +589,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         form2.save()
         self.assertEqual(name, self.refresh(orga).name)
 
-    def test_build_form_class_2_regular_fields(self):
+    def test_build_form_class__2_regular_fields(self):
         registry = self.bulk_update_registry
         registry.register(FakeOrganisation)
 
@@ -651,7 +649,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertEqual(name,  orga.name)
         self.assertEqual(email, orga.email)
 
-    def test_build_form_class_not_editable_field(self):
+    def test_build_form_class__not_editable_field(self):
         registry = self.bulk_update_registry
         registry.register(FakeOrganisation)
 
@@ -674,7 +672,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         assertFieldRejected('created')
         assertFieldRejected('address')
 
-    def test_build_form_class_excluded_field(self):
+    def test_build_form_class__excluded_field(self):
         field_name = 'email'
         registry = self.bulk_update_registry
         registry.register(FakeOrganisation).exclude(field_name)
@@ -692,7 +690,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_build_form_class_hidden_field(self):
+    def test_build_form_class__hidden_field(self):
         model = FakeOrganisation
         field_name = 'capital'
         registry = self.bulk_update_registry
@@ -716,7 +714,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_build_form_class_unique_regular_field(self):
+    def test_build_form_class__unique_regular_field(self):
         "<FakeActivity.title> is unique."
         registry = self.bulk_update_registry
         registry.register(FakeActivity)
@@ -764,7 +762,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         form3.save()
         self.assertEqual(title, self.refresh(activity1).title)
 
-    def test_build_form_class_1_custom_field(self):
+    def test_build_form_class__1_custom_field(self):
         registry = self.bulk_update_registry
         registry.register(FakeOrganisation)
 
@@ -808,7 +806,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             cfield.value_class.objects.get(custom_field=cfield, entity=orga).value,
         )
 
-    def test_build_form_class_deleted_custom_field(self):
+    def test_build_form_class__deleted_custom_field(self):
         registry = self.bulk_update_registry
         registry.register(FakeOrganisation)
 
@@ -828,7 +826,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_build_form_class_overriders01(self):
+    def test_build_form_class__overriders(self):
         registry = self.bulk_update_registry
         overridden1 = 'image'
         overridden2 = 'capital'
@@ -951,7 +949,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertEqual(img1.id, orga1.image_id)
         self.assertEqual(a_lot,   orga1.capital)
 
-    def test_build_form_class_overriders02(self):
+    def test_build_form_class__overriders__several(self):
         "Override several fields at once."
         registry = self.bulk_update_registry
         overridden1 = 'url_site'
@@ -1008,7 +1006,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertEqual('https://nerv.jp', orga.url_site)
         self.assertEqual('contact@nerv.jp', orga.email)
 
-    def test_build_form_class_overriders03(self):
+    def test_build_form_class__overriders__wrapped_errors(self):
         "Errors are wrapped with good field name."
         registry = self.bulk_update_registry
         overridden = 'email'
@@ -1052,7 +1050,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             form, (form_field_name, error_msg),
         )
 
-    def test_build_form_class_overriders__post_save_instance(self):
+    def test_build_form_class__overriders__post_save_instance(self):
         registry = self.bulk_update_registry
         overridden = 'languages'
 
@@ -1105,7 +1103,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         form2.save()
         self.assertListEqual([klingon], [*self.refresh(contact).languages.all()])
 
-    def test_build_form_class_fk(self):
+    def test_build_form_class__fk(self):
         model = FakeContact
         registry = self.bulk_update_registry
         registry.register(model)
@@ -1144,7 +1142,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertEqual(civ2, getattr(self.refresh(contact), field_name))
 
     @override_settings(FORM_ENUMERABLE_LIMIT=100)
-    def test_build_form_class_fk_limit_choices(self):
+    def test_build_form_class__fk__limit_choices(self):
         "limit_choices_to: callable yielding Q."
         user = self.get_root_user()
 
@@ -1174,7 +1172,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         self.assertEqual(expected, choices)
 
-    def test_build_form_class_fk_sub_field(self):
+    def test_build_form_class__fk__sub_field(self):
         model = FakeContact
         registry = self.bulk_update_registry
         registry.register(model)

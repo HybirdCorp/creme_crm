@@ -431,7 +431,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             msg,
         )
 
-    def test_delete_entity__ajax01(self):
+    def test_delete_entity__ajax__trash(self):
         "is_deleted=False -> trash (AJAX version)."
         user = self.login_as_root_and_get()
 
@@ -452,8 +452,8 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             response.content,
         )
 
-    def test_delete_entity__ajax02(self):
-        "is_deleted=True -> real deletion(AJAX version)."
+    def test_delete_entity__ajax__definitive(self):
+        "is_deleted=True -> real deletion (AJAX version)."
         user = self.login_as_root_and_get()
 
         # To get a get_lv_absolute_url() method
@@ -592,7 +592,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             errors[0],
         )
 
-    def test_delete_entities__not_allowed(self):
+    def test_delete_entities__forbidden(self):
         "Some entities deletion is not allowed."
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*')
@@ -623,7 +623,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.get_object_or_fail(FakeOrganisation, pk=forbidden.id)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
-    def test_delete_entities__disabled01(self):
+    def test_delete_entities__disabled(self):
         "Deletion is disabled in settings."
         user = self.login_as_root_and_get()
 
@@ -656,7 +656,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
-    def test_delete_entities__disabled02(self):
+    def test_delete_entities__disabled__staff(self):
         "Logged as staff."
         user = self.login_as_super(is_staff=True)
 
@@ -712,7 +712,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             response.json(),
         )
 
-    def test_trash_view01(self):
+    def test_trash_view(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -737,7 +737,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
-    def test_trash_view02(self):
+    def test_trash_view__deletion_disabled(self):
         "Definitive deletion is disabled."
         user = self.login_as_root_and_get()
         entity = FakeOrganisation.objects.create(user=user, name='Nerv', is_deleted=True)

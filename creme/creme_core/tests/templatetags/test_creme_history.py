@@ -15,8 +15,7 @@ from ..fake_models import FakeContact
 
 
 class CremeHistoryTagsTestCase(CremeTestCase):
-    def test_history_summary01(self):
-        "No edition."
+    def test_history_summary__no_edition(self):
         user = self.get_root_user()
         togame = FakeContact.objects.create(user=user, first_name='Togame', last_name='Kisakushi')
         self.assertTrue(HistoryLine.objects.filter(entity=togame.id))
@@ -37,8 +36,7 @@ class CremeHistoryTagsTestCase(CremeTestCase):
 
         self.assertIsNone(edition)
 
-    def test_history_summary02(self):
-        "Edition."
+    def test_history_summary__edition(self):
         user = self.get_root_user()
         togame = FakeContact.objects.create(user=user, first_name='Togame', last_name='Kisakushi')
 
@@ -61,8 +59,8 @@ class CremeHistoryTagsTestCase(CremeTestCase):
         self.assertEqual(togame.modified, edition.date)
         self.assertIsNone(edition.user)
 
-    def test_history_summary03(self):
-        "No stored history lines."
+    def test_history_summary__no_line(self):
+        "No stored history line."
         user = self.get_root_user()
 
         with toggle_history(enabled=False):
@@ -90,8 +88,7 @@ class CremeHistoryTagsTestCase(CremeTestCase):
         self.assertEqual(togame.modified, edition.date)
         self.assertIsNone(edition.user)
 
-    def test_history_summary04(self):
-        "Users."
+    def test_history_summary__users(self):
         self.login_as_root()
         user = self.get_root_user()
 

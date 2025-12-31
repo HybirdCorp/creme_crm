@@ -367,7 +367,7 @@ class ButtonMenuTestCase(CremeTestCase):
             logs_manager.output,
         )
 
-    def test_registry_unregister(self):
+    def test_registry__unregister(self):
         class TestButton1(Button):
             id = Button.generate_id('creme_core', 'test_button_registry_1')
 
@@ -404,7 +404,7 @@ class ButtonMenuTestCase(CremeTestCase):
             str(cm2.exception),
         )
 
-    def test_registry_mandatory_buttons(self):
+    def test_registry__mandatory_buttons(self):
         class TestButton1(Button):
             id = Button.generate_id('creme_core', 'test_mandatory_button_1')
 
@@ -506,7 +506,7 @@ class ButtonMenuTestCase(CremeTestCase):
             [*registry.mandatory_buttons(entity=FakeOrganisation(), request=request)],
         )
 
-    def test_registry_mandatory_buttons__empty_id(self):
+    def test_registry__mandatory_buttons__empty_id(self):
         class TestButton(Button):
             # id = ...
             pass
@@ -516,7 +516,7 @@ class ButtonMenuTestCase(CremeTestCase):
         with self.assertRaises(ButtonRegistry.RegistrationError):
             registry.register_mandatory(button_class=TestButton)
 
-    def test_registry_mandatory_buttons__duplicated_id1(self):
+    def test_registry__mandatory_buttons__duplicated_id(self):
         class TestButton1(Button):
             id = Button.generate_id('creme_core', 'test_button_registry_1')
 
@@ -529,7 +529,7 @@ class ButtonMenuTestCase(CremeTestCase):
         with self.assertRaises(ButtonRegistry.RegistrationError):
             registry.register_mandatory(button_class=TestButton2)
 
-    def test_registry_mandatory_buttons__duplicated_id2(self):
+    def test_registry__mandatory_buttons__duplicated_id__ctypes(self):
         class TestButton1(Button):
             id = Button.generate_id('creme_core', 'test_button_registry_1')
 
@@ -548,33 +548,7 @@ class ButtonMenuTestCase(CremeTestCase):
         with self.assertRaises(ButtonRegistry.RegistrationError):
             registry.register_mandatory(button_class=TestButton2)
 
-    def test_registry_unregister_mandatory_errors(self):
-        class TestButton1(Button):
-            # id = ''
-            pass
-
-        class TestButton2(Button):
-            id = Button.generate_id('creme_core', 'test_button_registry_2')
-
-        registry = ButtonRegistry().register_mandatory(button_class=TestButton2)
-
-        with self.assertRaises(ButtonRegistry.UnRegistrationError) as cm1:
-            registry.unregister_mandatory(button_class=TestButton1)
-
-        self.assertStartsWith(str(cm1.exception), 'Button class with empty ID:')
-
-        # ---
-        registry.unregister_mandatory(button_class=TestButton2)
-
-        with self.assertRaises(ButtonRegistry.UnRegistrationError) as cm2:
-            registry.unregister_mandatory(button_class=TestButton2)
-
-        self.assertStartsWith(
-            str(cm2.exception),
-            'Button class with invalid ID (already unregistered?): ',
-        )
-
-    def test_registry_mandatory_buttons__ok_for_display(self):
+    def test_registry__mandatory_buttons__not_displayed(self):
         class TestButton(Button):
             id = Button.generate_id('creme_core', 'test_mandatory_button')
 
@@ -601,3 +575,29 @@ class ButtonMenuTestCase(CremeTestCase):
 
         with self.assertLogs(level='CRITICAL'):
             registry.register_mandatory(ProblematicTestButton)
+
+    def test_registry__unregister_mandatory__errors(self):
+        class TestButton1(Button):
+            # id = ''
+            pass
+
+        class TestButton2(Button):
+            id = Button.generate_id('creme_core', 'test_button_registry_2')
+
+        registry = ButtonRegistry().register_mandatory(button_class=TestButton2)
+
+        with self.assertRaises(ButtonRegistry.UnRegistrationError) as cm1:
+            registry.unregister_mandatory(button_class=TestButton1)
+
+        self.assertStartsWith(str(cm1.exception), 'Button class with empty ID:')
+
+        # ---
+        registry.unregister_mandatory(button_class=TestButton2)
+
+        with self.assertRaises(ButtonRegistry.UnRegistrationError) as cm2:
+            registry.unregister_mandatory(button_class=TestButton2)
+
+        self.assertStartsWith(
+            str(cm2.exception),
+            'Button class with invalid ID (already unregistered?): ',
+        )

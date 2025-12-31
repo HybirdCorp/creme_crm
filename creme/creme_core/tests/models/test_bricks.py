@@ -39,44 +39,33 @@ from ..base import CremeTestCase
 from ..fake_bricks import FakeOrganisationCardHatBrick
 
 
-class BrickTestCase(CremeTestCase):
-    class TestBrick01(Brick):
+class BaseBrickTestCase(CremeTestCase):
+    class TestBrick1(Brick):
         id = Brick.generate_id('creme_core', 'test_models_bricks01')
         verbose_name = 'First test block'
 
-    class TestBrick02(Brick):
+    class TestBrick2(Brick):
         id = Brick.generate_id('creme_core', 'test_models_bricks02')
         verbose_name = 'Second test block'
 
+
+class DetailBrickTestCase(BaseBrickTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-
-        cls._bdl_backup = [*BrickDetailviewLocation.objects.all()]
-        cls._bpl_backup = [*BrickHomeLocation.objects.all()]
-        cls._bml_backup = [*BrickMypageLocation.objects.all()]
-
+        cls._locations_backup = [*BrickDetailviewLocation.objects.all()]
         BrickDetailviewLocation.objects.all().delete()
-        BrickHomeLocation.objects.all().delete()
-        BrickMypageLocation.objects.all().delete()
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
 
         BrickDetailviewLocation.objects.all().delete()
-        BrickHomeLocation.objects.all().delete()
-        BrickMypageLocation.objects.all().delete()
 
-        for model, backup in [
-            (BrickDetailviewLocation, cls._bdl_backup),
-            (BrickHomeLocation, cls._bpl_backup),
-            (BrickMypageLocation, cls._bml_backup),
-        ]:
-            try:
-                model.objects.bulk_create(backup)
-            except Exception as e:
-                print(f'BrickTestCase: test-data backup problem with model={model} ({e})')
+        try:
+            BrickDetailviewLocation.objects.bulk_create(cls._locations_backup)
+        except Exception as e:
+            print(f'DetailBrickTestCase: test-data backup issue ({e})')
 
     def test_populate(self):
         self.assertLessEqual(
@@ -84,17 +73,14 @@ class BrickTestCase(CremeTestCase):
                 'model', CustomFieldsBrick.id, RelationsBrick.id,
                 PropertiesBrick.id, HistoryBrick.id,
             },
-            {loc.brick_id for loc in self._bdl_backup},
+            {loc.brick_id for loc in self._locations_backup},
         )
-        brick_id = HistoryBrick.id
-        self.assertIn(brick_id, {bpl.brick_id for bpl in self._bpl_backup})
-        self.assertIn(brick_id, {bml.brick_id for bml in self._bml_backup if bml.user is None})
 
-    def test_detail_manager_create_if_needed01(self):
+    def test_manager__create_if_needed__default(self):
         "Default configuration + brick ID."
         order = 25
         zone = BrickDetailviewLocation.TOP
-        brick_id = self.TestBrick01.id
+        brick_id = self.TestBrick1.id
 
         loc = BrickDetailviewLocation.objects.create_if_needed(
             brick=brick_id, order=order, zone=zone,
@@ -107,13 +93,13 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(order,    loc.order)
         self.assertEqual(zone,     loc.zone)
 
-    def test_detail_manager_create_if_needed02(self):
+    def test_manager__create_if_needed__for_model(self):
         "For a model + brick class."
         self.assertFalse(BrickDetailviewLocation.objects.filter_for_model(FakeContact))
 
         order = 4
         zone = BrickDetailviewLocation.LEFT
-        TestBrick = self.TestBrick02
+        TestBrick = self.TestBrick2
         loc = BrickDetailviewLocation.objects.create_if_needed(
             brick=TestBrick, order=order, zone=zone, model=FakeContact,
         )
@@ -129,9 +115,9 @@ class BrickTestCase(CremeTestCase):
             [*BrickDetailviewLocation.objects.filter_for_model(FakeContact)],
         )
 
-    def test_detail_manager_create_if_needed03(self):
+    def test_manager__create_if_needed__already_exists(self):
         "Do not create if already exists (in any zone/order)."
-        brick_id = self.TestBrick01.id
+        brick_id = self.TestBrick1.id
         order = 5
         zone = BrickDetailviewLocation.RIGHT
 
@@ -151,7 +137,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(order, loc.order)
         self.assertEqual(zone,  loc.zone)
 
-    def test_detail_manager_create_if_needed04(self):
+    def test_manager__create_if_needed__for_role(self):
         "For a Role + ContentType instance."
         role = self.create_role(name='Viewer')
         ctype = ContentType.objects.get_for_model(FakeContact)
@@ -186,9 +172,8 @@ class BrickTestCase(CremeTestCase):
         self.assertIsNone(loc.role)
         self.assertFalse(loc.superuser)
 
-    def test_detail_manager_create_if_needed05(self):
-        "For super-users."
-        MyBrick = self.TestBrick01
+    def test_manager__create_if_needed__for_superusers(self):
+        MyBrick = self.TestBrick1
         order = 5
         zone = BrickDetailviewLocation.RIGHT
 
@@ -218,16 +203,16 @@ class BrickTestCase(CremeTestCase):
         self.assertIsNone(loc.role)
         self.assertFalse(loc.superuser)
 
-    def test_detail_manager_create_if_needed06(self):
+    def test_manager__create_if_needed__error(self):
         "Default configuration cannot have a related role."
         with self.assertRaises(ValueError):
             BrickDetailviewLocation.objects.create_if_needed(
-                brick=self.TestBrick01,
+                brick=self.TestBrick1,
                 order=5, zone=BrickDetailviewLocation.RIGHT,
                 model=None, role='superuser',  # <==
             )
 
-    def test_detail_manager_create_for_model_brick01(self):
+    def test_manager__create_for_model_brick(self):
         order = 5
         zone = BrickDetailviewLocation.RIGHT
         model = FakeContact
@@ -243,7 +228,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(order,   loc.order)
         self.assertEqual(zone,    loc.zone)
 
-    def test_detail_manager_create_for_model_brick02(self):
+    def test_manager__create_for_model_brick__no_model(self):
         "model = None."
         loc = BrickDetailviewLocation.objects.create_for_model_brick(
             order=8, zone=BrickDetailviewLocation.BOTTOM, model=None,
@@ -252,7 +237,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual('model', loc.brick_id)
         self.assertIsNone(loc.content_type)
 
-    def test_detail_manager_create_for_model_brick03(self):
+    def test_manager__create_for_model_brick__for_role(self):
         "With a Role."
         role = self.create_role(name='Viewer')
         loc = BrickDetailviewLocation.objects.create_for_model_brick(
@@ -263,7 +248,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual('model', loc.brick_id)
         self.assertEqual(role,    loc.role)
 
-    def test_detail_manager_multi_create01(self):
+    def test_manager__multi_create(self):
         order1 = 25
         order2 = 50
         order3 = 75
@@ -272,8 +257,8 @@ class BrickTestCase(CremeTestCase):
         zone3 = BrickDetailviewLocation.BOTTOM
         locs = BrickDetailviewLocation.objects.multi_create(
             data=[
-                {'brick': self.TestBrick01.id, 'order': order1, 'zone': zone1},
-                {'brick': self.TestBrick02,    'order': order2, 'zone': zone2},
+                {'brick': self.TestBrick1.id, 'order': order1, 'zone': zone1},
+                {'brick': self.TestBrick2, 'order': order2, 'zone': zone2},
                 {'order': order3, 'zone': zone3},
             ],
         )
@@ -287,13 +272,13 @@ class BrickTestCase(CremeTestCase):
         self.assertIsNone(loc1.content_type)
         self.assertIsNone(loc1.role)
         self.assertFalse(loc1.superuser)
-        self.assertEqual(self.TestBrick01.id, loc1.brick_id)
+        self.assertEqual(self.TestBrick1.id, loc1.brick_id)
         self.assertEqual(order1,              loc1.order)
         self.assertEqual(zone1,               loc1.zone)
 
         loc2 = locs[1]
         self.assertIsNone(loc2.content_type)
-        self.assertEqual(self.TestBrick02.id, loc2.brick_id)
+        self.assertEqual(self.TestBrick2.id, loc2.brick_id)
         self.assertEqual(order2,              loc2.order)
         self.assertEqual(zone2,               loc2.zone)
 
@@ -305,7 +290,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(order3,  loc3.order)
         self.assertEqual(zone3,   loc3.zone)
 
-    def test_detail_manager_multi_create02(self):
+    def test_manager__multi_create__defaults(self):
         "<defaults> argument."
         order1 = 25
         order2 = 50
@@ -314,7 +299,7 @@ class BrickTestCase(CremeTestCase):
         locs = BrickDetailviewLocation.objects.multi_create(
             defaults={'model': FakeContact, 'role': 'superuser', 'zone': zone1},
             data=[
-                {'brick': self.TestBrick01.id, 'order': order1},
+                {'brick': self.TestBrick1.id, 'order': order1},
                 {'order': order2, 'zone': zone2},
             ],
         )
@@ -325,7 +310,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(ct, loc1.content_type)
         self.assertIsNone(loc1.role)
         self.assertTrue(loc1.superuser)
-        self.assertEqual(self.TestBrick01.id, loc1.brick_id)
+        self.assertEqual(self.TestBrick1.id, loc1.brick_id)
         self.assertEqual(order1,              loc1.order)
         self.assertEqual(zone1,               loc1.zone)
 
@@ -337,13 +322,13 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(order2,  loc2.order)
         self.assertEqual(zone2,   loc2.zone)
 
-    def test_detail_manager_multi_create03(self):
+    def test_manager__multi_create__defaults__brick(self):
         "'brick' in <defaults> argument."
         order1 = 25
         order2 = 50
         zone = BrickDetailviewLocation.LEFT
         locs = BrickDetailviewLocation.objects.multi_create(
-            defaults={'brick': self.TestBrick01.id, 'zone': zone},
+            defaults={'brick': self.TestBrick1.id, 'zone': zone},
             data=[
                 {'model': FakeContact,      'order': order1},
                 {'model': FakeOrganisation, 'order': order2},
@@ -351,10 +336,10 @@ class BrickTestCase(CremeTestCase):
         )
         self.assertIsList(locs, length=2)
 
-    def test_detail_clone_for_role01(self):
+    def test_clone_for_role(self):
         role = self.get_regular_role()
         src = BrickDetailviewLocation.objects.create(
-            order=1, brick_id=self.TestBrick01.id, zone=BrickDetailviewLocation.LEFT,
+            order=1, brick_id=self.TestBrick1.id, zone=BrickDetailviewLocation.LEFT,
         )
         clone = src.clone_for_role(role)
         self.assertIsInstance(clone, BrickDetailviewLocation)
@@ -367,9 +352,9 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(role, clone.role)
         self.assertFalse(clone.superuser)
 
-    def test_detail_clone_for_role02(self):
+    def test_clone_for_role__none(self):
         src = BrickDetailviewLocation.objects.create(
-            order=2, brick_id=self.TestBrick02.id, zone=BrickDetailviewLocation.RIGHT,
+            order=2, brick_id=self.TestBrick2.id, zone=BrickDetailviewLocation.RIGHT,
             content_type=ContentType.objects.get_for_model(FakeContact),
             role=self.get_regular_role(),
         )
@@ -381,7 +366,7 @@ class BrickTestCase(CremeTestCase):
         self.assertIsNone(clone.role)
         self.assertTrue(clone.superuser)
 
-    def test_detail_str(self):
+    def test_str(self):
         TOP = BrickDetailviewLocation.TOP
 
         # Default
@@ -477,6 +462,40 @@ class BrickTestCase(CremeTestCase):
             str(loc7),
         )
 
+
+# TODO: add tests; split 'my_page' tests
+class HomeBrickTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls._home_backup = [*BrickHomeLocation.objects.all()]
+        cls._mypage_backup = [*BrickMypageLocation.objects.all()]
+
+        BrickHomeLocation.objects.all().delete()
+        BrickMypageLocation.objects.all().delete()
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+
+        BrickHomeLocation.objects.all().delete()
+        BrickMypageLocation.objects.all().delete()
+
+        for model, backup in [
+            (BrickHomeLocation, cls._home_backup),
+            (BrickMypageLocation, cls._mypage_backup),
+        ]:
+            try:
+                model.objects.bulk_create(backup)
+            except Exception as e:
+                print(f'HomeBrickTestCase: test-data backup problem with model={model} ({e})')
+
+    def test_populate(self):
+        brick_id = HistoryBrick.id
+        self.assertIn(brick_id, {bpl.brick_id for bpl in self._home_backup})
+        self.assertIn(brick_id, {bml.brick_id for bml in self._mypage_backup if bml.user is None})
+
     def test_home_str(self):
         loc1 = BrickHomeLocation.objects.create(brick_id=HistoryBrick.id, order=1)
         self.assertEqual(
@@ -544,7 +563,9 @@ class BrickTestCase(CremeTestCase):
             user=user, brick_id=brick_id, order=order,
         )
 
-    def test_relation_brick01(self):
+
+class RelationBrickTestCase(BaseBrickTestCase):
+    def test_create(self):
         rtype = RelationType.objects.builder(
             id='test-subject_loves', predicate='loves',
         ).symmetric(
@@ -616,7 +637,7 @@ class BrickTestCase(CremeTestCase):
             rbi.get_cells(ct_orga),
         )
 
-    def test_relation_brick02(self):
+    def test_all_ctypes_configured(self):
         "All ctypes configured + Relation instance."
         rtype = RelationType.objects.builder(
             id='test-subject_rented', predicate='is rented by',
@@ -641,7 +662,7 @@ class BrickTestCase(CremeTestCase):
         rbi.save()
         self.assertTrue(self.refresh(rbi).all_ctypes_configured)
 
-    def test_relation_brick_errors(self):
+    def test_errors(self):
         rtype = RelationType.objects.builder(
             id='test-subject_rented', predicate='is rented by',
         ).symmetric(
@@ -675,7 +696,7 @@ class BrickTestCase(CremeTestCase):
             deserialized,
         )
 
-    def test_relationbrick_delete01(self):
+    def test_delete(self):
         user = self.get_root_user()
         rt = RelationType.objects.builder(
             id='test-subfoo', predicate='subject_predicate',
@@ -687,14 +708,14 @@ class BrickTestCase(CremeTestCase):
 
         create_state = partial(BrickState.objects.create, user=user)
         state1 = create_state(brick_id=rbi.brick_id)
-        state2 = create_state(brick_id=self.TestBrick01.id)
+        state2 = create_state(brick_id=self.TestBrick1.id)
 
         rbi.delete()
         self.assertDoesNotExist(rbi)
         self.assertDoesNotExist(state1)
         self.assertStillExists(state2)
 
-    def test_relationbrick_delete02(self):
+    def test_delete__used(self):
         "Cannot delete because it is used."
         rt = RelationType.objects.builder(
             id='test-subfoo', predicate='subject predicate',
@@ -757,7 +778,7 @@ class BrickTestCase(CremeTestCase):
         )
         self.assertStillExists(loc4)
 
-    def test_relation_brick_manager(self):
+    def test_manager(self):
         rtype1 = RelationType.objects.builder(
             id='test-subject_loves', predicate='loves',
         ).symmetric(id='test-object_loved', predicate='is loved by').get_or_create()[0]
@@ -789,7 +810,9 @@ class BrickTestCase(CremeTestCase):
             count = len(RelationBrickItem.objects.for_brick_ids(['invalid']))
         self.assertEqual(0, count)
 
-    def test_custom_brick(self):
+
+class CustomBrickTestCase(CremeTestCase):
+    def test_create(self):
         model = FakeOrganisation
         fname = 'name'
         cfield = CustomField.objects.create(
@@ -821,7 +844,7 @@ class BrickTestCase(CremeTestCase):
             self.refresh(cbci).cells,
         )
 
-    def test_custom_brick_errors01(self):
+    def test_errors__saved(self):
         cbci = CustomBrickConfigItem.objects.create(
             name='General', content_type=FakeOrganisation,
             cells=[
@@ -847,7 +870,7 @@ class BrickTestCase(CremeTestCase):
             deserialized,
         )
 
-    def test_custom_brick_errors02(self):
+    def test_errors__before_save(self):
         cbci = CustomBrickConfigItem.objects.create(
             name='General', content_type=FakeOrganisation,
             cells=[
@@ -859,7 +882,7 @@ class BrickTestCase(CremeTestCase):
         cbci = self.refresh(cbci)
         self.assertEqual(1, len(cbci.cells))
 
-    def test_custom_brick_delete01(self):
+    def test_delete(self):
         cbci = CustomBrickConfigItem.objects.create(
             content_type=FakeContact, name='Info',
         )
@@ -867,7 +890,7 @@ class BrickTestCase(CremeTestCase):
         cbci.delete()
         self.assertDoesNotExist(cbci)
 
-    def test_custom_brick_delete02(self):
+    def test_delete__used(self):
         "Cannot delete because it is used."
         cbci = CustomBrickConfigItem.objects.create(
             content_type=FakeContact, name='Info',
@@ -894,7 +917,7 @@ class BrickTestCase(CremeTestCase):
         self.assertStillExists(cbci)
         self.assertStillExists(loc)
 
-    def test_custom_brick_manager(self):
+    def test_manager(self):
         create_cdbci = partial(
             CustomBrickConfigItem.objects.create, content_type=FakeContact,
         )
@@ -920,8 +943,10 @@ class BrickTestCase(CremeTestCase):
             count = len(CustomBrickConfigItem.objects.for_brick_ids(['invalid']))
         self.assertEqual(0, count)
 
+
+class InstanceBrickManagerTestCase(BaseBrickTestCase):
     # NB: see reports for InstanceBrickConfigItem with a working Brick class
-    def test_instance_brick01(self):
+    def test_create(self):
         user = self.get_root_user()
 
         class TestInstanceBrick(Brick):
@@ -951,8 +976,7 @@ class BrickTestCase(CremeTestCase):
             getattr(brick, 'errors', None),
         )
 
-    def test_instance_brick02(self):
-        "Extra data."
+    def test_extra_data(self):
         user = self.get_root_user()
 
         class TestInstanceBrick(Brick):
@@ -983,14 +1007,14 @@ class BrickTestCase(CremeTestCase):
             dict(ibi.extra_data_items),
         )
 
-    def test_instance_brick_delete01(self):
+    def test_delete(self):
         user = self.get_root_user()
         naru = FakeContact.objects.create(
             user=user, first_name='Naru', last_name='Narusegawa',
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=self.TestBrick01.id,
+            brick_class_id=self.TestBrick1.id,
             entity=naru,
         )
 
@@ -998,14 +1022,14 @@ class BrickTestCase(CremeTestCase):
 
         create_state = BrickState.objects.create
         state1 = create_state(brick_id=brick_id,             user=user)
-        state2 = create_state(brick_id=self.TestBrick02.id, user=user)
+        state2 = create_state(brick_id=self.TestBrick2.id, user=user)
 
         ibi.delete()
         self.assertDoesNotExist(ibi)
         self.assertDoesNotExist(state1)
         self.assertStillExists(state2)
 
-    def test_instance_brick_delete02(self):
+    def test_delete__used__detail(self):
         "Cannot delete because it is used by detail-view configuration."
         user = self.get_root_user()
         naru = FakeContact.objects.create(
@@ -1013,7 +1037,7 @@ class BrickTestCase(CremeTestCase):
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=self.TestBrick01.id,
+            brick_class_id=self.TestBrick1.id,
             entity=naru,
         )
         loc = BrickDetailviewLocation.objects.create_if_needed(
@@ -1037,7 +1061,7 @@ class BrickTestCase(CremeTestCase):
         self.assertStillExists(ibi)
         self.assertStillExists(loc)
 
-    def test_instance_brick_delete03(self):
+    def test_delete__used__home(self):
         "Cannot delete because it is used by home configuration."
         user = self.get_root_user()
         naru = FakeContact.objects.create(
@@ -1045,7 +1069,7 @@ class BrickTestCase(CremeTestCase):
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=self.TestBrick01.id,
+            brick_class_id=self.TestBrick1.id,
             entity=naru,
         )
 
@@ -1089,7 +1113,7 @@ class BrickTestCase(CremeTestCase):
         )
         self.assertStillExists(loc3)
 
-    def test_instance_brick_delete04(self):
+    def test_delete__used__my_page(self):
         """Cannot delete because it is used by "My Page" configuration."""
         user = self.get_root_user()
         naru = FakeContact.objects.create(
@@ -1097,8 +1121,7 @@ class BrickTestCase(CremeTestCase):
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=self.TestBrick01.id,
-            entity=naru,
+            brick_class_id=self.TestBrick1.id, entity=naru,
         )
 
         def try_delete(msg, locs):
@@ -1132,7 +1155,7 @@ class BrickTestCase(CremeTestCase):
         )
         self.assertStillExists(loc2)
 
-    def test_instance_brick_manager(self):
+    def test_manager(self):
         user = self.get_root_user()
         naru = FakeContact.objects.create(
             user=user, first_name='Naru', last_name='Narusegawa',
@@ -1140,9 +1163,9 @@ class BrickTestCase(CremeTestCase):
         inn = FakeOrganisation.objects.create(user=user, name='Hinata')
 
         create_ibi = InstanceBrickConfigItem.objects.create
-        ibi1 = create_ibi(brick_class_id=self.TestBrick01.id, entity=naru)
-        ibi2 = create_ibi(brick_class_id=self.TestBrick02.id, entity=naru)
-        ibi3 = create_ibi(brick_class_id=self.TestBrick02.id, entity=inn)
+        ibi1 = create_ibi(brick_class_id=self.TestBrick1.id, entity=naru)
+        ibi2 = create_ibi(brick_class_id=self.TestBrick2.id, entity=naru)
+        ibi3 = create_ibi(brick_class_id=self.TestBrick2.id, entity=inn)
 
         self.assertCountEqual(
             [ibi1, ibi3],
@@ -1162,7 +1185,9 @@ class BrickTestCase(CremeTestCase):
             count = len(InstanceBrickConfigItem.objects.for_brick_ids(['invalid']))
         self.assertEqual(0, count)
 
-    def test_brick_state_manager_get_for_brick_id01(self):
+
+class BrickStateManagerTestCase(BaseBrickTestCase):
+    def test_get_for_brick_id__no_stored_state(self):
         "State does not exist in DB."
         user1 = self.get_root_user()
         user2 = self.create_user()
@@ -1187,7 +1212,7 @@ class BrickTestCase(CremeTestCase):
         self.assertIs(state.show_empty_fields, True)
         self.assertIsNone(state.pk)
 
-    def test_brick_state_manager_get_for_brick_id02(self):
+    def test_get_for_brick_id__stored_state(self):
         "State stored in DB."
         user = self.get_root_user()
 
@@ -1208,7 +1233,7 @@ class BrickTestCase(CremeTestCase):
 
         self.assertEqual(state, stored_state)
 
-    def test_brick_state_manager_get_for_brick_id03(self):
+    def test_get_for_brick_id__other_values(self):
         "Other value for SettingValues."
         user = self.get_root_user()
 
@@ -1232,7 +1257,7 @@ class BrickTestCase(CremeTestCase):
         self.assertFalse(state.is_open)
         self.assertFalse(state.show_empty_fields)
 
-    def test_brick_state_extra_data(self):
+    def test_state_extra_data(self):
         user = self.get_root_user()
 
         class TestBrick(Brick):
@@ -1277,7 +1302,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(foo_value, get_extra_data3(key1))
         self.assertIsNone(get_extra_data3(key2))
 
-    def test_brick_state_manager_get_for_brick_ids01(self):
+    def test_get_for_brick_ids__no_stored_state(self):
         "States do not exist in DB."
         user = self.get_root_user()
 
@@ -1308,62 +1333,57 @@ class BrickTestCase(CremeTestCase):
         self.assertIs(state2.show_empty_fields, True)
         self.assertIsNone(state2.pk)
 
-    def test_brick_state_manager_get_for_brick_ids02(self):
+    def test_get_for_brick_ids__stored_date(self):
         "A state is stored in DB."
         user1 = self.get_root_user()
         user2 = self.create_user()
 
-        class TestBrick1(Brick):
-            id = Brick.generate_id('creme_core', 'test_brick_models_states02_01')
-
-        class TestBrick2(Brick):
-            id = Brick.generate_id('creme_core', 'test_brick_models_states02_02')
-
         stored_state1 = BrickState.objects.create(
             user=user1,
-            brick_id=TestBrick1.id,
+            # brick_id=TestBrick1.id,
+            brick_id=self.TestBrick1.id,
             is_open=False,
             show_empty_fields=True,
         )
         BrickState.objects.create(
             user=user2,  # <== not used
-            brick_id=TestBrick2.id,
+            brick_id=self.TestBrick2.id,
             is_open=True,
             show_empty_fields=False,
         )
 
         states = BrickState.objects.get_for_brick_ids(
-            user=user1, brick_ids=[TestBrick1.id, TestBrick2.id],
+            user=user1, brick_ids=[self.TestBrick1.id, self.TestBrick2.id],
         )
         self.assertIsDict(states, length=2)
-        self.assertEqual(stored_state1, states.get(TestBrick1.id))
+        self.assertEqual(stored_state1, states.get(self.TestBrick1.id))
 
-        state2 = states.get(TestBrick2.id)
+        state2 = states.get(self.TestBrick2.id)
         self.assertIsNone(state2.pk)
 
         # ---
         with self.assertNumQueries(1):
             BrickState.objects.get_for_brick_ids(
-                user=user1, brick_ids=[TestBrick1.id],
+                user=user1, brick_ids=[self.TestBrick1.id],
             )
 
-    def test_brick_state_manager_get_for_brick_ids03(self):
+    def test_get_for_brick_ids__other_values(self):
         "Other value for SettingValues."
         user = self.get_root_user()
 
-        class TestBrick(Brick):
-            id = Brick.generate_id('creme_core', 'test_brick_models_states03')
+        # class TestBrick(Brick):
+        #     id = Brick.generate_id('creme_core', 'test_brick_models_states03')
 
         sv_open = SettingValue.objects.get_4_key(setting_keys.brick_opening_key)
         sv_open.value = False
         sv_open.save()
 
         states = BrickState.objects.get_for_brick_ids(
-            user=user, brick_ids=[TestBrick.id],
+            user=user, brick_ids=[self.TestBrick1.id],
         )
         self.assertEqual(1, len(states))
 
-        state = states.get(TestBrick.id)
+        state = states.get(self.TestBrick1.id)
         self.assertFalse(state.is_open)
         self.assertTrue(state.show_empty_fields)
 
@@ -1372,9 +1392,9 @@ class BrickTestCase(CremeTestCase):
         sv_show.value = False
         sv_show.save()
 
-        states = BrickState.objects.get_for_brick_ids(user=user, brick_ids=[TestBrick.id])
+        states = BrickState.objects.get_for_brick_ids(user=user, brick_ids=[self.TestBrick1.id])
         self.assertEqual(1, len(states))
 
-        state = states.get(TestBrick.id)
+        state = states.get(self.TestBrick1.id)
         self.assertFalse(state.is_open)
         self.assertFalse(state.show_empty_fields)

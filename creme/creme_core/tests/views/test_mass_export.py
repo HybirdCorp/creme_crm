@@ -146,18 +146,18 @@ class MassExportViewsTestCase(CremeTestCase):
             **kwargs
         )
 
-    def test_export_error_invalid_doctype(self):
+    def test_error__invalid_doctype(self):
         "Assert doc_type in ('xls', 'csv')."
         self.login_as_root()
         self.assertGET404(self._build_contact_dl_url(doc_type='exe'))
 
-    def test_export_error_invalid_ctype(self):
+    def test_error__invalid_ctype(self):
         self.login_as_root()
         lv_url = FakeContact.get_lv_absolute_url()
 
         self.assertGET404(self._build_dl_url(ct_or_model=None, list_url=lv_url))
 
-    def test_export_error_invalid_hfilter(self):
+    def test_error__invalid_hfilter(self):
         self.login_as_root()
         lv_url = FakeContact.get_lv_absolute_url()
         build_url = partial(self._build_dl_url, ct_or_model=self.ct, list_url=lv_url)
@@ -194,7 +194,7 @@ class MassExportViewsTestCase(CremeTestCase):
         ).get_or_create()[0]
         self.assertGET404(build_url(hfilter_id=private_hf.id))
 
-    def test_export_error_invalid_efilter(self):
+    def test_error__invalid_efilter(self):
         user = self.login_as_root_and_get()
         HeaderFilter.objects.proxy(
             id='test-hf_contact', name='Contact view', model=FakeContact,
@@ -237,7 +237,7 @@ class MassExportViewsTestCase(CremeTestCase):
         )
         self.assertGET404(self._build_contact_dl_url(efilter_id=private_efilter.id,))
 
-    def test_list_view_export_header(self):
+    def test_header__csv(self):
         user = self.login_as_root_and_get()
         cells = self._build_hf_n_contacts(user=user).cells
         existing_hline_ids = [*HistoryLine.objects.values_list('id', flat=True)]
@@ -250,7 +250,7 @@ class MassExportViewsTestCase(CremeTestCase):
         )
         self.assertFalse(HistoryLine.objects.exclude(id__in=existing_hline_ids))
 
-    def test_xls_export_header(self):
+    def test_header__xls(self):
         user = self.login_as_root_and_get()
         cells = self._build_hf_n_contacts(user=user).cells
 
@@ -264,7 +264,7 @@ class MassExportViewsTestCase(CremeTestCase):
         )
         self.assertListEqual([hfi.title for hfi in cells], result)
 
-    def test_list_view_export_csv(self):
+    def test_csv(self):
         user = self.login_as_root_and_get()
         hf = self._build_hf_n_contacts(user=user)
         existing_hline_ids = [*HistoryLine.objects.values_list('id', flat=True)]
@@ -309,7 +309,7 @@ class MassExportViewsTestCase(CremeTestCase):
             html_history_registry.line_explainers([hline], user)[0].render(),
         )
 
-    def test_list_view_export_scsv(self):
+    def test_scsv(self):
         user = self.login_as_root_and_get()
         cells = self._build_hf_n_contacts(user=user).cells
 
@@ -325,8 +325,7 @@ class MassExportViewsTestCase(CremeTestCase):
         with self.assertRaises(StopIteration):
             next(it)
 
-    def test_list_view_export_credentials01(self):
-        "'export' credential."
+    def test_credentials__export_perms(self):
         user = self.login_as_standard()
         self._build_hf_n_contacts(user=user)
 
@@ -336,8 +335,7 @@ class MassExportViewsTestCase(CremeTestCase):
         user.role.exportable_ctypes.set([self.ct])  # Set the 'export' credentials
         self.assertGET200(url)
 
-    def test_list_view_export_credentials02(self):
-        "Views credential."
+    def test_credentials__view_perms(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*')
         user.role.exportable_ctypes.set([self.ct])
@@ -367,7 +365,7 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertEqual(result[3], '"","Wong","Edward","","is a girl"')
 
     @override_settings(LANGUAGE_CODE='en')
-    def test_list_view_export_datetime(self):
+    def test_datetime(self):
         user = self.login_as_root_and_get()
 
         hf = HeaderFilter.objects.proxy(
@@ -392,7 +390,7 @@ class MassExportViewsTestCase(CremeTestCase):
             result[1],
         )
 
-    def test_list_view_export_fk_entity(self):
+    def test_fk_entity(self):
         "FK field on CremeEntity."
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*')
@@ -433,7 +431,7 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertEqual(next(it), f'"Spiegel","{HIDDEN_VALUE}","{HIDDEN_VALUE}"')
         self.assertEqual(next(it), '"Valentine","",""')
 
-    def test_list_view_export_m2m_entities(self):
+    def test_m2m_entities(self):
         "M2M field on CremeEntities."
         user = self.login_as_root_and_get()
 
@@ -466,7 +464,7 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertEqual(result[2], '"Camp#2","ML#3"')
         self.assertEqual(result[3], '"Camp#3",""')
 
-    def test_list_view_export_fieldsconfig(self):
+    def test_fields_config(self):
         user = self.login_as_root_and_get()
         self._build_hf_n_contacts(user=user)
 
@@ -502,7 +500,7 @@ class MassExportViewsTestCase(CremeTestCase):
         # Error
         self.assertGET(400, self._build_contact_dl_url(extra_q='[123]'))
 
-    def test_list_view_export_with_filter01(self):
+    def test_entity_filter(self):
         user = self.login_as_root_and_get()
         hf = self._build_hf_n_contacts(user=user)
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -547,7 +545,7 @@ class MassExportViewsTestCase(CremeTestCase):
             html_history_registry.line_explainers([hline], user)[0].render(),
         )
 
-    def test_xls_export01(self):
+    def test_xls(self):
         user = self.login_as_root_and_get()
         cells = self._build_hf_n_contacts(user=user).cells
         existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
@@ -577,8 +575,8 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertEqual(Path(settings.MEDIA_ROOT, 'xls'), fullpath.parent)
 
     @override_settings(LANGUAGE_CODE='fr')
-    def test_xls_export02(self):
-        "Other CT, other type of fields."
+    def test_xls__other_values(self):
+        "Other ContentType, other type of fields."
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -620,7 +618,7 @@ class MassExportViewsTestCase(CremeTestCase):
         with self.assertRaises(StopIteration):
             next(it)
 
-    def test_xlsx_export(self):
+    def test_xlsx(self):
         user = self.login_as_root_and_get()
         cells = self._build_hf_n_contacts(user=user).cells
         existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
@@ -654,8 +652,7 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists?!')
         self.assertEqual(Path(settings.MEDIA_ROOT, 'xlsx'), fullpath.parent)
 
-    def test_print_integer01(self):
-        "No choices."
+    def test_print_integer(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -681,8 +678,7 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertIn('"Swordfish","20000"', lines)
         self.assertIn('"Redtail",""', lines)
 
-    def test_print_integer02(self):
-        "Field with choices."
+    def test_print_integer__choices(self):
         user = self.login_as_root_and_get()
 
         invoice = FakeInvoice.objects.create(

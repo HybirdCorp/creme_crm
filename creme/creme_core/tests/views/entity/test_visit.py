@@ -379,7 +379,7 @@ class VisitTestCase(CremeTestCase):
         response2 = self.assertGET200(visitor1.uri)
         self.assertVisitEnds(response2, lv_url=lv_url, hfilter=hfilter, sort_key=cell)
 
-    def test_callback_url_error(self):
+    def test_callback_url__error(self):
         self.login_as_root()
 
         cb_url = 'www.not-my-creme-instance.com'
@@ -563,7 +563,7 @@ class VisitTestCase(CremeTestCase):
             response3, hfilter=hfilter, sort_key=cell, q_filter=serialized_q,
         )
 
-    def test_requested_q_distinct(self):
+    def test_requested_q__distinct(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -708,7 +708,7 @@ class VisitTestCase(CremeTestCase):
         response3 = self.assertGET200(visitor2.uri)
         self.assertVisitEnds(response3, hfilter=hfilter, sort_key=cell, **search)
 
-    def test_complete_visit01(self):
+    def test_complete_visit__even_number(self):
         "Even number of entities."
         user = self.login_as_root_and_get()
 
@@ -759,7 +759,7 @@ class VisitTestCase(CremeTestCase):
             response5, hfilter=hfilter, sort_key=cell, q_filter=serialized_q,
         )
 
-    def test_complete_visit02(self):
+    def test_complete_visit__odd_number(self):
         "Odd number of entities."
         user = self.login_as_root_and_get()
 

@@ -29,8 +29,7 @@ class CremeImageTagsTestCase(CremeTestCase):
 
         self.assertEqual('200x200#569x170', render.strip())
 
-    def test_image_scale_to_frame01(self):
-        "Only width."
+    def test_image_scale_to_frame__only_width(self):
         with self.assertNoException():
             template = Template(
                 r'{% load creme_image %}'
@@ -45,8 +44,7 @@ class CremeImageTagsTestCase(CremeTestCase):
 
         self.assertEqual('320x240#100x75#640x480', render.strip())
 
-    def test_image_scale_to_frame02(self):
-        "Only height."
+    def test_image_scale_to_frame__only_height(self):
         with self.assertNoException():
             template = Template(
                 r'{% load creme_image %}'
@@ -61,8 +59,7 @@ class CremeImageTagsTestCase(CremeTestCase):
 
         self.assertEqual('320x240#133x100#640x480', render.strip())
 
-    def test_image_scale_to_frame03(self):
-        "Width & height."
+    def test_image_scale_to_frame__width_n_height(self):
         with self.assertNoException():
             template = Template(
                 r'{% load creme_image %}'
@@ -79,8 +76,7 @@ class CremeImageTagsTestCase(CremeTestCase):
 
         self.assertEqual('320x240#160x120#133x100#640x480', render.strip())
 
-    def test_image_scale_to_frame04(self):
-        "Zero size."
+    def test_image_scale_to_frame__zero_size(self):
         with self.assertNoException():
             template = Template(
                 r'{% load creme_image %}'

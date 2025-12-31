@@ -431,7 +431,7 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm2.exception),
         )
 
-    def test_assertListContainsSubset01(self):
+    def test_assertListContainsSubset(self):
         self.assertListContainsSubset(
             actual=[1, 2, 3, 4],
             expected=[1, 2],
@@ -461,7 +461,7 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm.exception)
         )
 
-    def test_assertListContainsSubset02(self):
+    def test_assertListContainsSubset__msg(self):
         "<msg> argument."
         with self.assertRaises(self.failureException) as cm:
             self.assertListContainsSubset(
@@ -538,7 +538,7 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm3.exception),
         )
 
-    def test_assertValidationError02(self):
+    def test_assertValidationError__code(self):
         err = ValidationError(message='Bar', code='invalid')
         self.assertValidationError(err, messages='Bar')
         self.assertValidationError(err, messages='Bar', codes='invalid')
@@ -568,7 +568,7 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm3.exception),
         )
 
-    def test_assertValidationError03(self):
+    def test_assertValidationError__list(self):
         err = ValidationError([
             ValidationError(message='Foo'), ValidationError(message='Bar', code='deleted'),
         ])
@@ -591,7 +591,7 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm2.exception),
         )
 
-    def test_assertValidationError04(self):
+    def test_assertValidationError__dict(self):
         err = ValidationError({
             'foo': 'Invalid foo',
             'bar': ValidationError(message='Bar', code='no_choice'),
@@ -1156,7 +1156,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         self.assertEqual('24/02/2022', date_str_fr)
         self.assertEqual('21/03/2023 18:53:00', dt_str_fr)
 
-    def test_add_credentials01(self):
+    def test_add_credentials__all__wildcard(self):
         "ALL + wildcard."
         role = UserRole.objects.create(name='Boss')
         self.assertFalse(SetCredentials.objects.filter(role=role))
@@ -1176,7 +1176,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         self.assertIsNone(creds.efilter)
         self.assertFalse(creds.forbidden)
 
-    def test_add_credentials02(self):
+    def test_add_credentials__all__flags(self):
         "ALL + specific flags."
         role = UserRole.objects.create(name='Boss')
         self.assertFalse(SetCredentials.objects.filter(role=role))
@@ -1200,7 +1200,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         )
         self.assertEqual(SetCredentials.ESET_ALL, creds2.set_type)
 
-    def test_add_credentials03(self):
+    def test_add_credentials__own__wildcard(self):
         "OWN + wildcard."
         role = UserRole.objects.create(name='Boss')
         self.assertFalse(SetCredentials.objects.filter(role=role))
@@ -1217,7 +1217,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         )
         self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
 
-    def test_add_credentials04(self):
+    def test_add_credentials__own__flags(self):
         "OWN + specific flags."
         role = UserRole.objects.create(name='Boss')
         self.assertFalse(SetCredentials.objects.filter(role=role))
@@ -1230,8 +1230,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         )
         self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
 
-    def test_add_credentials05(self):
-        "Negative flags."
+    def test_add_credentials__negative_flags(self):
         role = UserRole.objects.create(name='Boss')
         self.assertFalse(SetCredentials.objects.filter(role=role))
 
@@ -1247,8 +1246,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         )
         self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
 
-    def test_add_credentials__ctype01(self):
-        "Content Type."
+    def test_add_credentials__ctype(self):
         role = UserRole.objects.create(name='Boss')
         ctype = ContentType.objects.get_for_model(FakeContact)
 
@@ -1260,8 +1258,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         self.assertIsNone(creds.efilter)
         self.assertFalse(creds.forbidden)
 
-    def test_add_credentials__ctype02(self):
-        "Class."
+    def test_add_credentials__ctype__model(self):
         role = UserRole.objects.create(name='Boss')
 
         self.add_credentials(role, all=['VIEW'], model=FakeOrganisation)
@@ -1272,8 +1269,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         self.assertIsNone(creds.efilter)
         self.assertFalse(creds.forbidden)
 
-    def test_add_credentials__forbidden01(self):
-        "ALL."
+    def test_add_credentials__forbidden__all(self):
         role = UserRole.objects.create(name='Boss')
 
         self.add_credentials(role, forbidden_all=['VIEW'])
@@ -1284,8 +1280,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         self.assertIsNone(creds.efilter)
         self.assertTrue(creds.forbidden)
 
-    def test_add_credentials__forbidden02(self):
-        "OWN."
+    def test_add_credentials__forbidden__own(self):
         role = UserRole.objects.create(name='Boss')
 
         self.add_credentials(role, forbidden_own=['VIEW'])
@@ -1296,7 +1291,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         self.assertIsNone(creds.efilter)
         self.assertTrue(creds.forbidden)
 
-    def test_create_role01(self):
+    def test_create_role(self):
         role = self.create_role()
         self.assertIsInstance(role, UserRole)
         self.assertIsNotNone(role.pk)
@@ -1306,7 +1301,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         self.assertFalse(role.creatable_ctypes.all())
         self.assertFalse(role.exportable_ctypes.all())
 
-    def test_create_role02(self):
+    def test_create_role__apps_n_models(self):
         name = 'Boss'
         role = self.create_role(
             name=name,

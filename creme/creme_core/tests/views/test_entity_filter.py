@@ -931,7 +931,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
             },
         ))
 
-    def test_create_subfilters_n_private01(self):
+    def test_create__sub_filters__private__owned_by_another_user(self):
         "Cannot choose a private sub-filter which belongs to another user."
         user = self.login_as_root_and_get()
 
@@ -992,7 +992,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
             form2, field='relationsubfiltercondition', errors=_('This filter is invalid.'),
         )
 
-    def test_create_subfilters_n_private02(self):
+    def test_create__sub_filters__private__owned_by_regular_user(self):
         """Private sub-filter (owned by a regular user):
             - OK in a private filter (with the same owner).
             - Error in a public filter.
@@ -1060,7 +1060,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self.assertNoFormError(response2)
         self.get_object_or_fail(EntityFilter, name=name)
 
-    def test_create_subfilters_n_private03(self):
+    def test_create__sub_filters__private__owned_by_team(self):
         """Private filter owned by a team:
             - OK with a public sub-filter.
             - OK with a private sub-filter which belongs to the team.
@@ -1135,7 +1135,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self.assertNoFormError(response2)
         self.get_object_or_fail(EntityFilter, name=name)
 
-    def test_non_filterable_fields01(self):
+    def test_non_filterable_fields__file_field(self):
         "FileFields cannot be filtered."
         self.login_as_root()
 
@@ -1162,7 +1162,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
             errors=_('This field is invalid with this model.'),
         )
 
-    def test_non_filterable_fields02(self):
+    def test_non_filterable_fields__file_field__sub_field(self):
         "FileFields cannot be filtered (sub-field version)."
         self.login_as_root()
 
@@ -1455,7 +1455,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
 
         self.assertRedirects(response, callback_url)
 
-    def test_edit__forbidden_private01(self):
+    def test_edit__private__owned_by_another_user(self):
         "Can not edit Filter that belongs to another user."
         self.login_as_standard(allowed_apps=['creme_core'])
 
@@ -1464,7 +1464,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         )
         self.assertGET403(efilter.get_edit_absolute_url())
 
-    def test_edit__forbidden_private02(self):
+    def test_edit__private__owned_by_another_user__super_user(self):
         "Private filter -> cannot be edited by another user (even a super-user)."
         self.login_as_root()
 
@@ -1651,7 +1651,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
             },
         )
 
-    def test_edit_subfilter(self):
+    def test_edit__sub_filter(self):
         "Edit a filter which is a sub-filter for another one -> both are public."
         user = self.login_as_root_and_get()
 
@@ -1667,7 +1667,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self.assertNoFormError(response)
         self.assertEqual(user, self.refresh(efilter1).user)
 
-    def test_edit_subfilter__becomes_public(self):
+    def test_edit__sub_filter__becomes_public(self):
         "The sub-filter becomes public."
         user = self.login_as_root_and_get()
 
@@ -1685,7 +1685,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self.assertNoFormError(response)
         self.assertFalse(self.refresh(efilter1).is_private)
 
-    def test_edit_subfilter__becomes_private01(self):
+    def test_edit__sub_filter__becomes_private__public_parent(self):
         "The sub-filter becomes private + public parent => error."
         user = self.login_as_root_and_get()
 
@@ -1714,7 +1714,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         response2 = self._aux_edit_subfilter(efilter1, is_private='on', user=user)
         self.assertFormError(response2.context['form'], field=None, errors=msg)
 
-    def test_edit_subfilter__becomes_private02(self):
+    def test_edit__sub_filter__becomes_private__private_parent(self):
         """The sub-filter becomes private:
             - invisible private parent => error
             - owned private filter => OK
@@ -1746,7 +1746,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         response = self._aux_edit_subfilter(efilter1, user=user, is_private='on')
         self.assertNoFormError(response)
 
-    def test_edit_subfilter__becomes_private03(self):
+    def test_edit__sub_filter__becomes_private__private_parent__team(self):
         """The sub-filter becomes private + private parent belonging to a team:
             - owner is not a team => error
             - owner is a different team => error
@@ -1793,7 +1793,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         response3 = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
         self.assertNoFormError(response3)
 
-    def test_edit_subfilter__becomes_private04(self):
+    def test_edit__sub_filter__becomes_private__owned_by_team(self):
         """The sub-filter becomes private to a team + private parent belonging to a user:
             - user not in teammates => error
             - user not teammates => OK
@@ -2056,7 +2056,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self._delete(efilter)
         self.assertStillExists(efilter)
 
-    def test_delete__belongs_to_team01(self):
+    def test_delete__owned_by_team__mine(self):
         "Belongs to my team -> OK."
         user = self.login_as_standard()
         my_team = self.create_team('TeamTitan', user)
@@ -2068,7 +2068,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self._delete(efilter)
         self.assertDoesNotExist(efilter)
 
-    def test_delete__belongs_to_team02(self):
+    def test_delete__owned_by_team__not_mine(self):
         "Belongs to a team (not mine) -> KO."
         user = self.login_as_standard()
 
@@ -2082,7 +2082,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self._delete(efilter)
         self.assertStillExists(efilter)
 
-    def test_delete__superuser(self):
+    def test_delete__super_user(self):
         "Logged as super-user."
         self.login_as_root()
 
@@ -2115,7 +2115,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self.assertDoesNotExist(efilter)
         self.assertEqual(cb_url, response.text)
 
-    def test_delete__dependencies_error01(self):
+    def test_delete__dependencies_error__used_as_sub_filter(self):
         "Can not delete if used as sub-filter."
         self.login_as_root()
 
@@ -2130,7 +2130,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self._delete(efilter01)
         self.assertStillExists(efilter01)
 
-    def test_delete__dependencies_error02(self):
+    def test_delete__dependencies_error__used_as_relations_sub_filter(self):
         "Can not delete if used as subfilter (for relations)."
         self.login_as_root()
 
@@ -2148,7 +2148,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self._delete(efilter1)
         self.assertStillExists(efilter1)
 
-    def test_delete__dependencies_error03(self):
+    def test_delete__dependencies_error__referenced_by_fk(self):
         "Can not delete if used through some FK."
         user = self.login_as_root_and_get()
 
@@ -2198,7 +2198,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         )
         self.assertStillExists(efilter)
 
-    def test_get_content_types01(self):
+    def test_ctypes_compatible_with_rtype_as_choices__no_constraint(self):
         self.login_as_root()
 
         rtype = self._create_rtype()
@@ -2211,7 +2211,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self.assertTrue(all(isinstance(t[0], int) for t in content))
         self.assertEqual([0, pgettext('creme_core-filter', 'All')], content[0])
 
-    def test_get_content_types02(self):
+    def test_ctypes_compatible_with_rtype_as_choices__constraints(self):
         self.login_as_root()
 
         rtype = RelationType.objects.builder(

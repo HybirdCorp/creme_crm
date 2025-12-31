@@ -817,7 +817,7 @@ class FirstRelatedEntitySourceTestCase(CremeTestCase):
         )
         self.assertNotEqual(source1, None)
 
-    def test_render1(self):
+    def test_render(self):
         rtype = RelationType.objects.get(id=REL_SUB_HAS)
 
         subject_source = CreatedEntitySource(model=FakeContact)
@@ -847,7 +847,7 @@ class FirstRelatedEntitySourceTestCase(CremeTestCase):
             source.render(user=user, mode=source.RenderMode.HTML),
         )
 
-    def test_render2(self):
+    def test_render__other_ctype(self):
         user = self.get_root_user()
         rtype = RelationType.objects.get(id=REL_OBJ_HAS)
         orga = FakeOrganisation.objects.create(user=user, name='Acme')

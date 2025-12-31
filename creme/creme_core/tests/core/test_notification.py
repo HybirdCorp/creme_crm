@@ -41,7 +41,7 @@ class DummyEmailContent(DummyContent):
 
 
 class NotificationTestCase(CremeTestCase):
-    def test_content_simple01(self):
+    def test_content_simple(self):
         user = self.get_root_user()
         subject = 'Alert!'
         body = 'Your meeting is about to start.'
@@ -52,7 +52,7 @@ class NotificationTestCase(CremeTestCase):
         self.assertEqual('',        snc.get_html_body(user))
         self.assertDictEqual({'subject': subject, 'body': body}, snc.as_dict())
 
-    def test_content_simple02(self):
+    def test_content_simple__html_body(self):
         user = self.get_root_user()
         subject = 'Alert!'
         body = 'Your meeting is about to start.'
@@ -81,7 +81,7 @@ class NotificationTestCase(CremeTestCase):
         self.assertNotEqual(simple, DummyContent(subject=subject, body=body))
         self.assertNotEqual(simple, 'a string')
 
-    def test_registry01(self):
+    def test_registry(self):
         registry = NotificationRegistry()
         self.assertListEqual([], [*registry.output_choices])
 
@@ -126,7 +126,7 @@ class NotificationTestCase(CremeTestCase):
             get_ct_cls(output=TEST_OUTPUT_SMTP, content_id=DummyContent.id),
         )
 
-    def test_registry_output_errors(self):
+    def test_registry__output_errors(self):
         registry = NotificationRegistry().register_output(
             value=TEST_OUTPUT_HTTP, label='Web',
         )
@@ -137,7 +137,7 @@ class NotificationTestCase(CremeTestCase):
         with self.assertRaises(registry.RegistrationError):
             registry.register_output(value=Output(TEST_OUTPUT_HTTP), label='Http')
 
-    def test_registry_channel_type(self):
+    def test_registry__channel_type(self):
         "Multi register."
         registry = NotificationRegistry().register_channel_types(
             DummyChannelType1,
@@ -152,7 +152,7 @@ class NotificationTestCase(CremeTestCase):
             DummyChannelType2,
         )
 
-    def test_registry_channel_type_errors(self):
+    def test_registry__channel_type__errors(self):
         registry = NotificationRegistry()
 
         with self.assertLogs(level='WARNING') as logs_manager:
@@ -180,7 +180,7 @@ class NotificationTestCase(CremeTestCase):
         with self.assertRaises(registry.RegistrationError):
             registry.register_channel_types(DummyChannelType1, DupChanType)
 
-    def test_registry_content_default01(self):
+    def test_registry__content__default(self):
         registry = NotificationRegistry().register_output(
             value=TEST_OUTPUT_HTTP, label='Web',
         ).register_output(
@@ -209,7 +209,7 @@ class NotificationTestCase(CremeTestCase):
             content_cls=SMTPDummyContent, output=TEST_OUTPUT_SMTP,
         )
 
-    def test_registry_content_default02(self):
+    def test_registry__content__default__pass_output(self):
         registry = NotificationRegistry().register_output(
             value=TEST_OUTPUT_HTTP, label='Web',
         ).register_output(
@@ -226,7 +226,7 @@ class NotificationTestCase(CremeTestCase):
             registry.get_content_class(output=TEST_OUTPUT_SMTP, content_id=DummyContent.id),
         )
 
-    def test_registry_content_errors01(self):
+    def test_registry__content__errors__content_class(self):
         registry = NotificationRegistry().register_output(
             value=TEST_OUTPUT_HTTP, label='Web',
         ).register_content(
@@ -236,36 +236,40 @@ class NotificationTestCase(CremeTestCase):
         class InvalidContent(NotificationContent):
             pass
 
-        with self.assertRaises(registry.RegistrationError):
+        with self.assertRaises(registry.RegistrationError) as exc_mngr1:
             registry.register_content(content_cls=InvalidContent)  # output=TEST_OUTPUT_HTTP
+        self.assertIn('empty id', str(exc_mngr1.exception))
 
         # ---
-        with self.assertRaises(registry.RegistrationError):
+        with self.assertRaises(registry.RegistrationError) as exc_mngr2:
             registry.register_content(
                 content_cls=DummyWebContent,
                 output=TEST_OUTPUT_SMTP,  # <==
             )
+        self.assertIn('not registered', str(exc_mngr2.exception))
 
         # ---
         class DupContent(NotificationContent):
             id = DummyWebContent.id
 
-        with self.assertRaises(registry.RegistrationError):
+        with self.assertRaises(registry.RegistrationError) as exc_mngr3:
             registry.register_content(content_cls=DupContent, output=TEST_OUTPUT_HTTP)
+        self.assertIn('Duplicated', str(exc_mngr3.exception))
 
-    def test_registry_content_errors02(self):
+    def test_registry__content__errors__content_id(self):
         registry = NotificationRegistry().register_output(
             value=TEST_OUTPUT_HTTP, label='Web',
         ).register_content(
             content_cls=DummyWebContent, output=TEST_OUTPUT_HTTP,
         )
 
-        with self.assertRaises(KeyError):
+        with self.assertRaises(KeyError) as exc_mngr:
             registry.get_content_class(
                 output=TEST_OUTPUT_SMTP, content_id=DummyWebContent.id,
             )
+        self.assertIn('This output is not registered: smtp', str(exc_mngr.exception))
 
-    def test_registry_content_fallback(self):
+    def test_registry__content__fallback(self):
         registry = NotificationRegistry().register_output(
             value=TEST_OUTPUT_HTTP, label='Web',
         )
@@ -312,8 +316,7 @@ class NotificationTestCase(CremeTestCase):
             ),
         )
 
-    def test_related_to_model_content01(self):
-        "CremeEntity."
+    def test_related_to_model_content__creme_entity(self):
         class RelatedToOrganisation(RelatedToModelBaseContent):
             model = CremeEntity
 
@@ -351,8 +354,7 @@ class NotificationTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             content2.get_body(user)
 
-    def test_related_to_model_content02(self):
-        "Specific CremeEntity model."
+    def test_related_to_model_content__specific_entity_model(self):
         class RelatedToOrganisation(RelatedToModelBaseContent):
             model = FakeOrganisation
 
@@ -376,7 +378,7 @@ class NotificationTestCase(CremeTestCase):
         with self.assertNumQueries(1):  # <= only one here
             self.assertEqual(f'Related to «{orga}»', content2.get_body(user))
 
-    def test_related_to_model_content03(self):
+    def test_related_to_model_content__not_entity(self):
         "Not CremeEntity."
         class RelatedToSector(RelatedToModelBaseContent):
             model = FakeSector
@@ -389,7 +391,7 @@ class NotificationTestCase(CremeTestCase):
         self.assertEqual(str(sector),              content.get_subject(user))
         self.assertHTMLEqual(f'Related to: {sector}', content.get_html_body(user))
 
-    def test_related_to_model_content_error(self):
+    def test_related_to_model_content__error(self):
         class RelatedToOrganisation(RelatedToModelBaseContent):
             model = FakeOrganisation
 

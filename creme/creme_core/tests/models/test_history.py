@@ -173,7 +173,7 @@ class HistoryTestCase(CremeTestCase):
             hline.modifications,
         )
 
-    def test_edition01(self):
+    def test_edition__one_field(self):
         user = self._simple_login()
         old_count = HistoryLine.objects.count()
 
@@ -205,13 +205,13 @@ class HistoryTestCase(CremeTestCase):
         self.assertListEqual([['capital', old_capital, capital]], hline.modifications)
 
     # TODO: change 'name' but keep the old unicode() ???
-    def test_edition02(self):
+    def test_edition__several_fields(self):
         user = self._simple_login()
         old_count = HistoryLine.objects.count()
 
         create_sector = FakeSector.objects.create
-        sector01 = create_sector(title='Studio')
-        sector02 = create_sector(title='Animation studio')
+        sector1 = create_sector(title='Studio')
+        sector2 = create_sector(title='Animation studio')
 
         lform = FakeLegalForm.objects.create(title='Society [OK]')
 
@@ -223,7 +223,7 @@ about this fantastic animation studio."""
         gainax = self._build_organisation(
             user=user.id, name=name, phone=old_phone,
             description=old_description,
-            sector=sector01.id,
+            sector=sector1.id,
             subject_to_vat=False, legal_form=lform.id,
         )
 
@@ -246,7 +246,7 @@ about this fantastic animation studio."""
                 'phone':          phone,
                 'email':          email,
                 'description':    description,
-                'sector':         sector02.id,
+                'sector':         sector2.id,
                 'creation_date':  creation_date,
                 'subject_to_vat': True,
             },
@@ -259,13 +259,12 @@ about this fantastic animation studio."""
         self.assertIn(['phone', old_phone, phone], modifs)
         self.assertIn(['email', email], modifs)
         self.assertIn(['description', old_description, description], modifs)
-        self.assertIn(['sector_id', sector01.id, sector02.id], modifs)
+        self.assertIn(['sector_id', sector1.id, sector2.id], modifs)
         self.assertIn(['creation_date', '1984-12-24'], modifs)
         self.assertIn(['subject_to_vat', True], modifs, modifs)
         self.assertIn(['legal_form_id', lform.id, None], modifs, modifs)
 
-    def test_edition_no_change(self):
-        "No change."
+    def test_edition__no_change(self):
         user = self._simple_login()
 
         name = 'gainax'
@@ -285,7 +284,7 @@ about this fantastic animation studio."""
         self.assertNoFormError(response)
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-    def test_edition_ignored_changed(self):
+    def test_edition__ignored_changes(self):
         "Ignore the changes : None -> ''."
         user = self._simple_login()
 
@@ -311,7 +310,7 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_EDITION, hline.type)
         self.assertListEqual([['capital', old_capital, capital]], hline.modifications)
 
-    def test_edition_type(self):
+    def test_edition__type(self):
         "Type coercion."
         capital = 12000
         gainax = FakeOrganisation.objects.create(user=self.user, name='Gainax', capital=capital)
@@ -326,8 +325,7 @@ about this fantastic animation studio."""
 
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-    def test_edition_fk(self):
-        "FK to CremeEntity."
+    def test_edition__fk_to_entity(self):
         user = self._simple_login()
         hayao = self._build_contact(user=user.id, first_name='Hayao', last_name='Miyazaki')
         img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
@@ -352,7 +350,7 @@ about this fantastic animation studio."""
         self.assertEqual(hayao.id,     hline.entity.id)
         self.assertEqual(TYPE_EDITION, hline.type)
 
-    def test_edition_none(self):
+    def test_edition__set_none(self):
         "New value is None: verbose prints ''."
         old_capital = 1000
         old_date = date(year=1928, month=5, day=3)
@@ -382,8 +380,7 @@ about this fantastic animation studio."""
             hline.modifications,
         )
 
-    def test_edition_datetime_field(self):
-        "DateTimeField."
+    def test_edition__datetime_field(self):
         create_dt = self.create_datetime
         old_start = create_dt(year=2016, month=11, day=22, hour=16, minute=10)
         meeting = FakeActivity.objects.create(
@@ -420,7 +417,7 @@ about this fantastic animation studio."""
         hlines = self._get_hlines()
         self.assertEqual(old_count + 2, len(hlines))
 
-    def test_edition_m2m01(self):
+    def test_edition__m2m__add_or_remove__set_method(self):
         "set() to add or remove (not at the same time)."
         user = self.user
         cat1, cat2, cat3 = FakeImageCategory.objects.order_by('id')[:3]
@@ -451,7 +448,7 @@ about this fantastic animation studio."""
             hline2.modifications,
         )
 
-    def test_edition_m2m02(self):
+    def test_edition__m2m__add_or_remove__add_n_remove_methods(self):
         "add()/remove() (not at the same time)."
         user = self.user
         cat = FakeImageCategory.objects.first()
@@ -480,7 +477,7 @@ about this fantastic animation studio."""
             hline2.modifications,
         )
 
-    def test_edition_m2m03(self):
+    def test_edition__m2m__add_and_remove(self):
         "Set() which adds & removes at the same time (1 line, not 2)."
         user = self.user
         cat1, cat2, cat3 = FakeImageCategory.objects.order_by('id')[:3]
@@ -516,7 +513,7 @@ about this fantastic animation studio."""
             self.refresh(hline).modifications,
         )
 
-    def test_edition_m2m04(self):
+    def test_edition__m2m__clear(self):
         "clear()."
         user = self.user
         cat = FakeImageCategory.objects.first()
@@ -537,7 +534,7 @@ about this fantastic animation studio."""
             hline.modifications,
         )
 
-    def test_edition_regular_n_m2m(self):
+    def test_edition__regular_n_m2m(self):
         user = self.user
         cat = FakeImageCategory.objects.first()
 
@@ -565,7 +562,7 @@ about this fantastic animation studio."""
             hline.modifications,
         )
 
-    def test_edition_customfield01(self):
+    def test_custom_edition___one_change(self):
         "One custom field at once."
         user = self.user
 
@@ -604,7 +601,7 @@ about this fantastic animation studio."""
             hline2.modifications,
         )
 
-    def test_edition_customfield02(self):
+    def test_custom_edition___several_changes(self):
         "Several modifications at once => only one lines."
         user = self.user
 
@@ -641,7 +638,7 @@ about this fantastic animation studio."""
             hline.modifications,
         )
 
-    def test_edition_customfield03(self):
+    def test_custom_edition__set_empty(self):
         "Set value to empty => cf_value deleted (see save_values_for_entities())."
         user = self.user
 
@@ -671,7 +668,7 @@ about this fantastic animation studio."""
             hline.modifications,
         )
 
-    def test_edition_customfield_enum(self):
+    def test_custom_edition__enum(self):
         user = self.user
 
         cfield = CustomField.objects.create(
@@ -710,7 +707,7 @@ about this fantastic animation studio."""
             hline2.modifications,
         )
 
-    def test_edition_customfield_multienum01(self):
+    def test_custom_edition__multi_enum(self):
         user = self.user
 
         cfield = CustomField.objects.create(
@@ -770,7 +767,7 @@ about this fantastic animation studio."""
             hline3.modifications,
         )
 
-    def test_edition_customfield_multienum02(self):
+    def test_custom_edition__multi_enum__merge(self):
         "Merge several lines with 2 CustomFields."
         user = self.user
 
@@ -812,7 +809,7 @@ about this fantastic animation studio."""
 
     # TODO: other CustomField types ?
 
-    def test_deletion01(self):
+    def test_deletion(self):
         other_user = self.create_user(1)
         user = self._simple_login()
 
@@ -845,7 +842,7 @@ about this fantastic animation studio."""
         self.assertIsNone(creation_line.entity)
         self.assertEqual(entity_repr, creation_line.entity_repr)
 
-    def test_deletion02(self):
+    def test_deletion__with_auxiliary(self):
         "With auxiliary models."
         gainax = FakeOrganisation.objects.create(user=self.user, name='Gainax')
         FakeAddress.objects.create(entity=gainax, city='Tokyo')
@@ -890,7 +887,7 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_TRASH, hline.type)
         self.assertListEqual([False], hline.modifications)
 
-    def test_related_edition01(self):
+    def test_related_edition__no_config_item(self):
         "No HistoryConfigItem => no related line."
         user = self._simple_login()
         ghibli = self._build_organisation(user=user.id, name='Ghibli')
@@ -930,7 +927,7 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_EDITION, hline.type)
         self.assertIsNone(hline.related_line)
 
-    def test_related_edition02(self):
+    def test_related_edition__with_config_item(self):
         user = self._simple_login()
         ghibli = self.create_old(FakeOrganisation, user=user, name='Ghibli')
 
@@ -980,7 +977,7 @@ about this fantastic animation studio."""
         self.assertBetweenDates(hline)
         self.assertEqual(self.refresh(hayao).modified, hline.date)
 
-    def test_related_edition_m2m(self):
+    def test_related_edition__m2m(self):
         user = self.user
         ghibli = self.create_old(FakeOrganisation, user=user, name='Ghibli')
         img = FakeImage.objects.create(user=user, name='Museum image')
@@ -1015,7 +1012,7 @@ about this fantastic animation studio."""
         self.assertEqual(edition_hline.id,   hline.related_line.id)
         self.assertListEqual([], hline.modifications)
 
-    def test_related_edition_customfield(self):
+    def test_related_edition__custom_field(self):
         user = self.user
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -1051,7 +1048,7 @@ about this fantastic animation studio."""
         self.assertEqual(edition_hline.id,   hline.related_line.id)
         self.assertListEqual([], hline.modifications)
 
-    def test_related_edition_customfield_multienum(self):
+    def test_related_edition__custom_field__multi_enum(self):
         user = self.user
 
         cfield = CustomField.objects.create(
@@ -1134,7 +1131,7 @@ about this fantastic animation studio."""
         self.assertIs(hline.line_type.is_about_relation, False)
         self.assertGreater(hline.date, gainax.modified)
 
-    def test_add_relation01(self):
+    def test_add_relation(self):
         user = self.user
 
         # Ensure than relation is younger than entities
@@ -1173,7 +1170,7 @@ about this fantastic animation studio."""
         self.assertEqual(hline_sym.id, hline.related_line.id)
         self.assertEqual(hline.id,     hline_sym.related_line.id)
 
-    def test_add_relation02(self):
+    def test_add_relation__secondary_rtype(self):
         "Create the relation using the 'object' relation type."
         user = self.user
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -1266,8 +1263,7 @@ about this fantastic animation studio."""
         self.assertEqual(user,              hline.entity_owner)
         self.assertEqual(TYPE_AUX_CREATION, hline.type)
 
-    def test_auxiliary_edition01(self):
-        "Address."
+    def test_auxiliary_edition__address(self):
         other_user = self.create_user(1)
         self._simple_login()
 
@@ -1314,7 +1310,7 @@ about this fantastic animation studio."""
             hline.modifications,
         )
 
-    def test_auxiliary_edition02(self):
+    def test_auxiliary_edition__billing_line(self):
         """Billing.Line
         - an auxiliary + CremeEntity at the same time
         - DecimalField
@@ -1348,7 +1344,7 @@ about this fantastic animation studio."""
         hline = hlines[-1]
         self.assertEqual(TYPE_AUX_EDITION, hline.type)
 
-    def test_auxiliary_creation_n_edition(self):
+    def test_auxiliary_edition__after_creation(self):
         "Other modification on just created instance are not logged."
         user = self.user
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
@@ -1361,7 +1357,7 @@ about this fantastic animation studio."""
         todo.save()
         self.assertEqual(old_count + 1, HistoryLine.objects.count())
 
-    def test_auxiliary_edition_m2m01(self):
+    def test_auxiliary_edition__m2m__add_or_remove__set_method(self):
         other_user = self.create_user(1)
         cat1, cat2 = FakeTodoCategory.objects.order_by('id')[:2]
 
@@ -1403,7 +1399,7 @@ about this fantastic animation studio."""
             hline2.modifications[1],
         )
 
-    def test_auxiliary_edition_m2m02(self):
+    def test_auxiliary_edition__m2m__add_or_remove__add_n_remove_methods(self):
         "add()/remove() (not at the same time)."
         user = self.user
         cat = FakeTodoCategory.objects.first()
@@ -1433,7 +1429,7 @@ about this fantastic animation studio."""
             hline2.modifications[1],
         )
 
-    def test_auxiliary_edition_m2m03(self):
+    def test_auxiliary_edition__m2m__add_and_remove(self):
         "Set() which adds & removes at the same time (1 line, not 2)."
         user = self.user
         cat1, cat2, cat3 = FakeTodoCategory.objects.order_by('id')[:3]
@@ -1477,8 +1473,7 @@ about this fantastic animation studio."""
             self.refresh(hline).modifications[1],
         )
 
-    def test_auxiliary_edition_m2m04(self):
-        "clear()."
+    def test_auxiliary_edition__m2m__clear(self):
         user = self.user
         cat = FakeTodoCategory.objects.first()
 
@@ -1499,7 +1494,7 @@ about this fantastic animation studio."""
             hline.modifications[1],
         )
 
-    def test_auxiliary_edition_regular_n_m2m(self):
+    def test_auxiliary_edition__regular_n_m2m(self):
         user = self.user
         cat = FakeTodoCategory.objects.first()
 
@@ -1526,7 +1521,7 @@ about this fantastic animation studio."""
             hline.modifications[1:],
         )
 
-    def test_auxiliary_edition_multi_save(self):
+    def test_auxiliary_edition__multi_save(self):
         user = self.user
 
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
@@ -1574,7 +1569,7 @@ about this fantastic animation studio."""
         self.assertEqual(nerv.id,           hline.entity.id)
         self.assertEqual(TYPE_AUX_DELETION, hline.type)
 
-    def test_multi_save01(self):
+    def test_multi_save(self):
         old_last_name = 'Ayami'
         new_last_name = 'Ayanami'
 
@@ -1591,7 +1586,7 @@ about this fantastic animation studio."""
         )
         self.assertEqual(TYPE_CREATION, hline.type)
 
-    def test_multi_save02(self):
+    def test_multi_save__internal_backup(self):
         "Beware: internal backup must be recreated after the save()."
         old_last_name = 'Ayami'
         new_last_name = 'Ayanami'
@@ -1681,7 +1676,7 @@ about this fantastic animation studio."""
         ghibli_line = self.get_alone_element(ghibli_line_qs.all())
         self.assertEqual(TYPE_CREATION, ghibli_line.type)
 
-    def test_populate_users01(self):
+    def test_populate_users__one_line(self):
         user = self._simple_login()
 
         self._build_organisation(user=user.id, name='Gainax')
@@ -1695,7 +1690,7 @@ about this fantastic animation studio."""
 
         self.assertEqual(user, h_user)
 
-    def test_populate_users02(self):
+    def test_populate_users__several_lines(self):
         user = self.user
         other_user = self.create_user(1)
 
@@ -1742,7 +1737,7 @@ about this fantastic animation studio."""
             h_user1 = hline1.user
         self.assertEqual(admin, h_user1)
 
-    def test_populate_related_lines01(self):
+    def test_populate_related_lines(self):
         user = self.user
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
@@ -1785,7 +1780,7 @@ about this fantastic animation studio."""
         with self.assertNumQueries(0):
             HistoryLine.populate_related_lines(hlines)
 
-    def test_populate_related_lines02(self):
+    def test_populate_related_lines__use_passed_lines(self):
         "Use lines passed as pool too."
         user = self.user
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')

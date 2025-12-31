@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024-2025  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -348,7 +348,7 @@ class NotificationRegistry:
 
         if content_id in output_contents:
             raise self.RegistrationError(
-                f"""Duplicated content's id or content registered twice for"""
+                f"""Duplicated content's id or content registered twice for """
                 f"""output "{output}": {content_id}"""
             )
 

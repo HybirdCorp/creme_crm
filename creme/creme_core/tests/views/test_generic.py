@@ -50,13 +50,12 @@ from .base import AppPermissionBrick, BrickTestCaseMixin
 
 
 class MiscTestCase(CremeTestCase):
-    def test_placeholder_view01(self):
+    def test_placeholder_view(self):
         self.login_as_root()
         response = self.client.get(reverse('creme_core__fake_removed_view', args=[1]))
         self.assertContains(response, 'Custom error message', status_code=409)
 
-    def test_placeholder_view02(self):
-        "Not logged."
+    def test_placeholder_view__not_logged(self):
         url = reverse('creme_core__fake_removed_view', args=(1,))
         response = self.assertGET(302, url)
         self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
@@ -153,7 +152,7 @@ class DetailTestCase(BrickTestCaseMixin, CremeTestCase):
             response, '{}?next={}'.format(reverse('creme_login'), url),
         )
 
-    def test_permission01(self):
+    def test_permission__model_credentials(self):
         "Viewing is not allowed (model credentials)."
         self.login_as_standard()
         fox = FakeContact.objects.create(
@@ -171,7 +170,7 @@ class DetailTestCase(BrickTestCaseMixin, CremeTestCase):
             html=True,
         )
 
-    def test_permission02(self):
+    def test_permission__app_credentials(self):
         "Viewing is not allowed (app credentials)."
         # NB: not need to create an instance, the "app" permission must be
         #     checked before the SQL query.
@@ -282,7 +281,7 @@ class CreationTestCase(CremeTestCase):
         self.assertFalse(contact.properties.all())
         self.assertFalse(contact.relations.all())
 
-    def test_entity_creation_validation_error(self):
+    def test_entity_creation__validation_error(self):
         "ValidationError + cancel_url."
         user = self.login_as_root_and_get()
 
@@ -306,7 +305,7 @@ class CreationTestCase(CremeTestCase):
         )
         self.assertEqual(lv_url, response2.context.get('cancel_url'))
 
-    def test_entity_creation_permission01(self):
+    def test_entity_creation__app_credentials(self):
         "Not app credentials."
         self.login_as_standard(allowed_apps=['creme_config'])
 
@@ -319,23 +318,23 @@ class CreationTestCase(CremeTestCase):
             html=True,
         )
 
-    def test_entity_creation_permission02(self):
+    def test_entity_creation__creation_credentials(self):
         "Not creation credentials."
         self.login_as_standard(creatable_models=[FakeOrganisation])  # Not FakeContact
 
         response = self.assertGET403(reverse('creme_core__create_fake_contact'))
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
 
-    def test_entity_creation_not_logged(self):
+    def test_entity_creation__not_logged(self):
         url = reverse('creme_core__create_fake_contact')
         response = self.assertGET(302, url)
         self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
 
-    def test_entity_creation_not_super_user(self):
+    def test_entity_creation__not_super_user(self):
         self.login_as_standard(creatable_models=[FakeContact])
         self.assertGET200(reverse('creme_core__create_fake_contact'))
 
-    def test_entity_creation_callback_url01(self):
+    def test_entity_creation__callback_url(self):
         user = self.login_as_root_and_get()
 
         url = reverse('creme_core__create_fake_contact')
@@ -360,7 +359,7 @@ class CreationTestCase(CremeTestCase):
         self.assertNoFormError(response2)
         self.assertRedirects(response2, callback_url)
 
-    def test_entity_creation_callback_url02(self):
+    def test_entity_creation__callback_url__unsafe(self):
         "Unsafe URL."
         self.login_as_root()
 
@@ -376,7 +375,7 @@ class CreationTestCase(CremeTestCase):
         assertNoCallback('//www.test.com')
 
     @override_settings(FORMS_RELATION_FIELDS=True)
-    def test_entity_creation_properties(self):
+    def test_entity_creation__properties(self):
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.create
@@ -429,7 +428,7 @@ class CreationTestCase(CremeTestCase):
         )
 
     @override_settings(FORMS_RELATION_FIELDS=True)
-    def test_entity_creation_relations(self):
+    def test_entity_creation__relations(self):
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -527,7 +526,7 @@ class CreationTestCase(CremeTestCase):
         self.assertHaveRelation(subject=subject, type=rtype2, object=orga2)
 
     @override_settings(FORMS_RELATION_FIELDS=False)
-    def test_entity_creation_no_relation_field(self):
+    def test_entity_creation__no_relation_field(self):
         self.login_as_root()
 
         response = self.assertGET200(reverse('creme_core__create_fake_contact'))
@@ -540,7 +539,7 @@ class CreationTestCase(CremeTestCase):
         self.assertNotIn('relation_types',   fields)
         self.assertNotIn('semifixed_rtypes', fields)
 
-    def test_entity_creation_customform01(self):
+    def test_entity_creation__custom_form(self):
         user = self.login_as_root_and_get()
 
         url = reverse('creme_core__create_fake_activity')
@@ -548,6 +547,7 @@ class CreationTestCase(CremeTestCase):
 
         # TODO: test HTML
 
+        # POST ---
         title = 'My activity'
         place = 'Mars'
         atype = FakeActivityType.objects.first()
@@ -582,7 +582,7 @@ class CreationTestCase(CremeTestCase):
             self.create_datetime(year=2020, month=9, day=26), activity.end,
         )
 
-    def test_entity_creation_customform02(self):
+    def test_entity_creation__custom_form__required(self):
         user = self.login_as_root_and_get()
 
         cfci = self.get_object_or_fail(
@@ -647,7 +647,7 @@ class CreationTestCase(CremeTestCase):
         self.assertIsNone(activity.end)
         self.assertFalse(activity.minutes)
 
-    def test_entity_creation_customform03(self):
+    def test_entity_creation__custom_form__super_user(self):
         "Super-user's form."
         self.login_as_root()
 
@@ -686,7 +686,7 @@ class CreationTestCase(CremeTestCase):
         self.assertIn('minutes', fields)
         self.assertIn('cform_extra-fakeactivity_end', fields)
 
-    def test_entity_creation_customform04(self):
+    def test_entity_creation__custom_form__no_item(self):
         "No item exists."
         form_desc = CustomFormDescriptor(
             id='creme_core-tests_fakeorga',
@@ -713,7 +713,7 @@ class CreationTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_adding_to_entity01(self):
+    def test_adding_to_entity(self):
         user = self.login_as_root_and_get()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         url = reverse('creme_core__create_fake_address', args=(nerv.id,))
@@ -731,8 +731,7 @@ class CreationTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(url, headers=headers, data={'city': city}))
         self.get_object_or_fail(FakeAddress, city=city, entity=nerv.id)
 
-    def test_adding_to_entity02(self):
-        "Not logged."
+    def test_adding_to_entity__not_logged(self):
         user = self.get_root_user()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         self.assertContains(
@@ -823,12 +822,11 @@ class EditionTestCase(CremeTestCase):
 
         self.assertRedirects(response2, contact.get_absolute_url())
 
-    def test_entity_edition_no_object(self):
-        "Invalid ID."
+    def test_entity_edition__invalid_id(self):
         self.login_as_root()
         self.assertGET404(reverse('creme_core__edit_fake_contact', args=[self.UNUSED_PK]))
 
-    def test_entity_edition_validation_error(self):
+    def test_entity_edition__validation_error(self):
         "ValidationError + cancel_url."
         user = self.login_as_root_and_get()
         contact = FakeContact.objects.create(
@@ -856,8 +854,7 @@ class EditionTestCase(CremeTestCase):
         )
         self.assertEqual(lv_url, response.context.get('cancel_url'))
 
-    def test_entity_edition_permission01(self):
-        "Not app credentials."
+    def test_entity_edition__permission__no_app_credentials(self):
         self.login_as_standard(allowed_apps=['creme_config'])
 
         response = self.client.get(
@@ -871,8 +868,7 @@ class EditionTestCase(CremeTestCase):
             html=True,
         )
 
-    def test_entity_edition_permission02(self):
-        "Not edition credentials."
+    def test_entity_edition__permission__change_forbidden(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, all='!CHANGE')
 
@@ -883,12 +879,12 @@ class EditionTestCase(CremeTestCase):
         response = self.assertGET403(contact.get_edit_absolute_url())
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
 
-    def test_entity_edition_not_logged(self):
+    def test_entity_edition__not_logged(self):
         url = reverse('creme_core__edit_fake_contact', args=[self.UNUSED_PK])
         response = self.assertGET(302, url)
         self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
 
-    def test_entity_edition_not_super_user(self):
+    def test_entity_edition__not_super_user(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*')
 
@@ -897,7 +893,7 @@ class EditionTestCase(CremeTestCase):
         )
         self.assertGET200(contact.get_edit_absolute_url())
 
-    def test_entity_edition_callback_url(self):
+    def test_entity_edition__callback_url(self):
         user = self.login_as_root_and_get()
         contact = FakeContact.objects.create(
             user=user, first_name='Spik', last_name='Spiege',
@@ -926,7 +922,7 @@ class EditionTestCase(CremeTestCase):
         self.assertNoFormError(response2)
         self.assertRedirects(response2, callback_url)
 
-    def test_entity_edition_customform(self):
+    def test_entity_edition__customform(self):
         user = self.login_as_root_and_get()
 
         atype1, atype2 = FakeActivityType.objects.all()[:2]
@@ -970,7 +966,7 @@ class EditionTestCase(CremeTestCase):
             self.create_datetime(year=2020, month=9, day=26), activity.end,
         )
 
-    def test_related_to_entity_edition01(self):
+    def test_related_to_entity_edition(self):
         user = self.login_as_root_and_get()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         address = FakeAddress.objects.create(
@@ -979,25 +975,24 @@ class EditionTestCase(CremeTestCase):
         )
         url = reverse('creme_core__edit_fake_address', args=[address.id])
 
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
 
-        get_ctxt = response.context.get
+        get_ctxt = response1.context.get
         self.assertEqual(f'Address for <{nerv}>',     get_ctxt('title'))
         self.assertEqual(_('Save the modifications'), get_ctxt('submit_label'))
 
         # ---
         city = 'Tokyo'
         value = address.value + ' (edited)'
-        response = self.client.post(url, data={'value': value, 'city': city})
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={'value': value, 'city': city}))
 
         address = self.refresh(address)
         self.assertEqual(nerv.id, address.entity_id)
         self.assertEqual(value,   address.value)
-        self.assertEqual(city,     address.city)
+        self.assertEqual(city,    address.city)
 
-    def test_related_to_entity_edition02(self):
+    def test_related_to_entity_edition__change_perm_on_related(self):
         "Edition credentials on related entity needed."
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*')

@@ -41,7 +41,7 @@ class CredsValidatorTestCase(CremeTestCase):
                 user, 'none or anonymous not allowed', code='viewnotallowed',
             )
 
-    def test_validate_viewable_entity_owner(self):
+    def test_validate_viewable_entity__owner(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -50,7 +50,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertNoException():
             validators.validate_viewable_entity(a, user)
 
-    def test_validate_viewable_entity_allowed(self):
+    def test_validate_viewable_entity__allowed(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, all=['VIEW'])
 
@@ -61,7 +61,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertNoException():
             validators.validate_viewable_entity(a, user)
 
-    def test_validate_viewable_entity_anonymous(self):
+    def test_validate_viewable_entity__anonymous(self):
         entity = FakeContact.objects.create(
             last_name='Doe', first_name='John', user=self.get_root_user(),
         )
@@ -78,7 +78,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='viewnotallowed',
         )
 
-    def test_validate_viewable_entity_notallowed_other(self):
+    def test_validate_viewable_entity__forbidden__other(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -97,7 +97,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='viewnotallowed',
         )
 
-    def test_validate_viewable_entity_notallowed_all(self):
+    def test_validate_viewable_entity__forbidden__all(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, all=['CHANGE'])
 
@@ -117,7 +117,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='viewnotallowed',
         )
 
-    def test_validate_viewable_entities_owner(self):
+    def test_validate_viewable_entities__owner(self):
         user = self.login_as_standard()
         a = FakeContact.objects.create(last_name='Doe', first_name='A', user=user)
         b = FakeContact.objects.create(last_name='Doe', first_name='B', user=user)
@@ -127,7 +127,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertNoException():
             validators.validate_viewable_entities([a, b], user)
 
-    def test_validate_viewable_entities_allowed(self):
+    def test_validate_viewable_entities__allowed(self):
         user = self.login_as_standard()
         other_user = self.get_root_user()
         a = FakeContact.objects.create(last_name='Doe', first_name='A', user=other_user)
@@ -138,7 +138,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertNoException():
             validators.validate_viewable_entities([a, b], user)
 
-    def test_validate_viewable_entities_anonymous(self):
+    def test_validate_viewable_entities__anonymous(self):
         other_user = self.get_root_user()
         a = FakeContact.objects.create(last_name='Doe', first_name='John', user=other_user)
         b = FakeContact.objects.create(last_name='Doe', first_name='B', user=other_user)
@@ -155,7 +155,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='viewnotallowed',
         )
 
-    def test_validate_viewable_entities_notallowed_other(self):
+    def test_validate_viewable_entities__forbidden__other(self):
         user = self.login_as_standard()
 
         create_contact = partial(FakeContact.objects.create, user=self.get_root_user())
@@ -176,7 +176,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='viewnotallowed',
         )
 
-    def test_validate_viewable_entities_notallowed_all(self):
+    def test_validate_viewable_entities__forbidden__all(self):
         user = self.login_as_standard()
 
         create_contact = partial(FakeContact.objects.create, user=self.get_root_user())
@@ -197,7 +197,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='viewnotallowed',
         )
 
-    def test_validate_editable_entity_owner(self):
+    def test_validate_editable_entity__owner(self):
         user = self.login_as_standard()
         a = FakeContact.objects.create(last_name='Doe', first_name='John', user=user)
 
@@ -206,7 +206,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertNoException():
             validators.validate_editable_entity(a, user)
 
-    def test_validate_editable_entity_allowed(self):
+    def test_validate_editable_entity__allowed(self):
         user = self.login_as_standard()
         entity = FakeContact.objects.create(
             last_name='Doe', first_name='John', user=self.get_root_user(),
@@ -217,7 +217,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertNoException():
             validators.validate_editable_entity(entity, user)
 
-    def test_validate_editable_entity_anonymous(self):
+    def test_validate_editable_entity__anonymous(self):
         other_user = self.get_root_user()
         a = FakeContact.objects.create(
             last_name='Doe', first_name='John', user=other_user,
@@ -235,7 +235,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='changenotallowed',
         )
 
-    def test_validate_editable_entity_notallowed_other(self):
+    def test_validate_editable_entity__forbidden__other(self):
         user = self.login_as_standard()
         entity = FakeContact.objects.create(
             last_name='Doe', first_name='John', user=self.get_root_user(),
@@ -254,7 +254,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='changenotallowed',
         )
 
-    def test_validate_editable_entity_notallowed_all(self):
+    def test_validate_editable_entity__forbidden__all(self):
         user = self.login_as_standard()
         entity = FakeContact.objects.create(
             last_name='Doe', first_name='John', user=self.get_root_user(),
@@ -271,7 +271,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='changenotallowed',
         )
 
-    def test_validate_editable_entities_owner(self):
+    def test_validate_editable_entities__owner(self):
         user = self.login_as_standard()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -283,7 +283,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertNoException():
             validators.validate_editable_entities([a, b], user)
 
-    def test_validate_editable_entities_anonymous(self):
+    def test_validate_editable_entities__anonymous(self):
         other_user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=other_user)
@@ -302,7 +302,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='changenotallowed',
         )
 
-    def test_validate_editable_entities_notallowed_other(self):
+    def test_validate_editable_entities__forbidden__other(self):
         user = self.login_as_standard()
 
         create_contact = partial(FakeContact.objects.create, user=self.get_root_user())
@@ -323,7 +323,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='changenotallowed',
         )
 
-    def test_validate_editable_entities_notallowed_all(self):
+    def test_validate_editable_entities__forbidden__all(self):
         user = self.login_as_standard()
 
         create_contact = partial(FakeContact.objects.create, user=self.get_root_user())
@@ -341,7 +341,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='changenotallowed',
         )
 
-    def test_validate_linkable_entity_owner(self):
+    def test_validate_linkable_entity__owner(self):
         user = self.login_as_standard()
         a = FakeContact.objects.create(last_name='Doe', first_name='John', user=user)
 
@@ -350,7 +350,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertNoException():
             validators.validate_linkable_entity(a, user)
 
-    def test_validate_linkable_entity_allowed(self):
+    def test_validate_linkable_entity__allowed(self):
         user = self.login_as_standard()
         entity = FakeContact.objects.create(
             last_name='Doe', first_name='John', user=self.get_root_user(),
@@ -361,7 +361,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertNoException():
             validators.validate_linkable_entity(entity, user)
 
-    def test_validate_linkable_entity_anonymous(self):
+    def test_validate_linkable_entity__anonymous(self):
         other_user = self.get_root_user()
         entity = FakeContact.objects.create(
             last_name='Doe', first_name='John', user=other_user,
@@ -379,7 +379,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='linknotallowed',
         )
 
-    def test_validate_linkable_entity_notallowed_other(self):
+    def test_validate_linkable_entity__forbidden__other(self):
         user = self.login_as_standard()
         entity = FakeContact.objects.create(
             last_name='Doe', first_name='John', user=self.get_root_user(),
@@ -398,7 +398,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='linknotallowed',
         )
 
-    def test_validate_linkable_entity_notallowed_all(self):
+    def test_validate_linkable_entity__forbidden__all(self):
         user = self.login_as_standard()
         entity = FakeContact.objects.create(
             last_name='Doe', first_name='John', user=self.get_root_user(),
@@ -415,7 +415,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='linknotallowed',
         )
 
-    def test_validate_linkable_entities_owner(self):
+    def test_validate_linkable_entities__owner(self):
         user = self.login_as_standard()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -427,7 +427,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertNoException():
             validators.validate_linkable_entities([a, b], user)
 
-    def test_validate_linkable_entities_allowed(self):
+    def test_validate_linkable_entities__allowed(self):
         user = self.login_as_standard()
 
         create_contact = partial(FakeContact.objects.create, user=self.get_root_user())
@@ -439,7 +439,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertNoException():
             validators.validate_linkable_entities([a, b], user)
 
-    def test_validate_linkable_entities_anonymous(self):
+    def test_validate_linkable_entities__anonymous(self):
         other_user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=other_user)
@@ -458,7 +458,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='linknotallowed',
         )
 
-    def test_validate_linkable_entities_notallowed_other(self):
+    def test_validate_linkable_entities__forbidden_other(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['LINK'])
 
@@ -478,7 +478,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='linknotallowed',
         )
 
-    def test_validate_linkable_entities_notallowed_all(self):
+    def test_validate_linkable_entities__forbidden__all(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, all=['VIEW'])
 
@@ -502,7 +502,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertNoException():
             validators.validate_linkable_model(FakeContact, user, user)
 
-    def test_validate_linkable_model_allowed(self):
+    def test_validate_linkable_model__allowed(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, all=['LINK'])
 
@@ -510,7 +510,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertNoException():
             validators.validate_linkable_model(FakeContact, user, other_user)
 
-    def test_validate_linkable_model_anonymous(self):
+    def test_validate_linkable_model__anonymous(self):
         user = get_user(self.client)
         self.assertTrue(user.is_anonymous)
 
@@ -525,7 +525,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='linknotallowed',
         )
 
-    def test_validate_linkable_model_notallowed_other(self):
+    def test_validate_linkable_model__forbidden__other(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['LINK'])
 
@@ -541,7 +541,7 @@ class CredsValidatorTestCase(CremeTestCase):
             codes='linknotallowed',
         )
 
-    def test_validate_linkable_model_notallowed_all(self):
+    def test_validate_linkable_model__forbidden__all(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, all=['VIEW'])
 

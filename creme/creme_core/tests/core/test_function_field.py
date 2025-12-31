@@ -97,7 +97,7 @@ class FunctionFieldsTestCase(CremeTestCase):
 
         self.assertIsNone(registry.get(Klass2, fname11))
 
-    def test_registry02(self):
+    def test_registry__duplicates(self):
         "Duplicates error."
         class Klass:
             pass
@@ -117,8 +117,7 @@ class FunctionFieldsTestCase(CremeTestCase):
         with self.assertRaises(FunctionFieldRegistry.RegistrationError):
             registry.register(Klass, TestFunctionField2)
 
-    def test_registry03(self):
-        "Overridden field."
+    def test_registry__overridden_field(self):
         class Klass1:
             pass
 
@@ -159,8 +158,7 @@ class FunctionFieldsTestCase(CremeTestCase):
             {ff.__class__ for ff in registry.fields(Klass2)},
         )
 
-    def test_registry04(self):
-        "Unregister() error."
+    def test_registry__unregister_error(self):
         class Klass:
             pass
 
@@ -184,7 +182,7 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertEqual(value, result.render(ViewTag.HTML_DETAIL))
         self.assertEqual(value, result.render(ViewTag.TEXT_PLAIN))
 
-    def test_result_decimal(self):
+    def test_result__decimal(self):
         value = Decimal('1234.45')
         result = FunctionFieldDecimal(value)
         self.assertEqual(number_format(value), result.render(ViewTag.TEXT_PLAIN))
@@ -194,7 +192,7 @@ class FunctionFieldsTestCase(CremeTestCase):
         )
         self.assertEqual(number_format(value), result.render(ViewTag.TEXT_PLAIN))
 
-    def test_result_link(self):
+    def test_result__link(self):
         label = 'My Contacts'
         url = reverse('creme_core__list_fake_contacts')
         result = FunctionFieldLink(label=label, url=url)
@@ -207,7 +205,7 @@ class FunctionFieldsTestCase(CremeTestCase):
             result.render(ViewTag.HTML_FORM),
         )
 
-    def test_result_link__help_text(self):
+    def test_result__link__help_text(self):
         label = 'My Contacts'
         url = reverse('creme_core__list_fake_contacts')
         text = 'List all the viewable contacts'
@@ -222,7 +220,7 @@ class FunctionFieldsTestCase(CremeTestCase):
             result.render(ViewTag.HTML_FORM),
         )
 
-    def test_result_link__is_deleted(self):
+    def test_result__link__is_deleted(self):
         label = 'My Activities'
         url = reverse('creme_core__list_fake_activities')
         result = FunctionFieldLink(label=label, url=url, is_deleted=True)
@@ -236,7 +234,7 @@ class FunctionFieldsTestCase(CremeTestCase):
             result.render(ViewTag.HTML_FORM),
         )
 
-    def test_result_link__help_n_deleted(self):
+    def test_result__link__help_n_deleted(self):
         label = 'My Activities'
         url = reverse('creme_core__list_fake_activities')
         text = 'All the activities oh yeah'
@@ -251,7 +249,7 @@ class FunctionFieldsTestCase(CremeTestCase):
             result.render(ViewTag.HTML_FORM),
         )
 
-    def test_result_color_and_label(self):
+    def test_result__color_and_label(self):
         label = 'My Contacts'
         color = 'FF5522'
         result = FunctionFieldColorAndLabel(label=label, color=color)
@@ -264,7 +262,7 @@ class FunctionFieldsTestCase(CremeTestCase):
             result.render(ViewTag.HTML_DETAIL),
         )
 
-    def test_result_list(self):
+    def test_result__list(self):
         value1 = 'My value #1'
         value2 = 'My value #2'
         result1 = FunctionFieldResultsList([

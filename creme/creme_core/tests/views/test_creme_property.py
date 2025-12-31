@@ -848,7 +848,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(history.TYPE_PROP_DEL, hline.type)
         self.assertListEqual([ptype1.id], hline.modifications)
 
-    def test_add_properties_bulk01(self):
+    def test_add_properties_bulk(self):
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.create
@@ -916,7 +916,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             self.assertHasProperty(entity=entity, ptype=ptype2)
             self.assertHasNoProperty(entity=entity, ptype=ptype3)
 
-    def test_add_properties_bulk02(self):
+    def test_add_properties_bulk__not_viewable(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*')
         other_user = self.get_root_user()
@@ -979,7 +979,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertHasProperty(ptype=ptype1, entity=entity4)
         self.assertHasProperty(ptype=ptype2, entity=entity4)
 
-    def test_add_properties_bulk03(self):
+    def test_add_properties_bulk__error_label(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, all='!CHANGE')
 
@@ -997,7 +997,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertEqual(str(uneditable), label.initial)
 
-    def test_add_properties_bulk04(self):
+    def test_add_properties_bulk__not_editable(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, all='!CHANGE', own='*')
 
@@ -1012,15 +1012,14 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             self._build_bulk_url(CremeEntity, entity, uneditable, GET=True)
         )
 
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             self._build_bulk_url(CremeEntity),
             data={
                 'entities_lbl': 'd:p',
                 'types': [ptype1.id, ptype2.id],
                 'ids': [entity.id, uneditable.id],
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         def tagged_entities(ptype):
             return [

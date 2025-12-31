@@ -62,8 +62,7 @@ class OperatorTestCase(CremeTestCase):
             ),
         )
 
-    def test_validate_field_values01(self):
-        "String."
+    def test_validate_field_values__string(self):
         op = operators.ConditionOperator()
         field = FakeOrganisation._meta.get_field('name')
 
@@ -73,8 +72,7 @@ class OperatorTestCase(CremeTestCase):
             op.validate_field_values(field=field, values=[*values]),
         )
 
-    def test_validate_field_values02(self):
-        "Integer."
+    def test_validate_field_values__integer(self):
         op = operators.ConditionOperator()
         field = FakeOrganisation._meta.get_field('capital')
 
@@ -87,7 +85,7 @@ class OperatorTestCase(CremeTestCase):
         with self.assertRaises(ValidationError):
             op.validate_field_values(field=field, values=['1000', 'notanint'])
 
-    def test_validate_field_values03(self):
+    def test_validate_field_values__email(self):
         "Email (sub-part validation)."
         op1 = operators.ConditionOperator()
         field = FakeOrganisation._meta.get_field('email')
@@ -105,8 +103,7 @@ class OperatorTestCase(CremeTestCase):
         with self.assertRaises(ValidationError):
             op2.validate_field_values(field=field, values=values)
 
-    def test_validate_field_values04(self):
-        "Operand."
+    def test_validate_field_values__operand(self):
         user = self.get_root_user()
         registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
@@ -144,7 +141,7 @@ class OperatorTestCase(CremeTestCase):
             )
         )
 
-    def test_validate_field_values05(self):
+    def test_validate_field_values__m2m(self):
         "ManyToManyField."
         op = operators.ConditionOperator()
         field = FakeContact._meta.get_field('languages')

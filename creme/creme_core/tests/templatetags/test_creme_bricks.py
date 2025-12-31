@@ -16,8 +16,7 @@ from ..views.base import BrickTestCaseMixin
 
 
 class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
-    def test_brick_import_n_display01(self):
-        "Named Brick."
+    def test_brick_import_n_display__named_brick(self):
         brick_str = '<div>FOOBAR</div>'
         name = 'CremeBricksTagsTestCase__test_brick_import_n_display01'
 
@@ -40,7 +39,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertEqual(brick_str, render.strip())
 
-    def test_brick_import_n_display02(self):
+    def test_brick_import_n_display__object_brick(self):
         "Object Brick (generic brick)"
         user = self.get_root_user()
         motoko = FakeContact.objects.create(
@@ -67,8 +66,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertIn(motoko.phone, self.get_brick_tile(content_node, 'regular_field-phone').text)
 
-    def test_brick_declare_n_display01(self):
-        "Named Brick."
+    def test_brick_declare_n_display__named_brick(self):
         class _FooBrick(Brick):
             verbose_name = 'Testing purpose'
             brick_str = 'OVERLOAD ME'
@@ -119,7 +117,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             render.strip(),
         )
 
-    def test_brick_declare_n_display02(self):
+    def test_brick_declare_n_display__error(self):
         "Invalid Brick => no crash please"
         class InvalidBrick(Brick):
             id_ = Brick.generate_id(
@@ -187,7 +185,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             render.strip(),
         )
 
-    def test_brick_get_by_ids01(self):
+    def test_brick_get_by_ids(self):
         with self.assertNoException():
             render = Template(
                 '{% load creme_bricks %}'
@@ -206,7 +204,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             render.strip(),
         )
 
-    def test_brick_get_by_ids02(self):
+    def test_brick_get_by_ids__entity(self):
         "'entity' argument."
         user = self.get_root_user()
 

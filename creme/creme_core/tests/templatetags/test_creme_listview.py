@@ -25,7 +25,7 @@ from ..base import CremeTestCase
 # TODO: write complete tests for EntityCells
 # TODO: to be completed
 class CremeListViewTagsTestCase(CremeTestCase):
-    def test_listview_pager_slow(self):
+    def test_listview_pager__slow(self):
         user = self.get_root_user()
 
         for i in range(1, 20):
@@ -60,7 +60,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
             rendered,
         )
 
-    def test_listview_pager_fast(self):
+    def test_listview_pager__fast(self):
         user = self.get_root_user()
 
         for i in range(1, 20):
@@ -98,7 +98,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
             rendered,
         )
 
-    def test_listview_header_filters01(self):
+    def test_listview_header_filters(self):
         user = self.get_root_user()
 
         ctype = ContentType.objects.get_for_model(FakeMailingList)
@@ -108,10 +108,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
             id='test_hf-ml01', name='View', model=FakeMailingList, cells=[],
         ).get_or_create()[0]
 
-        hfilters = HeaderFilterList(
-            content_type=ctype,
-            user=user,
-        )
+        hfilters = HeaderFilterList(content_type=ctype, user=user)
         hfilters.select_by_id(hf.id)
 
         ctxt = listview_header_filters(
@@ -135,7 +132,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
         self.assertFalse([*ctxt.get('my_header_filters')])
         self.assertFalse([*ctxt.get('other_header_filters')])
 
-    def test_listview_header_filters02(self):
+    def test_listview_header_filters__several(self):
         user = self.get_root_user()
         other_user = self.create_user()
 
@@ -151,10 +148,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
         hf2 = create_hf(2, name='My view',    user=user,       is_custom=True)
         hf3 = create_hf(3, name='Other view', user=other_user, is_custom=True)
 
-        hfilters = HeaderFilterList(
-            content_type=ctype,
-            user=user,
-        )
+        hfilters = HeaderFilterList(content_type=ctype, user=user)
         hfilters.select_by_id(hf2.id)
 
         ctxt = listview_header_filters(

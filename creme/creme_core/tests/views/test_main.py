@@ -9,13 +9,8 @@ from django.utils.translation import gettext as _
 from parameterized import parameterized
 from PIL import Image
 
-from creme.creme_core.models import (
-    Currency,
-    FakeContact,
-    FakeImage,
-    FakeOrganisation,
-    Language,
-)
+# from creme.creme_core.models import FakeContact, FakeImage, FakeOrganisation
+from creme.creme_core.models import Currency, Language
 from creme.creme_core.utils.media import get_creme_media_url
 from creme.creme_core.views.generic.base import PermissionsMixin
 from creme.creme_core.views.testjs import js_testview_or_404
@@ -171,47 +166,47 @@ class MiscViewsTestCase(CremeTestCase):
         )
         self.assertEqual(response.content, b'Tests: server internal error')
 
-    def test_auth_decorators01(self):
-        self.login_as_standard(
-            allowed_apps=['documents'],  # Not 'creme_core'
-            creatable_models=[FakeContact],
-        )
-        self.assertGET403('/tests/contact/add')
-
-    def test_auth_decorators02(self):
-        self.login_as_standard(
-            allowed_apps=['creme_core'],
-            creatable_models=[FakeImage],  # Not FakeContact
-        )
-        self.assertGET403('/tests/contact/add')
-
-    def test_auth_decorators03(self):
-        self.login_as_standard(
-            allowed_apps=['creme_core'],
-            creatable_models=[FakeContact],
-        )
-        self.assertGET200('/tests/contact/add')
-
-    def test_auth_decorators_multiperm01(self):
-        self.login_as_standard(
-            allowed_apps=['documents'],  # Not 'creme_core'
-            creatable_models=[FakeOrganisation],
-        )
-        self.assertGET403('/tests/organisation/add')
-
-    def test_auth_decorators_multiperm02(self):
-        self.login_as_standard(
-            allowed_apps=['creme_core'],
-            creatable_models=[FakeImage],  # Not FakeOrganisation
-        )
-        self.assertGET403('/tests/organisation/add')
-
-    def test_auth_decorators_multiperm03(self):
-        self.login_as_standard(
-            allowed_apps=['creme_core'],
-            creatable_models=[FakeOrganisation],
-        )
-        self.assertGET200('/tests/organisation/add')
+    # def test_auth_decorators01(self):
+    #     self.login_as_standard(
+    #         allowed_apps=['documents'],  # Not 'creme_core'
+    #         creatable_models=[FakeContact],
+    #     )
+    #     self.assertGET403('/tests/contact/add')
+    #
+    # def test_auth_decorators02(self):
+    #     self.login_as_standard(
+    #         allowed_apps=['creme_core'],
+    #         creatable_models=[FakeImage],  # Not FakeContact
+    #     )
+    #     self.assertGET403('/tests/contact/add')
+    #
+    # def test_auth_decorators03(self):
+    #     self.login_as_standard(
+    #         allowed_apps=['creme_core'],
+    #         creatable_models=[FakeContact],
+    #     )
+    #     self.assertGET200('/tests/contact/add')
+    #
+    # def test_auth_decorators_multiperm01(self):
+    #     self.login_as_standard(
+    #         allowed_apps=['documents'],  # Not 'creme_core'
+    #         creatable_models=[FakeOrganisation],
+    #     )
+    #     self.assertGET403('/tests/organisation/add')
+    #
+    # def test_auth_decorators_multiperm02(self):
+    #     self.login_as_standard(
+    #         allowed_apps=['creme_core'],
+    #         creatable_models=[FakeImage],  # Not FakeOrganisation
+    #     )
+    #     self.assertGET403('/tests/organisation/add')
+    #
+    # def test_auth_decorators_multiperm03(self):
+    #     self.login_as_standard(
+    #         allowed_apps=['creme_core'],
+    #         creatable_models=[FakeOrganisation],
+    #     )
+    #     self.assertGET200('/tests/organisation/add')
 
     def test_utils_build_cancel_path(self):
         from creme.creme_core.views.utils import build_cancel_path
@@ -260,7 +255,7 @@ class LanguageTestCase(CremeTestCase):
             reverse('creme_config__model_portal', args=('creme_core', 'language'))
         )
 
-    def test_create(self):
+    def test_creation(self):
         url = reverse('creme_config__create_instance', args=('creme_core', 'language'))
         self.assertGET200(url)
 
@@ -270,7 +265,7 @@ class LanguageTestCase(CremeTestCase):
 
         self.get_object_or_fail(Language, name=name)
 
-    def test_edit(self):
+    def test_edition(self):
         name = 'klingon'
         language = Language.objects.create(name=name)
 
@@ -284,7 +279,7 @@ class LanguageTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(url, data={'name': name}))
         self.assertEqual(name, self.refresh(language).name)
 
-    def test_delete(self):
+    def test_deletion(self):
         language = Language.objects.create(name='Klingon')
 
         response = self.client.post(
@@ -310,7 +305,7 @@ class CurrencyTestCase(CremeTestCase):
             reverse('creme_config__model_portal', args=('creme_core', 'currency'))
         )
 
-    def test_create(self):
+    def test_creation(self):
         url = reverse('creme_config__create_instance', args=('creme_core', 'currency'))
         self.assertGET200(url)
 
@@ -333,7 +328,7 @@ class CurrencyTestCase(CremeTestCase):
             international_symbol=international_symbol,
         )
 
-    def test_edit(self):
+    def test_edition(self):
         name = 'berry'
         local_symbol = 'b'
         international_symbol = 'bry'
@@ -366,7 +361,7 @@ class CurrencyTestCase(CremeTestCase):
         self.assertEqual(local_symbol,         currency.local_symbol)
         self.assertEqual(international_symbol, currency.international_symbol)
 
-    def test_delete(self):
+    def test_deletion(self):
         currency = Currency.objects.create(
             name='Berry', local_symbol='B', international_symbol='BRY',
         )

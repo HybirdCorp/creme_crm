@@ -37,7 +37,7 @@ from ..base import CremeTestCase
 
 
 class DeletionTestCase(CremeTestCase):
-    def test_replacer_by_fixed_value01(self):
+    def test_replacer_by_fixed_value(self):
         civ = FakeCivility.objects.create(title='Kun')
 
         model_field = FakeContact._meta.get_field('civility')
@@ -66,7 +66,7 @@ class DeletionTestCase(CremeTestCase):
             str(replacer1),
         )
 
-    def test_replacer_by_fixed_value02(self):
+    def test_replacer_by_fixed_value__none_value(self):
         "<None> value + other ContentType."
         model_field = FakeOrganisation._meta.get_field('sector')
         replacer1 = FixedValueReplacer(model_field=model_field, value=None)
@@ -90,7 +90,7 @@ class DeletionTestCase(CremeTestCase):
             str(replacer1),
         )
 
-    def test_replacer_by_fixed_value03(self):
+    def test_replacer_by_fixed_value__implicit(self):
         "Explicit & implicit values."
         self.assertEqual(
             _('Empty «{model} - {field}»').format(
@@ -98,7 +98,7 @@ class DeletionTestCase(CremeTestCase):
                 field=_('Civility'),
             ),
             str(FixedValueReplacer(
-                model_field=FakeContact._meta.get_field('civility')
+                model_field=FakeContact._meta.get_field('civility'),
             )),
         )
 
@@ -115,8 +115,8 @@ class DeletionTestCase(CremeTestCase):
             ))
         )
 
-    def test_replacer_by_fixed_value04(self):
-        "ManyToMany."
+    def test_replacer_by_fixed_value__m2m(self):
+        "ManyToManyField."
         cat = FakeDocumentCategory.objects.create(name='PNGs')
         m2m = FakeDocument._meta.get_field('categories')
 
@@ -167,8 +167,7 @@ class DeletionTestCase(CremeTestCase):
             str(replacer1),
         )
 
-    def test_registry01(self):
-        "FixedValueReplacer."
+    def test_registry__FixedValueReplacer(self):
         sector = FakeSector.objects.first()
 
         field1 = FakeOrganisation._meta.get_field('sector')
@@ -211,8 +210,7 @@ class DeletionTestCase(CremeTestCase):
         self.assertEqual(field2, d_replacer2.model_field)
         self.assertEqual(sector, d_replacer2.get_value())
 
-    def test_registry02(self):
-        "SETReplacer."
+    def test_registry__SETReplacer(self):
         field = FakeTicket._meta.get_field('priority')
         replacer = SETReplacer(model_field=field)
 

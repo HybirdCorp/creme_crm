@@ -75,7 +75,7 @@ class BatchOperatorTestCase(CremeTestCase):
         self.assertEqual(3, op(6, 2))
         self.assertEqual(2, op(9, op.cast('4')))
 
-    def test_operators01(self):
+    def test_operators__char_field(self):
         ops = [
             (op_name, str(op))
             for op_name, op in batch_operator_manager.operators(models.CharField)
@@ -84,7 +84,7 @@ class BatchOperatorTestCase(CremeTestCase):
         self.assertInChoices(value='lower', label=_('To lower case'), choices=ops)
         self.assertNotInChoices(value='add_int', choices=ops)
 
-    def test_operators02(self):
+    def test_operators__integer_field(self):
         ops = [
             (op_name, str(op))
             for op_name, op in batch_operator_manager.operators(models.IntegerField)
@@ -92,20 +92,20 @@ class BatchOperatorTestCase(CremeTestCase):
         self.assertInChoices(value='add_int', label=_('Add'), choices=ops)
         self.assertNotInChoices(value='prefix', choices=ops)
 
-    def test_operators03(self):
+    def test_operators__all(self):
         ops = [(op_name, str(op)) for op_name, op in batch_operator_manager.operators()]
         self.assertInChoices(value='mul_int', label=_('Multiply'), choices=ops)
         self.assertInChoices(value='suffix',  label=_('Suffix'),   choices=ops)
 
 
 class BatchActionTestCase(CremeTestCase):
-    def test_changed01(self):
+    def test_changed__true(self):
         baction = BatchAction(FakeContact, 'first_name', 'upper', value='')
         haruhi = FakeContact(first_name='Haruhi', last_name='Suzumiya')
         self.assertTrue(baction(haruhi))
         self.assertEqual('HARUHI', haruhi.first_name)
 
-    def test_changed02(self):
+    def test_changed__false(self):
         baction = BatchAction(FakeContact, 'last_name', 'rm_substr', value='Foobar')
         first_name = 'Haruhi'
         last_name = 'Suzumiya'
@@ -149,18 +149,17 @@ class BatchActionTestCase(CremeTestCase):
             str(cm.exception)
         )
 
-    def test_unicode01(self):
+    def test_str(self):
         baction = BatchAction(FakeContact, 'first_name', 'upper', value='')
         self.assertEqual(
             _('{field} ➔ {operator}').format(
                 field=_('First name'),
                 operator=_('To upper case'),
             ),
-            str(baction)
+            str(baction),
         )
 
-    def test_unicode02(self):
-        "With argument"
+    def test_str__with_argument(self):
         value = 'Foobarbaz'
         baction = BatchAction(FakeContact, 'last_name', 'rm_substr', value=value)
         self.assertEqual(
@@ -169,5 +168,5 @@ class BatchActionTestCase(CremeTestCase):
                 operator=_('Remove a sub-string'),
                 value=value,
             ),
-            str(baction)
+            str(baction),
         )

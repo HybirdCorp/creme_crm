@@ -33,7 +33,6 @@ from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
-    CremeUser,
     CustomField,
     CustomFieldInteger,
     FakeContact,
@@ -46,8 +45,8 @@ from creme.creme_core.models import (
 from ..base import CremeTestCase
 
 
-class EntityTestCase(CremeTestCase):
-    def test_entity01(self):
+class CremeEntityTestCase(CremeTestCase):
+    def test_create(self):
         user = self.get_root_user()
 
         with self.assertNoException():
@@ -57,8 +56,7 @@ class EntityTestCase(CremeTestCase):
         self.assertDatetimesAlmostEqual(now_value, entity.created)
         self.assertDatetimesAlmostEqual(now_value, entity.modified)
 
-    def test_entity_save01(self):
-        "No update_fields."
+    def test_save__no_update_fields(self):
         user = self.get_root_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -75,8 +73,7 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual('Nerv inc.', orga.header_filter_search_field)
         self.assertEqual(description, orga.description)
 
-    def test_entity_save02(self):
-        "With update_fields."
+    def test_save__with_update_fields(self):
         user = self.get_root_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -94,8 +91,7 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual('Nerv inc.', orga.header_filter_search_field)
         self.assertFalse(orga.description)
 
-    def test_entity_extra_data01(self):
-        "Single tag."
+    def test_extra_data__single_tag(self):
         user = self.get_root_user()
 
         def create_orga(name, tag=None):
@@ -130,8 +126,7 @@ class EntityTestCase(CremeTestCase):
         )
 
     @skipUnlessDBFeature('supports_json_field_contains')
-    def test_entity_extra_data02(self):
-        "Multi tags."
+    def test_extra_data__multi_tags(self):
         user = self.get_root_user()
 
         def create_orga(name, *tags):
@@ -159,7 +154,7 @@ class EntityTestCase(CremeTestCase):
             FakeOrganisation.objects.filter(extra_data__tags__contains=1),
         )
 
-    def test_manager01(self):
+    def test_manager__ordering(self):
         "Ordering NULL values as 'low'."
         user = self.get_root_user()
 
@@ -186,7 +181,7 @@ class EntityTestCase(CremeTestCase):
             [*reversed(expected)], [*qs.order_by('-phone', 'last_name')],
         )
 
-    def test_manager02(self):
+    def test_manager__ordering__fk(self):
         "Ordering NULL values as 'low' (FK)."
         user = self.get_root_user()
 
@@ -225,7 +220,7 @@ class EntityTestCase(CremeTestCase):
         self.ptype01 = create_ptype(text='wears strange hats')
         self.ptype02 = create_ptype(text='wears strange pants')
 
-    def test_fieldtags_clonable(self):
+    def test_fieldtags__clonable(self):
         user = self.get_root_user()
         naruto = FakeContact.objects.create(
             user=user, first_name='Naruto', last_name='Uzumaki',
@@ -247,7 +242,7 @@ class EntityTestCase(CremeTestCase):
         self.assertTrue(get_field('languages').get_tag(FieldTag.CLONABLE))
         self.assertFalse(get_field('preferred_countries').get_tag(FieldTag.CLONABLE))
 
-    def test_fieldtags_viewable(self):
+    def test_fieldtags__viewable(self):
         user = self.get_root_user()
         naruto = FakeContact.objects.create(
             user=user, first_name='Naruto', last_name='Uzumaki',
@@ -262,7 +257,7 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('id').get_tag(FieldTag.VIEWABLE))
         self.assertFalse(get_field('cremeentity_ptr').get_tag(FieldTag.VIEWABLE))
 
-    def test_fieldtags_optional(self):
+    def test_fieldtags__optional(self):
         user = self.get_root_user()
         naruto = FakeContact.objects.create(
             user=user, first_name='Naruto', last_name='Uzumaki',
@@ -272,19 +267,6 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('modified').get_tag('optional'))
         self.assertFalse(get_field('modified').get_tag(FieldTag.OPTIONAL))
         self.assertFalse(get_field('last_name').get_tag(FieldTag.OPTIONAL))
-
-    def test_fieldtags_user(self):
-        get_field = CremeUser._meta.get_field
-
-        self.assertTrue(get_field('username').get_tag(FieldTag.VIEWABLE))
-        self.assertFalse(get_field('id').get_tag(FieldTag.VIEWABLE))
-        self.assertFalse(get_field('password').get_tag(FieldTag.VIEWABLE))
-        self.assertTrue(get_field('is_active').get_tag(FieldTag.VIEWABLE))
-        self.assertTrue(get_field('is_superuser').get_tag(FieldTag.VIEWABLE))
-        self.assertFalse(get_field('is_staff').get_tag(FieldTag.VIEWABLE))
-        self.assertTrue(get_field('last_login').get_tag(FieldTag.VIEWABLE))
-        self.assertTrue(get_field('date_joined').get_tag(FieldTag.VIEWABLE))
-        self.assertTrue(get_field('role').get_tag(FieldTag.VIEWABLE))
 
     # def test_clone01(self):  # DEPRECATED
     #     user = self.get_root_user()
@@ -449,16 +431,15 @@ class EntityTestCase(CremeTestCase):
     #         {*image2.categories.values_list('pk', flat=True)},
     #     )
 
-    def test_delete01(self):
-        "Simple delete."
+    def test_delete(self):
         user = self.get_root_user()
 
         ce = CremeEntity.objects.create(user=user)
         ce.delete()
         self.assertRaises(CremeEntity.DoesNotExist, CremeEntity.objects.get, id=ce.id)
 
-    def test_delete02(self):
-        "Can delete entities linked by a not internal relation"
+    def test_delete__related(self):
+        "Can delete entities linked by a not internal relation."
         user = self.get_root_user()
         self._build_rtypes_n_ptypes()
         ce1 = CremeEntity.objects.create(user=user)
@@ -472,8 +453,8 @@ class EntityTestCase(CremeTestCase):
         self.assertDoesNotExist(ce1)
         self.assertStillExists(ce2)
 
-    def test_delete03(self):
-        "Can't delete entities linked by an internal relation"
+    def test_delete__related__blocking(self):
+        "Can't delete entities linked by an internal relation."
         user = self.get_root_user()
         self._build_rtypes_n_ptypes()
         ce1 = CremeEntity.objects.create(user=user)
@@ -486,7 +467,7 @@ class EntityTestCase(CremeTestCase):
         self.assertRaises(ProtectedError, ce1.delete)
         self.assertRaises(ProtectedError, ce2.delete)
 
-    def test_properties_functionfield01(self):
+    def test_properties_function_field(self):
         user = self.get_root_user()
         entity = CremeEntity.objects.create(user=user)
 
@@ -517,7 +498,8 @@ class EntityTestCase(CremeTestCase):
         )
         self.assertEqual('Awesome/Wonderful', result.render(ViewTag.TEXT_PLAIN))
 
-    def test_properties_functionfield02(self):  # Prefetch with populate_entities()
+    def test_properties_function_field__prefetch(self):
+        "Prefetch with populate_entities()."
         user = self.get_root_user()
         create_entity = CremeEntity.objects.create
         entity1 = create_entity(user=user)

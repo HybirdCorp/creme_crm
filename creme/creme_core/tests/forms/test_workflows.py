@@ -187,7 +187,7 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
         field = RelationAddingTriggerField(model=FakeContact, required=False)
         self.assertIsNone(field.clean(None))
 
-    def test_empty_required(self):
+    def test_empty__required(self):
         field = RelationAddingTriggerField(model=FakeContact)
         self.assertTrue(field.required)
 
@@ -196,7 +196,7 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
         self.assertFormfieldError(field=field, messages=msg, codes='required', value='{}')
 
-    def test_clean_invalid_json(self):
+    def test_clean__invalid_json(self):
         self.assertFormfieldError(
             field=RelationAddingTriggerField(model=FakeContact),
             value='{"rtype":"creme_core-subject_whatever", "ctype":"12"',
@@ -204,7 +204,7 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
             codes='invalidformat',
         )
 
-    def test_clean_invalid_data_type(self):
+    def test_clean__invalid_data_type(self):
         field = RelationAddingTriggerField(model=FakeContact)
         code = 'invalidtype'
         msg = _('Invalid type')
@@ -215,14 +215,14 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
             field=field, messages=msg, codes=code, value='"[]"',
         )
 
-    def test_clean_invalid_data(self):
+    def test_clean__invalid_data(self):
         self.assertFormfieldError(
             field=RelationAddingTriggerField(model=FakeContact),
             messages=_('Invalid format'), codes='invalidformat',
             value=json_dump({'rtype': REL_SUB_HAS, 'ctype': 'not_an_int'}),
         )
 
-    def test_clean_unknown_rtype(self):
+    def test_clean__unknown_rtype(self):
         rtype_id = 'test-i_do_not_exist'
 
         code = 'rtypenotallowed'
@@ -235,7 +235,7 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
             codes=code,
         )
 
-    def test_clean_forbidden_rtype(self):
+    def test_clean__forbidden_rtype(self):
         model = FakeContact
         rtype = RelationType.objects.builder(
             id='creme_core-subject_client', predicate='is a client of',
@@ -249,7 +249,7 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
             codes=code,
         )
 
-    def test_clean_disabled_rtype(self):
+    def test_clean__disabled_rtype(self):
         model = FakeContact
 
         rtype = RelationType.objects.builder(
@@ -267,7 +267,7 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
             codes=code,
         )
 
-    def test_clean_ctype_errors(self):
+    def test_clean__ctype_errors(self):
         rtype = RelationType.objects.builder(
             id='creme_core-subject_concerned', predicate='is concerned by',
         ).symmetric(id='creme_core-object_concerned', predicate='concerns').get_or_create()[0]
@@ -284,7 +284,7 @@ class RelationAddingTriggerFieldTestCase(CremeTestCase):
             codes='ctyperequired',
         )
 
-    def test_clean_forbidden_ctype(self):
+    def test_clean__forbidden_ctype(self):
         subject_model = FakeContact
         object_model = FakeOrganisation
         rtype = RelationType.objects.builder(
@@ -423,7 +423,7 @@ class SourceFieldsTestCase(CremeTestCase):
 
 
 class EntityFKSourceFieldTestCase(CremeTestCase):
-    def test_choices1(self):
+    def test_choices(self):
         field = EntityFKSourceField(
             entity_source=CreatedEntitySource(model=FakeContact),
         )
@@ -433,7 +433,7 @@ class EntityFKSourceFieldTestCase(CremeTestCase):
         self.assertNotInChoices(value='user',            choices=choices)
         self.assertNotInChoices(value='cremeentity_ptr', choices=choices)
 
-    def test_choices2(self):
+    def test_choices__other_source(self):
         field = EntityFKSourceField(
             entity_source=EditedEntitySource(model=FakeDocument),
         )
@@ -441,7 +441,7 @@ class EntityFKSourceFieldTestCase(CremeTestCase):
         self.assertInChoices(value='linked_folder', label=_('Folder'), choices=choices)
         self.assertNotInChoices(value='categories', choices=choices)
 
-    def test_ok1(self):
+    def test_ok(self):
         sub_source = CreatedEntitySource(model=FakeContact)
         field = EntityFKSourceField(entity_source=sub_source)
         self.assertEqual(sub_source, field.entity_source)
@@ -452,7 +452,7 @@ class EntityFKSourceFieldTestCase(CremeTestCase):
         self.assertEqual(field_name, field.prepare_value(source))
         # TODO: None value => test clicka
 
-    def test_ok2(self):
+    def test_ok__other_source(self):
         sub_source = EditedEntitySource(model=FakeDocument)
         field = EntityFKSourceField(entity_source=sub_source)
         self.assertEqual(sub_source, field.entity_source)
@@ -541,7 +541,7 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
         )
         self.assertIsNone(field.clean(None))
 
-    def test_empty_required(self):
+    def test_empty__required(self):
         field = FirstRelatedEntitySourceField(
             subject_source=EditedEntitySource(model=FakeContact),
         )
@@ -552,7 +552,7 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
         self.assertFormfieldError(field=field, messages=msg, codes='required', value='{}')
 
-    def test_clean_invalid_json(self):
+    def test_clean__invalid_json(self):
         self.assertFormfieldError(
             field=FirstRelatedEntitySourceField(
                 subject_source=EditedEntitySource(model=FakeContact),
@@ -562,7 +562,7 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
             codes='invalidformat',
         )
 
-    def test_clean_invalid_data_type(self):
+    def test_clean__invalid_data_type(self):
         field = FirstRelatedEntitySourceField(
             subject_source=EditedEntitySource(model=FakeContact),
         )
@@ -575,7 +575,7 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
             field=field, messages=msg, codes=code, value='"[]"',
         )
 
-    def test_clean_invalid_data(self):
+    def test_clean__invalid_data(self):
         self.assertFormfieldError(
             field=FirstRelatedEntitySourceField(
                 subject_source=EditedEntitySource(model=FakeContact),
@@ -584,7 +584,7 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
             value=json_dump({'rtype': REL_SUB_HAS, 'ctype': 'not_an_int'}),
         )
 
-    def test_clean_unknown_rtype(self):
+    def test_clean__unknown_rtype(self):
         rtype_id = 'test-i_do_not_exist'
 
         code = 'rtypenotallowed'
@@ -599,7 +599,7 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
             codes=code,
         )
 
-    def test_clean_forbidden_rtype(self):
+    def test_clean__forbidden_rtype(self):
         subject_model = FakeContact
         rtype = RelationType.objects.builder(
             id='creme_core-subject_client', predicate='is a client of',
@@ -615,7 +615,7 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
             codes=code,
         )
 
-    def test_clean_disabled_rtype(self):
+    def test_clean__disabled_rtype(self):
         rtype = RelationType.objects.builder(
             id='creme_core-subject_client', predicate='is a client of', enabled=False,
         ).symmetric(id='creme_core-object_client', predicate='has a client').get_or_create()[0]
@@ -630,7 +630,7 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
             codes=code,
         )
 
-    def test_clean_ctype_errors(self):
+    def test_clean__ctype_errors(self):
         rtype = RelationType.objects.builder(
             id='creme_core-subject_concerned', predicate='is concerned by',
         ).symmetric(id='creme_core-object_concerned', predicate='concerns').get_or_create()[0]
@@ -650,7 +650,7 @@ class FirstRelatedEntitySourceFieldTestCase(CremeTestCase):
             codes='ctyperequired',
         )
 
-    def test_clean_forbidden_ctype(self):
+    def test_clean__forbidden_ctype(self):
         subject_model = FakeContact
         object_model = FakeOrganisation
         rtype = RelationType.objects.builder(
@@ -847,14 +847,14 @@ class SourceFieldTestCase(CremeTestCase):
             )),
         )
 
-    def test_empty_required(self):
+    def test_empty__required(self):
         field = SourceField(required=True)
         msg = _('This field is required.')
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
         self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
         self.assertFormfieldError(field=field, messages=msg, codes='required', value='[]')
 
-    def test_empty_not_required(self):
+    def test_empty__not_required(self):
         field = SourceField(required=False)
         self.assertIsNone(field.clean(None))
         self.assertIsNone(field.clean((None, None)))
