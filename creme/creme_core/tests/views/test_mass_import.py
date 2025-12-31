@@ -116,7 +116,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             'searchfield': subfield,
         }])
 
-    def _test_import01(self, builder):
+    def _test_import__simple(self, builder):
         user = self.login_as_root_and_get()
 
         count = FakeContact.objects.count()
@@ -264,7 +264,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         self.assertGET404(reload_url, data={'brick_id': JobErrorsBrick.id})
 
-    def _test_import02(self, builder):
+    def _test_import__complex(self, builder):
         """Use header, default value, model search and create, properties,
         fixed and dynamic relations.
         """
@@ -425,7 +425,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
         self.assertTrue(all(r.messages for r in results))  # Sector not found
 
-    def _test_import03(self, builder):
+    def _test_import__create_related_entities(self, builder):
         "Create entities to link with them."
         user = self.login_as_root_and_get()
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
@@ -467,35 +467,34 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.login_as_root()
         self.assertGET404(self._build_import_url(FakeEmailCampaign))
 
-    def test_csv_import01(self):
-        return self._test_import01(self._build_csv_doc)
+    def test_csv__simple(self):
+        return self._test_import__simple(self._build_csv_doc)
 
-    def test_csv_import02(self):
-        return self._test_import02(self._build_csv_doc)
+    def test_csv__complex(self):
+        return self._test_import__complex(self._build_csv_doc)
 
-    def test_csv_import03(self):
-        return self._test_import03(self._build_csv_doc)
+    def test_csv__create_related_entities(self):
+        return self._test_import__create_related_entities(self._build_csv_doc)
 
-    def test_xls_import01(self):
-        return self._test_import01(self._build_xls_doc)
+    def test_xls__simple(self):
+        return self._test_import__simple(self._build_xls_doc)
 
-    def test_xls_import02(self):
-        return self._test_import02(self._build_xls_doc)
+    def test_xls__complex(self):
+        return self._test_import__complex(self._build_xls_doc)
 
-    def test_xls_import03(self):
-        return self._test_import03(self._build_xls_doc)
+    def test_xls__create_related_entities(self):
+        return self._test_import__create_related_entities(self._build_xls_doc)
 
-    def test_xlsx_import01(self):
-        return self._test_import01(self._build_xlsx_doc)
+    def test_xlsx__simple(self):
+        return self._test_import__simple(self._build_xlsx_doc)
 
-    def test_xlsx_import02(self):
-        return self._test_import02(self._build_xlsx_doc)
+    def test_xlsx__complex(self):
+        return self._test_import__complex(self._build_xlsx_doc)
 
-    def test_xlsx_import03(self):
-        return self._test_import03(self._build_xlsx_doc)
+    def test_xlsx__create_related_entities(self):
+        return self._test_import__create_related_entities(self._build_xlsx_doc)
 
-    def test_csv__other_separator(self):
-        "Other separator."
+    def test_other_csv_separator(self):
         user = self.login_as_root_and_get()
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
@@ -634,7 +633,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
         self.assertHaveRelation(subject=rei, type=employed, object=nerv)  # Not duplicate error
 
-    def test_relations_with_property_constraint_object01(self):
+    def test_relations__ptype_constraint__object(self):
         "Constraint on object."
         user = self.login_as_root_and_get()
 
@@ -723,7 +722,169 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             result.messages,
         )
 
-    def test_relations_with_property_constraint_object02(self):
+    def test_relations__ptype_constraint__subject__fixed__error(self):
+        "Constraint on subject: fixed relationships + error."
+        user = self.login_as_root_and_get()
+
+        ptype = CremePropertyType.objects.create(text='Is a pilot')
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by',
+            models=[FakeContact], properties=[ptype],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
+        ).get_or_create()[0]
+
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        last_name = 'Ayanami'
+        first_name = 'Rei'
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
+
+        response = self.client.post(
+            self._build_import_url(FakeContact), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'fixed_relations': self.formfield_value_multi_relation_entity((employed, nerv)),
+            },
+        )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
+        self.assertHaveNoRelation(subject=rei, type=employed, object=nerv)
+
+        result = self.get_alone_element(self._get_job_results(job))
+        self.assertListEqual(
+            [
+                Relation.error_messages['missing_subject_property'] % {
+                    'entity': rei,
+                    'predicate': employed.predicate,
+                    'property': ptype.text,
+                },
+            ],
+            result.messages,
+        )
+
+    def test_relations__ptype_constraint__subject__fixed__ok(self):
+        "Constraint on subject: fixed relationships (OK)."
+        user = self.login_as_root_and_get()
+
+        ptype = CremePropertyType.objects.create(text='Is a pilot')
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by',
+            models=[FakeContact], properties=[ptype],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
+        ).get_or_create()[0]
+
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        last_name = 'Ayanami'
+        first_name = 'Rei'
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
+
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'property_types': [ptype.id],
+                'fixed_relations': self.formfield_value_multi_relation_entity((employed, nerv)),
+            },
+        )
+        self.assertNoFormError(response)
+
+        self._execute_job(response)
+        rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
+        self.assertHaveRelation(subject=rei, type=employed, object=nerv)
+
+    def test_relations__ptype_constraint__subject__dynamic__error(self):
+        "Constraint on subject: dynamic relationships + error."
+        user = self.login_as_root_and_get()
+
+        ptype = CremePropertyType.objects.create(text='Is a pilot')
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by',
+            models=[FakeContact], properties=[ptype],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
+        ).get_or_create()[0]
+
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        last_name = 'Ayanami'
+        first_name = 'Rei'
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
+
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'dyn_relations': self._dyn_relations_value(
+                    employed, FakeOrganisation, 3, 'name',
+                ),
+            },
+        )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
+        self.assertHaveNoRelation(subject=rei, type=employed, object=nerv)
+
+        result = self.get_alone_element(self._get_job_results(job))
+        self.assertListEqual(
+            [
+                Relation.error_messages['missing_subject_property'] % {
+                    'entity': rei,
+                    'predicate': employed.predicate,
+                    'property': ptype.text,
+                },
+            ],
+            result.messages,
+        )
+
+    def test_relations__ptype_constraint__subject__dynamic__ok(self):
+        "Constraint on subject: dynamic relationships (OK)."
+        user = self.login_as_root_and_get()
+
+        ptype = CremePropertyType.objects.create(text='Is a pilot')
+        employed = RelationType.objects.builder(
+            id='test-subject_employed_by', predicate='employed by',
+            models=[FakeContact], properties=[ptype],
+        ).symmetric(
+            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
+        ).get_or_create()[0]
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        last_name = 'Ayanami'
+        first_name = 'Rei'
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'property_types': [ptype.id],
+                'dyn_relations': self._dyn_relations_value(
+                    employed, FakeOrganisation, 3, 'name',
+                ),
+            },
+        )
+        self.assertNoFormError(response)
+
+        self._execute_job(response)
+        rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
+        self.assertHaveRelation(subject=rei, type=employed, object=nerv)
+
+    def test_relations__forbidden_ptype__object(self):
         "Constraint on object (forbidden property type)."
         user = self.login_as_root_and_get()
 
@@ -812,169 +973,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             result.messages,
         )
 
-    def test_relations_with_property_constraint_subject01(self):
-        "Constraint on subject: fixed relationships + error."
-        user = self.login_as_root_and_get()
-
-        ptype = CremePropertyType.objects.create(text='Is a pilot')
-        employed = RelationType.objects.builder(
-            id='test-subject_employed_by', predicate='employed by',
-            models=[FakeContact], properties=[ptype],
-        ).symmetric(
-            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
-        ).get_or_create()[0]
-
-        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
-
-        last_name = 'Ayanami'
-        first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
-
-        response = self.client.post(
-            self._build_import_url(FakeContact), follow=True,
-            data={
-                **self.lv_import_data,
-                'document': doc.id,
-                'user': user.id,
-                'fixed_relations': self.formfield_value_multi_relation_entity((employed, nerv)),
-            },
-        )
-        self.assertNoFormError(response)
-
-        job = self._execute_job(response)
-        rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertHaveNoRelation(subject=rei, type=employed, object=nerv)
-
-        result = self.get_alone_element(self._get_job_results(job))
-        self.assertListEqual(
-            [
-                Relation.error_messages['missing_subject_property'] % {
-                    'entity': rei,
-                    'predicate': employed.predicate,
-                    'property': ptype.text,
-                },
-            ],
-            result.messages,
-        )
-
-    def test_relations_with_property_constraint_subject02(self):
-        "Constraint on subject: fixed relationships (OK)."
-        user = self.login_as_root_and_get()
-
-        ptype = CremePropertyType.objects.create(text='Is a pilot')
-        employed = RelationType.objects.builder(
-            id='test-subject_employed_by', predicate='employed by',
-            models=[FakeContact], properties=[ptype],
-        ).symmetric(
-            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
-        ).get_or_create()[0]
-
-        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
-
-        last_name = 'Ayanami'
-        first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
-
-        response = self.client.post(
-            self._build_import_url(FakeContact),
-            follow=True,
-            data={
-                **self.lv_import_data,
-                'document': doc.id,
-                'user': user.id,
-                'property_types': [ptype.id],
-                'fixed_relations': self.formfield_value_multi_relation_entity((employed, nerv)),
-            },
-        )
-        self.assertNoFormError(response)
-
-        self._execute_job(response)
-        rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertHaveRelation(subject=rei, type=employed, object=nerv)
-
-    def test_relations_with_property_constraint_subject03(self):
-        "Constraint on subject: dynamic relationships + error."
-        user = self.login_as_root_and_get()
-
-        ptype = CremePropertyType.objects.create(text='Is a pilot')
-        employed = RelationType.objects.builder(
-            id='test-subject_employed_by', predicate='employed by',
-            models=[FakeContact], properties=[ptype],
-        ).symmetric(
-            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
-        ).get_or_create()[0]
-
-        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
-
-        last_name = 'Ayanami'
-        first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
-
-        response = self.client.post(
-            self._build_import_url(FakeContact),
-            follow=True,
-            data={
-                **self.lv_import_data,
-                'document': doc.id,
-                'user': user.id,
-                'dyn_relations': self._dyn_relations_value(
-                    employed, FakeOrganisation, 3, 'name',
-                ),
-            },
-        )
-        self.assertNoFormError(response)
-
-        job = self._execute_job(response)
-        rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertHaveNoRelation(subject=rei, type=employed, object=nerv)
-
-        result = self.get_alone_element(self._get_job_results(job))
-        self.assertListEqual(
-            [
-                Relation.error_messages['missing_subject_property'] % {
-                    'entity': rei,
-                    'predicate': employed.predicate,
-                    'property': ptype.text,
-                },
-            ],
-            result.messages,
-        )
-
-    def test_relations_with_property_constraint_subject04(self):
-        "Constraint on subject: dynamic relationships (OK)."
-        user = self.login_as_root_and_get()
-
-        ptype = CremePropertyType.objects.create(text='Is a pilot')
-        employed = RelationType.objects.builder(
-            id='test-subject_employed_by', predicate='employed by',
-            models=[FakeContact], properties=[ptype],
-        ).symmetric(
-            id='test-object_employed_by', predicate='employs', models=[FakeOrganisation],
-        ).get_or_create()[0]
-        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
-        last_name = 'Ayanami'
-        first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
-        response = self.client.post(
-            self._build_import_url(FakeContact),
-            follow=True,
-            data={
-                **self.lv_import_data,
-                'document': doc.id,
-                'user': user.id,
-                'property_types': [ptype.id],
-                'dyn_relations': self._dyn_relations_value(
-                    employed, FakeOrganisation, 3, 'name',
-                ),
-            },
-        )
-        self.assertNoFormError(response)
-
-        self._execute_job(response)
-        rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertHaveRelation(subject=rei, type=employed, object=nerv)
-
-    def test_relations_with_forbidden_property_constraint_subject01(self):
+    def test_relations__forbidden_ptype__subject__fixed__error(self):
         "Fixed relationships + error."
         user = self.login_as_root_and_get()
 
@@ -1017,7 +1016,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             result.messages,
         )
 
-    def test_relations_with_forbidden_property_constraint_subject02(self):
+    def test_relations__forbidden_ptype__subject__fixed__ok(self):
         "Fixed relationships (OK)."
         user = self.login_as_root_and_get()
 
@@ -1052,7 +1051,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
         self.assertHaveRelation(subject=rei, type=employed, object=nerv)
 
-    def test_relations_with_forbidden_property_constraint_subject03(self):
+    def test_relations__forbidden_ptype__subject__dynamic__error(self):
         "Dynamic relationships + error."
         user = self.login_as_root_and_get()
 
@@ -1099,7 +1098,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             result.messages,
         )
 
-    def test_relations_with_forbidden_property_constraint_subject04(self):
+    def test_relations__forbidden_ptype__subject__dynamic__ok(self):
         "Constraint on subject: dynamic relationships (OK)."
         user = self.login_as_root_and_get()
 
@@ -1165,7 +1164,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
     def _get_cf_values(self, cf, entity):
         return self.get_object_or_fail(cf.value_class, custom_field=cf, entity=entity)
 
-    def test_mass_import_customfields01(self):
+    def test_custom_fields(self):
         "CustomField.INT, STR & FLOAT, update, cast error."
         user = self.login_as_root_and_get()
 
@@ -1250,7 +1249,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(ryomou, jr_error.entity.get_real_entity())
         self.assertEqual(ryomou, jr_error.real_entity)
 
-    def test_mass_import_customfields02(self):
+    def test_custom_fields__enum__no_choice_creation(self):
         "CustomField.ENUM/MULTI_ENUM (no creation of choice)."
         user = self.login_as_root_and_get()
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
@@ -1332,7 +1331,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
         self.assertEqual(kanu, jr_error.entity.get_real_entity())
 
-    def test_mass_import_customfields03(self):
+    def test_custom_fields__enum__choice_creation(self):
         "CustomField.ENUM (creation of choice if not found)."
         user = self.login_as_root_and_get()
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
@@ -1403,7 +1402,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         self._assertNoResultError(self._get_job_results(job))
 
-    def test_mass_import_customfields04(self):
+    def test_custom_fields__enum__creation_perms(self):
         "CustomField.ENUM/MULTI_ENUM: creation credentials."
         user = self.login_as_standard(
             allowed_apps=['creme_core', 'documents'],
@@ -1469,8 +1468,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             CustomFieldEnumValue, custom_field=cf_menum, value='spear',
         )
 
-    def test_mass_import_customfields05(self):
-        "Default value"
+    def test_custom_fields__default_value(self):
         user = self.login_as_root_and_get()
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
@@ -1535,8 +1533,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(punch, get_cf_values(cf_enum, kanu).value)
         self.assertListEqual([sword], [*get_cf_values(cf_menum, kanu).value.all()])
 
-    def test_import_error01(self):
-        "Form error: unknown extension."
+    def test_error__unknown_extension(self):
         user = self.login_as_root_and_get()
 
         doc = self._build_doc(self._build_file(b'Non Empty File...', 'doc'), user=user)
@@ -1551,8 +1548,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ).format(file=doc.filedata.name),
         )
 
-    def test_import_error02(self):
-        "Validate default value."
+    def test_error__default_value_validation(self):
         user = self.login_as_root_and_get()
 
         lines = [
@@ -1580,7 +1576,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             field='capital', errors=_('Enter a whole number.'),
         )
 
-    def test_import_error03(self):
+    def test_error__required__regular_field(self):
         "Required field without column or default value."
         user = self.login_as_root_and_get()
 
@@ -1602,7 +1598,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             field='name', errors=_('This field is required.'),
         )
 
-    def test_import_error04(self):
+    def test_error__required__custom_field(self):
         "Required custom-field without column or default value."
         user = self.login_as_root_and_get()
 
@@ -1637,8 +1633,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertNotIn(f'custom_field-{cf1.id}', form.errors)
 
     @override_settings(MAX_JOBS_PER_USER=1)
-    def test_import_error05(self):
-        "Max jobs."
+    def test_error__max_jobs(self):
         user = self.login_as_root_and_get()
         Job.objects.create(
             user=user,
@@ -1686,7 +1681,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(status, ticket.status)
         self.assertEqual('FF0000', status.color)
 
-    def test_auxiliary_creation_error01(self):
+    def test_auxiliary_creation__error__creation_disabled(self):
         "Creation for 'auxiliary' model is disabled in creme_config."
         user = self.login_as_root_and_get()
 
@@ -1711,7 +1706,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             field='position', errors='You can not create instances',
         )
 
-    def test_auxiliary_creation_error02(self):
+    def test_auxiliary_creation__error__custom_creation_url(self):
         "Creation for 'auxiliary' model in creme_config use a custom URL."
         user = self.login_as_root_and_get()
 
@@ -1735,7 +1730,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             field='legal_form', errors='You can not create instances',
         )
 
-    def test_auxiliary_creation_error03(self):
+    def test_auxiliary_creation__error__other_field_without_value(self):
         "Several fields, only one without a default value but another one is selected."
         user = self.login_as_root_and_get()
         priority = FakeTicketPriority.objects.first()
@@ -1765,7 +1760,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ).format(model='Test Ticket status', field=_('Color')),
         )
 
-    def test_credentials01(self):
+    def test_creation_perms(self):
         "Creation credentials for imported model."
         user = self.login_as_standard(
             allowed_apps=['creme_core'],
@@ -1774,7 +1769,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertFalse(user.has_perm_to_create(FakeContact))
         self.assertGET403(self._build_import_url(FakeContact))
 
-    def test_credentials02(self):
+    def test_creation_perms__auxiliary(self):
         "Creation credentials for 'auxiliary' models."
         user = self.login_as_standard(
             allowed_apps=['creme_core', 'documents'],
@@ -1802,7 +1797,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             field='sector', errors='You can not create instances',
         )
 
-    def test_credentials03(self):
+    def test_creation_perms__related_entities(self):
         "Creation credentials for related entities."
         user = self.login_as_standard(
             allowed_apps=['creme_core', 'documents'],
@@ -1835,7 +1830,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ) % {'model': 'Test Organisation'},
         )
 
-    def test_import_with_update01(self):
+    def test_update(self):
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1959,7 +1954,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             job.stats
         )
 
-    def test_import_with_update02(self):
+    def test_update__several_entities_found(self):
         "Several existing entities found."
         user = self.login_as_root_and_get()
 
@@ -2008,8 +2003,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         self.assertEqual(rei, jr_error.entity.get_real_entity())
 
-    def test_import_with_update03(self):
-        "Ignore trashed entities."
+    def test_update__ignore_trashed_entities(self):
         user = self.login_as_root_and_get()
 
         last_name = 'Ayanami'
@@ -2042,8 +2036,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         results = self._get_job_results(job)
         self.assertEqual(1, len(results))
 
-    def test_import_with_update04(self):
-        "Ignore non editable entities."
+    def test_update__ignore_not_editabe_entities(self):
         user = self.login_as_standard(
             allowed_apps=['creme_core', 'documents'],
             creatable_models=[FakeContact, Document],
@@ -2084,7 +2077,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         results = self._get_job_results(job)
         self.assertEqual(1, len(results))
 
-    def test_import_with_update05(self):
+    def test_update__fk_as_key(self):
         "Update key uses a FK."
         user = self.login_as_root_and_get()
 
@@ -2169,7 +2162,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ).format(value='invalid'),
         )
 
-    def test_fields_config_hidden(self):
+    def test_fields_config__hidden(self):
         user = self.login_as_root_and_get()
 
         hidden_fname1 = 'phone'
@@ -2230,7 +2223,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(rei_info['email'], rei.email)
         self.assertIsNone(getattr(rei, hidden_fname1))
 
-    def test_fields_config_required(self):
+    def test_fields_config__required(self):
         user = self.login_as_root_and_get()
 
         required_fname = 'phone'
@@ -2378,8 +2371,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             for line in smart_str(response.content).splitlines()
         ]
 
-    def test_dl_errors01(self):
-        "CSV, no header."
+    def test_dl_errors__csv__no_header(self):
         self._aux_test_dl_errors(
             self._build_csv_doc,
             result_builder=self._csv_to_list,
@@ -2387,7 +2379,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             header=False,
         )
 
-    def test_dl_errors02(self):
+    def test_dl_errors__csv__header(self):
         "CSV, header."  # TODO: other separator
         self._aux_test_dl_errors(
             self._build_csv_doc,
@@ -2396,8 +2388,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             header=True,
         )
 
-    def test_dl_errors03(self):
-        "XLS."
+    def test_dl_errors__xls(self):
         def result_builder(response):
             return [*XlrdReader(None, file_contents=b''.join(response.streaming_content))]
 
@@ -2409,8 +2400,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             # follow=True,
         )
 
-    def test_dl_errors04(self):
-        "Bad Job type."
+    def test_dl_errors__bad_job_type(self):
         user = self.login_as_root_and_get()
         job = Job.objects.create(
             user=user,
@@ -2422,8 +2412,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         self.assertGET404(self._build_dl_errors_url(job))
 
-    def test_dl_errors05(self):
-        "Bad user."
+    def test_dl_errors__bad_user(self):
         self.login_as_standard()
         job = Job.objects.create(
             user=self.get_root_user(),

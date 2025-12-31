@@ -25,17 +25,17 @@ from creme.creme_core.models import (
     FakeImageCategory,
     FakeInvoiceLine,
     FakeOrganisation,
+    FakeReport,
     FakeSector,
     Relation,
     RelationType,
 )
 
 from ..base import CremeTestCase
-from ..fake_models import FakeReport
 
 
 class SearchWidgetsTestCase(CremeTestCase):
-    def test_textwidget(self):
+    def test_text_widget(self):
         widget = lv_forms.TextLVSWidget()
         name = 'foobar'
         get_value = partial(widget.value_from_datadict, name=name, files=None)
@@ -50,7 +50,7 @@ class SearchWidgetsTestCase(CremeTestCase):
             widget.render(name=name, value=value),
         )
 
-    def test_booleanwidget01(self):
+    def test_boolean_widget(self):
         widget = lv_forms.BooleanLVSWidget()
         self.assertIs(widget.null, False)
         name = 'foo'
@@ -75,7 +75,7 @@ class SearchWidgetsTestCase(CremeTestCase):
             widget.render(name=name, value='1'),
         )
 
-    def test_booleanwidget02(self):
+    def test_boolean_widget__null(self):
         widget1 = lv_forms.BooleanLVSWidget(null=False)
         self.assertFalse(widget1.null)
 
@@ -104,8 +104,7 @@ class SearchWidgetsTestCase(CremeTestCase):
             widget2.render(name=name, value='NULL'),
         )
 
-    def test_selectwidget01(self):
-        "No choice."
+    def test_select_widget__no_choice(self):
         widget = lv_forms.SelectLVSWidget()
         name = 'foo'
         get_value = partial(widget.value_from_datadict, name=name, files=None)
@@ -122,8 +121,7 @@ class SearchWidgetsTestCase(CremeTestCase):
             widget.render(name=name, value=value),
         )
 
-    def test_selectwidget02(self):
-        "With choice."
+    def test_select_widget__choices(self):
         choices = [
             {'value': '',  'label': 'All'},
             {'value': '1', 'label': 'one'},
@@ -144,7 +142,7 @@ class SearchWidgetsTestCase(CremeTestCase):
             widget.render(name=name, value='2'),
         )
 
-    def test_selectwidget03(self):
+    def test_select_widget__groups_n_null(self):
         "With groups & NULL."
         choices = [
             {'value': '',     'label': 'All'},
@@ -177,7 +175,7 @@ class SearchWidgetsTestCase(CremeTestCase):
         )
 
     @override_language('en')
-    def test_daterangewidget(self):
+    def test_date_range_widget(self):
         widget = lv_forms.DateRangeLVSWidget()
         get_value = partial(widget.value_from_datadict, files=None)
         self.assertListEqual(['', ''], get_value(data={}, name='foobar'))
@@ -230,7 +228,7 @@ class SearchFieldsTestCase(CremeTestCase):
         super().setUpClass()
         cls.user = cls.get_root_user()
 
-    def test_regular_charfield01(self):
+    def test_regular__char_field(self):
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='name')
         field = lv_forms.RegularCharField(cell=cell, user=self.user)
 
@@ -240,7 +238,7 @@ class SearchFieldsTestCase(CremeTestCase):
         value = 'baz'
         self.assertEqual(Q(name__icontains=value), to_python(value=value))
 
-    def test_regular_charfield02(self):
+    def test_regular__char_field__sub_field(self):
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='sector__title')
         field = lv_forms.RegularCharField(cell=cell, user=self.user)
 
@@ -250,7 +248,7 @@ class SearchFieldsTestCase(CremeTestCase):
         value = 'foo'
         self.assertEqual(Q(sector__title__icontains=value), to_python(value=value))
 
-    def test_regular_booleanfield01(self):
+    def test_regular__boolean_field(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='is_a_nerd')
         field = lv_forms.RegularBooleanField(cell=cell, user=self.user)
 
@@ -263,8 +261,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertFalse(field.null)
         self.assertFalse(field.widget.null)
 
-    def test_regular_booleanfield02(self):
-        "Nullable."
+    def test_regular__boolean_field__nullable(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='loves_comics')
         field = lv_forms.RegularBooleanField(cell=cell, user=self.user)
 
@@ -277,7 +274,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertTrue(field.null)
         self.assertTrue(field.widget.null)
 
-    def test_regular_integerfield(self):
+    def test_regular__integer_field(self):
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='capital')
         field = lv_forms.RegularIntegerField(cell=cell, user=self.user)
 
@@ -314,7 +311,7 @@ class SearchFieldsTestCase(CremeTestCase):
             to_python(value='>=100; <notanint'),
         )
 
-    def test_regular_positiveintegerfield(self):
+    def test_regular__positive_integer_field(self):
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='capital')
         field = lv_forms.RegularPositiveIntegerField(cell=cell, user=self.user)
 
@@ -398,14 +395,14 @@ class SearchFieldsTestCase(CremeTestCase):
         )
 
     @override_language('en')
-    def test_regular_decimalfield_en(self):
+    def test_regular__decimal_field__en(self):
         self._aux_test_regular_decimalfield()
 
     @override_language('fr')
-    def test_regular_decimalfield_fr(self):
+    def test_regular__decimal_field__fr(self):
         self._aux_test_regular_decimalfield()
 
-    def test_regular_floatfield(self):
+    def test_regular__float_field(self):
         cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='discount')
         field = lv_forms.RegularFloatField(cell=cell, user=self.user)
 
@@ -430,7 +427,7 @@ class SearchFieldsTestCase(CremeTestCase):
             to_python(value='>' + number_format(10.5)),
         )
 
-    def test_regular_datefield(self):
+    def test_regular__date_field(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='created')
         field = lv_forms.RegularDateField(cell=cell, user=self.user)
 
@@ -466,7 +463,7 @@ class SearchFieldsTestCase(CremeTestCase):
             to_python(value=['123', date_value(2019, 2, 26)]),
         )
 
-    def test_regular_choicefield(self):
+    def test_regular__choice_field(self):
         cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='discount_unit')
 
         field = lv_forms.RegularChoiceField(cell=cell, user=self.user)  # TODO: choices=... ?
@@ -497,7 +494,7 @@ class SearchFieldsTestCase(CremeTestCase):
 
         self.assertEqual(Q(discount_unit__isnull=True), to_python(value=lv_forms.NULL))
 
-    def test_regular_relatedfield01(self):
+    def test_regular__related_field__fk__nullable(self):
         "Nullable FK."
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='sector')
         field = lv_forms.RegularRelatedField(cell=cell, user=self.user)
@@ -534,7 +531,7 @@ class SearchFieldsTestCase(CremeTestCase):
         # Invalid id
         self.assertEqual(Q(), to_python(value=self.UNUSED_PK))
 
-    def test_regular_relatedfield02(self):
+    def test_regular__related_field__fk__not_nullable(self):
         "Not nullable FK."
         cell = EntityCellRegularField.build(model=FakeActivity, name='type')
         field = lv_forms.RegularRelatedField(cell=cell, user=self.user)
@@ -549,7 +546,7 @@ class SearchFieldsTestCase(CremeTestCase):
             field.enumerator.choices(),
         )
 
-    def test_regular_relatedfield03(self):
+    def test_regular__related_field__m2m(self):
         "ManyToMany."
         cell = EntityCellRegularField.build(model=FakeImage, name='categories')
         field = lv_forms.RegularRelatedField(cell=cell, user=self.user)
@@ -570,8 +567,7 @@ class SearchFieldsTestCase(CremeTestCase):
             field.enumerator.choices(),
         )
 
-    def test_regular_relatedfield04(self):
-        "limit_choices_to"
+    def test_regular__related_field__limit_choices_to(self):
         # NB: limit_choices_to = lambda: ~Q(title='[INVALID]')
         cell = EntityCellRegularField.build(model=FakeContact, name='sector')
         expected_choices = [
@@ -592,7 +588,7 @@ class SearchFieldsTestCase(CremeTestCase):
         field = lv_forms.RegularRelatedField(cell=cell, user=self.user)
         self.assertEqual(expected_choices, field.enumerator.choices())
 
-    def test_regular_relatedfield05(self):
+    def test_regular__related_field__registry(self):
         "Enumerator registry."
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='sector')
 
@@ -629,7 +625,7 @@ class SearchFieldsTestCase(CremeTestCase):
             field.enumerator.choices(),
         )
 
-    def test_regular_relatedfield06(self):
+    def test_regular__related_field__not_enumerable(self):
         "Not enumerable FK."
         cell = EntityCellRegularField.build(model=FakeContact, name='address')
         # expected_choices = [
@@ -655,7 +651,7 @@ class SearchFieldsTestCase(CremeTestCase):
             q = to_python(value=1)
         self.assertEqual(Q(), q)
 
-    def test_regular_relatedfield07(self):
+    def test_regular__related_field__null_label(self):
         "Field has a null_label."
         # cell = EntityCellRegularField.build(model=FakeContact, name='is_user')
         cell = EntityCellRegularField.build(model=FakeReport, name='efilter')
@@ -680,7 +676,7 @@ class SearchFieldsTestCase(CremeTestCase):
             choices,
         )
 
-    def test_entity_relatedfield(self):
+    def test_entity_related_field(self):
         cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='linked_invoice')
         field = lv_forms.EntityRelatedField(cell=cell, user=self.user)
         self.assertIsInstance(field.widget, lv_forms.TextLVSWidget)
@@ -698,7 +694,7 @@ class SearchFieldsTestCase(CremeTestCase):
         # TODO: NULL (future field/widget) (needs a nullable FK)
         # self.assertEqual(Q(linked_invoice__isnull=True), to_python(value=...lv_form.NULL...))
 
-    def test_custom_charfield(self):
+    def test_custom_field__str(self):
         cfield = CustomField.objects.create(
             name='Special attack', field_type=CustomField.STR, content_type=FakeContact,
         )
@@ -734,7 +730,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id}, {*v})
 
-    def test_custom_booleanfield(self):
+    def test_custom_field__bool(self):
         cfield = CustomField.objects.create(
             name='Shoto', field_type=CustomField.BOOL, content_type=FakeContact,
         )
@@ -775,7 +771,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual('pk__in', k)
         self.assertListEqual([zangief.id], [*v])
 
-    def test_custom_integerfield(self):
+    def test_custom_field__int(self):
         cfield = CustomField.objects.create(
             name='HP', field_type=CustomField.INT, content_type=FakeContact,
         )
@@ -844,7 +840,7 @@ class SearchFieldsTestCase(CremeTestCase):
         __, range_v = q_range.children[0]
         self.assertListEqual([ken.id], [*range_v])
 
-    def test_custom_decimalfield(self):
+    def test_custom_field__decimal(self):
         cfield = CustomField.objects.create(
             name='HP', field_type=CustomField.FLOAT, content_type=FakeContact,
         )
@@ -918,7 +914,7 @@ class SearchFieldsTestCase(CremeTestCase):
         __, sep_v = q_sep.children[0]
         self.assertListEqual([zangief.id], [*sep_v])
 
-    def test_custom_datefield(self):
+    def test_custom_field__date(self):
         cfield = CustomField.objects.create(
             name='Party', field_type=CustomField.DATETIME, content_type=FakeContact,
         )
@@ -979,7 +975,7 @@ class SearchFieldsTestCase(CremeTestCase):
         v = to_python(value=['123', date_value(2019, 2, 28)]).children[0][1]
         self.assertSetEqual({ryu.id, ken.id, zangief.id}, {*v})
 
-    def test_custom_enumfield(self):
+    def test_custom_field__enum(self):
         cfield = CustomField.objects.create(
             name='Attack', field_type=CustomField.ENUM, content_type=FakeContact,
         )
@@ -1048,7 +1044,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id, zangief.id}, {*v})
 
-    def test_custom_multienumfield(self):
+    def test_custom_field__multi_enum(self):
         cfield = CustomField.objects.create(
             name='Attack', field_type=CustomField.MULTI_ENUM, content_type=FakeContact,
         )
@@ -1117,7 +1113,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id, zangief.id}, {*v})
 
-    def test_relationfield(self):
+    def test_relation_field(self):
         user = self.user
         rtype = RelationType.objects.builder(
             id='test-subject_trains', predicate='trains',
@@ -1155,7 +1151,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id}, {*v})
 
-    def test_propertiesfield(self):
+    def test_properties_field(self):
         from creme.creme_core.core.entity_cell import EntityCellFunctionField
         from creme.creme_core.function_fields import PropertiesField
         from creme.creme_core.models import CremePropertyType

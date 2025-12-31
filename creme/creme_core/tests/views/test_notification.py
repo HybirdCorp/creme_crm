@@ -38,7 +38,7 @@ class NotificationViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         super().tearDownClass()
         LastWebNotifications.limit = 10
 
-    def test_notifications01(self):
+    def test_notifications(self):
         user = self.login_as_standard()
         root = self.get_root_user()
 
@@ -107,8 +107,7 @@ class NotificationViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             response2.json(),
         )
 
-    def test_notifications02(self):
-        "More than the limit."
+    def test_notifications__limit_exceeded(self):
         user = self.login_as_root_and_get()
 
         create_notif = partial(
@@ -148,8 +147,7 @@ class NotificationViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDatetimesAlmostEqual(now(), notif.discarded)
         self.assertEqual(old_created, notif.created)  # No modified
 
-    def test_discard_notification_error01(self):
-        "Already discarded."
+    def test_discard_notification__already_discarded(self):
         user = self.login_as_standard()
         notif = Notification.objects.create(
             channel=NotificationChannel.objects.first(),
@@ -160,8 +158,7 @@ class NotificationViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         # TODO: 409 instead? just ignore?
         self.assertPOST404(self.DISCARD_URL, data={'id': notif.id}, follow=True)
 
-    def test_discard_notification_error02(self):
-        "Belongs to another user."
+    def test_discard_notification__owned_by_another_user(self):
         self.login_as_root()
         notif = Notification.objects.create(
             channel=NotificationChannel.objects.first(),
@@ -250,7 +247,6 @@ class NotificationViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertRedirects(response3, self.LIST_URL)
 
-    def test_announce_system_upgrade_error(self):
-        "Not staff user."
+    def test_announce_system_upgrade__not_staff_user(self):
         self.login_as_super()
         self.assertGET403(self.ANNOUNCE_URL)

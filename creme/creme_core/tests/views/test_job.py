@@ -47,13 +47,16 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         cls.queue = queue = get_queue()
         cls._original_queue_ping = queue.ping
+        cls._original_queue_start_job = queue.start_job
 
         cls.ct_orga_id = ContentType.objects.get_for_model(FakeOrganisation).id
 
         job_type_registry.register(not_configurable_type)
 
     def tearDown(self):
-        self.queue.ping = self._original_queue_ping
+        queue = self.queue
+        queue.ping = self._original_queue_ping
+        queue.start_job = self._original_queue_start_job
 
         # TODO
         # job_type_registry.unregister(not_configurable_type)
@@ -91,7 +94,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             data=[],
         )
 
-    def test_detailview01(self):
+    def test_detailview(self):
         user = self.login_as_root_and_get()
 
         job = self._create_batchprocess_job(user=user)
@@ -146,8 +149,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             url=job.get_delete_absolute_url(), label=_('Delete the job'),
         )
 
-    def test_detailview02(self):
-        "List URL."
+    def test_detailview__list_url(self):
         user = self.login_as_root_and_get()
 
         job = self._create_batchprocess_job(user=user)
@@ -166,8 +168,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertEqual(self.MINE_URL, response.context.get('list_url'))
 
-    def test_detailview03(self):
-        "Credentials."
+    def test_detailview__credentials(self):
         user = self.login_as_standard()
 
         job1 = self._create_batchprocess_job(user=user)
@@ -176,8 +177,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         job2 = self._create_batchprocess_job(user=self.get_root_user())
         self.assertGET403(job2.get_absolute_url())
 
-    def test_detailview04(self):
-        "Invalid type."
+    def test_detailview__invalid_type(self):
         user = self.login_as_root_and_get()
 
         job = self._create_invalid_job(user=user)
@@ -186,8 +186,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET404(job.get_absolute_url())
         self.assertListEqual([], job.stats)
 
-    def test_detailview05(self):
-        "System job."
+    def test_detailview__system_jobs(self):
         self.login_as_root()
 
         job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
@@ -439,14 +438,13 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(1, counter[_('Reminders')])
         self.assertEqual(2, counter[str(batch_process_type.verbose_name)])
 
-    def test_jobs_all02(self):
+    def test_jobs_all__regular_user(self):
         "Not super-user: forbidden."
         self.login_as_standard()
         self.assertGET403(self.LIST_URL)
 
     @override_settings(MAX_JOBS_PER_USER=1)
-    def test_jobs_all03(self):
-        "Max job message."
+    def test_jobs_all__max_jobs_message(self):
         user = self.login_as_root_and_get()
 
         # Not counted in max
@@ -466,7 +464,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertContains(response, msg)
 
     @override_settings(MAX_JOBS_PER_USER=2)
-    def test_jobs_all04(self):
+    def test_jobs_all__max_jobs_message__several(self):
         "Max job message (several messages)."
         user = self.login_as_root_and_get()
 
@@ -482,13 +480,12 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             ),
         )
 
-    def test_jobs_all05(self):
-        "Invalid type."
+    def test_jobs_all__invalid_type(self):
         user = self.login_as_root_and_get()
         self._create_invalid_job(user=user)
         self.assertGET200(self.LIST_URL)
 
-    def test_my_jobs01(self):
+    def test_my_jobs(self):
         user = self.login_as_root_and_get()
 
         job_count = 2
@@ -514,8 +511,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         # TODO: complete
 
-    def test_my_jobs02(self):
-        "Credentials."
+    def test_my_jobs__credentials(self):
         user = self.login_as_standard()
         self._create_batchprocess_job(user=user)
         response1 = self.assertGET200(self.MINE_URL)
@@ -539,8 +535,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @override_settings(MAX_JOBS_PER_USER=1)
-    def test_my_jobs03(self):
-        "Max job message."
+    def test_my_jobs__max_job_message(self):
         user = self.login_as_root_and_get()
 
         # Not counted in max
@@ -560,7 +555,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertContains(response, msg)
 
     @override_settings(MAX_JOBS_PER_USER=2)
-    def test_my_jobs04(self):
+    def test_my_jobs__max_job_message__several(self):
         "Max job message (several messages)."
         user = self.login_as_root_and_get()
 
@@ -573,13 +568,12 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             _('You must wait that one of your jobs is finished in order to create a new one.'),
         )
 
-    def test_my_jobs05(self):
-        "Invalid type."
+    def test_my_jobs__invalid_type(self):
         user = self.login_as_root_and_get()
         self._create_invalid_job(user=user)
         self.assertGET200(self.MINE_URL)
 
-    def test_clear01(self):
+    def test_clear(self):
         user = self.login_as_root_and_get()
         job = self._create_batchprocess_job(user=user, status=Job.STATUS_OK)
 
@@ -594,8 +588,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(jresult)
         self.assertRedirects(response, self.MINE_URL)
 
-    def test_clear02(self):
-        "Redirection."
+    def test_clear__redirection(self):
         user = self.login_as_root_and_get()
         job = self._create_batchprocess_job(user=user, status=Job.STATUS_OK)
 
@@ -610,7 +603,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(jresult)
         self.assertRedirects(response, self.LIST_URL)
 
-    def test_clear03(self):
+    def test_clear__status_error(self):
         "status = Job.STATUS_ERROR + AJAX."
         user = self.login_as_root_and_get()
         job = self._create_batchprocess_job(user=user, status=Job.STATUS_ERROR)
@@ -620,14 +613,13 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertDoesNotExist(job)
 
-    def test_clear04(self):
+    def test_clear__only_finished(self):
         "Can only clear finished jobs."
         user = self.login_as_root_and_get()
         job = self._create_batchprocess_job(user=user)
         self.assertPOST409(self._build_delete_url(job), follow=True)
 
-    def test_clear05(self):
-        "Credentials."
+    def test_clear__credentials(self):
         user = self.login_as_standard()
 
         job = self._create_batchprocess_job(
@@ -638,7 +630,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         job = self._create_batchprocess_job(user=user, status=Job.STATUS_OK)
         self.assertPOST200(self._build_delete_url(job), follow=True)
 
-    def test_clear06(self):
+    def test_clear__system_job(self):
         "Can not clear a system job."
         self.login_as_root()
 
@@ -722,7 +714,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST409(self._build_disable_url(job))
         self.assertPOST409(self._build_enable_url(job))
 
-    def test_status01(self):
+    def test_status__one_job(self):
         user = self.login_as_standard()
         url = self.INFO_URL
 
@@ -779,8 +771,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(url, data={'id': [invalid_id]})
         self.assertDictEqual({}, response.json())
 
-    def test_status02(self):
-        "Several jobs."
+    def test_status__several_jobs(self):
         user = self.login_as_standard()
 
         job1 = self._create_batchprocess_job(user=user)
@@ -822,8 +813,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertEqual('Job is not allowed', content[str(job3.id)])
 
-    def test_status03(self):
-        "Queue error."
+    def test_status__queue_error(self):
         error = 'Arggggg'
         self.queue.ping = lambda: error
 
@@ -832,8 +822,7 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(self.INFO_URL)
         self.assertEqual({'error': error}, response.json())
 
-    def test_status04(self):
-        "ACK error"
+    def test_status__ack_error(self):
         self.queue.start_job = lambda job: True
         user = self.login_as_standard()
 

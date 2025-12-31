@@ -32,7 +32,7 @@ class _SettingValueTestCase(CremeTestCase):
 
 
 class SettingValueTestCase(_SettingValueTestCase):
-    def test_type_string(self):
+    def test_type__string(self):
         sk = SettingKey(
             id='creme_core-test_model_string',
             description='Page title',
@@ -47,7 +47,7 @@ class SettingValueTestCase(_SettingValueTestCase):
 
         self.assertEqual(title, self.refresh(sv).value)
 
-    def test_type_int(self):
+    def test_type__int(self):
         sk = SettingKey(
             id='persons-test_model_int', description='Page size',
             app_label='persons', type=SettingKey.INT,
@@ -71,7 +71,7 @@ class SettingValueTestCase(_SettingValueTestCase):
         sv.value = str(size)
         self.assertEqual(size, sv.value)
 
-    def test_type_bool(self):
+    def test_type__bool(self):
         sk = SettingKey(
             id='activities-test_model_bool', description='Display logo?',
             app_label='activities', type=SettingKey.BOOL,
@@ -99,7 +99,7 @@ class SettingValueTestCase(_SettingValueTestCase):
             sv.as_html,
         )
 
-    def test_type_hour(self):
+    def test_type__hour(self):
         sk = SettingKey(
             id='persons-test_model_hour', description='Reminder hour',
             app_label='persons', type=SettingKey.HOUR,
@@ -115,7 +115,7 @@ class SettingValueTestCase(_SettingValueTestCase):
         self.assertEqual(hour, sv.value)
         self.assertEqual(_('{hour}h').format(hour=hour), sv.as_html)
 
-    def test_type_email(self):
+    def test_type__email(self):
         sk = SettingKey(
             id='persons-test_model_email', description='Campaign Sender',
             app_label='emails', type=SettingKey.EMAIL,
@@ -694,7 +694,7 @@ class UserSettingValueTestCase(CremeTestCase):
 
         return user, settings, sk
 
-    def test_pop01(self):
+    def test_pop(self):
         user, settings, sk = self._aux_test_pop()
 
         with self.assertRaises(settings.ReadOnlyError):
@@ -712,7 +712,7 @@ class UserSettingValueTestCase(CremeTestCase):
             with settings:
                 settings.pop(sk)
 
-    def test_pop02(self):
+    def test_pop__default(self):
         user, settings, sk = self._aux_test_pop()
 
         default = 42
@@ -730,7 +730,7 @@ class UserSettingValueTestCase(CremeTestCase):
 
         self.assertEqual(default, value)
 
-    def test_cast_int(self):
+    def test_cast__int(self):
         user = self.get_root_user()
 
         sk = UserSettingKey(
@@ -757,7 +757,7 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertIsInstance(d, dict)
         self.assertIsInstance(d.get(sk.id), int)
 
-    def test_cast_bool(self):
+    def test_cast__bool(self):
         user = self.get_root_user()
 
         sk = UserSettingKey(

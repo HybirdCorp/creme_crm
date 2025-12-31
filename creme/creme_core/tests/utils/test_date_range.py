@@ -60,7 +60,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertIs(curr_range, registry.get_range(curr_range.name))
         self.assertIsNone(registry.get_range())
 
-    def test_registry__dupliactes(self):
+    def test_registry__duplicates(self):
         prev_range1 = date_range.PreviousYearRange()
         prev_range2 = date_range.PreviousYearRange()
         curr_range = date_range.CurrentYearRange()
@@ -317,7 +317,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertFalse(drange.accept(value=dt(year=2011, month=6, day=12), now=today))
         self.assertFalse(drange.accept(value=None, now=today))
 
-    def test_previous_month01(self):
+    def test_previous_month(self):
         now_value = datetime(year=2011, month=4, day=24, hour=12, minute=27, second=59)
         drange = self.registry.get_range(name='previous_month')
         self.assertIsInstance(drange, date_range.PreviousMonthRange)
@@ -340,7 +340,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertFalse(accept(value=datetime(year=2012, month=3, day=12)))
         self.assertFalse(accept(value=None))
 
-    def test_previous_month02(self):
+    def test_previous_month__default__february(self):
         today = datetime(year=2011, month=3, day=12)
         self.assertDictEqual(
             {
@@ -354,7 +354,7 @@ class DateRangeTestCase(CremeTestCase):
                 .get_q_dict(field='modified', now=today),
         )
 
-    def test_previous_month03(self):
+    def test_previous_month__default__january(self):
         today = datetime(year=2011, month=1, day=12)
         self.assertDictEqual(
             {
@@ -368,7 +368,7 @@ class DateRangeTestCase(CremeTestCase):
                 .get_q_dict(field='modified', now=today),
         )
 
-    def test_current_month01(self):
+    def test_current_month(self):
         today = datetime(year=2011, month=1, day=15)
         drange = self.registry.get_range(name='current_month')
         self.assertIsInstance(drange, date_range.CurrentMonthRange)
@@ -391,7 +391,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertFalse(accept(value=datetime(year=2012, month=1, day=12)))
         self.assertFalse(accept(value=None))
 
-    def test_current_month02(self):
+    def test_current_month__february(self):
         today = datetime(year=2011, month=2, day=15)
         self.assertDictEqual(
             {
@@ -405,7 +405,7 @@ class DateRangeTestCase(CremeTestCase):
                 .get_q_dict(field='modified', now=today),
         )
 
-    def test_current_month03(self):
+    def test_current_month__february__leap_year(self):
         today = datetime(year=2012, month=2, day=15)
         self.assertDictEqual(
             {
@@ -419,7 +419,7 @@ class DateRangeTestCase(CremeTestCase):
                 .get_q_dict(field='modified', now=today),
         )
 
-    def test_next_month01(self):
+    def test_next_month__30_days(self):
         today = datetime(year=2011, month=10, day=20)
         drange = self.registry.get_range(name='next_month')
         self.assertIsInstance(drange, date_range.NextMonthRange)
@@ -442,7 +442,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertFalse(accept(value=datetime(year=2012, month=11, day=12)))
         self.assertFalse(accept(value=None))
 
-    def test_next_month02(self):
+    def test_next_month__31_days(self):
         today = datetime(year=2011, month=11, day=21)
         self.assertDictEqual(
             {
@@ -456,7 +456,7 @@ class DateRangeTestCase(CremeTestCase):
                 .get_q_dict(field='modified', now=today),
         )
 
-    def test_next_month03(self):
+    def test_next_month__year_change(self):
         today = datetime(year=2011, month=12, day=23)
         self.assertDictEqual(
             {
@@ -470,7 +470,7 @@ class DateRangeTestCase(CremeTestCase):
                 .get_q_dict(field='modified', now=today),
         )
 
-    def test_previous_quarter01(self):
+    def test_previous_quarter(self):
         dt = self.create_datetime
         today = dt(year=2011, month=4, day=24)
         drange = self.registry.get_range(name='previous_quarter')
@@ -498,7 +498,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertFalse(accept(value=dt(year=2010, month=12, day=31)))
         self.assertFalse(accept(value=None))
 
-    def test_previous_quarter02(self):
+    def test_previous_quarter__quarter_end(self):
         today = datetime(year=2011, month=6, day=12)
         dt = self.create_datetime
         self.assertDictEqual(
@@ -513,7 +513,7 @@ class DateRangeTestCase(CremeTestCase):
                 .get_q_dict(field='modified', now=today),
         )
 
-    def test_previous_quarter03(self):
+    def test_previous_quarter__year_change(self):
         today = datetime(year=2011, month=2, day=8)
         dt = self.create_datetime
         self.assertDictEqual(
@@ -556,7 +556,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertFalse(accept(value=dt(year=2011, month=10, day=1)))
         self.assertFalse(accept(value=None))
 
-    def test_next_quarter01(self):
+    def test_next_quarter(self):
         dt = self.create_datetime
         today = dt(year=2011, month=4, day=21)
         drange = self.registry.get_range(name='next_quarter')
@@ -584,7 +584,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertFalse(accept(value=dt(year=2011, month=10, day=1)))
         self.assertFalse(accept(value=None))
 
-    def test_next_quarter02(self):
+    def test_next_quarter__year_change(self):
         today = datetime(year=2011, month=12, day=3)
         dt = self.create_datetime
         self.assertDictEqual(
@@ -599,7 +599,7 @@ class DateRangeTestCase(CremeTestCase):
                 .get_q_dict(field='modified', now=today),
         )
 
-    def test_yesterday01(self):
+    def test_yesterday__month_change(self):
         dt = self.create_datetime
         today = dt(year=2011, month=6, day=1, hour=14, minute=14, second=37)
         drange = self.registry.get_range(name='yesterday')
@@ -624,7 +624,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertFalse(accept(value=today + timedelta(days=1)))
         self.assertFalse(accept(value=None))
 
-    def test_yesterday02(self):
+    def test_yesterday__simple(self):
         today = datetime(year=2011, month=6, day=2, hour=14, minute=14, second=37)
         self.assertDictEqual(
             {
@@ -661,7 +661,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertFalse(accept(value=today + timedelta(days=1)))
         self.assertFalse(accept(value=None))
 
-    def test_tomorrow01(self):
+    def test_tomorrow(self):
         dt = self.create_datetime
         today = dt(year=2011, month=6, day=1, hour=14, minute=14, second=37)
         drange = self.registry.get_range(name='tomorrow')
@@ -686,7 +686,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertFalse(accept(value=today - timedelta(days=1)))
         self.assertFalse(accept(value=None))
 
-    def test_tomorrow02(self):
+    def test_tomorrow__month_change(self):
         today = datetime(year=2011, month=6, day=30, hour=14, minute=14, second=37)
         self.assertDictEqual(
             {

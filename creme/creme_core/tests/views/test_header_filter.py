@@ -51,7 +51,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         return reverse('creme_core__hfilters', query={'ct_id': ctype.id})
 
     @override_settings(FILTERS_INITIAL_PRIVATE=False)
-    def test_create01(self):
+    def test_create__one_columns(self):
         self.login_as_root()
 
         self.assertFalse(
@@ -62,15 +62,15 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         self.assertFalse(HeaderFilter.objects.filter(entity_type=ct))
 
         url = self._build_add_url(ct)
-        response = self.client.get(url)
-        self.assertTemplateUsed(response, 'creme_core/forms/header-filter.html')
+        response1 = self.client.get(url)
+        self.assertTemplateUsed(response1, 'creme_core/forms/header-filter.html')
         self.assertContains(
-            response,
+            response1,
             _('Create a view of list for «%(ctype)s»') % {'ctype': 'Test Mailing list'},
         )
 
         with self.assertNoException():
-            form = response.context['form']
+            form = response1.context['form']
             user_f = form.fields['user']
 
         self.assertIs(form.initial.get('is_private'), False)
@@ -84,14 +84,14 @@ class HeaderFilterViewsTestCase(CremeTestCase):
 
         # POST ---
         name = 'DefaultHeaderFilter'
-        response = self.client.post(
+        response2 = self.client.post(
             url,
             data={
                 'name':  name,
                 'cells': 'regular_field-created',
             },
         )
-        self.assertNoFormError(response, status=302)
+        self.assertNoFormError(response2, status=302)
 
         hfilter = self.get_alone_element(HeaderFilter.objects.filter(entity_type=ct))
         self.assertEqual(name, hfilter.name)
@@ -107,7 +107,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         self.assertIs(cells[0].is_hidden, False)
 
         lv_url = FakeMailingList.get_lv_absolute_url()
-        self.assertRedirects(response, lv_url)
+        self.assertRedirects(response2, lv_url)
 
         # List-view ---
         context = self.assertGET200(lv_url).context
@@ -116,7 +116,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         self.assertEqual(hfilter.id, selected_hfilter.id)
         self.assertEqual(hfilter.id, context['list_view_state'].header_filter_id)
 
-    def test_create02(self):
+    def test_create__several_columns(self):
         user = self.login_as_root_and_get()
         lv_url = FakeContact.get_lv_absolute_url()
 
@@ -918,7 +918,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         self.assertPOST200(self.DELETE_URL, data={'id': hf.id}, follow=True)
         self.assertDoesNotExist(hf)
 
-    def test_hfilters_for_ctype01(self):
+    def test_hfilters_for_ctype__empty(self):
         self.login_as_root()
 
         response = self.assertGET200(
@@ -926,7 +926,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
         )
         self.assertListEqual([], response.json())
 
-    def test_hfilters_for_ctype02(self):
+    def test_hfilters_for_ctype__ok(self):
         user = self.login_as_root_and_get()
 
         name1 = 'ML view01'
@@ -960,7 +960,7 @@ class HeaderFilterViewsTestCase(CremeTestCase):
             response.json(),
         )
 
-    def test_hfilters_for_ctype03(self):
+    def test_hfilters_for_ctype__forbidden(self):
         "No app credentials."
         self.login_as_standard(allowed_apps=['documents'])
         self.assertGET403(self._build_get4ctype_url(self.contact_ct))

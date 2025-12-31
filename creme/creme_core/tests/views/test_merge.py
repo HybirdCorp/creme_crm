@@ -26,17 +26,12 @@ from creme.creme_core.models import (
 from ..base import CremeTestCase
 
 
-class MergeViewsTestCase(CremeTestCase):
+class SelectionTestCase(CremeTestCase):
     @staticmethod
     def _build_select_url(e1):
         return reverse('creme_core__select_entity_for_merge') + f'?id1={e1.id}'
 
-    @staticmethod
-    def _oldify(entity, hours_delta=1):
-        mdate = entity.modified - timedelta(hours=hours_delta)
-        entity.__class__.objects.filter(pk=entity.pk).update(modified=mdate)
-
-    def test_select_entity_for_merge01(self):
+    def test_select(self):
         user = self.login_as_root_and_get()
 
         form_factory = merge_form_registry.get(FakeOrganisation)
@@ -44,27 +39,25 @@ class MergeViewsTestCase(CremeTestCase):
         self.assertTrue(callable(form_factory))
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        orga01 = create_orga(name='Genshiken')
-        orga02 = create_orga(name='Gen-shi-ken')
-        orga03 = create_orga(name='Manga Club')
+        orga1 = create_orga(name='Genshiken')
+        orga2 = create_orga(name='Gen-shi-ken')
+        orga3 = create_orga(name='Manga Club')
 
-        response = self.assertGET200(self._build_select_url(orga01))
-
+        response = self.assertGET200(self._build_select_url(orga1))
         self.assertEqual(
             response.context['reload_url'],
-            self._build_select_url(orga01)
+            self._build_select_url(orga1)
         )
 
         with self.assertNoException():
             contacts = response.context['page_obj'].object_list
 
         contacts = {*contacts}
-        self.assertIn(orga02, contacts)
-        self.assertIn(orga03, contacts)
-        self.assertNotIn(orga01, contacts)
+        self.assertIn(orga2, contacts)
+        self.assertIn(orga3, contacts)
+        self.assertNotIn(orga1, contacts)
 
-    def test_select_entity_for_merge02(self):
-        "View credentials."
+    def test_view_perms(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*')
 
@@ -72,8 +65,7 @@ class MergeViewsTestCase(CremeTestCase):
         self.assertFalse(user.has_perm_to_view(orga))
         self.assertGET403(self._build_select_url(orga))
 
-    def test_select_entity_for_merge03(self):
-        "Edit credentials."
+    def test_change_perms(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, all=['VIEW'])
 
@@ -82,16 +74,22 @@ class MergeViewsTestCase(CremeTestCase):
         self.assertFalse(user.has_perm_to_change(orga))
         self.assertGET403(self._build_select_url(orga))
 
-    def test_select_entity_for_merge04(self):
-        "Unregistered model."
+    def test_unregistered_model(self):
         user = self.login_as_root_and_get()
         self.assertIsNone(merge_form_registry.get(FakeImage))
 
         image = FakeImage.objects.create(user=user, name='IMG#1')
         self.assertGET409(self._build_select_url(image))
 
-    def test_merge01(self):
-        "2 (fake) Organisations, some relationships duplicates."
+
+class MergeTestCase(CremeTestCase):
+    @staticmethod
+    def _oldify(entity, hours_delta=1):
+        mdate = entity.modified - timedelta(hours=hours_delta)
+        entity.__class__.objects.filter(pk=entity.pk).update(modified=mdate)
+
+    def test_main(self):
+        "2 (fake) Organisations, some relationships duplicates, properties, history."
         user = self.login_as_root_and_get()
 
         rtype1 = RelationType.objects.builder(
@@ -324,7 +322,7 @@ class MergeViewsTestCase(CremeTestCase):
             refreshed_hline = self.assertStillExists(hline)
             self.assertIsNone(refreshed_hline.entity)
 
-    def test_merge02(self):
+    def test_m2m(self):
         "2 Contacts, M2M, foreign key to CremeEntities."
         user = self.login_as_root_and_get()
 
@@ -404,7 +402,7 @@ class MergeViewsTestCase(CremeTestCase):
         self.assertListEqual([language3],      [*new_contact01.languages.all()])
         self.assertEqual(image2,               new_contact01.image)
 
-    def test_merge03(self):
+    def test_initial_values(self):
         "Initial values come in priority from the last edited entity."
         user = self.login_as_root_and_get()
 
@@ -426,7 +424,7 @@ class MergeViewsTestCase(CremeTestCase):
             name_f.initial,
         )
 
-    def test_merge04(self):
+    def test_nullable_fk_to_entity(self):
         "Nullable foreign key to CremeEntities."
         user = self.login_as_root_and_get()
         image = FakeImage.objects.create(user=user, name='Kosaka face')
@@ -443,19 +441,8 @@ class MergeViewsTestCase(CremeTestCase):
         self.assertEqual(user,      image_f._original_field.user)
         self.assertEqual(FakeImage, image_f._original_field.model)
 
-    def test_merge05(self):
-        "Unregistered model."
-        user = self.login_as_root_and_get()
-        self.assertIsNone(merge_form_registry.get(FakeImage))
-
-        create_image = partial(FakeImage.objects.create, user=user)
-        image1 = create_image(name='IMG#1')
-        image2 = create_image(name='IMG#2')
-
-        self.assertGET409(self.build_merge_url(image1, image2))
-
-    def test_merge_relations(self):
-        "No relationships duplicates."
+    def test_relationships__no_duplicate(self):
+        "No relationships duplicate."
         user = self.login_as_root_and_get()
 
         rtype = RelationType.objects.builder(
@@ -498,24 +485,24 @@ class MergeViewsTestCase(CremeTestCase):
 
         self.assertDoesNotExist(orga2)
 
-        new_orga01 = self.refresh(orga1)
-        self.assertEqual(orga1.name,  new_orga01.name)
+        new_orga1 = self.refresh(orga1)
+        self.assertEqual(orga1.name,  new_orga1.name)
 
         rel1 = self.refresh(rel1)
         self.assertEqual(contact1.id,  rel1.subject_entity_id)
-        self.assertEqual(rtype,         rel1.type)
-        self.assertEqual(new_orga01.id, rel1.object_entity_id)
+        self.assertEqual(rtype,        rel1.type)
+        self.assertEqual(new_orga1.id, rel1.object_entity_id)
 
         rel2 = self.assertStillExists(rel2)
         self.assertEqual(contact2.id,  rel2.subject_entity_id)
-        self.assertEqual(rtype,         rel2.type)
-        self.assertEqual(new_orga01.id, rel2.object_entity_id)
+        self.assertEqual(rtype,        rel2.type)
+        self.assertEqual(new_orga1.id, rel2.object_entity_id)
 
         sym_rel2 = rel2.symmetric_relation
-        self.assertEqual(new_orga01.id, sym_rel2.subject_entity_id)
+        self.assertEqual(new_orga1.id, sym_rel2.subject_entity_id)
         self.assertEqual(contact2.id,  sym_rel2.object_entity_id)
 
-    def test_merge_customfields(self):
+    def test_custom_fields(self):
         user = self.login_as_root_and_get()
 
         create_cf = partial(
@@ -624,7 +611,17 @@ class MergeViewsTestCase(CremeTestCase):
 
         self.assertFalse(cf_04.value_class.objects.all())
 
-    def test_error01(self):
+    def test_error__unregistered_model(self):
+        user = self.login_as_root_and_get()
+        self.assertIsNone(merge_form_registry.get(FakeImage))
+
+        create_image = partial(FakeImage.objects.create, user=user)
+        image1 = create_image(name='IMG#1')
+        image2 = create_image(name='IMG#2')
+
+        self.assertGET409(self.build_merge_url(image1, image2))
+
+    def test_error__different_ctypes(self):
         "Try to merge 2 entities with different types."
         user = self.login_as_root_and_get()
 
@@ -633,8 +630,7 @@ class MergeViewsTestCase(CremeTestCase):
 
         self.assertGET409(self.build_merge_url(orga, contact))
 
-    def test_error02(self):
-        "Required fields."
+    def test_error__required_fields(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -672,15 +668,14 @@ class MergeViewsTestCase(CremeTestCase):
         self.assertFormError(form2, field='user', errors=msg)
         self.assertFormError(form2, field='name', errors=msg)
 
-    def test_error03(self):
+    def test_error__itself(self):
         "Try to merge an entity with itself (by forging the URL)."
         user = self.login_as_root_and_get()
 
         orga = FakeOrganisation.objects.create(user=user, name='Genshiken')
         self.assertGET409(self.build_merge_url(orga, orga))
 
-    def test_error04(self):
-        "One entity does not exist."
+    def test_error__one_entity_does_not_exist(self):
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Genshiken')
 
@@ -695,7 +690,7 @@ class MergeViewsTestCase(CremeTestCase):
         response2 = self.client.get(self.build_merge_url(self.UNUSED_PK, orga))
         self.assertContains(response2, msg, status_code=404, html=True)
 
-    def test_perm01(self):
+    def test_permissions(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['VIEW', 'CHANGE', 'DELETE'])
 
@@ -713,7 +708,7 @@ class MergeViewsTestCase(CremeTestCase):
         self.assertGET403(self.build_merge_url(orga01, orga02))
         self.assertGET403(self.build_merge_url(orga02, orga01))
 
-    def test_fields_config_hidden(self):
+    def test_fields_config__hidden(self):
         user = self.login_as_root_and_get()
 
         hidden_fname = 'phone'
@@ -758,7 +753,7 @@ class MergeViewsTestCase(CremeTestCase):
         self.assertEqual(contact01.first_name, new_contact01.first_name)
         self.assertEqual(contact01.last_name,  new_contact01.last_name)
 
-    def test_fields_config_required(self):
+    def test_fields_config__required(self):
         user = self.login_as_root_and_get()
 
         fname = 'phone'

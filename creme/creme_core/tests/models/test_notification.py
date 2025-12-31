@@ -34,8 +34,7 @@ from ..base import CremeTestCase
 
 
 class NotificationChannelTestCase(CremeTestCase):
-    def test_manager_create__custom(self):
-        "Custom."
+    def test_manager__create__custom(self):
         name = 'My_channel'
         description = 'Very useful'
         channel = NotificationChannel.objects.create(
@@ -58,7 +57,7 @@ class NotificationChannelTestCase(CremeTestCase):
 
         self.assertEqual(name, str(channel))
 
-    def test_manager_create__not_custom(self):
+    def test_manager__create__not_custom(self):
         "Not custom + not required."
         uid = uuid4()
         channel = NotificationChannel.objects.create(
@@ -79,8 +78,7 @@ class NotificationChannelTestCase(CremeTestCase):
 
         self.assertEqual(SystemChannelType.verbose_name, str(channel))
 
-    def test_manager_create_error(self):
-        "No Output."
+    def test_manager__create__no_output(self):
         with self.assertRaises(ValueError) as cm:
             NotificationChannel.objects.create(
                 name='My_channel', description='Very useful',
@@ -90,7 +88,7 @@ class NotificationChannelTestCase(CremeTestCase):
             'The field "default_outputs" cannot be empty.', str(cm.exception),
         )
 
-    def test_manager_get_for_uuid(self):
+    def test_manager__get_for_uuid(self):
         uid1 = uuid4()
         chan = NotificationChannel.objects.create(
             uuid=uid1, name='My channel', default_outputs=[OUTPUT_WEB],
@@ -120,7 +118,7 @@ class NotificationChannelTestCase(CremeTestCase):
             ],
         )
 
-    def test_property_type(self):
+    def test_type__property(self):
         uid = uuid4()
         channel = NotificationChannel.objects.create(
             uuid=uid, type=SystemChannelType, required=False,
@@ -141,9 +139,8 @@ class NotificationChannelTestCase(CremeTestCase):
         self.assertIsNone(channel.type)
 
 
-class NotificationChannelConfigItemTestCase(CremeTestCase):
-    def test_manager_create01(self):
-        "No output."
+class NotificationChannelConfigItemManagerTestCase(CremeTestCase):
+    def test_create__no_output(self):
         channel = self.get_object_or_fail(NotificationChannel, uuid=constants.UUID_CHANNEL_SYSTEM)
         user = self.create_user()
         ncci = NotificationChannelConfigItem.objects.create(channel=channel, user=user)
@@ -151,8 +148,7 @@ class NotificationChannelConfigItemTestCase(CremeTestCase):
         self.assertEqual(user,    ncci.user)
         self.assertListEqual([], ncci.outputs)
 
-    def test_manager_create02(self):
-        "One output."
+    def test_create__one_output(self):
         channel = self.get_object_or_fail(NotificationChannel, uuid=constants.UUID_CHANNEL_SYSTEM)
         user = self.create_user()
         ncci = NotificationChannelConfigItem.objects.create(
@@ -162,7 +158,7 @@ class NotificationChannelConfigItemTestCase(CremeTestCase):
         self.assertListEqual(['web'], outputs)
         self.assertListEqual([OUTPUT_WEB], outputs)
 
-    def test_manager_smart_create(self):
+    def test_smart_create(self):
         channel = NotificationChannel.objects.create(default_outputs=[OUTPUT_WEB])
         user = self.create_user()
         ncci = NotificationChannelConfigItem.objects.smart_create(
@@ -174,7 +170,7 @@ class NotificationChannelConfigItemTestCase(CremeTestCase):
         self.assertEqual(user,    ncci.user)
         self.assertListEqual([OUTPUT_WEB], ncci.outputs)
 
-    def test_manager_bulk_get(self):
+    def test_bulk_get(self):
         create_chan = NotificationChannel.objects.create
         chan1 = create_chan(name='Chan #1', default_outputs=[OUTPUT_WEB])
         chan2 = create_chan(name='Chan #2', default_outputs=[OUTPUT_EMAIL])
@@ -234,7 +230,7 @@ class NotificationChannelConfigItemTestCase(CremeTestCase):
             [item.id for item in items], [item.id for item in items_again],
         )
 
-    def test_manager_bulk_get__complete_cache(self):
+    def test_bulk_get__complete_cache(self):
         user = self.get_root_user()
 
         create_chan = NotificationChannel.objects.create
@@ -258,7 +254,7 @@ class NotificationChannelConfigItemTestCase(CremeTestCase):
                 NotificationChannelConfigItem.objects.bulk_get(channels=[chan2], users=[user])
             )
 
-    def test_manager_bulk_get__complete_cache_with_creation(self):
+    def test_bulk_get__complete_cache_with_creation(self):
         user = self.get_root_user()
 
         create_chan = NotificationChannel.objects.create
@@ -287,7 +283,7 @@ class NotificationTestCase(CremeTestCase):
     def get_emails_sender_job(self):
         return self.get_object_or_fail(Job, type_id=sender_type.id)
 
-    def test_content01(self):
+    def test_content__simple(self):
         "With SimpleNotifContent."
         subject = 'Aleeeeert!!!'
         body = 'You are late'
@@ -303,7 +299,7 @@ class NotificationTestCase(CremeTestCase):
         self.assertDictEqual(snc.as_dict(), notif.content_data)
         self.assertEqual(snc, notif.content)
 
-    def test_content02(self):
+    def test_content__upgrade_announcement(self):
         "With UpgradeAnnouncement."
         dt = self.create_datetime(year=2023, month=12, day=24, hour=13)
         announce = UpgradeAnnouncement(start=dt)
@@ -314,7 +310,7 @@ class NotificationTestCase(CremeTestCase):
         self.assertDictEqual(announce.as_dict(), notif.content_data)
         self.assertEqual(announce, notif.content)
 
-    def test_manager_create(self):
+    def test_manager__create(self):
         user = self.get_root_user()
         chan = NotificationChannel.objects.first()
         snc = SimpleNotifContent(subject='Hello...', body='..world')
@@ -328,7 +324,7 @@ class NotificationTestCase(CremeTestCase):
         self.assertIs(notif.discarded, None)
         self.assertEqual(snc, notif.content)
 
-    def test_to_dict01(self):
+    def test_to_dict(self):
         user = self.get_root_user()
         chan = self.get_object_or_fail(NotificationChannel, uuid=constants.UUID_CHANNEL_SYSTEM)
         subject = 'Hello...'
@@ -348,7 +344,7 @@ class NotificationTestCase(CremeTestCase):
             notif.to_dict(user),
         )
 
-    def test_to_dict02(self):
+    def test_to_dict__html_body(self):
         user = self.get_root_user()
         chan = self.get_object_or_fail(NotificationChannel, uuid=constants.UUID_CHANNEL_ADMIN)
 
@@ -373,7 +369,7 @@ class NotificationTestCase(CremeTestCase):
             notif.to_dict(user),
         )
 
-    def test_manager_send01(self):
+    def test_manager__send__one_user(self):
         "One user, Channel UUID (string), default priority."
         queue = get_queue()
         queue.clear()
@@ -416,7 +412,7 @@ class NotificationTestCase(CremeTestCase):
         self.assertEqual(SimpleNotifContent.id, notif0.content_id)
         self.assertDictEqual(exp_data,          notif0.content_data)
 
-    def test_manager_send02(self):
+    def test_manager__send__two_users(self):
         "Two users, Channel instance, low priority, other outputs."
         queue = get_queue()
         queue.clear()
@@ -452,7 +448,7 @@ class NotificationTestCase(CremeTestCase):
         job, _data = self.get_alone_element(queue.refreshed_jobs)
         self.assertEqual(self.get_emails_sender_job(), job)
 
-    def test_manager_send03(self):
+    def test_manager__send__teams(self):
         "UUID instance + teams (avoid duplicates) + create config lazily."
         user1 = self.get_root_user()
         user2 = self.create_user(0)
@@ -474,8 +470,7 @@ class NotificationTestCase(CremeTestCase):
         self.get_object_or_fail(Notification, user=user2, channel=channel)
         self.get_object_or_fail(Notification, user=user3, channel=channel)
 
-    def test_manager_send04(self):
-        "No output."
+    def test_manager__send__no_output(self):
         user = self.get_root_user()
         channel = NotificationChannel.objects.create(
             name='My Channel', default_outputs=[OUTPUT_WEB],
@@ -492,8 +487,7 @@ class NotificationTestCase(CremeTestCase):
         )
         self.assertEqual(old_count, Notification.objects.count())
 
-    def test_manager_send05(self):
-        "Several outputs."
+    def test_manager__send__several_outputs(self):
         user = self.get_root_user()
         channel = NotificationChannel.objects.create(
             name='My Channel', default_outputs=[OUTPUT_WEB],
@@ -516,7 +510,7 @@ class NotificationTestCase(CremeTestCase):
             Notification, user=user, channel=channel, output=OUTPUT_EMAIL,
         )
 
-    def test_manager_send__extra_data(self):
+    def test_manager__send__extra_data(self):
         user = self.get_root_user()
         channel = NotificationChannel.objects.create(
             name='My Channel', default_outputs=[OUTPUT_WEB],

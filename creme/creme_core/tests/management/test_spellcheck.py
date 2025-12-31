@@ -29,76 +29,76 @@ class CremePoTokenizerTestCase(TestCase):
         tokenizer = CremePoTokenizer(text)
         self.assertEqual(tokenizer._text, text)
 
-    def test_preprocess_text_01(self):
+    def test_preprocess_text__simple(self):
         self.assertTokenizedTextEqual("Hello", ["Hello"])
 
-    def test_preprocess_text_02(self):
+    def test_preprocess_text__bracket_vars(self):
         self.assertTokenizedTextEqual("Hello {first_name} {last_name}", ["Hello"])
 
-    def test_preprocess_text_03(self):
+    def test_preprocess_text__bracket_vars__subfield(self):
         self.assertTokenizedTextEqual("Hello {user.name}", ["Hello"])
 
-    def test_preprocess_text_04(self):
+    def test_preprocess_text__percent_vars(self):
         self.assertTokenizedTextEqual("Hello %(name)s", ["Hello"])
 
-    def test_preprocess_text_05(self):
+    def test_preprocess_text__semi_colon(self):
         self.assertTokenizedTextEqual("Hello; Joe;", ["Hello", "Joe"])
 
-    def test_preprocess_text_06(self):
+    def test_preprocess_text__comma(self):
         self.assertTokenizedTextEqual("Hello, Joe,", ["Hello", "Joe"])
 
-    def test_preprocess_text_07(self):
+    def test_preprocess_text__period(self):
         self.assertTokenizedTextEqual("Hello.Joe.", ["Hello", "Joe"])
 
-    def test_preprocess_text_08(self):
+    def test_preprocess_text__colon(self):
         self.assertTokenizedTextEqual("Hello:Joe:", ["Hello", "Joe"])
 
-    def test_preprocess_text_09(self):
+    def test_preprocess_text__space(self):
         self.assertTokenizedTextEqual(" Hello Joe ", ["Hello", "Joe"])
 
-    def test_preprocess_text_10(self):
+    def test_preprocess_text__quotation_mark(self):
         self.assertTokenizedTextEqual("«Hello» «Joe»", ["Hello", "Joe"])
 
-    def test_preprocess_text_11(self):
+    def test_preprocess_text__parenthesis(self):
         self.assertTokenizedTextEqual("Hello((Joe))", ["Hello", "Joe"])
 
-    def test_preprocess_text_12(self):
+    def test_preprocess_text__square_bracket(self):
         self.assertTokenizedTextEqual("Hello[[Joe]]", ["Hello", "Joe"])
 
-    def test_preprocess_text_13(self):
+    def test_preprocess_text__quote(self):
         self.assertTokenizedTextEqual('Hello""Joe""', ["Hello", "Joe"])
 
-    def test_preprocess_text_14(self):
+    def test_preprocess_text__slash(self):
         self.assertTokenizedTextEqual('Hello/Joe/', ["Hello", "Joe"])
 
-    def test_preprocess_text_15(self):
+    def test_preprocess_text__exclamation(self):
         self.assertTokenizedTextEqual('Hello!Joe!', ["Hello", "Joe"])
 
-    def test_preprocess_text_16(self):
+    def test_preprocess_text__interrogation(self):
         self.assertTokenizedTextEqual('Hello?Joe?', ["Hello", "Joe"])
 
-    def test_preprocess_text_17(self):
+    def test_preprocess_text__ellipsis(self):
         self.assertTokenizedTextEqual('Hello…Joe…', ["Hello", "Joe"])
 
-    def test_preprocess_text_18(self):
+    def test_preprocess_text__percent(self):
         self.assertTokenizedTextEqual('Hello Joe (in %)', ["Hello", "Joe", "in"])
 
-    def test_preprocess_text_19(self):
+    def test_preprocess_text__equal(self):
         self.assertTokenizedTextEqual('Hello=Joe', ["Hello", "Joe"])
 
-    def test_preprocess_text_20(self):
+    def test_preprocess_text__hiphen(self):
         self.assertTokenizedTextEqual('Hello—Joe', ["Hello", "Joe"])
 
-    def test_preprocess_text_21(self):
+    def test_preprocess_text__simple_quote(self):
         self.assertTokenizedTextEqual("Hello'Joe'", ["Hello", "Joe"])
 
-    def test_preprocess_html_01(self):
+    def test_preprocess_html__br(self):
         self.assertTokenizedHtmlEqual('Hello Joe</br>', ["Hello", "Joe"])
 
-    def test_preprocess_html_02(self):
+    def test_preprocess_html__div(self):
         self.assertTokenizedHtmlEqual('<div>Hello Joe</div>', ["Hello", "Joe"])
 
-    def test_preprocess_html_03(self):
+    def test_preprocess_html__strong(self):
         # TODO: title attribute too ?
         self.assertTokenizedHtmlEqual('Hello <strong>Joe</strong>', ["Hello", "Joe"])
 

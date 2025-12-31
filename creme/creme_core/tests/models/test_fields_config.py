@@ -26,12 +26,13 @@ from ..base import CremeTestCase
 from ..fake_forms import FakeContactForm
 
 
-class FieldsConfigTestCase(CremeTestCase):
-    def setUp(self):
-        super().setUp()
-        set_global_info(per_request_cache={})
+class FieldsConfigManagerTestCase(CremeTestCase):
+    # TODO?
+    # def setUp(self):
+    #     super().setUp()
+    #     set_global_info(per_request_cache={})
 
-    def test_manager_configurable_fields01(self):
+    def test_configurable_fields(self):
         conf_fields = {
             field.name: {*values}
             for field, values in FieldsConfig.objects.configurable_fields(FakeContact)
@@ -52,7 +53,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNotIn('user',            conf_fields)  # empty
         self.assertNotIn('is_a_nerd',       conf_fields)  # BooleanField
 
-    def test_manager_configurable_fields02(self):
+    def test_configurable_fields__m2m(self):
         conf_fields = {
             field.name: {*values}
             for field, values in FieldsConfig.objects.configurable_fields(FakeDocument)
@@ -63,7 +64,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertTrue(FakeDocument._meta.get_field('categories').blank)
         self.assertEqual({FieldsConfig.HIDDEN}, conf_fields.get('categories'))
 
-    def test_manager_configurable_fields03(self):
+    def test_configurable_fields__not_editable(self):
         "Not editable fields can be hidden (but not set required)."
         conf_fields = {
             field.name: {*values}
@@ -78,7 +79,7 @@ class FieldsConfigTestCase(CremeTestCase):
         # Optional but not editable
         self.assertEqual({FieldsConfig.HIDDEN}, conf_fields.get('total_no_vat'))
 
-    def test_manager_create01(self):
+    def test_create__hidden(self):
         "HIDDEN."
         h_field1 = 'mobile'
         h_field2 = 'phone'
@@ -111,7 +112,7 @@ class FieldsConfigTestCase(CremeTestCase):
 
         self.assertIs(fnames, fconf.hidden_field_names)  # Test cache
 
-    def test_manager_create02(self):
+    def test_create__required(self):
         "REQUIRED."
         r_field1 = 'phone'
         r_field2 = 'email'
@@ -156,7 +157,7 @@ class FieldsConfigTestCase(CremeTestCase):
 
         self.assertIs(fnames, fconf.required_field_names)  # Test cache
 
-    def test_manager_create_errors_01(self):
+    def test_create__invalid_field(self):
         "Invalid field: ignored."
         h_field = 'phone'
         fconf = FieldsConfig.objects.create(
@@ -170,24 +171,21 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
         self.assertEqual(1, len(fconf.descriptions))
 
-    def test_manager_create_errors_02(self):
-        "Invalid attribute name."
+    def test_create__invalid_attribute_name(self):
         with self.assertRaises(FieldsConfig.InvalidAttribute):
             FieldsConfig.objects.create(
                 content_type=FakeContact,
                 descriptions=[('phone', {'invalid': True})],
             )
 
-    def test_manager_create_errors_03(self):
-        "Invalid attribute value."
+    def test_create__invalid_attribute_value(self):
         with self.assertRaises(FieldsConfig.InvalidAttribute):
             FieldsConfig.objects.create(
                 content_type=FakeContact,
                 descriptions=[('phone', {FieldsConfig.HIDDEN: 5})],
             )
 
-    def test_manager_create_errors_04(self):
-        "Field is not viewable."
+    def test_create__field_not_viewable(self):
         fname = 'id'
 
         with self.assertLogs(level='WARNING') as logs_manager:
@@ -205,7 +203,7 @@ class FieldsConfigTestCase(CremeTestCase):
             logs_manager.output,
         )
 
-    def test_manager_create_errors_hidden(self):
+    def test_create__hidden__not_optional(self):
         "Field to hide is not optional: ignored."
         optional_field = 'phone'
         not_optional_field = 'last_name'
@@ -230,7 +228,7 @@ class FieldsConfigTestCase(CremeTestCase):
             logs_manager.output,
         )
 
-    def test_manager_create_errors_required01(self):
+    def test_create__required__already_required(self):
         "Field is already required: ignored."
         required_field = 'last_name'
         blank_field = 'phone'
@@ -256,7 +254,7 @@ class FieldsConfigTestCase(CremeTestCase):
             logs_manager.output,
         )
 
-    def test_manager_create_errors_required02(self):
+    def test_create__required__not_editable(self):
         "Field is not editable."
         fname = 'address'
 
@@ -275,7 +273,7 @@ class FieldsConfigTestCase(CremeTestCase):
             logs_manager.output,
         )
 
-    def test_manager_create_errors_required03(self):
+    def test_create__required__m2m(self):
         "Field is a ManyToManyField."
         fname = 'categories'
 
@@ -294,7 +292,7 @@ class FieldsConfigTestCase(CremeTestCase):
             logs_manager.output,
         )
 
-    def test_manager_create_errors_hidden_n_required(self):
+    def test_create__hidden_n_required__errors(self):
         with self.assertRaises(FieldsConfig.InvalidAttribute):
             FieldsConfig.objects.create(
                 content_type=FakeContact,
@@ -304,7 +302,7 @@ class FieldsConfigTestCase(CremeTestCase):
                 )],
             )
 
-    def test_manager_get_for_model01(self):
+    def test_get_for_model(self):
         model = FakeContact
         h_field1 = 'phone'
         h_field2 = 'mobile'
@@ -345,7 +343,7 @@ class FieldsConfigTestCase(CremeTestCase):
         with self.assertNumQueries(0):  # Cache
             FieldsConfig.objects.get_for_model(model)
 
-    def test_manager_get_for_model02(self):
+    def test_get_for_model__not_registrable_model(self):
         "No query for model which cannot be registered."
         ContentType.objects.get_for_model(FakeCivility)  # Fill cache if needed
 
@@ -355,7 +353,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertFalse([*fc.hidden_fields])
         self.assertFalse([*fc.required_fields])
 
-    def test_manager_get_for_model03(self):
+    def test_get_for_model__no_cache_created(self):
         "Cache not created."
         model = FakeContact
         FieldsConfig.objects.create(
@@ -371,7 +369,7 @@ class FieldsConfigTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             FieldsConfig.objects.get_for_model(model)
 
-    def test_manager_get_for_models(self):
+    def test_get_for_models(self):
         model1 = FakeContact
         model2 = FakeOrganisation
 
@@ -400,7 +398,7 @@ class FieldsConfigTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             FieldsConfig.objects.get_for_model(model1)
 
-    def test_manager_has_configurable_fields(self):
+    def test_has_configurable_fields(self):
         is_valid = FieldsConfig.objects.has_configurable_fields
         self.assertTrue(is_valid(FakeContact))
         self.assertTrue(is_valid(FakeOrganisation))
@@ -408,6 +406,21 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertFalse(is_valid(FakeCivility))  # No optional field
         self.assertFalse(is_valid(FakeSector))    # Idem
 
+    def test_get_by_natural_key(self):
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[],
+        )
+        self.assertIs(
+            FieldsConfig.objects.get_for_model(FakeContact),
+            FieldsConfig.objects.get_by_natural_key(
+                *contact_ct.natural_key()
+            )
+        )
+
+
+class FieldsConfigTestCase(CremeTestCase):
     def _create_contact_hidden_conf(self):
         FieldsConfig.objects.create(
             content_type=FakeContact,
@@ -417,7 +430,7 @@ class FieldsConfigTestCase(CremeTestCase):
             ],
         )
 
-    def test_form_update_hidden01(self):
+    def test_form_update__hidden(self):
         user = self.get_root_user()
         self._create_contact_hidden_conf()
 
@@ -426,7 +439,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNotIn('phone',  fields)
         self.assertNotIn('mobile', fields)
 
-    def test_form_update_hidden02(self):
+    def test_form_update__hidden__view(self):
         "In view."
         self.login_as_root()
         user = self.get_root_user()
@@ -462,7 +475,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertIsNone(hitagi.phone)
         self.assertEqual('', hitagi.mobile)
 
-    def test_form_update_hidden03(self):
+    def test_form_update__hidden__absent_field(self):
         "Field not in form."
         user = self.get_root_user()
         self._create_contact_hidden_conf()
@@ -478,7 +491,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNotIn('phone',  fields)
         self.assertNotIn('mobile', fields)
 
-    def test_form_update_required01(self):
+    def test_form_update__required(self):
         user = self.get_root_user()
 
         FieldsConfig.objects.create(
@@ -522,7 +535,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertEqual(last_name, contact.last_name)
         self.assertEqual(phone,     contact.phone)
 
-    def test_form_update_required02(self):
+    def test_form_update__required__absent_field(self):
         "Field not present => added."
         user = self.get_root_user()
 
@@ -574,7 +587,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertEqual(last_name,      contact.last_name)
         self.assertEqual(required_value, getattr(contact, required))
 
-    def test_descriptions_setter01(self):
+    def test_descriptions_setter__auto_repair(self):
         "Auto-repair invalid fields."
         h_field = 'phone'
         fconf = FieldsConfig.objects.create(
@@ -590,8 +603,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
         self.assertEqual(1, len(fconf.descriptions))
 
-    def test_descriptions_setter02(self):
-        "No content type."
+    def test_descriptions_setter__no_content_type(self):
         with self.assertRaises(ValueError) as cm1:
             FieldsConfig(
                 # content_type=FakeContact,
@@ -615,8 +627,7 @@ class FieldsConfigTestCase(CremeTestCase):
                 content_type=FakeContact,  # Passed after
             )
 
-    def test_descriptions_setter03(self):
-        "Invalid content type."
+    def test_descriptions_setter__invalid_content_type(self):
         ctype = ContentType(app_label='invalid', model='Contact')
 
         with self.assertRaises(ValueError) as cm:
@@ -663,7 +674,53 @@ class FieldsConfigTestCase(CremeTestCase):
 
         self.assertEqual(FakeContact, ct.model_class())
 
-    def test_localcache_get_for_model(self):
+    def test_creme_model__full_clean(self):
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[('phone', {FieldsConfig.REQUIRED: True})],
+        )
+
+        contact = FakeContact(
+            user=self.get_root_user(),
+            last_name='Senjougahara',
+            first_name='Hitagi',
+        )
+
+        with self.assertRaises(ValidationError):
+            contact.full_clean()
+
+    def test_natural_key(self):
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
+        config = FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[],
+        )
+        self.assertEqual(config.natural_key(), contact_ct.natural_key())
+
+    def test_serialization(self):
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
+        config = FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[],
+        )
+        stream = StringIO()
+        serializers.serialize(
+            'json',
+            [config],
+            use_natural_primary_keys=True,
+            use_natural_foreign_keys=True,
+            stream=stream,
+        )
+        data = json_load(stream.getvalue())
+        self.assertEqual(len(data), 1)
+        self.assertListEqual(
+            data[0]['fields']['content_type'],
+            [*contact_ct.natural_key()],
+        )
+
+
+class FieldsConfigLocalCacheTestCase(CremeTestCase):
+    def test_get_for_model(self):
         model1 = FakeContact
         model2 = FakeOrganisation
 
@@ -691,7 +748,7 @@ class FieldsConfigTestCase(CremeTestCase):
 
         self.assertTrue(fc2.is_fieldname_hidden(h_field2))
 
-    def test_localcache_get_for_models(self):
+    def test_get_for_models(self):
         model1 = FakeContact
         model2 = FakeOrganisation
 
@@ -715,15 +772,13 @@ class FieldsConfigTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             lc.get_for_model(model1)
 
-    def test_localcache_is_fieldinfo_hidden01(self):
-        "No field configured."
+    def test_is_fieldinfo_hidden__no_field_configured(self):
         is_hidden = FieldsConfig.LocalCache().is_fieldinfo_hidden
         self.assertFalse(is_hidden(FieldInfo(FakeContact, 'first_name')))
         self.assertFalse(is_hidden(FieldInfo(FakeContact, 'image')))
         self.assertFalse(is_hidden(FieldInfo(FakeContact, 'image__exif_date')))
 
-    def test_localcache_is_fieldinfo_hidden02(self):
-        "Simple field hidden."
+    def test_is_fieldinfo_hidden__simple_hidden_field(self):
         hidden = 'first_name'
 
         FieldsConfig.objects.create(
@@ -738,8 +793,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertFalse(is_hidden(FieldInfo(FakeContact, 'image')))
         self.assertFalse(is_hidden(FieldInfo(FakeContact, 'image__exif_date')))
 
-    def test_localcache_is_fieldinfo_hidden03(self):
-        "FK hidden."
+    def test_is_fieldinfo_hidden__hidden_fk(self):
         hidden = 'image'
 
         FieldsConfig.objects.create(
@@ -754,8 +808,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertTrue(is_hidden(FieldInfo(FakeContact, hidden)))
         self.assertTrue(is_hidden(FieldInfo(FakeContact, f'{hidden}__exif_date')))
 
-    def test_localcache_is_fieldinfo_hidden04(self):
-        "Sub-field hidden."
+    def test_is_fieldinfo_hidden__hidden_sub_field(self):
         hidden = 'exif_date'
 
         FieldsConfig.objects.create(
@@ -770,7 +823,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertFalse(is_hidden(FieldInfo(FakeContact, 'image')))
         self.assertTrue(is_hidden(FieldInfo(FakeContact, f'image__{hidden}')))
 
-    def test_localcache_is_fieldinfo_hidden05(self):
+    def test_is_fieldinfo_hidden__base_entity_field(self):
         "Field in CremeEntity."
         hidden = 'description'
         FieldsConfig.objects.create(
@@ -783,7 +836,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertFalse(is_hidden(FieldInfo(FakeContact, 'image')))
         self.assertTrue(is_hidden(FieldInfo(FakeContact, f'image__{hidden}')))
 
-    def test_localcache_is_fieldinfo_hidden06(self):
+    def test_is_fieldinfo_hidden__more_depth(self):
         "Sub-field with depth > 1."
         hidden = 'description'
         FieldsConfig.objects.create(
@@ -798,60 +851,3 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertTrue(is_hidden(FieldInfo(FakeDocument, f'linked_folder__{hidden}')))
         self.assertFalse(is_hidden(FieldInfo(FakeDocument, 'linked_folder__parent')))
         self.assertTrue(is_hidden(FieldInfo(FakeDocument, f'linked_folder__parent__{hidden}')))
-
-    def test_crememodel_full_clean(self):
-        FieldsConfig.objects.create(
-            content_type=FakeContact,
-            descriptions=[('phone', {FieldsConfig.REQUIRED: True})],
-        )
-
-        contact = FakeContact(
-            user=self.get_root_user(),
-            last_name='Senjougahara',
-            first_name='Hitagi',
-        )
-
-        with self.assertRaises(ValidationError):
-            contact.full_clean()
-
-    def test_natural_key(self):
-        contact_ct = ContentType.objects.get_for_model(FakeContact)
-        config = FieldsConfig.objects.create(
-            content_type=FakeContact,
-            descriptions=[],
-        )
-        self.assertEqual(config.natural_key(), contact_ct.natural_key())
-
-    def test_manager_get_by_natural_key(self):
-        contact_ct = ContentType.objects.get_for_model(FakeContact)
-        FieldsConfig.objects.create(
-            content_type=FakeContact,
-            descriptions=[],
-        )
-        self.assertIs(
-            FieldsConfig.objects.get_for_model(FakeContact),
-            FieldsConfig.objects.get_by_natural_key(
-                *contact_ct.natural_key()
-            )
-        )
-
-    def test_fieldsconfig_serialization(self):
-        contact_ct = ContentType.objects.get_for_model(FakeContact)
-        config = FieldsConfig.objects.create(
-            content_type=FakeContact,
-            descriptions=[],
-        )
-        stream = StringIO()
-        serializers.serialize(
-            'json',
-            [config],
-            use_natural_primary_keys=True,
-            use_natural_foreign_keys=True,
-            stream=stream,
-        )
-        data = json_load(stream.getvalue())
-        self.assertEqual(len(data), 1)
-        self.assertListEqual(
-            data[0]['fields']['content_type'],
-            [*contact_ct.natural_key()],
-        )

@@ -89,7 +89,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render3,
         )
 
-    def test_widget_ctype_hyperlink01(self):
+    def test_widget_ctype_hyperlink(self):
         self.assertHasAttr(FakeContact, 'get_lv_absolute_url')
 
         user = self.get_root_user()
@@ -106,7 +106,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         url = reverse('creme_core__list_fake_contacts')
         self.assertEqual(f'<a href="{url}">Test Contacts</a>', render)
 
-    def test_widget_ctype_hyperlink02(self):
+    def test_widget_ctype_hyperlink__no_list_view(self):
         "Model without related list-view."
         self.assertHasNoAttr(FakeTicket, 'get_lv_absolute_url')
 
@@ -123,8 +123,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
         self.assertEqual('Test Tickets', render)
 
-    def test_widget_ctype_hyperlink03(self):
-        "No app perm."
+    def test_widget_ctype_hyperlink__no_app_perm(self):
         user = self.create_user(
             role=self.create_role(name='No core', allowed_apps=['documents']),
         )
@@ -140,8 +139,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
         self.assertEqual('Test Contacts', render)
 
-    def test_widget_entity_hyperlink(self):
-        "Escaping."
+    def test_widget_entity_hyperlink__escaping(self):
         user = self.get_root_user()
 
         name = 'NERV'
@@ -273,8 +271,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         )
 
     @override_settings(URLIZE_TARGET_BLANK=False)
-    def test_widget_urlize01(self):
-        "No target."
+    def test_widget_urlize__no_target(self):
         with self.assertNoException():
             render = Template(
                 r'{% load creme_widgets %}{{text|widget_urlize}}'
@@ -287,8 +284,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         )
 
     @override_settings(URLIZE_TARGET_BLANK=True)
-    def test_widget_urlize02(self):
-        "Target."
+    def test_widget_urlize__target(self):
         with self.assertNoException():
             render = Template(
                 r'{% load creme_widgets %}{{text|widget_urlize}}'
@@ -302,7 +298,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render,
         )
 
-    def test_widget_enumerator01(self):
+    def test_widget_enumerator__under_threshold(self):
         "Items (length < threshold)."
         items = ['Cat', 'Dog']
 
@@ -319,7 +315,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render.strip(),
         )
 
-    def test_widget_enumerator02(self):
+    def test_widget_enumerator__empty(self):
         "Empty (no message)."
         with self.assertNoException():
             render = Template(
@@ -329,7 +325,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
         self.assertHTMLEqual('<span class="enumerator-empty"></span>', render.strip())
 
-    def test_widget_enumerator03(self):
+    def test_widget_enumerator__empty__message(self):
         "Empty with message."
         msg = 'No item'
 
@@ -343,7 +339,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             f'<span class="enumerator-empty">{msg}</span>', render,
         )
 
-    def test_widget_enumerator04(self):
+    def test_widget_enumerator__threshold_exceeded(self):
         "Items with length >= threshold (no message)."
         items = ['Cat', 'Dog', 'Fish']
 
@@ -366,7 +362,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render,
         )
 
-    def test_widget_enumerator05(self):
+    def test_widget_enumerator__long_items(self):
         "Items with length >= threshold."
         items = ['Cat', 'Dog', 'Fish']
 
@@ -388,7 +384,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render,
         )
 
-    def test_widget_join01(self):
+    def test_widget_join(self):
         self.assertIs(enum_comma_and, JoinNode.behaviours.get(''))
         self.assertIs(enum_comma_and, JoinNode.behaviours.get('en'))
 
@@ -409,8 +405,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render.strip(),
         )
 
-    def test_widget_join_error01(self):
-        "Argument passed."
+    def test_widget_join__error__argument_passed(self):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template(
                 r'{% load creme_widgets %}'
@@ -424,7 +419,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_widget_join_error02(self):
+    def test_widget_join__error__no_for(self):
         "Not inside {% for %}."
         with self.assertRaises(ValueError) as cm:
             Template(
@@ -437,7 +432,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_widget_icon_named01(self):
+    def test_widget_icon__named(self):
         theme = 'icecream'
 
         with self.assertNoException():
@@ -453,7 +448,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render,
         )
 
-    def test_widget_icon_named02(self):
+    def test_widget_icon__named__label(self):
         theme = 'chantilly'
         label = "My beautiful icon"
 
@@ -471,7 +466,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render,
         )
 
-    def test_widget_icon_ctype(self):
+    def test_widget_icon__ctype(self):
         theme = 'icecream'
 
         with self.assertNoException():
@@ -491,7 +486,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render,
         )
 
-    def test_widget_icon_instance(self):
+    def test_widget_icon__instance(self):
         user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Seele')
         theme = 'icecream'
@@ -510,7 +505,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render,
         )
 
-    def test_widget_icon_data__high(self):
+    def test_widget_icon__data__high(self):
         path = Path(
             # 16 x 16 px
             settings.CREME_ROOT, 'static', 'icecream', 'images', 'remove_16.png',
@@ -543,7 +538,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             'data:image/png;base64, iVBORw0KGgoAAAANSUh',
         )
 
-    def test_widget_icon_data__large(self):
+    def test_widget_icon__data__large(self):
         path = Path(
             # 89 x 40 px
             settings.CREME_ROOT, 'static', 'common', 'images', 'creme_powered.png',
@@ -571,7 +566,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         self.assertEqual('padding-top: 8px;', get_attribute('style'))
         self.assertEqual(label, get_attribute('title'))
 
-    def test_widget_icon_named_error01(self):
+    def test_widget_icon__error__missing_argument(self):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template(
                 r'{% load creme_widgets %}'
@@ -583,7 +578,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_widget_icon_named_error02(self):
+    def test_widget_icon__error__missing_key(self):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template(
                 r'{% load creme_widgets %}'
@@ -595,7 +590,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_widget_icon_named_error03(self):
+    def test_widget_icon__error__invalid_first_arg(self):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template(
                 r'{% load creme_widgets %}'
@@ -608,7 +603,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_widget_icon_named_error04(self):
+    def test_widget_icon__error__malformed_argument(self):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template(
                 r'{% load creme_widgets %}'
@@ -620,7 +615,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_widget_icon_named_error05(self):
+    def test_widget_icon__error__invalid_argument(self):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template(
                 r'{% load creme_widgets %}'
@@ -687,7 +682,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render,
         )
 
-    def test_widget_help_sign_with_another_icon(self):
+    def test_widget_help_sign__another_icon(self):
         theme = 'icecream'
 
         with self.assertNoException():

@@ -27,7 +27,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         self.assertEqual('creme_core-regular', EF_REGULAR)
         self.assertEqual('creme_core-credentials', EF_CREDENTIALS)
 
-    def test_handlers01(self):
+    def test_handlers(self):
         name = 'Common'
         registry = EntityFilterRegistry(id='creme_core-default', verbose_name=name)
         self.assertEqual(name, registry.verbose_name)
@@ -67,8 +67,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         # assertListEqual => order must be kept
         self.assertListEqual([cls1, cls2], [*registry.handler_classes])
 
-    def test_handlers02(self):
-        "ID collision."
+    def test_handlers__id_collision(self):
         registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         cls1 = RegularFieldConditionHandler
@@ -81,8 +80,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         with self.assertRaises(EntityFilterRegistry.RegistrationError):
             registry.register_condition_handlers(TestHandler)
 
-    def test_handlers03(self):
-        "get_handler() + invalid data."
+    def test_get_handler__invalid_data(self):
         registry = EntityFilterRegistry(
             id='creme_core-default', verbose_name='Test',
         ).register_condition_handlers(RegularFieldConditionHandler)
@@ -94,7 +92,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         )
         self.assertIsNone(handler)
 
-    def test_operands01(self):
+    def test_operands(self):
         registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         cls1 = operands.CurrentUserOperand
@@ -113,8 +111,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
         self.assertSetEqual({cls1, TestOperand}, {type(op) for op in registry.operands(user=None)})
 
-    def test_operands02(self):
-        "ID collision."
+    def test_operands__id_collision(self):
         registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         cls1 = operands.CurrentUserOperand
@@ -127,7 +124,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         with self.assertRaises(EntityFilterRegistry.RegistrationError):
             registry.register_operands(TestOperand)
 
-    def test_operator01(self):
+    def test_operator(self):
         registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         cls1 = operators.EqualsOperator
@@ -143,8 +140,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
         self.assertSetEqual({cls1, cls2}, {type(op) for op in registry.operators})
 
-    def test_operators02(self):
-        "ID collision."
+    def test_operators__id_collision(self):
         registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         class TestOperator(operators.EqualsOperator):
@@ -155,7 +151,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         with self.assertRaises(EntityFilterRegistry.RegistrationError):
             registry.register_operators(TestOperator)
 
-    def test_tag01(self):
+    def test_tag__setter(self):
         registry = EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
         self.assertEqual('', registry.tag)
 
@@ -166,7 +162,7 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         self.assertEqual('', entity_filter_registries[EF_REGULAR].tag)
         self.assertEqual('', entity_filter_registries[EF_CREDENTIALS].tag)
 
-    def test_tag02(self):
+    def test_tag__init(self):
         registry = EntityFilterRegistry(
             id='creme_core-default', verbose_name='Test', tag='test',
         )

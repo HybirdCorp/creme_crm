@@ -37,13 +37,13 @@ class ListViewStateTestCase(CremeTestCase):
         self._assertLVSEmpty(lvs)
         self.assertIsNone(lvs.url)
 
-    def test_get_state01(self):
+    def test_get_state__empty(self):
         request = self._build_request()
 
         lvs = ListViewState.get_state(request)
         self.assertIsNone(lvs)
 
-    def test_get_state02(self):
+    def test_get_state(self):
         request = self._build_request()
         url = self.url
 

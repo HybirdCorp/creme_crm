@@ -22,7 +22,7 @@ class VatTestCase(CremeTestCase):
         Vat.objects.all().delete()
         Vat.objects.bulk_create(cls._vat_backup)
 
-    def test_create01(self):
+    def test_create(self):
         create_vat = Vat.objects.create
         vat1 = self.refresh(
             create_vat(value=Decimal('5.0'), is_default=True, is_custom=False)
@@ -50,11 +50,11 @@ class VatTestCase(CremeTestCase):
 
         self.assertEqual(vat1, Vat.objects.default())
 
-    def test_create02(self):
+    def test_create__alone_is_default(self):
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=False, is_custom=False)
         self.assertTrue(self.refresh(vat).is_default)
 
-    def test_create03(self):
+    def test_create__new_default(self):
         create_vat = partial(Vat.objects.create, is_default=True, is_custom=False)
         vat1 = create_vat(value=Decimal('5.0'))
         vat2 = create_vat(value=Decimal('7.0'))
@@ -62,7 +62,7 @@ class VatTestCase(CremeTestCase):
         self.assertTrue(self.refresh(vat2).is_default)
         self.assertEqual(vat2, Vat.objects.default())
 
-    def test_edit01(self):
+    def test_edit__new_default(self):
         create_vat = partial(Vat.objects.create, is_custom=False)
         vat1 = create_vat(value=Decimal('5.0'), is_default=False)
         vat2 = create_vat(value=Decimal('7.0'), is_default=True)
@@ -73,7 +73,7 @@ class VatTestCase(CremeTestCase):
         self.assertTrue(self.refresh(vat1).is_default)
         self.assertFalse(self.refresh(vat2).is_default)
 
-    def test_edit02(self):
+    def test_edit__no_default_exists(self):
         create_vat = partial(Vat.objects.create, is_custom=False)
         vat1 = create_vat(value=Decimal('5.0'), is_default=False)
         vat2 = create_vat(value=Decimal('7.0'), is_default=True)

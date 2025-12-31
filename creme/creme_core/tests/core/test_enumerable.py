@@ -463,7 +463,7 @@ class EnumerableTestCase(CremeTestCase):
                 enumerator_class=FakeContactSectorEnumerator2,
             )
 
-    def test_register_field_type01(self):
+    def test_register_field_type(self):
         class EntityCTypeForeignKeyEnumerator(Enumerator):
             pass
 
@@ -481,12 +481,11 @@ class EnumerableTestCase(CremeTestCase):
             '  * Field types:\n'
             '    - creme.creme_core.models.fields.EntityCTypeForeignKey -> '
             'creme.creme_core.tests.core.test_enumerable.EnumerableTestCase.'
-            'test_register_field_type01.<locals>.EntityCTypeForeignKeyEnumerator',
+            'test_register_field_type.<locals>.EntityCTypeForeignKeyEnumerator',
             str(registry),
         )
 
-    def test_register_field_type02(self):
-        "Inheritance."
+    def test_register_field_type__inheritance(self):
         class CTypeForeignKeyEnumerator(Enumerator):
             pass
 

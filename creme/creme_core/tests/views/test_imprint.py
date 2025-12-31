@@ -38,7 +38,7 @@ class ImprintViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(imprint.entity.get_real_entity(), orga)
         self.assertEqual(imprint.user, user)
 
-    def test_granularity01(self):
+    def test_granularity(self):
         "Delay is not passed."
         self.assertEqual(timedelta(hours=2), imprint_manager.get_granularity(FakeOrganisation))
 
@@ -58,8 +58,7 @@ class ImprintViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET200(orga.get_absolute_url())
         self.assertEqual(1, Imprint.objects.count())  # still not 2
 
-    def test_brick01(self):
-        "Detailview."
+    def test_brick__detail(self):
         user = self.login_as_root_and_get()
 
         orga = FakeOrganisation.objects.create(user=user, name='Middle Earth')
@@ -78,8 +77,7 @@ class ImprintViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNotNone(link_node)
         self.assertEqual(str(user), link_node.text)
 
-    def test_brick02(self):
-        "Home."
+    def test_brick__home(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -94,7 +92,7 @@ class ImprintViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLink(brick_node, orga1)
         self.assertInstanceLink(brick_node, orga2)
 
-    def test_brick03(self):
+    def test_brick__not_visible(self):
         "Not visible for regular users."
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*')

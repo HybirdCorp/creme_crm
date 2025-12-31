@@ -10,8 +10,7 @@ from creme.creme_core.tests.base import CremeTestCase
 
 
 class OperandTestCase(CremeTestCase):
-    def test_current_user01(self):
-        "Registered."
+    def test_current_user__registered(self):
         operand = entity_filter_registries[EF_REGULAR].get_operand(
             type_id=operands.CurrentUserOperand.type_id,
             user=None,
@@ -19,22 +18,19 @@ class OperandTestCase(CremeTestCase):
         self.assertIsInstance(operand, operands.CurrentUserOperand)
         self.assertIsNone(operand.user)
 
-    def test_current_user02(self):
-        "Resolve with None."
+    def test_current_user__resolve__none(self):
         operand = operands.CurrentUserOperand(user=None)
         self.assertIsNone(operand.user)
         self.assertIsNone(operand.resolve())
 
-    def test_current_user03(self):
-        "Resolve with no team."
+    def test_current_user__resolve__regular_user(self):
         user = self.create_user()
 
         operand = operands.CurrentUserOperand(user=user)
         self.assertEqual(user, operand.user)
         self.assertEqual(user.id, operand.resolve())
 
-    def test_current_user04(self):
-        "Resolve with team."
+    def test_current_user__resolve__team(self):
         user = self.create_user(0)
         team = self.create_team('Noir', user)
 
@@ -42,8 +38,7 @@ class OperandTestCase(CremeTestCase):
         self.assertEqual(user, operand.user)
         self.assertCountEqual([user.id, team.id], operand.resolve())
 
-    def test_current_user05(self):
-        "Validate."
+    def test_current_user__validate(self):
         operand = operands.CurrentUserOperand(user=None)
 
         get_field = FakeContact._meta.get_field

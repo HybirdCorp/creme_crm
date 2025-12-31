@@ -166,7 +166,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertNotContains(response, self.linus.get_absolute_url())
 
-    def test_search_regular_fields01(self):
+    def test_search__regular_fields__1_ctype(self):
         "Find result in field & sub-field; deleted entities are found too."
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
@@ -184,7 +184,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLinkNoLabel(brick_node, entity=self.andrew)  # In sector__title
         self.assertNoInstanceLink(brick_node, entity=self.alan)
 
-    def test_search_regular_fields02(self):
+    def test_search__regular_fields__2_ctypes(self):
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
         self._setup_orgas(user=user)
@@ -211,8 +211,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             context['verbose_names'],
         )
 
-    def test_search_regular_fields03(self):
-        "Error."
+    def test_search__regular_fields__error(self):
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
         self._setup_orgas(user=user)
@@ -223,7 +222,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertEqual(404, self._search('linus', self.UNUSED_PK).status_code)
 
-    def test_search_regular_fields04(self):
+    def test_search__regular_fields__no_config(self):
         "No config for FakeContact."
         user = self.login_as_root_and_get()
         self._build_contacts(user=user)
@@ -235,7 +234,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             brick_id_prefix=self.CONTACT_BRICKID,
         )
 
-    def test_search_regular_fields05(self):
+    def test_search__regular_fields__only_configured_fields(self):
         "Search only in configured fields if the config exists."
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
@@ -252,7 +251,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoInstanceLink(brick_node, entity=linus)
 
-    def test_search_disabled(self):
+    def test_search__disabled(self):
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user, disabled=True)
         self._setup_orgas(user=user)
@@ -271,7 +270,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             context['verbose_names'],
         )
 
-    def test_search_for_role(self):
+    def test_search__for_role(self):
         "Use Role's config if it exists."
         user = self.login_as_standard(allowed_apps=['creme_core'])
         self.add_credentials(user.role, own='*')
@@ -289,7 +288,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(tree, entity=self.linus2)
         self.assertInstanceLinkNoLabel(tree, entity=self.alan)
 
-    def test_search_super_user(self):
+    def test_search__super_user(self):
         "Use Role's config if it exists (super-user)."
         user = self.login_as_root_and_get()
 
@@ -309,7 +308,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(brick_node, entity=self.linus2)
         self.assertInstanceLinkNoLabel(brick_node, entity=self.alan)
 
-    def test_search_fields_config01(self):
+    def test_search__fields_config(self):
         user = self.login_as_root_and_get()
 
         hidden_fname1 = 'description'
@@ -361,7 +360,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotContains(response, _('Description'))
         self.assertNotContains(response, _('Sector'))
 
-    def test_search_fields_config02(self):
+    def test_search__fields_config__all_hidden(self):
         "With FieldsConfig: all fields are hidden."
         user = self.login_as_root_and_get()
 
@@ -395,22 +394,21 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             ),
         )
 
-    def test_search_error01(self):
+    def test_search__not_entity(self):
         "Model is not a CremeEntity."
         self.login_as_root()
 
         response = self._search('john', ContentType.objects.get_for_model(ContentType).id)
         self.assertEqual(409, response.status_code)
 
-    def test_search_empty(self):
-        "Empty page"
+    def test_search__empty_page(self):
         self.login_as_root()
 
         response = self._search(searched='', ct_id='')
         self.assertEqual(200, response.status_code)
         self.assertTemplateUsed(response, 'creme_core/search_results.html')
 
-    def test_search_words01(self):
+    def test_search__words__split(self):
         "String is split."
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
@@ -427,7 +425,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(brick_node, entity=self.alan)
         self.assertNoInstanceLink(brick_node, entity=self.andrew)
 
-    def test_search_words02(self):
+    def test_search__words__groups(self):
         "Grouped words."
         user = self.login_as_root_and_get()
 
@@ -454,7 +452,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLinkNoLabel(brick_node, entity=orga3)
         self.assertNoInstanceLink(brick_node, entity=orga2)
 
-    def test_search_custom_field01(self):
+    def test_search__custom_field__str(self):
         "Type <CustomField.STR>."
         user = self.login_as_root_and_get()
 
@@ -486,7 +484,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(brick_node, entity=orga2)
         self.assertNoInstanceLink(brick_node, entity=orga3)
 
-    def test_search_custom_field02(self):
+    def test_search__custom_field__enum(self):
         "Type <CustomField.ENUM>."
         user = self.login_as_root_and_get()
 
@@ -524,7 +522,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(brick_node, entity=orga2)
         self.assertNoInstanceLink(brick_node, entity=orga3)
 
-    def test_search_custom_field03(self):
+    def test_search__custom_field__multi_enum(self):
         "Type <CustomField.MULTI_ENUM>."
         user = self.login_as_root_and_get()
 
@@ -562,7 +560,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLinkNoLabel(brick_node, entity=orga2)
         self.assertNoInstanceLink(brick_node, entity=orga3)
 
-    def test_search_invalid_cell_type(self):
+    def test_search__invalid_cell_type(self):
         "No error."
         self.login_as_root()
 
@@ -664,8 +662,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             results,
         )
 
-    def test_light_search02(self):
-        "Credentials."
+    def test_light_search__credentials(self):
         user = self.login_as_standard(allowed_apps=['creme_core'])
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -704,8 +701,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             response.json(),
         )
 
-    def test_light_search03(self):
-        "Errors."
+    def test_light_search__errors(self):
         self.login_as_root()
 
         url = self.LIGHT_URL
@@ -733,7 +729,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             response.json(),
         )
 
-    def test_light_search04(self):
+    def test_light_search__deleted_entities(self):
         "Deleted entities are ignored."
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)

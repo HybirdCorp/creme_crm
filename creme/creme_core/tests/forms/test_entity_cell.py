@@ -73,7 +73,7 @@ class EntityCellsFieldTestCaseMixin:
 
 
 class EntityCellRegularFieldsWidgetTestCase(CremeTestCase):
-    def test_get_context1(self):
+    def test_get_context__no_choice(self):
         widget = EntityCellRegularFieldsWidget()
         self.assertTupleEqual((), widget.choices)
 
@@ -95,7 +95,7 @@ class EntityCellRegularFieldsWidgetTestCase(CremeTestCase):
             widget.get_context(name=name, value=None, attrs=None),
         )
 
-    def test_get_context2(self):
+    def test_get_context__choices(self):
         choices = [
             (cell.key, cell) for cell in [
                 EntityCellRegularField.build(FakeContact, 'first_name'),
@@ -154,7 +154,7 @@ class EntityCellRegularFieldsWidgetTestCase(CremeTestCase):
 
 
 class EntityCellCustomFieldsWidgetTestCase(CremeTestCase):
-    def test_get_context1(self):
+    def test_get_context__no_choice(self):
         widget = EntityCellCustomFieldsWidget()
         self.assertTupleEqual((), widget.choices)
 
@@ -174,7 +174,7 @@ class EntityCellCustomFieldsWidgetTestCase(CremeTestCase):
             widget.get_context(name=name, value=None, attrs=None),
         )
 
-    def test_get_context2(self):
+    def test_get_context__choices(self):
         model = FakeContact
         create_cfield = partial(CustomField.objects.create, content_type=model)
         cfield1 = create_cfield(name='Size (cm)',   field_type=CustomField.INT)
@@ -206,7 +206,7 @@ class EntityCellCustomFieldsWidgetTestCase(CremeTestCase):
 
 
 class EntityCellFunctionFieldsWidgetTestCase(CremeTestCase):
-    def test_get_context1(self):
+    def test_get_context__no_choice(self):
         widget = EntityCellFunctionFieldsWidget()
         self.assertTupleEqual((), widget.choices)
 
@@ -226,7 +226,7 @@ class EntityCellFunctionFieldsWidgetTestCase(CremeTestCase):
             widget.get_context(name=name, value=None, attrs=None),
         )
 
-    def test_get_context2(self):
+    def test_get_context__choices(self):
         model = FakeContact
         func_field = function_field_registry.get(model, 'get_pretty_properties')
 
@@ -249,7 +249,7 @@ class EntityCellFunctionFieldsWidgetTestCase(CremeTestCase):
 
 
 class EntityCellRelationsWidgetTestCase(CremeTestCase):
-    def test_get_context1(self):
+    def test_get_context__no_choice(self):
         widget = EntityCellRelationsWidget()
         self.assertTupleEqual((), widget.choices)
 
@@ -269,7 +269,7 @@ class EntityCellRelationsWidgetTestCase(CremeTestCase):
             widget.get_context(name=name, value=None, attrs=None),
         )
 
-    def test_get_context2(self):
+    def test_get_context__no_choices(self):
         model = FakeContact
 
         loves = RelationType.objects.builder(
@@ -318,7 +318,7 @@ class EntityCellsWidgetTestCase(CremeTestCase):
         self.assertIsInstance(sub_widgets[0], EntityCellRegularFieldsWidget)
         self.assertIsInstance(sub_widgets[1], EntityCellRelationsWidget)
 
-    def test_context01(self):
+    def test_context__empty(self):
         widget = EntityCellsWidget(model=FakeContact)
         widget.user = self.get_root_user()
 
@@ -337,7 +337,7 @@ class EntityCellsWidgetTestCase(CremeTestCase):
         )
         self.assertListEqual([], context.get('samples'))
 
-    def test_context02(self):
+    def test_context(self):
         model = FakeContact
         loves = RelationType.objects.builder(
             id='test-subject_love', predicate='Is loving',
@@ -473,13 +473,13 @@ class EntityCellsWidgetTestCase(CremeTestCase):
 
 
 class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
-    def test_clean_empty_required(self):
+    def test_clean__empty__required(self):
         field = EntityCellsField(required=True, model=FakeContact)
         msg = _('This field is required.')
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
         self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
 
-    def test_clean_empty_not_required(self):
+    def test_clean__empty__not_required(self):
         field = EntityCellsField(required=False, model=FakeContact)
 
         with self.assertNoException():
@@ -487,7 +487,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
 
         self.assertListEqual([], value)
 
-    def test_regularfields01(self):
+    def test_regular_fields__01(self):
         field = EntityCellsField()
         self.assertListEqual([], field.non_hiddable_cells)
 
@@ -520,7 +520,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             codes='invalid_value',
         )
 
-    def test_regularfields02(self):
+    def test_regular_fields__02(self):
         field = EntityCellsField(model=FakeContact)
         self.assertListEqual([], field.non_hiddable_cells)
 
@@ -584,7 +584,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             codes='invalid_value',
         )
 
-    def test_regularfields03(self):
+    def test_regular_fields__property_model(self):
         "Property <model>."
         field = EntityCellsField()
         self.assertIs(field.model,        CremeEntity)
@@ -607,8 +607,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             field.clean(value)
         )
 
-    def test_regularfields04(self):
-        "Hidden fields."
+    def test_regular_fields__hidden_fields(self):
         hidden_fname1 = 'first_name'
         hidden_fname2 = 'description'  # NB: in CremeEntity
         hidden_addr_fname = 'city'
@@ -676,7 +675,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             codes='invalid_value',
         )
 
-    def test_regularfields05(self):
+    def test_regular_fields__hidden_fields__selected(self):
         "Hidden fields + selected cells."
         hidden_fname1 = 'first_name'
         hidden_fname2 = 'description'  # Nb: in CremeEntity
@@ -749,7 +748,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             )
         )
 
-    def test_regularfields06(self):
+    def test_regular_fields__hidden_fields__selected__call_order(self):
         """Hidden fields + selected cells.
         (<non_hiddable_cells> called after setting content type).
         """
@@ -779,7 +778,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
         self.assertCellInChoices('regular_field-address__country', choices=choices)
         self.assertCellInChoices(f'regular_field-address__{hidden_fname2}', choices=choices)
 
-    def test_regularfields_only_leaves(self):
+    def test_regular_fields__only_leaves(self):
         class OnlyLeavesRegularFields(EntityCellRegularFieldsField):
             only_leaves = True
 
@@ -810,7 +809,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             codes='not_leaf',
         )
 
-    def test_customfields01(self):
+    def test_custom_fields(self):
         create_cf = partial(
             CustomField.objects.create, content_type=FakeContact,
         )
@@ -849,7 +848,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             codes='invalid_value',
         )
 
-    def test_customfields02(self):
+    def test_custom_fields__deleted_fields(self):
         "Deleted fields."
         create_cf = partial(
             CustomField.objects.create,
@@ -876,8 +875,8 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             codes='invalid_value',
         )
 
-    def test_customfields03(self):
-        "Deleted fields  + selected cells."
+    def test_custom_fields__deleted_fields__selected(self):
+        "Deleted fields + selected cells."
         create_cf = partial(
             CustomField.objects.create,
             content_type=FakeContact,
@@ -899,7 +898,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             field.clean(f'custom_field-{cf1.id},custom_field-{cf2.id}')
         )
 
-    def test_functionfields(self):
+    def test_function_fields(self):
         field = EntityCellsField(model=FakeContact)
         name1 = 'get_pretty_properties'
         value = f'function_field-{name1}'
@@ -995,7 +994,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             cleaned_cells,
         )
 
-    def test_ok01(self):
+    def test_ok__one_regular_field(self):
         "One regular field."
         field = EntityCellsField(model=FakeContact)
         fname = 'first_name'
@@ -1007,7 +1006,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
         self.assertIsInstance(cell, expected_cls)
         self.assertEqual(expected_value, cell.value)
 
-    def test_ok02(self):
+    def test_ok__all_columns_types(self):
         "All types of columns."
         loves = RelationType.objects.builder(
             id='test-subject_love', predicate='Is loving',
@@ -1042,7 +1041,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             codes='invalid_type',
         )
 
-    def test_cell_registry01(self):
+    def test_cell_registry(self):
         field = EntityCellsField()
 
         registry1 = field.cell_registry
@@ -1079,7 +1078,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             codes='invalid_type',
         )
 
-    def test_cell_registry02(self):
+    def test_cell_registry__call_order(self):
         "Set non_hiddable cells BEFORE."
         fname = 'first_name'
         FieldsConfig.objects.create(
@@ -1101,7 +1100,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
         choices = self._find_sub_widget(field, 'regular_field').choices
         self.assertCellInChoices(f'regular_field-{fname}', choices=choices)
 
-    def test_copy01(self):
+    def test_copy__on_hiddable_cells(self):
         "Attribute <non_hiddable_cells>."
         field1 = EntityCellsField(model=FakeContact)
         field2 = deepcopy(field1)
@@ -1111,7 +1110,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
         ]
         self.assertListEqual([], field2.non_hiddable_cells)
 
-    def test_copy02(self):
+    def test_copy__sub_fields(self):
         "Attribute <_sub_fields> (container)."
         field1 = EntityCellsField(model=FakeContact)
         field2 = deepcopy(field1)
@@ -1134,7 +1133,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
             field2.clean(value),
         )
 
-    def test_copy03(self):
+    def test_copy__sub_fields__choices(self):
         "Attribute <_sub_fields> (content) & sub-widgets' choices."
         field1 = EntityCellsField(model=FakeContact)
         field2 = deepcopy(field1)

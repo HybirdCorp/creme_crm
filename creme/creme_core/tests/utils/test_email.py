@@ -185,7 +185,7 @@ class MailBoxTestCase(CremeTestCase):
         self.assertIsNone(retr_msg2.get_body(('plain',)))
         self.assertHTMLEqual(body_html2, retr_msg2.get_body(('html',)).get_content())
 
-    def test_POP_error01(self):
+    def test_POP_error__in_init(self):
         "Error when instancing the POP class."
         host = 'pop3.mydomain.org'
         username = 'spiegel'
@@ -215,7 +215,7 @@ class MailBoxTestCase(CremeTestCase):
 
         self.assertEqual(0, pop_mock.quit.call_count)
 
-    def test_POP_error02(self):
+    def test_POP_error__messages(self):
         "Error with some messages."
         msg_id1 = 12
         msg_id2 = 25
@@ -458,7 +458,7 @@ class MailBoxTestCase(CremeTestCase):
         self.assertIsNone(retr_msg2.get_body(('plain',)))
         self.assertHTMLEqual(body_html2, retr_msg2.get_body(('html',)).get_content())
 
-    def test_IMAP_error01(self):
+    def test_IMAP_error__in_init(self):
         "Error when instancing the IMAP4 class."
         host = 'impa4.mydomain.org'
         username = 'spiegel'
@@ -482,7 +482,7 @@ class MailBoxTestCase(CremeTestCase):
             str(exc_mngr.exception),
         )
 
-    def test_IMAP_error02(self):
+    def test_IMAP_error__messages(self):
         "Error with some messages."
         msg_id1 = b'12'
         msg_id2 = b'25'

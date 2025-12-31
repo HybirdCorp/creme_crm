@@ -67,8 +67,7 @@ from ..base import CremeTestCase
 
 
 class DatePeriodFieldTestCase(CremeTestCase):
-    def test_ok01(self):
-        "Days."
+    def test_ok__days(self):
         period = DatePeriodField().clean(['days', '3'])
         self.assertIsInstance(period, DatePeriod)
 
@@ -79,8 +78,7 @@ class DatePeriodFieldTestCase(CremeTestCase):
             + period.as_timedelta()
         )
 
-    def test_ok02(self):
-        "Minutes."
+    def test_ok__minutes(self):
         period = DatePeriodField().clean(['minutes', '5'])
         self.assertIsInstance(period, DatePeriod)
 
@@ -149,40 +147,40 @@ class DatePeriodFieldTestCase(CremeTestCase):
             codes='invalid_choice',
         )
 
-    def test_notnull(self):
+    def test_not_null(self):
         self.assertFormfieldError(
             field=DatePeriodField(),
             value=['days', '0'],
             messages=MinValueValidator.message % {'limit_value': 1},
         )
 
-    def test_registry_1(self):
+    def test_registry(self):
         self.assertListEqual(
             [*date_period_registry.choices()],
             [*DatePeriodField().choices],
         )
 
-    def test_registry_2(self):
+    def test_registry__specific__init(self):
         registry = DatePeriodRegistry(MinutesPeriod, HoursPeriod)
         self.assertListEqual(
             [*registry.choices()],
             [*DatePeriodField(period_registry=registry).choices]
         )
 
-    def test_registry_3(self):
+    def test_registry__specific__setter(self):
         registry = DatePeriodRegistry(MinutesPeriod, HoursPeriod)
         field = DatePeriodField()
         field.period_registry = registry
         self.assertListEqual([*registry.choices()], [*field.choices])
 
-    def test_period_names_1(self):
+    def test_period_names__init(self):
         names = (MinutesPeriod.name, HoursPeriod.name)
         self.assertListEqual(
             [*date_period_registry.choices(choices=names)],
             [*DatePeriodField(period_names=names).choices],
         )
 
-    def test_period_names_2(self):
+    def test_period_names__setter(self):
         field = DatePeriodField()
         field.period_names = names = (MinutesPeriod.name, HoursPeriod.name)
         self.assertListEqual(
@@ -211,7 +209,7 @@ class RelativeDatePeriodFieldTestCase(CremeTestCase):
 
         self.assertRaises(ValueError, RPeriod, sign=2, period=DaysPeriod(1))
 
-    def test_ok01(self):
+    def test_ok__day__after(self):
         "Days + after."
         signed_period = RelativeDatePeriodField().clean(['1', [DaysPeriod.name, '3']])
         self.assertEqual(
@@ -219,7 +217,7 @@ class RelativeDatePeriodFieldTestCase(CremeTestCase):
             signed_period,
         )
 
-    def test_ok02(self):
+    def test_ok__minutes__before(self):
         "Minutes + before."
         signed_period = RelativeDatePeriodField().clean(['-1', [MinutesPeriod.name, '5']])
         self.assertEqual(
@@ -280,7 +278,7 @@ class RelativeDatePeriodFieldTestCase(CremeTestCase):
             messages=MinValueValidator.message % {'limit_value': 1},
         )
 
-    def test_period_names_1(self):
+    def test_period_names__init(self):
         names = (MinutesPeriod.name, HoursPeriod.name)
         field = RelativeDatePeriodField(period_names=names)
         self.assertListEqual([*names], [*field.period_names])
@@ -290,7 +288,7 @@ class RelativeDatePeriodFieldTestCase(CremeTestCase):
         self.assertListEqual(expected_choices, [*field.widget.period_choices])
         self.assertListEqual(expected_choices, [*field.period_choices])
 
-    def test_period_names_2(self):
+    def test_period_names__setter(self):
         field = RelativeDatePeriodField()
         field.period_names = names = (MinutesPeriod.name, HoursPeriod.name)
         self.assertListEqual(
@@ -298,7 +296,7 @@ class RelativeDatePeriodFieldTestCase(CremeTestCase):
             [*field.fields[1].choices],
         )
 
-    def test_registry_1(self):
+    def test_registry(self):
         field = RelativeDatePeriodField()
         self.assertListEqual(
             [*date_period_registry.choices()],
@@ -306,21 +304,20 @@ class RelativeDatePeriodFieldTestCase(CremeTestCase):
         )
         self.assertEqual(date_period_registry, field.period_registry)
 
-    def test_registry_2(self):
+    def test_registry__specific(self):
         registry = DatePeriodRegistry(MinutesPeriod, HoursPeriod)
         self.assertListEqual(
             [*registry.choices()],
             [*RelativeDatePeriodField(period_registry=registry).fields[1].choices],
         )
 
-    def test_registry_3(self):
-        "Property."
+    def test_registry__specific__setter(self):
         registry = DatePeriodRegistry(MinutesPeriod, HoursPeriod)
         field = RelativeDatePeriodField()
         field.period_registry = registry
         self.assertListEqual([*registry.choices()], [*field.fields[1].choices])
 
-    def test_relative_choices_1(self):
+    def test_relative_choices__default(self):
         "Default choices."
         field = RelativeDatePeriodField(period_names=(MinutesPeriod.name,))
         expected_choices = [
@@ -331,8 +328,7 @@ class RelativeDatePeriodFieldTestCase(CremeTestCase):
         self.assertListEqual(expected_choices, [*field.relative_choices])
         self.assertListEqual(expected_choices, [*field.widget.relative_choices])
 
-    def test_relative_choices_2(self):
-        "Property."
+    def test_relative_choices__setter(self):
         field = RelativeDatePeriodField(period_names=(MinutesPeriod.name,))
         choices = [(-1, 'In the past'), (1, 'In the future')]
         field.relative_choices = choices
@@ -370,7 +366,7 @@ class DateRangeFieldTestCase(CremeTestCase):
             drange.get_dates(now()),
         )
 
-    def test_ok_special_range(self):
+    def test_ok__special_range(self):
         drange = DateRangeField().clean([CurrentYearRange.name, '', ''])
         dt = self.create_datetime
         self.assertIsInstance(drange, CurrentYearRange)
@@ -382,20 +378,20 @@ class DateRangeFieldTestCase(CremeTestCase):
             drange.get_dates(dt(year=2013, month=5, day=29, hour=11)),
         )
 
-    def test_ok_empty(self):
+    def test_ok__empty(self):
         drange = DateRangeField(required=False).clean(['', '', ''])
         self.assertIsNone(drange)
 
 
 class ColorFieldTestCase(CremeTestCase):
-    def test_empty01(self):
+    def test_empty(self):
         field = ColorField()
         msg = _('This field is required.')
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
         self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
 
-    def test_length01(self):
+    def test_length(self):
         field = ColorField()
         msg = _('Enter a valid value (e.g. DF8177).')
         self.assertFormfieldError(field=field, value='1',     messages=msg, codes='invalid')
@@ -404,13 +400,13 @@ class ColorFieldTestCase(CremeTestCase):
         self.assertFormfieldError(field=field, value='1234',  messages=msg, codes='invalid')
         self.assertFormfieldError(field=field, value='12345', messages=msg, codes='invalid')
 
-    def test_invalid_value01(self):
+    def test_invalid_value(self):
         field = ColorField()
         msg = _('Enter a valid value (e.g. DF8177).')
         self.assertFormfieldError(field=field, messages=msg, codes='invalid', value='GGGGGG')
         self.assertFormfieldError(field=field, messages=msg, codes='invalid', value='------')
 
-    def test_ok01(self):
+    def test_ok(self):
         clean = ColorField().clean
         self.assertEqual('AAAAAA', clean('AAAAAA'))
         self.assertEqual('AAAAAA', clean('#AAAAAA'))
@@ -460,7 +456,7 @@ class DurationFieldTestCase(CremeTestCase):
         self.assertEqual(timedelta(hours=10, minutes=2, seconds=0),  clean(['10', '2', '0']))
         self.assertEqual(timedelta(hours=8, minutes=12, seconds=25), clean([8, 12, 25]))
 
-    def test_empty_required(self):
+    def test_empty__required(self):
         field = DurationField()
         msg = _('This field is required.')
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
@@ -468,7 +464,7 @@ class DurationFieldTestCase(CremeTestCase):
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=['', '', ''])
 
-    def test_empty_not_required(self):
+    def test_empty__not_required(self):
         clean = DurationField(required=False).clean
         empty = timedelta()
         self.assertEqual(empty, clean(None))
@@ -496,7 +492,7 @@ class DurationFieldTestCase(CremeTestCase):
 
 
 class OptionalFieldTestCase(CremeTestCase):
-    def test_option01(self):
+    def test_is_set__true(self):
         opt1 = OptionalField.Option(is_set=True, data=1)
         self.assertIs(opt1.is_set, True)
         self.assertEqual(1, opt1.data)
@@ -511,7 +507,7 @@ class OptionalFieldTestCase(CremeTestCase):
         self.assertNotEqual(opt1, OptionalField.Option(is_set=False, data=None))
         self.assertNotEqual(opt1, OptionalField.Option(is_set=True,  data=2))
 
-    def test_option02(self):
+    def test_is_set__false(self):
         opt1 = OptionalField.Option(is_set=False)
         self.assertFalse(opt1.is_set)
         self.assertIsNone(opt1.data)
@@ -651,7 +647,7 @@ class UnionFieldTestCase(CremeTestCase):
         self.assertEqual('Free size', sub_field2.label)
         self.assertFalse(sub_field2.disabled)
 
-    def test_ok01(self):
+    def test_ok__totally_filled(self):
         "All filled => keep only selected alternative."
         sub_values = {
             TestUnionField.CHOICE: 'm',
@@ -667,8 +663,7 @@ class UnionFieldTestCase(CremeTestCase):
             clean((TestUnionField.INT, sub_values)),
         )
 
-    def test_ok02(self):
-        "Partially filled."
+    def test_ok__partially_filled(self):
         self.assertTupleEqual(
             (TestUnionField.CHOICE, 'b'),
             TestUnionField().clean(
@@ -743,8 +738,7 @@ class UnionFieldTestCase(CremeTestCase):
             codes='invalid',
         )
 
-    def test_widget1(self):
-        "Required."
+    def test_widget__required(self):
         field = TestUnionField()
         self.assertEqual(_('Empty'), field.empty_label)
 
@@ -761,8 +755,7 @@ class UnionFieldTestCase(CremeTestCase):
         self.assertEqual(TestUnionField.INT, choice2[0])
         self.assertIsInstance(choice2[2], IntegerField.widget)
 
-    def test_widget2(self):
-        "Not required."
+    def test_widget__not_required(self):
         empty_label = 'No size'
         field = TestUnionField(required=False, empty_label=empty_label)
         self.assertEqual(empty_label, field.empty_label)
@@ -812,14 +805,14 @@ class UnionFieldTestCase(CremeTestCase):
 class ChoiceOrCharFieldTestCase(CremeTestCase):
     _team = ['Naruto', 'Sakura', 'Sasuke', 'Kakashi']
 
-    def test_empty_required(self):
+    def test_empty__required(self):
         field = ChoiceOrCharField(choices=enumerate(self._team, start=1))
         msg = _('This field is required.')
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
         self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
         self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
 
-    def test_empty_other(self):
+    def test_empty__other(self):
         field = ChoiceOrCharField(choices=enumerate(self._team, start=1))
         self.assertFormfieldError(
             field=field, value=[0, ''],
@@ -827,11 +820,11 @@ class ChoiceOrCharFieldTestCase(CremeTestCase):
             codes='invalid_other',
         )
 
-    def test_ok_choice(self):
+    def test_ok__choice(self):
         field = ChoiceOrCharField(choices=enumerate(self._team, start=1))
         self.assertTupleEqual((1, 'Naruto'), field.clean([1, '']))
 
-    def test_ok_other(self):
+    def test_ok__other(self):
         field = ChoiceOrCharField(choices=enumerate(self._team, start=1))
 
         with self.assertNoException():
@@ -976,7 +969,7 @@ class EntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
             codes='invalid_choice',
         )
 
-    def test_ctypes01(self):
+    def test_ctypes__init(self):
         "Constructor."
         ct1 = self.ct1
 
@@ -993,8 +986,7 @@ class EntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
             codes='invalid_choice',
         )
 
-    def test_ctypes02(self):
-        "Setter."
+    def test_ctypes__setter(self):
         ct1 = self.ct1
         field = EntityCTypeChoiceField()
         field.ctypes = [ct1]
@@ -1009,8 +1001,7 @@ class EntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
             codes='invalid_choice',
         )
 
-    def test_ctypes03(self):
-        "All accepted."
+    def test_ctypes__all_accepted(self):
         ContentType.objects.clear_cache()
 
         with self.assertNumQueries(0):
@@ -1751,8 +1742,7 @@ class OrderedMultipleChoiceFieldTestCase(CremeTestCase):
             ) % {'value': 4},
         )
 
-    def test_choices01(self):
-        "From tuples."
+    def test_choices__from_tuples(self):
         field = OrderedMultipleChoiceField(
             choices=[(1, 'Sword'), (2, 'Axes'), (3, 'Spear')],
         )
@@ -1774,8 +1764,7 @@ class OrderedMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertEqual('Sword', wchoice[1])
         self.assertEqual(1,       wchoice[0].value)
 
-    def test_choices02(self):
-        """From dict."""
+    def test_choices__from_dicts(self):
         help_text = 'Stronger than word'
         field = OrderedMultipleChoiceField(
             choices=[
