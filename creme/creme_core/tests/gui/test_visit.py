@@ -13,7 +13,7 @@ from .. import fake_constants
 from ..base import CremeTestCase
 
 
-class VisitTestCase(CremeTestCase):
+class EntityVisitorTestCase(CremeTestCase):
     @staticmethod
     def _build_visit_uri(model, page=None, lv_url='', **kwargs):
         kwargs['callback'] = lv_url or model.get_lv_absolute_url()
@@ -28,7 +28,7 @@ class VisitTestCase(CremeTestCase):
 
         return f'{url}?{urlencode(kwargs)}'
 
-    def test_visitor_init01(self):
+    def test_init(self):
         sort = 'regular_field-last_name'
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_CONTACT
         visitor = EntityVisitor(
@@ -50,7 +50,7 @@ class VisitTestCase(CremeTestCase):
             visitor.uri,
         )
 
-    def test_visitor_init02(self):
+    def test_init__complex(self):
         sort = '-regular_field-name'
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_ORGA
         efilter_id = 'creme_core-whatever'
@@ -99,7 +99,7 @@ class VisitTestCase(CremeTestCase):
             visitor.uri,
         )
 
-    def test_visitor_init03(self):
+    def test_init__q(self):
         "Q instance."
         internal_q = Q(name__startswith='Acme')
         requested_q = Q(phone__startswith='08')
@@ -114,7 +114,7 @@ class VisitTestCase(CremeTestCase):
         self.assertEqual(dump_q(internal_q),  visitor.serialized_internal_q)
         self.assertEqual(dump_q(requested_q), visitor.serialized_requested_q)
 
-    def test_visitor_init_errors(self):
+    def test_init__errors(self):
         "Page-info & index must be both given or both ignored."
         sort = 'regular_field-last_name'
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_CONTACT
@@ -135,7 +135,7 @@ class VisitTestCase(CremeTestCase):
                 page_info={'type': 'last'},   # Not index
             )
 
-    def test_visitor_from_json01(self):
+    def test_from_json(self):
         lv_url = reverse('creme_core__list_fake_organisations_with_email')
         sort = '-regular_field-name'
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_ORGA
@@ -173,7 +173,7 @@ class VisitTestCase(CremeTestCase):
         self.assertEqual(page_info,        visitor.page_info)
         self.assertEqual(1,                visitor.index)
 
-    def test_visitor_from_json02(self):
+    def test_from_json__default(self):
         lv_url = FakeOrganisation.get_lv_absolute_url()
         sort = '-regular_field-name'
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_ORGA
@@ -198,7 +198,7 @@ class VisitTestCase(CremeTestCase):
         self.assertIsNone(visitor.page_info)
         self.assertIsNone(visitor.index)
 
-    def test_visitor_from_json_errors01(self):
+    def test_from_json__error__bad_type(self):
         with self.assertRaises(EntityVisitor.Error):
             EntityVisitor.from_json(FakeOrganisation, '{')
 
@@ -211,7 +211,7 @@ class VisitTestCase(CremeTestCase):
             str(cm2.exception),
         )
 
-    def test_visitor_from_json_errors02(self):
+    def test_from_json__errors(self):
         sort = '-regular_field-name'
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_ORGA
         efilter_id = 'creme_core-whatever'
@@ -296,7 +296,7 @@ class VisitTestCase(CremeTestCase):
             )
         self.assertIn('"callback"', str(cm6.exception))
 
-    def test_visitor_to_json01(self):
+    def test_to_json(self):
         sort = 'regular_field-name'
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_ORGA
         page_info = {'type': 'last'}
@@ -316,7 +316,7 @@ class VisitTestCase(CremeTestCase):
             visitor.to_json(),
         )
 
-    def test_visitor_to_json02(self):
+    def test_to_json__complex(self):
         lv_url = reverse('creme_core__list_fake_organisations_with_email')
         sort = '-regular_field-email'
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_CONTACT

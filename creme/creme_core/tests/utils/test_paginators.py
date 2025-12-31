@@ -15,7 +15,7 @@ class OnePagePaginatorTestCase(CremeTestCase):
         create_sector(title='Comics')
         create_sector(title='Toys')
 
-    def test_django_paginator_big_content1(self):
+    def test_django_paginator__big_content(self):
         "More items than the first page can contain."
         qs = FakeSector.objects.order_by('id')
         sectors = [*qs]
@@ -41,7 +41,7 @@ class OnePagePaginatorTestCase(CremeTestCase):
         self.assertEqual(len(sectors), count)
         self.assertEqual(2, paginator.num_pages)
 
-    def test_django_paginator_big_content2(self):
+    def test_django_paginator__big_content__count_before(self):
         "More items than the first page can contain (count() called before)."
         qs = FakeSector.objects.order_by('id')
         sectors = [*qs]
@@ -67,7 +67,7 @@ class OnePagePaginatorTestCase(CremeTestCase):
 
         self.assertEqual(2, paginator.num_pages)
 
-    def test_django_paginator_small_content(self):
+    def test_django_paginator__small_content(self):
         """The first page can contain all items => COUNT query is done anyway.
         Our class becomes useless if this test fails.
         """

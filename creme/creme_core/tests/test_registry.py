@@ -39,7 +39,7 @@ class CremeRegistryTestCase(CremeTestCase):
         self.assertTrue(is_registered(FakeOrganisation))
         self.assertFalse(is_registered(FakeDocument))
 
-    def test_register_error(self):
+    def test_register__error(self):
         with self.assertLogs(level='CRITICAL') as logs_manager:
             registry = CremeRegistry().register_entity_models(
                 FakeSector, FakeOrganisation,

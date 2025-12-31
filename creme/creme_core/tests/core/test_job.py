@@ -46,13 +46,12 @@ class UnixSocketQueueTestCase(CremeTestCase):
         self.assertEqual(f'{priv_path}/socket', queue._socket_path)
 
     @skipIf(os.name != 'nt', 'Your OS is not Windows, so you may have unix socket.')
-    def test_init_error01(self):
+    def test_init_error__not_available(self):
         with self.assertRaises(ImproperlyConfigured):
             UnixSocketQueue(setting='unix_socket:///tmp/creme/creme_socket')
 
     @skipIf(os.name != 'posix', 'Your OS is not POSIX, so there is no unix socket.')
-    def test_init_error02(self):
-        "Empty path."
+    def test_init_error__empty_path(self):
         with self.assertRaises(ImproperlyConfigured):
             UnixSocketQueue(setting='unix_socket://')
 
@@ -113,7 +112,7 @@ class JobTypeRegistryTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_register_empty_id(self):
+    def test_register__empty_id(self):
         class TestJobType(JobType):
             # id = JobType.generate_id('creme_core', 'test')  NOPE
             pass
@@ -129,7 +128,7 @@ class JobTypeRegistryTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_register_long_id(self):
+    def test_register__long_id(self):
         self.assertEqual(48, Job._meta.get_field('type_id').max_length)
 
         class TestJobType(JobType):
@@ -167,7 +166,7 @@ class JobSchedulerTestCase(CremeTestCase):
         self.reminders.append(reminder)
 
     @override_settings(PSEUDO_PERIOD=1)
-    def test_next_wake_up01(self):
+    def test_next_wake_up__pseudo_periodic(self):
         "PSEUDO_PERIODIC job."
         rounded_hour = round_hour(now())
         job = Job.objects.get(type_id=reminder_type.id)
@@ -188,8 +187,8 @@ class JobSchedulerTestCase(CremeTestCase):
         self.assertEqual(next_hour, next_wakeup(job, reference_run=rounded_hour))
 
     @override_settings(PSEUDO_PERIOD=1)
-    def test_next_wake_up02(self):
-        """PSEUDO_PERIODIC job + reminder return a wake-up date before the new
+    def test_next_wake_up__pseudo_periodic__before_security(self):
+        """PSEUDO_PERIODIC job + reminder returns a wake-up date before the new
         security period.
         """
         rounded_hour = round_hour(now())
@@ -207,7 +206,7 @@ class JobSchedulerTestCase(CremeTestCase):
         self.assertEqual(wake_up, JobScheduler()._next_wakeup(job))
 
     @override_settings(PSEUDO_PERIOD=1)
-    def test_next_wake_up03(self):
+    def test_next_wake_up__pseudo_periodic__after_security(self):
         """PSEUDO_PERIODIC job + reminder return a wake-up date after the new
         security period.
         """

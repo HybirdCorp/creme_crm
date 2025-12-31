@@ -31,7 +31,7 @@ from ..fake_custom_forms import FAKEACTIVITY_CREATION_CFORM
 
 
 class CustomFormConfigItemManagerTestCase(CremeTestCase):
-    def test_create_if_needed01(self):
+    def test_create_if_needed(self):
         desc = CustomFormDescriptor(
             id='creme_core-fakecontact',
             model=FakeContact,
@@ -71,7 +71,7 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
             self.refresh(cfci).groups_as_dicts(),
         )
 
-    def test_create_if_needed02(self):
+    def test_create_if_needed__more_complex(self):
         "Other model, other fields, layout, super-user, default description."
         customfield = CustomField.objects.create(
             name='Rate', field_type=CustomField.INT, content_type=FakeOrganisation,
@@ -125,8 +125,7 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
             cfci.groups_as_dicts(),
         )
 
-    def test_create_if_needed03(self):
-        "No overriding."
+    def test_create_if_needed__no_overriding(self):
         desc = CustomFormDescriptor(
             id='creme_core-fakecontact',
             model=FakeContact,
@@ -166,8 +165,7 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
             self.refresh(cfci).groups_as_dicts(),
         )
 
-    def test_create_if_needed04(self):
-        "Super-user."
+    def test_create_if_needed__super_user(self):
         desc = CustomFormDescriptor(
             id='creme_core-tests_fakeorga',
             model=FakeOrganisation,
@@ -237,8 +235,7 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
         self.assertTrue(cfci02.superuser)
         self.assertListEqual(groups_as_dict, cfci02.groups_as_dicts())
 
-    def test_create_if_needed05(self):
-        "Role."
+    def test_create_if_needed__role(self):
         desc = CustomFormDescriptor(
             id='creme_core-tests_fakeorga',
             model=FakeOrganisation,
@@ -310,29 +307,29 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
         self.assertFalse(cfci02.superuser)
         self.assertListEqual(groups_as_dict, cfci01.groups_as_dicts())
 
-    def test_get_for_user01(self):
+    def test_get_for_user(self):
         "No item for role."
         user = self.get_root_user()
 
         with self.assertNoException():
-            cfci01 = CustomFormConfigItem.objects.get_for_user(
+            item1 = CustomFormConfigItem.objects.get_for_user(
                 descriptor=FAKEACTIVITY_CREATION_CFORM,
                 user=user,
             )
 
-        self.assertIsInstance(cfci01, CustomFormConfigItem)
-        self.assertEqual(FAKEACTIVITY_CREATION_CFORM.id, cfci01.descriptor_id)
-        self.assertIsNone(cfci01.role)
-        self.assertIs(cfci01.superuser, False)
+        self.assertIsInstance(item1, CustomFormConfigItem)
+        self.assertEqual(FAKEACTIVITY_CREATION_CFORM.id, item1.descriptor_id)
+        self.assertIsNone(item1.role)
+        self.assertIs(item1.superuser, False)
 
         # ---
         with self.assertNoException():
-            cfci02 = CustomFormConfigItem.objects.get_for_user(
+            item2 = CustomFormConfigItem.objects.get_for_user(
                 descriptor=FAKEACTIVITY_CREATION_CFORM,
                 user=self.create_user(),
             )
 
-        self.assertEqual(cfci01.id, cfci02.id)
+        self.assertEqual(item1.id, item2.id)
 
         # ---
         with self.assertRaises(CustomFormConfigItem.DoesNotExist):
@@ -345,7 +342,7 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
                 user=user,
             )
 
-    def test_get_for_user02(self):
+    def test_get_for_user__roles_config(self):
         "Super-user's form & role's form."
         user = self.get_root_user()
         role1 = self.create_role(name='Basic')
@@ -389,7 +386,7 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
 
         self.assertEqual(role1_cfci.id, cfci03.id)
 
-    def test_get_for_user03(self):
+    def test_get_for_user__id(self):
         "Descriptor ID passed."
         user = self.get_root_user()
         desc_id = FAKEACTIVITY_CREATION_CFORM.id

@@ -139,7 +139,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             print_choice(instance=line3, value='whatever', user=user, field=field),
         )
 
-    def _aux_print_integer_html01(self):
+    def _aux_print_integer_html(self):
         o = FakeOrganisation()
         user = self.user
         field = o._meta.get_field('capital')
@@ -155,12 +155,12 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
-    def test_print_integer_html01(self):
-        return self._aux_print_integer_html01()
+    def test_print_integer_html__thousand_separator(self):
+        return self._aux_print_integer_html()
 
     @override_settings(USE_THOUSAND_SEPARATOR=False)
-    def test_print_integer_html02(self):
-        return self._aux_print_integer_html01()
+    def test_print_integer_html__no_thousand_separator(self):
+        return self._aux_print_integer_html()
 
     def test_print_decimal_html(self):
         line = FakeInvoiceLine()
@@ -439,8 +439,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             ),
         )
 
-    def test_print_file_html01(self):
-        "Not image."
+    def test_print_file_html__not_image(self):
         user = self.get_root_user()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
@@ -487,7 +486,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     @override_settings(ALLOWED_IMAGES_EXTENSIONS=['gif', 'png', 'jpg'])
-    def test_print_file_html02(self):
+    def test_print_file_html__image(self):
         "Image."
         user = self.get_root_user()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
@@ -541,7 +540,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     @override_settings(ALLOWED_IMAGES_EXTENSIONS=['gif', 'jpg'])  # Not 'png'
-    def test_print_file_html03(self):
+    def test_print_file_html__forbidden_image_extension(self):
         "Not allowed image extensions."
         user = self.get_root_user()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
@@ -577,7 +576,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             ),
         )
 
-    def test_print_file_html04(self):
+    def test_print_file_html__no_download(self):
         "Field not registered for download."
         user = self.get_root_user()
 
@@ -655,7 +654,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             ),
         )
 
-    def test_fk_printer_html01(self):
+    def test_fk_printer_html(self):
         user = self.get_root_user()
 
         c = FakeContact()
@@ -817,7 +816,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(instance=r, value=efilter, user=user, field=field),
         )
 
-    def test_fk_printer_text01(self):
+    def test_fk_printer_text(self):
         user = self.get_root_user()
 
         printer = FKPrinter(
@@ -847,7 +846,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(instance=c, value=img, user=user, field=field2),
         )
 
-    def test_fk_printer_text02(self):
+    def test_fk_printer_text__view_perm(self):
         "No view credentials."
         user = self.login_as_standard()
 
@@ -866,7 +865,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(instance=c, value=img, user=user, field=field),
         )
 
-    def test_many2many_printer_html01(self):
+    def test_many2many_printer_html(self):
         user = self.get_root_user()
         img = FakeImage.objects.create(user=user, name='My img')
         field = img._meta.get_field('categories')
@@ -901,7 +900,7 @@ class FieldsPrintersTestCase(CremeTestCase):
                 printer(instance=img, value=img.categories, user=user, field=field),
             )
 
-    def test_many2many_printer_html02(self):
+    def test_many2many_printer_html__no_specific_handler(self):
         "Entity without specific handler."
         user = self.get_root_user()
         prod = FakeProduct.objects.create(user=user, name='Bebop')
@@ -921,8 +920,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(instance=prod, value=prod.images, user=user, field=field),
         )
 
-    def test_many2many_printer_html03(self):
-        "Entity printer."
+    def test_many2many_printer_html__entity_printer(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -952,7 +950,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(instance=prod, value=prod.images, user=user, field=field),
         )
 
-    def test_many2many_printer_text01(self):
+    def test_many2many_printer_text(self):
         user = self.get_root_user()
 
         printer = M2MPrinterForText(
@@ -976,8 +974,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(instance=img, value=img.categories, user=user, field=field)
         )
 
-    def test_many2many_printer_text02(self):
-        "Entity printer."
+    def test_many2many_printer_text__entity_printer(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -1206,7 +1203,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual('', render_field(instance=l3, tag=ViewTag.HTML_DETAIL))
         self.assertEqual('', render_field(instance=l3, tag=ViewTag.TEXT_PLAIN))
 
-    def test_registry_register_choice_printer01(self):
+    def test_registry_register_choice_printer(self):
         user = self.user
 
         registry = FieldPrinterRegistry()
@@ -1239,7 +1236,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             ),
         )
 
-    def test_registry_register_choice_printer02(self):
+    def test_registry_register_choice_printer__specific_field(self):
         "Register choice-printer for specific field."
         user = self.user
         registry = FieldPrinterRegistry()
@@ -1477,7 +1474,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         # depth = 3
         self.assertEqual(user.username, render_field(field_name='image__user__username'))
 
-    def test_registry_m2m01(self):
+    def test_registry_m2m(self):
         user = self.get_root_user()
         registry = FieldPrinterRegistry()
 
@@ -1523,7 +1520,7 @@ class FieldsPrintersTestCase(CremeTestCase):
                 render_field(field_name='categories__name', tag=ViewTag.TEXT_PLAIN),
             )
 
-    def test_registry_m2m02(self):
+    def test_registry_m2m__empty_sub_values(self):
         "Empty sub-values."
         user1 = self.get_root_user()
         user2 = self.create_user(0, theme='')
@@ -1545,7 +1542,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             ),
         )
 
-    def test_registry_m2m_entity01(self):
+    def test_registry_m2m__entity(self):
         user = self.get_root_user()
         registry = FieldPrinterRegistry()
 
@@ -1576,8 +1573,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             render_field(field_name='mailing_lists__description', tag=ViewTag.TEXT_PLAIN),
         )
 
-    def test_registry_m2m_entity02(self):
-        "Credentials."
+    def test_registry_m2m__entity__credentials(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -1603,7 +1599,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             ),
         )
 
-    def test_registry_m2m_entity03(self):
+    def test_registry_m2m__entity__deleted(self):
         "Deleted entity."
         user = self.get_root_user()
 

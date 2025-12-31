@@ -13,7 +13,7 @@ from ..base import CremeTestCase
 
 
 class CremeCellsTagsTestCase(CremeTestCase):
-    def test_cell_4_regularfield01(self):
+    def test_cell_4_regularfield__model(self):
         "By model."
         with self.assertNoException():
             template = Template(
@@ -32,7 +32,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
             render.strip()
         )
 
-    def test_cell_4_regularfield02(self):
+    def test_cell_4_regularfield__ctype(self):
         "By ContentType."
         get_ct = ContentType.objects.get_for_model
 
@@ -53,7 +53,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
             render.strip()
         )
 
-    def test_cell_4_regularfield03(self):
+    def test_cell_4_regularfield__instance(self):
         "By instance."
         user = self.get_root_user()
 
@@ -73,8 +73,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
             render.strip()
         )
 
-    def test_cell_4_regularfield04(self):
-        "No assignment."
+    def test_cell_4_regularfield__no_assignment(self):
         user = self.get_root_user()
 
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
@@ -88,7 +87,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
         self.assertEqual(_('First name'), render.strip())
 
-    def test_cell_4_regularfield_syntax_errors(self):
+    def test_cell_4_regularfield__syntax_errors(self):
         ctxt = Context({'ct': ContentType.objects.get_for_model(Currency)})
 
         with self.assertRaises(TemplateSyntaxError) as cm1:
@@ -163,7 +162,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
             str(cm6.exception),
         )
 
-    def test_cell_4_regularfield_render_errors(self):
+    def test_cell_4_regularfield__render_errors(self):
         # Invalid field
         with self.assertRaises(ValueError) as cm1:
             template = Template(
@@ -191,8 +190,8 @@ class CremeCellsTagsTestCase(CremeTestCase):
             str(cm2.exception),
         )
 
-    def test_cell_render01(self):
-        "Direct render ; default tag."
+    def test_cell_render__direct_render(self):
+        "Direct render; default tag."
         user = self.get_root_user()
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
         cell = EntityCellRegularField.build(model=FakeContact, name='last_name')
@@ -208,7 +207,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
         self.assertEqual(ripley.last_name, render.strip())
 
-    def test_cell_render_tag01(self):
+    def test_cell_render__direct_render__detail__html(self):
         "Direct render ; tag=ViewTag.HTML_DETAIL."
         user = self.get_root_user()
         ripley = FakeContact(
@@ -230,7 +229,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
             render.strip()
         )
 
-    def test_cell_render_tag02(self):
+    def test_cell_render__direct_render__detail__text(self):
         "Direct render ; tag=ViewTag.TEXT_PLAIN."
         user = self.get_root_user()
         ripley = FakeContact(
@@ -250,7 +249,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
         self.assertEqual(ripley.email, render.strip())
 
-    def test_cell_render_assignment(self):
+    def test_cell_render__assignment(self):
         user = self.get_root_user()
         ripley = FakeContact(
             user=user, first_name='Helen', last_name='Ripley',
@@ -271,7 +270,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
             render.strip()
         )
 
-    def test_cell_render_syntax_errors(self):
+    def test_cell_render__syntax_errors(self):
         user = self.get_root_user()
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
         cell = EntityCellRegularField.build(model=FakeContact, name='last_name')

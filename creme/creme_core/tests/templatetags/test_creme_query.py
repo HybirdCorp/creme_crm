@@ -17,8 +17,7 @@ from ..base import CremeTestCase
 
 
 class CremeQueryTagsTestCase(CremeTestCase):
-    def test_entities_count01(self):
-        "Superuser."
+    def test_entities_count__superuser(self):
         self.login_as_root()
         user = self.get_root_user()
 
@@ -39,8 +38,7 @@ class CremeQueryTagsTestCase(CremeTestCase):
 
         self.assertEqual('2', render.strip())
 
-    def test_entities_count02(self):
-        "Regular user."
+    def test_entities_count__regular_user(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -69,7 +67,7 @@ class CremeQueryTagsTestCase(CremeTestCase):
             ):
                 self.fail(f'Slow count message found in {logs_manager.output}')
 
-    def test_entities_count03(self):
+    def test_entities_count__fast_count_not_possible(self):
         "Regular user + fast count is not possible."
         user = self.login_as_standard()
         name = 'Acme'

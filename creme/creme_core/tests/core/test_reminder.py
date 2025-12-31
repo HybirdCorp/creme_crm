@@ -45,8 +45,7 @@ class ReminderTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_register_error01(self):
-        "Duplicated ID."
+    def test_register__duplicated_id(self):
         registry = ReminderRegistry()
 
         class TestReminder1(Reminder):
@@ -65,8 +64,7 @@ class ReminderTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_register_error02(self):
-        "Empty ID."
+    def test_register__empty_id(self):
         registry = ReminderRegistry()
 
         class TestReminder(Reminder):
@@ -81,7 +79,7 @@ class ReminderTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_job01(self):
+    def test_job__no_reminder_registered(self):
         reminder_type = _ReminderType()
         reminder_type.reminder_registry = ReminderRegistry()
 
@@ -92,7 +90,7 @@ class ReminderTestCase(CremeTestCase):
             reminder_type.get_description(job),
         )
 
-    def test_job02(self):
+    def test_job(self):
         class TestReminder1(Reminder):
             id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_job02_1')
             model = FakeTodo

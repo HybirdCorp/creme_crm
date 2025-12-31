@@ -45,12 +45,14 @@ class FileRefTestCase(base.CremeTestCase):
             dir_name='models',
         )
 
+        basename = 'test_basename001.txt'
         with self.assertNoException():
-            fileref = FileRef.objects.create(filedata=path, basename='test_basename01.txt')
+            fileref = FileRef.objects.create(filedata=path, basename=basename)
 
+        self.assertEqual(basename, fileref.basename)
         self.assertEqual('', fileref.description)
 
-    def test_basename02(self):
+    def test_basename__auto(self):
         name = 'FileRefTestCase_test_basename02.txt'
         path = self.create_uploaded_file(file_name=name, dir_name='models')
 
@@ -59,7 +61,7 @@ class FileRefTestCase(base.CremeTestCase):
 
         self.assertEqual(name, file_ref.basename)
 
-    def test_job01(self):
+    def test_job__just_created(self):
         "File is too young to be deleted (just created)"
         job = self._get_job(days=1)
         path = self.create_uploaded_file(
@@ -74,7 +76,7 @@ class FileRefTestCase(base.CremeTestCase):
         self.assertStillExists(temp_file)
         self.assertTrue(os_path.exists(temp_file.filedata.path))
 
-    def test_job02(self):
+    def test_job__old_enough(self):
         "File is old enough to be deleted."
         days = 1
         job = self._get_job(days=days)
@@ -91,7 +93,7 @@ class FileRefTestCase(base.CremeTestCase):
         self.assertDoesNotExist(file_ref)
         self.assertFalse(os_path.exists(full_path))
 
-    def test_job03(self):
+    def test_job__too_young(self):
         "File is too young to be deleted."
         job = self._get_job(days=2)
         path = self.create_uploaded_file(
@@ -105,7 +107,7 @@ class FileRefTestCase(base.CremeTestCase):
         temp_files_cleaner_type.execute(job)
         self.assertStillExists(file_ref)
 
-    def test_job04(self):
+    def test_job__not_temporary(self):
         "File is not temporary."
         job = self._get_job(days=1)
         path = self.create_uploaded_file(
@@ -119,7 +121,7 @@ class FileRefTestCase(base.CremeTestCase):
         temp_files_cleaner_type.execute(job)
         self.assertStillExists(file_ref)
 
-    def test_create_at_deletion01(self):
+    def test_create_at_deletion(self):
         user = self.get_root_user()
 
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]
@@ -151,7 +153,7 @@ class FileRefTestCase(base.CremeTestCase):
             file_ref.description,
         )
 
-    def test_create_at_deletion02(self):
+    def test_create_at_deletion__empty(self):
         "Empty FileField."
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]
         embed_doc = FakeFileComponent.objects.create()
@@ -160,7 +162,7 @@ class FileRefTestCase(base.CremeTestCase):
 
 
 class FileRefTestDeleteCase(base.CremeTransactionTestCase):
-    def test_delete_model_with_file01(self):
+    def test_delete_model_with_file(self):
         user = self.create_user()
 
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]
@@ -187,7 +189,7 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
         self.assertEqual(full_path, file_ref.filedata.path)
         self.assertTrue(os_path.exists(full_path))
 
-    def test_delete_model_with_file02(self):
+    def test_delete_model_with_file__rollback(self):
         user = self.create_user()
 
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]

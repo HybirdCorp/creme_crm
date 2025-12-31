@@ -150,7 +150,7 @@ class DateRangeSelectTestCase(CremeTestCase):
 
 class DatePeriodWidgetTestCase(CremeTestCase):
     @override_language('en')
-    def test_render_en_no_value(self):
+    def test_render__en__no_value(self):
         name = 'date_period'
         self.assertHTMLEqual(
             f'<ul class="hbox ui-layout">'
@@ -168,7 +168,7 @@ class DatePeriodWidgetTestCase(CremeTestCase):
         )
 
     @override_language('en')
-    def test_render_en_list_value(self):
+    def test_render__en__list_value(self):
         widget = DatePeriodWidget()
         widget.choices = [
             (period.name, period.verbose_name) for period in [
@@ -198,7 +198,7 @@ class DatePeriodWidgetTestCase(CremeTestCase):
         )
 
     @override_language('fr')
-    def test_render_fr(self):
+    def test_render__fr(self):
         widget = DatePeriodWidget()
         widget.choices = [
             (period.name, period.verbose_name) for period in [
@@ -249,7 +249,7 @@ class DatePeriodWidgetTestCase(CremeTestCase):
 
 class RelativeDatePeriodWidgetTestCase(CremeTestCase):
     @override_language('en')
-    def test_render_en_no_value(self):
+    def test_render__en__no_value(self):
         name = 'date_period'
         self.maxDiff = None
         self.assertHTMLEqual(
@@ -273,7 +273,7 @@ class RelativeDatePeriodWidgetTestCase(CremeTestCase):
         )
 
     @override_language('en')
-    def test_render_en_list_value(self):
+    def test_render__en__list_value(self):
         widget = RelativeDatePeriodWidget()
         widget.period_choices = [
             (period.name, period.verbose_name) for period in [
@@ -316,7 +316,7 @@ class RelativeDatePeriodWidgetTestCase(CremeTestCase):
         )
 
     @override_language('fr')
-    def test_render_fr(self):
+    def test_render__fr(self):
         widget = RelativeDatePeriodWidget()
         widget.period_choices = [
             (period.name, period.verbose_name) for period in [
@@ -378,13 +378,13 @@ class RelativeDatePeriodWidgetTestCase(CremeTestCase):
 
 
 class DynamicSelectTestCase(CremeTestCase):
-    def test_options_list(self):
+    def test_options__list(self):
         select = DynamicSelect(options=[(1, 'A'), (2, 'B')])
 
         self.assertIsList(select.options)
         self.assertListEqual([(1, 'A'), (2, 'B')], select.choices)
 
-    def test_options_queryset(self):
+    def test_options__queryset(self):
         user = self.get_root_user()
         FakeContact.objects.create(last_name='Doe', first_name='John', user=user)
 
@@ -395,7 +395,7 @@ class DynamicSelectTestCase(CremeTestCase):
             [*select.choices],
         )
 
-    def test_options_function(self):
+    def test_options__function(self):
         select = DynamicSelect(options=lambda: [(id, str(id)) for id in range(10)])
 
         self.assertTrue(callable(select.options))
@@ -404,7 +404,7 @@ class DynamicSelectTestCase(CremeTestCase):
             select.choices,
         )
 
-    def test_options_generator(self):
+    def test_options__generator(self):
         select = DynamicSelect(options=((id_, str(id_)) for id_ in range(10)))
 
         self.assertIsList(select.options)
@@ -484,7 +484,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         )
         self.assertHTMLEqual(html, select.render('A', (3, 4,)))
 
-    def test_render_viewless01(self):
+    def test_render_viewless__default(self):
         "Default behaviour (integer value => 40)."
         name = 'my_field'
         select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')])
@@ -512,7 +512,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         )
         self.assertHTMLEqual(html, select.render(name, ()))
 
-    def test_render_viewless02(self):
+    def test_render_viewless__js(self):
         "Let the JS chose the behaviour."
         name = 'my_field'
         select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')], viewless=True)
@@ -540,7 +540,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         )
         self.assertHTMLEqual(html, select.render(name, (2,)))
 
-    def test_render_viewless03(self):
+    def test_render_viewless__custom_value(self):
         "Custom integer value."
         name = 'my_field'
         select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')], viewless=30)
@@ -598,7 +598,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         self.assertEqual('search', select._build_filtertype(30))
         self.assertEqual('search', select._build_filtertype(100))
 
-    def test_render_search01(self):
+    def test_render_search__default(self):
         "Automatic/default behaviour."
         name = 'my_choice_field'
         select = UnorderedMultipleChoiceWidget(
@@ -632,8 +632,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         )
         self.assertHTMLEqual(html, select.render(name, value=None))
 
-    def test_render_search02(self):
-        "Fixed behaviour"
+    def test_render_search__fixed_behaviour(self):
         name = 'my_choice_field'
         select = UnorderedMultipleChoiceWidget(
             choices=[(1, 'A'), (2, 'B')], viewless=False, filtertype='search',
@@ -661,7 +660,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         )
         self.assertHTMLEqual(html, select.render(name, value=None))
 
-    def test_render_filter01(self):
+    def test_render_filter__default(self):
         "Automatic/default behaviour."
         name = 'my_choice_field'
         select = UnorderedMultipleChoiceWidget(
@@ -698,8 +697,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         )
         self.assertHTMLEqual(html, select.render(name, value=None))
 
-    def test_render_filter02(self):
-        "Fixed behaviour"
+    def test_render_filter__fixed_behaviour(self):
         name = 'my_choice_field'
         select = UnorderedMultipleChoiceWidget(
             choices=[(1, 'A'), (2, 'B')], viewless=False, filtertype='filter',
@@ -727,7 +725,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         )
         self.assertHTMLEqual(html, select.render(name, value=None))
 
-    def test_render_less01(self):
+    def test_render_less(self):
         name = 'my_choice_field'
         select = UnorderedMultipleChoiceWidget(
             choices=[(1, 'A'), (2, 'B'), (3, 'C')], viewless=True,
@@ -767,7 +765,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
             select.render('field', [], {'checkall': True}),
         )
 
-    def test_render_empty_with_creation(self):
+    def test_render_empty__with_creation(self):
         name = 'field_1'
         url = '/add/stuff'
         select = UnorderedMultipleChoiceWidget(
@@ -862,7 +860,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
 
 
 class WidgetActionTestCase(CremeTestCase):
-    def test_init01(self):
+    def test_init(self):
         name = 'add'
         label = 'Create a stuff'
         action = WidgetAction(name=name, label=label)
@@ -883,7 +881,7 @@ class WidgetActionTestCase(CremeTestCase):
             action.context,
         )
 
-    def test_init02(self):
+    def test_init__complex(self):
         name = 'reset'
         label = 'Delete'
         icon = 'delete'
@@ -973,7 +971,7 @@ class ActionButtonListTestCase(CremeTestCase):
         super().setUp()
         self.maxDiff = None
 
-    def test_render_empty_action_list(self):
+    def test_render__action_list__empty(self):
         widget = ActionButtonList(Select(choices=[(1, 'A'), (2, 'B')]))
 
         html = '''
@@ -988,7 +986,7 @@ class ActionButtonListTestCase(CremeTestCase):
 </ul>'''
         self.assertHTMLEqual(html, widget.render('field', 2))
 
-    def test_render_action_list(self):
+    def test_render__action_list(self):
         widget = ActionButtonList(Select(choices=[(1, 'A'), (2, 'B')]))
         widget.add_action('action_a', 'Action A', title='Do the action A')
         widget.add_action('action_b', 'Action B', False)
@@ -1096,7 +1094,7 @@ class EntitySelectorTestCase(CremeTestCase):
 
         return qfilter_attr
 
-    def test_render_qfilter01(self):
+    def test_render_qfilter__dict(self):
         "Dictionary instance."
         widget = EntitySelector(content_type=12)
         name = 'field'
@@ -1137,7 +1135,7 @@ class EntitySelectorTestCase(CremeTestCase):
             render_dom,
         )
 
-    def test_render_qfilter02(self):
+    def test_render_qfilter__q(self):
         "Q instance."
         widget = EntitySelector(content_type=13)
         name = 'my_field'
@@ -1277,13 +1275,13 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
             widget.actions,
         )
 
-    def test_actions_creation_url_empty(self):
+    def test_actions__creation__url_empty(self):
         widget = EntityCreatorWidget(FakeContact, creation_url='', creation_allowed=True)
         widget._build_actions(FakeContact, {})
 
         self.assertListEqual([self._build_reset_action()], widget.actions)
 
-    def test_actions_creation_not_allowed(self):
+    def test_actions__creation__not_allowed(self):
         creation_url = reverse(
             'creme_core__quick_form',
             args=(ContentType.objects.get_for_model(FakeContact).id,),
@@ -1304,7 +1302,7 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
             widget.actions,
         )
 
-    def test_actions_required(self):
+    def test_actions__required(self):
         creation_url = reverse(
             'creme_core__quick_form',
             args=(ContentType.objects.get_for_model(FakeContact).id,),
@@ -1320,7 +1318,7 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
             widget.actions,
         )
 
-    def test_actions_disabled(self):
+    def test_actions__disabled(self):
         creation_url = reverse(
             'creme_core__quick_form',
             args=(ContentType.objects.get_for_model(FakeContact).id,),
@@ -1342,7 +1340,7 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
         widget._build_actions(FakeContact, {'disabled': True})
         self.assertListEqual([], widget.actions)
 
-    def test_render_no_model(self):
+    def test_render__no_model(self):
         widget = EntityCreatorWidget()
         html = '''
 <ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist"
@@ -1354,8 +1352,7 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
 </ul>'''
         self.assertHTMLEqual(html, widget.render('field', ''))
 
-    def test_render_empty_value(self):
-        "Empty."
+    def test_render__empty_value(self):
         ct_id = ContentType.objects.get_for_model(FakeContact).id
         creation_url = reverse('creme_core__quick_form', args=(ct_id,))
         widget = EntityCreatorWidget(
@@ -1403,7 +1400,7 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
         )
         self.assertHTMLEqual(html, widget.render('field', ''))
 
-    def test_render_initial(self):
+    def test_render__initial(self):
         "Initialized, creation_label."
         user = self.get_root_user()
         contact = FakeContact.objects.create(last_name='Doe', first_name='John', user=user)
@@ -1464,7 +1461,7 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
 
 
 class CremeTextareaTestCase(CremeTestCase):
-    def test_render01(self):
+    def test_render(self):
         widget = CremeTextarea()
         self.assertHTMLEqual(
             '''
@@ -1474,7 +1471,7 @@ class CremeTextareaTestCase(CremeTestCase):
             widget.render('field', value=''),
         )
 
-    def test_render02(self):
+    def test_render__row_n_cols(self):
         "row & cols."
         widget = CremeTextarea(attrs={'rows': 4, 'cols': 80})
         self.assertHTMLEqual(
@@ -1485,8 +1482,7 @@ class CremeTextareaTestCase(CremeTestCase):
             widget.render('my_field', value=''),
         )
 
-    def test_render03(self):
-        "Extra class."
+    def test_render__extra_class(self):
         widget = CremeTextarea(attrs={'class': 'my_extra_class'})
         self.assertHTMLEqual(
             '''

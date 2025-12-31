@@ -28,8 +28,7 @@ class BackendsTestCase(CremeTestCase):
         self.assertFalse([*registry.extensions])
         self.assertFalse(registry)
 
-    def test_registration_errors01(self):
-        "Duplicates."
+    def test_registration_errors__duplicates(self):
         registry = _BackendRegistry(base.ImportBackend, [
             'creme.creme_core.backends.csv_import.CSVImportBackend',
             'creme.creme_core.backends.csv_import.CSVImportBackend',  # Twice
@@ -38,8 +37,7 @@ class BackendsTestCase(CremeTestCase):
         with self.assertRaises(registry.DuplicatedId):
             registry.get_backend_class(CSVImportBackend.id)
 
-    def test_registration_errors02(self):
-        "Invalid path."
+    def test_registration_errors__invalid_path(self):
         path = 'creme.creme_core.backends.csv_import.Unknown'
         registry = _BackendRegistry(base.ImportBackend, [path])
 
@@ -55,8 +53,7 @@ class BackendsTestCase(CremeTestCase):
             f'An error occurred trying to import "{path}":'
         )
 
-    def test_registration_errors03(self):
-        "Invalid class."
+    def test_registration_errors__invalid_class(self):
         registry = _BackendRegistry(base.ExportBackend, [
             'creme.creme_core.backends.csv_import.CSVImportBackend',
         ])

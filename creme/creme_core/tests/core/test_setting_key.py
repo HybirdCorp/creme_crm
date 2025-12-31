@@ -10,7 +10,7 @@ from ..base import CremeTestCase
 
 
 class SettingKeyTestCase(CremeTestCase):
-    def test_registry_register(self):
+    def test_registry__register(self):
         sk1 = SettingKey(
             id='creme_core-test_sk_string',
             description='Page title',
@@ -67,7 +67,7 @@ class SettingKeyTestCase(CremeTestCase):
         with self.assertRaises(registry.RegistrationError):
             registry.unregister(sk3)
 
-    def test_registry_register_with_duplicate(self):
+    def test_registry__register__duplicates(self):
         sk1 = SettingKey(
             id='creme_core-test_sk_string',
             description='Page title',

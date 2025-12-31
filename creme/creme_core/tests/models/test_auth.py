@@ -23,6 +23,7 @@ from creme.creme_core.core.entity_filter import (
     operands,
     operators,
 )
+from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -446,6 +447,19 @@ class CremeUserTestCase(BaseAuthTestCase):
 
         user.displayed_name = dname = 'Kirika-chan'
         self.assertEqual(dname, str(user))
+
+    def test_field_tags(self):
+        get_field = CremeUser._meta.get_field
+
+        self.assertTrue(get_field('username').get_tag(FieldTag.VIEWABLE))
+        self.assertFalse(get_field('id').get_tag(FieldTag.VIEWABLE))
+        self.assertFalse(get_field('password').get_tag(FieldTag.VIEWABLE))
+        self.assertTrue(get_field('is_active').get_tag(FieldTag.VIEWABLE))
+        self.assertTrue(get_field('is_superuser').get_tag(FieldTag.VIEWABLE))
+        self.assertFalse(get_field('is_staff').get_tag(FieldTag.VIEWABLE))
+        self.assertTrue(get_field('last_login').get_tag(FieldTag.VIEWABLE))
+        self.assertTrue(get_field('date_joined').get_tag(FieldTag.VIEWABLE))
+        self.assertTrue(get_field('role').get_tag(FieldTag.VIEWABLE))
 
     def test_clean__email(self):
         user, other_user = self._create_users()

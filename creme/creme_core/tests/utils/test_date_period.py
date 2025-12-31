@@ -52,7 +52,7 @@ class DatePeriodTestCase(CremeTestCase):
             self._get_comparable_data(rrule2),
         )
 
-    def test_registry01(self):
+    def test_registry__register__in_init(self):
         "Register in __init__()."
         registry = DatePeriodRegistry(MinutesPeriod, HoursPeriod)
 
@@ -64,8 +64,7 @@ class DatePeriodTestCase(CremeTestCase):
 
         self.assertIsNone(registry.get_period('invalid', 1))
 
-    def test_registry02(self):
-        "register() method."
+    def test_registry__register__method(self):
         registry = DatePeriodRegistry()
         registry.register(DaysPeriod, WeeksPeriod)
 
@@ -74,7 +73,7 @@ class DatePeriodTestCase(CremeTestCase):
 
         self.assertIsNone(registry.get_period(MinutesPeriod.name, 1))
 
-    def test_registry03(self):
+    def test_registry__register__duplicates(self):
         "Duplicates."
         registry = DatePeriodRegistry()
 
@@ -266,13 +265,12 @@ class DatePeriodTestCase(CremeTestCase):
             now_value + get({'type': 'days', 'value': 3}).as_timedelta(),
         )
 
-    def test_choices01(self):
+    def test_choices(self):
         choices = [*self.registry.choices()]
         self.assertEqual(len(choices), 6)
         self.assertEqual(('minutes', _('Minute(s)')), choices[0])
 
-    def test_choices02(self):
-        "Global registry."
+    def test_choices__global_registry(self):
         choices = [*date_period_registry.choices()]
         self.assertEqual(len(choices), 6)
 

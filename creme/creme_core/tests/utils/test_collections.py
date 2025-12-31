@@ -96,19 +96,17 @@ class FluentListTestCase(CremeTestCase):
         self.assertIsInstance(flist, FluentList)
         self.assertEqual([3, 1, 2], flist)
 
-    def test_replace01(self):
+    def test_replace(self):
         flist = FluentList([1, 2])
         flist.replace(old=1, new=3)
         self.assertEqual([3, 2], flist)
 
-    def test_replace02(self):
-        "Other index."
+    def test_replace__other_indexes(self):
         flist = FluentList([1, 2])
         flist.replace(old=2, new=3)
         self.assertEqual([1, 3], flist)
 
-    def test_replace03(self):
-        "Not found."
+    def test_replace__invalid_index(self):
         flist = FluentList([1])
 
         with self.assertRaises(ValueError):
@@ -428,7 +426,7 @@ class OrderedSetTestCase(CremeTestCase):
         s2 = OrderedSet([2, 1, 6, 5, 4, 6, 5, 4, 2, 1])
         self.assertListEqual([2, 1, 6, 5, 4], [*s2])
 
-    def test_operator01(self):
+    def test_operator__pipe(self):
         "| operator and __eq__."
         s3 = OrderedSet('Futurama') | OrderedSet('Simpsons')
         self.assertIsInstance(s3, OrderedSet)
@@ -443,13 +441,13 @@ class OrderedSetTestCase(CremeTestCase):
 
         self.assertNotEqual(OrderedSet(content[:-1]), s3)
 
-    def test_operator02(self):
+    def test_operator__and(self):
         "& operator."
         s3 = OrderedSet('Groening') & OrderedSet('Simpsons')
         self.assertIsInstance(s3, OrderedSet)
         self.assertListEqual(['i', 'o', 'n'], [*s3])
 
-    def test_operator03(self):
+    def test_operator__minus(self):
         "- operator."
         s3 = OrderedSet('Groening') | OrderedSet('Simpsons')
         self.assertIsInstance(s3, OrderedSet)
@@ -477,11 +475,11 @@ class OrderedSetTestCase(CremeTestCase):
         s = OrderedSet('Futurama')
         self.assertListEqual(['m', 'a', 'r', 't', 'u', 'F'], [*reversed(s)])
 
-    def test_pop01(self):
+    def test_pop_error(self):
         with self.assertRaises(KeyError):
             OrderedSet().pop()
 
-    def test_pop02(self):
+    def test_pop(self):
         s = OrderedSet('Futurama')
         self.assertEqual('m', s.pop())
         self.assertListEqual(['F', 'u', 't', 'r', 'a'], [*s])

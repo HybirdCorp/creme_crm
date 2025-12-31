@@ -11,7 +11,7 @@ from creme.creme_core.tests.base import CremeTestCase
 
 
 class CremeSearchTagsTestCase(CremeTestCase):
-    def test_search_form01(self):
+    def test_search_form(self):
         get_ct = ContentType.objects.get_for_model
         contact_ct_id = get_ct(FakeContact).id
 
@@ -47,12 +47,10 @@ class CremeSearchTagsTestCase(CremeTestCase):
             choices=choices,
         )
         self.assertNotInChoices(
-            value=str(get_ct(FakeDocument).id),
-            choices=choices,
+            value=str(get_ct(FakeDocument).id), choices=choices,
         )
         self.assertNotInChoices(
-            value=str(get_ct(FakeSector).id),
-            choices=choices,
+            value=str(get_ct(FakeSector).id), choices=choices,
         )
 
         self.assertListEqual(
@@ -63,9 +61,8 @@ class CremeSearchTagsTestCase(CremeTestCase):
             ],
         )
 
-    def test_search_form02(self):
+    def test_search_form__no_selected(self):
         get_ct = ContentType.objects.get_for_model
-        contact_ct_id = get_ct(FakeContact).id
 
         with self.assertNoException():
             render = Template(
@@ -83,10 +80,7 @@ class CremeSearchTagsTestCase(CremeTestCase):
             (option_node.attrib.get('value'), option_node.text)
             for option_node in select_node.findall('.//option')
         ]
-        self.assertNotInChoices(
-            value=str(contact_ct_id),
-            choices=choices,
-        )
+        self.assertNotInChoices(value=str(get_ct(FakeContact).id), choices=choices)
         self.assertInChoices(
             value=str(get_ct(FakeOrganisation).id),
             label='Test Organisation',

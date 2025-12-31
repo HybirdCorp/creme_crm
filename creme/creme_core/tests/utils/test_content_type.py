@@ -53,7 +53,7 @@ class ContentTypeTestCase(CremeTestCase):
             as_model(1)
         self.assertEqual(msg, str(cm2.exception))
 
-    def test_creme_entity_content_types01(self):
+    def test_creme_entity_content_types(self):
         ctypes = [*entity_ctypes()]
 
         get_ct = ContentType.objects.get_for_model
@@ -64,7 +64,7 @@ class ContentTypeTestCase(CremeTestCase):
 
     @skipIfNotInstalled('creme.persons')
     @skipIfNotInstalled('creme.documents')
-    def test_creme_entity_content_types02(self):
+    def test_creme_entity_content_types__app_labels(self):
         from creme import documents, persons
 
         ctypes = [*entity_ctypes(app_labels=['persons'])]

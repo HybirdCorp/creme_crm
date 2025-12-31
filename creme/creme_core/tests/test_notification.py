@@ -83,8 +83,7 @@ class NotificationTestCase(CremeTestCase):
             RemindersChannelType,
         )
 
-    def test_upgrade_announcement01(self):
-        "No extra message."
+    def test_upgrade_announcement__no_extra_message(self):
         user = self.get_root_user()
         dt = self.create_datetime(year=2023, month=11, day=12, hour=23, utc=True)
         announce1 = UpgradeAnnouncement(start=dt)
@@ -130,8 +129,7 @@ class NotificationTestCase(CremeTestCase):
         with self.assertRaises(NotificationContent.DeserializationError):
             UpgradeAnnouncement.from_dict({'start': 'not a date'})
 
-    def test_upgrade_announcement02(self):
-        "Extra message."
+    def test_upgrade_announcement__extra_message(self):
         user = self.get_root_user()
         dt = self.create_datetime(year=2023, month=12, day=3, hour=8, utc=True)
         msg = "Don't be afraid."
@@ -193,7 +191,7 @@ class NotificationTestCase(CremeTestCase):
             content.get_html_body(user),
         )
 
-    def test_mass_import_done_error(self):
+    def test_mass_import_done__error(self):
         user = self.get_root_user()
         pk = self.UNUSED_PK
         content = MassImportDoneContent(instance=pk)

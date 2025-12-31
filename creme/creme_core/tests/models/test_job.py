@@ -11,7 +11,7 @@ from ..base import CremeTestCase
 
 
 class JobTestCase(CremeTestCase):
-    def test_refresh01(self):
+    def test_refresh__not_needed(self):
         "No refresh needed."
         queue = get_queue()
         queue.clear()
@@ -35,8 +35,7 @@ class JobTestCase(CremeTestCase):
             queue.refreshed_jobs,
         )
 
-    def test_refresh02(self):
-        "Enabled is changed."
+    def test_refresh__change__enabled(self):
         queue = get_queue()
         queue.clear()
 
@@ -56,8 +55,7 @@ class JobTestCase(CremeTestCase):
             queue.refreshed_jobs,
         )
 
-    def test_refresh03(self):
-        "Reference_run is changed."
+    def test_refresh__change__reference_run(self):
         queue = get_queue()
         queue.clear()
 
@@ -77,8 +75,7 @@ class JobTestCase(CremeTestCase):
             queue.refreshed_jobs,
         )
 
-    def test_refresh04(self):
-        "Periodicity is changed."
+    def test_refresh__change__periodicity(self):
         queue = get_queue()
         queue.clear()
 
@@ -99,28 +96,25 @@ class JobTestCase(CremeTestCase):
             queue.refreshed_jobs,
         )
 
-    def test_update01(self):
+    def test_update(self):
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
         self.assertIs(False, job.update({}))
 
-    def test_update02(self):
-        "Enabled + change."
+    def test_update__enabled__changed(self):
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         new_enabled = not job.enabled
         self.assertIs(True, job.update({'enabled': new_enabled}))
         self.assertEqual(new_enabled, job.enabled)
 
-    def test_update03(self):
-        "Enabled + no change."
+    def test_update__enabled__no_change(self):
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         new_enabled = job.enabled
         self.assertFalse(job.update({'enabled': new_enabled}))
         self.assertEqual(new_enabled, job.enabled)
 
-    def test_update04(self):
-        "Reference run + change."
+    def test_update__reference_run__change(self):
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         new_ref_run = '2017-12-25T14:00:00.000000Z'
@@ -130,32 +124,28 @@ class JobTestCase(CremeTestCase):
             job.reference_run,
         )
 
-    def test_update05(self):
-        "Reference run + no change."
+    def test_update__reference_run__no_change(self):
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         ref_run = job.reference_run
         self.assertFalse(job.update({'reference_run': dt_to_ISO8601(ref_run)}))
         self.assertEqual(ref_run, job.reference_run)
 
-    def test_update06(self):
-        "Periodicity + change."
+    def test_update__periodicity__change(self):
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         periodicity_dict = {'type': 'minutes', 'value': 3}
         self.assertTrue(job.update({'periodicity': periodicity_dict}))
         self.assertDictEqual(periodicity_dict, job.periodicity.as_dict())
 
-    def test_update07(self):
-        "Periodicity + no change."
+    def test_update__periodicity__no_change(self):
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         periodicity = job.periodicity = MinutesPeriod(1)
         self.assertFalse(job.update({'periodicity': periodicity.as_dict()}))
         self.assertEqual(periodicity, job.periodicity)
 
-    def test_update08(self):
-        "Several changes"
+    def test_update__several_changes(self):
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         new_enabled = not job.enabled

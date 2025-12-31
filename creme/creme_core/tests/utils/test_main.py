@@ -74,45 +74,45 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual('a',     truncate_str('b',       1, suffix='a'))
         self.assertEqual('abcd',  truncate_str('abcdef',  4, suffix='01234'))
 
-    def test_update_model_instance01(self):
+    def test_update_model_instance(self):
         user = self.get_root_user()
         first_name = 'punpun'
         last_name = 'punpunyama'
-        pupun = FakeContact.objects.create(
+        contact = FakeContact.objects.create(
             user=user, first_name=first_name, last_name=last_name,
         )
 
         first_name = first_name.title()
 
-        update_model_instance(pupun, first_name=first_name)
-        self.assertEqual(first_name, self.refresh(pupun).first_name)
+        update_model_instance(contact, first_name=first_name)
+        self.assertEqual(first_name, self.refresh(contact).first_name)
 
         with self.assertNumQueries(0):
-            update_model_instance(pupun, last_name=last_name)
+            update_model_instance(contact, last_name=last_name)
 
         self.assertRaises(
             AttributeError,
             update_model_instance,
-            pupun, first_name=first_name, unknown_field='??',
+            contact, first_name=first_name, unknown_field='??',
         )
 
-    def test_update_model_instance02(self):
+    def test_update_model_instance__several_fields(self):
         first_name = 'punpun'
         last_name = 'punpunyama'
-        pupun = FakeContact.objects.create(
+        contact = FakeContact.objects.create(
             user=self.get_root_user(), first_name=first_name, last_name=last_name,
         )
 
         first_name = first_name.title()
         last_name = last_name.title()
-        update_model_instance(pupun, first_name=first_name, last_name=last_name)
+        update_model_instance(contact, first_name=first_name, last_name=last_name)
 
-        pupun = self.refresh(pupun)
-        self.assertEqual(first_name, pupun.first_name)
-        self.assertEqual(last_name,  pupun.last_name)
+        contact = self.refresh(contact)
+        self.assertEqual(first_name, contact.first_name)
+        self.assertEqual(last_name,  contact.last_name)
 
         with self.assertNumQueries(0):
-            update_model_instance(pupun, first_name=first_name, last_name=last_name)
+            update_model_instance(contact, first_name=first_name, last_name=last_name)
 
     def test_get_from_request_or_404(self):
         request = {'name': 'robert', 'age': '36'}
@@ -412,13 +412,13 @@ class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
         def deps(self):
             return self.dependencies
 
-    def test_dependence_sort01(self):
+    def test_dependence_sort__empty(self):
         self.assertListEqual(
             [],
             dependence_sort([], lambda ds: ds.name, lambda ds: ds.dependencies),
         )
 
-    def test_dependence_sort02(self):
+    def test_dependence_sort__no_dep(self):
         A = self.DepSortable('A')
         B = self.DepSortable('B')
         self.assertListEqual(
@@ -426,7 +426,7 @@ class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
             dependence_sort([A, B], lambda ds: ds.name, lambda ds: ds.dependencies),
         )
 
-    def test_dependence_sort03(self):
+    def test_dependence_sort__1_item_with_dep(self):
         DS = self.DepSortable
         A = DS('A', ['B'])
         B = DS('B')
@@ -434,14 +434,14 @@ class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
             [B, A], dependence_sort([A, B], DS.key, DS.deps),
         )
 
-    def test_dependence_sort04(self):
+    def test_dependence_sort__2_items_with_dep(self):
         DS = self.DepSortable
         A = DS('A', ['C'])
         B = DS('B')
         C = DS('C', ['B'])
         self.assertEqual([B, C, A], dependence_sort([A, B, C], DS.key, DS.deps))
 
-    def test_dependence_sort05(self):
+    def test_dependence_sort__several_deps(self):
         DS = self.DepSortable
         A = DS('A', ['C', 'D'])
         B = DS('B')
@@ -456,7 +456,7 @@ class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
             ),
         )
 
-    def test_dependence_sort06(self):
+    def test_dependence_sort__loop_error(self):
         DS = self.DepSortable
         A = DS('A', ['C'])
         B = DS('B')
@@ -468,7 +468,7 @@ class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
             [A, B, C], DS.key, DS.deps,
         )
 
-    def test_dependence_sort07(self):
+    def test_dependence_sort__long_names(self):
         DS = self.DepSortable
         A = DS('End', ['Middle'])
         B = DS('Start')
@@ -646,7 +646,7 @@ class DatesTestCase(CremeTestCase):
 
 
 class UnicodeCollationTestCase(CremeTestCase):
-    def test_uca01(self):
+    def test_uca(self):
         from creme.creme_core.utils.unicode_collation import collator
 
         sort = partial(sorted, key=collator.sort_key)
@@ -664,7 +664,7 @@ class UnicodeCollationTestCase(CremeTestCase):
         )
 
     # NB: keep this comment (until we use the real 'pyuca' lib)
-    # def test_uca02(self):
+    # def test_uca__original(self):
     #     "Original lib"
     #     from os.path import join
     #     from pyuca import Collator
@@ -749,22 +749,19 @@ class CurrencyFormatTestCase(CremeTestCase):
 
 
 class TemplateURLBuilderTestCase(CremeTestCase):
-    def test_place_holder01(self):
-        "Word."
+    def test_place_holder__word(self):
         ph = TemplateURLBuilder.Word('$name', 'name')
         self.assertEqual('__placeholder0__', ph.tmp_name(0, 0))
         self.assertEqual('__placeholder1__', ph.tmp_name(1, 0))
         self.assertEqual('__PLACEHOLDER0__', ph.tmp_name(0, 1))
 
-    def test_place_holder02(self):
-        "Int."
+    def test_place_holder__int(self):
         ph = TemplateURLBuilder.Int('$ct_id', 'ctype_id')
         self.assertEqual('1234567890', ph.tmp_name(0, 0))
         self.assertEqual('1234567891', ph.tmp_name(1, 0))
         self.assertEqual('9876543210', ph.tmp_name(0, 1))
 
-    def test_one_place_holder01(self):
-        "Word placeholder."
+    def test_one_place_holder__word(self):
         vname = 'creme_core__batch_process_ops'
         placeholder = 'XXXXXX'
         final_value = '${name}'  # This string does not match with (?P<field>[\w]+)
@@ -776,8 +773,7 @@ class TemplateURLBuilderTestCase(CremeTestCase):
             tub.resolve(vname, kwargs={'ct_id': 65}),
         )
 
-    def test_one_place_holder02(self):
-        "Int placeholder."
+    def test_one_place_holder__int(self):
         vname = 'creme_core__batch_process_ops'
         placeholder = '123456'
         final_value = '${ct}'  # This string does not match with (?P<ct_id>\d+)
@@ -789,7 +785,7 @@ class TemplateURLBuilderTestCase(CremeTestCase):
             tub.resolve(vname, kwargs={'field': 'name'}),
         )
 
-    def test_two_place_holders01(self):
+    def test_two_place_holders__word_n_int(self):
         "1 word & 1 int placeholders."
         vname = 'creme_core__batch_process_ops'
 
@@ -812,7 +808,7 @@ class TemplateURLBuilderTestCase(CremeTestCase):
             tub.resolve(vname),
         )
 
-    def test_two_place_holders02(self):
+    def test_two_place_holders__2x_int(self):
         "2 int placeholders."
         vname = 'creme_core__inner_edition'
 

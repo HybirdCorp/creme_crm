@@ -24,7 +24,7 @@ class SandboxTestCase(CremeTestCase):
         self.assertIsInstance(st_type, TestSandboxType1)
         self.assertEqual(name, st_type.verbose_name)
 
-    def test_registry02(self):
+    def test_registry__errors(self):
         registry = SandboxTypeRegistry()
 
         st_id = SandboxType.generate_id('creme_core', 'test2')
@@ -68,7 +68,7 @@ class SandboxTestCase(CremeTestCase):
             ],
         )
 
-    def test_registry03(self):
+    def test_registry__empty_id(self):
         "Empty ID."
         class TestSandboxType(SandboxType):
             # id = SandboxType.generate_id('creme_core', 'test')  NOPE

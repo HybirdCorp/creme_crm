@@ -32,7 +32,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             str(cm2.exception)
         )
 
-    def test_basic_get_item01(self):
+    def test_basic_get_item__tuples(self):
         "Constructor with tuples."
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name', required=False)
@@ -82,7 +82,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             # Already pop
             blocks['names']  # NOQA
 
-    def test_basic_get_item02(self):
+    def test_basic_get_item__dicts(self):
         "Constructor with dicts."
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name', required=False)
@@ -163,7 +163,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
 
         self.assertEqual('Details', blocks_list[1].label)
 
-    def test_invalid_field01(self):
+    def test_invalid_field(self):
         class TestForm(forms.Form):
             last_name = forms.CharField(label='Last name')
 
@@ -179,11 +179,10 @@ class FieldBlockManagerTestCase(CremeTestCase):
             group = blocks['names']
 
         self.assertListEqual(
-            ['last_name'],
-            [bfield.name for bfield in group.bound_fields],
+            ['last_name'], [bfield.name for bfield in group.bound_fields],
         )
 
-    def test_invalid_field02(self):
+    def test_excluded_field(self):
         user = self.get_root_user()
 
         block_id = 'particulars'
@@ -212,7 +211,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         self.assertEqual(3, len(bound_fields))
         self.assertEqual('id_email', bound_fields[1].auto_id)
 
-    def test_wildcard01(self):
+    def test_wildcard__second_group(self):
         "Wildcard in second group."
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name', required=False)
@@ -236,7 +235,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             [bfield.name for bfield in blocks['details'].bound_fields],
         )
 
-    def test_wildcard02(self):
+    def test_wildcard__first_group(self):
         "Wildcard in first group + layout."
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name', required=False)
@@ -262,7 +261,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             [bfield.name for bfield in blocks['details'].bound_fields]
         )
 
-    def test_wildcard03(self):
+    def test_wildcard__error(self):
         "Several wildcards => error."
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name')
@@ -283,7 +282,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_new01(self):
+    def test_new(self):
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name')
             last_name = forms.CharField(label='Last name')
@@ -329,7 +328,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             [fb.id for fb in fbm2.build(form)],
         )
 
-    def test_new_merge(self):
+    def test_new__merge(self):
         "Block merge."
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name')
@@ -369,7 +368,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             [bfield.name for bfield in details_group.bound_fields],
         )
 
-    def test_new_wildcard01(self):
+    def test_new__wildcard__extend_parent(self):
         "Extend parent wildcard => error."
         fbm1 = FieldBlockManager(
             ('names', 'Names', '*'),
@@ -386,7 +385,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             str(cm.exception)
         )
 
-    def test_new_wildcard02(self):
+    def test_new__wildcard__extend(self):
         "Extend with wildcard => error."
         fbm1 = FieldBlockManager(
             ('names', 'Names', ('first_name', 'last_name')),
@@ -403,7 +402,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             str(cm.exception)
         )
 
-    def test_new_dictarg(self):
+    def test_new__dicts(self):
         "Dicts arguments."
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name')
@@ -466,7 +465,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         self.assertEqual(LAYOUT_REGULAR,    blocks['address'].layout)
         self.assertEqual(LAYOUT_DUAL_FIRST, blocks['other'].layout)
 
-    def test_new_order01(self):
+    def test_new__order(self):
         "<order> argument."
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name')
@@ -531,7 +530,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             [fb.id for fb in fbm2.build(TestForm())],
         )
 
-    def test_new_order02(self):
+    def test_new__order__big(self):
         "Big <order> argument."
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name')
@@ -570,7 +569,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             [fb.id for fb in fbm2.build(TestForm())],
         )
 
-    def test_new_order03(self):
+    def test_new__order__init(self):
         "No <order> in __init__."
         with self.assertRaises(ValueError) as cm:
             FieldBlockManager(
@@ -587,7 +586,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_new_error(self):
+    def test_new__error(self):
         fbm1 = FieldBlockManager(
             ('names', 'Names', ('last_name', 'first_name')),
         )

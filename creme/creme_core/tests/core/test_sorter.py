@@ -101,7 +101,7 @@ class QuerySorterTestCase(CremeTestCase):
   [EntityCellFunctionField.type_id="function_field"]:
     FunctionFieldSorterRegistry""", ps)
 
-    def test_regularfield_default_oneorder_01(self):
+    def test_regular_field__default__1_order__natural(self):
         "Ordering: natural ordering key."
         sorter = QuerySorter(CellSorterRegistry())
 
@@ -139,7 +139,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(key, sortinfo3.main_cell_key)
         self.assertTrue(sortinfo3.main_order.desc)
 
-    def test_regularfield_default_oneorder_02(self):
+    def test_regular_field__default__1_order__not_natural(self):
         "Ordering: add a not natural ordering key."
         sorter = QuerySorter()
         field_name1 = 'name'
@@ -157,7 +157,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(key, sort_info.main_cell_key)
         self.assertTrue(sort_info.main_order.asc)
 
-    def test_regularfield_default_oneorder_03(self):
+    def test_regular_field__default__1_order__empty_cell_key(self):
         "Empty cell key => fallback on natural model ordering."
         sorter = QuerySorter(cell_sorter_registry=CellSorterRegistry())
 
@@ -173,7 +173,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(main_cell.key, sort_info.main_cell_key)
         self.assertTrue(sort_info.main_order.asc)
 
-    def test_regularfield_default_oneorder_04(self):
+    def test_regular_field__default__1_order__invalid_cell_key(self):
         "Invalid cell key => fallback on natural model ordering."
         sorter = QuerySorter()
 
@@ -186,7 +186,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(cells[0].key, sort_info.main_cell_key)
         self.assertTrue(sort_info.main_order.asc)
 
-    def test_regularfield_default_oneorder_05(self):
+    def test_regular_field__default__1_order__cell_not_displayed(self):
         "Cell is not displayed => fallback on basic ordering."
         sorter = QuerySorter()
 
@@ -212,7 +212,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertIsNone(sortinfo2.main_cell_key)  # TODO: Fallback on first column ?
         self.assertTrue(sortinfo2.main_order.asc)
 
-    def test_regularfield_default_oneorder_06(self):
+    def test_regular_field__default__1_order__fk_to_entity(self):
         "Ordering: add a not natural ordering key (FK to CremeEntity)."
         sorter = QuerySorter()
 
@@ -237,7 +237,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(cells[1].key, sortinfo.main_cell_key)
         self.assertTrue(sortinfo.main_order.asc)
 
-    def test_regularfield_default_oneorder_07(self):
+    def test_regular_field__default__1_order__fk_to_model(self):
         "Ordering: add a not natural ordering key (FK to CremeModel)."
         self.assertEqual(('order',), FakeSector._meta.ordering)
 
@@ -257,7 +257,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(key,   sort_info.main_cell_key)
         self.assertTrue(sort_info.main_order.asc)
 
-    def test_regularfield_default_oneorder_08(self):
+    def test_regular_field__default__1_order__natural_not_present(self):
         "Natural ordering field not in cells."
         sorter = QuerySorter()
 
@@ -274,7 +274,7 @@ class QuerySorterTestCase(CremeTestCase):
         sort_info2 = sorter.get(model=FakeOrganisation, cells=cells, cell_key=None)
         self.assertEqual(('cremeentity_ptr_id',), sort_info2.field_names)
 
-    def test_regularfield_default_twoorders_01(self):
+    def test_regular_field__default__2_orders__2_natural(self):
         "meta.ordering: 2 fields."
         sorter = QuerySorter()
 
@@ -305,7 +305,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(key, sort_info2.main_cell_key)
         self.assertTrue(sort_info2.main_order.desc)
 
-    def test_regularfield_default_twoorders_02(self):
+    def test_regular_field__default__2_orders__1_not_natural(self):
         "Add not natural ordering."
         sorter = QuerySorter()
         field_name1 = 'first_name'
@@ -335,7 +335,7 @@ class QuerySorterTestCase(CremeTestCase):
             sort_info2.field_names,
         )
 
-    def test_regularfield_default_twoorders_03(self):
+    def test_regular_field__default__2_orders__invalid_order(self):
         "Add invalid order."
         sorter = QuerySorter()
 
@@ -354,7 +354,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(cells[1].key, sort_info.main_cell_key)
         self.assertTrue(sort_info.main_order.asc)
 
-    def test_regularfield_default_twoorders_04(self):
+    def test_regular_field__default__2_orders__none_key(self):
         sorter = QuerySorter()
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
@@ -365,7 +365,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertIsNone(sort_info.main_cell_key)  # Fallback to (first) natural ordering field
         self.assertTrue(sort_info.main_order.asc)
 
-    def test_regularfield_default_twoorders_05(self):
+    def test_regular_field__default__2_orders__1_not_present(self):
         "One natural ordering field not in cells."
         sorter = QuerySorter()
 
@@ -386,7 +386,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(cells[1].key, sort_info.main_cell_key)  # First natural order
         self.assertTrue(sort_info.main_order.asc)
 
-    def test_regularfield_default_twoorders_06(self):
+    def test_regular_field__default__2_orders__1_not_present__index(self):
         "One natural ordering field not in cells, but a smart index exists."
         sorter = QuerySorter()
 
@@ -399,7 +399,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(cells[1].key,   sort_info.main_cell_key)  # First natural order
         self.assertTrue(sort_info.main_order.asc)
 
-    def test_regularfield_default_descorder_01(self):
+    def test_regular_field__default__desc(self):
         "Natural ordering is DESC."
         sorter = QuerySorter()
 
@@ -427,7 +427,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(key,    sort_info2.main_cell_key)
         self.assertEqual('DESC', str(sort_info2.main_order))
 
-    def test_regularfield_default_descorder_02(self):
+    def test_regular_field__default__desc__fallback(self):
         "Natural ordering is DESC => Empty GET/POST => DESC."
         sorter = QuerySorter()
 
@@ -448,7 +448,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(key, sort_info.main_cell_key)
         self.assertTrue(sort_info.main_order.desc)
 
-    def test_regularfield_default_descorder_03(self):
+    def test_regular_field__default__desc__additional_field(self):
         "Natural ordering is DESC + another field."
         sorter = QuerySorter()
         field_name1 = 'start'
@@ -492,7 +492,7 @@ class QuerySorterTestCase(CremeTestCase):
             sort_info3.field_names,
         )
 
-    def test_regularfield_default_twoordersdesc(self):
+    def test_regular_field__default__desc__2_orders(self):
         "meta.ordering: 2 fields (one is DESC)."
         sorter = QuerySorter()
 
@@ -523,7 +523,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(key, sortinfo2.main_cell_key)
         self.assertTrue(sortinfo2.main_order.desc)
 
-    def test_regularfield_registry_argument(self):
+    def test_regular_field__registry_argument(self):
         class MyFKRegistry(CellSorterRegistry):
             def get_field_name(this, cell):
                 return cell.value + '_id'
@@ -550,7 +550,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(cells[1].key, sort_info.main_cell_key)
         self.assertTrue(sort_info.main_order.asc)
 
-    def test_regularfield_register_fieldtype(self):
+    def test_regular_field__register_fieldtype(self):
         "Register model field type."
         sorter = QuerySorter()
 
@@ -580,7 +580,7 @@ class QuerySorterTestCase(CremeTestCase):
         sort_info = sorter.get(model=FakeOrganisation, cells=cells, cell_key=cells[1].key)
         self.assertEqual((field_name1, 'cremeentity_ptr_id'), sort_info.field_names)
 
-    def test_regularfield_register_field(self):
+    def test_regular_field__register_field(self):
         "Register model field."
         sorter = QuerySorter()
 
@@ -611,7 +611,7 @@ class QuerySorterTestCase(CremeTestCase):
             sort_info.field_names,
         )
 
-    def test_regularfield_default_not_sortable01(self):
+    def test_regular_field__default_not_sortable__date_period(self):
         "DatePeriodField is not sortable."
         sorter = QuerySorter()
 
@@ -628,7 +628,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(cells[0].key, sort_info.main_cell_key)
         self.assertTrue(sort_info.main_order.asc)
 
-    def test_regularfield_default_not_sortable02(self):
+    def test_regular_field__default_not_sortable__m2m(self):
         "ManyToManyField is not sortable."
         registry = CellSorterRegistry()
         sorter = QuerySorter()
@@ -660,7 +660,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(('cremeentity_ptr_id',), sort_info2.field_names)
         self.assertIsNone(sort_info2.main_cell_key)
 
-    def test_regularfield_default_autofield(self):
+    def test_regular_field__default_autofield(self):
         "AutoField is sortable."
         cell = EntityCellRegularField.build(model=HistoryLine, name='id')
         self.assertEqual('id', CellSorterRegistry().get_field_name(cell))
@@ -704,7 +704,7 @@ class QuerySorterTestCase(CremeTestCase):
 
     # def test_customfield(self):  TODO
 
-    def test_functionfield01(self):
+    def test_function_field__default(self):
         "Function field are not sortable by default."
         sorter = QuerySorter()
 
@@ -723,7 +723,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(cells[0].key, sort_info.main_cell_key)
         self.assertTrue(sort_info.main_order.asc)
 
-    def test_functionfield02(self):
+    def test_function_field__register__not_sortable(self):
         "Register a function field."
         class PhoneFunctionField(FunctionField):
             name = 'phone_or_mobile'
@@ -771,7 +771,7 @@ class QuerySorterTestCase(CremeTestCase):
             ('name', 'cremeentity_ptr_id'), sort_info2.field_names,
         )
 
-    def test_functionfield03(self):
+    def test_function_field__register__sortable(self):
         "<sorter_class> attribute."
         class PhoneSorter(AbstractCellSorter):
             def get_field_name(this, cell):

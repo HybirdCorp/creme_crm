@@ -584,7 +584,7 @@ class HeaderFilterTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             hf.entity_type  # NOQA
 
-    def test_cells_property01(self):
+    def test_cells_property(self):
         model = FakeContact
         fname1 = 'last_name'
         cfield = CustomField.objects.create(
@@ -633,7 +633,7 @@ class HeaderFilterTestCase(CremeTestCase):
             hf.cells,
         )
 
-    def test_cells_property02(self):
+    def test_cells_property__none_value(self):
         "None value are ignored."
         hf = HeaderFilter.objects.proxy(
             id='test-hf01', name='Contact view', model=FakeContact, cells=[],
@@ -653,7 +653,7 @@ class HeaderFilterTestCase(CremeTestCase):
             self.refresh(hf).cells,
         )
 
-    def test_cells_property_errors01(self):
+    def test_cells_property__errors(self):
         ffield_name = 'get_pretty_properties'
         rfield_name = 'last_name'
         hf = HeaderFilter.objects.proxy(
@@ -769,7 +769,7 @@ class HeaderFilterTestCase(CremeTestCase):
             hf.filtered_cells,
         )
 
-    def test_populate_entities_fields01(self):
+    def test_populate_entities_fields__no_fk(self):
         "Regular fields: no FK."
         user = self.get_root_user()
         hf = HeaderFilter.objects.proxy(
@@ -793,7 +793,7 @@ class HeaderFilterTestCase(CremeTestCase):
         with self.assertNumQueries(1):
             contacts[0].position  # NOQA
 
-    def test_populate_entities_fields02(self):
+    def test_populate_entities_fields__fk(self):
         "Regular fields: FK."
         user = self.get_root_user()
         hf = HeaderFilter.objects.proxy(
@@ -825,7 +825,7 @@ class HeaderFilterTestCase(CremeTestCase):
             contacts[0].civility
             contacts[1].civility
 
-    def test_populate_entities_fields03(self):
+    def test_populate_entities_fields__invalid_fields(self):
         "Regular fields: invalid fields are removed automatically."
         user = self.get_root_user()
 

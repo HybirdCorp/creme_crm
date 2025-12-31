@@ -293,7 +293,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self.assertEqual('<h1>3</h1>', render.strip())
 
-    def test_templatize_error01(self):
+    def test_templatize__required_arguments(self):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template(
                 r'{% load creme_core_tags %}'
@@ -305,7 +305,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_templatize_error02(self):
+    def test_templatize__invalid_arguments(self):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template(
                 r'{% load creme_core_tags %}'
@@ -317,7 +317,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_templatize_error03(self):
+    def test_templatize__quotes(self):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template(
                 r'{% load creme_core_tags %}'
@@ -675,8 +675,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render.strip(),
         )
 
-    def test_url01(self):
-        "No parameter."
+    def test_url__no_argument(self):
         url_name = 'creme_core__delete_entities'
 
         with self.assertNoException():
@@ -690,8 +689,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render.strip(),
         )
 
-    def test_url02(self):
-        "One parameter."
+    def test_url__one_argument(self):
         url_name = 'creme_core__delete_entity'
         entity_id = 12
 
@@ -706,7 +704,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render.strip(),
         )
 
-    def test_url_join_empty(self):
+    def test_url_join__empty(self):
         with self.assertNoException():
             render2 = Template(
                 r'{% load creme_core_tags %}'
@@ -715,7 +713,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self.assertFalse(render2.strip())
 
-    def test_url_join_no_argument(self):
+    def test_url_join__no_argument(self):
         url = '/creme_core/foobar'
 
         with self.assertNoException():
@@ -727,7 +725,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self.assertHTMLEqual(f'<a href="{url}">Link</a>', render2.strip())
 
-    def test_url_join_several_arguments(self):
+    def test_url_join__several_arguments(self):
         url = '/creme_core/foobar'
         brick_id1 = 'brick-core-entities'
         brick_id2 = 'brick-core-properties'
@@ -747,7 +745,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             ),
         )
 
-    def test_url_join_error(self):
+    def test_url_join__error(self):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template(
                 r'{% load creme_core_tags %}'
@@ -759,7 +757,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_url_join_list(self):
+    def test_url_join__list(self):
         "List arguments."
         url = '/creme_core/foobar'
         brick_ids = ['brick-core-entities', 'brick-core-properties']
@@ -776,8 +774,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render.strip()
         )
 
-    def test_url_join_append_argument(self):
-        "Already a GET parameter"
+    def test_url_join__append_argument(self):
+        "Already a GET parameter."
         url = '/creme_core/foobar?arg1=value'
         brick_id = 'brick-core-entities'
 
@@ -794,7 +792,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render.strip()
         )
 
-    def test_url_join_append_list_arg(self):
+    def test_url_join__append_list_arg(self):
         "Already a GET parameter + list parameter."
         url = '/creme_core/foobar?arg1=value'
         brick_ids = ['brick-core-entities', 'brick-core-properties']
@@ -811,7 +809,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render.strip()
         )
 
-    def test_url_join_escaping(self):
+    def test_url_join__escaping(self):
         url = '/creme_core/search'
         search = 'orange & lemons'
 

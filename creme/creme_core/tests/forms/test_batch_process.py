@@ -13,18 +13,18 @@ class BatchActionsFieldTestCase(CremeTestCase):
     def build_data(name, operator, value):
         return json_dump([{'name': name, 'operator': operator, 'value': value}])
 
-    def test_clean_empty_required(self):
+    def test_clean__empty__required(self):
         field = BatchActionsField(required=True)
         msg = _('This field is required.')
         self.assertFormfieldError(field=field, value=None, messages=msg, codes='required')
         self.assertFormfieldError(field=field, value='', messages=msg, codes='required')
         self.assertFormfieldError(field=field, value='[]', messages=msg, codes='required')
 
-    def test_clean_empty_not_required(self):
+    def test_clean__empty__not_required(self):
         field = BatchActionsField(required=False)
         self.assertNoException(field.clean, None)
 
-    def test_clean_invalid_data_type(self):
+    def test_clean__invalid_data_type(self):
         field = BatchActionsField()
         msg = _('Invalid type')
         self.assertFormfieldError(
@@ -42,7 +42,7 @@ class BatchActionsFieldTestCase(CremeTestCase):
             field=field, value='1', messages=msg, codes='invalidtype',
         )  # Not iterable
 
-    def test_clean_incomplete_data_required(self):
+    def test_clean__incomplete_data_required(self):
         field = BatchActionsField(model=FakeContact)
 
         # No name
@@ -63,7 +63,7 @@ class BatchActionsFieldTestCase(CremeTestCase):
             messages=msg, codes='required',
         )
 
-    def test_clean_invalid_field01(self):
+    def test_clean__invalid_field(self):
         field = BatchActionsField(model=FakeContact)
         msg = _('This field is invalid with this model.')
         self.assertFormfieldError(
@@ -91,7 +91,7 @@ class BatchActionsFieldTestCase(CremeTestCase):
             ),
         )
 
-    def test_clean_invalid_field02(self):
+    def test_clean__invalid_field__choices(self):
         field = BatchActionsField(model=FakeEmailCampaign)
         self.assertFormfieldError(
             field=field,
@@ -104,7 +104,7 @@ class BatchActionsFieldTestCase(CremeTestCase):
             ),
         )
 
-    def test_clean_invalid_operator01(self):
+    def test_clean__invalid_operator(self):
         field = BatchActionsField(model=FakeContact)
         msg = _('This operator is invalid.')
         self.assertFormfieldError(
@@ -124,7 +124,7 @@ class BatchActionsFieldTestCase(CremeTestCase):
             ),
         )
 
-    def test_value_required(self):
+    def test_value__required(self):
         self.assertFormfieldError(
             field=BatchActionsField(model=FakeContact),
             value=self.build_data(
@@ -137,7 +137,7 @@ class BatchActionsFieldTestCase(CremeTestCase):
             codes='invalidvalue',
         )
 
-    def test_value_typeerror(self):
+    def test_value__type_error(self):
         self.assertFormfieldError(
             field=BatchActionsField(model=FakeContact),
             value=self.build_data(
@@ -153,7 +153,7 @@ class BatchActionsFieldTestCase(CremeTestCase):
             codes='invalidvalue',
         )
 
-    def test_ok01(self):
+    def test_one_action(self):
         with self.assertNumQueries(0):
             field = BatchActionsField(model=FakeContact)
 
@@ -168,8 +168,7 @@ class BatchActionsFieldTestCase(CremeTestCase):
         actions[0](contact)
         self.assertEqual('YARGLAAAAAAAAAAA', contact.description)
 
-    def test_ok02(self):
-        "Several actions."
+    def test_several_actions(self):
         with self.assertNumQueries(0):
             field = BatchActionsField()
             field.model = FakeContact

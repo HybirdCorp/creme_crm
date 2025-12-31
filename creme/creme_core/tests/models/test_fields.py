@@ -18,7 +18,7 @@ from ..base import CremeTestCase
 
 
 class ModelFieldsTestCase(CremeTestCase):
-    def test_CTypeForeignKey01(self):
+    def test_CTypeForeignKey(self):
         ct = ContentType.objects.get_for_model(FakeContact)
         efilter = EntityFilter.objects.create(
             pk='creme_core-test_fakecontact',
@@ -26,7 +26,7 @@ class ModelFieldsTestCase(CremeTestCase):
         )
         self.assertEqual(ct, self.refresh(efilter).entity_type)
 
-    def test_CTypeForeignKey02(self):
+    def test_CTypeForeignKey__class(self):
         "Set a model class directly."
         with self.assertNoException():
             efilter = EntityFilter.objects.create(
@@ -39,12 +39,12 @@ class ModelFieldsTestCase(CremeTestCase):
             self.refresh(efilter).entity_type,
         )
 
-    def test_CTypeOneToOneField01(self):
+    def test_CTypeOneToOneField(self):
         ct = ContentType.objects.get_for_model(FakeContact)
         fconf = FieldsConfig.objects.create(content_type=ct)
         self.assertEqual(ct, self.refresh(fconf).content_type)
 
-    def test_CTypeOneToOneField02(self):
+    def test_CTypeOneToOneField__class(self):
         "Set a model class directly."
         with self.assertNoException():
             fconf = FieldsConfig.objects.create(content_type=FakeContact)
@@ -231,7 +231,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
 
         self.assertEqual(entity, creme_entity)
 
-    def test_missing_ctype01(self):
+    def test_missing_ctype__base_entity(self):
         "CT not set + base entity set => error."
         todo = FakeTodo(
             title='My todo',
@@ -247,7 +247,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
             error_context.exception.args[0]
         )
 
-    def test_missing_ctype02(self):
+    def test_missing_ctype__entity_id(self):
         "CT not set + entity ID set => error."
         todo = FakeTodo(title='My todo', entity_id=self.entity.id)
 
@@ -260,8 +260,8 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
             error_context.exception.args[0]
         )
 
-    def test_cache_for_set01(self):
-        "After a '__set__' with a real entity, '__get__' uses no query."
+    def test_cache_for_set(self):
+        "After a '__set__' with a real entity, '__get__' performs no query."
         entity = self.entity
         todo = FakeTodo(title='My todo')
 
@@ -273,8 +273,8 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
 
         self.assertEqual(entity, creme_entity)
 
-    def test_cache_for_set02(self):
-        """After a '__set__' with a real entity, '__get__' uses no query
+    def test_cache_for_set__base_entity(self):
+        """After a '__set__' with a real entity, '__get__' performs no query
         (base entity version).
         """
         entity = CremeEntity.objects.get(id=self.entity.id)
@@ -310,7 +310,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
             creme_entity2 = todo.creme_entity
         self.assertEqual(entity, creme_entity2)
 
-    def test_set_none01(self):
+    def test_set_none(self):
         entity = self.entity
         todo = FakeTodo(
             title='My todo',
@@ -327,7 +327,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
 
         self.assertIsNone(creme_entity)
 
-    def test_set_none02(self):
+    def test_set_none__virtual_field(self):
         "Set None after not None on virtual field (cache invalidation)."
         entity = self.entity.get_real_entity()
         todo = FakeTodo(title='My todo', creme_entity=entity)
@@ -341,7 +341,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
 
         self.assertIsNone(creme_entity)
 
-    def test_get_none01(self):
+    def test_get_none(self):
         "Get initial None."
         todo = FakeTodo(
             title='My todo',
@@ -367,7 +367,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
 
         self.assertEqual(entity, creme_entity2)
 
-    def test_get_none02(self):
+    def test_get_none__explicit(self):
         "Get initial None (explicitly set)."
         todo = FakeTodo(title='My todo', entity=None)
 
@@ -376,7 +376,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
 
         self.assertIsNone(creme_entity)
 
-    def test_bad_ctype01(self):
+    def test_bad_ctype__entity_id(self):
         "Bad CT id + base entity id."
         todo = FakeTodo(
             title='My todo',
@@ -388,7 +388,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         with self.assertRaises(FakeOrganisation.DoesNotExist):
             todo.creme_entity  # NOQA
 
-    def test_bad_ctype02(self):
+    def test_bad_ctype__base_entity(self):
         "Bad CT + base entity."
         todo = FakeTodo(
             title='My todo',

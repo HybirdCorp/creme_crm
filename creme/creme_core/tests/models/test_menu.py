@@ -5,7 +5,7 @@ from ..fake_menu import FakeContactsEntry
 
 
 class MenuConfigItemTestCase(CremeTestCase):
-    def test_entry_data01(self):
+    def test_entry_data__empty(self):
         "Empty."
         item = MenuConfigItem.objects.create(order=0, entry_id=FakeContactsEntry.id)
 
@@ -15,7 +15,7 @@ class MenuConfigItemTestCase(CremeTestCase):
         self.assertIsNone(item.role)
         self.assertIs(item.superuser, False)
 
-    def test_entry_data02(self):
+    def test_entry_data__setter(self):
         "Set with attribute."
         label = 'Django'
         item = MenuConfigItem(order=1, entry_id=FakeContactsEntry.id)
@@ -27,7 +27,7 @@ class MenuConfigItemTestCase(CremeTestCase):
         self.assertEqual(1, item.order)
         self.assertDictEqual({'label': label, 'url': url}, item.entry_data)
 
-    def test_entry_data03(self):
+    def test_entry_data__init(self):
         "Set with init."
         url = 'https://www.djangoproject.com'
         item = MenuConfigItem.objects.create(

@@ -51,13 +51,13 @@ s556"""
     def filter(entry):
         return ''.join(char for char in entry if char.isdigit())
 
-    def test_iter_as_slices01(self):
+    def test_iter_as_slices__one_slice(self):
         chunks = [*chunktools.iter_as_slices(self.DATA_UNIX, 1000)]
 
         self.assertEqual(1, len(chunks))
         self.assertEqual(self.DATA_UNIX, ''.join(chunks))
 
-    def test_iter_as_slices02(self):
+    def test_iter_as_slices__several_slices(self):
         assert len(self.DATA_UNIX) % 5 == 0
         chunks = [*chunktools.iter_as_slices(self.DATA_UNIX, 5)]
 
@@ -68,7 +68,7 @@ s556"""
 
         self.assertEqual(self.DATA_UNIX, ''.join(chunks))
 
-    def test_iter_as_slices03(self):
+    def test_iter_as_slices__remaining_slice(self):
         data = self.DATA_UNIX + '9'
         assert len(data) % 5 == 1
         chunks = [*chunktools.iter_as_slices(data, 5)]
@@ -81,11 +81,11 @@ s556"""
         self.assertEqual('9', chunks[-1])
         self.assertEqual(data, ''.join(chunks))
 
-    def test_iter_as_chunks01(self):
+    def test_iter_as_chunks__one_chunk(self):
         chunk = self.get_alone_element(chunktools.iter_as_chunk(self.DATA_UNIX, 1000))
         self.assertEqual(self.DATA_UNIX, ''.join(chunk))
 
-    def test_iter_as_chunks02(self):
+    def test_iter_as_chunks__several_chunks(self):
         assert len(self.DATA_UNIX) % 5 == 0
         chunks = [*chunktools.iter_as_chunk(self.DATA_UNIX, 5)]
 
@@ -97,7 +97,7 @@ s556"""
 
         self.assertEqual(self.DATA_UNIX, ''.join(''.join(chunk) for chunk in chunks))
 
-    def test_iter_as_chunks03(self):
+    def test_iter_as_chunks__remaining_chunk(self):
         data = self.DATA_UNIX + '9'
         assert len(data) % 5 == 1
         chunks = [*chunktools.iter_as_chunk(data, 5)]
@@ -110,8 +110,7 @@ s556"""
         self.assertEqual(['9'], chunks[-1])
         self.assertEqual(data, ''.join(''.join(chunk) for chunk in chunks))
 
-    def test_iter_splitchunks_size_under_linesize(self):
-        "Tests small_chunks"
+    def test_iter_splitchunks__size_under_linesize(self):
         chunk_size = 5
         entries = [
             *chunktools.iter_splitchunks(
@@ -120,8 +119,7 @@ s556"""
         ]
         self.assertFilteredEntries(entries)
 
-    def test_iter_splitchunks_linesize_over_limit(self):
-        "Tests small_chunks."
+    def test_iter_splitchunks__line_size_over_limit(self):
         chunk_size = 5
         chunks = self.chunks(chunk_size, '0405996654\n0405996653\n0405996652')
 
@@ -135,16 +133,14 @@ s556"""
 
         self.assertEqual(str(error.exception), 'line length is over %d characters' % 10)
 
-    def test_iter_splitchunks_size_1(self):
-        "Tests small_chunks."
+    def test_iter_splitchunks__size_1(self):
         self.assertFilteredEntries([
             *chunktools.iter_splitchunks(
                 self.chunks(chunk_size=1), '\n', ChunkToolsTestCase.filter,
             )
         ])
 
-    def test_iter_splitchunks_size_over_linesize(self):
-        "Test big_chunks."
+    def test_iter_splitchunks__size_over_line_size(self):
         chunk_size = len(self.DATA_UNIX) / 2
         self.assertFilteredEntries([
             *chunktools.iter_splitchunks(
@@ -152,8 +148,7 @@ s556"""
             )
         ])
 
-    def test_iter_splitchunks_one_chunk(self):
-        "Test with one chunk."
+    def test_iter_splitchunks__one_chunk(self):
         chunk_size = len(self.DATA_UNIX) * 2
         self.assertFilteredEntries([
             *chunktools.iter_splitchunks(
@@ -161,12 +156,12 @@ s556"""
             ),
         ])
 
-    def test_iter_splitchunks_no_filter(self):
+    def test_iter_splitchunks__no_filter(self):
         self.assertSplitEntries([
             *chunktools.iter_splitchunks(self.chunks(5), '\n', None),
         ])
 
-    def test_iter_splitchunks_nbytes_key(self):
+    def test_iter_splitchunks__nbytes_key(self):
         data = self.DATA_WINDOWS
         self.assertFilteredEntries([
             *chunktools.iter_splitchunks(
@@ -184,7 +179,7 @@ s556"""
             ),
         ])
 
-    def test_iter_splitchunks_nbytes_key_chunk_limits(self):
+    def test_iter_splitchunks__nbytes_key__chunk_limits(self):
         self.assertListEqual(
             ['1234', '56789012', '345', '12'],
             [

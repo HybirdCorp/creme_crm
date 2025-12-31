@@ -21,7 +21,7 @@ class EntityViewsTestCase(CremeTestCase):
     CLONE_URL    = reverse('creme_core__clone_entity')
     RESTRICT_URL = reverse('creme_core__restrict_entity_2_superusers')
 
-    def test_json_entity_get01(self):
+    def test_json_entity_get(self):
         user = self.login_as_root_and_get()
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -44,13 +44,13 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertGET(400, reverse('creme_core__entity_as_json', args=(self.UNUSED_PK,)))
         self.assertGET403(url, data={'fields': ['id', 'unknown']})
 
-    def test_json_entity_get02(self):
+    def test_json_entity_get__regular_user(self):
         self.login_as_standard()
 
         nerv = FakeOrganisation.objects.create(user=self.get_root_user(), name='Nerv')
         self.assertGET(400, reverse('creme_core__entity_as_json', args=(nerv.id,)))
 
-    def test_json_entity_get03(self):
+    def test_json_entity_get__base_not_viewable(self):
         "No credentials for the basic CremeEntity, but real entity is viewable."
         user = self.login_as_standard(
             allowed_apps=['creme_config'],  # Not 'creme_core'
@@ -65,7 +65,7 @@ class EntityViewsTestCase(CremeTestCase):
         )
         self.assertListEqual([[str(e)]], response.json())
 
-    def test_get_creme_entities_repr01(self):
+    def test_get_creme_entities_repr(self):
         user = self.login_as_root_and_get()
 
         with self.assertNoException():
@@ -84,7 +84,7 @@ class EntityViewsTestCase(CremeTestCase):
             response.json(),
         )
 
-    def test_get_creme_entities_repr02(self):
+    def test_get_creme_entities_repr__complex(self):
         "Several entities, several ContentTypes, credentials."
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*')
@@ -138,7 +138,7 @@ class EntityViewsTestCase(CremeTestCase):
 
         return reverse('creme_core__entity_info_fields', args=(ct.id,))
 
-    def test_get_info_fields01(self):
+    def test_get_info_fields(self):
         self.login_as_root()
 
         response = self.assertGET200(self._build_test_get_info_fields_url(FakeContact))
@@ -162,7 +162,7 @@ class EntityViewsTestCase(CremeTestCase):
             json_dict['last_name'],
         )
 
-    def test_get_info_fields02(self):
+    def test_get_info_fields__other_model(self):
         self.login_as_root()
 
         response = self.assertGET200(self._build_test_get_info_fields_url(FakeOrganisation))
@@ -196,7 +196,7 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertEqual(_('Title'), json_dict['title'])
         self.assertEqual(_('File'), json_dict['filedata'])
 
-    def test_get_info_fields__fieldsconfig(self):
+    def test_get_info_fields__fields_config(self):
         self.login_as_root()
 
         FieldsConfig.objects.create(
@@ -314,7 +314,7 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertEqual(mario.last_name, oiram.last_name)
         self.assertEqual(oiram.get_absolute_url(), response.text)
 
-    def test_restrict_entity_2_superusers01(self):
+    def test_restrict_entity_2_superusers(self):
         user = self.login_as_root_and_get()
         contact = FakeContact.objects.create(
             user=user, first_name='Eikichi', last_name='Onizuka',
@@ -333,7 +333,7 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertPOST200(url, data={**data, 'set': 'false'})
         self.assertIsNone(self.refresh(contact).sandbox)
 
-    def test_restrict_entity_2_superusers02(self):
+    def test_restrict_entity_2_superusers__already_sandboxed(self):
         "Entity already in a sandbox."
         user = self.login_as_root_and_get()
         sandbox = Sandbox.objects.create(type_id='creme_core-dont_care', user=user)
@@ -348,7 +348,7 @@ class EntityViewsTestCase(CremeTestCase):
 
         self.assertEqual(sandbox, self.refresh(contact).sandbox)
 
-    def test_restrict_entity_2_superusers03(self):
+    def test_restrict_entity_2_superusers__unset_not_sandboxed(self):
         "Unset entity with no sandbox."
         user = self.login_as_root_and_get()
         contact = FakeContact.objects.create(
@@ -356,8 +356,7 @@ class EntityViewsTestCase(CremeTestCase):
         )
         self.assertPOST409(self.RESTRICT_URL, data={'id': contact.id, 'set': 'false'})
 
-    def test_restrict_entity_2_superusers04(self):
-        "Not super-user."
+    def test_restrict_entity_2_superusers__regular_user(self):
         user = self.login_as_standard()
         contact = FakeContact.objects.create(
             user=user, first_name='Eikichi', last_name='Onizuka',

@@ -37,7 +37,7 @@ class ImprintManagerTestCase(CremeTestCase):
         with self.assertRaises(manager.RegistrationError):
             manager.register(FakeContact, minutes=90)
 
-    def test_create01(self):
+    def test_create_imprint(self):
         manager = ImprintManager()
         manager.register(FakeContact, minutes=60)
 
@@ -54,7 +54,7 @@ class ImprintManagerTestCase(CremeTestCase):
         self.assertEqual(willy, imprint.real_entity)
         self.assertEqual(user, imprint.user)
 
-    def test_create02(self):
+    def test_create_imprint__too_short(self):
         "Delay is not passed."
         manager = ImprintManager()
         manager.register(FakeContact, minutes=60)
@@ -79,8 +79,8 @@ class ImprintManagerTestCase(CremeTestCase):
         Imprint.objects.filter(id=imprint1.id).update(date=now() - timedelta(minutes=59))
         self.assertIsNone(manager.create_imprint(entity=willy, user=user))
 
-    def test_create03(self):
-        "Delay_is passed."
+    def test_create_imprint__long_enough(self):
+        "Delay is passed."
         manager = ImprintManager()
         manager.register(FakeContact, minutes=30)
 
@@ -92,8 +92,7 @@ class ImprintManagerTestCase(CremeTestCase):
 
         self.assertIsNotNone(manager.create_imprint(entity=willy, user=user))
 
-    def test_create04(self):
-        "Model not registered."
+    def test_create_imprint__model_not_registered(self):
         manager = ImprintManager()
         manager.register(FakeDocument, minutes=60)
 

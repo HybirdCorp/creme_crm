@@ -87,7 +87,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
         response = self.assertGET200(self._build_add_url(FakeOrganisation), follow=True)
         self.assertRedirects(response, reverse('creme_core__my_jobs'))
 
-    def test_batching_upper01(self):
+    def test_batching__upper(self):
         queue = get_queue()
         queue.clear()
 
@@ -186,8 +186,8 @@ class BatchProcessViewsTestCase(CremeTestCase):
 
         self.assertListEqual([], queue.refreshed_jobs)
 
-    def test_batching_lower01(self):
-        "Lower OP & use CT."
+    def test_batching__lower(self):
+        "Lower OP & use ContentType."
         self.login_as_root()
 
         create_contact = partial(FakeContact.objects.create, user=self.get_root_user())
@@ -211,7 +211,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
         self.assertEqual('saki',     self.refresh(contact01).first_name)
         self.assertEqual('harunobu', self.refresh(contact02).first_name)
 
-    def test_batching_suffix(self):
+    def test_batching__suffix(self):
         "Operator value + unicode char."
         self.login_as_root()
 
@@ -236,7 +236,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
         self.assertEqual('Saki-adorée',   self.refresh(contact01).first_name)
         self.assertEqual('Kanako-adorée', self.refresh(contact02).first_name)
 
-    def test_validation_error01(self):
+    def test_validation_error(self):
         "Invalid field."
         self.login_as_root()
 
@@ -321,7 +321,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
         self.assertEqual('Kanji',    contact.first_name)
         self.assertEqual('SASAHARA', contact.last_name)
 
-    def test_several_actions_error(self):
+    def test_several_actions__error(self):
         "Several times the same field."
         self.login_as_root()
 
@@ -343,7 +343,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
             },
         )
 
-    def test_with_filter01(self):
+    def test_with_filter(self):
         self.login_as_root()
 
         create_orga = partial(FakeOrganisation.objects.create, user=self.get_root_user())
@@ -410,7 +410,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
             progress.label,
         )
 
-    def test_with_filter02(self):
+    def test_with_filter__private_filters(self):
         "Private filters (which belong to other users) are forbidden."
         self.login_as_root()
 
@@ -446,7 +446,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
             ),
         )
 
-    def test_with_filter03(self):
+    def test_with_filter__current_user(self):
         "__currentuser__ condition (need global_info)."
         user = self.login_as_root_and_get()
 
@@ -651,12 +651,12 @@ class BatchProcessViewsTestCase(CremeTestCase):
     def build_ops_url(self, ct_id, field):
         return reverse('creme_core__batch_process_ops', args=(ct_id, field))
 
-    def test_get_ops01(self):
+    def test_get_ops__unknown_ctype(self):
         "Unknown ContentType."
         self.login_as_root()
         self.assertGET404(self.build_ops_url(ct_id=1216545, field='name'))
 
-    def test_get_ops02(self):
+    def test_get_ops__char_field(self):
         "CharField."
         self.login_as_root()
 
@@ -673,8 +673,8 @@ class BatchProcessViewsTestCase(CremeTestCase):
         assertStrOps('first_name')
         assertStrOps('email')
 
-    def test_get_ops03(self):
-        "Organisation CT, other category of operator."
+    def test_get_ops__other_category(self):
+        "Organisation's ContentType, other category of operator."
         self.login_as_root()
 
         response = self.assertGET200(self.build_ops_url(self.orga_ct.id, 'capital'))
@@ -684,20 +684,18 @@ class BatchProcessViewsTestCase(CremeTestCase):
         self.assertIn(['sub_int', _('Subtract')], json_data)
         self.assertNotIn('prefix', (e[0] for e in json_data))
 
-    def test_get_ops04(self):
-        "Empty category."
+    def test_get_ops__empty_category(self):
         self.login_as_root()
 
         response = self.assertGET200(self.build_ops_url(self.contact_ct_id, 'image'))
         self.assertListEqual([], response.json())
 
-    def test_get_ops05(self):
+    def test_get_ops__no_app_perm(self):
         "No app credentials."
         self.login_as_standard(allowed_apps=['documents'])  # Not 'creme_core'
         self.assertGET403(self.build_ops_url(self.contact_ct_id, 'first_name'))
 
-    def test_get_ops06(self):
-        "Unknown field."
+    def test_get_ops__unknown_field(self):
         self.login_as_root()
         self.assertGET(400, self.build_ops_url(self.contact_ct_id, 'foobar'))
 
