@@ -175,6 +175,11 @@ creme.utils.ajaxQuery = function(url, options, data) {
         warnOnFail: true
     }, options || {});
 
+    if (options.followRedirect) {
+        options.backend = options.backend || {};
+        options.backend.redirect = 'follow';
+    }
+
     var action = new creme.component.Action(function() {
         var self = this;
         var query = creme.ajax.query(url, options, data);

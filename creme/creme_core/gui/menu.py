@@ -23,10 +23,17 @@ from collections import defaultdict
 from collections.abc import Iterable, Iterator, Sequence
 
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.template.loader import get_template
 from django.urls import reverse_lazy as reverse
 from django.utils.html import format_html, mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+
+from creme.creme_core.gui.icons import (
+    BaseIcon,
+    get_icon_by_name,
+    get_icon_size_px,
+)
 
 from .. import auth
 from ..forms import menu as menu_forms
@@ -237,6 +244,185 @@ class ListviewEntry(FixedURLEntry):
             )
 
         return get_url()
+
+
+class TemplateEntry(MenuEntry):
+    """Base menu entry that uses Django templates for rendering"""
+    template_name = 'creme_core/menu/placeholder.html'
+
+    def get_context(self, request):
+        label = self.render_label(request)
+        user = request['user']
+
+        try:
+            self.check_permissions(user)
+            permission_error = ''
+        except PermissionDenied as e:
+            permission_error = str(e)
+
+        return {
+            'label': label,
+            'permission_error': permission_error,
+            'template_name': self.template_name
+        }
+
+    def render(self, request):
+        context = self.get_context(request)
+        template = get_template(context['template_name'])
+        return template.render({
+            'user': request['user'],
+            'request': request,
+            'entry': context,
+        })
+
+
+class ActionEntry(TemplateEntry):
+    """
+    Base entry to build a Creme-action (i.e. link/button related to JavaScript code)
+    made for use in the menu.
+    (see creme.menu.MenuActionBuilders in creme/creme_core/static/creme_core/js/menu.js).
+    """
+    template_name = 'creme_core/menu/action.html'
+    form_class = menu_forms.ActionEntryForm
+
+    # ID of the action. An ID 'foo-bar' will correspond to the method
+    # '_action_foo_bar' of the MenuActionBuilders.
+    # Some apps may define their own action using the 'setup-menu-actions' event.
+    # Description of the actions defined as default:
+    #     - form: opens an inner-popup containing an html form.
+    #     - update: sends a POST query with a confirmation message and redirection
+    #       features.
+    #     - redirect: simple html link. Acts as a placeholder here.
+    action: str = 'redirect'
+
+    url_name: str = ''
+
+    icon_name: str = None
+    icon_title: str = None
+
+    # Extra CSS classes for the link
+    classes: Sequence[str] = ()
+
+    description: str = ''
+
+    @property
+    def url(self) -> str:
+        """
+        URL used by the action (form, update, ...).
+        Most of the actions need the URL to be given.
+        """
+        url_name = self.url_name
+        return reverse(url_name) if url_name else ''
+
+    def _get_icon(self, name, title, user) -> BaseIcon:
+        """
+        Builds Icon instance like templatetag {% widget_icon  %}.
+        """
+        if not self.icon_name:
+            return
+
+        theme = user.theme_info[0]
+        return get_icon_by_name(
+            name=name, label=title, theme=theme,
+            size_px=get_icon_size_px(theme=theme, size='header-menu'),
+        )
+
+    def get_classes(self, context) -> list[str]:
+        """Returns extra CSS classes for the link"""
+        return self.classes
+
+    def get_description(self, context) -> str:
+        """
+        Text displayed as title of the link.
+        Replaced by the permission error message if the entry is forbidden.
+        """
+        return self.description
+
+    def get_icon_title(self, context) -> str:
+        """
+        Returns the title/alt of the used icon.
+        Replaced by the permission error message if the entry is forbidden.
+        """
+        return self.icon_title
+
+    def get_icon_name(self, context) -> str:
+        """
+        Returns the name of an Icon (e.g. 'add')
+        (see the templatetag {% widget_icon  %} of the lib creme_widget).
+        """
+        return self.icon_name
+
+    def get_context(self, request):
+        user = request['user']
+
+        entry = super().get_context(request)
+        entry['action'] = self.get_action_context(entry, user)
+
+        return entry
+
+    def get_action_context(self, context, user):
+        description = self.get_description(context) or self.render_label(context)
+        permission_error = context.get('permission_error')
+        icon_title = permission_error or self.get_icon_title(context) or description
+        icon_name = self.get_icon_name(context)
+
+        return {
+            'id': self.action,
+            'url': self.url,
+            'icon': self._get_icon(icon_name, icon_title, user=user),
+            'classes': self.get_classes(context),
+            'description': description,
+            'props': self.get_action_props(context),
+        }
+
+    def get_action_props(self, context) -> dict:
+        """
+        Custom data for the action link.
+        (see {% brick_action %} in creme_bricks templatetags).
+
+        Note : On client side, the javascript accepts a dict with 'options' and 'data'
+        entries depending of the action (most of time only 'options' is useful).
+        """
+        return {}
+
+
+class UpdateActionEntry(ActionEntry):
+    """Helper action menu entry for POST queries"""
+    action = 'update'
+
+    # Allows the ajax POST query to follow a 302 response.
+    follow_redirect: bool = False
+
+    redirect_url_name: str = ''
+    confirm_message: str = None
+
+    @property
+    def redirect_url(self) -> str:
+        """
+        Redirects to this URL when on POST action success.
+        Do nothing if empty.
+        """
+        url_name = self.redirect_url_name
+        return reverse(url_name) if url_name else ''
+
+    def get_confirm_message(self, context):
+        """
+        Enable an inner-popup message to confirm the action.
+        Do nothing if empty or False.
+        """
+        return self.confirm_message
+
+    def get_action_props(self, context):
+        confirm_message = self.get_confirm_message(context)
+        redirect_url = self.redirect_url
+
+        return {
+            "options": {
+                "followRedirect": self.follow_redirect,
+                "redirectOnSuccess": False if not redirect_url else str(redirect_url),
+                "confirm": False if not confirm_message else str(confirm_message)
+            }
+        }
 
 
 class CustomURLEntry(MenuEntry):

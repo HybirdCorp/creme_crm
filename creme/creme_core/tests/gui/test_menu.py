@@ -5,6 +5,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
+from django.template import TemplateDoesNotExist
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape
@@ -14,8 +15,8 @@ from django.utils.translation import ngettext
 
 from creme.creme_core.forms.menu import MenuEntryForm
 from creme.creme_core.gui import quick_forms
-# from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.menu import (
+    ActionEntry,
     ContainerEntry,
     CreationEntry,
     CreationMenuRegistry,
@@ -27,6 +28,7 @@ from creme.creme_core.gui.menu import (
     MenuRegistry,
     Separator0Entry,
     Separator1Entry,
+    TemplateEntry,
     creation_menu_registry,
     menu_registry,
 )
@@ -54,6 +56,7 @@ from creme.creme_core.models import (
     MenuConfigItem,
     PinnedEntity,
 )
+from creme.creme_core.templatetags.creme_core_tags import jsondata
 
 from .. import fake_forms
 from ..base import CremeTestCase
@@ -61,6 +64,8 @@ from ..fake_menu import FakeContactCreationEntry, FakeContactsEntry
 
 
 class MenuTestCase(CremeTestCase):
+    maxDiff = None
+
     def _build_context(self, user=None):
         user = user or self.get_root_user()
 
@@ -273,6 +278,272 @@ class MenuTestCase(CremeTestCase):
             permissions = ('creme_core', 'creme_config')
 
         self.assertHTMLEqual(expected, TestEntry02().render(ctxt))
+
+    def test_template_entry(self):
+        user = self.create_user(
+            role=self.create_role(admin_4_apps=['creme_config'])
+        )
+
+        class TestTemplateEntry(TemplateEntry):
+            template_name = 'creme_core/menu/link.html'
+            id = 'creme_core-test-template'
+            label = 'Template'
+            permissions = 'creme_config'
+
+        entry = TestTemplateEntry()
+        context = self._build_context(user=user)
+
+        self.assertEqual({
+            'label': 'Template',
+            'permission_error': "",
+            'template_name': 'creme_core/menu/link.html',
+        }, entry.get_context(context))
+
+        self.assertHTMLEqual(
+            '<a href="">Template</a>',
+            entry.render(context)
+        )
+
+    def test_template_entry__override_template(self):
+        user = self.create_user(
+            role=self.create_role(admin_4_apps=['creme_config'])
+        )
+
+        class TestTemplateEntry(TemplateEntry):
+            id = 'creme_core-test-template'
+            label = 'Template'
+            permissions = 'creme_config'
+
+            def get_context(self, context):
+                context = super().get_context(context)
+                context['template_name'] = 'creme_core/menu/link.html'
+                return context
+
+        entry = TestTemplateEntry()
+        context = self._build_context(user=user)
+
+        self.assertEqual({
+            'label': 'Template',
+            'permission_error': "",
+            'template_name': 'creme_core/menu/link.html',
+        }, entry.get_context(context))
+
+        self.assertHTMLEqual(
+            '<a href="">Template</a>',
+            entry.render(context)
+        )
+
+    def test_template_entry__missing_template(self):
+        user = self.create_user(
+            role=self.create_role(admin_4_apps=['creme_config'])
+        )
+
+        class TestTemplateEntry(TemplateEntry):
+            id = 'creme_core-test-template'
+            label = 'Template'
+            permissions = 'creme_config'
+            template_name = 'unknown.html'
+
+        entry = TestTemplateEntry()
+        context = self._build_context(user=user)
+
+        self.assertEqual({
+            'label': 'Template',
+            'permission_error': "",
+            'template_name': 'unknown.html',
+        }, entry.get_context(context))
+
+        with self.assertRaises(TemplateDoesNotExist):
+            entry.render(context)
+
+    def test_template_entry__not_allowed(self):
+        user = self.create_user(role=self.create_role())
+
+        class TestTemplateEntry(TemplateEntry):
+            template_name = 'creme_core/menu/link.html'
+            id = 'creme_core-test-template'
+            label = 'Template'
+            permissions = 'creme_config'
+
+        entry = TestTemplateEntry()
+        context = self._build_context(user=user)
+        permission_error = _('You are not allowed to access to the app: {}').format(
+            _('General configuration')
+        )
+
+        self.assertEqual({
+            'label': 'Template',
+            'permission_error': permission_error,
+            'template_name': 'creme_core/menu/link.html',
+        }, entry.get_context(context))
+
+        self.assertHTMLEqual(
+            f'''
+            <span class="ui-creme-navigation-text-entry forbidden" title="{permission_error}">
+            Template
+            </span>
+            ''',
+            entry.render(context)
+        )
+
+    def test_action_entry(self):
+        user = self.create_user(
+            role=self.create_role(admin_4_apps=['creme_config'])
+        )
+
+        class TestActionEntry(ActionEntry):
+            id = 'creme_core-test-action_a'
+            action = 'action_a'
+            url_name = 'creme_core__home'
+            label = 'Action A'
+            description = 'Description A'
+            permissions = 'creme_config'
+            classes = ('ui-action-a', 'has-a')
+            icon_name = 'add'
+            icon_title = 'Icon A'
+
+            def get_action_props(self, context):
+                return {
+                    "data": {"a": 12},
+                    "options": {"b": True}
+                }
+
+        entry = TestActionEntry()
+        context = self._build_context(user=user)
+
+        expected_icon = entry._get_icon(entry.icon_name, entry.icon_title, user)
+        self.assertIsNotNone(expected_icon)
+
+        props = {
+            'data': {'a': 12}, 'options': {'b': True}
+        }
+
+        entry_context = entry.get_context(context)
+        entry_action_context = entry_context.pop('action')
+
+        self.assertEqual({
+            'label': 'Action A',
+            'permission_error': '',
+            'template_name': 'creme_core/menu/action.html',
+        }, entry_context)
+
+        self.assertIsNotNone(entry_action_context.pop('icon'))
+        self.assertEqual({
+            'id': 'action_a',
+            'url': reverse('creme_core__home'),
+            'classes': ('ui-action-a', 'has-a'),
+            'description': 'Description A',
+            'props': props,
+        }, entry_action_context)
+
+        self.assertHTMLEqual(
+            f'''
+            <a data-action="action_a" class="ui-creme-navigation-action-entry ui-action-a has-a"
+               title="Description A" href="{reverse('creme_core__home')}">
+                {expected_icon.render()}Action A
+                {jsondata(props)}
+            </a>
+            ''',
+            entry.render(context)
+        )
+
+    def test_action_entry__not_allowed(self):
+        user = self.create_user(role=self.create_role())
+
+        class TestActionEntry(ActionEntry):
+            id = 'creme_core-test-action_a'
+            action = 'action_a'
+            url_name = 'creme_core__home'
+            label = 'Action A'
+            description = 'Description A'
+            permissions = 'creme_config'
+            classes = ('ui-action-a', 'has-a')
+            icon_name = 'add'
+            icon_title = 'Icon A'
+
+        entry = TestActionEntry()
+        context = self._build_context(user=user)
+        permission_error = _('You are not allowed to access to the app: {}').format(
+            _('General configuration')
+        )
+
+        expected_icon = entry._get_icon(entry.icon_name, permission_error, user)
+
+        entry_context = entry.get_context(context)
+        entry_action_context = entry_context.pop('action')
+
+        self.assertEqual({
+            'label': 'Action A',
+            'permission_error': permission_error,
+            'template_name': 'creme_core/menu/action.html',
+        }, entry_context)
+
+        self.assertIsNotNone(entry_action_context.pop('icon'))
+        self.assertEqual({
+            'id': 'action_a',
+            'url': reverse('creme_core__home'),
+            'classes': ('ui-action-a', 'has-a'),
+            'description': 'Description A',
+            'props': {},
+        }, entry_action_context)
+
+        self.assertHTMLEqual(
+            f'''
+            <span class="ui-creme-navigation-text-entry forbidden ui-action-a has-a"
+                  title="{permission_error}">
+            {expected_icon.render()}Action A
+            </span>
+            ''',
+            entry.render(context)
+        )
+
+    def test_action_entry__unknown_icon(self):
+        user = self.create_user(
+            role=self.create_role(admin_4_apps=['creme_config'])
+        )
+
+        class TestActionEntry(ActionEntry):
+            id = 'creme_core-test-action_a'
+            url_name = 'creme_core__home'
+            label = 'Action A'
+            description = 'Description A'
+            permissions = 'creme_config'
+            icon_name = 'unknown_icon_for_test'
+            icon_title = 'Icon A'
+
+        entry = TestActionEntry()
+        context = self._build_context(user=user)
+
+        action_context = entry.get_context(context)['action']
+        self.assertEqual(action_context['icon'].url, '')
+
+    def test_action_entry__no_icon(self):
+        user = self.create_user(
+            role=self.create_role(admin_4_apps=['creme_config'])
+        )
+
+        class TestActionEntry(ActionEntry):
+            id = 'creme_core-test-action_a'
+            url_name = 'creme_core__home'
+            label = 'Action A'
+            description = 'Description A'
+            permissions = 'creme_config'
+
+        entry = TestActionEntry()
+        context = self._build_context(user=user)
+
+        action_context = entry.get_context(context)['action']
+        self.assertIsNone(action_context['icon'])
+
+    def test_action_entry__no_url(self):
+        user = self.create_user()
+        context = self._build_context(user=user)
+
+        class TestActionEntry(ActionEntry):
+            id = 'creme_core-test-action'
+
+        entry = TestActionEntry()
+        self.assertEqual(entry.get_context(context)['action']['url'], '')
 
     def test_creation_entry(self):
         self.assertIs(CreationEntry.single_instance, True)
@@ -614,8 +885,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_trash_entry(self):
         user = self.get_root_user()
-        self.assertTrue(TrashEntry.single_instance)
-
         entry = TrashEntry()
 
         entry_id = 'creme_core-trash'
@@ -625,23 +894,25 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(entry_label, entry.label)
 
         entry_url = reverse('creme_core__trash')
-        self.assertEqual(entry_url, entry.url)
 
         FakeOrganisation.objects.create(user=user, name='Acme', is_deleted=True)
         count = CremeEntity.objects.filter(is_deleted=True).count()
         count_label = ngettext(
-            '{count} entity',
-            '{count} entities',
+            '%(counter)s entity',
+            '%(counter)s entities',
             count,
-        ).format(count=count)
+        ) % {"counter": count}
+
         self.assertHTMLEqual(
-            f'<a href="{entry_url}">'
-            f'{entry_label} '
-            f'<span class="ui-creme-navigation-punctuation">(</span>'
-            f'{count_label}'
-            f'<span class="ui-creme-navigation-punctuation">)</span>'
-            f'</a>',
-            entry.render(self._build_context(user=user)),
+            f'''
+                <a class="ui-creme-navigation-trash-entry" href="{entry_url}">
+                    {entry_label}
+                    <span class="ui-creme-navigation-punctuation">(</span>
+                    {count_label}
+                    <span class="ui-creme-navigation-punctuation">)</span>
+                </a>
+            ''',
+            entry.render(self._build_context(user=user))
         )
 
     def test_role_switch_entry(self):
@@ -654,60 +925,69 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(entry_label, entry.label)
 
         # Superuser ---
-        self.assertHTMLEqual(
-            '<span class="ui-creme-navigation-title ui-creme-navigation-empty" />',
-            entry.render(self._build_context(user=self.get_root_user())),
-        )
+        self.assertHTMLEqual('', entry.render(self._build_context(user=self.get_root_user())))
 
         # One role ---
         role1 = self.create_role(name='CEO')
         user = self.create_user(role=role1, roles=[role1])
-        self.assertHTMLEqual(
-            '<span class="ui-creme-navigation-title ui-creme-navigation-empty" />',
-            entry.render(self._build_context(user=user)),
-        )
+        self.assertHTMLEqual('', entry.render(self._build_context(user=user)))
 
         # Several roles ---
         role2 = self.create_role(name='Engineer')
         role3 = self.create_role(name='Project leader', deactivated_on=now())
         user.roles.add(role2, role3)
+
+        role2_url = reverse('creme_core__switch_role', args=(user.id, role2.id))
+        role2_props = {
+            "options": {
+                "redirectOnSuccess": reverse('creme_core__home')
+            }
+        }
+
         self.maxDiff = None
         self.assertHTMLEqual(
-            '''
-<span class="ui-creme-navigation-title">{label}</span>
-<button class="" disabled onclick="creme.utils.ajaxQuery('{url1}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">
- <div class="marker-selected" />{role_label1}
-</button>
-<button class="" onclick="creme.utils.ajaxQuery('{url2}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">
- <div class="marker-not-selected" />{role_label2}
-</button>
-<button class="disabled-role" disabled onclick="creme.utils.ajaxQuery('{url3}', {{action: 'post'}}).onDone(function(){{ creme.utils.goTo('{home_url}'); }}).start()">
- <div class="marker-not-selected" />{role_label3}
-</button>
-            '''.format(   # NOQA
-                label=_('Available roles'),
-
-                role_label1=role1.name,
-                url1=reverse('creme_core__switch_role', args=(user.id, role1.id)),
-
-                role_label2=role2.name,
-                url2=reverse('creme_core__switch_role', args=(user.id, role2.id)),
-
-                role_label3=str(role3),
-                url3=reverse('creme_core__switch_role', args=(user.id, role3.id)),
-
-                home_url=reverse('creme_core__home'),
-            ),
+            f'''
+<span class="ui-creme-navigation-title">{_("Available roles")}</span>
+<div class="ui-creme-navigation-text-entry">
+    <div class="marker-selected"></div>{role1}
+</div>
+<a data-action="update" href="{role2_url}">
+    <div class="marker-not-selected"></div>{role2}
+    {jsondata(role2_props)}
+</a>
+<div class="disabled-role ui-creme-navigation-text-entry">
+    <div class="marker-not-selected"></div>{role3}
+</div>
+            ''',
             entry.render(self._build_context(user=user)),
         )
 
     def test_logout_entry(self):
-        self.assertTrue(LogoutEntry.single_instance)
-
         entry = LogoutEntry()
+        url = reverse('creme_logout')
+        label = _('Log out')
+
         self.assertEqual('creme_core-logout', entry.id)
-        self.assertEqual(_('Log out'), entry.label)
-        self.assertEqual(reverse('creme_logout'), entry.url)
+        self.assertEqual(label, entry.label)
+        self.assertEqual(url, entry.url)
+
+        props = {
+            "options": {
+                "followRedirect": True,
+                "redirectOnSuccess": False,
+                "confirm": False,
+            }
+        }
+
+        self.assertHTMLEqual(
+            f"""
+            <a class="ui-creme-navigation-action-entry" data-action="update" href="{url}" title="{label}">
+                {label}
+                {jsondata(props)}
+            </a>
+            """,  # noqa
+            entry.render(self._build_context())
+        )
 
     @override_settings(SOFTWARE_LABEL='Creme')
     def test_creme_entry(self):
