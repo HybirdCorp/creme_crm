@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022-2025  Hybird
+#    Copyright (C) 2022-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -260,30 +260,35 @@ class EnumerableSelect(widgets.Select):
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
-        enumerable = self.enumerable
-
-        choices, more = enumerable.groups(
-            selected_values=[value] if value else None
-        ) if enumerable is not None else ((), False)
+        choices, more = self.get_enum_groups(value)
 
         context['widget']['choices'] = choices
         self.build_enum_attrs(context['widget']['attrs'], more)
 
         return context
 
+    def get_enum_groups(self, value):
+        enumerable = self.enumerable
+
+        return enumerable.groups(
+            selected_values=[value] if value else None
+        ) if enumerable is not None else ((), False)
+
     def build_enum_attrs(self, attrs, more):
+        enumerable = self.enumerable
+
         if more:
             attrs.update({
-                'data-enum-url': self.enumerable.url,
-                'data-enum-limit': self.enumerable.limit,
+                'data-enum-url': enumerable.url,
+                'data-enum-limit': enumerable.limit,
             })
             attrs.setdefault('data-enum-cache', 'true')
             attrs.setdefault('data-enum-debounce', self.ENUMERABLE_DEFAULT_DEBOUNCE_DELAY)
 
         attrs['data-allow-clear'] = str(not self.is_required).lower()
 
-        if self.enumerable.empty_label:
-            attrs['data-placeholder'] = self.enumerable.empty_label
+        if enumerable.empty_label:
+            attrs['data-placeholder'] = enumerable.empty_label
 
         if self.create_url:
             attrs['data-create-url'] = self.create_url
@@ -293,6 +298,15 @@ class EnumerableSelect(widgets.Select):
 
 class EnumerableSelectMultiple(EnumerableSelect):
     allow_multiple_selected = True
+
+    def get_enum_groups(self, value):
+        # The value is already a list here, so we need to override the default
+        # behaviour
+        enumerable = self.enumerable
+
+        return enumerable.groups(
+            selected_values=value if value else None
+        ) if enumerable is not None else ((), False)
 
     def value_from_datadict(self, data, files, name):
         try:

@@ -12,6 +12,13 @@
         * Reports :
             - A user needs the permission to export a model in order to export a Report now.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Fix an issue within EnumerableSelectMultiple context : the selected value was handled as a string instead of a list.
+
 
 == Version 2.7.3 ==
 
