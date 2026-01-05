@@ -1372,11 +1372,13 @@ class ExportingTestCase(TransferBaseTestCase):
 
         fname1 = 'description'
         fname2 = 'phone'
+        fname3 = 'mobile'
         FieldsConfig.objects.create(
             content_type=FakeContact,
             descriptions=[
                 (fname1, {FieldsConfig.HIDDEN: True}),
                 (fname2, {FieldsConfig.REQUIRED: True}),
+                (fname3, {FieldsConfig.REQUIRED_AT_CREATION: True}),
             ],
         )
 
@@ -1395,13 +1397,14 @@ class ExportingTestCase(TransferBaseTestCase):
                 'ctype': ctype_str,
                 'descriptions': [
                     [fname1, {'hidden': True}],
+                    [fname3, {'required_at_creation': True}],  # Alphabetically before
                     [fname2, {'required': True}],
                 ],
             },
             loaded_fconfigs.get(ctype_str),
         )
 
-    def test_customfields(self):
+    def test_custom_fields(self):
         self.login_as_super(is_staff=True)
 
         self.assertFalse(CustomField.objects.all())
@@ -1742,7 +1745,7 @@ class ExportingTestCase(TransferBaseTestCase):
             loaded_efilters.get(ef3.id),
         )
 
-    def test_customforms(self):
+    def test_custom_forms(self):
         self.login_as_super(is_staff=True)
 
         response = self.assertGET200(self.URL)
@@ -1772,7 +1775,7 @@ class ExportingTestCase(TransferBaseTestCase):
             loaded_cforms.get(descriptor_id),
         )
 
-    def test_customforms__roles(self):
+    def test_custom_forms__roles(self):
         self.login_as_super(is_staff=True)
         role = self.create_role(name='Test')
 
@@ -1902,7 +1905,7 @@ class ExportingTestCase(TransferBaseTestCase):
             loaded_cforms.get(descriptor_id),
         )
 
-    def test_customforms__extra_cells(self):
+    def test_custom_forms__extra_cells(self):
         self.login_as_super(is_staff=True)
 
         desc = fake_custom_forms.FAKEACTIVITY_CREATION_CFORM

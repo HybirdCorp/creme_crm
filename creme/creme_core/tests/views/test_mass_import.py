@@ -2245,20 +2245,90 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
 
         url = self._build_import_url(FakeContact)
-        data = {
-            **self.lv_import_data,
-            'document': doc.id,
-            'user': user.id,
-        }
-        response1 = self.client.post(url, follow=True, data=data)
+
+        # GET ---
+        response1 = self.client.post(
+            url, follow=True, data={'step': 0, 'document': doc.id},
+        )
+        with self.assertNoException():
+            required_f = response1.context['form'].fields[required_fname]
+        self.assertTrue(required_f.required)
+
+        # POST (error) ---
+        data = {**self.lv_import_data, 'document': doc.id, 'user': user.id}
+        response2 = self.client.post(url, follow=True, data=data)
         self.assertFormError(
-            response1.context['form'],
+            response2.context['form'],
             field=required_fname, errors=_('This field is required.'),
         )
 
-        # ---
+        # POST (OK) ---
         data[f'{required_fname}_colselect'] = 3
-        response2 = self.client.post(url, follow=True, data=data)
+        response3 = self.client.post(url, follow=True, data=data)
+        self.assertNoFormError(response3)
+
+        job = self._get_job(response3)
+        mass_import_type.execute(job)
+
+        rei_info = info[0]
+        self.get_object_or_fail(
+            FakeContact,
+            last_name=rei_info['last_name'],
+            first_name=rei_info['first_name'],
+            **{required_fname: rei_info[required_fname]}
+        )
+
+        jresults = MassImportJobResult.objects.filter(job=job)
+        self.assertEqual(2, len(jresults))
+
+        jr_error = self.get_alone_element(r for r in jresults if r.messages)
+        self.assertIsNone(jr_error.entity_ctype)
+        self.assertIsNone(jr_error.entity)
+        self.assertListEqual(
+            [_('The field «{}» has been configured as required.').format(_('Phone'))],
+            jr_error.messages,
+        )
+
+    def test_fields_config__required_at_creation(self):
+        user = self.login_as_root_and_get()
+
+        required_fname = 'phone'
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(required_fname, {FieldsConfig.REQUIRED_AT_CREATION: True})],
+        )
+
+        info = [
+            {'first_name': 'Rei',   'last_name': 'Ayanami', required_fname: '111111'},
+            {'first_name': 'Asuka', 'last_name': 'Langley', required_fname: ''},
+        ]
+        doc = self._build_csv_doc(
+            [
+                (c_info['first_name'], c_info['last_name'], c_info[required_fname])
+                for c_info in info
+            ],
+            user=user,
+        )
+
+        url = self._build_import_url(FakeContact)
+
+        # ---
+        response1 = self.client.post(
+            url, follow=True, data={'step': 0, 'document': doc.id},
+        )
+        with self.assertNoException():
+            required_f = response1.context['form'].fields[required_fname]
+        self.assertFalse(required_f.required)
+
+        # ---
+        response2 = self.client.post(
+            url,
+            follow=True,
+            data={
+                **self.lv_import_data, 'document': doc.id, 'user': user.id,
+                f'{required_fname}_colselect': 3,
+            },
+        )
         self.assertNoFormError(response2)
 
         job = self._get_job(response2)

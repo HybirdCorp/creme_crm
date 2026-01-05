@@ -66,7 +66,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual('', contact.url_site)
         self.assertEqual('', contact.full_position)
 
-    def test_unicode(self):
+    def test_str(self):
         first_name = 'Spike'
         last_name  = 'Spiegel'
         build_contact = partial(Contact, last_name=last_name)
@@ -77,7 +77,7 @@ class ContactTestCase(_BaseTestCase):
                 first_name=first_name,
                 last_name=last_name,
             ),
-            str(build_contact(first_name=first_name))
+            str(build_contact(first_name=first_name)),
         )
 
         captain = Civility.objects.create(title='Captain')  # No shortcut
@@ -86,7 +86,7 @@ class ContactTestCase(_BaseTestCase):
                 first_name=first_name,
                 last_name=last_name,
             ),
-            str(build_contact(first_name=first_name, civility=captain))
+            str(build_contact(first_name=first_name, civility=captain)),
         )
 
         captain.shortcut = shortcut = 'Cpt'
@@ -97,7 +97,7 @@ class ContactTestCase(_BaseTestCase):
                 first_name=first_name,
                 last_name=last_name,
             ),
-            str(build_contact(first_name=first_name, civility=captain))
+            str(build_contact(first_name=first_name, civility=captain)),
         )
 
     def test_populated_contact_uuid(self):
@@ -383,6 +383,25 @@ class ContactTestCase(_BaseTestCase):
         self.assertIsNotNone(billing_address)
         self.assertEqual(b_address, billing_address.address)
         self.assertEqual(b_city,    billing_address.city)
+
+    @skipIfCustomAddress
+    def test_creation__addresses__fields_config__required(self):
+        self.login_as_root()
+
+        FieldsConfig.objects.create(
+            content_type=Address,
+            descriptions=[('city', {FieldsConfig.REQUIRED: True})],
+        )
+
+        response = self.assertGET200(reverse('persons__create_contact'))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            zipcode_f = fields['billing_address-zipcode']
+            city_f = fields['billing_address-city']
+
+        self.assertFalse(zipcode_f.required)
+        self.assertTrue(city_f.required)
 
     def test_edition(self):
         user = self.login_as_root_and_get()

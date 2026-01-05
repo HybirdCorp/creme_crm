@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -293,16 +293,22 @@ class FieldsConfigsBrick(PaginatedBrick):
             ),
         )
 
+        def fields_vnames(fields):
+            return [str(f.verbose_name) for f in fields]
+
         for fconf in btc['page'].object_list:
-            hidden_vnames = [str(f.verbose_name) for f in fconf.hidden_fields]
-            hidden_vnames.sort(key=sort_key)
-            fconf.hidden_fields_vnames = hidden_vnames
+            # hidden_vnames = [str(f.verbose_name) for f in fconf.hidden_fields]
+            # hidden_vnames.sort(key=sort_key)
+            # fconf.hidden_fields_vnames = hidden_vnames
+            fconf.hidden_fields_vnames = fields_vnames(fconf.hidden_fields)
 
-            required_vnames = [str(f.verbose_name) for f in fconf.required_fields]
-            required_vnames.sort(key=sort_key)
-            fconf.required_fields_vnames = required_vnames
+            # required_vnames = [str(f.verbose_name) for f in fconf.required_fields]
+            fconf.required_fields_vnames = fields_vnames(fconf.required_fields)
+            fconf.required_at_creation_fields_vnames = fields_vnames(
+                fconf.required_at_creation_fields
+            )
 
-            # TODO: method ?
+            # TODO: method?
             model = fconf.content_type.model_class()
             fconf.is_valid = registry.is_model_registered(model) and is_model_valid(model)
 

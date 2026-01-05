@@ -67,7 +67,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_portal__all_configured(self):
-        "All CTypes are already configured."
+        "All ContentTypes are already configured."
         self._configure_all_models()
         self.login_as_root()
 
@@ -76,15 +76,12 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_portal__errors(self):
         self.login_as_root()
-
         self._create_fconf(FakeSector)
 
         response = self.assertGET200(reverse('creme_config__fields'))
-
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content), brick=FieldsConfigsBrick,
         )
-
         error_node = self.get_html_node_or_fail(brick_node, './/ul[@class="errorlist"]/li')
         self.assertEqual(
             _(
@@ -139,6 +136,11 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInChoices(value='',         label='---',         choices=phone_f_choices)
         self.assertInChoices(value='hidden',   label=_('Hidden'),   choices=phone_f_choices)
         self.assertInChoices(value='required', label=_('Required'), choices=phone_f_choices)
+        self.assertInChoices(
+            value='required_at_creation',
+            label=_('Required (at creation only)'),
+            choices=phone_f_choices,
+        )
 
         self.assertEqual(_('Email address'), email_f.label)
         self.assertInChoices(value='',         label='---',         choices=email_f_choices)
@@ -157,32 +159,38 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual(sorted(labels), labels)
 
         # ---
-        response2 = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 'phone': 'required',
                 'birthday': 'hidden',
+                'email': 'required_at_creation',
             },
-        )
-        self.assertNoFormError(response2)
+        ))
 
         self.assertListEqual(
-            [('birthday', {'hidden': True}), ('phone', {'required': True})],
+            [
+                ('birthday', {'hidden': True}),
+                ('email',    {'required_at_creation': True}),
+                ('phone',    {'required': True}),
+            ],
             self.refresh(fconf).descriptions,
         )
 
-        # test initial ------
+        # Initial ---
         response3 = self.assertGET200(url)
 
         with self.assertNoException():
             fields3 = response3.context['form'].fields
+            mobile_f3 = fields3['mobile']
             email_f3 = fields3['email']
             phone_f3 = fields3['phone']
             birthday_f3 = fields3['birthday']
 
-        self.assertEqual('',         email_f3.initial)
+        self.assertEqual('', mobile_f3.initial)
         self.assertEqual('required', phone_f3.initial)
-        self.assertEqual('hidden',   birthday_f3.initial)
+        self.assertEqual('hidden', birthday_f3.initial)
+        self.assertEqual('required_at_creation', email_f3.initial)
 
     def test_edition__regular_user(self):
         user = self.login_as_standard()
@@ -212,7 +220,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST200(reverse('creme_config__delete_fields_config'), data={'id': fconf.pk})
         self.assertDoesNotExist(fconf)
 
-    def test_wizard_model_step(self):
+    def test_wizard__model_step(self):
         self.login_as_root()
 
         contact_ct = self.ct
@@ -230,19 +238,19 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(get_ct(FakeOrganisation), ctypes)
         self.assertNotIn(get_ct(CremeEntity), ctypes)
 
-        response2 = self.client.post(
+        # POST ---
+        self.assertNoFormError(self.client.post(
             self.WIZARD_URL,
             data={
                 'fields_config_wizard-current_step': '0',
                 '0-ctype': contact_ct.pk,
             },
-        )
-        self.assertNoFormError(response2)
+        ))
 
         # last step is not submitted so nothing yet in database
         self.assertFalse(FieldsConfig.objects.filter(content_type=contact_ct))
 
-    def test_wizard_model_step_invalid(self):
+    def test_wizard__model_step__invalid(self):
         self.login_as_root()
 
         ctype = self.ct
@@ -267,7 +275,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
 
-    def test_wizard_config_step(self):
+    def test_wizard__fields_step(self):
         self.login_as_root()
 
         ctype = self.ct
@@ -295,6 +303,11 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertInChoices(value='hidden',   label=_('Hidden'),   choices=choices)
         self.assertInChoices(value='required', label=_('Required'), choices=choices)
+        self.assertInChoices(
+            value='required_at_creation',
+            label=_('Required (at creation only)'),
+            choices=choices,
+        )
 
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype))
 
@@ -317,7 +330,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             config.descriptions,
         )
 
-    def test_wizard_go_back(self):
+    def test_wizard__go_back(self):
         self.login_as_root()
 
         ctype = self.ct
@@ -346,13 +359,13 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoFormError(response2)
         self.assertIn(ctype, response2.context['form'].fields['ctype'].ctypes)
 
-    def test_wizard_409(self):
-        "All CTypes are already configured."
+    def test_wizard__all_configured(self):
+        "All ContentTypes are already configured."
         self._configure_all_models()
         self.login_as_root()
         self.assertGET409(self.WIZARD_URL)
 
-    def test_wizard_403(self):
+    def test_wizard__admin_perms(self):
         "Perm is 'creme_core.can_admin'."
         self.login_as_standard(allowed_apps=('creme_core',))
         self.assertGET403(self.WIZARD_URL)

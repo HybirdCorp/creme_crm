@@ -22,6 +22,7 @@ from creme.creme_core.models import (
 )
 
 from ..base import CremeTestCase
+from ..fake_models import FakeEmailCampaign
 
 
 class MockAction(UIAction):
@@ -877,11 +878,11 @@ class BuiltinActionsTestCase(CremeTestCase):
             icon='edit',
         )
 
-        # FakeActivity (empty url) ---
-        activity = FakeActivity(user=user)
-        self.assertEqual('', activity.get_edit_absolute_url())
+        # FakeEmailCampaign (empty url) ---
+        campaign = FakeEmailCampaign(user=user)
+        self.assertEqual('', campaign.get_edit_absolute_url())
         self.assertAction(
-            actions.EditAction(self.user, FakeActivity, instance=activity),
+            actions.EditAction(self.user, FakeActivity, instance=campaign),
             model=FakeActivity,
             action_id='creme_core-edit',
             action_type='redirect',

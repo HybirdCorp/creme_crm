@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2025  Hybird
+#    Copyright (C) 2020-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -486,6 +486,7 @@ class FieldGroupList:
     def form_class(self, *,
                    base_form_class=CremeEntityForm,
                    exclude_fields: Container[str] = (),
+                   creation: bool = False,
                    ) -> type[CremeEntityForm]:
         """Main method of the custom-form system: it generates our final form class."""
         model = self.model
@@ -546,7 +547,8 @@ class FieldGroupList:
                 if (
                     field.editable
                     and not field.auto_created
-                    and is_field_required(field)
+                    # and is_field_required(field)
+                    and is_field_required(field, creation=creation)
                     and field.name not in field_names
                     and field.name not in exclude_fields
                 )
@@ -1100,6 +1102,7 @@ class CustomFormDescriptor:
         return self.groups(item).form_class(
             base_form_class=self.base_form_class,
             exclude_fields=set(self._excluded_fields),
+            creation=(self.form_type == CustomFormDescriptor.CREATION_FORM),
         )
 
 

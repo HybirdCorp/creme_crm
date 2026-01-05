@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2024  Hybird
+#    Copyright (C) 2014-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -60,7 +60,10 @@ class ReportFilterOverrider(FieldOverrider):
             empty_label=pgettext_lazy('creme_core-filter', 'All'),
             user=user,
             limit_choices_to=model_field.get_limit_choices_to(),
-            required=FieldsConfig.objects.get_for_model(model).is_field_required(model_field),
+            # required=FieldsConfig.objects.get_for_model(model).is_field_required(model_field),
+            required=FieldsConfig.objects.get_for_model(model).is_field_required(
+                model_field, creation=False,
+            ),
             label=model_field.verbose_name,
             help_text=model_field.help_text
         )

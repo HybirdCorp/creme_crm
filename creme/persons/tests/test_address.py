@@ -189,7 +189,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomOrganisation
     def test_creation__billing__hidden(self):
-        "FK is hidden"
+        "FK is hidden."
         orga = self.login_n_create_orga()
 
         FieldsConfig.objects.create(
