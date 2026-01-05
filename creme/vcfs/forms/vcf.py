@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2011-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -349,12 +349,18 @@ class VcfImportForm(CremeModelForm):
             def get_initial(field_name):
                 return None
 
-        for field in self.fields_configs.get_for_model(Organisation).required_fields:
-            # TODO: specific block
-            prefixed_name = f'work_{field.name}'
+        fields_config = self.fields_configs.get_for_model(Organisation)
+
+        for field in chain(
+            fields_config.required_fields,
+            fields_config.required_at_creation_fields,
+        ):
+            # TODO: specific block?
+            field_name = field.name
+            prefixed_name = f'work_{field_name}'
             if prefixed_name not in fields:
-                fields[prefixed_name] = field.formfield(initial=get_initial(field.name))
-                forced_fields.append(field.name)
+                fields[prefixed_name] = field.formfield(initial=get_initial(field_name))
+                forced_fields.append(field_name)
 
         return forced_fields
 

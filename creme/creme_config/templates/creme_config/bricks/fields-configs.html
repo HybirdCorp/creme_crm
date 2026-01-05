@@ -33,6 +33,9 @@
               {% if field_conf.required_fields_vnames %}
                 <li class="fieldconf-fields-flag-required">{% translate 'Required fields:' %}&nbsp;{% widget_enumerator field_conf.required_fields_vnames|uca_sort threshold=10 summary=_('{count} fields') %}</li>
               {% endif %}
+              {% if field_conf.required_at_creation_fields_vnames %}
+                <li class="fieldconf-fields-flag-required_at_creation">{% translate 'Required fields (at creation only):' %}&nbsp;{% widget_enumerator field_conf.required_at_creation_fields_vnames|uca_sort threshold=10 summary=_('{count} fields') %}</li>
+              {% endif %}
             </ul>
             {% with errors=field_conf.errors_on_hidden %}
                 {% if errors %}<ul class="warninglist">{% for error in errors %}<li>{{error}}</li>{% endfor %}</ul>{% endif %}

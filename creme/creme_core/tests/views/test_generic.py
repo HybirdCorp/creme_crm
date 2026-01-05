@@ -33,6 +33,7 @@ from creme.creme_core.models import (
     FakeAddress,
     FakeContact,
     FakeOrganisation,
+    FieldsConfig,
     Imprint,
     LastViewedEntity,
     RelationType,
@@ -41,6 +42,7 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.tests.fake_custom_forms import (
     FAKEACTIVITY_CREATION_CFORM,
+    FAKEACTIVITY_EDITION_CFORM,
 )
 from creme.creme_core.views.generic import EntityCreation, EntityDetail
 
@@ -543,7 +545,11 @@ class CreationTestCase(CremeTestCase):
         user = self.login_as_root_and_get()
 
         url = reverse('creme_core__create_fake_activity')
-        self.assertGET200(url)
+        response1 = self.assertGET200(url)
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+        self.assertIn('title', fields)
+        self.assertNotIn('minutes', fields)
 
         # TODO: test HTML
 
@@ -582,9 +588,7 @@ class CreationTestCase(CremeTestCase):
             self.create_datetime(year=2020, month=9, day=26), activity.end,
         )
 
-    def test_entity_creation__custom_form__required(self):
-        user = self.login_as_root_and_get()
-
+    def _create_activity_cform(self):
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
@@ -611,11 +615,21 @@ class CreationTestCase(CremeTestCase):
         )
         cfci.save()
 
+    def test_entity_creation__custom_form__required(self):
+        user = self.login_as_root_and_get()
+
+        self._create_activity_cform()
+
         url = reverse('creme_core__create_fake_activity')
-        self.assertGET200(url)
+        response1 = self.assertGET200(url)
+        with self.assertNoException():
+            fields1 = response1.context['form'].fields
+        self.assertIn('title', fields1)
+        self.assertNotIn('minutes', fields1)
 
         # TODO: test HTML (or in model tests ?)
 
+        # POST ---
         title = 'My meeting'
         place = 'Mars capital'
         atype = FakeActivityType.objects.get(name='Meeting')
@@ -646,6 +660,36 @@ class CreationTestCase(CremeTestCase):
         )
         self.assertIsNone(activity.end)
         self.assertFalse(activity.minutes)
+
+    def test_entity_creation__custom_form__fields_config__required(self):
+        self.login_as_root()
+        FieldsConfig.objects.create(
+            content_type=FakeActivity,
+            descriptions=[('minutes', {FieldsConfig.REQUIRED: True})],
+        )
+        self._create_activity_cform()
+
+        response = self.assertGET200(reverse('creme_core__create_fake_activity'))
+
+        with self.assertNoException():
+            minutes_f = response.context['form'].fields['minutes']
+
+        self.assertTrue(minutes_f.required)
+
+    def test_entity_creation__custom_form__fields_config__required_at_creation(self):
+        self.login_as_root()
+        FieldsConfig.objects.create(
+            content_type=FakeActivity,
+            descriptions=[('minutes', {FieldsConfig.REQUIRED_AT_CREATION: True})],
+        )
+        self._create_activity_cform()
+
+        response = self.assertGET200(reverse('creme_core__create_fake_activity'))
+
+        with self.assertNoException():
+            minutes_f = response.context['form'].fields['minutes']
+
+        self.assertTrue(minutes_f.required)
 
     def test_entity_creation__custom_form__super_user(self):
         "Super-user's form."
@@ -922,7 +966,7 @@ class EditionTestCase(CremeTestCase):
         self.assertNoFormError(response2)
         self.assertRedirects(response2, callback_url)
 
-    def test_entity_edition__customform(self):
+    def test_entity_edition__custom_form(self):
         user = self.login_as_root_and_get()
 
         atype1, atype2 = FakeActivityType.objects.all()[:2]
@@ -930,9 +974,15 @@ class EditionTestCase(CremeTestCase):
             user=user, title='my activity', place='Mars sea', type=atype1,
         )
 
-        url = reverse('creme_core__edit_fake_activity', args=[activity.id])
-        self.assertGET200(url)
+        # url = reverse('creme_core__edit_fake_activity', args=[activity.id])
+        url = activity.get_edit_absolute_url()
+        response1 = self.assertGET200(url)
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+        self.assertIn('title', fields)
+        self.assertIn('minutes', fields)
 
+        # POST ---
         title = activity.title.title()
         place = f'{activity.place} #2'
         date_value = self.formfield_value_date
@@ -965,6 +1015,83 @@ class EditionTestCase(CremeTestCase):
         self.assertEqual(
             self.create_datetime(year=2020, month=9, day=26), activity.end,
         )
+
+    def _build_activity_cform_without_minutes(self):
+        cfci = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=FAKEACTIVITY_EDITION_CFORM.id, role=None, superuser=False,
+        )
+        build_cell = partial(EntityCellRegularField.build, model=FakeActivity)
+        cfci.store_groups(
+            FieldGroupList(
+                model=FakeActivity,
+                cell_registry=FAKEACTIVITY_EDITION_CFORM.build_cell_registry(),
+                groups=[
+                    FieldGroup(
+                        name='My fields',
+                        cells=[
+                            *(
+                                build_cell(name=name)
+                                for name in ('user', 'title', 'place', 'type')
+                            ),
+                            fake_forms.FakeActivityStartSubCell().into_cell(),
+                            # fake_forms.FakeActivityEndSubCell().into_cell(),
+                        ],
+                    ),
+                ],
+            )
+        )
+        cfci.save()
+
+    def test_entity_edition__custom_form__fields_config__required(self):
+        user = self.login_as_root_and_get()
+        FieldsConfig.objects.create(
+            content_type=FakeActivity,
+            descriptions=[('minutes', {FieldsConfig.REQUIRED: True})],
+        )
+
+        activity = FakeActivity.objects.create(
+            user=user, title='My activity', type=FakeActivityType.objects.first(),
+        )
+        url = activity.get_edit_absolute_url()
+
+        response1 = self.assertGET200(url)
+        with self.assertNoException():
+            minutes_f1 = response1.context['form'].fields['minutes']
+        self.assertTrue(minutes_f1.required)
+
+        # ---
+        self._build_activity_cform_without_minutes()
+
+        response2 = self.assertGET200(url)
+        with self.assertNoException():
+            minutes_f2 = response2.context['form'].fields['minutes']
+        self.assertTrue(minutes_f2.required)
+
+    def test_entity_edition__custom_form__fields_config__required_at_creation(self):
+        user = self.login_as_root_and_get()
+        FieldsConfig.objects.create(
+            content_type=FakeActivity,
+            descriptions=[('minutes', {FieldsConfig.REQUIRED_AT_CREATION: True})],
+        )
+
+        activity = FakeActivity.objects.create(
+            user=user, title='My activity', type=FakeActivityType.objects.first(),
+        )
+        url = activity.get_edit_absolute_url()
+
+        response1 = self.assertGET200(url)
+        with self.assertNoException():
+            minutes_f = response1.context['form'].fields['minutes']
+        self.assertFalse(minutes_f.required)
+
+        # ---
+        self._build_activity_cform_without_minutes()
+
+        response2 = self.assertGET200(url)
+        with self.assertNoException():
+            fields2 = response2.context['form'].fields
+        self.assertNotIn('minutes', fields2)
 
     def test_related_to_entity_edition(self):
         user = self.login_as_root_and_get()

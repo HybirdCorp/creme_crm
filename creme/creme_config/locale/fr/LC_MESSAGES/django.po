@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-30 13:17+0100\n"
+"POT-Creation-Date: 2026-01-09 12:31+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -494,6 +494,9 @@ msgstr "Caché"
 
 msgid "Required"
 msgstr "Obligatoire"
+
+msgid "Required (at creation only)"
+msgstr "Obligatoire (seulement à la création)"
 
 #, python-brace-format
 msgid "OK: no instance of «{model}»."
@@ -1505,6 +1508,9 @@ msgstr "Champs cachés:"
 
 msgid "Required fields:"
 msgstr "Champs obligatoires:"
+
+msgid "Required fields (at creation only):"
+msgstr "Champs obligatoires (à la création):"
 
 msgid ""
 "This type of resource cannot be configured; please contact your "

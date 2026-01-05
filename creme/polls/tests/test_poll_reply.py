@@ -49,7 +49,7 @@ Activity = get_activity_model()
 
 @skipIfCustomPollForm
 @skipIfCustomPollReply
-class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
+class PollReplyTestCase(_PollsTestCase, BrickTestCaseMixin):
     def assertCurrentQuestion(self, response, fline, line_number=None):
         try:
             question_f = response.context['form'].fields['question']

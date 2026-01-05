@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2025  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -117,11 +117,13 @@ class FieldsConfigEditionForm(CremeModelForm):
 
         HIDDEN = FieldsConfig.HIDDEN
         REQUIRED = FieldsConfig.REQUIRED
+        CREATION_REQ = FieldsConfig.REQUIRED_AT_CREATION
 
-        # TODO: in model ?
+        # TODO: in model?
         choices_label = {
             HIDDEN:   _('Hidden'),
             REQUIRED: _('Required'),
+            CREATION_REQ: _('Required (at creation only)'),
         }
 
         new_formfields = []
@@ -140,7 +142,9 @@ class FieldsConfigEditionForm(CremeModelForm):
                     ],
                     initial=(
                         HIDDEN if instance.is_fieldname_hidden(fname) else
-                        REQUIRED if instance.is_fieldname_required(fname) else
+                        # REQUIRED if instance.is_fieldname_required(fname) else
+                        REQUIRED if instance.is_fieldname_required(fname, creation=False) else
+                        CREATION_REQ if instance.is_fieldname_required(fname, creation=True) else
                         ''
                     ),
                     widget=core_widgets.PrettySelect,

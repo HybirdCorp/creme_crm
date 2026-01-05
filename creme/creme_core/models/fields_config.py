@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2025  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -71,6 +71,7 @@ class FieldsConfigManager(models.Manager):
     def configurable_fields(self, model: type[Model]) -> Iterator[tuple[Field, list[str]]]:
         conf_model = self.model
         REQUIRED = conf_model.REQUIRED
+        REQUIRED_AT_CREATION = conf_model.REQUIRED_AT_CREATION
         HIDDEN = conf_model.HIDDEN
         meta = model._meta
 
@@ -90,6 +91,7 @@ class FieldsConfigManager(models.Manager):
                 #   BEWARE: in CremeModel.full_clean() M2M cannot be checked,
                 #           so in mass import they have to be checked specifically.
                 flags.append(REQUIRED)
+                flags.append(REQUIRED_AT_CREATION)
 
             if field.get_tag(FieldTag.OPTIONAL):
                 flags.append(HIDDEN)
@@ -156,6 +158,7 @@ class FieldsConfig(CremeModel):
 
     HIDDEN = 'hidden'
     REQUIRED = 'required'
+    REQUIRED_AT_CREATION = 'required_at_creation'
 
     class Meta:
         app_label = 'creme_core'
@@ -250,32 +253,44 @@ class FieldsConfig(CremeModel):
             valid_conf = {}
 
             for name, value in field_conf.items():
-                if name == HIDDEN:
-                    if not field.get_tag(FieldTag.OPTIONAL):
-                        logger.warning('FieldsConfig: the field "%s" is not optional', field_name)
-                        errors = True
-                        continue
-                elif name == REQUIRED:
-                    if not field.editable:
-                        logger.warning('FieldsConfig: the field "%s" is not editable', field_name)
-                        errors = True
-                        continue
+                match name:
+                    case cls.HIDDEN:
+                        if not field.get_tag(FieldTag.OPTIONAL):
+                            logger.warning(
+                                'FieldsConfig: the field "%s" is not optional',
+                                field_name,
+                            )
+                            errors = True
+                            continue
 
-                    if not field.blank:
-                        logger.warning('FieldsConfig: the field "%s" is not blank', field_name)
-                        errors = True
-                        continue
+                    case cls.REQUIRED | cls.REQUIRED_AT_CREATION:
+                        if not field.editable:
+                            logger.warning(
+                                'FieldsConfig: the field "%s" is not editable',
+                                field_name,
+                            )
+                            errors = True
+                            continue
 
-                    if field.many_to_many:
-                        logger.warning(
-                            'FieldsConfig: the field "%s" is a ManyToManyField '
-                            '& cannot be required',
-                            field_name
-                        )
-                        errors = True
-                        continue
-                else:
-                    raise FieldsConfig.InvalidAttribute(f'Invalid attribute name: "{name}"')
+                        if not field.blank:
+                            logger.warning(
+                                'FieldsConfig: the field "%s" is not blank',
+                                field_name,
+                            )
+                            errors = True
+                            continue
+
+                        if field.many_to_many:
+                            logger.warning(
+                                'FieldsConfig: the field "%s" is a ManyToManyField '
+                                '& cannot be required',
+                                field_name,
+                            )
+                            errors = True
+                            continue
+
+                    case _:
+                        raise FieldsConfig.InvalidAttribute(f'Invalid attribute name: "{name}"')
 
                 if not isinstance(value, bool):
                     raise FieldsConfig.InvalidAttribute(f'Invalid attribute value: "{value}"')
@@ -360,13 +375,30 @@ class FieldsConfig(CremeModel):
     @cached_property
     def required_field_names(self) -> frozenset[str]:
         """Get the names of fields which are required by configuration.
-        Notice that fields which are "naturally" required are ignored, only the
+        Notice #1: fields which are "naturally" required are ignored, only the
         configured ones are returned.
+        Notice #2: it does not return names for fields which are required only at creation.
         """
         REQUIRED = self.REQUIRED
         return frozenset(
             fname for fname, attrs in self.descriptions if attrs.get(REQUIRED, False)
         )
+
+    @cached_property
+    def required_at_creation_field_names(self) -> frozenset[str]:
+        """Return the names of fields which are required only at creation."""
+        REQUIRED = self.REQUIRED_AT_CREATION
+        return frozenset(
+            fname for fname, attrs in self.descriptions if attrs.get(REQUIRED, False)
+        )
+
+    def conditional_required_field_names(self, creation: bool) -> Iterator[str]:
+        """Returns the names of fields which are required;
+        you can include or exclude fields which are required only at creation.
+        """
+        yield from self.required_field_names
+        if creation:
+            yield from self.required_at_creation_field_names
 
     @property
     def hidden_fields(self) -> Iterator[Field]:
@@ -378,22 +410,47 @@ class FieldsConfig(CremeModel):
     # TODO: factorise
     @property
     def required_fields(self) -> Iterator[Field]:
+        """Notice that it does not return model fields which are required only at creation."""
         get_field = self.content_type.model_class()._meta.get_field
 
         for field_name in self.required_field_names:
             yield get_field(field_name)
 
+    @property
+    def required_at_creation_fields(self) -> Iterator[Field]:
+        """Return model fields which are required only at creation."""
+        get_field = self.content_type.model_class()._meta.get_field
+
+        for field_name in self.required_at_creation_field_names:
+            yield get_field(field_name)
+
     def is_field_hidden(self, field: Field) -> bool:
         return field.name in self.hidden_field_names
 
-    def is_field_required(self, field: Field) -> bool:
-        "Is a field required (naturally or by configuration)?"
-        return (
-            not isinstance(field, BooleanField)
-            and (
-                not field.blank or field.name in self.required_field_names
-            )
-        )
+    # def is_field_required(self, field: Field) -> bool:
+    #     return (
+    #         not isinstance(field, BooleanField)
+    #         and (
+    #             not field.blank or field.name in self.required_field_names
+    #         )
+    #     )
+    def is_field_required(self, field: Field, *, creation: bool) -> bool:
+        """Is a model field required (naturally or by configuration)?
+        @param creation: True means <instance is being created>.
+        """
+        if isinstance(field, BooleanField):
+            return False
+
+        if not field.blank:
+            return True
+
+        if field.name in self.required_field_names:
+            return True
+
+        if creation and field.name in self.required_at_creation_field_names:
+            return True
+
+        return False
 
     def is_fieldname_hidden(self, field_name: str) -> bool:
         "NB: if the field does not exist, it is considered as hidden."
@@ -404,16 +461,32 @@ class FieldsConfig(CremeModel):
 
         return self.is_field_hidden(field)
 
-    def is_fieldname_required(self, field_name: str) -> bool:
+    # def is_fieldname_required(self, field_name: str) -> bool:
+    #     field = self.content_type.model_class()._meta.get_field(field_name)
+    #
+    #     return self.is_field_required(field)
+    def is_fieldname_required(self, field_name: str, *, creation: bool) -> bool:
+        """Is a field (given by its name) required (naturally or by configuration)?
+        @param creation: True means <instance is being created>.
+        """
         # "NB: if the field does not exist, it is considered as not required."
         # try:
         field = self.content_type.model_class()._meta.get_field(field_name)
         # except FieldDoesNotExist:
         #     return True  # TODO ?
 
-        return self.is_field_required(field)
+        return self.is_field_required(field, creation=creation)
 
-    def update_form_fields(self, form) -> None:
+    def update_form_fields(self, form, creation: bool | None = None) -> None:
+        """Modify the fields of a form instance depending on the fields' configuration.
+        Form fields related to hidden regular fields are removed.
+        Form fields related to required regular fields are set required.
+        @param form: ModelForm instance.
+        @param creation: creation mode (useful for fields <required at creation>)
+               True: force creation mode.
+               False: force edition mode.
+               None: (default) mode is detected automatically (with <form.instance>).
+        """
         form_fields = form.fields
 
         for field_name in self.hidden_field_names:
@@ -422,7 +495,10 @@ class FieldsConfig(CremeModel):
 
         missing_field_names = []
 
-        for field_name in self.required_field_names:
+        # for field_name in self.required_field_names:
+        for field_name in self.conditional_required_field_names(
+            creation=(form.instance.pk is None) if creation is None else creation
+        ):
             try:
                 form_fields[field_name].required = True
             except KeyError:

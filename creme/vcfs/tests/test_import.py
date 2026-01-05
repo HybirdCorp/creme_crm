@@ -2022,7 +2022,10 @@ END:VCARD"""
 
         FieldsConfig.objects.create(
             content_type=Contact,
-            descriptions=[('email', {FieldsConfig.REQUIRED: True})],
+            descriptions=[
+                ('email', {FieldsConfig.REQUIRED: True}),
+                ('mobile', {FieldsConfig.REQUIRED_AT_CREATION: True}),
+            ],
         )
 
         response = self._post_step0(
@@ -2039,9 +2042,11 @@ END:VCARD"""
             fields = response.context['form'].fields
             phone_f = fields['phone']
             email_f = fields['email']
+            mobile_f = fields['mobile']
 
         self.assertFalse(phone_f.required)
         self.assertTrue(email_f.required)
+        self.assertTrue(mobile_f.required)
 
     @skipIfCustomContact
     def test_fields_config__required__contact_image__no_data_in_file(self):
@@ -2159,9 +2164,13 @@ END:VCARD"""
         user = self.login_as_root_and_get()
 
         req_fname = 'phone'
+        creation_req_fname = 'fax'
         FieldsConfig.objects.create(
             content_type=Organisation,
-            descriptions=[(req_fname, {FieldsConfig.REQUIRED: True})],
+            descriptions=[
+                (req_fname,          {FieldsConfig.REQUIRED: True}),
+                (creation_req_fname, {FieldsConfig.REQUIRED: True}),
+            ],
         )
 
         first_name = 'Asuna'
@@ -2179,11 +2188,13 @@ END:VCARD"""
 
         with self.assertNoException():
             fields = response1.context['form'].fields
-            phone_f = fields['work_phone']
+            phone_f = fields[f'work_{req_fname}']
             email_f = fields['work_email']
+            fax_f = fields[f'work_{creation_req_fname}']
 
         self.assertFalse(phone_f.required)
         self.assertFalse(email_f.required)
+        self.assertFalse(fax_f.required)
 
         # ---
         response2 = self._post_step1(
@@ -2198,12 +2209,18 @@ END:VCARD"""
             },
             errors=True,
         )
+        form = response2.context['form']
+        msg = _('The field «{}» has been configured as required.')
+        get_field = Organisation._meta.get_field
         self.assertFormError(
-            response2.context['form'],
+            form,
             field=f'work_{req_fname}',
-            errors=_('The field «{}» has been configured as required.').format(
-                Organisation._meta.get_field(req_fname).verbose_name
-            ),
+            errors=msg.format(get_field(req_fname).verbose_name),
+        )
+        self.assertFormError(
+            form,
+            field=f'work_{creation_req_fname}',
+            errors=msg.format(get_field(creation_req_fname).verbose_name),
         )
 
     @skipIfCustomContact
@@ -2264,9 +2281,13 @@ END:VCARD"""
         user = self.login_as_root_and_get()
 
         req_fname = 'sector'
+        creation_req_fname = 'capital'
         FieldsConfig.objects.create(
             content_type=Organisation,
-            descriptions=[(req_fname, {FieldsConfig.REQUIRED: True})],
+            descriptions=[
+                (req_fname,          {FieldsConfig.REQUIRED: True}),
+                (creation_req_fname, {FieldsConfig.REQUIRED_AT_CREATION: True}),
+            ],
         )
 
         first_name = 'Asuna'
@@ -2283,12 +2304,19 @@ END:VCARD"""
         )
 
         with self.assertNoException():
-            sector_f = response1.context['form'].fields[f'work_{req_fname}']
+            fields = response1.context['form'].fields
+            sector_f = fields[f'work_{req_fname}']
+            capital_f = fields[f'work_{creation_req_fname}']
 
-        label = Organisation._meta.get_field(req_fname).verbose_name
-        self.assertEqual(label, sector_f.label)
+        get_field = Organisation._meta.get_field
+        sector_vname = get_field(req_fname).verbose_name
+        self.assertEqual(sector_vname, sector_f.label)
         self.assertFalse(sector_f.required)
         self.assertIsNone(sector_f.initial)
+
+        capital_vname = get_field(creation_req_fname).verbose_name
+        self.assertEqual(capital_vname, capital_f.label)
+        self.assertFalse(capital_f.required)
 
         # ---
         data = {
@@ -2301,16 +2329,28 @@ END:VCARD"""
             'work_name': name,
         }
         response2 = self._post_step1(data=data, errors=True)
+        form = response2.context['form']
+        fmt_msg = _('The field «{}» has been configured as required.').format
         self.assertFormError(
-            response2.context['form'],
+            form,
             field=f'work_{req_fname}',
-            errors=_('The field «{}» has been configured as required.').format(label),
+            errors=fmt_msg(sector_vname),
+        )
+        self.assertFormError(
+            form,
+            field=f'work_{creation_req_fname}',
+            errors=fmt_msg(capital_vname),
         )
 
         # ---
         sector = Sector.objects.all()[0]
-        self._post_step1(data={**data, f'work_{req_fname}': sector.id})
-        self.get_object_or_fail(Organisation, name=name, sector=sector)
+        capital = 10_000
+        self._post_step1(data={
+            **data,
+            f'work_{req_fname}': sector.id,
+            f'work_{creation_req_fname}': capital,
+        })
+        self.get_object_or_fail(Organisation, name=name, sector=sector, capital=capital)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -2373,7 +2413,6 @@ END:VCARD"""
 
     @skipIfCustomContact
     def test_fields_config__required__address__not_filled(self):
-        "Addresses not filled."
         user = self.login_as_root_and_get()
 
         req_fname = 'country'
@@ -2623,6 +2662,33 @@ END:VCARD"""
         self.assertEqual(address_value, address.address)
         self.assertEqual(country,       address.country)
         self.assertEqual(department,    getattr(address, req_fname))
+
+    @skipIfCustomContact
+    def test_fields_config__required_at_creation__contact(self):
+        user = self.login_as_root_and_get()
+
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('email', {FieldsConfig.REQUIRED_AT_CREATION: True})],
+        )
+
+        response = self._post_step0(
+            user=user,
+            content=(
+                'BEGIN:VCARD\n'
+                'FN:Asuna Kagurazaka\n'
+                'EMAIL;TYPE=HOME:asuna@sao.jp\n'
+                'END:VCARD'
+            ),
+        )
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            phone_f = fields['phone']
+            email_f = fields['email']
+
+        self.assertFalse(phone_f.required)
+        self.assertTrue(email_f.required)
 
     @skipIfCustomContact
     def test_custom_fields__required__contact(self):

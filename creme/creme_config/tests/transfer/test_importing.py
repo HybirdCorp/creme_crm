@@ -1307,12 +1307,14 @@ class ImportingTestCase(TransferBaseTestCase):
 
         fname1 = 'description'
         fname2 = 'phone'
+        fname3 = 'mobile'
         fconfs_data = [
             {
                 'ctype': 'creme_core.fakecontact',
                 'descriptions': [
                     [fname1, {'hidden': True}],
                     [fname2, {'required': True}],
+                    [fname3, {'required_at_creation': True}],
                 ],
             },
         ]
@@ -1331,10 +1333,11 @@ class ImportingTestCase(TransferBaseTestCase):
             FieldsConfig,
             content_type=ContentType.objects.get_for_model(FakeContact),
         )
-        self.assertEqual(2, len(fconf.descriptions))
+        self.assertEqual(3, len(fconf.descriptions))
 
-        self.assertTrue(fconf.is_fieldname_hidden(fname1))
-        self.assertTrue(fconf.is_fieldname_required(fname2))
+        self.assertCountEqual([fname1], fconf.hidden_field_names)
+        self.assertCountEqual([fname2], fconf.required_field_names)
+        self.assertCountEqual([fname3], fconf.required_at_creation_field_names)
 
     def test_fields_config__already_exists(self):
         "A configuration already exists for this ContentType."

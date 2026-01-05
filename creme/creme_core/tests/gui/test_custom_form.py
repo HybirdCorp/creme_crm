@@ -689,7 +689,6 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertListEqual(mfields, [bfield.name for bfield in block.bound_fields])
 
     def test_form__regular_fields__missing_required(self):
-        "Missing required fields."
         user = self.get_root_user()
 
         fields_groups1 = FieldGroupList.from_cells(
@@ -832,7 +831,7 @@ class FieldGroupListTestCase(CremeTestCase):
             ],
         )
 
-    def test_form__regular_fields__hidden_fields(self):
+    def test_form__regular_fields__fields_config__hidden(self):
         user = self.get_root_user()
 
         hidden = 'description'
@@ -858,7 +857,7 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertIn(mfields[1], fields)
         self.assertNotIn(hidden, fields)
 
-    def test_form__regular_fields__required_fields(self):
+    def test_form__regular_fields__fields_config__required(self):
         user = self.get_root_user()
 
         required1 = 'email'
@@ -871,7 +870,7 @@ class FieldGroupListTestCase(CremeTestCase):
             ],
         )
 
-        mfields = ['user', 'name', required1]
+        mfields = ['user', 'name', required1]  # <required2> is missing
         fields_groups = FieldGroupList.from_cells(
             model=FakeOrganisation,
             cell_registry=base_cell_registry,
@@ -883,9 +882,16 @@ class FieldGroupListTestCase(CremeTestCase):
             }],
         )
 
-        fields = fields_groups.form_class()(user=user).fields
+        with self.assertLogs(level='WARNING') as logs_manager:
+            fields = fields_groups.form_class()(user=user).fields
         self.assertIn(mfields[0], fields)
         self.assertIn(mfields[1], fields)
+
+        self.assertIn(
+            f'''A form configuration for model "FakeOrganisation" ignores '''
+            f'''some required fields: ['{required2}']''',
+            logs_manager.output[0],
+        )
 
         required_field1 = fields.get(required1)
         self.assertIsNotNone(required_field1)
@@ -895,6 +901,67 @@ class FieldGroupListTestCase(CremeTestCase):
         required_field2 = fields.get(required2)
         self.assertIsNotNone(required_field2)
         self.assertTrue(required_field2.required)
+
+    def test_form__regular_fields__fields_config__required_at_creation(self):
+        user = self.get_root_user()
+
+        required1 = 'email'
+        required2 = 'phone'
+        FieldsConfig.objects.create(
+            content_type=FakeOrganisation,
+            descriptions=[
+                (required1, {FieldsConfig.REQUIRED_AT_CREATION: True}),
+                (required2, {FieldsConfig.REQUIRED_AT_CREATION: True}),
+            ],
+        )
+
+        mfields = ['user', 'name', required1]  # <required2> is missing
+        fields_groups = FieldGroupList.from_cells(
+            model=FakeOrganisation,
+            cell_registry=base_cell_registry,
+            data=[{
+                'name': 'Regular fields',
+                'cells': [
+                    (EntityCellRegularField, {'name': name}) for name in mfields
+                ],
+            }],
+        )
+
+        # Creation ---
+        with self.assertLogs(level='WARNING') as creation_log_mngr:
+            creation_form_cls = fields_groups.form_class(creation=True)
+        creation_fields = creation_form_cls(user=user).fields
+        self.assertIn(mfields[0], creation_fields)
+        self.assertIn(mfields[1], creation_fields)
+
+        self.assertIn(
+            f'''A form configuration for model "FakeOrganisation" ignores '''
+            f'''some required fields: ['{required2}']''',
+            creation_log_mngr.output[0],
+        )
+
+        creation_req_field1 = creation_fields.get(required1)
+        self.assertIsNotNone(creation_req_field1)
+        self.assertTrue(creation_req_field1.required)
+
+        # This field is present because it is required
+        creation_req_field2 = creation_fields.get(required2)
+        self.assertIsNotNone(creation_req_field2)
+        self.assertTrue(creation_req_field2.required)
+
+        # Edition ---
+        orga = FakeOrganisation.objects.create(user=user, name='Acme')
+        with self.assertNoLogs(level='WARNING'):
+            edition_form_cls = fields_groups.form_class(creation=False)
+            edition_fields = edition_form_cls(user=user, instance=orga).fields
+        self.assertIn(mfields[0], edition_fields)
+        self.assertIn(mfields[1], edition_fields)
+
+        edition_req_field1 = edition_fields.get(required1)
+        self.assertIsNotNone(edition_req_field1)
+        self.assertFalse(edition_req_field1.required)
+
+        self.assertNotIn(required2, edition_fields)
 
     def test_form__custom_fields(self):
         user = self.get_root_user()
@@ -2720,6 +2787,55 @@ class CustomFormDescriptorTestCase(CremeTestCase):
 
         self.assertIn(f'cform_extra-{TestSubCell1.sub_type_id}', fields)
         self.assertIn(f'cform_extra-{TestSubCell2.sub_type_id}', fields)
+
+    def test_form_class__creation_vs_edition(self):
+        "Get creation or edition form class."
+        req_fname = 'email'
+        FieldsConfig.objects.create(
+            content_type=FakeOrganisation,
+            # Should be injected only in the creation form, not the edition one
+            descriptions=[(req_fname, {FieldsConfig.REQUIRED_AT_CREATION: True})],
+        )
+
+        creation_desc = CustomFormDescriptor(
+            id='creme_core-tests_organisation_creation',
+            model=FakeOrganisation,
+            form_type=CustomFormDescriptor.CREATION_FORM,
+            verbose_name='Creation form for FakeOrganisation',
+        )
+        edition_desc = CustomFormDescriptor(
+            id='creme_core-tests_organisation_edition',
+            model=FakeOrganisation,
+            form_type=CustomFormDescriptor.EDITION_FORM,
+            verbose_name='Edition form for FakeOrganisation',
+        )
+
+        def create_cfci(descriptor):
+            return CustomFormConfigItem.objects.create_if_needed(
+                descriptor=descriptor,
+                groups_desc=[{
+                    'name': 'General',
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                    ],
+                }],
+            )
+
+        # Creation ---
+        creation_cfci = create_cfci(creation_desc)
+        with self.assertLogs(level='WARNING') as creation_log_mngr:
+            creation_desc.build_form_class(creation_cfci)
+        self.assertIn(
+            f'''A form configuration for model "FakeOrganisation" ignores '''
+            f'''some required fields: ['{req_fname}']''',
+            creation_log_mngr.output[0],
+        )
+
+        # Edition ---
+        edition_cfci = create_cfci(creation_desc)
+        with self.assertNoLogs(level='WARNING'):
+            edition_desc.build_form_class(edition_cfci)
 
     def test_registry(self):
         form_desc1 = CustomFormDescriptor(

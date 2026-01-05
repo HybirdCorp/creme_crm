@@ -3,6 +3,7 @@ from functools import partial
 from django.contrib.contenttypes.models import ContentType
 from django.forms import IntegerField
 from django.urls import reverse
+from parameterized import parameterized
 
 from creme.creme_core.models import (
     CustomField,
@@ -143,19 +144,23 @@ class QuickFormTestCase(CremeTestCase):
 
         self.assertEqual(3, cf_value)
 
-    def test_fields_config_required(self):
+    @parameterized.expand([
+        FieldsConfig.REQUIRED,
+        FieldsConfig.REQUIRED_AT_CREATION,
+    ])
+    def test_fields_config_required(self, flag):
         user = self.login_as_root_and_get()
 
-        not_required = 'url_site'
-        required = 'mobile'
+        not_req_name = 'url_site'
+        req_name = 'mobile'
 
         vanilla_fields = FakeContactQuickForm(user=user).fields
-        self.assertNotIn(not_required, vanilla_fields)
-        self.assertNotIn(required, vanilla_fields)
+        self.assertNotIn(not_req_name, vanilla_fields)
+        self.assertNotIn(req_name, vanilla_fields)
 
         FieldsConfig.objects.create(
             content_type=FakeContact,
-            descriptions=[(required, {FieldsConfig.REQUIRED: True})],
+            descriptions=[(req_name, {flag: True})],
         )
 
         url = self._build_quickform_url(FakeContact)
@@ -163,9 +168,10 @@ class QuickFormTestCase(CremeTestCase):
 
         with self.assertNoException():
             fields = response1.context['form'].fields
+            required_f = fields[req_name]
 
-        self.assertNotIn(not_required, fields)
-        self.assertIn(required, fields)
+        self.assertNotIn(not_req_name, fields)
+        self.assertTrue(required_f.required)
 
         # ---
         last_name = 'Kirika'
@@ -175,14 +181,14 @@ class QuickFormTestCase(CremeTestCase):
             data={
                 'last_name': last_name,
                 'user': user.id,
-                required: required_value,
-                not_required: 'whatever',
+                req_name: required_value,
+                not_req_name: 'whatever',
             },
         ))
 
         contact = self.get_object_or_fail(FakeContact, last_name=last_name)
-        self.assertEqual(required_value, getattr(contact, required))
-        self.assertFalse(getattr(contact, not_required))
+        self.assertEqual(required_value, getattr(contact, req_name))
+        self.assertFalse(getattr(contact, not_req_name))
 
     def test_fields_config_required__enumerable_fk(self):
         user = self.login_as_root_and_get()

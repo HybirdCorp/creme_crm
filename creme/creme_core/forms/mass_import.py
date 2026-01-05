@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1286,6 +1286,20 @@ class ImportForm(CremeModelForm):
             field_excluder,
         ).choices()
 
+    def _build_required_fields(self):
+        # NB: we force the creation mode at false (there is no created instance,
+        #     so the mode will be true by default)
+        #  - we cannot know now if the update mode will be used (we could use
+        #    JavaScript to mark as required the fields required at creation if
+        #    the update-keys field is empty).
+        #  - if we are in update mode, the error will depend if the entity is
+        #    created or updated and so can only be detected later.
+        # TODO: should we add a help text to indicate the fields required only
+        #       at creation which can raise validation error?
+        self.fields_configs.get_for_model(type(self.instance)).update_form_fields(
+            self, creation=False,
+        )
+
     def append_error(self, err_msg: str | None) -> None:
         if err_msg:
             self.import_errors.append(str(err_msg))
@@ -1442,6 +1456,7 @@ class ImportForm(CremeModelForm):
                         instance.full_clean()
                         instance.save()
 
+                        # TODO: rename '_post_instance_save()' ?
                         self._post_instance_creation(instance, line, updated)
 
                         for m2m in model_class._meta.many_to_many:

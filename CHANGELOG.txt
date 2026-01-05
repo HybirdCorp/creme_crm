@@ -26,6 +26,7 @@
             - The Roles can now have special permissions.
               Two special permissions have been introduced : "User management" & "Role configuration".
             - The Roles can now be disabled.
+            - In the fields' configuration, fields can now be set as required but only at creation.
             - The CustomFields can now get:
                 - a description, which is used as help text in forms.
                 - a default value, which is used as initial value in creation forms.
@@ -175,6 +176,11 @@
               "creme/activities/migrations/0034_v2_8__minions_created_n_modified01.py" as example).
             - The model 'UserRole' is now ordered by 'name' (it could break some unit tests).
             - The method 'CremeUser.clean()' now raises more errors ("A regular user must have a role.").
+            - In the model 'FieldsConfig' :
+                - The methods 'is_field_required()' & 'is_fieldname_required()'
+                  get a new mandatory arguent: "creation".
+                - The method 'update_form_fields()' uses the attribute 'form.instance';
+                  it should not break anything because using it on a non-model form would be strange.
         # In many apps, the attributes 'SEARCH' of Populator classes have changed
           (because they implemented their own API before the new generic one).
         # In 'creme_core.bricks' :

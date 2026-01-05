@@ -542,7 +542,9 @@ else:
             return self.title
 
         # def get_absolute_url(self):
-        # def get_edit_absolute_url(self):
+
+        def get_edit_absolute_url(self):
+            return reverse('creme_core__edit_fake_activity', args=(self.id,))
 
         @staticmethod
         def get_lv_absolute_url():
@@ -598,6 +600,7 @@ else:
             return self.name
 
         # def get_absolute_url(self):
+        # Keep empty (see 'BuiltinActionsTestCase.test_edit_action()')
         # def get_edit_absolute_url(self):
 
         @staticmethod

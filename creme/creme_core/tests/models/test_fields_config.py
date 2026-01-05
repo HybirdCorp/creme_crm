@@ -37,9 +37,14 @@ class FieldsConfigManagerTestCase(CremeTestCase):
             field.name: {*values}
             for field, values in FieldsConfig.objects.configurable_fields(FakeContact)
         }
-        self.assertEqual({FieldsConfig.REQUIRED}, conf_fields.get('email'))
-        self.assertEqual(
-            {FieldsConfig.REQUIRED, FieldsConfig.HIDDEN},
+        # self.assertEqual({FieldsConfig.REQUIRED}, conf_fields.get('email'))
+        self.assertSetEqual(
+            {FieldsConfig.REQUIRED, FieldsConfig.REQUIRED_AT_CREATION},
+            conf_fields.get('email'),
+        )
+        self.assertSetEqual(
+            # {FieldsConfig.REQUIRED, FieldsConfig.HIDDEN},
+            {FieldsConfig.REQUIRED, FieldsConfig.REQUIRED_AT_CREATION, FieldsConfig.HIDDEN},
             conf_fields.get('phone'),
         )
 
@@ -70,8 +75,9 @@ class FieldsConfigManagerTestCase(CremeTestCase):
             field.name: {*values}
             for field, values in FieldsConfig.objects.configurable_fields(FakeInvoice)
         }
-        self.assertEqual(
-            {FieldsConfig.REQUIRED, FieldsConfig.HIDDEN},
+        self.assertSetEqual(
+            # {FieldsConfig.REQUIRED, FieldsConfig.HIDDEN},
+            {FieldsConfig.REQUIRED, FieldsConfig.REQUIRED_AT_CREATION, FieldsConfig.HIDDEN},
             conf_fields.get('expiration_date'),
         )
         self.assertNotIn('total_vat', conf_fields)  # Not editable, not optional
@@ -114,13 +120,13 @@ class FieldsConfigManagerTestCase(CremeTestCase):
 
     def test_create__required(self):
         "REQUIRED."
-        r_field1 = 'phone'
-        r_field2 = 'email'
+        r_field_name1 = 'phone'
+        r_field_name2 = 'email'
         fconf = FieldsConfig.objects.create(
             content_type=FakeContact,
             descriptions=[
-                (r_field1, {FieldsConfig.REQUIRED: True}),
-                (r_field2, {FieldsConfig.REQUIRED: True}),
+                (r_field_name1, {FieldsConfig.REQUIRED: True}),
+                (r_field_name2, {FieldsConfig.REQUIRED: True}),
             ],
         )
         self.assertIsInstance(fconf, FieldsConfig)
@@ -129,33 +135,93 @@ class FieldsConfigManagerTestCase(CremeTestCase):
 
         get_field = FakeContact._meta.get_field
         is_field_required = fconf.is_field_required
-        self.assertTrue(is_field_required(get_field('last_name')))
-        self.assertTrue(is_field_required(get_field(r_field1)))
-        self.assertTrue(is_field_required(get_field(r_field2)))
-        self.assertFalse(is_field_required(get_field('mobile')))
-        self.assertFalse(is_field_required(get_field('is_a_nerd')))  # BooleanField
+        last_name_f = get_field('last_name')
+        self.assertTrue(is_field_required(last_name_f, creation=True))
+        self.assertTrue(is_field_required(last_name_f, creation=False))
+        field1 = get_field(r_field_name1)
+        self.assertTrue(is_field_required(field1, creation=True))
+        self.assertTrue(is_field_required(field1, creation=False))
+        self.assertTrue(is_field_required(get_field(r_field_name2), creation=False))
+        self.assertFalse(is_field_required(get_field('mobile'), creation=False))
+        # BooleanField
+        self.assertFalse(is_field_required(get_field('is_a_nerd'), creation=False))
 
         is_fieldname_required = fconf.is_fieldname_required
-        self.assertTrue(is_fieldname_required('last_name'))
-        self.assertTrue(is_fieldname_required(r_field1))
-        self.assertTrue(is_fieldname_required(r_field2))
-        self.assertFalse(is_fieldname_required('mobile'))
-        self.assertFalse(is_fieldname_required('is_a_nerd'))
+        self.assertTrue(is_fieldname_required('last_name', creation=True))
+        self.assertTrue(is_fieldname_required('last_name', creation=False))
+        self.assertTrue(is_fieldname_required(r_field_name1, creation=True))
+        self.assertTrue(is_fieldname_required(r_field_name1, creation=False))
+        self.assertTrue(is_fieldname_required(r_field_name2, creation=False))
+        self.assertFalse(is_fieldname_required('mobile', creation=False))
+        self.assertFalse(is_fieldname_required('is_a_nerd', creation=False))
 
         # NB: sorted by field name
         self.assertListEqual(
             [
-                (r_field2, {FieldsConfig.REQUIRED: True}),
-                (r_field1, {FieldsConfig.REQUIRED: True}),
+                (r_field_name2, {FieldsConfig.REQUIRED: True}),
+                (r_field_name1, {FieldsConfig.REQUIRED: True}),
             ],
             fconf.descriptions,
         )
 
         fnames = fconf.required_field_names
         self.assertIsInstance(fnames, frozenset)
-        self.assertCountEqual([r_field1, r_field2], fnames)
+        self.assertCountEqual([r_field_name1, r_field_name2], fnames)
+
+        self.assertFalse(fconf.required_at_creation_field_names)
+        self.assertCountEqual(
+            [r_field_name1, r_field_name2],
+            [*fconf.conditional_required_field_names(creation=False)],
+        )
+        self.assertCountEqual(
+            [r_field_name1, r_field_name2],
+            [*fconf.conditional_required_field_names(creation=True)],
+        )
 
         self.assertIs(fnames, fconf.required_field_names)  # Test cache
+
+    def test_create__required_at_creation(self):
+        "REQUIRED_AT_CREATION."
+        r_field_name = 'phone'
+        fconf = FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[
+                (r_field_name, {FieldsConfig.REQUIRED_AT_CREATION: True}),
+            ],
+        )
+        self.assertIsInstance(fconf, FieldsConfig)
+
+        fconf = self.refresh(fconf)
+
+        get_field = FakeContact._meta.get_field
+        is_field_required = fconf.is_field_required
+        last_name_f = get_field('last_name')
+        self.assertTrue(is_field_required(last_name_f, creation=True))
+        self.assertTrue(is_field_required(last_name_f, creation=False))
+
+        field = get_field(r_field_name)
+        self.assertTrue(is_field_required(field, creation=True))
+        self.assertFalse(is_field_required(field, creation=False))
+
+        is_fieldname_required = fconf.is_fieldname_required
+        self.assertTrue(is_fieldname_required('last_name', creation=True))
+        self.assertTrue(is_fieldname_required('last_name', creation=False))
+        self.assertTrue(is_fieldname_required(r_field_name, creation=True))
+        self.assertFalse(is_fieldname_required(r_field_name, creation=False))
+
+        fnames = fconf.required_at_creation_field_names
+        self.assertIsInstance(fnames, frozenset)
+        self.assertCountEqual([r_field_name], fnames)
+
+        self.assertFalse(fconf.required_field_names)
+        self.assertFalse(
+            [*fconf.conditional_required_field_names(creation=False)],
+        )
+        self.assertListEqual(
+            [r_field_name], [*fconf.conditional_required_field_names(creation=True)],
+        )
+
+        self.assertIs(fnames, fconf.required_at_creation_field_names)  # Test cache
 
     def test_create__invalid_field(self):
         "Invalid field: ignored."
@@ -243,8 +309,10 @@ class FieldsConfigManagerTestCase(CremeTestCase):
             )
 
         self.assertEqual(1, len(fconf.descriptions))
-        self.assertTrue(fconf.is_fieldname_required(required_field))
-        self.assertTrue(fconf.is_fieldname_required(blank_field))
+        # self.assertTrue(fconf.is_fieldname_required(required_field))
+        self.assertTrue(fconf.is_fieldname_required(required_field, creation=True))
+        self.assertTrue(fconf.is_fieldname_required(required_field, creation=False))
+        self.assertTrue(fconf.is_fieldname_required(blank_field, creation=False))
 
         self.assertListEqual(
             [
@@ -292,6 +360,25 @@ class FieldsConfigManagerTestCase(CremeTestCase):
             logs_manager.output,
         )
 
+    def test_create__required_at_creation__not_editable(self):
+        "Field is not editable."
+        fname = 'address'
+
+        with self.assertLogs(level='WARNING') as logs_manager:
+            fconf = FieldsConfig.objects.create(
+                content_type=FakeContact,
+                descriptions=[(fname, {FieldsConfig.REQUIRED_AT_CREATION: True})],
+            )
+
+        self.assertFalse(fconf.descriptions)
+        self.assertListEqual(
+            [
+                f'WARNING:creme.creme_core.models.fields_config:'
+                f'FieldsConfig: the field "{fname}" is not editable'
+            ],
+            logs_manager.output,
+        )
+
     def test_create__hidden_n_required__errors(self):
         with self.assertRaises(FieldsConfig.InvalidAttribute):
             FieldsConfig.objects.create(
@@ -307,12 +394,14 @@ class FieldsConfigManagerTestCase(CremeTestCase):
         h_field1 = 'phone'
         h_field2 = 'mobile'
         r_field1 = 'email'
+        r_field2 = 'url_site'
         FieldsConfig.objects.create(
             content_type=model,
             descriptions=[
                 (h_field1, {FieldsConfig.HIDDEN: True}),
                 (h_field2, {FieldsConfig.HIDDEN: True}),
                 (r_field1, {FieldsConfig.REQUIRED: True}),
+                (r_field2, {FieldsConfig.REQUIRED_AT_CREATION: True}),
             ],
         )
 
@@ -326,9 +415,13 @@ class FieldsConfigManagerTestCase(CremeTestCase):
         self.assertTrue(is_hidden('unknown'))
 
         is_required = fc.is_fieldname_required
-        self.assertTrue(is_required(r_field1))
-        self.assertTrue(is_required('last_name'))
-        self.assertFalse(is_required('first_name'))
+        # self.assertTrue(is_required(r_field1))
+        self.assertTrue(is_required(r_field1, creation=False))
+        self.assertTrue(is_required(r_field1, creation=True))
+        self.assertFalse(is_required(r_field2, creation=False))
+        self.assertTrue(is_required(r_field2, creation=True))
+        self.assertTrue(is_required('last_name', creation=False))
+        self.assertFalse(is_required('first_name', creation=False))
         # self.assertFalse(is_required('unknown')) TODO ? (or test exception)
 
         self.assertCountEqual(
@@ -336,8 +429,10 @@ class FieldsConfigManagerTestCase(CremeTestCase):
             [field.name for field in fc.hidden_fields],
         )
         self.assertListEqual(
-            [r_field1],
-            [field.name for field in fc.required_fields],
+            [r_field1], [field.name for field in fc.required_fields],
+        )
+        self.assertListEqual(
+            [r_field2], [field.name for field in fc.required_at_creation_fields],
         )
 
         with self.assertNumQueries(0):  # Cache
@@ -352,6 +447,7 @@ class FieldsConfigManagerTestCase(CremeTestCase):
 
         self.assertFalse([*fc.hidden_fields])
         self.assertFalse([*fc.required_fields])
+        self.assertFalse([*fc.required_at_creation_fields])
 
     def test_get_for_model__no_cache_created(self):
         "Cache not created."
@@ -586,6 +682,62 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertEqual(user,           contact.user)
         self.assertEqual(last_name,      contact.last_name)
         self.assertEqual(required_value, getattr(contact, required))
+
+    def test_form_update__required_at_creation(self):
+        user = self.get_root_user()
+
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[
+                ('phone',  {FieldsConfig.REQUIRED_AT_CREATION: True}),
+            ],
+        )
+
+        # Creation ---
+        form1 = FakeContactForm(user=user)
+        fields1 = form1.fields
+        self.assertFalse(fields1['mobile'].required)
+        self.assertTrue(fields1['phone'].required)
+
+        # Edition ---
+        contact = FakeContact.objects.create(
+            user=user, last_name='Senjougahara', first_name='Hitagi',
+        )
+        form2 = FakeContactForm(user=user, instance=contact)
+        fields2 = form2.fields
+        self.assertFalse(fields2['mobile'].required)
+        self.assertFalse(fields2['phone'].required)
+
+    def test_form_update__required_at_creation__absent_field(self):
+        "Field not present => added."
+        user = self.get_root_user()
+
+        class LightFakeContactForm(FakeContactForm):
+            class Meta(FakeContactForm.Meta):
+                fields = ('user', 'last_name')
+
+        required = 'first_name'
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[
+                (required, {FieldsConfig.REQUIRED_AT_CREATION: True}),
+            ],
+        )
+
+        # Creation ---
+        form1 = LightFakeContactForm(user=user)
+        first_name_f1 = form1.fields.get(required)
+        self.assertIsInstance(first_name_f1, CharField)
+        self.assertEqual(_('First name'), first_name_f1.label)
+        self.assertEqual(100,             first_name_f1.max_length)
+        self.assertTrue(first_name_f1.required)
+
+        # Edition ---
+        contact = FakeContact.objects.create(
+            user=user, last_name='Senjougahara', first_name='Hitagi',
+        )
+        form2 = LightFakeContactForm(user=user, instance=contact)
+        self.assertNotIn(required, form2.fields)
 
     def test_descriptions_setter__auto_repair(self):
         "Auto-repair invalid fields."
