@@ -37,7 +37,7 @@ from .base import (
 )
 
 
-class VcfImportTestCase(DocumentsTestCaseMixin, CremeTestCase):
+class BaseVcfImportTestCase(DocumentsTestCaseMixin, CremeTestCase):
     IMPORT_URL = reverse('vcfs__import')
     image_data = (
         '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODw'
@@ -116,6 +116,8 @@ class VcfImportTestCase(DocumentsTestCaseMixin, CremeTestCase):
 
         return response
 
+
+class UploadStepTestCase(BaseVcfImportTestCase):
     def test_add_vcf(self):
         user = self.login_as_root_and_get()
 
@@ -127,7 +129,7 @@ class VcfImportTestCase(DocumentsTestCaseMixin, CremeTestCase):
         form = self.get_form_or_fail(response)
         self.assertIn('value="1"', str(form['vcf_step']))
 
-    def test_parsing_vcf__names_not_separated(self):
+    def test_parsing__names_not_separated(self):
         "First & last names not separated."
         user = self.login_as_root_and_get()
 
@@ -149,7 +151,7 @@ class VcfImportTestCase(DocumentsTestCaseMixin, CremeTestCase):
         self.assertEqual(first_name, first_name_f.initial)
         self.assertEqual(last_name, last_name_f.initial)
 
-    def test_parsing_vcf__contact_with_details(self):  # TODO: use BDAY
+    def test_parsing__contact_with_details(self):  # TODO: use BDAY
         "Contact with details & address."
         user = self.login_as_root_and_get()
 
@@ -239,7 +241,7 @@ END:VCARD"""
         self.assertEqual(region, adr_value.region)
         self.assertEqual(region, fields['homeaddr_region'].initial)
 
-    def test_parsing_vcf__organisation(self):
+    def test_parsing__organisation(self):
         user = self.login_as_root_and_get()
 
         name = 'Negima'
@@ -298,7 +300,7 @@ END:VCARD"""
         self.assertEqual(country, adr.country)
         self.assertEqual(country, fields['workaddr_country'].initial)
 
-    def test_parsing_vcf__address_without_type(self):
+    def test_parsing__address_without_type(self):
         "Address without type; VCF tags are lower case."
         user = self.login_as_root_and_get()
 
@@ -344,7 +346,7 @@ end:vcard"""
         self.assertEqual(fields['url_site'].help_text, help_prefix + vobj.url.value)
 
     @skipIfCustomOrganisation
-    def test_parsing_vcf__existing_organisation(self):
+    def test_parsing__existing_organisation(self):
         user = self.login_as_root_and_get()
 
         name = 'Negima'
@@ -362,7 +364,7 @@ END:VCARD"""
         form = self.get_form_or_fail(response)
         self.assertEqual(form['organisation'].field.initial, orga.id)
 
-    def test_parsing_vcf__multi_line(self):
+    def test_parsing__multi_line(self):
         "Multi line, escape chars."
         user = self.login_as_root_and_get()
 
@@ -400,10 +402,12 @@ END:VCARD"""
             vobj.adr.value.street,
         )
 
+
+class CreationStepTestCase(BaseVcfImportTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_add_contact_vcf(self):
+    def test_contact(self):
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -463,7 +467,67 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_add_contact_vcf__organisation_creation__error(self):
+    def test_sector(self):
+        user = self.login_as_root_and_get()
+
+        contact_count = Contact.objects.count()
+        orga_count = Organisation.objects.count()
+        content = """BEGIN:VCARD
+FN:Asuna Kagurazaka
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+TEL;TYPE=WORK:33 33 33 33 33
+EMAIL;TYPE=HOME:email@email.com
+EMAIL;TYPE=WORK:work@work.com
+URL;TYPE=HOME:http://www.url.com/
+URL;TYPE=WORK:www.work.com
+ORG:Corporate
+END:VCARD"""
+        fields = self._post_step0(user=user, content=content).context['form'].fields
+        first_name = fields['first_name'].initial
+        last_name = fields['last_name'].initial
+        phone = fields['phone'].initial
+        mobile = fields['mobile'].initial
+        fax = fields['fax'].initial
+        email = fields['email'].initial
+        url_site = fields['url_site'].initial
+
+        sector = Sector.objects.all()[0]
+        self._post_step1(
+            data={
+                'user': user.id,
+                'first_name': first_name,
+                'last_name': last_name,
+                'phone': phone,
+                'mobile': mobile,
+                'fax': fax,
+                'email': email,
+                'url_site': url_site,
+                'sector': sector.id,
+
+                'create_or_attach_orga': False,
+
+                'work_name': fields['work_name'].initial,
+                'work_phone': fields['work_phone'].initial,
+                'work_email': fields['work_email'].initial,
+                'work_url_site': fields['work_url_site'].initial,
+            },
+        )
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(orga_count, Organisation.objects.count())
+
+        self.get_object_or_fail(
+            Contact,
+            first_name=first_name, last_name=last_name,
+            phone=phone, mobile=mobile, fax=fax,
+            email=email, url_site=url_site,
+            sector=sector,
+        )
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    def test_organisation__creation__error(self):
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.create
@@ -563,67 +627,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_add_contact_vcf__sector(self):
-        user = self.login_as_root_and_get()
-
-        contact_count = Contact.objects.count()
-        orga_count = Organisation.objects.count()
-        content = """BEGIN:VCARD
-FN:Asuna Kagurazaka
-TEL;TYPE=HOME:00 00 00 00 00
-TEL;TYPE=CELL:11 11 11 11 11
-TEL;TYPE=FAX:22 22 22 22 22
-TEL;TYPE=WORK:33 33 33 33 33
-EMAIL;TYPE=HOME:email@email.com
-EMAIL;TYPE=WORK:work@work.com
-URL;TYPE=HOME:http://www.url.com/
-URL;TYPE=WORK:www.work.com
-ORG:Corporate
-END:VCARD"""
-        fields = self._post_step0(user=user, content=content).context['form'].fields
-        first_name = fields['first_name'].initial
-        last_name  = fields['last_name'].initial
-        phone      = fields['phone'].initial
-        mobile     = fields['mobile'].initial
-        fax        = fields['fax'].initial
-        email      = fields['email'].initial
-        url_site   = fields['url_site'].initial
-
-        sector = Sector.objects.all()[0]
-        self._post_step1(
-            data={
-                'user':       user.id,
-                'first_name': first_name,
-                'last_name':  last_name,
-                'phone':      phone,
-                'mobile':     mobile,
-                'fax':        fax,
-                'email':      email,
-                'url_site':   url_site,
-                'sector':     sector.id,
-
-                'create_or_attach_orga': False,
-
-                'work_name':     fields['work_name'].initial,
-                'work_phone':    fields['work_phone'].initial,
-                'work_email':    fields['work_email'].initial,
-                'work_url_site': fields['work_url_site'].initial,
-            },
-        )
-        self.assertEqual(contact_count + 1, Contact.objects.count())
-        self.assertEqual(orga_count,        Organisation.objects.count())
-
-        self.get_object_or_fail(
-            Contact,
-            first_name=first_name, last_name=last_name,
-            phone=phone, mobile=mobile, fax=fax,
-            email=email, url_site=url_site,
-            sector=sector,
-        )
-
-    @skipIfCustomContact
-    @skipIfCustomOrganisation
-    def test_add_contact_vcf__organisation_creation(self):
+    def test_organisation__creation(self):
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -693,7 +697,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_add_contact_vcf__existing_organisation__no_update(self):
+    def test_organisation__existing__no_update(self):
         "Related organisation exists & is not updated."
         user = self.login_as_root_and_get()
 
@@ -767,162 +771,8 @@ END:VCARD"""
         self.assertEqual(orga.url_site, orga_not_edited.url_site)
 
     @skipIfCustomContact
-    @skipIfCustomAddress
-    def test_add_contact_vcf__address(self):
-        user = self.login_as_root_and_get()
-
-        contact_count = Contact.objects.count()
-        address_count = Address.objects.count()
-        content = """BEGIN:VCARD
-FN:Chisame Hasegawa
-ADR;TYPE=HOME:78;;Geek avenue;New-York;;6969;USA
-TEL;TYPE=HOME:00 00 00 00 00
-TEL;TYPE=CELL:11 11 11 11 11
-TEL;TYPE=FAX:22 22 22 22 22
-EMAIL;TYPE=HOME:email@email.com
-URL;TYPE=HOME:www.url.com
-END:VCARD"""
-        fields = self._post_step0(user=user, content=content).context['form'].fields
-        first_name = fields['first_name'].initial
-        last_name  = fields['last_name'].initial
-
-        adr_name = fields['homeaddr_name'].initial
-        address  = fields['homeaddr_address'].initial
-        city     = fields['homeaddr_city'].initial
-        country  = fields['homeaddr_country'].initial
-        code     = fields['homeaddr_code'].initial
-        region   = fields['homeaddr_region'].initial
-
-        self._post_step1(
-            data={
-                'user': fields['user'].initial,
-
-                'first_name': first_name,
-                'last_name':  last_name,
-
-                'phone':    fields['phone'].initial,
-                'mobile':   fields['mobile'].initial,
-                'fax':      fields['fax'].initial,
-                'email':    fields['email'].initial,
-                'url_site': fields['url_site'].initial,
-
-                'homeaddr_name':     adr_name,
-                'homeaddr_address':  address,
-                'homeaddr_city':     city,
-                'homeaddr_country':  country,
-                'homeaddr_code':     code,
-                'homeaddr_region':   region,
-
-                'create_or_attach_orga': False,
-            },
-        )
-
-        self.assertEqual(contact_count + 1, Contact.objects.count())
-        self.assertEqual(address_count + 1, Address.objects.count())
-
-        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        address = self.get_object_or_fail(
-            Address,
-            name=adr_name, address=address,
-            city=city, zipcode=code, country=country, department=region,
-        )
-        self.assertEqual(contact.billing_address, address)
-
-    @skipIfCustomContact
     @skipIfCustomOrganisation
-    @skipIfCustomAddress
-    def test_add_contact_vcf__addresses(self):
-        user = self.login_as_root_and_get()
-        contact_count = Contact.objects.count()
-        address_count = Address.objects.count()
-        orga_count    = Organisation.objects.count()
-        content = """BEGIN:VCARD
-FN:Nodoka Myiazaki
-ADR;TYPE=HOME:55;;Moe street;Mahora;Kanto;123;Japan
-ADR;TYPE=WORK:26;;Eva house;Eva city;Eva region;666;Eva land
-TEL;TYPE=HOME:00 00 00 00 00
-TEL;TYPE=CELL:11 11 11 11 11
-TEL;TYPE=FAX:22 22 22 22 22
-TEL;TYPE=WORK:33 33 33 33 33
-EMAIL;TYPE=HOME:email@email.com
-EMAIL;TYPE=WORK:work@work.com
-URL;TYPE=HOME:www.url.com
-URL;TYPE=WORK:www.work.com
-ORG:Corporate
-END:VCARD"""
-        fields = self._post_step0(user=user, content=content).context['form'].fields
-        first_name = fields['first_name'].initial
-        last_name  = fields['last_name'].initial
-
-        adr_name = fields['homeaddr_name'].initial
-        address  = fields['homeaddr_address'].initial
-        city     = fields['homeaddr_city'].initial
-        country  = fields['homeaddr_country'].initial
-        code     = fields['homeaddr_code'].initial
-        region   = fields['homeaddr_region'].initial
-
-        work_name = fields['work_name'].initial
-
-        work_adr_name  = fields['workaddr_name'].initial
-        work_address   = fields['workaddr_address'].initial
-        work_city      = fields['workaddr_city'].initial
-        work_country   = fields['workaddr_country'].initial
-        work_code      = fields['workaddr_code'].initial
-        work_region    = fields['workaddr_region'].initial
-
-        self._post_step1(
-            data={
-                'user':       fields['user'].initial,
-                'first_name': first_name,
-                'last_name':  last_name,
-
-                'phone':    fields['phone'].initial,
-                'mobile':   fields['mobile'].initial,
-                'fax':      fields['fax'].initial,
-                'email':    fields['email'].initial,
-                'url_site': fields['url_site'].initial,
-
-                'homeaddr_name':     adr_name,
-                'homeaddr_address':  address,
-                'homeaddr_city':     city,
-                'homeaddr_country':  country,
-                'homeaddr_code':     code,
-                'homeaddr_region':   region,
-
-                'create_or_attach_orga': True,
-                'relation':              REL_SUB_EMPLOYED_BY,
-                'work_name':             work_name,
-
-                'workaddr_name':     work_adr_name,
-                'workaddr_address':  work_address,
-                'workaddr_city':     work_city,
-                'workaddr_country':  work_country,
-                'workaddr_code':     work_code,
-                'workaddr_region':   work_region,
-            },
-        )
-        self.assertEqual(contact_count + 1, Contact.objects.count())
-        self.assertEqual(orga_count + 1,    Organisation.objects.count())
-        self.assertEqual(address_count + 2, Address.objects.count())
-
-        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        orga = self.get_object_or_fail(Organisation, name=work_name)
-        c_addr = self.get_object_or_fail(
-            Address,
-            name=adr_name, address=address,
-            city=city, zipcode=code, country=country, department=region,
-        )
-        o_addr = self.get_object_or_fail(
-            Address,
-            name=work_adr_name, address=work_address,
-            city=work_city, zipcode=work_code, country=work_country, department=work_region,
-        )
-        self.assertEqual(contact.billing_address, c_addr)
-        self.assertEqual(orga.billing_address,    o_addr)
-
-    @skipIfCustomContact
-    @skipIfCustomOrganisation
-    def test_add_contact_vcf__existing_organisaion__update(self):
+    def test_organisation__existing__update(self):
         user = self.login_as_root_and_get()
         contact_count = Contact.objects.count()
 
@@ -998,7 +848,81 @@ END:VCARD"""
         self.assertEqual(url_site, orga.url_site)
 
     @skipIfCustomContact
-    def test_add_contact_vcf__organisation_not_selected(self):
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
+    def test_organisation__existing__add_address(self):
+        user = self.login_as_root_and_get()
+
+        name = 'Astronomy club'
+        Organisation.objects.create(
+            user=user, name=name,
+            phone='00 00 00 00 00', email='corp@corp.com', url_site='https://www.corp.com',
+        )
+
+        contact_count = Contact.objects.count()
+        orga_count = Organisation.objects.count()
+        address_count = Address.objects.count()
+
+        content = f"""BEGIN:VCARD
+FN:Chizuru NABA
+ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
+ORG:{name}
+END:VCARD"""
+        fields = self._post_step0(user=user, content=content).context['form'].fields
+        orga_id = fields['organisation'].initial
+        work_adr_name = fields['workaddr_name'].initial
+        work_address = fields['workaddr_address'].initial
+        work_city = fields['workaddr_city'].initial
+        work_country = fields['workaddr_country'].initial
+        work_code = fields['workaddr_code'].initial
+        work_region = fields['workaddr_region'].initial
+        self._post_step1(
+            data={
+                'user': fields['user'].initial,
+                'first_name': fields['first_name'].initial,
+                'last_name': fields['last_name'].initial,
+
+                'create_or_attach_orga': True,
+                'organisation': orga_id,
+                'relation': REL_SUB_EMPLOYED_BY,
+                'work_name': fields['work_name'].initial,
+
+                'workaddr_name': work_adr_name,
+                'workaddr_address': work_address,
+                'workaddr_city': work_city,
+                'workaddr_country': work_country,
+                'workaddr_code': work_code,
+                'workaddr_region': work_region,
+
+                'update_work_address': True,
+            },
+        )
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(orga_count, Organisation.objects.count())
+        self.assertEqual(address_count + 1, Address.objects.count())
+
+        address = self.get_object_or_fail(
+            Address,
+            name=work_adr_name, address=work_address,
+            city=work_city, zipcode=work_code,
+            country=work_country, department=work_region,
+        )
+        orga = self.get_object_or_fail(Organisation, id=orga_id)
+
+        vobj = read_vcf(content)
+        adr = vobj.adr.value
+
+        self.assertEqual(address.name, vobj.org.value[0])
+        self.assertEqual(address.address, ' '.join([adr.box, adr.street]))
+        self.assertEqual(address.city, adr.city)
+        self.assertEqual(address.country, adr.country)
+        self.assertEqual(address.zipcode, adr.code)
+        self.assertEqual(address.department, adr.region)
+
+        self.assertEqual(orga.billing_address, address)
+
+    @skipIfCustomContact
+    def test_organisation__not_selected(self):
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -1054,7 +978,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
-    def test_add_contact_vcf__missing_update_data(self):
+    def test_organisation__missing_update_data(self):
         user = self.login_as_root_and_get()
 
         name = 'Negima'
@@ -1096,7 +1020,7 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_add_contact_vcf__organisation_with_existing_address(self):
+    def test_organisation__existing_address(self):
         user = self.login_as_root_and_get()
 
         name = 'Robotic club'
@@ -1195,83 +1119,211 @@ END:VCARD"""
         self.assertEqual(department,    billing_address.department)
 
     @skipIfCustomContact
-    @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_add_contact_vcf__existing_organisation__add_address(self):
+    def test_address(self):
         user = self.login_as_root_and_get()
 
-        name = 'Astronomy club'
-        Organisation.objects.create(
-            user=user, name=name,
-            phone='00 00 00 00 00', email='corp@corp.com', url_site='https://www.corp.com',
-        )
-
         contact_count = Contact.objects.count()
-        orga_count = Organisation.objects.count()
         address_count = Address.objects.count()
-
-        content = f"""BEGIN:VCARD
-FN:Chizuru NABA
-ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
-ORG:{name}
+        content = """BEGIN:VCARD
+FN:Chisame Hasegawa
+ADR;TYPE=HOME:78;;Geek avenue;New-York;;6969;USA
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+EMAIL;TYPE=HOME:email@email.com
+URL;TYPE=HOME:www.url.com
 END:VCARD"""
         fields = self._post_step0(user=user, content=content).context['form'].fields
-        orga_id       = fields['organisation'].initial
-        work_adr_name = fields['workaddr_name'].initial
-        work_address  = fields['workaddr_address'].initial
-        work_city     = fields['workaddr_city'].initial
-        work_country  = fields['workaddr_country'].initial
-        work_code     = fields['workaddr_code'].initial
-        work_region   = fields['workaddr_region'].initial
+        first_name = fields['first_name'].initial
+        last_name = fields['last_name'].initial
+
+        adr_name = fields['homeaddr_name'].initial
+        address = fields['homeaddr_address'].initial
+        city = fields['homeaddr_city'].initial
+        country = fields['homeaddr_country'].initial
+        code = fields['homeaddr_code'].initial
+        region = fields['homeaddr_region'].initial
+
         self._post_step1(
             data={
-                'user':       fields['user'].initial,
-                'first_name': fields['first_name'].initial,
-                'last_name':  fields['last_name'].initial,
+                'user': fields['user'].initial,
 
-                'create_or_attach_orga': True,
-                'organisation':          orga_id,
-                'relation':              REL_SUB_EMPLOYED_BY,
-                'work_name':             fields['work_name'].initial,
+                'first_name': first_name,
+                'last_name': last_name,
 
-                'workaddr_name':    work_adr_name,
-                'workaddr_address': work_address,
-                'workaddr_city':    work_city,
-                'workaddr_country': work_country,
-                'workaddr_code':    work_code,
-                'workaddr_region':  work_region,
+                'phone': fields['phone'].initial,
+                'mobile': fields['mobile'].initial,
+                'fax': fields['fax'].initial,
+                'email': fields['email'].initial,
+                'url_site': fields['url_site'].initial,
 
-                'update_work_address': True,
+                'homeaddr_name': adr_name,
+                'homeaddr_address': address,
+                'homeaddr_city': city,
+                'homeaddr_country': country,
+                'homeaddr_code': code,
+                'homeaddr_region': region,
+
+                'create_or_attach_orga': False,
             },
         )
+
         self.assertEqual(contact_count + 1, Contact.objects.count())
-        self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count + 1, Address.objects.count())
 
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         address = self.get_object_or_fail(
             Address,
-            name=work_adr_name, address=work_address,
-            city=work_city, zipcode=work_code,
-            country=work_country, department=work_region,
+            name=adr_name, address=address,
+            city=city, zipcode=code, country=country, department=region,
         )
-        orga = self.get_object_or_fail(Organisation, id=orga_id)
-
-        vobj = read_vcf(content)
-        adr = vobj.adr.value
-
-        self.assertEqual(address.name,       vobj.org.value[0])
-        self.assertEqual(address.address,    ' '.join([adr.box, adr.street]))
-        self.assertEqual(address.city,       adr.city)
-        self.assertEqual(address.country,    adr.country)
-        self.assertEqual(address.zipcode,    adr.code)
-        self.assertEqual(address.department, adr.region)
-
-        self.assertEqual(orga.billing_address, address)
+        self.assertEqual(contact.billing_address, address)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_add_contact_vcf__image__not_used(self):
+    def test_address__organisation(self):
+        user = self.login_as_root_and_get()
+        contact_count = Contact.objects.count()
+        address_count = Address.objects.count()
+        orga_count = Organisation.objects.count()
+        content = """BEGIN:VCARD
+FN:Nodoka Myiazaki
+ADR;TYPE=HOME:55;;Moe street;Mahora;Kanto;123;Japan
+ADR;TYPE=WORK:26;;Eva house;Eva city;Eva region;666;Eva land
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+TEL;TYPE=WORK:33 33 33 33 33
+EMAIL;TYPE=HOME:email@email.com
+EMAIL;TYPE=WORK:work@work.com
+URL;TYPE=HOME:www.url.com
+URL;TYPE=WORK:www.work.com
+ORG:Corporate
+END:VCARD"""
+        fields = self._post_step0(user=user, content=content).context['form'].fields
+        first_name = fields['first_name'].initial
+        last_name = fields['last_name'].initial
+
+        adr_name = fields['homeaddr_name'].initial
+        address = fields['homeaddr_address'].initial
+        city = fields['homeaddr_city'].initial
+        country = fields['homeaddr_country'].initial
+        code = fields['homeaddr_code'].initial
+        region = fields['homeaddr_region'].initial
+
+        work_name = fields['work_name'].initial
+
+        work_adr_name = fields['workaddr_name'].initial
+        work_address = fields['workaddr_address'].initial
+        work_city = fields['workaddr_city'].initial
+        work_country = fields['workaddr_country'].initial
+        work_code = fields['workaddr_code'].initial
+        work_region = fields['workaddr_region'].initial
+
+        self._post_step1(
+            data={
+                'user': fields['user'].initial,
+                'first_name': first_name,
+                'last_name': last_name,
+
+                'phone': fields['phone'].initial,
+                'mobile': fields['mobile'].initial,
+                'fax': fields['fax'].initial,
+                'email': fields['email'].initial,
+                'url_site': fields['url_site'].initial,
+
+                'homeaddr_name': adr_name,
+                'homeaddr_address': address,
+                'homeaddr_city': city,
+                'homeaddr_country': country,
+                'homeaddr_code': code,
+                'homeaddr_region': region,
+
+                'create_or_attach_orga': True,
+                'relation': REL_SUB_EMPLOYED_BY,
+                'work_name': work_name,
+
+                'workaddr_name': work_adr_name,
+                'workaddr_address': work_address,
+                'workaddr_city': work_city,
+                'workaddr_country': work_country,
+                'workaddr_code': work_code,
+                'workaddr_region': work_region,
+            },
+        )
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(orga_count + 1, Organisation.objects.count())
+        self.assertEqual(address_count + 2, Address.objects.count())
+
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        orga = self.get_object_or_fail(Organisation, name=work_name)
+        c_addr = self.get_object_or_fail(
+            Address,
+            name=adr_name, address=address,
+            city=city, zipcode=code, country=country, department=region,
+        )
+        o_addr = self.get_object_or_fail(
+            Address,
+            name=work_adr_name, address=work_address,
+            city=work_city, zipcode=work_code, country=work_country, department=work_region,
+        )
+        self.assertEqual(contact.billing_address, c_addr)
+        self.assertEqual(orga.billing_address, o_addr)
+
+    @skipIfCustomContact
+    def test_civility__initialized(self):
+        user = self.login_as_root_and_get()
+
+        contact_count = Contact.objects.count()
+        first_name = 'Negi'
+        last_name = 'Springfield'
+        content = (
+            'BEGIN:VCARD\nN;ENCODING=8BIT:{last_name};{first_name};;'
+            '{civility};\nTITLE:{position}\nEND:VCARD'.format(
+                first_name=first_name,
+                last_name=last_name,
+                civility=_('Mr.'),
+                position=_('CEO'),
+            )
+        )
+        response = self._post_step0(user=user, content=content)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            user_id      = fields['user'].initial
+            first_name_f = fields['first_name']
+            last_name_f  = fields['last_name']
+            civility_id  = fields['civility'].initial
+            position_id  = fields['position'].initial
+
+        self.assertEqual(user.id, user_id)
+        self.assertEqual(first_name, first_name_f.initial)
+        self.assertEqual(last_name, last_name_f.initial)
+        self.assertEqual(Civility.objects.get(uuid=UUID_CIVILITY_MR).id, civility_id)
+        self.assertEqual(Position.objects.get(uuid=UUID_POSITION_CEO).id, position_id)
+
+        self._post_step1(
+            data={
+                'user':       user_id,
+                'first_name': first_name,
+                'last_name':  last_name,
+                'civility':   civility_id,
+                'position':   position_id,
+            },
+        )
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.get_object_or_fail(
+            Contact,
+            civility=civility_id, first_name=first_name,
+            last_name=last_name, position=position_id,
+        )
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
+    def test_image__not_used(self):
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -1360,57 +1412,9 @@ END:VCARD"""
         self.assertEqual(url_site, contact.url_site)
 
     @skipIfCustomContact
-    def test_add_contact_vcf__civility_initialized(self):
-        user = self.login_as_root_and_get()
-
-        contact_count = Contact.objects.count()
-        first_name = 'Negi'
-        last_name = 'Springfield'
-        content = (
-            'BEGIN:VCARD\nN;ENCODING=8BIT:{last_name};{first_name};;'
-            '{civility};\nTITLE:{position}\nEND:VCARD'.format(
-                first_name=first_name,
-                last_name=last_name,
-                civility=_('Mr.'),
-                position=_('CEO'),
-            )
-        )
-        response = self._post_step0(user=user, content=content)
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-            user_id      = fields['user'].initial
-            first_name_f = fields['first_name']
-            last_name_f  = fields['last_name']
-            civility_id  = fields['civility'].initial
-            position_id  = fields['position'].initial
-
-        self.assertEqual(user.id, user_id)
-        self.assertEqual(first_name, first_name_f.initial)
-        self.assertEqual(last_name, last_name_f.initial)
-        self.assertEqual(Civility.objects.get(uuid=UUID_CIVILITY_MR).id, civility_id)
-        self.assertEqual(Position.objects.get(uuid=UUID_POSITION_CEO).id, position_id)
-
-        self._post_step1(
-            data={
-                'user':       user_id,
-                'first_name': first_name,
-                'last_name':  last_name,
-                'civility':   civility_id,
-                'position':   position_id,
-            },
-        )
-        self.assertEqual(contact_count + 1, Contact.objects.count())
-        self.get_object_or_fail(
-            Contact,
-            civility=civility_id, first_name=first_name,
-            last_name=last_name, position=position_id,
-        )
-
-    @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_vcf_with_image__embedded_image(self):
+    def test_image__embedded_image(self):
         "Raw image embedded in the file."
         user = self.login_as_root_and_get()
 
@@ -1464,7 +1468,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     @override_settings(VCF_IMAGE_MAX_SIZE=10_000_000)
-    def test_vcf_with_image__link(self):
+    def test_image__link(self):
         "Link to an image."
         user = self.login_as_root_and_get()
 
@@ -1527,7 +1531,7 @@ END:VCARD"""
                 self.assertTupleEqual((200, 200), img.size)
 
     @skipIfCustomContact
-    def test_vcf_with_image__not_found(self):
+    def test_image__not_found(self):
         "Referenced image cannot be found."
         user = self.login_as_root_and_get()
 
@@ -1582,7 +1586,7 @@ END:VCARD"""
         self.assertEqual(image_count, Document.objects.count())
 
     @override_settings(VCF_IMAGE_MAX_SIZE=10240)  # (10 kB)
-    def test_vcf_with_image__too_large(self):
+    def test_image__too_large(self):
         "Referenced image is too large."
         user = self.login_as_root_and_get()
 
@@ -1635,7 +1639,7 @@ END:VCARD"""
         )
         self.assertEqual(image_count, Document.objects.count())
 
-    def test_vcf_with_image__invalid_base64(self):
+    def test_image__invalid_base64(self):
         "Invalid base64 data."
         user = self.login_as_root_and_get()
 
@@ -1664,7 +1668,7 @@ END:VCARD"""
         with self.assertNoException():
             response2.context['form'].errors['image_encoded']  # NOQA
 
-    def test_vcf_with_image__invalid_data(self):
+    def test_image__invalid_data(self):
         "Invalid image data."
         user = self.login_as_root_and_get()
 
