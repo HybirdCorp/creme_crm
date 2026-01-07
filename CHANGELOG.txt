@@ -4,6 +4,8 @@
   ------------
     # Apps :
         * Creme_config :
+            - In configuration for CustomForms, the removing of a fields was broken
+              when there is a special group (like "Addresses").
             - In configuration for CustomFields, the models were not ordered by name as usual.
 
 
