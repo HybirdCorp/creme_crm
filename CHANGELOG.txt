@@ -1,5 +1,13 @@
 == Version 2.6.16 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Creme_config :
+            - In configuration for CustomForms, the removing of a fields was broken
+              when there is a special group (like "Addresses").
+
+
 == Version 2.6.15 ==
 
   UPGRADE NOTES :
