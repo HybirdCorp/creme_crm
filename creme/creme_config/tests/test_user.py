@@ -56,27 +56,14 @@ def skipIfNotCremeUser(test_func):
 
 @skipIfCustomOrganisation
 @override_settings(AUTH_PASSWORD_VALIDATORS=[])
-class UserTestCase(CremeTestCase, BrickTestCaseMixin):
-    ADD_URL = reverse('creme_config__create_user')
-    ADD_TEAM_URL = reverse('creme_config__create_team')
-
+class BaseUserTestCase(CremeTestCase, BrickTestCaseMixin):
     @staticmethod
     def _build_delete_url(user):
         return reverse('creme_config__delete_user', args=(user.id,))
 
     @staticmethod
-    def _build_edit_url(user_id, password=False):
-        return reverse(
-            'creme_config__change_user_password' if password else 'creme_config__edit_user',
-            args=(user_id,),
-        )
-
-    @staticmethod
-    def _build_activation_url(user_id, activation=True):
-        return reverse(
-            'creme_config__activate_user' if activation else 'creme_config__deactivate_user',
-            args=(user_id,),
-        )
+    def _build_edit_url(user_id):
+        return reverse('creme_config__edit_user', args=(user_id,))
 
     def login_with_user_perm(self):
         return self.login_as_standard(special_permissions=[user_config_perm])
@@ -87,10 +74,12 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     def login_without_user_perm(self):
         return self.login_as_standard(allowed_apps=('creme_config',))
 
+
+class UserPortalTestCase(BaseUserTestCase):
     @skipIfNotCremeUser
     # @parameterized.expand([False, True])
     # def test_portal(self, superuser):
-    def test_portal(self):
+    def test_allowed(self):
         # user = (
         #     self.login_as_super() if superuser else
         #     self.login_as_standard(admin_4_apps=['creme_config'])
@@ -133,11 +122,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             count=1, title='{count} Team', plural_title='{count} Teams',
         )
 
-    def test_portal__forbidden(self):
+    def test_forbidden(self):
         self.login_without_user_perm()
         self.assertGET403(reverse('creme_config__users'))
 
-    def test_portal__hide_inactive(self):
+    def test_hide_inactive(self):
         user = self.login_as_root_and_get()
 
         other_user = self.create_user()
@@ -160,7 +149,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(user.username, usernames)
         self.assertNotIn(other_user.username, usernames)
 
-    def test_portal__display_tz(self):
+    def test_display_tz(self):
         user = self.login_as_super()
 
         time_zone = settings.TIME_ZONE
@@ -185,7 +174,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
 
-    def test_portal__staff(self):
+    def test_staff(self):
         user = self.login_as_super(is_staff=True)
         other_user = self.create_user(1)
 
@@ -206,7 +195,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         ('last_name', 'user-lastname'),
         ('first_name', 'user-firstname'),
     ])
-    def test_portal__search__single_word(self, field_name, css_class):
+    def test_search__single_word(self, field_name, css_class):
         user = self.login_as_super(index=0)
         other_user = self.create_user(index=1)
 
@@ -244,7 +233,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertBrickHasNoAction(brick_node, url=build_url(user.id))
         self.assertBrickHasNoAction(brick_node, url=build_url(other_user.id))
 
-    def test_portal__search__multiple_words(self):
+    def test_search__multiple_words(self):
         "No double quote => words are separated."
         user = self.login_as_super(index=0)
         other_user = self.create_user(index=1)
@@ -280,7 +269,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertBrickHasNoAction(brick_node, url=build_url(root.id))
 
-    def test_portal__search__multiple_words__double_quote(self):
+    def test_search__multiple_words__double_quote(self):
         "Double quote => words are grouped."
         user = self.login_as_super(index=0)
 
@@ -316,9 +305,40 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertBrickHasNoAction(brick_node, url=build_url(other_user.id))
 
+    def test_brick_hide_inactive_user(self):
+        user = self.login_as_root_and_get()
+
+        def get_state():
+            return BrickState.objects.get_for_brick_id(user=user, brick_id=UsersBrick.id)
+
+        self.assertIsNone(get_state().pk)
+
+        url = reverse('creme_config__users_brick_hide_inactive')
+        self.assertGET405(url)
+
+        # ---
+        self.assertPOST200(url, data={'value': 'true'})
+        state1 = get_state()
+        self.assertIsNotNone(state1.pk)
+        self.assertIs(
+            state1.get_extra_data(constants.BRICK_STATE_HIDE_INACTIVE_USERS),
+            True,
+        )
+
+        # ---
+        self.assertPOST200(url, data={'value': '0'})
+        self.assertIs(
+            get_state().get_extra_data(constants.BRICK_STATE_HIDE_INACTIVE_USERS),
+            False,
+        )
+
+
+class UserCreationTestCase(BaseUserTestCase):
+    ADD_URL = reverse('creme_config__create_user')
+
     @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_create_user__super_user(self):
+    def test_super_user(self):
         # user = self.login_as_root_and_get()
         user = self.login_with_user_perm()
 
@@ -410,7 +430,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_create_user__regular_user(self):
+    def test_regular_user(self):
         "Not superuser; special chars in username; displayed_name."
         user = self.login_as_root_and_get()
         role = self.create_role(name='Mangaka', allowed_apps=['persons'])
@@ -460,7 +480,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_create_user__several_roles(self):
+    def test_several_roles(self):
         user = self.login_as_root_and_get()
         role1 = self.create_role(name='Mangaka')
         role2 = self.create_role(name='Animator')  # NB: alphabetically first
@@ -506,7 +526,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(role2, user.role)
 
     @skipIfNotCremeUser
-    def test_create_user__required_fields(self):
+    def test_required_fields(self):
         "First name, last name, email, organisation, relation are required."
         self.login_as_root()
 
@@ -530,7 +550,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFormError(form, field='relation',     errors=msg)
 
     @skipIfNotCremeUser
-    def test_create_user__forbidden(self):
+    def test_forbidden(self):
         "No user special perm => error."
         # user = self.login_as_config_admin()
         user = self.login_without_user_perm()
@@ -556,7 +576,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
-    def test_create_user__wrong_username(self):
+    def test_wrong_username(self):
         user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -598,7 +618,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             'NAME': 'creme.creme_core.auth.password_validation.NumericPasswordValidator',
         }],
     )
-    def test_create_user__password_errors(self):
+    def test_password_errors(self):
         user = self.login_as_root_and_get()
         url = self.ADD_URL
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -668,7 +688,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
-    def test_create_user__unique_username(self):
+    def test_unique_username(self):
         user = self.login_as_root_and_get()
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
@@ -693,7 +713,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
-    def test_create_user__unique_username__case(self):
+    def test_unique_username__case(self):
         "Unique username (different case)."
         user = self.login_as_root_and_get()
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -719,7 +739,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
-    def test_create_user__unique_email(self):
+    def test_unique_email(self):
         "Unique email (among active users)."
         user = self.login_as_root_and_get()
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -751,7 +771,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_create_user__relationship_error(self):
+    def test_relationship_error(self):
         "Internal relationships are forbidden."
         user = self.login_as_root_and_get()
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -793,7 +813,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             'NAME': 'creme.creme_core.auth.password_validation.UserAttributeSimilarityValidator',
         }],
     )
-    def test_create_user__similarity_errors(self):
+    def test_similarity_errors(self):
         user = self.login_as_root_and_get()
         url = self.ADD_URL
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -832,9 +852,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         post('last_name', _('Last name'))
         post('email', _('Email address'))
 
+
+class UserEditionTestCase(BaseUserTestCase):
     @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_edit_user__regular_user(self):
+    def test_regular_user(self):
         # user = self.login_as_root_and_get()
         user = self.login_with_user_perm()
 
@@ -901,7 +923,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(email,       deunan.email)
 
     @skipIfNotCremeUser
-    def test_edit_user__regular_user__several_roles(self):
+    def test_regular_user__several_roles(self):
         self.login_as_root()
 
         role1 = self.get_regular_role()
@@ -939,7 +961,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(role2, edited_user.role)  # Previous has been kept
 
     @skipIfNotCremeUser
-    def test_edit_user__regular_user__several_roles__deactivated(self):
+    def test_regular_user__several_roles__deactivated(self):
         self.login_as_root()
 
         role1 = self.get_regular_role()
@@ -1001,7 +1023,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDictEqual({}, notif.content_data)
 
     @skipIfNotCremeUser
-    def test_edit_user__superuser(self):
+    def test_superuser(self):
         self.login_as_root()
 
         other_user = self.create_user()
@@ -1030,7 +1052,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsNone(other_user.role)
 
     @skipIfNotCremeUser
-    def test_edit_user__not_team(self):
+    def test_not_team(self):
         "Can not edit a team with the user edit view."
         self.login_as_root()
 
@@ -1043,7 +1065,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_edit_user__credentials(self):
+    def test_credentials(self):
         "No special user perm => error."
         # user = self.login_as_config_admin()
         user = self.login_without_user_perm()
@@ -1074,7 +1096,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
-    def test_edit_user__empty_role(self):
+    def test_empty_role(self):
         "Common user without role."
         self.login_as_root()
 
@@ -1096,7 +1118,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(other_user.roles.all())
 
     @skipIfNotCremeUser
-    def test_edit_user__staff(self):
+    def test_staff(self):
         "Even a super-user cannot edit a staff user."
         self.login_as_root()
 
@@ -1104,7 +1126,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertGET404(self._build_edit_url(user.id))
 
     @skipIfNotCremeUser
-    def test_edit_user__staff_logged(self):
+    def test_staff_logged(self):
         "A staff-user can edit a staff user."
         self.login_as_super(is_staff=True)
 
@@ -1112,7 +1134,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertGET200(self._build_edit_url(user.id))
 
     @skipIfNotCremeUser
-    def test_edit_user__unique_email(self):
+    def test_unique_email(self):
         "Unique email (among active users)."
         self.login_as_root()
         user = self.create_user(0)
@@ -1138,7 +1160,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNoFormError(self.client.post(url, data=data))
 
     @skipIfNotCremeUser
-    def test_edit_user__unique_email__self_excluded(self):
+    def test_unique_email__self_excluded(self):
         "Unique email (among active users) - self instance is excluded."
         self.login_as_root()
 
@@ -1155,7 +1177,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         ))
 
     @skipIfNotCremeUser
-    def test_edit_user__super_to_regular(self):
+    def test_super_to_regular(self):
         "Transform into regular user (bug-fix)."
         self.login_as_root()
 
@@ -1180,13 +1202,19 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(role, other_user.role)
         self.assertListEqual([role], [*other_user.roles.all()])
 
+
+class PasswordChangeTestCase(BaseUserTestCase):
+    @staticmethod
+    def _build_pw_change_url(user_id, password=False):
+        return reverse('creme_config__change_user_password', args=(user_id,))
+
     @skipIfNotCremeUser
     def test_change_password(self):
         # self.login_as_root()
         self.login_with_user_perm()
 
         other_user = User.objects.create(username='deunan')
-        url = self._build_edit_url(other_user.id, password=True)
+        url = self._build_pw_change_url(other_user.id)
 
         # GET ---
         response1 = self.assertGET200(url)
@@ -1269,7 +1297,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_without_user_perm()
 
         other_user = User.objects.create(username='deunan')
-        url = self._build_edit_url(other_user.id, password=True)
+        url = self._build_pw_change_url(other_user.id)
         self.assertGET403(url)
 
         password = 'password'
@@ -1282,7 +1310,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_as_root()
 
         other_user = User.objects.create(username='deunan')
-        url = self._build_edit_url(other_user.id, password=True)
+        url = self._build_pw_change_url(other_user.id)
         self.assertGET200(url)
 
         # ---
@@ -1306,7 +1334,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_as_root()
 
         other_user = User.objects.create(username='deunan')
-        url = self._build_edit_url(other_user.id, password=True)
+        url = self._build_pw_change_url(other_user.id)
         response1 = self.assertGET200(url)
 
         with self.assertNoException():
@@ -1338,7 +1366,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_change_own_password(self):
         user = self.login_as_root_and_get()
 
-        url = self._build_edit_url(user.id, password=True)
+        url = self._build_pw_change_url(user.id)
 
         # GET ---
         response1 = self.assertGET200(url)
@@ -1388,6 +1416,15 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertFalse(
             Notification.objects.filter(user=user, channel__uuid=UUID_CHANNEL_ADMIN)
+        )
+
+
+class UserEnablingTestCase(BaseUserTestCase):
+    @staticmethod
+    def _build_activation_url(user_id, activation=True):
+        return reverse(
+            'creme_config__activate_user' if activation else 'creme_config__deactivate_user',
+            args=(user_id,),
         )
 
     @skipIfNotCremeUser
@@ -1461,9 +1498,13 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         other_user.save()
         self.assertPOST200(url)
 
+
+class TeamTestCase(BaseUserTestCase):
+    ADD_TEAM_URL = reverse('creme_config__create_team')
+
     @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_create_team(self):
+    def test_creation(self):
         # self.login_as_root()
         self.login_with_user_perm()
 
@@ -1512,7 +1553,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         ))
 
     @skipIfNotCremeUser
-    def test_create_team__forbidden(self):
+    def test_creation__forbidden(self):
         # self.login_as_config_admin()
         self.login_without_user_perm()
 
@@ -1525,7 +1566,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
-    def test_edit_team(self):
+    def test_edition(self):
         # self.login_as_root()
         self.login_with_user_perm()
 
@@ -1576,7 +1617,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(self.refresh(user3).has_perm_to_view(entity))
 
     @skipIfNotCremeUser
-    def test_edit_team__forbidden(self):
+    def test_edition__forbidden(self):
         # self.login_as_config_admin()
         self.login_without_user_perm()
 
@@ -1593,7 +1634,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
-    def test_delete_team__transfer_to_user(self):
+    def test_deletion__transfer_to_user(self):
         # self.login_as_root()
         self.login_with_user_perm()
 
@@ -1606,7 +1647,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(team)
 
     @skipIfNotCremeUser
-    def test_delete_team__transfer_to_team(self):
+    def test_deletion__transfer_to_team(self):
         self.login_as_root()
 
         user = self.create_user()
@@ -1624,7 +1665,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(team2, ce.user)
 
     @skipIfNotCremeUser
-    def test_delete_team__transfer_to_self(self):
+    def test_deletion__transfer_to_self(self):
         user = self.login_as_root_and_get()
 
         team = self.create_team('Teamee')
@@ -1634,7 +1675,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(team)
 
     @skipIfNotCremeUser
-    def test_delete_team__forbidden(self):
+    def test_deletion__forbidden(self):
         # self.login_as_config_admin()
         self.login_without_user_perm()
 
@@ -1645,8 +1686,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertGET403(url)
         self.assertPOST403(url, data={'to_user': user.id})
 
+
+class UserDeletionTestCase(BaseUserTestCase):
     @skipIfNotCremeUser
-    def test_delete_user__superuser(self):
+    def test_superuser(self):
         "Delete view can delete a superuser if at least one remains."
         # user = self.login_as_super()
         user = self.login_with_user_perm()
@@ -1674,7 +1717,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(root)
 
     @skipIfNotCremeUser
-    def test_delete_user__regular_user(self):
+    def test_regular_user(self):
         "Delete view can delete any normal user."
         user = self.login_as_root_and_get()
 
@@ -1693,7 +1736,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(user, ce.user)
 
     @skipIfNotCremeUser
-    def test_delete_user__last_superuser(self):
+    def test_last_superuser(self):
         "Delete view can not delete the last superuser."
         self.login_as_root()
 
@@ -1706,7 +1749,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertStillExists(user)
 
     @skipIfNotCremeUser
-    def test_delete_user__staff(self):
+    def test_staff(self):
         "Delete view can not delete a staff user."
         user = self.login_as_root_and_get()
         hybird = User.objects.create(username='hybird', is_staff=True)
@@ -1716,7 +1759,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertPOST404(url, {'to_user': user.id})
 
     @skipIfNotCremeUser
-    def test_delete_user__during_transfer(self):
+    def test_during_transfer(self):
         "Delete view is protected by a lock."
         user = self.login_as_super()
         root = self.get_root_user()
@@ -1736,7 +1779,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             self.assertEqual(2, User.objects.filter(is_superuser=True).count())
 
     @skipIfNotCremeUser
-    def test_delete_user__errors(self):
+    def test_errors(self):
         "Validation errors."
         user = self.login_as_super()
         root = self.get_root_user()
@@ -1766,7 +1809,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertStillExists(user)
 
     @skipIfNotCremeUser
-    def test_delete_user__credentials(self):
+    def test_credentials(self):
         "Only superusers are allowed."
         # user = self.login_as_config_admin()
         user = self.login_without_user_perm()
@@ -1774,33 +1817,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         url = self._build_delete_url(self.get_root_user())
         self.assertGET403(url)
         self.assertPOST403(url, data={'to_user': user.id})
-
-    def test_brick_hide_inactive_user(self):
-        user = self.login_as_root_and_get()
-
-        def get_state():
-            return BrickState.objects.get_for_brick_id(user=user, brick_id=UsersBrick.id)
-
-        self.assertIsNone(get_state().pk)
-
-        url = reverse('creme_config__users_brick_hide_inactive')
-        self.assertGET405(url)
-
-        # ---
-        self.assertPOST200(url, data={'value': 'true'})
-        state1 = get_state()
-        self.assertIsNotNone(state1.pk)
-        self.assertIs(
-            state1.get_extra_data(constants.BRICK_STATE_HIDE_INACTIVE_USERS),
-            True,
-        )
-
-        # ---
-        self.assertPOST200(url, data={'value': '0'})
-        self.assertIs(
-            get_state().get_extra_data(constants.BRICK_STATE_HIDE_INACTIVE_USERS),
-            False,
-        )
 
 
 class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
@@ -1848,7 +1864,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.get_brick_node(doc, brick=NotificationChannelConfigItemsBrick)
         self.get_brick_node(doc, brick=UserSettingValuesBrick)
 
-    def test_portal__no_user_name_change(self):
+    def test_no_user_name_change(self):
         self.login_as_root()
         world_settings = get_world_settings_model().objects.get()
         world_settings.user_name_change_enabled = False
