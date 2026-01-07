@@ -2060,7 +2060,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertStillExists(loc)
 
-    def test_add_relationbrick(self):
+    def test_add_relation_brick(self):
         self.login_as_root()
         rt = RelationType.objects.builder(
             id='test-subfoo', predicate='subject predicate',
@@ -2090,7 +2090,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(rt.id, rb_item.relation_type.id)
         self.assertIsNone(rb_item.get_cells(self.contact_ct))
 
-    def test_relationbrick_add_cells(self):
+    def test_relation_brick__add_cells(self):
         self.login_as_root()
         rt = RelationType.objects.builder(
             id='test-subfoo', predicate='Subject predicate',
@@ -2186,7 +2186,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotIn(image_ct,   choices)  # Still not compatible
         self.assertNotIn(contact_ct, choices)  # Used
 
-    def test_relationbrick_add_cells__contenttype_constraint(self):
+    def test_relation_brick__add_cells__contenttype_constraint(self):
         self.login_as_root()
         rtype = RelationType.objects.builder(
             id='test-subfoo', predicate='subject_predicate', models=[FakeContact],
@@ -2220,7 +2220,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('Select a valid choice. That choice is not one of the available choices.'),
         )
 
-    def test_relationbrick_add_cells__go_back(self):
+    def test_relation_brick__add_cells__go_back(self):
         self.login_as_root()
         rtype = RelationType.objects.builder(
             id='test-subfoo', predicate='subject_predicate', models=[FakeOrganisation],
@@ -2253,7 +2253,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertIn(contact_ct, choices)
 
-    def test_relationbrick_add_cells__disabled_rtype(self):
+    def test_relation_brick__add_cells__disabled_rtype(self):
         "Relation type is disabled => error."
         self.login_as_root()
         rt = RelationType.objects.builder(
@@ -2262,7 +2262,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         rb_item = RelationBrickItem.objects.create(relation_type=rt)
         self.assertGET409(self._build_rbrick_addctypes_wizard_url(rb_item))
 
-    def test_relationbrick_edit_cells(self):
+    def test_relation_brick__edit_cells(self):
         self.login_as_root()
         ct = self.contact_ct
         rt = RelationType.objects.builder(
@@ -2313,7 +2313,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsInstance(cell, EntityCellFunctionField)
         self.assertEqual(funcfield.name, cell.value)
 
-    def test_relationbrick_edit_cells__first_column_error(self):
+    def test_relation_brick__edit_cells__first_column_error(self):
         "Validation errors with URLField & ForeignKey."
         self.login_as_root()
         rb_item = RelationBrickItem(
@@ -2347,7 +2347,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         post('civility', error=False)
         post('civility__shortcut', error=False)
 
-    def test_relationbrick_edit_cells__first_column_error__m2m(self):
+    def test_relation_brick__edit_cells__first_column_error__m2m(self):
         "Validation errors with M2M."
         self.login_as_root()
         rb_item = RelationBrickItem(
@@ -2374,7 +2374,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         post('mailing_lists')
         post('mailing_lists__name')
 
-    def test_relationbrick_edit_cells__first_column_error__rtype(self):
+    def test_relation_brick__edit_cells__first_column_error__rtype(self):
         "Validation errors with Relation."
         self.login_as_root()
         rt1 = RelationType.objects.builder(
@@ -2398,7 +2398,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('This type of field can not be the first column.'),
         )
 
-    def test_relationbrick_edit_cells__fields_config(self):
+    def test_relation_brick__edit_cells__fields_config(self):
         self.login_as_root()
         ct = self.contact_ct
         rt = RelationType.objects.builder(
@@ -2447,7 +2447,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         rb_item = self.refresh(rb_item)
         self.assertEqual(2, len(rb_item.get_cells(ct)))
 
-    def test_relationbrick_edit_cells__disabled_rtype(self):
+    def test_relation_brick__edit_cells__disabled_rtype(self):
         "Relation type is disabled => errors."
         self.login_as_root()
 
@@ -2463,7 +2463,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             self._build_rbrick_editctype_url(rb_item, FakeOrganisation),
         )
 
-    def test_relationbrick_delete_cells(self):
+    def test_relation_brick__delete_cells(self):
         self.login_as_root()
 
         ct = self.contact_ct
@@ -2484,7 +2484,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST200(url, data=data)
         self.assertIsNone(self.refresh(rb_item).get_cells(ct))
 
-    def test_delete_relationbrick(self):
+    def test_delete__relation_brick(self):
         self.login_as_root()
 
         rt = RelationType.objects.builder(
@@ -2504,7 +2504,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(state1)
         self.assertStillExists(state2)
 
-    def test_delete_relationbrick__error(self):
+    def test_delete__relation_brick__error(self):
         "Cannot delete because it is used."
         self.login_as_root()
 
@@ -2533,7 +2533,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             html=True,
         )
 
-    def test_delete_instancebrick(self):
+    def test_delete__instance_brick(self):
         self.login_as_root()
         user = self.user
         naru = FakeContact.objects.create(
@@ -2557,7 +2557,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(state1)
         self.assertStillExists(state2)
 
-    def test_delete_instancebrick__error(self):
+    def test_delete__instance_brick__error(self):
         "Cannot delete because it is used in configuration."
         self.login_as_root()
         naru = FakeContact.objects.create(
@@ -2586,7 +2586,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             html=True,
         )
 
-    def test_edit_custombrick(self):
+    def test_edit_custom_brick(self):
         self.login_as_root()
         ct = self.contact_ct
 
@@ -2654,7 +2654,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsInstance(cell, EntityCellCustomField)
         self.assertEqual(str(customfield.id), cell.value)
 
-    def test_edit_custombrick__fields_config(self):
+    def test_edit_custom_brick__fields_config(self):
         self.login_as_root()
         ct = self.contact_ct
 
@@ -2728,7 +2728,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             field='cells', errors=msg_fmt % {'value': hidden_fkname},
         )
 
-    def test_edit_custombrick__used_hidden_field(self):
+    def test_edit_custom_brick__used_hidden_field(self):
         "With FieldsConfig + field in the blocks becomes hidden => still proposed in the form."
         self.login_as_root()
         ct = self.contact_ct
@@ -2799,7 +2799,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             self.refresh(cbc_item).cells,
         )
 
-    def test_delete_custombrick(self):
+    def test_delete__custom_brick(self):
         self.login_as_root()
 
         cbci = CustomBrickConfigItem.objects.create(content_type=self.contact_ct, name='Info')
@@ -2809,7 +2809,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertDoesNotExist(cbci)
 
-    def test_delete_custombrick__error(self):
+    def test_delete__custom_brick__error(self):
         "Cannot delete because it is used."
         self.login_as_root()
 
@@ -2835,7 +2835,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(cbci)
         self.assertStillExists(loc)
 
-    def test_custombrick_wizard_model_step(self):
+    def test_custom_brick__wizard__model_step(self):
         self.login_as_root()
 
         contact_ct = self.contact_ct
@@ -2863,7 +2863,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         # last step is not submitted so nothing yet in database
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
-    def test_custombrick_wizard_model_step__invalid(self):
+    def test_custom_brick__wizard__model_step__invalid(self):
         self.login_as_root()
 
         contact_ct = self.contact_ct
@@ -2887,7 +2887,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
-    def test_custombrick_wizard_config_step(self):
+    def test_custom_brick__wizard__config_step(self):
         self.login_as_root()
 
         contact_ct = self.contact_ct
@@ -2934,7 +2934,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             cbci.cells,
         )
 
-    def test_custombrick_wizard_go_back(self):
+    def test_custom_brick__wizard__go_back(self):
         self.login_as_root()
 
         contact_ct = self.contact_ct
