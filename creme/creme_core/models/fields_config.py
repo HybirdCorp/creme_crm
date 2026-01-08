@@ -426,12 +426,11 @@ class FieldsConfig(CremeModel):
             try:
                 form_fields[field_name].required = True
             except KeyError:
-                # TODO: we need the form class for a better message
-                logger.info(
+                logger.warning(
                     'The field "%s" has been configured to be required '
-                    'but the current form does not use this field ; '
+                    'but the form %s does not use this field; '
                     'so we add it.',
-                    field_name,
+                    field_name, type(form),
                 )
                 # TODO: is it possible that field does not exist any more ?
                 form_fields[field_name] = (
