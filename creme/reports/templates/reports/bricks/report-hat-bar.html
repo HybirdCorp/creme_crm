@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/generic/hat-bar.html' %}
-{% load i18n creme_bricks creme_widgets  %}
+{% load i18n creme_bricks creme_perms creme_widgets  %}
 {% load url from creme_core_tags %}
 
 {% block buttons %}
@@ -9,7 +9,11 @@
         </a>
     </div>
     <div class='bar-action'>
-        {% brick_action id='reports-export' url='reports__export_report_filter'|url:object.id label=_('Download CSV') class='bar-button' icon_size='brick-hat-bar-button' icon='document_csv' display='icon' %}
+      {% if user|has_perm_to_export:object.ct %}
+        {% brick_bar_button action='reports-export' url='reports__export_report_filter'|url:object.id label=_('Download CSV') icon='document_csv' %}
+      {% else %}
+        {% brick_bar_button action='reports-export' url='' label=_('Download CSV') icon='document_csv' help_text=_('You cannot export this type of entity') enabled=False %}
+      {% endif%}
     </div>
     {{block.super}}
 {% endblock %}

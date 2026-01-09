@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-23 18:11+0200\n"
+"POT-Creation-Date: 2026-01-09 16:50+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -619,6 +619,9 @@ msgstr "Aucun graphique pour le moment"
 msgid "Download CSV"
 msgstr "Télécharger CSV"
 
+msgid "You cannot export this type of entity"
+msgstr "Vous ne pouvez pas exporter ce type de fiche"
+
 msgid "Go to the configuration of Reports' filters"
 msgstr "Aller à la configuration des filtres de Rapports"
 
@@ -664,15 +667,6 @@ msgstr "Aperçu du rapport : «%(title)s»"
 
 msgid "Download as file"
 msgstr "Télécharger en tant que fichier"
-
-msgid "Chart:"
-msgstr "Graphique :"
-
-msgid "Sorting:"
-msgstr "Tri :"
-
-msgid "Regenerate"
-msgstr "Générer à nouveau"
 
 #, python-format
 msgid "Chart related to the report «%(report)s»"
@@ -727,6 +721,15 @@ msgstr "Lier"
 #, python-brace-format
 msgid "Edit columns of «{object}»"
 msgstr "Modifier les colonnes de «{object}»"
+
+#~ msgid "Chart:"
+#~ msgstr "Graphique :"
+
+#~ msgid "Sorting:"
+#~ msgstr "Tri :"
+
+#~ msgid "Regenerate"
+#~ msgstr "Générer à nouveau"
 
 #~ msgid "Invalid abscissa: %(error)s"
 #~ msgstr "Abscisse invalide : %(error)s"
