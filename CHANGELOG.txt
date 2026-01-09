@@ -1,11 +1,15 @@
 == Version 2.6.16 Work in progress (not released -- this is a draft) ==
 
+  TODO: compile .po (reports)
+
   Users side :
   ------------
     # Apps :
         * Creme_config :
             - In configuration for CustomForms, the removing of a fields was broken
               when there is a special group (like "Addresses").
+        * Reports :
+            - A user needs the permission to export a model in order to export a Report now.
 
 
 == Version 2.6.15 ==

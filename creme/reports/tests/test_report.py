@@ -1525,8 +1525,44 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             response.content.decode(),
         )
 
+    def test_perms(self):
+        user = self.login_as_standard(
+            allowed_apps=['creme_core'],  # 'reports'
+            # exportable_models=[FakeContact],
+        )
+        role = user.role
+        self.add_credentials(role=role, own=['VIEW'])
+
+        report = self._create_contacts_report(user=user, name='trinita')
+        url = self._build_export_url(report)
+        data = {'doc_type': 'csv'}
+
+        # App permission --
+        response1 = self.client.get(url, data=data)
+        self.assertContains(
+            response1,
+            status_code=403,
+            text=_('You are not allowed to access this view.'),
+            html=True,
+        )
+
+        # Export permission --
+        role.allowed_apps = ['creme_core', 'reports']
+        role.save()
+        response2 = self.client.get(url, data=data)
+        self.assertContains(
+            response2,
+            status_code=403,
+            text=_('You are not allowed to export: {}').format('Test Contact'),
+            html=True,
+        )
+
     def test_report_csv__no_filter(self):
-        user = self.login_as_root_and_get()
+        user = self.login_as_standard(
+            allowed_apps=['creme_core', 'reports'],
+            exportable_models=[FakeContact],
+        )
+        self.add_credentials(role=user.role, own=['VIEW'])
 
         self._create_persons(user=user)
         self.assertEqual(3, FakeContact.objects.count())

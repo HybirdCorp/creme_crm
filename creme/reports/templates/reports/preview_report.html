@@ -1,5 +1,6 @@
 {% extends 'creme_core/detailview.html' %}
 {% load i18n creme_widgets reports_tags %}
+{% load i18n creme_perms creme_widgets %}{# reports_tags #}
 
 {% block page_title %}{% blocktranslate %}Preview {{object}}{% endblocktranslate %} - {% endblock %}
 
@@ -34,7 +35,11 @@
             <form>{% include 'reports/frags/report_preview_format.html' %}</form>
             <div class="report-preview-buttons">
                 <button class="ui-creme-actionbutton" type="button" name="generate">{% translate 'Preview' context 'reports-preview' %}</button>
-                <button class="ui-creme-actionbutton" type="button" name="download">{% translate 'Download as file' %}</button>
+                {% if user|has_perm_to_export:object.ct %}
+                 <button class="ui-creme-actionbutton" type="button" name="download">{% translate 'Download as file' %}</button>
+                {% else %}
+                 <button disabled class="ui-creme-actionbutton" type="button" name="download" title="{% translate 'You cannot export this type of entity'%}" >{% translate 'Download as file' %}</button>
+                {% endif %}
             </div>
         </div>
 
