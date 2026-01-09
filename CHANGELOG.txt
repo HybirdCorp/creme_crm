@@ -1,5 +1,7 @@
 == Version 2.7.4 Work in progress (not released -- this is a draft) ==
 
+  TODO: compile .po (reports)
+
   Users side :
   ------------
     # Apps :
@@ -7,6 +9,8 @@
             - In configuration for CustomForms, the removing of a fields was broken
               when there is a special group (like "Addresses").
             - In configuration for CustomFields, the models were not ordered by name as usual.
+        * Reports :
+            - A user needs the permission to export a model in order to export a Report now.
 
 
 == Version 2.7.3 ==
