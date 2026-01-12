@@ -19,6 +19,7 @@ from creme.creme_core.forms.enumerable import (
     EnumerableChoice,
     EnumerableModelChoiceField,
     EnumerableSelect,
+    EnumerableSelectMultiple,
     FieldEnumerableChoiceSet,
 )
 from creme.creme_core.models import (
@@ -448,6 +449,148 @@ class EnumerableSelectTestCase(CremeTestCase):
             </select>
             ''',
             widget.render('testfield', value=industry.pk),
+        )
+
+
+@override_settings(FORM_ENUMERABLE_LIMIT=100)
+class EnumerableSelectMultipleTestCase(CremeTestCase):
+    maxDiff = None
+
+    def test_render_no_url(self):
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
+        sector_A = FakeSector.objects.create(title='Sector A')
+        sector_B = FakeSector.objects.create(title='Sector B')
+        sector_C = FakeSector.objects.create(title='Sector C')
+
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'))
+        widget = EnumerableSelectMultiple(enumerable)
+
+        self.assertHTMLEqual(
+            f'''
+            <select class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto is-enum"
+                    widget="ui-creme-dselect"
+                    name="testfield" autocomplete
+                    data-allow-clear="true" multiple>
+                <option value="{farming.pk}">Farming</option>
+                <option selected value="{industry.pk}">Industry</option>
+                <option value="{software.pk}">Software</option>
+                <option value="{sector_A.pk}">Sector A</option>
+                <option value="{sector_B.pk}">Sector B</option>
+                <option selected value="{sector_C.pk}">Sector C</option>
+            </select>
+            ''',
+            widget.render('testfield', value=(industry.pk, sector_C.pk)),
+        )
+
+    def test_render_url(self):
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
+
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'))
+        widget = EnumerableSelectMultiple(enumerable)
+        widget.create_url = url = reverse(
+            'creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'),
+        )
+
+        self.assertHTMLEqual(
+            f'''
+            <select class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto is-enum"
+                    widget="ui-creme-dselect"
+                    name="testfield" autocomplete
+                    data-create-url="{url}"
+                    data-allow-clear="true" multiple>
+                <option value="{farming.pk}">Farming</option>
+                <option selected value="{industry.pk}">Industry</option>
+                <option selected value="{software.pk}">Software</option>
+            </select>
+            ''',
+            widget.render('testfield', value=(industry.pk, software.pk)),
+        )
+
+    def test_render__more(self):
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
+        sector_A = FakeSector.objects.create(title='Sector A')
+        FakeSector.objects.create(title='Sector B')
+        FakeSector.objects.create(title='Sector C')
+
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=4)
+        widget = EnumerableSelectMultiple(enumerable)
+
+        self.assertHTMLEqual(
+            f'''
+            <select class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto is-enum"
+                    widget="ui-creme-dselect"
+                    name="testfield" autocomplete
+                    data-allow-clear="true"
+                    data-enum-url="{enumerable.url}"
+                    data-enum-limit="{enumerable.limit}"
+                    data-enum-cache="true"
+                    data-enum-debounce="300"
+                    multiple>
+                <option value="{farming.pk}">Farming</option>
+                <option selected value="{industry.pk}">Industry</option>
+                <option value="{software.pk}">Software</option>
+                <option selected value="{sector_A.pk}">Sector A</option>
+            </select>
+            ''',
+            widget.render('testfield', value=(industry.pk, sector_A.pk)),
+        )
+
+    def test_render__more__outside_limit(self):
+        """Selected values outside the choice limit are added anyway"""
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
+        sector_A = FakeSector.objects.create(title='Sector A')
+        FakeSector.objects.create(title='Sector B')
+        sector_C = FakeSector.objects.create(title='Sector C')
+
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=4)
+        widget = EnumerableSelectMultiple(enumerable)
+
+        self.assertHTMLEqual(
+            f'''
+            <select class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto is-enum"
+                    widget="ui-creme-dselect"
+                    name="testfield" autocomplete
+                    data-allow-clear="true"
+                    data-enum-url="{enumerable.url}"
+                    data-enum-limit="{enumerable.limit}"
+                    data-enum-cache="true"
+                    data-enum-debounce="300"
+                    multiple>
+                <option value="{farming.pk}">Farming</option>
+                <option selected value="{industry.pk}">Industry</option>
+                <option value="{software.pk}">Software</option>
+                <option value="{sector_A.pk}">Sector A</option>
+                <option selected value="{sector_C.pk}">Sector C</option>
+            </select>
+            ''',
+            widget.render('testfield', value=(industry.pk, sector_C.pk)),
+        )
+
+    def test_render__more_custom_attrs(self):
+        farming, industry, software = FakeSector.objects.order_by('pk')[:3]
+
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=2)
+        widget = EnumerableSelectMultiple(enumerable, attrs={
+            'data-enum-cache': 'false',
+            'data-enum-debounce': 500,
+        })
+
+        self.assertHTMLEqual(
+            f'''
+            <select class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto is-enum"
+                    widget="ui-creme-dselect"
+                    name="testfield" autocomplete
+                    data-allow-clear="true"
+                    data-enum-url="{enumerable.url}"
+                    data-enum-limit="{enumerable.limit}"
+                    data-enum-cache="false"
+                    data-enum-debounce="500"
+                    multiple>
+                <option value="{farming.pk}">Farming</option>
+                <option selected value="{industry.pk}">Industry</option>
+            </select>
+            ''',
+            widget.render('testfield', value=(industry.pk,)),
         )
 
 

@@ -1598,6 +1598,19 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             reverse('creme_config__delete_custom_form_cell', args=(cfci.id,)),
             data={'cell_key': cell_to_dell.key},
         )
+        self.assertListEqual(
+            [
+                {
+                    'name': 'General', 'layout': LAYOUT_REGULAR,
+                    'cells': [
+                        {'type': 'regular_field', 'value': 'user'},
+                        {'type': 'regular_field', 'value': 'name'},
+                    ]
+                },
+                {'group_id': FakeAddressGroup.extra_group_id},
+            ],
+            self.refresh(cfci).groups_as_dicts(),
+        )
 
     @parameterized.expand([
         (0, LAYOUT_DUAL_FIRST),

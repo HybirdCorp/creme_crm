@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2025  Hybird
+#    Copyright (C) 2020-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -318,8 +318,9 @@ class CustomFormCellDeletion(BaseCustomFormDeletion):
         desc = self.get_customform_descriptor()
 
         groups = []
-        found = False
+        found = False  # Found in any group
         for group in self.get_groups():
+            found_in_group = False
             cells = []
 
             # TODO: better API for group.cells ?
@@ -327,11 +328,11 @@ class CustomFormCellDeletion(BaseCustomFormDeletion):
                 if cell.key != cell_key:
                     cells.append(cell)
                 else:
-                    found = True
+                    found = found_in_group = True
 
             groups.append(
                 FieldGroup(name=group.name, cells=cells, layout=group.layout)
-                if found else
+                if found_in_group else
                 group
             )
 

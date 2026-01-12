@@ -358,6 +358,8 @@ class CustomFieldsBrick(Brick):
             _ContentTypeWrapper(get_ct(ct_id), ct_cfields)
             for ct_id, ct_cfields in cfields_per_ct_id.items()
         ]
+        sort_key = collator.sort_key
+        ctypes.sort(key=lambda wrp: sort_key(str(wrp.ctype)))
 
         return self._render(self.get_template_context(
             context,
