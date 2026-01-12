@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-14 18:06+0200\n"
+"POT-Creation-Date: 2026-01-09 18:30+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -616,6 +616,9 @@ msgstr "Zoom"
 
 msgid "Download CSV"
 msgstr "Télécharger CSV"
+
+msgid "You cannot export this type of entity"
+msgstr "Vous ne pouvez pas exporter ce type de fiche"
 
 msgid "Go to the configuration of Reports' filters"
 msgstr "Aller à la configuration des filtres de Rapports"

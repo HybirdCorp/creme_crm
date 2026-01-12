@@ -1,3 +1,23 @@
+== Version 2.6.16 ==
+
+  Users side :
+  ------------
+    # Apps :
+        * Creme_config :
+            - In configuration for CustomForms, the removing of a fields was broken
+              when there is a special group (like "Addresses").
+        * Reports :
+            - A user needs the permission to export a model in order to export a Report now.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # An issue with 'creme_core.forms.enumerable.EnumerableSelectMultiple' has been fixed;
+          in the context, the selected value was handled as a string instead of a list.
+
+
 == Version 2.6.15 ==
 
   UPGRADE NOTES :
