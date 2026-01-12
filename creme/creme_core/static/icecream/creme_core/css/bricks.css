@@ -337,7 +337,7 @@
 /* Forbidden brick */
 
 .brick.brick-forbidden {
-  opacity: 40%;
+    opacity: 40%;
 }
 
 .brick.brick-forbidden .brick-content {
@@ -354,6 +354,27 @@
 }
 
 /* Forbidden brick - end */
+
+/* Error brick */
+
+.brick.brick-error {
+    opacity: 60%;
+}
+
+.brick.brick-error .brick-content {
+    padding: 0;
+    margin: 5px 10px;
+
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 700;
+    font-size: 11px;
+    color: rgb(215, 61, 0);
+
+    cursor: default;
+}
+
+/* Error brick - end */
 
 /* brick types - table type */
 

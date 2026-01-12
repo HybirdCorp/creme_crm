@@ -1,11 +1,14 @@
 from functools import partial
 from unittest import mock
+from uuid import uuid4
 
 from django.db.models.query_utils import Q
+from django.template.loader import get_template
 from django.urls.base import reverse
 from django.utils.timezone import datetime, make_aware
+from django.utils.translation import gettext as _
 
-from creme.creme_core.models import FakeOrganisation
+from creme.creme_core.models import FakeOrganisation, InstanceBrickConfigItem
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.queries import QSerializer
 from creme.reports.bricks import (
@@ -459,6 +462,42 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
             mock_brick_render.call_args[0][0],
         )
 
+    def test_detailview_display__invalid_uuid(self, mock_brick_render):
+        user = self.login_as_root_and_get()
+
+        report = self._create_simple_contacts_report(user=user)
+        uuid_str = str(uuid4())
+        ibci = InstanceBrickConfigItem.objects.create(
+            entity=report,
+            brick_class_id=ReportChartInstanceBrick.id,
+            json_extra_data={'chart': uuid_str},
+        )
+
+        entity = FakeOrganisation.objects.create(user=user, name='Acme')
+        context = self.build_context(user=user, instance=entity)
+
+        brick = ReportChartInstanceBrick(ibci)
+        self.assertEqual('creme_core/bricks/generic/error.html', brick.template_name)
+        with self.assertNoException():
+            get_template(brick.template_name)
+
+        errors = [
+            _(
+                'It seems the chart has been removed; '
+                'please contact your administrator to fix the blocks configuration '
+                '(chart UUID is "{}")'
+            ).format(uuid_str),
+        ]
+        self.assertListEqual(errors, brick.errors)
+        self.assertTupleEqual((), brick.target_ctypes)
+
+        brick.detailview_display(context)
+        mock_brick_render.assert_called_once()
+        self.assertDictEqual(
+            {**context, 'errors': errors},
+            mock_brick_render.call_args[0][0]
+        )
+
     def test_detailview_display(self, mock_brick_render):
         user = self.login_as_root_and_get()
         # graph = self._create_documents_rgraph(user=user)
@@ -648,4 +687,32 @@ class D3ReportChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase
                 },
             },
             mock_brick_render.call_args[0][0],
+        )
+
+    def test_home_display__invalid_uuid(self, mock_brick_render):
+        user = self.login_as_root_and_get()
+
+        report = self._create_simple_contacts_report(user=user)
+        uuid_str = str(uuid4())
+        ibci = InstanceBrickConfigItem.objects.create(
+            entity=report,
+            brick_class_id=ReportChartInstanceBrick.id,
+            json_extra_data={'chart': uuid_str},
+        )
+
+        context = self.build_context(user=user)
+        brick = ReportChartInstanceBrick(ibci)
+        errors = [
+            _(
+                'It seems the chart has been removed; '
+                'please contact your administrator to fix the blocks configuration '
+                '(chart UUID is "{}")'
+            ).format(uuid_str),
+        ]
+        self.assertListEqual(errors, brick.errors)
+
+        brick.home_display(context)
+        mock_brick_render.assert_called_once()
+        self.assertDictEqual(
+            {**context, 'errors': errors}, mock_brick_render.call_args[0][0],
         )
