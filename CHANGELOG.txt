@@ -1,4 +1,4 @@
-== Version 2.6.16 Work in progress (not released -- this is a draft) ==
+== Version 2.6.16 ==
 
   Users side :
   ------------
@@ -14,7 +14,8 @@
 
     Non breaking changes :
     ----------------------
-        # Fix an issue within EnumerableSelectMultiple context : the selected value was handled as a string instead of a list.
+        # An issue with 'creme_core.forms.enumerable.EnumerableSelectMultiple' has been fixed;
+          in the context, the selected value was handled as a string instead of a list.
 
 
 == Version 2.6.15 ==
