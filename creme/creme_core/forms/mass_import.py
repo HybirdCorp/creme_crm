@@ -1150,7 +1150,7 @@ class CustomfieldExtractorField(forms.Field):
         )
 
         self._custom_field = custom_field
-        formfield = custom_field.get_formfield(None)
+        formfield = custom_field.get_formfield(custom_value=None)
         self.required = formfield.required
         self.user = user
 
@@ -1548,7 +1548,10 @@ class ImportForm4CremeEntity(ImportForm):
         for cfield in cfields.values():
             fields[_CUSTOM_NAME.format(cfield.id)] = CustomfieldExtractorField(
                 choices=self.choices, custom_field=cfield, user=user,
-                initial={'selected_column': get_col(slugify(cfield.name), 0)},
+                initial={
+                    'selected_column': get_col(slugify(cfield.name), 0),
+                    'default_value': cfield.default_value_maker.make(),
+                },
             )
 
     def clean_dyn_relations(self):  # TODO: move this validation in RelationExtractorField.clean()

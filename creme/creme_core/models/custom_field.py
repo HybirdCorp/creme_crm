@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -84,7 +84,6 @@ class CustomField(CremeModel):
     content_type = CTypeForeignKey(verbose_name=_('Related type'))
 
     field_type = models.PositiveSmallIntegerField(_('Field type'))  # See INT, FLOAT etc...
-    # default_value = models.JSONField(_('Default value'), blank=True, null=True, editable=False)
     # NB: use the getter/setter "default_value_maker" instead of using this field directly
     json_default_value_maker = models.JSONField(default=dict, editable=False)
 
