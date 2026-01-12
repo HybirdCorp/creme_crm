@@ -1,0 +1,13 @@
+{% load i18n creme_bricks %}
+<div class="brick brick-error {# is-empty #}is-loading-border ui-creme-widget widget-auto" widget="brick" id="brick-{{brick_id}}" data-brick-id="{{brick_id}}">
+    {% block brick_header %}
+    <div class="brick-header"{# {% if description %} title="{{description}}"{% endif %} #} >
+        <div class="brick-title-container">{# TODO: real error icon? #}
+            {% block brick_header_title %}{% brick_header_title title=verbose_name icon='cancel' %}{% endblock %}
+        </div>
+    </div>
+    {% endblock %}
+    <div class="brick-content">
+        {% if errors|length == 1 %}{{errors.0}}{% else %}<ul>{% for error in error %}<li>{{error}}</li>{% endfor %}</ul>{% endif %}
+    </div>
+</div>

@@ -93,7 +93,7 @@
              {% jsondata row.data class="sketch-chart-data" %}
              {% if row.props %}{% jsondata row.props class="sketch-chart-props" %}{% endif %}
             {% elif row.error %}
-             <div class="brick-d3-empty brick-error">{{row.error}}</div>
+             <div class="brick-d3-empty brick-d3-error">{{row.error}}</div>
             {% else %}
              <div class="brick-d3-empty">{% translate 'No values (or chart is not applicable here)' %}</div>
             {% endif %}

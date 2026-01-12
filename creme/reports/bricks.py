@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -324,27 +324,38 @@ class ReportChartInstanceBrick(ReportChartMixin, core_bricks.InstanceBrick):
     def __init__(self, instance_brick_config_item):
         super().__init__(instance_brick_config_item)
         get_data = instance_brick_config_item.get_extra_data
-        # TODO: manage error (it seems template/js has to be reworked)
-        chart = ReportChart.objects.get(uuid=get_data(self.chart_key))
+        chart_uuid = get_data(self.chart_key)
 
-        fetcher = self.fetcher = ReportChart.fetcher_registry.get(
-            chart=chart,
-            fetcher_dict={key: get_data(key) for key in ChartFetcher.DICT_KEYS},
-        )
+        try:
+            chart = ReportChart.objects.get(uuid=chart_uuid)
+        except ReportChart.DoesNotExist:
+            self.fetcher = None
+            self.template_name = 'creme_core/bricks/generic/error.html'
+            error = _(
+                'It seems the chart has been removed; '
+                'please contact your administrator to fix the blocks configuration '
+                '(chart UUID is "{}")'
+            ).format(chart_uuid)
+        else:
+            fetcher = self.fetcher = ReportChart.fetcher_registry.get(
+                chart=chart,
+                fetcher_dict={key: get_data(key) for key in ChartFetcher.DICT_KEYS},
+            )
 
-        fetcher_vname = fetcher.verbose_name
-        self.verbose_name = f'{chart} - {fetcher_vname}' if fetcher_vname else str(chart)
+            fetcher_vname = fetcher.verbose_name
+            self.verbose_name = f'{chart} - {fetcher_vname}' if fetcher_vname else str(chart)
 
-        self.description = gettext(
-            'This block displays the chart «{chart}», contained by the report «{report}».\n'
-            'App: Reports'
-        ).format(chart=chart, report=chart.linked_report)
+            self.description = gettext(
+                'This block displays the chart «{chart}», contained by the report «{report}».\n'
+                'App: Reports'
+            ).format(chart=chart, report=chart.linked_report)
 
-        error = fetcher.error
+            error = fetcher.error
+
         self.errors = [error] if error else None
 
-    def _render_chart(self, context, chart, data, **kwargs):
-        context = self.get_template_context(
+    def _get_chart_context(self, context, chart, data, **kwargs):
+        return self.get_template_context(
             context,
             chart=chart,
             data=data,
@@ -359,48 +370,60 @@ class ReportChartInstanceBrick(ReportChartMixin, core_bricks.InstanceBrick):
             **kwargs
         )
 
-        return self._render(context)
-
     def detailview_display(self, context):
-        entity = context['object']
-        user = context['user']
-        chart = self.fetcher.chart
-        data = []
-        error = None
+        fetcher = self.fetcher
 
-        try:
-            x, y = self.fetcher.fetch_4_entity(
-                entity=entity,
-                user=user,
-                order='ASC' if chart.asc else 'DESC',  # TODO: factorise
+        if fetcher is None:
+            btc = self.get_template_context(context, errors=self.errors)
+        else:
+            entity = context['object']
+            user = context['user']
+            chart = fetcher.chart
+            data = []
+            error = None
+
+            try:
+                x, y = fetcher.fetch_4_entity(
+                    entity=entity, user=user,
+                    order='ASC' if chart.asc else 'DESC',  # TODO: factorise
+                )
+
+                data = self.merge_chart_data(
+                    x, y, colors=chart.fetch_colormap(user),
+                )
+            except ChartFetcher.IncompatibleContentType as e:
+                error = str(e)
+            except ChartFetcher.UselessResult:
+                pass
+
+            btc = self._get_chart_context(
+                context, chart=chart, data=data, error=error, fetcher=self.fetcher,
             )
 
-            data = self.merge_chart_data(
-                x, y, colors=chart.fetch_colormap(user),
-            )
-        except ChartFetcher.IncompatibleContentType as e:
-            error = str(e)
-        except ChartFetcher.UselessResult:
-            pass
-
-        return self._render_chart(
-            context, chart=chart, data=data, error=error, fetcher=self.fetcher,
-        )
+        return self._render(btc)
 
     def home_display(self, context):
-        user = context['user']
         fetcher = self.fetcher
-        chart = fetcher.chart
-        x, y = fetcher.fetch(user=user, order='ASC' if chart.asc else 'DESC')
-        return self._render_chart(
-            context,
-            chart=chart,
-            data=self.merge_chart_data(x, y, colors=chart.fetch_colormap(user)),
-        )
+
+        if fetcher is None:
+            btc = self.get_template_context(context, errors=self.errors)
+        else:
+            user = context['user']
+            chart = fetcher.chart
+            x, y = fetcher.fetch(user=user, order='ASC' if chart.asc else 'DESC')
+
+            btc = self._get_chart_context(
+                context,
+                chart=chart,
+                data=self.merge_chart_data(x, y, colors=chart.fetch_colormap(user)),
+            )
+
+        return self._render(btc)
 
     @property
     def target_ctypes(self):
-        return self.fetcher.linked_models
+        fetcher = self.fetcher
+        return () if fetcher is None else fetcher.linked_models
 
 
 # class ReportGraphChartBrick(ReportGraphMixin, core_bricks.Brick):

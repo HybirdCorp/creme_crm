@@ -51,7 +51,7 @@
     {% jsondata data class="sketch-chart-data" %}
     {% if props %}{% jsondata props class="sketch-chart-props" %}{% endif %}
   {% elif error %}
-    <div class="brick-d3-empty brick-error">{{error}}</div>
+    <div class="brick-d3-empty brick-d3-error">{{error}}</div>
   {% else %}
    {% if object and fetcher.verbose_name %}
     <div class="brick-chart-header clearfix">
