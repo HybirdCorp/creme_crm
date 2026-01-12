@@ -15,6 +15,7 @@ from creme.creme_core import workflows
 from creme.creme_core.constants import UUID_CHANNEL_JOBS
 from creme.creme_core.core.entity_filter import condition_handler
 from creme.creme_core.core.entity_filter.operators import EndsWithOperator
+from creme.creme_core.core.value_maker import IntegerMaker
 from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.creme_jobs import batch_process_type
 from creme.creme_core.creme_jobs.mass_import import (
@@ -1168,13 +1169,18 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         "CustomField.INT, STR & FLOAT, update, cast error."
         user = self.login_as_root_and_get()
 
+        int_def_value = 175
+
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
-        cf_int = create_cf(name='Size (cm)',   field_type=CustomField.INT)
-        cf_dec = create_cf(name='Weight (kg)', field_type=CustomField.FLOAT)
-        cf_str = create_cf(name='Nickname',    field_type=CustomField.STR)
+        cf_int = create_cf(
+            name='Size (cm)', field_type=CustomField.INT,
+            default_value_maker=IntegerMaker(int_def_value),
+        )
+        cf_dec = create_cf(name='Weight',   field_type=CustomField.FLOAT)
+        cf_str = create_cf(name='Nickname', field_type=CustomField.STR)
 
         lines = [
-            ('First name', 'Last name', 'Size',   'Weight'),
+            ('First name', 'Last name', 'Size',   cf_dec.name),
             ('Unchô',      'Kan-u',     '180',    '55'),
             ('Gentoku',    'Ryûbi',     '155',    ''),
             ('Hakufu',     'Sonsaku',   '',       '50.2'),
@@ -1192,8 +1198,30 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         doc = self._build_csv_doc(lines, user=user)
-        response = self.client.post(
-            self._build_import_url(FakeContact),
+        url = self._build_import_url(FakeContact)
+
+        response1 = self.client.post(
+            url, data={'step': 0, 'document': doc.id, 'has_header': True},
+        )
+        self.assertNoFormError(response1)
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            int_f = fields[f'custom_field-{cf_int.id}']
+            dec_f = fields[f'custom_field-{cf_dec.id}']
+
+        self.assertDictEqual(
+            {'selected_column': 0, 'default_value': int_def_value},
+            int_f.initial,
+        )
+        self.assertDictEqual(
+            {'selected_column': 4, 'default_value': None},
+            dec_f.initial,
+        )
+
+        # ---
+        response2 = self.client.post(
+            url,
             follow=True,
             data={
                 **self.lv_import_data,
@@ -1207,9 +1235,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 f'custom_field-{cf_dec.id}_colselect': 4,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
-        job = self._execute_job(response)
+        job = self._execute_job(response2)
         self.assertEqual(
             len(lines) - 2,  # 2 = 1 header + 1 update
             FakeContact.objects.exclude(id__in=contact_ids).count()
