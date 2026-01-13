@@ -869,9 +869,10 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     white-space: nowrap;
 }
 
-.creme_config-instances-bricks-brick td.instancebrick-config-error {
+.creme_config-instances-bricks-brick td.instancebrick-config-errors span {
     font-weight: 600;
-    color: red;
+    color: rgb(215, 61, 0);
+    text-transform: uppercase;
 }
 
 /* CustomBricksConfig brick */
