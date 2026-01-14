@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2025 Hybird
+# Copyright (c) 2016-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -34,11 +34,12 @@ from django.db.models import (
     ForeignKey,
     ManyToManyField,
     Model,
+    QuerySet,
     prefetch_related_objects,
 )
 
 from ..models import CaseSensitivity
-from .meta import FieldInfo
+from .meta import FieldInfo, OrderedField
 
 
 def get_indexes_columns(model: type[Model]) -> Iterator[list[str]]:
@@ -338,3 +339,75 @@ class PreFetcher:
         }
 
         return self
+
+
+def get_stable_ordering(queryset: QuerySet) -> list[str]:
+    """Returns a list of fields names usable as stable ordering (in order to
+    get consistent results through different pages).
+
+    It gets the ordering from the queryset or model's Meta, explicits the real
+    fields used for the ordering & ensures ordering stability by adding primary
+    keys if needed.
+
+    Example:
+        >> get_stable_ordering(Contact.objects.all())
+        ['last_name', 'first_name', 'cremeentity_ptr']
+        # 'cremeentity_ptr' added to ensure stable ordering
+
+    @param queryset: The Django QuerySet to validate ordering for.
+    @return List of field names.
+    """
+    model = queryset.model
+
+    # TODO: extract as standalone function?
+    def _explicit_ordering(ordering: Iterable[str]) -> list[str]:
+        # Examples (with Contact):
+        #   >> _explicit_ordering(['position', 'last_name'])
+        #   ['position__title', 'last_name']
+        #   >> _explicit_ordering(['last_name', 'first_name', 'civility'])
+        #   ['last_name', 'first_name', 'civility__title']
+        explicit_fields = []
+        for ordered_field_name in ordering:
+            ordered_field = OrderedField(ordered_field_name)
+            desc = ordered_field.order.desc
+            explicit_fields.extend(
+                str(expl_field.reversed() if desc else expl_field)
+                for expl_field in FieldInfo(
+                    model, ordered_field.field_name,
+                ).as_explicit_orders
+            )
+
+        return explicit_fields
+
+    # TODO: extract as standalone function?
+    def _is_ordering_stable(ordering: Iterator[str]) -> bool:
+        # Examples:
+        #  With CremeUser:
+        #    >> _is_ordering_stable(['username']) => True  # username is unique
+        #  With Contact:
+        #    >> is_ordering_stable(('last_name', 'email')) => False
+        asc_ordering = [field_name.removeprefix('-') for field_name in ordering]
+
+        if any(
+            FieldInfo(model=model, field_name=field_name).unique
+            for field_name in asc_ordering
+        ):
+            return True
+
+        get_field = model._meta.get_field
+        if any(
+            all(get_field(f).attname in asc_ordering for f in combo)
+            for combo in model._meta.unique_together
+        ):
+            return True
+
+        return False
+
+    result = _explicit_ordering(queryset.query.order_by or model._meta.ordering)
+
+    if not _is_ordering_stable(result):
+        # TODO: log?
+        # TODO: unit test with composite fk
+        result.extend(pk.name for pk in model._meta.pk_fields)
+
+    return result

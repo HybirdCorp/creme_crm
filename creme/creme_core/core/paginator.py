@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2025 Hybird
+# Copyright (c) 2016-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@ from django.core.paginator import InvalidPage
 from django.db.models import Model, Q, QuerySet
 
 from creme.creme_core.utils.dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
-from creme.creme_core.utils.db import populate_related
+from creme.creme_core.utils.db import get_stable_ordering, populate_related
 from creme.creme_core.utils.meta import FieldInfo
 
 logger = logging.getLogger(__name__)
@@ -53,17 +53,19 @@ class LastPage(InvalidPage):
 
 
 class FlowPaginator:
-    """Paginates a Queryset on CremeEntities.
+    """Paginates a Queryset in a way which lets you jump only to
+    next/previous/first/last pages.
 
     It should be fast on big databases, because it avoids SQL's OFFSET most of the time,
-    because we use a KEYSET way (eg: the page is the X first items with name >= "foobar").
+    because we use a KEYSET way (e.g. the page is the N first items with name >= "foobar").
     Disadvantage is that you can only go to the next & previous pages.
 
     Beware: if you use a nullable key, NULL values must be ordered as the lowest values
             (i.e. first in ASC order, last in DESC order).
             Tip: you can use 'creme.models.manager.LowNullsQuerySet'.
     """
-    queryset: QuerySet
+    # queryset: QuerySet
+    _queryset: QuerySet
 
     _per_page: int
     _count: int
@@ -72,7 +74,8 @@ class FlowPaginator:
     _attr_name: str
     _reverse_order: bool
 
-    def __init__(self, queryset: QuerySet, key: str, per_page: int, count: int = sys.maxsize):
+    # def __init__(self, queryset: QuerySet, key: str, per_page: int, count: int = sys.maxsize):
+    def __init__(self, queryset: QuerySet, *, per_page: int, count: int = sys.maxsize):
         """Constructor.
         @param queryset: QuerySet instance.
                Beware #1: lines must have always the same order when sub-set
@@ -81,34 +84,32 @@ class FlowPaginator:
                Beware #2: the Queryset must contain real instances, not tuples
                 or dicts (i.e. it is not compatible with QuerySets returned by
                 the methods 'values()' & 'values_list()').
-        @param key: Name of the field used as key (i.e. first ordering field).
-               It can be a composed field name like 'user__username'.
-               For ForeignKeys, you must use:
-                - the low-level attribute (e.g. 'myfk' => 'myfk_id').
-                - an order-able subfield's name (e.g. 'myfk__title).
-               ManyToManyFields are not managed.
-        @param per_page: Number of entities.
-        @param count: Total number of entities (ie should be equal to object_list.count())
+        @param per_page: Maximum number of entities on each page (must be > 1).
+        @param count: Total number of entities (i.e. should be equal to object_list.count())
                (so no additional query is performed to get it).
                The default value _should_ be overridden with the correct value;
                it is only useful when a whole queryset is iterated with pages()
                (because count is not used).
-        @raise ValueError: If key is invalid.
+        @raise ValueError:
+            - If queryset ordering is invalid.
+            - If per_page is invalid.
+            - If count is invalid.
         """
-        assert per_page > 1
-
-        # TODO: check the order is stable & compatible with key.
-        if not queryset.ordered:
-            raise ValueError('The Queryset must be ordered')
-
-        self.queryset = queryset
         self.per_page = per_page
         self.count = count
-        self._num_pages: int | None = None
 
+        self._num_pages: int | None = None
         self._attr_name: str = ''  # TODO: rename "attr_nameS"?
         self._reverse_order: bool = False
-        self.key = key
+
+        # if not queryset.ordered:
+        #     raise ValueError('The Queryset must be ordered')
+
+        # self.queryset = queryset
+        # self.key = key
+        ordering = get_stable_ordering(queryset)
+        self._queryset = queryset.order_by(*ordering)
+        self._set_key(ordering[0])
 
     @property
     def attr_name(self) -> str:
@@ -123,15 +124,20 @@ class FlowPaginator:
         return self._count
 
     @count.setter
-    def count(self, value):
+    def count(self, value) -> None:
         self._count = int(value)
 
     @property
     def key(self) -> str:
         return self._key
 
-    @key.setter
-    def key(self, value: str) -> None:
+    @property
+    def queryset(self) -> QuerySet:
+        return self._queryset
+
+    # @key.setter
+    # def key(self, value: str) -> None:
+    def _set_key(self, value: str) -> None:
         self._key = value
 
         if value.startswith('-'):
@@ -141,7 +147,8 @@ class FlowPaginator:
             attr_name = value
             self._reverse_order = False
 
-        field_info = FieldInfo(self.queryset.model, attr_name)
+        # field_info = FieldInfo(self.queryset.model, attr_name)
+        field_info = FieldInfo(self._queryset.model, attr_name)
 
         if any(f.many_to_many for f in field_info):
             raise ValueError('Invalid key: ManyToManyFields cannot be used as key.')
@@ -183,7 +190,10 @@ class FlowPaginator:
 
     @per_page.setter
     def per_page(self, value):
-        self._per_page = int(value)
+        value = int(value)
+        if value <= 1:
+            raise ValueError('per_page must be > 1')
+        self._per_page = value
 
     def _check_key_info(self, page_info: dict) -> None:
         try:
@@ -220,7 +230,8 @@ class FlowPaginator:
                 q |= Q(**{attr_name + '__isnull': True})
 
         try:
-            qs = self.queryset.filter(q)
+            # qs = self.queryset.filter(q)
+            qs = self._queryset.filter(q)
         except (ValueError, ValidationError) as e:
             raise InvalidPage(f'Invalid "value" [{e}].') from e
 
@@ -268,16 +279,18 @@ class FlowPaginator:
 
         # PyCharm does not understand that it's not a problem to use list
         # methods in local contexts...
-        # entities: Iterable[Model]
+        # instances: Iterable[Model]
 
         if move_type == 'first' or self.count <= per_page:
-            entities = [*self.queryset[:per_page + 1]]
-            next_item = None if len(entities) <= per_page else entities.pop()
+            # instances = [*self.queryset[:per_page + 1]]
+            instances = [*self._queryset[:per_page + 1]]
+            next_item = None if len(instances) <= per_page else instances.pop()
             first_page = True
         elif move_type == 'last':
             self._check_key_info(page_info)
 
-            entities = reversed(self.queryset.reverse()[:per_page])
+            # instances = reversed(self.queryset.reverse()[:per_page])
+            instances = reversed(self._queryset.reverse()[:per_page])
             next_item = None
             forward = False
         else:
@@ -287,10 +300,10 @@ class FlowPaginator:
 
             if move_type == _FORWARD:
                 qs = self._get_qs(page_info, reverse=self._reverse_order)
-                entities = [*qs[offset:offset + per_page + 1]]
-                next_item = None if len(entities) <= per_page else entities.pop()
+                instances = [*qs[offset:offset + per_page + 1]]
+                next_item = None if len(instances) <= per_page else instances.pop()
 
-                if not entities:
+                if not instances:
                     raise LastPage()
             elif move_type == _BACKWARD:
                 qs = self._get_qs(page_info, reverse=not self._reverse_order)
@@ -300,16 +313,16 @@ class FlowPaginator:
                 #  - if the second one exists, it indicates that there is at
                 #    least one item before the page (so it is not the first one).
                 size = per_page + 2
-                entities = [*qs.reverse()[offset:offset + size]]
+                instances = [*qs.reverse()[offset:offset + size]]
 
-                if len(entities) != size:
+                if len(instances) != size:
                     raise FirstPage()
 
-                entities.pop()
-                entities.reverse()
-                next_item = entities.pop()
+                instances.pop()
+                instances.reverse()
+                next_item = instances.pop()
 
-                if self._key_field_info.value_from(entities[-1]) != page_info['value']:
+                if self._key_field_info.value_from(instances[-1]) != page_info['value']:
                     offset = 0
 
                 forward = False
@@ -317,7 +330,7 @@ class FlowPaginator:
                 raise InvalidPage('Invalid or missing "type".')
 
         return FlowPage(
-            object_list=entities, paginator=self, forward=forward,
+            object_list=instances, paginator=self, forward=forward,
             key=self._key, key_field_info=self._key_field_info,
             attr_name=self._attr_name,
             offset=offset, max_size=per_page,

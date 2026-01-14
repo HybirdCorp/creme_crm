@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -114,7 +114,7 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
     def get_paginator(self, *, queryset, ordering):
         return FlowPaginator(
             queryset=queryset.order_by(*ordering),
-            key=ordering[0],
+            # key=ordering[0],
             per_page=self.page_size,
         )
 

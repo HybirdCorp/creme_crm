@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2025 Hybird
+# Copyright (c) 2009-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +21,12 @@
 # SOFTWARE.
 ################################################################################
 
+from __future__ import annotations
+
 from collections.abc import Callable
 from functools import partial
 from itertools import chain
-from typing import Type
+from typing import Iterator, Type
 
 from django.core.exceptions import FieldDoesNotExist
 from django.core.validators import EMPTY_VALUES
@@ -150,6 +152,53 @@ class FieldInfo:
     @property
     def verbose_name(self) -> str:
         return ' - '.join(str(field.verbose_name) for field in self.__fields)
+
+    @property
+    def as_explicit_orders(self) -> Iterator[OrderedField]:
+        """Get the list of fields which will be used to order a SQL query if the
+        instance (as raw string) is used as argument for 'QuerySet.order_by()'.
+
+        Example:
+            # Simple field
+            >> [*FieldInfo(Organisation, 'name').as_explicit_orders]
+            [OrderedField('name')]
+
+            # ForeignKey (natural ordering of the related model is made explicit)
+            >> [*FieldInfo(Contact, 'image').as_explicit_orders]
+            [OrderedField('image__title')]
+
+            # ForeignKey (raw ID)
+            >> [*FieldInfo(Contact, 'image_id').as_explicit_orders]
+            [OrderedField('image_id')]
+
+        Notice that several fields can be returned because models can have
+        several fields for their natural ordering.
+        """
+        *atts, last_att = self.__attnames
+        last_field = self.__fields[-1]
+
+        if last_field.is_relation and (last_field.many_to_many or last_field.attname != last_att):
+            natural_ordering = last_field.related_model._meta.ordering
+            if natural_ordering:
+                for ordered_field_str in natural_ordering:
+                    ordered_field = OrderedField(ordered_field_str)
+                    # TODO: OrderedField.build(order=order, field_name=...)?
+                    yield OrderedField(
+                        ordered_field.order.prefix
+                        + '__'.join([*atts, last_att, ordered_field.field_name])
+                    )
+            else:
+                atts.append(last_field.attname)  # TODO: test (need a FK to FakeContact?)
+                yield OrderedField('__'.join(atts))
+        else:
+            atts.append(last_att)
+            yield OrderedField('__'.join(atts))
+
+    @property
+    def unique(self) -> bool:
+        """Are all fields in the chain unique?"""
+        # TODO: <and not field.null>?
+        return all(field.unique for field in self.__fields)
 
     # TODO: probably does not work with several ManyToManyFields in the fields chain
     def value_from(self, instance: Model):
@@ -371,7 +420,7 @@ class Order:
         @param value: String in ('ASC', 'DESC').
         @param required: Boolean. (default:True). If False, empty values are
                accepted for the "value" argument.
-        @return: An Order instance.
+        @return: An <Order> instance.
         @raise ValueError: invalid "value" argument.
         """
         match value:
@@ -398,7 +447,7 @@ class Order:
         "Reverse the order (in-place)."
         self.asc = not self.asc
 
-    def reversed(self):
+    def reversed(self) -> Order:
         "Get a reversed instance of Order."
         return self.__class__(not self.asc)
 
@@ -423,10 +472,16 @@ class OrderedField:
 
         self.order = Order(asc)
 
+    def __repr__(self):
+        return f'OrderedField({self._raw})'
+
     def __str__(self):
         return self._raw
 
-    # TODO: def reverse ?
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and self._raw == other._raw
+
+    # TODO: def reverse()? VS making immutable
 
     def reversed(self):
         """Returns the _OrderedField instance corresponding to the same field
