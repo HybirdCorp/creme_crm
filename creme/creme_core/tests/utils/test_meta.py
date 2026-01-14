@@ -10,14 +10,22 @@ from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
     FakeActivity,
+    FakeAddress,
     FakeContact,
     FakeEmailCampaign,
     FakeImage,
+    FakeInvoiceLine,
     FakeMailingList,
     FakeOrganisation,
     Language,
 )
-from creme.creme_core.utils import meta
+from creme.creme_core.utils.meta import (
+    FieldInfo,
+    ModelFieldEnumerator,
+    Order,
+    OrderedField,
+    is_date_field,
+)
 
 from ..base import CremeTestCase
 
@@ -26,24 +34,24 @@ class MetaTestCase(CremeTestCase):
     def test_is_date_field(self):
         entity = CremeEntity()
         get_field = entity._meta.get_field
-        self.assertTrue(meta.is_date_field(get_field('created')))
-        self.assertFalse(meta.is_date_field(get_field('user')))
+        self.assertTrue(is_date_field(get_field('created')))
+        self.assertFalse(is_date_field(get_field('user')))
 
     def test_ordered_field__asc(self):
-        ofield1 = meta.OrderedField('name')
+        ofield1 = OrderedField('name')
         self.assertEqual('name', str(ofield1))
         self.assertEqual('name', ofield1.field_name)
         self.assertTrue(ofield1.order.asc)
 
         ofield2 = ofield1.reversed()
-        self.assertIsInstance(ofield2, meta.OrderedField)
+        self.assertIsInstance(ofield2, OrderedField)
         self.assertIsNot(ofield1, ofield2)
         self.assertEqual('-name', str(ofield2))
         self.assertEqual('name', ofield2.field_name)
         self.assertTrue(ofield2.order.desc)
 
     def test_ordered_field__desc(self):
-        ofield1 = meta.OrderedField('-date')
+        ofield1 = OrderedField('-date')
         self.assertEqual('-date', str(ofield1))
         self.assertEqual('date', ofield1.field_name)
         self.assertTrue(ofield1.order.desc)
@@ -52,11 +60,18 @@ class MetaTestCase(CremeTestCase):
         self.assertEqual('date', str(ofield2))
         self.assertTrue(ofield2.order.asc)
 
+    def test_ordered_field__eq(self):
+        self.assertEqual(OrderedField('name'), OrderedField('name'))
+        self.assertNotEqual(OrderedField('name'), OrderedField('issuing_date'))
+        self.assertNotEqual(OrderedField('name'), OrderedField('-name'))
+        self.assertNotEqual(OrderedField('name'), 'name')  # TODO: should be equal?
+        self.assertNotEqual(OrderedField('name'), 1)
+
 
 class FieldInfoTestCase(CremeTestCase):
     def test_one_field(self):
         "Simple field."
-        fi1 = meta.FieldInfo(FakeContact, 'first_name')
+        fi1 = FieldInfo(FakeContact, 'first_name')
 
         self.assertEqual(FakeContact, fi1.model)
         self.assertEqual(1, len(fi1))
@@ -68,34 +83,93 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(FakeContact._meta.get_field('first_name'), base_field)
 
         self.assertEqual('first_name', fi1.attname(0))
+        self.assertIs(fi1.unique, False)
+        self.assertListEqual([OrderedField('first_name')], [*fi1.as_explicit_orders])
 
         with self.assertRaises(IndexError):
             fi1.attname(1)
 
         # Other field ---
-        fi2 = meta.FieldInfo(FakeOrganisation, 'name')
+        fi2 = FieldInfo(FakeOrganisation, 'name')
         self.assertEqual(FakeOrganisation._meta.get_field('name'), fi2[0])
         self.assertEqual('name', fi2.attname(0))
+        self.assertIs(fi2.unique, False)
+        self.assertListEqual([OrderedField('name')], [*fi2.as_explicit_orders])
 
-        # FK ---
-        self.assertEqual(
-            FakeContact._meta.get_field('image'),
-            meta.FieldInfo(FakeContact, 'image')[0],
+    def test_unique(self):
+        self.assertIs(FieldInfo(FakeOrganisation, 'id').unique, True)
+        self.assertIs(FieldInfo(FakeActivity, 'title').unique, True)
+        # TODO: test better
+        #  self.assertIs(FieldInfo(Fake..., 'unique_fk__unique_field').unique, True)
+
+    def test_fk(self):
+        img_f = FakeContact._meta.get_field('image')
+
+        fi1 = FieldInfo(FakeContact, 'image')
+        self.assertEqual(1, len(fi1))
+        self.assertEqual(img_f, fi1[0])
+        self.assertFalse(fi1.unique)
+        self.assertListEqual([OrderedField('image__name')], [*fi1.as_explicit_orders])
+
+        fi2 = FieldInfo(FakeContact, 'image_id')
+        self.assertEqual(1, len(fi2))
+        self.assertEqual(img_f, fi2[0])
+        self.assertListEqual([OrderedField('image_id')], [*fi2.as_explicit_orders])
+
+    def test_fk__no_natural_ordering(self):
+        self.assertFalse(FakeAddress._meta.ordering)
+        addr_f = FakeContact._meta.get_field('address')
+
+        fi1 = FieldInfo(FakeContact, 'address')
+        self.assertListEqual([addr_f], [*fi1])
+        self.assertListEqual([OrderedField('address_id')], [*fi1.as_explicit_orders])
+
+        fi2 = FieldInfo(FakeContact, 'address_id')
+        self.assertListEqual([addr_f], [*fi2])
+        self.assertListEqual([OrderedField('address_id')], [*fi1.as_explicit_orders])
+
+    def test_fk__sub_field__depth_is_1(self):
+        fi1 = FieldInfo(FakeContact, 'image__name')
+
+        self.assertEqual(2, len(fi1))
+        self.assertEqual(FakeContact._meta.get_field('image'), fi1[0])
+        self.assertEqual(FakeImage._meta.get_field('name'), fi1[1])
+
+        self.assertEqual(f'{_("Photograph")} - {_("Name")}', fi1.verbose_name)
+
+        self.assertEqual('image', fi1.attname(0))
+        self.assertEqual('name',  fi1.attname(1))
+
+        self.assertListEqual([OrderedField('image__name')], [*fi1.as_explicit_orders])
+
+        # ---
+        fi2 = FieldInfo(FakeContact, 'image__description')
+        self.assertEqual(FakeImage._meta.get_field('description'), fi2[1])
+        self.assertEqual(f'{_("Photograph")} - {_("Description")}', fi2.verbose_name)
+        self.assertEqual('description', fi2.attname(1))
+        self.assertListEqual([OrderedField('image__description')], [*fi2.as_explicit_orders])
+
+    def test_fk__several_natural_ordering_fields(self):
+        fk = FakeInvoiceLine._meta.get_field('linked_invoice')
+
+        fi1 = FieldInfo(FakeInvoiceLine, 'linked_invoice')
+        self.assertListEqual([fk], [*fi1])
+        self.assertListEqual(
+            # ['linked_invoice__name', '-linked_invoice__expiration_date'],
+            [
+                OrderedField('linked_invoice__name'),
+                OrderedField('-linked_invoice__expiration_date'),
+            ],
+            [*fi1.as_explicit_orders],
         )
 
-    def test_sub_field(self):
-        "depth > 1"
-        fi = meta.FieldInfo(FakeContact, 'image__name')
-
-        self.assertEqual(2, len(fi))
-        self.assertEqual(FakeContact._meta.get_field('image'), fi[0])
-        self.assertEqual(FakeImage._meta.get_field('name'), fi[1])
-
-        self.assertEqual(f'{_("Photograph")} - {_("Name")}', fi.verbose_name)
+    def test_fk__sub_field__depth_is_2(self):
+        fi = FieldInfo(FakeContact, 'image__user__username')
+        self.assertEqual(3, len(fi))
+        self.assertListEqual([OrderedField('image__user__username')], [*fi.as_explicit_orders])
 
         with self.assertNoException():
-            fi_as_list = [*meta.FieldInfo(FakeContact, 'image__user__username')]
-
+            fi_as_list = [*fi]
         self.assertListEqual(
             [
                 FakeContact._meta.get_field('image'),
@@ -105,29 +179,39 @@ class FieldInfoTestCase(CremeTestCase):
             fi_as_list,
         )
 
-        self.assertEqual('image', fi.attname(0))
-        self.assertEqual('name',  fi.attname(1))
+    def test_m2m(self):
+        fi = FieldInfo(FakeContact, 'languages')
+        self.assertEqual(1, len(fi))
+        self.assertEqual(FakeContact._meta.get_field('languages'), fi[0])
+        self.assertEqual([OrderedField('languages__name')], [*fi.as_explicit_orders])
+
+    def test_m2m__sub_field(self):
+        fi = FieldInfo(FakeContact, 'languages__name')
+        self.assertEqual(2, len(fi))
+        self.assertEqual(FakeContact._meta.get_field('languages'), fi[0])
+        self.assertEqual(Language._meta.get_field('name'), fi[1])
+        self.assertListEqual([OrderedField('languages__name')], [*fi.as_explicit_orders])
 
     def test_invalid_fields(self):
         with self.assertRaises(FieldDoesNotExist):
-            meta.FieldInfo(FakeContact, 'invalid')
+            FieldInfo(FakeContact, 'invalid')
 
         with self.assertRaises(FieldDoesNotExist):
-            meta.FieldInfo(FakeContact, 'image__invalid')
+            FieldInfo(FakeContact, 'image__invalid')
 
         with self.assertRaises(FieldDoesNotExist):
-            meta.FieldInfo(FakeContact, 'invalid__invalidtoo')
+            FieldInfo(FakeContact, 'invalid__invalidtoo')
 
         with self.assertRaises(FieldDoesNotExist):
-            meta.FieldInfo(FakeContact, 'image_id__name')
+            FieldInfo(FakeContact, 'image_id__name')
 
     def test_slice__start(self):
-        fi = meta.FieldInfo(FakeContact, 'image__user__username')
+        fi = FieldInfo(FakeContact, 'image__user__username')
 
         with self.assertNoException():
             sub_fi = fi[1:]  # Image.user__username
 
-        self.assertIsInstance(sub_fi, meta.FieldInfo)
+        self.assertIsInstance(sub_fi, FieldInfo)
         self.assertEqual(FakeImage, sub_fi.model)
         self.assertEqual(2, len(sub_fi))
         self.assertEqual(FakeImage._meta.get_field('user'), sub_fi[0])
@@ -140,12 +224,12 @@ class FieldInfoTestCase(CremeTestCase):
 
     def test_slice__stop(self):
         "Stop (no start)."
-        fi = meta.FieldInfo(FakeContact, 'image__user__username')
+        fi = FieldInfo(FakeContact, 'image__user__username')
 
         with self.assertNoException():
             sub_fi = fi[:2]  # Contact.image__user__username
 
-        self.assertIsInstance(sub_fi, meta.FieldInfo)
+        self.assertIsInstance(sub_fi, FieldInfo)
         self.assertEqual(FakeContact, sub_fi.model)
         self.assertEqual(2, len(sub_fi))
         self.assertEqual(FakeContact._meta.get_field('image'), sub_fi[0])
@@ -153,7 +237,7 @@ class FieldInfoTestCase(CremeTestCase):
 
     def test_slice__negative_start(self):
         "Negative start."
-        fi = meta.FieldInfo(FakeContact, 'image__user__username')
+        fi = FieldInfo(FakeContact, 'image__user__username')
 
         with self.assertNoException():
             sub_fi = fi[-1:]  # User.username
@@ -165,7 +249,7 @@ class FieldInfoTestCase(CremeTestCase):
 
     def test_slice__negative_start__big(self):
         "'very' negative start."
-        fi = meta.FieldInfo(FakeContact, 'image__user__username')
+        fi = FieldInfo(FakeContact, 'image__user__username')
 
         with self.assertNoException():
             sub_fi = fi[-4:]  # No change (Contact.image__user__username)
@@ -177,7 +261,7 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(get_user_model()._meta.get_field('username'), sub_fi[2])
 
     def test_slice__start__big(self):
-        fi = meta.FieldInfo(FakeContact, 'image__user')
+        fi = FieldInfo(FakeContact, 'image__user')
 
         with self.assertNoException():
             sub_fi = fi[5:]  # Empty
@@ -186,7 +270,7 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertFalse(sub_fi)
 
     def test_slice__step_forbidden(self):
-        fi = meta.FieldInfo(FakeContact, 'image__user')
+        fi = FieldInfo(FakeContact, 'image__user')
 
         with self.assertRaises(ValueError):
             _ = fi[::0]
@@ -195,8 +279,6 @@ class FieldInfoTestCase(CremeTestCase):
             _ = fi[::2]
 
     def test_get_value(self):
-        FieldInfo = meta.FieldInfo
-
         user = self.get_root_user()
         al = FakeContact.objects.create(user=user, first_name='Alphonse', last_name='Elric')
 
@@ -238,10 +320,8 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertIsInstance(al.pk, int)
         self.assertEqual(al.pk, FieldInfo(FakeContact, 'cremeentity_ptr_id').value_from(al))
 
-    def test_get_value_m2m(self):
+    def test_get_value__m2m(self):
         "ManyToManyField."
-        FieldInfo = meta.FieldInfo
-
         user = self.get_root_user()
         al = FakeContact.objects.create(user=user, first_name='Alphonse', last_name='Elric')
 
@@ -264,10 +344,8 @@ class FieldInfoTestCase(CremeTestCase):
             FieldInfo(FakeContact, 'languages__name').value_from(al),
         )
 
-    def test_get_value_m2m__fk(self):
+    def test_get_value__m2m__fk(self):
         "ManyToManyField + FK."
-        FieldInfo = meta.FieldInfo
-
         user1 = self.get_root_user()
         user2 = self.create_user()
         camp = FakeEmailCampaign.objects.create(user=user1, name='Camp#1')
@@ -304,10 +382,8 @@ class FieldInfoTestCase(CremeTestCase):
             FieldInfo(FakeEmailCampaign, 'mailing_lists__user_id').value_from(camp),
         )
 
-    def test_get_value_slice(self):
+    def test_get_value__slice(self):
         "After a slice."
-        FieldInfo = meta.FieldInfo
-
         user1 = self.get_root_user()
         user2 = self.create_user()
         img = FakeImage.objects.create(user=user1, name='Al Elric')
@@ -356,16 +432,16 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('modified',                   _('Last modification')),
             ('uuid',                       'uuid'),
         ]
-        enum1 = meta.ModelFieldEnumerator(CremeEntity)
+        enum1 = ModelFieldEnumerator(CremeEntity)
         self.assertEqual(CremeEntity, enum1.model)
 
         choices = enum1.choices()
         self.assertEqual(expected, choices, choices)
 
-        choices = meta.ModelFieldEnumerator(CremeEntity, only_leaves=True).choices()
+        choices = ModelFieldEnumerator(CremeEntity, only_leaves=True).choices()
         self.assertEqual(expected, choices, choices)
 
-        choices = meta.ModelFieldEnumerator(CremeEntity, only_leaves=False).choices()
+        choices = ModelFieldEnumerator(CremeEntity, only_leaves=False).choices()
         self.assertListEqual(
             [
                 ('created',                    _('Creation date')),
@@ -392,10 +468,10 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('description', _('Description')),
             ('modified',    _('Last modification')),
         ]
-        choices = meta.ModelFieldEnumerator(CremeEntity).filter(viewable=True).choices()
+        choices = ModelFieldEnumerator(CremeEntity).filter(viewable=True).choices()
         self.assertEqual(expected, choices, choices)
 
-        choices = meta.ModelFieldEnumerator(CremeEntity).exclude(viewable=False).choices()
+        choices = ModelFieldEnumerator(CremeEntity).exclude(viewable=False).choices()
         self.assertEqual(expected, choices, choices)
 
         expected = [
@@ -404,12 +480,12 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('modified',    _('Last modification')),
             ('user',        _('Owner user')),
         ]
-        choices = meta.ModelFieldEnumerator(
+        choices = ModelFieldEnumerator(
             CremeEntity, only_leaves=False,
         ).filter(viewable=True).choices()
         self.assertEqual(expected, choices, choices)
 
-        choices = meta.ModelFieldEnumerator(
+        choices = ModelFieldEnumerator(
             CremeEntity, only_leaves=False,
         ).exclude(viewable=False).choices()
         self.assertEqual(expected, choices, choices)
@@ -437,13 +513,13 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         ]
         self.assertListEqual(
             expected,
-            meta.ModelFieldEnumerator(CremeEntity, depth=1)
-                .filter(viewable=True).choices()
+            ModelFieldEnumerator(CremeEntity, depth=1).filter(viewable=True).choices(),
         )
         self.assertListEqual(
             expected,
-            meta.ModelFieldEnumerator(CremeEntity, depth=1, only_leaves=True)
-                .filter(viewable=True).choices()
+            ModelFieldEnumerator(
+                CremeEntity, depth=1, only_leaves=True,
+            ).filter(viewable=True).choices(),
         )
         self.assertListEqual(
             [
@@ -465,8 +541,9 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                 ('user__role',           fs(field=_('Role'))),
                 ('user__username',       fs(field=_('Username'))),
             ],
-            meta.ModelFieldEnumerator(CremeEntity, depth=1, only_leaves=False)
-                .filter(viewable=True).choices()
+            ModelFieldEnumerator(
+                CremeEntity, depth=1, only_leaves=False,
+            ).filter(viewable=True).choices(),
         )
 
     def test_field_enumerator__filter_function(self):
@@ -475,15 +552,17 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
 
         self.assertListEqual(
             [('modified', _('Last modification'))],
-            meta.ModelFieldEnumerator(CremeEntity, depth=1)
-                .filter(lambda model, field, depth: field.name.endswith('ied'), viewable=True)
-                .choices(),
+            ModelFieldEnumerator(CremeEntity, depth=1).filter(
+                lambda model, field, depth: field.name.endswith('ied'),
+                viewable=True,
+            ).choices(),
         )
         self.assertListEqual(
             [('description', _('Description'))],
-            meta.ModelFieldEnumerator(CremeEntity, depth=0)
-                .exclude(lambda model, field, depth: field.name.endswith('ed'), viewable=False)
-                .choices(),
+            ModelFieldEnumerator(CremeEntity, depth=0).exclude(
+                lambda model, field, depth: field.name.endswith('ed'),
+                viewable=False,
+            ).choices(),
         )
 
     def test_field_enumerator__other_ctype(self):
@@ -498,10 +577,10 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('status',      'Status'),
             ('type',        'Type'),
         ]
-        choices = meta.ModelFieldEnumerator(FakeEmailCampaign).filter(viewable=True).choices()
+        choices = ModelFieldEnumerator(FakeEmailCampaign).filter(viewable=True).choices()
         self.assertEqual(expected, choices, choices)
 
-        choices = meta.ModelFieldEnumerator(
+        choices = ModelFieldEnumerator(
             FakeEmailCampaign, only_leaves=False,
         ).filter(
             (lambda model, field, depth: field.get_internal_type() != 'ForeignKey'),
@@ -534,7 +613,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('url_site',     _('Web Site')),
         ]
 
-        enum1 = meta.ModelFieldEnumerator(
+        enum1 = ModelFieldEnumerator(
             FakeContact, only_leaves=False,
         ).filter(editable=True, viewable=True)
         self.assertEqual(FakeContact, enum1.model)
@@ -542,7 +621,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         choices1 = enum1.choices()
         self.assertEqual(expected, choices1, choices1)
 
-        choices2 = meta.ModelFieldEnumerator(
+        choices2 = ModelFieldEnumerator(
             FakeContact, only_leaves=False,
         ).exclude(editable=False, viewable=False).choices()
         self.assertEqual(expected, choices2, choices2)
@@ -551,7 +630,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         "Ordering of FKs."
         self._deactivate_translation()
 
-        choices = meta.ModelFieldEnumerator(
+        choices = ModelFieldEnumerator(
             FakeActivity, depth=1, only_leaves=False,
         ).filter(viewable=True).choices()
         fs = '[{}] - {}'.format
@@ -592,7 +671,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         "'depth' argument."
         self._deactivate_translation()
 
-        choices = meta.ModelFieldEnumerator(
+        choices = ModelFieldEnumerator(
             FakeActivity, depth=1, only_leaves=False,
         ).filter(
             (lambda model, field, depth: not depth or field.name == 'name'),
@@ -621,9 +700,9 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
     def test_field_enumerator__translation(self):
         "Translation activated."
         choices = {
-            *meta.ModelFieldEnumerator(FakeActivity, depth=1, only_leaves=False)
-                 .filter(viewable=True)
-                 .choices(),
+            *ModelFieldEnumerator(
+                FakeActivity, depth=1, only_leaves=False,
+            ).filter(viewable=True).choices(),
         }
         fs = '[{}] - {}'.format
         type_lbl = _('Activity type')
@@ -662,32 +741,32 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
 
 class OrderTestCase(CremeTestCase):
     def test_asc(self):
-        self.assertIs(meta.Order().asc,      True)
-        self.assertIs(meta.Order(True).asc,  True)
-        self.assertIs(meta.Order(False).asc, False)
+        self.assertIs(Order().asc,      True)
+        self.assertIs(Order(True).asc,  True)
+        self.assertIs(Order(False).asc, False)
 
     def test_desc(self):
-        self.assertIs(meta.Order().desc,      False)
-        self.assertIs(meta.Order(False).desc, True)
+        self.assertIs(Order().desc,      False)
+        self.assertIs(Order(False).desc, True)
 
     def test_str(self):
-        self.assertEqual('ASC', str(meta.Order()))
-        self.assertEqual('DESC', str(meta.Order(False)))
+        self.assertEqual('ASC', str(Order()))
+        self.assertEqual('DESC', str(Order(False)))
 
     def test_prefix(self):
-        self.assertEqual('', meta.Order().prefix)
-        self.assertEqual('-', meta.Order(False).prefix)
+        self.assertEqual('', Order().prefix)
+        self.assertEqual('-', Order(False).prefix)
 
     def test_from_string01(self):
-        order1 = meta.Order.from_string('ASC')
-        self.assertIsInstance(order1, meta.Order)
+        order1 = Order.from_string('ASC')
+        self.assertIsInstance(order1, Order)
         self.assertEqual('ASC', str(order1))
 
-        order2 = meta.Order.from_string('DESC')
+        order2 = Order.from_string('DESC')
         self.assertEqual('DESC', str(order2))
 
     def test_from_string02(self):
-        from_string = meta.Order.from_string
+        from_string = Order.from_string
 
         with self.assertRaises(ValueError):
             from_string('INVALID')
@@ -702,31 +781,31 @@ class OrderTestCase(CremeTestCase):
             from_string(None)
 
     def test_from_string_not_required(self):
-        order1 = meta.Order.from_string('', required=False)
-        self.assertIsInstance(order1, meta.Order)
+        order1 = Order.from_string('', required=False)
+        self.assertIsInstance(order1, Order)
         self.assertEqual('ASC', str(order1))
 
-        order2 = meta.Order.from_string(None, required=False)
+        order2 = Order.from_string(None, required=False)
         self.assertEqual('ASC', str(order2))
 
     def test_reverse(self):
-        order1 = meta.Order(True)
+        order1 = Order(True)
         order1.reverse()
         self.assertFalse(order1.asc)
 
-        order2 = meta.Order(False)
+        order2 = Order(False)
         order2.reverse()
         self.assertTrue(order2.asc)
 
     def test_reversed(self):
-        order1 = meta.Order(True)
+        order1 = Order(True)
         order2 = order1.reversed()
-        self.assertIsInstance(order2, meta.Order)
+        self.assertIsInstance(order2, Order)
         self.assertIsNot(order1, order2)
         self.assertTrue(order1.asc)
         self.assertFalse(order2.asc)
 
-        self.assertTrue(meta.Order(False).reversed().asc)
+        self.assertTrue(Order(False).reversed().asc)
 
     # TODO
     # def test_equal(self, other):

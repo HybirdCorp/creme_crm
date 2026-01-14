@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -788,7 +788,8 @@ class HistoryLine(Model):
 
         deleted_ids = set()
         paginator = FlowPaginator(
-            queryset=line_qs.order_by('id'), key='id', per_page=1024,
+            # queryset=line_qs.order_by('id'), key='id', per_page=1024,
+            queryset=line_qs.order_by('id'), per_page=1024,
         )
 
         for hlines_page in paginator.pages():
@@ -804,7 +805,8 @@ class HistoryLine(Model):
             progress = False
             qs = HistoryLine.objects.filter(type__in=related_types)
             paginator = FlowPaginator(
-                queryset=qs.order_by('id'), key='id', per_page=1024,
+                # queryset=qs.order_by('id'), key='id', per_page=1024,
+                queryset=qs.order_by('id'), per_page=1024,
             )
 
             for hlines_page in paginator.pages():

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -452,6 +452,8 @@ class QuerySorter:
 
         return cell.key, ofield.order
 
+    # TODO: factorise with utils.db.get_stable_ordering()?
+    # TODO: use model._meta.pk_fields (composite pk)?
     # TODO: what about unique_together ??
     # TODO: move to utils.meta ?
     @staticmethod

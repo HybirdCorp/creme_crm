@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2025  Hybird
+#    Copyright (C) 2016-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -98,7 +98,8 @@ class _BatchProcessType(JobType):
 
         entities = EntityCredentials.filter(job.user, entities, EntityCredentials.CHANGE)
         paginator = FlowPaginator(
-            queryset=entities.order_by('id'), key='id', per_page=1024,
+            # queryset=entities.order_by('id'), key='id', per_page=1024,
+            queryset=entities.order_by('id'), per_page=1024,
         )
         actions = [*self._get_actions(model, job_data)]
         create_result = partial(EntityJobResult.objects.create, job=job)

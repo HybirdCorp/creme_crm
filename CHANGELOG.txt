@@ -197,8 +197,12 @@
             - In the class 'StatisticsBrick', the attribute 'statistics_registry'
               has been renamed "statistic_registry".
             - The class 'JobBrick' has been removed (see 'creme_core.views.job.JobInfoBrick' instead).
-        # In the class 'creme_core.core.entity_cell.EntityCellActions' the constructor argument
-          'actions_registry' has been renamed "action_registry".
+        # In 'creme_core.core' :
+            - In the class 'entity_cell.EntityCellActions' the constructor argument
+              'actions_registry' has been renamed "action_registry".
+            - In the class 'paginator.FlowPaginator' :
+                - The 'key' cannot be set anymore; so the constructor argument & the setter have been removed.
+                - The attribute 'queryset' cannot be changed anymore.
         # In 'creme_core.forms.fields' :
             - The attribute 'EntityCredsJSONField.quickforms_registry'
               has been renamed "quickform_registry".

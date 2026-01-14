@@ -7,6 +7,7 @@ from django.db import DEFAULT_DB_ALIAS, connections
 from creme.creme_core.constants import REL_SUB_HAS
 from creme.creme_core.models import (
     CremeEntity,
+    CremeProperty,
     FakeCivility,
     FakeContact,
     FakeDocument,
@@ -14,6 +15,7 @@ from creme.creme_core.models import (
     FakeOrganisation,
     FakePosition,
     FakeSector,
+    HistoryLine,
     Language,
     Relation,
 )
@@ -22,6 +24,7 @@ from creme.creme_core.utils.db import (
     build_columns_key,
     get_indexed_ordering,
     get_indexes_columns,
+    get_stable_ordering,
     populate_related,
 )
 
@@ -592,3 +595,126 @@ class DBTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             retrieved_position1 = fetcher.get(FakePosition, position1.id)
         self.assertEqual(position1, retrieved_position1)
+
+    def test_get_stable_ordering__model_ordering(self):
+        self.assertListEqual(
+            ['last_name', 'first_name', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.all()),
+        )
+        self.assertListEqual(
+            ['name', 'cremeentity_ptr'],
+            get_stable_ordering(FakeOrganisation.objects.all()),
+        )
+        self.assertListEqual(
+            ['order', 'id'], get_stable_ordering(FakeSector.objects.all()),
+        )
+        self.assertListEqual(
+            ['id'], get_stable_ordering(HistoryLine.objects.all()),
+        )
+
+    def test_get_stable_ordering__explicit_ordering(self):
+        self.assertListEqual(
+            ['last_name', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('last_name')),
+        )
+        self.assertListEqual(
+            ['email', 'cremeentity_ptr'],
+            get_stable_ordering(FakeOrganisation.objects.order_by('email')),
+        )
+
+    def test_get_stable_ordering__fk(self):
+        self.assertListEqual(
+            ['sector__order', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('sector')),
+        )
+        self.assertListEqual(
+            ['sector_id', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('sector_id')),
+        )
+        self.assertListEqual(
+            ['image__name', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('image')),
+        )
+        self.assertListEqual(
+            ['image_id', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('image_id')),
+        )
+        self.assertListEqual(
+            ['legal_form__title', 'cremeentity_ptr'],
+            get_stable_ordering(FakeOrganisation.objects.order_by('legal_form')),
+        )
+
+    def test_get_stable_ordering__fk__sub_field(self):
+        self.assertListEqual(
+            ['image__user__username', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('image__user')),
+        )
+        self.assertListEqual(
+            ['image__user_id', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('image__user_id')),
+        )
+
+    def test_get_stable_ordering__m2m(self):
+        self.assertListEqual(
+            ['languages__name', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('languages')),
+        )
+
+    def test_get_stable_ordering__m2m__sub_field(self):
+        self.assertListEqual(
+            ['languages__name', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('languages__name')),
+        )
+
+    def test_get_stable_ordering__desc(self):
+        self.assertListEqual(
+            ['-last_name', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('-last_name')),
+        )
+        self.assertListEqual(
+            ['-sector__order', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('-sector')),
+        )
+        self.assertListEqual(
+            ['-sector__order', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('-sector__order')),
+        )
+        self.assertListEqual(
+            ['-sector_id', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('-sector_id')),
+        )
+
+    def test_get_stable_ordering__no_model_ordering(self):
+        self.assertListEqual(
+            ['address_id', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('address')),
+        )
+        self.assertListEqual(
+            ['-address_id', 'cremeentity_ptr'],
+            get_stable_ordering(FakeContact.objects.order_by('-address')),
+        )
+
+    def test_get_stable_ordering__unique_together(self):
+        self.assertEqual(
+            [('type', 'creme_entity')],
+            [*CremeProperty._meta.unique_together],
+        )
+        self.assertListEqual(
+            ['id'], get_stable_ordering(CremeProperty.objects.all()),
+        )
+        self.assertListEqual(
+            ['type_id', 'creme_entity_id'],
+            get_stable_ordering(CremeProperty.objects.order_by('type_id', 'creme_entity_id')),
+        )
+        self.assertListEqual(
+            ['created', 'creme_entity_id', 'type_id'],
+            get_stable_ordering(
+                CremeProperty.objects.order_by('created', 'creme_entity_id', 'type_id')
+            ),
+        )
+        self.assertListEqual(
+            ['created', '-creme_entity_id', 'type_id'],
+            get_stable_ordering(
+                CremeProperty.objects.order_by('created', '-creme_entity_id', 'type_id')
+            ),
+        )
