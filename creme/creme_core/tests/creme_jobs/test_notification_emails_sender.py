@@ -57,7 +57,6 @@ class NotificationEmailsSenderTestCase(CremeTestCase):
         subject1 = 'Hello...'
         body1 = '...world'
         html_body1 = '<b>world</b>!'
-        subject2 = 'Hi!'
         body2 = 'How are you?'
         create_notif = partial(
             Notification.objects.create, channel=chan, user=user, output=OUTPUT_EMAIL,
@@ -65,7 +64,7 @@ class NotificationEmailsSenderTestCase(CremeTestCase):
         notif1 = create_notif(
             content=SimpleNotifContent(subject=subject1, body=body1, html_body=html_body1),
         )
-        create_notif(content=SimpleNotifContent(subject=subject2, body=body2))
+        create_notif(content=SimpleNotifContent(subject='Hi!\nworld\r\n', body=body2))
         create_notif(
             content=SimpleNotifContent(subject='Not email', body='Ignored'),
             output=OUTPUT_WEB,
@@ -90,7 +89,7 @@ class NotificationEmailsSenderTestCase(CremeTestCase):
         self.assertFalse(message1.attachments)
         self.assertEqual(
             _('[Notification from {software}] {subject}').format(
-                software=SOFTWARE_LABEL, subject=subject2,
+                software=SOFTWARE_LABEL, subject='Hi! world',
             ),
             message1.subject,
         )

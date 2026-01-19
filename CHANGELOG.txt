@@ -2,6 +2,15 @@
 
    TODO: compile .po (creme_config)
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The job which sends notification emails has been improved to remove line breaks in subject.
+          Line breaks were avoiding the mails to be sent.
+
+
 == Version 2.6.16 ==
 
   Users side :
