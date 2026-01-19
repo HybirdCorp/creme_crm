@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -168,7 +168,7 @@ class FieldConditionSelector(ChainedInput):
 
         def is_enumerable_field(field):
             return isinstance(field, ModelRelatedField) and (
-                not issubclass(field.remote_field.model, (CremeEntity, get_user_model()))
+                not issubclass(field.remote_field.model, CremeEntity | get_user_model())
                 and field.get_tag(FieldTag.ENUMERABLE)
             )
 
