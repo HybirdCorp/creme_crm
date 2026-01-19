@@ -156,7 +156,8 @@ commands:
 
 orbs:
 # See https://circleci.com/developer/orbs/orb/circleci/browser-tools
-  browser-tools: circleci/browser-tools@2.3.2
+#  browser-tools: circleci/browser-tools@2.3.2
+  browser-tools: circleci/browser-tools@2.4.0
 
 jobs:
   python310-lint-isort:
