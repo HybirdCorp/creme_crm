@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,15 +52,20 @@ class _NotificationEmailsSenderType(JobType):
         EMAIL_SENDER = settings.EMAIL_SENDER
         messages = []
 
+        def clean_subject(subject):
+            return ' '.join(
+                stripped for line in subject.splitlines() if (stripped := line.strip())
+            )
+
         for notif in notifications:
             user = notif.user
             content = notif.content
 
             msg = EmailMultiAlternatives(
-                subject=self.subject_prefix.format(
+                subject=clean_subject(self.subject_prefix.format(
                     software=settings.SOFTWARE_LABEL,
                     subject=content.get_subject(user=user),
-                ),
+                )),
                 body=content.get_body(user=user),
                 from_email=EMAIL_SENDER,
                 to=[user.email],
@@ -75,7 +80,7 @@ class _NotificationEmailsSenderType(JobType):
             with get_connection() as connection:
                 connection.send_messages(messages)
         except Exception as e:
-            logger.critical('Error while sending reminder emails (%s)', e)
+            logger.critical('Error while sending notification emails (%s)', e)
             JobResult.objects.create(
                 job=job,
                 messages=[
