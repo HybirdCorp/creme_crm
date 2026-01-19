@@ -57,6 +57,8 @@
                 - 'JobResultsBrick', 'JobErrorsBrick' & 'EntityJobErrorsBrick' to 'creme_core.gui.job'.
                 - 'MassImportJobErrorsBrick' to 'creme_core.creme_jobs.mass_import'.
                 - 'TrashCleanerJobErrorsBrick' to 'creme_core.creme_jobs.trash_cleaner'.
+            - The method 'creme_core.core.meta.Order.reverse()' is deprecated;
+              use the method 'reversed()' instead.
             - In 'creme_core.models' :
                 - The method 'header_filter.HeaderFilterManager.create_if_needed()
                  is deprecated; use the method 'proxy()' instead.

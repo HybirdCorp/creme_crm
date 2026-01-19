@@ -23,6 +23,7 @@
 
 from __future__ import annotations
 
+import warnings
 from collections.abc import Callable
 from functools import partial
 from itertools import chain
@@ -445,6 +446,12 @@ class Order:
 
     def reverse(self) -> None:
         "Reverse the order (in-place)."
+        # TODO: make Order immutable when reverse() ahs been removed;
+        #       then make OrderedField immutable.
+        warnings.warn(
+            'The method Order.reverse() is deprecated; use reversed() instead.',
+            DeprecationWarning,
+        )
         self.asc = not self.asc
 
     def reversed(self) -> Order:
@@ -480,8 +487,6 @@ class OrderedField:
 
     def __eq__(self, other):
         return isinstance(other, type(self)) and self._raw == other._raw
-
-    # TODO: def reverse()? VS making immutable
 
     def reversed(self):
         """Returns the _OrderedField instance corresponding to the same field
