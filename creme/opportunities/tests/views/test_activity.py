@@ -11,21 +11,12 @@ from creme.activities import get_activity_model
 from creme.activities import setting_keys as act_skeys
 from creme.activities.models import ActivitySubType, Calendar, Status
 from creme.activities.tests.base import skipIfCustomActivity
-from creme.creme_core.models import (
-    ButtonMenuItem,
-    Relation,
-    RelationType,
-    SettingValue,
-)
+from creme.creme_core.models import Relation, RelationType, SettingValue
 from creme.creme_core.tests.base import skipIfNotInstalled
-from creme.creme_core.tests.views import base as view_base
+from creme.opportunities.constants import REL_SUB_LINKED_CONTACT
 from creme.persons.tests.base import skipIfCustomContact
 
-from .. import buttons
-from ..bricks import LinkedContactsBrick
-from ..constants import REL_SUB_LINKED_CONTACT
-from ..setting_keys import unsuccessful_key
-from .base import (
+from ..base import (
     Contact,
     OpportunitiesBaseTestCase,
     Opportunity,
@@ -40,9 +31,7 @@ Activity = get_activity_model()
 @skipIfCustomOpportunity
 @skipIfCustomActivity
 @skipIfCustomContact
-class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
-                                    view_base.ButtonTestCaseMixin,
-                                    OpportunitiesBaseTestCase):
+class UnsuccessfulPhoneCallCreationTestCase(OpportunitiesBaseTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -367,50 +356,3 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             self._build_add_url(self.opp),
             follow=True, data={'participant': [user_contact.id]},
         )
-
-    def test_button(self):
-        self.login_as_root()
-        ButtonMenuItem.objects.create(
-            content_type=Opportunity, order=1,
-            button=buttons.AddUnsuccessfulPhoneCallButton,
-        )
-
-        opp = self.opp
-        add_url = self._build_add_url(self.opp)
-        response = self.assertGET200(opp.get_absolute_url())
-        self.assertTrue(
-            [*self.iter_button_nodes(
-                self.get_instance_buttons_node(self.get_html_tree(response.content)),
-                tags=['a'], href=add_url,
-            )],
-            msg='<Add call> button not found!',
-        )
-
-    def test_brick_action__enabled(self):
-        self.login_as_root()
-        SettingValue.objects.set_4_key(key=unsuccessful_key, value=True)
-
-        opp = self.opp
-        response = self.assertGET200(opp.get_absolute_url())
-        brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            brick=LinkedContactsBrick,
-        )
-        self.assertInstanceLink(brick_node=brick_node, entity=self.contact1)
-
-        add_url = self._build_add_url(self.opp)
-        # TODO: better test (display on N lines...)
-        self.assertBrickHasAction(brick_node=brick_node, url=add_url, action_type='update')
-
-    def test_brick_action__disabled(self):
-        self.login_as_root()
-        self.assertSettingValueEqual(key=unsuccessful_key, value=False)
-
-        opp = self.opp
-        response = self.assertGET200(opp.get_absolute_url())
-        brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            brick=LinkedContactsBrick,
-        )
-        self.assertInstanceLink(brick_node=brick_node, entity=self.contact1)
-        self.assertBrickHasNoAction(brick_node=brick_node, url=self._build_add_url(self.opp))

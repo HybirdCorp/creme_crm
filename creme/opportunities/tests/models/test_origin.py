@@ -5,7 +5,7 @@ from django.urls import reverse
 from creme.creme_core.tests.base import CremeTestCase
 from creme.opportunities.models import Origin, SalesPhase
 
-from .base import Opportunity, Organisation, skipIfCustomOpportunity
+from ..base import Opportunity, Organisation, skipIfCustomOpportunity
 
 
 class OriginTestCase(CremeTestCase):
