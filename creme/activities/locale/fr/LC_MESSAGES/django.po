@@ -663,6 +663,13 @@ msgstr "Déplacer"
 msgid "Keep navigation state"
 msgstr "Conserver la navigation"
 
+msgid "Allow events outside business hours of a day"
+msgstr ""
+"Les évènements ne sont pas contraints par les heures de travail journalières"
+
+msgid "Allow events on all days"
+msgstr "Les évènements ne sont pas contraints par les jours travaillés"
+
 msgid "Calendar display configuration"
 msgstr "Configuration du calendrier"
 
@@ -968,6 +975,12 @@ msgstr ""
 msgid "Default configuration"
 msgstr "Configuration par défaut"
 
+msgid "Event creation and movements are limited to working days"
+msgstr "La création et le déplacement des évènements sont limités aux jours travaillés"
+
+msgid "Event creation and movements are limited to business hours"
+msgstr "La création et le déplacement des évènements sont limités aux heures travaillées"
+
 msgid "Edit this configuration"
 msgstr "Modifier cette configuration"
 
@@ -1104,8 +1117,8 @@ msgstr "Modifier la configuration"
 
 #, python-format
 msgid ""
-"This button can be placed on Activities' detail-views in the <a href="
-"\"%(config_url)s\">buttons configuration</a>.\n"
+"This button can be placed on Activities' detail-views in the <a "
+"href=\"%(config_url)s\">buttons configuration</a>.\n"
 "It allows to create a not successful Phone Call in one click."
 msgstr ""
 "Ce bouton peut être placé sur les vues détaillés des Activités dans la <a "
@@ -1193,6 +1206,16 @@ msgstr "Créer les Sociétés qui ne sont pas trouvées ?"
 
 msgid "Go to the calendar"
 msgstr "Aller au calendrier"
+
+#, python-brace-format
+msgid "{day} is not a working day."
+msgstr "{day} n'est pas un jour travaillé"
+
+#, python-brace-format
+msgid ""
+"The activity is not within the business hours range from {day_start} to "
+"{day_end}."
+msgstr "L'activité est en dehors des heures travaillées de {day_start} à {day_end}."
 
 #, python-brace-format
 msgid ""

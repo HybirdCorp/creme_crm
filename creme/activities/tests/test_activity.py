@@ -1,5 +1,5 @@
 import uuid
-from datetime import timedelta
+from datetime import time, timedelta
 from functools import partial
 
 from django.apps import apps
@@ -11,8 +11,10 @@ from django.utils.encoding import force_str
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
+from parameterized import parameterized
 from PIL.ImageColor import getrgb
 
+from creme.activities.models.config import CalendarConfigItem, Weekday
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.creme_jobs import trash_cleaner_type
 from creme.creme_core.forms import LAYOUT_REGULAR, ReadonlyMessageField
@@ -1460,6 +1462,86 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertEqual(sub_type.type_id, activity.type_id)
         self.assertEqual(sub_type.id,      activity.sub_type_id)
 
+    @parameterized.expand([
+        (  # 0
+            (2025, 7, 14), '17:30:00', (2025, 7, 14), '18:01:00', False,
+            _(
+                'The activity is not within the business hours '
+                'range from {day_start} to {day_end}.'
+            ).format(
+                day_start='08:00:00',
+                day_end='18:00:00',
+            )
+        ),
+        (  # 1
+            (2025, 7, 13), '07:30:00', (2025, 7, 13), '09:30:00', False,
+            _('{day} is not a working day.').format(day=Weekday.SUNDAY.label)
+        ),
+        (  # 2
+            (2025, 7, 13), '08:30:00', (2025, 7, 13), '09:30:00', True,
+            _('{day} is not a working day.').format(day=Weekday.SUNDAY.label)
+        ),
+        (  # 3
+            (2025, 7, 14), '09:00:00', (2025, 7, 15), '09:30:00', False,
+           _(
+                'The activity is not within the business hours '
+                'range from {day_start} to {day_end}.'
+            ).format(
+                day_start='08:00:00',
+                day_end='18:00:00',
+            )
+        ),
+        (  # 4
+            (2025, 7, 14), '09:00:00', (2025, 7, 15), '09:30:00', True, ''
+        ),
+    ])
+    def test_create_view_overtime(self, start_day, start, end_day, end, is_allday, expected):
+        "Overtime."
+        user = self.login_as_root_and_get()
+
+        config = CalendarConfigItem.objects.for_user(user)
+
+        config.allow_event_overtime = False
+        config.allow_event_anyday = False
+        config.day_start = time(8, 0, 0)
+        config.day_end = time(18, 0, 0)
+        config.save()
+
+        title = 'My call'
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
+        my_calendar = Calendar.objects.get_default_calendar(user)
+        url = reverse('activities__create_activity', args=('meeting',))
+
+        response = self.assertPOST200(
+            url,
+            follow=True,
+            data={
+                'user': user.pk,
+                'title': title,
+                self.EXTRA_SUBTYPE_KEY: sub_type.pk,
+
+                'is_all_day': is_allday,
+
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(*start_day),
+                f'{self.EXTRA_START_KEY}_1': start,
+
+                f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(*end_day),
+                f'{self.EXTRA_END_KEY}_1': end,
+
+                f'{self.EXTRA_MYPART_KEY}_0': True,
+                f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
+            }
+        )
+
+        if expected:
+            self.assertFormError(
+                self.get_form_or_fail(response),
+                field=None,
+                errors=expected,
+            )
+        else:
+            self.assertNoFormError(response)
+
     @skipIfCustomContact
     def test_related_creation_view(self):
         user = self.login_as_root_and_get()
@@ -1880,6 +1962,219 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
         self.assertEqual(sub_type2.type_id, activity.type_id)
         self.assertEqual(sub_type2.id,      activity.sub_type_id)
+
+    @parameterized.expand([
+        (  # 0
+            (2025, 7, 14), '17:30:00', (2025, 7, 14), '18:01:00', False,
+            _(
+                'The activity is not within the business hours '
+                'range from {day_start} to {day_end}.'
+            ).format(
+                day_start='08:00:00',
+                day_end='18:00:00',
+            )
+        ),
+        (  # 1
+            (2025, 7, 14), '07:59:00', (2025, 7, 14), '08:30:00', False,
+            _(
+                'The activity is not within the business hours '
+                'range from {day_start} to {day_end}.'
+            ).format(
+                day_start='08:00:00',
+                day_end='18:00:00',
+            )
+        ),
+        (  # 2
+            (2025, 7, 13), '08:30:00', (2025, 7, 13), '09:30:00', False,
+            _('{day} is not a working day.').format(day=Weekday.SUNDAY.label)
+        ),
+        (  # 3
+            (2025, 7, 13), '07:30:00', (2025, 7, 13), '09:30:00', False,
+            _('{day} is not a working day.').format(day=Weekday.SUNDAY.label)
+        ),
+        (  # 4
+            (2025, 7, 13), '08:30:00', (2025, 7, 13), '09:30:00', True,
+            _('{day} is not a working day.').format(day=Weekday.SUNDAY.label)
+        ),
+        (  # 5
+            (2025, 7, 14), '09:00:00', (2025, 7, 15), '09:30:00', False,
+           _(
+                'The activity is not within the business hours '
+                'range from {day_start} to {day_end}.'
+            ).format(
+                day_start='08:00:00',
+                day_end='18:00:00',
+            )
+        ),
+        (  # 6
+            (2025, 7, 14), '09:00:00', (2025, 7, 15), '09:30:00', True, ''
+        ),
+    ])
+    def test_editview06(self, start_day, start, end_day, end, is_allday, expected):
+        "Overtime + owner is user."
+        user = self.login_as_root_and_get()
+
+        config = CalendarConfigItem.objects.for_user(user)
+
+        config.allow_event_overtime = False
+        config.allow_event_anyday = False
+        config.day_start = time(8, 0, 0)
+        config.day_end = time(18, 0, 0)
+        config.save()
+
+        contact = user.linked_contact
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
+
+        def create_meeting(**kwargs):
+            task = Activity.objects.create(
+                user=user, type_id=sub_type.type_id, sub_type=sub_type, **kwargs
+            )
+            Relation.objects.create(
+                subject_entity=contact, user=user,
+                type_id=constants.REL_SUB_PART_2_ACTIVITY,
+                object_entity=task,
+            )
+
+            return task
+
+        create_dt = self.create_datetime
+        meeting = create_meeting(
+            title='Meeting#1',
+            start=create_dt(year=2013, month=4, day=17, hour=11, minute=0),
+            end=create_dt(year=2013,   month=4, day=17, hour=12, minute=0),
+        )
+
+        response = self.assertPOST200(
+            meeting.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user':  user.pk,
+                'title': meeting.title,
+                'busy':  True,
+                'is_all_day': is_allday,
+
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(*start_day),
+                f'{self.EXTRA_START_KEY}_1': start,
+
+                f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(*end_day),
+                f'{self.EXTRA_END_KEY}_1': end,
+
+                self.EXTRA_SUBTYPE_KEY: meeting.sub_type_id,
+            }
+        )
+        if expected:
+            self.assertFormError(
+                self.get_form_or_fail(response),
+                field=None,
+                errors=expected,
+            )
+        else:
+            self.assertNoFormError(response)
+
+    def test_editview07(self):
+        "Overtime + owner is other user."
+        user = self.create_user(role=self.get_regular_role(), password='test')
+        other_user = self.create_user(
+            username='other', index=1, role=self.get_regular_role(), password='test'
+        )
+
+        CalendarConfigItem.objects.create(
+            role=user.role,
+            allow_event_overtime=True,
+            allow_event_anyday=True,
+        )
+
+        CalendarConfigItem.objects.create(
+            role=other_user.role,
+            allow_event_overtime=False,
+            allow_event_anyday=False,
+            day_start=time(8, 0, 0),
+            day_end=time(18, 0, 0)
+        )
+
+        contact = user.linked_contact
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
+
+        def create_meeting(owner, **kwargs):
+            task = Activity.objects.create(
+                user=owner, type_id=sub_type.type_id, sub_type=sub_type, **kwargs
+            )
+            Relation.objects.create(
+                subject_entity=contact, user=owner,
+                type_id=constants.REL_SUB_PART_2_ACTIVITY,
+                object_entity=task,
+            )
+
+            return task
+
+        create_dt = self.create_datetime
+        user_meeting = create_meeting(
+            user,
+            title='Meeting#1',
+            start=create_dt(year=2013, month=4, day=17, hour=11, minute=0),
+            end=create_dt(year=2013,   month=4, day=17, hour=12, minute=0),
+        )
+        other_user_meeting = create_meeting(
+            other_user,
+            title='Meeting#2',
+            start=create_dt(year=2013, month=4, day=17, hour=11, minute=0),
+            end=create_dt(year=2013,   month=4, day=17, hour=12, minute=0),
+        )
+
+        form_data = {
+            'title': 'Meeting#3',
+            'busy':  True,
+            'is_all_day': False,
+
+            f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2025, 7, 14),
+            f'{self.EXTRA_START_KEY}_1': '17:30:00',
+
+            f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2025, 7, 14),
+            f'{self.EXTRA_END_KEY}_1': '18:01:00',
+
+            self.EXTRA_SUBTYPE_KEY: sub_type.pk,
+        }
+
+        self.assertTrue(self.client.login(username=user.username, password='test'))
+
+        # meeting is using 'user' configuration (allows anything)
+        response = self.assertPOST200(
+            user_meeting.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user': user.pk,
+                **form_data,
+            }
+        )
+
+        self.assertNoFormError(response)
+
+        # other_meeting is using 'other_user' configuration (8h-18h range only)
+        response = self.assertPOST200(
+            other_user_meeting.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user': user.pk,
+                **form_data,
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2025, 7, 16),
+                f'{self.EXTRA_START_KEY}_1': '17:30:00',
+
+                f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2025, 7, 16),
+                f'{self.EXTRA_END_KEY}_1': '18:01:00',
+            }
+        )
+
+        self.assertFormError(
+            self.get_form_or_fail(response),
+            field=None,
+            errors=_(
+                'The activity is not within the business hours '
+                'range from {day_start} to {day_end}.'
+            ).format(
+                day_start='08:00:00',
+                day_end='18:00:00',
+            ),
+        )
 
     @skipIfCustomContact
     @override_settings(ENTITIES_DELETION_ALLOWED=True)

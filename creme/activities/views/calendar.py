@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -53,6 +53,7 @@ from ..forms import calendar as calendar_forms
 from ..forms import config as config_forms
 from ..models import Calendar, CalendarConfigItem
 from ..utils import (
+    check_activity_businesshours,
     check_activity_collisions,
     get_current_utc_offset,
     get_last_day_of_a_month,
@@ -381,6 +382,7 @@ class CalendarsSelection(CalendarsMixin, generic.CheckedView):
         return HttpResponse()
 
 
+# TODO : Change the name of this class. It is too confusing
 class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView):
     """This view is used when drag & dropping Activities in the Calendar."""
     permissions = 'activities'
@@ -394,6 +396,9 @@ class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView)
 
     def get_related_entity_id(self):
         return get_from_POST_or_404(self.request.POST, key=self.activity_id_arg, cast=int)
+
+    def get_activity_owner(self, activity, user=None):
+        return activity.user if activity.user_id else user
 
     @atomic
     @method_decorator(workflow_engine)
@@ -422,12 +427,21 @@ class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView)
 
         activity.handle_all_day()
 
-        collisions = check_activity_collisions(
+        collisions = check_activity_businesshours(
+            start=activity.start,
+            end=activity.end,
+            is_allday=activity.is_all_day,
+            config=CalendarConfigItem.objects.for_user(
+                self.get_activity_owner(activity, request.user)
+            ),
+        )
+
+        collisions.extend(check_activity_collisions(
             activity.start, activity.end,
             participants=[r.object_entity for r in activity.get_participant_relations()],
             busy=activity.busy,
             exclude_activity_id=activity.id,
-        )
+        ))
 
         if collisions:
             raise ConflictError(', '.join(collisions))  # TODO: improve message?

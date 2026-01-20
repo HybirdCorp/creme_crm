@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022-2025  Hybird
+#    Copyright (C) 2022-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,11 +26,12 @@ from django.utils.timezone import localtime, make_aware
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
+from creme.activities.models.config import CalendarConfigItem
 from creme.creme_core.gui.bulk_update import FieldOverrider
 
 from .. import constants
 from ..models import ActivityType
-from ..utils import check_activity_collisions
+from ..utils import check_activity_businesshours, check_activity_collisions
 from . import fields
 
 
@@ -132,6 +133,9 @@ class RangeOverrider(FieldOverrider):
 
         return field
 
+    def get_activity_owner(self, activity, user=None):
+        return activity.user if activity.user_id else user
+
     # TODO: factorise with BaseCustomForm._clean_temporal_data() + error_messages
     def post_clean_instance(self, *, instance, value, form):
         start = end = None
@@ -211,13 +215,23 @@ class RangeOverrider(FieldOverrider):
         instance.floating_type = floating_type
 
         if start:
-            collisions = check_activity_collisions(
+            collisions = check_activity_businesshours(
+                start=start,
+                end=end,
+                is_allday=is_all_day,
+                config=CalendarConfigItem.objects.for_user(
+                    self.get_activity_owner(instance, form.user)
+                ),
+            )
+
+            collisions.extend(check_activity_collisions(
                 activity_start=start,
                 activity_end=end,
                 participants=instance.get_related_entities(constants.REL_OBJ_PART_2_ACTIVITY),
                 busy=busy,
                 exclude_activity_id=instance.id,
-            )
+            ))
+
             if collisions:
                 raise ValidationError(collisions)
 

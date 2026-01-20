@@ -99,6 +99,12 @@
                 - The JavaScript component 'creme.ActivityCalendar' has been improved :
                     - The property 'rendererDelay' (number) has been added; Improve performances by limiting the calls
                       to the rendering methods. (see https://fullcalendar.io/docs/rerenderDelay)
+                    - The property 'allowEventMove' (boolean a method) has been added.
+                    - The property 'allowEventAnyDay' (boolean or method) has been added;
+                      If false the events cannot be created/resized/moved outside working days.
+                    - The property 'allowEventOvertime' (boolean or method) has been added;
+                      If false the events cannot be created/resized/moved outside business hours of a day.
+                    - The property 'allowSelection' (boolean or method) has been added; If false the selected range is canceled.
             * Assistants :
                 - Some fields 'creation_date' & 'modification_date' have been added in models.
             * Assistants :

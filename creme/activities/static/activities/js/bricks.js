@@ -95,6 +95,8 @@ creme.ActivityCalendarBrickController = creme.component.Component.sub({
             timezoneOffset: settings.utc_offset || 0,
             allowEventMove: Boolean(settings.allow_event_move),
             allowEventCreate: Boolean(settings.allow_event_create),
+            allowEventOvertime: Boolean(settings.allow_event_overtime),
+            allowEventAnyDay: Boolean(settings.allow_event_anyday),
             headlessMode: Boolean(settings.headless_mode),
             showWeekNumber: !(settings.show_week_number === false),
             showTimezoneInfo: Boolean(settings.show_timezone_info),

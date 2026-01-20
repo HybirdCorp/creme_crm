@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import time, timedelta
 from functools import partial
 from io import StringIO
 from unittest.mock import patch
@@ -17,7 +17,7 @@ from django.utils.timezone import zoneinfo
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
-from creme.activities.models.config import CalendarConfigItem
+from creme.activities.models.config import CalendarConfigItem, Weekday
 from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.models import DeletionCommand, Job, Relation
 from creme.creme_core.tests.base import CremeTestCase
@@ -1429,6 +1429,172 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_dt = partial(self.create_datetime, year=2013, month=4, day=1)
         self.assertEqual(create_dt(hour=0),             act.start)
         self.assertEqual(create_dt(hour=23, minute=59), act.end)
+
+    @skipIfCustomActivity
+    @parameterized.expand([
+        [  # Friday not allowed
+            '2025-07-11T09:00:00',
+            '2025-07-11T10:00:00',
+            [_('{day} is not a working day.').format(day=Weekday.FRIDAY.label)]
+        ],
+        [  # Tuesday is ok
+            '2025-07-08T09:00:00', '2025-07-08T10:00:00',
+            []
+        ],
+        [  # Monday - Wednesday range is ok
+            '2025-07-07T09:00:00', '2025-07-09T10:00:00',
+            []
+        ],
+        [  # Tuesday - Friday range is not allowed
+            '2025-07-08T09:00:00', '2025-07-11T10:00:00',
+            [
+                _('{day} is not a working day.').format(day=Weekday.THURSDAY.label),
+                _('{day} is not a working day.').format(day=Weekday.FRIDAY.label),
+            ]
+        ],
+    ])
+    def test_update_activity__only_working_days(self, next_start, next_end, errors):
+        "Only working days allowed"
+        user = self.login_as_root_and_get()
+        config = CalendarConfigItem.objects.for_user(user)
+
+        config.allow_event_anyday = False
+        config.week_days = [Weekday.MONDAY, Weekday.TUESDAY, Weekday.WEDNESDAY]
+        config.save()
+
+        start = self.create_datetime(year=2025, month=7, day=7, hour=9)
+        end   = start + timedelta(hours=2)
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
+
+        act = Activity.objects.create(
+            user=user, title='Act#1', start=start, end=end,
+            type_id=sub_type.type_id, sub_type=sub_type,
+        )
+
+        url = self.UPDATE_URL
+        self.assertPOST404(url, data={'id': act.id})
+
+        response = self.client.post(
+            self.UPDATE_URL,
+            data={
+                'id':    act.id,
+                'start': next_start,
+                'end':   next_end,
+            },
+        )
+
+        if errors:
+            self.assertContains(
+                response,
+                text=', '.join(errors),
+                status_code=409,
+            )
+
+            act = self.refresh(act)
+            create_dt = partial(self.create_datetime, year=2025, month=7, day=7)
+            self.assertEqual(create_dt(hour=9),  act.start)
+            self.assertEqual(create_dt(hour=11), act.end)
+        else:
+            self.assertEqual(response.status_code, 200)
+
+    @skipIfCustomActivity
+    @parameterized.expand([
+        [  # Within 8h & 18h, ok
+            (2025, 7, 11, 9),
+            (2025, 7, 11, 10),
+            []
+        ],
+        [  # EXACTLY within 8h & 18h, ok
+            (2025, 7, 11, 8),
+            (2025, 7, 11, 18),
+            []
+        ],
+        [  # Before 8h
+            (2025, 7, 11, 7, 59, 59),
+            (2025, 7, 11, 10),
+            [
+                _(
+                    'The activity is not within the business hours '
+                    'range from {day_start} to {day_end}.'
+                ).format(
+                    day_start='08:00:00',
+                    day_end='18:00:00',
+                )
+            ]
+        ],
+        [  # After 18h
+            (2025, 7, 11, 17),
+            (2025, 7, 11, 18, 0, 1),
+            [
+                _(
+                    'The activity is not within the business hours '
+                    'range from {day_start} to {day_end}.'
+                ).format(
+                    day_start='08:00:00',
+                    day_end='18:00:00',
+                )
+            ]
+        ],
+        [  # Within hours but on multiple days
+            (2025, 7, 10, 9),
+            (2025, 7, 11, 10),
+            [
+                _(
+                    'The activity is not within the business hours '
+                    'range from {day_start} to {day_end}.'
+                ).format(
+                    day_start='08:00:00',
+                    day_end='18:00:00',
+                )
+            ]
+        ],
+    ])
+    def test_update_activity__only_business_hours(self, next_start, next_end, errors):
+        "only business hours are allowed"
+        user = self.login_as_root_and_get()
+        config = CalendarConfigItem.objects.for_user(user)
+
+        config.allow_event_overtime = False
+        config.day_start = time(8, 0, 0)
+        config.day_end = time(18, 0, 0)
+        config.save()
+
+        start = self.create_datetime(year=2025, month=7, day=7, hour=9)
+        end   = start + timedelta(hours=2)
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
+
+        act = Activity.objects.create(
+            user=user, title='Act#1', start=start, end=end,
+            type_id=sub_type.type_id, sub_type=sub_type,
+        )
+
+        next_start = CremeTestCase.create_datetime(*next_start)
+        next_end = CremeTestCase.create_datetime(*next_end)
+
+        url = self.UPDATE_URL
+        self.assertPOST404(url, data={'id': act.id})
+        response = self.client.post(
+            self.UPDATE_URL,
+            data={
+                'id':    act.id,
+                'start': next_start.isoformat(),
+                'end':   next_end.isoformat(),
+            },
+        )
+
+        if errors:
+            self.assertContains(
+                response,
+                text=', '.join(errors),
+                status_code=409,
+            )
+
+            act = self.refresh(act)
+            create_dt = partial(self.create_datetime, year=2025, month=7, day=7)
+            self.assertEqual(create_dt(hour=9),  act.start)
+            self.assertEqual(create_dt(hour=11), act.end)
+        else:
+            self.assertEqual(response.status_code, 200)
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_config_creation(self):
