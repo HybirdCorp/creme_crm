@@ -7,9 +7,8 @@ from django.utils.translation import gettext as _
 from creme.commercial.models import MarketSegment
 from creme.creme_core.models import CremePropertyType
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
-
-from ..bricks import PollCampaignRepliesBrick
-from .base import (
+from creme.polls.bricks import PollCampaignRepliesBrick
+from creme.polls.tests.base import (
     PollCampaign,
     PollForm,
     PollReply,
@@ -21,13 +20,13 @@ from .base import (
 
 
 @skipIfCustomPollCampaign
-class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
+class PollCampaignViewsTestCase(BrickTestCaseMixin, _PollsTestCase):
     @staticmethod
     def _create_segment(name, label):  # TODO: inline ?
         ptype = CremePropertyType.objects.create(text=f'is from segment "{label}"')
         return MarketSegment.objects.create(name=label, property_type=ptype)
 
-    def test_detailview(self):
+    def test_detail_view(self):
         user = self.login_as_root_and_get()
         camp = PollCampaign.objects.create(user=user, name='Camp#1')
         response = self.assertGET200(camp.get_absolute_url())
@@ -42,7 +41,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
             _('Filled form replies'), self.get_brick_title(brick_node),
         )
 
-    def test_detailview__some_replies(self):
+    def test_detail_view__some_replies(self):
         user = self.login_as_root_and_get()
         camp = PollCampaign.objects.create(user=user, name='Camp', expected_count=2)
         pform = PollForm.objects.create(user=user, name='Form')
@@ -143,7 +142,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(due_date, camp.due_date)
         self.assertEqual(expected_count, camp.expected_count)
 
-    def test_listview(self):
+    def test_list_view(self):
         user = self.login_as_root_and_get()
         create_camp = partial(PollCampaign.objects.create, user=user)
         camps = [create_camp(name='Camp#%d' % i) for i in range(3)]
