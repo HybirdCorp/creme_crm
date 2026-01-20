@@ -15,7 +15,7 @@ from creme.persons.tests.base import (
     skipIfCustomOrganisation,
 )
 
-from .base import (
+from ..base import (
     Contact,
     OpportunitiesBaseTestCase,
     Opportunity,
@@ -27,12 +27,12 @@ from .base import (
 @skipIfCustomOpportunity
 @skipIfCustomContact
 @skipIfCustomOrganisation
-class RelatedContactTestCase(OpportunitiesBaseTestCase):
+class RelatedContactCreationTestCase(OpportunitiesBaseTestCase):
     @staticmethod
     def _build_url(opp):
         return reverse('opportunities__create_related_contact', args=(opp.id,))
 
-    def test_create_related_contact__not_employed(self):
+    def test_not_employed(self):
         "Not employed by the target Organisation."
         user = self.login_as_root_and_get()
         opp, target, emitter = self._create_opportunity_n_organisations(user=user)
@@ -75,7 +75,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         self.assertHaveRelation(subject=contact, type=REL_SUB_LINKED_CONTACT, object=opp)
         self.assertHaveNoRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=target)
 
-    def test_create_related_contact__employed(self):
+    def test_employed(self):
         "Employed by the target Organisation."
         user = self.login_as_root_and_get()
         opp, target, emitter = self._create_opportunity_n_organisations(user=user)
@@ -116,7 +116,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(mobile, contact.mobile)
         self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=target)
 
-    def test_create_related_contact__contact_receiver(self):
+    def test_contact_receiver(self):
         "Target is a Contact."
         user = self.login_as_root_and_get()
         opp, target, emitter = self._create_opportunity_n_organisations(user=user, contact=True)
@@ -146,7 +146,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         )
         self.assertHaveNoRelation(contact, type=REL_SUB_EMPLOYED_BY, object=target)
 
-    def test_create_related_contact__creation_perms(self):
+    def test_creation_perms(self):
         "No credentials to create the Contact."
         user = self.login_as_standard(
             allowed_apps=('persons', 'opportunities'),
@@ -167,7 +167,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         ([Opportunity, Organisation], False),  # No credentials to link the (future) Contact.
         ([Contact, Organisation],     True),   # No credentials to link the opportunity.
     ])
-    def test_create_related_contact__link_perms(self, allowed_models, error_403):
+    def test_link_perms(self, allowed_models, error_403):
         "No credentials to link the Organisation."
         user = self.login_as_standard(
             allowed_apps=('persons', 'opportunities'),
@@ -194,7 +194,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
 
             self.assertNotIn('is_employed', fields)
 
-    def test_create_related_contact__required_custom_field(self):
+    def test_required_custom_field(self):
         user = self.login_as_root_and_get()
 
         create_cf = partial(
@@ -215,7 +215,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         self.assertIsInstance(cf2_f, IntegerField)
         self.assertTrue(cf2_f.required)
 
-    def test_create_related_contact__disabled_rtype(self):
+    def test_disabled_rtype(self):
         "The relation type is disabled."
         user = self.login_as_root_and_get()
         opp = self._create_opportunity_n_organisations(user=user)[0]

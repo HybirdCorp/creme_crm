@@ -13,7 +13,7 @@ from creme.persons.tests.base import (
     skipIfCustomOrganisation,
 )
 
-from .base import (
+from ..base import (
     Contact,
     OpportunitiesBaseTestCase,
     Opportunity,

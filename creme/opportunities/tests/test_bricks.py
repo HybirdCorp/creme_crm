@@ -2,6 +2,7 @@ from decimal import Decimal
 from functools import partial
 
 from django.conf import settings
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
@@ -11,9 +12,13 @@ from creme.creme_core.models import (
     BrickDetailviewLocation,
     FieldsConfig,
     Relation,
+    RelationType,
+    SettingValue,
 )
+from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.opportunities import bricks, constants
+from creme.opportunities.setting_keys import unsuccessful_key
 from creme.persons import get_contact_model
 from creme.persons.tests.base import (
     skipIfCustomContact,
@@ -298,6 +303,56 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         self.assertNoInstanceLink(brick_node, contact3)
         self.assertNoInstanceLink(brick_node, contact4)
         self.assertNoInstanceLink(brick_node, contact5)
+
+    def _aux_unsuccessful_action(self):
+        from .base import Contact
+
+        user = self.login_as_root_and_get()
+        contact = Contact.objects.create(
+            user=user, first_name='Musashi', last_name='Miyamoto',
+        )
+        opp = self._create_opportunity_n_organisations(user=user, name='My Opp')[0]
+
+        Relation.objects.create(
+            subject_entity=contact,
+            user=user,
+            type=RelationType.objects.get(id=constants.REL_SUB_LINKED_CONTACT),
+            object_entity=opp,
+        )
+
+        return opp, contact
+
+    @skipIfNotInstalled('creme.activities')
+    def test_linked_contacts__unsuccessful_phone_call_action__enabled(self):
+        opp, contact = self._aux_unsuccessful_action()
+        SettingValue.objects.set_4_key(key=unsuccessful_key, value=True)
+
+        response = self.assertGET200(opp.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=bricks.LinkedContactsBrick,
+        )
+        self.assertInstanceLink(brick_node=brick_node, entity=contact)
+
+        add_url = reverse('opportunities__create_unsuccessful_phone_call', args=(opp.id,))
+        # TODO: better test (display on N lines...)
+        self.assertBrickHasAction(brick_node=brick_node, url=add_url, action_type='update')
+
+    @skipIfNotInstalled('creme.activities')
+    def test_linked_contacts__unsuccessful_phone_call_action__disabled(self):
+        opp, contact = self._aux_unsuccessful_action()
+        self.assertSettingValueEqual(key=unsuccessful_key, value=False)
+
+        response = self.assertGET200(opp.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=bricks.LinkedContactsBrick,
+        )
+        self.assertInstanceLink(brick_node=brick_node, entity=contact)
+        self.assertBrickHasNoAction(
+            brick_node=brick_node,
+            url=reverse('opportunities__create_unsuccessful_phone_call', args=(opp.id,)),
+        )
 
     # TODO: test title (several cases)
     def test_targeting(self):

@@ -7,7 +7,7 @@ from django.utils.translation import gettext as _
 from creme.creme_core.tests.base import CremeTestCase
 from creme.opportunities.models import SalesPhase
 
-from .base import Opportunity, Organisation, skipIfCustomOpportunity
+from ..base import Opportunity, Organisation, skipIfCustomOpportunity
 
 
 class SalesPhaseTestCase(CremeTestCase):
