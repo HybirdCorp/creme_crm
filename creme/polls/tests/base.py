@@ -78,3 +78,58 @@ class _PollsTestCase(CremeTestCase):
             )
 
         return create_line
+
+    @staticmethod
+    def _build_preplies_from_pform_url(pform):
+        return reverse('polls__create_replies_from_pform', args=(pform.id,))
+
+    @staticmethod
+    def _build_fill_url(preply):
+        return reverse('polls__fill_reply', args=(preply.id,))
+
+    def _create_pform_with_3_lines_for_conditions(self, user):
+        self.pform = pform = PollForm.objects.create(user=user, name='Form#1')
+        ENUM = PollLineType.ENUM
+        create_l = self._get_formline_creator(pform=pform)
+        choices = [[1, 'A little bit'], [2, 'A lot']]
+
+        return (
+            create_l('How do you like swallows ?', qtype=ENUM, choices=choices),
+            create_l('How do you like parrots ?',  qtype=ENUM, choices=choices),
+            create_l('Do you love all birds ?',    qtype=PollLineType.STRING, conds_use_or=False),
+        )
+
+    def _create_preply(self, *, user, ptype=None):
+        pform = PollForm.objects.create(user=user, name='Form#1', type=ptype)
+        return PollReply.objects.create(user=user, pform=pform, name='Reply#1', type=ptype)
+
+    def _create_preply_from_pform(self, pform, name='Reply#1'):
+        self.assertNoFormError(self.client.post(
+            self._build_preplies_from_pform_url(pform),
+            data={
+                'user': pform.user.id,   # TODO: "user" argument?
+                'name': name,
+            },
+        ))
+
+        return self.get_object_or_fail(PollReply, name=name)
+
+    def _fill_preply(self, preply, *answers, **kwargs):
+        assert answers, 'Give at least one answer dude'
+        url = self._build_fill_url(preply)
+        response = None
+        check_errors = kwargs.get('check_errors', True)
+        not_applicable = kwargs.get('not_applicable', False)
+
+        for answer in answers:
+            data = {**answer} if isinstance(answer, dict) else {'answer': answer}
+
+            if not_applicable:
+                data['not_applicable'] = 'on'
+
+            response = self.assertPOST200(url, follow=True, data=data)
+
+            if check_errors:
+                self.assertNoFormError(response)
+
+        return response
