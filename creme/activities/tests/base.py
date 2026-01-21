@@ -4,14 +4,10 @@ from unittest import skipIf
 from django.urls import reverse
 
 from creme import persons
-from creme.activities.constants import (
-    UUID_SUBTYPE_MEETING_NETWORK,
-    UUID_TYPE_MEETING,
-)
 from creme.activities.models import ActivitySubType, ActivityType, Calendar
 from creme.creme_core.tests.base import CremeTestCase
 
-from .. import activity_model_is_custom, get_activity_model
+from .. import activity_model_is_custom, constants, get_activity_model
 
 skip_activities_tests = activity_model_is_custom()
 Activity = get_activity_model()
@@ -58,7 +54,7 @@ class _ActivitiesTestCase(CremeTestCase):
     def _create_activity_by_view(self,
                                  user,
                                  title='My task',
-                                 subtype=UUID_SUBTYPE_MEETING_NETWORK,
+                                 subtype=constants.UUID_SUBTYPE_MEETING_NETWORK,
                                  **kwargs):
         if isinstance(subtype, str):
             subtype = ActivitySubType.objects.get(uuid=subtype)
@@ -83,14 +79,14 @@ class _ActivitiesTestCase(CremeTestCase):
     def _create_meeting(self,
                         user,
                         title='Meeting01',
-                        subtype=UUID_SUBTYPE_MEETING_NETWORK,
+                        subtype=constants.UUID_SUBTYPE_MEETING_NETWORK,
                         hour=14,
                         **kwargs):
         create_dt = self.create_datetime
         return Activity.objects.create(
             user=user,
             title=title,
-            type=ActivityType.objects.get(uuid=UUID_TYPE_MEETING),
+            type=ActivityType.objects.get(uuid=constants.UUID_TYPE_MEETING),
             sub_type=(
                 ActivitySubType.objects.get(uuid=subtype)
                 if isinstance(subtype, str) else
@@ -99,6 +95,37 @@ class _ActivitiesTestCase(CremeTestCase):
             start=create_dt(year=2013, month=4, day=1, hour=hour,     minute=0),
             end=create_dt(year=2013,   month=4, day=1, hour=hour + 1, minute=0),
             **kwargs
+        )
+
+    def _create_phonecall(self,
+                          user,
+                          title='Call01',
+                          subtype=constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
+                          hour=14):
+        create_dt = self.create_datetime
+        return Activity.objects.create(
+            user=user,
+            title=title,
+            type=ActivityType.objects.get(uuid=constants.UUID_TYPE_PHONECALL),
+            sub_type=(
+                self._get_sub_type(uid=subtype)
+                if isinstance(subtype, str) else
+                subtype
+            ),
+            start=create_dt(year=2013, month=4, day=1, hour=hour, minute=0),
+            end=create_dt(year=2013,   month=4, day=1, hour=hour, minute=15),
+        )
+
+    def _create_task(self, user, title='Task01', day=1):
+        create_dt = self.create_datetime
+        atype = ActivityType.objects.get(uuid=constants.UUID_TYPE_TASK)
+        return Activity.objects.create(
+            user=user,
+            title=title,
+            type=atype,
+            sub_type=ActivitySubType.objects.filter(type=atype).first(),
+            start=create_dt(year=2013, month=4, day=day, hour=8,  minute=0),
+            end=create_dt(year=2013,   month=4, day=day, hour=18, minute=0),
         )
 
     def _get_type(self, uid: str) -> ActivityType:

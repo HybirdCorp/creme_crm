@@ -1,7 +1,50 @@
+from django.template import Context, Template
 from django.urls import reverse
+from django.utils.translation import gettext as _
+from PIL.ImageColor import getrgb
 
-from ..models import ActivitySubType, ActivityType
-from .base import _ActivitiesTestCase
+from creme.activities.models import ActivitySubType, ActivityType, Status
+from creme.creme_core.gui.view_tag import ViewTag
+
+from ..base import Activity, _ActivitiesTestCase
+
+
+class StatusTestCase(_ActivitiesTestCase):
+    def test_color(self):
+        status1 = Status(name='OK')
+        color1 = status1.color
+        self.assertIsInstance(color1, str)
+        self.assertEqual(6, len(color1))
+
+        with self.assertNoException():
+            getrgb(f'#{color1}')
+
+        # ---
+        status2 = Status(name='KO')
+        self.assertNotEqual(color1, status2.color)
+
+    def test_render(self):
+        user = self.get_root_user()
+        status = Status.objects.create(name='OK', color='00FF00')
+        ctxt = {
+            'user': user,
+            'activity': Activity(user=user, title='OK Ticket', status=status),
+        }
+        template = Template(
+            r'{% load creme_core_tags %}'
+            r'{% print_field object=activity field="status" tag=tag %}'
+        )
+        self.assertEqual(
+            status.name,
+            template.render(Context({**ctxt, 'tag': ViewTag.TEXT_PLAIN})).strip()
+        )
+        self.assertHTMLEqual(
+            f'<div class="ui-creme-colored_status">'
+            f' <div class="ui-creme-color_indicator" style="background-color:#{status.color};" />'
+            f' <span>{status.name}</span>'
+            f'</div>',
+            template.render(Context({**ctxt, 'tag': ViewTag.HTML_DETAIL})),
+        )
 
 
 class ActivityTypeTestCase(_ActivitiesTestCase):
@@ -145,3 +188,48 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
             self.client.post(url, data={'type': atype.id, 'name': name})
         )
         self.assertEqual(name, self.refresh(satype).name)
+
+    def test_delete_type__not_used(self):
+        self.login_as_root()
+
+        atype = ActivityType.objects.create(
+            name='Karate session',
+            default_day_duration=0, default_hour_duration='00:15:00',
+            is_custom=True,
+        )
+        response = self.client.post(reverse(
+            'creme_config__delete_instance',
+            args=('activities', 'activity_type', atype.id),
+        ))
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(ActivityType).job
+        job.type.execute(job)
+        self.assertDoesNotExist(atype)
+
+    def test_delete_type__used(self):
+        user = self.login_as_root_and_get()
+
+        atype = ActivityType.objects.create(
+            name='Karate session',
+            default_day_duration=0,
+            default_hour_duration='00:15:00',
+            is_custom=True,
+        )
+        sub_type = ActivitySubType.objects.create(
+            type=atype,
+            name='Kick session',
+            is_custom=True,
+        )
+
+        Activity.objects.create(user=user, type=atype, sub_type=sub_type)
+
+        response = self.assertPOST200(reverse(
+            'creme_config__delete_instance',
+            args=('activities', 'activity_type', atype.id),
+        ))
+        self.assertFormError(
+            self.get_form_or_fail(response),
+            field='replace_activities__activity_type',
+            errors=_('Deletion is not possible.'),
+        )
