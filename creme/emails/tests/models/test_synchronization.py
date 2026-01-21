@@ -1,5 +1,6 @@
 from creme.emails.models import EmailSyncConfigItem
-from creme.emails.tests.base import _EmailsTestCase
+
+from ..base import _EmailsTestCase
 
 
 class SynchronizationModelsTestCase(_EmailsTestCase):

@@ -1,6 +1,5 @@
 from datetime import timedelta
 from functools import partial
-from os.path import basename
 
 from django.core import mail as django_mail
 from django.utils.timezone import now
@@ -8,59 +7,16 @@ from django.utils.timezone import now
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.models import Job
-from creme.documents.tests.base import DocumentsTestCaseMixin
 from creme.emails.creme_jobs import workflow_emails_send_type
 from creme.emails.models import EmailSignature, WorkflowEmail
+from creme.emails.tests.base import _EmailsTestCase
 
-from ..base import _EmailsTestCase
 
-
-class WorkflowEmailTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
+class WorkflowEmailsSendTypeTestCase(_EmailsTestCase):
     def _get_job(self):
         return self.get_object_or_fail(Job, type_id=workflow_emails_send_type.id)
 
-    def test_create_n_send(self):
-        user = self.login_as_root_and_get()
-
-        doc = self._create_doc(title='Attachment #1', user=user)
-        sender = 'jet.black@bebop.ura'
-        recipient = 'spike.spiegel@bebop.ura'
-        subject = 'This is subject'
-        body = 'My body is ready'
-        body_html = 'My body is <b>ready</b>'
-        wf_email = WorkflowEmail.objects.create(
-            sender=sender, recipient=recipient, subject=subject,
-            body=body, body_html=body_html,
-        )
-        wf_email.attachments.set([doc])
-        self.assertEqual(sender,    wf_email.sender)
-        self.assertEqual(recipient, wf_email.recipient)
-        self.assertEqual(subject,   wf_email.subject)
-        self.assertEqual(body,      wf_email.body)
-        self.assertEqual(body_html, wf_email.body_html)
-        self.assertIsNone(wf_email.sending_date)
-        self.assertEqual(wf_email.Status.NOT_SENT, wf_email.status)
-
-        wf_email.send()
-
-        wf_email = self.refresh(wf_email)
-        self.assertEqual(wf_email.Status.SENT, wf_email.status)
-        self.assertDatetimesAlmostEqual(now(), wf_email.sending_date)
-
-        messages = django_mail.outbox
-        self.assertEqual(len(messages), 1)
-
-        message = messages[0]
-        self.assertEqual(sender,      message.from_email)
-        self.assertEqual([recipient], message.recipients())
-        self.assertEqual(subject,     message.subject)
-        self.assertBodiesEqual(message, body=body, body_html=body_html)
-        self.assertListEqual(
-            [(basename(doc.filedata.name), f'{doc.title}: Content', 'text/plain')],
-            message.attachments[1:],  # 0 is for bodies
-        )
-
-    def test_job__send(self):
+    def test_send(self):
         self.assertFalse(WorkflowEmail.objects.all())
 
         queue = get_queue()
@@ -128,7 +84,7 @@ class WorkflowEmailTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
             workflow_emails_send_type.next_wakeup(job=job, now_value=now())
         )
 
-    def test_job__retry(self):
+    def test_retry(self):
         self.assertFalse(WorkflowEmail.objects.all())
 
         job = self._get_job()
@@ -152,7 +108,7 @@ class WorkflowEmailTestCase(DocumentsTestCaseMixin, _EmailsTestCase):
         self.assertEqual(wf_email.Status.SENT, wf_email.status)
         self.assertDatetimesAlmostEqual(now(), wf_email.sending_date)
 
-    def test_job__remove_old_emails(self):
+    def test_remove_old_emails(self):
         self.assertFalse(WorkflowEmail.objects.all())
 
         now_value = now()

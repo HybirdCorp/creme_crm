@@ -1,12 +1,9 @@
-from copy import deepcopy
 from datetime import timedelta
 from functools import partial
 
-from django import forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail as django_mail
-from django.core.validators import EmailValidator
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import date_format
@@ -33,15 +30,8 @@ from creme.creme_core.models import (
     Notification,
 )
 from creme.creme_core.models.history import TYPE_AUX_CREATION
-from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
-from creme.persons.models import Civility
-from creme.persons.tests.base import (
-    skipIfCustomContact,
-    skipIfCustomOrganisation,
-)
-
-from ..bricks import (
+from creme.emails.bricks import (
     LwMailPopupBrick,
     LwMailsHistoryBrick,
     MailsBrick,
@@ -50,16 +40,20 @@ from ..bricks import (
     SendingHTMLBodyBrick,
     SendingsBrick,
 )
-from ..creme_jobs import campaign_emails_send_type
-from ..forms.sending import SendingConfigField
-from ..models import (
+from creme.emails.creme_jobs import campaign_emails_send_type
+from creme.emails.models import (
     EmailRecipient,
     EmailSending,
     EmailSendingConfigItem,
     LightWeightEmail,
 )
-from ..notification import CampaignSentContent
-from .base import (
+from creme.persons.models import Civility
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
+
+from ..base import (
     Contact,
     EmailCampaign,
     EmailTemplate,
@@ -72,54 +66,11 @@ from .base import (
 )
 
 
-class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
+class EmailSendingConfigItemViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     DEL_CONF_URL = reverse('emails__delete_sending_config_item')
 
     def _build_password_edition_url(self, item):
         return reverse('emails__set_sending_config_item_password', args=(item.id,))
-
-    def test_model(self):
-        name = 'Config #1'
-        password = 'c0w|3OY B3b0P'
-        item = EmailSendingConfigItem.objects.create(
-            name=name,
-            host='pop.mydomain.org',
-            username='spike',
-            password=password,
-            port=25,
-            use_tls=False,
-        )
-        self.assertEqual(name, item.name)
-        self.assertEqual(name, str(item))
-
-        with self.assertNoException():
-            _ = EmailSendingConfigItem._meta.get_field('encoded_password')
-
-        self.assertNotIn(
-            'password',
-            {f.name for f in EmailSendingConfigItem._meta.concrete_fields},
-        )
-
-        item = self.refresh(item)
-        self.assertNotEqual(password, item.encoded_password)
-        self.assertEqual(password, item.password)
-
-        # Bad signature ---
-        item.encoded_password = 'invalid'
-
-        with self.assertLogs(level='CRITICAL') as logs_manager:
-            password = item.password
-
-        self.assertEqual('', password)
-        self.assertListEqual(
-            logs_manager.output,
-            [
-                f'CRITICAL:'
-                f'creme.emails.models.sending:'
-                f'issue with password of EmailSendingConfigItem with id={item.id}: '
-                f'SymmetricEncrypter.decrypt: invalid token'
-            ],
-        )
 
     def test_creme_config_portal(self):
         self.login_as_root()
@@ -442,153 +393,10 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertStillExists(item)
 
 
-class SendingConfigFieldTestCase(CremeTestCase):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        create_config = EmailSendingConfigItem.objects.create
-        cls.item1 = create_config(
-            name='Config #1',
-            host='smail.mydomain.org',
-            username='jet',
-            password='c0w|3OY B3b0P',
-            default_sender='jet@mydomain.org',
-        )
-        cls.item2 = create_config(
-            name='Config #2',
-            host='smtp.mydomain.org',
-            username='spike',
-            password='sp4c3 c0w|3OY',
-        )
-
-    def test_configuration_class(self):
-        email1 = 'jet@mydomain.org'
-        conf1 = SendingConfigField.Configuration(item=self.item1, sender=email1)
-        self.assertEqual(self.item1, conf1.item)
-        self.assertEqual(email1,     conf1.sender)
-
-        email2 = 'spike@mydomain.org'
-        conf2 = SendingConfigField.Configuration(item=self.item2, sender=email2)
-        self.assertEqual(self.item2, conf2.item)
-        self.assertEqual(email2,     conf2.sender)
-
-        self.assertTrue(bool(conf1))
-        self.assertNotEqual(conf1, None)
-        self.assertNotEqual(conf1, conf2)
-        self.assertEqual(
-            SendingConfigField.Configuration(item=self.item1, sender=email1),
-            conf1,
-        )
-        self.assertNotEqual(
-            SendingConfigField.Configuration(item=self.item2, sender=email1),
-            conf1,
-        )
-        self.assertNotEqual(
-            SendingConfigField.Configuration(item=self.item1, sender=email2),
-            conf1,
-        )
-
-    def test_ok(self):
-        item1 = self.item1
-        item2 = self.item2
-        field = SendingConfigField()
-
-        self.assertListEqual(
-            [
-                (str(item1.id), item1.name, {'default_sender': item1.default_sender}),
-                (str(item2.id), item2.name, {'default_sender': ''}),
-            ],
-            [*field.widget.choices],
-        )
-
-        sender = 'jet@mydomain.org'
-        self.assertEqual(
-            SendingConfigField.Configuration(item=item1, sender=sender),
-            field.clean([item1.id, sender]),
-        )
-
-    def test_ok__init(self):
-        sender = 'spike@mydomain.org'
-        item = self.item2
-        self.assertEqual(
-            SendingConfigField.Configuration(item=item, sender=sender),
-            SendingConfigField().clean([item.id, sender]),
-        )
-
-    def test_required(self):
-        field = SendingConfigField()
-        msg = _('This field is required.')
-        self.assertFormfieldError(
-            field=field, messages=msg, codes='required', value=['', ''],
-        )
-        self.assertFormfieldError(
-            field=field, messages=msg, codes='required', value=None,
-        )
-        self.assertFormfieldError(
-            field=field, messages=msg, codes='required', value=[self.item1.id, ''],
-        )
-        self.assertFormfieldError(
-            field=field, messages=msg, codes='required', value=['', 'spike@mydomain.org'],
-        )
-
-    def test_not_required(self):
-        clean = SendingConfigField(required=False).clean
-        self.assertIsNone(clean(['', '']))
-        self.assertIsNone(clean(['']))
-        self.assertIsNone(clean([]))
-        self.assertIsNone(clean(None))
-        self.assertIsNone(clean([self.item1.id, '']))
-        self.assertIsNone(clean(['', 'spike@mydomain.org']))
-
-    def test_invalid_pk(self):
-        self.assertFormfieldError(
-            field=SendingConfigField(),
-            value=[self.UNUSED_PK, 'spike@mydomain.org'],
-            messages=forms.ModelChoiceField.default_error_messages['invalid_choice'],
-            codes='invalid_choice',
-        )
-
-    def test_invalid_email(self):
-        self.assertFormfieldError(
-            field=SendingConfigField(),
-            value=[self.item1.id, 'not an email'],
-            messages=EmailValidator.message,
-            codes='invalid',
-        )
-
-    def test_widget(self):
-        field1 = SendingConfigField()
-        item1 = self.item1
-        item2 = self.item2
-        expected = [
-            (str(item1.id), item1.name, {'default_sender': item1.default_sender}),
-            (str(item2.id), item2.name, {'default_sender': item2.default_sender}),
-        ]
-        self.assertListEqual(expected, [*field1.widget.choices])
-        self.assertEqual(2, len(field1.queryset))  # We force the evaluation of the queryset
-
-        field2 = deepcopy(field1)
-        item3 = EmailSendingConfigItem.objects.create(
-            name='Config #3',
-            host='smtp2.mydomain.org',
-            username='faye',
-            password='c0w|3OY B3b0P',
-            default_sender='faye@mydomain.org',
-        )
-        self.assertEqual(3, len(field2.queryset))
-        self.assertListEqual(
-            [
-                *expected,
-                (str(item3.id), item3.name, {'default_sender': item3.default_sender}),
-            ],
-            [*field2.widget.choices],
-        )
-
-
 @skipIfCustomEmailCampaign
 @skipIfCustomEmailTemplate
 @skipIfCustomMailingList
-class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
+class EmailSendingCreationTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @staticmethod
     def _build_add_url(campaign):
         return reverse('emails__create_sending', args=(campaign.id,))
@@ -1182,7 +990,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         self.assertDatetimesAlmostEqual(sending_date, sending.sending_date, seconds=60)
 
-    def test_creation__body_with_varibales(self):
+    def test_creation__body_with_variables(self):
         user = self.login_as_root_and_get()
         item = EmailSendingConfigItem.objects.create(
             name='Config #1',
@@ -1231,6 +1039,9 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         self.assertGET404(self._build_add_url(nerv))
 
+
+@skipIfCustomEmailCampaign
+class EmailSendingOtherViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_edition(self):
         user = self.login_as_root_and_get()
 
@@ -1299,7 +1110,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
         self.assertGET409(sending.get_edit_absolute_url())
 
-    def test_view_lw_email__regular_user(self):
+    def test_detail_views__regular_user(self):
         user = self.login_as_emails_user()
         self.add_credentials(user.role, own=['VIEW'])
 
@@ -1327,7 +1138,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         response = self.assertGET200(reverse('emails__view_lw_mail', args=(lw_mail.id,)))
         self.assertEqual(_('Details of the email'), response.context.get('title'))
 
-    def test_view_lw_email__error(self):
+    def test_detail_views__error(self):
         "Cannot view the campaign => error."
         user = self.login_as_emails_user()
         self.add_credentials(user.role, own=['VIEW'])
@@ -1460,239 +1271,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     #     self.assertGET404(build_uri(sending, 'sender'))
     #     self.assertGET404(build_uri(sending, 'type'))
     #     self.assertGET404(build_uri(sending, 'sending_date'))
-
-    def test_next_wakeup__several_deferred(self):
-        "Several deferred sendings."
-        user = self.login_as_root_and_get()
-        job = self._get_job()
-        camp = EmailCampaign.objects.create(user=user, name='camp01')
-
-        now_value = now()
-        create_sending = partial(
-            EmailSending.objects.create, campaign=camp,
-            type=EmailSending.Type.DEFERRED, state=EmailSending.State.PLANNED,
-        )
-        create_sending(sending_date=now_value + timedelta(weeks=2))
-        sending1 = create_sending(sending_date=now_value + timedelta(weeks=1))
-        create_sending(sending_date=now_value + timedelta(weeks=3))
-
-        wakeup = job.type.next_wakeup(job, now_value)
-        self.assertIsNotNone(wakeup)
-        self.assertDatetimesAlmostEqual(sending1.sending_date, wakeup)
-
-    def test_next_wakeup__deferred_past(self):
-        "A deferred sending with passed sending_date."
-        user = self.login_as_root_and_get()
-        job = self._get_job()
-        camp = EmailCampaign.objects.create(user=user, name='camp01')
-        now_value = now()
-
-        EmailSending.objects.create(
-            campaign=camp,
-            type=EmailSending.Type.DEFERRED, state=EmailSending.State.PLANNED,
-            sending_date=now_value - timedelta(hours=1),
-        )
-
-        self.assertLess(job.type.next_wakeup(job, now_value), now_value)
-
-    @override_settings(SITE_DOMAIN='https://creme.domain')
-    def test_campaign_sent_content(self):
-        user = self.login_as_root_and_get()
-        camp = EmailCampaign.objects.create(user=user, name='Camp #01')
-
-        content1 = CampaignSentContent(instance=camp)
-        content2 = CampaignSentContent.from_dict(content1.as_dict())
-
-        self.assertEqual(
-            _('An emailing campaign has been sent'),
-            content2.get_subject(user=user),
-        )
-        self.assertEqual(
-            _('The campaign «%(campaign)s» has been sent') % {'campaign': camp},
-            content2.get_body(user=user),
-        )
-        self.assertHTMLEqual(
-            _('The campaign %(campaign)s has been sent') % {
-                'campaign': (
-                    f'<a href="https://creme.domain{camp.get_absolute_url()}" target="_self">'
-                    f'{camp}'
-                    f'</a>'
-                ),
-            },
-            content2.get_html_body(user=user),
-        )
-
-    def test_campaign_sent_content__error(self):
-        "Campaign does not exist anymore."
-        user = self.get_root_user()
-        content = CampaignSentContent.from_dict({'instance': self.UNUSED_PK})
-        body = _('The campaign has been deleted')
-        self.assertEqual(body, content.get_body(user=user))
-        self.assertEqual(body, content.get_html_body(user=user))
-
-    @skipIfCustomContact
-    def test_job__deferred(self):
-        "Deferred => notification."
-        user = self.login_as_root_and_get()
-        item = EmailSendingConfigItem.objects.create(
-            name='Config #1',
-            host='smail.mydomain.org',
-            username='jet@mydomain.org',
-            password='c0w|3OY B3b0P',
-        )
-        camp = EmailCampaign.objects.create(user=user, name='Camp #001')
-        sending = EmailSending.objects.create(
-            config_item=item,
-            sender='vicious@reddragons.mrs',
-            campaign=camp,
-            type=EmailSending.Type.DEFERRED,
-            sending_date=now() - timedelta(hours=1),
-            subject='Subject',
-            body='My body is ready!',
-        )
-        LightWeightEmail(
-            sending=sending,
-            sender=sending.sender,
-            recipient='spike.spiegel@bebop.com',
-            sending_date=sending.sending_date,
-        ).genid_n_save()
-
-        self._send_mails(self._get_job())
-        self.assertEqual(1, len(django_mail.outbox))
-
-        notif = self.get_object_or_fail(
-            Notification, user=user, channel__uuid=UUID_CHANNEL_JOBS,
-        )
-        self.assertEqual(CampaignSentContent.id, notif.content_id)
-        self.assertDictEqual({'instance': camp.id}, notif.content_data)
-
-    @skipIfCustomContact
-    def test_job__deleted_campaign(self):
-        user = self.login_as_root_and_get()
-        job = self._get_job()
-        item = EmailSendingConfigItem.objects.create(
-            name='Config #1',
-            host='smail.mydomain.org',
-            username='jet@mydomain.org',
-            password='c0w|3OY B3b0P',
-        )
-        camp = EmailCampaign.objects.create(user=user, name='camp01')
-        template = EmailTemplate.objects.create(
-            user=user, name='name', subject='subject', body='body',
-        )
-        mlist = MailingList.objects.create(user=user, name='ml01')
-        contact = Contact.objects.create(
-            user=user, email='spike.spiegel@bebop.com',
-            first_name='Spike', last_name='Spiegel',
-        )
-
-        camp.mailing_lists.add(mlist)
-        mlist.contacts.add(contact)
-
-        response = self.client.post(
-            self._build_add_url(camp),
-            data={
-                'config_0': item.id,
-                'config_1': 'vicious@reddragons.mrs',
-
-                'type':     EmailSending.Type.IMMEDIATE,
-                'template': template.id,
-            },
-        )
-        self.assertNoFormError(response)
-        self.assertFalse(django_mail.outbox)
-
-        camp.trash()
-        self.assertIsNone(job.type.next_wakeup(job, now()))
-
-        self._send_mails(job)
-        self.assertFalse(django_mail.outbox)
-
-    @skipIfCustomContact
-    def test_job__deleted_config(self):
-        user = self.login_as_root_and_get()
-        job = self._get_job()
-        item = EmailSendingConfigItem.objects.create(
-            name='Config #1',
-            host='smail.mydomain.org',
-            username='jet@mydomain.org',
-            password='c0w|3OY B3b0P',
-        )
-        camp = EmailCampaign.objects.create(user=user, name='camp01')
-        template = EmailTemplate.objects.create(
-            user=user, name='name', subject='subject', body='body',
-        )
-        mlist = MailingList.objects.create(user=user, name='ml01')
-        contact = Contact.objects.create(
-            user=user, email='spike.spiegel@bebop.com',
-            first_name='Spike', last_name='Spiegel',
-        )
-
-        camp.mailing_lists.add(mlist)
-        mlist.contacts.add(contact)
-
-        self.assertNoFormError(self.client.post(
-            self._build_add_url(camp),
-            data={
-                'config_0': item.id,
-                'config_1': 'vicious@reddragons.mrs',
-
-                'type':     EmailSending.Type.IMMEDIATE,
-                'template': template.id,
-            },
-        ))
-
-        item.delete()
-        self.assertStillExists(camp)
-
-        sending = self.get_alone_element(camp.sendings_set.all())
-        self.assertEqual(EmailSending.State.PLANNED, sending.state)
-        self.assertIsNone(sending.config_item)
-
-        self._send_mails(job)
-        self.assertFalse(django_mail.outbox)
-        self.assertEqual(EmailSending.State.ERROR, self.refresh(sending).state)
-        # TODO: error in job results
-
-    def test_refresh_job__work(self):
-        "Restore campaign with sending which has to be sent."
-        user = self.login_as_root_and_get()
-        job = self._get_job()
-        camp = EmailCampaign.objects.create(user=user, name='camp01', is_deleted=True)
-
-        EmailSending.objects.create(
-            campaign=camp,
-            type=EmailSending.Type.DEFERRED, state=EmailSending.State.PLANNED,
-            sending_date=now() - timedelta(hours=1),
-        )
-
-        queue = get_queue()
-        queue.clear()
-
-        camp.restore()
-        self.assertFalse(self.refresh(camp).is_deleted)
-        self.assertTrue(getattr(camp.restore, 'alters_data', False))
-
-        jobs = queue.refreshed_jobs
-        self.assertEqual(1, len(jobs))
-        self.assertEqual(job, jobs[0][0])
-
-    def test_refresh_job__no_work(self):
-        "Restore campaign with sending which does not have to be sent."
-        user = self.login_as_root_and_get()
-        camp = EmailCampaign.objects.create(user=user, name='camp01', is_deleted=True)
-
-        EmailSending.objects.create(
-            campaign=camp,
-            type=EmailSending.Type.DEFERRED, state=EmailSending.State.DONE,
-            sending_date=now() - timedelta(hours=1),
-        )
-
-        queue = get_queue()
-        queue.clear()
-
-        camp.restore()
-        self.assertFalse(queue.refreshed_jobs)
 
     def test_lw_mails_history(self):
         user = self.login_as_emails_user(allowed_apps=['persons'])
