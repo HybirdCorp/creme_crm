@@ -3,26 +3,28 @@ from django.utils.translation import gettext as _
 from creme.creme_core.models import FieldsConfig
 from creme.persons.tests.base import skipIfCustomContact
 
-from ..constants import (
-    REL_SUB_MAIL_RECEIVED,
-    REL_SUB_MAIL_SENT,
-    REL_SUB_RELATED_TO,
-)
+from .. import constants
 from .base import Contact, EntityEmail, Organisation, _EmailsTestCase
 
 
 class EmailsTestCase(_EmailsTestCase):
     def test_populate(self):
         self.get_relationtype_or_fail(
-            REL_SUB_MAIL_RECEIVED, [EntityEmail], [Organisation, Contact],
+            pk=constants.REL_SUB_MAIL_RECEIVED,
+            sub_models=[EntityEmail],
+            obj_models=[Organisation, Contact],
         )
         self.get_relationtype_or_fail(
-            REL_SUB_MAIL_SENT, [EntityEmail], [Organisation, Contact],
+            pk=constants.REL_SUB_MAIL_SENT,
+            sub_models=[EntityEmail],
+            obj_models=[Organisation, Contact],
         )
-        self.get_relationtype_or_fail(REL_SUB_RELATED_TO, [EntityEmail])
+        self.get_relationtype_or_fail(
+            pk=constants.REL_SUB_RELATED_TO, sub_models=[EntityEmail],
+        )
 
     @skipIfCustomContact
-    def test_fieldconfigs_warning(self):
+    def test_field_configs_warning(self):
         "If Contact/Organisation.email is hidden => warning."
         self.login_as_root()
 
