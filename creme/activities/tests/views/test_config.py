@@ -7,124 +7,29 @@ from parameterized import parameterized
 
 from creme.activities.bricks import CalendarConfigItemsBrick
 from creme.activities.models import CalendarConfigItem
-from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 
-class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
-    ADD_URL = reverse('activities__add_calendar_settings')
-    DELETE_URL = reverse('activities__delete_calendar_settings')
+class CalendarConfigItemViewsTestCase(BrickTestCaseMixin, CremeTestCase):
+    CREATION_URL = reverse('activities__add_calendar_settings')
+    DELETION_URL = reverse('activities__delete_calendar_settings')
 
     @staticmethod
-    def _build_edit_url(item):
+    def _build_edition_url(item):
         return reverse('activities__edit_calendar_settings', args=(item.id,))
 
-    def create_if_needed(self, *, role, superuser, **kwargs):
+    def _create_item_if_needed(self, *, role, superuser, **kwargs):
         return CalendarConfigItem.objects.get_or_create(
             role=role, superuser=superuser, defaults=kwargs,
         )[0]
 
-    def for_superuser(self):
+    def _get_for_superuser(self):
         return CalendarConfigItem.objects.filter(
             role__isnull=True, superuser=True,
         ).first()
 
-    def test_as_dict(self):
-        self.assertDictEqual(
-            {
-                'view': 'month',
-                'view_day_start': '00:00',
-                'view_day_end': '24:00',
-                'week_days': [1, 2, 3, 4, 5, 6],
-                'week_start': 1,
-                'day_start': '08:00',
-                'day_end': '18:00',
-                'slot_duration': '00:15:00',
-                'allow_event_move': True,
-                'allow_keep_state': False,
-                'extra_data': {},
-            },
-            CalendarConfigItem().as_dict(),
-        )
-
-    def test_missing_default(self):
-        CalendarConfigItem.objects.all().delete()
-
-        with self.assertRaises(ConflictError) as cm1:
-            CalendarConfigItem.objects.get_default()
-
-        self.assertEqual(
-            str(cm1.exception),
-            _('The default configuration for calendar is not populated.'),
-        )
-
-        # ---
-        user = self.create_user(role=self.get_regular_role())
-
-        with self.assertRaises(ConflictError) as cm2:
-            CalendarConfigItem.objects.for_user(user)
-
-        self.assertEqual(
-            str(cm2.exception),
-            _('The default configuration for calendar is not populated.'),
-        )
-
-    def test_default(self):
-        CalendarConfigItem.objects.all().delete()
-
-        week_default = CalendarConfigItem.objects.create(
-            superuser=False, role=None, view='week',
-        )
-        default = CalendarConfigItem.objects.get_default()
-        self.assertEqual(default.pk, week_default.pk)
-        self.assertDictEqual(week_default.as_dict(), default.as_dict())
-
-    def test_for_user(self):
-        role = self.get_regular_role()
-        user = self.create_user(role=role)
-        other_user = self.create_user(username='other', role=self.create_role(name='Other role'))
-        super_user = self.get_root_user()
-
-        default_dict = CalendarConfigItem.objects.get_default().as_dict()
-        self.assertDictEqual(
-            default_dict, CalendarConfigItem.objects.for_user(user).as_dict(),
-        )
-        self.assertDictEqual(
-            default_dict, CalendarConfigItem.objects.for_user(other_user).as_dict(),
-        )
-        self.assertDictEqual(
-            default_dict, CalendarConfigItem.objects.for_user(super_user).as_dict(),
-        )
-
-        # ---
-        role_dict = self.create_if_needed(
-            role=role, superuser=False, view='week', week_days=(1, 2, 4, 5),
-        ).as_dict()
-        self.assertDictEqual(
-            role_dict, CalendarConfigItem.objects.for_user(user).as_dict(),
-        )
-        self.assertDictEqual(
-            default_dict, CalendarConfigItem.objects.for_user(other_user).as_dict(),
-        )
-        self.assertDictEqual(
-            default_dict, CalendarConfigItem.objects.for_user(super_user).as_dict(),
-        )
-
-        # ---
-        superuser_config = self.create_if_needed(role=None, superuser=True, view='week')
-        self.assertDictEqual(
-            role_dict, CalendarConfigItem.objects.for_user(user).as_dict(),
-        )
-        self.assertDictEqual(
-            default_dict, CalendarConfigItem.objects.for_user(other_user).as_dict()
-        )
-        self.assertDictEqual(
-            superuser_config.as_dict(),
-            CalendarConfigItem.objects.for_user(super_user).as_dict(),
-        )
-
-    def test_config_portal(self):
+    def test_portal(self):
         self.login_as_root()
 
         response = self.assertGET200(
@@ -140,16 +45,16 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             plural_title='{count} Configured calendar views',
         )
 
-    def test_config_create__not_allowed(self):
+    def test_creation__not_allowed(self):
         self.login_as_standard()
-        self.assertGET403(self.ADD_URL)
+        self.assertGET403(self.CREATION_URL)
 
-    def test_config_create__role_choices(self):
+    def test_creation__role_choices(self):
         self.login_as_root()
         role1 = self.get_regular_role()
         role2 = self.create_role(name='Other')
 
-        url = self.ADD_URL
+        url = self.CREATION_URL
         response1 = self.assertGET200(url)
 
         with self.assertNoException():
@@ -166,7 +71,7 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         # ---
-        self.create_if_needed(role=None, superuser=True)
+        self._create_item_if_needed(role=None, superuser=True)
 
         role_choices2 = self.assertGET200(url).context['form'].fields['role'].choices
         self.assertInChoices(
@@ -178,7 +83,7 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotInChoices(value='', choices=role_choices2)
 
         # ---
-        self.create_if_needed(role=role1, superuser=False)
+        self._create_item_if_needed(role=role1, superuser=False)
 
         role_choices3 = self.assertGET200(url).context['form'].fields['role'].choices
         self.assertInChoices(
@@ -188,23 +93,23 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotInChoices(value='',       choices=role_choices3)
 
         # ---
-        self.create_if_needed(role=role2, superuser=False)
+        self._create_item_if_needed(role=role2, superuser=False)
         self.assertFalse(
             [*self.assertGET200(url).context['form'].fields['role'].choices],
         )
 
-    def test_config_create__clone_default(self):
+    def test_creation__clone_default(self):
         self.login_as_root()
 
         default = CalendarConfigItem.objects.get_default()
-        url = self.ADD_URL
+        url = self.CREATION_URL
         self.assertDictEqual(
             default.as_dict(),
             self.assertGET200(url).context['form'].instance.as_dict(),
         )
 
         # Now customize the default configuration ---
-        new_default = self.create_if_needed(
+        new_default = self._create_item_if_needed(
             role=None, superuser=False, view='week', week_days=(1, 2, 4, 5),
         )
         self.assertDictEqual(
@@ -260,13 +165,13 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             }
         ),
     ])
-    def test_config_create__day_range(self, options, expected):
+    def test_creation__day_range(self, options, expected):
         self.login_as_root()
 
         default = CalendarConfigItem.objects.get_default()
 
         response = self.client.post(
-            self.ADD_URL,
+            self.CREATION_URL,
             data={
                 **default.as_dict(),
                 'role': '',
@@ -359,13 +264,13 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             ]
         ),
     ])
-    def test_config_create__day_range_errors(self, options, expected):
+    def test_creation__day_range_errors(self, options, expected):
         self.login_as_root()
 
         default = CalendarConfigItem.objects.get_default()
 
         response = self.client.post(
-            self.ADD_URL,
+            self.CREATION_URL,
             data={
                 **default.as_dict(),
                 'role': '',
@@ -379,14 +284,14 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertFormError(response.context['form'], None, expected)
 
-    def test_config_create_superuser(self):
+    def test_creation__superuser(self):
         self.login_as_root()
         role = self.get_regular_role()
 
         default = CalendarConfigItem.objects.get_default()
-        self.assertIsNone(self.for_superuser())
+        self.assertIsNone(self._get_for_superuser())
 
-        url = self.ADD_URL
+        url = self.CREATION_URL
         role_choices = self.assertGET200(url).context['form'].fields['role'].choices
         self.assertEqual(2, len(role_choices))
         self.assertInChoices(
@@ -411,7 +316,7 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         ))
 
-        superuser_config = self.for_superuser()
+        superuser_config = self._get_for_superuser()
         self.assertDictEqual(
             {
                 **default.as_dict(),
@@ -427,12 +332,12 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             superuser_config.as_dict(),
         )
 
-    def test_config_create_for_role(self):
+    def test_creation__for_role(self):
         self.login_as_root()
         role = self.get_regular_role()
         default = CalendarConfigItem.objects.get_default()
 
-        url = self.ADD_URL
+        url = self.CREATION_URL
         role_field = self.assertGET200(url).context['form'].fields['role']
         self.assertListEqual(
             [('', f'*{_("Superuser")}*'), (role.id, str(role))],
@@ -472,22 +377,16 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             config.as_dict(),
         )
 
-    def test_config_edit__not_allowed(self):
-        self.login_as_standard()
-
-        default = CalendarConfigItem.objects.get_default()
-        self.assertGET403(self._build_edit_url(default))
-
-    def test_config_edit(self):
+    def test_edition(self):
         self.login_as_root()
 
         default = CalendarConfigItem.objects.get_default()
-        role_config = self.create_if_needed(
+        role_config = self._create_item_if_needed(
             role=self.get_regular_role(), superuser=False,
             view='week', week_days=(1, 2, 4, 5),
         )
 
-        url = self._build_edit_url(role_config)
+        url = self._build_edition_url(role_config)
         self.assertGET200(url)
 
         # ---
@@ -522,17 +421,23 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             role_config.as_dict(),
         )
 
-    def test_config_edit__errors(self):
+    def test_edition__not_allowed(self):
+        self.login_as_standard()
+
+        default = CalendarConfigItem.objects.get_default()
+        self.assertGET403(self._build_edition_url(default))
+
+    def test_edition__errors(self):
         self.login_as_root()
 
         default = CalendarConfigItem.objects.get_default()
-        role_config = self.create_if_needed(
+        role_config = self._create_item_if_needed(
             role=self.get_regular_role(), superuser=False,
             view='week', week_days=(1, 2, 4, 5),
         )
 
         response = self.client.post(
-            self._build_edit_url(role_config),
+            self._build_edition_url(role_config),
             data={
                 **default.as_dict(),
                 'role': '',
@@ -555,7 +460,7 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
         ])
 
         response = self.client.post(
-            self._build_edit_url(role_config),
+            self._build_edition_url(role_config),
             data={
                 **default.as_dict(),
                 'role': '',
@@ -577,28 +482,28 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
             )
         ])
 
-    def test_config_delete__not_allowed(self):
+    def test_deletion__not_allowed(self):
         self.login_as_standard()
 
-        config = self.create_if_needed(
+        config = self._create_item_if_needed(
             role=self.get_regular_role(), superuser=False,
             view='week', week_days=(1, 2, 4, 5),
         )
-        self.assertPOST403(self.DELETE_URL, data={'id': config.id})
+        self.assertPOST403(self.DELETION_URL, data={'id': config.id})
 
-    def test_config_delete(self):
+    def test_deletion(self):
         self.login_as_root()
 
-        config = self.create_if_needed(
+        config = self._create_item_if_needed(
             role=self.get_regular_role(), superuser=False,
             view='week', week_days=(1, 2, 4, 5),
         )
-        self.assertPOST200(self.DELETE_URL, data={'id': config.id})
+        self.assertPOST200(self.DELETION_URL, data={'id': config.id})
         self.assertDoesNotExist(config)
 
-    def test_config_delete__default(self):
+    def test_deletion__default(self):
         self.login_as_root()
 
         config = CalendarConfigItem.objects.get_default()
-        self.assertPOST409(self.DELETE_URL, data={'id': config.id})
+        self.assertPOST409(self.DELETION_URL, data={'id': config.id})
         self.assertStillExists(config)

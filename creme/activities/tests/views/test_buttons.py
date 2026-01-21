@@ -6,59 +6,26 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-from creme.creme_core.models import ButtonMenuItem, SettingValue
-from creme.creme_core.tests.views import base as view_base
-from creme.persons.tests.base import skipIfCustomContact
-
-from .. import buttons, constants, setting_keys
-from ..bricks import UnsuccessfulButtonConfigBrick
-from ..models import ActivitySubType, Calendar, Status
-from .base import (
+from creme.activities import buttons, constants, setting_keys
+from creme.activities.bricks import UnsuccessfulButtonConfigBrick
+from creme.activities.models import ActivitySubType, Calendar, Status
+from creme.activities.tests.base import (
     Activity,
     Contact,
     Organisation,
     _ActivitiesTestCase,
     skipIfCustomActivity,
 )
+from creme.creme_core.models import ButtonMenuItem, SettingValue
+from creme.creme_core.tests.views import base as view_base
+from creme.persons.tests.base import skipIfCustomContact
 
 
-@skipIfCustomActivity
-@skipIfCustomContact
-class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
-                                    view_base.ButtonTestCaseMixin,
-                                    _ActivitiesTestCase):
-    EDIT_CONFIG_URL = reverse('activities__edit_unsuccessful_call_settings')
+class UnsuccessfulPhoneCallConfigViewsTestCase(view_base.BrickTestCaseMixin,
+                                               _ActivitiesTestCase):
+    CONFIG_EDITION_URL = reverse('activities__edit_unsuccessful_call_settings')
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        cls.contact = Contact.objects.create(
-            user=cls.get_root_user(), first_name='Musashi', last_name='Miyamoto',
-        )
-
-    def _build_add_url(self, contact):
-        return reverse('activities__create_unsuccessful_phone_call', args=(contact.id,))
-
-    def test_populate(self):
-        self.assertSettingValueEqual(
-            key=setting_keys.unsuccessful_subtype_key,
-            value=constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
-        )
-        self.assertSettingValueEqual(
-            key=setting_keys.unsuccessful_title_key,
-            value=_('Unsuccessful call'),
-        )
-        self.assertSettingValueEqual(
-            key=setting_keys.unsuccessful_status_key,
-            value=constants.UUID_STATUS_UNSUCCESSFUL,
-        )
-        self.assertSettingValueEqual(
-            key=setting_keys.unsuccessful_duration_key,
-            value=3,
-        )
-
-    def test_config__brick(self):
+    def test_portal(self):
         self.login_as_root()
 
         response = self.assertGET200(
@@ -73,10 +40,10 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         )
         # TODO: test brick content
 
-    def test_config__edition_default(self):
+    def test_edition__default(self):
         self.login_as_standard(allowed_apps=['activities'], admin_4_apps=['activities'])
 
-        url = self.EDIT_CONFIG_URL
+        url = self.CONFIG_EDITION_URL
         context1 = self.assertGET200(url).context
         self.assertEqual(_('Edit the configuration of the button'), context1.get('title'))
         self.assertEqual(_('Save the modifications'), context1.get('submit_label'))
@@ -136,7 +103,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             key=setting_keys.unsuccessful_duration_key, value=2,
         )
 
-    def test_config__edition_custom(self):
+    def test_edition__custom(self):
         self.login_as_root()
 
         sub_type = ActivitySubType.objects.get(
@@ -159,7 +126,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             key=setting_keys.unsuccessful_duration_key, value=duration,
         )
 
-        context = self.assertGET200(self.EDIT_CONFIG_URL).context
+        context = self.assertGET200(self.CONFIG_EDITION_URL).context
 
         with self.assertNoException():
             fields = context['form'].fields
@@ -173,10 +140,10 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         self.assertEqual(status.id, status_f.initial)
         self.assertEqual(2, duration_f.initial)
 
-    def test_config__edition_errors(self):
+    def test_edition__errors(self):
         self.login_as_root()
 
-        url = self.EDIT_CONFIG_URL
+        url = self.CONFIG_EDITION_URL
         data = {
             'sub_type': self.get_object_or_fail(
                 ActivitySubType, uuid=constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
@@ -229,7 +196,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             },
         )
 
-    def test_config__edition_invalid_initial_sub_type(self):
+    def test_edition__invalid_initial__sub_type(self):
         self.login_as_root()
 
         sub_type_uuid = uuid4()
@@ -239,7 +206,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             key=setting_keys.unsuccessful_subtype_key, value=str(sub_type_uuid),
         )
 
-        url = self.EDIT_CONFIG_URL
+        url = self.CONFIG_EDITION_URL
         response1 = self.assertGET200(url)
 
         with self.assertNoException():
@@ -258,7 +225,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             sub_type_f2 = response2.context['form'].fields['sub_type']
         self.assertIsNone(sub_type_f2.initial)
 
-    def test_config__edition_invalid_initial_status(self):
+    def test_edition__invalid_initial__status(self):
         self.login_as_root()
 
         status_uuid = uuid4()
@@ -268,7 +235,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             key=setting_keys.unsuccessful_status_key, value=str(status_uuid),
         )
 
-        response1 = self.assertGET200(self.EDIT_CONFIG_URL)
+        response1 = self.assertGET200(self.CONFIG_EDITION_URL)
 
         with self.assertNoException():
             status_f1 = response1.context['form'].fields['status']
@@ -279,17 +246,17 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             key=setting_keys.unsuccessful_status_key, value='invalid-uuid',
         )
 
-        response2 = self.assertGET200(self.EDIT_CONFIG_URL)
+        response2 = self.assertGET200(self.CONFIG_EDITION_URL)
 
         with self.assertNoException():
             status_f2 = response2.context['form'].fields['status']
         self.assertIsNone(status_f2.initial)
 
-    def test_config__permission(self):
+    def test_edition__forbidden(self):
         self.login_as_standard(allowed_apps=['activities'])  # admin_4_apps=['activities']
-        self.assertGET403(self.EDIT_CONFIG_URL)
+        self.assertGET403(self.CONFIG_EDITION_URL)
 
-    def test_config__setting_values_are_hidden(self):
+    def test_setting_values_are_hidden(self):
         self.login_as_root()
 
         def assertEditionFailed(key):
@@ -303,7 +270,23 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         assertEditionFailed(key=setting_keys.unsuccessful_status_key)
         assertEditionFailed(key=setting_keys.unsuccessful_duration_key)
 
-    def test_creation__default(self):
+
+@skipIfCustomActivity
+@skipIfCustomContact
+class UnsuccessfulPhoneCallTestCase(view_base.ButtonTestCaseMixin,
+                                    _ActivitiesTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.contact = Contact.objects.create(
+            user=cls.get_root_user(), first_name='Musashi', last_name='Miyamoto',
+        )
+
+    def _build_creation_url(self, contact):
+        return reverse('activities__create_unsuccessful_phone_call', args=(contact.id,))
+
+    def test_default(self):
         user = self.login_as_root_and_get()
         activities_count = Activity.objects.count()
 
@@ -312,7 +295,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         )
 
         contact = self.contact
-        add_url = self._build_add_url(contact)
+        add_url = self._build_creation_url(contact)
 
         detail_response = self.assertGET200(contact.get_absolute_url())
         self.assertTrue(
@@ -351,7 +334,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             [*activity.calendars.all()],
         )
 
-    def test_creation__custom(self):
+    def test_custom(self):
         "Custom values stored in SettingValues."
         user = self.login_as_activities_user(creatable_models=[Activity])
         self.add_credentials(user.role, all=['VIEW', 'LINK'])
@@ -376,7 +359,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             key=setting_keys.unsuccessful_duration_key, value=duration,
         )
 
-        self.assertPOST200(self._build_add_url(self.contact))
+        self.assertPOST200(self._build_creation_url(self.contact))
 
         activity = self.get_object_or_fail(
             Activity, type=sub_type.type, sub_type=sub_type, title=title,
@@ -387,7 +370,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         self.assertDatetimesAlmostEqual(end, now())
         self.assertEqual(end - timedelta(minutes=duration), activity.start)
 
-    def test_creation__type_error(self):
+    def test_type_error(self):
         self.login_as_root()
 
         sub_type_uuid = uuid4()
@@ -396,7 +379,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             key=setting_keys.unsuccessful_subtype_key, value=str(sub_type_uuid),
         )
 
-        response = self.client.post(self._build_add_url(self.contact))
+        response = self.client.post(self._build_creation_url(self.contact))
         self.assertContains(
             response,
             _(
@@ -407,7 +390,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             html=True,
         )
 
-    def test_creation__status_error(self):
+    def test_status_error(self):
         self.login_as_root()
 
         status_uuid = uuid4()
@@ -416,7 +399,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             key=setting_keys.unsuccessful_status_key, value=str(status_uuid),
         )
 
-        response = self.client.post(self._build_add_url(self.contact))
+        response = self.client.post(self._build_creation_url(self.contact))
         self.assertContains(
             response,
             _(
@@ -427,10 +410,10 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             html=True,
         )
 
-    def test_creation__contact_is_self(self):
+    def test_contact_is_self(self):
         user = self.login_as_root_and_get()
 
-        response = self.client.post(self._build_add_url(user.linked_contact))
+        response = self.client.post(self._build_creation_url(user.linked_contact))
         self.assertContains(
             response,
             _(
@@ -441,7 +424,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             html=True,
         )
 
-    def test_creation__long_title(self):
+    def test_long_title(self):
         self.login_as_root()
 
         self.assertEqual(100, Activity._meta.get_field('title').max_length)
@@ -453,7 +436,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         self.assertGreater(len(title), 100)
         SettingValue.objects.set_4_key(key=setting_keys.unsuccessful_title_key, value=title)
 
-        self.assertPOST200(self._build_add_url(self.contact))
+        self.assertPOST200(self._build_creation_url(self.contact))
 
         activity = Activity.objects.order_by('-id').first()
         self.assertIsNotNone(activity)
@@ -463,23 +446,23 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             activity.title,
         )
 
-    def test_creation__app_perm(self):
+    def test_app_perm(self):
         user = self.login_as_standard(allowed_apps=['persons'])  # 'activities'
         self.add_credentials(user.role, all=['VIEW', 'LINK'])
-        self.assertPOST403(self._build_add_url(self.contact))
+        self.assertPOST403(self._build_creation_url(self.contact))
 
-    def test_creation__creation_perm(self):
+    def test_creation_perm(self):
         user = self.login_as_standard(allowed_apps=['persons', 'activities'])
         self.add_credentials(user.role, all=['VIEW', 'LINK'])
-        self.assertPOST403(self._build_add_url(self.contact))
+        self.assertPOST403(self._build_creation_url(self.contact))
 
-    def test_creation__link_perm(self):
+    def test_link_perm(self):
         user = self.login_as_activities_user(creatable_models=[Activity])
         self.add_credentials(user.role, all='!LINK')
-        self.assertPOST403(self._build_add_url(self.contact))
+        self.assertPOST403(self._build_creation_url(self.contact))
 
-    def test_creation__bad_ctype(self):
+    def test_bad_ctype(self):
         user = self.login_as_root_and_get()
-        self.assertPOST404(self._build_add_url(
+        self.assertPOST404(self._build_creation_url(
             Organisation.objects.create(user=user, name='Miyamoto')
         ))

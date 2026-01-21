@@ -6,20 +6,19 @@ from django.forms import Field
 from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
-from creme.activities.forms.fields import ActivitySubTypeField
-from creme.activities.models.activity import Activity
-from creme.creme_core.forms.enumerable import NO_LIMIT
-from creme.creme_core.forms.widgets import Label
-from creme.creme_core.tests.base import CremeTestCase
-
-from .. import constants
-from ..forms.fields import (
+from creme.activities import constants
+from creme.activities.forms.fields import (
+    ActivitySubTypeField,
     DateWithOptionalTimeField,
     ParticipatingUsersField,
     UserParticipationField,
 )
-from ..models import ActivitySubType, ActivityType, Calendar
-from .base import _ActivitiesTestCase
+from creme.activities.models import ActivitySubType, ActivityType, Calendar
+from creme.creme_core.forms.enumerable import NO_LIMIT
+from creme.creme_core.forms.widgets import Label
+from creme.creme_core.tests.base import CremeTestCase
+
+from ..base import Activity, _ActivitiesTestCase
 
 
 class ActivitySubTypeFieldTestCase(_ActivitiesTestCase):
