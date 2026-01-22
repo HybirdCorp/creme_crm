@@ -939,27 +939,183 @@ class EnumerableTestCase(CremeTestCase):
             {'label': 'Rust', 'value': lang_C.pk},
         ], enum.choices(user, only=[lang_A.pk, lang_C.pk]))
 
-    def test_entity_ctypefk_enumerator(self):
+    def test_ctype_fk_enumerator__no_allowed_models_attr(self):
         user = self.user
-        enum = enumerators.EntityCTypeForeignKeyEnumerator(FakeReport._meta.get_field('ctype'))
-        all_ctype_choices = ctype_choices(entity_ctypes())
+        enum = enumerators.CTypeForeignKeyEnumerator(
+            ForeignKey(  # <===
+                ContentType, on_delete=models.CASCADE, verbose_name='Type of resource',
+            )
+        )
 
-        fake_contact_ct = ContentType.objects.get_for_model(FakeContact)
-        fake_orga_ct = ContentType.objects.get_for_model(FakeOrganisation)
+        with self.assertLogs(level='CRITICAL') as logs_manager:
+            choices = enum.choices(user)
 
-        self.assertListEqual([
-            {'label': label, 'value': ct_id} for ct_id, label in all_ctype_choices
-        ], enum.choices(user))
+        self.assertListEqual(
+            [{'value': 0, 'label': _('Error (please contact your administrator)')}],
+            choices,
+        )
+        self.assertIn(
+            'This enumerator is made to be used with CTypeForeignKey.',
+            logs_manager.output[0],
+        )
 
-        self.assertListEqual([
-            {'label': 'Test Contact', 'value': fake_contact_ct.pk},
-        ], enum.choices(user, term='test contact'))
+        # To_python
+        get_ct = ContentType.objects.get_for_model
+        contact_ct = get_ct(FakeContact)
+        orga_ct    = get_ct(FakeOrganisation)
+        self.assertListEqual(
+            [], enum.to_python(user, values=[contact_ct.pk]),
+        )
+        self.assertListEqual(
+            [], enum.to_python(user, values=[contact_ct.pk, orga_ct.pk]),
+        )
 
-        self.assertListEqual([
-            {'label': label, 'value': ct_id} for ct_id, label in all_ctype_choices[:2]
-        ], enum.choices(user, limit=2))
+    def test_ctype_fk_enumerator__empty_allowed_models(self):
+        user = self.user
+        enum = enumerators.CTypeForeignKeyEnumerator(CTypeForeignKey(
+            verbose_name='Type of resource',
+            # allowed_models=_registered_models,  # <===
+        ))
 
-        self.assertListEqual([
-            {'label': 'Test Contact', 'value': fake_contact_ct.pk},
-            {'label': 'Test Organisation', 'value': fake_orga_ct.pk},
-        ], enum.choices(user, only=[fake_contact_ct.pk, fake_orga_ct.pk]))
+        with self.assertLogs(level='CRITICAL') as logs_manager:
+            choices = enum.choices(user)
+
+        self.assertListEqual(
+            [{'value': 0, 'label': _('Error (please contact your administrator)')}],
+            choices,
+        )
+        self.assertIn(
+            'seems to be a CTypeForeignKey without narrowed models',
+            logs_manager.output[0],
+        )
+
+        # To_python
+        get_ct = ContentType.objects.get_for_model
+        self.assertListEqual(
+            [],
+            enum.to_python(
+                user,
+                values=[get_ct(FakeContact).pk, get_ct(FakeOrganisation).pk],
+            ),
+        )
+
+    def test_ctype_fk_enumerator__allowed_models__list(self):
+        user = self.user
+        enum = enumerators.CTypeForeignKeyEnumerator(CTypeForeignKey(
+            verbose_name='Type of the resource',
+            allowed_models=[FakeContact, FakeOrganisation, FakeImage],
+        ))
+
+        get_ct = ContentType.objects.get_for_model
+        contact_ct = get_ct(FakeContact)
+        orga_ct    = get_ct(FakeOrganisation)
+
+        contact_choice = {'label': 'Test Contact',      'value': contact_ct.pk}
+        img_choice     = {'label': 'Test Image',        'value': get_ct(FakeImage).pk}
+        orga_choice    = {'label': 'Test Organisation', 'value': orga_ct.pk}
+
+        self.assertListEqual(
+            [contact_choice, img_choice, orga_choice], enum.choices(user),
+        )
+
+        # Term
+        self.assertListEqual([orga_choice], enum.choices(user, term='Orga'))
+        self.assertListEqual([contact_choice], enum.choices(user, term='conta'))
+
+        # Only
+        self.assertListEqual(
+            [contact_choice, orga_choice],
+            enum.choices(user, only=[contact_ct.pk, orga_ct.pk]),
+        )
+        with self.assertLogs(level='WARNING'):
+            self.assertListEqual(
+                [], enum.choices(user, only=[contact_ct.pk, 'not_int']),
+            )
+
+        # Limit
+        self.assertListEqual(
+            [contact_choice, img_choice],  # orga_choice
+            enum.choices(user, limit=2),
+        )
+
+        # To_python
+        self.assertListEqual(
+            [contact_ct], enum.to_python(user, values=[contact_ct.pk]),
+        )
+        self.assertListEqual(
+            [contact_ct], enum.to_python(user, values=[get_ct(FakeReport).id, contact_ct.pk]),
+        )
+
+    def test_ctype_fk_enumerator__allowed_models__callable(self):
+        def allowed_models_func():
+            return [FakeContact, FakeOrganisation]
+
+        enum = enumerators.CTypeForeignKeyEnumerator(CTypeForeignKey(
+            verbose_name='Type of the resource',
+            allowed_models=allowed_models_func,
+        ))
+        get_ct = ContentType.objects.get_for_model
+        self.assertListEqual(
+            [
+                {'label': 'Test Contact',      'value': get_ct(FakeContact).pk},
+                {'label': 'Test Organisation', 'value': get_ct(FakeOrganisation).pk},
+            ],
+            enum.choices(self.user),
+        )
+
+    def test_ctype_fk_enumerator__allowed_models__entities(self):
+        enum = enumerators.CTypeForeignKeyEnumerator(EntityCTypeForeignKey(
+            verbose_name='Type of the resource',
+        ))
+
+        choices = enum.choices(self.user)
+        get_ct = ContentType.objects.get_for_model
+        self.assertIn(
+            {'label': 'Test Contact', 'value': get_ct(FakeContact).pk}, choices,
+        )
+        self.assertIn(
+            {'label': 'Test Organisation', 'value': get_ct(FakeOrganisation).pk}, choices,
+        )
+
+    def test_entity_ctypefk_enumerator(self):  # DEPRECATED
+        user = self.user
+        with self.assertWarns(DeprecationWarning):
+            enum = enumerators.EntityCTypeForeignKeyEnumerator(FakeReport._meta.get_field('ctype'))
+        all_choices = ctype_choices(entity_ctypes())
+
+        get_ct = ContentType.objects.get_for_model
+        contact_ct = get_ct(FakeContact)
+        orga_ct    = get_ct(FakeOrganisation)
+
+        self.assertListEqual(
+            [{'label': label, 'value': ct_id} for ct_id, label in all_choices],
+            enum.choices(user),
+        )
+        self.assertListEqual(
+            [{'label': 'Test Contact', 'value': contact_ct.pk}],
+            enum.choices(user, term='test contact'),
+        )
+        self.assertListEqual(
+            [{'label': label, 'value': ct_id} for ct_id, label in all_choices[:2]],
+            enum.choices(user, limit=2),
+        )
+        self.assertListEqual(
+            [
+                {'label': 'Test Contact', 'value': contact_ct.pk},
+                {'label': 'Test Organisation', 'value': orga_ct.pk},
+            ],
+            enum.choices(user, only=[contact_ct.pk, orga_ct.pk]),
+        )
+
+        # To_python
+        self.assertListEqual(
+            [contact_ct], enum.to_python(user, values=[contact_ct.pk]),
+        )
+
+    def test_global_registry(self):
+        self.assertIsInstance(
+            enumerable_registry.enumerator_by_fieldname(
+                model=FakeReport, field_name='ctype',
+            ),
+            enumerators.CTypeForeignKeyEnumerator,
+        )
