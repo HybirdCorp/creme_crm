@@ -99,6 +99,20 @@ AppConfig.get_extending_app_configs = __get_extending_app_configs
 
 # Hooking of AppConfig [end] ------------
 
+class AppMediaBundles:
+    def __init__(
+        self,
+        lib: Sequence[str] = (),
+        main: Sequence[str] = (),
+        test: Sequence[str] = (),
+        css: Sequence[str] = (),
+    ):
+        self.js_lib = lib
+        self.js_main = main
+        self.js_test = test
+        self.css = css
+
+
 # TODO: remove when MediaGenerator is not used
 class MediaGeneratorConfig(AppConfig):
     name = 'mediagenerator'
@@ -107,18 +121,37 @@ class MediaGeneratorConfig(AppConfig):
     def ready(self):
         self._build_MEDIA_BUNDLES()
 
+    def get_app_media_bundles(self):
+        bundles = {}
+
+        for app in self.apps.get_app_configs():
+            get_media_bundles = getattr(app, 'get_media_bundles', None)
+
+            if callable(get_media_bundles):
+                app_bundles = get_media_bundles()
+
+                bundles['JS'] = (bundles.get('JS', [])) + list(app_bundles.js_main)
+                bundles['JS_LIB'] = (bundles.get('JS_LIB', [])) + list(app_bundles.js_lib)
+                bundles['JS_TEST'] = (bundles.get('JS_TEST', [])) + list(app_bundles.js_test)
+                bundles['CSS'] = (bundles.get('CSS', [])) + list(app_bundles.css)
+
+        return bundles
+
     def _build_MEDIA_BUNDLES(self):
         is_installed = apps.is_installed
+        app_bundles = self.get_app_media_bundles()
 
         MEDIA_BUNDLES = [
             settings.CREME_I18N_JS,
             [
                 *settings.CREME_LIB_JS,
                 *(js for app, js in settings.CREME_OPTLIB_JS if is_installed(app)),
+                *(js for js in app_bundles['JS_LIB']),
             ],
             [
                 *settings.CREME_CORE_JS,
                 *(js for app, js in settings.CREME_OPT_JS if is_installed(app)),
+                *(js for js in app_bundles['JS']),
             ],
         ]
 
@@ -127,6 +160,7 @@ class MediaGeneratorConfig(AppConfig):
             MEDIA_BUNDLES.append([
                 *settings.TEST_CREME_CORE_JS,
                 *(js for app, js in settings.TEST_CREME_OPT_JS if is_installed(app)),
+                *(js for js in app_bundles['JS_TEST']),
             ])
 
         MEDIA_BUNDLES += settings.CREME_OPT_MEDIA_BUNDLES
@@ -134,6 +168,7 @@ class MediaGeneratorConfig(AppConfig):
         CREME_CSS = [
             *settings.CREME_CORE_CSS,
             *(css for app, css in settings.CREME_OPT_CSS if is_installed(app)),
+            *(js for js in app_bundles['CSS']),
         ]
         MEDIA_BUNDLES.extend(
             [
@@ -264,6 +299,9 @@ class CremeAppConfig(AppConfig):
                     ))
 
             return errors
+
+    def get_media_bundles(self) -> AppMediaBundles:
+        return AppMediaBundles()
 
     def all_apps_ready(self):
         if not self.MIGRATION_MODE:
