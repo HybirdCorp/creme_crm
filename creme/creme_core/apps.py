@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2025  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -581,6 +581,7 @@ class CremeCoreConfig(CremeAppConfig):
 
     def register_enumerable(self, enumerable_registry):
         from django.contrib.auth import get_user_model
+        from django.contrib.contenttypes.models import ContentType
 
         from . import enumerators, models
         from .core.enumerable import QSEnumerator
@@ -592,6 +593,9 @@ class CremeCoreConfig(CremeAppConfig):
         #     enumerators.EntityEnumerator,
         # )
         enumerable_registry.register_related_model(
+            model=ContentType,
+            enumerator_class=enumerators.ContentTypeEnumerator,
+        ).register_related_model(
             model=get_user_model(),
             enumerator_class=enumerators.UserEnumerator,
         ).register_related_model(
