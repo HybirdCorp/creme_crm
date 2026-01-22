@@ -608,8 +608,10 @@ class CremeCoreConfig(CremeAppConfig):
             model=models.Vat,
             enumerator_class=enumerators.VatEnumerator,
         ).register_field_type(
-            field_class=models.fields.EntityCTypeForeignKey,
-            enumerator_class=enumerators.EntityCTypeForeignKeyEnumerator,
+            # field_class=models.fields.EntityCTypeForeignKey,
+            field_class=models.fields.CTypeForeignKey,
+            # enumerator_class=enumerators.EntityCTypeForeignKeyEnumerator,
+            enumerator_class=enumerators.CTypeForeignKeyEnumerator,
         ).register_field(
             model=models.HeaderFilter,
             field_name='user',

@@ -120,8 +120,7 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
     def test_choices__empty_label(self):
         user = self.get_root_user()
         enumerable = FieldEnumerableChoiceSet(
-            FakeContact._meta.get_field('user'),
-            empty_label='No value'
+            FakeContact._meta.get_field('user'), empty_label='No value',
         )
 
         choices, more = enumerable.choices()
@@ -138,7 +137,7 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         (NO_LIMIT, False),
         (10, False),
         (3, False),
-        (2, True)
+        (2, True),
     ])
     def test_choices__more(self, limit, has_more):
         fulbert = self.get_root_user()
@@ -162,9 +161,11 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
     def test_choices__selected(self):
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'))
         farming, industry, software = FakeSector.objects.order_by('pk')[:3]
-        sector_A = FakeSector.objects.create(title='Sector A')
-        sector_B = FakeSector.objects.create(title='Sector B')
-        sector_C = FakeSector.objects.create(title='Sector C')
+
+        create_sector = FakeSector.objects.create
+        sector_A = create_sector(title='Sector A')
+        sector_B = create_sector(title='Sector B')
+        sector_C = create_sector(title='Sector C')
 
         choices, more = enumerable.choices(
             selected_values=[industry.pk, sector_B.pk, software.pk]
@@ -184,12 +185,13 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
 
         farming, industry, software = FakeSector.objects.order_by('pk')[:3]
 
-        FakeSector.objects.create(title='Sector A')
-        FakeSector.objects.create(title='Sector B')
-        sector_C = FakeSector.objects.create(title='Sector C')
+        create_sector = FakeSector.objects.create
+        create_sector(title='Sector A')
+        create_sector(title='Sector B')
+        sector_C = create_sector(title='Sector C')
 
         choices, more = enumerable.choices(
-            selected_values=[industry.pk, sector_C.pk]
+            selected_values=[industry.pk, sector_C.pk],
         )
         self.assertTrue(more)
         self.assertListEqual([
@@ -203,9 +205,10 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=3)
         _, industry, software = FakeSector.objects.order_by('pk')
 
-        FakeSector.objects.create(title='Sector A')
-        sector_B = FakeSector.objects.create(title='Sector B')
-        sector_C = FakeSector.objects.create(title='Sector C')
+        create_sector = FakeSector.objects.create
+        create_sector(title='Sector A')
+        sector_B = create_sector(title='Sector B')
+        sector_C = create_sector(title='Sector C')
 
         choices, more = enumerable.choices(
             selected_values=[industry.pk, sector_B.pk, sector_C.pk, software.pk]
@@ -317,12 +320,10 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
     @parameterized.expand(['sector', 'civility', 'position'])
     def test_url(self, field_name):
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field(field_name))
-
         ctype = ContentType.objects.get_for_model(FakeContact)
-
         self.assertEqual(
             reverse('creme_core__enumerable_choices', args=(ctype.id, field_name)),
-            enumerable.url
+            enumerable.url,
         )
 
     def test_to_python(self):
@@ -330,15 +331,14 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
 
         farming, industry, software = FakeSector.objects.order_by('pk')[:3]
 
-        FakeSector.objects.create(title='Sector A')
-        FakeSector.objects.create(title='Sector B')
-        sector_C = FakeSector.objects.create(title='Sector C')
+        create_sector = FakeSector.objects.create
+        create_sector(title='Sector A')
+        create_sector(title='Sector B')
+        sector_C = create_sector(title='Sector C')
 
-        self.assertEqual([
-            industry, sector_C
-        ], enumerable.to_python([
-            industry.pk, sector_C.pk
-        ]))
+        self.assertEqual(
+            [industry, sector_C], enumerable.to_python([industry.pk, sector_C.pk]),
+        )
 
     def test_to_python__invalid_value(self):
         field = FakeContact._meta.get_field('sector')
@@ -511,13 +511,14 @@ class EnumerableSelectMultipleTestCase(CremeTestCase):
 
     def test_render__more(self):
         farming, industry, software = FakeSector.objects.order_by('pk')[:3]
-        sector_A = FakeSector.objects.create(title='Sector A')
-        FakeSector.objects.create(title='Sector B')
-        FakeSector.objects.create(title='Sector C')
+
+        create_sector = FakeSector.objects.create
+        sector_A = create_sector(title='Sector A')
+        create_sector(title='Sector B')
+        create_sector(title='Sector C')
 
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=4)
         widget = EnumerableSelectMultiple(enumerable)
-
         self.assertHTMLEqual(
             f'''
             <select class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto is-enum"
@@ -541,13 +542,14 @@ class EnumerableSelectMultipleTestCase(CremeTestCase):
     def test_render__more__outside_limit(self):
         """Selected values outside the choice limit are added anyway"""
         farming, industry, software = FakeSector.objects.order_by('pk')[:3]
-        sector_A = FakeSector.objects.create(title='Sector A')
-        FakeSector.objects.create(title='Sector B')
-        sector_C = FakeSector.objects.create(title='Sector C')
+
+        create_sector = FakeSector.objects.create
+        sector_A = create_sector(title='Sector A')
+        create_sector(title='Sector B')
+        sector_C = create_sector(title='Sector C')
 
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=4)
         widget = EnumerableSelectMultiple(enumerable)
-
         self.assertHTMLEqual(
             f'''
             <select class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto is-enum"
@@ -564,8 +566,7 @@ class EnumerableSelectMultipleTestCase(CremeTestCase):
                 <option value="{software.pk}">Software</option>
                 <option value="{sector_A.pk}">Sector A</option>
                 <option selected value="{sector_C.pk}">Sector C</option>
-            </select>
-            ''',
+            </select>''',
             widget.render('testfield', value=(industry.pk, sector_C.pk)),
         )
 
@@ -577,7 +578,6 @@ class EnumerableSelectMultipleTestCase(CremeTestCase):
             'data-enum-cache': 'false',
             'data-enum-debounce': 500,
         })
-
         self.assertHTMLEqual(
             f'''
             <select class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto is-enum"
@@ -624,7 +624,7 @@ class EnumerableModelChoiceFieldTestCase(CremeTestCase):
     def test_initial(self):
         farming, industry, software = FakeSector.objects.order_by('pk')[:3]
         field = EnumerableModelChoiceField(
-            FakeContact, 'sector', empty_label='No value...', initial=industry.pk
+            FakeContact, 'sector', empty_label='No value...', initial=industry.pk,
         )
 
         self.assertIsNone(field.empty_label)
@@ -658,12 +658,15 @@ class EnumerableModelChoiceFieldTestCase(CremeTestCase):
 
         self.assertIsNone(field.empty_label)
         self.assertIsNone(field.user)
-        self.assertEqual(FakeInvoice._meta.get_field('currency')._get_default, field.initial)
+        self.assertEqual(
+            FakeInvoice._meta.get_field('currency')._get_default, field.initial,
+        )
         self.assertEqual(default_currency.pk, boundfield.initial)
 
         other_currency = Currency.objects.exclude(id=default_currency.pk)[0]
         field = EnumerableModelChoiceField(
-            FakeInvoice, 'currency', empty_label='No value…', initial=other_currency.pk,
+            FakeInvoice, 'currency',
+            empty_label='No value…', initial=other_currency.pk,
         )
         boundfield = field.get_bound_field(form, 'currency')
 

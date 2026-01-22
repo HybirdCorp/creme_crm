@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ class GeneratorCTypeSubCell(CustomFormExtraSubCell):
 
         return EntityCTypeChoiceField(
             label=self.verbose_name,
-            # TODO: accept models too ?
+            # TODO: accept models too?
             ctypes=[get_ct(model) for model in self.registry.models if has_perm(model)],
         )
 

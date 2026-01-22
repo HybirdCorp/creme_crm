@@ -17,7 +17,9 @@
 ################################################################################
 
 import logging
+import warnings
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
@@ -64,9 +66,8 @@ class ContentTypeEnumerator(enumerable.Enumerator):
 
         return [{'value': 0, 'label': _('Error (please contact your administrator)')}]
 
-    # TODO ??
-    # def to_python(self, user, values):
-    #     return [c for c in entity_ctypes() if c.id in values]
+    # TODO?
+    #  def to_python(self, user, values):
 
 
 class UserEnumerator(enumerable.QSEnumerator):
@@ -119,7 +120,72 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
         return choices[:limit] if limit else choices
 
 
+class CTypeForeignKeyEnumerator(enumerable.Enumerator):
+    def _allowed_ctypes(self):
+        field = self.field
+        try:
+            allowed_models = field.allowed_models
+        except AttributeError:
+            logger.critical(
+                'The field %s use an enumerator %s but has no attribute "allowed_models". '
+                'This enumerator is made to be used with CTypeForeignKey.',
+                self.field, type(self),
+            )
+            raise
+        else:
+            yield from map(
+                ContentType.objects.get_for_model,
+                allowed_models() if callable(allowed_models) else allowed_models
+            )
+
+    def choices(self, user, *, term=None, only=None, limit=None):
+        try:
+            choices = ctype_choices(self._allowed_ctypes())
+            if not choices:
+                logger.critical(
+                    'The field %s seems to be a CTypeForeignKey without narrowed models; '
+                    'set the "allowed_models" of the field if you want enumeration.',
+                    self.field,
+                )
+            else:
+                if only:
+                    try:
+                        ct_ids = {int(ct_id_str) for ct_id_str in only}
+                    except ValueError as e:
+                        logger.warning('bad ContentType ID value: %s', e)
+                        ct_ids = ()
+                    choices = [c for c in choices if c[0] in ct_ids]
+                elif term:
+                    term = term.lower()
+                    choices = [c for c in choices if term in c[1].lower()]
+
+                return [
+                    {'value': ct_id, 'label': label}
+                    for ct_id, label in (choices[:limit] if limit else choices)
+                ]
+        except AttributeError:
+            pass
+
+        return [{'value': 0, 'label': _('Error (please contact your administrator)')}]
+
+    def to_python(self, user, values):
+        try:
+            allowed_ct_ids = {ct.id: ct for ct in self._allowed_ctypes()}
+        except AttributeError:
+            return []
+
+        return [ct for ct_id in values if (ct := allowed_ct_ids.get(ct_id))]
+
+
 class EntityCTypeForeignKeyEnumerator(enumerable.Enumerator):
+    def __init__(self, field):
+        super().__init__(field)
+        warnings.warn(
+            'EntityCTypeForeignKeyEnumerator is deprecated; '
+            'use CTypeForeignKeyEnumerator (& set allowed_models) instead.',
+            DeprecationWarning
+        )
+
     def choices(self, user, *, term=None, only=None, limit=None):
         choices = ctype_choices(entity_ctypes())
 

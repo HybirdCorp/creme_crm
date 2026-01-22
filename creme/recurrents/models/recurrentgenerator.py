@@ -24,6 +24,12 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.models import fields as core_fields
 
 
+def _registered_models():
+    from ..registry import recurrent_registry
+
+    return [*recurrent_registry.models]
+
+
 class AbstractRecurrentGenerator(CremeEntity):
     name = models.CharField(_('Name of the generator'), max_length=100, blank=True)
 
@@ -36,6 +42,7 @@ class AbstractRecurrentGenerator(CremeEntity):
     # ct = core_fields.CTypeForeignKey(
     ct = core_fields.EntityCTypeForeignKey(
         verbose_name=_('Type of the recurrent resource'), editable=False,
+        allowed_models=_registered_models,
     )
     template = models.ForeignKey(
         CremeEntity,

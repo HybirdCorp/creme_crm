@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 
 from collections import defaultdict
 from json import loads as json_load
+from typing import Callable, Sequence
 
 from django import forms
 from django.conf import settings
@@ -34,6 +35,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ..core import validators
 from ..core.field_tags import FieldTag
+from ..registry import creme_registry
 from ..utils.color import random_pastel_color
 from ..utils.date_period import DatePeriod, date_period_registry
 from ..utils.serializers import json_encode
@@ -310,11 +312,19 @@ class CTypeDescriptorMixin:
 
 
 class CTypeForeignKey(CTypeDescriptorMixin, models.ForeignKey):
-    def __init__(self, **kwargs):
+    def __init__(self, allowed_models: Sequence[type[models.Model]] | Callable = (), **kwargs):
+        """
+        @param allowed_models: Narrow the models which are accepted by the field;
+               Set it if you want enumeration to work (quick-search in listviews,
+               conditions of filters).
+               If you pass a callable, it does not take any argument, and
+               returns an iterable of Model classes.
+        """
         kwargs['to'] = 'contenttypes.ContentType'
         # In a normal use, ContentType instances are never deleted ;
         # so CASCADE by default should be OK
         kwargs.setdefault('on_delete', CASCADE)
+        self.allowed_models = allowed_models
         super().__init__(**kwargs)
 
     def contribute_to_class(self, cls, name, **kwargs):
@@ -335,23 +345,33 @@ class CTypeForeignKey(CTypeDescriptorMixin, models.ForeignKey):
 
     def formfield(self, **kwargs):
         from ..forms.fields import CTypeChoiceField
+        from ..utils.content_type import as_ctype
+
+        def _ctypes():
+            allowed = self.allowed_models
+            return [*map(as_ctype, allowed() if callable(allowed) else allowed)]
 
         # BEWARE: we don't call super(CTypeForeignKey, self).formfield(**defaults)
         # to avoid useless/annoying 'queryset' arg
         return super(models.ForeignKey, self).formfield(
-            **{'form_class': CTypeChoiceField, **kwargs}
+            **{'form_class': CTypeChoiceField, 'ctypes': _ctypes, **kwargs}
         )
 
 
 class EntityCTypeForeignKey(CTypeForeignKey):
+    def __init__(self,
+                 allowed_models=creme_registry.iter_entity_models,
+                 **kwargs):
+        super().__init__(allowed_models=allowed_models, **kwargs)
+
     # TODO: assert that it is a CremeEntity instance ??
     # def __set__(self, instance, value):
     #     setattr(instance, self.attname, value.id if value else value)
 
-    def formfield(self, **kwargs):
-        from ..forms.fields import EntityCTypeChoiceField
-
-        return super().formfield(**{'form_class': EntityCTypeChoiceField, **kwargs})
+    # def formfield(self, **kwargs):
+    #     from ..forms.fields import EntityCTypeChoiceField
+    #
+    #     return super().formfield(**{'form_class': EntityCTypeChoiceField, **kwargs})
 
 
 class CTypeOneToOneField(CTypeDescriptorMixin, models.OneToOneField):
@@ -664,7 +684,7 @@ class BasicAutoField(models.PositiveIntegerField):
 ################################################################################
 #  Copyright (c) 2007  Michael Trier
 #  Copyright (C) 2014  http://trbs.net
-#  Copyright (C) 2009-2025  Hybird
+#  Copyright (C) 2009-2026  Hybird
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
