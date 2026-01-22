@@ -30,13 +30,20 @@ class Migration(migrations.Migration):
                 ('last_generation', models.DateTimeField(verbose_name='Date of the last generation', null=True, editable=False)),
                 ('periodicity', core_fields.DatePeriodField(verbose_name='Periodicity of the generation')),
                 ('is_working', models.BooleanField(default=True, verbose_name='Active?', editable=False)),
-                ('ct', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType', verbose_name='Type of the recurrent resource')),
+                (
+                    'ct',
+                    # core_fields.CTypeForeignKey(
+                    core_fields.EntityCTypeForeignKey(
+                        to='contenttypes.ContentType',
+                        editable=False, verbose_name='Type of the recurrent resource',
+                    )
+                ),
                 (
                     'template',
                     models.ForeignKey(
                         to='creme_core.CremeEntity', on_delete=CASCADE,
                         related_name='template_set', editable=False,
-                        verbose_name='Related model'
+                        verbose_name='Related model',
                     )
                 ),
             ],

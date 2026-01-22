@@ -7,6 +7,7 @@
     # Apps :
         * Recurrents :
             - A crash when you tried to add a filter has been fixed.
+            - The Quick-search on the field 'ct' ("Type of the recurrent resource") has been fixed.
 
   Developers side :
   -----------------
