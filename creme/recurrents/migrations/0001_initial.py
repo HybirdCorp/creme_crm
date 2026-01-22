@@ -35,9 +35,10 @@ class Migration(migrations.Migration):
                 ('is_working', models.BooleanField(default=True, verbose_name='Active?', editable=False)),
                 (
                     'ct',
-                    core_fields.CTypeForeignKey(
+                    # core_fields.CTypeForeignKey(
+                    core_fields.EntityCTypeForeignKey(
                         to='contenttypes.ContentType',
-                        editable=False, verbose_name='Type of the recurrent resource'
+                        editable=False, verbose_name='Type of the recurrent resource',
                     )
                 ),
                 (
@@ -45,7 +46,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         to='creme_core.CremeEntity', on_delete=CASCADE,
                         related_name='template_set', editable=False,
-                        verbose_name='Related model'
+                        verbose_name='Related model',
                     )
                 ),
             ],
