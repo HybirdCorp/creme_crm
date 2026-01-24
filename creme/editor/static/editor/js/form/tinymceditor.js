@@ -21,8 +21,73 @@
 (function($) {
 "use strict";
 
+tinymce.IconManager.add('creme', {
+    icons: {
+        'title': '<svg width="24" height="24" viewBox="0 -960 960 960"><path d="M420-160v-520H200v-120h560v120H540v520H420Z"/></svg>'
+    }
+});
+
+/*
+var BUNDLE_PLUGINS = [
+    'accordion',
+    'advlist',
+    'anchor',
+    'autolink',
+    'autoresize',
+    'autosave',
+    'charmap',
+    'code',
+    'codesample',
+    'directionality',
+    // 'emoticons',
+    'fullscreen',
+    'help',
+    'image',
+    'importcss',
+    'insertdatetime',
+    'link',
+    'lists',
+    'media',
+    'nonbreaking',
+    'pagebreak',
+    'preview',
+    'quickbars',
+    'save',
+    'searchreplace',
+    'table',
+    'visualblocks',
+    'visualchars',
+    'wordcount'
+];
+
+function availablePlugins() {
+    return BUNDLE_PLUGINS.slice();
+};
+
+function setupTinyMCE(options) {
+    return new Promise(function(resolve, reject) {
+        try {
+            tinymce.init(Object.assign({
+                plugins: BUNDLE_PLUGINS
+            }, options || {}, {
+                license_key: 'gpl',
+                // skin: false,
+                // content_css: false,
+                // content_style: `${contentUiSkinCss}\n${contentCss}`,
+                setup: function(editor) {
+                    resolve(editor);
+                }
+            }));
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+*/
+
 var EDITOR_TOOLBARS = {
     simple: {
+        menubar: false,
         toolbar: [
             'undo', 'redo', '|',
             'bold', 'italic', 'underline', 'strikethrough', '|',
@@ -32,6 +97,7 @@ var EDITOR_TOOLBARS = {
         insert_quickbars: []
     },
     template: {
+        menubar: false,
         toolbar: [
             'undo', 'redo', '|',
             'bold', 'italic', 'underline', 'strikethrough', '|',
@@ -45,6 +111,7 @@ var EDITOR_TOOLBARS = {
         ]
     },
     full: {
+        menubar: false,
         toolbar: [
             'undo', 'redo', '|',
             'heading', '|',
@@ -57,7 +124,7 @@ var EDITOR_TOOLBARS = {
         ],
         toolbar_groups: {
             heading: {
-                icon: 'h1',
+                icon: 'title',
                 tooltip: gettext('Heading'),
                 items: 'h1 h2 h3 h4 h5'
             },
@@ -221,7 +288,8 @@ creme.TinyMCEditor = creme.component.Component.sub({
         var editorOptions = {
             readonly: options.isReadonly,
             disabled: options.isDisabled,
-            placeholder: options.placeholders[element.attr('name')] || gettext('Type here...')
+            placeholder: options.placeholders[element.attr('name')] || gettext('Type here...'),
+            icons: 'creme'
         };
 
         if (options.uploadURL) {
@@ -252,6 +320,7 @@ creme.TinyMCEditor = creme.component.Component.sub({
             plugins: plugins,
             quickbars_insert_toolbar: (toolbarItems.insert_quickbars || []).join(' '),
             toolbar: (toolbarItems.toolbar || []).join(' '),
+            menubar: (toolbarItems.menubar || []).join(' '),
             toolbar_groups: toolbarItems.toolbar_groups || {},
             toolbar_mode: 'floating',
             max_height: parseHeight(options.maxHeight)

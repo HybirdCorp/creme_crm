@@ -2,7 +2,7 @@
 const tinymce = require('tinymce/tinymce');
 
 /* Default icons are required. After that, import custom icons if applicable */
-require('tinymce/icons/default');
+require('tinymce/icons/default/icons.min.js');
 
 /* Required TinyMCE components */
 require('tinymce/themes/silver');
@@ -22,9 +22,9 @@ const BUNDLE_PLUGINS = [
     'code',
     'codesample',
     'directionality',
-    'emoticons',
+    // 'emoticons',
     'fullscreen',
-    'help',
+    // 'help',
     'image',
     'importcss',
     'insertdatetime',
@@ -45,7 +45,7 @@ const BUNDLE_PLUGINS = [
 
 /* Import plugins - include the relevant plugin in the 'plugins' option. */
 for (const plugin of BUNDLE_PLUGINS) {
-    require(`tinymce/plugins/${plugin}`);
+    require(`tinymce/plugins/${plugin}/plugin.min.js`);
 }
 
 require('tinymce/plugins/help');

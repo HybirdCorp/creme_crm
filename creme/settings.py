@@ -844,8 +844,8 @@ CREME_OPT_CSS = [  # APPS
     ('creme.geolocation', 'geolocation/css/leaflet-1.9.4.css'),
     ('creme.geolocation', 'geolocation/css/geolocation.css'),
 
-    ('creme.editor', 'editor/css/tinymce-oxide.css'),
-    ('creme.editor', 'editor/css/tinymce.css'),
+    # ('creme.editor', 'editor/css/tinymce-oxide.css'),
+    # ('creme.editor', 'editor/css/tinymce.css'),
 ]
 
 CREME_I18N_JS = [
@@ -994,7 +994,7 @@ CREME_OPTLIB_JS = [
     ('creme.geolocation', 'geolocation/js/lib/leaflet-1.9.4.js'),
     ('creme.sketch', 'sketch/js/lib/d3-7.8.5.js'),
     ('creme.sketch', 'sketch/js/lib/filesaver-2.0.4.js'),
-    ('creme.editor', 'editor/js/lib/tinymce-bundle-8.3.1.js'),
+    # ('creme.editor', 'editor/js/lib/tinymce-bundle-8.3.1.js'),
 ]
 
 CREME_OPT_JS = [  # OPTIONAL APPS
@@ -1064,8 +1064,8 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.geolocation',   'geolocation/js/geolocation-leaflet.js'),
     ('creme.geolocation',   'geolocation/js/brick.js'),
 
-    ('creme.editor',        'editor/js/form/tinymceditor.js'),
-    ('creme.editor',        'editor/js/editor.js'),
+    # ('creme.editor',        'editor/js/form/tinymceditor.js'),
+    # ('creme.editor',        'editor/js/editor.js'),
 ]
 
 TEST_CREME_LIB_JS = [

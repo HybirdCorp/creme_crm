@@ -25,6 +25,16 @@ class TinyMCEEditor(widgets.Textarea):
     template_name = 'editor/forms/tinymceditor.html'
     TOOLBARS = {'full', 'simple'}
 
+    class Media:
+        css = {
+            "all": [
+                "editor-tinymce.css",
+            ]
+        }
+        js = [
+            "editor-tinymce.js",
+        ]
+
     def __init__(self, attrs=None, toolbar='full', upload_url=None):
         super().__init__(attrs=attrs)
         self.toolbar = toolbar

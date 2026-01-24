@@ -1,4 +1,5 @@
-{% load i18n creme_widgets %}{% load or_op from creme_core_tags %}
+{% load i18n creme_widgets %}
+{% load or_op lazy_include_formmedia from creme_core_tags %}
 
 {% with form=wizard.form steps=wizard.steps %}
     {% block title %}
@@ -23,18 +24,20 @@
     </script>
 
     {% if not is_inner_popup %}
+    {{form.media}}
     <script type="text/javascript">
         $(document).ready(function() {
             creme.forms.initialize($('#wizard_form form'));
         });
     </script>
+    {% else %}
+    {% lazy_include_formmedia form.media %}
     {% endif %}
 
     <p class="required-help">{% translate 'Fields marked with * are required.' %}</p>
 
     <div id="wizard_form" class="form-container form-container-blocks wizard-form-container-blocks">
         <form action="" method="POST">{% csrf_token %}
-            {{form.media}}
             {{wizard.management_form}}
 
 {% comment %} TODO

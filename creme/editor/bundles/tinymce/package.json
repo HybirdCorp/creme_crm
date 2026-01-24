@@ -1,6 +1,6 @@
 {
     "name": "tinymce",
-    "version": "8.3.1",
+    "version": "8.3.2",
     "license": "GPL-3.0-only",
     "engines": {
         "node": "^20.0.0"
@@ -14,7 +14,7 @@
         "html-webpack-plugin": "*",
         "jquery": "3.7.1",
         "mini-css-extract-plugin": "*",
-        "tinymce": "^8.3.1",
+        "tinymce": "^8.3.2",
         "@tinymce/tinymce-jquery": "*",
         "webpack": "*",
         "webpack-cli": "*",

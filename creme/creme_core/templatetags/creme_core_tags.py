@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.forms import Media as FormMedia
 from django.template import Library
 from django.template import Node as TemplateNode
 from django.template import Template, TemplateSyntaxError
@@ -36,6 +37,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from mediagenerator.generators.bundles.utils import _render_include_media
+from mediagenerator.utils import media_url
 
 from ..core.cloning import entity_cloner_registry
 from ..core.deletion import entity_deletor_registry
@@ -487,7 +489,7 @@ class TemplatizeNode(TemplateNode):
 
 ################################################################################
 #
-# Copyright (c) 2009-2025 Hybird
+# Copyright (c) 2009-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -745,3 +747,32 @@ def blockjsondata(content, **attrs):
         attrs=format_html_join(' ', '{}="{}"', attrs.items()),
         content=escapejson(content),
     )
+
+
+@register.simple_tag(takes_context=True)
+def include_formmedia(context, media, lazy=False):
+    if not isinstance(media, FormMedia):
+        raise TemplateSyntaxError("The tag only accepts a django.forms.Media object")
+
+    js = [media_url(path) for path in media._js]
+    css = {
+        medium: [media_url(context['THEME_NAME'] + path) for path in paths]
+        for medium, paths in media._css.items()
+    }
+
+    if not js and not css:
+        return ''
+
+    if lazy:
+        content = jsonify({"css": css, "js": js})
+
+        return mark_safe(
+            '<script type="application/json" nomodule data-lazy-formmedia>'
+            f'<!-- {escapejson(content)} -->'
+            '</script>'
+        )
+    else:
+        return FormMedia(
+            css=css,
+            js=js,
+        )
