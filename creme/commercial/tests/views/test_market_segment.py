@@ -3,6 +3,8 @@ from functools import partial
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.commercial.bricks import SegmentsBrick
+from creme.commercial.models import MarketSegment
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -11,23 +13,15 @@ from creme.creme_core.models import (
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import skipIfCustomOrganisation
 
-from ..bricks import SegmentsBrick
-from ..models import MarketSegment
-from .base import CommercialBaseTestCase, Organisation, Strategy
+from ..base import CommercialBaseTestCase, Organisation, Strategy
 
 
-class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
+class MarketSegmentViewsTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     @staticmethod
     def _build_delete_url(segment):
         return reverse('commercial__delete_segment', args=(segment.id,))
 
-    def test_unique_segment_with_ptype(self):
-        self.get_object_or_fail(MarketSegment, property_type=None)
-
-        with self.assertRaises(ValueError):
-            MarketSegment.objects.create(name='Foobar', property_type=None)
-
-    def test_create(self):
+    def test_creation(self):
         self.login_as_root()
         url = self.ADD_SEGMENT_URL
 
@@ -44,7 +38,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
         self.assertEqual('commercial', ptype.app_label)
 
-    def test_create__name_uniqueness(self):
+    def test_creation__name_uniqueness(self):
         "A segment with the same name already exists."
         self.login_as_standard(allowed_apps=['commercial'])
 
@@ -59,7 +53,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             errors=_('A segment with this name already exists'),
         )
 
-    def test_create__property_type_uniqueness(self):
+    def test_creation__property_type_uniqueness(self):
         "A property type with the same name already exists."
         self.login_as_root()
 
@@ -74,36 +68,9 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             errors=_('A property with the name «%(name)s» already exists') % {'name': pname},
         )
 
-    def test_create__not_allowed(self):
+    def test_creation__not_allowed(self):
         self.login_as_standard()
         self.assertGET403(self.ADD_SEGMENT_URL)
-
-    def test_portable_key(self):
-        self.login_as_root()
-
-        segment = self._create_segment(name='Industry')
-
-        with self.assertNoException():
-            key = segment.portable_key()
-        self.assertIsInstance(key, str)
-        self.assertUUIDEqual(segment.property_type.uuid, key)
-
-        # ---
-        with self.assertNoException():
-            got_segment = MarketSegment.objects.get_by_portable_key(key)
-        self.assertEqual(segment, got_segment)
-
-    def test_portable_key__null(self):
-        self.login_as_root()
-
-        segment = self.get_object_or_fail(MarketSegment, property_type=None)
-        key = 'all'
-        self.assertEqual(key, segment.portable_key())
-
-        # ---
-        with self.assertNoException():
-            got_segment = MarketSegment.objects.get_by_portable_key(key)
-        self.assertEqual(segment, got_segment)
 
     def test_listview(self):
         self.login_as_standard(allowed_apps=['commercial'])
@@ -131,7 +98,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         self.assertGET403(reverse('commercial__list_segments'))
 
-    def test_edit(self):
+    def test_edition(self):
         self.login_as_root()
 
         name = 'industry'
@@ -159,7 +126,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             segment.property_type.text,
         )
 
-    def test_edit__name_uniqueness(self):
+    def test_edition__name_uniqueness(self):
         "A segment with the same name already exists."
         self.login_as_root()
 
@@ -176,7 +143,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             errors=_('A segment with this name already exists'),
         )
 
-    def test_edit__property_type_uniqueness(self):
+    def test_edition__property_type_uniqueness(self):
         "A property type with the same name already exists."
         self.login_as_root()
 
@@ -195,7 +162,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             errors=_('A property with the name «%(name)s» already exists') % {'name': pname},
         )
 
-    def test_edit__no_name_change(self):
+    def test_edition__no_name_change(self):
         "No name change => no collision."
         self.login_as_root()
 
@@ -216,7 +183,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             segment.property_type.text,
         )
 
-    def test_edit__null_property_type(self):
+    def test_edition__null_property_type(self):
         "Edit the segment with property_type=NULL."
         self.login_as_root()
 
@@ -232,14 +199,14 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(name, segment.name)
         self.assertEqual(ptype_count, CremePropertyType.objects.count())
 
-    def test_edit__not_superuser(self):
+    def test_edition__not_superuser(self):
         "Not super-user."
         self.login_as_standard(allowed_apps=['commercial'])
 
         segment = self._create_segment('Industry')
         self.assertGET200(segment.get_edit_absolute_url())
 
-    def test_edit__app_permissions(self):
+    def test_edition__app_permissions(self):
         "No app permission."
         self.login_as_standard()  # allowed_apps=['commercial']
 
@@ -248,7 +215,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertGET403(segment.get_edit_absolute_url())
 
     @skipIfCustomOrganisation
-    def test_delete(self):
+    def test_deletion(self):
         user = self.login_as_root_and_get()
 
         strategy = Strategy.objects.create(user=user, name='Producers')
@@ -298,14 +265,14 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertIn(prop.type,    ptypes)
         self.assertNotIn(old_ptype, ptypes)
 
-    def test_delete__one_remaining(self):
+    def test_deletion__one_remaining(self):
         "Cannot delete if there is only one segment."
         self.login_as_root()
 
         segment = self.get_object_or_fail(MarketSegment, property_type=None)
         self.assertGET409(self._build_delete_url(segment))
 
-    def test_delete__replace_no_distinct(self):
+    def test_deletion__replace_no_distinct(self):
         "Cannot replace a segment by itself."
         self.login_as_root()
 
@@ -324,7 +291,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_delete__property_types_duplicates(self):
+    def test_deletion__property_types_duplicates(self):
         "Avoid CremeProperty duplicates."
         user = self.login_as_root_and_get()
 
@@ -363,7 +330,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertListEqual(expected, ptypes(orga2))
         self.assertListEqual(expected, ptypes(orga3))
 
-    def test_delete__null_not_deletable(self):
+    def test_deletion__null_not_deletable(self):
         "Cannot delete the segment with property_type=NULL."
         self.login_as_root()
 
@@ -374,7 +341,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertGET404(self._build_delete_url(segment))
 
     @skipIfCustomOrganisation
-    def test_delete__replace_with_null(self):
+    def test_deletion__replace_with_null(self):
         "We replace with the segment with property_type=NULL."
         user = self.login_as_root_and_get()
 
