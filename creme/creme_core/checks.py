@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2025  Hybird
+#    Copyright (C) 2015-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -271,6 +271,42 @@ def check_portable_keys(**kwargs):
     return warnings
 
 
+@register(CoreTags.models)
+def check_fk_to_content_type(**kwargs):
+    from django.contrib.contenttypes.models import ContentType
+    from django.db.models import ForeignKey
+
+    from creme.creme_core.apps import creme_app_configs
+    from creme.creme_core.models.fields import (
+        CTypeForeignKey,
+        CTypeOneToOneField,
+    )
+
+    warnings = []
+
+    for app_config in creme_app_configs():
+        for model in app_config.get_models():
+            for field in model._meta.fields:
+                if (
+                    isinstance(field, ForeignKey)
+                    and field.related_model == ContentType
+                    and not isinstance(field, CTypeForeignKey | CTypeOneToOneField)
+                ):
+                    warnings.append(Warning(
+                        f'The model {model} has a basic ForeignKey "{field.name}" '
+                        f'to the model ContentType.',
+                        obj='creme.creme_core',
+                        id='creme.E013',  # TODO: "W" instead?
+                        hint=(
+                            'Use a field '
+                            'CTypeForeignKey/EntityCTypeForeignKey/CTypeOneToOneField '
+                            'to remove some useless SQL query.'
+                        ),
+                    ))
+
+    return warnings
+
+
 @register(Tags.settings)
 def check_last_entities(**kwargs):
     errors = []
@@ -282,21 +318,21 @@ def check_last_entities(**kwargs):
         errors.append(Error(
             'The settings LAST_ENTITIES_SIZE & LAST_ENTITIES_MENU_SIZE must be integers.',
             obj='settings.py',
-            id='creme.E013',
+            id='creme.E014',
         ))
     else:
         if LAST_ENTITIES_MENU_SIZE < 1 or LAST_ENTITIES_SIZE < 1:
             errors.append(Error(
                 'The settings LAST_ENTITIES_SIZE & LAST_ENTITIES_MENU_SIZE must be >= 1.',
                 obj='settings.py',
-                id='creme.E013',
+                id='creme.E014',
             ))
         elif LAST_ENTITIES_MENU_SIZE > LAST_ENTITIES_SIZE:
             errors.append(Error(
                 'The settings LAST_ENTITIES_MENU_SIZE must be small or equal than '
                 'LAST_ENTITIES_SIZE.',
                 obj='settings.py',
-                id='creme.E013',
+                id='creme.E014',
             ))
 
     return errors
