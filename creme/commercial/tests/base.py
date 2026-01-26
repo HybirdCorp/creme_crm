@@ -1,3 +1,4 @@
+from datetime import date
 from unittest import skipIf
 
 from django.urls import reverse
@@ -5,7 +6,7 @@ from django.urls import reverse
 from creme import activities, commercial, opportunities, persons, products
 from creme.creme_core.tests.base import CremeTestCase
 
-from ..models import MarketSegment
+from ..models import ActType, MarketSegment
 
 skip_act_tests      = commercial.act_model_is_custom()
 skip_pattern_tests  = commercial.pattern_model_is_custom()
@@ -42,8 +43,27 @@ class CommercialBaseTestCase(CremeTestCase):
     ADD_SEGMENT_URL = reverse('commercial__create_segment')
 
     @staticmethod
-    def _build_add_segmentdesc_url(strategy):
+    def _build_add_segment_desc_url(strategy):
         return reverse('commercial__create_segment_desc', args=(strategy.id,))
+
+    def _create_act(self, user=None, name='NAME', expected_sales=1000):
+        return Act.objects.create(
+            user=user,
+            name=name,
+            expected_sales=expected_sales, cost=50,
+            goal='GOAL', start=date(2010, 11, 25),
+            due_date=date(2011, 12, 26),
+            act_type=ActType.objects.create(title='Show'),
+            segment=self._create_segment(f'Segment - {name}'),
+        )
+
+    def _create_pattern(self, user, name='ObjPattern', average_sales=1000):
+        return ActObjectivePattern.objects.create(
+            user=user,
+            name=name,
+            average_sales=average_sales,
+            segment=self._create_segment(),
+        )
 
     def _create_segment(self, name='Segment#1'):
         self.assertNoFormError(self.client.post(self.ADD_SEGMENT_URL, data={'name': name}))
@@ -52,7 +72,7 @@ class CommercialBaseTestCase(CremeTestCase):
 
     def _create_segment_desc(self, strategy, name, product='', place='', price='', promotion=''):
         response = self.client.post(
-            self._build_add_segmentdesc_url(strategy),
+            self._build_add_segment_desc_url(strategy),
             data={
                 'name': name,
                 'product': product,
@@ -84,5 +104,15 @@ class CommercialBaseTestCase(CremeTestCase):
                 'segment_desc_id': segment_desc.id,
                 'orga_id':         orga.id,
                 'score':           score,
+            },
+        )
+
+    def _set_segment_category(self, strategy, segment_desc, orga, category):
+        self.assertPOST200(
+            reverse('commercial__set_segment_category', args=(strategy.id,)),
+            data={
+                'segment_desc_id': segment_desc.id,
+                'orga_id':         orga.id,
+                'category':        category,
             },
         )
