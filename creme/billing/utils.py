@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+import warnings
 from decimal import Decimal, InvalidOperation
 
 from django.utils.formats import number_format
@@ -30,6 +31,11 @@ logger = logging.getLogger(__name__)
 
 
 def round_to_2(decimal_instance):
+    warnings.warn(
+        'round_to_2() is deprecated; use creme_core.utils.round_decimal() instead.',
+        DeprecationWarning
+    )
+
     try:
         return Decimal(decimal_instance).quantize(Decimal('.01'), rounding=ROUND_POLICY)
     except InvalidOperation as e:

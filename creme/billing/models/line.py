@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,9 +28,11 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation, Vat
 from creme.creme_core.models.vat import get_default_vat_pk
+from creme.creme_core.utils import round_decimal
 
 from .. import constants
-from ..utils import round_to_2
+# from ..utils import round_to_2
+from ..constants import ROUND_POLICY
 
 logger = logging.getLogger(__name__)
 
@@ -163,10 +165,12 @@ class Line(CremeEntity):
         total_ht = self.get_price_exclusive_of_tax(document)
         vat_value = self.vat_value
         vat = (total_ht * vat_value.value / 100) if vat_value else 0
-        return round_to_2(total_ht + vat)
+        # return round_to_2(total_ht + vat)
+        return round_decimal(total_ht + vat, mode=ROUND_POLICY)
 
     def get_raw_price(self):
-        return round_to_2(self.quantity * self.unit_price)
+        # return round_to_2(self.quantity * self.unit_price)
+        return round_decimal(self.quantity * self.unit_price, mode=ROUND_POLICY)
 
     def get_price_exclusive_of_tax(self, document=None):
         line_discount   = self.discount
@@ -189,7 +193,8 @@ class Line(CremeEntity):
         if doc_discount:
             total_exclusive_of_tax -= total_after_first_discount * doc_discount / 100
 
-        return round_to_2(total_exclusive_of_tax)
+        # return round_to_2(total_exclusive_of_tax)
+        return round_decimal(total_exclusive_of_tax, mode=ROUND_POLICY)
 
     def get_related_entity(self):  # For generic views & delete
         return self.related_document
