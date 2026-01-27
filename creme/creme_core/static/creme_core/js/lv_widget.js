@@ -62,12 +62,52 @@ creme.lv_widget.ExportAction = creme.component.Action.sub({
     }
 });
 
-creme.lv_widget.DeleteSelectedAction = creme.component.Action.sub({
+creme.lv_widget.SelectedAction = creme.component.Action.sub({
     _init_: function(list, options) {
         this._super_(creme.component.Action, '_init_', this._run, options);
         this._list = list;
     },
 
+    _runSelection: function(options, selection) {
+        this.cancel();
+    },
+
+    _checkSelection: function(options, selection) {
+        Assert.that(selection.length > 0, gettext("Please select at least one entity."));
+    },
+
+    _run: function(options) {
+        options = $.extend({}, this.options(), options || {});
+
+        var self = this;
+        var list = this._list;
+
+        var selection = list.selectedRows();
+
+        try {
+            this._checkSelection(options, selection);
+        } catch (e) {
+            return creme.dialogs.warning(e.message)
+                                .onClose(function() {
+                                    self.cancel();
+                                })
+                                .open();
+        }
+
+        return this._runSelection(options, selection);
+    }
+});
+
+
+creme.lv_widget.RedirectToSelectedAction = creme.lv_widget.SelectedAction.sub({
+    _runSelection: function(options, selection) {
+        this.done();
+        creme.utils.goTo(options.url, {id: selection});
+    }
+});
+
+
+creme.lv_widget.DeleteSelectedAction = creme.lv_widget.SelectedAction.sub({
     _onDeleteFail: function(event, error, data) {
         var self = this;
         var list = this._list;
@@ -77,14 +117,14 @@ creme.lv_widget.DeleteSelectedAction = creme.component.Action.sub({
 
         if (!Object.isEmpty(message) && _.isJSON(message)) {
             var results = JSON.parse(message);
-            var removed_count = results.count - results.errors.length;
+            var removedCount = results.count - results.errors.length;
 
             header = '';
 
-            if (removed_count > 0) {
+            if (removedCount > 0) {
                 header = ngettext('%d entity has been deleted.',
                                   '%d entities have been deleted.',
-                                  removed_count).format(removed_count);
+                                  removedCount).format(removedCount);
             }
 
             if (results.errors) {
@@ -107,163 +147,107 @@ creme.lv_widget.DeleteSelectedAction = creme.component.Action.sub({
                      .open();
     },
 
-    _run: function(options) {
-        options = $.extend({}, this.options(), options || {});
+    _runSelection: function(options, selection) {
+        var self = this;
+        var list = this._list;
 
+        var query = creme.utils.ajaxQuery(options.url, {
+            action: 'POST',
+            confirm: true,
+            warnOnFail: false,
+            dataType: 'json'
+        }, {ids: selection.join(',')});
+
+        query.onFail(this._onDeleteFail.bind(this))
+             .onCancel(function(event, data) {
+                 self.cancel();
+             })
+             .onDone(function(event, data) {
+                 list.reload();
+                 self.done();
+             })
+             .start();
+    }
+});
+
+creme.lv_widget.AddToSelectedAction = creme.lv_widget.SelectedAction.sub({
+    _runSelection: function(options) {
         var self = this;
         var list = this._list;
         var selection = list.selectedRows();
 
-        if (selection.length < 1) {
-            creme.dialogs.warning(gettext("Please select at least one entity."))
-                         .onClose(function() {
-                             self.cancel();
-                          })
-                         .open();
-        } else {
-            var query = creme.utils.ajaxQuery(options.url, {
-                action: 'POST',
-                confirm: true,
-                warnOnFail: false,
-                dataType: 'json'
-            }, {ids: selection.join(',')});
+        var dialog = creme.dialogs.form(options.url, {
+                                            submitData: {ids: selection}
+                                        }, {
+                                            ids: selection
+                                        });
 
-            query.onFail(this._onDeleteFail.bind(this))
-                 .onCancel(function(event, data) {
-                     self.cancel();
-                  })
-                 .onDone(function(event, data) {
-                     list.reload();
-                     self.done();
-                  })
-                 .start();
-        }
+        dialog.onFormSuccess(function(event, data) {
+                    list.reload();
+                    self.done();
+                })
+                .onClose(function() {
+                    self.cancel();
+                })
+                .open({width: 800});
     }
 });
 
-creme.lv_widget.AddToSelectedAction = creme.component.Action.sub({
+creme.lv_widget.EditSelectedAction = creme.lv_widget.SelectedAction.sub({
     _init_: function(list, options) {
-        this._super_(creme.component.Action, '_init_', this._run, options);
-        this._list = list;
-    },
-
-    _run: function(options) {
-        options = $.extend({}, this.options(), options || {});
-
-        var self = this;
-        var list = this._list;
-        var selection = list.selectedRows();
-
-        if (selection.length < 1) {
-            creme.dialogs.warning(gettext("Please select at least one entity."))
-                         .onClose(function() {
-                             self.cancel();
-                          })
-                         .open();
-        } else {
-            var dialog = creme.dialogs.form(options.url, {
-                                                submitData: {ids: selection}
-                                            }, {
-                                                ids: selection
-                                            });
-
-            dialog.onFormSuccess(function(event, data) {
-                       list.reload();
-                       self.done();
-                   })
-                   .onClose(function() {
-                       self.cancel();
-                   })
-                   .open({width: 800});
-        }
-    }
-});
-
-creme.lv_widget.EditSelectedAction = creme.component.Action.sub({
-    _init_: function(list, options) {
-        this._super_(creme.component.Action, '_init_', this._run, options);
-        this._list = list;
+        this._super_(creme.lv_widget.SelectedAction, '_init_', list, options);
         this._isEditionDone = false;
     },
 
-    _run: function(options) {
-        options = $.extend({}, this.options(), options || {});
-
+    _runSelection: function(options, selection) {
         var self = this;
         var list = this._list;
         var isEditionDone = false;
-        var selection = list.selectedRows();
 
-        if (selection.length < 1) {
-            creme.dialogs.warning(gettext("Please select at least one entity."))
-                         .onClose(function() {
-                             self.cancel();
-                          })
-                         .open();
-        } else {
-            var dialog = new creme.dialog.FormDialog({
-                url: options.url,
-                data: {
-                    entities: selection.join('.')
-                },
-                submitData: {entities: selection},
-                // DO NOT close the popup on form success !
-                closeOnFormSuccess: false
-            });
+        var dialog = new creme.dialog.FormDialog({
+            url: options.url,
+            data: {
+                entities: selection.join('.')
+            },
+            submitData: {entities: selection},
+            // DO NOT close the popup on form success !
+            closeOnFormSuccess: false
+        });
 
-            dialog.onFormSuccess(function(event, data) {
-                       // The summary must be shown, so we cannot close the
-                       // dialog now. Just store the successful state
-                       isEditionDone = true;
-                   })
-                   .onClose(function() {
-                       if (isEditionDone) {
-                           list.reload();
-                           self.done();
-                       } else {
-                           self.cancel();
-                       }
-                   })
-                   .on('frame-update', function(event, frame) {
-                       frame.delegate().on('change', '[name="_bulk_fieldname"]', function() {
-                           var next = $(this).val();
-                           if (!Object.isNone(next) && next !== dialog.frame().lastFetchUrl()) {
-                               dialog.fetch(next);
-                           }
-                       });
-                   });
+        dialog.onFormSuccess(function(event, data) {
+                    // The summary must be shown, so we cannot close the
+                    // dialog now. Just store the successful state
+                    isEditionDone = true;
+                })
+                .onClose(function() {
+                    if (isEditionDone) {
+                        list.reload();
+                        self.done();
+                    } else {
+                        self.cancel();
+                    }
+                })
+                .on('frame-update', function(event, frame) {
+                    frame.delegate().on('change', '[name="_bulk_fieldname"]', function() {
+                        var next = $(this).val();
+                        if (!Object.isNone(next) && next !== dialog.frame().lastFetchUrl()) {
+                            dialog.fetch(next);
+                        }
+                    });
+                });
 
-             dialog.open({width: 800});
-        }
+        dialog.open({width: 800});
     }
 });
 
-creme.lv_widget.MergeSelectedAction = creme.component.Action.sub({
-    _init_: function(list, options) {
-        this._super_(creme.component.Action, '_init_', this._run, options);
-        this._list = list;
+creme.lv_widget.MergeSelectedAction = creme.lv_widget.SelectedAction.sub({
+    _checkSelection: function(options, selection) {
+        Assert.that(selection.length === 2, gettext("Please select 2 entities."));
     },
 
-    _run: function(options) {
-        options = $.extend({}, this.options(), options || {});
-
-        var self = this;
-        var list = this._list;
-        var selection = list.selectedRows();
-
-        if (selection.length !== 2) {
-            creme.dialogs.warning(gettext("Please select 2 entities."))
-                         .onClose(function() {
-                             self.cancel();
-                          })
-                         .open();
-        } else {
-            try {
-                creme.utils.goTo(options.url, {id1: selection[0], id2: selection[1]});
-            } catch (e) {
-                this.fail(e);
-            }
-        }
+    _runSelection: function(options, selection) {
+        this.done();
+        creme.utils.goTo(options.url, {id1: selection[0], id2: selection[1]});
     }
 });
 
@@ -546,6 +530,10 @@ creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegist
 
     _build_merge_selection: function(url, options, data, e) {
         return new creme.lv_widget.MergeSelectedAction(this._list, {url: url});
+    },
+
+    _build_goto_selection: function(url, options, data, e) {
+        return new creme.lv_widget.RedirectToSelectedAction(this._list, {url: url});
     },
 
     _build_submit_lv_state: function(url, options, data, e) {

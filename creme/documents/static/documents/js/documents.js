@@ -19,39 +19,4 @@
 (function($) {
 "use strict";
 
-creme.documents = creme.documents || {};
-
-/* TODO: improve the action system to remove this specific action which is just <goto with IDs> */
-creme.documents.BulkDownloadAction = creme.component.Action.sub({
-    _init_: function(list, options) {
-        this._super_(creme.component.Action, '_init_', this._run, options);
-        this._list = list;
-    },
-
-    _run: function(options) {
-        options = $.extend({}, this.options(), options || {});
-
-        var self = this;
-        var selection = this._list.selectedRows();
-
-        if (selection.length < 1) {
-            /* TODO: useful with "bulk_min_count" check ?? */
-            creme.dialogs.warning(gettext('Please select at least a line in order to export.'))
-                         .onClose(function() {
-                             self.cancel();
-                          })
-                         .open();
-        } else {
-            self.done();
-            creme.utils.goTo(options.url, {id: selection});
-        }
-    }
-});
-
-$(document).on('listview-setup-actions', '.ui-creme-listview', function(e, actions) {
-    actions.register('documents-bulk-download', function(url, options, data, e) {
-        return new creme.documents.BulkDownloadAction(this._list, {url: url});
-    });
-});
-
 }(jQuery));
