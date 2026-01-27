@@ -38,51 +38,55 @@ class ListViewAggregatorTestCase(CremeTestCase):
         registry.model(FakeInvoice).add_aggregator(
             field=field_name1, label=label11, function='Sum',
         )
-        agg11 = self.get_alone_element(
+        field1_agg = self.get_alone_element(
             registry.aggregators(model=FakeInvoice, field=field_name1)
         )
-        self.assertIsInstance(agg11, _ListViewAggregator)
-        self.assertEqual(field_name1, agg11.field)
-        self.assertEqual(label11,     agg11.label)
-        self.assertEqual(Sum,         agg11.function)
-        self.assertTupleEqual(('total_vat/Sum', Sum(field_name1)), agg11.as_args)
+        self.assertIsInstance(field1_agg, _ListViewAggregator)
+        self.assertEqual(field_name1, field1_agg.field)
+        self.assertEqual(label11,     field1_agg.label)
+        self.assertEqual(Sum,         field1_agg.function)
+        self.assertEqual(_('Sum'),    field1_agg.verbose_label)
+        self.assertTupleEqual(('total_vat/Sum', Sum(field_name1)), field1_agg.as_args)
 
         # Two aggregators (same field) ---
         label12 = 'μ'
         registry.model(FakeInvoice).add_aggregator(
             field=field_name1, label=label12, function='Avg',
         )
-        aggregators12 = [
+        field1_aggregators = [
             *registry.aggregators(model=FakeInvoice, field=field_name1)
         ]
         self.assertListEqual([FakeInvoice], [*registry.models])
-        self.assertEqual(2, len(aggregators12))
+        self.assertEqual(2, len(field1_aggregators))
 
-        agg21 = aggregators12[0]
-        self.assertEqual(field_name1, agg21.field)
-        self.assertEqual(label11,     agg21.label)
-        self.assertEqual(Sum,         agg21.function)
-        self.assertTupleEqual(('total_vat/Sum', Sum(field_name1)), agg21.as_args)
+        field1_agg1 = field1_aggregators[0]
+        self.assertEqual(field_name1, field1_agg1.field)
+        self.assertEqual(label11,     field1_agg1.label)
+        self.assertEqual(Sum,         field1_agg1.function)
+        self.assertTupleEqual(('total_vat/Sum', Sum(field_name1)), field1_agg1.as_args)
 
-        agg22 = aggregators12[1]
-        self.assertEqual(field_name1, agg22.field)
-        self.assertEqual(label12,     agg22.label)
-        self.assertEqual(Avg,         agg22.function)
-        self.assertTupleEqual(('total_vat/Avg', Avg(field_name1)), agg22.as_args)
+        field1_agg2 = field1_aggregators[1]
+        self.assertEqual(field_name1,  field1_agg2.field)
+        self.assertEqual(label12,      field1_agg2.label)
+        self.assertEqual(_('Average'), field1_agg2.verbose_label)
+        self.assertEqual(Avg,          field1_agg2.function)
+        self.assertTupleEqual(('total_vat/Avg', Avg(field_name1)), field1_agg2.as_args)
 
         # Third aggregator on other field ---
         field_name2 = 'total_no_vat'
         label2 = 'Minimum'
+        verbose_label2 = 'Smallest value'
         registry.model(FakeInvoice).add_aggregator(
-            field=field_name2, label=label2, function='Min',
+            field=field_name2, label=label2, function='Min', verbose_label=verbose_label2,
         )
-        agg21 = self.get_alone_element(
+        field2_agg = self.get_alone_element(
             registry.aggregators(model=FakeInvoice, field=field_name2)
         )
-        self.assertEqual(field_name2, agg21.field)
-        self.assertEqual(label2,      agg21.label)
-        self.assertEqual(Min,         agg21.function)
-        self.assertTupleEqual(('total_no_vat/Min', Min(field_name2)), agg21.as_args)
+        self.assertEqual(field_name2,    field2_agg.field)
+        self.assertEqual(label2,         field2_agg.label)
+        self.assertEqual(verbose_label2, field2_agg.verbose_label)
+        self.assertEqual(Min,            field2_agg.function)
+        self.assertTupleEqual(('total_no_vat/Min', Min(field_name2)), field2_agg.as_args)
 
     def test_registry__register__errors(self):
         registry = ListViewAggregatorRegistry()
@@ -246,7 +250,8 @@ class ListViewAggregatorTestCase(CremeTestCase):
         self.assertIsInstance(agg_result, AggregationResult)
 
         value = 3000
-        self.assertEqual(value, agg_result.value)
+        self.assertEqual(value,    agg_result.value)
+        self.assertEqual(_('Sum'), agg_result.verbose_label)
         self.assertEqual(
             _('{aggregation_label}: {aggregation_value}').format(
                 aggregation_label=label,
@@ -300,6 +305,7 @@ class ListViewAggregatorTestCase(CremeTestCase):
         vat_max = vat_results[1]
         vat_max_value = Decimal('2200.22')
         self.assertEqual(vat_max_value, vat_max.value)
+        self.assertEqual(_('Maximum'), vat_max.verbose_label)
         self.assertEqual(
             msg_fmt(
                 aggregation_label='MAX',
