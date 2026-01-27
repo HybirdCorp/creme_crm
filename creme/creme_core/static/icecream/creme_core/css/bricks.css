@@ -1525,11 +1525,11 @@ svg.icon {
 
 /* Recent entities brick */
 
-.creme_core-recent_entities-brick .brick-content {
+.creme_core-recent_entities-brick .brick-content:not(.is-empty) {
     display: flex;
 }
 
-.creme_core-recent_entities-brick .brick-content .brick-list-item {
+.creme_core-recent_entities-brick .brick-content:not(.is-empty) .brick-list-item {
     margin: 5px;
     padding: 5px;
 
