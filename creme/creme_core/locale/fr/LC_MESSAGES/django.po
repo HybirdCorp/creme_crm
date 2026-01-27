@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2025 Hybird
+# Copyright (C) 2026 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" -i "templates/creme_core/tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-22 17:37+0100\n"
+"POT-Creation-Date: 2026-01-27 15:15+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1834,6 +1834,18 @@ msgstr "Erreurs"
 #, python-brace-format
 msgid "{aggregation_label}: {aggregation_value}"
 msgstr "{aggregation_label} : {aggregation_value}"
+
+msgid "Minimum"
+msgstr "Minimum"
+
+msgid "Maximum"
+msgstr "Maximum"
+
+msgid "Sum"
+msgstr "Somme"
+
+msgid "Average"
+msgstr "Moyenne"
 
 msgid "The batch processing is disabled because the custom type is deleted"
 msgstr ""

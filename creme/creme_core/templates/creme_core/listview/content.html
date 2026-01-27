@@ -122,7 +122,7 @@
               {% else %}
                <td class="lv-cell lv-cell-content lv-column cl_lv{% if cell.is_hidden %} lv-cell-hidden{% endif %} {{cell.listview_css_class}}" data-column-key="{{cell.key}}"{% if cell.is_hidden %} style="display:none;"{% endif %}>
                  {% with agg_results=aggregations|get_value:cell.key %}
-                   {% if agg_results %}<ul class="aggregation-results">{% for agg_result in agg_results %}<li>{{agg_result.render}}</li>{% endfor %}</ul>{% endif %}
+                   {% if agg_results %}<ul class="aggregation-results">{% for agg_result in agg_results %}<li title="{{agg_result.verbose_label}}">{{agg_result.render}}</li>{% endfor %}</ul>{% endif %}
                  {% endwith %}
                </td>
                {% if not is_popup_view %}

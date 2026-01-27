@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2025  Hybird
+#    Copyright (C) 2025-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,6 +40,7 @@ class AggregationResult:
     """Contains a numeric value computed by a SQL aggregation (& a label)."""
     value: int | float | Decimal
     label: str
+    verbose_label: str
 
     def render(self) -> str:
         """Returns a human-friendly string."""
@@ -59,7 +60,8 @@ class AggregationResult:
 class _ListViewAggregator:
     """Contains the information to build an aggregation query & display the result."""
     field: str  # Field name
-    label: str  # Used to build the related AggregationResult
+    label: str  # Used to fill the related AggregationResult.label
+    verbose_label: str  # Used to fill the related AggregationResult.verbose_label
     function: type[aggregates.Aggregate]  # See _ModelAggregatorsRegistry.FUNCTIONS
 
     @property
@@ -71,10 +73,12 @@ class _ListViewAggregator:
 
 class _ModelAggregatorsRegistry:
     """Contains the _ListViewAggregator related to a CremeEntity model."""
-    # Available aggregation functions
+    # Available aggregation functions + verbose labels
     FUNCTIONS = {
-        f.name: f
-        for f in (aggregates.Min, aggregates.Max, aggregates.Sum, aggregates.Avg)
+        aggregates.Min.name: (aggregates.Min, _('Minimum')),
+        aggregates.Max.name: (aggregates.Max, _('Maximum')),
+        aggregates.Sum.name: (aggregates.Sum, _('Sum')),
+        aggregates.Avg.name: (aggregates.Avg, _('Average')),
     }
 
     _aggregators: DefaultDict[
@@ -103,12 +107,15 @@ class _ModelAggregatorsRegistry:
     def add_aggregator(self, *,
                        field: str,
                        label: str,
+                       verbose_label: str = '',
                        function: str,
                        ) -> _ModelAggregatorsRegistry:
         """Add an aggregator to the related model.
         @param field: Field name.
                Notice that it can be a "deep" field (i.e. "a_fk__a_field").
         @param label: Used to display the result (see <AggregationResult>).
+        @param verbose_label: Used to display the result (see <AggregationResult>);
+               If not provided, a default value is set from the function type.
         @param function: Function name.
                Possible values: "Sum", "Avg", "Max", "Min".
         """
@@ -126,12 +133,13 @@ class _ModelAggregatorsRegistry:
             raise ValueError(f'This field is not a numeric field: {field}')
 
         # TODO: case insensitive?
-        function_obj = self.FUNCTIONS.get(function)
-        if function_obj is None:
+        function_desc = self.FUNCTIONS.get(function)
+        if function_desc is None:
             raise ValueError(f'This function is unknown: {function}')
 
         self._aggregators[field][function] = _ListViewAggregator(
-            field=field, label=label, function=function_obj,
+            field=field, label=label, function=function_desc[0],
+            verbose_label=verbose_label or function_desc[1],
         )
 
         return self
@@ -248,14 +256,16 @@ class ListViewAggregatorRegistry:
                 for agg in sub_registry.aggregators(cell.value):
                     agg_name, agg_function = agg.as_args
                     aggregate_kwargs[agg_name] = agg_function
-                    aggregations_info[agg_name] = (agg.label, cell.key)
+                    aggregations_info[agg_name] = (agg.label, agg.verbose_label, cell.key)
 
         if aggregate_kwargs:
             for agg_name, agg_value in queryset.aggregate(**aggregate_kwargs).items():
                 if agg_value is not None:
-                    agg_label, cell_key = aggregations_info[agg_name]
+                    agg_label, agg_vlabel, cell_key = aggregations_info[agg_name]
                     result[cell_key].append(
-                        AggregationResult(value=agg_value, label=agg_label)
+                        AggregationResult(
+                            value=agg_value, label=agg_label, verbose_label=agg_vlabel,
+                        )
                     )
 
         return result
