@@ -72,6 +72,7 @@ class DownloadAction(UIAction):
 
 class BulkDownloadAction(BulkEntityAction):
     id = BulkEntityAction.generate_id('documents', 'bulk_download')
+    model = Document
 
     # TODO: improve action system (<type = 'redirect'>?)
     type = 'documents-bulk-download'
