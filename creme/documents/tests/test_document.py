@@ -797,6 +797,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
 
         self.assertEqual('documents-bulk_download', BulkDownloadAction.id)
+        self.assertEqual(Document,                  BulkDownloadAction.model)
         self.assertEqual(1,                         BulkDownloadAction.bulk_min_count)
         self.assertEqual(_('Download as .zip'),     BulkDownloadAction.label)
         self.assertEqual(
