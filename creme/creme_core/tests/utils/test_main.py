@@ -1,3 +1,4 @@
+import decimal
 import string
 from datetime import date, datetime
 from functools import partial
@@ -22,6 +23,7 @@ from creme.creme_core.utils import (
     get_from_POST_or_404,
     int_2_roman,
     prefixed_truncate,
+    round_decimal,
     safe_unicode,
     truncate_str,
     update_model_instance,
@@ -55,7 +57,7 @@ from ..base import CremeTestCase
 
 
 class MiscTestCase(CremeTestCase):
-    def test_truncate_str_01(self):
+    def test_truncate_str(self):
         s = string.ascii_letters
         self.assertEqual(52, len(s))
 
@@ -166,6 +168,21 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(0, as_int('foo'))
         self.assertEqual(0, as_int([]))
         self.assertEqual(-1, as_int('foo', default=-1))
+
+    def test_round_decimal(self):
+        self.assertEqual(decimal.Decimal('12.34'), round_decimal(decimal.Decimal('12.34')))
+        self.assertEqual(decimal.Decimal('56.78'), round_decimal(decimal.Decimal('56.780000')))
+        self.assertEqual(decimal.Decimal('12.00'), round_decimal(decimal.Decimal('12')))
+
+        self.assertEqual(
+            decimal.Decimal('14.26'), round_decimal(decimal.Decimal('14.25639')),
+        )
+        self.assertEqual(
+            decimal.Decimal('14.25'),
+            round_decimal(decimal.Decimal('14.25639'), mode=decimal.ROUND_DOWN),
+        )
+
+        self.assertTrue(round_decimal(decimal.Decimal('Nan')).is_nan())
 
     def test_int_2_roman(self):
         self.assertListEqual(

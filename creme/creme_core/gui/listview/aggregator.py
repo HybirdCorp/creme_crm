@@ -32,6 +32,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
 )
 from creme.creme_core.models import CremeEntity
+from creme.creme_core.utils import round_decimal
 from creme.creme_core.utils.meta import FieldInfo
 
 
@@ -46,7 +47,7 @@ class AggregationResult:
         """Returns a human-friendly string."""
         value = self.value
         if isinstance(value, Decimal):
-            value = value.normalize()  # Trailing "0" with sqlite
+            value = round_decimal(value)
         elif isinstance(value, float):  # TODO: test
             value = Decimal(str(value))
 

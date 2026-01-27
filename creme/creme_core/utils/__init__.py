@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2025 Hybird
+# Copyright (c) 2009-2026 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@ import logging
 import sys
 import traceback
 from collections.abc import Iterable
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
 from django.http import Http404
 from django.utils.safestring import mark_safe
@@ -159,11 +160,30 @@ def bool_as_html(b: bool) -> str:
     return f'<input type="checkbox" {checked}disabled/>{label}'
 
 
-def as_int(value, default=0):
+def as_int(value, default: int = 0) -> int:
     try:
         return int(value)
     except (ValueError, TypeError):
         return default
+
+
+def round_decimal(value: Decimal, mode=ROUND_HALF_UP) -> Decimal:
+    """Returns a rounded Decimal instance with 2 decimal places.
+    @param mode: Rounding policy of the decimal module like
+           decimal.ROUND_UP, decimal.ROUND_DOWN or decimal.ROUND_HALF_EVEN.
+
+    >> round_decimal(decimal.Decimal('12')
+    Decimal('12.00')
+
+    >> round_decimal(decimal.Decimal('14.25639')
+    Decimal('14.26')
+    """
+    try:
+        return Decimal(value).quantize(Decimal('.01'), rounding=mode)
+    except InvalidOperation:
+        # TODO: test
+        logger.exception('Error when rounding: %s', value)
+        return Decimal()
 
 
 _I2R_NUMERAL_MAP = [
