@@ -67,6 +67,9 @@
                  is deprecated; use the method 'proxy()' instead.
                 - The method 'search.SearchConfigItemManager.create_if_needed()'
                   is deprecated; use the method 'builder()' instead.
+            - In 'creme_core.utils.content_type', these functions are now deprecated :
+                - 'ctype_as_key()', use the new method 'Content.portable_key()' instead.
+                - 'ctype_from_key()', use the new method 'ContentType.objects.get_by_portable_key()' instead.
         # The declarative possibilities of 'creme_core.management.commands.creme_populate.BasePopulator'
           have been extended; new class attributes are :
              - BUTTONS

@@ -16,12 +16,12 @@ from ..base import CremeTestCase, skipIfNotInstalled
 
 
 class ContentTypeTestCase(CremeTestCase):
-    def test_ctype_as_key(self):
+    def test_ctype_as_key(self):  # DEPRECATED
         get_ct = ContentType.objects.get_for_model
         self.assertEqual('creme_core.fakeorganisation', ctype_as_key(get_ct(FakeOrganisation)))
         self.assertEqual('creme_core.fakecontact', ctype_as_key(get_ct(FakeContact)))
 
-    def test_ctype_from_key(self):
+    def test_ctype_from_key(self):  # DEPRECATED
         get_ct = ContentType.objects.get_for_model
         self.assertEqual(get_ct(FakeOrganisation), ctype_from_key('creme_core.fakeorganisation'))
         self.assertEqual(get_ct(FakeContact), ctype_from_key('creme_core.fakecontact'))
