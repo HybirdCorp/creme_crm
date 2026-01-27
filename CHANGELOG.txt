@@ -70,6 +70,9 @@
             - In 'creme_core.utils.content_type', these functions are now deprecated :
                 - 'ctype_as_key()', use the new method 'Content.portable_key()' instead.
                 - 'ctype_from_key()', use the new method 'ContentType.objects.get_by_portable_key()' instead.
+            - Apps :
+                * Billing :
+                    - The function 'utils.round_to_2()' is deprecated; use 'creme_core.utils.round_decimal()' instead.
         # The declarative possibilities of 'creme_core.management.commands.creme_populate.BasePopulator'
           have been extended; new class attributes are :
              - BUTTONS
@@ -538,7 +541,7 @@
                         - The method 'isJSON()' is deprecated; use '_.isJSON()' instead.
                         - The function 'clean()' is deprecated; use '_.cleanJSON()' instead.
                         - The function 'readScriptText()' is deprecated; use '_.readJSONScriptText()' instead.
-            - App :
+            - Apps :
                 * Persons :
                     - The method 'models.base.PersonWithAddressesMixin._post_save_clone()' is deprecated.
                     - The module 'workflow' is deprecated.

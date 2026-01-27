@@ -205,6 +205,52 @@ class ListViewAggregatorTestCase(CremeTestCase):
             ],
         )
 
+    def test_aggregation_result__decimal(self):
+        label1 = 'Addition'
+        ar1 = AggregationResult(
+            value=Decimal('12.34'), label=label1, verbose_label='All added',
+        )
+        msg_fmt = _('{aggregation_label}: {aggregation_value}').format
+        self.assertEqual(
+            msg_fmt(
+                aggregation_label=label1,
+                aggregation_value=number_format(Decimal('12.34'), force_grouping=True),
+            ),
+            ar1.render(),
+        )
+
+        # Remove trailing '0'
+        label2 = '+'
+        self.assertEqual(
+            msg_fmt(
+                aggregation_label=label2,
+                aggregation_value=number_format(Decimal('12.34'), force_grouping=True),
+            ),
+            AggregationResult(
+                value=Decimal('12.34000'), label=label2, verbose_label='Sum of values',
+            ).render(),
+        )
+
+        # decimal_place==2
+        self.assertEqual(
+            msg_fmt(
+                aggregation_label=label2,
+                aggregation_value=number_format(Decimal('12.35'), force_grouping=True),
+            ),
+            AggregationResult(
+                value=Decimal('12.345678'), label=label2, verbose_label='Sum of values',
+            ).render(),
+        )
+        self.assertEqual(
+            msg_fmt(
+                aggregation_label=label2,
+                aggregation_value=number_format(Decimal('12.30'), force_grouping=True),
+            ),
+            AggregationResult(
+                value=Decimal('12.3'), label=label2, verbose_label='Sum of values',
+            ).render(),
+        )
+
     def test_aggregation_for_cells__one_aggregator(self):
         user = self.get_root_user()
 
