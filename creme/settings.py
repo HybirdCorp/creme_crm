@@ -1020,7 +1020,7 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.sketch',        'sketch/js/chart/groupbarchart.js'),
     ('creme.sketch',        'sketch/js/chart/stackbarchart.js'),
 
-    ('creme.documents',     'documents/js/documents.js'),
+    # ('creme.documents',     'documents/js/documents.js'),
 
     ('creme.persons',       'persons/js/persons.js'),
 
