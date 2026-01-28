@@ -53,50 +53,50 @@ class GuiTestCase(CremeTestCase):
     #     self.assertEqual(0, len(LastViewedItem.get_all(FakeRequest())))
     #
     #     create_contact = partial(FakeContact.objects.create, user=user)
-    #     contact01 = create_contact(first_name='Casca',    last_name='Mylove')
-    #     contact02 = create_contact(first_name='Puck',     last_name='Elfman')
-    #     contact03 = create_contact(first_name='Judo',     last_name='Doe')
+    #     contact1 = create_contact(first_name='Casca',    last_name='Mylove')
+    #     contact2 = create_contact(first_name='Puck',     last_name='Elfman')
+    #     contact3 = create_contact(first_name='Judo',     last_name='Doe')
     #     contact04 = create_contact(first_name='Griffith', last_name='Femto')
     #
-    #     self.assertGET200(contact01.get_absolute_url())
+    #     self.assertGET200(contact1.get_absolute_url())
     #     items = get_items()
     #     self.assertEqual(1, len(items))
-    #     self.assertEqual(contact01.pk, items[0].pk)
+    #     self.assertEqual(contact1.pk, items[0].pk)
     #
     #     # ---
-    #     self.assertGET200(contact02.get_absolute_url())
-    #     self.assertGET200(contact03.get_absolute_url())
+    #     self.assertGET200(contact2.get_absolute_url())
+    #     self.assertGET200(contact3.get_absolute_url())
     #     self.assertGET200(contact04.get_absolute_url())
     #     items = get_items()
     #     self.assertEqual(4, len(items))
     #     self.assertListEqual(
-    #         [contact04.pk, contact03.pk, contact02.pk, contact01.pk],
+    #         [contact04.pk, contact3.pk, contact2.pk, contact1.pk],
     #         [i.pk for i in items],
     #     )
     #
     #     # ---
     #     sleep(1)
-    #     contact01.last_name = 'ILoveYou'
-    #     contact01.save()
+    #     contact1.last_name = 'ILoveYou'
+    #     contact1.save()
     #     self.assertGET200(FakeContact.get_lv_absolute_url())
     #     old_item = get_items()[-1]
-    #     self.assertEqual(contact01.pk,   old_item.pk)
-    #     self.assertEqual(str(contact01), old_item.name)
+    #     self.assertEqual(contact1.pk,   old_item.pk)
+    #     self.assertEqual(str(contact1), old_item.name)
     #
     #     # ---
-    #     self.assertGET200(contact02.get_absolute_url())
+    #     self.assertGET200(contact2.get_absolute_url())
     #     self.assertListEqual(
-    #         [contact02.pk, contact04.pk, contact03.pk, contact01.pk],
+    #         [contact2.pk, contact04.pk, contact3.pk, contact1.pk],
     #         [i.pk for i in get_items()],
     #     )
     #
     #     # ---
-    #     contact03.delete()
-    #     self.assertFalse(CremeEntity.objects.filter(pk=contact03.id))
+    #     contact3.delete()
+    #     self.assertFalse(CremeEntity.objects.filter(pk=contact3.id))
     #     self.assertGET200(FakeContact.get_lv_absolute_url())
     #     items = get_items()
     #     self.assertListEqual(
-    #         [contact02.pk, contact04.pk, contact01.pk],
+    #         [contact2.pk, contact04.pk, contact1.pk],
     #         [i.pk for i in items],
     #     )
     #
@@ -104,7 +104,7 @@ class GuiTestCase(CremeTestCase):
     #     contact04.trash()
     #     self.assertGET200(FakeContact.get_lv_absolute_url())
     #     self.assertListEqual(
-    #         [contact02.pk, contact01.pk],
+    #         [contact2.pk, contact1.pk],
     #         [i.pk for i in get_items()],
     #     )
     #
@@ -112,7 +112,7 @@ class GuiTestCase(CremeTestCase):
     #     with override_settings(MAX_LAST_ITEMS=1):
     #         self.assertGET200(FakeContact.get_lv_absolute_url())
     #
-    #     self.assertListEqual([contact02.pk], [i.pk for i in get_items()])
+    #     self.assertListEqual([contact2.pk], [i.pk for i in get_items()])
 
     def test_statistics(self):
         user = self.get_root_user()

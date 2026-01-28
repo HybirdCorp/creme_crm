@@ -191,7 +191,7 @@ relation_patterns = [
     re_path(
         r'^add_from_predicate/save[/]?$',
         relation.add_relations_with_same_type,
-        name='creme_core__save_relations',
+        name='creme_core__save_relations',  # TODO: rename?
     ),
 
     re_path(
@@ -214,7 +214,7 @@ relation_patterns = [
     re_path(
         r'^delete/similar[/]?$',
         relation.RelationFromFieldsDeletion.as_view(),
-        name='creme_core__delete_similar_relations',    # TODO: improve
+        name='creme_core__delete_similar_relations',  # TODO: improve
     ),
 
     re_path(
