@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2025  Hybird
+#    Copyright (C) 2009-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import prefetch_related_objects
 from django.db.models.query_utils import FilteredRelation, Q
+from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django.urls import reverse
@@ -33,8 +34,10 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 from .. import utils
+from ..auth import EntityCredentials
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
+from ..core.paginator import FlowPaginator
 from ..core.workflow import WorkflowEngine
 from ..forms import relation as rel_forms
 from ..gui import bricks
@@ -42,6 +45,7 @@ from ..gui.bricks import ForbiddenBrick
 from ..models import CremeEntity, Relation, RelationType
 from ..models.utils import model_verbose_name_plural
 from ..shortcuts import get_bulk_or_404
+from ..utils import get_from_POST_or_404
 from ..utils.content_type import entity_ctypes
 from . import generic
 from .bricks import BricksReloading
@@ -321,6 +325,107 @@ class RelationFromFieldsDeletion(generic.CremeModelDeletion):
     # TODO ?
     # def get_success_url(self):
     #     return self.object.subject_entity.get_real_entity().get_absolute_url()
+
+
+class RelationsDeletion(generic.base.EntityCTypeRelatedMixin,
+                        generic.CremeDeletion):
+    """Delete the Relations:
+     - with a given type
+     - which have a subject with a type within a given list of types;
+        - the list of types can be the types to exclude from the deletion.
+        - if the list is empty, all types of subjects are accepted.
+    """
+    rtype_id_arg: str = 'rtype_id'
+    subject_ctype_id_arg: str = 'subject_ct_id'
+    exclude_subjects_arg: str = 'exclude_subjects'
+    # TODO: manage ctypes of objects too?
+
+    def get_exclude_subjects(self) -> bool:
+        return get_from_POST_or_404(
+            self.request.POST,
+            key=self.exclude_subjects_arg, cast=bool, default=False,
+        )
+
+    def get_subject_ctype_ids(self):
+        ctype_ids = []
+
+        for raw_ct_id in self.request.POST.getlist(self.subject_ctype_id_arg):
+            try:
+                ct_id = int(raw_ct_id)
+            except ValueError:
+                raise Http404('ContentType ID must be an integer.')
+
+            ctype_ids.append((ct_id))
+
+        return ctype_ids
+
+    def get_subject_ctypes(self, rtype, exclude: bool):
+        get_ct = ContentType.objects.get_for_id
+        ctypes = [get_ct(ct_id) for ct_id in self.get_subject_ctype_ids()]
+
+        if not ctypes:
+            if exclude:
+                raise Http404(
+                    f'The argument "{self.exclude_subjects_arg}" cannot be '
+                    f'used with an empty list of ContentType IDs.'
+                )
+
+            ctypes = [
+                get_ct(ct_id)
+                for ct_id in Relation.objects
+                                     .filter(type_id=rtype)
+                                     .values_list('subject_entity__entity_type', flat=True)
+                                     .distinct()
+            ]
+        elif exclude:
+            ctypes = [
+                get_ct(ct_id)
+                for ct_id in Relation.objects
+                                     .filter(type_id=rtype)
+                                     .exclude(subject_entity__entity_type__in=ctypes)
+                                     .values_list('subject_entity__entity_type', flat=True)
+                                     .distinct()
+            ]
+
+        return ctypes
+
+    def get_rtype_id(self) -> str:
+        return get_from_POST_or_404(self.request.POST, key=self.rtype_id_arg)
+
+    def get_rtype(self) -> RelationType:
+        rtype = get_object_or_404(RelationType, id=self.get_rtype_id())
+        rtype.is_not_internal_or_die()
+
+        return rtype
+
+    def get_success_url(self):
+        return reverse('creme_core__rtype', args=(self.get_rtype_id(),))
+
+    def perform_deletion(self, request):
+        user = self.request.user
+        rtype = self.get_rtype()
+
+        for ctype in self.get_subject_ctypes(rtype=rtype, exclude=self.get_exclude_subjects()):
+            qs = EntityCredentials.filter(
+                user=user,
+                queryset=ctype.model_class()
+                              .objects
+                              .filter(relations__type=rtype),
+                perm=EntityCredentials.UNLINK,
+            )
+
+            for page in FlowPaginator(
+                queryset=qs.order_by('cremeentity_ptr_id'),
+                per_page=256,
+                count=qs.count(),
+            ).pages():
+                with atomic():
+                    for relation in Relation.objects.filter(
+                        type_id=rtype,
+                        subject_entity_id__in=[e.id for e in page.object_list],
+                    ).prefetch_related('real_object'):
+                        if user.has_perm_to_unlink(relation.real_object):
+                            relation.delete()
 
 
 class RelationsObjectsSelectionPopup(generic.base.EntityRelatedMixin,
@@ -634,17 +739,20 @@ class RelatedMiscEntitiesBrick(bricks.QuerysetBrick):
         self.excluded_ctypes = excluded_ctypes
 
     def detailview_display(self, context):
+        excluded_ctypes = self.excluded_ctypes
         btc = self.get_template_context(
             context,
             Relation.objects.filter(
                 type=context['object'],
             ).exclude(
-                subject_entity__entity_type__in=self.excluded_ctypes,
+                subject_entity__entity_type__in=excluded_ctypes,
             ).order_by(
                 # NB: see remark in RelatedEntitiesBrick about ordering
                 'subject_entity', 'id',
             ).prefetch_related('subject_entity', 'real_object'),
             ctype=None,
+            # TODO: templatetag to extract 'id'?
+            excluded_ctype_ids=[ct.id for ct in excluded_ctypes],
         )
 
         # Populate subjects with real entities

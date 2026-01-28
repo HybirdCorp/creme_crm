@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-27 15:15+0100\n"
+"POT-Creation-Date: 2026-01-30 15:50+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3588,6 +3588,17 @@ msgstr "{count} Autres fiches"
 
 msgid "Other entities"
 msgstr "Autres fiches"
+
+#, python-format
+msgid ""
+"Remove all the relationships related to the «%(models)s» which you are "
+"allowed to unlink"
+msgstr ""
+"Enlever toutes les relations liées aux «%(models)s» que vous avoir la "
+"permission de modifier"
+
+msgid "Remove these relationships"
+msgstr "Enlever ces relations"
 
 msgid "Cannot delete this relationship (internal type)"
 msgstr "Vous ne pouvez pas supprimer cette relation (type interne)"

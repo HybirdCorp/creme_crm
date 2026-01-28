@@ -14,14 +14,17 @@ from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
     FakeActivity,
+    FakeActivityType,
     FakeContact,
     FakeImage,
     FakeOrganisation,
+    HistoryLine,
     Relation,
     RelationType,
     SemiFixedRelationType,
     Workflow,
 )
+from creme.creme_core.models.history import TYPE_SYM_REL_DEL
 from creme.creme_core.utils.translation import smart_model_verbose_name
 from creme.creme_core.views.relation import (
     RelatedMiscEntitiesBrick,
@@ -515,6 +518,80 @@ class RelationsCreationTestCase(BaseRelationViewsTestCase):
     @staticmethod
     def _build_narrowed_add_url(subject, rtype):
         return reverse('creme_core__create_relations', args=(subject.id, rtype.id))
+
+    # def test_not_copiable_relations01(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #
+    #     self.assertEqual(0, Relation.objects.count())
+    #     rtype1, rtype2 = RelationType.objects.smart_update_or_create(
+    #         ('test-subject_foobar', 'is loving'),
+    #         ('test-object_foobar',  'is loved by'),
+    #         is_copiable=False,
+    #     )
+    #     rtype3, rtype4 = RelationType.objects.smart_update_or_create(
+    #         ('test-subject_foobar_copiable', 'is loving'),
+    #         ('test-object_foobar_copiable',  'is loved by'),
+    #     )
+    #
+    #     create_entity = CremeEntity.objects.create
+    #     entity1 = create_entity(user=user)
+    #     entity2 = create_entity(user=user)
+    #
+    #     Relation.objects.create(
+    #         user=user, type=rtype1,
+    #         subject_entity=entity1, object_entity=entity2,
+    #     )
+    #     self.assertRelationCounts(((rtype1, 1), (rtype2, 1)))
+    #
+    #     Relation.objects.create(
+    #         user=user, type=rtype3,
+    #         subject_entity=entity1, object_entity=entity2,
+    #     )
+    #     self.assertRelationCounts(((rtype3, 1), (rtype4, 1)))
+    #
+    #     entity1.clone()
+    #     self.assertRelationCounts(((rtype1, 1), (rtype2, 1), (rtype3, 2), (rtype4, 2)))
+    #
+    # def test_not_copiable_relations02(self):  # DEPRECATED
+    #     user = self.login_as_root_and_get()
+    #     self.assertEqual(0, Relation.objects.count())
+    #
+    #     create_rtype = RelationType.objects.smart_update_or_create
+    #     rtype1, rtype2 = create_rtype(
+    #         ('test-subject_foobar_copiable', 'is loving',   [FakeContact, FakeOrganisation]),
+    #         ('test-object_foobar_copiable',  'is loved by', [FakeContact]),
+    #     )
+    #     rtype3, rtype4 = create_rtype(
+    #         ('test-subject_foobar', 'is loving',   [FakeContact]),
+    #         ('test-object_foobar',  'is loved by', [FakeOrganisation]),
+    #     )
+    #
+    #     create_contact = partial(FakeContact.objects.create, user=user)
+    #     contact1 = create_contact(last_name='Toto')
+    #     contact2 = create_contact(last_name='Titi')
+    #
+    #     orga = FakeOrganisation.objects.create(user=user, name='Toto CORP')
+    #
+    #     # Contact1 <------> Orga
+    #     Relation.objects.create(
+    #         user=user, type=rtype1,
+    #         subject_entity=contact1,
+    #         object_entity=orga,
+    #     )
+    #     Relation.objects.create(
+    #         user=user, type=rtype3,
+    #         subject_entity=contact1,
+    #         object_entity=orga,
+    #     )
+    #
+    #     self.assertRelationCounts(((rtype1, 1), (rtype2, 1), (rtype3, 1), (rtype4, 1)))
+    #
+    #     # Contact2 < ---- > Orga
+    #     contact2._copy_relations(contact1)
+    #     self.assertRelationCounts(((rtype1, 2), (rtype2, 2), (rtype3, 2), (rtype4, 2)))
+    #
+    #     orga._copy_relations(contact1)
+    #     self.assertRelationCounts(((rtype1, 3), (rtype2, 3), (rtype3, 2), (rtype4, 2)))
 
     def test_ok(self):
         user = self.login_as_root_and_get()
@@ -2538,76 +2615,173 @@ class RelationsDeletionViewsTestCase(BaseRelationViewsTestCase):
         )
         self.assertStillExists(relation)
 
-    # def test_not_copiable_relations01(self):  # DEPRECATED
-    #     user = self.login_as_root_and_get()
-    #
-    #     self.assertEqual(0, Relation.objects.count())
-    #     rtype1, rtype2 = RelationType.objects.smart_update_or_create(
-    #         ('test-subject_foobar', 'is loving'),
-    #         ('test-object_foobar',  'is loved by'),
-    #         is_copiable=False,
-    #     )
-    #     rtype3, rtype4 = RelationType.objects.smart_update_or_create(
-    #         ('test-subject_foobar_copiable', 'is loving'),
-    #         ('test-object_foobar_copiable',  'is loved by'),
-    #     )
-    #
-    #     create_entity = CremeEntity.objects.create
-    #     entity1 = create_entity(user=user)
-    #     entity2 = create_entity(user=user)
-    #
-    #     Relation.objects.create(
-    #         user=user, type=rtype1,
-    #         subject_entity=entity1, object_entity=entity2,
-    #     )
-    #     self.assertRelationCounts(((rtype1, 1), (rtype2, 1)))
-    #
-    #     Relation.objects.create(
-    #         user=user, type=rtype3,
-    #         subject_entity=entity1, object_entity=entity2,
-    #     )
-    #     self.assertRelationCounts(((rtype3, 1), (rtype4, 1)))
-    #
-    #     entity1.clone()
-    #     self.assertRelationCounts(((rtype1, 1), (rtype2, 1), (rtype3, 2), (rtype4, 2)))
-    #
-    # def test_not_copiable_relations02(self):  # DEPRECATED
-    #     user = self.login_as_root_and_get()
-    #     self.assertEqual(0, Relation.objects.count())
-    #
-    #     create_rtype = RelationType.objects.smart_update_or_create
-    #     rtype1, rtype2 = create_rtype(
-    #         ('test-subject_foobar_copiable', 'is loving',   [FakeContact, FakeOrganisation]),
-    #         ('test-object_foobar_copiable',  'is loved by', [FakeContact]),
-    #     )
-    #     rtype3, rtype4 = create_rtype(
-    #         ('test-subject_foobar', 'is loving',   [FakeContact]),
-    #         ('test-object_foobar',  'is loved by', [FakeOrganisation]),
-    #     )
-    #
-    #     create_contact = partial(FakeContact.objects.create, user=user)
-    #     contact1 = create_contact(last_name='Toto')
-    #     contact2 = create_contact(last_name='Titi')
-    #
-    #     orga = FakeOrganisation.objects.create(user=user, name='Toto CORP')
-    #
-    #     # Contact1 <------> Orga
-    #     Relation.objects.create(
-    #         user=user, type=rtype1,
-    #         subject_entity=contact1,
-    #         object_entity=orga,
-    #     )
-    #     Relation.objects.create(
-    #         user=user, type=rtype3,
-    #         subject_entity=contact1,
-    #         object_entity=orga,
-    #     )
-    #
-    #     self.assertRelationCounts(((rtype1, 1), (rtype2, 1), (rtype3, 1), (rtype4, 1)))
-    #
-    #     # Contact2 < ---- > Orga
-    #     contact2._copy_relations(contact1)
-    #     self.assertRelationCounts(((rtype1, 2), (rtype2, 2), (rtype3, 2), (rtype4, 2)))
-    #
-    #     orga._copy_relations(contact1)
-    #     self.assertRelationCounts(((rtype1, 3), (rtype2, 3), (rtype3, 2), (rtype4, 2)))
+    def test_delete_relations__narrowed_types(self):
+        user = self.login_as_standard()
+        self.add_credentials(user.role, own=['VIEW', 'UNLINK'])
+
+        root = self.get_root_user()
+
+        rtype1, rtype2 = self._create_rtypes()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        c1 = create_contact(first_name='Laharl', last_name='Overlord')
+        c2 = create_contact(first_name='Etna',   last_name='Devil')
+        c3 = create_contact(first_name='Flone',  last_name='Angel', user=root)
+
+        a1 = FakeActivity.objects.create(
+            title='War', user=user, type=FakeActivityType.objects.all()[0],
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        o1 = create_orga(name='Underworld')
+        o2 = create_orga(name='Heaven')
+        o3 = create_orga(name='Overworld', user=root)
+
+        create_rel = partial(Relation.objects.create, user=user, type=rtype1)
+        r1 = create_rel(subject_entity=c1, object_entity=o1)
+        r2 = create_rel(subject_entity=c2, object_entity=o2)
+        r3 = create_rel(subject_entity=a1, object_entity=o1)
+
+        # Different type
+        other_type_r = create_rel(subject_entity=c1, object_entity=o1, type=rtype2)
+        # Different subject type
+        other_subject_r = create_rel(subject_entity=o1, object_entity=o2)
+
+        unlinkable_subject_r = create_rel(subject_entity=c3, object_entity=o2)
+        unlinkable_object_r  = create_rel(subject_entity=c1, object_entity=o3)
+
+        hlines_count = HistoryLine.objects.count()
+
+        url = reverse('creme_core__delete_relations')
+        data = {'rtype_id': rtype1.id}
+
+        # ---
+        self.assertContains(
+            self.client.post(
+                url, follow=True, data={**data, 'subject_ct_id': ['not_int']},
+            ),
+            status_code=404, text='ContentType ID must be an integer.',
+        )
+
+        # ---
+        response = self.assertPOST200(
+            url,
+            follow=True,
+            data={
+                'rtype_id': rtype1.id,
+                'subject_ct_id': [c1.entity_type_id, a1.entity_type_id],
+            },
+        )
+        self.assertRedirects(response, rtype1.get_absolute_url())
+        self.assertDoesNotExist(r1)
+        self.assertDoesNotExist(r2)
+        self.assertDoesNotExist(r3)
+        self.assertStillExists(other_type_r)
+        self.assertStillExists(other_subject_r)
+        self.assertStillExists(unlinkable_subject_r)
+        self.assertStillExists(unlinkable_object_r)
+
+        self.assertEqual(hlines_count + 6, HistoryLine.objects.count())
+        hline = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_SYM_REL_DEL, hline.type)
+
+    def test_delete_relations__excluded_types(self):
+        user = self.login_as_root_and_get()
+
+        rtype = self._create_rtype()
+
+        c1, c2 = self._create_contacts(user=user)
+        o1, o2 = self._create_organisations(user=user)
+
+        activity = FakeActivity.objects.create(
+            title='War', user=user,
+            type=FakeActivityType.objects.all()[0],
+        )
+
+        create_rel = partial(Relation.objects.create, user=user, type=rtype)
+        r1 = create_rel(subject_entity=c1, object_entity=o1)  # Excluded type
+        r2 = create_rel(subject_entity=c2, object_entity=o2)  # Excluded type
+        r3 = create_rel(subject_entity=activity, object_entity=o2)
+
+        self.assertPOST200(
+            reverse('creme_core__delete_relations'),
+            follow=True,
+            data={
+                'rtype_id': rtype.id,
+                'subject_ct_id': [c1.entity_type_id, o1.entity_type_id],
+                'exclude_subjects': 'on',
+            },
+        )
+        self.assertDoesNotExist(r3)
+        self.assertStillExists(r1)
+        self.assertStillExists(r2)
+
+    def test_delete_relations__all_types(self):
+        user = self.login_as_root_and_get()
+        rtype = self._create_rtype()
+
+        c = self._create_contact(user=user)
+        o = self._create_organisation(user=user)
+
+        object_entity = FakeActivity.objects.create(
+            title='War', user=user, type=FakeActivityType.objects.all()[0],
+        )
+
+        create_rel = partial(
+            Relation.objects.create, user=user, type=rtype, object_entity=object_entity,
+        )
+        r1 = create_rel(subject_entity=c)
+        r2 = create_rel(subject_entity=o)
+
+        url = reverse('creme_core__delete_relations')
+        data = {'rtype_id': rtype.id}
+
+        # ---
+        self.assertContains(
+            self.client.post(
+                url, follow=True, data={**data, 'exclude_subjects': 'on'},
+            ),
+            status_code=404,
+            text=(
+                'The argument "exclude_subjects" cannot be used with an empty list of '
+                'ContentType IDs.'
+            ),
+            html=True,
+        )
+
+        # ---
+        self.assertPOST200(
+            url,
+            follow=True,
+            data=data,  # 'ct_id': [...]
+        )
+        self.assertDoesNotExist(r1)
+        self.assertDoesNotExist(r2)
+
+    def test_delete_relations__internal_rtype(self):
+        self.login_as_root()
+
+        rtype = RelationType.objects.builder(
+            id='test-subject_foobar1', predicate='is loving',
+            is_internal=True,
+        ).symmetric(
+            id='test-object_foobar1', predicate='is loved by',
+        ).get_or_create()[0]
+
+        response = self.client.post(
+            reverse('creme_core__delete_relations'),
+            follow=True,
+            data={
+                'rtype_id': rtype.id,
+                'subject_ct_id': ContentType.objects.get_for_model(FakeContact).id,
+            },
+        )
+        self.assertContains(
+            response,
+            status_code=409,
+            text=_(
+                "You cannot add (or delete) relationships with the type "
+                "«{predicate}» because it is an internal type."
+            ).format(predicate=rtype.predicate),
+            html=True,
+        )
