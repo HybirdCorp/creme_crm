@@ -32,11 +32,11 @@ class ContactMergeTestCase(_BaseTestCase):
             state='BA1 - State', country='BA1 - Country',
             owner=contact01,
         )
-        # NB: no shipping address for contact01
+        # NB: no shipping address for contact1
         contact01.billing_address = bill_addr01
         contact01.save()
 
-        # NB: no billing address for contact02
+        # NB: no billing address for contact2
         ship_addr02 = create_address(
             name='Shipping address 02',
             address='SA2 - Address', po_box='SA2 - PO box',

@@ -364,7 +364,7 @@ class BatchProcessViewsTestCase(CremeTestCase):
         self.assertCountEqual(
             [orga02, orga03],
             efilter.filter(FakeOrganisation.objects.all()),
-        )  # <== not 'orga01'
+        )  # <== not 'orga1'
 
         response = self.client.post(
             self._build_add_url(FakeOrganisation), follow=True,
