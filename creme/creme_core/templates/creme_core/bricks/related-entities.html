@@ -16,12 +16,11 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% comment %} TODO??
+{# TODO: if internal  !!!!!!!!!!!!!!!! #}
   {% if ctype %}
-    {% blocktranslate with models=ctype|ctype_verbose_name_plural asvar help_text %}Remove all the properties related to the «{{models}}» which you are allowed to edit{% endblocktranslate %}
-    {% brick_header_action id='delete' url='creme_core__remove_properties'|url __ptype_id=object.id __ct_id=ctype.id label=_('Remove these properties') help_text=help_text %}
+    {% blocktranslate with models=ctype|ctype_verbose_name_plural asvar help_text %}Remove all the relationships related to the «{{models}}» which you are allowed to unlink{% endblocktranslate %}
+    {% brick_header_action id='delete' url='creme_core__delete_relations_for_subject_ctype'|url __rtype_id=object.id __ct_id=ctype.id label=_('Remove these relationships') help_text=help_text %}
   {% endif %}
-{% endcomment %}
 {% endblock %}
 
 {% block brick_table_head %}{% endblock %}

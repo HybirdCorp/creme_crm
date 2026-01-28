@@ -161,7 +161,7 @@ class PropertyFromFieldsDeletion(generic.base.EntityRelatedMixin,
 
 class CTypePropertiesDeletion(generic.base.EntityCTypeRelatedMixin,
                               generic.CremeDeletion):
-    ptype_id_arg = 'ptype_id'
+    ptype_id_arg: str = 'ptype_id'
     ctype_id_arg: str = 'ct_id'
 
     def get_ctype_id(self) -> int:
@@ -177,22 +177,21 @@ class CTypePropertiesDeletion(generic.base.EntityCTypeRelatedMixin,
         ctype = self.get_ctype()
         ptype_id = self.get_ptype_id()
 
-        key = 'cremeentity_ptr_id'
+        # key = 'cremeentity_ptr_id'
         # NB: CremeUser.has_perm_to_change() returns False for deleted entities,
         #     but EntityCredentials.filter(perm=EntityCredentials.CHANGE, ...)
         #     does not exclude them => is this a problem??
         qs = EntityCredentials.filter(
             user=self.request.user,
             queryset=ctype.model_class()
-                          .objects
-                          .order_by(key)
+                          .objects  # .order_by(key)
                           .filter(properties__type=ptype_id, is_deleted=False),
             perm=EntityCredentials.CHANGE,
         )
         for page in FlowPaginator(
             # queryset=qs,
             # key=key,
-            queryset=qs.order_by(key),
+            queryset=qs.order_by('cremeentity_ptr_id'),
             per_page=256,
             count=qs.count(),
         ).pages():

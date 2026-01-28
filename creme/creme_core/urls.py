@@ -218,6 +218,12 @@ relation_patterns = [
     ),
 
     re_path(
+        r'^delete/for_subject_ctype[/]?$',
+        relation.RelationsForSubjectCTypeDeletion.as_view(),
+        name='creme_core__delete_relations_for_subject_ctype',
+    ),
+
+    re_path(
         r'^entity/(?P<entity_id>\d+)/json[/]?$',
         relation.json_entity_get,
         name='creme_core__entity_as_json',
