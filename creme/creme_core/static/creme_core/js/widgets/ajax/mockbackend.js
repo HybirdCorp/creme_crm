@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2025  Hybird
+    Copyright (C) 2009-2026  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,7 @@ creme.ajax.MockAjaxBackend.prototype.constructor = creme.ajax.Backend;
 $.extend(creme.ajax.MockAjaxBackend.prototype, {
     send: function(url, data, method, on_success, on_error, options) {
         var self = this;
-        var method_urls = this[method] || {};
+        var methodUrls = this[method] || {};
         options = $.extend({}, this.options, options || {});
 
         if (options.sync !== true) {
@@ -65,6 +65,8 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
             if (Object.isEmpty(searchData) === false) {
                 if (method === 'GET') {
                     data = $.extend({}, searchData, data || {});
+                } else if (data instanceof FormData) {
+                    data.append('URI-SEARCH', searchData);
                 } else {
                     data = $.extend({
                         'URI-SEARCH': searchData
@@ -75,7 +77,7 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
             url = urlInfo.pathname().replace(window.location.pathname, '').replace(/^\//, '');
         }
 
-        var response = method_urls[url];
+        var response = methodUrls[url];
 
         if (response === undefined) {
             console.warn('MockAjaxBackend (404) : ' + method + ' ' + url);
@@ -84,10 +86,10 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
 
         if (Object.isFunc(response)) {
             try {
-                response = creme.object.invoke(response, url, data, options);
+                response = response(url, data, options);
             } catch (e) {
                 console.error(e);
-                response = this.response(500, '' + e);
+                response = this.response(500, String(e));
             }
         }
 
@@ -177,9 +179,19 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
     },
 
     responseJSON: function(status, data, header) {
+        if (data instanceof FormData) {
+            data = Object.fromEntries(_.formDataEntriesAll(data));
+        }
+
         return this.response(
             status,
-            Object.isString(data) ? data : JSON.stringify(data),
+            Object.isString(data) ? data : JSON.stringify(data, function(key, value) {
+                if (value instanceof FormData) {
+                    return Object.fromEntries(_.formDataEntriesAll(value, true));
+                }
+
+                return value;
+            }),
             {'content-type': 'text/json'}
         );
     },

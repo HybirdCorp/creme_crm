@@ -4,7 +4,12 @@
 
 // TODO : move URL tests from ajax/utils.js here.
 
-QUnit.module("RelativeURL", new QUnitMixin());
+QUnit.module("RelativeURL", new QUnitMixin({
+    assertFormData: function(data, expected) {
+        this.assert.ok(data instanceof FormData);
+        this.assert.deepEqual(Object.fromEntries(_.formDataEntriesAll(data)), expected);
+    }
+}));
 
 QUnit.test('RelativeURL (URL)', function(assert) {
     var url = new RelativeURL(new URL('http://joe:pwd@admin.com:8080/this/is/a/test?a=1&a=2&b=true&c=a&d=&d=#hash'));
@@ -205,8 +210,52 @@ QUnit.test('toFormData', function(assert) {
     assert.deepEqual(data.getAll('e'), []);
     assert.deepEqual(data.getAll('f'), []);
 
+    this.assertFormData(data, {
+        a: ['12'],
+        b: ['1', '2', '3'],
+        c: ['4', '5', '6']
+    });
+
     data = _.toFormData($('<form><input type="text" value="12" name="a"/></form>').get(0));
     assert.deepEqual(data.getAll('a'), ['12']);
+});
+
+QUnit.test('assignFormData', function(assert) {
+    var data = new FormData();
+
+    data = _.assignFormData(data);
+    this.assertFormData(data, {});
+
+    data = _.assignFormData(data, {
+        a: 12
+    }, {
+        b: [1, 2, 3]
+    }, {
+        c: new Set([4, 5, 6]),
+        d: []
+    }, {});
+
+    this.assertFormData(data, {
+        a: ['12'],
+        b: ['1', '2', '3'],
+        c: ['4', '5', '6']
+    });
+
+    var newData = _.assignFormData(new FormData(), {e: "test"}, data);
+
+    // does not change, the values are applied on a new FormData instance
+    this.assertFormData(data, {
+        a: ['12'],
+        b: ['1', '2', '3'],
+        c: ['4', '5', '6']
+    });
+
+    this.assertFormData(newData, {
+        a: ['12'],
+        b: ['1', '2', '3'],
+        c: ['4', '5', '6'],
+        e: ['test']
+    });
 });
 
 }());

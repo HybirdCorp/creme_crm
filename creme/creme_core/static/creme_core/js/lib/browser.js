@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2020-2025  Hybird
+    Copyright (C) 2020-2026  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 (function() {
 "use strict";
 
-/* globals BrowserVersion */
+/* globals BrowserVersion process self */
 
 window.BrowserVersion = {
     match: function(pattern, version) {
@@ -43,52 +43,91 @@ window.BrowserVersion = {
     },
 
     isIE: function(pattern) {
-        var parts = (window.navigator.appVersion || '').match(/MSIE ([0-9\.]+)/);
+        if (typeof window !== 'undefined') {
+            var parts = ((window.navigator || {}).appVersion || '').match(/MSIE ([0-9\.]+)/);
 
-        if (!(parts && parts.length === 2)) {
-            return false;
+            if (!(parts && parts.length === 2)) {
+                return false;
+            }
+
+            return pattern ? BrowserVersion.match(pattern, parts[1]) : true;
         }
 
-        return pattern ? BrowserVersion.match(pattern, parts[1]) : true;
+        return false;
     },
 
     isChrome: function(pattern) {
-        var userAgent = window.navigator.userAgent || '';
+        if (typeof window !== 'undefined') {
+            var userAgent = (window.navigator || {}).userAgent || '';
 
-        // headless chrome does not have window.chrome defined
-        // (see https://github.com/ChromeDevTools/devtools-protocol/issues/83)
-        if (!!window.chrome || /HeadlessChrome/.test(userAgent)) {
-            var parts = userAgent.match(/Chrom(?:e|ium)\/([0-9\.]+)/);
+            // headless chrome does not have window.chrome defined
+            // (see https://github.com/ChromeDevTools/devtools-protocol/issues/83)
+            if (!!window.chrome || /HeadlessChrome/.test(userAgent)) {
+                var parts = userAgent.match(/Chrom(?:e|ium)\/([0-9\.]+)/);
 
-            if (!(parts && parts.length === 2)) {
-                return false;
+                if (!(parts && parts.length === 2)) {
+                    return false;
+                }
+
+                return pattern ? BrowserVersion.match(pattern, parts[1]) : true;
             }
-
-            return pattern ? BrowserVersion.match(pattern, parts[1]) : true;
-        } else {
-            return false;
         }
+
+        return false;
     },
 
     isHeadless: function() {
-        var userAgent = window.navigator.userAgent || '';
-        return (/HeadlessChrome/.test(userAgent) || !!window.navigator.webdriver);
+        if (typeof window !== 'undefined') {
+            var userAgent = window.navigator.userAgent || '';
+            return (/HeadlessChrome/.test(userAgent) || !!window.navigator.webdriver);
+        }
+
+        return false;
     },
 
     isFirefox: function(pattern) {
-        var userAgent = window.navigator.userAgent || '';
+        if (typeof window !== 'undefined') {
+            var userAgent = window.navigator.userAgent || '';
 
-        if ('MozAppearance' in document.documentElement.style) {
-            var parts = userAgent.match(/(?:Firefox)\/([0-9\.]+)/);
+            if ('MozAppearance' in document.documentElement.style) {
+                var parts = userAgent.match(/(?:Firefox)\/([0-9\.]+)/);
 
-            if (!(parts && parts.length === 2)) {
-                return false;
+                if (!(parts && parts.length === 2)) {
+                    return false;
+                }
+
+                return pattern ? BrowserVersion.match(pattern, parts[1]) : true;
             }
-
-            return pattern ? BrowserVersion.match(pattern, parts[1]) : true;
-        } else {
-            return false;
         }
+
+        return false;
+    },
+
+    isJSDom: function() {
+        if (typeof window !== 'undefined') {
+            return window.name === 'nodejs';
+        } else if (typeof navigator !== 'undefined') {
+            return (
+                navigator.userAgent.includes("Node.js") ||
+                navigator.userAgent.includes("jsdom")
+            );
+        }
+    },
+
+    isWebWorker: function() {
+        return (
+            typeof self === "object" &&
+            self.constructor &&
+            self.constructor.name === "DedicatedWorkerGlobalScope"
+        );
+    },
+
+    isNode: function() {
+        return (
+            typeof process !== "undefined" &&
+            process.versions !== null &&
+            process.versions.node !== null
+        );
     }
 };
 

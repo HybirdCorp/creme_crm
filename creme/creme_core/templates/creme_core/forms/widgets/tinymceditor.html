@@ -1,0 +1,12 @@
+<textarea class="ui-creme-widget ui-creme-tinymceditor{% if creme_widget_auto %} widget-auto{% endif %}"
+          widget="ui-creme-tinymceditor"
+          {% if editor_upload_url %}data-upload-url="{{ editor_upload_url }}"{% endif %}
+          {% if editor_upload_field %}data-upload-field="{{ editor_upload_field }}"{% endif %}
+          {% if editor_base_url %}data-base-url="{{ editor_base_url }}"{% endif %}
+          {% if allow_resize %}data-allow-resize="{{ allow_resize }}"{% endif %}
+          data-toolbar="{{ editor_toolbar }}"
+          data-editor-min-height="fit-rows"
+          name="{{ widget.name }}"
+          {% include "django/forms/widgets/attrs.html" %}>
+{% if widget.value %}{{ widget.value }}{% endif %}
+</textarea>
