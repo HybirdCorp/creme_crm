@@ -74,8 +74,7 @@ class BulkDownloadAction(BulkEntityAction):
     id = BulkEntityAction.generate_id('documents', 'bulk_download')
     model = Document
 
-    # TODO: improve action system (<type = 'redirect'>?)
-    type = 'documents-bulk-download'
+    type = 'goto-selection'
     url_name = 'documents__bulk_download'
 
     label = _('Download as .zip')

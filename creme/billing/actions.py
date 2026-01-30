@@ -64,8 +64,7 @@ class _BulkExportAction(actions.BulkEntityAction):
     # id = actions.BulkEntityAction.generate_id('billing', ...)
     # model = ...
 
-    # TODO: improve action system (<type = 'redirect'> ?)
-    type = 'billing-bulk-export'
+    type = 'goto-selection'
     url_name = 'billing__bulk_export'
 
     label = _('Download as zipped PDF')

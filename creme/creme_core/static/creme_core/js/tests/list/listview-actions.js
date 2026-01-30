@@ -32,7 +32,8 @@ QUnit.module("creme.listview.actions", new QUnitMixin(QUnitEventMixin,
             actions: [
                 {action: 'merge-selection', url: "/mock/entity/merge", attrs: {'data-row-min': 2, 'data-row-max': 2}},
                 {action: 'delete-selection', url: "mock/entity/delete", attrs: {'data-row-min': 1}},
-                {action: 'addto-selection', url: "mock/entity/addto", attrs: {'data-row-max': 3}}
+                {action: 'addto-selection', url: "mock/entity/addto", attrs: {'data-row-max': 3}},
+                {action: 'goto-selection', url: "mock/entity/export", attrs: {'data-row-min': 1}}
             ],
             rows: [
                 [this.createCheckCellHtml('1'), this.createIdCellHtml('1')],
@@ -59,6 +60,54 @@ QUnit.module("creme.listview.actions", new QUnitMixin(QUnitEventMixin,
         this.assert.deepEqual(expected, popoverLinks.map(linkInfo).get());
     }
 }));
+
+QUnit.test('creme.listview.RedirectToSelectedAction (no selection)', function(assert) {
+    var list = this.createListView().controller();
+    var action = new creme.lv_widget.RedirectToSelectedAction(list, {
+        url: 'mock/entity/export'
+    }).on(this.listviewActionListeners);
+
+    assert.equal(0, list.selectedRowsCount());
+    assert.deepEqual([], list.selectedRows());
+
+    this.assertClosedDialog();
+
+    action.start();
+
+    this.assertOpenedAlertDialog(gettext("Please select at least one entity."));
+
+    assert.deepEqual([], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+
+    this.closeDialog();
+
+    assert.deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+    assert.deepEqual([], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+QUnit.test('creme.listview.RedirectToSelectedAction (success)', function(assert) {
+    var list = this.createListView().controller();
+    var action = new creme.lv_widget.RedirectToSelectedAction(list, {
+        url: 'mock/entity/export'
+    }).on(this.listviewActionListeners);
+
+    list.element().find('#selected_rows').val('2,3');
+
+    assert.equal(2, list.selectedRowsCount());
+    assert.deepEqual(['2', '3'], list.selectedRows());
+
+    this.assertClosedDialog();
+
+    action.start();
+
+    this.assertClosedDialog();
+
+    assert.deepEqual([['done']], this.mockListenerCalls('action-done'));
+    assert.deepEqual(['/mock/entity/export?id=2&id=3'], this.mockRedirectCalls());
+    assert.deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+});
 
 QUnit.test('creme.listview.DeleteSelectedAction (no selection)', function(assert) {
     var list = this.createListView().controller();
@@ -1050,7 +1099,8 @@ QUnit.test('creme.listview.header-actions (no selection)', function(assert) {
     this.assertHeaderActionPopoverLinks([
         {action: 'merge-selection',  disabled: true,  title: ngettext('Select %d row', 'Select %d rows', 2).format(2)},
         {action: 'delete-selection', disabled: true,  title: ngettext('Select at least %d row', 'Select at least %d rows', 1).format(1)},
-        {action: 'addto-selection',  disabled: false, title: ''}
+        {action: 'addto-selection',  disabled: false, title: ''},
+        {action: 'goto-selection',  disabled: true, title: ngettext('Select at least %d row', 'Select at least %d rows', 1).format(1)}
     ], popover);
 });
 
@@ -1074,7 +1124,8 @@ QUnit.test('creme.listview.header-actions (open menu, 1 selection)', function(as
     this.assertHeaderActionPopoverLinks([
         {action: 'merge-selection',  disabled: true,  title: ngettext('Select %d row', 'Select %d rows', 2).format(2)},
         {action: 'delete-selection', disabled: false,  title: ''},
-        {action: 'addto-selection',  disabled: false, title: ''}
+        {action: 'addto-selection',  disabled: false, title: ''},
+        {action: 'goto-selection',  disabled: false, title: ''}
     ], popover);
 });
 
@@ -1098,7 +1149,8 @@ QUnit.test('creme.listview.header-actions (open menu, 2 selections)', function(a
     this.assertHeaderActionPopoverLinks([
         {action: 'merge-selection',  disabled: false,  title: ''},
         {action: 'delete-selection', disabled: false,  title: ''},
-        {action: 'addto-selection',  disabled: false, title: ''}
+        {action: 'addto-selection',  disabled: false, title: ''},
+        {action: 'goto-selection',  disabled: false, title: ''}
     ], popover);
 });
 
@@ -1121,7 +1173,8 @@ QUnit.test('creme.listview.header-actions (open menu, all selections)', function
     this.assertHeaderActionPopoverLinks([
         {action: 'merge-selection',  disabled: true,  title: ngettext('Select %d row', 'Select %d rows', 2).format(2)},
         {action: 'delete-selection', disabled: false,  title: ''},
-        {action: 'addto-selection',  disabled: true, title: ngettext('Select no more than %d row', 'Select no more than %d rows', 3).format(3)}
+        {action: 'addto-selection',  disabled: true, title: ngettext('Select no more than %d row', 'Select no more than %d rows', 3).format(3)},
+        {action: 'goto-selection', disabled: false,  title: ''}
     ], popover);
 });
 
@@ -1164,6 +1217,16 @@ QUnit.test('creme.listview.header-actions (open menu, click)', function(assert) 
         ['GET', {ids: ['1', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
     this.closeDialog();
+
+    this.resetMockRedirectCalls();
+    $('.header-actions-trigger', widget.element).trigger('click');
+    popover = this.assertOpenedPopover();
+
+    popover.find('.listview-action [data-action="goto-selection"]').trigger('click');
+    this.assertClosedPopover();
+
+    this.assertClosedDialog();
+    assert.deepEqual(['/mock/entity/export?id=1&id=3'], this.mockRedirectCalls());
 });
 
 }(jQuery));

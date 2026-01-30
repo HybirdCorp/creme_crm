@@ -105,6 +105,7 @@
                to the XMLHttpRequest 'responseURL' (if different from the current url).
              - Add 'creme.menu.MenuActionBuilders' action registry for menu; Use 'setup-menu-actions' to register
                custom actions.
+             - Add 'goto-selection' action in listview; allows redirections using selected ids like download views.
         # App :
             * Persons :
                 - The model 'Address' got new fields: 'created', 'modified'.
