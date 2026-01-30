@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-30 15:50+0100\n"
+"POT-Creation-Date: 2026-01-30 17:00+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1927,7 +1927,7 @@ msgid "No recently visited entity"
 msgstr "Aucune fiche récemment visitée"
 
 msgid "No pinned entity"
-msgstr "Aucine fiche épinglée"
+msgstr "Aucune fiche épinglée"
 
 msgid "Name"
 msgstr "Nom"
@@ -3646,7 +3646,7 @@ msgid "Display once on the subject's page"
 msgstr "Afficher une seule fois sur la page du sujet"
 
 msgid "Symmetric type"
-msgstr "Type symmétrique"
+msgstr "Type symétrique"
 
 #, python-format
 msgid "Configure the fields for «%(ctype)s»'"
