@@ -30,6 +30,7 @@
     "FormData": true,
     "URL": true,
     "URLSearchParams": true,
+    "Promise": true,
 
     /* External libraries */
     "jQuery": true,
