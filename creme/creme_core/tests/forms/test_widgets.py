@@ -26,6 +26,7 @@ from creme.creme_core.forms.widgets import (
     EntityCreatorWidget,
     EntitySelector,
     RelativeDatePeriodWidget,
+    TinyMCEEditor,
     UnorderedMultipleChoiceWidget,
     WidgetAction,
 )
@@ -1517,4 +1518,51 @@ class DurationWidgetTestCase(CremeTestCase):
             f' <input min="0" name="{name}_2" type="number" value="00">Second(s)'
             f'</span>',
             DurationWidget().render(name=name, value='0:15:00'),
+        )
+
+
+class TinyMCEditorTestCase(CremeTestCase):
+    maxDiff = None
+
+    def test_render(self):
+        widget = TinyMCEEditor()
+        self.assertHTMLEqual(
+            '''
+            <textarea cols="40" rows="10" name="field"
+                      class="ui-creme-tinymceditor ui-creme-widget widget-auto"
+                      widget="ui-creme-tinymceditor"
+                      data-toolbar="full"
+                      data-editor-min-height="fit-rows">
+            ''',
+            widget.render('field', value=''),
+        )
+
+    def test_render_upload(self):
+        widget = TinyMCEEditor(upload_url="mock/upload/", upload_field="thefile")
+
+        self.assertHTMLEqual(
+            '''
+            <textarea cols="40" rows="10" name="field"
+                      class="ui-creme-tinymceditor ui-creme-widget widget-auto"
+                      widget="ui-creme-tinymceditor"
+                      data-upload-url="mock/upload/"
+                      data-upload-field="thefile"
+                      data-toolbar="full"
+                      data-editor-min-height="fit-rows">
+            ''',
+            widget.render('field', value=''),
+        )
+
+    def test_render_toolbar(self):
+        widget = TinyMCEEditor(toolbar="simple")
+
+        self.assertHTMLEqual(
+            '''
+            <textarea cols="40" rows="10" name="field"
+                      class="ui-creme-tinymceditor ui-creme-widget widget-auto"
+                      widget="ui-creme-tinymceditor"
+                      data-toolbar="simple"
+                      data-editor-min-height="fit-rows">
+            ''',
+            widget.render('field', value=''),
         )

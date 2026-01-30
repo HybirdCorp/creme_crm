@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2025  Hybird
+    Copyright (C) 2025-2026  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -87,28 +87,41 @@ function toFormData(data) {
     }
 }
 
-function assignFormData(params, data) {
-    Object.entries(data || {}).forEach(function(e) {
-        var key = e[0], value = e[1];
+function formDataEntriesAll(data, reduce) {
+    return data.keys().map(function(key) {
+        var value = data.getAll(key);
+        return [key, value.length === 1 && reduce ? value[0] : value];
+    });
+}
 
-        if (value instanceof Set) {
-            value = Array.from(value);
-        }
+function assignFormData(target) {
+    var args = Array.from(arguments).slice(1);
 
-        if (Array.isArray(value)) {
-            params.delete(key);
+    args.forEach(function(data) {
+        var entries = (data instanceof FormData) ? formDataEntriesAll(data) : Object.entries(data || {});
 
-            if (value.length > 0) {
-                value.forEach(function(item) {
-                    params.append(key, item);
-                });
+        entries.forEach(function(e) {
+            var key = e[0], value = e[1];
+
+            if (value instanceof Set) {
+                value = Array.from(value);
             }
-        } else if (value !== null && value !== undefined) {
-            params.set(key, value);
-        }
+
+            if (Array.isArray(value)) {
+                target.delete(key);
+
+                if (value.length > 0) {
+                    value.forEach(function(item) {
+                        target.append(key, item);
+                    });
+                }
+            } else if (value !== null && value !== undefined) {
+                target.set(key, value);
+            }
+        });
     });
 
-    return params;
+    return target;
 }
 
 window.RelativeURL = function(url) {
@@ -244,7 +257,8 @@ _.mixin({
     },
     // TODO : Move this code to a better place once the refactoring of ajax backend is done
     toFormData: toFormData,
-    assignFormData: assignFormData
+    assignFormData: assignFormData,
+    formDataEntriesAll: formDataEntriesAll
 });
 
 }());

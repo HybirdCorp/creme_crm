@@ -2,11 +2,47 @@
 
 {% block test_title %}Rich text editor{% endblock %}
 
+{% block test_header %}
+<script type="text/javascript">
+(function($) {
+    var backend = new creme.ajax.MockAjaxBackend({sync: true, delay: 500});
+
+    backend.POST = {
+        'mock/upload': function(url, data, options) {
+            return backend.responseJSON(200, {
+                url: URL.createObjectURL(data.get("file"))
+            });
+        }
+    };
+
+    $(document).ready(function() {
+        creme.ajax.defaultBackend(backend);
+    });
+}(jQuery));
+</script>
+{% endblock %}
+
 {% block test_content %}
     <ul>
         <li>
-            <h4>Tiny MCE</h4>
-            <textarea widget="ui-creme-editor" class="ui-creme-editor ui-creme-widget widget-auto" basepath="tiny_mce"></textarea>
+            <h4>Tiny MCE (Full)</h4>
+            <textarea id="edit-full" widget="ui-creme-tinymceditor" class="ui-creme-tinymceditor ui-creme-widget widget-auto" placeholder="Please enter your text"
+                      data-upload-url="mock/upload" data-toolbar="full" data-editor-min-height="fit-rows" rows="30" data-resizable="height"></textarea>
+        </li>
+        <li>
+            <h4>Tiny MCE (readonly)</h4>
+            <textarea id="edit-readonly" widget="ui-creme-tinymceditor" class="ui-creme-tinymceditor ui-creme-widget widget-auto" placeholder="Please enter your text"
+                      readonly data-editor-min-height="fit-input" style="height: 30em;"></textarea>
+        </li>
+        <li>
+            <h4>Tiny MCE (disabled)</h4>
+            <textarea id="edit-disabled" widget="ui-creme-tinymceditor" class="ui-creme-tinymceditor ui-creme-widget widget-auto" placeholder="Please enter your text"
+                      disabled data-editor-min-height="fit-input" style="height: 5em;"></textarea>
+        </li>
+        <li>
+            <h4>Tiny MCE (Simple)</h4>
+            <textarea id="edit-simple" widget="ui-creme-tinymceditor" class="ui-creme-tinymceditor ui-creme-widget widget-auto" placeholder="Please enter your text"
+                      data-toolbar="simple" data-editor-min-height="200"></textarea>
         </li>
     </ul>
 {% endblock %}
