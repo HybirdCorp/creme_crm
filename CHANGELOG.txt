@@ -4,6 +4,7 @@
 
   Users side :
   ------------
+    # The style for notification panel with lots of notifications has been improved.
     # Apps :
         * Recurrents :
             - A crash when you tried to add a filter has been fixed.
