@@ -5,17 +5,7 @@ from uuid import uuid4
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
-from creme.creme_core.core.function_field import function_field_registry
-from creme.creme_core.gui.view_tag import ViewTag
-from creme.creme_core.models import (
-    CremeProperty,
-    CremePropertyType,
-    Relation,
-    RelationType,
-)
-from creme.persons.tests.base import skipIfCustomOrganisation
-
-from ..models import (
+from creme.billing.models import (
     AdditionalInformation,
     CreditNoteStatus,
     InvoiceStatus,
@@ -24,7 +14,15 @@ from ..models import (
     QuoteStatus,
     SalesOrderStatus,
 )
-from .base import (
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    Relation,
+    RelationType,
+)
+from creme.persons.tests.base import skipIfCustomOrganisation
+
+from ..base import (
     Address,
     CreditNote,
     Invoice,
@@ -45,15 +43,14 @@ from .base import (
 @skipIfCustomOrganisation
 @skipIfCustomTemplateBase
 class TemplateBaseTestCase(_BillingTestCase):
-    STATUS_KEY = 'cform_extra-billing_template_status'
-
-    def setUp(self):
-        super().setUp()
-        self.user = user = self.login_as_root_and_get()
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = user = cls.get_root_user()
 
         create_orga = partial(Organisation.objects.create, user=user)
-        self.source = create_orga(name='Source')
-        self.target = create_orga(name='Target')
+        cls.source = create_orga(name='Source')
+        cls.target = create_orga(name='Target')
 
     def _create_templatebase(self, model, status_uuid, name=None, comment='', **kwargs):
         return TemplateBase.objects.create(
@@ -67,97 +64,8 @@ class TemplateBaseTestCase(_BillingTestCase):
             **kwargs
         )
 
-    def test_detailview(self):
-        invoice_status = InvoiceStatus.objects.filter(is_default=False).first()
-        tpl = self._create_templatebase(Invoice, status_uuid=invoice_status.uuid)
-        response = self.assertGET200(tpl.get_absolute_url())
-        self.assertTemplateUsed(response, 'billing/view_template.html')
-
-    def test_status_function_field(self):
-        status = InvoiceStatus.objects.filter(is_default=False).first()
-        tpl = self._create_templatebase(Invoice, status_uuid=status.uuid)
-
-        with self.assertNoException():
-            funf = function_field_registry.get(TemplateBase, 'get_verbose_status')
-
-        self.assertIsNotNone(funf)
-
-        # ---
-        with self.assertNumQueries(1):
-            render1 = funf(tpl, self.user).render(ViewTag.TEXT_PLAIN)
-
-        self.assertEqual(str(status), render1)
-
-        # ---
-        with self.assertNumQueries(0):
-            render2 = funf(tpl, self.user).render(ViewTag.HTML_LIST)
-
-        self.assertHTMLEqual(
-            f'<div class="ui-creme-colored_status">'
-            f' <div class="ui-creme-color_indicator" style="background-color:#{status.color};" />'
-            f' <span>{status.name}</span>'
-            f'</div>',
-            render2,
-        )
-
-        # ---
-        with self.assertNumQueries(0):
-            render3 = funf(tpl, self.user).render(ViewTag.HTML_LIST)
-
-        self.assertEqual(render2, render3)
-
-    def test_status_function_field__populate(self):
-        user = self.user
-
-        status1, status2 = InvoiceStatus.objects.filter(is_default=False)[:2]
-        tpl1 = self._create_templatebase(Invoice, status_uuid=status1.uuid)
-        tpl2 = self._create_templatebase(Invoice, status_uuid=status2.uuid)
-
-        funf = function_field_registry.get(TemplateBase, 'get_verbose_status')
-
-        with self.assertNumQueries(1):
-            funf.populate_entities(entities=[tpl1, tpl2], user=user)
-
-        with self.assertNumQueries(0):
-            render1 = funf(tpl1, user).render(ViewTag.TEXT_PLAIN)
-        self.assertEqual(str(status1), render1)
-
-        with self.assertNumQueries(0):
-            render2 = funf(tpl2, user).render(ViewTag.TEXT_PLAIN)
-        self.assertEqual(str(status2), render2)
-
-        # Status already retrieved
-        tpl3 = self._create_templatebase(Invoice, status_uuid=status2.uuid)
-        with self.assertNumQueries(0):
-            funf.populate_entities(entities=[tpl1, tpl2, tpl3], user=user)
-
-        with self.assertNumQueries(0):
-            render3 = funf(tpl3, user).render(ViewTag.TEXT_PLAIN)
-        self.assertEqual(str(status2), render3)
-
-    def test_status_function_field__populate_several_models(self):
-        user = self.user
-
-        status1 = InvoiceStatus.objects.filter(is_default=False).first()
-        status2 = QuoteStatus.objects.filter(is_default=False).first()
-        tpl1 = self._create_templatebase(Invoice, status_uuid=status1.uuid)
-        tpl2 = self._create_templatebase(Quote, status_uuid=status2.uuid)
-
-        funf = function_field_registry.get(TemplateBase, 'get_verbose_status')
-
-        with self.assertNumQueries(2):
-            funf.populate_entities(entities=[tpl1, tpl2], user=user)
-
-        with self.assertNumQueries(0):
-            render1 = funf(tpl1, user).render(ViewTag.TEXT_PLAIN)
-        self.assertEqual(str(status1), render1)
-
-        with self.assertNumQueries(0):
-            render2 = funf(tpl2, user).render(ViewTag.TEXT_PLAIN)
-        self.assertEqual(str(status2), render2)
-
     @skipIfCustomInvoice
-    def test_create_invoice(self):
+    def test_create_entity__invoice(self):
         target_orga = self.target
         target_orga.billing_address = Address.objects.create(
             name='Billing address 01', address='BA1 - Address',
@@ -223,7 +131,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(origin_b_addr.zipcode, billing_address.zipcode)
 
     @skipIfCustomInvoice
-    def test_create_invoice__bad_status_id(self):
+    def test_create_entity__invoice__bad_status_id(self):
         tpl = self._create_templatebase(Invoice, status_uuid=uuid4())
 
         with self.assertNoException():
@@ -232,7 +140,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertTrue(invoice.status.is_default)
 
     @skipIfCustomInvoice
-    def test_create_invoice__managed_emitter(self):
+    def test_create_entity__invoice__managed_emitter(self):
         "Source is managed."
         self._set_managed(self.source)
         item = self.get_object_or_fail(
@@ -255,7 +163,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual('INV-0001', invoice.number)
 
     @skipIfCustomInvoice
-    def test_create_invoice__not_managed_emitter(self):
+    def test_create_entity__invoice__not_managed_emitter(self):
         "Source is not managed + fallback number."
         invoice_status = InvoiceStatus.objects.filter(is_default=False).first()
         number = 'INV132'
@@ -267,7 +175,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(number, invoice.number)
 
     @skipIfCustomQuote
-    def test_create_quote(self):
+    def test_create_entity__quote(self):
         "Quote + Properties + Relations."
         quote_status = QuoteStatus.objects.filter(is_default=False).first()
         comment = '*Insert an nice comment here*'
@@ -322,7 +230,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         )
 
     @skipIfCustomQuote
-    def test_create_quote__bad_uuid(self):
+    def test_create_entity__quote__bad_uuid(self):
         "Bad status uuid."
         uid = uuid4()
         self.assertFalse(QuoteStatus.objects.filter(uuid=uid))
@@ -342,7 +250,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         )
 
     @skipIfCustomQuote
-    def test_create_quote__no_default_status_available(self):
+    def test_create_entity__quote__no_default_status_available(self):
         QuoteStatus.objects.filter(is_default=True).delete()
         status_ids = {*QuoteStatus.objects.values_list('id', flat=True)}
         uid = uuid4()
@@ -368,7 +276,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         )
 
     @skipIfCustomQuote
-    def test_create_quote__no_status_available(self):
+    def test_create_entity__quote__no_status_available(self):
         QuoteStatus.objects.all().delete()
         uid = uuid4()
 
@@ -397,7 +305,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         )
 
     @skipIfCustomQuote
-    def test_create_quote__managed_source(self):
+    def test_create_entity__quote__managed_source(self):
         "Source is managed."
         self._set_managed(self.source)
         item = self.get_object_or_fail(
@@ -421,7 +329,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual('QU-0001', quote.number)
 
     @skipIfCustomSalesOrder
-    def test_create_order(self):
+    def test_create_entity__sales_order(self):
         order_status = SalesOrderStatus.objects.filter(is_default=False).first()
         tpl = self._create_templatebase(SalesOrder, status_uuid=order_status.uuid)
 
@@ -432,7 +340,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(order_status, order.status)
 
     @skipIfCustomSalesOrder
-    def test_create_order__bad_status_id(self):
+    def test_create_entity__sales_order__bad_status_id(self):
         tpl = self._create_templatebase(SalesOrder, status_uuid=uuid4())
 
         with self.assertNoException():
@@ -441,7 +349,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(SalesOrderStatus.objects.default().id, order.status_id)
 
     @skipIfCustomCreditNote
-    def test_create_cnote(self):
+    def test_create_entity__credit_note(self):
         cnote_status = CreditNoteStatus.objects.filter(is_default=False).first()
         comment = '*Insert an nice comment here*'
         tpl = self._create_templatebase(
@@ -455,7 +363,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(comment, cnote.comment)
         self.assertEqual(cnote_status, cnote.status)
 
-    def test_create_error(self):
+    def test_create_entity__error(self):
         tpl = self._create_templatebase(Organisation, status_uuid=uuid4())
 
         with self.assertRaises(ValueError) as cm:
@@ -466,91 +374,9 @@ class TemplateBaseTestCase(_BillingTestCase):
             str(cm.exception),
         )
 
-    def test_editview(self):
-        user = self.user
+    def test_delete_status__invoice(self):
+        self.login_as_root()
 
-        invoice_status1, invoice_status2 = InvoiceStatus.objects.filter(
-            is_default=False,
-        ).order_by('-id')[:2]
-
-        name = 'My template'
-        tpl = self._create_templatebase(Invoice, status_uuid=invoice_status1.uuid, name=name)
-
-        url = tpl.get_edit_absolute_url()
-        response1 = self.assertGET200(url)
-
-        with self.assertNoException():
-            formfields = response1.context['form'].fields
-            source_f = formfields[self.SOURCE_KEY]
-            target_f = formfields[self.TARGET_KEY]
-            status_f = formfields[self.STATUS_KEY]
-            number_f = formfields['number']
-
-        self.assertEqual(self.source, source_f.initial)
-        self.assertEqual(self.target, target_f.initial)
-        self.assertEqual(invoice_status1.id, status_f.initial)
-        self.assertEqual(
-            _(
-                'If a number is given, it will be only used as fallback value '
-                'when generating a number in the final recurring entities.'
-            ),
-            number_f.help_text,
-        )
-
-        # ---
-        name += ' (edited)'
-
-        create_orga = partial(Organisation.objects.create, user=self.user)
-        source2 = create_orga(name='Source Orga 2')
-        target2 = create_orga(name='Target Orga 2')
-
-        response2 = self.client.post(
-            url, follow=True,
-            data={
-                'user':            user.pk,
-                'name':            name,
-                'issuing_date':    self.formfield_value_date(2020, 10, 31),
-                'expiration_date': self.formfield_value_date(2020, 11, 30),
-                self.STATUS_KEY:    invoice_status2.id,
-                'currency':        tpl.currency_id,
-                'discount':        '0',
-
-                self.SOURCE_KEY: source2.id,
-                self.TARGET_KEY: self.formfield_value_generic_entity(target2),
-            },
-        )
-        self.assertNoFormError(response2)
-        self.assertRedirects(response2, tpl.get_absolute_url())
-
-        tpl = self.refresh(tpl)
-        self.assertEqual(name, tpl.name)
-        self.assertEqual(date(year=2020, month=11, day=30), tpl.expiration_date)
-        self.assertIsNone(tpl.payment_info)
-        self.assertUUIDEqual(invoice_status2.uuid, tpl.status_uuid)
-
-        self.assertEqual(source2, tpl.source)
-        self.assertEqual(target2, tpl.target)
-
-    def test_listview(self):
-        invoice_status = InvoiceStatus.objects.first()
-        quote_status   = QuoteStatus.objects.first()
-
-        tpl1 = self._create_templatebase(
-            Invoice, status_uuid=invoice_status.uuid, name='Invoice template',
-        )
-        tpl2 = self._create_templatebase(
-            Quote, status_uuid=quote_status.uuid, name='Quote template',
-        )
-
-        response = self.assertGET200(TemplateBase.get_lv_absolute_url())
-
-        with self.assertNoException():
-            quotes_page = response.context['page_obj']
-
-        self.assertEqual(2, quotes_page.paginator.count)
-        self.assertCountEqual([tpl1, tpl2], quotes_page.paginator.object_list)
-
-    def test_delete_invoice_status(self):
         new_status, other_status = InvoiceStatus.objects.all()[:2]
         status2del = InvoiceStatus.objects.create(name='OK')
 
@@ -578,7 +404,9 @@ class TemplateBaseTestCase(_BillingTestCase):
         tpl3 = self.refresh(tpl3)
         self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
 
-    def test_delete_quote_status(self):
+    def test_delete_status__quote(self):
+        self.login_as_root()
+
         new_status, other_status = QuoteStatus.objects.all()[:2]
         status2del = QuoteStatus.objects.create(name='OK')
 
@@ -604,7 +432,8 @@ class TemplateBaseTestCase(_BillingTestCase):
         tpl3 = self.refresh(tpl3)
         self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
 
-    def test_delete_salesorder_status(self):
+    def test_delete_status__salesorder(self):
+        self.login_as_root()
         new_status, other_status = SalesOrderStatus.objects.all()[:2]
         status2del = SalesOrderStatus.objects.create(name='OK')
 
@@ -630,7 +459,9 @@ class TemplateBaseTestCase(_BillingTestCase):
         tpl3 = self.refresh(tpl3)
         self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
 
-    def test_delete_creditnote_status(self):
+    def test_delete_status__credit_note(self):
+        self.login_as_root()
+
         new_status, other_status = CreditNoteStatus.objects.all()[:2]
         status2del = CreditNoteStatus.objects.create(name='OK')
 
@@ -657,5 +488,3 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         tpl3 = self.refresh(tpl3)
         self.assertUUIDEqual(status2del.uuid, tpl3.status_uuid)
-
-    # TODO: test form

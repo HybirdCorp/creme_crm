@@ -3,18 +3,15 @@ from functools import partial
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.models import FieldsConfig, SettingValue
-from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.billing.models import PaymentInformation
+from creme.creme_core.models import FieldsConfig
 from creme.persons.tests.base import skipIfCustomOrganisation
 
-from ..bricks import BillingPaymentInformationBrick, PaymentInformationBrick
-from ..models import PaymentInformation
-from ..setting_keys import payment_info_key
-from .base import Invoice, Organisation, _BillingTestCase, skipIfCustomInvoice
+from ..base import Invoice, Organisation, _BillingTestCase, skipIfCustomInvoice
 
 
 @skipIfCustomOrganisation
-class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
+class PaymentInformationViewsTestCase(_BillingTestCase):
     @staticmethod
     def _build_add_url(orga):
         return reverse('billing__create_payment_info', args=(orga.id,))
@@ -27,7 +24,7 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
     def _build_setdefault_url(pi, invoice):
         return reverse('billing__set_default_payment_info', args=(pi.id, invoice.id))
 
-    def test_create__default_values(self):
+    def test_creation__default_values(self):
         user = self.login_as_root_and_get()
 
         organisation = Organisation.objects.create(user=user, name='Nintendo')
@@ -61,7 +58,7 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('', pi.iban)
         self.assertEqual('', pi.bic)
 
-    def test_create__filled_values(self):
+    def test_creation__filled_values(self):
         user = self.login_as_root_and_get()
 
         organisation = Organisation.objects.create(user=user, name='Nintendo')
@@ -112,12 +109,12 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(iban,           second_pi.iban)
         self.assertEqual(bic,            second_pi.bic)
 
-    def test_create__bad_entity_type(self):
+    def test_creation__bad_entity_type(self):
         "Related is not an organisation."
         user = self.login_as_root_and_get()
         self.assertGET404(self._build_add_url(user.linked_contact))
 
-    def test_create_related(self):
+    def test_related_creation(self):
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Organisation, Invoice],
@@ -152,7 +149,7 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         # Not a billing doc
         self.assertGET404(self._build_add_related_url(source))
 
-    def test_create_related__forbidden(self):
+    def test_related_creation__forbidden(self):
         "Credentials for source."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -164,7 +161,7 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Playstations')
         self.assertGET403(self._build_add_related_url(invoice))
 
-    def test_edit(self):
+    def test_edition(self):
         user = self.login_as_root_and_get()
 
         organisation = Organisation.objects.create(user=user, name='Nintendo')
@@ -198,7 +195,7 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(rib_key, pi.rib_key)
         self.assertEqual(bic,     pi.bic)
 
-    def test_edit__becomes_default(self):
+    def test_edition__becomes_default(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -243,139 +240,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         pi_12.delete()
         self.assertIs(True, self.refresh(pi_11).is_default)
-
-    def test_orga_brick__managed(self):
-        user = self.login_as_root_and_get()
-
-        orga = Organisation.objects.create(user=user, name='Sony', is_managed=True)
-        payment_info = PaymentInformation.objects.create(organisation=orga, name='RIB sony')
-
-        response = self.assertGET200(orga.get_absolute_url())
-        brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            brick=PaymentInformationBrick,
-        )
-        self.assertBrickTitleEqual(
-            brick_node,
-            count=1,
-            title='{count} Payment information',
-            plural_title='{count} Payments information',
-        )
-        self.assertBrickHasAction(
-            brick_node,
-            url=payment_info.get_edit_absolute_url(),
-            action_type='edit',
-        )
-
-    def test_orga_brick__not_managed(self):
-        "Organisation is not managed."
-        user = self.login_as_root_and_get()
-
-        self.assertIs(SettingValue.objects.value_4_key(payment_info_key), True)
-
-        orga = Organisation.objects.create(user=user, name='Sony')
-        PaymentInformation.objects.create(organisation=orga, name='RIB sony')
-
-        response = self.assertGET200(orga.get_absolute_url())
-        # self.assertNoBrick(
-        #     self.get_html_tree(response.content),
-        #     brick_id=PaymentInformationBrick.id,
-        # )
-        brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            brick=PaymentInformationBrick,
-        )
-        self.assertIn('brick-void', brick_node.attrib.get('class', ''))
-
-    def test_orga_brick__not_managed_n_displayed(self):
-        "Organisation is not managed + Setting is False."
-        user = self.login_as_root_and_get()
-
-        SettingValue.objects.set_4_key(payment_info_key, False)
-
-        orga = Organisation.objects.create(user=user, name='Sony')
-        PaymentInformation.objects.create(organisation=orga, name='RIB sony')
-
-        response = self.assertGET200(orga.get_absolute_url())
-        self.get_brick_node(
-            self.get_html_tree(response.content),
-            brick=PaymentInformationBrick,
-        )
-
-    @skipIfCustomInvoice
-    def test_billing_brick(self):
-        user = self.login_as_root_and_get()
-
-        source, target = self.create_orgas(user=user)
-
-        create_pi = PaymentInformation.objects.create
-        payment_info1 = create_pi(organisation=source, name='RIB source #1')
-        payment_info2 = create_pi(organisation=source, name='RIB source #2')
-        create_pi(organisation=target, name='RIB target')
-        self.assertTrue(payment_info1.is_default)
-
-        invoice = self.create_invoice(user=user, name='My invoice', source=source, target=target)
-        self.assertEqual(invoice.payment_info_id, payment_info1.id)
-
-        response = self.assertGET200(invoice.get_absolute_url())
-        brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            brick=BillingPaymentInformationBrick,
-        )
-        self.assertBrickTitleEqual(
-            brick_node,
-            count=2,
-            title='{count} Payment information',
-            plural_title='{count} Payments information',
-        )
-
-        # TODO: method in base ?
-        items = brick_node.findall('.//div[@class="brick-list-item billing-item"]')
-        self.assertEqual(2, len(items))
-
-        item1 = items[0]
-        key_node1 = self.get_html_node_or_fail(item1, './/div[@class="billing-group-key"]')
-        self.assertEqual(payment_info1.name, key_node1.text.strip())
-
-        action_node1 = self.get_html_node_or_fail(item1, './/div[@class="billing-action"]')
-        self.assertEqual(_('Selected account for this document'), action_node1.text.strip())
-
-        item2 = items[1]
-        key_node2 = self.get_html_node_or_fail(item2, './/div[@class="billing-group-key"]')
-        self.assertEqual(payment_info2.name, key_node2.text.strip())
-
-        action_node2 = self.get_html_node_or_fail(item2, './/div[@class="billing-action"]')
-        self.assertBrickHasAction(
-            action_node2,
-            url=reverse(
-                'billing__set_default_payment_info',
-                args=(payment_info2.id, invoice.id),
-            ),
-            action_type='update',
-        )
-
-    @skipIfCustomInvoice
-    def test_billing_brick__field_is_hidden(self):
-        user = self.login_as_root_and_get()
-
-        source, target = self.create_orgas(user=user)
-        PaymentInformation.objects.create(organisation=source, name='RIB source')
-
-        invoice = self.create_invoice(user=user, name='My invoice', source=source, target=target)
-
-        FieldsConfig.objects.create(
-            content_type=Invoice,
-            descriptions=[('payment_info', {FieldsConfig.HIDDEN: True})],
-        )
-
-        response = self.assertGET200(invoice.get_absolute_url())
-        brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            brick=BillingPaymentInformationBrick,
-        )
-        self.assertEqual(
-            _('Payment information'), self.get_brick_title(brick_node),
-        )
 
     @skipIfCustomInvoice
     def test_set_default_in_invoice(self):
@@ -464,19 +328,3 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
     #
     #     # self.assertGET(400, build_url(pi, 'organisation'))
     #     self.assertGET404(build_uri(pi, 'organisation'))
-
-    def test_portable_key(self):
-        user = self.get_root_user()
-
-        organisation = Organisation.objects.create(user=user, name='Nintendo')
-        pi = PaymentInformation.objects.create(organisation=organisation, name='RIB 1')
-
-        with self.assertNoException():
-            key = pi.portable_key()
-        self.assertIsInstance(key, str)
-        self.assertUUIDEqual(pi.uuid, key)
-
-        # ---
-        with self.assertNoException():
-            got_pi = PaymentInformation.objects.get_by_portable_key(key)
-        self.assertEqual(pi, got_pi)

@@ -1,6 +1,8 @@
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
+from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     RelationType,
@@ -15,6 +17,7 @@ from creme.persons.tests.base import skipIfCustomOrganisation
 from .. import bricks, constants, setting_keys
 from ..models import (
     CreditNoteStatus,
+    ExporterConfigItem,
     InvoiceStatus,
     QuoteStatus,
     SalesOrderStatus,
@@ -32,6 +35,7 @@ from .base import (
     ServiceLine,
     TemplateBase,
     _BillingTestCase,
+    skipIfCustomQuote,
 )
 
 
@@ -121,6 +125,34 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(wf_invoice_contact.content_type.model_class(), Invoice)
         self.assertFalse(wf_invoice_contact.is_custom)
 
+    def test_populate__configuration(self):
+        get_ct = ContentType.objects.get_for_model
+        self.get_object_or_fail(
+            ExporterConfigItem,
+            content_type=get_ct(Invoice),
+            # engine_id='',
+        )
+        self.get_object_or_fail(
+            ExporterConfigItem,
+            content_type=get_ct(Quote),
+            # engine_id='',
+        )
+        self.get_object_or_fail(
+            ExporterConfigItem,
+            content_type=get_ct(SalesOrder),
+            # engine_id='',
+        )
+        self.get_object_or_fail(
+            ExporterConfigItem,
+            content_type=get_ct(CreditNote),
+            # engine_id='',
+        )
+        self.get_object_or_fail(
+            ExporterConfigItem,
+            content_type=get_ct(TemplateBase),
+            # engine_id='',
+        )
+
     @skipIfNotInstalled('creme.activities')
     def test_populate__activities(self):
         # Contribution to activities
@@ -191,3 +223,18 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         tree = self.get_html_tree(response.content)
         self.get_brick_node(tree, brick_id)
+
+    @skipIfCustomQuote
+    def test_function_fields(self):
+        user = self.login_as_root_and_get()
+        quote, source, target = self.create_quote_n_orgas(user=user, name='YOLO')
+
+        for model in (Organisation, Contact):
+            for name in (
+                'total_pending_payment',
+                'total_won_quote_this_year',
+                'total_won_quote_last_year',
+            ):
+                funf = function_field_registry.get(model, name)
+                self.assertIsNotNone(funf, f'Function field {model}/{name} is None?!')
+                self.assertEqual('0', funf(target, user).render(ViewTag.HTML_LIST))
